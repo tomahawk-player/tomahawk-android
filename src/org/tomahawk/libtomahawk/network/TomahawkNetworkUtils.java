@@ -15,45 +15,35 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomahawk.tomahawk_android;
+package org.tomahawk.libtomahawk.network;
 
-import org.tomahawk.libtomahawk.account.AccountManager;
+import java.net.InetAddress;
+
+import android.util.Log;
 
 /**
- * This class contains the main application logic for Tomahawk.
+ * Basic networking utilities for Tomahawk API.
  */
-public class TomahawkApp {
+public class TomahawkNetworkUtils {
 
-    private static TomahawkApp instance = null;
+    private static final String TAG = TomahawkNetworkUtils.class.getName();
 
     /**
-     * Returns TomahawkApp instance.
+     * Returns the default Tomahawk networking port.
+     */
+    public static final int getDefaultTwkPort() {
+        return 50210;
+    }
+
+    /**
+     * Determine whether the given ip address is whitelisted.
      * 
-     * @return singleton instance of this class.
+     * @param ip
+     * @return
      */
-    public static TomahawkApp instance() {
-        if (instance == null)
-            instance = new TomahawkApp();
-        return instance;
+    public static final boolean isIPWhitelisted(InetAddress ip) {
+        Log.d(TAG, "Checking IP whitelist status.");
+        return true;
     }
 
-    /**
-     * TomahawkApp constructor.
-     */
-    protected TomahawkApp() {
-    }
-
-    /**
-     * Initialize the Tomahawk app.
-     */
-    public void initialize() {
-        initAccounts();
-    }
-
-    /**
-     * Initialize a new Tomahawk servant.
-     */
-    public void initAccounts() {
-        AccountManager.instance().initAccounts();
-    }
 }

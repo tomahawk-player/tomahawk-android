@@ -28,7 +28,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 
 /**
- * This class represents the main entrypoint for the app.
+ * This class represents the main entry point for the app.
  */
 public class TomahawkMainActivity extends ListActivity {
 
@@ -52,6 +52,7 @@ public class TomahawkMainActivity extends ListActivity {
                 R.array.main_options_list, R.layout.main_list_item));
 
         setupActions();
+        TomahawkApp.instance().initialize();
     }
 
     /*
