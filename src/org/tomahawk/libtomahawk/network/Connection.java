@@ -41,6 +41,9 @@ public abstract class Connection {
     private Socket socket = null;
     private Msg firstMessage = null;
     private Msg msg = null;
+    private InetAddress host = null;
+    private int port = TomahawkNetworkUtils.getDefaultTwkPort();
+
     public static final String PROTOVER = "4";
 
     private boolean pending = true;
@@ -52,16 +55,23 @@ public abstract class Connection {
 
     /**
      * Constructs a new connection with the given details.
-     * 
-     * @throws IOException
      */
-    public Connection(InetAddress peer, int port) throws IOException {
-        this.socket = new Socket(peer, port);
-        this.socket.setSoTimeout(600000);
+    public Connection(InetAddress host, int port) {
+
+        this.host = host;
+        this.port = port;
+
         nodeid = null;
-        setName(peer.getHostName());
+        setName(host.getHostName());
 
         msg = new Msg();
+
+    }
+
+    private void connectSocket() throws IOException {
+        this.socket = new Socket(host, port);
+        this.socket.setSoTimeout(600000);
+
     }
 
     /**
@@ -70,11 +80,24 @@ public abstract class Connection {
      * @param socket
      */
     public void start() {
-        Log.d(TAG, "Reading from Connection: " + getName());
-        if (getName().length() == 0)
-            setName(String.format("peer[%s]", socket.getInetAddress().toString()));
 
-        checkACL();
+        /**
+         * This exception will be thrown whenever our socket fails, which means
+         * we will have to catch it and appropriately re-initiate networking.
+         * This could get tricky on a mobile app so I am going to leave it like
+         * this until there is a proper solution in place.
+         */
+        try {
+            connectSocket();
+            Log.d(TAG, "Reading from Connection: " + getName());
+
+            if (getName().length() == 0)
+                setName(String.format("peer[%s]", socket.getInetAddress().toString()));
+            checkACL();
+
+        } catch (IOException e) {
+            Log.e(TAG, e.toString());
+        }
 
     }
 
@@ -84,8 +107,12 @@ public abstract class Connection {
      * @param msg
      * @throws IOException
      */
-    public void sendMsg(Msg msg) throws IOException {
-        msg.write(socket);
+    protected void sendMsg(Msg msg) {
+        try {
+            msg.write(socket);
+        } catch (IOException e) {
+            Log.e(TAG, e.toString());
+        }
     }
 
     /**
@@ -96,34 +123,11 @@ public abstract class Connection {
      * @throws IOException
      * @throws JSONException
      */
-    public void sendMsg(String msg, byte flags) throws IOException {
+    protected void sendMsg(String msg, byte flags) {
         try {
             sendMsg(new Msg((new JSONObject(msg)).toString(), flags));
         } catch (JSONException e) {
             Log.e(TAG, "Error sending msg: " + msg + " : " + e.toString());
-        }
-    }
-
-    /**
-     * Setup the connection by determining whether inbound or outbound.
-     * 
-     * @throws JSONException
-     */
-    public void doSetup() {
-        try {
-            if (isPending()) {
-                sendMsg(getFirstMsg());
-                setPending(false);
-            } else
-                sendMsg(Connection.PROTOVER, Msg.SETUP);
-
-            while (socket.isConnected()) {
-                readRead();
-
-            }
-
-        } catch (IOException e) {
-            Log.e(TAG, "Error setting up connection: " + e.toString());
         }
     }
 
@@ -144,7 +148,7 @@ public abstract class Connection {
      * 
      * @throws JSONException
      */
-    public void checkACL() {
+    protected void checkACL() throws IOException {
 
         if (nodeid == null) {
             doSetup();
@@ -158,11 +162,28 @@ public abstract class Connection {
     }
 
     /**
+     * Setup the connection by determining whether inbound or outbound.
+     * 
+     * @throws JSONException
+     */
+    public void doSetup() throws IOException {
+        if (isPending()) {
+            sendMsg(getFirstMsg());
+            setPending(false);
+        } else
+            sendMsg(Connection.PROTOVER, Msg.SETUP);
+
+        while (socket.isConnected()) {
+            readRead();
+        }
+    }
+
+    /**
      * Ready read;
      * 
      * @throws IOException
      */
-    private void readRead() throws IOException {
+    protected void readRead() throws IOException {
         InputStream in = socket.getInputStream();
 
         if (msg.isNull()) {
@@ -173,7 +194,6 @@ public abstract class Connection {
             byte[] buffer = new byte[Msg.headerSize()];
             in.read(buffer);
             msg = Msg.begin(buffer);
-            Log.e(TAG, "FLAG?: " + msg.getFlags());
         }
 
         if (in.available() < msg.length())
@@ -182,15 +202,15 @@ public abstract class Connection {
         byte[] buffer = new byte[msg.length()];
         in.read(buffer);
         msg.fill(buffer);
-        Log.d(TAG, "Received MESSAGE: " + new String(buffer));
+        Log.d(TAG, "Received message: " + new String(buffer));
 
         handleReadMsg();
         writePending();
     }
 
     // TODO
-    public void handleReadMsg() throws IOException {
-        Log.d(TAG, "LOGGING FLAGS: " + Msg.SETUP);
+    protected void handleReadMsg() throws IOException {
+        Log.d(TAG, "Logging Flags: " + Msg.SETUP);
 
         if (msg.is(Msg.SETUP) && msg.getPayload().equals(PROTOVER)) {
             sendMsg(new Msg("ok", Msg.SETUP));
@@ -206,9 +226,16 @@ public abstract class Connection {
      * 
      * @throws IOException
      */
-    public void writePending() throws IOException {
+    protected void writePending() throws IOException {
         if (!msg.isNull())
             sendMsg(msg);
+    }
+
+    /**
+     * Returns whether this connection is connected.
+     */
+    public boolean isConnected() {
+        return this.socket != null ? this.socket.isConnected() : false;
     }
 
     /**
@@ -226,7 +253,7 @@ public abstract class Connection {
      * 
      * @param msg
      */
-    private void setFirstMsg(Msg msg) {
+    protected void setFirstMsg(Msg msg) {
         this.firstMessage = msg;
     }
 
