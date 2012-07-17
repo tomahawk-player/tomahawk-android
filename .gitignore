@@ -1,16 +1,29 @@
+
+bin/
+gen/
+.project
+.metadata
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~
+
+.classpath
+.settings/
+.loadpath
+
+# Locally stored "Eclipse launch configurations"
+*.launch
+
 # built application files
 *.apk
 *.ap_
 
-# files for the dex VM
-*.dex
 
 # Java class files
 *.class
 
-# generated files
-bin/
-gen/
-
-# Local configuration file (sdk path, etc)
 local.properties
+project.properties
