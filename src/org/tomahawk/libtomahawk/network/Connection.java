@@ -71,7 +71,6 @@ public abstract class Connection {
     private void connectSocket() throws IOException {
         this.socket = new Socket(host, port);
         this.socket.setSoTimeout(600000);
-
     }
 
     /**

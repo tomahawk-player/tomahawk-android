@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.tomahawk.tomahawk_android.test" android:versionCode="1"
+    android:versionName="1.0">
+    <application>
+       <uses-library android:name="android.test.runner" />
+    </application>
+    <uses-sdk android:minSdkVersion="3" />
+<instrumentation android:name="android.test.InstrumentationTestRunner"
+       android:targetPackage="org.tomahawk.tomahawk_android" android:label="Tests" />
+</manifest>

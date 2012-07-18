@@ -109,7 +109,7 @@ public class TomahawkServerPlugin extends Plugin {
             return;
 
         // Hard coded connection details.
-        InetAddress host = InetAddress.getByName("192.168.1.109");
+        InetAddress host = TomahawkNetworkUtils.getDefaultTwkServerAddress();
         int port = TomahawkNetworkUtils.getDefaultTwkPort();
         String id = new String("aee330b2-de0d-4b0b-af45-2759375357e0");
         String key = new String("whitelist");

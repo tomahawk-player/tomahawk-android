@@ -17,6 +17,7 @@
  */
 package org.tomahawk.libtomahawk.network;
 
+import java.io.IOException;
 import java.net.InetAddress;
 
 import android.util.Log;
@@ -44,6 +45,15 @@ public class TomahawkNetworkUtils {
     public static final boolean isIPWhitelisted(InetAddress ip) {
         Log.d(TAG, "Checking IP whitelist status.");
         return true;
+    }
+
+    public static InetAddress getDefaultTwkServerAddress() {
+        try {
+            return InetAddress.getByName("192.168.1.109");
+        } catch (IOException e) {
+            Log.e(TAG, e.toString());
+        }
+        return null;
     }
 
 }
