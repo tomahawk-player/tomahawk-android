@@ -33,7 +33,7 @@ public abstract class Plugin {
 
     private static final String TAG = Plugin.class.getName();
 
-    private Account account = null;
+    private Account mAccount = null;
 
     /**
      * Constructs a new SipPlugin for the given account.
@@ -41,7 +41,7 @@ public abstract class Plugin {
      * @param account
      */
     public Plugin(Account account) {
-        this.account = account;
+        this.mAccount = account;
     }
 
     /**
@@ -86,7 +86,7 @@ public abstract class Plugin {
      * @return account
      */
     public Account getAccount() {
-        return account;
+        return mAccount;
     }
 
     /**

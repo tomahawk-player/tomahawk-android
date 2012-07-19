@@ -38,20 +38,20 @@ public class Msg {
     public static final byte PING = 32;
     public static final byte SETUP = -128;
 
-    private String payload = null;
-    private byte flags;
+    private String mPayload = null;
+    private byte mFlags;
 
     public Msg() {
-        payload = null;
-        flags = 0;
+        mPayload = null;
+        mFlags = 0;
     }
 
     /**
      * Construct a new Msg from the given payload and flags.
      */
     public Msg(String payload, byte flags) {
-        this.payload = payload;
-        this.flags = flags;
+        this.mPayload = payload;
+        this.mFlags = flags;
     }
 
     /**
@@ -60,8 +60,8 @@ public class Msg {
      * @param payload
      */
     public Msg(String payload) {
-        this.payload = payload;
-        this.flags = 0;
+        this.mPayload = payload;
+        this.mFlags = 0;
     }
 
     /**
@@ -71,8 +71,8 @@ public class Msg {
      * @param flag
      */
     public Msg(int length, byte flags) {
-        payload = new String(new byte[length]);
-        this.flags = flags;
+        mPayload = new String(new byte[length]);
+        this.mFlags = flags;
     }
 
     /**
@@ -84,12 +84,12 @@ public class Msg {
      */
     public void write(OutputStream out) throws IOException {// TODO:
 
-        ByteBuffer buf = ByteBuffer.allocate(Msg.headerSize() + payload.length());
+        ByteBuffer buf = ByteBuffer.allocate(Msg.headerSize() + mPayload.length());
         buf.putInt(length());
-        buf.put(flags);
-        buf.put(payload.getBytes());
+        buf.put(mFlags);
+        buf.put(mPayload.getBytes());
 
-        Log.d(TAG, "Attempting to write payload: " + payload);
+        Log.d(TAG, "Attempting to write payload: " + mPayload);
         out.write(buf.array());
     }
 
@@ -135,8 +135,8 @@ public class Msg {
      * @return
      */
     public int length() {
-        if (payload != null)
-            return payload.length();
+        if (mPayload != null)
+            return mPayload.length();
         return 0;
     }
 
@@ -167,15 +167,15 @@ public class Msg {
      * @return
      */
     public boolean isNull() {
-        return payload == null;
+        return mPayload == null;
     }
 
     /**
      * Clears this Msg's payload and flags.
      */
     public void clear() {
-        payload = null;
-        flags = 0;
+        mPayload = null;
+        mFlags = 0;
     }
 
     /**
@@ -183,7 +183,7 @@ public class Msg {
      */
     @Override
     public String toString() {
-        return "Msg {type/" + flags + "} - " + payload;
+        return "Msg {type/" + mFlags + "} - " + mPayload;
     }
 
     /**
@@ -192,7 +192,7 @@ public class Msg {
      * @return Data this message is carrying.
      */
     public String getPayload() {
-        return payload;
+        return mPayload;
     }
 
     /**
@@ -201,7 +201,7 @@ public class Msg {
      * @param flag
      */
     public void setFlag(int flag) {
-        this.flags |= flag;
+        this.mFlags |= flag;
     }
 
     /**
@@ -210,7 +210,7 @@ public class Msg {
      * @return
      */
     public byte getFlags() {
-        return flags;
+        return mFlags;
     }
 
     /**
@@ -221,7 +221,7 @@ public class Msg {
      * @param flags
      */
     public boolean is(int flags) {
-        return ((this.flags & flags) == flags);
+        return ((this.mFlags & flags) == flags);
     }
 
     /**
@@ -231,6 +231,6 @@ public class Msg {
      *            to fill the payload.
      */
     public void fill(byte[] bytes) {
-        payload = new String(bytes);
+        mPayload = new String(bytes);
     }
 }

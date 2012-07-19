@@ -27,7 +27,7 @@ public class TomahawkServerAccount extends Account {
 
     private static final String TAG = TomahawkServerAccount.class.getName();
 
-    private TomahawkServerPlugin serverPlugin = null;
+    private TomahawkServerPlugin mServerPlugin = null;
 
     /**
      * Constructor.
@@ -40,9 +40,9 @@ public class TomahawkServerAccount extends Account {
      */
     @Override
     public Plugin plugin() {
-        if (serverPlugin == null)
-            serverPlugin = new TomahawkServerPlugin(this);
-        return serverPlugin;
+        if (mServerPlugin == null)
+            mServerPlugin = new TomahawkServerPlugin(this);
+        return mServerPlugin;
     }
 
     /**
@@ -82,8 +82,8 @@ public class TomahawkServerAccount extends Account {
      */
     @Override
     public int connectionState() {
-        if (serverPlugin == null)
+        if (mServerPlugin == null)
             return Account.DISCONNECTED;
-        return serverPlugin.connectionState();
+        return mServerPlugin.connectionState();
     }
 }

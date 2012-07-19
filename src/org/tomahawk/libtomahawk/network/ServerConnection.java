@@ -29,7 +29,7 @@ public class ServerConnection extends Connection {
 
     private final String TAG = ServerConnection.class.getName();
 
-    private String id = null;
+    private String mId = null;
 
     /**
      * Construct a new ServerConnection.
@@ -41,7 +41,7 @@ public class ServerConnection extends Connection {
     public ServerConnection(InetAddress peer, int port, String id) throws IOException {
         super(peer, port);
 
-        this.id = id;
+        this.mId = id;
     }
 
     /**
@@ -55,7 +55,7 @@ public class ServerConnection extends Connection {
     /**
      * Handle an incoming message.
      * 
-     * @param id
+     * @param mId
      */
     public void handleMsg(Msg msg) {
         Log.d(TAG, "Handle msg: " + msg.toString());
@@ -67,7 +67,7 @@ public class ServerConnection extends Connection {
      * @param id
      */
     public void setId(String id) {
-        this.id = id;
+        this.mId = id;
     }
 
     /**
@@ -76,6 +76,6 @@ public class ServerConnection extends Connection {
      * @return
      */
     public String getId() {
-        return id;
+        return mId;
     }
 }

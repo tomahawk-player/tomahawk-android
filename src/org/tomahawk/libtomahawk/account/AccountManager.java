@@ -28,8 +28,8 @@ public class AccountManager {
 
     private static final String TAG = AccountManager.class.getName();
 
-    private static AccountManager instance = null;
-    private ArrayList<Account> accounts = null;
+    private static AccountManager mInstance = null;
+    private ArrayList<Account> mAccounts = null;
 
     /**
      * Returns the AccountManager instance.
@@ -37,16 +37,16 @@ public class AccountManager {
      * @return
      */
     public static AccountManager instance() {
-        if (instance == null)
-            instance = new AccountManager();
-        return instance;
+        if (mInstance == null)
+            mInstance = new AccountManager();
+        return mInstance;
     }
 
     /**
      * Construct a new Account manager.
      */
     protected AccountManager() {
-        accounts = new ArrayList<Account>();
+        mAccounts = new ArrayList<Account>();
     }
 
     /**
@@ -55,9 +55,9 @@ public class AccountManager {
     public void initAccounts() {
         Log.d(TAG, "Initializing accounts.");
 
-        accounts.add(new TomahawkServerAccount());
+        mAccounts.add(new TomahawkServerAccount());
 
-        for (final Account account : accounts) {
+        for (final Account account : mAccounts) {
 
             new Thread(new Runnable() {
 

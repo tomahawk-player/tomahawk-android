@@ -35,18 +35,18 @@ public abstract class Connection {
 
     private static final String TAG = Connection.class.getName();
 
-    private String name = null;
-    private String nodeid = null;
+    private String mName = null;
+    private String mNodeid = null;
 
-    private Socket socket = null;
-    private Msg firstMessage = null;
-    private Msg msg = null;
-    private InetAddress host = null;
-    private int port = TomahawkNetworkUtils.getDefaultTwkPort();
+    private Socket mSocket = null;
+    private Msg mFirstMessage = null;
+    private Msg mMsg = null;
+    private InetAddress mHost = null;
+    private int mPort = TomahawkNetworkUtils.getDefaultTwkPort();
 
     public static final String PROTOVER = "4";
 
-    private boolean pending = true;
+    private boolean mPending = true;
 
     public abstract void setup();
 
@@ -58,25 +58,25 @@ public abstract class Connection {
      */
     public Connection(InetAddress host, int port) {
 
-        this.host = host;
-        this.port = port;
+        this.mHost = host;
+        this.mPort = port;
 
-        nodeid = null;
+        mNodeid = null;
         setName(host.getHostName());
 
-        msg = new Msg();
+        mMsg = new Msg();
 
     }
 
     private void connectSocket() throws IOException {
-        this.socket = new Socket(host, port);
-        this.socket.setSoTimeout(600000);
+        this.mSocket = new Socket(mHost, mPort);
+        this.mSocket.setSoTimeout(600000);
     }
 
     /**
      * Read on this connection.
      * 
-     * @param socket
+     * @param mSocket
      */
     public void start() {
 
@@ -91,7 +91,7 @@ public abstract class Connection {
             Log.d(TAG, "Reading from Connection: " + getName());
 
             if (getName().length() == 0)
-                setName(String.format("peer[%s]", socket.getInetAddress().toString()));
+                setName(String.format("peer[%s]", mSocket.getInetAddress().toString()));
             checkACL();
 
         } catch (IOException e) {
@@ -108,7 +108,7 @@ public abstract class Connection {
      */
     protected void sendMsg(Msg msg) {
         try {
-            msg.write(socket.getOutputStream());
+            msg.write(mSocket.getOutputStream());
         } catch (IOException e) {
             Log.e(TAG, e.toString());
         }
@@ -149,12 +149,12 @@ public abstract class Connection {
      */
     protected void checkACL() throws IOException {
 
-        if (nodeid == null) {
+        if (mNodeid == null) {
             doSetup();
             return;
         }
 
-        if (TomahawkNetworkUtils.isIPWhitelisted(socket.getInetAddress())) {
+        if (TomahawkNetworkUtils.isIPWhitelisted(mSocket.getInetAddress())) {
             doSetup();
             return;
         }
@@ -172,7 +172,7 @@ public abstract class Connection {
         } else
             sendMsg(Connection.PROTOVER, Msg.SETUP);
 
-        while (socket.isConnected()) {
+        while (mSocket.isConnected()) {
             readRead();
         }
     }
@@ -183,24 +183,24 @@ public abstract class Connection {
      * @throws IOException
      */
     protected void readRead() throws IOException {
-        InputStream in = socket.getInputStream();
+        InputStream in = mSocket.getInputStream();
 
-        if (msg.isNull()) {
+        if (mMsg.isNull()) {
 
             if (in.available() < Msg.headerSize())
                 return;
 
             byte[] buffer = new byte[Msg.headerSize()];
             in.read(buffer);
-            msg = Msg.begin(buffer);
+            mMsg = Msg.begin(buffer);
         }
 
-        if (in.available() < msg.length())
+        if (in.available() < mMsg.length())
             return;
 
-        byte[] buffer = new byte[msg.length()];
+        byte[] buffer = new byte[mMsg.length()];
         in.read(buffer);
-        msg.fill(buffer);
+        mMsg.fill(buffer);
         Log.d(TAG, "Received message: " + new String(buffer));
 
         handleReadMsg();
@@ -211,13 +211,13 @@ public abstract class Connection {
     protected void handleReadMsg() throws IOException {
         Log.d(TAG, "Logging Flags: " + Msg.SETUP);
 
-        if (msg.is(Msg.SETUP) && msg.getPayload().equals(PROTOVER)) {
+        if (mMsg.is(Msg.SETUP) && mMsg.getPayload().equals(PROTOVER)) {
             sendMsg(new Msg("ok", Msg.SETUP));
             setup();
         } else {
-            handleMsg(msg);
+            handleMsg(mMsg);
         }
-        msg.clear();
+        mMsg.clear();
     }
 
     /**
@@ -226,15 +226,15 @@ public abstract class Connection {
      * @throws IOException
      */
     protected void writePending() throws IOException {
-        if (!msg.isNull())
-            sendMsg(msg);
+        if (!mMsg.isNull())
+            sendMsg(mMsg);
     }
 
     /**
      * Returns whether this connection is connected.
      */
     public boolean isConnected() {
-        return this.socket != null ? this.socket.isConnected() : false;
+        return this.mSocket != null ? this.mSocket.isConnected() : false;
     }
 
     /**
@@ -253,7 +253,7 @@ public abstract class Connection {
      * @param msg
      */
     protected void setFirstMsg(Msg msg) {
-        this.firstMessage = msg;
+        this.mFirstMessage = msg;
     }
 
     /**
@@ -262,7 +262,7 @@ public abstract class Connection {
      * @return
      */
     public Msg getFirstMsg() {
-        return firstMessage;
+        return mFirstMessage;
     }
 
     /**
@@ -271,7 +271,7 @@ public abstract class Connection {
      * @param name
      */
     public void setName(String name) {
-        this.name = name;
+        this.mName = name;
     }
 
     /**
@@ -280,7 +280,7 @@ public abstract class Connection {
      * @return
      */
     public String getName() {
-        return name;
+        return mName;
     }
 
     /**
@@ -289,14 +289,14 @@ public abstract class Connection {
      * @return
      */
     public InetAddress getPeerInetAddress() {
-        return socket.getInetAddress();
+        return mSocket.getInetAddress();
     }
 
     /**
      * Returns this object Msg.
      */
     public Msg getMsg() {
-        return msg;
+        return mMsg;
     }
 
     /**
@@ -305,7 +305,7 @@ public abstract class Connection {
      * @return
      */
     public Socket getSocket() {
-        return this.socket;
+        return this.mSocket;
     }
 
     /**
@@ -314,7 +314,7 @@ public abstract class Connection {
      * @param socket
      */
     public void setSocket(Socket socket) {
-        this.socket = socket;
+        this.mSocket = socket;
     }
 
     /**
@@ -323,7 +323,7 @@ public abstract class Connection {
      * @return
      */
     public int getRemotePort() {
-        return socket.getPort();
+        return mSocket.getPort();
     }
 
     /**
@@ -334,7 +334,7 @@ public abstract class Connection {
      * @param pending
      */
     public void setPending(boolean pending) {
-        this.pending = pending;
+        this.mPending = pending;
     }
 
     /**
@@ -343,7 +343,7 @@ public abstract class Connection {
      * @return
      */
     public boolean isPending() {
-        return pending;
+        return mPending;
     }
 
     /**
@@ -352,7 +352,7 @@ public abstract class Connection {
      * @return
      */
     public String getNodeId() {
-        return nodeid;
+        return mNodeid;
     }
 
     /**
@@ -361,6 +361,6 @@ public abstract class Connection {
      * @param nodeid
      */
     public void setNodeId(String nodeid) {
-        this.nodeid = nodeid;
+        this.mNodeid = nodeid;
     }
 }
