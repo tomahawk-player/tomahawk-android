@@ -26,6 +26,8 @@ public class TomahawkApp {
 
     private static TomahawkApp instance = null;
 
+    private AccountManager mAccountManager = null;
+
     /**
      * Returns TomahawkApp instance.
      * 
@@ -41,6 +43,7 @@ public class TomahawkApp {
      * TomahawkApp constructor.
      */
     protected TomahawkApp() {
+        mAccountManager = new AccountManager();
     }
 
     /**
@@ -54,6 +57,13 @@ public class TomahawkApp {
      * Initialize a new Tomahawk servant.
      */
     public void initAccounts() {
-        AccountManager.instance().initAccounts();
+        mAccountManager.initAccounts();
+    }
+
+    /**
+     * Returns the Tomahawk AccountManager;
+     */
+    public AccountManager getAccountManager() {
+        return mAccountManager;
     }
 }

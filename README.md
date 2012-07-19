@@ -17,3 +17,9 @@ setup
           ends up being "org.tomahawk.tomahawk_android.TomahawkMainActivity".
           Right click on the project and go to "Refactor"->"Rename". Rename
           the project to "tomahawk-android" and this should fix any errors.
+
+required reading
+================
+ - http://developer.android.com/reference/android/os/Handler.html
+ - http://developer.android.com/guide/practices/screens_support.html
+

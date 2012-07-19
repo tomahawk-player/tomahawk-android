@@ -24,13 +24,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 
 /**
  * This class represents the main entry point for the app.
  */
-public class TomahawkMainActivity extends ListActivity {
+public class TomahawkMainActivity extends ListActivity implements AdapterView.OnItemClickListener {
 
     private static final String TAG = TomahawkMainActivity.class.getName();
 
@@ -51,7 +50,8 @@ public class TomahawkMainActivity extends ListActivity {
         setListAdapter(ArrayAdapter.createFromResource(getApplicationContext(),
                 R.array.main_options_list, R.layout.main_list_item));
 
-        setupActions();
+        getListView().setOnItemClickListener(this);
+
         TomahawkApp.instance().initialize();
     }
 
@@ -67,36 +67,35 @@ public class TomahawkMainActivity extends ListActivity {
     }
 
     /**
-     * Setup actions that can be taken from this activity.
+     * React to clicks on the ListView.
+     * 
+     * @param parent
+     * @param view
+     * @param position
+     * @param id
      */
-    private void setupActions() {
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-        getListView().setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        switch (position) {
 
-                switch (position) {
+        case BROWSE_ACTION:
+            Log.d(TAG, "Browse activity requested.");
+            Intent browse = new Intent(getApplicationContext(), BrowseActivity.class);
+            startActivity(browse);
+            break;
 
-                case BROWSE_ACTION:
-                    Log.d(TAG, "Browse activity requested.");
-                    Intent browse = new Intent(getApplicationContext(), BrowseActivity.class);
-                    startActivity(browse);
-                    break;
+        case MY_MUSIC_ACTION:
+            Log.d(TAG, "My Music activity request.");
+            Intent mymusic = new Intent(getApplicationContext(), MyMusicActivity.class);
+            startActivity(mymusic);
+            break;
 
-                case MY_MUSIC_ACTION:
-                    Log.d(TAG, "My Music activity request.");
-                    Intent mymusic = new Intent(getApplicationContext(), MyMusicActivity.class);
-                    startActivity(mymusic);
-                    break;
-
-                case FRIENDS_ACTION:
-                    Log.d(TAG, "Friends activity requested.");
-                    Intent friends = new Intent(getApplicationContext(), FriendsActivity.class);
-                    startActivity(friends);
-                    break;
-                }
-            }
-        });
-
+        case FRIENDS_ACTION:
+            Log.d(TAG, "Friends activity requested.");
+            Intent friends = new Intent(getApplicationContext(), FriendsActivity.class);
+            startActivity(friends);
+            break;
+        }
     }
 }

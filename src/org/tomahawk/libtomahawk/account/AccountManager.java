@@ -19,34 +19,39 @@ package org.tomahawk.libtomahawk.account;
 
 import java.util.ArrayList;
 
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
+import android.os.Process;
 import android.util.Log;
 
 /**
  * Manages Tomahawk's account's
  */
-public class AccountManager {
+public class AccountManager implements Handler.Callback {
 
     private static final String TAG = AccountManager.class.getName();
 
-    private static AccountManager mInstance = null;
-    private ArrayList<Account> mAccounts = null;
+    private static final int AUTHENTICATE_ACCOUNT_MSG = 0;
 
-    /**
-     * Returns the AccountManager instance.
-     * 
-     * @return
-     */
-    public static AccountManager instance() {
-        if (mInstance == null)
-            mInstance = new AccountManager();
-        return mInstance;
-    }
+    private Looper mLooper;
+    private Handler mHandler;
+
+    private ArrayList<Account> mAccounts = null;
 
     /**
      * Construct a new Account manager.
      */
-    protected AccountManager() {
+    public AccountManager() {
         mAccounts = new ArrayList<Account>();
+
+        HandlerThread thread = new HandlerThread("PlaybackService",
+                Process.THREAD_PRIORITY_BACKGROUND);
+        thread.start();
+
+        mLooper = thread.getLooper();
+        mHandler = new Handler(mLooper, this);
     }
 
     /**
@@ -58,14 +63,25 @@ public class AccountManager {
         mAccounts.add(new TomahawkServerAccount());
 
         for (final Account account : mAccounts) {
-
-            new Thread(new Runnable() {
-
-                @Override
-                public void run() {
-                    account.authenticate();
-                }
-            }).start();
+            mHandler.sendMessageDelayed(
+                    mHandler.obtainMessage(AUTHENTICATE_ACCOUNT_MSG, 0, 0, account), 400);
         }
+    }
+
+    @Override
+    public boolean handleMessage(Message msg) {
+
+        switch (msg.what) {
+
+        case AUTHENTICATE_ACCOUNT_MSG:
+            ((Account) msg.obj).authenticate();
+            return true;
+
+        default:
+            Log.e(TAG, "Cannot handle Message: " + msg.toString());
+
+        }
+
+        return false;
     }
 }
