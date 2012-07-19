@@ -108,7 +108,7 @@ public abstract class Connection {
      */
     protected void sendMsg(Msg msg) {
         try {
-            msg.write(socket);
+            msg.write(socket.getOutputStream());
         } catch (IOException e) {
             Log.e(TAG, e.toString());
         }

@@ -19,7 +19,6 @@ package org.tomahawk.libtomahawk.network;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.Socket;
 import java.nio.ByteBuffer;
 
 import android.util.Log;
@@ -83,9 +82,7 @@ public class Msg {
      * @return
      * @throws IOException
      */
-    public void write(Socket socket) throws IOException {// TODO:
-
-        OutputStream out = socket.getOutputStream();
+    public void write(OutputStream out) throws IOException {// TODO:
 
         ByteBuffer buf = ByteBuffer.allocate(Msg.headerSize() + payload.length());
         buf.putInt(length());
@@ -138,7 +135,9 @@ public class Msg {
      * @return
      */
     public int length() {
-        return payload.length();
+        if (payload != null)
+            return payload.length();
+        return 0;
     }
 
     /**

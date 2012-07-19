@@ -1,0 +1,37 @@
+package org.tomahawk.tomahawk_android.test;
+
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.json.JSONObject;
+import org.tomahawk.libtomahawk.network.Msg;
+import org.tomahawk.libtomahawk.network.TomahawkNetworkUtils;
+
+public class TomahawkTestData {
+
+    public static String tstFirstMsg() {
+
+        Map<String, String> m = new HashMap<String, String>();
+        m.put("conntype", "accept-offer");
+        m.put("key", "whitelist");
+        m.put("port", Integer.toString(TomahawkNetworkUtils.getDefaultTwkPort()));
+        m.put("nodeid", tstNodeId());
+
+        return new JSONObject(m).toString();
+    }
+
+    public static String tstNodeId() {
+        return "9f99f0e3-2c97-499e-8d1d-d806213656b3";
+    }
+
+    public static byte[] getTstTwkPacket(String msg) {
+
+        ByteBuffer buf = ByteBuffer.allocate(Msg.headerSize() + msg.length());
+        buf.putInt(msg.length());
+        buf.put(Msg.JSON);
+        buf.put(msg.getBytes());
+
+        return buf.array();
+    }
+}
