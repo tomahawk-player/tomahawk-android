@@ -20,5 +20,7 @@
     </string-array>
     <string name="title_friends_activity">Friends</string>
     <string name="use_internet_permission">Internet Permission</string>
+    <string name="title_playback_activity">Playback</string>
+    <string name="playback_service_label">PlaybackService</string>
 
 </resources>

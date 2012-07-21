@@ -13,7 +13,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".TomahawkMainActivity"
+            android:name="org.tomahawk.tomahawk_android.TomahawkMainActivity"
             android:label="@string/title_activity_tomahawk_main" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -21,9 +21,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:label="tomahawk_browse_activity" android:name=".BrowseActivity"></activity>
-        <activity android:label="tomahawk_friends_activity" android:name=".FriendsActivity"></activity>
-        <activity android:label="tomahawk_mymusic_activity" android:name=".MyMusicActivity"></activity>
+        <activity android:label="tomahawk_browse_activity" android:name="org.tomahawk.tomahawk_android.BrowseActivity"></activity>
+        <activity android:label="tomahawk_friends_activity" android:name="org.tomahawk.tomahawk_android.FriendsActivity"></activity>
+        <activity android:label="tomahawk_mymusic_activity" android:name="org.tomahawk.tomahawk_android.MyMusicActivity"></activity>
+        <activity android:name="org.tomahawk.libtomahawk.audio.PlaybackActivity" android:label="@string/title_playback_activity"></activity>
+        <service android:label="@string/playback_service_label" android:name="org.tomahawk.libtomahawk.audio.PlaybackService"></service>
     </application>
 
 </manifest>
