@@ -17,16 +17,25 @@
  */
 package org.tomahawk.tomahawk_android;
 
+import org.tomahawk.libtomahawk.LocalCollection;
+import org.tomahawk.libtomahawk.Source;
+import org.tomahawk.libtomahawk.SourceList;
 import org.tomahawk.libtomahawk.account.AccountManager;
+
+import android.content.Context;
+import android.util.Log;
 
 /**
  * This class contains the main application logic for Tomahawk.
  */
 public class TomahawkApp {
 
+    private static final String TAG = TomahawkApp.class.getName();
+
     private static TomahawkApp instance = null;
 
     private AccountManager mAccountManager = null;
+    private Context mContext;
 
     /**
      * Returns TomahawkApp instance.
@@ -51,6 +60,7 @@ public class TomahawkApp {
      */
     public void initialize() {
         initAccounts();
+        initLocalCollection();
     }
 
     /**
@@ -61,9 +71,27 @@ public class TomahawkApp {
     }
 
     /**
+     * Initializes a new Collection of all local tracks.
+     */
+    public void initLocalCollection() {
+        assert (mContext != null);
+        Log.d(TAG, "Initializing Local Collection.");
+        Source src = new Source(new LocalCollection(mContext.getContentResolver()), 0,
+                "My Collection");
+        SourceList.instance().setLocalSource(src);
+    }
+
+    /**
      * Returns the Tomahawk AccountManager;
      */
     public AccountManager getAccountManager() {
         return mAccountManager;
+    }
+
+    /**
+     * Sets the Context for this TomahawkApp.
+     */
+    public void setContext(Context context) {
+        mContext = context;
     }
 }

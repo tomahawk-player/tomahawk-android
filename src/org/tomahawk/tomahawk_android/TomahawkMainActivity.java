@@ -52,7 +52,9 @@ public class TomahawkMainActivity extends ListActivity implements AdapterView.On
 
         getListView().setOnItemClickListener(this);
 
-        TomahawkApp.instance().initialize();
+        TomahawkApp app = TomahawkApp.instance();
+        app.setContext(getApplicationContext());
+        app.initialize();
     }
 
     /*
