@@ -42,6 +42,8 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
 
     private static String TAG = PlaybackService.class.getName();
 
+    private static final int BROADCAST_NEWTRACK = 0;
+
     private static PlaybackService mInstance;
     private static final Object[] mWait = new Object[0];
 
@@ -73,6 +75,20 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         synchronized (mWait) {
             mWait.notifyAll();
         }
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        Track track = (Track) intent.getSerializableExtra("track");
+
+        try {
+            setCurrentTrack(track);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return startId;
     }
 
     /**
@@ -142,6 +158,13 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
 
     @Override
     public boolean handleMessage(Message msg) {
+
+        switch (msg.what) {
+
+        case BROADCAST_NEWTRACK:
+            stockMusicBroadcast();
+
+        }
         return false;
     }
 
@@ -179,5 +202,29 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         mMediaPlayer.reset();
         mMediaPlayer.setDataSource(mCurrentTrack.getPath());
         mMediaPlayer.prepareAsync();
+
+        mHandler.sendMessage(mHandler.obtainMessage(BROADCAST_NEWTRACK, -1, 0, null));
     }
+
+    /**
+     * Send a broadcast emulating that of the stock music player.
+     * 
+     * Borrow from Vanilla Music Player. Thanks!
+     */
+    private void stockMusicBroadcast() {
+
+        Track track = mCurrentTrack;
+
+        Intent intent = new Intent("com.android.music.playstatechanged");
+        intent.putExtra("playing", 1);
+        if (track != null) {
+            intent.putExtra("track", track.getTitle());
+            intent.putExtra("album", track.getAlbum());
+            intent.putExtra("artist", track.getArtist());
+            intent.putExtra("songid", track.getId());
+            intent.putExtra("albumid", track.getAlbumId());
+        }
+        sendBroadcast(intent);
+    }
+
 }

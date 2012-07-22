@@ -17,14 +17,23 @@
  */
 package org.tomahawk.tomahawk_android;
 
+import org.tomahawk.libtomahawk.Collection;
+import org.tomahawk.libtomahawk.SourceList;
+import org.tomahawk.libtomahawk.Track;
+import org.tomahawk.libtomahawk.audio.PlaybackActivity;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 
 /**
  * Fragment which represents the "MyMusic" tabview.
  */
-public class MyMusicFragment extends ListFragment {
+public class MyMusicFragment extends ListFragment implements OnItemClickListener {
 
     /*
      * (non-Javadoc)
@@ -42,9 +51,20 @@ public class MyMusicFragment extends ListFragment {
     @Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-				R.layout.mymusic_list_item, R.id.mymusic_list_textview,
-				getResources().getStringArray(R.array.mymusic_track_list));
+		Collection mycoll = SourceList.instance().getLocalSource().getCollection();
+		ArrayAdapter<Track> adapter = new ArrayAdapter<Track>(getActivity(),
+                R.layout.mymusic_list_item, R.id.mymusic_list_textview, mycoll.getTracks());
 		setListAdapter(adapter);
+
+        getListView().setOnItemClickListener(this);
 	}
+
+    @Override
+    public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
+        Collection mycoll = SourceList.instance().getLocalSource().getCollection();
+
+        Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
+        playbackIntent.putExtra("track", mycoll.getTracks().get(idx));
+        startActivity(playbackIntent);
+    }
 }

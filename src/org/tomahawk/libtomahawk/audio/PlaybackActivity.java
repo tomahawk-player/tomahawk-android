@@ -2,8 +2,6 @@ package org.tomahawk.libtomahawk.audio;
 
 import java.io.IOException;
 
-import org.tomahawk.libtomahawk.Collection;
-import org.tomahawk.libtomahawk.SourceList;
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.tomahawk_android.R;
 
@@ -49,6 +47,29 @@ public class PlaybackActivity extends Activity implements Handler.Callback, OnTo
         mHandler = new Handler(mLooper, this);
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if (PlaybackService.hasInstance()) {
+            mPlaybackService = PlaybackService.get(this);
+
+
+            Track track = (Track) getIntent().getSerializableExtra("track");
+
+            try {
+                mPlaybackService.setCurrentTrack(track);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        } else {
+            Intent playbackIntent = new Intent(PlaybackActivity.this, PlaybackService.class);
+            playbackIntent.putExtra("track", getIntent().getSerializableExtra("track"));
+            startService(playbackIntent);
+        }
+    }
+
     /**
      * Handle Handler messages.
      */
@@ -63,25 +84,8 @@ public class PlaybackActivity extends Activity implements Handler.Callback, OnTo
     @Override
     public boolean onTouch(View v, MotionEvent event) {
 
-        if (PlaybackService.hasInstance()) {
-
-            if (mPlaybackService == null) {
-                mPlaybackService = PlaybackService.get(this);
-
-                Collection coll = SourceList.instance().getLocalSource().getCollection();
-                Track track = coll.getTracks().get(0);
-
-                try {
-                    mPlaybackService.setCurrentTrack(track);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
+        if (mPlaybackService != null)
             mPlaybackService.playPause();
-        }
-        else
-            startService(new Intent(this, PlaybackService.class));
 
         return false;
     }

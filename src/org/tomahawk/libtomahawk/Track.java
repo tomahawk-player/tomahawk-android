@@ -17,9 +17,13 @@
  */
 package org.tomahawk.libtomahawk;
 
+import java.io.Serializable;
+
 import android.database.Cursor;
 
-public class Track {
+public class Track implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private long mId;
 
@@ -49,6 +53,11 @@ public class Track {
         setArtistId(cursor.getLong(6));
         setDuration(cursor.getLong(7));
         setTrackNumber(cursor.getInt(8));
+    }
+
+    @Override
+    public String toString() {
+        return getTitle();
     }
 
     public long getId() {
