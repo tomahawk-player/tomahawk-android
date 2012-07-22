@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2012, Christopher Reichert <creichert07@gmail.com>
+ *   Copyright 2012, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,14 +17,14 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import android.app.Activity;
 import android.os.Bundle;
-import android.view.Menu;
+import android.support.v4.app.ListFragment;
+import android.widget.ArrayAdapter;
 
 /**
- * Activity which represents the "Friends" view.
+ * Fragment which represents the "MyMusic" tabview.
  */
-public class FriendsActivity extends Activity {
+public class MyMusicFragment extends ListFragment {
 
     /*
      * (non-Javadoc)
@@ -34,17 +34,17 @@ public class FriendsActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+    /* (non-Javadoc)
+     * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
      */
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.tomahawk_main_activity, menu);
-        return true;
-    }
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
+				R.layout.mymusic_list_item, R.id.mymusic_list_textview,
+				getResources().getStringArray(R.array.mymusic_track_list));
+		setListAdapter(adapter);
+	}
 }

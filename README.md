@@ -9,8 +9,24 @@ setup
     - Open Eclipse and go to "File"->"Import"
     - Under Android/ select "Existing Android Code into Workspace."
     - Browse to your tomahawk-android checkout.
-    - Two project will appear in the import dialog. Import them both.
+    - Two projects will appear in the import dialog. Import them both.
       One is the app and one is the unit tests.
+    - Right click on "tomahawk-android-test" and select "Properties". Now 
+      select "Java Build Path" and the tab "Projects". Click on "Add" and
+      choose "tomahawk-android". Finish by clicking "OK".
+    - tomahawk-android requires the third-party support library
+      "ActionBarSherlock". Download and extract the library:
+        - https://github.com/JakeWharton/ActionBarSherlock/zipball/4.1.0
+    - Now add it as an "Android Project" to your workspace: 
+      "File"-> "Import" -> "Android" -> "Existing Android Code into Workspace"
+    - Go into the folder you've extracted your downloaded zip-file to and
+      choose the "library" folder as your "Root Directory".
+    - Check "copy projects into workspace" and click "Finish".
+    - Now add the just created library project to tomahawk-android by
+      rightclicking your "tomahawk-android" project and selecting "Properties"
+    - Select "Android" and add the library by clicking "Add...".
+    - To finish the process, choose your ActionBarSherlock library project and
+      click "OK".
 
     Notes:
         - There is a known issue when importing. The primary app name

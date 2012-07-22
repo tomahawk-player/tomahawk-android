@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2012, Christopher Reichert <creichert07@gmail.com>
+ *   Copyright 2012, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,87 +17,80 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import android.app.ListActivity;
-import android.content.Intent;
+import org.tomahawk.tomahawk_android.TomahawkApp;
+
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.support.v4.view.ViewPager;
+
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+
 
 /**
- * This class represents the main entry point for the app.
+ * This class represents the main entrypoint for the app.
  */
-public class TomahawkMainActivity extends ListActivity implements AdapterView.OnItemClickListener {
+public class TomahawkMainActivity extends SherlockFragmentActivity {
 
-    private static final String TAG = TomahawkMainActivity.class.getName();
+	private static final String TAG = TomahawkMainActivity.class.getName();	
 
-    // Retrieve their order from values/strings.xml
-    private static final int BROWSE_ACTION = 0;
-    private static final int MY_MUSIC_ACTION = 1;
-    private static final int FRIENDS_ACTION = 2;
+	private ViewPager mViewPager;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onCreate(android.os.Bundle)
-     */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+	private TabsAdapter mTabsAdapter;
 
-        setListAdapter(ArrayAdapter.createFromResource(getApplicationContext(),
-                R.array.main_options_list, R.layout.main_list_item));
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onCreate(android.os.Bundle)
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 
-        getListView().setOnItemClickListener(this);
-
-        TomahawkApp app = TomahawkApp.instance();
+		TomahawkApp app = TomahawkApp.instance();
         app.setContext(getApplicationContext());
         app.initialize();
-    }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.tomahawk_main_activity, menu);
-        return true;
-    }
+		mViewPager = new ViewPager(this);
+		mViewPager.setId(R.id.view_pager);
+		setContentView(mViewPager);
 
-    /**
-     * React to clicks on the ListView.
-     * 
-     * @param parent
-     * @param view
-     * @param position
-     * @param id
-     */
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		final ActionBar bar = getSupportActionBar();
+		bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+		bar.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
 
-        switch (position) {
+		mTabsAdapter = new TabsAdapter(this, mViewPager);
+		mTabsAdapter.addTab(bar.newTab().setText(R.string.title_browse_fragment), BrowseFragment.class,
+				null);
+		mTabsAdapter.addTab(bar.newTab().setText(R.string.title_mymusic_fragment),
+				MyMusicFragment.class, null);
+		mTabsAdapter.addTab(bar.newTab().setText(R.string.title_friends_fragment),
+				FriendsFragment.class, null);
+		mTabsAdapter.addTab(bar.newTab().setText(R.string.title_player_fragment),
+				PlayerFragment.class, null);
+	}
 
-        case BROWSE_ACTION:
-            Log.d(TAG, "Browse activity requested.");
-            Intent browse = new Intent(getApplicationContext(), BrowseActivity.class);
-            startActivity(browse);
-            break;
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+	 */
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getSupportMenuInflater().inflate(R.menu.tomahawk_main_activity, menu);
+		menu.add("Search")
+				.setIcon(R.drawable.ic_action_search)
+				.setActionView(R.layout.collapsible_edittext)
+				.setShowAsAction(
+						MenuItem.SHOW_AS_ACTION_ALWAYS
+								| MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 
-        case MY_MUSIC_ACTION:
-            Log.d(TAG, "My Music activity request.");
-            Intent mymusic = new Intent(getApplicationContext(), MyMusicActivity.class);
-            startActivity(mymusic);
-            break;
-
-        case FRIENDS_ACTION:
-            Log.d(TAG, "Friends activity requested.");
-            Intent friends = new Intent(getApplicationContext(), FriendsActivity.class);
-            startActivity(friends);
-            break;
-        }
-    }
+		menu.add("Refresh")
+				.setIcon(R.drawable.ic_action_refresh)
+				.setShowAsAction(
+						MenuItem.SHOW_AS_ACTION_IF_ROOM
+								| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+		return true;
+	}
 }
