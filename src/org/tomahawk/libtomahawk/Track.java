@@ -22,6 +22,10 @@ import android.database.Cursor;
 public class Track {
 
     private long mId;
+
+    /**
+     * Path of file or URL.
+     */
     private String mPath;
     private String mTitle;
     private String mAlbum;

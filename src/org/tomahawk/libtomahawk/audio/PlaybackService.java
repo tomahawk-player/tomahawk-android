@@ -19,6 +19,8 @@ package org.tomahawk.libtomahawk.audio;
 
 import java.io.IOException;
 
+import org.tomahawk.libtomahawk.Track;
+
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -43,6 +45,7 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     private static PlaybackService mInstance;
     private static final Object[] mWait = new Object[0];
 
+    private Track mCurrentTrack;
     private MediaPlayer mMediaPlayer;
     private Looper mLooper;
     private Handler mHandler;
@@ -73,20 +76,17 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     }
 
     /**
-     * Start playback.
-     * 
-     * @return
-     * @throws IOException
-     * @throws IllegalStateException
-     * @throws SecurityException
-     * @throws IllegalArgumentException
+     * Start or pause playback.
      */
-    public void start() throws IllegalArgumentException, SecurityException, IllegalStateException,
-            IOException {
-        Log.d(TAG, "Starting playback.");
-        mMediaPlayer.reset();
-        mMediaPlayer.setDataSource("/sdcard/Music/test.mp3");
-        mMediaPlayer.prepareAsync();
+    public void playPause() {
+        if (isPlaying())
+            pause();
+        else
+            start();
+    }
+
+    public void start() {
+        mMediaPlayer.start();
     }
 
     /**
@@ -97,8 +97,15 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     }
 
     /**
-     * Get the PlaybackService for the given Context.
-     */
+	 * Pause playback.
+	 */
+	public void pause() {
+		mMediaPlayer.pause();
+	}
+
+	/**
+	 * Get the PlaybackService for the given Context.
+	 */
     public static PlaybackService get(Context context) {
         if (mInstance == null) {
             context.startService(new Intent(context, PlaybackService.class));
@@ -145,7 +152,8 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-        mp.start();
+		Log.d(TAG, "Starting playback.");
+        playPause();
     }
 
     /**
@@ -153,5 +161,23 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
      */
     public boolean isPlaying() {
         return mMediaPlayer.isPlaying();
+    }
+
+    public Track getCurrentTrack() {
+        return mCurrentTrack;
+    }
+
+    /**
+     * This method sets the current back and prepares it for playback.
+     * 
+     * @param mCurrentTrack
+     * @throws IOException
+     */
+    public void setCurrentTrack(Track track) throws IOException {
+        mCurrentTrack = track;
+
+        mMediaPlayer.reset();
+        mMediaPlayer.setDataSource(mCurrentTrack.getPath());
+        mMediaPlayer.prepareAsync();
     }
 }
