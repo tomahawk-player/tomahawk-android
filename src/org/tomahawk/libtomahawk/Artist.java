@@ -18,25 +18,52 @@
 package org.tomahawk.libtomahawk;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
-/**
- * This class represents a Collection of media.
- */
-public abstract class Collection {
+import android.database.Cursor;
 
-    public abstract ArrayList<Artist> getArtists();
+public class Artist {
 
-    public abstract ArrayList<Album> getAlbums();
+    private long mId;
+    private String mName;
+    private HashMap<Long, Album> mAlbums;
 
-    public abstract ArrayList<Track> getTracks();
-
-    /**
-     * Default constructor.
-     */
-    public Collection() {
+    public Artist(long id) {
+        mId = id;
+        mAlbums = new HashMap<Long, Album>();
     }
 
-    public boolean isLocal() {
-        return false;
+    public void populate(Cursor cursor) {
+        setId(cursor.getLong(0));
+        setName(cursor.getString(1));
+    }
+
+    @Override
+    public String toString() {
+        return mName;
+    }
+
+    public void addAlbum(Album album) {
+        mAlbums.put(album.getId(), album);
+    }
+
+    public ArrayList<Album> getAlbums() {
+        return new ArrayList<Album>(mAlbums.values());
+    }
+
+    public void setName(String name) {
+        mName = name;
+    }
+
+    public String getName() {
+        return mName;
+    }
+
+    public void setId(long id) {
+        mId = id;
+    }
+
+    public long getId() {
+        return mId;
     }
 }

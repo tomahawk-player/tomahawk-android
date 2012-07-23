@@ -54,7 +54,6 @@ public class PlaybackActivity extends Activity implements Handler.Callback, OnTo
         if (PlaybackService.hasInstance()) {
             mPlaybackService = PlaybackService.get(this);
 
-
             Track track = (Track) getIntent().getSerializableExtra("track");
 
             try {

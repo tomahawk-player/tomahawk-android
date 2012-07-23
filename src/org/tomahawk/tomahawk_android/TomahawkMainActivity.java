@@ -1,5 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
+ *   Copyright 2012, Christopher Reichert <creichert07@gmail.com>
  *   Copyright 2012, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
@@ -16,8 +17,6 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.tomahawk.tomahawk_android;
-
-import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;

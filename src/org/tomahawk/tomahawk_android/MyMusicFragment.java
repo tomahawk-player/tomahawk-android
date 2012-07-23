@@ -52,7 +52,7 @@ public class MyMusicFragment extends ListFragment implements OnItemClickListener
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		Collection mycoll = SourceList.instance().getLocalSource().getCollection();
-		ArrayAdapter<Track> adapter = new ArrayAdapter<Track>(getActivity(),
+        ArrayAdapter<Track> adapter = new ArrayAdapter<Track>(getActivity(),
                 R.layout.mymusic_list_item, R.id.mymusic_list_textview, mycoll.getTracks());
 		setListAdapter(adapter);
 
@@ -61,8 +61,8 @@ public class MyMusicFragment extends ListFragment implements OnItemClickListener
 
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        Collection mycoll = SourceList.instance().getLocalSource().getCollection();
 
+        Collection mycoll = SourceList.instance().getLocalSource().getCollection();
         Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
         playbackIntent.putExtra("track", mycoll.getTracks().get(idx));
         startActivity(playbackIntent);

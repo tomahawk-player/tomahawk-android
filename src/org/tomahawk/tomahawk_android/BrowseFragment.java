@@ -17,6 +17,10 @@
  */
 package org.tomahawk.tomahawk_android;
 
+import org.tomahawk.libtomahawk.Artist;
+import org.tomahawk.libtomahawk.Collection;
+import org.tomahawk.libtomahawk.SourceList;
+
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.widget.ArrayAdapter;
@@ -42,9 +46,9 @@ public class BrowseFragment extends ListFragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-				R.layout.home_list_item, R.id.home_list_textview,
-				getResources().getStringArray(R.array.home_options_list));
-		setListAdapter(adapter);
+        Collection mycoll = SourceList.instance().getLocalSource().getCollection();
+        ArrayAdapter<Artist> adapter = new ArrayAdapter<Artist>(getActivity(),
+                R.layout.mymusic_list_item, R.id.mymusic_list_textview, mycoll.getArtists());
+        setListAdapter(adapter);
 	}
 }

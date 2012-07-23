@@ -18,6 +18,7 @@
 package org.tomahawk.libtomahawk;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
@@ -30,7 +31,8 @@ public class LocalCollection extends Collection {
     private static final String TAG = LocalCollection.class.getName();
 
     private ContentResolver mResolver;
-    private ArrayList<Track> mTracks;
+
+    private HashMap<Long, Artist> mArtists;
 
     /**
      * Construct a new LocalCollection and initialize.
@@ -38,27 +40,46 @@ public class LocalCollection extends Collection {
      * @param resolver
      */
     public LocalCollection(ContentResolver resolver) {
-        super();
         mResolver = resolver;
-        mTracks = new ArrayList<Track>();
+        mArtists = new HashMap<Long, Artist>();
 
         initializeCollection();
     }
 
     /**
-     * Add newTracks to the list of all tracks.
+     * Get all Artist's associated with this Collection.
      */
     @Override
-    public void addTracks(ArrayList<Track> newTracks) {
-        mTracks.addAll(newTracks);
+    public ArrayList<Artist> getArtists() {
+        return new ArrayList<Artist>(mArtists.values());
     }
 
     /**
-     * Return a list of all Tracks.
+     * Get all Album's from this Collection.
+     */
+    @Override
+    public ArrayList<Album> getAlbums() {
+        ArrayList<Album> albums = new ArrayList<Album>();
+        for (Artist artist : mArtists.values()) {
+
+            albums.addAll(artist.getAlbums());
+        }
+        return albums;
+    }
+
+    /**
+     * Return a list of all Tracks from the album.
      */
     @Override
     public ArrayList<Track> getTracks() {
-        return mTracks;
+        ArrayList<Track> tracks = new ArrayList<Track>();
+        for (Artist artist : mArtists.values()) {
+
+            for (Album album : artist.getAlbums()) {
+                tracks.addAll(album.getTracks());
+            }
+        }
+        return tracks;
     }
 
     /**
@@ -73,8 +94,62 @@ public class LocalCollection extends Collection {
      * Initialize the LocalCollection of all music files on the device.
      */
     private void initializeCollection() {
+        initializeArtists();
+    }
 
-        String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
+    /**
+     * Initialize Artists on device.
+     */
+    private void initializeArtists() {
+
+        Uri uri = MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI;
+
+        String[] proj = { MediaStore.Audio.Artists._ID, MediaStore.Audio.Artists.ARTIST };
+
+        Cursor cursor = mResolver.query(uri, proj, null, null, null);
+
+        while (cursor != null && cursor.moveToNext()) {
+            Log.d(TAG, "New Artist : " + cursor.getString(1));
+            Artist artist = new Artist(cursor.getLong(0));
+            artist.populate(cursor);
+
+            mArtists.put(cursor.getLong(0), artist);
+            initializeAlbums(artist);
+        }
+    }
+
+    /**
+     * Initialize Albums from Artist.
+     * 
+     * @param artist
+     */
+    private void initializeAlbums(Artist artist) {
+        Uri uri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI;
+        String selection = MediaStore.Audio.Media.ARTIST_ID + " == "
+                + Long.toString(artist.getId());
+        String[] proj = { MediaStore.Audio.Albums._ID, MediaStore.Audio.Albums.ALBUM,
+                MediaStore.Audio.Albums.ALBUM_ART, MediaStore.Audio.Albums.FIRST_YEAR,
+                MediaStore.Audio.Albums.LAST_YEAR, MediaStore.Audio.Media.ARTIST_ID };
+
+        Cursor cursor = mResolver.query(uri, proj, selection, null, null);
+
+        while (cursor != null && cursor.moveToNext()) {
+            Log.d(TAG, "New Album : " + cursor.getString(1));
+            Album album = new Album(cursor.getLong(0));
+            album.populate(cursor);
+
+            mArtists.get(cursor.getLong(5)).addAlbum(album);
+            initializeTracks(album);
+        }
+    }
+
+    /**
+     * Initialize Tracks from Album.
+     * 
+     * @param album
+     */
+    private void initializeTracks(Album album) {
+        String selection = MediaStore.Audio.Media.ALBUM_ID + " == " + Long.toString(album.getId());
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String[] projection = { MediaStore.Audio.Media._ID,
                          MediaStore.Audio.Media.DATA,
@@ -93,8 +168,7 @@ public class LocalCollection extends Collection {
             Track track = new Track(cursor.getLong(0));
             track.populate(cursor);
 
-            mTracks.add(track);
+            album.addTrack(track);
         }
     }
-
 }
