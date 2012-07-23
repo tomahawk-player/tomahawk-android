@@ -32,8 +32,6 @@ import com.actionbarsherlock.view.MenuItem;
  */
 public class TomahawkMainActivity extends SherlockFragmentActivity {
 
-	private static final String TAG = TomahawkMainActivity.class.getName();	
-
 	private ViewPager mViewPager;
 
 	private TabsAdapter mTabsAdapter;

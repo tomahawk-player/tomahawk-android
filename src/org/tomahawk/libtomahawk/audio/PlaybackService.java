@@ -44,6 +44,8 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
 
     private static final int BROADCAST_NEWTRACK = 0;
 
+    private static boolean mIsRunning = false;
+
     private static PlaybackService mInstance;
     private static final Object[] mWait = new Object[0];
 
@@ -80,6 +82,12 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
+
+        if (!intent.hasExtra("track")) {
+            Log.e(TAG, "No track passed as extra when starting.");
+            return -1;
+        }
+
         Track track = (Track) intent.getSerializableExtra("track");
 
         try {
@@ -88,7 +96,16 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
             e.printStackTrace();
         }
 
+        setIsRunning(true);
         return startId;
+    }
+
+    /**
+     * Called when the service is destroyed.
+     */
+    @Override
+    public void onDestroy() {
+        setIsRunning(false);
     }
 
     /**
@@ -176,7 +193,7 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     @Override
     public void onPrepared(MediaPlayer mp) {
 		Log.d(TAG, "Starting playback.");
-        playPause();
+        start();
     }
 
     /**
@@ -184,6 +201,24 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
      */
     public boolean isPlaying() {
         return mMediaPlayer.isPlaying();
+    }
+
+    /**
+     * Returns true if the service is running.
+     * 
+     * @return
+     */
+    public boolean isRunning() {
+        return mIsRunning;
+    }
+
+    /**
+     * Sets the running state of the PlaybackService.
+     * 
+     * @param running
+     */
+    public void setIsRunning(boolean running) {
+        mIsRunning = running;
     }
 
     public Track getCurrentTrack() {

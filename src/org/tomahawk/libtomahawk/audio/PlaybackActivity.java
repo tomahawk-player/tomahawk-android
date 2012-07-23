@@ -20,8 +20,6 @@ import android.view.View.OnTouchListener;
 
 public class PlaybackActivity extends Activity implements Handler.Callback, OnTouchListener {
 
-    private static final String TAG = PlaybackActivity.class.getName();
-
     private PlaybackService mPlaybackService;
 
     private Looper mLooper;

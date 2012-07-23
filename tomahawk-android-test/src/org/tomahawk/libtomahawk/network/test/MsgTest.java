@@ -30,8 +30,6 @@ import android.test.AndroidTestCase;
 
 public class MsgTest extends AndroidTestCase {
 
-    private static final String TAG = MsgTest.class.getName();
-
     private Msg nullMsg = null;
     private Msg emptyMsg = null;
     private Msg fullMsg = null;
