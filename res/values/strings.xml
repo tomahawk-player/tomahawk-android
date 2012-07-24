@@ -6,31 +6,6 @@
     <string name="title_activity_tomahawk_main">Tomahawk</string>
     <string name="title_mymusic_fragment">My Music</string>
 
-    <string-array name="mymusic_artist_list">
-        <item>Artist1</item>
-        <item>Artist2</item>
-        <item>Artist3</item>
-        <item>Artist4</item>
-        <item>Artist5</item>
-        <item>Artist6</item>
-        <item>Artist7</item>
-        <item>Artist8</item>
-        <item>Artist9</item>
-        <item>Artist10</item>
-    </string-array>
-    <string-array name="mymusic_track_list">
-        <item>Track1</item>
-        <item>Track2</item>
-        <item>Track3</item>
-        <item>Track4</item>
-        <item>Track5</item>
-        <item>Track6</item>
-        <item>Track7</item>
-        <item>Track8</item>
-        <item>Track9</item>
-        <item>Track10</item>
-    </string-array>
-
     <string name="title_browse_fragment">Browse</string>
 
     <string-array name="home_options_list">
@@ -43,19 +18,6 @@
     </string-array>
 
     <string name="title_friends_fragment">Friends</string>
-
-    <string-array name="friends_test_list">
-        <item>Friend1</item>
-        <item>Friend2</item>
-        <item>Friend3</item>
-        <item>Friend4</item>
-        <item>Friend5</item>
-        <item>Friend6</item>
-        <item>Friend7</item>
-        <item>Friend8</item>
-        <item>Friend9</item>
-        <item>Friend10</item>
-    </string-array>
 
     <string name="title_player_fragment">Player</string>
     <string name="use_internet_permission">Internet Permission</string>
