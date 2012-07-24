@@ -34,6 +34,7 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.PowerManager;
 import android.os.Process;
 import android.util.Log;
 
@@ -60,14 +61,14 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     @Override
     public void onCreate() {
 
-        HandlerThread thread = new HandlerThread("PlaybackService",
-                Process.THREAD_PRIORITY_BACKGROUND);
+        HandlerThread thread = new HandlerThread(TAG, Process.THREAD_PRIORITY_BACKGROUND);
         thread.start();
 
         mLooper = thread.getLooper();
         mHandler = new Handler(mLooper, this);
 
         mMediaPlayer = new MediaPlayer();
+        mMediaPlayer.setWakeMode(getBaseContext(), PowerManager.PARTIAL_WAKE_LOCK);
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mMediaPlayer.setOnCompletionListener(this);
         mMediaPlayer.setOnPreparedListener(this);
@@ -83,12 +84,10 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
-        if (!intent.hasExtra("track")) {
-            Log.e(TAG, "No track passed as extra when starting.");
-            return -1;
-        }
+        if (!intent.hasExtra(PlaybackActivity.TRACK_EXTRA))
+            throw new IllegalArgumentException("Must pass track extra to PlaybackService.");
 
-        Track track = (Track) intent.getSerializableExtra("track");
+        Track track = (Track) intent.getSerializableExtra(PlaybackActivity.TRACK_EXTRA);
 
         try {
             setCurrentTrack(track);

@@ -64,7 +64,7 @@ public class MyMusicFragment extends ListFragment implements OnItemClickListener
 
         Collection mycoll = SourceList.instance().getLocalSource().getCollection();
         Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
-        playbackIntent.putExtra("track", mycoll.getTracks().get(idx));
+        playbackIntent.putExtra(PlaybackActivity.TRACK_EXTRA, mycoll.getTracks().get(idx));
         startActivity(playbackIntent);
     }
 }

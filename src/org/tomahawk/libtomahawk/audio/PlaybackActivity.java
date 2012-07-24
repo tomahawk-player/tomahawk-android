@@ -20,10 +20,13 @@ import android.view.View.OnTouchListener;
 
 public class PlaybackActivity extends Activity implements Handler.Callback, OnTouchListener {
 
-    private PlaybackService mPlaybackService;
-
     private Looper mLooper;
     private Handler mHandler;
+
+    /**
+     * Identifier for passing a Track as an extra in an Intent.
+     */
+    public static final String TRACK_EXTRA = "track";
 
     /**
      * Create this activity.
@@ -49,22 +52,9 @@ public class PlaybackActivity extends Activity implements Handler.Callback, OnTo
     public void onStart() {
         super.onStart();
 
-        if (PlaybackService.hasInstance()) {
-            mPlaybackService = PlaybackService.get(this);
+        if (getIntent().hasExtra(TRACK_EXTRA))
+            onServiceReady();
 
-            Track track = (Track) getIntent().getSerializableExtra("track");
-
-            try {
-                mPlaybackService.setCurrentTrack(track);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        } else {
-            Intent playbackIntent = new Intent(PlaybackActivity.this, PlaybackService.class);
-            playbackIntent.putExtra("track", getIntent().getSerializableExtra("track"));
-            startService(playbackIntent);
-        }
     }
 
     /**
@@ -80,10 +70,36 @@ public class PlaybackActivity extends Activity implements Handler.Callback, OnTo
      */
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-
-        if (mPlaybackService != null)
-            mPlaybackService.playPause();
+        if (event.getAction() == MotionEvent.ACTION_DOWN)
+            PlaybackService.get(this).playPause();
 
         return false;
+    }
+
+    /**
+     * Called when the service is ready and requested.
+     */
+    private void onServiceReady() {
+
+        if (PlaybackService.hasInstance()) {
+
+            if (!getIntent().hasExtra(TRACK_EXTRA))
+                return;
+
+            Track track = (Track) getIntent().getSerializableExtra(TRACK_EXTRA);
+
+            try {
+                PlaybackService.get(this).setCurrentTrack(track);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        } else {
+            Intent playbackIntent = new Intent(PlaybackActivity.this, PlaybackService.class);
+            playbackIntent.putExtra(TRACK_EXTRA, getIntent().getSerializableExtra(TRACK_EXTRA));
+            startService(playbackIntent);
+        }
+
+        getIntent().removeExtra(TRACK_EXTRA);
     }
 }
