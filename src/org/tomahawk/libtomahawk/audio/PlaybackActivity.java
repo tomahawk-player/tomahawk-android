@@ -1,8 +1,25 @@
+/* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+ *
+ *   Copyright 2012, Christopher Reichert <creichert07@gmail.com>
+ *
+ *   Tomahawk is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Tomahawk is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.tomahawk.libtomahawk.audio;
 
 import java.io.IOException;
 
-import org.tomahawk.libtomahawk.Track;
+import org.tomahawk.libtomahawk.playlist.Playlist;
 import org.tomahawk.tomahawk_android.R;
 
 import android.app.Activity;
@@ -26,7 +43,7 @@ public class PlaybackActivity extends Activity implements Handler.Callback, OnTo
     /**
      * Identifier for passing a Track as an extra in an Intent.
      */
-    public static final String TRACK_EXTRA = "track";
+    public static final String PLAYLIST_EXTRA = "playlist";
 
     /**
      * Create this activity.
@@ -52,7 +69,7 @@ public class PlaybackActivity extends Activity implements Handler.Callback, OnTo
     public void onStart() {
         super.onStart();
 
-        if (getIntent().hasExtra(TRACK_EXTRA))
+        if (getIntent().hasExtra(PLAYLIST_EXTRA))
             onServiceReady();
 
     }
@@ -83,23 +100,23 @@ public class PlaybackActivity extends Activity implements Handler.Callback, OnTo
 
         if (PlaybackService.hasInstance()) {
 
-            if (!getIntent().hasExtra(TRACK_EXTRA))
+            if (!getIntent().hasExtra(PLAYLIST_EXTRA))
                 return;
 
-            Track track = (Track) getIntent().getSerializableExtra(TRACK_EXTRA);
+            Playlist playlist = (Playlist) getIntent().getSerializableExtra(PLAYLIST_EXTRA);
 
             try {
-                PlaybackService.get(this).setCurrentTrack(track);
+                PlaybackService.get(this).setCurrentPlaylist(playlist);
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
         } else {
             Intent playbackIntent = new Intent(PlaybackActivity.this, PlaybackService.class);
-            playbackIntent.putExtra(TRACK_EXTRA, getIntent().getSerializableExtra(TRACK_EXTRA));
+            playbackIntent.putExtra(PLAYLIST_EXTRA, getIntent().getSerializableExtra(PLAYLIST_EXTRA));
             startService(playbackIntent);
         }
 
-        getIntent().removeExtra(TRACK_EXTRA);
+        getIntent().removeExtra(PLAYLIST_EXTRA);
     }
 }

@@ -21,6 +21,8 @@ import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.SourceList;
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
+import org.tomahawk.libtomahawk.playlist.AlbumPlaylist;
+import org.tomahawk.libtomahawk.playlist.Playlist;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -64,7 +66,10 @@ public class MyMusicFragment extends ListFragment implements OnItemClickListener
 
         Collection mycoll = SourceList.instance().getLocalSource().getCollection();
         Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
-        playbackIntent.putExtra(PlaybackActivity.TRACK_EXTRA, mycoll.getTracks().get(idx));
+
+        Playlist playlist = AlbumPlaylist.fromAlbum(mycoll.getTracks().get(idx).getAlbum(), mycoll
+                .getTracks().get(idx).getTrackNumber());
+        playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, playlist);
         startActivity(playbackIntent);
     }
 }

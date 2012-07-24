@@ -32,10 +32,8 @@ public class Track implements Serializable {
      */
     private String mPath;
     private String mTitle;
-    private String mAlbum;
-    private String mArtist;
-    private long mAlbumId;
-    private long mArtistId;
+    private Album mAlbum;
+    private Artist mArtist;
     private long mDuration;
     private int mTrackNumber;
 
@@ -44,15 +42,11 @@ public class Track implements Serializable {
     }
 
     public void populate(Cursor cursor) {
-        setId(cursor.getLong(0));
-        setPath(cursor.getString(1));
-        setTitle(cursor.getString(2));
-        setAlbum(cursor.getString(3));
-        setArtist(cursor.getString(4));
-        setAlbumId(cursor.getLong(5));
-        setArtistId(cursor.getLong(6));
-        setDuration(cursor.getLong(7));
-        setTrackNumber(cursor.getInt(8));
+        setId(cursor.getLong(0)); // MediaStore.Audio.Media._ID,
+        setPath(cursor.getString(1)); // MediaStore.Audio.Media.DATA,
+        setTitle(cursor.getString(2)); // MediaStore.Audio.Media.TITLE,
+        setDuration(cursor.getLong(3)); // MediaStore.Audio.Media.DURATION,
+        setTrackNumber(cursor.getInt(4)); // MediaStore.Audio.Media.TRACK
     }
 
     @Override
@@ -64,71 +58,55 @@ public class Track implements Serializable {
         return mId;
     }
 
-    public void setId(long mId) {
-        this.mId = mId;
+    public void setId(long id) {
+        this.mId = id;
     }
 
     public String getPath() {
         return mPath;
     }
 
-    public void setPath(String mPath) {
-        this.mPath = mPath;
+    public void setPath(String path) {
+        this.mPath = path;
     }
 
     public String getTitle() {
         return mTitle;
     }
 
-    public void setTitle(String mTitle) {
-        this.mTitle = mTitle;
+    public void setTitle(String title) {
+        this.mTitle = title;
     }
 
-    public String getAlbum() {
+    public Album getAlbum() {
         return mAlbum;
     }
 
-    public void setAlbum(String mAlbum) {
-        this.mAlbum = mAlbum;
+    public void setAlbum(Album album) {
+        this.mAlbum = album;
     }
 
-    public String getArtist() {
+    public Artist getArtist() {
         return mArtist;
     }
 
-    public void setArtist(String mArtist) {
-        this.mArtist = mArtist;
-    }
-
-    public long getAlbumId() {
-        return mAlbumId;
-    }
-
-    public void setAlbumId(long mAlbumId) {
-        this.mAlbumId = mAlbumId;
-    }
-
-    public long getArtistId() {
-        return mArtistId;
-    }
-
-    public void setArtistId(long mArtistId) {
-        this.mArtistId = mArtistId;
+    public void setArtist(Artist artist) {
+        this.mArtist = artist;
     }
 
     public long getDuration() {
         return mDuration;
     }
 
-    public void setDuration(long mDuration) {
-        this.mDuration = mDuration;
+    public void setDuration(long duration) {
+        this.mDuration = duration;
     }
 
     public int getTrackNumber() {
         return mTrackNumber;
     }
 
-    public void setTrackNumber(int mTrackNumber) {
-        this.mTrackNumber = mTrackNumber;
+    public void setTrackNumber(int trackNumber) {
+        this.mTrackNumber = trackNumber;
     }
 }

@@ -17,12 +17,16 @@
  */
 package org.tomahawk.libtomahawk.playlist;
 
+import java.io.Serializable;
+
 import org.tomahawk.libtomahawk.Album;
 
 /**
  * This class represents a Playlist including all the Tracks on an Album.
  */
-public class AlbumPlaylist extends Playlist {
+public class AlbumPlaylist extends Playlist implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Create an AlbumPlaylist from Album.
@@ -30,15 +34,26 @@ public class AlbumPlaylist extends Playlist {
      * @return
      */
     public static AlbumPlaylist fromAlbum(Album album) {
-        AlbumPlaylist pl = new AlbumPlaylist();
+        AlbumPlaylist pl = new AlbumPlaylist(album.getName());
         pl.setTracks(album.getTracks());
+        return pl;
+    }
+
+    /**
+     * Creates an AlbumPlaylist from Album and sets the current Track to the
+     * Track at idx.
+     */
+    public static AlbumPlaylist fromAlbum(Album album, int idx) {
+        AlbumPlaylist pl = new AlbumPlaylist(album.getName());
+        pl.setTracks(album.getTracks());
+        pl.setCurrentTrack(idx);
         return pl;
     }
 
     /**
      * Construct a new empty AlbumPlaylist.
      */
-    protected AlbumPlaylist() {
-        super();
+    protected AlbumPlaylist(String name) {
+        super(name);
     }
 }

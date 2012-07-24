@@ -17,6 +17,7 @@
  */
 package org.tomahawk.libtomahawk;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -25,7 +26,9 @@ import android.database.Cursor;
 /**
  * Class which represents a Tomahawk Album.
  */
-public class Album {
+public class Album implements Serializable {
+
+    private static final long serialVersionUID = -5936447328960273526L;
 
     private HashMap<Long, Track> mTracks;
 
@@ -34,6 +37,7 @@ public class Album {
     private String mAlbumArt;
     private String mFirstYear;
     private String mLastYear;
+    private Artist mArtist;
 
     /**
      * Construct a new Album from the id
@@ -133,5 +137,13 @@ public class Album {
 
     public void setLastYear(String lastYear) {
         mLastYear = lastYear;
+    }
+
+    public Artist getArtist() {
+        return mArtist;
+    }
+
+    public void setArtist(Artist artist) {
+        mArtist = artist;
     }
 }

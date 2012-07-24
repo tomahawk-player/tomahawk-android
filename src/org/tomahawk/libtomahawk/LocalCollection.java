@@ -137,6 +137,7 @@ public class LocalCollection extends Collection {
             Log.d(TAG, "New Album : " + cursor.getString(1));
             Album album = new Album(cursor.getLong(0));
             album.populate(cursor);
+            album.setArtist(artist);
 
             mArtists.get(cursor.getLong(5)).addAlbum(album);
             initializeTracks(album);
@@ -154,10 +155,6 @@ public class LocalCollection extends Collection {
         String[] projection = { MediaStore.Audio.Media._ID,
                          MediaStore.Audio.Media.DATA,
                          MediaStore.Audio.Media.TITLE,
-                         MediaStore.Audio.Media.ALBUM,
-                         MediaStore.Audio.Media.ARTIST,
-                         MediaStore.Audio.Media.ALBUM_ID,
-                         MediaStore.Audio.Media.ARTIST_ID,
                          MediaStore.Audio.Media.DURATION,
                 MediaStore.Audio.Media.TRACK };
 
@@ -167,6 +164,8 @@ public class LocalCollection extends Collection {
             Log.d(TAG, "New Track : " + cursor.getString(2));
             Track track = new Track(cursor.getLong(0));
             track.populate(cursor);
+            track.setAlbum(album);
+            track.setArtist(album.getArtist());
 
             album.addTrack(track);
         }

@@ -17,6 +17,7 @@
  */
 package org.tomahawk.libtomahawk.playlist;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.ListIterator;
@@ -26,26 +27,30 @@ import org.tomahawk.libtomahawk.Track;
 /**
  * This class represents an abstract Playlist.
  */
-public abstract class Playlist implements PlayableInterface {
+public abstract class Playlist implements PlayableInterface, Serializable {
 
+    private static final long serialVersionUID = 497444836724215188L;
+
+    private String mName;
     private ArrayList<Track> mTracks;
-    private ListIterator<Track> mTrackIterator;
+    private transient ListIterator<Track> mTrackIterator;
     private Track mCurrentTrack;
 
     /**
      * Create a playlist with a list of empty tracks.
      */
-    protected Playlist() {
+    protected Playlist(String name) {
+        mName = name;
         setTracks(new ArrayList<Track>());
     }
 
     /**
-     * Set the list of Tracks for this playlist to tracks.
+     * Set the list of Tracks for this Playlist to tracks.
      */
     @Override
     public void setTracks(Collection<Track> tracks) {
         mTracks = (ArrayList<Track>) tracks;
-        mTrackIterator = (ListIterator<Track>) mTracks.iterator();
+        mTrackIterator = mTracks.listIterator();
 
         if (mTrackIterator.hasNext())
             mCurrentTrack = mTrackIterator.next();
@@ -54,7 +59,24 @@ public abstract class Playlist implements PlayableInterface {
     }
 
     /**
-     * Return the current track for this playlist.
+     * Set the current Track for this Playlist.
+     */
+    @Override
+    public void setCurrentTrack(int idx) {
+
+        if (idx > mTracks.size())
+            return;
+
+        mCurrentTrack = mTracks.get(idx);
+        mTrackIterator = mTracks.listIterator();
+
+        while (mTrackIterator.hasNext())
+            if (mTrackIterator.next().getId() == mCurrentTrack.getId())
+                break;
+    }
+
+    /**
+     * Return the current Track for this Playlist.
      */
     @Override
     public Track getCurrentTrack() {
@@ -66,6 +88,9 @@ public abstract class Playlist implements PlayableInterface {
      */
     @Override
     public Track getNextTrack() {
+
+        if (mTrackIterator == null)
+            resetTrackIterator();
 
         if (mTrackIterator.hasNext()) {
             mCurrentTrack = mTrackIterator.next();
@@ -80,6 +105,9 @@ public abstract class Playlist implements PlayableInterface {
      */
     @Override
     public Track getPreviousTrack() {
+
+        if (mTrackIterator == null)
+            resetTrackIterator();
 
         if (mTrackIterator.hasPrevious()) {
             mCurrentTrack = mTrackIterator.previous();
@@ -121,5 +149,23 @@ public abstract class Playlist implements PlayableInterface {
             return null;
 
         return mTracks.get(mTracks.size() - 1);
+    }
+
+    @Override
+    public String toString() {
+        return mName;
+    }
+
+    /**
+     * mTrackIterator becomes invalidated when we serialize Playlist's to pass
+     * as extras with Intent's
+     */
+    private void resetTrackIterator() {
+
+        mTrackIterator = mTracks.listIterator();
+        while (mTrackIterator.hasNext()) {
+            if (mTrackIterator.next().getId() == getCurrentTrack().getId())
+                break;
+        }
     }
 }

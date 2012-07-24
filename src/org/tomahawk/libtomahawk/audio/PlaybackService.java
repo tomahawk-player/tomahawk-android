@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.audio;
 import java.io.IOException;
 
 import org.tomahawk.libtomahawk.Track;
+import org.tomahawk.libtomahawk.playlist.Playlist;
 
 import android.app.Service;
 import android.content.Context;
@@ -50,7 +51,7 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     private static PlaybackService mInstance;
     private static final Object[] mWait = new Object[0];
 
-    private Track mCurrentTrack;
+    private Playlist mCurrentPlaylist;
     private MediaPlayer mMediaPlayer;
     private Looper mLooper;
     private Handler mHandler;
@@ -84,13 +85,13 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
-        if (!intent.hasExtra(PlaybackActivity.TRACK_EXTRA))
+        if (!intent.hasExtra(PlaybackActivity.PLAYLIST_EXTRA))
             throw new IllegalArgumentException("Must pass track extra to PlaybackService.");
 
-        Track track = (Track) intent.getSerializableExtra(PlaybackActivity.TRACK_EXTRA);
+        Playlist playlist = (Playlist) intent.getSerializableExtra(PlaybackActivity.PLAYLIST_EXTRA);
 
         try {
-            setCurrentTrack(track);
+            setCurrentPlaylist(playlist);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -220,21 +221,29 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         mIsRunning = running;
     }
 
+    public Playlist getCurrentPlaylist() {
+        return mCurrentPlaylist;
+    }
+
+    public void setCurrentPlaylist(Playlist playlist) throws IOException {
+        mCurrentPlaylist = playlist;
+        setCurrentTrack(mCurrentPlaylist.getCurrentTrack());
+    }
+
     public Track getCurrentTrack() {
-        return mCurrentTrack;
+        return mCurrentPlaylist.getCurrentTrack();
     }
 
     /**
      * This method sets the current back and prepares it for playback.
      * 
-     * @param mCurrentTrack
+     * @param mCurrentPlaylist
      * @throws IOException
      */
-    public void setCurrentTrack(Track track) throws IOException {
-        mCurrentTrack = track;
+    private void setCurrentTrack(Track track) throws IOException {
 
         mMediaPlayer.reset();
-        mMediaPlayer.setDataSource(mCurrentTrack.getPath());
+        mMediaPlayer.setDataSource(track.getPath());
         mMediaPlayer.prepareAsync();
 
         mHandler.sendMessage(mHandler.obtainMessage(BROADCAST_NEWTRACK, -1, 0, null));
@@ -247,16 +256,16 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
      */
     private void stockMusicBroadcast() {
 
-        Track track = mCurrentTrack;
+        Track track = mCurrentPlaylist.getCurrentTrack();
 
         Intent intent = new Intent("com.android.music.playstatechanged");
         intent.putExtra("playing", 1);
         if (track != null) {
             intent.putExtra("track", track.getTitle());
-            intent.putExtra("album", track.getAlbum());
-            intent.putExtra("artist", track.getArtist());
+            intent.putExtra("album", track.getAlbum().getName());
+            intent.putExtra("artist", track.getArtist().getName());
             intent.putExtra("songid", track.getId());
-            intent.putExtra("albumid", track.getAlbumId());
+            intent.putExtra("albumid", track.getAlbum().getId());
         }
         sendBroadcast(intent);
     }

@@ -30,6 +30,8 @@ public interface PlayableInterface {
      */
     public void setTracks(Collection<Track> tracks);
 
+    public void setCurrentTrack(int idx);
+
     /**
      * Return the current Track for this PlayableInterface.
      * 

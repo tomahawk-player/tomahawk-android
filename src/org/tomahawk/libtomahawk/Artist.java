@@ -17,12 +17,15 @@
  */
 package org.tomahawk.libtomahawk;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.database.Cursor;
 
-public class Artist {
+public class Artist implements Serializable {
+
+    private static final long serialVersionUID = -5358580053668357261L;
 
     private long mId;
     private String mName;
