@@ -53,6 +53,7 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
 
     private Playlist mCurrentPlaylist;
     private MediaPlayer mMediaPlayer;
+    private PowerManager.WakeLock mWakeLock;
     private Looper mLooper;
     private Handler mHandler;
 
@@ -69,7 +70,6 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         mHandler = new Handler(mLooper, this);
 
         mMediaPlayer = new MediaPlayer();
-        mMediaPlayer.setWakeMode(getBaseContext(), PowerManager.PARTIAL_WAKE_LOCK);
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mMediaPlayer.setOnCompletionListener(this);
         mMediaPlayer.setOnPreparedListener(this);
@@ -79,6 +79,9 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         synchronized (mWait) {
             mWait.notifyAll();
         }
+
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
     }
 
     @Override
@@ -119,6 +122,7 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     }
 
     public void start() {
+        mWakeLock.acquire();
         mMediaPlayer.start();
     }
 
@@ -127,14 +131,16 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
      */
     public void stop() {
         mMediaPlayer.stop();
+        mWakeLock.release();
     }
 
     /**
-	 * Pause playback.
-	 */
-	public void pause() {
-		mMediaPlayer.pause();
-	}
+     * Pause playback.
+     */
+    public void pause() {
+        mWakeLock.release();
+        mMediaPlayer.pause();
+    }
 
 	/**
 	 * Get the PlaybackService for the given Context.
