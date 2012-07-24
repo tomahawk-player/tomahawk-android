@@ -84,6 +84,9 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
     }
 
+    /**
+     * This method is called when this service is started.
+     */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
@@ -177,6 +180,16 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
 
     @Override
     public void onCompletion(MediaPlayer mp) {
+
+        Track track = mCurrentPlaylist.getNextTrack();
+        if (track != null) {
+            try {
+                setCurrentTrack(track);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else
+            stop();
     }
 
     @Override
