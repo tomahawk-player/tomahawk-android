@@ -22,7 +22,9 @@ import junit.framework.Assert;
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.LocalCollection;
 import org.tomahawk.libtomahawk.Track;
+import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 import org.tomahawk.libtomahawk.audio.PlaybackService;
+import org.tomahawk.libtomahawk.playlist.AlbumPlaylist;
 
 import android.content.Intent;
 import android.test.ServiceTestCase;
@@ -44,7 +46,8 @@ public class PlaybackServiceTest extends ServiceTestCase<PlaybackService> {
         Intent startIntent = new Intent(getContext(), PlaybackService.class);
 
         Assert.assertNotNull(tstTrack);
-        startIntent.putExtra("track", coll.getTracks().get(0));
+        startIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA,
+                AlbumPlaylist.fromAlbum(tstTrack.getAlbum(), tstTrack));
         startService(startIntent);
     }
 
