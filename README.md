@@ -33,14 +33,14 @@ setup
           ends up being "org.tomahawk.tomahawk_android.TomahawkMainActivity".
           Right click on the project and go to "Refactor"->"Rename". Rename
           the project to "tomahawk-android" and this should fix any errors.
-		- If you have troubles building ActionBarSherlock, confirm that you have android-14 installed
-		  in the sdk. This version is needed to build ActionBarSherlock, but you should use latest version
-		  to build Tomahawk-Android.
-		- If you have other build problems, confirm that your Java Compiler is set to v1.6. 
-		  ( in eclipse, go to tomahawk-android ( right click ) -> Properties -> Java Compiler -> 
-		  Compiler compliance level -> 1.6 )
-		- Make sure that you dont tick the Is Library box in Properties->Android || Library.
-		- It is also good to add the sdk to your path. 
+        - If you have troubles building ActionBarSherlock, confirm that you have android-14 installed
+          in the sdk. This version is needed to build ActionBarSherlock, but you should use latest version
+          to build Tomahawk-Android.
+        - If you have other build problems, confirm that your Java Compiler is set to v1.6. 
+          ( in eclipse, go to tomahawk-android ( right click ) -> Properties -> Java Compiler -> 
+          Compiler compliance level -> 1.6 )
+        - Make sure that you dont tick the Is Library box in Properties->Android || Library.
+        - It is also good to add the sdk to your path. 
 
 required reading
 ================
