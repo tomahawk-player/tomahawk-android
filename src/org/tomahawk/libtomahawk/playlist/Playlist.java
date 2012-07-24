@@ -60,16 +60,17 @@ public abstract class Playlist implements PlayableInterface, Serializable {
 
     /**
      * Set the current Track for this Playlist.
+     * 
+     * If Track cannot be found the current Track stays the same.
      */
     @Override
-    public void setCurrentTrack(int idx) {
+    public void setCurrentTrack(Track newtrack) {
 
-        if (idx > mTracks.size())
-            return;
+        for (Track track : mTracks)
+            if (newtrack.getId() == track.getId())
+                mCurrentTrack = track;
 
-        mCurrentTrack = mTracks.get(idx);
         mTrackIterator = mTracks.listIterator();
-
         while (mTrackIterator.hasNext())
             if (mTrackIterator.next().getId() == mCurrentTrack.getId())
                 break;

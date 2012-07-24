@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.playlist;
 import java.io.Serializable;
 
 import org.tomahawk.libtomahawk.Album;
+import org.tomahawk.libtomahawk.Track;
 
 /**
  * This class represents a Playlist including all the Tracks on an Album.
@@ -43,10 +44,10 @@ public class AlbumPlaylist extends Playlist implements Serializable {
      * Creates an AlbumPlaylist from Album and sets the current Track to the
      * Track at idx.
      */
-    public static AlbumPlaylist fromAlbum(Album album, int idx) {
+    public static AlbumPlaylist fromAlbum(Album album, Track currentTrack) {
         AlbumPlaylist pl = new AlbumPlaylist(album.getName());
         pl.setTracks(album.getTracks());
-        pl.setCurrentTrack(idx);
+        pl.setCurrentTrack(currentTrack);
         return pl;
     }
 

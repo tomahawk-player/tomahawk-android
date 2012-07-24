@@ -68,7 +68,7 @@ public class MyMusicFragment extends ListFragment implements OnItemClickListener
         Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
 
         Playlist playlist = AlbumPlaylist.fromAlbum(mycoll.getTracks().get(idx).getAlbum(), mycoll
-                .getTracks().get(idx).getTrackNumber());
+                .getTracks().get(idx));
         playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, playlist);
         startActivity(playbackIntent);
     }
