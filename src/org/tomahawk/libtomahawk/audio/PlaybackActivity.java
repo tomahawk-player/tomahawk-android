@@ -19,6 +19,7 @@ package org.tomahawk.libtomahawk.audio;
 
 import java.io.IOException;
 
+
 import org.tomahawk.libtomahawk.playlist.Playlist;
 import org.tomahawk.tomahawk_android.R;
 
@@ -114,12 +115,12 @@ public class PlaybackActivity extends Activity implements Handler.Callback, OnTo
     public void onPlayPauseClick(View v)
     {
 
-		PlaybackService.get(this).playPause();
-		
-		if( PlaybackService.get(this).isPlaying() )
-			mPlayButton.setImageResource(R.drawable.ic_action_pause);
-		else 
-			mPlayButton.setImageResource(R.drawable.ic_action_play);
+    	PlaybackService.get(this).playPause();
+    	
+    	if( PlaybackService.get(this).isPlaying() )
+    		mPlayButton.setImageResource(R.drawable.ic_action_pause);
+    	else 
+        	mPlayButton.setImageResource(R.drawable.ic_action_play);
     }
     
 
@@ -166,35 +167,38 @@ public class PlaybackActivity extends Activity implements Handler.Callback, OnTo
     public void startPlayProgressUpdater() {
     	
     	if( PlaybackService.hasInstance() ) {	
+    		
     		if( PlaybackService.get(this).isPlaying() ) {
-    			mSeekbar.setProgress( PlaybackService.get(this).getCurrentPosition() );
+    			
+				mSeekbar.setProgress( PlaybackService.get(this).getCurrentPosition() );
     		}
-    	} else {
+	    } else {
+	    	
     		mSeekbar.setProgress(0);
-    	}
+	    }
     	// Not the smoothest seek transition
     	
-		Runnable notify = new Runnable() {
-		    public void run() {
-		    	startPlayProgressUpdater();
-		    }
-		};
-		mHandler.postDelayed(notify,1000);
+    	Runnable notify = new Runnable() {
+	        public void run() {
+	        	startPlayProgressUpdater();
+			}
+	    };
+	    mHandler.postDelayed(notify,1000);
 }
 
     // This is event handler thumb moving event
-    private void seekChange(View v) {
+    private void seekChange(View v){
     	
-		if(PlaybackService.get(this).isPlaying()){
-			SeekBar seekbar = (SeekBar)v;
-			PlaybackService.get(this).seekTo(seekbar.getProgress());
+    	if(PlaybackService.get(this).isPlaying()){
+	    	SeekBar seekbar = (SeekBar)v;
+	    	PlaybackService.get(this).seekTo(seekbar.getProgress());
 		}
     }
     /**
      * Called when service is ready to populate playerMetadata
      * Also sets the seekbar max and listener
      */
-     private void populateMetadata(Playlist playlist) {
+     private void populateMetadata( Playlist playlist ) {
     	 
     	 TextView meta = (TextView) mView.findViewById(R.id.textView_track);
          meta.setText(playlist.getCurrentTrack().getTitle() );
