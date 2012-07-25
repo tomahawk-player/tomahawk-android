@@ -21,7 +21,6 @@ import java.io.IOException;
 
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.playlist.Playlist;
-
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -93,9 +92,9 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
 
         if (!intent.hasExtra(PlaybackActivity.PLAYLIST_EXTRA))
             throw new IllegalArgumentException("Must pass track extra to PlaybackService.");
-
+        
         Playlist playlist = (Playlist) intent.getSerializableExtra(PlaybackActivity.PLAYLIST_EXTRA);
-
+        
         try {
             setCurrentPlaylist(playlist);
         } catch (IOException e) {
@@ -145,6 +144,11 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         mMediaPlayer.pause();
     }
 
+    public void seekTo( int seekMsec)
+    {
+    	mMediaPlayer.seekTo(seekMsec);
+    }
+    
 	/**
 	 * Get the PlaybackService for the given Context.
 	 */
@@ -244,6 +248,11 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         return mCurrentPlaylist;
     }
 
+    public int getCurrentPosition() {
+    	
+    	return mMediaPlayer.getCurrentPosition();
+    }
+    
     public void setCurrentPlaylist(Playlist playlist) throws IOException {
         mCurrentPlaylist = playlist;
         setCurrentTrack(mCurrentPlaylist.getCurrentTrack());

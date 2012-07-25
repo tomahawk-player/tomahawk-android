@@ -60,7 +60,7 @@ public class MyMusicFragment extends ListFragment implements OnItemClickListener
 
         getListView().setOnItemClickListener(this);
 	}
-
+    
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
 
@@ -71,5 +71,6 @@ public class MyMusicFragment extends ListFragment implements OnItemClickListener
                 .getTracks().get(idx));
         playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, playlist);
         startActivity(playbackIntent);
+        
     }
 }
