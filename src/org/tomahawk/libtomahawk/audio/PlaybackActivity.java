@@ -19,11 +19,15 @@ package org.tomahawk.libtomahawk.audio;
 
 import java.io.IOException;
 
+import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.playlist.Playlist;
 import org.tomahawk.tomahawk_android.R;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -31,11 +35,12 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
+import android.widget.ImageButton;
 
-public class PlaybackActivity extends Activity implements Handler.Callback, OnTouchListener {
+public class PlaybackActivity extends Activity implements Handler.Callback {
+
+    private NewTrackReceiver mNewTrackReceiver;
 
     private Looper mLooper;
     private Handler mHandler;
@@ -46,6 +51,18 @@ public class PlaybackActivity extends Activity implements Handler.Callback, OnTo
     public static final String PLAYLIST_EXTRA = "playlist";
 
     /**
+     * Handles incoming new Track broadcasts from the PlaybackService.
+     */
+    private class NewTrackReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(PlaybackService.BROADCAST_NEWTRACK))
+                onTrackChanged();
+        }
+    }
+
+    /**
      * Create this activity.
      */
     @Override
@@ -53,7 +70,6 @@ public class PlaybackActivity extends Activity implements Handler.Callback, OnTo
         super.onCreate(state);
         View view = getLayoutInflater().inflate(R.layout.playback_activity, null);
         setContentView(view);
-        view.setOnTouchListener(this);
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
@@ -69,9 +85,21 @@ public class PlaybackActivity extends Activity implements Handler.Callback, OnTo
     public void onStart() {
         super.onStart();
 
+        if (mNewTrackReceiver == null)
+            mNewTrackReceiver = new NewTrackReceiver();
+        IntentFilter intentFilter = new IntentFilter(PlaybackService.BROADCAST_NEWTRACK);
+        registerReceiver(mNewTrackReceiver, intentFilter);
+
         if (getIntent().hasExtra(PLAYLIST_EXTRA))
             onServiceReady();
+    }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (mNewTrackReceiver != null)
+            unregisterReceiver(mNewTrackReceiver);
     }
 
     /**
@@ -79,17 +107,6 @@ public class PlaybackActivity extends Activity implements Handler.Callback, OnTo
      */
     @Override
     public boolean handleMessage(Message msg) {
-        return false;
-    }
-
-    /**
-     * Handle screen touches for this activity.
-     */
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN)
-            PlaybackService.get(this).playPause();
-
         return false;
     }
 
@@ -111,6 +128,8 @@ public class PlaybackActivity extends Activity implements Handler.Callback, OnTo
                 e.printStackTrace();
             }
 
+            refreshTrackInfo();
+
         } else {
             Intent playbackIntent = new Intent(PlaybackActivity.this, PlaybackService.class);
             playbackIntent.putExtra(PLAYLIST_EXTRA, getIntent().getSerializableExtra(PLAYLIST_EXTRA));
@@ -118,5 +137,72 @@ public class PlaybackActivity extends Activity implements Handler.Callback, OnTo
         }
 
         getIntent().removeExtra(PLAYLIST_EXTRA);
+    }
+
+    /**
+     * Called when the play/pause button is clicked.
+     * 
+     * @param view
+     */
+    public void onPlayPauseClicked(View view) {
+        PlaybackService.get(this).playPause();
+    }
+
+    /**
+     * Called when the next button is clicked.
+     * 
+     * @param view
+     */
+    public void onNextClicked(View view) {
+        PlaybackService.get(this).next();
+    }
+
+    /**
+     * Called when the previous button is clicked.
+     * 
+     * @param view
+     */
+    public void onPreviousClicked(View view) {
+        PlaybackService.get(this).previous();
+    }
+
+    /**
+     * Called when the PlaybackService signals the current Track has changed.
+     */
+    protected void onTrackChanged() {
+
+        refreshTrackInfo();
+        stockMusicBroadcast(PlaybackService.get(this).getCurrentTrack());
+    }
+
+    /**
+     * Send a broadcast emulating that of the stock music player.
+     * 
+     * Borrow from Vanilla Music Player. Thanks!
+     */
+    private void stockMusicBroadcast(Track track) {
+
+        Intent intent = new Intent("com.android.music.playstatechanged");
+        intent.putExtra("playing", 1);
+        if (track != null) {
+            intent.putExtra("track", track.getTitle());
+            intent.putExtra("album", track.getAlbum().getName());
+            intent.putExtra("artist", track.getArtist().getName());
+            intent.putExtra("songid", track.getId());
+            intent.putExtra("albumid", track.getAlbum().getId());
+        }
+        sendBroadcast(intent);
+    }
+
+    /**
+     * Refresh the information in this activity to reflect that of the current
+     * Track.
+     */
+    private void refreshTrackInfo() {
+        final ImageButton button = (ImageButton) findViewById(R.id.albumImageButton);
+
+        Track track = PlaybackService.get(this).getCurrentTrack();
+
+        button.setImageDrawable(track.getAlbum().getAlbumArt());
     }
 }

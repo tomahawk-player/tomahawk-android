@@ -3,4 +3,35 @@
     android:id="@+id/playback_activity"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
+
+    <ImageButton
+        android:id="@+id/albumImageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onPlayPauseClicked"
+        android:text="ToggleButton"
+        android:textOff="Pause"
+        android:textOn="Play" />
+
+    <Button
+        android:id="@+id/button2"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onNextClicked"
+        android:text="Button" />
+
+    <Button
+        android:id="@+id/button3"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onPreviousClicked"
+        android:text="Button" />
+
 </TableLayout>

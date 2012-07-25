@@ -44,8 +44,8 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
 
     private static String TAG = PlaybackService.class.getName();
 
-    private static final int BROADCAST_NEWTRACK = 0;
-
+    public static final String BROADCAST_NEWTRACK = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_NEWTRACK";
+    private static final int NEWTRACK = 0;
     private static boolean mIsRunning = false;
 
     private static PlaybackService mInstance;
@@ -145,6 +145,28 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         mMediaPlayer.pause();
     }
 
+    public void next() {
+        Track track = mCurrentPlaylist.getNextTrack();
+        if (track != null) {
+            try {
+                setCurrentTrack(track);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void previous() {
+        Track track = mCurrentPlaylist.getPreviousTrack();
+        if (track != null) {
+            try {
+                setCurrentTrack(track);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 	/**
 	 * Get the PlaybackService for the given Context.
 	 */
@@ -173,6 +195,11 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     }
 
     @Override
+    public boolean handleMessage(Message msg) {
+        return false;
+    }
+
+    @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
         Log.e(TAG, "Error with media player");
         return false;
@@ -190,18 +217,6 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
             }
         } else
             stop();
-    }
-
-    @Override
-    public boolean handleMessage(Message msg) {
-
-        switch (msg.what) {
-
-        case BROADCAST_NEWTRACK:
-            stockMusicBroadcast();
-
-        }
-        return false;
     }
 
     @Override
@@ -265,28 +280,6 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         mMediaPlayer.setDataSource(track.getPath());
         mMediaPlayer.prepareAsync();
 
-        mHandler.sendMessage(mHandler.obtainMessage(BROADCAST_NEWTRACK, -1, 0, null));
+        sendBroadcast(new Intent(BROADCAST_NEWTRACK));
     }
-
-    /**
-     * Send a broadcast emulating that of the stock music player.
-     * 
-     * Borrow from Vanilla Music Player. Thanks!
-     */
-    private void stockMusicBroadcast() {
-
-        Track track = mCurrentPlaylist.getCurrentTrack();
-
-        Intent intent = new Intent("com.android.music.playstatechanged");
-        intent.putExtra("playing", 1);
-        if (track != null) {
-            intent.putExtra("track", track.getTitle());
-            intent.putExtra("album", track.getAlbum().getName());
-            intent.putExtra("artist", track.getArtist().getName());
-            intent.putExtra("songid", track.getId());
-            intent.putExtra("albumid", track.getAlbum().getId());
-        }
-        sendBroadcast(intent);
-    }
-
 }

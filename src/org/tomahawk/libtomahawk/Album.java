@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 
 /**
  * Class which represents a Tomahawk Album.
@@ -115,8 +116,8 @@ public class Album implements Serializable {
         mName = name;
     }
 
-    public String getAlbumArt() {
-        return mAlbumArt;
+    public Drawable getAlbumArt() {
+        return Drawable.createFromPath(mAlbumArt);
     }
 
     public void setAlbumArt(String albumArt) {
