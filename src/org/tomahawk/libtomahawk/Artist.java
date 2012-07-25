@@ -46,6 +46,14 @@ public class Artist implements Serializable {
         return mName;
     }
 
+    public ArrayList<Track> getTracks() {
+        ArrayList<Track> list = new ArrayList<Track>();
+        for (Album album : mAlbums.values()) {
+            list.addAll(album.getTracks());
+        }
+        return list;
+    }
+
     public void addAlbum(Album album) {
         mAlbums.put(album.getId(), album);
     }

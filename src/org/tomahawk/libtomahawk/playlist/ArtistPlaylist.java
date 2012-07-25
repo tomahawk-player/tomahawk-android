@@ -19,43 +19,46 @@ package org.tomahawk.libtomahawk.playlist;
 
 import java.io.Serializable;
 
-import org.tomahawk.libtomahawk.Album;
+import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.Track;
 
 /**
- * This class represents a Playlist including all the Tracks on an Album.
+ * Class that represents a list of songs from a given Artist.
  */
-public class AlbumPlaylist extends Playlist implements Serializable {
+public class ArtistPlaylist extends Playlist implements Serializable {
 
-    private static final long serialVersionUID = 3852146076140054858L;
+    private static final long serialVersionUID = -5293315483953783524L;
 
     /**
-     * Create an AlbumPlaylist from Album.
+     * Create an ArtistPlaylist from Artist.
      * 
      * @return
      */
-    public static AlbumPlaylist fromAlbum(Album album) {
-        AlbumPlaylist pl = new AlbumPlaylist(album.getName());
-        pl.setTracks(album.getTracks());
-        pl.setCurrentTrack(album.getTracks().get(0));
+    public static ArtistPlaylist fromArtist(Artist artist) {
+        ArtistPlaylist pl = new ArtistPlaylist(artist.getName());
+        pl.setTracks(artist.getTracks());
+        pl.setCurrentTrack(artist.getTracks().get(0));
         return pl;
     }
 
     /**
-     * Creates an AlbumPlaylist from Album and sets the current Track to the
+     * Creates an ArtistPlaylist from Artist and sets the current Track to the
      * Track at idx.
      */
-    public static AlbumPlaylist fromAlbum(Album album, Track currentTrack) {
-        AlbumPlaylist pl = new AlbumPlaylist(album.getName());
-        pl.setTracks(album.getTracks());
+    public static ArtistPlaylist fromArtist(Artist artist, Track currentTrack) {
+        ArtistPlaylist pl = new ArtistPlaylist(artist.getName());
+        pl.setTracks(artist.getTracks());
         pl.setCurrentTrack(currentTrack);
         return pl;
     }
 
     /**
-     * Construct a new empty AlbumPlaylist.
+     * Constructor.
+     * 
+     * @param name
      */
-    protected AlbumPlaylist(String name) {
+    protected ArtistPlaylist(String name) {
         super(name);
     }
+
 }
