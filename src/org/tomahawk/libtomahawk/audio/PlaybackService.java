@@ -45,7 +45,6 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     private static String TAG = PlaybackService.class.getName();
 
     public static final String BROADCAST_NEWTRACK = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_NEWTRACK";
-    private static final int NEWTRACK = 0;
     private static boolean mIsRunning = false;
 
     private static PlaybackService mInstance;
