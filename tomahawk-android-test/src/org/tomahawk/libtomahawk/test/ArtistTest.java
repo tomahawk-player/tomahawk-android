@@ -68,18 +68,4 @@ public class ArtistTest extends AndroidTestCase {
 
         Assert.assertTrue(mTstArtist.getAlbums().contains(tstAlbum));
     }
-
-    public void testSetName() {
-        String tstName = "hello world";
-        mTstArtist.setName(tstName);
-
-        Assert.assertEquals(mTstArtist.getName(), tstName);
-    }
-
-    public void testSetId() {
-        long tstId = 12345L;
-        mTstArtist.setId(tstId);
-
-        Assert.assertEquals(mTstArtist.getId(), tstId);
-    }
 }
