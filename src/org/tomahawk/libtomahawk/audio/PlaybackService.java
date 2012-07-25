@@ -258,7 +258,15 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         return mCurrentPlaylist;
     }
 
+    /**
+     * Set the current Playlist to playlist and set the current Track to the
+     * Playlist's current Track.
+     * 
+     * @param playlist
+     * @throws IOException
+     */
     public void setCurrentPlaylist(Playlist playlist) throws IOException {
+
         mCurrentPlaylist = playlist;
         setCurrentTrack(mCurrentPlaylist.getCurrentTrack());
     }
