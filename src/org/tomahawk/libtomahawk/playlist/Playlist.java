@@ -70,10 +70,7 @@ public abstract class Playlist implements PlayableInterface, Serializable {
             if (newtrack.getId() == track.getId())
                 mCurrentTrack = track;
 
-        mTrackIterator = mTracks.listIterator();
-        while (mTrackIterator.hasNext())
-            if (mTrackIterator.next().getId() == mCurrentTrack.getId())
-                break;
+        resetTrackIterator();
     }
 
     /**
@@ -94,7 +91,12 @@ public abstract class Playlist implements PlayableInterface, Serializable {
             resetTrackIterator();
 
         if (mTrackIterator.hasNext()) {
-            mCurrentTrack = mTrackIterator.next();
+            Track track = mTrackIterator.next();
+            if (track == mCurrentTrack)
+                mCurrentTrack = mTrackIterator.next();
+            else
+                mCurrentTrack = track;
+
             return mCurrentTrack;
         }
 
@@ -111,7 +113,12 @@ public abstract class Playlist implements PlayableInterface, Serializable {
             resetTrackIterator();
 
         if (mTrackIterator.hasPrevious()) {
-            mCurrentTrack = mTrackIterator.previous();
+            Track track = mTrackIterator.previous();
+            if (track == mCurrentTrack)
+                mCurrentTrack = mTrackIterator.previous();
+            else
+                mCurrentTrack = track;
+
             return mCurrentTrack;
         }
 
@@ -152,6 +159,9 @@ public abstract class Playlist implements PlayableInterface, Serializable {
         return mTracks.get(mTracks.size() - 1);
     }
 
+    /**
+     * Return the name of this Playlist.
+     */
     @Override
     public String toString() {
         return mName;
@@ -159,7 +169,7 @@ public abstract class Playlist implements PlayableInterface, Serializable {
 
     /**
      * mTrackIterator becomes invalidated when we serialize Playlist's to pass
-     * as extras with Intent's
+     * as extras with Intent's.
      */
     private void resetTrackIterator() {
 
@@ -168,5 +178,72 @@ public abstract class Playlist implements PlayableInterface, Serializable {
             if (mTrackIterator.next().getId() == getCurrentTrack().getId())
                 break;
         }
+    }
+
+    /**
+     * Returns true if the PlayableInterface has a next Track.
+     * 
+     * @return
+     */
+    public boolean hasNextTrack() {
+        return peekNextTrack() != null ? true : false;
+    }
+
+    /**
+     * Returns true if the PlayableInterface has a previous Track.
+     * 
+     * @return
+     */
+    public boolean hasPreviousTrack() {
+        return peekPreviousTrack() != null ? true : false;
+    }
+
+    /**
+     * Returns the next Track but does not update the internal Track iterator.
+     * 
+     * @return Returns next Track. Returns null if there is none.
+     */
+    public Track peekNextTrack() {
+
+        if (mTrackIterator == null)
+            resetTrackIterator();
+
+        if (mTrackIterator.hasNext()) {
+
+            Track track = mTrackIterator.next();
+            if (track == mCurrentTrack && mTrackIterator.hasNext()) {
+                track = mTrackIterator.next();
+                mTrackIterator.previous();
+
+                return track;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the previous Track but does not update the internal Track
+     * iterator.
+     * 
+     * @return Returns previous Track. Returns null if there is none.
+     */
+    public Track peekPreviousTrack() {
+
+        if (mTrackIterator == null)
+            resetTrackIterator();
+
+        if (mTrackIterator.hasPrevious()) {
+
+            Track track = mTrackIterator.previous();
+            if (track == mCurrentTrack && mTrackIterator.hasPrevious()) {
+                track = mTrackIterator.previous();
+                mTrackIterator.next();
+
+                return track;
+            }
+        }
+
+        return null;
     }
 }

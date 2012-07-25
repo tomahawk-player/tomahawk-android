@@ -79,4 +79,18 @@ public interface PlayableInterface {
      * @return
      */
     public Track getLastTrack();
+
+    /**
+     * Returns true if the PlayableInterface has a next Track.
+     * 
+     * @return
+     */
+    public boolean hasNextTrack();
+
+    /**
+     * Returns true if the PlayableInterface has a previous Track.
+     * 
+     * @return
+     */
+    public boolean hasPreviousTrack();
 }

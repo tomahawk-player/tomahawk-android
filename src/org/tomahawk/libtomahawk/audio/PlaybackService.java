@@ -144,6 +144,9 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         mMediaPlayer.pause();
     }
 
+    /**
+     * Start playing the next Track.
+     */
     public void next() {
         Track track = mCurrentPlaylist.getNextTrack();
         if (track != null) {
@@ -155,8 +158,13 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         }
     }
 
+    /**
+     * Play the previous track.
+     */
     public void previous() {
+
         Track track = mCurrentPlaylist.getPreviousTrack();
+
         if (track != null) {
             try {
                 setCurrentTrack(track);
