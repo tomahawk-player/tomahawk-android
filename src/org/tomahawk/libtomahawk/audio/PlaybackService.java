@@ -19,6 +19,7 @@ package org.tomahawk.libtomahawk.audio;
 
 import java.io.IOException;
 
+import org.tomahawk.libtomahawk.Album;
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.playlist.Playlist;
 import org.tomahawk.tomahawk_android.R;
@@ -309,12 +310,14 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     private void createPlayingNotification() {
 
         Track track = getCurrentTrack();
-        Notification notification = new Notification(R.drawable.ic_action_play, track.getTitle(),
+        Album album = track.getAlbum();
+
+        Notification notification = new Notification(R.drawable.ic_launcher, track.getTitle(),
                 System.currentTimeMillis());
 
         Context context = getApplicationContext();
         CharSequence contentTitle = track.getArtist().getName();
-        CharSequence contentText = track.getAlbum().getName();
+        CharSequence contentText = album.getName();
         Intent notificationIntent = new Intent(this, PlaybackService.class);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
