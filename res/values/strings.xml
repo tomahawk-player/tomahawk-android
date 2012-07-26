@@ -4,9 +4,9 @@
     <string name="menu_settings">Settings</string>
     <string name="no_data">No data</string>
     <string name="title_activity_tomahawk_main">Tomahawk</string>
-    <string name="title_mymusic_fragment">My Music</string>
+    <string name="title_mymusic_fragment">Artists</string>
 
-    <string name="title_browse_fragment">Browse</string>
+    <string name="title_browse_fragment">Albums</string>
 
     <string-array name="home_options_list">
         <item>Dashboard</item>
@@ -17,7 +17,7 @@
         <item>New Releases</item>
     </string-array>
 
-    <string name="title_friends_fragment">Friends</string>
+    <string name="title_friends_fragment">Tracks</string>
 
     <string name="title_player_fragment">Player</string>
     <string name="use_internet_permission">Internet Permission</string>

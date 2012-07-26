@@ -19,12 +19,16 @@ package org.tomahawk.tomahawk_android;
 
 import java.util.ArrayList;
 
+import org.tomahawk.libtomahawk.audio.PlaybackActivity;
+
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
@@ -32,7 +36,8 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 public class TabsAdapter extends FragmentPagerAdapter implements
 		ActionBar.TabListener, ViewPager.OnPageChangeListener {
-	private final Context mContext;
+    private static final String TAG = TabsAdapter.class.getName();
+    private final Context mContext;
 	private final ActionBar mActionBar;
 	private final ViewPager mViewPager;
 	private final ArrayList<TabInfo> mTabInfos = new ArrayList<TabInfo>();
@@ -109,6 +114,13 @@ public class TabsAdapter extends FragmentPagerAdapter implements
 	@Override
 	public void onPageSelected(int position) {
 		mActionBar.setSelectedNavigationItem(position);
+		//TEMPORARY SOLUTION !!!
+		if (mTabInfos.get(position).clss==PlayerFragment.class)
+		{
+	        Intent playbackIntent = getIntent(mContext,PlaybackActivity.class);
+	        mContext.startActivity(playbackIntent);
+		}
+		//TEMPORARY SOLUTION !!!END
 	}
 
 	/* (non-Javadoc)
@@ -143,5 +155,18 @@ public class TabsAdapter extends FragmentPagerAdapter implements
 	 */
 	@Override
 	public void onTabReselected(Tab tab, FragmentTransaction ft) {
-	}
+	}	
+	
+    /**
+     * Return the intent defined by the given parameters
+     *
+     * @param context
+     * @param cls
+     * @return
+     */
+    private static Intent getIntent(Context context, Class<?> cls) {
+        Intent intent = new Intent(context, cls);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        return intent;
+    }
 }

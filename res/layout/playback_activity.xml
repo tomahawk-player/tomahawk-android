@@ -1,37 +1,100 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/playback_activity"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
 
-    <ImageButton
-        android:id="@+id/albumImageButton"
+    <TextView
+        android:id="@+id/textView_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textView_artist"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-    <ToggleButton
-        android:id="@+id/toggleButton1"
+    <TextView
+        android:id="@+id/textView_album"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="onPlayPauseClicked"
-        android:text="ToggleButton"
-        android:textOff="Pause"
-        android:textOn="Play" />
+        android:layout_height="wrap_content" />
 
-    <Button
-        android:id="@+id/button2"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
+    <ImageButton
+        android:id="@+id/imageButton_cover"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:onClick="onNextClicked"
-        android:text="Button" />
+        android:adjustViewBounds="false"
+        android:background="@android:color/transparent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/no_album_art_placeholder" />
 
-    <Button
-        android:id="@+id/button3"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
+    <ProgressBar
+        android:id="@+id/progressBar_track"
+        style="@style/tomahawk_ProgressBar"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:onClick="onPreviousClicked"
-        android:text="Button" />
+        android:indeterminate="false"
+        android:max="500"
+        android:progress="250"
+        android:visibility="visible" />
 
-</TableLayout>
+    <LinearLayout
+        android:id="@+id/playback_buttonPanel"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+
+        <ImageButton
+            android:id="@+id/imageButton_shuffle"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center"
+            android:layout_weight="5"
+            android:background="@drawable/selectable_background_tomahawk"
+            android:onClick="onShuffleClicked"
+            android:src="@drawable/ic_action_shuffle" />
+
+        <ImageButton
+            android:id="@+id/imageButton_previous"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center"
+            android:layout_weight="5"
+            android:background="@drawable/selectable_background_tomahawk"
+            android:onClick="onPreviousClicked"
+            android:src="@drawable/ic_action_backward" />
+
+        <ImageButton
+            android:id="@+id/imageButton_playpause"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="5"
+            android:adjustViewBounds="true"
+            android:background="@drawable/selectable_background_tomahawk"
+            android:onClick="onPlayPauseClicked"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_action_pause" />
+
+        <ImageButton
+            android:id="@+id/imageButton_next"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center"
+            android:layout_weight="5"
+            android:background="@drawable/selectable_background_tomahawk"
+            android:onClick="onNextClicked"
+            android:src="@drawable/ic_action_forward" />
+
+        <ImageButton
+            android:id="@+id/imageButton_repeat"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center"
+            android:layout_weight="5"
+            android:background="@drawable/selectable_background_tomahawk"
+            android:onClick="onRepeatClicked"
+            android:src="@drawable/ic_action_repeat" />
+    </LinearLayout>
+
+</LinearLayout>

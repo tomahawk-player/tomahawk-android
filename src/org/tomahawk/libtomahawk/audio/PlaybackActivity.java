@@ -23,7 +23,6 @@ import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.playlist.Playlist;
 import org.tomahawk.tomahawk_android.R;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -35,10 +34,21 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
+import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
-public class PlaybackActivity extends Activity implements Handler.Callback {
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+
+public class PlaybackActivity extends SherlockActivity implements
+        Handler.Callback {
+
+    private static final String TAG = PlaybackActivity.class.getName();
 
     private NewTrackReceiver mNewTrackReceiver;
 
@@ -68,17 +78,48 @@ public class PlaybackActivity extends Activity implements Handler.Callback {
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
-        View view = getLayoutInflater().inflate(R.layout.playback_activity, null);
+        View view = getLayoutInflater()
+                .inflate(R.layout.playback_activity, null);
         setContentView(view);
+
+        final ActionBar bar = getSupportActionBar();
+        bar.setDisplayShowHomeEnabled(true);
+        bar.setDisplayShowTitleEnabled(false);
+        bar.setDisplayHomeAsUpEnabled(true);
+
+        final ImageButton button = (ImageButton) findViewById(R.id.imageButton_cover);
+        Display display = getWindowManager().getDefaultDisplay();
+        button.setMinimumHeight(display.getWidth());
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        HandlerThread thread = new HandlerThread(getClass().getName(),
-                Process.THREAD_PRIORITY_LOWEST);
+        HandlerThread thread = new HandlerThread(getClass().getName(), Process.THREAD_PRIORITY_LOWEST);
         thread.start();
 
         mLooper = thread.getLooper();
         mHandler = new Handler(mLooper, this);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getSupportMenuInflater().inflate(R.menu.tomahawk_main_activity, menu);
+        menu.add("Search")
+                .setIcon(R.drawable.ic_action_search)
+                .setActionView(R.layout.collapsible_edittext)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS
+                        | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        case android.R.id.home:
+            super.onBackPressed();
+            return true;
+        default:
+            return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -120,7 +161,8 @@ public class PlaybackActivity extends Activity implements Handler.Callback {
             if (!getIntent().hasExtra(PLAYLIST_EXTRA))
                 return;
 
-            Playlist playlist = (Playlist) getIntent().getSerializableExtra(PLAYLIST_EXTRA);
+            Playlist playlist = (Playlist) getIntent()
+                    .getSerializableExtra(PLAYLIST_EXTRA);
 
             try {
                 PlaybackService.get(this).setCurrentPlaylist(playlist);
@@ -132,7 +174,8 @@ public class PlaybackActivity extends Activity implements Handler.Callback {
 
         } else {
             Intent playbackIntent = new Intent(PlaybackActivity.this, PlaybackService.class);
-            playbackIntent.putExtra(PLAYLIST_EXTRA, getIntent().getSerializableExtra(PLAYLIST_EXTRA));
+            playbackIntent.putExtra(PLAYLIST_EXTRA, getIntent()
+                    .getSerializableExtra(PLAYLIST_EXTRA));
             startService(playbackIntent);
         }
 
@@ -145,7 +188,9 @@ public class PlaybackActivity extends Activity implements Handler.Callback {
      * @param view
      */
     public void onPlayPauseClicked(View view) {
+        Log.d(TAG,"onPlayPauseClicked");
         PlaybackService.get(this).playPause();
+        refreshButtonStates();
     }
 
     /**
@@ -155,6 +200,9 @@ public class PlaybackActivity extends Activity implements Handler.Callback {
      */
     public void onNextClicked(View view) {
         PlaybackService.get(this).next();
+        final ImageButton button = (ImageButton) findViewById(R.id.imageButton_playpause);
+        button.setImageDrawable(getResources()
+                .getDrawable(R.drawable.ic_action_pause));
     }
 
     /**
@@ -164,6 +212,25 @@ public class PlaybackActivity extends Activity implements Handler.Callback {
      */
     public void onPreviousClicked(View view) {
         PlaybackService.get(this).previous();
+        final ImageButton button = (ImageButton) findViewById(R.id.imageButton_playpause);
+        button.setImageDrawable(getResources()
+                .getDrawable(R.drawable.ic_action_pause));
+    }
+
+    /**
+     * Called when the shuffle button is clicked.
+     * 
+     * @param view
+     */
+    public void onShuffleClicked(View view) {
+    }
+
+    /**
+     * Called when the repeat button is clicked.
+     * 
+     * @param view
+     */
+    public void onRepeatClicked(View view) {
     }
 
     /**
@@ -199,10 +266,47 @@ public class PlaybackActivity extends Activity implements Handler.Callback {
      * Track.
      */
     private void refreshTrackInfo() {
-        final ImageButton button = (ImageButton) findViewById(R.id.albumImageButton);
 
         Track track = PlaybackService.get(this).getCurrentTrack();
-
-        button.setImageDrawable(track.getAlbum().getAlbumArt());
+        Log.d(TAG,"track path= "+PlaybackService.get(this).getCurrentTrack().getPath());
+        if (track.getPath() != null) {
+            Log.d(TAG,"track.getPath() != null");
+            final ImageButton button = (ImageButton) findViewById(R.id.imageButton_cover);
+            final TextView artistTextView = (TextView) findViewById(R.id.textView_artist);
+            final TextView albumTextView = (TextView) findViewById(R.id.textView_album);
+            final TextView titleTextView = (TextView) findViewById(R.id.textView_title);
+            button.setImageDrawable(track.getAlbum().getAlbumArt());
+            artistTextView.setText(track.getArtist().toString());
+            albumTextView.setText(track.getAlbum().toString());
+            titleTextView.setText(track.getTitle().toString());
+            
+            findViewById(R.id.imageButton_playpause).setClickable(true);
+            findViewById(R.id.imageButton_next).setClickable(true);
+            findViewById(R.id.imageButton_previous).setClickable(true);
+            findViewById(R.id.imageButton_shuffle).setClickable(true);
+            findViewById(R.id.imageButton_repeat).setClickable(true);
+        } else {
+            Log.d(TAG,"track.getPath() == null");
+            findViewById(R.id.imageButton_playpause).setClickable(false);
+            findViewById(R.id.imageButton_next).setClickable(false);
+            findViewById(R.id.imageButton_previous).setClickable(false);
+            findViewById(R.id.imageButton_shuffle).setClickable(false);
+            findViewById(R.id.imageButton_repeat).setClickable(false);
+        }
     }
+
+    /**
+     * Refresh the information in this activity to reflect that of the current
+     * buttonstate.
+     */
+    private void refreshButtonStates() {
+        final ImageButton button = (ImageButton) findViewById(R.id.imageButton_playpause);
+        if (PlaybackService.get(this).isPlaying())
+            button.setImageDrawable(getResources()
+                    .getDrawable(R.drawable.ic_action_pause));
+        else
+            button.setImageDrawable(getResources()
+                    .getDrawable(R.drawable.ic_action_play));
+    }  
+    
 }
