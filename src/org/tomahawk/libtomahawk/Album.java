@@ -19,10 +19,22 @@ package org.tomahawk.libtomahawk;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+
+/**
+ * This class is used to compare two Albums.
+ */
+class AlbumComparator implements Comparator<Album> {
+    public int compare(Album a1, Album a2) {
+        return a1.getName().compareTo(a2.getName());
+    }
+}
+
 
 /**
  * Class which represents a Tomahawk Album.
@@ -87,7 +99,9 @@ public class Album implements Serializable {
      * @return
      */
     public ArrayList<Track> getTracks() {
-        return new ArrayList<Track>(mTracks.values());
+        ArrayList<Track> tracks = new ArrayList<Track>(mTracks.values());
+        Collections.sort(tracks, new TrackComparator());
+        return tracks;
     }
 
     /**

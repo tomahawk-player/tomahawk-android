@@ -19,10 +19,24 @@ package org.tomahawk.libtomahawk;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 import android.database.Cursor;
 
+/**
+ * This class is used to compare two Artists.
+ */
+class ArtistComparator implements Comparator<Artist> {
+    public int compare(Artist a1, Artist a2) {
+        return a1.getName().compareTo(a2.getName());
+    }
+}
+
+/**
+ * This class represents an Artist.
+ */
 public class Artist implements Serializable {
 
     private static final long serialVersionUID = -5358580053668357261L;
@@ -51,6 +65,7 @@ public class Artist implements Serializable {
         for (Album album : mAlbums.values()) {
             list.addAll(album.getTracks());
         }
+        Collections.sort(list, new TrackComparator());
         return list;
     }
 
@@ -59,7 +74,9 @@ public class Artist implements Serializable {
     }
 
     public ArrayList<Album> getAlbums() {
-        return new ArrayList<Album>(mAlbums.values());
+        ArrayList<Album> albums = new ArrayList<Album>(mAlbums.values());
+        Collections.sort(albums, new AlbumComparator());
+        return albums;
     }
 
     public void setName(String name) {

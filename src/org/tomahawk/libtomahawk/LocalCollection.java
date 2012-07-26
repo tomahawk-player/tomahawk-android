@@ -18,6 +18,7 @@
 package org.tomahawk.libtomahawk;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import android.content.ContentResolver;
@@ -51,7 +52,9 @@ public class LocalCollection extends Collection {
      */
     @Override
     public ArrayList<Artist> getArtists() {
-        return new ArrayList<Artist>(mArtists.values());
+        ArrayList<Artist> artists = new ArrayList<Artist>(mArtists.values());
+        Collections.sort(artists, new ArtistComparator());
+        return artists;
     }
 
     /**

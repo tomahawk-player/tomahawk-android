@@ -18,9 +18,24 @@
 package org.tomahawk.libtomahawk;
 
 import java.io.Serializable;
+import java.util.Comparator;
 
 import android.database.Cursor;
 
+/**
+ * This class is used to compare two Tracks.
+ */
+class TrackComparator implements Comparator<Track> {
+    public int compare(Track t1, Track t2) {
+        Integer num1 = t1.getTrackNumber();
+        Integer num2 = t2.getTrackNumber();
+        return num1.compareTo(num2);
+    }
+}
+
+/**
+ * This class represents a track.
+ */
 public class Track implements Serializable {
 
     private static final long serialVersionUID = 1L;
