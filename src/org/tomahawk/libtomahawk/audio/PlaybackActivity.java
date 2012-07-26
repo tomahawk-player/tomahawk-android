@@ -72,8 +72,8 @@ public class PlaybackActivity extends SherlockActivity implements
         }
     }
 
-    /**
-     * Create this activity.
+    /* (non-Javadoc)
+     * @see android.app.Activity#onCreate(android.os.Bundle)
      */
     @Override
     public void onCreate(Bundle state) {
@@ -100,6 +100,9 @@ public class PlaybackActivity extends SherlockActivity implements
         mHandler = new Handler(mLooper, this);
     }
 
+    /* (non-Javadoc)
+     * @see com.actionbarsherlock.app.SherlockActivity#onCreateOptionsMenu(android.view.Menu)
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getSupportMenuInflater().inflate(R.menu.tomahawk_main_activity, menu);
@@ -111,6 +114,9 @@ public class PlaybackActivity extends SherlockActivity implements
         return true;
     }
 
+    /* (non-Javadoc)
+     * @see com.actionbarsherlock.app.SherlockActivity#onOptionsItemSelected(android.view.MenuItem)
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -122,6 +128,9 @@ public class PlaybackActivity extends SherlockActivity implements
         }
     }
 
+    /* (non-Javadoc)
+     * @see android.app.Activity#onStart()
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -135,6 +144,9 @@ public class PlaybackActivity extends SherlockActivity implements
             onServiceReady();
     }
 
+    /* (non-Javadoc)
+     * @see com.actionbarsherlock.app.SherlockActivity#onPause()
+     */
     @Override
     public void onPause() {
         super.onPause();
@@ -142,9 +154,9 @@ public class PlaybackActivity extends SherlockActivity implements
         if (mNewTrackReceiver != null)
             unregisterReceiver(mNewTrackReceiver);
     }
-
-    /**
-     * Handle Handler messages.
+    
+    /* (non-Javadoc)
+     * @see android.os.Handler.Callback#handleMessage(android.os.Message)
      */
     @Override
     public boolean handleMessage(Message msg) {
@@ -268,9 +280,7 @@ public class PlaybackActivity extends SherlockActivity implements
     private void refreshTrackInfo() {
 
         Track track = PlaybackService.get(this).getCurrentTrack();
-        Log.d(TAG,"track path= "+PlaybackService.get(this).getCurrentTrack().getPath());
-        if (track.getPath() != null) {
-            Log.d(TAG,"track.getPath() != null");
+        if (track != null) {
             final ImageButton button = (ImageButton) findViewById(R.id.imageButton_cover);
             final TextView artistTextView = (TextView) findViewById(R.id.textView_artist);
             final TextView albumTextView = (TextView) findViewById(R.id.textView_album);
@@ -286,7 +296,6 @@ public class PlaybackActivity extends SherlockActivity implements
             findViewById(R.id.imageButton_shuffle).setClickable(true);
             findViewById(R.id.imageButton_repeat).setClickable(true);
         } else {
-            Log.d(TAG,"track.getPath() == null");
             findViewById(R.id.imageButton_playpause).setClickable(false);
             findViewById(R.id.imageButton_next).setClickable(false);
             findViewById(R.id.imageButton_previous).setClickable(false);
@@ -307,6 +316,6 @@ public class PlaybackActivity extends SherlockActivity implements
         else
             button.setImageDrawable(getResources()
                     .getDrawable(R.drawable.ic_action_play));
-    }  
+    }
     
 }
