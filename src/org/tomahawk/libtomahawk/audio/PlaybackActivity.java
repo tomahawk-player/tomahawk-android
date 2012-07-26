@@ -182,7 +182,7 @@ public class PlaybackActivity extends SherlockActivity implements
                 e.printStackTrace();
             }
 
-            refreshTrackInfo();
+            refreshActivityTrackInfo();
 
         } else {
             Intent playbackIntent = new Intent(PlaybackActivity.this, PlaybackService.class);
@@ -250,7 +250,7 @@ public class PlaybackActivity extends SherlockActivity implements
      */
     protected void onTrackChanged() {
 
-        refreshTrackInfo();
+        refreshActivityTrackInfo();
         stockMusicBroadcast(PlaybackService.get(this).getCurrentTrack());
     }
 
@@ -277,7 +277,7 @@ public class PlaybackActivity extends SherlockActivity implements
      * Refresh the information in this activity to reflect that of the current
      * Track.
      */
-    private void refreshTrackInfo() {
+    private void refreshActivityTrackInfo() {
 
         Track track = PlaybackService.get(this).getCurrentTrack();
         if (track != null) {
