@@ -21,7 +21,10 @@ import java.io.IOException;
 
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.playlist.Playlist;
+import org.tomahawk.tomahawk_android.R;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -134,6 +137,7 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     public void stop() {
         mMediaPlayer.stop();
         mWakeLock.release();
+        stopForeground(true);
     }
 
     /**
@@ -296,5 +300,26 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         mMediaPlayer.prepareAsync();
 
         sendBroadcast(new Intent(BROADCAST_NEWTRACK));
+        createPlayingNotification();
+    }
+
+    /**
+     * Create an ongoing notification and start this service in the foreground.
+     */
+    private void createPlayingNotification() {
+
+        Track track = getCurrentTrack();
+        Notification notification = new Notification(R.drawable.ic_action_play, track.getTitle(),
+                System.currentTimeMillis());
+
+        Context context = getApplicationContext();
+        CharSequence contentTitle = track.getArtist().getName();
+        CharSequence contentText = track.getAlbum().getName();
+        Intent notificationIntent = new Intent(this, PlaybackService.class);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
+        notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
+
+        startForeground(3, notification);
     }
 }
