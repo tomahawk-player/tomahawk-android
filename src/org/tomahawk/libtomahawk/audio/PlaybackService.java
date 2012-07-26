@@ -19,7 +19,6 @@ package org.tomahawk.libtomahawk.audio;
 
 import java.io.IOException;
 
-import org.tomahawk.libtomahawk.Album;
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.playlist.Playlist;
 import org.tomahawk.tomahawk_android.R;
@@ -130,6 +129,7 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     public void start() {
         mWakeLock.acquire();
         mMediaPlayer.start();
+        createPlayingNotification();
     }
 
     /**
@@ -147,6 +147,7 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     public void pause() {
         mWakeLock.release();
         mMediaPlayer.pause();
+        stopForeground(true);
     }
 
     /**
@@ -301,7 +302,6 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         mMediaPlayer.prepareAsync();
 
         sendBroadcast(new Intent(BROADCAST_NEWTRACK));
-        createPlayingNotification();
     }
 
     /**
@@ -310,14 +310,13 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     private void createPlayingNotification() {
 
         Track track = getCurrentTrack();
-        Album album = track.getAlbum();
 
         Notification notification = new Notification(R.drawable.ic_launcher, track.getTitle(),
                 System.currentTimeMillis());
 
         Context context = getApplicationContext();
         CharSequence contentTitle = track.getArtist().getName();
-        CharSequence contentText = album.getName();
+        CharSequence contentText = track.getTitle();
         Intent notificationIntent = new Intent(this, PlaybackService.class);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
