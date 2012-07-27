@@ -20,14 +20,37 @@ package org.tomahawk.libtomahawk;
 import java.io.Serializable;
 import java.util.Comparator;
 
+
 /**
  * This class is used to compare two Tracks.
  */
 class TrackComparator implements Comparator<Track> {
+
+    public static final int COMPARE_DISCNUM = 0;
+    public static final int COMPARE_ALPHA = 1;
+
+    private static int mFlag = COMPARE_DISCNUM;
+
+    public TrackComparator(int flag) {
+        super();
+        mFlag = flag;
+    }
+
     public int compare(Track t1, Track t2) {
-        Integer num1 = t1.getTrackNumber();
-        Integer num2 = t2.getTrackNumber();
-        return num1.compareTo(num2);
+
+        switch (mFlag) {
+
+        case COMPARE_DISCNUM:
+            Integer num1 = t1.getTrackNumber();
+            Integer num2 = t2.getTrackNumber();
+            return num1.compareTo(num2);
+
+        case COMPARE_ALPHA:
+            return t1.getTitle().compareTo(t2.getTitle());
+
+        }
+
+        return 0;
     }
 }
 

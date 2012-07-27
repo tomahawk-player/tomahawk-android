@@ -116,7 +116,7 @@ public class Album implements Serializable {
      */
     public ArrayList<Track> getTracks() {
         ArrayList<Track> tracks = new ArrayList<Track>(mTracks.values());
-        Collections.sort(tracks, new TrackComparator());
+        Collections.sort(tracks, new TrackComparator(TrackComparator.COMPARE_DISCNUM));
         return tracks;
     }
 

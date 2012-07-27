@@ -61,7 +61,7 @@ public class Artist implements Serializable {
 
     public ArrayList<Track> getTracks() {
         ArrayList<Track> list = new ArrayList<Track>(mTracks.values());
-        Collections.sort(list, new TrackComparator());
+        Collections.sort(list, new TrackComparator(TrackComparator.COMPARE_DISCNUM));
         return list;
     }
 
