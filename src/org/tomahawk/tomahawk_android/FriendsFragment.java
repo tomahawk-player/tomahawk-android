@@ -17,9 +17,9 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import org.tomahawk.libtomahawk.Album;
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.SourceList;
+import org.tomahawk.libtomahawk.Track;
 
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -48,8 +48,8 @@ public class FriendsFragment extends ListFragment {
 		super.onActivityCreated(savedInstanceState);
 
         Collection mycoll = SourceList.instance().getLocalSource().getCollection();
-        ArrayAdapter<Album> adapter = new ArrayAdapter<Album>(getActivity(),
-                R.layout.mymusic_list_item, R.id.mymusic_list_textview, mycoll.getAlbums());
+        ArrayAdapter<Track> adapter = new ArrayAdapter<Track>(getActivity(),
+                R.layout.mymusic_list_item, R.id.mymusic_list_textview, mycoll.getTracks());
         setListAdapter(adapter);
 	}
 }
