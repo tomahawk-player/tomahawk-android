@@ -92,7 +92,7 @@ public abstract class Playlist implements PlayableInterface, Serializable {
 
         if (mTrackIterator.hasNext()) {
             Track track = mTrackIterator.next();
-            if (track == mCurrentTrack)
+            if (track == mCurrentTrack && mTrackIterator.hasNext())
                 mCurrentTrack = mTrackIterator.next();
             else
                 mCurrentTrack = track;
@@ -114,7 +114,7 @@ public abstract class Playlist implements PlayableInterface, Serializable {
 
         if (mTrackIterator.hasPrevious()) {
             Track track = mTrackIterator.previous();
-            if (track == mCurrentTrack)
+            if (track == mCurrentTrack && mTrackIterator.hasPrevious())
                 mCurrentTrack = mTrackIterator.previous();
             else
                 mCurrentTrack = track;
