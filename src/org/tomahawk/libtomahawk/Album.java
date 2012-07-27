@@ -24,7 +24,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.support.v4.util.LruCache;
 
 /**
  * This class is used to compare two Albums.
@@ -43,6 +45,7 @@ public class Album implements Serializable {
 
     private static final long serialVersionUID = -5936447328960273526L;
 
+    private static CoverCache sCoverCache;
     private HashMap<Long, Track> mTracks;
 
     private long mId;
@@ -51,6 +54,33 @@ public class Album implements Serializable {
     private String mFirstYear;
     private String mLastYear;
     private Artist mArtist;
+
+    /**
+     * Cache album cover art.
+     */
+    private static class CoverCache extends LruCache<String, Bitmap> {
+
+        private static final BitmapFactory.Options sBitmapOptions = new BitmapFactory.Options();
+
+        static {
+            sBitmapOptions.inPreferredConfig = Bitmap.Config.RGB_565;
+            sBitmapOptions.inDither = false;
+        }
+
+        public CoverCache() {
+            super(4 * 1024 * 1024);
+        }
+
+        @Override
+        public Bitmap create(String path) {
+            return BitmapFactory.decodeFile(path, sBitmapOptions);
+        }
+
+        @Override
+        protected int sizeOf(String key, Bitmap value) {
+            return value.getRowBytes() * value.getHeight();
+        }
+    }
 
     /**
      * Construct a new Album from the id
@@ -130,8 +160,15 @@ public class Album implements Serializable {
         mName = name;
     }
 
-    public Drawable getAlbumArt() {
-        return Drawable.createFromPath(mAlbumArt);
+    public Bitmap getAlbumArt() {
+
+        if (mAlbumArt == null)
+            return null;
+
+        if (sCoverCache == null)
+            sCoverCache = new CoverCache();
+
+        return sCoverCache.get(mAlbumArt);
     }
 
     public void setAlbumArt(String albumArt) {

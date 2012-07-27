@@ -285,7 +285,7 @@ public class PlaybackActivity extends SherlockActivity implements
             final TextView artistTextView = (TextView) findViewById(R.id.textView_artist);
             final TextView albumTextView = (TextView) findViewById(R.id.textView_album);
             final TextView titleTextView = (TextView) findViewById(R.id.textView_title);
-            button.setImageDrawable(track.getAlbum().getAlbumArt());
+            button.setImageBitmap(track.getAlbum().getAlbumArt());
             artistTextView.setText(track.getArtist().toString());
             albumTextView.setText(track.getAlbum().toString());
             titleTextView.setText(track.getTitle().toString());
