@@ -87,6 +87,7 @@ public class PlaybackActivity extends SherlockActivity implements
         bar.setDisplayShowTitleEnabled(false);
         bar.setDisplayHomeAsUpEnabled(true);
 
+        //Set button height to screen width programmatically
         final ImageButton button = (ImageButton) findViewById(R.id.imageButton_cover);
         Display display = getWindowManager().getDefaultDisplay();
         button.setMinimumHeight(display.getWidth());
@@ -257,13 +258,15 @@ public class PlaybackActivity extends SherlockActivity implements
      * Track.
      */
     private void refreshActivityTrackInfo(Track track) {
-
+        final ImageButton button = (ImageButton) findViewById(R.id.imageButton_cover);
         if (track != null) {
-            final ImageButton button = (ImageButton) findViewById(R.id.imageButton_cover);
             final TextView artistTextView = (TextView) findViewById(R.id.textView_artist);
             final TextView albumTextView = (TextView) findViewById(R.id.textView_album);
             final TextView titleTextView = (TextView) findViewById(R.id.textView_title);
-            button.setImageBitmap(track.getAlbum().getAlbumArt());
+            if (track.getAlbum().getAlbumArt()!=null)
+                button.setImageBitmap(track.getAlbum().getAlbumArt());
+            else
+                button.setImageDrawable((getResources().getDrawable(R.drawable.no_album_art_placeholder)));
             artistTextView.setText(track.getArtist().toString());
             albumTextView.setText(track.getAlbum().toString());
             titleTextView.setText(track.getTitle().toString());
@@ -274,6 +277,7 @@ public class PlaybackActivity extends SherlockActivity implements
             findViewById(R.id.imageButton_shuffle).setClickable(true);
             findViewById(R.id.imageButton_repeat).setClickable(true);
         } else {
+            button.setImageDrawable((getResources().getDrawable(R.drawable.no_album_art_placeholder)));
             findViewById(R.id.imageButton_playpause).setClickable(false);
             findViewById(R.id.imageButton_next).setClickable(false);
             findViewById(R.id.imageButton_previous).setClickable(false);

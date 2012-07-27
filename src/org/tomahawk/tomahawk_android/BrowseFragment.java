@@ -61,6 +61,9 @@ public class BrowseFragment extends ListFragment implements OnItemClickListener 
         getListView().setOnItemClickListener(this);
 	}
 
+    /* (non-Javadoc)
+     * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
+     */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
         Collection mycoll = SourceList.instance().getLocalSource().getCollection();

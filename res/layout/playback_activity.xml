@@ -9,17 +9,20 @@
         android:id="@+id/textView_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:maxLines="1"
         android:textStyle="bold" />
 
     <TextView
         android:id="@+id/textView_artist"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:maxLines="1" />
 
     <TextView
         android:id="@+id/textView_album"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:maxLines="1" />
 
     <ImageButton
         android:id="@+id/imageButton_cover"
