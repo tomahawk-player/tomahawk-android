@@ -30,6 +30,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -172,7 +173,10 @@ public class PlaybackActivity extends SherlockActivity implements
             }
             getIntent().removeExtra(PLAYLIST_EXTRA);
         }
-        refreshActivityTrackInfo(mPlaybackService.getCurrentTrack());
+        if (mPlaybackService!=null)
+            refreshActivityTrackInfo(mPlaybackService.getCurrentTrack());
+        else 
+            refreshActivityTrackInfo(null);
     }
 
     /* (non-Javadoc)
@@ -263,8 +267,9 @@ public class PlaybackActivity extends SherlockActivity implements
             final TextView artistTextView = (TextView) findViewById(R.id.textView_artist);
             final TextView albumTextView = (TextView) findViewById(R.id.textView_album);
             final TextView titleTextView = (TextView) findViewById(R.id.textView_title);
-            if (track.getAlbum().getAlbumArt()!=null)
-                button.setImageBitmap(track.getAlbum().getAlbumArt());
+            Bitmap albumArt=track.getAlbum().getAlbumArt();
+            if (albumArt!=null)
+                button.setImageBitmap(albumArt);
             else
                 button.setImageDrawable((getResources().getDrawable(R.drawable.no_album_art_placeholder)));
             artistTextView.setText(track.getArtist().toString());
