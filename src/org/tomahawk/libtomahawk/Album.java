@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v4.util.LruCache;
@@ -91,19 +90,6 @@ public class Album implements Serializable {
         setId(id);
 
         mTracks = new HashMap<Long, Track>();
-    }
-
-    /**
-     * Populate the track from the Cursor.
-     * 
-     * @param cursor
-     */
-    public void populate(Cursor cursor) {
-        setId(cursor.getLong(0)); // MediaStore.Audio.Albums._ID
-        setName(cursor.getString(1)); // MediaStore.Audio.Albums.ALBUM,
-        setAlbumArt(cursor.getString(2)); // MediaStore.Audio.Albums.ALBUM_ART
-        setFirstYear(cursor.getString(3)); // MediaStore.Audio.Albums.FIRST_YEAR
-        setLastYear(cursor.getString(4)); // MediaStore.Audio.Albums.LAST_YEAR
     }
 
     /**

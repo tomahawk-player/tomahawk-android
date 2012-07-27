@@ -20,8 +20,6 @@ package org.tomahawk.libtomahawk;
 import java.io.Serializable;
 import java.util.Comparator;
 
-import android.database.Cursor;
-
 /**
  * This class is used to compare two Tracks.
  */
@@ -54,14 +52,6 @@ public class Track implements Serializable {
 
     public Track(long l) {
         setId(l);
-    }
-
-    public void populate(Cursor cursor) {
-        setId(cursor.getLong(0)); // MediaStore.Audio.Media._ID,
-        setPath(cursor.getString(1)); // MediaStore.Audio.Media.DATA,
-        setTitle(cursor.getString(2)); // MediaStore.Audio.Media.TITLE,
-        setDuration(cursor.getLong(3)); // MediaStore.Audio.Media.DURATION,
-        setTrackNumber(cursor.getInt(4)); // MediaStore.Audio.Media.TRACK
     }
 
     @Override

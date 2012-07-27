@@ -23,7 +23,6 @@ import java.util.HashMap;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
-import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
@@ -34,6 +33,8 @@ public class LocalCollection extends Collection {
     private ContentResolver mResolver;
 
     private HashMap<Long, Artist> mArtists;
+    private HashMap<Long, Album> mAlbums;
+    private HashMap<Long, Track> mTracks;
 
     /**
      * Construct a new LocalCollection and initialize.
@@ -43,6 +44,8 @@ public class LocalCollection extends Collection {
     public LocalCollection(ContentResolver resolver) {
         mResolver = resolver;
         mArtists = new HashMap<Long, Artist>();
+        mAlbums = new HashMap<Long, Album>();
+        mTracks = new HashMap<Long, Track>();
 
         initializeCollection();
     }
@@ -62,11 +65,8 @@ public class LocalCollection extends Collection {
      */
     @Override
     public ArrayList<Album> getAlbums() {
-        ArrayList<Album> albums = new ArrayList<Album>();
-        for (Artist artist : mArtists.values()) {
-
-            albums.addAll(artist.getAlbums());
-        }
+        ArrayList<Album> albums = new ArrayList<Album>(mAlbums.values());
+        Collections.sort(albums, new AlbumComparator());
         return albums;
     }
 
@@ -75,13 +75,8 @@ public class LocalCollection extends Collection {
      */
     @Override
     public ArrayList<Track> getTracks() {
-        ArrayList<Track> tracks = new ArrayList<Track>();
-        for (Artist artist : mArtists.values()) {
-
-            for (Album album : artist.getAlbums()) {
-                tracks.addAll(album.getTracks());
-            }
-        }
+        ArrayList<Track> tracks = new ArrayList<Track>(mTracks.values());
+        Collections.sort(tracks, new TrackComparator());
         return tracks;
     }
 
@@ -94,83 +89,75 @@ public class LocalCollection extends Collection {
     }
 
     /**
-     * Initialize the LocalCollection of all music files on the device.
+     * Initialize Tracks.
      */
     private void initializeCollection() {
-        initializeArtists();
-    }
+        String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
 
-    /**
-     * Initialize Artists on device.
-     */
-    private void initializeArtists() {
+        String[] projection = { MediaStore.Audio.Media._ID, MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.DURATION,
+                MediaStore.Audio.Media.TRACK, MediaStore.Audio.Media.ARTIST_ID,
+                MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM_ID,
+                MediaStore.Audio.Media.ALBUM };
 
-        Uri uri = MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI;
-
-        String[] proj = { MediaStore.Audio.Artists._ID, MediaStore.Audio.Artists.ARTIST };
-
-        Cursor cursor = mResolver.query(uri, proj, null, null, null);
+        Cursor cursor = mResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection,
+                selection, null, null);
 
         while (cursor != null && cursor.moveToNext()) {
-            Log.d(TAG, "New Artist : " + cursor.getString(1));
-            Artist artist = new Artist(cursor.getLong(0));
-            artist.populate(cursor);
+            Artist artist = mArtists.get(cursor.getLong(5));
+            if (artist == null) {
+                artist = new Artist(cursor.getLong(5));
+                artist.setName(cursor.getString(6));
 
-            mArtists.put(cursor.getLong(0), artist);
-            initializeAlbums(artist);
-        }
-    }
+                mArtists.put(artist.getId(), artist);
+                Log.d(TAG, "New Artist: " + artist.toString());
+            }
 
-    /**
-     * Initialize Albums from Artist.
-     * 
-     * @param artist
-     */
-    private void initializeAlbums(Artist artist) {
-        Uri uri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI;
-        String selection = MediaStore.Audio.Media.ARTIST_ID + " == "
-                + Long.toString(artist.getId());
-        String[] proj = { MediaStore.Audio.Albums._ID, MediaStore.Audio.Albums.ALBUM,
-                MediaStore.Audio.Albums.ALBUM_ART, MediaStore.Audio.Albums.FIRST_YEAR,
-                MediaStore.Audio.Albums.LAST_YEAR, MediaStore.Audio.Media.ARTIST_ID };
+            Album album = mAlbums.get(cursor.getLong(7));
+            if (album == null) {
+                album = new Album(cursor.getLong(7));
+                album.setName(cursor.getString(8));
 
-        Cursor cursor = mResolver.query(uri, proj, selection, null, null);
+                String albumsel = MediaStore.Audio.Albums._ID + " == "
+                        + Long.toString(album.getId());
 
-        while (cursor != null && cursor.moveToNext()) {
-            Log.d(TAG, "New Album : " + cursor.getString(1));
-            Album album = new Album(cursor.getLong(0));
-            album.populate(cursor);
-            album.setArtist(artist);
+                String[] albumproj = { MediaStore.Audio.Albums.ALBUM_ART,
+                        MediaStore.Audio.Albums.FIRST_YEAR, MediaStore.Audio.Albums.LAST_YEAR };
 
-            mArtists.get(cursor.getLong(5)).addAlbum(album);
-            initializeTracks(album);
-        }
-    }
+                Cursor albumcursor = mResolver.query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
+                        albumproj, albumsel, null, null);
 
-    /**
-     * Initialize Tracks from Album.
-     * 
-     * @param album
-     */
-    private void initializeTracks(Album album) {
-        String selection = MediaStore.Audio.Media.ALBUM_ID + " == " + Long.toString(album.getId());
-        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        String[] projection = { MediaStore.Audio.Media._ID,
-                         MediaStore.Audio.Media.DATA,
-                         MediaStore.Audio.Media.TITLE,
-                         MediaStore.Audio.Media.DURATION,
-                MediaStore.Audio.Media.TRACK };
+                if (albumcursor != null && albumcursor.moveToNext()) {
 
-        Cursor cursor = mResolver.query(uri, projection, selection, null, null);
+                    album.setAlbumArt(albumcursor.getString(0));
+                    album.setFirstYear(albumcursor.getString(1));
+                    album.setLastYear(albumcursor.getString(2));
 
-        while (cursor != null && cursor.moveToNext()) {
-            Log.d(TAG, "New Track : " + cursor.getString(2));
-            Track track = new Track(cursor.getLong(0));
-            track.populate(cursor);
-            track.setAlbum(album);
-            track.setArtist(album.getArtist());
+                    mAlbums.put(album.getId(), album);
+                    Log.d(TAG, "New Album: " + album.toString());
+                }
+            }
+
+            Track track = mTracks.get(cursor.getLong(0));
+            if (track == null) {
+                track = new Track(cursor.getLong(0));
+                track.setPath(cursor.getString(1));
+                track.setTitle(cursor.getString(2));
+                track.setDuration(cursor.getLong(3));
+                track.setTrackNumber(cursor.getInt(4));
+
+                mTracks.put(track.getId(), track);
+                Log.d(TAG, "New Track: " + track.toString());
+            }
+
+            artist.addAlbum(album);
+            artist.addTrack(track);
 
             album.addTrack(track);
+            album.setArtist(artist);
+
+            track.setAlbum(album);
+            track.setArtist(artist);
         }
     }
 }

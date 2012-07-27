@@ -23,8 +23,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import android.database.Cursor;
-
 /**
  * This class is used to compare two Artists.
  */
@@ -44,15 +42,12 @@ public class Artist implements Serializable {
     private long mId;
     private String mName;
     private HashMap<Long, Album> mAlbums;
+    private HashMap<Long, Track> mTracks;
 
     public Artist(long id) {
         mId = id;
         mAlbums = new HashMap<Long, Album>();
-    }
-
-    public void populate(Cursor cursor) {
-        setId(cursor.getLong(0));
-        setName(cursor.getString(1));
+        mTracks = new HashMap<Long, Track>();
     }
 
     @Override
@@ -60,11 +55,12 @@ public class Artist implements Serializable {
         return mName;
     }
 
+    public void addTrack(Track track) {
+        mTracks.put(track.getId(), track);
+    }
+
     public ArrayList<Track> getTracks() {
-        ArrayList<Track> list = new ArrayList<Track>();
-        for (Album album : mAlbums.values()) {
-            list.addAll(album.getTracks());
-        }
+        ArrayList<Track> list = new ArrayList<Track>(mTracks.values());
         Collections.sort(list, new TrackComparator());
         return list;
     }
