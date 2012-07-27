@@ -33,6 +33,7 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -47,17 +48,22 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
 
     private static String TAG = PlaybackService.class.getName();
 
+    private final IBinder mBinder = new PlaybackServiceBinder();
+
     public static final String BROADCAST_NEWTRACK = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_NEWTRACK";
     private static boolean mIsRunning = false;
-
-    private static PlaybackService mInstance;
-    private static final Object[] mWait = new Object[0];
 
     private Playlist mCurrentPlaylist;
     private MediaPlayer mMediaPlayer;
     private PowerManager.WakeLock mWakeLock;
     private Looper mLooper;
     private Handler mHandler;
+
+    public class PlaybackServiceBinder extends Binder {
+        PlaybackService getService() {
+            return PlaybackService.this;
+        }
+    }
 
     /**
      * Constructs a new PlaybackService.
@@ -77,11 +83,6 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         mMediaPlayer.setOnPreparedListener(this);
         mMediaPlayer.setOnErrorListener(this);
 
-        mInstance = this;
-        synchronized (mWait) {
-            mWait.notifyAll();
-        }
-
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
     }
@@ -93,18 +94,8 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
-        if (!intent.hasExtra(PlaybackActivity.PLAYLIST_EXTRA))
-            throw new IllegalArgumentException("Must pass track extra to PlaybackService.");
-
-        Playlist playlist = (Playlist) intent.getSerializableExtra(PlaybackActivity.PLAYLIST_EXTRA);
-
-        try {
-            setCurrentPlaylist(playlist);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         setIsRunning(true);
+
         return startId;
     }
 
@@ -114,6 +105,12 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     @Override
     public void onDestroy() {
         setIsRunning(false);
+        stop();
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
     }
 
     /**
@@ -180,33 +177,6 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         }
     }
 
-	/**
-	 * Get the PlaybackService for the given Context.
-	 */
-    public static PlaybackService get(Context context) {
-        if (mInstance == null) {
-            context.startService(new Intent(context, PlaybackService.class));
-
-            while (mInstance == null) {
-                try {
-                    synchronized (mWait) {
-                        mWait.wait();
-                    }
-                } catch (InterruptedException ignored) {
-                }
-            }
-        }
-
-        return mInstance;
-    }
-
-    /**
-     * Returns whether there is a valid PlaybackService instance.
-     */
-    public static boolean hasInstance() {
-        return mInstance != null;
-    }
-
     @Override
     public boolean handleMessage(Message msg) {
         return false;
@@ -230,11 +200,6 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
             }
         } else
             stop();
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
     }
 
     @Override
@@ -320,6 +285,7 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         Intent notificationIntent = new Intent(this, PlaybackService.class);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
+        notification.flags |= Notification.FLAG_FOREGROUND_SERVICE | Notification.FLAG_NO_CLEAR;
         notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
 
         startForeground(3, notification);

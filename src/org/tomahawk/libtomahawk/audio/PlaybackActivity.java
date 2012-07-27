@@ -20,20 +20,21 @@ package org.tomahawk.libtomahawk.audio;
 import java.io.IOException;
 
 import org.tomahawk.libtomahawk.Track;
+import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceBinder;
 import org.tomahawk.libtomahawk.playlist.Playlist;
 import org.tomahawk.tomahawk_android.R;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
+import android.os.IBinder;
 import android.os.Message;
-import android.os.Process;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -50,10 +51,9 @@ public class PlaybackActivity extends SherlockActivity implements
 
     private static final String TAG = PlaybackActivity.class.getName();
 
+    private PlaybackService mPlaybackService;
     private NewTrackReceiver mNewTrackReceiver;
 
-    private Looper mLooper;
-    private Handler mHandler;
 
     /**
      * Identifier for passing a Track as an extra in an Intent.
@@ -71,6 +71,25 @@ public class PlaybackActivity extends SherlockActivity implements
                 onTrackChanged();
         }
     }
+
+    /**
+     * Allow communication to the PlaybackService.
+     */
+    private ServiceConnection mPlaybackServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+
+            PlaybackServiceBinder binder = (PlaybackServiceBinder) service;
+            mPlaybackService = binder.getService();
+            onServiceReady();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mPlaybackService = null;
+        }
+    };
 
     /* (non-Javadoc)
      * @see android.app.Activity#onCreate(android.os.Bundle)
@@ -93,12 +112,6 @@ public class PlaybackActivity extends SherlockActivity implements
         button.setMinimumHeight(display.getWidth());
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-
-        HandlerThread thread = new HandlerThread(getClass().getName(), Process.THREAD_PRIORITY_LOWEST);
-        thread.start();
-
-        mLooper = thread.getLooper();
-        mHandler = new Handler(mLooper, this);
     }
 
     /* (non-Javadoc)
@@ -141,10 +154,25 @@ public class PlaybackActivity extends SherlockActivity implements
         IntentFilter intentFilter = new IntentFilter(PlaybackService.BROADCAST_NEWTRACK);
         registerReceiver(mNewTrackReceiver, intentFilter);
 
-        if (getIntent().hasExtra(PLAYLIST_EXTRA))
-            onServiceReady();
-        else
-            refreshActivityTrackInfo(PlaybackService.get(this).getCurrentTrack());
+        Intent playbackIntent = new Intent(this, PlaybackService.class);
+        getApplicationContext().startService(playbackIntent);
+        bindService(playbackIntent, mPlaybackServiceConnection, Context.BIND_ABOVE_CLIENT);
+    }
+
+    /**
+     * Called when the PlaybackService is ready.
+     */
+    public void onServiceReady() {
+        if (getIntent().hasExtra(PLAYLIST_EXTRA)) {
+            try {
+                mPlaybackService.setCurrentPlaylist((Playlist) getIntent().getSerializableExtra(
+                        PLAYLIST_EXTRA));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            getIntent().removeExtra(PLAYLIST_EXTRA);
+        }
+        refreshActivityTrackInfo(mPlaybackService.getCurrentTrack());
     }
 
     /* (non-Javadoc)
@@ -156,6 +184,7 @@ public class PlaybackActivity extends SherlockActivity implements
 
         if (mNewTrackReceiver != null)
             unregisterReceiver(mNewTrackReceiver);
+        unbindService(mPlaybackServiceConnection);
     }
     
     /* (non-Javadoc)
@@ -167,42 +196,13 @@ public class PlaybackActivity extends SherlockActivity implements
     }
 
     /**
-     * Called when the service is ready and requested.
-     */
-    private void onServiceReady() {
-
-        if (PlaybackService.hasInstance()) {
-
-            if (!getIntent().hasExtra(PLAYLIST_EXTRA))
-                return;
-
-            Playlist playlist = (Playlist) getIntent()
-                    .getSerializableExtra(PLAYLIST_EXTRA);
-
-            try {
-                PlaybackService.get(this).setCurrentPlaylist(playlist);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        } else {
-            Intent playbackIntent = new Intent(PlaybackActivity.this, PlaybackService.class);
-            playbackIntent.putExtra(PLAYLIST_EXTRA, getIntent()
-                    .getSerializableExtra(PLAYLIST_EXTRA));
-            startService(playbackIntent);
-        }
-
-        getIntent().removeExtra(PLAYLIST_EXTRA);
-    }
-
-    /**
      * Called when the play/pause button is clicked.
      * 
      * @param view
      */
     public void onPlayPauseClicked(View view) {
         Log.d(TAG,"onPlayPauseClicked");
-        PlaybackService.get(this).playPause();
+        mPlaybackService.playPause();
         refreshButtonStates();
     }
 
@@ -212,7 +212,7 @@ public class PlaybackActivity extends SherlockActivity implements
      * @param view
      */
     public void onNextClicked(View view) {
-        PlaybackService.get(this).next();
+        mPlaybackService.next();
         final ImageButton button = (ImageButton) findViewById(R.id.imageButton_playpause);
         button.setImageDrawable(getResources()
                 .getDrawable(R.drawable.ic_action_pause));
@@ -224,7 +224,7 @@ public class PlaybackActivity extends SherlockActivity implements
      * @param view
      */
     public void onPreviousClicked(View view) {
-        PlaybackService.get(this).previous();
+        mPlaybackService.previous();
         final ImageButton button = (ImageButton) findViewById(R.id.imageButton_playpause);
         button.setImageDrawable(getResources()
                 .getDrawable(R.drawable.ic_action_pause));
@@ -250,7 +250,7 @@ public class PlaybackActivity extends SherlockActivity implements
      * Called when the PlaybackService signals the current Track has changed.
      */
     protected void onTrackChanged() {
-        refreshActivityTrackInfo(PlaybackService.get(this).getCurrentTrack());
+        refreshActivityTrackInfo(mPlaybackService.getCurrentTrack());
     }
 
     /**
@@ -292,7 +292,7 @@ public class PlaybackActivity extends SherlockActivity implements
      */
     private void refreshButtonStates() {
         final ImageButton button = (ImageButton) findViewById(R.id.imageButton_playpause);
-        if (PlaybackService.get(this).isPlaying())
+        if (mPlaybackService.isPlaying())
             button.setImageDrawable(getResources()
                     .getDrawable(R.drawable.ic_action_pause));
         else
