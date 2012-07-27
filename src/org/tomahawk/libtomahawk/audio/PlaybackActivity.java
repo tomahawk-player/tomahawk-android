@@ -142,6 +142,8 @@ public class PlaybackActivity extends SherlockActivity implements
 
         if (getIntent().hasExtra(PLAYLIST_EXTRA))
             onServiceReady();
+        else
+            refreshActivityTrackInfo(PlaybackService.get(this).getCurrentTrack());
     }
 
     /* (non-Javadoc)
@@ -181,8 +183,6 @@ public class PlaybackActivity extends SherlockActivity implements
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            refreshActivityTrackInfo();
 
         } else {
             Intent playbackIntent = new Intent(PlaybackActivity.this, PlaybackService.class);
@@ -249,37 +249,15 @@ public class PlaybackActivity extends SherlockActivity implements
      * Called when the PlaybackService signals the current Track has changed.
      */
     protected void onTrackChanged() {
-
-        refreshActivityTrackInfo();
-        stockMusicBroadcast(PlaybackService.get(this).getCurrentTrack());
-    }
-
-    /**
-     * Send a broadcast emulating that of the stock music player.
-     * 
-     * Borrow from Vanilla Music Player. Thanks!
-     */
-    private void stockMusicBroadcast(Track track) {
-
-        Intent intent = new Intent("com.android.music.playstatechanged");
-        intent.putExtra("playing", 1);
-        if (track != null) {
-            intent.putExtra("track", track.getTitle());
-            intent.putExtra("album", track.getAlbum().getName());
-            intent.putExtra("artist", track.getArtist().getName());
-            intent.putExtra("songid", track.getId());
-            intent.putExtra("albumid", track.getAlbum().getId());
-        }
-        sendBroadcast(intent);
+        refreshActivityTrackInfo(PlaybackService.get(this).getCurrentTrack());
     }
 
     /**
      * Refresh the information in this activity to reflect that of the current
      * Track.
      */
-    private void refreshActivityTrackInfo() {
+    private void refreshActivityTrackInfo(Track track) {
 
-        Track track = PlaybackService.get(this).getCurrentTrack();
         if (track != null) {
             final ImageButton button = (ImageButton) findViewById(R.id.imageButton_cover);
             final TextView artistTextView = (TextView) findViewById(R.id.textView_artist);
