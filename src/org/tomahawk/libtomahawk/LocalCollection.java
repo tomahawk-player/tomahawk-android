@@ -20,6 +20,8 @@ package org.tomahawk.libtomahawk;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import android.content.ContentResolver;
 import android.database.Cursor;
@@ -32,9 +34,9 @@ public class LocalCollection extends Collection {
 
     private ContentResolver mResolver;
 
-    private HashMap<Long, Artist> mArtists;
-    private HashMap<Long, Album> mAlbums;
-    private HashMap<Long, Track> mTracks;
+    private Map<Long, Artist> mArtists;
+    private Map<Long, Album> mAlbums;
+    private Map<Long, Track> mTracks;
 
     /**
      * Construct a new LocalCollection and initialize.
@@ -54,7 +56,7 @@ public class LocalCollection extends Collection {
      * Get all Artist's associated with this Collection.
      */
     @Override
-    public ArrayList<Artist> getArtists() {
+    public List<Artist> getArtists() {
         ArrayList<Artist> artists = new ArrayList<Artist>(mArtists.values());
         Collections.sort(artists, new ArtistComparator());
         return artists;
@@ -64,7 +66,7 @@ public class LocalCollection extends Collection {
      * Get all Album's from this Collection.
      */
     @Override
-    public ArrayList<Album> getAlbums() {
+    public List<Album> getAlbums() {
         ArrayList<Album> albums = new ArrayList<Album>(mAlbums.values());
         Collections.sort(albums, new AlbumComparator());
         return albums;
@@ -74,7 +76,7 @@ public class LocalCollection extends Collection {
      * Return a list of all Tracks from the album.
      */
     @Override
-    public ArrayList<Track> getTracks() {
+    public List<Track> getTracks() {
         ArrayList<Track> tracks = new ArrayList<Track>(mTracks.values());
         Collections.sort(tracks, new TrackComparator(TrackComparator.COMPARE_ALPHA));
         return tracks;

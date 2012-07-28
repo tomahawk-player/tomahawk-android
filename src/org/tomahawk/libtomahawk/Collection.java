@@ -17,18 +17,18 @@
  */
 package org.tomahawk.libtomahawk;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class represents a Collection of media.
  */
 public abstract class Collection {
 
-    public abstract ArrayList<Artist> getArtists();
+    public abstract List<Artist> getArtists();
 
-    public abstract ArrayList<Album> getAlbums();
+    public abstract List<Album> getAlbums();
 
-    public abstract ArrayList<Track> getTracks();
+    public abstract List<Track> getTracks();
 
     public abstract void update();
 
