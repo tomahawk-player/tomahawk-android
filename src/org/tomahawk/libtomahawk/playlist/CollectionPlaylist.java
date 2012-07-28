@@ -24,6 +24,8 @@ import org.tomahawk.libtomahawk.Track;
 
 public class CollectionPlaylist extends Playlist implements Serializable {
 
+    private static final long serialVersionUID = -7867319646634939857L;
+
     /**
      * Create a CollectionPlaylist from Collection.
      * 
