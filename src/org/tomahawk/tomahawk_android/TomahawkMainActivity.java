@@ -58,12 +58,12 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
 		bar.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
 
 		mTabsAdapter = new TabsAdapter(this, mViewPager);
-		mTabsAdapter.addTab(bar.newTab().setText(R.string.title_browse_fragment), BrowseFragment.class,
+		mTabsAdapter.addTab(bar.newTab().setText(R.string.title_browse_fragment), ArtistFragment.class,
 				null);
 		mTabsAdapter.addTab(bar.newTab().setText(R.string.title_mymusic_fragment),
-				MyMusicFragment.class, null);
+				AlbumFragment.class, null);
 		mTabsAdapter.addTab(bar.newTab().setText(R.string.title_friends_fragment),
-				FriendsFragment.class, null);
+				CollectionFragment.class, null);
 		mTabsAdapter.addTab(bar.newTab().setText(R.string.title_player_fragment),
 				PlayerFragment.class, null);
 	}

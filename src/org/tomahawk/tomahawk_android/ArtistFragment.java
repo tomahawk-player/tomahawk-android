@@ -34,7 +34,7 @@ import android.widget.ArrayAdapter;
 /**
  * Fragment which represents the "Browse" tabview.
  */
-public class BrowseFragment extends ListFragment implements OnItemClickListener {
+public class ArtistFragment extends ListFragment implements OnItemClickListener {
 
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)

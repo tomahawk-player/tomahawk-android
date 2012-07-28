@@ -17,10 +17,10 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import org.tomahawk.libtomahawk.Album;
 import org.tomahawk.libtomahawk.Collection;
+import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
-import org.tomahawk.libtomahawk.playlist.AlbumPlaylist;
+import org.tomahawk.libtomahawk.playlist.CollectionPlaylist;
 import org.tomahawk.libtomahawk.playlist.Playlist;
 
 import android.content.Intent;
@@ -32,32 +32,33 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 
 /**
- * Fragment which represents the "MyMusic" tabview.
+ * Fragment which represents the "Friends" tabview.
  */
-public class MyMusicFragment extends ListFragment implements OnItemClickListener {
+public class CollectionFragment extends ListFragment implements OnItemClickListener {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onCreate(android.os.Bundle)
-     */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onCreate(android.os.Bundle)
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+	}
 
-    /* (non-Javadoc)
-     * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-     */
-    @Override
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+	 */
+	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
         TomahawkApp app = (TomahawkApp) getActivity().getApplicationContext();
         Collection mycoll = app.getSourceList().getLocalSource().getCollection();
-        ArrayAdapter<Album> adapter = new ArrayAdapter<Album>(getActivity(),
-                R.layout.mymusic_list_item, R.id.mymusic_list_textview, mycoll.getAlbums());
-		setListAdapter(adapter);
+
+        ArrayAdapter<Track> adapter = new ArrayAdapter<Track>(getActivity(),
+                R.layout.mymusic_list_item, R.id.mymusic_list_textview, mycoll.getTracks());
+        setListAdapter(adapter);
 
         getListView().setOnItemClickListener(this);
 	}
@@ -72,7 +73,7 @@ public class MyMusicFragment extends ListFragment implements OnItemClickListener
         Collection mycoll = app.getSourceList().getLocalSource().getCollection();
         Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
 
-        Playlist playlist = AlbumPlaylist.fromAlbum(mycoll.getAlbums().get(idx));
+        Playlist playlist = CollectionPlaylist.fromCollection(mycoll, mycoll.getTracks().get(idx));
         playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, playlist);
         startActivity(playbackIntent);
     }
