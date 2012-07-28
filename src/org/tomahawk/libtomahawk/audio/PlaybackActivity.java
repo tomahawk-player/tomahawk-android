@@ -113,6 +113,9 @@ public class PlaybackActivity extends SherlockActivity implements
         button.setMinimumHeight(display.getWidth());
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+        Intent playbackIntent = new Intent(this, PlaybackService.class);
+        getApplicationContext().startService(playbackIntent);
     }
 
     /* (non-Javadoc)
@@ -156,7 +159,6 @@ public class PlaybackActivity extends SherlockActivity implements
         registerReceiver(mNewTrackReceiver, intentFilter);
 
         Intent playbackIntent = new Intent(this, PlaybackService.class);
-        getApplicationContext().startService(playbackIntent);
         bindService(playbackIntent, mPlaybackServiceConnection, Context.BIND_ABOVE_CLIENT);
     }
 
