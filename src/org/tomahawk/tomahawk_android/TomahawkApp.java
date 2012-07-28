@@ -17,41 +17,33 @@
  */
 package org.tomahawk.tomahawk_android;
 
+import org.acra.ACRA;
+import org.acra.annotation.ReportsCrashes;
 import org.tomahawk.libtomahawk.LocalCollection;
 import org.tomahawk.libtomahawk.Source;
 import org.tomahawk.libtomahawk.SourceList;
 import org.tomahawk.libtomahawk.account.AccountManager;
 
+import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
 /**
  * This class contains the main application logic for Tomahawk.
  */
-public class TomahawkApp {
+@ReportsCrashes(formKey = "dE1KZEdjUlREcl9yY0FDNnpKYzdDanc6MQ")
+public class TomahawkApp extends Application {
 
     private static final String TAG = TomahawkApp.class.getName();
-
-    private static TomahawkApp instance = null;
 
     private AccountManager mAccountManager = null;
     private Context mContext;
 
-    /**
-     * Returns TomahawkApp instance.
-     * 
-     * @return singleton instance of this class.
-     */
-    public static TomahawkApp instance() {
-        if (instance == null)
-            instance = new TomahawkApp();
-        return instance;
-    }
+    @Override
+    public void onCreate() {
+        ACRA.init(this);
+        super.onCreate();
 
-    /**
-     * TomahawkApp constructor.
-     */
-    protected TomahawkApp() {
         mAccountManager = new AccountManager();
     }
 

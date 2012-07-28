@@ -45,7 +45,7 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		TomahawkApp app = TomahawkApp.instance();
+        TomahawkApp app = (TomahawkApp) getApplicationContext();
         app.setContext(getApplicationContext());
         app.initialize();
 

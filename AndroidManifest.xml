@@ -14,10 +14,10 @@
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.tomahawk" >
+        android:theme="@style/Theme.tomahawk" android:name="TomahawkApp">
         <activity
             android:name="org.tomahawk.tomahawk_android.TomahawkMainActivity"
-            android:label="@string/title_activity_tomahawk_main" >
+            android:label="@string/title_activity_tomahawk_main">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

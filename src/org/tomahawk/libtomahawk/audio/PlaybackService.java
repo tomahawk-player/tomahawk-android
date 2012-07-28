@@ -254,8 +254,10 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     }
 
     public Track getCurrentTrack() {
-        if (mCurrentPlaylist==null)
+
+        if (mCurrentPlaylist == null)
             return null;
+
         return mCurrentPlaylist.getCurrentTrack();
     }
 
