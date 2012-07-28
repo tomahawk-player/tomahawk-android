@@ -25,11 +25,10 @@ import org.tomahawk.libtomahawk.SourceList;
 import org.tomahawk.libtomahawk.account.AccountManager;
 
 import android.app.Application;
-import android.content.Context;
 import android.util.Log;
 
 /**
- * This class contains the main application logic for Tomahawk.
+ * This class contains represents the Application core.
  */
 @ReportsCrashes(formKey = "dE1KZEdjUlREcl9yY0FDNnpKYzdDanc6MQ")
 public class TomahawkApp extends Application {
@@ -37,7 +36,6 @@ public class TomahawkApp extends Application {
     private static final String TAG = TomahawkApp.class.getName();
 
     private AccountManager mAccountManager = null;
-    private Context mContext;
     private SourceList mSourceList;
 
     @Override
@@ -47,6 +45,8 @@ public class TomahawkApp extends Application {
 
         mAccountManager = new AccountManager();
         mSourceList = new SourceList();
+
+        initialize();
     }
 
     /**
@@ -68,9 +68,8 @@ public class TomahawkApp extends Application {
      * Initializes a new Collection of all local tracks.
      */
     public void initLocalCollection() {
-        assert (mContext != null);
         Log.d(TAG, "Initializing Local Collection.");
-        Source src = new Source(new LocalCollection(mContext.getContentResolver()), 0,
+        Source src = new Source(new LocalCollection(getContentResolver()), 0,
                 "My Collection");
         mSourceList.setLocalSource(src);
     }
@@ -89,12 +88,5 @@ public class TomahawkApp extends Application {
      */
     public SourceList getSourceList() {
         return mSourceList;
-    }
-
-    /**
-     * Sets the Context for this TomahawkApp.
-     */
-    public void setContext(Context context) {
-        mContext = context;
     }
 }

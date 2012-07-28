@@ -45,10 +45,6 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-        TomahawkApp app = (TomahawkApp) getApplicationContext();
-        app.setContext(getApplicationContext());
-        app.initialize();
-
 		mViewPager = new ViewPager(this);
 		mViewPager.setId(R.id.view_pager);
 		setContentView(mViewPager);
