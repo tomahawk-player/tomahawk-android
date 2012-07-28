@@ -164,4 +164,12 @@ public class LocalCollection extends Collection {
 
         cursor.close();
     }
+
+    /**
+     * Update this Collection's content.
+     */
+    @Override
+    public void update() {
+        initializeCollection();
+    }
 }

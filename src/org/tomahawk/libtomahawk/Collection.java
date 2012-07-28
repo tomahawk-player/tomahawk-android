@@ -30,6 +30,8 @@ public abstract class Collection {
 
     public abstract ArrayList<Track> getTracks();
 
+    public abstract void update();
+
     /**
      * Default constructor.
      */
