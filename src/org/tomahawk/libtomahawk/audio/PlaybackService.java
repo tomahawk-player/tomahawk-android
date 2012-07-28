@@ -26,8 +26,10 @@ import org.tomahawk.tomahawk_android.R;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -35,12 +37,9 @@ import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Binder;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
-import android.os.Process;
 import android.util.Log;
 
 public class PlaybackService extends Service implements Handler.Callback, OnCompletionListener,
@@ -56,8 +55,15 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     private Playlist mCurrentPlaylist;
     private MediaPlayer mMediaPlayer;
     private PowerManager.WakeLock mWakeLock;
-    private Looper mLooper;
-    private Handler mHandler;
+
+    private class HeadsetBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (isPlaying())
+                pause();
+        }
+    }
 
     public class PlaybackServiceBinder extends Binder {
         PlaybackService getService() {
@@ -71,12 +77,6 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     @Override
     public void onCreate() {
 
-        HandlerThread thread = new HandlerThread(TAG, Process.THREAD_PRIORITY_BACKGROUND);
-        thread.start();
-
-        mLooper = thread.getLooper();
-        mHandler = new Handler(mLooper, this);
-
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mMediaPlayer.setOnCompletionListener(this);
@@ -85,6 +85,9 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+
+        registerReceiver(new HeadsetBroadcastReceiver(), new IntentFilter(
+                Intent.ACTION_HEADSET_PLUG));
     }
 
     /**
