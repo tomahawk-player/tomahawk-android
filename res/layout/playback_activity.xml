@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:adjustViewBounds="false"
         android:background="@android:color/transparent"
-        android:scaleType="centerCrop"
+        android:scaleType="fitCenter"
         android:src="@drawable/no_album_art_placeholder" />
 
     <ProgressBar
