@@ -136,6 +136,8 @@ public class LocalCollection extends Collection {
                     mAlbums.put(album.getId(), album);
                     Log.d(TAG, "New Album: " + album.toString());
                 }
+
+                albumcursor.close();
             }
 
             Track track = mTracks.get(cursor.getLong(0));
@@ -159,5 +161,7 @@ public class LocalCollection extends Collection {
             track.setAlbum(album);
             track.setArtist(artist);
         }
+
+        cursor.close();
     }
 }

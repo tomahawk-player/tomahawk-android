@@ -208,18 +208,18 @@ public abstract class Playlist implements PlayableInterface, Serializable {
         if (mTrackIterator == null)
             resetTrackIterator();
 
+        Track track = null;
         if (mTrackIterator.hasNext()) {
 
-            Track track = mTrackIterator.next();
-            if (track == mCurrentTrack && mTrackIterator.hasNext()) {
+            track = mTrackIterator.next();
+            if (track == mCurrentTrack && mTrackIterator.hasNext())
                 track = mTrackIterator.next();
-                mTrackIterator.previous();
+            else if (track == mCurrentTrack)
+                track = null;
 
-                return track;
-            }
+            mTrackIterator.previous();
         }
-
-        return null;
+        return track;
     }
 
     /**
@@ -233,17 +233,17 @@ public abstract class Playlist implements PlayableInterface, Serializable {
         if (mTrackIterator == null)
             resetTrackIterator();
 
+        Track track = null;
         if (mTrackIterator.hasPrevious()) {
 
-            Track track = mTrackIterator.previous();
-            if (track == mCurrentTrack && mTrackIterator.hasPrevious()) {
+            track = mTrackIterator.previous();
+            if (track == mCurrentTrack && mTrackIterator.hasPrevious())
                 track = mTrackIterator.previous();
-                mTrackIterator.next();
+            else if (track == mCurrentTrack)
+                track = null;
 
-                return track;
-            }
+            mTrackIterator.next();
         }
-
-        return null;
+        return track;
     }
 }
