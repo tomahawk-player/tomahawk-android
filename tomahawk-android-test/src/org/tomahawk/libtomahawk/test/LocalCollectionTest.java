@@ -18,6 +18,8 @@
 package org.tomahawk.libtomahawk.test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import junit.framework.Assert;
 
@@ -27,19 +29,19 @@ import org.tomahawk.libtomahawk.LocalCollection;
 import org.tomahawk.libtomahawk.Track;
 
 import android.database.Cursor;
-import android.net.Uri;
 import android.provider.MediaStore;
 import android.test.AndroidTestCase;
 
 public class LocalCollectionTest extends AndroidTestCase {
 
-    private ArrayList<Artist> testArtists;
-    private ArrayList<Album> testAlbums;
-    private ArrayList<Track> testTracks;
+    private Map<Long, Artist> testArtists;
+    private Map<Long, Album> testAlbums;
+    private Map<Long, Track> testTracks;
 
     public void setUp() {
-        initializeTestArtists();
-        initializeTestAlbums();
+        testArtists = new HashMap<Long, Artist>();
+        testAlbums = new HashMap<Long, Album>();
+        testTracks = new HashMap<Long, Track>();
         initializeTestTracks();
     }
 
@@ -48,7 +50,7 @@ public class LocalCollectionTest extends AndroidTestCase {
 
         ArrayList<Long> artistIds = new ArrayList<Long>();
 
-        for (Artist artist : testArtists) {
+        for (Artist artist : testArtists.values()) {
             artistIds.add(artist.getId());
         }
 
@@ -62,7 +64,7 @@ public class LocalCollectionTest extends AndroidTestCase {
 
         ArrayList<Long> albumIds = new ArrayList<Long>();
 
-        for (Album album : testAlbums) {
+        for (Album album : testAlbums.values()) {
             albumIds.add(album.getId());
         }
 
@@ -76,7 +78,7 @@ public class LocalCollectionTest extends AndroidTestCase {
 
         ArrayList<Long> trackIds = new ArrayList<Long>();
 
-        for (Track track : testTracks) {
+        for (Track track : testTracks.values()) {
             trackIds.add(track.getId());
         }
 
@@ -89,62 +91,76 @@ public class LocalCollectionTest extends AndroidTestCase {
         Assert.assertTrue((new LocalCollection(getContext().getContentResolver()).isLocal()));
     }
 
-    private void initializeTestArtists() {
-        testArtists = new ArrayList<Artist>();
-
-        Uri uri = MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI;
-
-        String[] proj = { MediaStore.Audio.Artists._ID, MediaStore.Audio.Artists.ARTIST };
-
-        Cursor cursor = getContext().getContentResolver().query(uri, proj, null, null, null);
-
-        while (cursor != null && cursor.moveToNext()) {
-            Artist artist = new Artist(cursor.getLong(0));
-            artist.populate(cursor);
-
-            testArtists.add(artist);
-        }
-    }
-
-    private void initializeTestAlbums() {
-        testAlbums = new ArrayList<Album>();
-
-        Uri uri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI;
-
-        String[] proj = { MediaStore.Audio.Albums._ID, MediaStore.Audio.Albums.ALBUM,
-                MediaStore.Audio.Albums.ALBUM_ART, MediaStore.Audio.Albums.FIRST_YEAR,
-                MediaStore.Audio.Albums.LAST_YEAR, MediaStore.Audio.Media.ARTIST_ID };
-
-        Cursor cursor = getContext().getContentResolver().query(uri, proj, null, null, null);
-
-        while (cursor != null && cursor.moveToNext()) {
-            Album album = new Album(cursor.getLong(0));
-            album.populate(cursor);
-
-            testAlbums.add(album);
-        }
-    }
-
     private void initializeTestTracks() {
 
-        testTracks = new ArrayList<Track>();
-
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
-        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        String[] projection = { MediaStore.Audio.Media._ID, MediaStore.Audio.Media.DATA,
-                MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.ALBUM,
-                MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM_ID,
-                MediaStore.Audio.Media.ARTIST_ID, MediaStore.Audio.Media.DURATION,
-                MediaStore.Audio.Media.TRACK };
 
-        Cursor cursor = getContext().getContentResolver().query(uri, projection, selection, null,
-                null);
+        String[] projection = { MediaStore.Audio.Media._ID, MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.DURATION,
+                MediaStore.Audio.Media.TRACK, MediaStore.Audio.Media.ARTIST_ID,
+                MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM_ID,
+                MediaStore.Audio.Media.ALBUM };
+
+        Cursor cursor = getContext().getContentResolver().query(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, selection, null, null);
 
         while (cursor != null && cursor.moveToNext()) {
-            Track track = new Track(cursor.getLong(0));
-            track.populate(cursor);
+            Artist artist = testArtists.get(cursor.getLong(5));
+            if (artist == null) {
+                artist = new Artist(cursor.getLong(5));
+                artist.setName(cursor.getString(6));
 
-            testTracks.add(track);
+                testArtists.put(artist.getId(), artist);
+            }
+
+            Album album = testAlbums.get(cursor.getLong(7));
+            if (album == null) {
+                album = new Album(cursor.getLong(7));
+                album.setName(cursor.getString(8));
+
+                String albumsel = MediaStore.Audio.Albums._ID + " == "
+                        + Long.toString(album.getId());
+
+                String[] albumproj = { MediaStore.Audio.Albums.ALBUM_ART,
+                        MediaStore.Audio.Albums.FIRST_YEAR, MediaStore.Audio.Albums.LAST_YEAR };
+
+                Cursor albumcursor = getContext().getContentResolver().query(
+                        MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, albumproj, albumsel, null,
+                        null);
+
+                if (albumcursor != null && albumcursor.moveToNext()) {
+
+                    album.setAlbumArt(albumcursor.getString(0));
+                    album.setFirstYear(albumcursor.getString(1));
+                    album.setLastYear(albumcursor.getString(2));
+
+                    testAlbums.put(album.getId(), album);
+                }
+
+                albumcursor.close();
+            }
+
+            Track track = testTracks.get(cursor.getLong(0));
+            if (track == null) {
+                track = new Track(cursor.getLong(0));
+                track.setPath(cursor.getString(1));
+                track.setTitle(cursor.getString(2));
+                track.setDuration(cursor.getLong(3));
+                track.setTrackNumber(cursor.getInt(4));
+
+                testTracks.put(track.getId(), track);
+            }
+
+            artist.addAlbum(album);
+            artist.addTrack(track);
+
+            album.addTrack(track);
+            album.setArtist(artist);
+
+            track.setAlbum(album);
+            track.setArtist(artist);
         }
+
+        cursor.close();
     }
 }

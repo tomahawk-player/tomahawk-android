@@ -22,9 +22,6 @@ import junit.framework.Assert;
 import org.tomahawk.libtomahawk.Album;
 import org.tomahawk.libtomahawk.Track;
 
-import android.database.Cursor;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.test.AndroidTestCase;
 
 public class AlbumTest extends AndroidTestCase {
@@ -40,29 +37,6 @@ public class AlbumTest extends AndroidTestCase {
 
     public void tearDown() {
         mTstAlbum = null;
-    }
-
-    public void testPopulate() {
-
-        Uri uri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI;
-
-        String[] proj = { MediaStore.Audio.Albums._ID, MediaStore.Audio.Albums.ALBUM,
-                MediaStore.Audio.Albums.ALBUM_ART, MediaStore.Audio.Albums.FIRST_YEAR,
-                MediaStore.Audio.Albums.LAST_YEAR, MediaStore.Audio.Media.ARTIST_ID };
-
-        Cursor cursor = getContext().getContentResolver().query(uri, proj, null, null, null);
-
-        if (cursor != null && cursor.moveToNext()) {
-            Album album = new Album(cursor.getLong(0));
-            album.populate(cursor);
-
-            Assert.assertEquals(album.getId(), cursor.getLong(0));
-            Assert.assertEquals(album.getName(), cursor.getString(1));
-            Assert.assertEquals(album.getAlbumArt(), cursor.getString(2));
-            Assert.assertEquals(album.getFirstYear(), cursor.getString(3));
-            Assert.assertEquals(album.getLastYear(), cursor.getString(4));
-        } else
-            Assert.assertTrue(false);
     }
 
     public void testAddTrack() {

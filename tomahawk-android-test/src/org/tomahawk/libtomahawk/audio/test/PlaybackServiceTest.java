@@ -59,15 +59,6 @@ public class PlaybackServiceTest extends ServiceTestCase<PlaybackService> {
         Assert.assertTrue(getService().isRunning());
     }
 
-    public void testHasInstance() {
-        Assert.assertTrue(PlaybackService.hasInstance());
-    }
-
-    public void testGet() {
-        Assert.assertNotNull(PlaybackService.get(getContext()));
-        Assert.assertEquals(getPlaybackService(), PlaybackService.get(getContext()));
-    }
-
     public void testGetTrack() {
         Assert.assertEquals(tstTrack, getPlaybackService().getCurrentTrack());
     }

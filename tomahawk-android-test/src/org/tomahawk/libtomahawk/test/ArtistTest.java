@@ -22,9 +22,6 @@ import junit.framework.Assert;
 import org.tomahawk.libtomahawk.Album;
 import org.tomahawk.libtomahawk.Artist;
 
-import android.database.Cursor;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.test.AndroidTestCase;
 
 public class ArtistTest extends AndroidTestCase {
@@ -40,25 +37,6 @@ public class ArtistTest extends AndroidTestCase {
 
     public void tearDown() {
         mTstArtist = null;
-    }
-
-    public void testPopulate() {
-
-        Uri uri = MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI;
-
-        String[] proj = { MediaStore.Audio.Artists._ID, MediaStore.Audio.Artists.ARTIST };
-
-        Cursor cursor = getContext().getContentResolver().query(uri, proj, null, null, null);
-
-        if (cursor != null && cursor.moveToNext()) {
-            Artist artist = new Artist(cursor.getLong(0));
-            artist.populate(cursor);
-
-            Assert.assertTrue(artist.getId() == cursor.getLong(0));
-            Assert.assertEquals(artist.getName(), cursor.getString(1));
-
-        } else
-            Assert.assertTrue(false);
     }
 
     public void testAddAlbum() {
