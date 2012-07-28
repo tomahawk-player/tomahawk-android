@@ -19,7 +19,6 @@ package org.tomahawk.tomahawk_android;
 
 import org.tomahawk.libtomahawk.Album;
 import org.tomahawk.libtomahawk.Collection;
-import org.tomahawk.libtomahawk.SourceList;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 import org.tomahawk.libtomahawk.playlist.AlbumPlaylist;
 import org.tomahawk.libtomahawk.playlist.Playlist;
@@ -53,7 +52,9 @@ public class MyMusicFragment extends ListFragment implements OnItemClickListener
     @Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		Collection mycoll = SourceList.instance().getLocalSource().getCollection();
+
+        TomahawkApp app = (TomahawkApp) getActivity().getApplicationContext();
+        Collection mycoll = app.getSourceList().getLocalSource().getCollection();
         ArrayAdapter<Album> adapter = new ArrayAdapter<Album>(getActivity(),
                 R.layout.mymusic_list_item, R.id.mymusic_list_textview, mycoll.getAlbums());
 		setListAdapter(adapter);
@@ -67,7 +68,8 @@ public class MyMusicFragment extends ListFragment implements OnItemClickListener
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
 
-        Collection mycoll = SourceList.instance().getLocalSource().getCollection();
+        TomahawkApp app = (TomahawkApp) getActivity().getApplicationContext();
+        Collection mycoll = app.getSourceList().getLocalSource().getCollection();
         Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
 
         Playlist playlist = AlbumPlaylist.fromAlbum(mycoll.getAlbums().get(idx));

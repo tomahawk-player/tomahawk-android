@@ -22,25 +22,12 @@ package org.tomahawk.libtomahawk;
  */
 public class SourceList {
 
-    private static SourceList mInstance = null;
-
     private Source mLocalSource = null;
-
-    /**
-     * Returns instance of SourceList.
-     * 
-     * @return
-     */
-    public static SourceList instance() {
-        if (mInstance == null)
-            mInstance = new SourceList();
-        return mInstance;
-    }
 
     /**
      * Default constructor.
      */
-    protected SourceList() {
+    public SourceList() {
     }
 
     /**

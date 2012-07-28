@@ -38,6 +38,7 @@ public class TomahawkApp extends Application {
 
     private AccountManager mAccountManager = null;
     private Context mContext;
+    private SourceList mSourceList;
 
     @Override
     public void onCreate() {
@@ -45,6 +46,7 @@ public class TomahawkApp extends Application {
         super.onCreate();
 
         mAccountManager = new AccountManager();
+        mSourceList = new SourceList();
     }
 
     /**
@@ -70,7 +72,7 @@ public class TomahawkApp extends Application {
         Log.d(TAG, "Initializing Local Collection.");
         Source src = new Source(new LocalCollection(mContext.getContentResolver()), 0,
                 "My Collection");
-        SourceList.instance().setLocalSource(src);
+        mSourceList.setLocalSource(src);
     }
 
     /**
@@ -78,6 +80,15 @@ public class TomahawkApp extends Application {
      */
     public AccountManager getAccountManager() {
         return mAccountManager;
+    }
+
+    /**
+     * Return the list of Sources for this TomahawkApp.
+     * 
+     * @return SourceList
+     */
+    public SourceList getSourceList() {
+        return mSourceList;
     }
 
     /**
