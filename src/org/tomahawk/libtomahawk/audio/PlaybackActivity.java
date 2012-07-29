@@ -301,7 +301,7 @@ public class PlaybackActivity extends SherlockActivity implements
      */
     public void onRepeatClicked(View view) {
     }
-    
+
     /**
      * Updates the position on seekbar
      */
