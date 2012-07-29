@@ -137,7 +137,9 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
      */
     public void stop() {
         mMediaPlayer.stop();
-        mWakeLock.release();
+
+        if (mWakeLock.isHeld())
+            mWakeLock.release();
         stopForeground(true);
     }
 
@@ -145,8 +147,10 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
      * Pause playback.
      */
     public void pause() {
-        mWakeLock.release();
         mMediaPlayer.pause();
+
+        if (mWakeLock.isHeld())
+            mWakeLock.release();
         stopForeground(true);
     }
 
