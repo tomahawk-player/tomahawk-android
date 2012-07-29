@@ -301,4 +301,11 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
 
         startForeground(3, notification);
     }
+
+    /**
+     * Returns the position of playback in the current Track.
+     */
+    public int getPosition() {
+        return mMediaPlayer.getCurrentPosition();
+    }
 }
