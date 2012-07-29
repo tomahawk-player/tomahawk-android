@@ -137,7 +137,9 @@ public class PlaybackActivity extends SherlockActivity implements
      */
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-        mIsSeeking = false;
+       mIsSeeking = false;
+       mPlaybackService.seekTo(seekBar.getProgress());
+       updateSeekBarPosition();
     }
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
@@ -256,8 +258,8 @@ public class PlaybackActivity extends SherlockActivity implements
     public void onPlayPauseClicked(View view) {
         Log.d(TAG, "onPlayPauseClicked");
         mPlaybackService.playPause();
-        updateSeekBarPosition();
         refreshButtonStates();
+        updateSeekBarPosition();
     }
 
     /**
@@ -299,17 +301,17 @@ public class PlaybackActivity extends SherlockActivity implements
      */
     public void onRepeatClicked(View view) {
     }
-
+    
     /**
      * Updates the position on seekbar
      */
-    public void updateSeekBarPosition() {
-        if(mPlaybackService.isPlaying()) {
-            if( mPlaybackService.getPosition() > 0 )
-                mSeekBar.setProgress(mPlaybackService.getPosition());
-            mUiHandler.removeMessages(MSG_UPDATE_PROGRESS);
-            mUiHandler.sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS, 10);
-         }
+    private void updateSeekBarPosition() {
+        if( !mPlaybackService.isPlaying() && !mIsSeeking )
+            return;
+        if( !mIsSeeking )
+            mSeekBar.setProgress(mPlaybackService.getPosition());
+        mUiHandler.removeMessages(MSG_UPDATE_PROGRESS);
+        mUiHandler.sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS, 10);
     }
     
     /**
