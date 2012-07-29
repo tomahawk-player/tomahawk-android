@@ -32,6 +32,19 @@ public abstract class Collection {
 
     public abstract void update();
 
+    private CollectionUpdateListener mCollectionUpdateListener;
+
+    /**
+     * Callback for Collection updates.
+     */
+    public interface CollectionUpdateListener {
+
+        /**
+         * Called when Collection is updated.
+         */
+        public void onCollectionUpdated();
+    }
+
     /**
      * Default constructor.
      */
@@ -40,5 +53,13 @@ public abstract class Collection {
 
     public boolean isLocal() {
         return false;
+    }
+
+    public void setOnCollectionUpdatedListener(CollectionUpdateListener collectionUpdateListener) {
+        mCollectionUpdateListener = collectionUpdateListener;
+    }
+
+    protected CollectionUpdateListener getCollectionUpdatedListener() {
+        return mCollectionUpdateListener;
     }
 }

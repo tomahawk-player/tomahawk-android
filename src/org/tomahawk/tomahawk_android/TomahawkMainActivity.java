@@ -18,6 +18,9 @@
  */
 package org.tomahawk.tomahawk_android;
 
+import org.tomahawk.libtomahawk.Collection.CollectionUpdateListener;
+import org.tomahawk.libtomahawk.Source;
+
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 
@@ -30,11 +33,14 @@ import com.actionbarsherlock.view.MenuItem;
 /**
  * This class represents the main entrypoint for the app.
  */
-public class TomahawkMainActivity extends SherlockFragmentActivity {
+public class TomahawkMainActivity extends SherlockFragmentActivity implements
+        CollectionUpdateListener {
 
 	private ViewPager mViewPager;
 
 	private TabsAdapter mTabsAdapter;
+
+    private TomahawkApp mTomahawkApp;
 
 	/*
 	 * (non-Javadoc)
@@ -62,7 +68,28 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
 				CollectionFragment.class, null);
 		mTabsAdapter.addTab(bar.newTab().setText(R.string.title_player_fragment),
 				PlayerFragment.class, null);
-	}
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        mTomahawkApp = (TomahawkApp) getApplicationContext();
+        for (Source source : mTomahawkApp.getSourceList().getSources()) {
+            source.getCollection().setOnCollectionUpdatedListener(this);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        /** Remove Collection update callback. */
+        mTomahawkApp = (TomahawkApp) getApplicationContext();
+        for (Source source : mTomahawkApp.getSourceList().getSources()) {
+            source.getCollection().setOnCollectionUpdatedListener(null);
+        }
+    }
 
 	/*
 	 * (non-Javadoc)
@@ -86,4 +113,11 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
 								| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		return true;
 	}
+
+    @Override
+    public void onCollectionUpdated() {
+        for (int idx = 0; idx < mTabsAdapter.getCount(); ++idx) {
+            ((TomahawkListFragment) mTabsAdapter.getItem(idx)).refresh();
+        }
+    }
 }

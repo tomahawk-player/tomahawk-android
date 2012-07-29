@@ -15,47 +15,24 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomahawk.libtomahawk;
+package org.tomahawk.tomahawk_android;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.tomahawk.libtomahawk.Collection;
 
-/**
- * This class represents a collection of all Sources, local and remote.
- */
-public class SourceList {
+import android.support.v4.app.ListFragment;
+import android.widget.ArrayAdapter;
 
-    private List<Source> mSources = null;
-    private Source mLocalSource = null;
+public abstract class TomahawkListFragment extends ListFragment implements
+        Collection.CollectionUpdateListener {
 
     /**
-     * Default constructor.
-     */
-    public SourceList() {
-        mSources = new ArrayList<Source>();
-    }
-
-    /**
-     * Sets the local source.
-     * 
-     * @param source
-     */
-    public void setLocalSource(Source source) {
-        mSources.remove(mLocalSource);
-        mLocalSource = source;
-        mSources.add(mLocalSource);
-    }
-
-    /**
-     * Returns the Source that represents this device.
-     * 
+     * Returns the Adapter for this TomahawkListFragment.
      * @return
      */
-    public Source getLocalSource() {
-        return mLocalSource;
-    }
+    protected abstract ArrayAdapter<?> getAdapter();
 
-    public List<Source> getSources() {
-        return mSources;
+    public void refresh() {
+        if (getAdapter() != null)
+            getAdapter().notifyDataSetChanged();
     }
 }

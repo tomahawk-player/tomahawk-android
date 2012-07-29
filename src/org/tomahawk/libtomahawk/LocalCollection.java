@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.ContentResolver;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -39,6 +40,16 @@ public class LocalCollection extends Collection {
     private Map<Long, Track> mTracks;
 
     /**
+     * This class watches for changes in the Media db.
+     */
+    private final ContentObserver mLocalMediaObserver = new ContentObserver(null) {
+        @Override
+        public void onChange(boolean selfChange) {
+            update();
+        }
+    };
+
+    /**
      * Construct a new LocalCollection and initialize.
      * 
      * @param resolver
@@ -49,6 +60,8 @@ public class LocalCollection extends Collection {
         mAlbums = new HashMap<Long, Album>();
         mTracks = new HashMap<Long, Track>();
 
+        mResolver.registerContentObserver(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false,
+                mLocalMediaObserver);
         initializeCollection();
     }
 
@@ -173,5 +186,8 @@ public class LocalCollection extends Collection {
     @Override
     public void update() {
         initializeCollection();
+
+        if (getCollectionUpdatedListener() != null)
+            getCollectionUpdatedListener().onCollectionUpdated();
     }
 }

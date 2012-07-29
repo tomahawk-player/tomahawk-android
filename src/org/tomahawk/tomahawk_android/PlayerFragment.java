@@ -18,12 +18,12 @@
 package org.tomahawk.tomahawk_android;
 
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
+import android.widget.ArrayAdapter;
 
 /**
  * Fragment which represents the "Player" tabview.
  */
-public class PlayerFragment extends ListFragment {
+public class PlayerFragment extends TomahawkListFragment {
 
 	/*
 	 * (non-Javadoc)
@@ -42,4 +42,13 @@ public class PlayerFragment extends ListFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 	}
+
+    @Override
+    public void onCollectionUpdated() {
+    }
+
+    @Override
+    protected ArrayAdapter<?> getAdapter() {
+        return null;
+    }
 }

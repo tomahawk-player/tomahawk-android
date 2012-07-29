@@ -25,7 +25,6 @@ import org.tomahawk.libtomahawk.playlist.Playlist;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -34,7 +33,9 @@ import android.widget.ArrayAdapter;
 /**
  * Fragment which represents the "Browse" tabview.
  */
-public class ArtistFragment extends ListFragment implements OnItemClickListener {
+public class ArtistFragment extends TomahawkListFragment implements OnItemClickListener {
+
+    private ArrayAdapter<Artist> mArtistAdapter;
 
 	/* (non-Javadoc)
 	 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
@@ -55,9 +56,9 @@ public class ArtistFragment extends ListFragment implements OnItemClickListener 
 
         TomahawkApp app = (TomahawkApp) getActivity().getApplicationContext();
         Collection mycoll = app.getSourceList().getLocalSource().getCollection();
-        ArrayAdapter<Artist> adapter = new ArrayAdapter<Artist>(getActivity(),
-                R.layout.mymusic_list_item, R.id.mymusic_list_textview, mycoll.getArtists());
-        setListAdapter(adapter);
+        mArtistAdapter = new ArrayAdapter<Artist>(getActivity(), R.layout.mymusic_list_item,
+                R.id.mymusic_list_textview, mycoll.getArtists());
+        setListAdapter(mArtistAdapter);
 
         getListView().setOnItemClickListener(this);
 	}
@@ -76,5 +77,15 @@ public class ArtistFragment extends ListFragment implements OnItemClickListener 
         Playlist playlist = ArtistPlaylist.fromArtist(mycoll.getArtists().get(idx));
         playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, playlist);
         startActivity(playbackIntent);
+    }
+
+    @Override
+    public void onCollectionUpdated() {
+        mArtistAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    protected ArrayAdapter<?> getAdapter() {
+        return mArtistAdapter;
     }
 }
