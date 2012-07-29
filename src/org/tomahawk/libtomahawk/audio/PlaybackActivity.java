@@ -40,9 +40,9 @@ import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.LinearLayout.LayoutParams;
-import android.widget.TextView;
 import android.widget.SeekBar;
+import android.widget.TextView;
+
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
@@ -55,12 +55,14 @@ public class PlaybackActivity extends SherlockActivity implements
 
     private PlaybackService mPlaybackService;
     private NewTrackReceiver mNewTrackReceiver;
-    
+
     /**
      * Ui thread handler.
      */
     protected final Handler mUiHandler = new Handler(this);
     private SeekBar mSeekBar;
+    private TextView mTextView_completionTime;
+    private TextView mTextView_currentTime;
     boolean mIsSeeking = false;
     private static final int MSG_UPDATE_PROGRESS = 0x1;
     /**
@@ -75,7 +77,7 @@ public class PlaybackActivity extends SherlockActivity implements
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(PlaybackService.BROADCAST_NEWTRACK)) 
+            if (intent.getAction().equals(PlaybackService.BROADCAST_NEWTRACK))
                 onTrackChanged();
         }
     }
@@ -121,8 +123,14 @@ public class PlaybackActivity extends SherlockActivity implements
         Display display = getWindowManager().getDefaultDisplay();
         button.setMinimumHeight(display.getWidth());
         button.setMaxHeight(display.getWidth());
+        if (display.getWidth() <= 480) {
+            button.setMinimumHeight((int) ((float) display.getWidth() * 0.6));
+            button.setMaxHeight((int) ((float) display.getWidth() * 0.6));
+        }
 
-        mSeekBar = (SeekBar)findViewById(R.id.seekBar_track);
+        mTextView_completionTime = (TextView) findViewById(R.id.textView_completionTime);
+        mTextView_currentTime = (TextView) findViewById(R.id.textView_currentTime);
+        mSeekBar = (SeekBar) findViewById(R.id.seekBar_track);
         mSeekBar.setOnSeekBarChangeListener(this);
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -130,23 +138,27 @@ public class PlaybackActivity extends SherlockActivity implements
         Intent playbackIntent = new Intent(this, PlaybackService.class);
         getApplicationContext().startService(playbackIntent);
     }
-    
+
     /**
-     * Called when user is seeking in the seekbar
-     * Will seek to progress when stopped
+     * Called when user is seeking in the seekbar Will seek to progress when
+     * stopped
      */
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-       mIsSeeking = false;
-       mPlaybackService.seekTo(seekBar.getProgress());
-       updateSeekBarPosition();
+        mIsSeeking = false;
+        mPlaybackService.seekTo(seekBar.getProgress());
+        updateSeekBarPosition();
     }
+
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
         mIsSeeking = true;
     }
+
     @Override
-    public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {}
+    public void onProgressChanged(SeekBar seekBar, int progress,
+            boolean fromUser) {
+    }
 
     /*
      * (non-Javadoc)
@@ -242,10 +254,10 @@ public class PlaybackActivity extends SherlockActivity implements
      */
     @Override
     public boolean handleMessage(Message msg) {
-        switch(msg.what) {
-            case MSG_UPDATE_PROGRESS :
-                updateSeekBarPosition();
-                break;
+        switch (msg.what) {
+        case MSG_UPDATE_PROGRESS:
+            updateSeekBarPosition();
+            break;
         }
         return true;
     }
@@ -305,24 +317,28 @@ public class PlaybackActivity extends SherlockActivity implements
     }
 
     /**
-     * Updates the position on seekbar
+     * Updates the position on seekbar and the related textviews
      */
     private void updateSeekBarPosition() {
-        if( !mPlaybackService.isPlaying() && !mIsSeeking )
+        if (!mPlaybackService.isPlaying() && !mIsSeeking)
             return;
-        if( !mIsSeeking )
-            mSeekBar.setProgress(mPlaybackService.getPosition());
+        if (!mIsSeeking) {
+            int mPosition = mPlaybackService.getPosition();
+            mSeekBar.setProgress(mPosition);
+            mTextView_currentTime.setText(String.format("%02d", mPosition / 60000)
+                    + ":" + String.format("%02d", (int)((mPosition/ 1000) % 60 )));
+        }
         mUiHandler.removeMessages(MSG_UPDATE_PROGRESS);
         mUiHandler.sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS, 10);
     }
-    
+
     /**
      * Called when the PlaybackService signals the current Track has changed.
      */
     protected void onTrackChanged() {
         refreshActivityTrackInfo(mPlaybackService.getCurrentTrack());
     }
-    
+
     /**
      * Refresh the information in this activity to reflect that of the current
      * Track.
@@ -347,9 +363,15 @@ public class PlaybackActivity extends SherlockActivity implements
             findViewById(R.id.imageButton_previous).setClickable(true);
             findViewById(R.id.imageButton_shuffle).setClickable(true);
             findViewById(R.id.imageButton_repeat).setClickable(true);
-            int duration = (int)mPlaybackService.getCurrentTrack().getDuration();
+            int duration = (int) mPlaybackService.getCurrentTrack()
+                    .getDuration();
             mSeekBar.setProgress(0);
             mSeekBar.setMax(duration);
+            mTextView_completionTime.setText(String.format("%02d", duration / 60000)
+                    + ":" + String.format("%02d", (int)((duration/ 1000) % 60 )));
+            int mPosition = mPlaybackService.getPosition();
+            mTextView_currentTime.setText(String.format("%02d", mPosition / 60000)
+                    + ":" + String.format("%02d", (int)((mPosition/ 1000) % 60 )));
             // Update the progressbar the next second
             mUiHandler.sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS, 1000);
         } else {

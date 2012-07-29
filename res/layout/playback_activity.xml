@@ -5,24 +5,32 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/textView_title"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/playback_trackInfoPanel"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:textStyle="bold" />
+        android:layout_marginBottom="10dip"
+        android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/textView_artist"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:maxLines="1" />
+        <TextView
+            android:id="@+id/textView_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/textView_album"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:maxLines="1" />
+        <TextView
+            android:id="@+id/textView_artist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1" />
+
+        <TextView
+            android:id="@+id/textView_album"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1" />
+    </LinearLayout>
 
     <ImageButton
         android:id="@+id/imageButton_cover"
@@ -34,26 +42,60 @@
         android:scaleType="fitCenter"
         android:src="@drawable/no_album_art_placeholder" />
 
-    <SeekBar
-        android:id="@+id/seekBar_track"
-        style="@style/tomahawk_ProgressBar"
-        android:layout_width="fill_parent"
+    <RelativeLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:indeterminate="false"
-        android:max="500"
-        android:progress="250"
-        android:visibility="visible" />
+        android:layout_marginBottom="-32dip" >
+
+        <SeekBar
+            android:id="@+id/seekBar_track"
+            style="@style/tomahawk_ProgressBar"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"
+            android:layout_marginBottom="0dip"
+            android:layout_marginLeft="16dip"
+            android:layout_marginRight="16dip"
+            android:background="@android:color/transparent"
+            android:indeterminate="false"
+            android:max="500"
+            android:paddingLeft="0dip"
+            android:paddingRight="0dip"
+            android:progress="250"
+            android:thumb="@android:color/transparent"
+            android:visibility="visible" />
+
+        <TextView
+            android:id="@+id/textView_completionTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/seekBar_track"
+            android:text="-:--"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/textView_currentTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/seekBar_track"
+            android:text="0:00"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/playback_buttonPanel"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="100" >
+        android:layout_weight="10" >
 
         <ImageButton
             android:id="@+id/imageButton_shuffle"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
             android:layout_weight="1"
             android:adjustViewBounds="true"
             android:background="@drawable/selectable_background_playback_small_tomahawk"
@@ -65,7 +107,8 @@
         <ImageButton
             android:id="@+id/imageButton_previous"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
             android:layout_weight="1"
             android:adjustViewBounds="true"
             android:background="@drawable/selectable_background_playback_small_tomahawk"
@@ -79,8 +122,9 @@
 
         <ImageButton
             android:id="@+id/imageButton_playpause"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
             android:layout_weight="1"
             android:adjustViewBounds="true"
             android:background="@drawable/selectable_background_playback_large_tomahawk"
@@ -92,7 +136,8 @@
         <ImageButton
             android:id="@+id/imageButton_next"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
             android:layout_weight="1"
             android:adjustViewBounds="true"
             android:background="@drawable/selectable_background_playback_small_tomahawk"
@@ -107,7 +152,8 @@
         <ImageButton
             android:id="@+id/imageButton_repeat"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
             android:layout_weight="1"
             android:adjustViewBounds="true"
             android:background="@drawable/selectable_background_playback_small_tomahawk"
