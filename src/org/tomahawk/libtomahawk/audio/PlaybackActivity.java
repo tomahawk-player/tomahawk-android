@@ -292,6 +292,8 @@ public class PlaybackActivity extends SherlockActivity implements
      * @param view
      */
     public void onShuffleClicked(View view) {
+        mPlaybackService.getCurrentPlaylist().setShuffed(
+                !mPlaybackService.getCurrentPlaylist().isShuffled());
     }
 
     /**

@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.playlist;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.ListIterator;
 
 import org.tomahawk.libtomahawk.Track;
@@ -33,8 +34,11 @@ public abstract class Playlist implements PlayableInterface, Serializable {
 
     private String mName;
     private ArrayList<Track> mTracks;
+    private ArrayList<Track> mShuffledTracks;
+
     private transient ListIterator<Track> mTrackIterator;
     private Track mCurrentTrack;
+    private boolean mShuffled;
 
     /**
      * Create a playlist with a list of empty tracks.
@@ -245,5 +249,33 @@ public abstract class Playlist implements PlayableInterface, Serializable {
             mTrackIterator.next();
         }
         return track;
+    }
+
+    /**
+     * Set this playlist to shuffle mode.
+     * 
+     * @param shuffled
+     */
+    @SuppressWarnings("unchecked")
+    public void setShuffed(boolean shuffled) {
+        mShuffled = shuffled;
+
+        if (shuffled) {
+            mShuffledTracks = (ArrayList<Track>) mTracks.clone();
+            Collections.shuffle(mShuffledTracks);
+            mTrackIterator = mShuffledTracks.listIterator();
+        } else {
+            resetTrackIterator();
+            mShuffledTracks = null;
+        }
+    }
+
+    /**
+     * Return whether this Playlist is currently shuffled.S
+     * 
+     * @return
+     */
+    public boolean isShuffled() {
+        return mShuffled;
     }
 }
