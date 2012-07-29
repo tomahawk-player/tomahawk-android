@@ -34,8 +34,8 @@
         android:scaleType="fitCenter"
         android:src="@drawable/no_album_art_placeholder" />
 
-    <ProgressBar
-        android:id="@+id/progressBar_track"
+    <SeekBar
+        android:id="@+id/seekBar_track"
         style="@style/tomahawk_ProgressBar"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

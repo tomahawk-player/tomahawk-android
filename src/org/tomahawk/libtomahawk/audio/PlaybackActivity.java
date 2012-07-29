@@ -42,20 +42,27 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
-
+import android.widget.SeekBar;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
 public class PlaybackActivity extends SherlockActivity implements
-        Handler.Callback {
+        Handler.Callback, SeekBar.OnSeekBarChangeListener {
 
     private static final String TAG = PlaybackActivity.class.getName();
 
     private PlaybackService mPlaybackService;
     private NewTrackReceiver mNewTrackReceiver;
-
+    
+    /**
+     * Ui thread handler.
+     */
+    protected final Handler mUiHandler = new Handler(this);
+    private SeekBar mSeekBar;
+    boolean mIsSeeking = false;
+    private static final int MSG_UPDATE_PROGRESS = 0x1;
     /**
      * Identifier for passing a Track as an extra in an Intent.
      */
@@ -68,7 +75,7 @@ public class PlaybackActivity extends SherlockActivity implements
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(PlaybackService.BROADCAST_NEWTRACK))
+            if (intent.getAction().equals(PlaybackService.BROADCAST_NEWTRACK)) 
                 onTrackChanged();
         }
     }
@@ -115,11 +122,29 @@ public class PlaybackActivity extends SherlockActivity implements
         button.setMinimumHeight(display.getWidth());
         button.setMaxHeight(display.getWidth());
 
+        mSeekBar = (SeekBar)findViewById(R.id.seekBar_track);
+        mSeekBar.setOnSeekBarChangeListener(this);
+
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         Intent playbackIntent = new Intent(this, PlaybackService.class);
         getApplicationContext().startService(playbackIntent);
     }
+    
+    /**
+     * Called when user is seeking in the seekbar
+     * Will seek to progress when stopped
+     */
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        mIsSeeking = false;
+    }
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+        mIsSeeking = true;
+    }
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {}
 
     /*
      * (non-Javadoc)
@@ -215,7 +240,12 @@ public class PlaybackActivity extends SherlockActivity implements
      */
     @Override
     public boolean handleMessage(Message msg) {
-        return false;
+        switch(msg.what) {
+            case MSG_UPDATE_PROGRESS :
+                updateSeekBarPosition();
+                break;
+        }
+        return true;
     }
 
     /**
@@ -226,6 +256,7 @@ public class PlaybackActivity extends SherlockActivity implements
     public void onPlayPauseClicked(View view) {
         Log.d(TAG, "onPlayPauseClicked");
         mPlaybackService.playPause();
+        updateSeekBarPosition();
         refreshButtonStates();
     }
 
@@ -270,12 +301,24 @@ public class PlaybackActivity extends SherlockActivity implements
     }
 
     /**
+     * Updates the position on seekbar
+     */
+    public void updateSeekBarPosition() {
+        if(mPlaybackService.isPlaying()) {
+            if( mPlaybackService.getPosition() > 0 )
+                mSeekBar.setProgress(mPlaybackService.getPosition());
+            mUiHandler.removeMessages(MSG_UPDATE_PROGRESS);
+            mUiHandler.sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS, 10);
+         }
+    }
+    
+    /**
      * Called when the PlaybackService signals the current Track has changed.
      */
     protected void onTrackChanged() {
         refreshActivityTrackInfo(mPlaybackService.getCurrentTrack());
     }
-
+    
     /**
      * Refresh the information in this activity to reflect that of the current
      * Track.
@@ -295,12 +338,16 @@ public class PlaybackActivity extends SherlockActivity implements
             artistTextView.setText(track.getArtist().toString());
             albumTextView.setText(track.getAlbum().toString());
             titleTextView.setText(track.getTitle().toString());
-
             findViewById(R.id.imageButton_playpause).setClickable(true);
             findViewById(R.id.imageButton_next).setClickable(true);
             findViewById(R.id.imageButton_previous).setClickable(true);
             findViewById(R.id.imageButton_shuffle).setClickable(true);
             findViewById(R.id.imageButton_repeat).setClickable(true);
+            int duration = (int)mPlaybackService.getCurrentTrack().getDuration();
+            mSeekBar.setProgress(0);
+            mSeekBar.setMax(duration);
+            // Update the progressbar the next second
+            mUiHandler.sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS, 1000);
         } else {
             button.setImageDrawable((getResources()
                     .getDrawable(R.drawable.no_album_art_placeholder)));
