@@ -308,4 +308,12 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     public int getPosition() {
         return mMediaPlayer.getCurrentPosition();
     }
+    
+    /**
+     * Seeks to position msec
+     * @param msec
+     */
+    public void seekTo(int msec) {
+        mMediaPlayer.seekTo(msec);
+    }
 }
