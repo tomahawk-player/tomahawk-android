@@ -40,6 +40,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -54,7 +55,6 @@ public class PlaybackActivity extends SherlockActivity implements
 
     private PlaybackService mPlaybackService;
     private NewTrackReceiver mNewTrackReceiver;
-
 
     /**
      * Identifier for passing a Track as an extra in an Intent.
@@ -92,7 +92,9 @@ public class PlaybackActivity extends SherlockActivity implements
         }
     };
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see android.app.Activity#onCreate(android.os.Bundle)
      */
     @Override
@@ -107,10 +109,11 @@ public class PlaybackActivity extends SherlockActivity implements
         bar.setDisplayShowTitleEnabled(false);
         bar.setDisplayHomeAsUpEnabled(true);
 
-        //Set button height to screen width programmatically
+        // Set albumart height to screen width programmatically
         final ImageButton button = (ImageButton) findViewById(R.id.imageButton_cover);
         Display display = getWindowManager().getDefaultDisplay();
         button.setMinimumHeight(display.getWidth());
+        button.setMaxHeight(display.getWidth());
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
@@ -118,8 +121,12 @@ public class PlaybackActivity extends SherlockActivity implements
         getApplicationContext().startService(playbackIntent);
     }
 
-    /* (non-Javadoc)
-     * @see com.actionbarsherlock.app.SherlockActivity#onCreateOptionsMenu(android.view.Menu)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.actionbarsherlock.app.SherlockActivity#onCreateOptionsMenu(android
+     * .view.Menu)
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -132,8 +139,12 @@ public class PlaybackActivity extends SherlockActivity implements
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see com.actionbarsherlock.app.SherlockActivity#onOptionsItemSelected(android.view.MenuItem)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.actionbarsherlock.app.SherlockActivity#onOptionsItemSelected(android
+     * .view.MenuItem)
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -146,7 +157,9 @@ public class PlaybackActivity extends SherlockActivity implements
         }
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see android.app.Activity#onStart()
      */
     @Override
@@ -168,20 +181,22 @@ public class PlaybackActivity extends SherlockActivity implements
     public void onServiceReady() {
         if (getIntent().hasExtra(PLAYLIST_EXTRA)) {
             try {
-                mPlaybackService.setCurrentPlaylist((Playlist) getIntent().getSerializableExtra(
-                        PLAYLIST_EXTRA));
+                mPlaybackService.setCurrentPlaylist((Playlist) getIntent()
+                        .getSerializableExtra(PLAYLIST_EXTRA));
             } catch (IOException e) {
                 e.printStackTrace();
             }
             getIntent().removeExtra(PLAYLIST_EXTRA);
         }
-        if (mPlaybackService!=null)
+        if (mPlaybackService != null)
             refreshActivityTrackInfo(mPlaybackService.getCurrentTrack());
-        else 
+        else
             refreshActivityTrackInfo(null);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.actionbarsherlock.app.SherlockActivity#onPause()
      */
     @Override
@@ -192,8 +207,10 @@ public class PlaybackActivity extends SherlockActivity implements
             unregisterReceiver(mNewTrackReceiver);
         unbindService(mPlaybackServiceConnection);
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see android.os.Handler.Callback#handleMessage(android.os.Message)
      */
     @Override
@@ -207,7 +224,7 @@ public class PlaybackActivity extends SherlockActivity implements
      * @param view
      */
     public void onPlayPauseClicked(View view) {
-        Log.d(TAG,"onPlayPauseClicked");
+        Log.d(TAG, "onPlayPauseClicked");
         mPlaybackService.playPause();
         refreshButtonStates();
     }
@@ -221,7 +238,7 @@ public class PlaybackActivity extends SherlockActivity implements
         mPlaybackService.next();
         final ImageButton button = (ImageButton) findViewById(R.id.imageButton_playpause);
         button.setImageDrawable(getResources()
-                .getDrawable(R.drawable.ic_action_pause));
+                .getDrawable(R.drawable.ic_player_pause));
     }
 
     /**
@@ -233,7 +250,7 @@ public class PlaybackActivity extends SherlockActivity implements
         mPlaybackService.previous();
         final ImageButton button = (ImageButton) findViewById(R.id.imageButton_playpause);
         button.setImageDrawable(getResources()
-                .getDrawable(R.drawable.ic_action_pause));
+                .getDrawable(R.drawable.ic_player_pause));
     }
 
     /**
@@ -269,22 +286,24 @@ public class PlaybackActivity extends SherlockActivity implements
             final TextView artistTextView = (TextView) findViewById(R.id.textView_artist);
             final TextView albumTextView = (TextView) findViewById(R.id.textView_album);
             final TextView titleTextView = (TextView) findViewById(R.id.textView_title);
-            Bitmap albumArt=track.getAlbum().getAlbumArt();
-            if (albumArt!=null)
+            Bitmap albumArt = track.getAlbum().getAlbumArt();
+            if (albumArt != null)
                 button.setImageBitmap(albumArt);
             else
-                button.setImageDrawable((getResources().getDrawable(R.drawable.no_album_art_placeholder)));
+                button.setImageDrawable((getResources()
+                        .getDrawable(R.drawable.no_album_art_placeholder)));
             artistTextView.setText(track.getArtist().toString());
             albumTextView.setText(track.getAlbum().toString());
             titleTextView.setText(track.getTitle().toString());
-            
+
             findViewById(R.id.imageButton_playpause).setClickable(true);
             findViewById(R.id.imageButton_next).setClickable(true);
             findViewById(R.id.imageButton_previous).setClickable(true);
             findViewById(R.id.imageButton_shuffle).setClickable(true);
             findViewById(R.id.imageButton_repeat).setClickable(true);
         } else {
-            button.setImageDrawable((getResources().getDrawable(R.drawable.no_album_art_placeholder)));
+            button.setImageDrawable((getResources()
+                    .getDrawable(R.drawable.no_album_art_placeholder)));
             findViewById(R.id.imageButton_playpause).setClickable(false);
             findViewById(R.id.imageButton_next).setClickable(false);
             findViewById(R.id.imageButton_previous).setClickable(false);
@@ -301,10 +320,10 @@ public class PlaybackActivity extends SherlockActivity implements
         final ImageButton button = (ImageButton) findViewById(R.id.imageButton_playpause);
         if (mPlaybackService.isPlaying())
             button.setImageDrawable(getResources()
-                    .getDrawable(R.drawable.ic_action_pause));
+                    .getDrawable(R.drawable.ic_player_pause));
         else
             button.setImageDrawable(getResources()
-                    .getDrawable(R.drawable.ic_action_play));
+                    .getDrawable(R.drawable.ic_player_play));
     }
-    
+
 }

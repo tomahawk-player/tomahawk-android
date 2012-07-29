@@ -48,7 +48,7 @@
         android:id="@+id/playback_buttonPanel"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="100" >
+        android:layout_weight="15" >
 
         <ImageButton
             android:id="@+id/imageButton_shuffle"

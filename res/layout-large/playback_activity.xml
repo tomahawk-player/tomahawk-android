@@ -28,7 +28,6 @@
         android:id="@+id/imageButton_cover"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:adjustViewBounds="false"
         android:background="@android:color/transparent"
         android:scaleType="fitCenter"
@@ -47,8 +46,7 @@
     <LinearLayout
         android:id="@+id/playback_buttonPanel"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_weight="100" >
+        android:layout_height="fill_parent" >
 
         <ImageButton
             android:id="@+id/imageButton_shuffle"
