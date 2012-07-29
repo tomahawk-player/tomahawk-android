@@ -40,7 +40,7 @@ public class TomahawkApp extends Application {
 
     @Override
     public void onCreate() {
-        //ACRA.init(this);
+        ACRA.init(this);
         super.onCreate();
 
         mAccountManager = new AccountManager();
