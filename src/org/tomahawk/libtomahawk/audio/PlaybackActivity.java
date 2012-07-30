@@ -143,6 +143,9 @@ public class PlaybackActivity extends SherlockActivity implements
      * Called when user is seeking in the seekbar Will seek to progress when
      * stopped
      */
+    /* (non-Javadoc)
+     * @see android.widget.SeekBar.OnSeekBarChangeListener#onStopTrackingTouch(android.widget.SeekBar)
+     */
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
         mIsSeeking = false;
@@ -150,16 +153,23 @@ public class PlaybackActivity extends SherlockActivity implements
         updateSeekBarPosition();
     }
 
+    /* (non-Javadoc)
+     * @see android.widget.SeekBar.OnSeekBarChangeListener#onStartTrackingTouch(android.widget.SeekBar)
+     */
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
         mIsSeeking = true;
     }
 
+    /* (non-Javadoc)
+     * @see android.widget.SeekBar.OnSeekBarChangeListener#onProgressChanged(android.widget.SeekBar, int, boolean)
+     */
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress,
             boolean fromUser) {
+        mTextViewCurrentTime.setText(String.format("%02d", progress / 60000)
+                + ":" + String.format("%02d", (int)((progress/ 1000) % 60 )));
     }
-
     /*
      * (non-Javadoc)
      * 
