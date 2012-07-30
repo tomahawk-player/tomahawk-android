@@ -114,10 +114,19 @@ public class TomahawkMainActivity extends SherlockFragmentActivity implements
 		return true;
 	}
 
+    /**
+     * Run when a Collection has been updated.
+     */
     @Override
     public void onCollectionUpdated() {
-        for (int idx = 0; idx < mTabsAdapter.getCount(); ++idx) {
-            ((TomahawkListFragment) mTabsAdapter.getItem(idx)).refresh();
-        }
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                for (int idx = 0; idx < mTabsAdapter.getCount(); ++idx) {
+                    ((TomahawkListFragment) mTabsAdapter.getItem(idx)).refresh();
+                }
+            }
+        });
     }
 }

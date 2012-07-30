@@ -18,6 +18,7 @@
 package org.tomahawk.tomahawk_android;
 
 import org.acra.ACRA;
+import org.acra.ErrorReporter;
 import org.acra.annotation.ReportsCrashes;
 import org.tomahawk.libtomahawk.LocalCollection;
 import org.tomahawk.libtomahawk.Source;
@@ -27,10 +28,11 @@ import org.tomahawk.libtomahawk.account.AccountManager;
 import android.app.Application;
 import android.util.Log;
 
+
 /**
  * This class contains represents the Application core.
  */
-@ReportsCrashes(formKey = "dE1KZEdjUlREcl9yY0FDNnpKYzdDanc6MQ")
+@ReportsCrashes(formKey = "")
 public class TomahawkApp extends Application {
 
     private static final String TAG = TomahawkApp.class.getName();
@@ -41,6 +43,8 @@ public class TomahawkApp extends Application {
     @Override
     public void onCreate() {
         ACRA.init(this);
+        TomahawkExceptionReporter reporter = new TomahawkExceptionReporter();
+        ErrorReporter.getInstance().setReportSender(reporter);
         super.onCreate();
 
         mAccountManager = new AccountManager();
@@ -90,3 +94,4 @@ public class TomahawkApp extends Application {
         return mSourceList;
     }
 }
+
