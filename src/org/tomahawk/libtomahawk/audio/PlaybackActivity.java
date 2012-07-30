@@ -116,17 +116,7 @@ public class PlaybackActivity extends SherlockActivity implements
         final ActionBar bar = getSupportActionBar();
         bar.setDisplayShowHomeEnabled(true);
         bar.setDisplayShowTitleEnabled(false);
-        bar.setDisplayHomeAsUpEnabled(true);
-
-        // Set albumart height to screen width programmatically
-        final ImageButton button = (ImageButton) findViewById(R.id.imageButton_cover);
-        Display display = getWindowManager().getDefaultDisplay();
-        button.setMinimumHeight(display.getWidth());
-        button.setMaxHeight(display.getWidth());
-        if (display.getWidth() < 480) {
-            button.setMinimumHeight((int) ((float) display.getWidth() * 0.6));
-            button.setMaxHeight((int) ((float) display.getWidth() * 0.6));
-        }
+        bar.setDisplayHomeAsUpEnabled(true);        
 
         mTextViewCompletionTime = (TextView) findViewById(R.id.textView_completionTime);
         mTextViewCurrentTime = (TextView) findViewById(R.id.textView_currentTime);

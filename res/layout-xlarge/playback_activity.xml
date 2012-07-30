@@ -10,6 +10,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dip"
+        android:layout_weight="1"
         android:orientation="vertical" >
 
         <TextView
@@ -35,9 +36,8 @@
     <ImageButton
         android:id="@+id/imageButton_cover"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:adjustViewBounds="false"
+        android:layout_height="720dip"
+        android:layout_weight="10"
         android:background="@android:color/transparent"
         android:scaleType="fitCenter"
         android:src="@drawable/no_album_art_placeholder" />
@@ -45,7 +45,8 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="-32dip" >
+        android:layout_marginBottom="-32dip"
+        android:layout_weight="1" >
 
         <SeekBar
             android:id="@+id/seekBar_track"
@@ -59,10 +60,10 @@
             android:layout_marginRight="16dip"
             android:background="@android:color/transparent"
             android:indeterminate="false"
-            android:max="500"
+            android:max="1"
             android:paddingLeft="0dip"
             android:paddingRight="0dip"
-            android:progress="250"
+            android:progress="0"
             android:thumb="@android:color/transparent"
             android:visibility="visible" />
 
@@ -88,8 +89,8 @@
     <LinearLayout
         android:id="@+id/playback_buttonPanel"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_weight="15" >
+        android:layout_height="80dip"
+        android:layout_weight="1" >
 
         <ImageButton
             android:id="@+id/imageButton_shuffle"
@@ -122,8 +123,8 @@
 
         <ImageButton
             android:id="@+id/imageButton_playpause"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
             android:layout_gravity="bottom"
             android:layout_weight="1"
             android:adjustViewBounds="true"
