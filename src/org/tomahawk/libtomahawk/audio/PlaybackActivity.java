@@ -61,8 +61,8 @@ public class PlaybackActivity extends SherlockActivity implements
      */
     protected final Handler mUiHandler = new Handler(this);
     private SeekBar mSeekBar;
-    private TextView mTextView_completionTime;
-    private TextView mTextView_currentTime;
+    private TextView mTextViewCompletionTime;
+    private TextView mTextViewCurrentTime;
     boolean mIsSeeking = false;
     private static final int MSG_UPDATE_PROGRESS = 0x1;
     /**
@@ -128,8 +128,8 @@ public class PlaybackActivity extends SherlockActivity implements
             button.setMaxHeight((int) ((float) display.getWidth() * 0.6));
         }
 
-        mTextView_completionTime = (TextView) findViewById(R.id.textView_completionTime);
-        mTextView_currentTime = (TextView) findViewById(R.id.textView_currentTime);
+        mTextViewCompletionTime = (TextView) findViewById(R.id.textView_completionTime);
+        mTextViewCurrentTime = (TextView) findViewById(R.id.textView_currentTime);
         mSeekBar = (SeekBar) findViewById(R.id.seekBar_track);
         mSeekBar.setOnSeekBarChangeListener(this);
 
@@ -325,7 +325,7 @@ public class PlaybackActivity extends SherlockActivity implements
         if (!mIsSeeking) {
             int mPosition = mPlaybackService.getPosition();
             mSeekBar.setProgress(mPosition);
-            mTextView_currentTime.setText(String.format("%02d", mPosition / 60000)
+            mTextViewCurrentTime.setText(String.format("%02d", mPosition / 60000)
                     + ":" + String.format("%02d", (int)((mPosition/ 1000) % 60 )));
         }
         mUiHandler.removeMessages(MSG_UPDATE_PROGRESS);
@@ -367,10 +367,10 @@ public class PlaybackActivity extends SherlockActivity implements
                     .getDuration();
             mSeekBar.setProgress(0);
             mSeekBar.setMax(duration);
-            mTextView_completionTime.setText(String.format("%02d", duration / 60000)
+            mTextViewCompletionTime.setText(String.format("%02d", duration / 60000)
                     + ":" + String.format("%02d", (int)((duration/ 1000) % 60 )));
             int mPosition = mPlaybackService.getPosition();
-            mTextView_currentTime.setText(String.format("%02d", mPosition / 60000)
+            mTextViewCurrentTime.setText(String.format("%02d", mPosition / 60000)
                     + ":" + String.format("%02d", (int)((mPosition/ 1000) % 60 )));
             // Update the progressbar the next second
             mUiHandler.sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS, 1000);
