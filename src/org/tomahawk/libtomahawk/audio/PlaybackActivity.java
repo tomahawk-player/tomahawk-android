@@ -123,7 +123,7 @@ public class PlaybackActivity extends SherlockActivity implements
         Display display = getWindowManager().getDefaultDisplay();
         button.setMinimumHeight(display.getWidth());
         button.setMaxHeight(display.getWidth());
-        if (display.getWidth() <= 480) {
+        if (display.getWidth() < 480) {
             button.setMinimumHeight((int) ((float) display.getWidth() * 0.6));
             button.setMaxHeight((int) ((float) display.getWidth() * 0.6));
         }
