@@ -40,6 +40,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 public class PlaybackService extends Service implements Handler.Callback, OnCompletionListener,
@@ -56,6 +58,26 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     private MediaPlayer mMediaPlayer;
     private PowerManager.WakeLock mWakeLock;
 
+    /**
+     * Listens for incoming phone calls and handles playback.
+     */
+    private class PhoneCallListener extends PhoneStateListener {
+
+        @Override
+        public void onCallStateChanged(int state, String incomingNumber) {
+            switch (state) {
+            case TelephonyManager.CALL_STATE_RINGING:
+            case TelephonyManager.CALL_STATE_OFFHOOK: {
+                if (isPlaying())
+                    pause();
+            }
+            }
+        }
+    }
+
+    /**
+     * Listens for Headset changes.
+     */
     private class HeadsetBroadcastReceiver extends BroadcastReceiver {
 
         @Override
@@ -76,6 +98,9 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
      */
     @Override
     public void onCreate() {
+
+        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        telephonyManager.listen(new PhoneCallListener(), PhoneStateListener.LISTEN_CALL_STATE);
 
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
