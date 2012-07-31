@@ -60,6 +60,8 @@ public class CollectionFragment extends TomahawkListFragment implements OnItemCl
         mTrackAdapter = new ArrayAdapter<Track>(getActivity(), R.layout.mymusic_list_item,
                 R.id.mymusic_list_textview, mycoll.getTracks());
         setListAdapter(mTrackAdapter);
+        
+        getListView().setFastScrollEnabled(true);
 
         getListView().setOnItemClickListener(this);
 	}

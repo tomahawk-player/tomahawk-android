@@ -59,6 +59,8 @@ public class ArtistFragment extends TomahawkListFragment implements OnItemClickL
         mArtistAdapter = new ArrayAdapter<Artist>(getActivity(), R.layout.mymusic_list_item,
                 R.id.mymusic_list_textview, mycoll.getArtists());
         setListAdapter(mArtistAdapter);
+        
+        getListView().setFastScrollEnabled(true);
 
         getListView().setOnItemClickListener(this);
 	}

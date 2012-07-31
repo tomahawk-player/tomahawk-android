@@ -59,6 +59,8 @@ public class AlbumFragment extends TomahawkListFragment implements OnItemClickLi
         mAlbumAdapter = new ArrayAdapter<Album>(getActivity(), R.layout.mymusic_list_item,
                 R.id.mymusic_list_textview, mycoll.getAlbums());
         setListAdapter(mAlbumAdapter);
+        
+        getListView().setFastScrollEnabled(true);
 
         getListView().setOnItemClickListener(this);
 	}
