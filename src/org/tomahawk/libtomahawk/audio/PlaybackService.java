@@ -217,6 +217,7 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
         Log.e(TAG, "Error with media player");
+        stop();
         return false;
     }
 
