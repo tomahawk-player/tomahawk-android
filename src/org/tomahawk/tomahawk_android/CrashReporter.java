@@ -82,7 +82,7 @@ class TomahawkExceptionReporter implements ReportSender {
         body.append("Display: " + data.getProperty(ReportField.DISPLAY) + "\r\n");
         body.append("-----------------------------------\r\n\r\n");
 
-        body.append("------- Operating System  ---------\r\n\r\n");
+        body.append("------- Operating System  ---------\r\n");
         body.append("Total Mem Size: " + data.getProperty(ReportField.TOTAL_MEM_SIZE) + "\r\n");
         body.append("Available Mem Size: " + data.getProperty(ReportField.AVAILABLE_MEM_SIZE)
                 + "\r\n");
