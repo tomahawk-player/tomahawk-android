@@ -73,7 +73,7 @@ public abstract class Playlist implements PlayableInterface, Serializable {
     @Override
     public void setCurrentTrack(Track newtrack) {
 
-        for (Track track : mTracks)
+        for (Track track : mShuffled ? mShuffledTracks : mTracks)
             if (newtrack.getId() == track.getId())
                 mCurrentTrack = track;
 
@@ -151,8 +151,8 @@ public abstract class Playlist implements PlayableInterface, Serializable {
      */
     @Override
     public Track getTrackAtPos(int i) {
-        if (i < mTracks.size())
-            return mTracks.get(i);
+        if (i < (mShuffled ? mShuffledTracks.size() : mTracks.size()))
+            return mShuffled ? mShuffledTracks.get(i) : mTracks.get(i);
 
         return null;
     }
@@ -162,10 +162,10 @@ public abstract class Playlist implements PlayableInterface, Serializable {
      */
     @Override
     public Track getFirstTrack() {
-        if (mTracks.isEmpty())
+        if (mShuffled ? mShuffledTracks.isEmpty() : mTracks.isEmpty())
             return null;
 
-        return mTracks.get(0);
+        return mShuffled ? mShuffledTracks.get(0) : mTracks.get(0);
     }
 
     /**
@@ -174,10 +174,10 @@ public abstract class Playlist implements PlayableInterface, Serializable {
     @Override
     public Track getLastTrack() {
 
-        if (mTracks.isEmpty())
+        if (mShuffled ? mTracks.isEmpty() : mTracks.isEmpty())
             return null;
 
-        return mTracks.get(mTracks.size() - 1);
+        return mShuffled ? mShuffledTracks.get(mShuffledTracks.size() - 1) : mTracks.get(mTracks.size() - 1);
     }
 
     /**
@@ -290,7 +290,7 @@ public abstract class Playlist implements PlayableInterface, Serializable {
      * @param shuffled
      */
     @SuppressWarnings("unchecked")
-    public void setShuffed(boolean shuffled) {
+    public void setShuffled(boolean shuffled) {
         mShuffled = shuffled;
 
         if (shuffled) {
@@ -322,5 +322,31 @@ public abstract class Playlist implements PlayableInterface, Serializable {
      */
     public boolean isRepeating() {
         return mRepeating;
+    }
+    
+    /**
+     * Return the current count of tracks in the playlist
+     * 
+     * 
+     * @return
+     */
+    public int getCount() {
+        return mTracks.size();
+    }
+
+    /**
+     * Return the position of the currently played track inside the playlist
+     * 
+     * @return
+     */
+    public int getPosition() {
+        if (mTrackIterator==null)
+            resetTrackIterator();
+        if (getCount() > 0 && mTrackIterator != null) {
+            if (hasPreviousTrack())
+                return mTrackIterator.previousIndex()+1;
+            return 0;
+        }
+        return -1;
     }
 }

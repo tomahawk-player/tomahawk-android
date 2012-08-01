@@ -33,14 +33,12 @@
             android:maxLines="1" />
     </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/imageButton_cover"
+    <android.support.v4.view.ViewPager
+        android:id="@+id/album_art_view_pager"
         android:layout_width="fill_parent"
         android:layout_height="320dip"
-        android:layout_weight="25"
-        android:background="@android:color/transparent"
-        android:scaleType="fitCenter"
-        android:src="@drawable/no_album_art_placeholder" />
+        android:layout_weight="25" >
+    </android.support.v4.view.ViewPager>
 
     <RelativeLayout
         android:layout_width="wrap_content"

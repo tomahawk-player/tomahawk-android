@@ -52,6 +52,7 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     private final IBinder mBinder = new PlaybackServiceBinder();
 
     public static final String BROADCAST_NEWTRACK = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_NEWTRACK";
+    public static final String BROADCAST_PLAYLISTCHANGED = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_PLAYLISTCHANGED";
     private static boolean mIsRunning = false;
 
     private Playlist mCurrentPlaylist;
@@ -63,6 +64,9 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
      */
     private class PhoneCallListener extends PhoneStateListener {
 
+        /* (non-Javadoc)
+         * @see android.telephony.PhoneStateListener#onCallStateChanged(int, java.lang.String)
+         */
         @Override
         public void onCallStateChanged(int state, String incomingNumber) {
             switch (state) {
@@ -93,8 +97,8 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         }
     }
 
-    /**
-     * Constructs a new PlaybackService.
+    /* (non-Javadoc)
+     * @see android.app.Service#onCreate()
      */
     @Override
     public void onCreate() {
@@ -115,8 +119,8 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
                 Intent.ACTION_HEADSET_PLUG));
     }
 
-    /**
-     * This method is called when this service is started.
+    /* (non-Javadoc)
+     * @see android.app.Service#onStartCommand(android.content.Intent, int, int)
      */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -127,8 +131,8 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         return startId;
     }
 
-    /**
-     * Called when the service is destroyed.
+    /* (non-Javadoc)
+     * @see android.app.Service#onDestroy()
      */
     @Override
     public void onDestroy() {
@@ -136,6 +140,9 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         stop();
     }
 
+    /* (non-Javadoc)
+     * @see android.app.Service#onBind(android.content.Intent)
+     */
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
@@ -151,6 +158,10 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
             start();
     }
 
+    /**
+     * Initial start of playback. Acquires wakelock and creates a notification
+     *
+     */
     public void start() {
         mWakeLock.acquire();
         mMediaPlayer.start();
@@ -209,11 +220,17 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         }
     }
 
+    /* (non-Javadoc)
+     * @see android.os.Handler.Callback#handleMessage(android.os.Message)
+     */
     @Override
     public boolean handleMessage(Message msg) {
         return false;
     }
 
+    /* (non-Javadoc)
+     * @see android.media.MediaPlayer.OnErrorListener#onError(android.media.MediaPlayer, int, int)
+     */
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
         Log.e(TAG, "Error with media player");
@@ -221,6 +238,9 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         return false;
     }
 
+    /* (non-Javadoc)
+     * @see android.media.MediaPlayer.OnCompletionListener#onCompletion(android.media.MediaPlayer)
+     */
     @Override
     public void onCompletion(MediaPlayer mp) {
 
@@ -235,6 +255,9 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
             stop();
     }
 
+    /* (non-Javadoc)
+     * @see android.media.MediaPlayer.OnPreparedListener#onPrepared(android.media.MediaPlayer)
+     */
     @Override
     public void onPrepared(MediaPlayer mp) {
 		Log.d(TAG, "Starting playback.");
@@ -266,6 +289,11 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         mIsRunning = running;
     }
 
+    /**
+     * Get the current Playlist
+     *
+     * @return
+     */
     public Playlist getCurrentPlaylist() {
         return mCurrentPlaylist;
     }
@@ -278,11 +306,17 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
      * @throws IOException
      */
     public void setCurrentPlaylist(Playlist playlist) throws IOException {
-
         mCurrentPlaylist = playlist;
         setCurrentTrack(mCurrentPlaylist.getCurrentTrack());
+        
+        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
 
+    /**
+     * Get the current Track
+     *
+     * @return
+     */
     public Track getCurrentTrack() {
 
         if (mCurrentPlaylist == null)
@@ -309,6 +343,7 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     /**
      * Create an ongoing notification and start this service in the foreground.
      */
+    @SuppressWarnings("deprecation")
     private void createPlayingNotification() {
 
         Track track = getCurrentTrack();
