@@ -20,7 +20,9 @@ package org.tomahawk.tomahawk_android;
 
 import org.tomahawk.libtomahawk.Collection.CollectionUpdateListener;
 import org.tomahawk.libtomahawk.Source;
+import org.tomahawk.libtomahawk.audio.PlaybackService;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 
@@ -89,6 +91,14 @@ public class TomahawkMainActivity extends SherlockFragmentActivity implements
         for (Source source : mTomahawkApp.getSourceList().getSources()) {
             source.getCollection().setOnCollectionUpdatedListener(null);
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        stopService(new Intent(this, PlaybackService.class));
+        finish();
     }
 
 	/*
