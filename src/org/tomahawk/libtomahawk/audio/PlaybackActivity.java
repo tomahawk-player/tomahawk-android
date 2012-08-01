@@ -37,12 +37,21 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.MotionEvent;
+import android.view.GestureDetector;
+import android.view.View.OnTouchListener;
+import android.view.ViewConfiguration;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
@@ -50,12 +59,13 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
 public class PlaybackActivity extends SherlockActivity implements
-        Handler.Callback, SeekBar.OnSeekBarChangeListener {
+        Handler.Callback, SeekBar.OnSeekBarChangeListener, OnTouchListener {
 
     private static final String TAG = PlaybackActivity.class.getName();
 
     private PlaybackService mPlaybackService;
     private NewTrackReceiver mNewTrackReceiver;
+    private GestureDetector mGestureDetector;
 
     /**
      * Ui thread handler.
@@ -66,6 +76,7 @@ public class PlaybackActivity extends SherlockActivity implements
     private TextView mTextViewCurrentTime;
     boolean mIsSeeking = false;
     private static final int MSG_UPDATE_PROGRESS = 0x1;
+
     /**
      * Identifier for passing a Track as an extra in an Intent.
      */
@@ -102,6 +113,109 @@ public class PlaybackActivity extends SherlockActivity implements
         }
     };
 
+    /**
+     * Detects motion gestures and handles them
+     */
+    private class PlaybackGestureDetector extends SimpleOnGestureListener {
+        private final ViewConfiguration vc = ViewConfiguration.get(getApplicationContext());
+        private DisplayMetrics dm = getResources().getDisplayMetrics();
+
+        private final int RELATIVE_SWIPE_MIN_DISTANCE = (int)(vc.getScaledTouchSlop() * dm.densityDpi / 160.0f);
+        private final int RELATIVE_SWIPE_MAX_OFF_PATH = (int)(vc.getScaledTouchSlop() * dm.densityDpi / 160.0f);
+        private final int RELATIVE_SWIPE_THRESHOLD_VELOCITY = (int)(vc.getScaledMinimumFlingVelocity() * dm.densityDpi / 160.0f);
+
+        /*
+         * (non-Javadoc)
+         * @see android.view.GestureDetector.SimpleOnGestureListener#onFling(android.view.MotionEvent, android.view.MotionEvent, float, float)
+         */
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            if (Math.abs(e1.getY() - e2.getY()) > RELATIVE_SWIPE_MAX_OFF_PATH) {
+                return false;
+            }
+
+            ImageView albumCover = (ImageView)findViewById(R.id.imageButton_cover);
+
+            if(e1.getX() - e2.getX() > RELATIVE_SWIPE_MIN_DISTANCE && Math.abs(velocityX) > RELATIVE_SWIPE_THRESHOLD_VELOCITY) {
+                onNextSwipe();
+                final Animation slideOutToLeft = AnimationUtils.makeOutAnimation(getApplicationContext(), false);
+                albumCover.startAnimation(slideOutToLeft);
+                
+            }  else if (e2.getX() - e1.getX() > RELATIVE_SWIPE_MIN_DISTANCE && Math.abs(velocityX) > RELATIVE_SWIPE_THRESHOLD_VELOCITY) {
+                onPreviousSwipe();
+                final Animation slideOutToRight = AnimationUtils.makeOutAnimation(getApplicationContext(), true);
+                albumCover.startAnimation(slideOutToRight);
+            }
+            albumCover = null;
+            return false;
+        }
+
+        /**
+         * Gets next track on swipe/flick to right
+         */
+        private void onNextSwipe() {
+            mPlaybackService.next();
+            final ImageButton button = (ImageButton) findViewById(R.id.imageButton_playpause);
+            button.setImageDrawable(getResources()
+                    .getDrawable(R.drawable.ic_player_pause));
+        }
+
+        /**
+         * Gets previous track on swipe/flick to left
+         */
+        private void onPreviousSwipe() {
+            mPlaybackService.previous();
+            final ImageButton button = (ImageButton) findViewById(R.id.imageButton_playpause);
+            button.setImageDrawable(getResources()
+                    .getDrawable(R.drawable.ic_player_pause));
+        }
+
+        /*
+         * (non-Javadoc)
+         * @see android.view.GestureDetector.SimpleOnGestureListener#onDown(android.view.MotionEvent)
+         * Must return true to enable onFlick for View ( Metadata area )
+         */
+        @Override
+        public boolean onDown(MotionEvent e) {
+                return true;
+        }
+
+        /*
+         * (non-Javadoc)
+         * @see android.view.GestureDetector.OnGestureListener#onLongPress(android.view.MotionEvent)
+         */
+        @Override
+        public void onLongPress(MotionEvent e) {
+        }
+
+        /*
+         * (non-Javadoc)
+         * @see android.view.GestureDetector.OnGestureListener#onScroll(android.view.MotionEvent, android.view.MotionEvent, float, float)
+         */
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+                float distanceY) {
+            return false;
+        }
+
+        /*
+         * (non-Javadoc)
+         * @see android.view.GestureDetector.OnGestureListener#onShowPress(android.view.MotionEvent)
+         */
+        @Override
+        public void onShowPress(MotionEvent e) {
+        }
+
+        /*
+         * (non-Javadoc)
+         * @see android.view.GestureDetector.OnGestureListener#onSingleTapUp(android.view.MotionEvent)
+         */
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            return false;
+        }
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -124,15 +238,32 @@ public class PlaybackActivity extends SherlockActivity implements
         mSeekBar = (SeekBar) findViewById(R.id.seekBar_track);
         mSeekBar.setOnSeekBarChangeListener(this);
 
+        mGestureDetector = new GestureDetector(this.getApplicationContext(),new PlaybackGestureDetector(), mUiHandler );
+        view.setOnTouchListener(this);
+        final ImageButton button = (ImageButton) findViewById(R.id.imageButton_cover);
+        button.setOnTouchListener(this);
+
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         Intent playbackIntent = new Intent(this, PlaybackService.class);
         getApplicationContext().startService(playbackIntent);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see android.view.View.OnTouchListener#onTouch(android.view.View, android.view.MotionEvent)
+     */
+    @Override
+    public boolean onTouch(View v, MotionEvent e) {
+        if (mGestureDetector.onTouchEvent(e)) {
+            return true;
+        }
+        return false;
+    }
+
     /**
-     * Called when user is seeking in the seekbar Will seek to progress when
-     * stopped
+     * Called when user is seeking in the seekbar.
+     * Will seek to progress when stopped
      */
     /* (non-Javadoc)
      * @see android.widget.SeekBar.OnSeekBarChangeListener#onStopTrackingTouch(android.widget.SeekBar)
