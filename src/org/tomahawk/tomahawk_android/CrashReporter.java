@@ -72,7 +72,7 @@ class TomahawkExceptionReporter implements ReportSender {
         body.append("Crash Date: " + data.getProperty(ReportField.USER_CRASH_DATE) + "\r\n\r\n");
 
         body.append("----------- Stack Trace -----------\r\n");
-        body.append("Stack Trace: " + data.getProperty(ReportField.STACK_TRACE) + "\r\n");
+        body.append(data.getProperty(ReportField.STACK_TRACE) + "\r\n");
         body.append("-----------------------------------\r\n\r\n");
 
         body.append("--------- Phone Details  ----------\r\n");
