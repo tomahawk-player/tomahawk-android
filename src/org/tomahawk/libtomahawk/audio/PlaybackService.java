@@ -318,10 +318,14 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         Context context = getApplicationContext();
         CharSequence contentTitle = track.getArtist().getName();
         CharSequence contentText = track.getTitle();
-        Intent notificationIntent = new Intent(this, PlaybackService.class);
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        Intent notificationIntent = new Intent(this, PlaybackActivity.class);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent contentIntent = PendingIntent.getActivity(context,
+                Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT, notificationIntent, 0);
 
-        notification.flags |= Notification.FLAG_FOREGROUND_SERVICE | Notification.FLAG_NO_CLEAR;
+        notification.flags |= Notification.FLAG_ONGOING_EVENT
+                | Notification.FLAG_FOREGROUND_SERVICE | Notification.FLAG_NO_CLEAR;
         notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
 
         startForeground(3, notification);
