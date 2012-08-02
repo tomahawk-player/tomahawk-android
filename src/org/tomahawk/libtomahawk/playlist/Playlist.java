@@ -39,12 +39,15 @@ public abstract class Playlist implements PlayableInterface, Serializable {
     private transient ListIterator<Track> mTrackIterator;
     private Track mCurrentTrack;
     private boolean mShuffled;
+    private boolean mRepeating;
 
     /**
      * Create a playlist with a list of empty tracks.
      */
     protected Playlist(String name) {
         mName = name;
+        mShuffled = false;
+        mRepeating = false;
         setTracks(new ArrayList<Track>());
     }
 
@@ -98,9 +101,16 @@ public abstract class Playlist implements PlayableInterface, Serializable {
             Track track = mTrackIterator.next();
             if (track == mCurrentTrack && mTrackIterator.hasNext())
                 mCurrentTrack = mTrackIterator.next();
+            else if (track == mCurrentTrack && !mTrackIterator.hasNext() && mRepeating)
+                setCurrentTrack(mTracks.get(0));
             else
                 mCurrentTrack = track;
 
+            return mCurrentTrack;
+        }
+
+        if (mRepeating) {
+            setCurrentTrack(mTracks.get(0));
             return mCurrentTrack;
         }
 
@@ -120,9 +130,16 @@ public abstract class Playlist implements PlayableInterface, Serializable {
             Track track = mTrackIterator.previous();
             if (track == mCurrentTrack && mTrackIterator.hasPrevious())
                 mCurrentTrack = mTrackIterator.previous();
+            else if (track == mCurrentTrack && !mTrackIterator.hasPrevious() && mRepeating)
+                setCurrentTrack(mTracks.get(mTracks.size() - 1));
             else
                 mCurrentTrack = track;
 
+            return mCurrentTrack;
+        }
+
+        if (mRepeating) {
+            setCurrentTrack(mTracks.get(mTracks.size() - 1));
             return mCurrentTrack;
         }
 
@@ -218,11 +235,17 @@ public abstract class Playlist implements PlayableInterface, Serializable {
             track = mTrackIterator.next();
             if (track == mCurrentTrack && mTrackIterator.hasNext())
                 track = mTrackIterator.next();
+            else if (track == mCurrentTrack && !mTrackIterator.hasNext() && mRepeating)
+                track = mTracks.get(0);
             else if (track == mCurrentTrack)
                 track = null;
 
             mTrackIterator.previous();
         }
+
+        if (mRepeating)
+            track = mTracks.get(0);
+
         return track;
     }
 
@@ -243,11 +266,17 @@ public abstract class Playlist implements PlayableInterface, Serializable {
             track = mTrackIterator.previous();
             if (track == mCurrentTrack && mTrackIterator.hasPrevious())
                 track = mTrackIterator.previous();
+            else if (track == mCurrentTrack && !mTrackIterator.hasPrevious() && mRepeating)
+                track = mTracks.get(mTracks.size() - 1);
             else if (track == mCurrentTrack)
                 track = null;
 
             mTrackIterator.next();
         }
+
+        if (mRepeating)
+            mTracks.get(mTracks.size() - 1);
+
         return track;
     }
 
@@ -270,12 +299,25 @@ public abstract class Playlist implements PlayableInterface, Serializable {
         }
     }
 
+    public void setRepeating(boolean repeating) {
+        mRepeating = repeating;
+    }
+
     /**
-     * Return whether this Playlist is currently shuffled.S
+     * Return whether this Playlist is currently shuffled.
      * 
      * @return
      */
     public boolean isShuffled() {
         return mShuffled;
+    }
+
+    /**
+     * Return whether this Playlist is currently repeating.
+     * 
+     * @return
+     */
+    public boolean isRepeating() {
+        return mRepeating;
     }
 }

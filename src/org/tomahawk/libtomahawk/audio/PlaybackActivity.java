@@ -1,7 +1,7 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
  *   Copyright 2012, Christopher Reichert <creichert07@gmail.com>
- *   Copyright 2012, Hugo Lindström <hugolm84@gmail.com>
+ *   Copyright 2012, Hugo Lindstr√∂m <hugolm84@gmail.com>
  *   
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -39,19 +39,18 @@ import android.os.IBinder;
 import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.View;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.SeekBar;
-import android.widget.TextView;
-
+import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
-import android.view.GestureDetector;
+import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewConfiguration;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
@@ -446,6 +445,8 @@ public class PlaybackActivity extends SherlockActivity implements
      * @param view
      */
     public void onRepeatClicked(View view) {
+        mPlaybackService.getCurrentPlaylist().setRepeating(
+                !mPlaybackService.getCurrentPlaylist().isRepeating());
     }
 
     /**
