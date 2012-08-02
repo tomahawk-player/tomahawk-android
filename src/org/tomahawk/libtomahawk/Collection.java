@@ -24,6 +24,8 @@ import java.util.List;
  */
 public abstract class Collection {
 
+    public static final String COLLECTION_UPDATED = "org.tomahawk.libtomahawk.Collection.COLLECTION_UPDATED";
+
     public abstract List<Artist> getArtists();
 
     public abstract List<Album> getAlbums();
@@ -31,19 +33,6 @@ public abstract class Collection {
     public abstract List<Track> getTracks();
 
     public abstract void update();
-
-    private CollectionUpdateListener mCollectionUpdateListener;
-
-    /**
-     * Callback for Collection updates.
-     */
-    public interface CollectionUpdateListener {
-
-        /**
-         * Called when Collection is updated.
-         */
-        public void onCollectionUpdated();
-    }
 
     /**
      * Default constructor.
@@ -53,13 +42,5 @@ public abstract class Collection {
 
     public boolean isLocal() {
         return false;
-    }
-
-    public void setOnCollectionUpdatedListener(CollectionUpdateListener collectionUpdateListener) {
-        mCollectionUpdateListener = collectionUpdateListener;
-    }
-
-    protected CollectionUpdateListener getCollectionUpdatedListener() {
-        return mCollectionUpdateListener;
     }
 }

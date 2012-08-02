@@ -44,10 +44,6 @@ public class PlayerFragment extends TomahawkListFragment {
 	}
 
     @Override
-    public void onCollectionUpdated() {
-    }
-
-    @Override
     protected ArrayAdapter<?> getAdapter() {
         return null;
     }

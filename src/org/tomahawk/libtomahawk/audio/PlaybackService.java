@@ -115,6 +115,7 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
 
+        // TODO: unregister me.
         registerReceiver(new HeadsetBroadcastReceiver(), new IntentFilter(
                 Intent.ACTION_HEADSET_PLUG));
     }

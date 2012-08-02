@@ -19,19 +19,61 @@ package org.tomahawk.tomahawk_android;
 
 import org.tomahawk.libtomahawk.Collection;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v4.app.ListFragment;
 import android.widget.ArrayAdapter;
 
-public abstract class TomahawkListFragment extends ListFragment implements
-        Collection.CollectionUpdateListener {
+public abstract class TomahawkListFragment extends ListFragment {
+
+    private CollectionUpdateReceiver mCollectionUpdatedReceiver;
+
+    /**
+     * Handles incoming Collection updated broadcasts.
+     */
+    private class CollectionUpdateReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(Collection.COLLECTION_UPDATED))
+                onCollectionUpdated();
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
+        IntentFilter filter = new IntentFilter(Collection.COLLECTION_UPDATED);
+        getActivity().registerReceiver(mCollectionUpdatedReceiver, filter);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        onCollectionUpdated();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (mCollectionUpdatedReceiver != null)
+            getActivity().unregisterReceiver(mCollectionUpdatedReceiver);
+    }
 
     /**
      * Returns the Adapter for this TomahawkListFragment.
+     * 
      * @return
      */
     protected abstract ArrayAdapter<?> getAdapter();
 
-    public void refresh() {
+    protected void onCollectionUpdated() {
         if (getAdapter() != null)
             getAdapter().notifyDataSetChanged();
     }

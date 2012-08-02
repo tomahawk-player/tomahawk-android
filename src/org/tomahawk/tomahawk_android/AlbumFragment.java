@@ -45,6 +45,12 @@ public class AlbumFragment extends TomahawkListFragment implements OnItemClickLi
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        TomahawkApp app = (TomahawkApp) getActivity().getApplicationContext();
+        Collection mycoll = app.getSourceList().getLocalSource().getCollection();
+        mAlbumAdapter = new ArrayAdapter<Album>(getActivity(), R.layout.mymusic_list_item,
+                R.id.mymusic_list_textview, mycoll.getAlbums());
+        setListAdapter(mAlbumAdapter);
     }
 
     /* (non-Javadoc)
@@ -54,14 +60,7 @@ public class AlbumFragment extends TomahawkListFragment implements OnItemClickLi
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-        TomahawkApp app = (TomahawkApp) getActivity().getApplicationContext();
-        Collection mycoll = app.getSourceList().getLocalSource().getCollection();
-        mAlbumAdapter = new ArrayAdapter<Album>(getActivity(), R.layout.mymusic_list_item,
-                R.id.mymusic_list_textview, mycoll.getAlbums());
-        setListAdapter(mAlbumAdapter);
-        
         getListView().setFastScrollEnabled(true);
-
         getListView().setOnItemClickListener(this);
 	}
 
@@ -78,11 +77,6 @@ public class AlbumFragment extends TomahawkListFragment implements OnItemClickLi
         Playlist playlist = AlbumPlaylist.fromAlbum(mycoll.getAlbums().get(idx));
         playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, playlist);
         startActivity(playbackIntent);
-    }
-
-    @Override
-    public void onCollectionUpdated() {
-        mAlbumAdapter.notifyDataSetChanged();
     }
 
     @Override

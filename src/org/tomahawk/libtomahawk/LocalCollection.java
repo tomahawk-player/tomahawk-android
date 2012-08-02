@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.provider.MediaStore;
@@ -33,7 +35,7 @@ public class LocalCollection extends Collection {
 
     private static final String TAG = LocalCollection.class.getName();
 
-    private ContentResolver mResolver;
+    private Context mContext;
 
     private Map<Long, Artist> mArtists;
     private Map<Long, Album> mAlbums;
@@ -54,13 +56,14 @@ public class LocalCollection extends Collection {
      * 
      * @param resolver
      */
-    public LocalCollection(ContentResolver resolver) {
-        mResolver = resolver;
+    public LocalCollection(Context context) {
+        mContext = context;
         mArtists = new HashMap<Long, Artist>();
         mAlbums = new HashMap<Long, Album>();
         mTracks = new HashMap<Long, Track>();
 
-        mResolver.registerContentObserver(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false,
+        mContext.getContentResolver().registerContentObserver(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false,
                 mLocalMediaObserver);
         initializeCollection();
     }
@@ -115,7 +118,9 @@ public class LocalCollection extends Collection {
                 MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM_ID,
                 MediaStore.Audio.Media.ALBUM };
 
-        Cursor cursor = mResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection,
+        ContentResolver resolver = mContext.getContentResolver();
+
+        Cursor cursor = resolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection,
                 selection, null, null);
 
         while (cursor != null && cursor.moveToNext()) {
@@ -139,7 +144,7 @@ public class LocalCollection extends Collection {
                 String[] albumproj = { MediaStore.Audio.Albums.ALBUM_ART,
                         MediaStore.Audio.Albums.FIRST_YEAR, MediaStore.Audio.Albums.LAST_YEAR };
 
-                Cursor albumcursor = mResolver.query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
+                Cursor albumcursor = resolver.query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
                         albumproj, albumsel, null, null);
 
                 if (albumcursor != null && albumcursor.moveToNext()) {
@@ -187,7 +192,6 @@ public class LocalCollection extends Collection {
     public void update() {
         initializeCollection();
 
-        if (getCollectionUpdatedListener() != null)
-            getCollectionUpdatedListener().onCollectionUpdated();
+        mContext.sendBroadcast(new Intent(COLLECTION_UPDATED));
     }
 }

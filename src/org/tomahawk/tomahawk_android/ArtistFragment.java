@@ -43,6 +43,12 @@ public class ArtistFragment extends TomahawkListFragment implements OnItemClickL
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+        TomahawkApp app = (TomahawkApp) getActivity().getApplicationContext();
+        Collection mycoll = app.getSourceList().getLocalSource().getCollection();
+        mArtistAdapter = new ArrayAdapter<Artist>(getActivity(), R.layout.mymusic_list_item,
+                R.id.mymusic_list_textview, mycoll.getArtists());
+        setListAdapter(mArtistAdapter);
 	}
 
 	/*
@@ -53,15 +59,7 @@ public class ArtistFragment extends TomahawkListFragment implements OnItemClickL
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-
-        TomahawkApp app = (TomahawkApp) getActivity().getApplicationContext();
-        Collection mycoll = app.getSourceList().getLocalSource().getCollection();
-        mArtistAdapter = new ArrayAdapter<Artist>(getActivity(), R.layout.mymusic_list_item,
-                R.id.mymusic_list_textview, mycoll.getArtists());
-        setListAdapter(mArtistAdapter);
-        
         getListView().setFastScrollEnabled(true);
-
         getListView().setOnItemClickListener(this);
 	}
 
@@ -79,11 +77,6 @@ public class ArtistFragment extends TomahawkListFragment implements OnItemClickL
         Playlist playlist = ArtistPlaylist.fromArtist(mycoll.getArtists().get(idx));
         playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, playlist);
         startActivity(playbackIntent);
-    }
-
-    @Override
-    public void onCollectionUpdated() {
-        mArtistAdapter.notifyDataSetChanged();
     }
 
     @Override

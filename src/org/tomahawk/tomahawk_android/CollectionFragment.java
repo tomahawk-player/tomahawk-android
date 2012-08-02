@@ -45,6 +45,12 @@ public class CollectionFragment extends TomahawkListFragment implements OnItemCl
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+        TomahawkApp app = (TomahawkApp) getActivity().getApplicationContext();
+        Collection mycoll = app.getSourceList().getLocalSource().getCollection();
+        mTrackAdapter = new ArrayAdapter<Track>(getActivity(), R.layout.mymusic_list_item,
+                R.id.mymusic_list_textview, mycoll.getTracks());
+        setListAdapter(mTrackAdapter);
 	}
 
 	/* (non-Javadoc)
@@ -53,16 +59,8 @@ public class CollectionFragment extends TomahawkListFragment implements OnItemCl
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-
-        TomahawkApp app = (TomahawkApp) getActivity().getApplicationContext();
-        Collection mycoll = app.getSourceList().getLocalSource().getCollection();
-
-        mTrackAdapter = new ArrayAdapter<Track>(getActivity(), R.layout.mymusic_list_item,
-                R.id.mymusic_list_textview, mycoll.getTracks());
-        setListAdapter(mTrackAdapter);
         
         getListView().setFastScrollEnabled(true);
-
         getListView().setOnItemClickListener(this);
 	}
 
@@ -79,11 +77,6 @@ public class CollectionFragment extends TomahawkListFragment implements OnItemCl
         Playlist playlist = CollectionPlaylist.fromCollection(mycoll, mycoll.getTracks().get(idx));
         playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, playlist);
         startActivity(playbackIntent);
-    }
-
-    @Override
-    public void onCollectionUpdated() {
-        mTrackAdapter.notifyDataSetChanged();
     }
 
     @Override

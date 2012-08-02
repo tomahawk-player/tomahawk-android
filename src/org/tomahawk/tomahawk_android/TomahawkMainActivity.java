@@ -18,8 +18,6 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import org.tomahawk.libtomahawk.Collection.CollectionUpdateListener;
-import org.tomahawk.libtomahawk.Source;
 import org.tomahawk.libtomahawk.audio.PlaybackService;
 
 import android.content.Intent;
@@ -35,14 +33,11 @@ import com.actionbarsherlock.view.MenuItem;
 /**
  * This class represents the main entrypoint for the app.
  */
-public class TomahawkMainActivity extends SherlockFragmentActivity implements
-        CollectionUpdateListener {
+public class TomahawkMainActivity extends SherlockFragmentActivity {
 
 	private ViewPager mViewPager;
 
 	private TabsAdapter mTabsAdapter;
-
-    private TomahawkApp mTomahawkApp;
 
 	/*
 	 * (non-Javadoc)
@@ -73,30 +68,10 @@ public class TomahawkMainActivity extends SherlockFragmentActivity implements
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-
-        mTomahawkApp = (TomahawkApp) getApplicationContext();
-        for (Source source : mTomahawkApp.getSourceList().getSources()) {
-            source.getCollection().setOnCollectionUpdatedListener(this);
-        }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        /** Remove Collection update callback. */
-        mTomahawkApp = (TomahawkApp) getApplicationContext();
-        for (Source source : mTomahawkApp.getSourceList().getSources()) {
-            source.getCollection().setOnCollectionUpdatedListener(null);
-        }
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
 
+        // TODO: stop service in manifest.
         stopService(new Intent(this, PlaybackService.class));
         finish();
     }
@@ -123,20 +98,4 @@ public class TomahawkMainActivity extends SherlockFragmentActivity implements
 								| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		return true;
 	}
-
-    /**
-     * Run when a Collection has been updated.
-     */
-    @Override
-    public void onCollectionUpdated() {
-        runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-                for (int idx = 0; idx < mTabsAdapter.getCount(); ++idx) {
-                    ((TomahawkListFragment) mTabsAdapter.getItem(idx)).refresh();
-                }
-            }
-        });
-    }
 }

@@ -73,7 +73,7 @@ public class TomahawkApp extends Application {
      */
     public void initLocalCollection() {
         Log.d(TAG, "Initializing Local Collection.");
-        Source src = new Source(new LocalCollection(getContentResolver()), 0,
+        Source src = new Source(new LocalCollection(getApplicationContext()), 0,
                 "My Collection");
         mSourceList.setLocalSource(src);
     }
