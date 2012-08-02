@@ -43,18 +43,12 @@ public abstract class TomahawkListFragment extends ListFragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
 
         mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
         IntentFilter filter = new IntentFilter(Collection.COLLECTION_UPDATED);
         getActivity().registerReceiver(mCollectionUpdatedReceiver, filter);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
         onCollectionUpdated();
     }
 

@@ -157,16 +157,11 @@ public class PlaybackActivity extends SherlockActivity implements
 
         Intent playbackIntent = new Intent(this, PlaybackService.class);
         getApplicationContext().startService(playbackIntent);
-    }  
+    }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onStart()
-     */
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
         
         if (mNewTrackReceiver == null)
             mNewTrackReceiver = new NewTrackReceiver();
