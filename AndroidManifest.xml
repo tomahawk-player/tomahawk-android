@@ -35,7 +35,7 @@
 
         <service
             android:name="org.tomahawk.libtomahawk.audio.PlaybackService"
-            android:label="@string/playback_service_label" >
+            android:label="@string/playback_service_label" android:stopWithTask="true">
         </service>
     </application>
 

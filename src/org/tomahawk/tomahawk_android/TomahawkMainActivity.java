@@ -18,9 +18,6 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import org.tomahawk.libtomahawk.audio.PlaybackService;
-
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 
@@ -70,9 +67,6 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        // TODO: stop service in manifest.
-        stopService(new Intent(this, PlaybackService.class));
         finish();
     }
 
