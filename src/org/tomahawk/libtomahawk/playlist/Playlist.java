@@ -194,7 +194,11 @@ public abstract class Playlist implements PlayableInterface, Serializable {
      */
     private void resetTrackIterator() {
 
-        mTrackIterator = mTracks.listIterator();
+        if (mShuffled)
+            mTrackIterator = mShuffledTracks.listIterator();
+        else
+            mTrackIterator = mTracks.listIterator();
+
         while (mTrackIterator.hasNext()) {
             if (mTrackIterator.next().getId() == getCurrentTrack().getId())
                 break;
@@ -292,11 +296,10 @@ public abstract class Playlist implements PlayableInterface, Serializable {
         if (shuffled) {
             mShuffledTracks = (ArrayList<Track>) mTracks.clone();
             Collections.shuffle(mShuffledTracks);
-            mTrackIterator = mShuffledTracks.listIterator();
-        } else {
-            resetTrackIterator();
+        } else
             mShuffledTracks = null;
-        }
+
+        resetTrackIterator();
     }
 
     public void setRepeating(boolean repeating) {
