@@ -26,6 +26,7 @@ import org.tomahawk.libtomahawk.SourceList;
 import org.tomahawk.libtomahawk.account.AccountManager;
 
 import android.app.Application;
+import android.os.Debug;
 import android.util.Log;
 
 
@@ -42,9 +43,11 @@ public class TomahawkApp extends Application {
 
     @Override
     public void onCreate() {
-        ACRA.init(this);
-        TomahawkExceptionReporter reporter = new TomahawkExceptionReporter();
-        ErrorReporter.getInstance().setReportSender(reporter);
+        if (!Debug.isDebuggerConnected()) {
+            ACRA.init(this);
+            TomahawkExceptionReporter reporter = new TomahawkExceptionReporter();
+            ErrorReporter.getInstance().setReportSender(reporter);
+        }
         super.onCreate();
 
         mAccountManager = new AccountManager();
