@@ -58,6 +58,7 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     private Playlist mCurrentPlaylist;
     private MediaPlayer mMediaPlayer;
     private PowerManager.WakeLock mWakeLock;
+    private HeadsetBroadcastReceiver mHeadsetBroadcastReceiver;
 
     /**
      * Listens for incoming phone calls and handles playback.
@@ -115,7 +116,7 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
 
-        // TODO: unregister me.
+        mHeadsetBroadcastReceiver = new HeadsetBroadcastReceiver();
         registerReceiver(new HeadsetBroadcastReceiver(), new IntentFilter(
                 Intent.ACTION_HEADSET_PLUG));
     }
@@ -137,6 +138,7 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
      */
     @Override
     public void onDestroy() {
+        unregisterReceiver(mHeadsetBroadcastReceiver);
         setIsRunning(false);
         stop();
     }
