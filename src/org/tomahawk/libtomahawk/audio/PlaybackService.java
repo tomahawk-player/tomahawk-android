@@ -166,7 +166,8 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
      *
      */
     public void start() {
-        mWakeLock.acquire();
+        if (!mWakeLock.isHeld())
+            mWakeLock.acquire();
         mMediaPlayer.start();
         createPlayingNotification();
     }

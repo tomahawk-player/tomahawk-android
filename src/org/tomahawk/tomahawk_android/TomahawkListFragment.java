@@ -79,6 +79,8 @@ public abstract class TomahawkListFragment extends SherlockListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        mFilterTextWatcher = new SearchWatcher();
     }
 
     @Override
