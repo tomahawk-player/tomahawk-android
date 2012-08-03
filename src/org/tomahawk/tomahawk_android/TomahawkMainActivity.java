@@ -26,11 +26,12 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
-
 /**
  * This class represents the main entrypoint for the app.
  */
 public class TomahawkMainActivity extends SherlockFragmentActivity {
+
+    public static final int SEARCH_OPTION_ID = 0;
 
 	private ViewPager mViewPager;
 
@@ -70,20 +71,23 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
         finish();
     }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
-	 */
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getSupportMenuInflater().inflate(R.menu.tomahawk_main_activity, menu);
-		menu.add("Search")
-				.setIcon(R.drawable.ic_action_search)
-				.setActionView(R.layout.collapsible_edittext)
-				.setShowAsAction(
-						MenuItem.SHOW_AS_ACTION_ALWAYS
-								| MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-		return true;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        getSupportMenuInflater().inflate(R.menu.tomahawk_main_activity, menu);
+
+        menu.add(0, SEARCH_OPTION_ID, 0, "Search")
+                .setIcon(R.drawable.ic_action_search)
+                .setActionView(R.layout.collapsible_edittext)
+                .setShowAsAction(
+                        MenuItem.SHOW_AS_ACTION_ALWAYS
+                                | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+
+        return true;
+    }
 }

@@ -23,12 +23,45 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.support.v4.app.ListFragment;
+import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 
-public abstract class TomahawkListFragment extends ListFragment {
+import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+
+public abstract class TomahawkListFragment extends SherlockListFragment {
 
     private CollectionUpdateReceiver mCollectionUpdatedReceiver;
+    private EditText mFilterText = null;
+
+    private SearchWatcher mFilterTextWatcher;
+
+    /**
+     * Class which manages search functionality withing fragments
+     */
+    private class SearchWatcher implements TextWatcher {
+
+        /**
+         * Cakked when text is changed in the search bar.
+         */
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            getAdapter().getFilter().filter(s);
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+    }
 
     /**
      * Handles incoming Collection updated broadcasts.
@@ -40,6 +73,12 @@ public abstract class TomahawkListFragment extends ListFragment {
             if (intent.getAction().equals(Collection.COLLECTION_UPDATED))
                 onCollectionUpdated();
         }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -58,6 +97,22 @@ public abstract class TomahawkListFragment extends ListFragment {
 
         if (mCollectionUpdatedReceiver != null)
             getActivity().unregisterReceiver(mCollectionUpdatedReceiver);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+
+        MenuItem item = (MenuItem) menu.findItem(TomahawkMainActivity.SEARCH_OPTION_ID);
+        mFilterText = (EditText) item.getActionView().findViewById(R.id.search_edittext);
+        mFilterText.addTextChangedListener(mFilterTextWatcher);
+    }
+
+    @Override
+    public void onDestroyOptionsMenu() {
+        super.onDestroyOptionsMenu();
+
+        mFilterText.removeTextChangedListener(mFilterTextWatcher);
     }
 
     /**

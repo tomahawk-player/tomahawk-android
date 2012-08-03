@@ -59,7 +59,7 @@ public class CollectionFragment extends TomahawkListFragment implements OnItemCl
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-        
+
         getListView().setFastScrollEnabled(true);
         getListView().setOnItemClickListener(this);
 	}
