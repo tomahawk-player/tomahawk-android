@@ -84,12 +84,6 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
 				.setShowAsAction(
 						MenuItem.SHOW_AS_ACTION_ALWAYS
 								| MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-
-		menu.add("Refresh")
-				.setIcon(R.drawable.ic_action_refresh)
-				.setShowAsAction(
-						MenuItem.SHOW_AS_ACTION_IF_ROOM
-								| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		return true;
 	}
 }
