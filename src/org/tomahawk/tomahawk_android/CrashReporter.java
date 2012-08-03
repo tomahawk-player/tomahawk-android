@@ -71,10 +71,6 @@ class TomahawkExceptionReporter implements ReportSender {
         body.append("App Start Date: " + data.getProperty(ReportField.USER_APP_START_DATE) + "\r\n");
         body.append("Crash Date: " + data.getProperty(ReportField.USER_CRASH_DATE) + "\r\n\r\n");
 
-        body.append("----------- Stack Trace -----------\r\n");
-        body.append(data.getProperty(ReportField.STACK_TRACE) + "\r\n");
-        body.append("-----------------------------------\r\n\r\n");
-
         body.append("--------- Phone Details  ----------\r\n");
         body.append("Phone Model: " + data.getProperty(ReportField.PHONE_MODEL) + "\r\n");
         body.append("Brand: " + data.getProperty(ReportField.BRAND) + "\r\n");
@@ -82,7 +78,12 @@ class TomahawkExceptionReporter implements ReportSender {
         body.append("Display: " + data.getProperty(ReportField.DISPLAY) + "\r\n");
         body.append("-----------------------------------\r\n\r\n");
 
+        body.append("----------- Stack Trace -----------\r\n");
+        body.append(data.getProperty(ReportField.STACK_TRACE) + "\r\n");
+        body.append("-----------------------------------\r\n\r\n");
+
         body.append("------- Operating System  ---------\r\n");
+        body.append("App Version Name: " + data.getProperty(ReportField.APP_VERSION_NAME) + "\r\n");
         body.append("Total Mem Size: " + data.getProperty(ReportField.TOTAL_MEM_SIZE) + "\r\n");
         body.append("Available Mem Size: " + data.getProperty(ReportField.AVAILABLE_MEM_SIZE)
                 + "\r\n");
@@ -90,7 +91,6 @@ class TomahawkExceptionReporter implements ReportSender {
         body.append("-----------------------------------\r\n\r\n");
 
         body.append("-------------- Misc ---------------\r\n");
-        body.append("App Version Name: " + data.getProperty(ReportField.APP_VERSION_NAME) + "\r\n");
         body.append("Package Name: " + data.getProperty(ReportField.PACKAGE_NAME) + "\r\n");
         body.append("File Path: " + data.getProperty(ReportField.FILE_PATH) + "\r\n");
 
