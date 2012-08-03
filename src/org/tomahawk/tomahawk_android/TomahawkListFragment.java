@@ -51,7 +51,8 @@ public abstract class TomahawkListFragment extends SherlockListFragment {
          */
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            getAdapter().getFilter().filter(s);
+            if (getAdapter() != null)
+                getAdapter().getFilter().filter(s);
         }
 
         @Override

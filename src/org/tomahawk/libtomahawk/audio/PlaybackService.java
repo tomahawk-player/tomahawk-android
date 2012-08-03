@@ -65,6 +65,8 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
      */
     private class PhoneCallListener extends PhoneStateListener {
 
+        private long mStartCallTime = 0L;
+
         /* (non-Javadoc)
          * @see android.telephony.PhoneStateListener#onCallStateChanged(int, java.lang.String)
          */
@@ -72,10 +74,20 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         public void onCallStateChanged(int state, String incomingNumber) {
             switch (state) {
             case TelephonyManager.CALL_STATE_RINGING:
-            case TelephonyManager.CALL_STATE_OFFHOOK: {
-                if (isPlaying())
+            case TelephonyManager.CALL_STATE_OFFHOOK:
+                if (isPlaying()) {
+                    mStartCallTime = System.currentTimeMillis();
                     pause();
-            }
+                }
+                break;
+
+            case TelephonyManager.CALL_STATE_IDLE:
+                if (mStartCallTime > 0 && (System.currentTimeMillis() - mStartCallTime < 30000)) {
+                    start();
+                }
+
+                mStartCallTime = 0L;
+                break;
             }
         }
     }
@@ -92,7 +104,7 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         }
     }
 
-    public class PlaybackServiceBinder extends Binder {
+    class PlaybackServiceBinder extends Binder {
         PlaybackService getService() {
             return PlaybackService.this;
         }
