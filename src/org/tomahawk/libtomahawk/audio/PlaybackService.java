@@ -38,13 +38,12 @@ import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.os.PowerManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
-public class PlaybackService extends Service implements Handler.Callback, OnCompletionListener,
+public class PlaybackService extends Service implements OnCompletionListener,
         OnErrorListener, OnPreparedListener {
 
     private static String TAG = PlaybackService.class.getName();
@@ -59,6 +58,7 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
     private MediaPlayer mMediaPlayer;
     private PowerManager.WakeLock mWakeLock;
     private HeadsetBroadcastReceiver mHeadsetBroadcastReceiver;
+    private Handler mHandler;
 
     /**
      * Listens for incoming phone calls and handles playback.
@@ -83,6 +83,7 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
 
             case TelephonyManager.CALL_STATE_IDLE:
                 if (mStartCallTime > 0 && (System.currentTimeMillis() - mStartCallTime < 30000)) {
+                    mVolumeIncreaseFader.run();
                     start();
                 }
 
@@ -110,11 +111,33 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
         }
     }
 
+    /**
+     * This Runnable is used to increase the volume gently.
+     */
+    private Runnable mVolumeIncreaseFader = new Runnable() {
+
+        private float mVolume = 0f;
+
+        @Override
+        public void run() {
+
+            mMediaPlayer.setVolume(mVolume, mVolume);
+
+            if (mVolume < 1.0f) {
+                mVolume += .05f;
+                mHandler.postDelayed(mVolumeIncreaseFader, 250);
+            } else
+                mVolume = 0;
+        }
+    };
+
     /* (non-Javadoc)
      * @see android.app.Service#onCreate()
      */
     @Override
     public void onCreate() {
+
+        mHandler = new Handler();
 
         TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         telephonyManager.listen(new PhoneCallListener(), PhoneStateListener.LISTEN_CALL_STATE);
@@ -234,14 +257,6 @@ public class PlaybackService extends Service implements Handler.Callback, OnComp
                 e.printStackTrace();
             }
         }
-    }
-
-    /* (non-Javadoc)
-     * @see android.os.Handler.Callback#handleMessage(android.os.Message)
-     */
-    @Override
-    public boolean handleMessage(Message msg) {
-        return false;
     }
 
     /* (non-Javadoc)
