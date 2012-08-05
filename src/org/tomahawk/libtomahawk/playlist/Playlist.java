@@ -103,8 +103,10 @@ public abstract class Playlist implements PlayableInterface, Serializable {
                 mCurrentTrack = mTrackIterator.next();
             else if (track == mCurrentTrack && !mTrackIterator.hasNext() && mRepeating)
                 setCurrentTrack(mTracks.get(0));
-            else
+            else if (track == mCurrentTrack)
                 mCurrentTrack = null;
+            else
+                mCurrentTrack = track;
 
             return mCurrentTrack;
         }
