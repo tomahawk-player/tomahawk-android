@@ -37,8 +37,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -53,7 +51,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
 public class PlaybackActivity extends SherlockActivity
-        implements Handler.Callback, SeekBar.OnSeekBarChangeListener, OnTouchListener, OnPageChangeListener {
+        implements Handler.Callback, SeekBar.OnSeekBarChangeListener, OnTouchListener {
 
     private static final String TAG = PlaybackActivity.class.getName();
 
@@ -61,10 +59,7 @@ public class PlaybackActivity extends SherlockActivity
     private NewTrackReceiver mNewTrackReceiver;
     private PlaylistChangedReceiver mPlaylistChangedReceiver;
 
-    private ViewPager mAlbumArtViewPager;
-    private AlbumArtSwipeAdapter mAlbumArtSwipeAdapter;
-    private int currentViewPage = 0;
-    private boolean lastActionBySwipe = false;
+    private AlbumArtViewPager mAlbumArtViewPager;
 
     /**
      * Ui thread handler.
@@ -135,11 +130,7 @@ public class PlaybackActivity extends SherlockActivity
         View view = getLayoutInflater().inflate(R.layout.playback_activity, null);
         setContentView(view);
 
-        mAlbumArtViewPager = (ViewPager) findViewById(R.id.album_art_view_pager);
-        mAlbumArtViewPager.setOnPageChangeListener(this);
-        mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter(this, null);
-        mAlbumArtViewPager.setAdapter(mAlbumArtSwipeAdapter);
-        mAlbumArtViewPager.setCurrentItem(0, false);
+        mAlbumArtViewPager = (AlbumArtViewPager) findViewById(R.id.album_art_view_pager);
 
         final ActionBar bar = getSupportActionBar();
         bar.setDisplayShowHomeEnabled(true);
@@ -159,6 +150,9 @@ public class PlaybackActivity extends SherlockActivity
         getApplicationContext().startService(playbackIntent);
     }
 
+    /* (non-Javadoc)
+     * @see android.app.Activity#onResume()
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -287,6 +281,7 @@ public class PlaybackActivity extends SherlockActivity
             }
             getIntent().removeExtra(PLAYLIST_EXTRA);
         }
+        mAlbumArtViewPager.setPlaybackService(mPlaybackService);
         refreshActivityTrackInfo();
     }
 
@@ -323,7 +318,6 @@ public class PlaybackActivity extends SherlockActivity
      * @param view
      */
     public void onNextClicked(View view) {
-        lastActionBySwipe = false;
         nextTrack();
     }
 
@@ -343,7 +337,6 @@ public class PlaybackActivity extends SherlockActivity
      * @param view
      */
     public void onPreviousClicked(View view) {
-        lastActionBySwipe = false;
         previousTrack();
     }
 
@@ -419,9 +412,7 @@ public class PlaybackActivity extends SherlockActivity
      * Called when the PlaybackService signals the current Playlist has changed.
      */
     protected void onPlaylistChanged() {
-        mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter(this, mPlaybackService.getCurrentPlaylist());
-        mAlbumArtViewPager.setAdapter(mAlbumArtSwipeAdapter);
-        mAlbumArtViewPager.setCurrentItem(mPlaybackService.getCurrentPlaylist().getPosition(), false);
+        mAlbumArtViewPager.updatePlaylist(mPlaybackService.getCurrentPlaylist());
     }
 
     /**
@@ -441,10 +432,14 @@ public class PlaybackActivity extends SherlockActivity
      */
     private void refreshActivityTrackInfo(Track track) {
         if (track != null) {
-            if (mAlbumArtSwipeAdapter.isPlaylistNull())
+            if (mAlbumArtViewPager.isPlaylistNull())
                 onPlaylistChanged();
-            if (lastActionBySwipe)
+            if (!mAlbumArtViewPager.isSwiped()) {
+                mAlbumArtViewPager.setByUser(false);
                 mAlbumArtViewPager.setCurrentItem(mPlaybackService.getCurrentPlaylist().getPosition(), false);
+                mAlbumArtViewPager.setByUser(true);
+            }
+            mAlbumArtViewPager.setSwiped(false);
             final TextView artistTextView = (TextView) findViewById(R.id.textView_artist);
             final TextView albumTextView = (TextView) findViewById(R.id.textView_album);
             final TextView titleTextView = (TextView) findViewById(R.id.textView_title);
@@ -483,44 +478,6 @@ public class PlaybackActivity extends SherlockActivity
             button.setImageDrawable(getResources().getDrawable(R.drawable.ic_player_play));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.support.v4.view.ViewPager.OnPageChangeListener#
-     * onPageScrollStateChanged(int)
-     */
-    @Override
-    public void onPageScrollStateChanged(int arg0) {
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * android.support.v4.view.ViewPager.OnPageChangeListener#onPageScrolled
-     * (int, float, int)
-     */
-    @Override
-    public void onPageScrolled(int arg0, float arg1, int arg2) {
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * android.support.v4.view.ViewPager.OnPageChangeListener#onPageSelected
-     * (int)
-     */
-    @Override
-    public void onPageSelected(int arg0) {
-        if (arg0 == currentViewPage - 1) {
-            lastActionBySwipe = true;
-            previousTrack();
-        } else if (arg0 == currentViewPage + 1) {
-            lastActionBySwipe = true;
-            nextTrack();
-        }
-        currentViewPage = mPlaybackService.getCurrentPlaylist().getPosition();
-    }
+    
 
 }

@@ -33,12 +33,12 @@
             android:maxLines="1" />
     </LinearLayout>
 
-    <android.support.v4.view.ViewPager
+    <org.tomahawk.libtomahawk.audio.AlbumArtViewPager
         android:id="@+id/album_art_view_pager"
         android:layout_width="fill_parent"
         android:layout_height="320dip"
         android:layout_weight="25" >
-    </android.support.v4.view.ViewPager>
+    </org.tomahawk.libtomahawk.audio.AlbumArtViewPager>
 
     <RelativeLayout
         android:layout_width="wrap_content"

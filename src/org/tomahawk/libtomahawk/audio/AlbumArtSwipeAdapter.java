@@ -46,8 +46,12 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
         this.mContext = mContext;
     }
 
-    /* (non-Javadoc)
-     * @see android.support.v4.view.PagerAdapter#instantiateItem(android.view.View, int)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * android.support.v4.view.PagerAdapter#instantiateItem(android.view.View,
+     * int)
      */
     @Override
     public Object instantiateItem(View collection, int position) {
@@ -72,18 +76,18 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
      */
     @Override
     public int getCount() {
-        if (mPlaylist!=null)
+        if (mPlaylist != null)
             return mPlaylist.getCount();
         return 1;
     }
-    
+
     /**
-     * true if mPlaylist is null, otherwise false
-     *
+     * get the current playlist
+     * 
      * @return
      */
-    public boolean isPlaylistNull(){
-        return mPlaylist==null;
+    protected Playlist getPlaylist() {
+        return mPlaylist;
     }
 
     /*
@@ -118,9 +122,12 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
     public Parcelable saveState() {
         return null;
     }
-    
-    /* (non-Javadoc)
-     * @see android.support.v4.view.PagerAdapter#getItemPosition(java.lang.Object)
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * android.support.v4.view.PagerAdapter#getItemPosition(java.lang.Object)
      */
     @Override
     public int getItemPosition(Object object) {
