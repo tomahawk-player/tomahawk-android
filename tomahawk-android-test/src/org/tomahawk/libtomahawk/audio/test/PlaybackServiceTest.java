@@ -41,7 +41,7 @@ public class PlaybackServiceTest extends ServiceTestCase<PlaybackService> {
         super.setUp();
         setupService();
 
-        Collection coll = new LocalCollection(getContext().getContentResolver());
+        Collection coll = new LocalCollection(getContext());
         tstTrack = coll.getTracks().get(0);
         Intent startIntent = new Intent(getContext(), PlaybackService.class);
 

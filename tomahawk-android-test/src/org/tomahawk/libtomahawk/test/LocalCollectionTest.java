@@ -46,7 +46,7 @@ public class LocalCollectionTest extends AndroidTestCase {
     }
 
     public void testGetArtists() {
-        LocalCollection coll = new LocalCollection(getContext().getContentResolver());
+        LocalCollection coll = new LocalCollection(getContext());
 
         ArrayList<Long> artistIds = new ArrayList<Long>();
 
@@ -60,7 +60,7 @@ public class LocalCollectionTest extends AndroidTestCase {
     }
 
     public void testGetAlbums() {
-        LocalCollection coll = new LocalCollection(getContext().getContentResolver());
+        LocalCollection coll = new LocalCollection(getContext());
 
         ArrayList<Long> albumIds = new ArrayList<Long>();
 
@@ -74,7 +74,7 @@ public class LocalCollectionTest extends AndroidTestCase {
     }
 
     public void testGetTracks() {
-        LocalCollection coll = new LocalCollection(getContext().getContentResolver());
+        LocalCollection coll = new LocalCollection(getContext());
 
         ArrayList<Long> trackIds = new ArrayList<Long>();
 
@@ -88,7 +88,7 @@ public class LocalCollectionTest extends AndroidTestCase {
     }
 
     public void testIsLocal() {
-        Assert.assertTrue((new LocalCollection(getContext().getContentResolver()).isLocal()));
+        Assert.assertTrue((new LocalCollection(getContext()).isLocal()));
     }
 
     private void initializeTestTracks() {

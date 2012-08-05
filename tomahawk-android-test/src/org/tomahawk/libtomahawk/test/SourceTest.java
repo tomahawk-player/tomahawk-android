@@ -31,7 +31,7 @@ public class SourceTest extends AndroidTestCase {
     private Collection tstLocalCollection;
 
     public void setUp() {
-        tstLocalCollection = new LocalCollection(getContext().getContentResolver());
+        tstLocalCollection = new LocalCollection(getContext());
         tstLocalSource = new org.tomahawk.libtomahawk.Source(tstLocalCollection, 1,
                 "Test Collection");
     }
