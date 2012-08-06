@@ -53,6 +53,7 @@ public class PlaybackActivity extends SherlockActivity {
 
     private NewTrackReceiver mNewTrackReceiver;
     private PlaylistChangedReceiver mPlaylistChangedReceiver;
+    private PlaystateChangedReceiver mPlaystateChangedReceiver;
 
     private AlbumArtViewPager mAlbumArtViewPager;
 
@@ -80,6 +81,16 @@ public class PlaybackActivity extends SherlockActivity {
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(PlaybackService.BROADCAST_PLAYLISTCHANGED))
                 onPlaylistChanged();
+        }
+    }
+
+    /** Handles incoming changed playstate broadcasts from the PlaybackService. */
+    private class PlaystateChangedReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(PlaybackService.BROADCAST_PLAYSTATECHANGED))
+                onPlaystateChanged();
         }
     }
 
@@ -135,14 +146,19 @@ public class PlaybackActivity extends SherlockActivity {
     public void onResume() {
         super.onResume();
 
+        refreshButtonStates();
         if (mNewTrackReceiver == null)
             mNewTrackReceiver = new NewTrackReceiver();
         if (mPlaylistChangedReceiver == null)
             mPlaylistChangedReceiver = new PlaylistChangedReceiver();
+        if (mPlaystateChangedReceiver == null)
+            mPlaystateChangedReceiver = new PlaystateChangedReceiver();
         IntentFilter intentFilter = new IntentFilter(PlaybackService.BROADCAST_NEWTRACK);
         registerReceiver(mNewTrackReceiver, intentFilter);
         intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYLISTCHANGED);
         registerReceiver(mPlaylistChangedReceiver, intentFilter);
+        intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYSTATECHANGED);
+        registerReceiver(mPlaystateChangedReceiver, intentFilter);
 
         Intent playbackIntent = new Intent(this, PlaybackService.class);
         bindService(playbackIntent, mPlaybackServiceConnection, Context.BIND_ABOVE_CLIENT);
@@ -160,6 +176,8 @@ public class PlaybackActivity extends SherlockActivity {
             unregisterReceiver(mNewTrackReceiver);
         if (mPlaylistChangedReceiver != null)
             unregisterReceiver(mPlaylistChangedReceiver);
+        if (mPlaystateChangedReceiver != null)
+            unregisterReceiver(mPlaystateChangedReceiver);
         unbindService(mPlaybackServiceConnection);
     }
 
@@ -228,8 +246,6 @@ public class PlaybackActivity extends SherlockActivity {
     /** play the next track and set the playbutton to pause icon */
     public void nextTrack() {
         mPlaybackService.next();
-        final ImageButton button = (ImageButton) findViewById(R.id.imageButton_playpause);
-        button.setImageDrawable(getResources().getDrawable(R.drawable.ic_player_pause));
     }
 
     /** Called when the previous button is clicked.
@@ -242,8 +258,6 @@ public class PlaybackActivity extends SherlockActivity {
     /** play the previous track and set the playbutton to pause icon */
     public void previousTrack() {
         mPlaybackService.previous();
-        final ImageButton button = (ImageButton) findViewById(R.id.imageButton_playpause);
-        button.setImageDrawable(getResources().getDrawable(R.drawable.ic_player_pause));
     }
 
     /** Called when the shuffle button is clicked.
@@ -271,6 +285,11 @@ public class PlaybackActivity extends SherlockActivity {
         mAlbumArtViewPager.updatePlaylist(mPlaybackService.getCurrentPlaylist());
     }
 
+    /** Called when the PlaybackService signals the current Playstate has changed. */
+    protected void onPlaystateChanged() {
+        refreshButtonStates();
+    }
+
     /** Refresh the information in this activity to reflect that of the current Track, if possible (meaning
      * mPlaybackService is not null). */
     private void refreshActivityTrackInfo() {
@@ -283,7 +302,6 @@ public class PlaybackActivity extends SherlockActivity {
     /** Refresh the information in this activity to reflect that of the given Track. */
     private void refreshActivityTrackInfo(Track track) {
         if (track != null) {
-            refreshButtonStates();
             if (mAlbumArtViewPager.isPlaylistNull())
                 onPlaylistChanged();
             if (!mAlbumArtViewPager.isSwiped()) {
@@ -321,7 +339,7 @@ public class PlaybackActivity extends SherlockActivity {
     /** Refresh the information in this activity to reflect that of the current buttonstate. */
     private void refreshButtonStates() {
         final ImageButton button = (ImageButton) findViewById(R.id.imageButton_playpause);
-        if (mPlaybackService.isPlaying())
+        if (mPlaybackService != null && mPlaybackService.isPlaying())
             button.setImageDrawable(getResources().getDrawable(R.drawable.ic_player_pause));
         else
             button.setImageDrawable(getResources().getDrawable(R.drawable.ic_player_play));

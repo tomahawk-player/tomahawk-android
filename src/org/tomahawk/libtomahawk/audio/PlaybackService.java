@@ -52,6 +52,7 @@ public class PlaybackService extends Service implements OnCompletionListener,
 
     public static final String BROADCAST_NEWTRACK = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_NEWTRACK";
     public static final String BROADCAST_PLAYLISTCHANGED = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_PLAYLISTCHANGED";
+    public static final String BROADCAST_PLAYSTATECHANGED = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_PLAYSTATECHANGED";
     private static boolean mIsRunning = false;
 
     private Playlist mCurrentPlaylist;
@@ -205,6 +206,8 @@ public class PlaybackService extends Service implements OnCompletionListener,
             mWakeLock.acquire();
         mMediaPlayer.start();
         createPlayingNotification();
+        
+        sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
     }
 
     /**
@@ -216,6 +219,8 @@ public class PlaybackService extends Service implements OnCompletionListener,
         if (mWakeLock.isHeld())
             mWakeLock.release();
         stopForeground(true);
+        
+        sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
     }
 
     /**
@@ -227,6 +232,8 @@ public class PlaybackService extends Service implements OnCompletionListener,
         if (mWakeLock.isHeld())
             mWakeLock.release();
         stopForeground(true);
+        
+        sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
     }
 
     /**
