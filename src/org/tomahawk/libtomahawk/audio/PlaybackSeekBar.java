@@ -89,14 +89,14 @@ public class PlaybackSeekBar extends SeekBar
     protected void updateTextViewCurrentTime() {
         if (mTextViewCurrentTime != null)
             mTextViewCurrentTime.setText(String.format("%02d", mPlaybackService.getPosition() / 60000)
-                    + ":" + String.format("%02d", (int) ((mPlaybackService.getPosition() / 1000) % 60)));
+                    + ":" + String.format("%02.0f", (double) ((mPlaybackService.getPosition() / 1000) % 60)));
     }
 
     /** Updates the textview that shows the duration of the current track */
     protected void updateTextViewCompleteTime() {
         if (mTextViewCompletionTime != null)
             mTextViewCompletionTime.setText(String.format("%02d", mPlaybackService.getCurrentTrack().getDuration() / 60000)
-                    + ":" + String.format("%02d", (int) ((mPlaybackService.getCurrentTrack().getDuration() / 1000) % 60)));
+                    + ":" + String.format("%02.0f", (double) ((mPlaybackService.getCurrentTrack().getDuration() / 1000) % 60)));
     }
 
     /** @return mIsSeeking showing whether or not the user is currently seeking */
