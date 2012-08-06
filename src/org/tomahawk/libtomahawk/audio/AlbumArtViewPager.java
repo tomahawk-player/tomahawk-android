@@ -35,12 +35,12 @@ public class AlbumArtViewPager extends ViewPager {
 
     private int currentViewPage = 0;
     private boolean byUser;
-    private boolean isSwiped;
+    private boolean swiped;
 
     public AlbumArtViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.byUser = true;
-        this.isSwiped = false;
+        setByUser(true);
+        setSwiped(false);
         mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter(getContext(), null);
         setAdapter(mAlbumArtSwipeAdapter);
         setCurrentItem(0, false);
@@ -99,11 +99,11 @@ public class AlbumArtViewPager extends ViewPager {
     }
 
     public boolean isSwiped() {
-        return isSwiped;
+        return swiped;
     }
 
     public void setSwiped(boolean isSwiped) {
-        this.isSwiped = isSwiped;
+        this.swiped = isSwiped;
     }
 
     public boolean isPlaylistNull() {

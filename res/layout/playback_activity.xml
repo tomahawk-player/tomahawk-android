@@ -46,7 +46,7 @@
         android:layout_marginBottom="-32dip"
         android:layout_weight="1" >
 
-        <SeekBar
+        <org.tomahawk.libtomahawk.audio.PlaybackSeekBar
             android:id="@+id/seekBar_track"
             style="@style/tomahawk_ProgressBar"
             android:layout_width="fill_parent"

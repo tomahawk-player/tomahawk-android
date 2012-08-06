@@ -34,15 +34,10 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.widget.ImageButton;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -50,35 +45,25 @@ import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
-public class PlaybackActivity extends SherlockActivity
-        implements Handler.Callback, SeekBar.OnSeekBarChangeListener, OnTouchListener {
+public class PlaybackActivity extends SherlockActivity {
 
     private static final String TAG = PlaybackActivity.class.getName();
 
     private PlaybackService mPlaybackService;
+
     private NewTrackReceiver mNewTrackReceiver;
     private PlaylistChangedReceiver mPlaylistChangedReceiver;
 
     private AlbumArtViewPager mAlbumArtViewPager;
 
-    /**
-     * Ui thread handler.
-     */
-    protected final Handler mUiHandler = new Handler(this);
-    private SeekBar mSeekBar;
+    private PlaybackSeekBar mPlaybackSeekBar;
     private TextView mTextViewCompletionTime;
     private TextView mTextViewCurrentTime;
-    boolean mIsSeeking = false;
-    private static final int MSG_UPDATE_PROGRESS = 0x1;
 
-    /**
-     * Identifier for passing a Track as an extra in an Intent.
-     */
+    /** Identifier for passing a Track as an extra in an Intent. */
     public static final String PLAYLIST_EXTRA = "playlist";
 
-    /**
-     * Handles incoming new Track broadcasts from the PlaybackService.
-     */
+    /** Handles incoming new Track broadcasts from the PlaybackService. */
     private class NewTrackReceiver extends BroadcastReceiver {
 
         @Override
@@ -88,9 +73,7 @@ public class PlaybackActivity extends SherlockActivity
         }
     }
 
-    /**
-     * Handles incoming changed playlist broadcasts from the PlaybackService.
-     */
+    /** Handles incoming changed playlist broadcasts from the PlaybackService. */
     private class PlaylistChangedReceiver extends BroadcastReceiver {
 
         @Override
@@ -100,9 +83,7 @@ public class PlaybackActivity extends SherlockActivity
         }
     }
 
-    /**
-     * Allow communication to the PlaybackService.
-     */
+    /** Allow communication to the PlaybackService. */
     private ServiceConnection mPlaybackServiceConnection = new ServiceConnection() {
 
         @Override
@@ -121,7 +102,6 @@ public class PlaybackActivity extends SherlockActivity
 
     /*
      * (non-Javadoc)
-     * 
      * @see android.app.Activity#onCreate(android.os.Bundle)
      */
     @Override
@@ -139,10 +119,7 @@ public class PlaybackActivity extends SherlockActivity
 
         mTextViewCompletionTime = (TextView) findViewById(R.id.textView_completionTime);
         mTextViewCurrentTime = (TextView) findViewById(R.id.textView_currentTime);
-        mSeekBar = (SeekBar) findViewById(R.id.seekBar_track);
-        mSeekBar.setOnSeekBarChangeListener(this);
-
-        view.setOnTouchListener(this);
+        mPlaybackSeekBar = (PlaybackSeekBar) findViewById(R.id.seekBar_track);
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
@@ -150,7 +127,8 @@ public class PlaybackActivity extends SherlockActivity
         getApplicationContext().startService(playbackIntent);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see android.app.Activity#onResume()
      */
     @Override
@@ -172,7 +150,6 @@ public class PlaybackActivity extends SherlockActivity
 
     /*
      * (non-Javadoc)
-     * 
      * @see com.actionbarsherlock.app.SherlockActivity#onPause()
      */
     @Override
@@ -188,10 +165,7 @@ public class PlaybackActivity extends SherlockActivity
 
     /*
      * (non-Javadoc)
-     * 
-     * @see
-     * com.actionbarsherlock.app.SherlockActivity#onCreateOptionsMenu(android
-     * .view.Menu)
+     * @see com.actionbarsherlock.app.SherlockActivity#onCreateOptionsMenu(android .view.Menu)
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -204,10 +178,7 @@ public class PlaybackActivity extends SherlockActivity
 
     /*
      * (non-Javadoc)
-     * 
-     * @see
-     * com.actionbarsherlock.app.SherlockActivity#onOptionsItemSelected(android
-     * .view.MenuItem)
+     * @see com.actionbarsherlock.app.SherlockActivity#onOptionsItemSelected(android .view.MenuItem)
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -220,58 +191,7 @@ public class PlaybackActivity extends SherlockActivity
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.view.View.OnTouchListener#onTouch(android.view.View,
-     * android.view.MotionEvent)
-     */
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        return false;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * android.widget.SeekBar.OnSeekBarChangeListener#onStartTrackingTouch(android
-     * .widget.SeekBar)
-     */
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
-        mIsSeeking = true;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * android.widget.SeekBar.OnSeekBarChangeListener#onStopTrackingTouch(android
-     * .widget.SeekBar)
-     */
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-        mIsSeeking = false;
-        mPlaybackService.seekTo(seekBar.getProgress());
-        updateSeekBarPosition();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * android.widget.SeekBar.OnSeekBarChangeListener#onProgressChanged(android
-     * .widget.SeekBar, int, boolean)
-     */
-    @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        updateTextViewCurrentTime();
-    }
-
-    /**
-     * Called when the PlaybackService is ready.
-     */
+    /** Called when the PlaybackService is ready. */
     public void onServiceReady() {
         if (getIntent().hasExtra(PLAYLIST_EXTRA)) {
             try {
@@ -282,143 +202,77 @@ public class PlaybackActivity extends SherlockActivity
             getIntent().removeExtra(PLAYLIST_EXTRA);
         }
         mAlbumArtViewPager.setPlaybackService(mPlaybackService);
+        mPlaybackSeekBar.setPlaybackService(mPlaybackService);
+        mPlaybackSeekBar.setTextViewCurrentTime(mTextViewCurrentTime);
+        mPlaybackSeekBar.setTextViewCompletionTime(mTextViewCompletionTime);
         refreshActivityTrackInfo();
     }
 
-    /*
-     * (non-Javadoc)
+    /** Called when the play/pause button is clicked.
      * 
-     * @see android.os.Handler.Callback#handleMessage(android.os.Message)
-     */
-    @Override
-    public boolean handleMessage(Message msg) {
-        switch (msg.what) {
-            case MSG_UPDATE_PROGRESS:
-                updateSeekBarPosition();
-                break;
-        }
-        return true;
-    }
-
-    /**
-     * Called when the play/pause button is clicked.
-     * 
-     * @param view
-     */
+     * @param view */
     public void onPlayPauseClicked(View view) {
         Log.d(TAG, "onPlayPauseClicked");
         mPlaybackService.playPause();
         refreshButtonStates();
-        updateSeekBarPosition();
+        mPlaybackSeekBar.updateSeekBarPosition();
     }
 
-    /**
-     * Called when the next button is clicked.
+    /** Called when the next button is clicked.
      * 
-     * @param view
-     */
+     * @param view */
     public void onNextClicked(View view) {
         nextTrack();
     }
 
-    /**
-     * play the next track and set the playbutton to pause icon
-     * 
-     */
+    /** play the next track and set the playbutton to pause icon */
     public void nextTrack() {
         mPlaybackService.next();
         final ImageButton button = (ImageButton) findViewById(R.id.imageButton_playpause);
         button.setImageDrawable(getResources().getDrawable(R.drawable.ic_player_pause));
     }
 
-    /**
-     * Called when the previous button is clicked.
+    /** Called when the previous button is clicked.
      * 
-     * @param view
-     */
+     * @param view */
     public void onPreviousClicked(View view) {
         previousTrack();
     }
 
-    /**
-     * play the previous track and set the playbutton to pause icon
-     * 
-     */
+    /** play the previous track and set the playbutton to pause icon */
     public void previousTrack() {
         mPlaybackService.previous();
         final ImageButton button = (ImageButton) findViewById(R.id.imageButton_playpause);
         button.setImageDrawable(getResources().getDrawable(R.drawable.ic_player_pause));
     }
 
-    /**
-     * Called when the shuffle button is clicked.
+    /** Called when the shuffle button is clicked.
      * 
-     * @param view
-     */
+     * @param view */
     public void onShuffleClicked(View view) {
         mPlaybackService.getCurrentPlaylist().setShuffled(!mPlaybackService.getCurrentPlaylist().isShuffled());
         onPlaylistChanged();
     }
 
-    /**
-     * Called when the repeat button is clicked.
+    /** Called when the repeat button is clicked.
      * 
-     * @param view
-     */
+     * @param view */
     public void onRepeatClicked(View view) {
         mPlaybackService.getCurrentPlaylist().setRepeating(!mPlaybackService.getCurrentPlaylist().isRepeating());
     }
 
-    /**
-     * Updates the position on seekbar and the related textviews
-     */
-    private void updateSeekBarPosition() {
-        if (!mPlaybackService.isPlaying() && !mIsSeeking)
-            return;
-        if (!mIsSeeking) {
-            mSeekBar.setProgress(mPlaybackService.getPosition());
-            updateTextViewCurrentTime();
-        }
-        mUiHandler.removeMessages(MSG_UPDATE_PROGRESS);
-        mUiHandler.sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS, 10);
-    }
-
-    /**
-     * Updates the textview that shows the current time the track is at
-     * 
-     */
-    private void updateTextViewCurrentTime() {
-        mTextViewCurrentTime.setText(String.format("%02d", mPlaybackService.getPosition() / 60000)
-                + ":" + String.format("%02d", (int) ((mPlaybackService.getPosition() / 1000) % 60)));
-    }
-
-    /**
-     * Updates the textview that shows the duration of the current track
-     * 
-     */
-    private void updateTextViewCompleteTime() {
-        mTextViewCompletionTime.setText(String.format("%02d", mPlaybackService.getCurrentTrack().getDuration() / 60000)
-                + ":" + String.format("%02d", (int) ((mPlaybackService.getCurrentTrack().getDuration() / 1000) % 60)));
-    }
-
-    /**
-     * Called when the PlaybackService signals the current Track has changed.
-     */
+    /** Called when the PlaybackService signals the current Track has changed. */
     protected void onTrackChanged() {
         refreshActivityTrackInfo();
     }
 
-    /**
-     * Called when the PlaybackService signals the current Playlist has changed.
-     */
+    /** Called when the PlaybackService signals the current Playlist has changed. */
     protected void onPlaylistChanged() {
         mAlbumArtViewPager.updatePlaylist(mPlaybackService.getCurrentPlaylist());
     }
 
-    /**
-     * Refresh the information in this activity to reflect that of the current
-     * Track, if possible (meaning mPlaybackService is not null).
-     */
+    /** Refresh the information in this activity to reflect that of the current Track, if possible (meaning
+     * mPlaybackService is not null). */
     private void refreshActivityTrackInfo() {
         if (mPlaybackService != null)
             refreshActivityTrackInfo(mPlaybackService.getCurrentTrack());
@@ -426,12 +280,10 @@ public class PlaybackActivity extends SherlockActivity
             refreshActivityTrackInfo(null);
     }
 
-    /**
-     * Refresh the information in this activity to reflect that of the given
-     * Track.
-     */
+    /** Refresh the information in this activity to reflect that of the given Track. */
     private void refreshActivityTrackInfo(Track track) {
         if (track != null) {
+            refreshButtonStates();
             if (mAlbumArtViewPager.isPlaylistNull())
                 onPlaylistChanged();
             if (!mAlbumArtViewPager.isSwiped()) {
@@ -451,12 +303,12 @@ public class PlaybackActivity extends SherlockActivity
             findViewById(R.id.imageButton_previous).setClickable(true);
             findViewById(R.id.imageButton_shuffle).setClickable(true);
             findViewById(R.id.imageButton_repeat).setClickable(true);
-            mSeekBar.setMax((int) mPlaybackService.getCurrentTrack().getDuration());
-            updateSeekBarPosition();
-            updateTextViewCompleteTime();
-            updateTextViewCurrentTime();
+            mPlaybackSeekBar.setMax((int) mPlaybackService.getCurrentTrack().getDuration());
+            mPlaybackSeekBar.updateSeekBarPosition();
+            mPlaybackSeekBar.updateTextViewCompleteTime();
+            mPlaybackSeekBar.updateTextViewCurrentTime();
             // Update the progressbar the next second
-            mUiHandler.sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS, 1000);
+            mPlaybackSeekBar.getUiHandler().sendEmptyMessageDelayed(PlaybackSeekBar.getMsgUpdateProgress(), 1000);
         } else {
             findViewById(R.id.imageButton_playpause).setClickable(false);
             findViewById(R.id.imageButton_next).setClickable(false);
@@ -466,10 +318,7 @@ public class PlaybackActivity extends SherlockActivity
         }
     }
 
-    /**
-     * Refresh the information in this activity to reflect that of the current
-     * buttonstate.
-     */
+    /** Refresh the information in this activity to reflect that of the current buttonstate. */
     private void refreshButtonStates() {
         final ImageButton button = (ImageButton) findViewById(R.id.imageButton_playpause);
         if (mPlaybackService.isPlaying())
@@ -477,7 +326,5 @@ public class PlaybackActivity extends SherlockActivity
         else
             button.setImageDrawable(getResources().getDrawable(R.drawable.ic_player_play));
     }
-
-    
 
 }
