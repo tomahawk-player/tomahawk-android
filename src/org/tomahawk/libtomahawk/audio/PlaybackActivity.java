@@ -51,9 +51,7 @@ public class PlaybackActivity extends SherlockActivity {
 
     private PlaybackService mPlaybackService;
 
-    private NewTrackReceiver mNewTrackReceiver;
-    private PlaylistChangedReceiver mPlaylistChangedReceiver;
-    private PlaystateChangedReceiver mPlaystateChangedReceiver;
+    private PlaybackServiceBroadcastReceiver mPlaybackServiceBroadcastReceiver;
 
     private AlbumArtViewPager mAlbumArtViewPager;
 
@@ -64,34 +62,18 @@ public class PlaybackActivity extends SherlockActivity {
     /** Identifier for passing a Track as an extra in an Intent. */
     public static final String PLAYLIST_EXTRA = "playlist";
 
-    /** Handles incoming new Track broadcasts from the PlaybackService. */
-    private class NewTrackReceiver extends BroadcastReceiver {
+    private class PlaybackServiceBroadcastReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(PlaybackService.BROADCAST_NEWTRACK))
                 onTrackChanged();
-        }
-    }
-
-    /** Handles incoming changed playlist broadcasts from the PlaybackService. */
-    private class PlaylistChangedReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(PlaybackService.BROADCAST_PLAYLISTCHANGED))
                 onPlaylistChanged();
-        }
-    }
-
-    /** Handles incoming changed playstate broadcasts from the PlaybackService. */
-    private class PlaystateChangedReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(PlaybackService.BROADCAST_PLAYSTATECHANGED))
                 onPlaystateChanged();
         }
+
     }
 
     /** Allow communication to the PlaybackService. */
@@ -147,18 +129,15 @@ public class PlaybackActivity extends SherlockActivity {
         super.onResume();
 
         refreshButtonStates();
-        if (mNewTrackReceiver == null)
-            mNewTrackReceiver = new NewTrackReceiver();
-        if (mPlaylistChangedReceiver == null)
-            mPlaylistChangedReceiver = new PlaylistChangedReceiver();
-        if (mPlaystateChangedReceiver == null)
-            mPlaystateChangedReceiver = new PlaystateChangedReceiver();
+        if (mPlaybackServiceBroadcastReceiver == null)
+            mPlaybackServiceBroadcastReceiver = new PlaybackServiceBroadcastReceiver();
+
         IntentFilter intentFilter = new IntentFilter(PlaybackService.BROADCAST_NEWTRACK);
-        registerReceiver(mNewTrackReceiver, intentFilter);
+        registerReceiver(mPlaybackServiceBroadcastReceiver, intentFilter);
         intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYLISTCHANGED);
-        registerReceiver(mPlaylistChangedReceiver, intentFilter);
+        registerReceiver(mPlaybackServiceBroadcastReceiver, intentFilter);
         intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYSTATECHANGED);
-        registerReceiver(mPlaystateChangedReceiver, intentFilter);
+        registerReceiver(mPlaybackServiceBroadcastReceiver, intentFilter);
 
         Intent playbackIntent = new Intent(this, PlaybackService.class);
         bindService(playbackIntent, mPlaybackServiceConnection, Context.BIND_ABOVE_CLIENT);
@@ -172,12 +151,8 @@ public class PlaybackActivity extends SherlockActivity {
     public void onPause() {
         super.onPause();
 
-        if (mNewTrackReceiver != null)
-            unregisterReceiver(mNewTrackReceiver);
-        if (mPlaylistChangedReceiver != null)
-            unregisterReceiver(mPlaylistChangedReceiver);
-        if (mPlaystateChangedReceiver != null)
-            unregisterReceiver(mPlaystateChangedReceiver);
+        if (mPlaybackServiceBroadcastReceiver != null)
+            unregisterReceiver(mPlaybackServiceBroadcastReceiver);
         unbindService(mPlaybackServiceConnection);
     }
 
