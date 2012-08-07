@@ -128,7 +128,8 @@ public class PlaybackActivity extends SherlockActivity {
     public void onResume() {
         super.onResume();
 
-        refreshButtonStates();
+        mPlaybackSeekBar.setTextViewCurrentTime(mTextViewCurrentTime);
+        mPlaybackSeekBar.setTextViewCompletionTime(mTextViewCompletionTime);
         if (mPlaybackServiceBroadcastReceiver == null)
             mPlaybackServiceBroadcastReceiver = new PlaybackServiceBroadcastReceiver();
 
@@ -196,8 +197,7 @@ public class PlaybackActivity extends SherlockActivity {
         }
         mAlbumArtViewPager.setPlaybackService(mPlaybackService);
         mPlaybackSeekBar.setPlaybackService(mPlaybackService);
-        mPlaybackSeekBar.setTextViewCurrentTime(mTextViewCurrentTime);
-        mPlaybackSeekBar.setTextViewCompletionTime(mTextViewCompletionTime);
+        refreshButtonStates();
         refreshActivityTrackInfo();
     }
 
