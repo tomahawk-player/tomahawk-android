@@ -10,7 +10,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dip"
-        android:layout_weight="1"
+        android:layout_weight="0.5"
         android:orientation="vertical" >
 
         <TextView
@@ -37,14 +37,14 @@
         android:id="@+id/album_art_view_pager"
         android:layout_width="fill_parent"
         android:layout_height="720dip"
-        android:layout_weight="10" >
+        android:layout_weight="1" >
     </org.tomahawk.libtomahawk.audio.AlbumArtViewPager>
 
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="-32dip"
-        android:layout_weight="1" >
+        android:layout_weight="0.2" >
 
         <org.tomahawk.libtomahawk.audio.PlaybackSeekBar
             android:id="@+id/seekBar_track"
@@ -87,8 +87,8 @@
     <LinearLayout
         android:id="@+id/playback_buttonPanel"
         android:layout_width="fill_parent"
-        android:layout_height="80dip"
-        android:layout_weight="1" >
+        android:layout_height="wrap_content"
+        android:layout_weight="0.1" >
 
         <ImageButton
             android:id="@+id/imageButton_shuffle"
