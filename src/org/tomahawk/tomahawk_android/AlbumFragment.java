@@ -25,6 +25,7 @@ import org.tomahawk.libtomahawk.playlist.Playlist;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -36,22 +37,6 @@ import android.widget.ArrayAdapter;
 public class AlbumFragment extends TomahawkListFragment implements OnItemClickListener {
 
     private ArrayAdapter<Album> mAlbumAdapter;
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onCreate(android.os.Bundle)
-     */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        TomahawkApp app = (TomahawkApp) getActivity().getApplicationContext();
-        Collection mycoll = app.getSourceList().getLocalSource().getCollection();
-        mAlbumAdapter = new ArrayAdapter<Album>(getActivity(), R.layout.mymusic_list_item,
-                R.id.mymusic_list_textview, mycoll.getAlbums());
-        setListAdapter(mAlbumAdapter);
-    }
 
     /* (non-Javadoc)
      * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
@@ -82,5 +67,17 @@ public class AlbumFragment extends TomahawkListFragment implements OnItemClickLi
     @Override
     protected ArrayAdapter<?> getAdapter() {
         return mAlbumAdapter;
+    }
+
+    /**
+     * Called when the CollectionLoader has finished loading.
+     */
+    @Override
+    public void onLoadFinished(Loader<Collection> loader, Collection coll) {
+        super.onLoadFinished(loader, coll);
+
+        mAlbumAdapter = new ArrayAdapter<Album>(getActivity(), R.layout.mymusic_list_item,
+                R.id.mymusic_list_textview, coll.getAlbums());
+        setListAdapter(mAlbumAdapter);
     }
 }

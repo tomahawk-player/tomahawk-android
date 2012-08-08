@@ -18,12 +18,15 @@
 package org.tomahawk.tomahawk_android;
 
 import org.tomahawk.libtomahawk.Collection;
+import org.tomahawk.libtomahawk.CollectionLoader;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.ArrayAdapter;
@@ -34,12 +37,14 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
-public abstract class TomahawkListFragment extends SherlockListFragment {
+public abstract class TomahawkListFragment extends SherlockListFragment implements
+        LoaderManager.LoaderCallbacks<Collection> {
 
     private CollectionUpdateReceiver mCollectionUpdatedReceiver;
     private EditText mFilterText = null;
 
     private SearchWatcher mFilterTextWatcher;
+    private CollectionLoader mLoader;
 
     /**
      * Class which manages search functionality withing fragments
@@ -47,7 +52,7 @@ public abstract class TomahawkListFragment extends SherlockListFragment {
     private class SearchWatcher implements TextWatcher {
 
         /**
-         * Cakked when text is changed in the search bar.
+         * Called when text is changed in the search bar.
          */
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -84,6 +89,17 @@ public abstract class TomahawkListFragment extends SherlockListFragment {
         mFilterTextWatcher = new SearchWatcher();
     }
 
+    /** Called when the activity for this Fragment is created. */
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if (mLoader == null)
+            mLoader = (CollectionLoader) getSherlockActivity().getSupportLoaderManager()
+                    .initLoader(0, null, this);
+    }
+
+    /** Called when this Fragment is resumed. */
     @Override
     public void onResume() {
         super.onResume();
@@ -91,9 +107,9 @@ public abstract class TomahawkListFragment extends SherlockListFragment {
         mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
         IntentFilter filter = new IntentFilter(Collection.COLLECTION_UPDATED);
         getActivity().registerReceiver(mCollectionUpdatedReceiver, filter);
-        onCollectionUpdated();
     }
 
+    /** Called when this Fragment is paused. */
     @Override
     public void onPause() {
         super.onPause();
@@ -102,6 +118,7 @@ public abstract class TomahawkListFragment extends SherlockListFragment {
             getActivity().unregisterReceiver(mCollectionUpdatedReceiver);
     }
 
+    /** Called when the options menu for this Fragment is created. */
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
@@ -111,6 +128,7 @@ public abstract class TomahawkListFragment extends SherlockListFragment {
         mFilterText.addTextChangedListener(mFilterTextWatcher);
     }
 
+    /** Called when the options menu is destroyed. */
     @Override
     public void onDestroyOptionsMenu() {
         super.onDestroyOptionsMenu();
@@ -125,8 +143,37 @@ public abstract class TomahawkListFragment extends SherlockListFragment {
      */
     protected abstract ArrayAdapter<?> getAdapter();
 
+    /**
+     * Called when a Collection has been updated.
+     */
     protected void onCollectionUpdated() {
-        if (getAdapter() != null)
-            getAdapter().notifyDataSetChanged();
+        getSherlockActivity().getSupportLoaderManager().restartLoader(0, null, this);
+    }
+
+    /**
+     * Called when the CollectionLoader needs to be created.
+     */
+    @Override
+    public Loader<Collection> onCreateLoader(int id, Bundle args) {
+
+        /** For now we will just start with the local collection to test. */
+        TomahawkApp app = (TomahawkApp) getActivity().getApplicationContext();
+        return new CollectionLoader(getActivity(), app.getSourceList().getLocalSource()
+                .getCollection());
+    }
+
+    /**
+     * Called when the CollectionLoader has finished loading.
+     */
+    @Override
+    public void onLoadFinished(Loader<Collection> loader, Collection coll) {
+        setListShown(true);
+    }
+
+    /**
+     * Called when the loader is reset.
+     */
+    @Override
+    public void onLoaderReset(Loader<Collection> loader) {
     }
 }

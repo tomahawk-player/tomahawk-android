@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 
@@ -36,10 +37,18 @@ public class LocalCollection extends Collection {
     private static final String TAG = LocalCollection.class.getName();
 
     private Context mContext;
+    private Handler mHandler;
 
     private Map<Long, Artist> mArtists;
     private Map<Long, Album> mAlbums;
     private Map<Long, Track> mTracks;
+
+    private Runnable mUpdateRunnable = new Runnable() {
+        @Override
+        public void run() {
+            update();
+        }
+    };
 
     /**
      * This class watches for changes in the Media db.
@@ -47,7 +56,7 @@ public class LocalCollection extends Collection {
     private final ContentObserver mLocalMediaObserver = new ContentObserver(null) {
         @Override
         public void onChange(boolean selfChange) {
-            update();
+            mHandler.postDelayed(mUpdateRunnable, 100);
         }
     };
 
@@ -65,7 +74,9 @@ public class LocalCollection extends Collection {
         mContext.getContentResolver().registerContentObserver(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false,
                 mLocalMediaObserver);
-        initializeCollection();
+
+        mHandler = new Handler();
+        mHandler.postDelayed(mUpdateRunnable, 300);
     }
 
     /**
