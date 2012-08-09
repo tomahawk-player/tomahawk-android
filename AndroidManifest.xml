@@ -20,7 +20,7 @@
         android:theme="@style/Theme.tomahawk" android:name="TomahawkApp">
         <activity
             android:name="org.tomahawk.tomahawk_android.TomahawkMainActivity"
-            android:label="@string/title_activity_tomahawk_main">
+            android:label="@string/title_activity_tomahawk_main" android:configChanges="keyboardHidden|orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

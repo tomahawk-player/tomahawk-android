@@ -44,7 +44,6 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
     private EditText mFilterText = null;
 
     private SearchWatcher mFilterTextWatcher;
-    private CollectionLoader mLoader;
 
     /**
      * Class which manages search functionality withing fragments
@@ -85,6 +84,7 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        setRetainInstance(true);
 
         mFilterTextWatcher = new SearchWatcher();
     }
@@ -94,9 +94,8 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        if (mLoader == null)
-            mLoader = (CollectionLoader) getSherlockActivity().getSupportLoaderManager()
-                    .initLoader(0, null, this);
+        getSherlockActivity().getSupportLoaderManager().destroyLoader(getId());
+        getSherlockActivity().getSupportLoaderManager().initLoader(getId(), null, this);
     }
 
     /** Called when this Fragment is resumed. */
@@ -147,7 +146,7 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
      * Called when a Collection has been updated.
      */
     protected void onCollectionUpdated() {
-        getSherlockActivity().getSupportLoaderManager().restartLoader(0, null, this);
+        getSherlockActivity().getSupportLoaderManager().restartLoader(getId(), null, this);
     }
 
     /**

@@ -65,12 +65,6 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
 				PlayerFragment.class, null);
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        finish();
-    }
-
     /*
      * (non-Javadoc)
      * 
