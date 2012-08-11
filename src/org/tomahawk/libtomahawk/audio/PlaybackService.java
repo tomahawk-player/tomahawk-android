@@ -347,7 +347,7 @@ public class PlaybackService extends Service implements OnCompletionListener,
         mMediaPlayer.reset();
         mMediaPlayer.setDataSource(track.getPath());
         mMediaPlayer.prepareAsync();
-
+        
         sendBroadcast(new Intent(BROADCAST_NEWTRACK));
     }
 

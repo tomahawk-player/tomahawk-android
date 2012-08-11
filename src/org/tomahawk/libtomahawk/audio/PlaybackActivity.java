@@ -72,6 +72,7 @@ public class PlaybackActivity extends SherlockActivity {
 
     /*
      * (non-Javadoc)
+     * 
      * @see android.app.Activity#onCreate(android.os.Bundle)
      */
     @Override
@@ -97,6 +98,7 @@ public class PlaybackActivity extends SherlockActivity {
 
     /*
      * (non-Javadoc)
+     * 
      * @see android.app.Activity#onResume()
      */
     @Override
@@ -130,6 +132,7 @@ public class PlaybackActivity extends SherlockActivity {
 
     /*
      * (non-Javadoc)
+     * 
      * @see com.actionbarsherlock.app.SherlockActivity#onPause()
      */
     @Override
@@ -144,35 +147,46 @@ public class PlaybackActivity extends SherlockActivity {
 
     /*
      * (non-Javadoc)
-     * @see com.actionbarsherlock.app.SherlockActivity#onCreateOptionsMenu(android .view.Menu)
+     * 
+     * @see
+     * com.actionbarsherlock.app.SherlockActivity#onCreateOptionsMenu(android
+     * .view.Menu)
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.tomahawk_main_activity, menu);
-        menu.add("Search").setIcon(R.drawable.ic_action_search)
-                .setActionView(R.layout.collapsible_edittext)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-        return true;
+
+        // menu.add(0, SEARCH_OPTION_ID, 0, "Search")
+        // .setIcon(R.drawable.ic_action_search)
+        // .setActionView(R.layout.collapsible_edittext)
+        // .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
+        // | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+
+        return super.onCreateOptionsMenu(menu);
     }
 
     /*
      * (non-Javadoc)
-     * @see com.actionbarsherlock.app.SherlockActivity#onOptionsItemSelected(android .view.MenuItem)
+     * 
+     * @see
+     * com.actionbarsherlock.app.SherlockActivity#onOptionsItemSelected(android
+     * .view.MenuItem)
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home:
-                super.onBackPressed();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        case android.R.id.home:
+            super.onBackPressed();
+            return true;
+        default:
+            return super.onOptionsItemSelected(item);
         }
     }
 
-    /** Called when the play/pause button is clicked.
+    /**
+     * Called when the play/pause button is clicked.
      * 
-     * @param view */
+     * @param view
+     */
     public void onPlayPauseClicked(View view) {
         Log.d(TAG, "onPlayPauseClicked");
         mPlaybackService.playPause();
@@ -180,9 +194,11 @@ public class PlaybackActivity extends SherlockActivity {
         mPlaybackSeekBar.updateSeekBarPosition();
     }
 
-    /** Called when the next button is clicked.
+    /**
+     * Called when the next button is clicked.
      * 
-     * @param view */
+     * @param view
+     */
     public void onNextClicked(View view) {
         nextTrack();
     }
@@ -192,9 +208,11 @@ public class PlaybackActivity extends SherlockActivity {
         mPlaybackService.next();
     }
 
-    /** Called when the previous button is clicked.
+    /**
+     * Called when the previous button is clicked.
      * 
-     * @param view */
+     * @param view
+     */
     public void onPreviousClicked(View view) {
         previousTrack();
     }
@@ -204,19 +222,24 @@ public class PlaybackActivity extends SherlockActivity {
         mPlaybackService.previous();
     }
 
-    /** Called when the shuffle button is clicked.
+    /**
+     * Called when the shuffle button is clicked.
      * 
-     * @param view */
+     * @param view
+     */
     public void onShuffleClicked(View view) {
         mPlaybackService.getCurrentPlaylist().setShuffled(!mPlaybackService.getCurrentPlaylist().isShuffled());
         onPlaylistChanged();
     }
 
-    /** Called when the repeat button is clicked.
+    /**
+     * Called when the repeat button is clicked.
      * 
-     * @param view */
+     * @param view
+     */
     public void onRepeatClicked(View view) {
-        mPlaybackService.getCurrentPlaylist().setRepeating(!mPlaybackService.getCurrentPlaylist().isRepeating());
+        mPlaybackService.getCurrentPlaylist().setRepeating(
+                !mPlaybackService.getCurrentPlaylist().isRepeating());
     }
 
     /** Called when the PlaybackService signals the current Track has changed. */
@@ -224,18 +247,25 @@ public class PlaybackActivity extends SherlockActivity {
         refreshActivityTrackInfo();
     }
 
-    /** Called when the PlaybackService signals the current Playlist has changed. */
+    /**
+     * Called when the PlaybackService signals the current Playlist has changed.
+     */
     protected void onPlaylistChanged() {
         mAlbumArtViewPager.updatePlaylist(mPlaybackService.getCurrentPlaylist());
     }
 
-    /** Called when the PlaybackService signals the current Playstate has changed. */
+    /**
+     * Called when the PlaybackService signals the current Playstate has
+     * changed.
+     */
     protected void onPlaystateChanged() {
         refreshButtonStates();
     }
 
-    /** Refresh the information in this activity to reflect that of the current Track, if possible (meaning
-     * mPlaybackService is not null). */
+    /**
+     * Refresh the information in this activity to reflect that of the current
+     * Track, if possible (meaning mPlaybackService is not null).
+     */
     private void refreshActivityTrackInfo() {
         if (mPlaybackService != null)
             refreshActivityTrackInfo(mPlaybackService.getCurrentTrack());
@@ -243,7 +273,10 @@ public class PlaybackActivity extends SherlockActivity {
             refreshActivityTrackInfo(null);
     }
 
-    /** Refresh the information in this activity to reflect that of the given Track. */
+    /**
+     * Refresh the information in this activity to reflect that of the given
+     * Track.
+     */
     private void refreshActivityTrackInfo(Track track) {
         if (track != null) {
             if (mAlbumArtViewPager.isPlaylistNull())
@@ -270,7 +303,8 @@ public class PlaybackActivity extends SherlockActivity {
             mPlaybackSeekBar.updateTextViewCompleteTime();
             mPlaybackSeekBar.updateTextViewCurrentTime();
             // Update the progressbar the next second
-            mPlaybackSeekBar.getUiHandler().sendEmptyMessageDelayed(PlaybackSeekBar.getMsgUpdateProgress(), 1000);
+            mPlaybackSeekBar.getUiHandler().sendEmptyMessageDelayed(PlaybackSeekBar.getMsgUpdateProgress(),
+                    1000);
         } else {
             findViewById(R.id.imageButton_playpause).setClickable(false);
             findViewById(R.id.imageButton_next).setClickable(false);
@@ -280,7 +314,10 @@ public class PlaybackActivity extends SherlockActivity {
         }
     }
 
-    /** Refresh the information in this activity to reflect that of the current buttonstate. */
+    /**
+     * Refresh the information in this activity to reflect that of the current
+     * buttonstate.
+     */
     private void refreshButtonStates() {
         final ImageButton button = (ImageButton) findViewById(R.id.imageButton_playpause);
         if (mPlaybackService != null && mPlaybackService.isPlaying())
@@ -288,5 +325,4 @@ public class PlaybackActivity extends SherlockActivity {
         else
             button.setImageDrawable(getResources().getDrawable(R.drawable.ic_player_play));
     }
-
 }

@@ -40,8 +40,7 @@ import com.actionbarsherlock.view.MenuItem;
 public abstract class TomahawkListFragment extends SherlockListFragment implements
         LoaderManager.LoaderCallbacks<Collection> {
 
-    private static IntentFilter sCollectionUpdateIntentFilter = new IntentFilter(
-            Collection.COLLECTION_UPDATED);
+    private static IntentFilter sCollectionUpdateIntentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
 
     private CollectionUpdateReceiver mCollectionUpdatedReceiver;
     private EditText mFilterText = null;
@@ -53,8 +52,11 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
      */
     private class SearchWatcher implements TextWatcher {
 
-        /**
-         * Called when text is changed in the search bar.
+        /*
+         * (non-Javadoc)
+         * 
+         * @see android.text.TextWatcher#onTextChanged(java.lang.CharSequence,
+         * int, int, int)
          */
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -62,10 +64,22 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
                 getAdapter().getFilter().filter(s);
         }
 
+        /*
+         * (non-Javadoc)
+         * 
+         * @see android.text.TextWatcher#afterTextChanged(android.text.Editable)
+         */
         @Override
         public void afterTextChanged(Editable s) {
         }
 
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * android.text.TextWatcher#beforeTextChanged(java.lang.CharSequence,
+         * int, int, int)
+         */
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
         }
@@ -76,6 +90,13 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
      */
     private class CollectionUpdateReceiver extends BroadcastReceiver {
 
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * android.content.BroadcastReceiver#onReceive(android.content.Context,
+         * android.content.Intent)
+         */
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(Collection.COLLECTION_UPDATED))
@@ -83,6 +104,11 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,7 +116,11 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
         setRetainInstance(true);
     }
 
-    /** Called when the activity for this Fragment is created. */
+    /*
+     * (non-Javadoc)
+     * 
+     * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
+     */
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -99,19 +129,26 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
         getSherlockActivity().getSupportLoaderManager().initLoader(getId(), null, this);
     }
 
-    /** Called when this Fragment is resumed. */
+    /*
+     * (non-Javadoc)
+     * 
+     * @see android.support.v4.app.Fragment#onResume()
+     */
     @Override
     public void onResume() {
         super.onResume();
 
         if (mCollectionUpdatedReceiver == null) {
             mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
-            getActivity().registerReceiver(mCollectionUpdatedReceiver,
-                    sCollectionUpdateIntentFilter);
+            getActivity().registerReceiver(mCollectionUpdatedReceiver, sCollectionUpdateIntentFilter);
         }
     }
 
-    /** Called when this Fragment is paused. */
+    /*
+     * (non-Javadoc)
+     * 
+     * @see android.support.v4.app.Fragment#onPause()
+     */
     @Override
     public void onPause() {
         super.onPause();
@@ -122,22 +159,35 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
         }
     }
 
-    /** Called when the options menu for this Fragment is created. */
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.actionbarsherlock.app.SherlockListFragment#onCreateOptionsMenu(android
+     * .view.Menu, android.view.MenuInflater)
+     */
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
 
         MenuItem item = (MenuItem) menu.findItem(CollectionActivity.SEARCH_OPTION_ID);
-        mFilterText = (EditText) item.getActionView().findViewById(R.id.search_edittext);
-        mFilterText.addTextChangedListener(mFilterTextWatcher);
+        if (item != null) {
+            mFilterText = (EditText) item.getActionView().findViewById(R.id.search_edittext);
+            mFilterText.addTextChangedListener(mFilterTextWatcher);
+        }
     }
 
-    /** Called when the options menu is destroyed. */
+    /*
+     * (non-Javadoc)
+     * 
+     * @see android.support.v4.app.Fragment#onDestroyOptionsMenu()
+     */
     @Override
     public void onDestroyOptionsMenu() {
         super.onDestroyOptionsMenu();
 
-        mFilterText.removeTextChangedListener(mFilterTextWatcher);
+        if (mFilterText != null)
+            mFilterText.removeTextChangedListener(mFilterTextWatcher);
     }
 
     /**
@@ -154,29 +204,46 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
         getSherlockActivity().getSupportLoaderManager().restartLoader(getId(), null, this);
     }
 
-    /**
-     * Called when the CollectionLoader needs to be created.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
+     * android.os.Bundle)
      */
     @Override
     public Loader<Collection> onCreateLoader(int id, Bundle args) {
         return new CollectionLoader(getActivity(), getCurrentCollection());
     }
 
-    /**
-     * Called when the CollectionLoader has finished loading.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
+     * .support.v4.content.Loader, java.lang.Object)
      */
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         setListShown(true);
     }
 
-    /**
-     * Called when the loader is reset.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
+     * .support.v4.content.Loader)
      */
     @Override
     public void onLoaderReset(Loader<Collection> loader) {
     }
 
+    /**
+     * 
+     * 
+     * @return the current Collection
+     */
     public Collection getCurrentCollection() {
         return ((CollectionActivity) getActivity()).getCollection();
     }

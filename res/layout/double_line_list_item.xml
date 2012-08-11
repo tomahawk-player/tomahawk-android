@@ -18,8 +18,27 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<EditText xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/search_edittext"
-    android:layout_width="fill_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:hint="Search"/>
+    android:background="@drawable/selectable_background_tomahawk"
+    android:orientation="vertical" >
+
+    <TextView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/double_line_list_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFF"
+        android:textSize="8pt"
+        android:typeface="sans" />
+
+    <TextView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/double_line_list_textview2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="6pt"
+        android:typeface="sans" />
+
+</LinearLayout>

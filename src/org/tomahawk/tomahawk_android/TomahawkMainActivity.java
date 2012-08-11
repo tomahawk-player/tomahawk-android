@@ -28,14 +28,14 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
  */
 public class TomahawkMainActivity extends SherlockFragmentActivity {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.app.Activity#onCreate(android.os.Bundle)
-	 */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    /*
+     * (non-Javadoc)
+     * 
+     * @see android.app.Activity#onCreate(android.os.Bundle)
+     */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         Intent i = new Intent(this, CollectionActivity.class);
         i.putExtra(CollectionActivity.COLLECTION_ID_EXTRA, ((TomahawkApp) getApplication())
@@ -43,6 +43,9 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
         startActivity(i);
     }
 
+    /* (non-Javadoc)
+     * @see com.actionbarsherlock.app.SherlockFragmentActivity#onDestroy()
+     */
     @Override
 	public void onDestroy() {
         super.onDestroy();

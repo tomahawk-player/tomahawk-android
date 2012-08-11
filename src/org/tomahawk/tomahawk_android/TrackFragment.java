@@ -63,20 +63,23 @@ public class TrackFragment extends TomahawkListFragment implements OnItemClickLi
         startActivity(playbackIntent);
     }
 
+    /* (non-Javadoc)
+     * @see org.tomahawk.tomahawk_android.TomahawkListFragment#getAdapter()
+     */
     @Override
     protected ArrayAdapter<?> getAdapter() {
         return mTrackAdapter;
     }
-
-    /**
-     * Called when the CollectionLoader has finished loading.
+    
+    /* (non-Javadoc)
+     * @see org.tomahawk.tomahawk_android.TomahawkListFragment#onLoadFinished(android.support.v4.content.Loader, org.tomahawk.libtomahawk.Collection)
      */
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
 
-        mTrackAdapter = new ArrayAdapter<Track>(getActivity(), R.layout.mymusic_list_item,
-                R.id.mymusic_list_textview, coll.getTracks());
+        mTrackAdapter = new ArrayAdapter<Track>(getActivity(), R.layout.double_line_list_item,
+                R.id.double_line_list_textview, coll.getTracks());
         setListAdapter(mTrackAdapter);
     }
 }
