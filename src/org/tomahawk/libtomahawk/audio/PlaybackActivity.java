@@ -152,8 +152,11 @@ public class PlaybackActivity extends SherlockActivity {
     public void onPause() {
         super.onPause();
 
-        if (mPlaybackServiceBroadcastReceiver != null)
+        if (mPlaybackServiceBroadcastReceiver != null) {
             unregisterReceiver(mPlaybackServiceBroadcastReceiver);
+            mPlaybackServiceBroadcastReceiver = null;
+        }
+
         unbindService(mPlaybackServiceConnection);
     }
 

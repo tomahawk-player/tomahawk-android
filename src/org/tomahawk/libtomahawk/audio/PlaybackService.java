@@ -153,7 +153,7 @@ public class PlaybackService extends Service implements OnCompletionListener,
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
 
         mHeadsetBroadcastReceiver = new HeadsetBroadcastReceiver();
-        registerReceiver(new HeadsetBroadcastReceiver(), new IntentFilter(
+        registerReceiver(mHeadsetBroadcastReceiver, new IntentFilter(
                 Intent.ACTION_HEADSET_PLUG));
     }
 
