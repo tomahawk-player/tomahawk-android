@@ -21,7 +21,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.acra.ACRA;
 import org.acra.CrashReportData;
+import org.acra.ErrorReporter;
 import org.acra.ReportField;
 import org.acra.sender.ReportSender;
 import org.acra.sender.ReportSenderException;
@@ -32,11 +34,39 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.tomahawk.libtomahawk.audio.PlaybackService;
+
+import android.annotation.TargetApi;
+import android.os.Debug;
+import android.os.StrictMode;
+import android.util.Log;
 
 /**
  * This class uploads a Tomahawk Exception Report to oops.tomahawk-player.org.
  */
 class TomahawkExceptionReporter implements ReportSender {
+
+    private static final String TAG = TomahawkExceptionReporter.class.getName();
+
+    /**
+     * Construct a new TomahawkExceptionReporter
+     * 
+     * Use init() to create a TomahawkExceptionReporter publicly.
+     */
+    protected TomahawkExceptionReporter() {
+    }
+
+    /**
+     * Initialize the TomahawkExceptionReporter.
+     */
+    static void init(TomahawkApp app) {
+        if (!Debug.isDebuggerConnected()) {
+            ACRA.init(app);
+            TomahawkExceptionReporter reporter = new TomahawkExceptionReporter();
+            ErrorReporter.getInstance().setReportSender(reporter);
+        }
+        initStrictMode();
+    }
 
     @Override
     public void send(CrashReportData data) throws ReportSenderException {
@@ -127,6 +157,32 @@ class TomahawkExceptionReporter implements ReportSender {
 
         } catch (ClientProtocolException e) {
         } catch (IOException e) {
+        }
+    }
+
+    /**
+     * Use strict mode to determine app bottlenecks.
+     * 
+     * Does nothing if api version is less than 11.
+     */
+    @TargetApi(11)
+    private static void initStrictMode() {
+
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB)
+            return;
+
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectCustomSlowCalls()
+                .detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog()
+                .penaltyFlashScreen().build());
+
+        try {
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                    .detectLeakedSqlLiteObjects()
+                    .detectLeakedClosableObjects()
+                    .setClassInstanceLimit(Class.forName(PlaybackService.class.getName()), 1)
+                    .penaltyLog().build());
+        } catch (ClassNotFoundException e) {
+            Log.e(TAG, e.toString());
         }
     }
 }
