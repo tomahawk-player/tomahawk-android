@@ -40,10 +40,13 @@ import com.actionbarsherlock.view.MenuItem;
 public abstract class TomahawkListFragment extends SherlockListFragment implements
         LoaderManager.LoaderCallbacks<Collection> {
 
+    private static IntentFilter sCollectionUpdateIntentFilter = new IntentFilter(
+            Collection.COLLECTION_UPDATED);
+
     private CollectionUpdateReceiver mCollectionUpdatedReceiver;
     private EditText mFilterText = null;
 
-    private SearchWatcher mFilterTextWatcher;
+    private SearchWatcher mFilterTextWatcher = new SearchWatcher();
 
     /**
      * Class which manages search functionality withing fragments
@@ -85,8 +88,6 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         setRetainInstance(true);
-
-        mFilterTextWatcher = new SearchWatcher();
     }
 
     /** Called when the activity for this Fragment is created. */
@@ -103,9 +104,11 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
     public void onResume() {
         super.onResume();
 
-        mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
-        IntentFilter filter = new IntentFilter(Collection.COLLECTION_UPDATED);
-        getActivity().registerReceiver(mCollectionUpdatedReceiver, filter);
+        if (mCollectionUpdatedReceiver == null) {
+            mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
+            getActivity().registerReceiver(mCollectionUpdatedReceiver,
+                    sCollectionUpdateIntentFilter);
+        }
     }
 
     /** Called when this Fragment is paused. */
@@ -113,8 +116,10 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
     public void onPause() {
         super.onPause();
 
-        if (mCollectionUpdatedReceiver != null)
+        if (mCollectionUpdatedReceiver != null) {
             getActivity().unregisterReceiver(mCollectionUpdatedReceiver);
+            mCollectionUpdatedReceiver = null;
+        }
     }
 
     /** Called when the options menu for this Fragment is created. */
