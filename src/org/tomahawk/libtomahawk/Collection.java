@@ -34,6 +34,8 @@ public abstract class Collection {
 
     public abstract void update();
 
+    public abstract int getId();
+
     /**
      * Default constructor.
      */

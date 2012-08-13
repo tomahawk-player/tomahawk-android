@@ -127,7 +127,7 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
 
-        MenuItem item = (MenuItem) menu.findItem(TomahawkMainActivity.SEARCH_OPTION_ID);
+        MenuItem item = (MenuItem) menu.findItem(CollectionActivity.SEARCH_OPTION_ID);
         mFilterText = (EditText) item.getActionView().findViewById(R.id.search_edittext);
         mFilterText.addTextChangedListener(mFilterTextWatcher);
     }
@@ -159,11 +159,7 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
      */
     @Override
     public Loader<Collection> onCreateLoader(int id, Bundle args) {
-
-        /** For now we will just start with the local collection to test. */
-        TomahawkApp app = (TomahawkApp) getActivity().getApplicationContext();
-        return new CollectionLoader(getActivity(), app.getSourceList().getLocalSource()
-                .getCollection());
+        return new CollectionLoader(getActivity(), getCurrentCollection());
     }
 
     /**
@@ -179,5 +175,9 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
      */
     @Override
     public void onLoaderReset(Loader<Collection> loader) {
+    }
+
+    public Collection getCurrentCollection() {
+        return ((CollectionActivity) getActivity()).getCollection();
     }
 }

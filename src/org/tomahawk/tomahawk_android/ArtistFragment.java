@@ -56,12 +56,9 @@ public class ArtistFragment extends TomahawkListFragment implements OnItemClickL
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
 
-        TomahawkApp app = (TomahawkApp) getActivity().getApplicationContext();
-        Collection mycoll = app.getSourceList().getLocalSource().getCollection();
+        Playlist playlist = ArtistPlaylist.fromArtist(mArtistAdapter.getItem(idx));
 
         Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
-
-        Playlist playlist = ArtistPlaylist.fromArtist(mycoll.getArtists().get(idx));
         playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, playlist);
         startActivity(playbackIntent);
     }

@@ -18,24 +18,15 @@
  */
 package org.tomahawk.tomahawk_android;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.view.ViewPager;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 
 /**
- * This class represents the main entrypoint for the app.
+ * This class represents the main Activity for the app.
  */
 public class TomahawkMainActivity extends SherlockFragmentActivity {
-
-    public static final int SEARCH_OPTION_ID = 0;
-
-	private ViewPager mViewPager;
-
-	private TabsAdapter mTabsAdapter;
 
 	/*
 	 * (non-Javadoc)
@@ -46,42 +37,9 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mViewPager = new ViewPager(this);
-		mViewPager.setId(R.id.view_pager);
-		setContentView(mViewPager);
-
-		final ActionBar bar = getSupportActionBar();
-		bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-		bar.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
-
-		mTabsAdapter = new TabsAdapter(this, mViewPager);
-		mTabsAdapter.addTab(bar.newTab().setText(R.string.title_browse_fragment), ArtistFragment.class,
-				null);
-		mTabsAdapter.addTab(bar.newTab().setText(R.string.title_mymusic_fragment),
-				AlbumFragment.class, null);
-		mTabsAdapter.addTab(bar.newTab().setText(R.string.title_friends_fragment),
-				CollectionFragment.class, null);
-		mTabsAdapter.addTab(bar.newTab().setText(R.string.title_player_fragment),
-				PlayerFragment.class, null);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-
-        getSupportMenuInflater().inflate(R.menu.tomahawk_main_activity, menu);
-
-        menu.add(0, SEARCH_OPTION_ID, 0, "Search")
-                .setIcon(R.drawable.ic_action_search)
-                .setActionView(R.layout.collapsible_edittext)
-                .setShowAsAction(
-                        MenuItem.SHOW_AS_ACTION_ALWAYS
-                                | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-
-        return true;
+        Intent i = new Intent(this, CollectionActivity.class);
+        i.putExtra(CollectionActivity.COLLECTION_ID_EXTRA, ((TomahawkApp) getApplication())
+                .getSourceList().getLocalSource().getCollection().getId());
+        startActivity(i);
     }
 }

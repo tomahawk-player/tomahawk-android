@@ -34,7 +34,7 @@ import android.widget.ArrayAdapter;
 /**
  * Fragment which represents the "Friends" tabview.
  */
-public class CollectionFragment extends TomahawkListFragment implements OnItemClickListener {
+public class TrackFragment extends TomahawkListFragment implements OnItemClickListener {
 
     ArrayAdapter<Track> mTrackAdapter;
 
@@ -55,11 +55,10 @@ public class CollectionFragment extends TomahawkListFragment implements OnItemCl
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
 
-        TomahawkApp app = (TomahawkApp) getActivity().getApplicationContext();
-        Collection mycoll = app.getSourceList().getLocalSource().getCollection();
-        Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
+        Playlist playlist = CollectionPlaylist.fromCollection(getCurrentCollection(),
+                mTrackAdapter.getItem(idx));
 
-        Playlist playlist = CollectionPlaylist.fromCollection(mycoll, mycoll.getTracks().get(idx));
+        Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
         playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, playlist);
         startActivity(playbackIntent);
     }

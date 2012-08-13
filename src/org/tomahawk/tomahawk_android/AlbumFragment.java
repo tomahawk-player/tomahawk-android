@@ -55,11 +55,9 @@ public class AlbumFragment extends TomahawkListFragment implements OnItemClickLi
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
 
-        TomahawkApp app = (TomahawkApp) getActivity().getApplicationContext();
-        Collection mycoll = app.getSourceList().getLocalSource().getCollection();
-        Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
+        Playlist playlist = AlbumPlaylist.fromAlbum(mAlbumAdapter.getItem(idx));
 
-        Playlist playlist = AlbumPlaylist.fromAlbum(mycoll.getAlbums().get(idx));
+        Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
         playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, playlist);
         startActivity(playbackIntent);
     }

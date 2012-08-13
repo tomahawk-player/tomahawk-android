@@ -207,4 +207,9 @@ public class LocalCollection extends Collection {
 
         mContext.sendBroadcast(new Intent(COLLECTION_UPDATED));
     }
+
+    @Override
+    public int getId() {
+        return 0;
+    }
 }

@@ -58,4 +58,19 @@ public class SourceList {
     public List<Source> getSources() {
         return mSources;
     }
+
+    /**
+     * Returns the Collection with this id.
+     * 
+     * @param id
+     * @return
+     */
+    public Collection getCollectionFromId(int id) {
+
+        for (Source source : getSources()) {
+            if (source.getCollection().getId() == id)
+                return source.getCollection();
+        }
+        return null;
+    }
 }
