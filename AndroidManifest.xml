@@ -37,7 +37,7 @@
             android:name="org.tomahawk.libtomahawk.audio.PlaybackService"
             android:label="@string/playback_service_label" android:stopWithTask="true">
         </service>
-        <activity android:label="@string/title_activity_tomahawk_main" android:name="org.tomahawk.tomahawk_android.CollectionActivity"></activity>
+        <activity android:label="@string/title_activity_tomahawk_main" android:name="org.tomahawk.tomahawk_android.CollectionActivity" android:configChanges="keyboardHidden|orientation|screenSize"></activity>
     </application>
 
 </manifest>
