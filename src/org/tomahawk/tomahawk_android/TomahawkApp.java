@@ -123,5 +123,9 @@ public class TomahawkApp extends Application {
     public PlaybackService getPlaybackService() {
         return mPlaybackService;
     }
+
+    public void unbindService() {
+        unbindService(mPlaybackServiceConnection);
+    }
 }
 

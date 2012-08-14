@@ -42,4 +42,11 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
                 .getSourceList().getLocalSource().getCollection().getId());
         startActivity(i);
     }
+
+    @Override
+	public void onDestroy() {
+        super.onDestroy();
+        TomahawkApp app = (TomahawkApp) getApplication();
+        app.unbindService();
+	}
 }
