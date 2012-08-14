@@ -28,7 +28,7 @@ import org.tomahawk.libtomahawk.Track;
 /**
  * This class represents an abstract Playlist.
  */
-public abstract class Playlist implements PlayableInterface, Serializable {
+public abstract class Playlist implements Playable, Serializable {
 
     private static final long serialVersionUID = 497444836724215188L;
 

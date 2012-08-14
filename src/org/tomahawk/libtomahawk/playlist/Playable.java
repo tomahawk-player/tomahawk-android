@@ -21,7 +21,10 @@ import java.util.Collection;
 
 import org.tomahawk.libtomahawk.Track;
 
-public interface PlayableInterface {
+/**
+ * A simple interface to represent a collection of 0 or more Tracks.
+ */
+public interface Playable {
 
     /**
      * Set the tracks for this PlayableInterface.
