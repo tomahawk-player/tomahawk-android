@@ -22,19 +22,16 @@ package org.tomahawk.libtomahawk.audio;
 import java.io.IOException;
 
 import org.tomahawk.libtomahawk.Track;
-import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceBinder;
 import org.tomahawk.libtomahawk.playlist.Playlist;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -50,7 +47,6 @@ public class PlaybackActivity extends SherlockActivity {
     private static final String TAG = PlaybackActivity.class.getName();
 
     private PlaybackService mPlaybackService;
-
     private PlaybackServiceBroadcastReceiver mPlaybackServiceBroadcastReceiver;
 
     private AlbumArtViewPager mAlbumArtViewPager;
@@ -76,23 +72,6 @@ public class PlaybackActivity extends SherlockActivity {
 
     }
 
-    /** Allow communication to the PlaybackService. */
-    private ServiceConnection mPlaybackServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-
-            PlaybackServiceBinder binder = (PlaybackServiceBinder) service;
-            mPlaybackService = binder.getService();
-            onServiceReady();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mPlaybackService = null;
-        }
-    };
-
     /*
      * (non-Javadoc)
      * @see android.app.Activity#onCreate(android.os.Bundle)
@@ -103,7 +82,9 @@ public class PlaybackActivity extends SherlockActivity {
         View view = getLayoutInflater().inflate(R.layout.playback_activity, null);
         setContentView(view);
 
+        mPlaybackService = ((TomahawkApp) getApplication()).getPlaybackService();
         mAlbumArtViewPager = (AlbumArtViewPager) findViewById(R.id.album_art_view_pager);
+        mAlbumArtViewPager.setPlaybackService(mPlaybackService);
 
         final ActionBar bar = getSupportActionBar();
         bar.setDisplayShowHomeEnabled(true);
@@ -113,11 +94,9 @@ public class PlaybackActivity extends SherlockActivity {
         mTextViewCompletionTime = (TextView) findViewById(R.id.textView_completionTime);
         mTextViewCurrentTime = (TextView) findViewById(R.id.textView_currentTime);
         mPlaybackSeekBar = (PlaybackSeekBar) findViewById(R.id.seekBar_track);
+        mPlaybackSeekBar.setPlaybackService(mPlaybackService);
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-
-        Intent playbackIntent = new Intent(this, PlaybackService.class);
-        getApplicationContext().startService(playbackIntent);
     }
 
     /*
@@ -140,8 +119,17 @@ public class PlaybackActivity extends SherlockActivity {
         intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYSTATECHANGED);
         registerReceiver(mPlaybackServiceBroadcastReceiver, intentFilter);
 
-        Intent playbackIntent = new Intent(this, PlaybackService.class);
-        bindService(playbackIntent, mPlaybackServiceConnection, Context.BIND_ABOVE_CLIENT);
+        if (getIntent().hasExtra(PLAYLIST_EXTRA)) {
+            try {
+                mPlaybackService.setCurrentPlaylist((Playlist) getIntent().getSerializableExtra(
+                        PLAYLIST_EXTRA));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            getIntent().removeExtra(PLAYLIST_EXTRA);
+        }
+        refreshButtonStates();
+        refreshActivityTrackInfo();
     }
 
     /*
@@ -156,8 +144,6 @@ public class PlaybackActivity extends SherlockActivity {
             unregisterReceiver(mPlaybackServiceBroadcastReceiver);
             mPlaybackServiceBroadcastReceiver = null;
         }
-
-        unbindService(mPlaybackServiceConnection);
     }
 
     /*
@@ -186,22 +172,6 @@ public class PlaybackActivity extends SherlockActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    /** Called when the PlaybackService is ready. */
-    public void onServiceReady() {
-        if (getIntent().hasExtra(PLAYLIST_EXTRA)) {
-            try {
-                mPlaybackService.setCurrentPlaylist((Playlist) getIntent().getSerializableExtra(PLAYLIST_EXTRA));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            getIntent().removeExtra(PLAYLIST_EXTRA);
-        }
-        mAlbumArtViewPager.setPlaybackService(mPlaybackService);
-        mPlaybackSeekBar.setPlaybackService(mPlaybackService);
-        refreshButtonStates();
-        refreshActivityTrackInfo();
     }
 
     /** Called when the play/pause button is clicked.

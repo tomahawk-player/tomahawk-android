@@ -53,7 +53,6 @@ public class PlaybackService extends Service implements OnCompletionListener,
     public static final String BROADCAST_NEWTRACK = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_NEWTRACK";
     public static final String BROADCAST_PLAYLISTCHANGED = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_PLAYLISTCHANGED";
     public static final String BROADCAST_PLAYSTATECHANGED = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_PLAYSTATECHANGED";
-    private static boolean mIsRunning = false;
 
     private Playlist mCurrentPlaylist;
     private MediaPlayer mMediaPlayer;
@@ -106,8 +105,8 @@ public class PlaybackService extends Service implements OnCompletionListener,
         }
     }
 
-    class PlaybackServiceBinder extends Binder {
-        PlaybackService getService() {
+    public class PlaybackServiceBinder extends Binder {
+        public PlaybackService getService() {
             return PlaybackService.this;
         }
     }
@@ -158,24 +157,11 @@ public class PlaybackService extends Service implements OnCompletionListener,
     }
 
     /* (non-Javadoc)
-     * @see android.app.Service#onStartCommand(android.content.Intent, int, int)
-     */
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        super.onStartCommand(intent, flags, startId);
-
-        setIsRunning(true);
-
-        return startId;
-    }
-
-    /* (non-Javadoc)
      * @see android.app.Service#onDestroy()
      */
     @Override
     public void onDestroy() {
         unregisterReceiver(mHeadsetBroadcastReceiver);
-        setIsRunning(false);
         stop();
     }
 
@@ -307,24 +293,6 @@ public class PlaybackService extends Service implements OnCompletionListener,
      */
     public boolean isPlaying() {
         return mMediaPlayer.isPlaying();
-    }
-
-    /**
-     * Returns true if the service is running.
-     * 
-     * @return
-     */
-    public boolean isRunning() {
-        return mIsRunning;
-    }
-
-    /**
-     * Sets the running state of the PlaybackService.
-     * 
-     * @param running
-     */
-    public void setIsRunning(boolean running) {
-        mIsRunning = running;
     }
 
     /**
