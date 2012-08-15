@@ -29,6 +29,7 @@ import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.provider.MediaStore;
 import android.util.Log;
 
@@ -43,10 +44,13 @@ public class LocalCollection extends Collection {
     private Map<Long, Album> mAlbums;
     private Map<Long, Track> mTracks;
 
+    private HandlerThread mCollectionUpdateHandlerThread;
+
     private Runnable mUpdateRunnable = new Runnable() {
         @Override
         public void run() {
             update();
+            mCollectionUpdateHandlerThread.getLooper().quit();
         }
     };
 
@@ -56,7 +60,8 @@ public class LocalCollection extends Collection {
     private final ContentObserver mLocalMediaObserver = new ContentObserver(null) {
         @Override
         public void onChange(boolean selfChange) {
-            mHandler.postDelayed(mUpdateRunnable, 100);
+            mCollectionUpdateHandlerThread.start();
+            mHandler.post(mUpdateRunnable);
         }
     };
 
@@ -75,7 +80,11 @@ public class LocalCollection extends Collection {
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false,
                 mLocalMediaObserver);
 
-        mHandler = new Handler();
+        mCollectionUpdateHandlerThread = new HandlerThread("CollectionUpdate",
+                android.os.Process.THREAD_PRIORITY_BACKGROUND);
+        mCollectionUpdateHandlerThread.start();
+
+        mHandler = new Handler(mCollectionUpdateHandlerThread.getLooper());
         mHandler.postDelayed(mUpdateRunnable, 300);
     }
 
