@@ -52,8 +52,6 @@ public class PlaybackActivity extends SherlockActivity {
     private AlbumArtViewPager mAlbumArtViewPager;
 
     private PlaybackSeekBar mPlaybackSeekBar;
-    private TextView mTextViewCompletionTime;
-    private TextView mTextViewCurrentTime;
 
     /** Identifier for passing a Track as an extra in an Intent. */
     public static final String PLAYLIST_EXTRA = "playlist";
@@ -91,8 +89,6 @@ public class PlaybackActivity extends SherlockActivity {
         bar.setDisplayShowTitleEnabled(false);
         bar.setDisplayHomeAsUpEnabled(true);
 
-        mTextViewCompletionTime = (TextView) findViewById(R.id.textView_completionTime);
-        mTextViewCurrentTime = (TextView) findViewById(R.id.textView_currentTime);
         mPlaybackSeekBar = (PlaybackSeekBar) findViewById(R.id.seekBar_track);
         mPlaybackSeekBar.setPlaybackService(mPlaybackService);
 
@@ -107,8 +103,8 @@ public class PlaybackActivity extends SherlockActivity {
     public void onResume() {
         super.onResume();
 
-        mPlaybackSeekBar.setTextViewCurrentTime(mTextViewCurrentTime);
-        mPlaybackSeekBar.setTextViewCompletionTime(mTextViewCompletionTime);
+        mPlaybackSeekBar.setTextViewCurrentTime((TextView) findViewById(R.id.textView_currentTime));
+        mPlaybackSeekBar.setTextViewCompletionTime((TextView) findViewById(R.id.textView_completionTime));
         if (mPlaybackServiceBroadcastReceiver == null)
             mPlaybackServiceBroadcastReceiver = new PlaybackServiceBroadcastReceiver();
 
