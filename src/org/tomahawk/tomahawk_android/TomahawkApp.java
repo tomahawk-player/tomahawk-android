@@ -41,6 +41,7 @@ import android.util.Log;
 public class TomahawkApp extends Application {
 
     private static final String TAG = TomahawkApp.class.getName();
+    private static Context sApplicationContext;
 
     private PlaybackService mPlaybackService;
     private AccountManager mAccountManager = null;
@@ -67,6 +68,7 @@ public class TomahawkApp extends Application {
         TomahawkExceptionReporter.init(this);
         super.onCreate();
 
+        sApplicationContext = getApplicationContext();
         mAccountManager = new AccountManager();
         mSourceList = new SourceList();
 
@@ -96,8 +98,7 @@ public class TomahawkApp extends Application {
      */
     public void initLocalCollection() {
         Log.d(TAG, "Initializing Local Collection.");
-        Source src = new Source(new LocalCollection(getApplicationContext()), 0,
-                "My Collection");
+        Source src = new Source(new LocalCollection(), 0, "My Collection");
         mSourceList.setLocalSource(src);
     }
 
@@ -124,8 +125,20 @@ public class TomahawkApp extends Application {
         return mPlaybackService;
     }
 
+    /**
+     * Unbind the application from the PlaybackService.
+     */
     public void unbindService() {
         unbindService(mPlaybackServiceConnection);
+    }
+
+    /**
+     * Returns the context for the application
+     * 
+     * @return
+     */
+    public static Context getContext() {
+        return sApplicationContext;
     }
 }
 

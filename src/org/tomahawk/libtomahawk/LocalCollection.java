@@ -23,8 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.tomahawk.tomahawk_android.TomahawkApp;
+
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -37,7 +38,6 @@ public class LocalCollection extends Collection {
 
     private static final String TAG = LocalCollection.class.getName();
 
-    private Context mContext;
     private Handler mHandler;
 
     private Map<Long, Artist> mArtists;
@@ -70,13 +70,15 @@ public class LocalCollection extends Collection {
      * 
      * @param resolver
      */
-    public LocalCollection(Context context) {
-        mContext = context;
+    public LocalCollection() {
         mArtists = new HashMap<Long, Artist>();
         mAlbums = new HashMap<Long, Album>();
         mTracks = new HashMap<Long, Track>();
 
-        mContext.getContentResolver().registerContentObserver(
+        TomahawkApp
+                .getContext()
+                .getContentResolver()
+                .registerContentObserver(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false,
                 mLocalMediaObserver);
 
@@ -138,7 +140,7 @@ public class LocalCollection extends Collection {
                 MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM_ID,
                 MediaStore.Audio.Media.ALBUM };
 
-        ContentResolver resolver = mContext.getContentResolver();
+        ContentResolver resolver = TomahawkApp.getContext().getContentResolver();
 
         Cursor cursor = resolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection,
                 selection, null, null);
@@ -214,7 +216,7 @@ public class LocalCollection extends Collection {
     public void update() {
         initializeCollection();
 
-        mContext.sendBroadcast(new Intent(COLLECTION_UPDATED));
+        TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
     }
 
     @Override
