@@ -39,13 +39,12 @@ public class LocalCollection extends Collection {
 
     private static final String TAG = LocalCollection.class.getName();
 
+    private HandlerThread mCollectionUpdateHandlerThread;
     private Handler mHandler;
 
     private Map<Long, Artist> mArtists;
     private Map<Long, Album> mAlbums;
     private Map<Long, Track> mTracks;
-
-    private HandlerThread mCollectionUpdateHandlerThread;
 
     private Runnable mUpdateRunnable = new Runnable() {
         /* 

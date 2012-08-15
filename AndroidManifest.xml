@@ -1,3 +1,22 @@
+<!--
+/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+ *
+ *   Copyright 2012, Christopher Reichert <creichert07@gmail.com>
+ *
+ *   Tomahawk is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Tomahawk is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.tomahawk.tomahawk_android"
     android:versionCode="1"
@@ -10,9 +29,13 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.STATUS_BAR" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.READ_LOGS" />
-    <uses-permission android:name="android.permission.DUMP" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_LOGS"/>
+    <uses-permission android:name="android.permission.DUMP"/>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
 
     <supports-screens
         android:anyDensity="true"
@@ -66,6 +89,20 @@
             android:label="@string/playbackservice_label_string"
             android:stopWithTask="true" >
         </service>
+        <service android:name="org.tomahawk.libtomahawk.network.TomahawkAccountAuthenticator$TomahawkAuthenticationService">
+		   <intent-filter>
+		     <action android:name="android.accounts.AccountAuthenticator" />
+		   </intent-filter>
+		   <meta-data android:name="android.accounts.AccountAuthenticator"
+             android:resource="@xml/authenticator" />
+        </service>
+        <activity android:name="org.tomahawk.tomahawk_android.TomahawkAccountAuthenticatorActivity"
+                  android:label="@string/appname_string"></activity>
     </application>
-
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true"
+        android:xlargeScreens="true" />
 </manifest>

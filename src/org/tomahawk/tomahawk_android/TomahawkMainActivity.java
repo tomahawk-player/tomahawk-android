@@ -18,15 +18,23 @@
  */
 package org.tomahawk.tomahawk_android;
 
+import org.tomahawk.libtomahawk.network.TomahawkServerConnection;
+
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+
 
 /**
  * This class represents the main Activity for the app.
  */
 public class TomahawkMainActivity extends SherlockFragmentActivity {
+
+    private static final String TAG = TomahawkMainActivity.class.getName();
 
     /*
      * (non-Javadoc)
@@ -36,11 +44,39 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        View view = getLayoutInflater().inflate(R.layout.tomahawk_main_activity, null);
+        setContentView(view);
 
-        Intent i = new Intent(this, CollectionActivity.class);
-        i.putExtra(CollectionActivity.COLLECTION_ID_EXTRA,
-                ((TomahawkApp) getApplication()).getSourceList().getLocalSource().getCollection().getId());
-        startActivity(i);
+        /** Setup account. */
+        AccountManager accountManager = AccountManager.get(this);
+        Account[] accounts = accountManager.getAccountsByType(TomahawkServerConnection.ACCOUNT_TYPE);
+
+        if (accounts.length <= 0)
+            startActivity(new Intent(this, TomahawkAccountAuthenticatorActivity.class));
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see android.app.Activity#onResume()
+     */
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        /** Setup account. */
+        AccountManager accountManager = AccountManager.get(this);
+        Account[] accounts = accountManager.getAccountsByType(TomahawkServerConnection.ACCOUNT_TYPE);
+
+        if (accounts.length <= 0)
+            return;
+
+        /**
+         * 'Getting' the auth token here is asynchronous. When the
+         * AccountManager has the auth token the TomahawkMainActivity.run is
+         * called and starts the TomahawkServerConnection.
+         */
+        accountManager.getAuthToken(accounts[0], TomahawkServerConnection.AUTH_TOKEN_TYPE, null, new TomahawkAccountAuthenticatorActivity(), (TomahawkApp) getApplication(), null);
     }
 
     /* 
@@ -61,5 +97,13 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
+	}
+
+    public void onCollectionClicked(View view) {
+
+        Intent i = new Intent(this, CollectionActivity.class);
+        i.putExtra(CollectionActivity.COLLECTION_ID_EXTRA,
+                ((TomahawkApp) getApplication()).getSourceList().getLocalSource().getCollection().getId());
+        startActivity(i);
     }
 }

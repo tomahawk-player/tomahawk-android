@@ -17,14 +17,27 @@
  */
 package org.tomahawk.tomahawk_android;
 
+import java.io.IOException;
+
 import org.acra.annotation.ReportsCrashes;
 import org.tomahawk.libtomahawk.LocalCollection;
 import org.tomahawk.libtomahawk.Source;
 import org.tomahawk.libtomahawk.SourceList;
-import org.tomahawk.libtomahawk.account.AccountManager;
+import org.tomahawk.libtomahawk.audio.PlaybackService;
+import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceBinder;
+import org.tomahawk.libtomahawk.network.TomahawkServerConnection;
 
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 
 
@@ -32,7 +45,7 @@ import android.util.Log;
  * This class contains represents the Application core.
  */
 @ReportsCrashes(formKey = "")
-public class TomahawkApp extends Application {
+public class TomahawkApp extends Application implements AccountManagerCallback<Bundle> {
 
     private static final String TAG = TomahawkApp.class.getName();
     private static Context sApplicationContext;
@@ -44,9 +57,8 @@ public class TomahawkApp extends Application {
     public void onCreate() {
         TomahawkExceptionReporter.init(this);
         super.onCreate();
-
         sApplicationContext = getApplicationContext();
-        mAccountManager = new AccountManager();
+
         mSourceList = new SourceList();
 
         initialize();
@@ -56,15 +68,7 @@ public class TomahawkApp extends Application {
      * Initialize the Tomahawk app.
      */
     public void initialize() {
-        initAccounts();
         initLocalCollection();
-    }
-
-    /**
-     * Initialize a new Tomahawk servant.
-     */
-    public void initAccounts() {
-        mAccountManager.initAccounts();
     }
 
     /**
@@ -99,6 +103,35 @@ public class TomahawkApp extends Application {
      */
     public static Context getContext() {
         return sApplicationContext;
+    }
+
+    /**
+     * This method is called when the Authenticator has finished.
+     * 
+     * Ideally, we start the Tomahawk web service here.
+     */
+    @Override
+    public void run(AccountManagerFuture<Bundle> result) {
+
+        try {
+
+            String token = result.getResult().getString(AccountManager.KEY_AUTHTOKEN);
+            String userid = result.getResult().getString(AccountManager.KEY_ACCOUNT_NAME);
+            if (token == null) {
+                Intent i = new Intent(getApplicationContext(), TomahawkAccountAuthenticatorActivity.class);
+                startActivity(i);
+            } else {
+                Log.d(TAG, "Starting Tomahawk Service: " + token);
+                mTomahawkServerConnection = TomahawkServerConnection.get(userid, token);
+            }
+
+        } catch (OperationCanceledException e) {
+            e.printStackTrace();
+        } catch (AuthenticatorException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
 
