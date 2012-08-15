@@ -268,6 +268,11 @@ public class PlaybackService extends Service implements OnCompletionListener,
     @Override
     public void onCompletion(MediaPlayer mp) {
 
+        if (mCurrentPlaylist == null) {
+            stop();
+            return;
+        }
+
         Track track = mCurrentPlaylist.getNextTrack();
         if (track != null) {
             try {
