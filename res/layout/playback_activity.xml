@@ -72,7 +72,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_centerVertical="true"
-            android:layout_marginBottom="0dip"
+            android:layout_marginBottom="-16dip"
             android:layout_marginLeft="16dip"
             android:layout_marginRight="16dip"
             android:background="@android:color/transparent"
@@ -81,7 +81,7 @@
             android:paddingLeft="0dip"
             android:paddingRight="0dip"
             android:progress="0"
-            android:thumb="@android:color/transparent"
+            android:thumb="@drawable/progress_thumb_tomahawk"
             android:visibility="visible" />
 
         <TextView
