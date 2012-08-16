@@ -39,6 +39,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@drawable/selectable_background_tomahawk"
+            android:clickable="false"
             android:onClick="onPlaybackInfoClicked" >
 
             <ImageView

@@ -25,6 +25,7 @@ import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.playlist.Playlist;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.CollectionActivity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -155,11 +156,11 @@ public class PlaybackActivity extends SherlockActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        // menu.add(0, SEARCH_OPTION_ID, 0, "Search")
-        // .setIcon(R.drawable.ic_action_search)
-        // .setActionView(R.layout.collapsible_edittext)
-        // .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
-        // | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+         menu.add(0, CollectionActivity.SEARCH_OPTION_ID, 0, "Search")
+         .setIcon(R.drawable.ic_action_search)
+         .setActionView(R.layout.collapsible_edittext)
+         .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
+         | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 
         return super.onCreateOptionsMenu(menu);
     }

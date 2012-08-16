@@ -24,6 +24,7 @@
     android:layout_height="wrap_content"
     android:layout_gravity="fill_horizontal"
     android:background="@drawable/selectable_background_tomahawk"
+    android:clickable="false"
     android:onClick="onPlaybackInfoClicked" >
 
     <ImageView

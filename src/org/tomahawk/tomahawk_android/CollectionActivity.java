@@ -24,6 +24,7 @@ import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 import org.tomahawk.libtomahawk.audio.PlaybackService;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -33,12 +34,15 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.view.ViewConfiguration;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.LayoutParams;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -84,29 +88,17 @@ public class CollectionActivity extends SherlockFragmentActivity {
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         actionBar.setDisplayShowHomeEnabled(false);
         actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setDisplayShowCustomEnabled(true);
+        actionBar.setDisplayShowCustomEnabled(false);
         View actionBarPlaybackTop = getLayoutInflater().inflate(R.layout.playback_info_top, null);
         actionBar.setCustomView(actionBarPlaybackTop);
 
         mTabsAdapter = new TabsAdapter(this, mViewPager);
-        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.title_browse_fragment),
-                ArtistFragment.class, null);
-        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.title_mymusic_fragment),
-                AlbumFragment.class, null);
-        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.title_friends_fragment),
-                TrackFragment.class, null);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.support.v4.app.FragmentActivity#onStart()
-     */
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        refreshPlaybackInfoVisibility();
+        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.title_browse_fragment), ArtistFragment.class,
+                null);
+        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.title_mymusic_fragment), AlbumFragment.class,
+                null);
+        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.title_friends_fragment), TrackFragment.class,
+                null);
     }
 
     /*
@@ -152,17 +144,25 @@ public class CollectionActivity extends SherlockFragmentActivity {
      * com.actionbarsherlock.app.SherlockFragmentActivity#onPrepareOptionsMenu
      * (android.view.Menu)
      */
+    @SuppressLint("NewApi")
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.clear();
-        final ActionBar mActionBar = getSupportActionBar();
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        ImageButton overflowMenuButton = (ImageButton) findViewById(R.id.imageButton_overflowmenu);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
             menu.add(0, SEARCH_OPTION_ID, 0, "Search").setIcon(R.drawable.ic_action_search).setActionView(
                     R.layout.collapsible_edittext).setShowAsAction(
                     MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-            mActionBar.setDisplayShowCustomEnabled(true);
-        } else
-            mActionBar.setDisplayShowCustomEnabled(false);
+
+        if ((android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH && ViewConfiguration.get(
+                getApplicationContext()).hasPermanentMenuKey()) || android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+            overflowMenuButton.setVisibility(ImageButton.GONE);
+            overflowMenuButton.setClickable(false);
+            overflowMenuButton.setLayoutParams(new LayoutParams(0, 0));
+        }
+        refreshPlaybackInfoVisibility();
+        if (((TomahawkApp) getApplication()).getPlaybackService() != null)
+            setPlaybackInfo(((TomahawkApp) getApplication()).getPlaybackService().getCurrentTrack());
 
         return super.onPrepareOptionsMenu(menu);
     }
@@ -177,9 +177,6 @@ public class CollectionActivity extends SherlockFragmentActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        if (((TomahawkApp) getApplication()).getPlaybackService() != null)
-            setPlaybackInfo(((TomahawkApp) getApplication()).getPlaybackService().getCurrentTrack());
-        refreshPlaybackInfoVisibility();
 
         invalidateOptionsMenu();
     }
@@ -209,16 +206,17 @@ public class CollectionActivity extends SherlockFragmentActivity {
     /**
      * Sets the playback information
      * 
-     * @param mTrack
+     * @param track
      */
-    public void setPlaybackInfo(Track mTrack) {
+    public void setPlaybackInfo(Track track) {
         RelativeLayout playbackInfoTop = (RelativeLayout) findViewById(R.id.playback_info_top);
         LinearLayout playbackInfoBottom = (LinearLayout) findViewById(R.id.playback_info_bottom);
-        if (playbackInfoTop != null && playbackInfoBottom != null) {
+        if (playbackInfoTop != null)
             playbackInfoTop.setClickable(false);
+        if (playbackInfoBottom != null)
             playbackInfoBottom.setClickable(false);
-        }
-        if (mTrack != null) {
+
+        if (track != null) {
             ImageView playbackInfoAlbumArtTop = (ImageView) findViewById(R.id.playback_info_album_art_top);
             TextView playbackInfoArtistTop = (TextView) findViewById(R.id.playback_info_artist_top);
             TextView playbackInfoTitleTop = (TextView) findViewById(R.id.playback_info_title_top);
@@ -226,16 +224,16 @@ public class CollectionActivity extends SherlockFragmentActivity {
             TextView playbackInfoArtistBottom = (TextView) findViewById(R.id.playback_info_artist_bottom);
             TextView playbackInfoTitleBottom = (TextView) findViewById(R.id.playback_info_title_bottom);
             Bitmap albumArt = null;
-            if (mTrack.getAlbum() != null)
-                albumArt = mTrack.getAlbum().getAlbumArt();
+            if (track.getAlbum() != null)
+                albumArt = track.getAlbum().getAlbumArt();
             if (playbackInfoAlbumArtTop != null && playbackInfoArtistTop != null && playbackInfoTitleTop != null) {
                 if (albumArt != null)
                     playbackInfoAlbumArtTop.setImageBitmap(albumArt);
                 else
                     playbackInfoAlbumArtTop.setImageDrawable(getResources().getDrawable(
                             R.drawable.no_album_art_placeholder));
-                playbackInfoArtistTop.setText(mTrack.getArtist().toString());
-                playbackInfoTitleTop.setText(mTrack.getTitle());
+                playbackInfoArtistTop.setText(track.getArtist().toString());
+                playbackInfoTitleTop.setText(track.getTitle());
                 playbackInfoTop.setClickable(true);
             }
             if (playbackInfoAlbumArtBottom != null && playbackInfoArtistBottom != null && playbackInfoTitleBottom != null) {
@@ -244,8 +242,8 @@ public class CollectionActivity extends SherlockFragmentActivity {
                 else
                     playbackInfoAlbumArtBottom.setImageDrawable(getResources().getDrawable(
                             R.drawable.no_album_art_placeholder));
-                playbackInfoArtistBottom.setText(mTrack.getArtist().toString());
-                playbackInfoTitleBottom.setText(mTrack.getTitle());
+                playbackInfoArtistBottom.setText(track.getArtist().toString());
+                playbackInfoTitleBottom.setText(track.getTitle());
                 playbackInfoBottom.setClickable(true);
             }
         } else
@@ -253,16 +251,21 @@ public class CollectionActivity extends SherlockFragmentActivity {
     }
 
     /**
-     * Make the playback info panel invisible, if device is in landscape-mode. Otherwise make it visible
-     *
+     * Make the playback info panel invisible, if device is in landscape-mode.
+     * Otherwise make it visible
+     * 
      */
     public void refreshPlaybackInfoVisibility() {
         LinearLayout fakeSplitActionBar = (LinearLayout) findViewById(R.id.fake_split_action_bar);
+        final ActionBar actionBar = getSupportActionBar();
         if (fakeSplitActionBar != null) {
-            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 fakeSplitActionBar.setVisibility(LinearLayout.GONE);
-            else
+                actionBar.setDisplayShowCustomEnabled(true);
+            } else {
                 fakeSplitActionBar.setVisibility(LinearLayout.VISIBLE);
+                actionBar.setDisplayShowCustomEnabled(false);
+            }
         }
     }
 
