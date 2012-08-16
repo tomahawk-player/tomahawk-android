@@ -25,8 +25,7 @@ import android.util.AttributeSet;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-public class PlaybackSeekBar extends SeekBar
-        implements Handler.Callback {
+public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
 
     private boolean mIsSeeking;
     private PlaybackService mPlaybackService;
@@ -44,7 +43,7 @@ public class PlaybackSeekBar extends SeekBar
         mUiHandler = new Handler(this);
         mOnSeekBarChangeListener = new OnSeekBarChangeListener() {
             /*
-             * (non-Javadoc )
+             * (non-Javadoc)
              * @see android .widget .SeekBar. OnSeekBarChangeListener # onProgressChanged (android .widget .SeekBar,
              * int, boolean)
              */
@@ -84,9 +83,9 @@ public class PlaybackSeekBar extends SeekBar
     @Override
     public boolean handleMessage(Message msg) {
         switch (msg.what) {
-            case MSG_UPDATE_PROGRESS:
-                updateSeekBarPosition();
-                break;
+        case MSG_UPDATE_PROGRESS:
+            updateSeekBarPosition();
+            break;
         }
         return true;
     }
@@ -106,15 +105,20 @@ public class PlaybackSeekBar extends SeekBar
     /** Updates the textview that shows the current time the track is at */
     protected void updateTextViewCurrentTime() {
         if (mTextViewCurrentTime != null)
-            mTextViewCurrentTime.setText(String.format("%02d", mPlaybackService.getPosition() / 60000)
-                    + ":" + String.format("%02.0f", (double) ((mPlaybackService.getPosition() / 1000) % 60)));
+            if (!isIsSeeking())
+                mTextViewCurrentTime.setText(String.format("%02d", mPlaybackService.getPosition() / 60000) + ":" + String.format(
+                        "%02.0f", (double) ((mPlaybackService.getPosition() / 1000) % 60)));
+            else
+                mTextViewCurrentTime.setText(String.format("%02d", getProgress() / 60000) + ":" + String.format(
+                        "%02.0f", (double) ((getProgress() / 1000) % 60)));
     }
 
     /** Updates the textview that shows the duration of the current track */
     protected void updateTextViewCompleteTime() {
         if (mTextViewCompletionTime != null)
-            mTextViewCompletionTime.setText(String.format("%02d", mPlaybackService.getCurrentTrack().getDuration() / 60000)
-                    + ":" + String.format("%02.0f", (double) ((mPlaybackService.getCurrentTrack().getDuration() / 1000) % 60)));
+            mTextViewCompletionTime.setText(String.format("%02d",
+                    mPlaybackService.getCurrentTrack().getDuration() / 60000) + ":" + String.format("%02.0f",
+                    (double) ((mPlaybackService.getCurrentTrack().getDuration() / 1000) % 60)));
     }
 
     /** @return mIsSeeking showing whether or not the user is currently seeking */
@@ -152,7 +156,10 @@ public class PlaybackSeekBar extends SeekBar
         this.mTextViewCurrentTime = mTextViewCurrentTime;
     }
 
-    /** @param mTextViewCompletionTime displaying the completion time */
+    /**
+     * @param mTextViewCompletionTime
+     *            displaying the completion time
+     */
     public void setTextViewCompletionTime(TextView mTextViewCompletionTime) {
         this.mTextViewCompletionTime = mTextViewCompletionTime;
     }
