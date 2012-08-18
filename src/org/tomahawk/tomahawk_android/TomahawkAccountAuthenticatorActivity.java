@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.network.TomahawkServerConnection;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -39,14 +40,21 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
     public static final String PARAM_CONFIRM_CREDENTIALS = "confirmCredentials";
     private static final String TAG = "AuthenticatorActivity";
 
+    /**
+     * Error flag when the submitted user credentials are invalid.
+     */
+    private static final int ERROR_INVALID_CREDENTIALS = 0;
+
     private AccountManager mAccountManager;
-    private UserLoginTask mAuthTask = null;
+    private LoginTask mAuthTask = null;
     private ProgressDialog mProgressDialog = null;
 
     /**
      * Asynchronous task used to create a new Tomahawk account.
      */
-    public class UserLoginTask extends AsyncTask<Pair<String, String>, Void, String> {
+    public class LoginTask extends AsyncTask<Pair<String, String>, Void, String> {
+
+        private boolean mErrorOccurred = false;
 
         @Override
         protected String doInBackground(Pair<String, String>... params) {
@@ -54,19 +62,28 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
             if (params.length < 1)
                 return null;
 
+            mErrorOccurred = false;
             String userid = params[0].first;
             String passwd = params[0].second;
             try {
                 return TomahawkServerConnection.authenticate(userid, passwd);
-            } catch (Exception e) {
-                Log.i(TAG, e.toString());
-                return null;
+            } catch (IllegalArgumentException e) {
+                Log.e(TAG, e.toString());
+                mErrorOccurred = true;
+                return e.getMessage();
             }
         }
 
         @Override
-        protected void onPostExecute(final String authToken) {
-            onAuthenticationResult(authToken);
+        protected void onPostExecute(final String response) {
+
+            if (!mErrorOccurred)
+                onAuthenticationResult(response);
+            else {
+                // Check the error code here when api supports it.
+                if (response.equals("Invalid credentials"))
+                    onAuthenticationError(ERROR_INVALID_CREDENTIALS);
+            }
         }
 
         @Override
@@ -130,7 +147,7 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
         EditText user = (EditText) findViewById(R.id.username_edit);
         EditText passwd = (EditText) findViewById(R.id.password_edit);
 
-        mAuthTask = new UserLoginTask();
+        mAuthTask = new LoginTask();
         mAuthTask.execute(new Pair<String, String>(user.getText().toString(), passwd.getText().toString()));
     }
 
@@ -162,6 +179,33 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
         setAccountAuthenticatorResult(intent.getExtras());
         setResult(RESULT_OK, intent);
         finish();
+    }
+
+    public void onAuthenticationError(final int errorcode) {
+
+        mAuthTask = null;
+        hideProgressDialog();
+
+        String errormsg = null;
+        switch (errorcode) {
+
+        case ERROR_INVALID_CREDENTIALS:
+            errormsg = getResources().getString(R.string.authentication_invalid_credentials_text);
+            break;
+        }
+
+        if (errormsg == null)
+            return;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(TomahawkAccountAuthenticatorActivity.this);
+        builder.setMessage(errormsg).setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.cancel();
+            }
+        });
+
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
     /**
