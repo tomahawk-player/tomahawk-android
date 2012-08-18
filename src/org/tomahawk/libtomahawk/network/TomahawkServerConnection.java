@@ -21,13 +21,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
@@ -39,17 +43,20 @@ import android.os.HandlerThread;
 import android.os.Process;
 import android.util.Log;
 
+import com.codebutler.android_websockets.WebSocketClient;
+
 /**
  * Represents a Tomahawk ControlConnection. Used for LAN communications.
  */
-public class TomahawkServerConnection {
+public class TomahawkServerConnection implements WebSocketClient.Listener {
+
+    private final static String TAG = TomahawkServerConnection.class.getName();
 
     public static final String ACCOUNT_TYPE = "org.tomahawk";
     public static final String AUTH_TOKEN_TYPE = "org.tomahawk.auth_token";
     public static final String ACCOUNT_NAME = "Tomahawk";
 
-    private final static String TAG = TomahawkServerConnection.class.getName();
-
+    private WebSocketClient mWebSocketClient;
     private HandlerThread mCollectionUpdateHandlerThread;
     private Handler mHandler;
 
@@ -66,6 +73,14 @@ public class TomahawkServerConnection {
 
             // parse the access token and create a new TomahawkWebSocket here.
             Log.e(TAG, avail);
+
+            List<BasicNameValuePair> extraHeaders = Arrays.asList(new BasicNameValuePair("accesstoken", "session=abcd"));
+
+            // WebSocketClient client = new
+            // WebSocketClient(URI.create("wss://hatchet.jefferai.org"),
+            // TomahawkServerConnection.this, extraHeaders);
+            mWebSocketClient = new WebSocketClient(URI.create("wss://echo.websocket.org"), TomahawkServerConnection.this, extraHeaders);
+            mWebSocketClient.connect();
         }
     };
 
@@ -100,6 +115,49 @@ public class TomahawkServerConnection {
         return new TomahawkServerConnection(userid, authtoken);
     }
 
+    /**
+     * Called when the websocket client has connected.
+     */
+    @Override
+    public void onConnect() {
+        Log.d(TAG, "Connected!");
+        mWebSocketClient.send("hello, world!");
+    }
+
+    /**
+     * Called when the websocket client has received a message.
+     */
+    @Override
+    public void onMessage(String message) {
+        Log.d(TAG, String.format("Got string message! %s", message));
+
+        mWebSocketClient.send("hello, world!");
+    }
+
+    /**
+     * Called when the websocket client has received a binary message.
+     */
+    @Override
+    public void onMessage(byte[] data) {
+        Log.d(TAG, String.format("Got binary message!"));
+    }
+
+    /**
+     * Called when the websocket client has been disconnected.
+     */
+    @Override
+    public void onDisconnect(int code, String reason) {
+        Log.d(TAG, String.format("Disconnected! Code: %d Reason: %s", code, reason));
+    }
+
+    /**
+     * Called when an error has occurred with the websocket client.
+     */
+    @Override
+    public void onError(Exception error) {
+        Log.e(TAG, "Error!", error);
+    }
+    
     /**
      * Requests access tokens for the given user id and valid auth token.
      * 
