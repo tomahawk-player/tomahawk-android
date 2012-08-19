@@ -22,8 +22,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -31,10 +32,10 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -53,7 +54,7 @@ public class TomahawkServerConnection implements WebSocketClient.Listener {
     private final static String TAG = TomahawkServerConnection.class.getName();
 
     public static final String ACCOUNT_TYPE = "org.tomahawk";
-    public static final String AUTH_TOKEN_TYPE = "org.tomahawk.auth_token";
+    public static final String AUTH_TOKEN_TYPE = "org.tomahawk.authtoken";
     public static final String ACCOUNT_NAME = "Tomahawk";
 
     private WebSocketClient mWebSocketClient;
@@ -63,29 +64,43 @@ public class TomahawkServerConnection implements WebSocketClient.Listener {
     private String mUserId;
     private String mAuthToken;
 
+    private List<AccessToken> mAccessTokens;
+
     /**
      * Runnable that requests accessTokens to start a Connection on.
      */
     private Runnable mStartupConnectionRunnable = new Runnable() {
         @Override
         public void run() {
-            String avail = requestAccessTokens(mUserId, mAuthToken);
 
-            // parse the access token and create a new TomahawkWebSocket here.
-            if (avail == null)
+            try {
+                mAccessTokens = requestAccessTokens(mUserId, mAuthToken);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            if (mAccessTokens == null)
                 return;
 
-            Log.e(TAG, avail);
-
-            List<BasicNameValuePair> extraHeaders = Arrays.asList(new BasicNameValuePair("accesstoken", "session=abcd"));
-
-            // WebSocketClient client = new
-            // WebSocketClient(URI.create("wss://hatchet.jefferai.org"),
-            // TomahawkServerConnection.this, extraHeaders);
-            mWebSocketClient = new WebSocketClient(URI.create("wss://echo.websocket.org"), TomahawkServerConnection.this, extraHeaders);
+            mWebSocketClient = new WebSocketClient(URI.create("wss://echo.websocket.org"),
+                                                   TomahawkServerConnection.this, null);
             mWebSocketClient.connect();
         }
     };
+
+    private static class AccessToken {
+        public String token;
+        public int port;
+        public int expiration;
+        public String hostname;
+
+        AccessToken(String token, String hostname, int port, int expiration) {
+            this.token = token;
+            this.hostname = hostname;
+            this.port = port;
+            this.expiration = expiration;
+        }
+    }
 
     /**
      * Creates a new TomahawkServerConnection for the given userid and
@@ -123,18 +138,31 @@ public class TomahawkServerConnection implements WebSocketClient.Listener {
      */
     @Override
     public void onConnect() {
-        Log.d(TAG, "Connected!");
-        mWebSocketClient.send("hello, world!");
+        Log.d(TAG, "Tomahawk websocket connected.");
+
+        /** For testing we will attempt to register. */
+        AccessToken token = mAccessTokens.get(0);
+
+        JSONObject register = new JSONObject();
+        try {
+            register.put("command", "register");
+            register.put("hostname", token.hostname);
+            register.put("port", token.port);
+            register.put("accesstoken", token.token);
+            register.put("username", mUserId);
+            register.put("dbid", "nil");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        mWebSocketClient.send(register.toString());
     }
 
     /**
      * Called when the websocket client has received a message.
      */
     @Override
-    public void onMessage(String message) {
-        Log.d(TAG, String.format("Got string message! %s", message));
-
-        mWebSocketClient.send("hello, world!");
+    public void onMessage(String msg) {
+        Log.d(TAG, "Message from Tomahawk server: " + msg);
     }
 
     /**
@@ -142,7 +170,7 @@ public class TomahawkServerConnection implements WebSocketClient.Listener {
      */
     @Override
     public void onMessage(byte[] data) {
-        Log.d(TAG, String.format("Got binary message!"));
+        Log.d(TAG, "Binary message from Tomahawk server.");
     }
 
     /**
@@ -150,7 +178,7 @@ public class TomahawkServerConnection implements WebSocketClient.Listener {
      */
     @Override
     public void onDisconnect(int code, String reason) {
-        Log.d(TAG, String.format("Disconnected! Code: %d Reason: %s", code, reason));
+        Log.d(TAG, "Tomahawk websocket disconnected.");
     }
 
     /**
@@ -158,23 +186,46 @@ public class TomahawkServerConnection implements WebSocketClient.Listener {
      */
     @Override
     public void onError(Exception error) {
-        Log.e(TAG, "Error!", error);
+        throw new IllegalArgumentException(error.toString());
     }
     
-    /**
+    /**s
      * Requests access tokens for the given user id and valid auth token.
      * 
      * @param userid
      * @param authToken
      * @return
+     * @throws JSONException
      */
-    private static String requestAccessTokens(String userid, String authToken) {
+    private static List<AccessToken> requestAccessTokens(String userid, String authToken) throws JSONException {
 
         Map<String, String> params = new HashMap<String, String>();
         params.put("username", userid);
         params.put("authtoken", authToken);
 
-        return post(new JSONObject(params));
+        String json = post(new JSONObject(params));
+        if (json == null)
+            return null;
+
+        List<AccessToken> accessTokens = new ArrayList<AccessToken>();
+
+        JSONObject obj = new JSONObject(json);
+        JSONObject tokens = obj.getJSONObject("accesstokens");
+        Iterator<String> keys = tokens.keys();
+
+        while(keys.hasNext()){
+            String key = keys.next();
+
+            JSONArray hosts = tokens.getJSONArray(key);
+            for (int i = 0; i < hosts.length(); i++) {
+
+                JSONObject host = hosts.getJSONObject(i);
+                AccessToken token = new AccessToken(key, host.getString("host"), host.getInt("port"), host.getInt("expiration"));
+
+                accessTokens.add(token);
+            }
+        }
+        return accessTokens;
     }
 
     /**
