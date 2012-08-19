@@ -23,7 +23,7 @@
     android:versionName="0.1" >
 
     <uses-sdk
-        android:minSdkVersion="5"
+        android:minSdkVersion="8"
         android:targetSdkVersion="16" />
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -43,7 +43,6 @@
         android:normalScreens="true"
         android:smallScreens="true"
         android:xlargeScreens="true" />
-
     <application
         android:name="TomahawkApp"
         android:icon="@drawable/ic_launcher"
@@ -98,11 +97,13 @@
         </service>
         <activity android:name="org.tomahawk.tomahawk_android.TomahawkAccountAuthenticatorActivity"
                   android:label="@string/appname_string"></activity>
+		</activity>
+		<activity android:name="org.tomahawk.tomahawk_android.TomahawkPreferenceActivity"
+		          android:configChanges="keyboardHidden|orientation">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+			</intent-filter>
+		</activity>
     </application>
-    <supports-screens
-        android:anyDensity="true"
-        android:largeScreens="true"
-        android:normalScreens="true"
-        android:smallScreens="true"
-        android:xlargeScreens="true" />
 </manifest>

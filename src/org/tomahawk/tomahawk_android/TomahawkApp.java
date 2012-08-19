@@ -48,6 +48,7 @@ import android.util.Log;
 public class TomahawkApp extends Application implements AccountManagerCallback<Bundle> {
 
     private static final String TAG = TomahawkApp.class.getName();
+
     private static Context sApplicationContext;
 
     private AccountManager mAccountManager = null;

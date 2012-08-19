@@ -104,12 +104,11 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
         mAccountManager = AccountManager.get(this);
         getWindow().setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, android.R.drawable.ic_dialog_alert);
 
-        /** REMOVE THESE AFTER TESTING. */
         EditText user = (EditText) findViewById(R.id.username_edit);
-        user.setText("creichert");
+        user.setText(TomahawkPreferences.getUsername());
 
         EditText passwd = (EditText) findViewById(R.id.password_edit);
-        passwd.setText("somethingorother");
+        passwd.setText(TomahawkPreferences.getPassword());
     }
 
     /**
@@ -173,6 +172,8 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
         mAccountManager.addAccountExplicitly(account, passwd.getText().toString(), result);
         mAccountManager.setAuthToken(account, TomahawkServerConnection.AUTH_TOKEN_TYPE, authToken);
 
+        TomahawkPreferences.setUsernamePassword(user.getText().toString(), passwd.getText().toString());
+
         final Intent intent = new Intent();
         intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, TomahawkServerConnection.ACCOUNT_NAME);
         intent.putExtra(AccountManager.KEY_ACCOUNT_TYPE, getResources().getString(R.string.accounttype_string));
@@ -181,6 +182,11 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
         finish();
     }
 
+    /**
+     * Called when an error ocurred during authentication.
+     * 
+     * @param errorcode
+     */
     public void onAuthenticationError(final int errorcode) {
 
         mAuthTask = null;

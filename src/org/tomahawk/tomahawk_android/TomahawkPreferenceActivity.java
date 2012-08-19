@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
-/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+/* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
  *   Copyright 2012, Christopher Reichert <creichert07@gmail.com>
  *
@@ -17,11 +15,19 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
--->
-<account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accountType="org.tomahawk"
-    android:icon="@drawable/ic_launcher"
-    android:smallIcon="@drawable/ic_launcher"
-    android:label="@string/appname_string"
-    android:accountPreferences="@xml/account_preferences"
-/>
+package org.tomahawk.tomahawk_android;
+
+import android.os.Bundle;
+import android.preference.PreferenceActivity;
+
+public class TomahawkPreferenceActivity extends PreferenceActivity {
+
+    /**
+     * Creates the preferences.
+     */
+    @Override
+    protected void onCreate(Bundle state) {
+        super.onCreate(state);
+        addPreferencesFromResource(R.xml.account_preferences);
+    }
+}
