@@ -72,6 +72,9 @@ public class TomahawkServerConnection implements WebSocketClient.Listener {
             String avail = requestAccessTokens(mUserId, mAuthToken);
 
             // parse the access token and create a new TomahawkWebSocket here.
+            if (avail == null)
+                return;
+
             Log.e(TAG, avail);
 
             List<BasicNameValuePair> extraHeaders = Arrays.asList(new BasicNameValuePair("accesstoken", "session=abcd"));

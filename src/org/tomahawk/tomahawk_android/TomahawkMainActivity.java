@@ -102,7 +102,7 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
 
     public void onCollectionClicked(View view) {
 
-        Intent i = new Intent(this, CollectionActivitys.class);
+        Intent i = new Intent(this, CollectionActivity.class);
         i.putExtra(CollectionActivity.COLLECTION_ID_EXTRA,
                 ((TomahawkApp) getApplication()).getSourceList().getLocalSource().getCollection().getId());
         startActivity(i);
