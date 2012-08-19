@@ -18,7 +18,7 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import org.tomahawk.libtomahawk.network.TomahawkServerConnection;
+import org.tomahawk.libtomahawk.network.TomahawkService;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -49,7 +49,7 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
 
         /** Setup account. */
         AccountManager accountManager = AccountManager.get(this);
-        Account[] accounts = accountManager.getAccountsByType(TomahawkServerConnection.ACCOUNT_TYPE);
+        Account[] accounts = accountManager.getAccountsByType(TomahawkService.ACCOUNT_TYPE);
 
         if (accounts.length <= 0)
             startActivity(new Intent(this, TomahawkAccountAuthenticatorActivity.class));
@@ -66,7 +66,7 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
 
         /** Setup account. */
         AccountManager accountManager = AccountManager.get(this);
-        Account[] accounts = accountManager.getAccountsByType(TomahawkServerConnection.ACCOUNT_TYPE);
+        Account[] accounts = accountManager.getAccountsByType(TomahawkService.ACCOUNT_TYPE);
 
         if (accounts.length <= 0)
             return;
@@ -76,7 +76,7 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
          * AccountManager has the auth token the TomahawkMainActivity.run is
          * called and starts the TomahawkServerConnection.
          */
-        accountManager.getAuthToken(accounts[0], TomahawkServerConnection.AUTH_TOKEN_TYPE, null,
+        accountManager.getAuthToken(accounts[0], TomahawkService.AUTH_TOKEN_TYPE, null,
                 new TomahawkAccountAuthenticatorActivity(), (TomahawkApp) getApplication(), null);
     }
 

@@ -94,7 +94,7 @@ public class TomahawkAccountAuthenticator extends AbstractAccountAuthenticator {
 
             final String password = am.getPassword(account);
             if (password != null)
-                authToken = TomahawkServerConnection.authenticate(account.name, password);
+                authToken = TomahawkService.authenticate(account.name, password);
 
         }
 
@@ -104,7 +104,7 @@ public class TomahawkAccountAuthenticator extends AbstractAccountAuthenticator {
 
             final Bundle result = new Bundle();
             result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-            result.putString(AccountManager.KEY_ACCOUNT_TYPE, TomahawkServerConnection.ACCOUNT_TYPE);
+            result.putString(AccountManager.KEY_ACCOUNT_TYPE, TomahawkService.ACCOUNT_TYPE);
             result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
             return result;
         }

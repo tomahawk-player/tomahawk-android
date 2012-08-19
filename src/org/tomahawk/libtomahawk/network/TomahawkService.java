@@ -39,8 +39,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Service;
+import android.content.Intent;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.IBinder;
 import android.os.Process;
 import android.util.Log;
 
@@ -49,13 +53,15 @@ import com.codebutler.android_websockets.WebSocketClient;
 /**
  * Represents a Tomahawk ControlConnection. Used for LAN communications.
  */
-public class TomahawkServerConnection implements WebSocketClient.Listener {
+public class TomahawkService extends Service implements WebSocketClient.Listener {
 
-    private final static String TAG = TomahawkServerConnection.class.getName();
+    private final static String TAG = TomahawkService.class.getName();
 
     public static final String ACCOUNT_TYPE = "org.tomahawk";
     public static final String AUTH_TOKEN_TYPE = "org.tomahawk.authtoken";
     public static final String ACCOUNT_NAME = "Tomahawk";
+
+    private final IBinder mBinder = new TomahawkServiceBinder();
 
     private WebSocketClient mWebSocketClient;
     private HandlerThread mCollectionUpdateHandlerThread;
@@ -83,16 +89,22 @@ public class TomahawkServerConnection implements WebSocketClient.Listener {
                 return;
 
             mWebSocketClient = new WebSocketClient(URI.create("wss://echo.websocket.org"),
-                                                   TomahawkServerConnection.this, null);
+                                                   TomahawkService.this, null);
             mWebSocketClient.connect();
         }
     };
 
+    public class TomahawkServiceBinder extends Binder {
+        public TomahawkService getService() {
+            return TomahawkService.this;
+        }
+    }
+
     private static class AccessToken {
-        public String token;
-        public int port;
-        public int expiration;
-        public String hostname;
+        String token;
+        int port;
+        int expiration;
+        String hostname;
 
         AccessToken(String token, String hostname, int port, int expiration) {
             this.token = token;
@@ -102,35 +114,25 @@ public class TomahawkServerConnection implements WebSocketClient.Listener {
         }
     }
 
-    /**
-     * Creates a new TomahawkServerConnection for the given userid and
-     * authtoken.
-     * 
-     * @param userid
-     * @param authtoken
-     */
-    protected TomahawkServerConnection(String userid, String authtoken) {
-        mUserId = userid;
-        mAuthToken = authtoken;
+    @Override
+    public int onStartCommand(Intent i, int j, int k) {
+        super.onStartCommand(i, j, k);
+
+        mUserId = i.getStringExtra(ACCOUNT_NAME);
+        mAuthToken = i.getStringExtra(AUTH_TOKEN_TYPE);
 
         mCollectionUpdateHandlerThread = new HandlerThread(TAG, Process.THREAD_PRIORITY_BACKGROUND);
         mCollectionUpdateHandlerThread.start();
         mHandler = new Handler(mCollectionUpdateHandlerThread.getLooper());
 
         mHandler.postDelayed(mStartupConnectionRunnable, 1);
+
+        return START_STICKY;
     }
 
-    /**
-     * Returns the TomahawkServerConnection for the given userid and auth token.
-     * 
-     * If a TomahawkServerConnection does not exist for the pair, then a new
-     * TomahawkServerConnection is created.
-     * 
-     * @param authtoken
-     * @return
-     */
-    public static TomahawkServerConnection get(String userid, String authtoken) {
-        return new TomahawkServerConnection(userid, authtoken);
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
     }
 
     /**
@@ -188,7 +190,7 @@ public class TomahawkServerConnection implements WebSocketClient.Listener {
     public void onError(Exception error) {
         throw new IllegalArgumentException(error.toString());
     }
-    
+
     /**s
      * Requests access tokens for the given user id and valid auth token.
      * 

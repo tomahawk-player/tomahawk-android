@@ -17,7 +17,7 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import org.tomahawk.libtomahawk.network.TomahawkServerConnection;
+import org.tomahawk.libtomahawk.network.TomahawkService;
 
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorActivity;
@@ -66,7 +66,7 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
             String userid = params[0].first;
             String passwd = params[0].second;
             try {
-                return TomahawkServerConnection.authenticate(userid, passwd);
+                return TomahawkService.authenticate(userid, passwd);
             } catch (IllegalArgumentException e) {
                 Log.e(TAG, e.toString());
                 mErrorOccurred = true;
@@ -166,17 +166,17 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
         EditText user = (EditText) findViewById(R.id.username_edit);
         EditText passwd = (EditText) findViewById(R.id.password_edit);
 
-        final Account account = new Account(user.getText().toString(), TomahawkServerConnection.ACCOUNT_TYPE);
+        final Account account = new Account(user.getText().toString(), TomahawkService.ACCOUNT_TYPE);
 
         final Bundle result = new Bundle();
         mAccountManager.addAccountExplicitly(account, passwd.getText().toString(), result);
-        mAccountManager.setAuthToken(account, TomahawkServerConnection.AUTH_TOKEN_TYPE, authToken);
+        mAccountManager.setAuthToken(account, TomahawkService.AUTH_TOKEN_TYPE, authToken);
 
         TomahawkPreferences.setUsernamePassword(user.getText().toString(), passwd.getText().toString());
 
         final Intent intent = new Intent();
-        intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, TomahawkServerConnection.ACCOUNT_NAME);
-        intent.putExtra(AccountManager.KEY_ACCOUNT_TYPE, getResources().getString(R.string.accounttype_string));
+        intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, TomahawkService.ACCOUNT_NAME);
+        intent.putExtra(AccountManager.KEY_ACCOUNT_TYPE, getResources().getString(R.string.tomahawk_account_type));
         setAccountAuthenticatorResult(intent.getExtras());
         setResult(RESULT_OK, intent);
         finish();
