@@ -18,9 +18,10 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-      <CheckBoxPreference
-          android:key="checkBox"
-          android:summary="On/Off"
-          android:title="Keep me logged in" />
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" android:orderingFromXml="true">
+	<CheckBoxPreference
+		android:key="go_online"
+		android:summary="Yes/No"
+		android:title="Go Online"
+		android:checked="false" />
 </PreferenceScreen>

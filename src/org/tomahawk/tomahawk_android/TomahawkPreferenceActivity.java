@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android;
 
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import android.util.Log;
 
 public class TomahawkPreferenceActivity extends PreferenceActivity {
 
@@ -29,5 +30,6 @@ public class TomahawkPreferenceActivity extends PreferenceActivity {
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         addPreferencesFromResource(R.xml.account_preferences);
+        Log.e("PISS", "PISS");
     }
 }

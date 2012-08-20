@@ -28,6 +28,8 @@ public class TomahawkPreferences {
 
     public static final String PREFERENCE_PASSWORD = "password";
 
+    public static final String PREFERENCE_GO_ONLINE = "go_online";
+
     private TomahawkPreferences() {
     };
 
@@ -53,5 +55,10 @@ public class TomahawkPreferences {
     public static final String getPassword() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
         return prefs.getString(PREFERENCE_PASSWORD, "");
+    }
+
+    public static boolean goOnline() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+        return prefs.getBoolean(PREFERENCE_GO_ONLINE, false);
     }
 }
