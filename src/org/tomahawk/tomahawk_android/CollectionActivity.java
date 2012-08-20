@@ -54,7 +54,6 @@ public class CollectionActivity extends SherlockFragmentActivity {
 
     private ViewPager mViewPager;
     private TabsAdapter mTabsAdapter;
-
     private Collection mCollection;
 
     private NewTrackBroadcastReceiver mNewTrackBroadcastReceiver;
@@ -92,10 +91,13 @@ public class CollectionActivity extends SherlockFragmentActivity {
         View actionBarPlaybackTop = getLayoutInflater().inflate(R.layout.playback_info_top, null);
         actionBar.setCustomView(actionBarPlaybackTop);
 
-        mTabsAdapter = new TabsAdapter(this, mViewPager);
-        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.browsefragment_title_string), ArtistFragment.class, null);
-        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.mymusicfragment_title_string), AlbumFragment.class, null);
-        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.friendsfragment_title_string), TrackFragment.class, null);
+        mTabsAdapter = new TabsAdapter(this, getSupportFragmentManager(), mViewPager);
+        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.localcollectionactivity_title_string),
+                new LocalCollectionFragment());
+        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.remotecollectionactivity_title_string),
+                new RemoteCollectionFragment());
+        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.globalcollectionfragment_title_string),
+                new GlobalCollectionFragment());
     }
 
     /*
@@ -274,4 +276,27 @@ public class CollectionActivity extends SherlockFragmentActivity {
     public Collection getCollection() {
         return mCollection;
     }
+
+    /**
+     * @return the mTabsAdapter
+     */
+    public TabsAdapter getTabsAdapter() {
+        return mTabsAdapter;
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see android.support.v4.app.FragmentActivity#onBackPressed()
+     */
+    @Override
+    public void onBackPressed() {
+        if (!mTabsAdapter.back()) {
+            super.onBackPressed();
+        }
+    }
+    
+    public void onBackPressed(View view){
+        this.onBackPressed();
+    }
+
 }

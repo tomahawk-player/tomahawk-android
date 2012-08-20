@@ -17,49 +17,51 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import org.tomahawk.libtomahawk.Album;
+import org.tomahawk.libtomahawk.AlbumArrayAdapter;
 import org.tomahawk.libtomahawk.Collection;
-import org.tomahawk.libtomahawk.audio.PlaybackActivity;
-import org.tomahawk.libtomahawk.playlist.AlbumPlaylist;
-import org.tomahawk.libtomahawk.playlist.Playlist;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 /**
- * Fragment which represents the "MyMusic" tabview.
+ * Fragment which represents the "Album" tabview.
  */
 public class AlbumFragment extends TomahawkListFragment implements OnItemClickListener {
 
-    private ArrayAdapter<Album> mAlbumAdapter;
+    private AlbumArrayAdapter mAlbumArrayAdapter;
 
     /* (non-Javadoc)
      * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
      */
     @Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        
         getListView().setFastScrollEnabled(true);
         getListView().setOnItemClickListener(this);
-	}
+        TextView textView = (TextView) getActivity().findViewById(R.id.fragmentLayout_backbutton_textView);
+        textView.setText(getString(R.string.albumsfragment_title_string));
+    }
 
     /* (non-Javadoc)
      * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
      */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
+        TrackFragment trackFragment = new TrackFragment();
+        trackFragment.setFilter(getAdapter().getItem(idx).toString());
+        mCollectionActivity.getTabsAdapter().replace(trackFragment, false);
 
-        Playlist playlist = AlbumPlaylist.fromAlbum(mAlbumAdapter.getItem(idx));
-
-        Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
-        playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, playlist);
-        startActivity(playbackIntent);
+        //        Playlist playlist = AlbumPlaylist.fromAlbum(mAlbumArrayAdapter.getItem(idx));
+        //
+        //        Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
+        //        playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, playlist);
+        //        startActivity(playbackIntent);
     }
 
     /* (non-Javadoc)
@@ -67,7 +69,7 @@ public class AlbumFragment extends TomahawkListFragment implements OnItemClickLi
      */
     @Override
     protected ArrayAdapter<?> getAdapter() {
-        return mAlbumAdapter;
+        return mAlbumArrayAdapter;
     }
 
     /* (non-Javadoc)
@@ -77,8 +79,8 @@ public class AlbumFragment extends TomahawkListFragment implements OnItemClickLi
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
 
-        mAlbumAdapter = new ArrayAdapter<Album>(getActivity(), R.layout.double_line_list_item,
-                R.id.double_line_list_textview, coll.getAlbums());
-        setListAdapter(mAlbumAdapter);
+        mAlbumArrayAdapter = new AlbumArrayAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, coll.getAlbums());
+        setListAdapter(mAlbumArrayAdapter);
+        getAdapter().getFilter().filter(mFilterConstraint);
     }
 }

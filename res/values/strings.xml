@@ -22,13 +22,25 @@
     <string name="appname_string">Tomahawk</string>
     <string name="nodata_string">No data</string>
     <string name="mainactivity_title_string">Tomahawk</string>
-    <string name="mymusicactivity_title_string">Albums</string>
-    <string name="browseactivity_title_string">Artists</string>
-    <string name="friendsactivity_title_string">Tracks</string>
-    <string name="mymusicfragment_title_string">Albums</string>
-    <string name="browsefragment_title_string">Artists</string>
-    <string name="friendsfragment_title_string">Tracks</string>
-    <string name="playeractivity_title_string">Player</string>
+    <string name="localcollectionactivity_title_string">Local</string>
+    <string name="remotecollectionactivity_title_string">Remote</string>
+    <string name="globalcollectionfragment_title_string">Global</string>
+    <string name="tracksfragment_title_string">Tracks</string>
+    <string name="albumsfragment_title_string">Albums</string>
+    <string name="artistsfragment_title_string">Artists</string>
     <string name="playbackactivity_title_string">Playback</string>
     <string name="playbackservice_label_string">PlaybackService</string>
+    <string-array name="local_collection_menu_items">
+        <item >Tracks</item>
+        <item >Albums</item>
+        <item >Artists</item>
+        <item >Genres</item>
+        <item >Playlists</item>
+    </string-array>
+    <string-array name="remote_collection_menu_items">
+        <item >none</item>
+    </string-array>
+    <string-array name="global_collection_menu_items">
+        <item >none</item>
+    </string-array>
 </resources>

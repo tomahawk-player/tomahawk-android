@@ -19,9 +19,8 @@ package org.tomahawk.tomahawk_android;
 
 import java.util.ArrayList;
 
-import android.content.Context;
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
@@ -33,20 +32,13 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabListener,
         ViewPager.OnPageChangeListener {
 
-    private final ArrayList<TabInfo> mTabInfos = new ArrayList<TabInfo>();
+    @SuppressWarnings("unused")
+    private static final String TAG = TabsAdapter.class.getName();
+
+    private final ArrayList<ArrayList<Fragment>> mFragments = new ArrayList<ArrayList<Fragment>>();
     private ActionBar mActionBar;
     private ViewPager mViewPager;
-    private Context mContext;
-
-    static final class TabInfo {
-        private final Class<?> clss;
-        private final Bundle args;
-
-        TabInfo(Class<?> _class, Bundle _args) {
-            clss = _class;
-            args = _args;
-        }
-    }
+    private FragmentManager mFragmentManager;
 
     /**
      * Constructs a new TabsAdapter
@@ -56,13 +48,13 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
      * @param pager
      *            the ViewPager object to display the content of the tabs
      */
-    public TabsAdapter(SherlockFragmentActivity activity, ViewPager pager) {
-        super(activity.getSupportFragmentManager());
-        mContext = activity;
+    public TabsAdapter(SherlockFragmentActivity activity, FragmentManager fragmentManager, ViewPager pager) {
+        super(fragmentManager);
         mActionBar = activity.getSupportActionBar();
         mViewPager = pager;
         mViewPager.setAdapter(this);
         mViewPager.setOnPageChangeListener(this);
+        mFragmentManager = fragmentManager;
     }
 
     /**
@@ -72,12 +64,12 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
      * @param clss
      * @param args
      */
-    public void addTab(ActionBar.Tab tab, Class<?> clss, Bundle args) {
-        TabInfo info = new TabInfo(clss, args);
-        tab.setTag(info);
+    public void addTab(ActionBar.Tab tab, Fragment fragment) {
         tab.setTabListener(this);
-        mTabInfos.add(info);
         mActionBar.addTab(tab);
+        ArrayList<Fragment> fragmentsStack = new ArrayList<Fragment>();
+        fragmentsStack.add(fragment);
+        mFragments.add(fragmentsStack);
         notifyDataSetChanged();
     }
 
@@ -88,7 +80,7 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
      */
     @Override
     public int getCount() {
-        return mTabInfos.size();
+        return mFragments.size();
     }
 
     /*
@@ -98,8 +90,36 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
      */
     @Override
     public Fragment getItem(int position) {
-        TabInfo info = mTabInfos.get(position);
-        return Fragment.instantiate(mContext, info.clss.getName(), info.args);
+        ArrayList<Fragment> fragmentsStack = mFragments.get(position);
+        return fragmentsStack.get(fragmentsStack.size() - 1);
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see android.support.v4.app.FragmentPagerAdapter#getItemId(int)
+     */
+    @Override
+    public long getItemId(int position) {
+        // Get currently active fragment.
+        ArrayList<Fragment> fragmentsStack = mFragments.get(position);
+
+        return fragmentsStack.size() - 1 + 100 * position;
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see android.support.v4.view.PagerAdapter#getItemPosition(java.lang.Object)
+     */
+    @Override
+    public int getItemPosition(Object object) {
+        for (ArrayList<Fragment> fragmentsStack : mFragments) {
+            for (Fragment fragment : fragmentsStack) {
+                if (object instanceof Fragment && fragment.getClass() != object.getClass()) {
+                    return POSITION_NONE;
+                }
+            }
+        }
+        return POSITION_UNCHANGED;
     }
 
     /*
@@ -144,12 +164,7 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
      */
     @Override
     public void onTabSelected(Tab tab, FragmentTransaction ft) {
-        Object tag = tab.getTag();
-        for (int i = 0; i < mTabInfos.size(); i++) {
-            if (mTabInfos.get(i) == tag) {
-                mViewPager.setCurrentItem(i);
-            }
-        }
+        mViewPager.setCurrentItem(tab.getPosition());
     }
 
     /*
@@ -172,5 +187,53 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
      */
     @Override
     public void onTabReselected(Tab tab, FragmentTransaction ft) {
+    }
+
+    /**
+     * Replaces the view pager fragment at specified position.
+     */
+    public void replace(int position, Fragment newFragment, boolean isBackAction) {
+        // Get currently active fragment.
+        ArrayList<Fragment> fragmentsStack = mFragments.get(position);
+        Fragment currentFragment = fragmentsStack.get(fragmentsStack.size() - 1);
+        if (currentFragment == null) {
+            return;
+        }
+        // Replace the fragment using a transaction.
+        this.startUpdate(mViewPager);
+        FragmentTransaction ft = mFragmentManager.beginTransaction();
+        ft.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right, R.anim.slide_in_left,
+                R.anim.slide_out_right);
+        ft.attach(newFragment).remove(currentFragment).commit();
+        if (isBackAction == true)
+            fragmentsStack.remove(currentFragment);
+        else
+            fragmentsStack.add(newFragment);
+        this.notifyDataSetChanged();
+        this.finishUpdate(mViewPager);        
+    }
+
+    /**
+     * Replaces the view pager fragment at current position.
+     */
+    public void replace(Fragment newFragment, boolean isBackAction) {
+        replace(mViewPager.getCurrentItem(), newFragment, isBackAction);
+    }
+
+    /**
+     * Replaces the current fragment by fragment stored in back stack. Does nothing and returns
+     * false if no fragment is back-stacked.
+     */
+    public boolean back() {
+        int position = mViewPager.getCurrentItem();
+        ArrayList<Fragment> fragmentsStack = mFragments.get(position);
+        if (fragmentsStack.size() < 2) {
+            // Nothing to go back.
+            return false;
+        }
+        Fragment previousFragment = fragmentsStack.get(fragmentsStack.size() - 2);
+        // Restore the remembered fragment and remove it from back fragments.
+        this.replace(previousFragment, true);
+        return true;
     }
 }
