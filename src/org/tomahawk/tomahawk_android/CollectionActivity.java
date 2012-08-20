@@ -93,12 +93,9 @@ public class CollectionActivity extends SherlockFragmentActivity {
         actionBar.setCustomView(actionBarPlaybackTop);
 
         mTabsAdapter = new TabsAdapter(this, mViewPager);
-        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.title_browse_fragment), ArtistFragment.class,
-                null);
-        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.title_mymusic_fragment), AlbumFragment.class,
-                null);
-        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.title_friends_fragment), TrackFragment.class,
-                null);
+        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.browsefragment_title_string), ArtistFragment.class, null);
+        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.mymusicfragment_title_string), AlbumFragment.class, null);
+        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.friendsfragment_title_string), TrackFragment.class, null);
     }
 
     /*
