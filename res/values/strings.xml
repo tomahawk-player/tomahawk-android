@@ -43,6 +43,7 @@
     <string name="accounttype_string">org.tomahawk</string>
 	<string name="loginactivity_loginbutton_label_string">Login</string>
 	<string name="authenticationdialog_text_string">Authenticating...</string>
+	<string name="authenticationactivity_invalid_credentials_string">Username or password incorrect</string>
     <string-array name="local_collection_menu_items">
         <item >Tracks</item>
         <item >Albums</item>

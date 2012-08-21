@@ -76,7 +76,7 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
          * AccountManager has the auth token the TomahawkMainActivity.run is
          * called and starts the TomahawkServerConnection.
          */
-        if (TomahawkPreferences.goOnline())
+        // if (TomahawkPreferences.goOnline())
             accountManager.getAuthToken(accounts[0], TomahawkService.AUTH_TOKEN_TYPE, null,
                     new TomahawkAccountAuthenticatorActivity(), (TomahawkApp) getApplication(), null);
     }

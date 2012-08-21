@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -46,6 +47,7 @@ import org.apache.http.client.HttpResponseException;
 import org.apache.http.message.BasicLineParser;
 import org.apache.http.message.BasicNameValuePair;
 
+import android.net.TrafficStats;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.text.TextUtils;
@@ -108,6 +110,9 @@ public class WebSocketClient {
 
                     SocketFactory factory = mURI.getScheme().equals("wss") ? getSSLSocketFactory() : SocketFactory.getDefault();
                     mSocket = factory.createSocket(mURI.getHost(), port);
+
+                    /** In use by tomahawk */
+                    TrafficStats.tagSocket(mSocket);
 
                     PrintWriter out = new PrintWriter(mSocket.getOutputStream());
                     out.print("GET " + path + " HTTP/1.1\r\n");
@@ -234,6 +239,17 @@ public class WebSocketClient {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
+
+                /** In use by tomahawk */
+                if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                    TrafficStats.setThreadStatsTag(0x00E);
+                    try {
+                        TrafficStats.tagSocket(mSocket);
+                    } catch (SocketException e) {
+                        e.printStackTrace();
+                    }
+                }
+
                 try {
                     synchronized (mSendLock) {
                         OutputStream outputStream = mSocket.getOutputStream();
@@ -242,6 +258,16 @@ public class WebSocketClient {
                     }
                 } catch (IOException e) {
                     mListener.onError(e);
+                } finally {
+
+                    if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+
+                        try {
+                            TrafficStats.untagSocket(mSocket);
+                        } catch (SocketException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
         });

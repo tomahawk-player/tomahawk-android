@@ -96,11 +96,11 @@
              android:resource="@xml/authenticator" />
         </service>
         <activity android:name="org.tomahawk.tomahawk_android.TomahawkAccountAuthenticatorActivity"
-                  android:label="@string/appname_string"></activity>
+                  android:label="@string/appname_string">
 		</activity>
 		<activity android:name="org.tomahawk.tomahawk_android.TomahawkPreferenceActivity"
 		          android:configChanges="keyboardHidden|orientation">
 		</activity>
-		<service android:name="org.tomahawk.libtomahawk.network.TomahawkService" android:label="@string/app_name"></service>
+		<service android:name="org.tomahawk.libtomahawk.network.TomahawkService" android:label="@string/appname_string"></service>
     </application>
 </manifest>

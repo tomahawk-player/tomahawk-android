@@ -176,7 +176,7 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
 
         final Intent intent = new Intent();
         intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, TomahawkService.ACCOUNT_NAME);
-        intent.putExtra(AccountManager.KEY_ACCOUNT_TYPE, getResources().getString(R.string.tomahawk_account_type));
+        intent.putExtra(AccountManager.KEY_ACCOUNT_TYPE, getResources().getString(R.string.accounttype_string));
         setAccountAuthenticatorResult(intent.getExtras());
         setResult(RESULT_OK, intent);
         finish();
@@ -196,7 +196,7 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
         switch (errorcode) {
 
         case ERROR_INVALID_CREDENTIALS:
-            errormsg = getResources().getString(R.string.authentication_invalid_credentials_text);
+            errormsg = getResources().getString(R.string.authenticationactivity_invalid_credentials_string);
             break;
         }
 

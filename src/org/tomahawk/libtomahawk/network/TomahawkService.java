@@ -39,8 +39,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.TargetApi;
 import android.app.Service;
 import android.content.Intent;
+import android.net.TrafficStats;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -117,6 +119,11 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
     @Override
     public int onStartCommand(Intent i, int j, int k) {
         super.onStartCommand(i, j, k);
+
+        if (!i.hasExtra(ACCOUNT_NAME) || !i.hasExtra(AUTH_TOKEN_TYPE)) {
+            stopSelf();
+            return -1;
+        }
 
         mUserId = i.getStringExtra(ACCOUNT_NAME);
         mAuthToken = i.getStringExtra(AUTH_TOKEN_TYPE);
@@ -253,6 +260,7 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
      * @param params
      * @return
      */
+    @TargetApi(14)
     private static String post(JSONObject params) {
 
         HttpParams httpParams = new BasicHttpParams();
@@ -260,6 +268,9 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
         TomahawkHttpClient httpclient = new TomahawkHttpClient(httpParams);
 
         HttpPost httpost = new HttpPost("https://auth.jefferai.org/login");
+
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+            TrafficStats.setThreadStatsTag(0xF00D);
 
         try {
 
@@ -295,6 +306,10 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
             e1.printStackTrace();
         } catch (JSONException e) {
             e.printStackTrace();
+        } finally {
+
+            if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+                TrafficStats.clearThreadStatsTag();
         }
 
         Log.e(TAG, "Uknown error authenticating against Tomahawk server.");
