@@ -90,7 +90,7 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
             if (mAccessTokens == null)
                 return;
 
-            mWebSocketClient = new WebSocketClient(URI.create("wss://echo.websocket.org"),
+            mWebSocketClient = new WebSocketClient(URI.create("wss://hatchet.jefferai.org"),
                                                    TomahawkService.this, null);
             mWebSocketClient.connect();
         }
