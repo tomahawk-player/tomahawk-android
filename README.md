@@ -22,6 +22,12 @@ setup
     - Go into the folder you've extracted your downloaded zip-file to and
       choose the "library" folder as your "Root Directory".
     - Check "copy projects into workspace" and click "Finish".
+    - Since the 4.1.0 release of ActionBarSherlock does include an outdated copy
+      of the android support package v4, you'll need to update that manually by
+      doing the following:
+        - Copy "/android-sdk-linux/extras/android/support/v4/android-support-v4.jar"
+          into the just created ActionBarSherlock project's "lib" folder.
+          Confirm if asked to overwrite the existing "android-support-v4.jar".
     - Now add the just created library project to tomahawk-android by
       rightclicking your "tomahawk-android" project and selecting "Properties"
     - Select "Android" and add the library by clicking "Add...".
