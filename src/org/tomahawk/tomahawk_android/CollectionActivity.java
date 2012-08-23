@@ -232,7 +232,7 @@ public class CollectionActivity extends SherlockFragmentActivity {
                     playbackInfoAlbumArtTop.setImageDrawable(getResources().getDrawable(
                             R.drawable.no_album_art_placeholder));
                 playbackInfoArtistTop.setText(track.getArtist().toString());
-                playbackInfoTitleTop.setText(track.getTitle());
+                playbackInfoTitleTop.setText(track.getName());
                 playbackInfoTop.setClickable(true);
             }
             if (playbackInfoAlbumArtBottom != null && playbackInfoArtistBottom != null && playbackInfoTitleBottom != null) {
@@ -242,7 +242,7 @@ public class CollectionActivity extends SherlockFragmentActivity {
                     playbackInfoAlbumArtBottom.setImageDrawable(getResources().getDrawable(
                             R.drawable.no_album_art_placeholder));
                 playbackInfoArtistBottom.setText(track.getArtist().toString());
-                playbackInfoTitleBottom.setText(track.getTitle());
+                playbackInfoTitleBottom.setText(track.getName());
                 playbackInfoBottom.setClickable(true);
             }
         } else

@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android;
 
 import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.Collection;
+import org.tomahawk.libtomahawk.TomahawkListArrayAdapter;
 
 import android.os.Bundle;
 import android.support.v4.content.Loader;
@@ -33,7 +34,7 @@ import android.widget.TextView;
  */
 public class ArtistFragment extends TomahawkListFragment implements OnItemClickListener {
 
-    private ArrayAdapter<Artist> mArtistAdapter;
+    private TomahawkListArrayAdapter<Artist> mTomahawkListArrayAdapter;
 
     /*
      * (non-Javadoc)
@@ -43,7 +44,7 @@ public class ArtistFragment extends TomahawkListFragment implements OnItemClickL
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        
+
         getListView().setFastScrollEnabled(true);
         getListView().setOnItemClickListener(this);
         TextView textView = (TextView) getActivity().findViewById(R.id.fragmentLayout_backbutton_textView);
@@ -66,7 +67,7 @@ public class ArtistFragment extends TomahawkListFragment implements OnItemClickL
      */
     @Override
     protected ArrayAdapter<?> getAdapter() {
-        return mArtistAdapter;
+        return mTomahawkListArrayAdapter;
     }
 
     /* 
@@ -79,9 +80,10 @@ public class ArtistFragment extends TomahawkListFragment implements OnItemClickL
 
         if (coll == null)
             return;
-
-        mArtistAdapter = new ArrayAdapter<Artist>(getActivity(), R.layout.single_line_list_item, R.id.single_line_list_textview, coll.getArtists());
-        setListAdapter(mArtistAdapter);
+        mTomahawkListArrayAdapter = new TomahawkListArrayAdapter<Artist>(getActivity(),
+                R.layout.single_line_list_item, R.id.single_line_list_textview, coll.getArtists(),
+                TomahawkListArrayAdapter.FILTER_BY_ARTIST);
+        setListAdapter(mTomahawkListArrayAdapter);
         getAdapter().getFilter().filter(mFilterConstraint);
     }
 }

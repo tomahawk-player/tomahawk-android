@@ -187,7 +187,7 @@ public class LocalCollection extends Collection {
             if (track == null) {
                 track = new Track(cursor.getLong(0));
                 track.setPath(cursor.getString(1));
-                track.setTitle(cursor.getString(2));
+                track.setName(cursor.getString(2));
                 track.setDuration(cursor.getLong(3));
                 track.setTrackNumber(cursor.getInt(4));
 

@@ -18,7 +18,8 @@
 package org.tomahawk.tomahawk_android;
 
 import org.tomahawk.libtomahawk.Collection;
-import org.tomahawk.libtomahawk.TrackArrayAdapter;
+import org.tomahawk.libtomahawk.TomahawkListArrayAdapter;
+import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 import org.tomahawk.libtomahawk.playlist.AlbumPlaylist;
 import org.tomahawk.libtomahawk.playlist.CollectionPlaylist;
@@ -38,7 +39,7 @@ import android.widget.TextView;
  */
 public class TrackFragment extends TomahawkListFragment implements OnItemClickListener {
 
-    TrackArrayAdapter mTrackArrayAdapter;
+    TomahawkListArrayAdapter<Track> mTomahawkListArrayAdapter;
 
     /* (non-Javadoc)
      * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
@@ -60,11 +61,11 @@ public class TrackFragment extends TomahawkListFragment implements OnItemClickLi
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
         Playlist playlist;
         if (mFilterConstraint != null && mFilterConstraint.length() > 0)
-            playlist = AlbumPlaylist.fromAlbum(mTrackArrayAdapter.getItem(idx).getAlbum(),
-                    mTrackArrayAdapter.getItem(idx));
+            playlist = AlbumPlaylist.fromAlbum(mTomahawkListArrayAdapter.getItem(idx).getAlbum(),
+                    mTomahawkListArrayAdapter.getItem(idx));
         else
             playlist = CollectionPlaylist.fromCollection(getCurrentCollection(),
-                    mTrackArrayAdapter.getItem(idx));
+                    mTomahawkListArrayAdapter.getItem(idx));
 
         Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
         playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, playlist);
@@ -76,7 +77,7 @@ public class TrackFragment extends TomahawkListFragment implements OnItemClickLi
      */
     @Override
     protected ArrayAdapter<?> getAdapter() {
-        return mTrackArrayAdapter;
+        return mTomahawkListArrayAdapter;
     }
 
     /* (non-Javadoc)
@@ -88,9 +89,10 @@ public class TrackFragment extends TomahawkListFragment implements OnItemClickLi
 
         if (coll == null)
             return;
-
-        mTrackArrayAdapter = new TrackArrayAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, coll.getTracks());
-        setListAdapter(mTrackArrayAdapter);
+        mTomahawkListArrayAdapter = new TomahawkListArrayAdapter<Track>(getActivity(),
+                R.layout.double_line_list_item, R.id.double_line_list_textview,
+                R.id.double_line_list_textview2, coll.getTracks(), TomahawkListArrayAdapter.FILTER_BY_ALBUM);
+        setListAdapter(mTomahawkListArrayAdapter);
         getAdapter().getFilter().filter(mFilterConstraint);
     }
 }

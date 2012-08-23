@@ -20,7 +20,6 @@ package org.tomahawk.libtomahawk;
 import java.io.Serializable;
 import java.util.Comparator;
 
-
 /**
  * This class is used to compare two Tracks.
  */
@@ -46,7 +45,7 @@ class TrackComparator implements Comparator<Track> {
             return num1.compareTo(num2);
 
         case COMPARE_ALPHA:
-            return t1.getTitle().compareTo(t2.getTitle());
+            return t1.getName().compareTo(t2.getName());
 
         }
 
@@ -57,7 +56,7 @@ class TrackComparator implements Comparator<Track> {
 /**
  * This class represents a track.
  */
-public class Track implements Serializable {
+public class Track implements TomahawkListItem, Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -67,7 +66,7 @@ public class Track implements Serializable {
      * Path of file or URL.
      */
     private String mPath;
-    private String mTitle;
+    private String mName;
     private Album mAlbum;
     private Artist mArtist;
     private long mDuration;
@@ -77,9 +76,40 @@ public class Track implements Serializable {
         setId(l);
     }
 
+    /* 
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
-        return getTitle();
+        return getName();
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.TomahawkListItem#getName()
+     */
+    @Override
+    public String getName() {
+        return mName;
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.TomahawkListItem#getArtist()
+     */
+    @Override
+    public Artist getArtist() {
+        return mArtist;
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.TomahawkListItem#getAlbum()
+     */
+    @Override
+    public Album getAlbum() {
+        return mAlbum;
     }
 
     public long getId() {
@@ -98,24 +128,12 @@ public class Track implements Serializable {
         this.mPath = path;
     }
 
-    public String getTitle() {
-        return mTitle;
-    }
-
-    public void setTitle(String title) {
-        this.mTitle = title;
-    }
-
-    public Album getAlbum() {
-        return mAlbum;
+    public void setName(String name) {
+        this.mName = name;
     }
 
     public void setAlbum(Album album) {
         this.mAlbum = album;
-    }
-
-    public Artist getArtist() {
-        return mArtist;
     }
 
     public void setArtist(Artist artist) {

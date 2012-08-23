@@ -296,7 +296,7 @@ public class PlaybackActivity extends SherlockActivity {
             final TextView titleTextView = (TextView) findViewById(R.id.textView_title);
             artistTextView.setText(track.getArtist().toString());
             albumTextView.setText(track.getAlbum().toString());
-            titleTextView.setText(track.getTitle().toString());
+            titleTextView.setText(track.getName().toString());
             findViewById(R.id.imageButton_playpause).setClickable(true);
             findViewById(R.id.imageButton_next).setClickable(true);
             findViewById(R.id.imageButton_previous).setClickable(true);

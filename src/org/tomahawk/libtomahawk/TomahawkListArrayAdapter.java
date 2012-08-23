@@ -20,7 +20,6 @@ package org.tomahawk.libtomahawk;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,37 +31,56 @@ import android.widget.TextView;
 
 /**
  * @author Enno Gottschalk <mrmaffen@googlemail.com>
+ * @param <ListItem>
  *
  */
-public class TrackArrayAdapter extends ArrayAdapter<Track> implements Filterable {
+public class TomahawkListArrayAdapter<ListItem extends TomahawkListItem> extends ArrayAdapter<ListItem>
+        implements Filterable {
+    public static final int FILTER_BY_ALBUM = 0;
+    public static final int FILTER_BY_ARTIST = 1;
 
-    private List<Track> mAllTrackItemsArray;
-    private List<Track> mFilteredTrackItemsArray;
-    private TrackFilter mTrackFilter;
+    private List<ListItem> mAllItemsArray;
+    private List<ListItem> mFilteredItemsArray;
+    private TomahawkListFilter mTomahawkListFilter;
     private LayoutInflater inflator;
     private int mTextViewResourceIdFirstLine;
     private int mTextViewResourceIdSecondLine;
     private int mResource;
+    private int mFilterMethod = FILTER_BY_ARTIST;
 
     /**
-     * Constructs a new TrackArrayAdapter
+     * Constructs a new TArrayAdapter
      * 
      * @param context
      * @param resource
      * @param textViewResourceIdSecondLine
      * @param objects
      */
-    public TrackArrayAdapter(Activity activity, int resource, int textViewResourceIdFirstLine, int textViewResourceIdSecondLine, List<Track> objects) {
+    public TomahawkListArrayAdapter(Activity activity, int resource, int textViewResourceIdFirstLine,
+            int textViewResourceIdSecondLine, List<ListItem> objects, int filterMethod) {
         super(activity, resource, textViewResourceIdFirstLine, objects);
-        this.mTextViewResourceIdFirstLine=textViewResourceIdFirstLine;
-        this.mTextViewResourceIdSecondLine=textViewResourceIdSecondLine;
-        this.mResource=resource;
-        this.mAllTrackItemsArray = new ArrayList<Track>();
-        mAllTrackItemsArray.addAll(objects);
-        this.mFilteredTrackItemsArray = new ArrayList<Track>();
-        mFilteredTrackItemsArray.addAll(mAllTrackItemsArray);
+        this.mTextViewResourceIdFirstLine = textViewResourceIdFirstLine;
+        this.mTextViewResourceIdSecondLine = textViewResourceIdSecondLine;
+        this.mResource = resource;
+        this.mFilterMethod = filterMethod;
+        this.mAllItemsArray = new ArrayList<ListItem>();
+        mAllItemsArray.addAll(objects);
+        this.mFilteredItemsArray = new ArrayList<ListItem>();
+        mFilteredItemsArray.addAll(mAllItemsArray);
         inflator = activity.getLayoutInflater();
-        getFilter();
+    }
+
+    public TomahawkListArrayAdapter(Activity activity, int resource, int textViewResourceIdFirstLine,
+            List<ListItem> objects, int filterMethod) {
+        super(activity, resource, textViewResourceIdFirstLine, objects);
+        this.mTextViewResourceIdFirstLine = textViewResourceIdFirstLine;
+        this.mResource = resource;
+        this.mFilterMethod = filterMethod;
+        this.mAllItemsArray = new ArrayList<ListItem>();
+        mAllItemsArray.addAll(objects);
+        this.mFilteredItemsArray = new ArrayList<ListItem>();
+        mFilteredItemsArray.addAll(mAllItemsArray);
+        inflator = activity.getLayoutInflater();
     }
 
     /* 
@@ -71,10 +89,10 @@ public class TrackArrayAdapter extends ArrayAdapter<Track> implements Filterable
      */
     @Override
     public Filter getFilter() {
-        if (mTrackFilter == null) {
-            mTrackFilter = new TrackFilter();
+        if (mTomahawkListFilter == null) {
+            mTomahawkListFilter = new TomahawkListFilter();
         }
-        return mTrackFilter;
+        return mTomahawkListFilter;
     }
 
     static class ViewHolder {
@@ -85,9 +103,9 @@ public class TrackArrayAdapter extends ArrayAdapter<Track> implements Filterable
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = null;
-        
+
         view = inflator.inflate(mResource, null);
-        Track track = mFilteredTrackItemsArray.get(position);
+        ListItem item = mFilteredItemsArray.get(position);
         ViewHolder viewHolder = null;
         if (convertView == null) {
             viewHolder = new ViewHolder();
@@ -98,13 +116,15 @@ public class TrackArrayAdapter extends ArrayAdapter<Track> implements Filterable
             view = convertView;
             viewHolder = ((ViewHolder) view.getTag());
         }
-        viewHolder.textFirstLine.setText(track.getTitle());
-        viewHolder.textSecondLine.setText(track.getArtist().getName());
+        if (viewHolder.textFirstLine != null)
+            viewHolder.textFirstLine.setText(item.getName());
+        if (viewHolder.textSecondLine != null)
+            viewHolder.textSecondLine.setText(item.getArtist().getName());
 
         return view;
     }
 
-    private class TrackFilter extends Filter {
+    private class TomahawkListFilter extends Filter {
         /* 
                 * (non-Javadoc)
                 * @see android.widget.Filter#performFiltering(java.lang.CharSequence)
@@ -113,19 +133,23 @@ public class TrackArrayAdapter extends ArrayAdapter<Track> implements Filterable
         protected FilterResults performFiltering(CharSequence constraint) {
             FilterResults result = new FilterResults();
             if (constraint != null && constraint.toString().length() > 0) {
-                ArrayList<Track> filteredItems = new ArrayList<Track>();
+                ArrayList<ListItem> filteredItems = new ArrayList<ListItem>();
 
-                for (int i = 0, l = mAllTrackItemsArray.size(); i < l; i++) {
-                    Track track = mAllTrackItemsArray.get(i);
-                    if (track.getAlbum().getName().contains(constraint))
-                        filteredItems.add(track);
+                for (int i = 0, l = mAllItemsArray.size(); i < l; i++) {
+                    ListItem item = mAllItemsArray.get(i);
+                    if (mFilterMethod == FILTER_BY_ARTIST && item.getArtist().getName().contentEquals(
+                            constraint))
+                        filteredItems.add(item);
+                    if (mFilterMethod == FILTER_BY_ALBUM && item.getAlbum().getName().contentEquals(
+                            constraint))
+                        filteredItems.add(item);
                 }
                 result.count = filteredItems.size();
                 result.values = filteredItems;
             } else {
                 synchronized (this) {
-                    result.values = mAllTrackItemsArray;
-                    result.count = mAllTrackItemsArray.size();
+                    result.values = mAllItemsArray;
+                    result.count = mAllItemsArray.size();
                 }
             }
             return result;
@@ -138,11 +162,11 @@ public class TrackArrayAdapter extends ArrayAdapter<Track> implements Filterable
         @SuppressWarnings("unchecked")
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            mFilteredTrackItemsArray = (ArrayList<Track>) results.values;
+            mFilteredItemsArray = (ArrayList<ListItem>) results.values;
             notifyDataSetChanged();
             clear();
-            for (int i = 0, l = mFilteredTrackItemsArray.size(); i < l; i++)
-                add(mFilteredTrackItemsArray.get(i));
+            for (int i = 0, l = mFilteredItemsArray.size(); i < l; i++)
+                add(mFilteredItemsArray.get(i));
             notifyDataSetInvalidated();
         }
 

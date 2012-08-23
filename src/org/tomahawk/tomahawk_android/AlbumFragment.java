@@ -17,8 +17,9 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import org.tomahawk.libtomahawk.AlbumArrayAdapter;
+import org.tomahawk.libtomahawk.Album;
 import org.tomahawk.libtomahawk.Collection;
+import org.tomahawk.libtomahawk.TomahawkListArrayAdapter;
 
 import android.os.Bundle;
 import android.support.v4.content.Loader;
@@ -33,7 +34,7 @@ import android.widget.TextView;
  */
 public class AlbumFragment extends TomahawkListFragment implements OnItemClickListener {
 
-    private AlbumArrayAdapter mAlbumArrayAdapter;
+    private TomahawkListArrayAdapter<Album> mTomahawkListArrayAdapter;
 
     /* (non-Javadoc)
      * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
@@ -41,7 +42,7 @@ public class AlbumFragment extends TomahawkListFragment implements OnItemClickLi
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        
+
         getListView().setFastScrollEnabled(true);
         getListView().setOnItemClickListener(this);
         TextView textView = (TextView) getActivity().findViewById(R.id.fragmentLayout_backbutton_textView);
@@ -63,7 +64,7 @@ public class AlbumFragment extends TomahawkListFragment implements OnItemClickLi
      */
     @Override
     protected ArrayAdapter<?> getAdapter() {
-        return mAlbumArrayAdapter;
+        return mTomahawkListArrayAdapter;
     }
 
     /* (non-Javadoc)
@@ -75,9 +76,10 @@ public class AlbumFragment extends TomahawkListFragment implements OnItemClickLi
 
         if (coll == null)
             return;
-
-        mAlbumArrayAdapter = new AlbumArrayAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, coll.getAlbums());
-        setListAdapter(mAlbumArrayAdapter);
+        mTomahawkListArrayAdapter = new TomahawkListArrayAdapter<Album>(getActivity(),
+                R.layout.double_line_list_item, R.id.double_line_list_textview,
+                R.id.double_line_list_textview2, coll.getAlbums(), TomahawkListArrayAdapter.FILTER_BY_ARTIST);
+        setListAdapter(mTomahawkListArrayAdapter);
         getAdapter().getFilter().filter(mFilterConstraint);
     }
 }

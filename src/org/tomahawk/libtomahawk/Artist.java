@@ -35,7 +35,7 @@ class ArtistComparator implements Comparator<Artist> {
 /**
  * This class represents an Artist.
  */
-public class Artist implements Serializable {
+public class Artist implements TomahawkListItem, Serializable {
 
     private static final long serialVersionUID = -5358580053668357261L;
 
@@ -50,9 +50,41 @@ public class Artist implements Serializable {
         mTracks = new HashMap<Long, Track>();
     }
 
+    /* 
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
         return mName;
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.TomahawkListItem#getName()
+     */
+    @Override
+    public String getName() {
+        return mName;
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.TomahawkListItem#getArtist()
+     */
+    @Override
+    public Artist getArtist() {
+        return this;
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.TomahawkListItem#getAlbum()
+     */
+    @Override
+    public Album getAlbum() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     public void addTrack(Track track) {
@@ -77,10 +109,6 @@ public class Artist implements Serializable {
 
     public void setName(String name) {
         mName = name;
-    }
-
-    public String getName() {
-        return mName;
     }
 
     public void setId(long id) {

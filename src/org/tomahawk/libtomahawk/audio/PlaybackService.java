@@ -359,12 +359,12 @@ public class PlaybackService extends Service implements OnCompletionListener,
 
         Track track = getCurrentTrack();
 
-        Notification notification = new Notification(R.drawable.ic_launcher, track.getTitle(),
+        Notification notification = new Notification(R.drawable.ic_launcher, track.getName(),
                 System.currentTimeMillis());
 
         Context context = getApplicationContext();
         CharSequence contentTitle = track.getArtist().getName();
-        CharSequence contentText = track.getTitle();
+        CharSequence contentText = track.getName();
         Intent notificationIntent = new Intent(this, PlaybackActivity.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
                 | Intent.FLAG_ACTIVITY_SINGLE_TOP);

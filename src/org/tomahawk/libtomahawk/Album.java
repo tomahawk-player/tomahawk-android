@@ -36,11 +36,10 @@ class AlbumComparator implements Comparator<Album> {
     }
 }
 
-
 /**
  * Class which represents a Tomahawk Album.
  */
-public class Album implements Serializable {
+public class Album implements TomahawkListItem, Serializable {
 
     private static final long serialVersionUID = -5936447328960273526L;
 
@@ -92,12 +91,40 @@ public class Album implements Serializable {
         mTracks = new HashMap<Long, Track>();
     }
 
-    /**
-     * Return a the name of this Album.
+    /* 
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
      */
     @Override
     public String toString() {
         return mName;
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.TomahawkListItem#getName()
+     */
+    @Override
+    public String getName() {
+        return mName;
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.TomahawkListItem#getArtist()
+     */
+    @Override
+    public Artist getArtist() {
+        return mArtist;
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.TomahawkListItem#getAlbum()
+     */
+    @Override
+    public Album getAlbum() {
+        return this;
     }
 
     /**
@@ -138,10 +165,6 @@ public class Album implements Serializable {
         this.mId = id;
     }
 
-    public String getName() {
-        return mName;
-    }
-
     public void setName(String name) {
         mName = name;
     }
@@ -175,10 +198,6 @@ public class Album implements Serializable {
 
     public void setLastYear(String lastYear) {
         mLastYear = lastYear;
-    }
-
-    public Artist getArtist() {
-        return mArtist;
     }
 
     public void setArtist(Artist artist) {
