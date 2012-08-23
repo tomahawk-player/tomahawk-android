@@ -23,9 +23,9 @@ import java.io.IOException;
 
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.playlist.Playlist;
+import org.tomahawk.tomahawk_android.CollectionActivity;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.CollectionActivity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -117,6 +117,9 @@ public class PlaybackActivity extends SherlockActivity {
         registerReceiver(mPlaybackServiceBroadcastReceiver, intentFilter);
         intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYSTATECHANGED);
         registerReceiver(mPlaybackServiceBroadcastReceiver, intentFilter);
+
+        if (mPlaybackService == null)
+            mPlaybackService = ((TomahawkApp) getApplicationContext()).getPlaybackService();
 
         if (getIntent().hasExtra(PLAYLIST_EXTRA)) {
             try {
