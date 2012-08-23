@@ -58,12 +58,6 @@ public class ArtistFragment extends TomahawkListFragment implements OnItemClickL
         AlbumFragment albumFragment = new AlbumFragment();
         albumFragment.setFilter(getAdapter().getItem(idx).toString());
         mCollectionActivity.getTabsAdapter().replace(albumFragment, false);
-
-        //        Playlist playlist = ArtistPlaylist.fromArtist(mArtistAdapter.getItem(idx));
-        //
-        //        Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
-        //        playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, playlist);
-        //        startActivity(playbackIntent);
     }
 
     /* 
@@ -82,6 +76,9 @@ public class ArtistFragment extends TomahawkListFragment implements OnItemClickL
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
+
+        if (coll == null)
+            return;
 
         mArtistAdapter = new ArrayAdapter<Artist>(getActivity(), R.layout.single_line_list_item, R.id.single_line_list_textview, coll.getArtists());
         setListAdapter(mArtistAdapter);

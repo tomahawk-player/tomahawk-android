@@ -29,9 +29,9 @@ import android.os.Bundle;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 /**
  * Fragment which represents the "Tracks" tabview.
@@ -85,6 +85,9 @@ public class TrackFragment extends TomahawkListFragment implements OnItemClickLi
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
+
+        if (coll == null)
+            return;
 
         mTrackArrayAdapter = new TrackArrayAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, coll.getTracks());
         setListAdapter(mTrackArrayAdapter);

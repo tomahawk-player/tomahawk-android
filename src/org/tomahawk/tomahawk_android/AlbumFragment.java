@@ -56,12 +56,6 @@ public class AlbumFragment extends TomahawkListFragment implements OnItemClickLi
         TrackFragment trackFragment = new TrackFragment();
         trackFragment.setFilter(getAdapter().getItem(idx).toString());
         mCollectionActivity.getTabsAdapter().replace(trackFragment, false);
-
-        //        Playlist playlist = AlbumPlaylist.fromAlbum(mAlbumArrayAdapter.getItem(idx));
-        //
-        //        Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
-        //        playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, playlist);
-        //        startActivity(playbackIntent);
     }
 
     /* (non-Javadoc)
@@ -78,6 +72,9 @@ public class AlbumFragment extends TomahawkListFragment implements OnItemClickLi
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
+
+        if (coll == null)
+            return;
 
         mAlbumArrayAdapter = new AlbumArrayAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, coll.getAlbums());
         setListAdapter(mAlbumArrayAdapter);
