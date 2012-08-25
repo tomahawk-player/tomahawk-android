@@ -17,17 +17,37 @@
  */
 package org.tomahawk.libtomahawk.playlist;
 
-import java.io.Serializable;
-
 import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.Track;
+
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
  * Class that represents a list of songs from a given Artist.
  */
-public class ArtistPlaylist extends Playlist implements Serializable {
+public class ArtistPlaylist extends Playlist {
 
-    private static final long serialVersionUID = -5293315483953783524L;
+    /**
+     * Creator used to parcel ArtistPlaylist inside Intent's.
+     */
+    @SuppressWarnings("rawtypes")
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public Playlist createFromParcel(Parcel in) {
+            return new ArtistPlaylist(in);
+        }
+
+        public Playlist[] newArray(int size) {
+            return new Playlist[size];
+        }
+    };
+
+    /**
+     * Parcel constructor.
+     */
+    protected ArtistPlaylist(Parcel in) {
+        super(in);
+    }
 
     /**
      * Create an ArtistPlaylist from Artist.

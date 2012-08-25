@@ -17,7 +17,6 @@
  */
 package org.tomahawk.libtomahawk.playlist;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,12 +24,13 @@ import java.util.ListIterator;
 
 import org.tomahawk.libtomahawk.Track;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * This class represents an abstract Playlist.
  */
-public abstract class Playlist implements Playable, Serializable {
-
-    private static final long serialVersionUID = 497444836724215188L;
+public abstract class Playlist implements Playable, Parcelable {
 
     private String mName;
     private ArrayList<Track> mTracks;
@@ -49,6 +49,28 @@ public abstract class Playlist implements Playable, Serializable {
         mShuffled = false;
         mRepeating = false;
         setTracks(new ArrayList<Track>());
+    }
+
+    public Playlist(Parcel in) {
+        mName = in.readString();
+        mTracks = (ArrayList<Track>) in.readSerializable();
+        mCurrentTrack = (Track) in.readSerializable();
+        mShuffled = in.readByte() == 1;
+        mRepeating = in.readByte() == 1;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mName);
+        dest.writeSerializable(mTracks);
+        dest.writeSerializable(mCurrentTrack);
+        dest.writeByte((byte) (mShuffled ? 1 : 0));
+        dest.writeByte((byte) (mRepeating ? 1 : 0));
     }
 
     /**

@@ -123,8 +123,7 @@ public class PlaybackActivity extends SherlockActivity {
 
         if (getIntent().hasExtra(PLAYLIST_EXTRA)) {
             try {
-                mPlaybackService.setCurrentPlaylist((Playlist) getIntent().getSerializableExtra(
-                        PLAYLIST_EXTRA));
+                mPlaybackService.setCurrentPlaylist((Playlist) getIntent().getParcelableExtra(PLAYLIST_EXTRA));
             } catch (IOException e) {
                 e.printStackTrace();
             }

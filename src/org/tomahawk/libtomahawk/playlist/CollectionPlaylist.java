@@ -17,14 +17,34 @@
  */
 package org.tomahawk.libtomahawk.playlist;
 
-import java.io.Serializable;
-
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.Track;
 
-public class CollectionPlaylist extends Playlist implements Serializable {
+import android.os.Parcel;
+import android.os.Parcelable;
 
-    private static final long serialVersionUID = -7867319646634939857L;
+public class CollectionPlaylist extends Playlist {
+
+    /**
+     * Creator used to marshal CollectionPlaylists inside Intent's.
+     */
+    @SuppressWarnings("rawtypes")
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public Playlist createFromParcel(Parcel in) {
+            return new CollectionPlaylist(in);
+        }
+
+        public Playlist[] newArray(int size) {
+            return new Playlist[size];
+        }
+    };
+
+    /**
+     * Constructs a CollectionPlaylist from the Parcel.
+     */
+    protected CollectionPlaylist(Parcel in) {
+        super(in);
+    }
 
     /**
      * Create a CollectionPlaylist from Collection.
