@@ -36,7 +36,7 @@ public abstract class Playlist implements Playable, Parcelable {
     private ArrayList<Track> mTracks;
     private ArrayList<Track> mShuffledTracks;
 
-    private transient ListIterator<Track> mTrackIterator;
+    private ListIterator<Track> mTrackIterator;
     private Track mCurrentTrack;
     private boolean mShuffled;
     private boolean mRepeating;
@@ -53,10 +53,20 @@ public abstract class Playlist implements Playable, Parcelable {
 
     public Playlist(Parcel in) {
         mName = in.readString();
-        mTracks = (ArrayList<Track>) in.readSerializable();
-        mCurrentTrack = (Track) in.readSerializable();
-        mShuffled = in.readByte() == 1;
-        mRepeating = in.readByte() == 1;
+        setTracks((ArrayList<Track>) in.readSerializable());
+        setCurrentTrack((Track) in.readSerializable());
+        setShuffled(in.readByte() == 1);
+        setRepeating(in.readByte() == 1);
+
+        if (mShuffled)
+            mTrackIterator = mShuffledTracks.listIterator();
+        else
+            mTrackIterator = mTracks.listIterator();
+
+        while (mTrackIterator.hasNext()) {
+            if (mTrackIterator.next().getId() == getCurrentTrack().getId())
+                break;
+        }
     }
 
     @Override
@@ -99,7 +109,6 @@ public abstract class Playlist implements Playable, Parcelable {
             if (newtrack.getId() == track.getId())
                 mCurrentTrack = track;
 
-        resetTrackIterator();
     }
 
     /**
@@ -115,9 +124,6 @@ public abstract class Playlist implements Playable, Parcelable {
      */
     @Override
     public Track getNextTrack() {
-
-        if (mTrackIterator == null)
-            resetTrackIterator();
 
         if (mTrackIterator.hasNext()) {
             Track track = mTrackIterator.next();
@@ -146,9 +152,6 @@ public abstract class Playlist implements Playable, Parcelable {
      */
     @Override
     public Track getPreviousTrack() {
-
-        if (mTrackIterator == null)
-            resetTrackIterator();
 
         if (mTrackIterator.hasPrevious()) {
             Track track = mTrackIterator.previous();
@@ -213,23 +216,6 @@ public abstract class Playlist implements Playable, Parcelable {
     }
 
     /**
-     * mTrackIterator becomes invalidated when we serialize Playlist's to pass
-     * as extras with Intent's.
-     */
-    private void resetTrackIterator() {
-
-        if (mShuffled)
-            mTrackIterator = mShuffledTracks.listIterator();
-        else
-            mTrackIterator = mTracks.listIterator();
-
-        while (mTrackIterator.hasNext()) {
-            if (mTrackIterator.next().getId() == getCurrentTrack().getId())
-                break;
-        }
-    }
-
-    /**
      * Returns true if the PlayableInterface has a next Track.
      * 
      * @return
@@ -253,9 +239,6 @@ public abstract class Playlist implements Playable, Parcelable {
      * @return Returns next Track. Returns null if there is none.
      */
     public Track peekNextTrack() {
-
-        if (mTrackIterator == null)
-            resetTrackIterator();
 
         Track track = null;
         if (mTrackIterator.hasNext()) {
@@ -284,9 +267,6 @@ public abstract class Playlist implements Playable, Parcelable {
      * @return Returns previous Track. Returns null if there is none.
      */
     public Track peekPreviousTrack() {
-
-        if (mTrackIterator == null)
-            resetTrackIterator();
 
         Track track = null;
         if (mTrackIterator.hasPrevious()) {
@@ -323,7 +303,6 @@ public abstract class Playlist implements Playable, Parcelable {
         } else
             mShuffledTracks = null;
 
-        resetTrackIterator();
     }
 
     public void setRepeating(boolean repeating) {
@@ -364,8 +343,7 @@ public abstract class Playlist implements Playable, Parcelable {
      * @return
      */
     public int getPosition() {
-        if (mTrackIterator==null)
-            resetTrackIterator();
+
         if (getCount() > 0 && mTrackIterator != null) {
             if (hasPreviousTrack())
                 return mTrackIterator.previousIndex()+1;
