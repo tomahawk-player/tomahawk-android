@@ -20,6 +20,8 @@ package org.tomahawk.tomahawk_android;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.tomahawk.libtomahawk.Album;
+import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.TomahawkListArrayAdapter;
 import org.tomahawk.libtomahawk.TomahawkListArrayAdapter.TomahawkListItem;
@@ -38,6 +40,15 @@ import android.widget.TextView;
 public class AlbumFragment extends TomahawkListFragment implements OnItemClickListener {
 
     private TomahawkListArrayAdapter mTomahawkListArrayAdapter;
+    private Artist mArtist;
+
+    public AlbumFragment() {
+        mArtist = null;
+    }
+
+    public AlbumFragment(Artist artist) {
+        mArtist = artist;
+    }
 
     /* (non-Javadoc)
      * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
@@ -57,9 +68,7 @@ public class AlbumFragment extends TomahawkListFragment implements OnItemClickLi
      */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        TrackFragment trackFragment = new TrackFragment();
-        trackFragment.setFilter(getAdapter().getItem(idx).toString());
-        mCollectionActivity.getTabsAdapter().replace(trackFragment, false);
+        mCollectionActivity.getTabsAdapter().replace(new TrackFragment((Album) mTomahawkListArrayAdapter.getItem(idx)), false);
     }
 
     /* (non-Javadoc)
@@ -77,9 +86,13 @@ public class AlbumFragment extends TomahawkListFragment implements OnItemClickLi
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
 
-        List<TomahawkListItem> items = new ArrayList<TomahawkListItem>(coll.getAlbums());
-        mTomahawkListArrayAdapter = new TomahawkListArrayAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, items, TomahawkListArrayAdapter.FILTER_BY_ARTIST);
+        List<TomahawkListItem> albums = new ArrayList<TomahawkListItem>();
+        if (mArtist != null)
+            albums.addAll(mArtist.getAlbums());
+        else
+            albums.addAll(coll.getAlbums());
+
+        mTomahawkListArrayAdapter = new TomahawkListArrayAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, albums);
         setListAdapter(mTomahawkListArrayAdapter);
-        getAdapter().getFilter().filter(mFilterConstraint);
     }
 }

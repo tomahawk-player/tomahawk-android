@@ -66,7 +66,6 @@ public class CollectionActivity extends SherlockFragmentActivity {
                 setPlaybackInfo(((TomahawkApp) getApplication()).getPlaybackService().getCurrentTrack());
             }
         }
-
     }
 
     /*
@@ -214,38 +213,37 @@ public class CollectionActivity extends SherlockFragmentActivity {
         if (playbackInfoBottom != null)
             playbackInfoBottom.setClickable(false);
 
-        if (track != null) {
-            ImageView playbackInfoAlbumArtTop = (ImageView) findViewById(R.id.playback_info_album_art_top);
-            TextView playbackInfoArtistTop = (TextView) findViewById(R.id.playback_info_artist_top);
-            TextView playbackInfoTitleTop = (TextView) findViewById(R.id.playback_info_title_top);
-            ImageView playbackInfoAlbumArtBottom = (ImageView) findViewById(R.id.playback_info_album_art_bottom);
-            TextView playbackInfoArtistBottom = (TextView) findViewById(R.id.playback_info_artist_bottom);
-            TextView playbackInfoTitleBottom = (TextView) findViewById(R.id.playback_info_title_bottom);
-            Bitmap albumArt = null;
-            if (track.getAlbum() != null)
-                albumArt = track.getAlbum().getAlbumArt();
-            if (playbackInfoAlbumArtTop != null && playbackInfoArtistTop != null && playbackInfoTitleTop != null) {
-                if (albumArt != null)
-                    playbackInfoAlbumArtTop.setImageBitmap(albumArt);
-                else
-                    playbackInfoAlbumArtTop.setImageDrawable(getResources().getDrawable(
-                            R.drawable.no_album_art_placeholder));
-                playbackInfoArtistTop.setText(track.getArtist().toString());
-                playbackInfoTitleTop.setText(track.getName());
-                playbackInfoTop.setClickable(true);
-            }
-            if (playbackInfoAlbumArtBottom != null && playbackInfoArtistBottom != null && playbackInfoTitleBottom != null) {
-                if (albumArt != null)
-                    playbackInfoAlbumArtBottom.setImageBitmap(albumArt);
-                else
-                    playbackInfoAlbumArtBottom.setImageDrawable(getResources().getDrawable(
-                            R.drawable.no_album_art_placeholder));
-                playbackInfoArtistBottom.setText(track.getArtist().toString());
-                playbackInfoTitleBottom.setText(track.getName());
-                playbackInfoBottom.setClickable(true);
-            }
-        } else
+        if (track == null)
             return;
+
+        ImageView playbackInfoAlbumArtTop = (ImageView) findViewById(R.id.playback_info_album_art_top);
+        TextView playbackInfoArtistTop = (TextView) findViewById(R.id.playback_info_artist_top);
+        TextView playbackInfoTitleTop = (TextView) findViewById(R.id.playback_info_title_top);
+        ImageView playbackInfoAlbumArtBottom = (ImageView) findViewById(R.id.playback_info_album_art_bottom);
+        TextView playbackInfoArtistBottom = (TextView) findViewById(R.id.playback_info_artist_bottom);
+        TextView playbackInfoTitleBottom = (TextView) findViewById(R.id.playback_info_title_bottom);
+        Bitmap albumArt = null;
+        if (track.getAlbum() != null)
+            albumArt = track.getAlbum().getAlbumArt();
+        if (playbackInfoAlbumArtTop != null && playbackInfoArtistTop != null && playbackInfoTitleTop != null) {
+            if (albumArt != null)
+                playbackInfoAlbumArtTop.setImageBitmap(albumArt);
+            else
+                playbackInfoAlbumArtTop.setImageDrawable(getResources().getDrawable(R.drawable.no_album_art_placeholder));
+            playbackInfoArtistTop.setText(track.getArtist().toString());
+            playbackInfoTitleTop.setText(track.getName());
+            playbackInfoTop.setClickable(true);
+        }
+        if (playbackInfoAlbumArtBottom != null && playbackInfoArtistBottom != null
+                && playbackInfoTitleBottom != null) {
+            if (albumArt != null)
+                playbackInfoAlbumArtBottom.setImageBitmap(albumArt);
+            else
+                playbackInfoAlbumArtBottom.setImageDrawable(getResources().getDrawable(R.drawable.no_album_art_placeholder));
+            playbackInfoArtistBottom.setText(track.getArtist().toString());
+            playbackInfoTitleBottom.setText(track.getName());
+            playbackInfoBottom.setClickable(true);
+        }
     }
 
     /**

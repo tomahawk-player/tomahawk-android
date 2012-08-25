@@ -20,12 +20,12 @@ package org.tomahawk.tomahawk_android;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.tomahawk.libtomahawk.Album;
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.TomahawkListArrayAdapter;
 import org.tomahawk.libtomahawk.TomahawkListArrayAdapter.TomahawkListItem;
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
-import org.tomahawk.libtomahawk.playlist.AlbumPlaylist;
 import org.tomahawk.libtomahawk.playlist.CollectionPlaylist;
 import org.tomahawk.libtomahawk.playlist.Playlist;
 
@@ -44,6 +44,15 @@ import android.widget.TextView;
 public class TrackFragment extends TomahawkListFragment implements OnItemClickListener {
 
     TomahawkListArrayAdapter mTomahawkListArrayAdapter;
+    private Album mAlbum;
+
+    public TrackFragment() {
+        mAlbum = null;
+    }
+
+    public TrackFragment(Album album) {
+        mAlbum = album;
+    }
 
     /* (non-Javadoc)
      * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
@@ -63,12 +72,7 @@ public class TrackFragment extends TomahawkListFragment implements OnItemClickLi
      */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        Playlist playlist;
-        if (mFilterConstraint != null && mFilterConstraint.length() > 0)
-            playlist = AlbumPlaylist.fromAlbum(mTomahawkListArrayAdapter.getItem(idx).getAlbum(), (Track) mTomahawkListArrayAdapter.getItem(idx));
-        else
-            playlist = CollectionPlaylist.fromCollection(getCurrentCollection(), (Track) mTomahawkListArrayAdapter.getItem(idx));
-
+        Playlist playlist = CollectionPlaylist.fromCollection(getCurrentCollection(), (Track) mTomahawkListArrayAdapter.getItem(idx));
         Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
         playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, playlist);
         startActivity(playbackIntent);
@@ -89,9 +93,13 @@ public class TrackFragment extends TomahawkListFragment implements OnItemClickLi
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
 
-        List<TomahawkListItem> items = new ArrayList<TomahawkListItem>(coll.getTracks());
-        mTomahawkListArrayAdapter = new TomahawkListArrayAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, items, TomahawkListArrayAdapter.FILTER_BY_ALBUM);
+        List<TomahawkListItem> tracks = new ArrayList<TomahawkListItem>();
+        if (mAlbum != null)
+            tracks.addAll(mAlbum.getTracks());
+        else
+            tracks.addAll(coll.getTracks());
+
+        mTomahawkListArrayAdapter = new TomahawkListArrayAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, tracks);
         setListAdapter(mTomahawkListArrayAdapter);
-        getAdapter().getFilter().filter(mFilterConstraint);
     }
 }

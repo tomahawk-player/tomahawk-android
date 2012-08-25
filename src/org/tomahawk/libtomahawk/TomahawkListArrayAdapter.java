@@ -27,7 +27,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
@@ -37,18 +36,15 @@ import android.widget.TextView;
 public class TomahawkListArrayAdapter extends ArrayAdapter<TomahawkListItem>
         implements Filterable {
 
-    public static final int FILTER_BY_ALBUM = 0;
-    public static final int FILTER_BY_ARTIST = 1;
-
-    private List<TomahawkListItem> mAllItemsArray;
-    private List<TomahawkListItem> mFilteredItemsArray;
-    private TomahawkListFilter mTomahawkListFilter;
-    private LayoutInflater inflator;
+    private List<TomahawkListItem> mItemsArray;
+    private LayoutInflater mInflator;
     private int mTextViewResourceIdFirstLine;
     private int mTextViewResourceIdSecondLine;
     private int mResource;
-    private int mFilterMethod = FILTER_BY_ARTIST;
 
+    /**
+     * This interface represents an item displayed in our Collections list.
+     */
     public interface TomahawkListItem {
 
         /** @return the corresponding name/title */
@@ -70,44 +66,24 @@ public class TomahawkListArrayAdapter extends ArrayAdapter<TomahawkListItem>
      * @param objects
      */
     public TomahawkListArrayAdapter(Activity activity, int resource, int textViewResourceIdFirstLine,
-            int textViewResourceIdSecondLine, List<TomahawkListItem> objects, int filterMethod) {
+            int textViewResourceIdSecondLine, List<TomahawkListItem> objects) {
         super(activity, resource, textViewResourceIdFirstLine, objects);
 
-        this.mTextViewResourceIdFirstLine = textViewResourceIdFirstLine;
-        this.mTextViewResourceIdSecondLine = textViewResourceIdSecondLine;
-        this.mResource = resource;
-        this.mFilterMethod = filterMethod;
-        this.mAllItemsArray = new ArrayList<TomahawkListItem>();
-        mAllItemsArray.addAll(objects);
-        this.mFilteredItemsArray = new ArrayList<TomahawkListItem>();
-        mFilteredItemsArray.addAll(mAllItemsArray);
-        inflator = activity.getLayoutInflater();
+        mTextViewResourceIdFirstLine = textViewResourceIdFirstLine;
+        mTextViewResourceIdSecondLine = textViewResourceIdSecondLine;
+        mResource = resource;
+        mItemsArray = new ArrayList<TomahawkListItem>(objects);
+        mInflator = activity.getLayoutInflater();
     }
 
     public TomahawkListArrayAdapter(Activity activity, int resource, int textViewResourceIdFirstLine,
-            List<TomahawkListItem> objects, int filterMethod) {
+            List<TomahawkListItem> objects) {
         super(activity, resource, textViewResourceIdFirstLine, objects);
 
-        this.mTextViewResourceIdFirstLine = textViewResourceIdFirstLine;
-        this.mResource = resource;
-        this.mFilterMethod = filterMethod;
-        this.mAllItemsArray = new ArrayList<TomahawkListItem>();
-        mAllItemsArray.addAll(objects);
-        this.mFilteredItemsArray = new ArrayList<TomahawkListItem>();
-        mFilteredItemsArray.addAll(mAllItemsArray);
-        inflator = activity.getLayoutInflater();
-    }
-
-    /* 
-     * (non-Javadoc)
-     * @see android.widget.Filterable#getFilter()
-     */
-    @Override
-    public Filter getFilter() {
-        if (mTomahawkListFilter == null) {
-            mTomahawkListFilter = new TomahawkListFilter();
-        }
-        return mTomahawkListFilter;
+        mTextViewResourceIdFirstLine = textViewResourceIdFirstLine;
+        mResource = resource;
+        mItemsArray = new ArrayList<TomahawkListItem>(objects);
+        mInflator = activity.getLayoutInflater();
     }
 
     static class ViewHolder {
@@ -119,8 +95,8 @@ public class TomahawkListArrayAdapter extends ArrayAdapter<TomahawkListItem>
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = null;
 
-        view = inflator.inflate(mResource, null);
-        TomahawkListItem item = mFilteredItemsArray.get(position);
+        view = mInflator.inflate(mResource, null);
+        TomahawkListItem item = mItemsArray.get(position);
         ViewHolder viewHolder = null;
         if (convertView == null) {
             viewHolder = new ViewHolder();
@@ -137,53 +113,5 @@ public class TomahawkListArrayAdapter extends ArrayAdapter<TomahawkListItem>
             viewHolder.textSecondLine.setText(item.getArtist().getName());
 
         return view;
-    }
-
-    private class TomahawkListFilter extends Filter {
-        /* 
-                * (non-Javadoc)
-                * @see android.widget.Filter#performFiltering(java.lang.CharSequence)
-                */
-        @Override
-        protected FilterResults performFiltering(CharSequence constraint) {
-            FilterResults result = new FilterResults();
-            if (constraint != null && constraint.toString().length() > 0) {
-                ArrayList<TomahawkListItem> filteredItems = new ArrayList<TomahawkListItem>();
-
-                for (int i = 0, l = mAllItemsArray.size(); i < l; i++) {
-                    TomahawkListItem item = mAllItemsArray.get(i);
-                    if (mFilterMethod == FILTER_BY_ARTIST && item.getArtist().getName().contentEquals(
-                            constraint))
-                        filteredItems.add(item);
-                    if (mFilterMethod == FILTER_BY_ALBUM && item.getAlbum().getName().contentEquals(
-                            constraint))
-                        filteredItems.add(item);
-                }
-                result.count = filteredItems.size();
-                result.values = filteredItems;
-            } else {
-                synchronized (this) {
-                    result.values = mAllItemsArray;
-                    result.count = mAllItemsArray.size();
-                }
-            }
-            return result;
-        }
-
-        /* 
-         * (non-Javadoc)
-         * @see android.widget.Filter#publishResults(java.lang.CharSequence, android.widget.Filter.FilterResults)
-         */
-        @SuppressWarnings("unchecked")
-        @Override
-        protected void publishResults(CharSequence constraint, FilterResults results) {
-            mFilteredItemsArray = (ArrayList<TomahawkListItem>) results.values;
-            notifyDataSetChanged();
-            clear();
-            for (int i = 0, l = mFilteredItemsArray.size(); i < l; i++)
-                add(mFilteredItemsArray.get(i));
-            notifyDataSetInvalidated();
-        }
-
     }
 }

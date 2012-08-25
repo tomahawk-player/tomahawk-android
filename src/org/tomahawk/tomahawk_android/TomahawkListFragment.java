@@ -53,9 +53,6 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
     private EditText mFilterText = null;
     private SearchWatcher mFilterTextWatcher = new SearchWatcher();
 
-    //used for filtering while navigating through the library's drilldown-view
-    protected CharSequence mFilterConstraint;
-
     /**
      * Class which manages search functionality within fragments
      */
@@ -278,10 +275,5 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
      */
     public Collection getCurrentCollection() {
         return ((CollectionActivity) getActivity()).getCollection();
-    }
-
-    /** @param constraint to filter the list with, only used programmaticaly*/
-    public void setFilter(CharSequence constraint) {
-        mFilterConstraint = constraint;
     }
 }
