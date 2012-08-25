@@ -17,8 +17,12 @@
  */
 package org.tomahawk.tomahawk_android;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.TomahawkListArrayAdapter;
+import org.tomahawk.libtomahawk.TomahawkListArrayAdapter.TomahawkListItem;
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 import org.tomahawk.libtomahawk.playlist.AlbumPlaylist;
@@ -39,7 +43,7 @@ import android.widget.TextView;
  */
 public class TrackFragment extends TomahawkListFragment implements OnItemClickListener {
 
-    TomahawkListArrayAdapter<Track> mTomahawkListArrayAdapter;
+    TomahawkListArrayAdapter mTomahawkListArrayAdapter;
 
     /* (non-Javadoc)
      * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
@@ -61,11 +65,9 @@ public class TrackFragment extends TomahawkListFragment implements OnItemClickLi
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
         Playlist playlist;
         if (mFilterConstraint != null && mFilterConstraint.length() > 0)
-            playlist = AlbumPlaylist.fromAlbum(mTomahawkListArrayAdapter.getItem(idx).getAlbum(),
-                    mTomahawkListArrayAdapter.getItem(idx));
+            playlist = AlbumPlaylist.fromAlbum(mTomahawkListArrayAdapter.getItem(idx).getAlbum(), (Track) mTomahawkListArrayAdapter.getItem(idx));
         else
-            playlist = CollectionPlaylist.fromCollection(getCurrentCollection(),
-                    mTomahawkListArrayAdapter.getItem(idx));
+            playlist = CollectionPlaylist.fromCollection(getCurrentCollection(), (Track) mTomahawkListArrayAdapter.getItem(idx));
 
         Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
         playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, playlist);
@@ -87,7 +89,8 @@ public class TrackFragment extends TomahawkListFragment implements OnItemClickLi
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
 
-        mTomahawkListArrayAdapter = new TomahawkListArrayAdapter<Track>(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, coll.getTracks(), TomahawkListArrayAdapter.FILTER_BY_ALBUM);
+        List<TomahawkListItem> items = new ArrayList<TomahawkListItem>(coll.getTracks());
+        mTomahawkListArrayAdapter = new TomahawkListArrayAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, items, TomahawkListArrayAdapter.FILTER_BY_ALBUM);
         setListAdapter(mTomahawkListArrayAdapter);
         getAdapter().getFilter().filter(mFilterConstraint);
     }

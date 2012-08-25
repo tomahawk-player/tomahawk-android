@@ -17,9 +17,12 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import org.tomahawk.libtomahawk.Album;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.TomahawkListArrayAdapter;
+import org.tomahawk.libtomahawk.TomahawkListArrayAdapter.TomahawkListItem;
 
 import android.os.Bundle;
 import android.support.v4.content.Loader;
@@ -34,7 +37,7 @@ import android.widget.TextView;
  */
 public class AlbumFragment extends TomahawkListFragment implements OnItemClickListener {
 
-    private TomahawkListArrayAdapter<Album> mTomahawkListArrayAdapter;
+    private TomahawkListArrayAdapter mTomahawkListArrayAdapter;
 
     /* (non-Javadoc)
      * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
@@ -74,7 +77,8 @@ public class AlbumFragment extends TomahawkListFragment implements OnItemClickLi
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
 
-        mTomahawkListArrayAdapter = new TomahawkListArrayAdapter<Album>(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, coll.getAlbums(), TomahawkListArrayAdapter.FILTER_BY_ARTIST);
+        List<TomahawkListItem> items = new ArrayList<TomahawkListItem>(coll.getAlbums());
+        mTomahawkListArrayAdapter = new TomahawkListArrayAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, items, TomahawkListArrayAdapter.FILTER_BY_ARTIST);
         setListAdapter(mTomahawkListArrayAdapter);
         getAdapter().getFilter().filter(mFilterConstraint);
     }

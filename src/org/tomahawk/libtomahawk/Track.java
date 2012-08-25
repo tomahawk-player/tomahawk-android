@@ -20,6 +20,8 @@ package org.tomahawk.libtomahawk;
 import java.io.Serializable;
 import java.util.Comparator;
 
+import org.tomahawk.libtomahawk.TomahawkListArrayAdapter.TomahawkListItem;
+
 /**
  * This class is used to compare two Tracks.
  */
