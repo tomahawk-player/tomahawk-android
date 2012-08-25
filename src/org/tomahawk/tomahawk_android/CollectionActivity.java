@@ -109,10 +109,9 @@ public class CollectionActivity extends SherlockFragmentActivity {
     public void onResume() {
         super.onResume();
 
-        if (getIntent().hasExtra(COLLECTION_ID_EXTRA)) {
-            SourceList sl = ((TomahawkApp) getApplication()).getSourceList();
-            mCollection = sl.getCollectionFromId(getIntent().getIntExtra(COLLECTION_ID_EXTRA, 0));
-        }
+        SourceList sl = ((TomahawkApp) getApplication()).getSourceList();
+        mCollection = sl.getCollectionFromId(getIntent().getIntExtra(COLLECTION_ID_EXTRA, 0));
+
         if (mNewTrackBroadcastReceiver == null)
             mNewTrackBroadcastReceiver = new NewTrackBroadcastReceiver();
         IntentFilter intentFilter = new IntentFilter(PlaybackService.BROADCAST_NEWTRACK);

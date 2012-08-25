@@ -87,12 +87,9 @@ public class TrackFragment extends TomahawkListFragment implements OnItemClickLi
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
 
-        if (coll == null)
-            return;
-        mTomahawkListArrayAdapter = new TomahawkListArrayAdapter<Track>(getActivity(),
-                R.layout.double_line_list_item, R.id.double_line_list_textview,
-                R.id.double_line_list_textview2, coll.getTracks(), TomahawkListArrayAdapter.FILTER_BY_ALBUM);
-        setListAdapter(mTomahawkListArrayAdapter);
+        mTrackArrayAdapter = new TrackArrayAdapter(getActivity(), R.layout.double_line_list_item,
+                R.id.double_line_list_textview, R.id.double_line_list_textview2, coll.getTracks());
+        setListAdapter(mTrackArrayAdapter);
         getAdapter().getFilter().filter(mFilterConstraint);
     }
 }

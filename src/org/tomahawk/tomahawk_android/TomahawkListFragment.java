@@ -139,25 +139,15 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
     /*
      * (non-Javadoc)
      * 
-     * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-     */
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        
-        getSherlockActivity().getSupportLoaderManager().destroyLoader(getId());
-        getSherlockActivity().getSupportLoaderManager().initLoader(getId(), null, this);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see android.support.v4.app.Fragment#onResume()
      */
     @Override
     public void onResume() {
         super.onResume();
-        
+
+        getSherlockActivity().getSupportLoaderManager().destroyLoader(getId());
+        getSherlockActivity().getSupportLoaderManager().initLoader(getId(), null, this);
+
         if (mCollectionUpdatedReceiver == null) {
             mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
             getActivity().registerReceiver(mCollectionUpdatedReceiver, sCollectionUpdateIntentFilter);

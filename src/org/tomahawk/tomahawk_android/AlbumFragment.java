@@ -74,12 +74,9 @@ public class AlbumFragment extends TomahawkListFragment implements OnItemClickLi
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
 
-        if (coll == null)
-            return;
-        mTomahawkListArrayAdapter = new TomahawkListArrayAdapter<Album>(getActivity(),
-                R.layout.double_line_list_item, R.id.double_line_list_textview,
-                R.id.double_line_list_textview2, coll.getAlbums(), TomahawkListArrayAdapter.FILTER_BY_ARTIST);
-        setListAdapter(mTomahawkListArrayAdapter);
+        mAlbumArrayAdapter = new AlbumArrayAdapter(getActivity(), R.layout.double_line_list_item,
+                                R.id.double_line_list_textview, R.id.double_line_list_textview2, coll.getAlbums());
+        setListAdapter(mAlbumArrayAdapter);
         getAdapter().getFilter().filter(mFilterConstraint);
     }
 }
