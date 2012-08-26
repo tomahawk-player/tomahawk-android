@@ -26,6 +26,7 @@ import org.tomahawk.libtomahawk.TomahawkListArrayAdapter;
 import org.tomahawk.libtomahawk.TomahawkListArrayAdapter.TomahawkListItem;
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
+import org.tomahawk.libtomahawk.playlist.AlbumPlaylist;
 import org.tomahawk.libtomahawk.playlist.CollectionPlaylist;
 import org.tomahawk.libtomahawk.playlist.Playlist;
 
@@ -70,7 +71,12 @@ public class TrackFragment extends TomahawkListFragment implements OnItemClickLi
      */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        Playlist playlist = CollectionPlaylist.fromCollection(getCurrentCollection(), (Track) getListAdapter().getItem(idx));
+        Playlist playlist = null;
+        if (mAlbum != null)
+            playlist = AlbumPlaylist.fromAlbum(mAlbum, (Track) getListAdapter().getItem(idx));
+        else
+            playlist = CollectionPlaylist.fromCollection(getCurrentCollection(), (Track) getListAdapter().getItem(idx));
+
         Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
         playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, playlist);
         startActivity(playbackIntent);
