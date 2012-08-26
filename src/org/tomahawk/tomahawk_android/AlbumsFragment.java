@@ -21,16 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.tomahawk.libtomahawk.Album;
+import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.TomahawkListArrayAdapter;
 import org.tomahawk.libtomahawk.TomahawkListArrayAdapter.TomahawkListItem;
-import org.tomahawk.libtomahawk.Track;
-import org.tomahawk.libtomahawk.audio.PlaybackActivity;
-import org.tomahawk.libtomahawk.playlist.AlbumPlaylist;
-import org.tomahawk.libtomahawk.playlist.CollectionPlaylist;
-import org.tomahawk.libtomahawk.playlist.Playlist;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.Loader;
 import android.view.View;
@@ -39,18 +34,18 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.TextView;
 
 /**
- * Fragment which represents the "Tracks" tabview.
+ * Fragment which represents the "Album" tabview.
  */
-public class TrackFragment extends TomahawkListFragment implements OnItemClickListener {
+public class AlbumsFragment extends TomahawkListFragment implements OnItemClickListener {
 
-    private Album mAlbum;
+    private Artist mArtist;
 
-    public TrackFragment() {
-        mAlbum = null;
+    public AlbumsFragment() {
+        mArtist = null;
     }
 
-    public TrackFragment(Album album) {
-        mAlbum = album;
+    public AlbumsFragment(Artist artist) {
+        mArtist = artist;
     }
 
     /* (non-Javadoc)
@@ -63,7 +58,7 @@ public class TrackFragment extends TomahawkListFragment implements OnItemClickLi
         getListView().setFastScrollEnabled(true);
         getListView().setOnItemClickListener(this);
         TextView textView = (TextView) getActivity().findViewById(R.id.fragmentLayout_backbutton_textView);
-        textView.setText(getString(R.string.tracksfragment_title_string));
+        textView.setText(getString(R.string.albumsfragment_title_string));
     }
 
     /* (non-Javadoc)
@@ -71,15 +66,7 @@ public class TrackFragment extends TomahawkListFragment implements OnItemClickLi
      */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        Playlist playlist = null;
-        if (mAlbum != null)
-            playlist = AlbumPlaylist.fromAlbum(mAlbum, (Track) getListAdapter().getItem(idx));
-        else
-            playlist = CollectionPlaylist.fromCollection(getCurrentCollection(), (Track) getListAdapter().getItem(idx));
-
-        Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
-        playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, playlist);
-        startActivity(playbackIntent);
+        mCollectionActivity.getTabsAdapter().replace(new TracksFragment((Album) getListAdapter().getItem(idx)), false);
     }
 
     /* (non-Javadoc)
@@ -89,12 +76,12 @@ public class TrackFragment extends TomahawkListFragment implements OnItemClickLi
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
 
-        List<TomahawkListItem> tracks = new ArrayList<TomahawkListItem>();
-        if (mAlbum != null)
-            tracks.addAll(mAlbum.getTracks());
+        List<TomahawkListItem> albums = new ArrayList<TomahawkListItem>();
+        if (mArtist != null)
+            albums.addAll(mArtist.getAlbums());
         else
-            tracks.addAll(coll.getTracks());
+            albums.addAll(coll.getAlbums());
 
-        setListAdapter(new TomahawkListArrayAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, tracks));
+        setListAdapter(new TomahawkListArrayAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, albums));
     }
 }

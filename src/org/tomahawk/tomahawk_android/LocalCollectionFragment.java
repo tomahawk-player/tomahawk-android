@@ -78,13 +78,13 @@ public class LocalCollectionFragment extends SherlockListFragment implements OnI
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
         switch ((int) arg3) {
         case 0:
-            mCollectionActivity.getTabsAdapter().replace(new TrackFragment(), false);
+            mCollectionActivity.getTabsAdapter().replace(new TracksFragment(), false);
             break;
         case 1:
-            mCollectionActivity.getTabsAdapter().replace(new AlbumFragment(), false);
+            mCollectionActivity.getTabsAdapter().replace(new AlbumsFragment(), false);
             break;
         case 2:
-            mCollectionActivity.getTabsAdapter().replace(new ArtistFragment(), false);
+            mCollectionActivity.getTabsAdapter().replace(new ArtistsFragment(), false);
             break;
         case 3:
         case 4:

@@ -20,7 +20,6 @@ package org.tomahawk.tomahawk_android;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.tomahawk.libtomahawk.Album;
 import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.TomahawkListArrayAdapter;
@@ -34,21 +33,13 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.TextView;
 
 /**
- * Fragment which represents the "Album" tabview.
+ * Fragment which represents the "Artist" tabview.
  */
-public class AlbumFragment extends TomahawkListFragment implements OnItemClickListener {
+public class ArtistsFragment extends TomahawkListFragment implements OnItemClickListener {
 
-    private Artist mArtist;
-
-    public AlbumFragment() {
-        mArtist = null;
-    }
-
-    public AlbumFragment(Artist artist) {
-        mArtist = artist;
-    }
-
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
      */
     @Override
@@ -58,7 +49,7 @@ public class AlbumFragment extends TomahawkListFragment implements OnItemClickLi
         getListView().setFastScrollEnabled(true);
         getListView().setOnItemClickListener(this);
         TextView textView = (TextView) getActivity().findViewById(R.id.fragmentLayout_backbutton_textView);
-        textView.setText(getString(R.string.albumsfragment_title_string));
+        textView.setText(getString(R.string.artistsfragment_title_string));
     }
 
     /* (non-Javadoc)
@@ -66,22 +57,18 @@ public class AlbumFragment extends TomahawkListFragment implements OnItemClickLi
      */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        mCollectionActivity.getTabsAdapter().replace(new TrackFragment((Album) getListAdapter().getItem(idx)), false);
+        mCollectionActivity.getTabsAdapter().replace(new AlbumsFragment((Artist) getListAdapter().getItem(idx)), false);
     }
 
-    /* (non-Javadoc)
+    /* 
+     * (non-Javadoc)
      * @see org.tomahawk.tomahawk_android.TomahawkListFragment#onLoadFinished(android.support.v4.content.Loader, org.tomahawk.libtomahawk.Collection)
      */
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
 
-        List<TomahawkListItem> albums = new ArrayList<TomahawkListItem>();
-        if (mArtist != null)
-            albums.addAll(mArtist.getAlbums());
-        else
-            albums.addAll(coll.getAlbums());
-
-        setListAdapter(new TomahawkListArrayAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, albums));
+        List<TomahawkListItem> items = new ArrayList<TomahawkListItem>(coll.getArtists());
+        setListAdapter(new TomahawkListArrayAdapter(getActivity(), R.layout.single_line_list_item, R.id.single_line_list_textview, items));
     }
 }
