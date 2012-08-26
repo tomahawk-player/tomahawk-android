@@ -30,15 +30,12 @@ import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 /**
  * Fragment which represents the "Artist" tabview.
  */
 public class ArtistFragment extends TomahawkListFragment implements OnItemClickListener {
-
-    private TomahawkListArrayAdapter mTomahawkListArrayAdapter;
 
     /*
      * (non-Javadoc)
@@ -60,16 +57,7 @@ public class ArtistFragment extends TomahawkListFragment implements OnItemClickL
      */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        mCollectionActivity.getTabsAdapter().replace(new AlbumFragment((Artist) mTomahawkListArrayAdapter.getItem(idx)), false);
-    }
-
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.tomahawk_android.TomahawkListFragment#getAdapter()
-     */
-    @Override
-    protected ArrayAdapter<?> getAdapter() {
-        return mTomahawkListArrayAdapter;
+        mCollectionActivity.getTabsAdapter().replace(new AlbumFragment((Artist) getListAdapter().getItem(idx)), false);
     }
 
     /* 
@@ -81,7 +69,6 @@ public class ArtistFragment extends TomahawkListFragment implements OnItemClickL
         super.onLoadFinished(loader, coll);
 
         List<TomahawkListItem> items = new ArrayList<TomahawkListItem>(coll.getArtists());
-        mTomahawkListArrayAdapter = new TomahawkListArrayAdapter(getActivity(), R.layout.single_line_list_item, R.id.single_line_list_textview, items);
-        setListAdapter(mTomahawkListArrayAdapter);
+        setListAdapter(new TomahawkListArrayAdapter(getActivity(), R.layout.single_line_list_item, R.id.single_line_list_textview, items));
     }
 }

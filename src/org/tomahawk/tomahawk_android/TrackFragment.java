@@ -35,7 +35,6 @@ import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 /**
@@ -43,7 +42,6 @@ import android.widget.TextView;
  */
 public class TrackFragment extends TomahawkListFragment implements OnItemClickListener {
 
-    TomahawkListArrayAdapter mTomahawkListArrayAdapter;
     private Album mAlbum;
 
     public TrackFragment() {
@@ -72,18 +70,10 @@ public class TrackFragment extends TomahawkListFragment implements OnItemClickLi
      */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        Playlist playlist = CollectionPlaylist.fromCollection(getCurrentCollection(), (Track) mTomahawkListArrayAdapter.getItem(idx));
+        Playlist playlist = CollectionPlaylist.fromCollection(getCurrentCollection(), (Track) getListAdapter().getItem(idx));
         Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
         playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, playlist);
         startActivity(playbackIntent);
-    }
-
-    /* (non-Javadoc)
-     * @see org.tomahawk.tomahawk_android.TomahawkListFragment#getAdapter()
-     */
-    @Override
-    protected ArrayAdapter<?> getAdapter() {
-        return mTomahawkListArrayAdapter;
     }
 
     /* (non-Javadoc)
@@ -99,7 +89,6 @@ public class TrackFragment extends TomahawkListFragment implements OnItemClickLi
         else
             tracks.addAll(coll.getTracks());
 
-        mTomahawkListArrayAdapter = new TomahawkListArrayAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, tracks);
-        setListAdapter(mTomahawkListArrayAdapter);
+        setListAdapter(new TomahawkListArrayAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, tracks));
     }
 }

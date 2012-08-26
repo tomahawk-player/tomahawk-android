@@ -31,7 +31,6 @@ import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 /**
@@ -39,7 +38,6 @@ import android.widget.TextView;
  */
 public class AlbumFragment extends TomahawkListFragment implements OnItemClickListener {
 
-    private TomahawkListArrayAdapter mTomahawkListArrayAdapter;
     private Artist mArtist;
 
     public AlbumFragment() {
@@ -68,15 +66,7 @@ public class AlbumFragment extends TomahawkListFragment implements OnItemClickLi
      */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        mCollectionActivity.getTabsAdapter().replace(new TrackFragment((Album) mTomahawkListArrayAdapter.getItem(idx)), false);
-    }
-
-    /* (non-Javadoc)
-     * @see org.tomahawk.tomahawk_android.TomahawkListFragment#getAdapter()
-     */
-    @Override
-    protected ArrayAdapter<?> getAdapter() {
-        return mTomahawkListArrayAdapter;
+        mCollectionActivity.getTabsAdapter().replace(new TrackFragment((Album) getListAdapter().getItem(idx)), false);
     }
 
     /* (non-Javadoc)
@@ -92,7 +82,6 @@ public class AlbumFragment extends TomahawkListFragment implements OnItemClickLi
         else
             albums.addAll(coll.getAlbums());
 
-        mTomahawkListArrayAdapter = new TomahawkListArrayAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, albums);
-        setListAdapter(mTomahawkListArrayAdapter);
+        setListAdapter(new TomahawkListArrayAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, albums));
     }
 }

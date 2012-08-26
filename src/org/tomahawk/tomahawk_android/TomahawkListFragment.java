@@ -66,8 +66,8 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
          */
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            if (getAdapter() != null)
-                getAdapter().getFilter().filter(s);
+            if (getListAdapter() != null)
+                ((ArrayAdapter<?>) getListAdapter()).getFilter().filter(s);
         }
 
         /*
@@ -219,13 +219,6 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
         if (mFilterText != null)
             mFilterText.removeTextChangedListener(mFilterTextWatcher);
     }
-
-    /**
-     * Returns the Adapter for this TomahawkListFragment.
-     * 
-     * @return
-     */
-    protected abstract ArrayAdapter<?> getAdapter();
 
     /**
      * Called when a Collection has been updated.
