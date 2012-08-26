@@ -36,12 +36,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.PorterDuff;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
@@ -61,6 +63,8 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
     private AlbumArtViewPager mAlbumArtViewPager;
 
     private PlaybackSeekBar mPlaybackSeekBar;
+
+    private Toast mToast;
 
     /** Identifier for passing a Track as an extra in an Intent. */
     public static final String PLAYLIST_EXTRA = "playlist_extra";
@@ -163,11 +167,9 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-         menu.add(0, CollectionActivity.SEARCH_OPTION_ID, 0, "Search")
-         .setIcon(R.drawable.ic_action_search)
-         .setActionView(R.layout.collapsible_edittext)
-         .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM
-         | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        menu.add(0, CollectionActivity.SEARCH_OPTION_ID, 0, "Search").setIcon(R.drawable.ic_action_search).setActionView(
+                R.layout.collapsible_edittext).setShowAsAction(
+                MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -239,6 +241,19 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
     public void onShuffleClicked(View view) {
         mPlaybackService.getCurrentPlaylist().setShuffled(!mPlaybackService.getCurrentPlaylist().isShuffled());
         onPlaylistChanged();
+        ImageButton imageButton = (ImageButton) findViewById(R.id.imageButton_shuffle);
+        if (mPlaybackService.getCurrentPlaylist().isShuffled())
+            imageButton.getDrawable().setColorFilter(getResources().getColor(R.color.pressed_tomahawk),
+                    PorterDuff.Mode.MULTIPLY);
+        else
+            imageButton.getDrawable().clearColorFilter();
+        if (mToast != null)
+            mToast.cancel();
+        mToast = Toast.makeText(
+                getApplicationContext(),
+                getString(mPlaybackService.getCurrentPlaylist().isShuffled() ? R.string.playbackactivity_toastshuffleon_string : R.string.playbackactivity_toastshuffleoff_string),
+                Toast.LENGTH_SHORT);
+        mToast.show();
     }
 
     /**
@@ -249,6 +264,20 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
     public void onRepeatClicked(View view) {
         mPlaybackService.getCurrentPlaylist().setRepeating(
                 !mPlaybackService.getCurrentPlaylist().isRepeating());
+        onPlaylistChanged();
+        ImageButton imageButton = (ImageButton) findViewById(R.id.imageButton_repeat);
+        if (mPlaybackService.getCurrentPlaylist().isRepeating())
+            imageButton.getDrawable().setColorFilter(getResources().getColor(R.color.pressed_tomahawk),
+                    PorterDuff.Mode.MULTIPLY);
+        else
+            imageButton.getDrawable().clearColorFilter();
+        if (mToast != null)
+            mToast.cancel();
+        mToast = Toast.makeText(
+                getApplicationContext(),
+                getString(mPlaybackService.getCurrentPlaylist().isRepeating() ? R.string.playbackactivity_toastrepeaton_string : R.string.playbackactivity_toastrepeatoff_string),
+                Toast.LENGTH_SHORT);
+        mToast.show();
     }
 
     /** Called when the PlaybackService signals the current Track has changed. */

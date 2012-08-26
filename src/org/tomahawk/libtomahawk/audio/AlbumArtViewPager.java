@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.playlist.Playlist;
 import android.content.Context;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.util.Log;
 
 /**
  * @author Enno Gottschalk <mrmaffen@googlemail.com>
@@ -33,9 +34,9 @@ public class AlbumArtViewPager extends ViewPager {
     private PlaybackService mPlaybackService;
     private OnPageChangeListener mOnPageChangeListener;
 
-    private int currentViewPage = 0;
-    private boolean byUser;
-    private boolean swiped;
+    private int mCurrentViewPage = 0;
+    private boolean mByUser;
+    private boolean mSwiped;
 
     public AlbumArtViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -45,7 +46,7 @@ public class AlbumArtViewPager extends ViewPager {
         setAdapter(mAlbumArtSwipeAdapter);
         setCurrentItem(0, false);
         mOnPageChangeListener = new OnPageChangeListener() {
-            
+
             /* (non-Javadoc)
              * @see android.support.v4.view.ViewPager.OnPageChangeListener#onPageSelected(int)
              */
@@ -53,13 +54,17 @@ public class AlbumArtViewPager extends ViewPager {
             public void onPageSelected(int arg0) {
                 if (isByUser() && mPlaybackService != null) {
                     setSwiped(true);
-                    if (arg0 == currentViewPage - 1) {
+                    if (arg0 == mCurrentViewPage - 1)
                         mPlaybackService.previous();
-                    } else if (arg0 == currentViewPage + 1) {
+                    else if (arg0 == mCurrentViewPage + 1)
                         mPlaybackService.next();
-                    }
                 }
-                currentViewPage = mAlbumArtSwipeAdapter.getPlaylist().getPosition();
+                if (mAlbumArtSwipeAdapter.getPlaylist().isRepeating())
+                    mCurrentViewPage = mAlbumArtSwipeAdapter.getPlaylist().getPosition() + mAlbumArtSwipeAdapter.getFakeInfinityOffset();
+                else
+                    mCurrentViewPage = mAlbumArtSwipeAdapter.getPlaylist().getPosition();
+                Log.d("test",
+                        "onPageSelected(int): currentViewPage = " + mCurrentViewPage + " arg0 = " + arg0);
             }
 
             /* (non-Javadoc)
@@ -87,23 +92,29 @@ public class AlbumArtViewPager extends ViewPager {
     public void updatePlaylist(Playlist playList) {
         mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter(getContext(), playList);
         setAdapter(mAlbumArtSwipeAdapter);
-        setCurrentItem(playList.getPosition(), false);
+        if (mAlbumArtSwipeAdapter.getPlaylist().isRepeating()) {
+            setCurrentItem(playList.getPosition() + mAlbumArtSwipeAdapter.getFakeInfinityOffset(), false);
+            mCurrentViewPage = mAlbumArtSwipeAdapter.getPlaylist().getPosition() + mAlbumArtSwipeAdapter.getFakeInfinityOffset();
+        } else {
+            setCurrentItem(playList.getPosition(), false);
+            mCurrentViewPage = mAlbumArtSwipeAdapter.getPlaylist().getPosition();
+        }
     }
 
     public boolean isByUser() {
-        return byUser;
+        return mByUser;
     }
 
     public void setByUser(boolean byUser) {
-        this.byUser = byUser;
+        this.mByUser = byUser;
     }
 
     public boolean isSwiped() {
-        return swiped;
+        return mSwiped;
     }
 
     public void setSwiped(boolean isSwiped) {
-        this.swiped = isSwiped;
+        this.mSwiped = isSwiped;
     }
 
     public boolean isPlaylistNull() {
@@ -112,5 +123,9 @@ public class AlbumArtViewPager extends ViewPager {
 
     public void setPlaybackService(PlaybackService mPlaybackService) {
         this.mPlaybackService = mPlaybackService;
+    }
+
+    public void notifyDataSetChanged() {
+        mAlbumArtSwipeAdapter.notifyDataSetChanged();
     }
 }

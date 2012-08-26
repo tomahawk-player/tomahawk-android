@@ -29,6 +29,10 @@
     <string name="albumsfragment_title_string">Albums</string>
     <string name="artistsfragment_title_string">Artists</string>
     <string name="playbackactivity_title_string">Playback</string>
+    <string name="playbackactivity_toastshuffleon_string">"Shuffle is on"</string>
+    <string name="playbackactivity_toastshuffleoff_string">"Shuffle is off"</string>
+    <string name="playbackactivity_toastrepeaton_string">"Repeat is on"</string>
+    <string name="playbackactivity_toastrepeatoff_string">"Repeat is off"</string>
     <string name="playbackservice_label_string">PlaybackService</string>
     <string-array name="local_collection_menu_items">
         <item >Tracks</item>

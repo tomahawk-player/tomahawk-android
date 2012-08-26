@@ -25,6 +25,7 @@ import android.graphics.Bitmap;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -36,6 +37,8 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
 
     private Playlist mPlaylist;
     private Context mContext;
+    private int mFakeInfinityCount;
+    private int mFakeInfinityOffset = 10000;
 
     /**
      * Constructs a new AlbumArtSwipeAdapter with the given list of AlbumArt
@@ -44,6 +47,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
     public AlbumArtSwipeAdapter(Context mContext, Playlist mPlaylist) {
         this.mPlaylist = mPlaylist;
         this.mContext = mContext;
+        this.mFakeInfinityCount = Integer.MAX_VALUE;
     }
 
     /*
@@ -56,9 +60,14 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(View collection, int position) {
         ImageView albumArt = new ImageView(mContext);
+        Log.d("test","position  = "+position);
         if (mPlaylist != null) {
-            Bitmap albumArtBitmap = mPlaylist.getTrackAtPos(position)
-                    .getAlbum().getAlbumArt();
+            Bitmap albumArtBitmap;
+            if (mPlaylist.isRepeating()) {
+                albumArtBitmap = mPlaylist.getTrackAtPos(
+                        (position) % mPlaylist.getCount()).getAlbum().getAlbumArt();
+            } else
+                albumArtBitmap = mPlaylist.getTrackAtPos(position).getAlbum().getAlbumArt();
             if (albumArtBitmap != null)
                 albumArt.setImageBitmap(albumArtBitmap);
             else
@@ -76,9 +85,18 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
      */
     @Override
     public int getCount() {
-        if (mPlaylist != null)
-            return mPlaylist.getCount();
-        return 1;
+        if (mPlaylist == null)
+            return 1;
+        if (mPlaylist.isRepeating())
+            return mFakeInfinityCount;
+        return mPlaylist.getCount();
+    }
+
+    /**
+     * @return the FakeInfinityOffset
+     */
+    public int getFakeInfinityOffset() {
+        return mFakeInfinityOffset;
     }
 
     /**
