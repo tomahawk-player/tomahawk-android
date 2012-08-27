@@ -74,6 +74,7 @@ public abstract class Playlist implements Playable {
             if (newtrack.getId() == track.getId())
                 mCurrentTrack = track;
 
+        refreshTrackIterator();
     }
 
     /**
@@ -267,7 +268,15 @@ public abstract class Playlist implements Playable {
             Collections.shuffle(mShuffledTracks);
         } else
             mShuffledTracks = null;
+        refreshTrackIterator();
+    }
 
+    public void refreshTrackIterator() {
+        mTrackIterator = mShuffled ? mShuffledTracks.listIterator() : mTracks.listIterator();
+        while (mTrackIterator.hasNext()) {
+            if (mTrackIterator.next().getId() == getCurrentTrack().getId())
+                break;
+        }
     }
 
     public void setRepeating(boolean repeating) {
@@ -291,7 +300,7 @@ public abstract class Playlist implements Playable {
     public boolean isRepeating() {
         return mRepeating;
     }
-    
+
     /**
      * Return the current count of tracks in the playlist
      * 
@@ -311,7 +320,7 @@ public abstract class Playlist implements Playable {
 
         if (getCount() > 0 && mTrackIterator != null) {
             if (hasPreviousTrack())
-                return mTrackIterator.previousIndex()+1;
+                return mTrackIterator.previousIndex() + 1;
             return 0;
         }
         return -1;

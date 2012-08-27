@@ -49,6 +49,5 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
     @Override
 	public void onDestroy() {
         super.onDestroy();
-        TomahawkApp app = (TomahawkApp) getApplication();
 	}
 }

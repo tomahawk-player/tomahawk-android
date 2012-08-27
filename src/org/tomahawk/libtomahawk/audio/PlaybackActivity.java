@@ -60,7 +60,7 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
 
     /** Allow communication to the PlaybackService. */
     private PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(this);
-    
+
     private AlbumArtSwipeAdapter mAlbumArtSwipeAdapter;
 
     private PlaybackSeekBar mPlaybackSeekBar;
@@ -313,8 +313,7 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
     }
 
     @Override
-    public
-    void setPlaybackService(PlaybackService ps) {
+    public void setPlaybackService(PlaybackService ps) {
         mPlaybackService = ps;
     }
 
@@ -358,15 +357,13 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
      */
     private void refreshActivityTrackInfo(Track track) {
         if (track != null) {
-            if (mAlbumArtSwipeAdapter.isPlaylistNull())
-                onPlaylistChanged();
             if (!mAlbumArtSwipeAdapter.isSwiped()) {
+                mAlbumArtSwipeAdapter.setSwiped(false);
                 mAlbumArtSwipeAdapter.setByUser(false);
                 mAlbumArtSwipeAdapter.setCurrentItem(mPlaybackService.getCurrentPlaylist().getPosition(),
                         true);
                 mAlbumArtSwipeAdapter.setByUser(true);
             }
-            mAlbumArtSwipeAdapter.setSwiped(false);
             final TextView artistTextView = (TextView) findViewById(R.id.textView_artist);
             final TextView albumTextView = (TextView) findViewById(R.id.textView_album);
             final TextView titleTextView = (TextView) findViewById(R.id.textView_title);

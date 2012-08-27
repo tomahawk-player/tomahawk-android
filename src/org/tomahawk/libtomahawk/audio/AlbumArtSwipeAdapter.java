@@ -25,7 +25,6 @@ import android.graphics.Bitmap;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -37,7 +36,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
 
     private Context mContext;
     private int mFakeInfinityCount;
-    private static int mFakeInfinityOffset = 10000;
+    private int mFakeInfinityOffset;
     private boolean mByUser;
     private boolean mSwiped;
     private ViewPager mViewPager;
@@ -70,7 +69,6 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     @Override
     public Object instantiateItem(View collection, int position) {
         ImageView albumArt = new ImageView(mContext);
-        Log.d("test", "instantiated: position  = " + position);
         if (mPlaylist != null) {
             Bitmap albumArtBitmap;
             if (mPlaylist.isRepeating())
@@ -102,7 +100,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     }
 
     /**
-     * @return the FakeInfinityOffset
+     * @return the offset by which the position should be shifted, when playlist is repeating
      */
     public int getFakeInfinityOffset() {
         return mFakeInfinityOffset;
@@ -165,6 +163,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         if (mPlaybackService != null)
             mPlaylist = mPlaybackService.getCurrentPlaylist();
         if (mPlaylist != null) {
+            mFakeInfinityOffset = mPlaylist.getCount() * (10000 / mPlaylist.getCount());
             if (mPlaylist.isRepeating()) {
                 mViewPager.setCurrentItem(mPlaylist.getPosition() + getFakeInfinityOffset(), false);
                 mCurrentViewPage = mPlaylist.getPosition() + getFakeInfinityOffset();
@@ -173,6 +172,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                 mCurrentViewPage = mPlaylist.getPosition();
             }
         }
+        notifyDataSetChanged();
     }
 
     public boolean isByUser() {
@@ -212,13 +212,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
             else if (arg0 == mCurrentViewPage + 1)
                 mPlaybackService.next();
         }
-        if (mPlaylist != null) {
-            if (mPlaylist.isRepeating())
-                mCurrentViewPage = mPlaylist.getPosition() + getFakeInfinityOffset();
-            else
-                mCurrentViewPage = mPlaylist.getPosition();
-        }
-        Log.d("test", "onPageSelected(int): currentViewPage = " + mCurrentViewPage + " arg0 = " + arg0);
+        mCurrentViewPage = arg0;
     }
 
     /* (non-Javadoc)
