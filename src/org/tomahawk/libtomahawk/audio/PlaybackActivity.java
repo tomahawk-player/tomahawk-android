@@ -23,7 +23,8 @@ import java.io.IOException;
 
 import org.tomahawk.libtomahawk.Album;
 import org.tomahawk.libtomahawk.Track;
-import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceBinder;
+import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection;
+import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
 import org.tomahawk.libtomahawk.playlist.AlbumPlaylist;
 import org.tomahawk.libtomahawk.playlist.CollectionPlaylist;
 import org.tomahawk.libtomahawk.playlist.Playlist;
@@ -32,14 +33,11 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -50,12 +48,15 @@ import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
-public class PlaybackActivity extends SherlockActivity {
+public class PlaybackActivity extends SherlockActivity implements PlaybackServiceConnectionListener {
 
     private static final String TAG = PlaybackActivity.class.getName();
 
     private PlaybackService mPlaybackService;
     private PlaybackServiceBroadcastReceiver mPlaybackServiceBroadcastReceiver;
+
+    /** Allow communication to the PlaybackService. */
+    private PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(this);
 
     private AlbumArtViewPager mAlbumArtViewPager;
 
@@ -81,25 +82,7 @@ public class PlaybackActivity extends SherlockActivity {
             if (intent.getAction().equals(PlaybackService.BROADCAST_PLAYSTATECHANGED))
                 onPlaystateChanged();
         }
-
     }
-
-    /** Allow communication to the PlaybackService. */
-    private ServiceConnection mPlaybackServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-
-            PlaybackServiceBinder binder = (PlaybackServiceBinder) service;
-            mPlaybackService = binder.getService();
-            onPlaybackServiceReady();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mPlaybackService = null;
-        }
-    };
 
     /*
      * (non-Javadoc)
@@ -299,10 +282,17 @@ public class PlaybackActivity extends SherlockActivity {
             refreshActivityTrackInfo(null);
     }
 
+    @Override
+    public
+    void setPlaybackService(PlaybackService ps) {
+        mPlaybackService = ps;
+    }
+
     /**
      * Called when the playback service is ready.
      */
-    private void onPlaybackServiceReady() {
+    @Override
+    public void onPlaybackServiceReady() {
 
         if (!getIntent().hasExtra(PLAYLIST_EXTRA))
             return;

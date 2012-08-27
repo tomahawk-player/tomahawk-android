@@ -23,19 +23,17 @@ import org.tomahawk.libtomahawk.SourceList;
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 import org.tomahawk.libtomahawk.audio.PlaybackService;
-import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceBinder;
+import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection;
+import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -51,7 +49,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
-public class CollectionActivity extends SherlockFragmentActivity {
+public class CollectionActivity extends SherlockFragmentActivity implements PlaybackServiceConnectionListener {
 
     public static final String COLLECTION_ID_EXTRA = "collection_id";
     public static final int SEARCH_OPTION_ID = 0;
@@ -61,6 +59,7 @@ public class CollectionActivity extends SherlockFragmentActivity {
     private TabsAdapter mTabsAdapter;
     private Collection mCollection;
 
+    private PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(this);
     private NewTrackBroadcastReceiver mNewTrackBroadcastReceiver;
 
     private class NewTrackBroadcastReceiver extends BroadcastReceiver {
@@ -72,23 +71,6 @@ public class CollectionActivity extends SherlockFragmentActivity {
             }
         }
     }
-
-    /** Allow communication to the PlaybackService. */
-    private ServiceConnection mPlaybackServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-
-            PlaybackServiceBinder binder = (PlaybackServiceBinder) service;
-            mPlaybackService = binder.getService();
-            onPlaybackServiceReady();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mPlaybackService = null;
-        }
-    };
 
     /*
      * (non-Javadoc)
@@ -142,7 +124,13 @@ public class CollectionActivity extends SherlockFragmentActivity {
         bindService(playbackIntent, mPlaybackServiceConnection, Context.BIND_WAIVE_PRIORITY);
     }
 
-    private void onPlaybackServiceReady() {
+    @Override
+    public void setPlaybackService(PlaybackService ps) {
+        mPlaybackService = ps;
+    }
+
+    @Override
+    public void onPlaybackServiceReady() {
         setPlaybackInfo(mPlaybackService.getCurrentTrack());
     }
 

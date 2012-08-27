@@ -27,9 +27,11 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -59,6 +61,33 @@ public class PlaybackService extends Service implements OnCompletionListener,
     private PowerManager.WakeLock mWakeLock;
     private HeadsetBroadcastReceiver mHeadsetBroadcastReceiver;
     private Handler mHandler;
+
+    public static class PlaybackServiceConnection implements ServiceConnection {
+
+        private PlaybackServiceConnectionListener mPlaybackServiceConnectionListener;
+
+        public interface PlaybackServiceConnectionListener {
+            public void setPlaybackService(PlaybackService ps);
+            public void onPlaybackServiceReady();
+        }
+
+        public PlaybackServiceConnection(PlaybackServiceConnectionListener playbackServiceConnectedListener) {
+            mPlaybackServiceConnectionListener = playbackServiceConnectedListener;
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+
+            PlaybackServiceBinder binder = (PlaybackServiceBinder) service;
+            mPlaybackServiceConnectionListener.setPlaybackService(binder.getService());
+            mPlaybackServiceConnectionListener.onPlaybackServiceReady();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mPlaybackServiceConnectionListener.setPlaybackService(null);
+        }
+    };
 
     /**
      * Listens for incoming phone calls and handles playback.
