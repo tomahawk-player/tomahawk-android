@@ -33,21 +33,31 @@ import android.widget.ImageView;
  * @author Enno Gottschalk <mrmaffen@googlemail.com>
  * 
  */
-public class AlbumArtSwipeAdapter extends PagerAdapter {
+public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPageChangeListener {
 
-    private Playlist mPlaylist;
     private Context mContext;
     private int mFakeInfinityCount;
-    private int mFakeInfinityOffset = 10000;
+    private static int mFakeInfinityOffset = 10000;
+    private boolean mByUser;
+    private boolean mSwiped;
+    private ViewPager mViewPager;
+    private PlaybackService mPlaybackService;
+    private Playlist mPlaylist;
+    private int mCurrentViewPage = 0;
 
     /**
      * Constructs a new AlbumArtSwipeAdapter with the given list of AlbumArt
      * images
      */
-    public AlbumArtSwipeAdapter(Context mContext, Playlist mPlaylist) {
-        this.mPlaylist = mPlaylist;
-        this.mContext = mContext;
+    public AlbumArtSwipeAdapter(Context context, ViewPager viewPager) {
+        this.mContext = context;
         this.mFakeInfinityCount = Integer.MAX_VALUE;
+        this.mByUser = true;
+        this.mSwiped = false;
+        this.mViewPager = viewPager;
+        this.mViewPager.setCurrentItem(0, false);
+        this.mViewPager.setAdapter(this);
+        this.mViewPager.setOnPageChangeListener(this);
     }
 
     /*
@@ -60,13 +70,12 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(View collection, int position) {
         ImageView albumArt = new ImageView(mContext);
-        Log.d("test","position  = "+position);
+        Log.d("test", "instantiated: position  = " + position);
         if (mPlaylist != null) {
             Bitmap albumArtBitmap;
-            if (mPlaylist.isRepeating()) {
-                albumArtBitmap = mPlaylist.getTrackAtPos(
-                        (position) % mPlaylist.getCount()).getAlbum().getAlbumArt();
-            } else
+            if (mPlaylist.isRepeating())
+                albumArtBitmap = mPlaylist.getTrackAtPos((position) % mPlaylist.getCount()).getAlbum().getAlbumArt();
+            else
                 albumArtBitmap = mPlaylist.getTrackAtPos(position).getAlbum().getAlbumArt();
             if (albumArtBitmap != null)
                 albumArt.setImageBitmap(albumArtBitmap);
@@ -97,15 +106,6 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
      */
     public int getFakeInfinityOffset() {
         return mFakeInfinityOffset;
-    }
-
-    /**
-     * get the current playlist
-     * 
-     * @return
-     */
-    protected Playlist getPlaylist() {
-        return mPlaylist;
     }
 
     /*
@@ -150,6 +150,89 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
     @Override
     public int getItemPosition(Object object) {
         return POSITION_NONE;
+    }
+
+    public void setCurrentItem(int item, boolean smoothScroll) {
+        mViewPager.setCurrentItem(item, smoothScroll);
+    }
+
+    /**
+     * update the playlist of the AlbumArtSwipeAdapter to the given Playlist
+     * 
+     * @param playList
+     */
+    public void updatePlaylist() {
+        if (mPlaybackService != null)
+            mPlaylist = mPlaybackService.getCurrentPlaylist();
+        if (mPlaylist != null) {
+            if (mPlaylist.isRepeating()) {
+                mViewPager.setCurrentItem(mPlaylist.getPosition() + getFakeInfinityOffset(), false);
+                mCurrentViewPage = mPlaylist.getPosition() + getFakeInfinityOffset();
+            } else {
+                mViewPager.setCurrentItem(mPlaylist.getPosition(), false);
+                mCurrentViewPage = mPlaylist.getPosition();
+            }
+        }
+    }
+
+    public boolean isByUser() {
+        return mByUser;
+    }
+
+    public void setByUser(boolean byUser) {
+        this.mByUser = byUser;
+    }
+
+    public boolean isSwiped() {
+        return mSwiped;
+    }
+
+    public void setSwiped(boolean isSwiped) {
+        this.mSwiped = isSwiped;
+    }
+
+    public boolean isPlaylistNull() {
+        return mPlaylist == null;
+    }
+
+    public void setPlaybackService(PlaybackService mPlaybackService) {
+        this.mPlaybackService = mPlaybackService;
+        updatePlaylist();
+    }
+
+    /* (non-Javadoc)
+     * @see android.support.v4.view.ViewPager.OnPageChangeListener#onPageSelected(int)
+     */
+    @Override
+    public void onPageSelected(int arg0) {
+        if (mPlaybackService != null && isByUser()) {
+            setSwiped(true);
+            if (arg0 == mCurrentViewPage - 1)
+                mPlaybackService.previous();
+            else if (arg0 == mCurrentViewPage + 1)
+                mPlaybackService.next();
+        }
+        if (mPlaylist != null) {
+            if (mPlaylist.isRepeating())
+                mCurrentViewPage = mPlaylist.getPosition() + getFakeInfinityOffset();
+            else
+                mCurrentViewPage = mPlaylist.getPosition();
+        }
+        Log.d("test", "onPageSelected(int): currentViewPage = " + mCurrentViewPage + " arg0 = " + arg0);
+    }
+
+    /* (non-Javadoc)
+     * @see android.support.v4.view.ViewPager.OnPageChangeListener#onPageScrolled(int, float, int)
+     */
+    @Override
+    public void onPageScrolled(int arg0, float arg1, int arg2) {
+    }
+
+    /* (non-Javadoc)
+     * @see android.support.v4.view.ViewPager.OnPageChangeListener#onPageScrollStateChanged(int)
+     */
+    @Override
+    public void onPageScrollStateChanged(int arg0) {
     }
 
 }

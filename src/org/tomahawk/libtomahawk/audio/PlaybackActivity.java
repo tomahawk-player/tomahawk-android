@@ -39,6 +39,7 @@ import android.content.IntentFilter;
 import android.graphics.PorterDuff;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -59,8 +60,8 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
 
     /** Allow communication to the PlaybackService. */
     private PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(this);
-
-    private AlbumArtViewPager mAlbumArtViewPager;
+    
+    private AlbumArtSwipeAdapter mAlbumArtSwipeAdapter;
 
     private PlaybackSeekBar mPlaybackSeekBar;
 
@@ -99,8 +100,8 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
         View view = getLayoutInflater().inflate(R.layout.playback_activity, null);
         setContentView(view);
 
-        mAlbumArtViewPager = (AlbumArtViewPager) findViewById(R.id.album_art_view_pager);
-        mAlbumArtViewPager.setPlaybackService(mPlaybackService);
+        ViewPager viewPager = (ViewPager) findViewById(R.id.album_art_view_pager);
+        mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter(getApplicationContext(), viewPager);
 
         final ActionBar bar = getSupportActionBar();
         bar.setDisplayShowHomeEnabled(true);
@@ -289,7 +290,7 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
      * Called when the PlaybackService signals the current Playlist has changed.
      */
     protected void onPlaylistChanged() {
-        mAlbumArtViewPager.updatePlaylist(mPlaybackService.getCurrentPlaylist());
+        mAlbumArtSwipeAdapter.updatePlaylist();
     }
 
     /**
@@ -338,7 +339,8 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
         } else {
             int collid = playlistBundle.getInt(PLAYLIST_COLLECTION_ID);
             TomahawkApp app = (TomahawkApp) getApplication();
-            playlist = CollectionPlaylist.fromCollection(app.getSourceList().getCollectionFromId(collid), Track.get(trackid));
+            playlist = CollectionPlaylist.fromCollection(app.getSourceList().getCollectionFromId(collid),
+                    Track.get(trackid));
         }
 
         try {
@@ -346,6 +348,8 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        mAlbumArtSwipeAdapter.setPlaybackService(mPlaybackService);
     }
 
     /**
@@ -354,14 +358,15 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
      */
     private void refreshActivityTrackInfo(Track track) {
         if (track != null) {
-            if (mAlbumArtViewPager.isPlaylistNull())
+            if (mAlbumArtSwipeAdapter.isPlaylistNull())
                 onPlaylistChanged();
-            if (!mAlbumArtViewPager.isSwiped()) {
-                mAlbumArtViewPager.setByUser(false);
-                mAlbumArtViewPager.setCurrentItem(mPlaybackService.getCurrentPlaylist().getPosition(), false);
-                mAlbumArtViewPager.setByUser(true);
+            if (!mAlbumArtSwipeAdapter.isSwiped()) {
+                mAlbumArtSwipeAdapter.setByUser(false);
+                mAlbumArtSwipeAdapter.setCurrentItem(mPlaybackService.getCurrentPlaylist().getPosition(),
+                        true);
+                mAlbumArtSwipeAdapter.setByUser(true);
             }
-            mAlbumArtViewPager.setSwiped(false);
+            mAlbumArtSwipeAdapter.setSwiped(false);
             final TextView artistTextView = (TextView) findViewById(R.id.textView_artist);
             final TextView albumTextView = (TextView) findViewById(R.id.textView_album);
             final TextView titleTextView = (TextView) findViewById(R.id.textView_title);

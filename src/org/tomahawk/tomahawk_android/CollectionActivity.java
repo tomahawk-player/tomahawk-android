@@ -55,7 +55,6 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
     public static final int SEARCH_OPTION_ID = 0;
 
     private PlaybackService mPlaybackService;
-    private ViewPager mViewPager;
     private TabsAdapter mTabsAdapter;
     private Collection mCollection;
 
@@ -83,7 +82,6 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
 
         View view = getLayoutInflater().inflate(R.layout.tomahawk_main_activity, null);
         setContentView(view);
-        mViewPager = (ViewPager) findViewById(R.id.view_pager);
 
         final ActionBar actionBar = getSupportActionBar();
         actionBar.removeAllTabs();
@@ -94,7 +92,8 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
         View actionBarPlaybackTop = getLayoutInflater().inflate(R.layout.playback_info_top, null);
         actionBar.setCustomView(actionBarPlaybackTop);
 
-        mTabsAdapter = new TabsAdapter(this, getSupportFragmentManager(), mViewPager);
+        ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
+        mTabsAdapter = new TabsAdapter(this, getSupportFragmentManager(), viewPager);
         mTabsAdapter.addTab(actionBar.newTab().setText(R.string.localcollectionactivity_title_string),
                 new LocalCollectionFragment());
         mTabsAdapter.addTab(actionBar.newTab().setText(R.string.remotecollectionactivity_title_string),
@@ -247,17 +246,18 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
             if (albumArt != null)
                 playbackInfoAlbumArtTop.setImageBitmap(albumArt);
             else
-                playbackInfoAlbumArtTop.setImageDrawable(getResources().getDrawable(R.drawable.no_album_art_placeholder));
+                playbackInfoAlbumArtTop.setImageDrawable(getResources().getDrawable(
+                        R.drawable.no_album_art_placeholder));
             playbackInfoArtistTop.setText(track.getArtist().toString());
             playbackInfoTitleTop.setText(track.getName());
             playbackInfoTop.setClickable(true);
         }
-        if (playbackInfoAlbumArtBottom != null && playbackInfoArtistBottom != null
-                && playbackInfoTitleBottom != null) {
+        if (playbackInfoAlbumArtBottom != null && playbackInfoArtistBottom != null && playbackInfoTitleBottom != null) {
             if (albumArt != null)
                 playbackInfoAlbumArtBottom.setImageBitmap(albumArt);
             else
-                playbackInfoAlbumArtBottom.setImageDrawable(getResources().getDrawable(R.drawable.no_album_art_placeholder));
+                playbackInfoAlbumArtBottom.setImageDrawable(getResources().getDrawable(
+                        R.drawable.no_album_art_placeholder));
             playbackInfoArtistBottom.setText(track.getArtist().toString());
             playbackInfoTitleBottom.setText(track.getName());
             playbackInfoBottom.setClickable(true);
@@ -309,8 +309,8 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
             super.onBackPressed();
         }
     }
-    
-    public void onBackPressed(View view){
+
+    public void onBackPressed(View view) {
         this.onBackPressed();
     }
 }
