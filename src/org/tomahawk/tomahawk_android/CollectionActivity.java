@@ -23,15 +23,19 @@ import org.tomahawk.libtomahawk.SourceList;
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 import org.tomahawk.libtomahawk.audio.PlaybackService;
+import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceBinder;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -52,6 +56,7 @@ public class CollectionActivity extends SherlockFragmentActivity {
     public static final String COLLECTION_ID_EXTRA = "collection_id";
     public static final int SEARCH_OPTION_ID = 0;
 
+    private PlaybackService mPlaybackService;
     private ViewPager mViewPager;
     private TabsAdapter mTabsAdapter;
     private Collection mCollection;
@@ -63,10 +68,27 @@ public class CollectionActivity extends SherlockFragmentActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(PlaybackService.BROADCAST_NEWTRACK)) {
-                setPlaybackInfo(((TomahawkApp) getApplication()).getPlaybackService().getCurrentTrack());
+                setPlaybackInfo(mPlaybackService.getCurrentTrack());
             }
         }
     }
+
+    /** Allow communication to the PlaybackService. */
+    private ServiceConnection mPlaybackServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+
+            PlaybackServiceBinder binder = (PlaybackServiceBinder) service;
+            mPlaybackService = binder.getService();
+            onPlaybackServiceReady();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mPlaybackService = null;
+        }
+    };
 
     /*
      * (non-Javadoc)
@@ -115,8 +137,13 @@ public class CollectionActivity extends SherlockFragmentActivity {
             mNewTrackBroadcastReceiver = new NewTrackBroadcastReceiver();
         IntentFilter intentFilter = new IntentFilter(PlaybackService.BROADCAST_NEWTRACK);
         registerReceiver(mNewTrackBroadcastReceiver, intentFilter);
-        if (((TomahawkApp) getApplication()).getPlaybackService() != null)
-            setPlaybackInfo(((TomahawkApp) getApplication()).getPlaybackService().getCurrentTrack());
+
+        Intent playbackIntent = new Intent(this, PlaybackService.class);
+        bindService(playbackIntent, mPlaybackServiceConnection, Context.BIND_WAIVE_PRIORITY);
+    }
+
+    private void onPlaybackServiceReady() {
+        setPlaybackInfo(mPlaybackService.getCurrentTrack());
     }
 
     /*
@@ -127,6 +154,9 @@ public class CollectionActivity extends SherlockFragmentActivity {
     @Override
     public void onPause() {
         super.onPause();
+
+        if (mPlaybackService != null)
+            unbindService(mPlaybackServiceConnection);
 
         if (mNewTrackBroadcastReceiver != null) {
             unregisterReceiver(mNewTrackBroadcastReceiver);
@@ -158,8 +188,8 @@ public class CollectionActivity extends SherlockFragmentActivity {
             overflowMenuButton.setLayoutParams(new LayoutParams(0, 0));
         }
         refreshPlaybackInfoVisibility();
-        if (((TomahawkApp) getApplication()).getPlaybackService() != null)
-            setPlaybackInfo(((TomahawkApp) getApplication()).getPlaybackService().getCurrentTrack());
+        if (mPlaybackService != null)
+            setPlaybackInfo(mPlaybackService.getCurrentTrack());
 
         return super.onPrepareOptionsMenu(menu);
     }
@@ -295,5 +325,4 @@ public class CollectionActivity extends SherlockFragmentActivity {
     public void onBackPressed(View view){
         this.onBackPressed();
     }
-
 }

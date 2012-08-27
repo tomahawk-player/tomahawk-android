@@ -21,18 +21,25 @@ package org.tomahawk.libtomahawk.audio;
 
 import java.io.IOException;
 
+import org.tomahawk.libtomahawk.Album;
 import org.tomahawk.libtomahawk.Track;
+import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceBinder;
+import org.tomahawk.libtomahawk.playlist.AlbumPlaylist;
+import org.tomahawk.libtomahawk.playlist.CollectionPlaylist;
 import org.tomahawk.libtomahawk.playlist.Playlist;
 import org.tomahawk.tomahawk_android.CollectionActivity;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -55,7 +62,13 @@ public class PlaybackActivity extends SherlockActivity {
     private PlaybackSeekBar mPlaybackSeekBar;
 
     /** Identifier for passing a Track as an extra in an Intent. */
-    public static final String PLAYLIST_EXTRA = "playlist";
+    public static final String PLAYLIST_EXTRA = "playlist_extra";
+
+    public static final String PLAYLIST_ALBUM_ID = "playlist_album_id";
+
+    public static final String PLAYLIST_TRACK_ID = "playlist_track_id";
+
+    public static final String PLAYLIST_COLLECTION_ID = "playlist_collection_id";
 
     private class PlaybackServiceBroadcastReceiver extends BroadcastReceiver {
 
@@ -71,6 +84,23 @@ public class PlaybackActivity extends SherlockActivity {
 
     }
 
+    /** Allow communication to the PlaybackService. */
+    private ServiceConnection mPlaybackServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+
+            PlaybackServiceBinder binder = (PlaybackServiceBinder) service;
+            mPlaybackService = binder.getService();
+            onPlaybackServiceReady();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mPlaybackService = null;
+        }
+    };
+
     /*
      * (non-Javadoc)
      * 
@@ -82,7 +112,6 @@ public class PlaybackActivity extends SherlockActivity {
         View view = getLayoutInflater().inflate(R.layout.playback_activity, null);
         setContentView(view);
 
-        mPlaybackService = ((TomahawkApp) getApplication()).getPlaybackService();
         mAlbumArtViewPager = (AlbumArtViewPager) findViewById(R.id.album_art_view_pager);
         mAlbumArtViewPager.setPlaybackService(mPlaybackService);
 
@@ -118,19 +147,9 @@ public class PlaybackActivity extends SherlockActivity {
         intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYSTATECHANGED);
         registerReceiver(mPlaybackServiceBroadcastReceiver, intentFilter);
 
-        if (mPlaybackService == null)
-            mPlaybackService = ((TomahawkApp) getApplicationContext()).getPlaybackService();
-
-        if (getIntent().hasExtra(PLAYLIST_EXTRA)) {
-            try {
-                mPlaybackService.setCurrentPlaylist((Playlist) getIntent().getParcelableExtra(PLAYLIST_EXTRA));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            getIntent().removeExtra(PLAYLIST_EXTRA);
-        }
-        refreshButtonStates();
-        refreshActivityTrackInfo();
+        Intent playbackIntent = new Intent(this, PlaybackService.class);
+        startService(playbackIntent);
+        bindService(playbackIntent, mPlaybackServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     /*
@@ -141,6 +160,9 @@ public class PlaybackActivity extends SherlockActivity {
     @Override
     public void onPause() {
         super.onPause();
+
+        if (mPlaybackService != null)
+            unbindService(mPlaybackServiceConnection);
 
         if (mPlaybackServiceBroadcastReceiver != null) {
             unregisterReceiver(mPlaybackServiceBroadcastReceiver);
@@ -192,6 +214,7 @@ public class PlaybackActivity extends SherlockActivity {
      */
     public void onPlayPauseClicked(View view) {
         Log.d(TAG, "onPlayPauseClicked");
+
         mPlaybackService.playPause();
         refreshButtonStates();
         mPlaybackSeekBar.updateSeekBarPosition();
@@ -277,6 +300,36 @@ public class PlaybackActivity extends SherlockActivity {
     }
 
     /**
+     * Called when the playback service is ready.
+     */
+    private void onPlaybackServiceReady() {
+
+        if (!getIntent().hasExtra(PLAYLIST_EXTRA))
+            return;
+
+        Bundle playlistBundle = getIntent().getBundleExtra(PLAYLIST_EXTRA);
+        getIntent().removeExtra(PLAYLIST_EXTRA);
+
+        long trackid = playlistBundle.getLong(PLAYLIST_TRACK_ID);
+
+        Playlist playlist = null;
+        if (playlistBundle.containsKey(PLAYLIST_ALBUM_ID)) {
+            long albumid = playlistBundle.getLong(PLAYLIST_ALBUM_ID);
+            playlist = AlbumPlaylist.fromAlbum(Album.get(albumid), Track.get(trackid));
+        } else {
+            int collid = playlistBundle.getInt(PLAYLIST_COLLECTION_ID);
+            TomahawkApp app = (TomahawkApp) getApplication();
+            playlist = CollectionPlaylist.fromCollection(app.getSourceList().getCollectionFromId(collid), Track.get(trackid));
+        }
+
+        try {
+            mPlaybackService.setCurrentPlaylist(playlist);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Refresh the information in this activity to reflect that of the given
      * Track.
      */
@@ -301,6 +354,7 @@ public class PlaybackActivity extends SherlockActivity {
             findViewById(R.id.imageButton_previous).setClickable(true);
             findViewById(R.id.imageButton_shuffle).setClickable(true);
             findViewById(R.id.imageButton_repeat).setClickable(true);
+            mPlaybackSeekBar.setPlaybackService(mPlaybackService);
             mPlaybackSeekBar.setMax((int) mPlaybackService.getCurrentTrack().getDuration());
             mPlaybackSeekBar.updateSeekBarPosition();
             mPlaybackSeekBar.updateTextViewCompleteTime();

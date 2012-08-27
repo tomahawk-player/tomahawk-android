@@ -20,34 +20,10 @@ package org.tomahawk.libtomahawk.playlist;
 import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.Track;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 /**
  * Class that represents a list of songs from a given Artist.
  */
 public class ArtistPlaylist extends Playlist {
-
-    /**
-     * Creator used to parcel ArtistPlaylist inside Intent's.
-     */
-    @SuppressWarnings("rawtypes")
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public Playlist createFromParcel(Parcel in) {
-            return new ArtistPlaylist(in);
-        }
-
-        public Playlist[] newArray(int size) {
-            return new Playlist[size];
-        }
-    };
-
-    /**
-     * Parcel constructor.
-     */
-    protected ArtistPlaylist(Parcel in) {
-        super(in);
-    }
 
     /**
      * Create an ArtistPlaylist from Artist.

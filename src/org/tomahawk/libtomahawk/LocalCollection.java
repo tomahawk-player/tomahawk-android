@@ -148,8 +148,9 @@ public class LocalCollection extends Collection {
         while (cursor != null && cursor.moveToNext()) {
             Artist artist = mArtists.get(cursor.getLong(5));
             if (artist == null) {
-                artist = new Artist(cursor.getLong(5));
+                artist = Artist.get(cursor.getLong(5));
                 artist.setName(cursor.getString(6));
+
 
                 mArtists.put(artist.getId(), artist);
                 Log.d(TAG, "New Artist: " + artist.toString());
@@ -157,7 +158,7 @@ public class LocalCollection extends Collection {
 
             Album album = mAlbums.get(cursor.getLong(7));
             if (album == null) {
-                album = new Album(cursor.getLong(7));
+                album = Album.get(cursor.getLong(7));
                 album.setName(cursor.getString(8));
 
                 String albumsel = MediaStore.Audio.Albums._ID + " == "
@@ -185,7 +186,7 @@ public class LocalCollection extends Collection {
 
             Track track = mTracks.get(cursor.getLong(0));
             if (track == null) {
-                track = new Track(cursor.getLong(0));
+                track = Track.get(cursor.getLong(0));
                 track.setPath(cursor.getString(1));
                 track.setName(cursor.getString(2));
                 track.setDuration(cursor.getLong(3));

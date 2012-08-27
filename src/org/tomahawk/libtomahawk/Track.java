@@ -17,8 +17,8 @@
  */
 package org.tomahawk.libtomahawk;
 
-import java.io.Serializable;
 import java.util.Comparator;
+import java.util.HashMap;
 
 import org.tomahawk.libtomahawk.TomahawkListArrayAdapter.TomahawkListItem;
 
@@ -58,11 +58,9 @@ class TrackComparator implements Comparator<Track> {
 /**
  * This class represents a track.
  */
-public class Track implements TomahawkListItem, Serializable {
+public class Track implements TomahawkListItem {
 
-    private static final long serialVersionUID = 1L;
-
-    private long mId;
+    private static HashMap<Long, Track> sTracks = new HashMap<Long, Track>();
 
     /**
      * Path of file or URL.
@@ -73,9 +71,23 @@ public class Track implements TomahawkListItem, Serializable {
     private Artist mArtist;
     private long mDuration;
     private int mTrackNumber;
+    private long mId;
 
     public Track(long l) {
         setId(l);
+    }
+
+    /**
+     * Construct a new Album from the id
+     * 
+     * @param id
+     */
+    public static Track get(long id) {
+
+        if (!sTracks.containsKey(id))
+            sTracks.put(id, new Track(id));
+
+        return sTracks.get(id);
     }
 
     /* 

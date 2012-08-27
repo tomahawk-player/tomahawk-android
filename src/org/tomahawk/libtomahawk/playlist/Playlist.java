@@ -24,13 +24,10 @@ import java.util.ListIterator;
 
 import org.tomahawk.libtomahawk.Track;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 /**
  * This class represents an abstract Playlist.
  */
-public abstract class Playlist implements Playable, Parcelable {
+public abstract class Playlist implements Playable {
 
     private String mName;
     private ArrayList<Track> mTracks;
@@ -49,38 +46,6 @@ public abstract class Playlist implements Playable, Parcelable {
         mShuffled = false;
         mRepeating = false;
         setTracks(new ArrayList<Track>());
-    }
-
-    public Playlist(Parcel in) {
-        mName = in.readString();
-        setTracks((ArrayList<Track>) in.readSerializable());
-        setCurrentTrack((Track) in.readSerializable());
-        setShuffled(in.readByte() == 1);
-        setRepeating(in.readByte() == 1);
-
-        if (mShuffled)
-            mTrackIterator = mShuffledTracks.listIterator();
-        else
-            mTrackIterator = mTracks.listIterator();
-
-        while (mTrackIterator.hasNext()) {
-            if (mTrackIterator.next().getId() == getCurrentTrack().getId())
-                break;
-        }
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(mName);
-        dest.writeSerializable(mTracks);
-        dest.writeSerializable(mCurrentTrack);
-        dest.writeByte((byte) (mShuffled ? 1 : 0));
-        dest.writeByte((byte) (mRepeating ? 1 : 0));
     }
 
     /**

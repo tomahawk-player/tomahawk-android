@@ -20,34 +20,11 @@ package org.tomahawk.libtomahawk.playlist;
 import org.tomahawk.libtomahawk.Album;
 import org.tomahawk.libtomahawk.Track;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 /**
  * This class represents a Playlist including all the Tracks on an Album.
  */
 public class AlbumPlaylist extends Playlist {
 
-    /**
-     * Creator used to parcel AlbumPlaylist inside Intent's.
-     */
-    @SuppressWarnings("rawtypes")
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public Playlist createFromParcel(Parcel in) {
-            return new AlbumPlaylist(in);
-        }
-
-        public Playlist[] newArray(int size) {
-            return new Playlist[size];
-        }
-    };
-
-    /**
-     * Constructs a new AlbumPlaylist from the Parcel.
-     */
-    protected AlbumPlaylist(Parcel in) {
-        super(in);
-    }
     /**
      * Create an AlbumPlaylist from Album.
      * 

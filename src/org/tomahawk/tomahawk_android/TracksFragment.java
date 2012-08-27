@@ -26,9 +26,6 @@ import org.tomahawk.libtomahawk.TomahawkListArrayAdapter;
 import org.tomahawk.libtomahawk.TomahawkListArrayAdapter.TomahawkListItem;
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
-import org.tomahawk.libtomahawk.playlist.AlbumPlaylist;
-import org.tomahawk.libtomahawk.playlist.CollectionPlaylist;
-import org.tomahawk.libtomahawk.playlist.Playlist;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -71,14 +68,17 @@ public class TracksFragment extends TomahawkListFragment implements OnItemClickL
      */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        Playlist playlist = null;
+
+        Bundle bundle = new Bundle();
         if (mAlbum != null)
-            playlist = AlbumPlaylist.fromAlbum(mAlbum, (Track) getListAdapter().getItem(idx));
+            bundle.putLong(PlaybackActivity.PLAYLIST_ALBUM_ID, mAlbum.getId());
         else
-            playlist = CollectionPlaylist.fromCollection(getCurrentCollection(), (Track) getListAdapter().getItem(idx));
+            bundle.putInt(PlaybackActivity.PLAYLIST_COLLECTION_ID, getCurrentCollection().getId());
+
+        bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID, ((Track) getListAdapter().getItem(idx)).getId());
 
         Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
-        playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, playlist);
+        playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
         startActivity(playbackIntent);
     }
 

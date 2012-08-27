@@ -17,7 +17,6 @@
  */
 package org.tomahawk.libtomahawk;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,9 +36,9 @@ class ArtistComparator implements Comparator<Artist> {
 /**
  * This class represents an Artist.
  */
-public class Artist implements TomahawkListItem, Serializable {
+public class Artist implements TomahawkListItem {
 
-    private static final long serialVersionUID = -5358580053668357261L;
+    private static HashMap<Long, Artist> sArtists = new HashMap<Long, Artist>();
 
     private long mId;
     private String mName;
@@ -52,6 +51,18 @@ public class Artist implements TomahawkListItem, Serializable {
         mTracks = new HashMap<Long, Track>();
     }
 
+    /**
+     * Construct a new Album from the id
+     * 
+     * @param id
+     */
+    public static Artist get(long id) {
+
+        if (!sArtists.containsKey(id))
+            sArtists.put(id, new Artist(id));
+
+        return sArtists.get(id);
+    }
     /* 
      * (non-Javadoc)
      * @see java.lang.Object#toString()
