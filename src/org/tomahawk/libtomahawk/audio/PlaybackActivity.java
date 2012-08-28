@@ -299,31 +299,31 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
      */
     @Override
     public void onPlaybackServiceReady() {
-        if (!getIntent().hasExtra(PLAYLIST_EXTRA))
-            return;
+        if (getIntent().hasExtra(PLAYLIST_EXTRA)) {
 
-        Bundle playlistBundle = getIntent().getBundleExtra(PLAYLIST_EXTRA);
-        getIntent().removeExtra(PLAYLIST_EXTRA);
+            Bundle playlistBundle = getIntent().getBundleExtra(PLAYLIST_EXTRA);
+            getIntent().removeExtra(PLAYLIST_EXTRA);
 
-        long trackid = playlistBundle.getLong(PLAYLIST_TRACK_ID);
+            long trackid = playlistBundle.getLong(PLAYLIST_TRACK_ID);
 
-        Playlist playlist = null;
-        if (playlistBundle.containsKey(PLAYLIST_ALBUM_ID)) {
-            long albumid = playlistBundle.getLong(PLAYLIST_ALBUM_ID);
-            playlist = AlbumPlaylist.fromAlbum(Album.get(albumid), Track.get(trackid));
-        } else {
-            int collid = playlistBundle.getInt(PLAYLIST_COLLECTION_ID);
-            TomahawkApp app = (TomahawkApp) getApplication();
-            playlist = CollectionPlaylist.fromCollection(app.getSourceList().getCollectionFromId(collid),
-                    Track.get(trackid));
+            Playlist playlist = null;
+            if (playlistBundle.containsKey(PLAYLIST_ALBUM_ID)) {
+                long albumid = playlistBundle.getLong(PLAYLIST_ALBUM_ID);
+                playlist = AlbumPlaylist.fromAlbum(Album.get(albumid), Track.get(trackid));
+            } else {
+                int collid = playlistBundle.getInt(PLAYLIST_COLLECTION_ID);
+                TomahawkApp app = (TomahawkApp) getApplication();
+                playlist = CollectionPlaylist.fromCollection(app.getSourceList().getCollectionFromId(collid),
+                        Track.get(trackid));
+            }
+            try {
+                mPlaybackService.setCurrentPlaylist(playlist);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        try {
-            mPlaybackService.setCurrentPlaylist(playlist);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         mAlbumArtSwipeAdapter.setPlaybackService(mPlaybackService);
+        refreshActivityTrackInfo();
     }
 
     /**
