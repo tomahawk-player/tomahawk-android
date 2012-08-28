@@ -57,14 +57,11 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
 
     private PlaybackService mPlaybackService;
     private PlaybackServiceBroadcastReceiver mPlaybackServiceBroadcastReceiver;
-
     /** Allow communication to the PlaybackService. */
     private PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(this);
 
     private AlbumArtSwipeAdapter mAlbumArtSwipeAdapter;
-
     private PlaybackSeekBar mPlaybackSeekBar;
-
     private Toast mToast;
 
     /** Identifier for passing a Track as an extra in an Intent. */
@@ -138,6 +135,9 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
         Intent playbackIntent = new Intent(this, PlaybackService.class);
         startService(playbackIntent);
         bindService(playbackIntent, mPlaybackServiceConnection, Context.BIND_AUTO_CREATE);
+
+        refreshRepeatButtonState();
+        refreshShuffleButtonState();
     }
 
     /*
@@ -151,7 +151,6 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
 
         if (mPlaybackService != null)
             unbindService(mPlaybackServiceConnection);
-
         if (mPlaybackServiceBroadcastReceiver != null) {
             unregisterReceiver(mPlaybackServiceBroadcastReceiver);
             mPlaybackServiceBroadcastReceiver = null;
@@ -167,7 +166,6 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
         menu.add(0, CollectionActivity.SEARCH_OPTION_ID, 0, "Search").setIcon(R.drawable.ic_action_search).setActionView(
                 R.layout.collapsible_edittext).setShowAsAction(
                 MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
@@ -202,7 +200,7 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
         Log.d(TAG, "onPlayPauseClicked");
 
         mPlaybackService.playPause();
-        refreshButtonStates();
+        refreshPlayPauseButtonState();
         mPlaybackSeekBar.updateSeekBarPosition();
     }
 
@@ -242,12 +240,7 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
     public void onShuffleClicked(View view) {
         mPlaybackService.getCurrentPlaylist().setShuffled(!mPlaybackService.getCurrentPlaylist().isShuffled());
         onPlaylistChanged();
-        ImageButton imageButton = (ImageButton) findViewById(R.id.imageButton_shuffle);
-        if (mPlaybackService.getCurrentPlaylist().isShuffled())
-            imageButton.getDrawable().setColorFilter(getResources().getColor(R.color.pressed_tomahawk),
-                    PorterDuff.Mode.MULTIPLY);
-        else
-            imageButton.getDrawable().clearColorFilter();
+        refreshShuffleButtonState();
         if (mToast != null)
             mToast.cancel();
         mToast = Toast.makeText(
@@ -266,12 +259,7 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
         mPlaybackService.getCurrentPlaylist().setRepeating(
                 !mPlaybackService.getCurrentPlaylist().isRepeating());
         onPlaylistChanged();
-        ImageButton imageButton = (ImageButton) findViewById(R.id.imageButton_repeat);
-        if (mPlaybackService.getCurrentPlaylist().isRepeating())
-            imageButton.getDrawable().setColorFilter(getResources().getColor(R.color.pressed_tomahawk),
-                    PorterDuff.Mode.MULTIPLY);
-        else
-            imageButton.getDrawable().clearColorFilter();
+        refreshRepeatButtonState();
         if (mToast != null)
             mToast.cancel();
         mToast = Toast.makeText(
@@ -298,18 +286,7 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
      * changed.
      */
     protected void onPlaystateChanged() {
-        refreshButtonStates();
-    }
-
-    /**
-     * Refresh the information in this activity to reflect that of the current
-     * Track, if possible (meaning mPlaybackService is not null).
-     */
-    private void refreshActivityTrackInfo() {
-        if (mPlaybackService != null)
-            refreshActivityTrackInfo(mPlaybackService.getCurrentTrack());
-        else
-            refreshActivityTrackInfo(null);
+        refreshPlayPauseButtonState();
     }
 
     @Override
@@ -322,7 +299,6 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
      */
     @Override
     public void onPlaybackServiceReady() {
-
         if (!getIntent().hasExtra(PLAYLIST_EXTRA))
             return;
 
@@ -341,7 +317,6 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
             playlist = CollectionPlaylist.fromCollection(app.getSourceList().getCollectionFromId(collid),
                     Track.get(trackid));
         }
-
         try {
             mPlaybackService.setCurrentPlaylist(playlist);
         } catch (IOException e) {
@@ -349,6 +324,17 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
         }
 
         mAlbumArtSwipeAdapter.setPlaybackService(mPlaybackService);
+    }
+
+    /**
+     * Refresh the information in this activity to reflect that of the current
+     * Track, if possible (meaning mPlaybackService is not null).
+     */
+    private void refreshActivityTrackInfo() {
+        if (mPlaybackService != null)
+            refreshActivityTrackInfo(mPlaybackService.getCurrentTrack());
+        else
+            refreshActivityTrackInfo(null);
     }
 
     /**
@@ -394,13 +380,39 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
 
     /**
      * Refresh the information in this activity to reflect that of the current
-     * buttonstate.
+     * play/pause-button state.
      */
-    private void refreshButtonStates() {
-        final ImageButton button = (ImageButton) findViewById(R.id.imageButton_playpause);
+    private void refreshPlayPauseButtonState() {
+        ImageButton button = (ImageButton) findViewById(R.id.imageButton_playpause);
         if (mPlaybackService != null && mPlaybackService.isPlaying())
             button.setImageDrawable(getResources().getDrawable(R.drawable.ic_player_pause));
         else
             button.setImageDrawable(getResources().getDrawable(R.drawable.ic_player_play));
+    }
+
+    /**
+     * Refresh the information in this activity to reflect that of the current
+     * repeatButton state.
+     */
+    private void refreshRepeatButtonState() {
+        ImageButton imageButton = (ImageButton) findViewById(R.id.imageButton_repeat);
+        if (mPlaybackService != null && mPlaybackService.getCurrentPlaylist() != null && mPlaybackService.getCurrentPlaylist().isRepeating())
+            imageButton.getDrawable().setColorFilter(getResources().getColor(R.color.pressed_tomahawk),
+                    PorterDuff.Mode.MULTIPLY);
+        else
+            imageButton.getDrawable().clearColorFilter();
+    }
+
+    /**
+     * Refresh the information in this activity to reflect that of the current
+     * shuffleButton state.
+     */
+    private void refreshShuffleButtonState() {
+        ImageButton imageButton = (ImageButton) findViewById(R.id.imageButton_shuffle);
+        if (mPlaybackService != null && mPlaybackService.getCurrentPlaylist() != null && mPlaybackService.getCurrentPlaylist().isShuffled())
+            imageButton.getDrawable().setColorFilter(getResources().getColor(R.color.pressed_tomahawk),
+                    PorterDuff.Mode.MULTIPLY);
+        else
+            imageButton.getDrawable().clearColorFilter();
     }
 }
