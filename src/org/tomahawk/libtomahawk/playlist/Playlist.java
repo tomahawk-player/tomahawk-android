@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.playlist;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.ListIterator;
 
 import org.tomahawk.libtomahawk.Track;
@@ -70,11 +71,15 @@ public abstract class Playlist implements Playable {
     @Override
     public void setCurrentTrack(Track newtrack) {
 
-        for (Track track : mShuffled ? mShuffledTracks : mTracks)
-            if (newtrack.getId() == track.getId())
+        List<Track> tracks = mShuffled ? mShuffledTracks : mTracks;
+        mTrackIterator = tracks.listIterator();
+        while (mTrackIterator.hasNext()) {
+            Track track = mTrackIterator.next();
+            if (newtrack.getId() == track.getId()) {
                 mCurrentTrack = track;
-
-        refreshTrackIterator();
+                break;
+            }
+        }
     }
 
     /**
@@ -268,15 +273,12 @@ public abstract class Playlist implements Playable {
             Collections.shuffle(mShuffledTracks);
         } else
             mShuffledTracks = null;
-        refreshTrackIterator();
-    }
 
-    public void refreshTrackIterator() {
-        mTrackIterator = mShuffled ? mShuffledTracks.listIterator() : mTracks.listIterator();
-        while (mTrackIterator.hasNext()) {
-            if (mTrackIterator.next().getId() == getCurrentTrack().getId())
-                break;
-        }
+        List<Track> tracks = mShuffled ? mShuffledTracks : mTracks;
+        mTrackIterator = tracks.listIterator();
+        while (mTrackIterator.hasNext() && mTrackIterator.next().getId() != mCurrentTrack.getId())
+            continue;
+
     }
 
     public void setRepeating(boolean repeating) {
