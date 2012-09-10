@@ -35,6 +35,7 @@ public interface Playable {
 
     /**
      * Set the current Track to track.
+     * If Track cannot be found the current Track stays the same.
      * 
      * @param track
      */

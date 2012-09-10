@@ -49,8 +49,9 @@ public abstract class Playlist implements Playable {
         setTracks(new ArrayList<Track>());
     }
 
-    /**
-     * Set the list of Tracks for this Playlist to tracks.
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.playlist.Playable#setTracks(java.util.Collection)
      */
     @Override
     public void setTracks(Collection<Track> tracks) {
@@ -63,14 +64,12 @@ public abstract class Playlist implements Playable {
             mCurrentTrack = null;
     }
 
-    /**
-     * Set the current Track for this Playlist.
-     * 
-     * If Track cannot be found the current Track stays the same.
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.playlist.Playable#setCurrentTrack(org.tomahawk.libtomahawk.Track)
      */
     @Override
     public void setCurrentTrack(Track newtrack) {
-
         List<Track> tracks = mShuffled ? mShuffledTracks : mTracks;
         mTrackIterator = tracks.listIterator();
         while (mTrackIterator.hasNext()) {
@@ -82,70 +81,64 @@ public abstract class Playlist implements Playable {
         }
     }
 
-    /**
-     * Return the current Track for this Playlist.
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.playlist.Playable#getCurrentTrack()
      */
     @Override
     public Track getCurrentTrack() {
         return mCurrentTrack;
     }
 
-    /**
-     * Get the next Track from this Playlist.
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.playlist.Playable#getNextTrack()
      */
     @Override
     public Track getNextTrack() {
-
         if (mTrackIterator.hasNext()) {
             Track track = mTrackIterator.next();
             if (track == mCurrentTrack && mTrackIterator.hasNext())
                 mCurrentTrack = mTrackIterator.next();
-            else if (track == mCurrentTrack && !mTrackIterator.hasNext() && mRepeating)
-                setCurrentTrack(mTracks.get(0));
             else if (track == mCurrentTrack)
                 mCurrentTrack = null;
             else
                 mCurrentTrack = track;
 
             return mCurrentTrack;
-        }
-
-        if (mRepeating) {
-            setCurrentTrack(mTracks.get(0));
+        } else if (mRepeating) {
+            setCurrentTrack(getFirstTrack());
             return mCurrentTrack;
         }
 
         return null;
     }
 
-    /**
-     * Get the previous Track from this Playlist.
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.playlist.Playable#getPreviousTrack()
      */
     @Override
     public Track getPreviousTrack() {
-
         if (mTrackIterator.hasPrevious()) {
             Track track = mTrackIterator.previous();
             if (track == mCurrentTrack && mTrackIterator.hasPrevious())
                 mCurrentTrack = mTrackIterator.previous();
-            else if (track == mCurrentTrack && !mTrackIterator.hasPrevious() && mRepeating)
-                setCurrentTrack(mTracks.get(mTracks.size() - 1));
             else
                 mCurrentTrack = track;
 
             return mCurrentTrack;
-        }
-
-        if (mRepeating) {
-            setCurrentTrack(mTracks.get(mTracks.size() - 1));
+        } else if (mRepeating) {
+            setCurrentTrack(getLastTrack());
             return mCurrentTrack;
         }
 
         return null;
     }
 
-    /**
-     * Get track at pos i in this Playlist.
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.playlist.Playable#getTrackAtPos(int)
      */
     @Override
     public Track getTrackAtPos(int i) {
@@ -155,8 +148,9 @@ public abstract class Playlist implements Playable {
         return null;
     }
 
-    /**
-     * Get the first Track from this Playlist.
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.playlist.Playable#getFirstTrack()
      */
     @Override
     public Track getFirstTrack() {
@@ -166,13 +160,13 @@ public abstract class Playlist implements Playable {
         return mShuffled ? mShuffledTracks.get(0) : mTracks.get(0);
     }
 
-    /**
-     * Get the last Track from this Playlist.
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.playlist.Playable#getLastTrack()
      */
     @Override
     public Track getLastTrack() {
-
-        if (mShuffled ? mTracks.isEmpty() : mTracks.isEmpty())
+        if (mShuffled ? mShuffledTracks.isEmpty() : mTracks.isEmpty())
             return null;
 
         return mShuffled ? mShuffledTracks.get(mShuffledTracks.size() - 1) : mTracks.get(mTracks.size() - 1);
@@ -186,19 +180,17 @@ public abstract class Playlist implements Playable {
         return mName;
     }
 
-    /**
-     * Returns true if the PlayableInterface has a next Track.
-     * 
-     * @return
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.playlist.Playable#hasNextTrack()
      */
     public boolean hasNextTrack() {
         return peekNextTrack() != null ? true : false;
     }
 
-    /**
-     * Returns true if the PlayableInterface has a previous Track.
-     * 
-     * @return
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.playlist.Playable#hasPreviousTrack()
      */
     public boolean hasPreviousTrack() {
         return peekPreviousTrack() != null ? true : false;
@@ -210,24 +202,17 @@ public abstract class Playlist implements Playable {
      * @return Returns next Track. Returns null if there is none.
      */
     public Track peekNextTrack() {
-
         Track track = null;
         if (mTrackIterator.hasNext()) {
-
             track = mTrackIterator.next();
             if (track == mCurrentTrack && mTrackIterator.hasNext())
                 track = mTrackIterator.next();
-            else if (track == mCurrentTrack && !mTrackIterator.hasNext() && mRepeating)
-                track = mTracks.get(0);
             else if (track == mCurrentTrack)
                 track = null;
 
             mTrackIterator.previous();
-        }
-
-        if (mRepeating)
-            track = mTracks.get(0);
-
+        } else if (mRepeating)
+            track = getFirstTrack();
         return track;
     }
 
@@ -238,24 +223,17 @@ public abstract class Playlist implements Playable {
      * @return Returns previous Track. Returns null if there is none.
      */
     public Track peekPreviousTrack() {
-
         Track track = null;
         if (mTrackIterator.hasPrevious()) {
-
             track = mTrackIterator.previous();
             if (track == mCurrentTrack && mTrackIterator.hasPrevious())
                 track = mTrackIterator.previous();
-            else if (track == mCurrentTrack && !mTrackIterator.hasPrevious() && mRepeating)
-                track = mTracks.get(mTracks.size() - 1);
             else if (track == mCurrentTrack)
                 track = null;
 
             mTrackIterator.next();
-        }
-
-        if (mRepeating)
-            mTracks.get(mTracks.size() - 1);
-
+        } else if (mRepeating)
+            track = getLastTrack();
         return track;
     }
 
@@ -278,7 +256,6 @@ public abstract class Playlist implements Playable {
         mTrackIterator = tracks.listIterator();
         while (mTrackIterator.hasNext() && mTrackIterator.next().getId() != mCurrentTrack.getId())
             continue;
-
     }
 
     public void setRepeating(boolean repeating) {
@@ -319,7 +296,6 @@ public abstract class Playlist implements Playable {
      * @return
      */
     public int getPosition() {
-
         if (getCount() > 0 && mTrackIterator != null) {
             if (hasPreviousTrack())
                 return mTrackIterator.previousIndex() + 1;

@@ -215,6 +215,7 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
 
     /** play the next track and set the playbutton to pause icon */
     public void nextTrack() {
+        mAlbumArtSwipeAdapter.setSwiped(false);
         mPlaybackService.next();
     }
 
@@ -229,6 +230,7 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
 
     /** play the previous track and set the playbutton to pause icon */
     public void previousTrack() {
+        mAlbumArtSwipeAdapter.setSwiped(false);
         mPlaybackService.previous();
     }
 
@@ -344,12 +346,13 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
     private void refreshActivityTrackInfo(Track track) {
         if (track != null) {
             if (!mAlbumArtSwipeAdapter.isSwiped()) {
-                mAlbumArtSwipeAdapter.setSwiped(false);
                 mAlbumArtSwipeAdapter.setByUser(false);
-                mAlbumArtSwipeAdapter.setCurrentItem(mPlaybackService.getCurrentPlaylist().getPosition(),
-                        true);
+                if (mPlaybackService.getCurrentPlaylist().getPosition() >= 0)
+                    mAlbumArtSwipeAdapter.setCurrentItem(mPlaybackService.getCurrentPlaylist().getPosition(),
+                            true);
                 mAlbumArtSwipeAdapter.setByUser(true);
             }
+            mAlbumArtSwipeAdapter.setSwiped(false);
             final TextView artistTextView = (TextView) findViewById(R.id.textView_artist);
             final TextView albumTextView = (TextView) findViewById(R.id.textView_album);
             final TextView titleTextView = (TextView) findViewById(R.id.textView_title);

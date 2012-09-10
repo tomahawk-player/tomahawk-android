@@ -54,7 +54,6 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         this.mByUser = true;
         this.mSwiped = false;
         this.mViewPager = viewPager;
-        this.mViewPager.setCurrentItem(0, false);
         this.mViewPager.setAdapter(this);
         this.mViewPager.setOnPageChangeListener(this);
     }
@@ -150,8 +149,36 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         return POSITION_NONE;
     }
 
-    public void setCurrentItem(int item, boolean smoothScroll) {
-        mViewPager.setCurrentItem(item, smoothScroll);
+    /** @param position to set the current item to
+    /** @param smoothScroll boolean to determine wether or not to show a scrolling animation */
+    public void setCurrentItem(int position, boolean smoothScroll) {
+        if (position != mCurrentViewPage) {
+            if (mPlaylist.isRepeating()) {
+                if (position == (mCurrentViewPage % mPlaylist.getCount()) + 1 || ((mCurrentViewPage % mPlaylist.getCount()) == mPlaylist.getCount() - 1 && position == 0))
+                    setCurrentToNextItem(smoothScroll);
+                else if (position == (mCurrentViewPage % mPlaylist.getCount()) - 1 || ((mCurrentViewPage % mPlaylist.getCount()) == 0 && position == mPlaylist.getCount() - 1))
+                    setCurrentToPreviousItem(smoothScroll);
+                else {
+                    mViewPager.setCurrentItem(position, false);
+                    mCurrentViewPage = position;
+                }
+            } else {
+                mViewPager.setCurrentItem(position, smoothScroll);
+                mCurrentViewPage = position;
+            }
+        }
+    }
+
+    /** @param smoothScroll boolean to determine wether or not to show a scrolling animation */
+    public void setCurrentToNextItem(boolean smoothScroll) {
+        mViewPager.setCurrentItem(mCurrentViewPage + 1, smoothScroll);
+        mCurrentViewPage = mViewPager.getCurrentItem();
+    }
+
+    /** @param smoothScroll boolean to determine wether or not to show a scrolling animation */
+    public void setCurrentToPreviousItem(boolean smoothScroll) {
+        mViewPager.setCurrentItem(mCurrentViewPage - 1, smoothScroll);
+        mCurrentViewPage = mViewPager.getCurrentItem();
     }
 
     /**
@@ -164,15 +191,15 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
             mPlaylist = mPlaybackService.getCurrentPlaylist();
         if (mPlaylist != null) {
             mFakeInfinityOffset = mPlaylist.getCount() * (10000 / mPlaylist.getCount());
+            setByUser(false);
             if (mPlaylist.isRepeating()) {
-                mViewPager.setCurrentItem(mPlaylist.getPosition() + getFakeInfinityOffset(), false);
-                mCurrentViewPage = mPlaylist.getPosition() + getFakeInfinityOffset();
+                setCurrentItem(mPlaylist.getPosition() + getFakeInfinityOffset(), false);
             } else {
-                mViewPager.setCurrentItem(mPlaylist.getPosition(), false);
-                mCurrentViewPage = mPlaylist.getPosition();
+                setCurrentItem(mPlaylist.getPosition(), false);
             }
+            notifyDataSetChanged();
+            setByUser(true);
         }
-        notifyDataSetChanged();
     }
 
     public boolean isByUser() {
