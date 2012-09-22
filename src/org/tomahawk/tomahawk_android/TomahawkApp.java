@@ -23,10 +23,9 @@ import org.acra.annotation.ReportsCrashes;
 import org.tomahawk.libtomahawk.LocalCollection;
 import org.tomahawk.libtomahawk.Source;
 import org.tomahawk.libtomahawk.SourceList;
-import org.tomahawk.libtomahawk.audio.PlaybackService;
-import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceBinder;
 import org.tomahawk.libtomahawk.network.TomahawkService;
-import org.tomahawk.libtomahawk.network.TomahawkService.TomahawkServiceBinder;
+import org.tomahawk.libtomahawk.network.TomahawkService.TomahawkServiceConnection;
+import org.tomahawk.libtomahawk.network.TomahawkService.TomahawkServiceConnection.TomahawkServiceConnectionListener;
 
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
@@ -36,9 +35,7 @@ import android.accounts.OperationCanceledException;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 
 
@@ -46,7 +43,8 @@ import android.util.Log;
  * This class contains represents the Application core.
  */
 @ReportsCrashes(formKey = "")
-public class TomahawkApp extends Application implements AccountManagerCallback<Bundle> {
+public class TomahawkApp extends Application implements AccountManagerCallback<Bundle>,
+        TomahawkServiceConnectionListener {
 
     private static final String TAG = TomahawkApp.class.getName();
 
@@ -54,6 +52,9 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
 
     private AccountManager mAccountManager = null;
     private SourceList mSourceList;
+
+    private TomahawkServiceConnection mTomahawkServiceConnection = new TomahawkServiceConnection(this);
+    private TomahawkService mTomahawkService;
 
     @Override
     public void onCreate() {
@@ -138,6 +139,16 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void setTomahawkService(TomahawkService ps) {
+        mTomahawkService = ps;
+    }
+
+    @Override
+    public void onTomahawkServiceReady() {
+
     }
 }
 

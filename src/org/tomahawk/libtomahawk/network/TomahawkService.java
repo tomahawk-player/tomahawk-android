@@ -41,7 +41,9 @@ import org.json.JSONObject;
 
 import android.annotation.TargetApi;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.net.TrafficStats;
 import android.os.Binder;
 import android.os.Handler;
@@ -73,6 +75,34 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
     private String mAuthToken;
 
     private List<AccessToken> mAccessTokens;
+
+    public static class TomahawkServiceConnection implements ServiceConnection {
+
+        private TomahawkServiceConnectionListener mTomahawkServiceConnectionListener;
+
+        public interface TomahawkServiceConnectionListener {
+            public void setTomahawkService(TomahawkService ps);
+
+            public void onTomahawkServiceReady();
+        }
+
+        public TomahawkServiceConnection(TomahawkServiceConnectionListener tomahawkServiceConnectedListener) {
+            mTomahawkServiceConnectionListener = tomahawkServiceConnectedListener;
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+
+            TomahawkServiceBinder binder = (TomahawkServiceBinder) service;
+            mTomahawkServiceConnectionListener.setTomahawkService(binder.getService());
+            mTomahawkServiceConnectionListener.onTomahawkServiceReady();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mTomahawkServiceConnectionListener.setTomahawkService(null);
+        }
+    };
 
     /**
      * Runnable that requests accessTokens to start a Connection on.
@@ -296,7 +326,7 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
             if (jsonObj.has("accesstokens"))
                 return jsonObj.toString();
 
-            return jsonObj.getString("authtoken");
+            return jsonObj.getJSONObject("Message").getString("authtoken");
 
         } catch (UnsupportedEncodingException e1) {
             e1.printStackTrace();
