@@ -18,5 +18,5 @@
 
 <resources>
     <color name="pressed_tomahawk">#CCe23a2e</color>
-    <color name="fake_split_action_bar_divider">#3B3F45</color>
+    <color name="divider">#3B3F45</color>
 </resources>

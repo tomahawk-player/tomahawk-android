@@ -28,18 +28,11 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
 
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 
 public abstract class TomahawkListFragment extends SherlockListFragment implements
         LoaderManager.LoaderCallbacks<Collection> {
@@ -49,47 +42,6 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
     private CollectionUpdateReceiver mCollectionUpdatedReceiver;
 
     protected CollectionActivity mCollectionActivity;
-
-    private EditText mFilterText = null;
-    private SearchWatcher mFilterTextWatcher = new SearchWatcher();
-
-    /**
-     * Class which manages search functionality within fragments
-     */
-    private class SearchWatcher implements TextWatcher {
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see android.text.TextWatcher#onTextChanged(java.lang.CharSequence,
-         * int, int, int)
-         */
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            if (getListAdapter() != null)
-                ((ArrayAdapter<?>) getListAdapter()).getFilter().filter(s);
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see android.text.TextWatcher#afterTextChanged(android.text.Editable)
-         */
-        @Override
-        public void afterTextChanged(Editable s) {
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * android.text.TextWatcher#beforeTextChanged(java.lang.CharSequence,
-         * int, int, int)
-         */
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-    }
 
     /**
      * Handles incoming Collection updated broadcasts.
@@ -185,39 +137,8 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
     @Override
     public void onDetach() {
         super.onDetach();
-        
+
         mCollectionActivity = null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.actionbarsherlock.app.SherlockListFragment#onCreateOptionsMenu(android
-     * .view.Menu, android.view.MenuInflater)
-     */
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-
-        MenuItem item = (MenuItem) menu.findItem(CollectionActivity.SEARCH_OPTION_ID);
-        if (item != null) {
-            mFilterText = (EditText) item.getActionView().findViewById(R.id.search_edittext);
-            mFilterText.addTextChangedListener(mFilterTextWatcher);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.support.v4.app.Fragment#onDestroyOptionsMenu()
-     */
-    @Override
-    public void onDestroyOptionsMenu() {
-        super.onDestroyOptionsMenu();
-
-        if (mFilterText != null)
-            mFilterText.removeTextChangedListener(mFilterTextWatcher);
     }
 
     /**
@@ -262,8 +183,6 @@ public abstract class TomahawkListFragment extends SherlockListFragment implemen
     }
 
     /**
-     * 
-     * 
      * @return the current Collection
      */
     public Collection getCurrentCollection() {

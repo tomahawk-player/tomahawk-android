@@ -34,9 +34,13 @@ import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewGroup.LayoutParams;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -44,29 +48,38 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.LayoutParams;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.MenuItem.OnActionExpandListener;
 
-public class CollectionActivity extends SherlockFragmentActivity implements PlaybackServiceConnectionListener {
+public class CollectionActivity extends SherlockFragmentActivity implements PlaybackServiceConnectionListener,
+        OnActionExpandListener {
 
     public static final String COLLECTION_ID_EXTRA = "collection_id";
-    public static final int SEARCH_OPTION_ID = 0;
 
     private PlaybackService mPlaybackService;
     private TabsAdapter mTabsAdapter;
+    private FragmentManager mFragmentManager;
+    private Menu mMenu;
     private Collection mCollection;
+    private boolean mSearchModeEnabled = false;
+    private boolean mSoftKeyboardShown = false;
+    private SearchFragment mSearchFragment;
 
     private PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(this);
     private NewTrackBroadcastReceiver mNewTrackBroadcastReceiver;
 
     private class NewTrackBroadcastReceiver extends BroadcastReceiver {
 
+        /* 
+         * (non-Javadoc)
+         * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
+         */
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(PlaybackService.BROADCAST_NEWTRACK)) {
-                setPlaybackInfo(mPlaybackService.getCurrentTrack());
+                setNowPlayingInfo(mPlaybackService.getCurrentTrack());
             }
         }
     }
@@ -89,11 +102,12 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
         actionBar.setDisplayShowHomeEnabled(false);
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayShowCustomEnabled(false);
-        View actionBarPlaybackTop = getLayoutInflater().inflate(R.layout.playback_info_top, null);
+        View actionBarPlaybackTop = getLayoutInflater().inflate(R.layout.now_playing_top, null);
         actionBar.setCustomView(actionBarPlaybackTop);
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
-        mTabsAdapter = new TabsAdapter(this, getSupportFragmentManager(), viewPager);
+        mFragmentManager = getSupportFragmentManager();
+        mTabsAdapter = new TabsAdapter(this, mFragmentManager, viewPager);
         mTabsAdapter.addTab(actionBar.newTab().setText(R.string.localcollectionactivity_title_string),
                 new LocalCollectionFragment());
         mTabsAdapter.addTab(actionBar.newTab().setText(R.string.remotecollectionactivity_title_string),
@@ -123,14 +137,22 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
         bindService(playbackIntent, mPlaybackServiceConnection, Context.BIND_WAIVE_PRIORITY);
     }
 
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener#setPlaybackService(org.tomahawk.libtomahawk.audio.PlaybackService)
+     */
     @Override
     public void setPlaybackService(PlaybackService ps) {
         mPlaybackService = ps;
     }
 
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener#onPlaybackServiceReady()
+     */
     @Override
     public void onPlaybackServiceReady() {
-        setPlaybackInfo(mPlaybackService.getCurrentTrack());
+        setNowPlayingInfo(mPlaybackService.getCurrentTrack());
     }
 
     /*
@@ -163,22 +185,97 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.clear();
         ImageButton overflowMenuButton = (ImageButton) findViewById(R.id.imageButton_overflowmenu);
+        MenuItem searchActionItem = menu.add(0, R.id.collectionactivity_search_menu_button, 0, "Search");
+        searchActionItem.setIcon(R.drawable.ic_action_search).setActionView(R.layout.collapsible_edittext).setOnActionExpandListener(
+                this).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
-            menu.add(0, SEARCH_OPTION_ID, 0, "Search").setIcon(R.drawable.ic_action_search).setActionView(
-                    R.layout.collapsible_edittext).setShowAsAction(
-                    MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+            searchActionItem.setVisible(true);
+
+        if (mSearchModeEnabled) {
+            searchActionItem.setVisible(true);
+            if (!searchActionItem.isActionViewExpanded())
+                searchActionItem.expandActionView();
+            View actionView = searchActionItem.getActionView();
+            EditText searchEditText = (EditText) actionView.findViewById(R.id.search_edittext);
+            if (searchEditText != null)
+                searchEditText.requestFocus();
+            if (!mSoftKeyboardShown) {
+                mSoftKeyboardShown = true;
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(searchEditText, 0);
+            }
+            if (mSearchFragment != null && searchEditText != null) {
+                mSearchFragment.setSearchText(searchEditText);
+                searchEditText.setText(mSearchFragment.getSearchString());
+                searchEditText.setSelection(searchEditText.getText().length());
+            }
+        } else {
+            mSoftKeyboardShown = false;
+            if (getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE) {
+                getSupportActionBar().setDisplayShowCustomEnabled(false);
+                searchActionItem.setVisible(false);
+            }
+            searchActionItem.collapseActionView();
+        }
 
         if ((android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH && ViewConfiguration.get(
-                getApplicationContext()).hasPermanentMenuKey()) || android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+                getApplicationContext()).hasPermanentMenuKey())
+                || android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
             overflowMenuButton.setVisibility(ImageButton.GONE);
             overflowMenuButton.setClickable(false);
             overflowMenuButton.setLayoutParams(new LayoutParams(0, 0));
         }
-        refreshPlaybackInfoVisibility();
         if (mPlaybackService != null)
-            setPlaybackInfo(mPlaybackService.getCurrentTrack());
+            setNowPlayingInfo(mPlaybackService.getCurrentTrack());
+        refreshNowPlayingBarVisibility();
+
+        mMenu = menu;
 
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see com.actionbarsherlock.app.SherlockFragmentActivity#onOptionsItemSelected(android.view.MenuItem)
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item != null) {
+            if (item.getItemId() == R.id.collectionactivity_search_menu_button) {
+                onSearchButtonClicked();
+                return true;
+            } else if (item.getItemId() == android.R.id.home) {
+                super.onBackPressed();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Called when the search button is pressed
+     * @param view */
+    public void onSearchButtonClicked(View view) {
+        onSearchButtonClicked();
+    }
+
+    public void onSearchButtonClicked() {
+        toggleSearchMode(mMenu.findItem(R.id.collectionactivity_search_menu_button));
+    }
+
+    public void toggleSearchMode(MenuItem item) {
+        if (item.getItemId() == R.id.collectionactivity_search_menu_button) {
+            if (!mSearchModeEnabled) {
+                mSearchModeEnabled = true;
+                mSearchFragment = new SearchFragment();
+                mTabsAdapter.replace(mSearchFragment, false);
+                supportInvalidateOptionsMenu();
+            } else {
+                mSearchModeEnabled = false;
+                supportInvalidateOptionsMenu();
+            }
+        }
     }
 
     /*
@@ -192,14 +289,14 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        invalidateOptionsMenu();
+        supportInvalidateOptionsMenu();
     }
 
     /**
-     * Called when the playbackInfo is clicked
+     * Called when the nowPlayingInfo is clicked
      * 
      */
-    public void onPlaybackInfoClicked(View view) {
+    public void onNowPlayingClicked(View view) {
         Intent playbackIntent = getIntent(this, PlaybackActivity.class);
         this.startActivity(playbackIntent);
     }
@@ -222,45 +319,46 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
      * 
      * @param track
      */
-    public void setPlaybackInfo(Track track) {
-        RelativeLayout playbackInfoTop = (RelativeLayout) findViewById(R.id.playback_info_top);
-        LinearLayout playbackInfoBottom = (LinearLayout) findViewById(R.id.playback_info_bottom);
-        if (playbackInfoTop != null)
-            playbackInfoTop.setClickable(false);
-        if (playbackInfoBottom != null)
-            playbackInfoBottom.setClickable(false);
+    public void setNowPlayingInfo(Track track) {
+        RelativeLayout nowPlayingInfoTop = (RelativeLayout) findViewById(R.id.now_playing_top);
+        LinearLayout nowPlayingBottom = (LinearLayout) findViewById(R.id.now_playing_bottom);
+        if (nowPlayingInfoTop != null)
+            nowPlayingInfoTop.setClickable(false);
+        if (nowPlayingBottom != null)
+            nowPlayingBottom.setClickable(false);
 
         if (track == null)
             return;
 
-        ImageView playbackInfoAlbumArtTop = (ImageView) findViewById(R.id.playback_info_album_art_top);
-        TextView playbackInfoArtistTop = (TextView) findViewById(R.id.playback_info_artist_top);
-        TextView playbackInfoTitleTop = (TextView) findViewById(R.id.playback_info_title_top);
-        ImageView playbackInfoAlbumArtBottom = (ImageView) findViewById(R.id.playback_info_album_art_bottom);
-        TextView playbackInfoArtistBottom = (TextView) findViewById(R.id.playback_info_artist_bottom);
-        TextView playbackInfoTitleBottom = (TextView) findViewById(R.id.playback_info_title_bottom);
+        ImageView nowPlayingInfoAlbumArtTop = (ImageView) findViewById(R.id.now_playing_album_art_top);
+        TextView nowPlayingInfoArtistTop = (TextView) findViewById(R.id.now_playing_artist_top);
+        TextView nowPlayingInfoTitleTop = (TextView) findViewById(R.id.now_playing_title_top);
+        ImageView nowPlayingInfoAlbumArtBottom = (ImageView) findViewById(R.id.now_playing_album_art_bottom);
+        TextView nowPlayingInfoArtistBottom = (TextView) findViewById(R.id.now_playing_artist_bottom);
+        TextView nowPlayingInfoTitleBottom = (TextView) findViewById(R.id.now_playing_title_bottom);
         Bitmap albumArt = null;
         if (track.getAlbum() != null)
             albumArt = track.getAlbum().getAlbumArt();
-        if (playbackInfoAlbumArtTop != null && playbackInfoArtistTop != null && playbackInfoTitleTop != null) {
+        if (nowPlayingInfoAlbumArtTop != null && nowPlayingInfoArtistTop != null && nowPlayingInfoTitleTop != null) {
             if (albumArt != null)
-                playbackInfoAlbumArtTop.setImageBitmap(albumArt);
+                nowPlayingInfoAlbumArtTop.setImageBitmap(albumArt);
             else
-                playbackInfoAlbumArtTop.setImageDrawable(getResources().getDrawable(
+                nowPlayingInfoAlbumArtTop.setImageDrawable(getResources().getDrawable(
                         R.drawable.no_album_art_placeholder));
-            playbackInfoArtistTop.setText(track.getArtist().toString());
-            playbackInfoTitleTop.setText(track.getName());
-            playbackInfoTop.setClickable(true);
+            nowPlayingInfoArtistTop.setText(track.getArtist().toString());
+            nowPlayingInfoTitleTop.setText(track.getName());
+            nowPlayingInfoTop.setClickable(true);
         }
-        if (playbackInfoAlbumArtBottom != null && playbackInfoArtistBottom != null && playbackInfoTitleBottom != null) {
+        if (nowPlayingInfoAlbumArtBottom != null && nowPlayingInfoArtistBottom != null
+                && nowPlayingInfoTitleBottom != null) {
             if (albumArt != null)
-                playbackInfoAlbumArtBottom.setImageBitmap(albumArt);
+                nowPlayingInfoAlbumArtBottom.setImageBitmap(albumArt);
             else
-                playbackInfoAlbumArtBottom.setImageDrawable(getResources().getDrawable(
+                nowPlayingInfoAlbumArtBottom.setImageDrawable(getResources().getDrawable(
                         R.drawable.no_album_art_placeholder));
-            playbackInfoArtistBottom.setText(track.getArtist().toString());
-            playbackInfoTitleBottom.setText(track.getName());
-            playbackInfoBottom.setClickable(true);
+            nowPlayingInfoArtistBottom.setText(track.getArtist().toString());
+            nowPlayingInfoTitleBottom.setText(track.getName());
+            nowPlayingBottom.setClickable(true);
         }
     }
 
@@ -269,15 +367,17 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
      * Otherwise make it visible
      * 
      */
-    public void refreshPlaybackInfoVisibility() {
-        LinearLayout fakeSplitActionBar = (LinearLayout) findViewById(R.id.fake_split_action_bar);
+    public void refreshNowPlayingBarVisibility() {
+        LinearLayout nowPlayingInfoBottom = (LinearLayout) findViewById(R.id.now_playing_bottom_bar);
         final ActionBar actionBar = getSupportActionBar();
-        if (fakeSplitActionBar != null) {
+        if (nowPlayingInfoBottom != null) {
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                fakeSplitActionBar.setVisibility(LinearLayout.GONE);
+                nowPlayingInfoBottom.setVisibility(LinearLayout.GONE);
                 actionBar.setDisplayShowCustomEnabled(true);
+            } else if (mSearchModeEnabled) {
+                nowPlayingInfoBottom.setVisibility(LinearLayout.GONE);
             } else {
-                fakeSplitActionBar.setVisibility(LinearLayout.VISIBLE);
+                nowPlayingInfoBottom.setVisibility(LinearLayout.VISIBLE);
                 actionBar.setDisplayShowCustomEnabled(false);
             }
         }
@@ -305,12 +405,37 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
      */
     @Override
     public void onBackPressed() {
+        if (mSearchModeEnabled)
+            onSearchButtonClicked();
         if (!mTabsAdapter.back()) {
             super.onBackPressed();
         }
     }
 
+    /**
+     * Called when the back button is pressed
+     * @param view */
     public void onBackPressed(View view) {
         this.onBackPressed();
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see com.actionbarsherlock.view.MenuItem.OnActionExpandListener#onMenuItemActionExpand(com.actionbarsherlock.view.MenuItem)
+     */
+    @Override
+    public boolean onMenuItemActionExpand(MenuItem item) {
+        return true;
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see com.actionbarsherlock.view.MenuItem.OnActionExpandListener#onMenuItemActionCollapse(com.actionbarsherlock.view.MenuItem)
+     */
+    @Override
+    public boolean onMenuItemActionCollapse(MenuItem item) {
+        if (mSearchModeEnabled)
+            onBackPressed();
+        return true;
     }
 }

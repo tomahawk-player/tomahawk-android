@@ -29,11 +29,7 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
-public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabListener,
-        ViewPager.OnPageChangeListener {
-
-    @SuppressWarnings("unused")
-    private static final String TAG = TabsAdapter.class.getName();
+public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabListener, ViewPager.OnPageChangeListener {
 
     private final ArrayList<ArrayList<Fragment>> mFragments = new ArrayList<ArrayList<Fragment>>();
     private ActionBar mActionBar;
@@ -202,15 +198,14 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
         // Replace the fragment using a transaction.
         this.startUpdate(mViewPager);
         FragmentTransaction ft = mFragmentManager.beginTransaction();
-        ft.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right, R.anim.slide_in_left,
-                R.anim.slide_out_right);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         ft.attach(newFragment).remove(currentFragment).commit();
         if (isBackAction == true)
             fragmentsStack.remove(currentFragment);
         else
             fragmentsStack.add(newFragment);
         this.notifyDataSetChanged();
-        this.finishUpdate(mViewPager);        
+        this.finishUpdate(mViewPager);
     }
 
     /**

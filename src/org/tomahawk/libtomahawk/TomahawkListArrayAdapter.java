@@ -37,7 +37,7 @@ public class TomahawkListArrayAdapter extends ArrayAdapter<TomahawkListItem>
         implements Filterable {
 
     private List<TomahawkListItem> mItemsArray;
-    private LayoutInflater mInflator;
+    private LayoutInflater mInflater;
     private int mTextViewResourceIdFirstLine;
     private int mTextViewResourceIdSecondLine;
     private int mResource;
@@ -57,11 +57,13 @@ public class TomahawkListArrayAdapter extends ArrayAdapter<TomahawkListItem>
         public Album getAlbum();
     }
 
+    
     /**
-     * Constructs a new TArrayAdapter
+     * Constructs a new {@link TomahawkListArrayAdapter}
      * 
-     * @param context
+     * @param activity
      * @param resource
+     * @param textViewResourceIdFirstLine
      * @param textViewResourceIdSecondLine
      * @param objects
      */
@@ -73,9 +75,17 @@ public class TomahawkListArrayAdapter extends ArrayAdapter<TomahawkListItem>
         mTextViewResourceIdSecondLine = textViewResourceIdSecondLine;
         mResource = resource;
         mItemsArray = new ArrayList<TomahawkListItem>(objects);
-        mInflator = activity.getLayoutInflater();
+        mInflater = activity.getLayoutInflater();
     }
 
+    /**
+     * Constructs a new {@link TomahawkListArrayAdapter}
+     * 
+     * @param activity
+     * @param resource
+     * @param textViewResourceIdFirstLine
+     * @param objects
+     */
     public TomahawkListArrayAdapter(Activity activity, int resource, int textViewResourceIdFirstLine,
             List<TomahawkListItem> objects) {
         super(activity, resource, textViewResourceIdFirstLine, objects);
@@ -83,7 +93,7 @@ public class TomahawkListArrayAdapter extends ArrayAdapter<TomahawkListItem>
         mTextViewResourceIdFirstLine = textViewResourceIdFirstLine;
         mResource = resource;
         mItemsArray = new ArrayList<TomahawkListItem>(objects);
-        mInflator = activity.getLayoutInflater();
+        mInflater = activity.getLayoutInflater();
     }
 
     static class ViewHolder {
@@ -91,11 +101,15 @@ public class TomahawkListArrayAdapter extends ArrayAdapter<TomahawkListItem>
         protected TextView textSecondLine;
     }
 
+    /* 
+     * (non-Javadoc)
+     * @see android.widget.ArrayAdapter#getView(int, android.view.View, android.view.ViewGroup)
+     */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = null;
 
-        view = mInflator.inflate(mResource, null);
+        view = mInflater.inflate(mResource, null);
         TomahawkListItem item = mItemsArray.get(position);
         ViewHolder viewHolder = null;
         if (convertView == null) {

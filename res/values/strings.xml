@@ -28,7 +28,11 @@
     <string name="tracksfragment_title_string">Tracks</string>
     <string name="albumsfragment_title_string">Albums</string>
     <string name="artistsfragment_title_string">Artists</string>
+    <string name="searchfragment_title_string">Search</string>
+    <string name="searchactivity_title_string">Search</string>
     <string name="playbackactivity_title_string">Playback</string>
+    <string name="playbackactivity_seekbar_completion_time_string">-:--</string>
+    <string name="playbackactivity_seekbar_current_time_string">0:00</string>
     <string name="playbackactivity_toastshuffleon_string">"Shuffle is on"</string>
     <string name="playbackactivity_toastshuffleoff_string">"Shuffle is off"</string>
     <string name="playbackactivity_toastrepeaton_string">"Repeat is on"</string>

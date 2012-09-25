@@ -19,16 +19,16 @@
  */
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/playback_info_top"
+    android:id="@+id/now_playing_top"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="fill_horizontal"
     android:background="@drawable/selectable_background_tomahawk"
     android:clickable="false"
-    android:onClick="onPlaybackInfoClicked" >
+    android:onClick="onNowPlayingClicked" >
 
     <ImageView
-        android:id="@+id/playback_info_album_art_top"
+        android:id="@+id/now_playing_album_art_top"
         android:layout_width="36dip"
         android:layout_height="36dip"
         android:layout_gravity="center_vertical"
@@ -40,11 +40,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="5dip"
-        android:layout_toRightOf="@id/playback_info_album_art_top"
+        android:layout_toRightOf="@id/now_playing_album_art_top"
         android:orientation="vertical" >
 
         <TextView
-            android:id="@+id/playback_info_title_top"
+            android:id="@+id/now_playing_title_top"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
@@ -53,7 +53,7 @@
             android:textSize="14sp" />
 
         <TextView
-            android:id="@+id/playback_info_artist_top"
+            android:id="@+id/now_playing_artist_top"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"

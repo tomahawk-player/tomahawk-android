@@ -44,8 +44,7 @@
         <activity
             android:name="org.tomahawk.tomahawk_android.CollectionActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="@string/mainactivity_title_string"
-            android:uiOptions="splitActionBarWhenNarrow" >
+            android:label="@string/mainactivity_title_string" >
         </activity>
     </application>
 

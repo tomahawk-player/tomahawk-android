@@ -89,7 +89,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_below="@+id/seekBar_track"
-            android:text="-:--"
+            android:text="@string/playbackactivity_seekbar_completion_time_string"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
         <TextView
@@ -98,7 +98,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_below="@+id/seekBar_track"
-            android:text="0:00"
+            android:text="@string/playbackactivity_seekbar_current_time_string"
             android:textAppearance="?android:attr/textAppearanceSmall" />
     </RelativeLayout>
 

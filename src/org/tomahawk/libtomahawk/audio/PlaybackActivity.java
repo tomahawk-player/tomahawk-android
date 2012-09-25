@@ -28,7 +28,6 @@ import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.
 import org.tomahawk.libtomahawk.playlist.AlbumPlaylist;
 import org.tomahawk.libtomahawk.playlist.CollectionPlaylist;
 import org.tomahawk.libtomahawk.playlist.Playlist;
-import org.tomahawk.tomahawk_android.CollectionActivity;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -48,7 +47,6 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
 public class PlaybackActivity extends SherlockActivity implements PlaybackServiceConnectionListener {
@@ -102,7 +100,7 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
 
         final ActionBar bar = getSupportActionBar();
         bar.setDisplayShowHomeEnabled(true);
-        bar.setDisplayShowTitleEnabled(false);
+        bar.setDisplayShowTitleEnabled(true);
         bar.setDisplayHomeAsUpEnabled(true);
 
         mPlaybackSeekBar = (PlaybackSeekBar) findViewById(R.id.seekBar_track);
@@ -155,22 +153,6 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
             unregisterReceiver(mPlaybackServiceBroadcastReceiver);
             mPlaybackServiceBroadcastReceiver = null;
         }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.actionbarsherlock.app.SherlockActivity#onCreateOptionsMenu(android
-     * .view.Menu)
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(0, CollectionActivity.SEARCH_OPTION_ID, 0, "Search").setIcon(R.drawable.ic_action_search).setActionView(
-                R.layout.collapsible_edittext).setShowAsAction(
-                MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
-
-        return super.onCreateOptionsMenu(menu);
     }
 
     /*
@@ -245,9 +227,8 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
         refreshShuffleButtonState();
         if (mToast != null)
             mToast.cancel();
-        mToast = Toast.makeText(
-                getApplicationContext(),
-                getString(mPlaybackService.getCurrentPlaylist().isShuffled() ? R.string.playbackactivity_toastshuffleon_string : R.string.playbackactivity_toastshuffleoff_string),
+        mToast = Toast.makeText(getApplicationContext(), getString(mPlaybackService.getCurrentPlaylist().isShuffled()
+                ? R.string.playbackactivity_toastshuffleon_string : R.string.playbackactivity_toastshuffleoff_string),
                 Toast.LENGTH_SHORT);
         mToast.show();
     }
@@ -258,15 +239,13 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
      * @param view
      */
     public void onRepeatClicked(View view) {
-        mPlaybackService.getCurrentPlaylist().setRepeating(
-                !mPlaybackService.getCurrentPlaylist().isRepeating());
+        mPlaybackService.getCurrentPlaylist().setRepeating(!mPlaybackService.getCurrentPlaylist().isRepeating());
         onPlaylistChanged();
         refreshRepeatButtonState();
         if (mToast != null)
             mToast.cancel();
-        mToast = Toast.makeText(
-                getApplicationContext(),
-                getString(mPlaybackService.getCurrentPlaylist().isRepeating() ? R.string.playbackactivity_toastrepeaton_string : R.string.playbackactivity_toastrepeatoff_string),
+        mToast = Toast.makeText(getApplicationContext(), getString(mPlaybackService.getCurrentPlaylist().isRepeating()
+                ? R.string.playbackactivity_toastrepeaton_string : R.string.playbackactivity_toastrepeatoff_string),
                 Toast.LENGTH_SHORT);
         mToast.show();
     }
@@ -348,8 +327,7 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
             if (!mAlbumArtSwipeAdapter.isSwiped()) {
                 mAlbumArtSwipeAdapter.setByUser(false);
                 if (mPlaybackService.getCurrentPlaylist().getPosition() >= 0)
-                    mAlbumArtSwipeAdapter.setCurrentItem(mPlaybackService.getCurrentPlaylist().getPosition(),
-                            true);
+                    mAlbumArtSwipeAdapter.setCurrentItem(mPlaybackService.getCurrentPlaylist().getPosition(), true);
                 mAlbumArtSwipeAdapter.setByUser(true);
             }
             mAlbumArtSwipeAdapter.setSwiped(false);
@@ -370,8 +348,7 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
             mPlaybackSeekBar.updateTextViewCompleteTime();
             mPlaybackSeekBar.updateTextViewCurrentTime();
             // Update the progressbar the next second
-            mPlaybackSeekBar.getUiHandler().sendEmptyMessageDelayed(PlaybackSeekBar.getMsgUpdateProgress(),
-                    1000);
+            mPlaybackSeekBar.getUiHandler().sendEmptyMessageDelayed(PlaybackSeekBar.getMsgUpdateProgress(), 1000);
         } else {
             findViewById(R.id.imageButton_playpause).setClickable(false);
             findViewById(R.id.imageButton_next).setClickable(false);
@@ -399,7 +376,8 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
      */
     private void refreshRepeatButtonState() {
         ImageButton imageButton = (ImageButton) findViewById(R.id.imageButton_repeat);
-        if (mPlaybackService != null && mPlaybackService.getCurrentPlaylist() != null && mPlaybackService.getCurrentPlaylist().isRepeating())
+        if (mPlaybackService != null && mPlaybackService.getCurrentPlaylist() != null
+                && mPlaybackService.getCurrentPlaylist().isRepeating())
             imageButton.getDrawable().setColorFilter(getResources().getColor(R.color.pressed_tomahawk),
                     PorterDuff.Mode.MULTIPLY);
         else
@@ -412,7 +390,8 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
      */
     private void refreshShuffleButtonState() {
         ImageButton imageButton = (ImageButton) findViewById(R.id.imageButton_shuffle);
-        if (mPlaybackService != null && mPlaybackService.getCurrentPlaylist() != null && mPlaybackService.getCurrentPlaylist().isShuffled())
+        if (mPlaybackService != null && mPlaybackService.getCurrentPlaylist() != null
+                && mPlaybackService.getCurrentPlaylist().isShuffled())
             imageButton.getDrawable().setColorFilter(getResources().getColor(R.color.pressed_tomahawk),
                     PorterDuff.Mode.MULTIPLY);
         else

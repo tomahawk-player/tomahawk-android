@@ -24,6 +24,7 @@
     android:background="@drawable/selectable_background_tomahawk"
     android:orientation="vertical"
     android:paddingBottom="5dip"
+    android:paddingLeft="10dip"
     android:paddingTop="5dip" >
 
     <TextView
@@ -31,6 +32,8 @@
         android:id="@+id/single_line_list_menu_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:singleLine="true"
         android:textColor="#F2F2F2"
         android:textSize="12pt"
         android:typeface="sans" />

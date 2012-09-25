@@ -24,13 +24,16 @@
     android:background="@drawable/selectable_background_tomahawk"
     android:orientation="vertical"
     android:paddingBottom="2dip"
-    android:paddingTop="2dip" >
+    android:paddingTop="2dip"
+    android:paddingLeft="10dip" >
 
     <TextView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/double_line_list_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:singleLine="true"
         android:textColor="#FFFFFF"
         android:textSize="8pt"
         android:typeface="sans" />
@@ -40,6 +43,8 @@
         android:id="@+id/double_line_list_textview2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:singleLine="true"
         android:textSize="6pt"
         android:typeface="sans" />
 
