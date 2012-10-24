@@ -38,7 +38,7 @@ import android.widget.TextView;
 /**
  * Fragment which represents the "Tracks" tabview.
  */
-public class TracksFragment extends TomahawkListFragment implements OnItemClickListener {
+public class TracksFragment extends TomahawkFragment implements OnItemClickListener {
 
     private Album mAlbum;
 

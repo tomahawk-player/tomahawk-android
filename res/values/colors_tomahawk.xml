@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- File created by the Android Action Bar Style Generator
+<!--
+     File created by the Android Action Bar Style Generator
 
      Copyright (C) 2012 readyState Software Ltd
 
@@ -17,6 +18,9 @@
 -->
 
 <resources>
+
     <color name="pressed_tomahawk">#CCe23a2e</color>
     <color name="divider">#3B3F45</color>
+    <color name="transparent_black">#99000000</color>
+
 </resources>

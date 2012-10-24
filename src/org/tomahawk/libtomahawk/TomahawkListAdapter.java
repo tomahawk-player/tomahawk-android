@@ -23,11 +23,13 @@ import java.util.List;
 import org.tomahawk.tomahawk_android.R;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -40,12 +42,17 @@ public class TomahawkListAdapter extends BaseAdapter {
     private List<List<TomahawkListItem>> mListArray;
     private List<List<TomahawkListItem>> mFilteredListArray;
     private List<String> mHeaderArray;
+    private boolean mShowAsGrid = false;
     private boolean mShowHeaders;
     private boolean mFiltered;
     private LayoutInflater mInflater;
     private int mResourceListItem;
     private int mTextViewResourceListItemId1;
     private int mTextViewResourceListItemId2;
+    private int mResourceGridItem;
+    private int mImageViewResourceGridItem;
+    private int mTextViewResourceGridItemId1;
+    private int mTextViewResourceGridItemId2;
     private int mResourceListHeader;
     private int mTextViewResourceListHeaderId;
 
@@ -62,6 +69,33 @@ public class TomahawkListAdapter extends BaseAdapter {
 
         /** @return the corresponding {@link Album} */
         public Album getAlbum();
+    }
+
+    /**
+     * Constructs a new {@link TomahawkListAdapter}
+     * 
+     * @param activity the activity, which uses the {@link TomahawkListAdapter}. Used to get the {@link LayoutInflater}
+     * @param resourceListItem the resource id for the view, that represents a listItem
+     * @param imageViewResourceGridItem the resource id for the view, that displays the album art image
+     * @param textViewResourceListItemId1 the resource id for the textView inside resourceListItem that displays the
+     * first line of text
+     * @param textViewResourceListItemId2 the resource id for the textView inside resourceListItem that displays the
+     * second line of text
+     * @param list contains a list of TomahawkListItems.
+     */
+    public TomahawkListAdapter(Activity activity, int resourceGridItem, int imageViewResourceGridItem,
+            int textViewResourceGridItemId1, int textViewResourceGridItemId2, List<TomahawkListItem> list) {
+        mInflater = activity.getLayoutInflater();
+        mResourceGridItem = resourceGridItem;
+        mImageViewResourceGridItem = imageViewResourceGridItem;
+        mTextViewResourceGridItemId1 = textViewResourceGridItemId1;
+        mTextViewResourceGridItemId2 = textViewResourceGridItemId2;
+        mListArray = new ArrayList<List<TomahawkListItem>>();
+        mListArray.add(list);
+        mShowAsGrid = true;
+        mShowHeaders = false;
+        setFiltered(false);
+        fillHeaderArray();
     }
 
     /**
@@ -295,8 +329,24 @@ public class TomahawkListAdapter extends BaseAdapter {
         this.mFiltered = filtered;
     }
 
+    /**
+     * @return true if data is shown as a gridView, else false
+     */
+    public boolean isShowAsGrid() {
+        return mShowAsGrid;
+    }
+
+    /**
+     * @param set wether or not the data should be shown in a gridView
+     */
+    public void setShowAsGrid(boolean mShowAsGrid) {
+        this.mShowAsGrid = mShowAsGrid;
+        this.mShowHeaders = false;
+    }
+
     static class ViewHolder {
         protected int viewType;
+        protected ImageView albumArt;
         protected TextView textFirstLine;
         protected TextView textSecondLine;
     }
@@ -313,12 +363,20 @@ public class TomahawkListAdapter extends BaseAdapter {
         if (item != null) {
             ViewHolder viewHolder = new ViewHolder();
 
-            if ((item instanceof TomahawkListItem && convertView == null)
-                    || (item instanceof TomahawkListItem && convertView != null && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_item)) {
+            if ((item instanceof TomahawkListItem && !mShowAsGrid && convertView == null)
+                    || (item instanceof TomahawkListItem && convertView != null && !mShowAsGrid && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_listitem)) {
                 view = mInflater.inflate(mResourceListItem, null);
-                viewHolder.viewType = R.id.tomahawklistadapter_viewtype_item;
+                viewHolder.viewType = R.id.tomahawklistadapter_viewtype_listitem;
                 viewHolder.textFirstLine = (TextView) view.findViewById(mTextViewResourceListItemId1);
                 viewHolder.textSecondLine = (TextView) view.findViewById(mTextViewResourceListItemId2);
+                view.setTag(viewHolder);
+            } else if ((item instanceof TomahawkListItem && mShowAsGrid && convertView == null)
+                    || (item instanceof TomahawkListItem && convertView != null && mShowAsGrid && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_griditem)) {
+                view = mInflater.inflate(mResourceGridItem, null);
+                viewHolder.viewType = R.id.tomahawklistadapter_viewtype_griditem;
+                viewHolder.albumArt = (ImageView) view.findViewById(mImageViewResourceGridItem);
+                viewHolder.textFirstLine = (TextView) view.findViewById(mTextViewResourceGridItemId1);
+                viewHolder.textSecondLine = (TextView) view.findViewById(mTextViewResourceGridItemId2);
                 view.setTag(viewHolder);
             } else if ((item instanceof String && convertView == null)
                     || (item instanceof String && convertView != null && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_header)) {
@@ -329,6 +387,13 @@ public class TomahawkListAdapter extends BaseAdapter {
             } else {
                 view = convertView;
                 viewHolder = (ViewHolder) view.getTag();
+            }
+            if (viewHolder.albumArt != null) {
+                Bitmap albumArtBitmap = ((TomahawkListItem) item).getAlbum().getAlbumArt();
+                if (albumArtBitmap != null)
+                    viewHolder.albumArt.setImageBitmap(albumArtBitmap);
+                else
+                    viewHolder.albumArt.setImageResource(R.drawable.no_album_art_placeholder);
             }
             if (viewHolder.textFirstLine != null) {
                 if (item instanceof String)

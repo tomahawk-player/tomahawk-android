@@ -44,7 +44,7 @@ import android.widget.EditText;
  * @author Enno Gottschalk <mrmaffen@googlemail.com>
  *
  */
-public class SearchFragment extends TomahawkListFragment implements OnItemClickListener, TextWatcher {
+public class SearchFragment extends TomahawkFragment implements OnItemClickListener, TextWatcher {
 
     private EditText mSearchText = null;
     private String mSearchString = null;

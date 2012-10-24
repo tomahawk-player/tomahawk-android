@@ -3,7 +3,8 @@
 
     <item name="collectionactivity_search_menu_button" type="id"/>
     <item name="tomahawklistadapter_viewtype_header" type="id"/>
-    <item name="tomahawklistadapter_viewtype_item" type="id"/>
+    <item name="tomahawklistadapter_viewtype_listitem" type="id"/>
+    <item name="tomahawklistadapter_viewtype_griditem" type="id"/>
     <item name="tomahawklistadapter_viewholder" type="id"/>
 
 </resources>

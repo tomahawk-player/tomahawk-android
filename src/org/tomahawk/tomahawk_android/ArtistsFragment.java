@@ -35,7 +35,7 @@ import android.widget.TextView;
 /**
  * Fragment which represents the "Artist" tabview.
  */
-public class ArtistsFragment extends TomahawkListFragment implements OnItemClickListener {
+public class ArtistsFragment extends TomahawkFragment implements OnItemClickListener {
 
     /*
      * (non-Javadoc)

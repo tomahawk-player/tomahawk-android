@@ -36,7 +36,7 @@ import android.widget.TextView;
 /**
  * Fragment which represents the "Album" tabview.
  */
-public class AlbumsFragment extends TomahawkListFragment implements OnItemClickListener {
+public class AlbumsFragment extends TomahawkFragment implements OnItemClickListener {
 
     private Artist mArtist;
 
@@ -55,8 +55,11 @@ public class AlbumsFragment extends TomahawkListFragment implements OnItemClickL
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        getListView().setFastScrollEnabled(true);
-        getListView().setOnItemClickListener(this);
+        setShowAsGrid(true);
+        getGridView().setFastScrollEnabled(true);
+        getGridView().setOnItemClickListener(this);
+        getGridView().setPadding(0, 0, 0, 0);
+        adaptColumnCount();
         TextView textView = (TextView) getActivity().findViewById(R.id.fragmentLayout_backbutton_textView);
         textView.setText(getString(R.string.albumsfragment_title_string));
     }
@@ -82,6 +85,7 @@ public class AlbumsFragment extends TomahawkListFragment implements OnItemClickL
         else
             albums.addAll(coll.getAlbums());
 
-        setListAdapter(new TomahawkListAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, albums));
+        setListAdapter(new TomahawkListAdapter(getActivity(), R.layout.album_art_grid_item, R.id.album_art_grid_image,
+                R.id.album_art_grid_textView1, R.id.album_art_grid_textView2, albums));
     }
 }
