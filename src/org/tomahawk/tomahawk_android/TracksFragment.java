@@ -22,8 +22,8 @@ import java.util.List;
 
 import org.tomahawk.libtomahawk.Album;
 import org.tomahawk.libtomahawk.Collection;
-import org.tomahawk.libtomahawk.TomahawkListArrayAdapter;
-import org.tomahawk.libtomahawk.TomahawkListArrayAdapter.TomahawkListItem;
+import org.tomahawk.libtomahawk.TomahawkListAdapter;
+import org.tomahawk.libtomahawk.TomahawkListAdapter.TomahawkListItem;
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 
@@ -95,6 +95,6 @@ public class TracksFragment extends TomahawkListFragment implements OnItemClickL
         else
             tracks.addAll(coll.getTracks());
 
-        setListAdapter(new TomahawkListArrayAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, tracks));
+        setListAdapter(new TomahawkListAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, tracks));
     }
 }

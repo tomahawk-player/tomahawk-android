@@ -23,8 +23,8 @@ import java.util.List;
 import org.tomahawk.libtomahawk.Album;
 import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.Collection;
-import org.tomahawk.libtomahawk.TomahawkListArrayAdapter;
-import org.tomahawk.libtomahawk.TomahawkListArrayAdapter.TomahawkListItem;
+import org.tomahawk.libtomahawk.TomahawkListAdapter;
+import org.tomahawk.libtomahawk.TomahawkListAdapter.TomahawkListItem;
 
 import android.os.Bundle;
 import android.support.v4.content.Loader;
@@ -82,6 +82,6 @@ public class AlbumsFragment extends TomahawkListFragment implements OnItemClickL
         else
             albums.addAll(coll.getAlbums());
 
-        setListAdapter(new TomahawkListArrayAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, albums));
+        setListAdapter(new TomahawkListAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, albums));
     }
 }

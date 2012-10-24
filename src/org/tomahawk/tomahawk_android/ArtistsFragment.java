@@ -22,8 +22,8 @@ import java.util.List;
 
 import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.Collection;
-import org.tomahawk.libtomahawk.TomahawkListArrayAdapter;
-import org.tomahawk.libtomahawk.TomahawkListArrayAdapter.TomahawkListItem;
+import org.tomahawk.libtomahawk.TomahawkListAdapter;
+import org.tomahawk.libtomahawk.TomahawkListAdapter.TomahawkListItem;
 
 import android.os.Bundle;
 import android.support.v4.content.Loader;
@@ -69,6 +69,6 @@ public class ArtistsFragment extends TomahawkListFragment implements OnItemClick
         super.onLoadFinished(loader, coll);
 
         List<TomahawkListItem> items = new ArrayList<TomahawkListItem>(coll.getArtists());
-        setListAdapter(new TomahawkListArrayAdapter(getActivity(), R.layout.single_line_list_item, R.id.single_line_list_textview, items));
+        setListAdapter(new TomahawkListAdapter(getActivity(), R.layout.single_line_list_item, R.id.single_line_list_textview, items));
     }
 }

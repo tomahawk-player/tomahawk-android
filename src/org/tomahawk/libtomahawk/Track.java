@@ -20,7 +20,7 @@ package org.tomahawk.libtomahawk;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import org.tomahawk.libtomahawk.TomahawkListArrayAdapter.TomahawkListItem;
+import org.tomahawk.libtomahawk.TomahawkListAdapter.TomahawkListItem;
 
 /**
  * This class is used to compare two Tracks.

@@ -23,8 +23,8 @@ import java.util.List;
 import org.tomahawk.libtomahawk.Album;
 import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.Collection;
-import org.tomahawk.libtomahawk.SearchListAdapter;
-import org.tomahawk.libtomahawk.TomahawkListArrayAdapter.TomahawkListItem;
+import org.tomahawk.libtomahawk.TomahawkListAdapter;
+import org.tomahawk.libtomahawk.TomahawkListAdapter.TomahawkListItem;
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 
@@ -48,7 +48,7 @@ public class SearchFragment extends TomahawkListFragment implements OnItemClickL
 
     private EditText mSearchText = null;
     private String mSearchString = null;
-    private SearchListAdapter mSearchListAdapter;
+    private TomahawkListAdapter mTomahawkListAdapter;
 
     /*
      * (non-Javadoc)
@@ -94,10 +94,10 @@ public class SearchFragment extends TomahawkListFragment implements OnItemClickL
         showFragment(idx);
     }
 
-    /** Show the corresponding fragment (depends on which instance the item at position idx is of)
+    /** Show the corresponding fragment (depends of which instance the item at position idx is of)
      * @param idx the position of the item inside the shown list*/
     public void showFragment(int idx) {
-        Object item = mSearchListAdapter.getItem(idx);
+        Object item = mTomahawkListAdapter.getItem(idx);
         if (item instanceof TomahawkListItem) {
             if (item instanceof Album)
                 mCollectionActivity.getTabsAdapter().replace(new TracksFragment((Album) item), false);
@@ -140,10 +140,10 @@ public class SearchFragment extends TomahawkListFragment implements OnItemClickL
         listArray.get(1).addAll(coll.getArtists());
         listArray.get(2).addAll(coll.getAlbums());
 
-        mSearchListAdapter = new SearchListAdapter(getActivity(), R.layout.single_line_list_header,
+        mTomahawkListAdapter = new TomahawkListAdapter(getActivity(), R.layout.single_line_list_header,
                 R.id.single_line_list_header_textview, R.layout.single_line_list_item, R.id.single_line_list_textview,
                 listArray, headerArray);
-        getListView().setAdapter(mSearchListAdapter);
+        getListView().setAdapter(mTomahawkListAdapter);
 
         getSherlockActivity().supportInvalidateOptionsMenu();
     }
@@ -176,7 +176,7 @@ public class SearchFragment extends TomahawkListFragment implements OnItemClickL
                 getListView().setVisibility(View.INVISIBLE);
             else
                 getListView().setVisibility(View.VISIBLE);
-            mSearchListAdapter.getFilter().filter(s.toString());
+            mTomahawkListAdapter.getFilter().filter(s.toString());
         }
     }
 
