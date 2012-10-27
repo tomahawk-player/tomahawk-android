@@ -18,14 +18,14 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<org.tomahawk.tomahawk_android.SquareRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content" >
 
     <ImageView
         android:id="@+id/album_art_grid_image"
         android:layout_width="match_parent"
-        android:layout_height="160dp"
+        android:layout_height="match_parent"
         android:scaleType="centerCrop" />
 
     <LinearLayout
@@ -59,4 +59,4 @@
             android:typeface="sans" />
     </LinearLayout>
 
-</RelativeLayout>
+</org.tomahawk.tomahawk_android.SquareRelativeLayout>

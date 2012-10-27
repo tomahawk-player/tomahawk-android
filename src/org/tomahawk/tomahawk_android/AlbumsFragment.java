@@ -56,10 +56,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
         super.onActivityCreated(savedInstanceState);
 
         setShowAsGrid(true);
-        getGridView().setFastScrollEnabled(true);
         getGridView().setOnItemClickListener(this);
-        getGridView().setPadding(0, 0, 0, 0);
-        adaptColumnCount();
         TextView textView = (TextView) getActivity().findViewById(R.id.fragmentLayout_backbutton_textView);
         textView.setText(getString(R.string.albumsfragment_title_string));
     }

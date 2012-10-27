@@ -41,25 +41,27 @@
             android:id="@+id/listview"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:drawSelectorOnTop="false" />
+            android:drawSelectorOnTop="false"
+            android:listSelector="@drawable/selectable_background_tomahawk" />
     </FrameLayout>
 
     <FrameLayout
         android:id="@+id/fragmentLayout_gridLayout_frameLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical" >
 
         <GridView
-            xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/gridview"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:columnWidth="90dp"
-            android:gravity="center"
-            android:horizontalSpacing="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:drawSelectorOnTop="true"
+            android:fastScrollEnabled="true"
+            android:horizontalSpacing="2dp"
+            android:listSelector="@drawable/selectable_background_tomahawk"
             android:numColumns="auto_fit"
-            android:stretchMode="columnWidth"
-            android:verticalSpacing="10dp" />
+            android:scrollbars="none"
+            android:verticalSpacing="2dp" />
     </FrameLayout>
 
 </LinearLayout>

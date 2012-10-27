@@ -17,13 +17,19 @@
  */
 package org.tomahawk.libtomahawk;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.tomahawk.tomahawk_android.R;
 
 import android.app.Activity;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,13 +45,16 @@ import android.widget.TextView;
  */
 public class TomahawkListAdapter extends BaseAdapter {
 
-    private List<List<TomahawkListItem>> mListArray;
-    private List<List<TomahawkListItem>> mFilteredListArray;
-    private List<String> mHeaderArray;
+    private Activity mActivity;
+    private LayoutInflater mInflater;
+
     private boolean mShowAsGrid = false;
     private boolean mShowHeaders;
     private boolean mFiltered;
-    private LayoutInflater mInflater;
+
+    private List<List<TomahawkListItem>> mListArray;
+    private List<List<TomahawkListItem>> mFilteredListArray;
+    private List<String> mHeaderArray;
     private int mResourceListItem;
     private int mTextViewResourceListItemId1;
     private int mTextViewResourceListItemId2;
@@ -55,6 +64,7 @@ public class TomahawkListAdapter extends BaseAdapter {
     private int mTextViewResourceGridItemId2;
     private int mResourceListHeader;
     private int mTextViewResourceListHeaderId;
+    private Bitmap mPlaceHolderBitmap;
 
     /**
      * This interface represents an item displayed in our {@link Collection} list.
@@ -71,6 +81,52 @@ public class TomahawkListAdapter extends BaseAdapter {
         public Album getAlbum();
     }
 
+    static class AsyncDrawable extends BitmapDrawable {
+        private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
+
+        public AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerTask bitmapWorkerTask) {
+            super(res, bitmap);
+            bitmapWorkerTaskReference = new WeakReference<BitmapWorkerTask>(bitmapWorkerTask);
+        }
+
+        public BitmapWorkerTask getBitmapWorkerTask() {
+            return (BitmapWorkerTask) bitmapWorkerTaskReference.get();
+        }
+    }
+
+    private class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
+        private final WeakReference<ImageView> imageViewReference;
+        private String data;
+
+        public BitmapWorkerTask(ImageView imageView) {
+            // Use a WeakReference to ensure the ImageView can be garbage collected
+            imageViewReference = new WeakReference<ImageView>(imageView);
+        }
+
+        // Decode image in background.
+        @Override
+        protected Bitmap doInBackground(String... params) {
+            data = params[0];
+            return BitmapFactory.decodeFile(data);
+        }
+
+        // Once complete, see if ImageView is still around and set bitmap.
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            if (isCancelled()) {
+                bitmap = null;
+            }
+
+            if (imageViewReference != null && bitmap != null) {
+                final ImageView imageView = (ImageView) imageViewReference.get();
+                final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
+                if (this == bitmapWorkerTask && imageView != null) {
+                    imageView.setImageBitmap(bitmap);
+                }
+            }
+        }
+    }
+
     /**
      * Constructs a new {@link TomahawkListAdapter}
      * 
@@ -85,6 +141,7 @@ public class TomahawkListAdapter extends BaseAdapter {
      */
     public TomahawkListAdapter(Activity activity, int resourceGridItem, int imageViewResourceGridItem,
             int textViewResourceGridItemId1, int textViewResourceGridItemId2, List<TomahawkListItem> list) {
+        mActivity = activity;
         mInflater = activity.getLayoutInflater();
         mResourceGridItem = resourceGridItem;
         mImageViewResourceGridItem = imageViewResourceGridItem;
@@ -111,6 +168,7 @@ public class TomahawkListAdapter extends BaseAdapter {
      */
     public TomahawkListAdapter(Activity activity, int resourceListItem, int textViewResourceListItemId1,
             int textViewResourceListItemId2, List<TomahawkListItem> list) {
+        mActivity = activity;
         mInflater = activity.getLayoutInflater();
         mResourceListItem = resourceListItem;
         mTextViewResourceListItemId1 = textViewResourceListItemId1;
@@ -133,6 +191,7 @@ public class TomahawkListAdapter extends BaseAdapter {
      */
     public TomahawkListAdapter(Activity activity, int resourceListItem, int textViewResourceListItemId1,
             List<TomahawkListItem> list) {
+        mActivity = activity;
         mInflater = activity.getLayoutInflater();
         mResourceListItem = resourceListItem;
         mTextViewResourceListItemId1 = textViewResourceListItemId1;
@@ -162,6 +221,7 @@ public class TomahawkListAdapter extends BaseAdapter {
     public TomahawkListAdapter(Activity activity, int resourceListHeader, int textViewResourceListHeaderId,
             int resourceListItem, int textViewResourceListItemId1, int textViewResourceListItemId2,
             List<List<TomahawkListItem>> listArray, List<String> headerArray) {
+        mActivity = activity;
         mInflater = activity.getLayoutInflater();
         mResourceListHeader = resourceListHeader;
         mTextViewResourceListHeaderId = textViewResourceListHeaderId;
@@ -193,6 +253,7 @@ public class TomahawkListAdapter extends BaseAdapter {
     public TomahawkListAdapter(Activity activity, int resourceListHeader, int textViewResourceListHeaderId,
             int resourceListItem, int textViewResourceListItemId1, List<List<TomahawkListItem>> listArray,
             List<String> headerArray) {
+        mActivity = activity;
         mInflater = activity.getLayoutInflater();
         mResourceListHeader = resourceListHeader;
         mTextViewResourceListHeaderId = textViewResourceListHeaderId;
@@ -344,6 +405,62 @@ public class TomahawkListAdapter extends BaseAdapter {
         this.mShowHeaders = false;
     }
 
+    /** 
+     * Load a {@link Bitmap} asynchronously
+     * @param pathToBitmap the file path to the {@link Bitmap} to load
+     * @param imageView the {@link ImageView}, which will be used to show the {@link Bitmap}*/
+    public void loadBitmap(String pathToBitmap, ImageView imageView) {
+        if (cancelPotentialWork(pathToBitmap, imageView)) {
+            final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
+            if (mPlaceHolderBitmap == null)
+                mPlaceHolderBitmap = BitmapFactory.decodeResource(mActivity.getResources(),
+                        R.drawable.no_album_art_placeholder);
+            final AsyncDrawable asyncDrawable = new AsyncDrawable(mActivity.getResources(), mPlaceHolderBitmap, task);
+            imageView.setImageDrawable(asyncDrawable);
+            task.execute(pathToBitmap);
+        }
+    }
+
+    /** 
+     * Checks if another running task is already associated with the {@link ImageView}
+     * @param data
+     * @param imageView
+     * @return */
+    public static boolean cancelPotentialWork(String data, ImageView imageView) {
+        final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
+
+        if (bitmapWorkerTask != null) {
+            final String bitmapData = bitmapWorkerTask.data;
+            if (bitmapData != data) {
+                // Cancel previous task
+                bitmapWorkerTask.cancel(true);
+            } else {
+                // The same work is already in progress
+                return false;
+            }
+        }
+        // No task associated with the ImageView, or an existing task was cancelled
+        return true;
+    }
+
+    /** 
+     * Used to get the {@link BitmapWorkerTask}, which is used to asynchronously load a {@link Bitmap} into to {@link ImageView}
+     * @param imageView
+     * @return */
+    private static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
+        if (imageView != null) {
+            final Drawable drawable = imageView.getDrawable();
+            if (drawable instanceof AsyncDrawable) {
+                final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
+                return asyncDrawable.getBitmapWorkerTask();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * This {@link ViewHolder} holds the data to an entry in the grid/listView
+     */
     static class ViewHolder {
         protected int viewType;
         protected ImageView albumArt;
@@ -389,9 +506,10 @@ public class TomahawkListAdapter extends BaseAdapter {
                 viewHolder = (ViewHolder) view.getTag();
             }
             if (viewHolder.albumArt != null) {
-                Bitmap albumArtBitmap = ((TomahawkListItem) item).getAlbum().getAlbumArt();
-                if (albumArtBitmap != null)
-                    viewHolder.albumArt.setImageBitmap(albumArtBitmap);
+                String albumArtPath = ((TomahawkListItem) item).getAlbum().getAlbumArtPath();
+                if (albumArtPath != null)
+                    //                    viewHolder.albumArt.setImageBitmap(albumArtBitmap);
+                    loadBitmap(albumArtPath, viewHolder.albumArt);
                 else
                     viewHolder.albumArt.setImageResource(R.drawable.no_album_art_placeholder);
             }

@@ -21,7 +21,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/selectable_background_tomahawk"
     android:orientation="vertical"
     android:paddingBottom="5dip"
     android:paddingLeft="10dip"

@@ -138,6 +138,8 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
     public void onResume() {
         super.onResume();
 
+        adaptColumnCount();
+
         getSherlockActivity().getSupportLoaderManager().destroyLoader(getId());
         getSherlockActivity().getSupportLoaderManager().initLoader(getId(), null, this);
 

@@ -188,6 +188,10 @@ public class Album implements TomahawkListItem {
         return sCoverCache.get(mAlbumArt);
     }
 
+    public String getAlbumArtPath() {
+        return mAlbumArt;
+    }
+
     public void setAlbumArt(String albumArt) {
         mAlbumArt = albumArt;
     }

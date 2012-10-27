@@ -19,7 +19,9 @@ package org.tomahawk.tomahawk_android;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -37,6 +39,17 @@ public class RemoteCollectionFragment extends SherlockListFragment implements On
     private ArrayAdapter<String> mRemoteCollectionAdapter;
     protected CollectionActivity mCollectionActivity;
 
+    /* 
+     * (non-Javadoc)
+     * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
+     */
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = new View(getActivity().getApplicationContext());
+        view = inflater.inflate(R.layout.menu_layout, null, false);
+        return view;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -47,8 +60,9 @@ public class RemoteCollectionFragment extends SherlockListFragment implements On
         super.onActivityCreated(savedInstanceState);
         getListView().setFastScrollEnabled(true);
         getListView().setOnItemClickListener(this);
-        mRemoteCollectionAdapter = new ArrayAdapter<String>(getActivity(), R.layout.single_line_list_menu, R.id.single_line_list_menu_textview, getResources().getStringArray(
-                R.array.remote_collection_menu_items));
+        mRemoteCollectionAdapter = new ArrayAdapter<String>(getActivity(), R.layout.single_line_list_menu,
+                R.id.single_line_list_menu_textview,
+                getResources().getStringArray(R.array.remote_collection_menu_items));
         setListAdapter(mRemoteCollectionAdapter);
     }
 
