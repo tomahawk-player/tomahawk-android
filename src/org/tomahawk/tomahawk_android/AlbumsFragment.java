@@ -25,18 +25,21 @@ import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.TomahawkListAdapter;
 import org.tomahawk.libtomahawk.TomahawkListAdapter.TomahawkListItem;
+import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.TextView;
 
 /**
  * Fragment which represents the "Album" tabview.
  */
-public class AlbumsFragment extends TomahawkFragment implements OnItemClickListener {
+public class AlbumsFragment extends TomahawkFragment implements OnItemClickListener, OnItemLongClickListener {
 
     private Artist mArtist;
 
@@ -57,6 +60,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
 
         setShowAsGrid(true);
         getGridView().setOnItemClickListener(this);
+        getGridView().setOnItemLongClickListener(this);
         TextView textView = (TextView) getActivity().findViewById(R.id.fragmentLayout_backbutton_textView);
         textView.setText(getString(R.string.albumsfragment_title_string));
     }
@@ -67,6 +71,23 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
         mCollectionActivity.getTabsAdapter().replace(new TracksFragment((Album) getListAdapter().getItem(idx)), false);
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see com.actionbarsherlock.internal.widget.IcsAdapterView.OnItemLongClickListener#onItemLongClick(com.actionbarsherlock.internal.widget.IcsAdapterView, android.view.View, int, long)
+     */
+    @Override
+    public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+        Bundle bundle = new Bundle();
+        bundle.putLong(PlaybackActivity.PLAYLIST_ALBUM_ID, ((Album) getListAdapter().getItem(position)).getId());
+        bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID,
+                ((Album) getListAdapter().getItem(position)).getTracks().get(0).getId());
+
+        Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
+        playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
+        startActivity(playbackIntent);
+        return true;
     }
 
     /* (non-Javadoc)

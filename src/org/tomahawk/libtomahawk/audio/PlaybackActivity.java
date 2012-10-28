@@ -22,10 +22,12 @@ package org.tomahawk.libtomahawk.audio;
 import java.io.IOException;
 
 import org.tomahawk.libtomahawk.Album;
+import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
 import org.tomahawk.libtomahawk.playlist.AlbumPlaylist;
+import org.tomahawk.libtomahawk.playlist.ArtistPlaylist;
 import org.tomahawk.libtomahawk.playlist.CollectionPlaylist;
 import org.tomahawk.libtomahawk.playlist.Playlist;
 import org.tomahawk.tomahawk_android.R;
@@ -66,6 +68,8 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
     public static final String PLAYLIST_EXTRA = "playlist_extra";
 
     public static final String PLAYLIST_ALBUM_ID = "playlist_album_id";
+
+    public static final String PLAYLIST_ARTIST_ID = "playlist_artist_id";
 
     public static final String PLAYLIST_TRACK_ID = "playlist_track_id";
 
@@ -291,11 +295,14 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
             if (playlistBundle.containsKey(PLAYLIST_ALBUM_ID)) {
                 long albumid = playlistBundle.getLong(PLAYLIST_ALBUM_ID);
                 playlist = AlbumPlaylist.fromAlbum(Album.get(albumid), Track.get(trackid));
-            } else {
+            } else if (playlistBundle.containsKey(PLAYLIST_COLLECTION_ID)) {
                 int collid = playlistBundle.getInt(PLAYLIST_COLLECTION_ID);
                 TomahawkApp app = (TomahawkApp) getApplication();
                 playlist = CollectionPlaylist.fromCollection(app.getSourceList().getCollectionFromId(collid),
                         Track.get(trackid));
+            } else if (playlistBundle.containsKey(PLAYLIST_ARTIST_ID)) {
+                long artistid = playlistBundle.getLong(PLAYLIST_ARTIST_ID);
+                playlist = ArtistPlaylist.fromArtist(Artist.get(artistid));
             }
             try {
                 mPlaybackService.setCurrentPlaylist(playlist);
