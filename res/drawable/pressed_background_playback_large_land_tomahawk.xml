@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:innerRadiusRatio="4.2"
+    android:thicknessRatio="50"
+    android:useLevel="false"
+    android:shape="ring" >
+
+    <solid android:color="@color/pressed_tomahawk" />
+
+</shape>
