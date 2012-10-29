@@ -21,11 +21,9 @@
     package="org.tomahawk.tomahawk_android"
     android:versionCode="1"
     android:versionName="0.1" >
-
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="16" />
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.STATUS_BAR" />
@@ -36,7 +34,6 @@
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
     <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
-
     <supports-screens
         android:anyDensity="true"
         android:largeScreens="true"
@@ -82,7 +79,6 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
-
         <service
             android:name="org.tomahawk.libtomahawk.audio.PlaybackService"
             android:label="@string/playbackservice_label_string"
