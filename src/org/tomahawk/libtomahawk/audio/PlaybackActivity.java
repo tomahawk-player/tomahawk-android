@@ -138,6 +138,7 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
         startService(playbackIntent);
         bindService(playbackIntent, mPlaybackServiceConnection, Context.BIND_AUTO_CREATE);
 
+        refreshPlayPauseButtonState();
         refreshRepeatButtonState();
         refreshShuffleButtonState();
     }
@@ -312,6 +313,10 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
         }
         mAlbumArtSwipeAdapter.setPlaybackService(mPlaybackService);
         refreshActivityTrackInfo();
+        refreshPlayPauseButtonState();
+        refreshRepeatButtonState();
+        refreshShuffleButtonState();
+        
     }
 
     /**

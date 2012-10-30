@@ -152,11 +152,13 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     /** @param position to set the current item to
     /** @param smoothScroll boolean to determine wether or not to show a scrolling animation */
     public void setCurrentItem(int position, boolean smoothScroll) {
-        if (position != mCurrentViewPage) {
+        if (position != mCurrentViewPage && position != mCurrentViewPage % mPlaylist.getCount()) {
             if (mPlaylist.isRepeating()) {
-                if (position == (mCurrentViewPage % mPlaylist.getCount()) + 1 || ((mCurrentViewPage % mPlaylist.getCount()) == mPlaylist.getCount() - 1 && position == 0))
+                if (position == (mCurrentViewPage % mPlaylist.getCount()) + 1
+                        || ((mCurrentViewPage % mPlaylist.getCount()) == mPlaylist.getCount() - 1 && position == 0))
                     setCurrentToNextItem(smoothScroll);
-                else if (position == (mCurrentViewPage % mPlaylist.getCount()) - 1 || ((mCurrentViewPage % mPlaylist.getCount()) == 0 && position == mPlaylist.getCount() - 1))
+                else if (position == (mCurrentViewPage % mPlaylist.getCount()) - 1
+                        || ((mCurrentViewPage % mPlaylist.getCount()) == 0 && position == mPlaylist.getCount() - 1))
                     setCurrentToPreviousItem(smoothScroll);
                 else {
                     mViewPager.setCurrentItem(position, false);

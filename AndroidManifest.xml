@@ -30,8 +30,7 @@
         </activity>
         <activity
             android:name="org.tomahawk.libtomahawk.audio.PlaybackActivity"
-            android:label="@string/playbackactivity_title_string"
-            android:launchMode="singleTop" >
+            android:label="@string/playbackactivity_title_string" >
         </activity>
 
         <service
