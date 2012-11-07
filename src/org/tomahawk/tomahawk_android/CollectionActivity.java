@@ -226,9 +226,9 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
             overflowMenuButton.setClickable(false);
             overflowMenuButton.setLayoutParams(new LayoutParams(0, 0));
         }
+        refreshNowPlayingBarVisibility();
         if (mPlaybackService != null)
             setNowPlayingInfo(mPlaybackService.getCurrentTrack());
-        refreshNowPlayingBarVisibility();
 
         mMenu = menu;
 
