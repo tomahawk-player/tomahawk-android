@@ -18,11 +18,18 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<EditText xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/search_edittext"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:focusable="true"
-    android:focusableInTouchMode="true"
-    android:hint="@string/searchfragment_title_string"
-    android:inputType="text" />
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <EditText
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/search_edittext"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:hint="@string/searchfragment_title_string"
+        android:inputType="text" />
+
+</RelativeLayout>

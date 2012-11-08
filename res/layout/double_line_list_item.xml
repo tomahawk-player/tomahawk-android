@@ -34,8 +34,7 @@
         android:ellipsize="marquee"
         android:singleLine="true"
         android:textColor="#FFFFFF"
-        android:textSize="8pt"
-        android:typeface="sans" />
+        android:textSize="8pt" />
 
     <TextView
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -44,7 +43,6 @@
         android:layout_height="wrap_content"
         android:ellipsize="marquee"
         android:singleLine="true"
-        android:textSize="6pt"
-        android:typeface="sans" />
+        android:textSize="6pt" />
 
 </LinearLayout>

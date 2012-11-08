@@ -52,7 +52,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
     static final int INTERNAL_PROGRESS_CONTAINER_ID = 0x00ff0002;
     static final int INTERNAL_LIST_CONTAINER_ID = 0x00ff0003;
 
-    TomahawkListAdapter mAdapter;
+    TomahawkListAdapter mTomahawkListAdapter;
     private boolean mShowAsGrid = false;
     ListView mList;
     GridView mGrid;
@@ -252,8 +252,8 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
      * @param showAsGrid */
     public void setShowAsGrid(boolean showAsGrid) {
         mShowAsGrid = showAsGrid;
-        if (mAdapter != null)
-            mAdapter.setShowAsGrid(true);
+        if (mTomahawkListAdapter != null)
+            mTomahawkListAdapter.setShowAsGrid(true);
     }
 
     /** 
@@ -261,8 +261,8 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
      * @param showAsList */
     public void setShowAsList(boolean showAsList) {
         mShowAsGrid = !showAsList;
-        if (mAdapter != null)
-            mAdapter.setShowAsGrid(!showAsList);
+        if (mTomahawkListAdapter != null)
+            mTomahawkListAdapter.setShowAsGrid(!showAsList);
     }
 
     /**
@@ -285,7 +285,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
      * Get the ListAdapter associated with this activity's ListView.
      */
     public ListAdapter getListAdapter() {
-        return mAdapter;
+        return mTomahawkListAdapter;
     }
 
     private void ensureList() {
@@ -325,9 +325,9 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
                 mGrid = (GridView) rawListView;
             }
         }
-        if (mAdapter != null) {
-            TomahawkListAdapter adapter = mAdapter;
-            mAdapter = null;
+        if (mTomahawkListAdapter != null) {
+            TomahawkListAdapter adapter = mTomahawkListAdapter;
+            mTomahawkListAdapter = null;
             setListAdapter(adapter);
         }
         mHandler.post(mRequestFocus);
@@ -337,13 +337,13 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
      * Provide the cursor for the list view.
      */
     public void setListAdapter(TomahawkListAdapter adapter) {
-        mAdapter = adapter;
+        mTomahawkListAdapter = adapter;
         if ((mShowAsGrid ? mGrid : mList) != null) {
             if (mShowAsGrid)
                 mGrid.setAdapter(adapter);
             else
                 mList.setAdapter(adapter);
-            mAdapter.setShowAsGrid(mShowAsGrid);
+            mTomahawkListAdapter.setShowAsGrid(mShowAsGrid);
         }
     }
 

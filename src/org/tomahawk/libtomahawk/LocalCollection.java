@@ -1,6 +1,7 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
  *   Copyright 2012, Christopher Reichert <creichert07@gmail.com>
+ *   Copyright 2012, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -47,6 +48,10 @@ public class LocalCollection extends Collection {
     private HandlerThread mCollectionUpdateHandlerThread;
 
     private Runnable mUpdateRunnable = new Runnable() {
+        /* 
+         * (non-Javadoc)
+         * @see java.lang.Runnable#run()
+         */
         @Override
         public void run() {
             update();
@@ -58,6 +63,10 @@ public class LocalCollection extends Collection {
      * This class watches for changes in the Media db.
      */
     private final ContentObserver mLocalMediaObserver = new ContentObserver(null) {
+        /* 
+         * (non-Javadoc)
+         * @see android.database.ContentObserver#onChange(boolean)
+         */
         @Override
         public void onChange(boolean selfChange) {
             mCollectionUpdateHandlerThread.start();
@@ -75,12 +84,8 @@ public class LocalCollection extends Collection {
         mAlbums = new HashMap<Long, Album>();
         mTracks = new HashMap<Long, Track>();
 
-        TomahawkApp
-                .getContext()
-                .getContentResolver()
-                .registerContentObserver(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false,
-                mLocalMediaObserver);
+        TomahawkApp.getContext().getContentResolver().registerContentObserver(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false, mLocalMediaObserver);
 
         mCollectionUpdateHandlerThread = new HandlerThread("CollectionUpdate",
                 android.os.Process.THREAD_PRIORITY_BACKGROUND);
@@ -90,8 +95,9 @@ public class LocalCollection extends Collection {
         mHandler.postDelayed(mUpdateRunnable, 300);
     }
 
-    /**
-     * Get all Artist's associated with this Collection.
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.Collection#getArtists()
      */
     @Override
     public List<Artist> getArtists() {
@@ -100,8 +106,18 @@ public class LocalCollection extends Collection {
         return artists;
     }
 
-    /**
-     * Get all Album's from this Collection.
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.Collection#getArtistById(java.lang.Long)
+     */
+    @Override
+    public Artist getArtistById(Long id) {
+        return mArtists.get(id);
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.Collection#getAlbums()
      */
     @Override
     public List<Album> getAlbums() {
@@ -110,8 +126,18 @@ public class LocalCollection extends Collection {
         return albums;
     }
 
-    /**
-     * Return a list of all Tracks from the album.
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.Collection#getAlbumById(java.lang.Long)
+     */
+    @Override
+    public Album getAlbumById(Long id) {
+        return mAlbums.get(id);
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.Collection#getTracks()
      */
     @Override
     public List<Track> getTracks() {
@@ -120,8 +146,18 @@ public class LocalCollection extends Collection {
         return tracks;
     }
 
-    /**
-     * Returns whether this Collection is a local collection.
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.Collection#getTrackById(java.lang.Long)
+     */
+    @Override
+    public Track getTrackById(Long id) {
+        return mTracks.get(id);
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.Collection#isLocal()
      */
     @Override
     public boolean isLocal() {
@@ -134,23 +170,19 @@ public class LocalCollection extends Collection {
     private void initializeCollection() {
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
 
-        String[] projection = { MediaStore.Audio.Media._ID, MediaStore.Audio.Media.DATA,
-                MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.DURATION,
-                MediaStore.Audio.Media.TRACK, MediaStore.Audio.Media.ARTIST_ID,
-                MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM_ID,
-                MediaStore.Audio.Media.ALBUM };
+        String[] projection = { MediaStore.Audio.Media._ID, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.TRACK, MediaStore.Audio.Media.ARTIST_ID,
+                MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM_ID, MediaStore.Audio.Media.ALBUM };
 
         ContentResolver resolver = TomahawkApp.getContext().getContentResolver();
 
-        Cursor cursor = resolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection,
-                selection, null, null);
+        Cursor cursor = resolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, selection, null, null);
 
         while (cursor != null && cursor.moveToNext()) {
             Artist artist = mArtists.get(cursor.getLong(5));
             if (artist == null) {
                 artist = Artist.get(cursor.getLong(5));
                 artist.setName(cursor.getString(6));
-
 
                 mArtists.put(artist.getId(), artist);
                 Log.d(TAG, "New Artist: " + artist.toString());
@@ -161,14 +193,13 @@ public class LocalCollection extends Collection {
                 album = Album.get(cursor.getLong(7));
                 album.setName(cursor.getString(8));
 
-                String albumsel = MediaStore.Audio.Albums._ID + " == "
-                        + Long.toString(album.getId());
+                String albumsel = MediaStore.Audio.Albums._ID + " == " + Long.toString(album.getId());
 
-                String[] albumproj = { MediaStore.Audio.Albums.ALBUM_ART,
-                        MediaStore.Audio.Albums.FIRST_YEAR, MediaStore.Audio.Albums.LAST_YEAR };
+                String[] albumproj = { MediaStore.Audio.Albums.ALBUM_ART, MediaStore.Audio.Albums.FIRST_YEAR,
+                        MediaStore.Audio.Albums.LAST_YEAR };
 
-                Cursor albumcursor = resolver.query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
-                        albumproj, albumsel, null, null);
+                Cursor albumcursor = resolver.query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, albumproj, albumsel,
+                        null, null);
 
                 if (albumcursor != null && albumcursor.moveToNext()) {
 
@@ -210,8 +241,9 @@ public class LocalCollection extends Collection {
             cursor.close();
     }
 
-    /**
-     * Update this Collection's content.
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.Collection#update()
      */
     @Override
     public void update() {
@@ -220,6 +252,10 @@ public class LocalCollection extends Collection {
         TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
     }
 
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.Collection#getId()
+     */
     @Override
     public int getId() {
         return 0;

@@ -38,16 +38,28 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
         super.onCreate(savedInstanceState);
 
         Intent i = new Intent(this, CollectionActivity.class);
-        i.putExtra(CollectionActivity.COLLECTION_ID_EXTRA, ((TomahawkApp) getApplication())
-                .getSourceList().getLocalSource().getCollection().getId());
+        i.putExtra(CollectionActivity.COLLECTION_ID_EXTRA,
+                ((TomahawkApp) getApplication()).getSourceList().getLocalSource().getCollection().getId());
         startActivity(i);
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see android.support.v4.app.FragmentActivity#onResume()
+     */
+    @Override
+    public void onResume() {
+        super.onResume();
+        //<TEMPORARY>
+        finish();
+        //<TEMPORARY/>
     }
 
     /* (non-Javadoc)
      * @see com.actionbarsherlock.app.SherlockFragmentActivity#onDestroy()
      */
     @Override
-	public void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
-	}
+    }
 }

@@ -14,14 +14,22 @@
     <uses-permission android:name="android.permission.READ_LOGS" />
     <uses-permission android:name="android.permission.DUMP" />
 
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true"
+        android:xlargeScreens="true" />
+
     <application
         android:name="TomahawkApp"
         android:icon="@drawable/ic_launcher"
         android:label="@string/appname_string"
-        android:theme="@style/Theme.tomahawk" >
+        android:theme="@style/Theme.tomahawk.nativeandroid" >
         <activity
             android:name="org.tomahawk.tomahawk_android.TomahawkMainActivity"
-            android:label="@string/mainactivity_title_string" >
+            android:label="@string/mainactivity_title_string"
+            android:launchMode="singleTop" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -30,7 +38,27 @@
         </activity>
         <activity
             android:name="org.tomahawk.libtomahawk.audio.PlaybackActivity"
-            android:label="@string/playbackactivity_title_string" >
+            android:label="@string/playbackactivity_title_string"
+            android:launchMode="singleTop" >
+        </activity>
+        <activity
+            android:name="org.tomahawk.tomahawk_android.CollectionActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/mainactivity_title_string"
+            android:launchMode="singleTop" >
+        </activity>
+        <activity
+            android:name="org.tomahawk.tomahawk_android.SearchableActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/searchactivity_title_string"
+            android:launchMode="singleTop" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
         </activity>
 
         <service
@@ -38,19 +66,6 @@
             android:label="@string/playbackservice_label_string"
             android:stopWithTask="true" >
         </service>
-
-        <activity
-            android:name="org.tomahawk.tomahawk_android.CollectionActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="@string/mainactivity_title_string" >
-        </activity>
     </application>
-
-    <supports-screens
-        android:anyDensity="true"
-        android:largeScreens="true"
-        android:normalScreens="true"
-        android:smallScreens="true"
-        android:xlargeScreens="true" />
 
 </manifest>

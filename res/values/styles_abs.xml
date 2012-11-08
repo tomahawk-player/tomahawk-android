@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- File created by the Android Action Bar Style Generator
+<!--
+     File created by the Android Action Bar Style Generator
 
      Copyright (C) 2012 readyState Software Ltd
 
@@ -18,14 +19,13 @@
 
 <resources>
 
-    <style name="Theme.tomahawk" parent="@style/Theme.Sherlock">
+    <style name="Theme.tomahawk.abs" parent="@style/Theme.Sherlock">
         <item name="actionBarItemBackground">@drawable/selectable_background_tomahawk</item>
         <item name="popupMenuStyle">@style/tomahawk_PopupMenu</item>
         <item name="dropDownListViewStyle">@style/tomahawk_DropDownListView</item>
         <item name="actionBarTabStyle">@style/tomahawk_ActionBarTabStyle</item>
         <item name="actionDropDownStyle">@style/tomahawk_DropDownNav</item>
         <item name="actionBarStyle">@style/tomahawk_transparent_ActionBar</item>
-
         <item name="android:actionBarItemBackground">@drawable/selectable_background_tomahawk</item>
         <item name="android:popupMenuStyle">@style/tomahawk_PopupMenu</item>
         <item name="android:dropDownListViewStyle">@style/tomahawk_DropDownListView</item>
@@ -40,7 +40,6 @@
         <item name="backgroundStacked">@drawable/ab_stacked_solid_tomahawk</item>
         <item name="backgroundSplit">@drawable/ab_bottom_solid_tomahawk</item>
         <item name="progressBarStyle">@style/tomahawk_ProgressBar</item>
-
         <item name="android:background">@drawable/ab_solid_tomahawk</item>
         <item name="android:backgroundStacked">@drawable/ab_stacked_solid_tomahawk</item>
         <item name="android:backgroundSplit">@drawable/ab_bottom_solid_tomahawk</item>
@@ -50,33 +49,30 @@
     <style name="tomahawk_transparent_ActionBar" parent="@style/Widget.Sherlock.ActionBar">
         <item name="background">@drawable/ab_transparent_tomahawk</item>
         <item name="progressBarStyle">@style/tomahawk_ProgressBar</item>
-        
         <item name="android:background">@drawable/ab_transparent_tomahawk</item>
         <item name="android:progressBarStyle">@style/tomahawk_ProgressBar</item>
     </style>
-	
-    <style name="tomahawk_PopupMenu" parent="@style/Widget.Sherlock.ListPopupWindow">	
-        <item name="android:popupBackground">@drawable/menu_dropdown_panel_tomahawk</item>	
+
+    <style name="tomahawk_PopupMenu" parent="@style/Widget.Sherlock.ListPopupWindow">
+        <item name="android:popupBackground">@drawable/menu_dropdown_panel_tomahawk</item>
     </style>
-	
+
     <style name="tomahawk_DropDownListView" parent="@style/Widget.Sherlock.ListView.DropDown">
         <item name="android:listSelector">@drawable/selectable_background_tomahawk</item>
     </style>
 
     <style name="tomahawk_ActionBarTabStyle" parent="@style/Widget.Sherlock.ActionBar.TabView">
         <item name="background">@drawable/tab_indicator_ab_tomahawk</item>
-
         <item name="android:background">@drawable/tab_indicator_ab_tomahawk</item>
     </style>
-	
+
     <style name="tomahawk_DropDownNav" parent="@style/Widget.Sherlock.Spinner.DropDown.ActionBar">
         <item name="background">@drawable/spinner_background_ab_tomahawk</item>
-
         <item name="android:background">@drawable/spinner_background_ab_tomahawk</item>
         <item name="android:popupBackground">@drawable/menu_dropdown_panel_tomahawk</item>
         <item name="android:dropDownSelector">@drawable/selectable_background_tomahawk</item>
     </style>
-    
+
     <style name="tomahawk_ProgressBar" parent="@style/Widget.Sherlock.ProgressBar.Horizontal">
         <item name="android:progressDrawable">@drawable/progress_horizontal_tomahawk</item>
     </style>

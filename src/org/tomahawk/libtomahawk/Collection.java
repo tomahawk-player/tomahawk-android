@@ -1,6 +1,7 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
  *   Copyright 2012, Christopher Reichert <creichert07@gmail.com>
+ *   Copyright 2012, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,20 +21,51 @@ package org.tomahawk.libtomahawk;
 import java.util.List;
 
 /**
- * This class represents a Collection of media.
+ * This class represents a {@link Collection} of media.
  */
 public abstract class Collection {
 
     public static final String COLLECTION_UPDATED = "org.tomahawk.libtomahawk.Collection.COLLECTION_UPDATED";
 
+    /**
+     * Get all {@link Artist}'s associated with this {@link Collection}.
+     */
     public abstract List<Artist> getArtists();
 
+    /**
+     *  Get the {@link Artist} by giving the {@link Artist}'s ID
+     *  @param id
+     *  @return the {@link Artist} object*/
+    public abstract Artist getArtistById(Long id);
+
+    /**
+     * Get all {@link Album}s from this {@link Collection}.
+     */
     public abstract List<Album> getAlbums();
 
+    /**
+     *  Get the {@link Album} by giving the {@link Album}'s ID
+     *  @param id
+     *  @return the {@link Album} object*/
+    public abstract Album getAlbumById(Long id);
+
+    /**
+     * Return a list of all {@link Track}s from the {@link Album}.
+     */
     public abstract List<Track> getTracks();
 
+    /**
+     *  Get the {@link Track} by giving the {@link Track}'s ID
+     *  @param id
+     *  @return the {@link Track} object*/
+    public abstract Track getTrackById(Long id);
+
+    /**
+     * Update this {@link Collection}'s content.
+     */
     public abstract void update();
 
+    /** @return the ID of this {@link Collection} object*/
     public abstract int getId();
 
     /**
@@ -42,6 +74,9 @@ public abstract class Collection {
     public Collection() {
     }
 
+    /**
+     * Returns whether this {@link Collection} is a {@link LocalCollection}.
+     */
     public boolean isLocal() {
         return false;
     }

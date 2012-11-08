@@ -27,6 +27,7 @@ import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -39,8 +40,7 @@ import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup.LayoutParams;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -51,26 +51,23 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.MenuItem.OnActionExpandListener;
 
-public class CollectionActivity extends SherlockFragmentActivity implements PlaybackServiceConnectionListener,
-        OnActionExpandListener {
+public class CollectionActivity extends SherlockFragmentActivity implements PlaybackServiceConnectionListener {
 
     public static final String COLLECTION_ID_EXTRA = "collection_id";
+
+    public static final String COLLECTION_ID_ALBUM = "collection_album_id";
+    public static final String COLLECTION_ID_ARTIST = "collection_artist_id";
 
     private PlaybackService mPlaybackService;
     private TabsAdapter mTabsAdapter;
     private FragmentManager mFragmentManager;
-    private Menu mMenu;
     private Collection mCollection;
-    private boolean mSearchModeEnabled = false;
-    private boolean mSoftKeyboardShown = false;
-    private SearchFragment mSearchFragment;
 
     private PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(this);
-    private NewTrackBroadcastReceiver mNewTrackBroadcastReceiver;
+    private CollectionActivityBroadcastReceiver mCollectionActivityBroadcastReceiver;
 
-    private class NewTrackBroadcastReceiver extends BroadcastReceiver {
+    private class CollectionActivityBroadcastReceiver extends BroadcastReceiver {
 
         /* 
          * (non-Javadoc)
@@ -126,15 +123,33 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
         super.onResume();
 
         SourceList sl = ((TomahawkApp) getApplication()).getSourceList();
-        mCollection = sl.getCollectionFromId(getIntent().getIntExtra(COLLECTION_ID_EXTRA, 0));
+        Intent intent = getIntent();
+        mCollection = sl.getCollectionFromId(intent.getIntExtra(COLLECTION_ID_EXTRA, 0));
+        if (intent.hasExtra(COLLECTION_ID_ALBUM)) {
+            Long albumId = intent.getLongExtra(COLLECTION_ID_ALBUM, 0);
+            getTabsAdapter().replace(new TracksFragment(getCollection().getAlbumById(albumId)), false);
+        } else if (intent.hasExtra(COLLECTION_ID_ARTIST)) {
+            Long artistId = intent.getLongExtra(COLLECTION_ID_ARTIST, 0);
+            getTabsAdapter().replace(new AlbumsFragment(getCollection().getArtistById(artistId)), false);
+        }
 
-        if (mNewTrackBroadcastReceiver == null)
-            mNewTrackBroadcastReceiver = new NewTrackBroadcastReceiver();
+        if (mCollectionActivityBroadcastReceiver == null)
+            mCollectionActivityBroadcastReceiver = new CollectionActivityBroadcastReceiver();
         IntentFilter intentFilter = new IntentFilter(PlaybackService.BROADCAST_NEWTRACK);
-        registerReceiver(mNewTrackBroadcastReceiver, intentFilter);
+        registerReceiver(mCollectionActivityBroadcastReceiver, intentFilter);
 
         Intent playbackIntent = new Intent(this, PlaybackService.class);
         bindService(playbackIntent, mPlaybackServiceConnection, Context.BIND_WAIVE_PRIORITY);
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see android.app.Activity#onNewIntent(android.content.Intent)
+     */
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
     }
 
     /* 
@@ -167,9 +182,9 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
         if (mPlaybackService != null)
             unbindService(mPlaybackServiceConnection);
 
-        if (mNewTrackBroadcastReceiver != null) {
-            unregisterReceiver(mNewTrackBroadcastReceiver);
-            mNewTrackBroadcastReceiver = null;
+        if (mCollectionActivityBroadcastReceiver != null) {
+            unregisterReceiver(mCollectionActivityBroadcastReceiver);
+            mCollectionActivityBroadcastReceiver = null;
         }
     }
 
@@ -186,37 +201,14 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
         menu.clear();
         ImageButton overflowMenuButton = (ImageButton) findViewById(R.id.imageButton_overflowmenu);
         MenuItem searchActionItem = menu.add(0, R.id.collectionactivity_search_menu_button, 0, "Search");
-        searchActionItem.setIcon(R.drawable.ic_action_search).setActionView(R.layout.collapsible_edittext).setOnActionExpandListener(
-                this).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        searchActionItem.setIcon(R.drawable.ic_action_search).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             searchActionItem.setVisible(true);
-
-        if (mSearchModeEnabled) {
-            searchActionItem.setVisible(true);
-            if (!searchActionItem.isActionViewExpanded())
-                searchActionItem.expandActionView();
-            View actionView = searchActionItem.getActionView();
-            EditText searchEditText = (EditText) actionView.findViewById(R.id.search_edittext);
-            if (searchEditText != null)
-                searchEditText.requestFocus();
-            if (!mSoftKeyboardShown) {
-                mSoftKeyboardShown = true;
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(searchEditText, 0);
-            }
-            if (mSearchFragment != null && searchEditText != null) {
-                mSearchFragment.setSearchText(searchEditText);
-                searchEditText.setText(mSearchFragment.getSearchString());
-                searchEditText.setSelection(searchEditText.getText().length());
-            }
+            getSupportActionBar().setDisplayShowCustomEnabled(true);
         } else {
-            mSoftKeyboardShown = false;
-            if (getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE) {
-                getSupportActionBar().setDisplayShowCustomEnabled(false);
-                searchActionItem.setVisible(false);
-            }
-            searchActionItem.collapseActionView();
+            searchActionItem.setVisible(false);
+            getSupportActionBar().setDisplayShowCustomEnabled(false);
         }
 
         if ((android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH && ViewConfiguration.get(
@@ -229,8 +221,6 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
         refreshNowPlayingBarVisibility();
         if (mPlaybackService != null)
             setNowPlayingInfo(mPlaybackService.getCurrentTrack());
-
-        mMenu = menu;
 
         return super.onPrepareOptionsMenu(menu);
     }
@@ -254,28 +244,15 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
     }
 
     /**
-     * Called when the search button is pressed
+     * Called when the search {@link Button} is pressed
      * @param view */
     public void onSearchButtonClicked(View view) {
         onSearchButtonClicked();
     }
 
     public void onSearchButtonClicked() {
-        toggleSearchMode(mMenu.findItem(R.id.collectionactivity_search_menu_button));
-    }
-
-    public void toggleSearchMode(MenuItem item) {
-        if (item.getItemId() == R.id.collectionactivity_search_menu_button) {
-            if (!mSearchModeEnabled) {
-                mSearchModeEnabled = true;
-                mSearchFragment = new SearchFragment();
-                mTabsAdapter.replace(mSearchFragment, false);
-                supportInvalidateOptionsMenu();
-            } else {
-                mSearchModeEnabled = false;
-                supportInvalidateOptionsMenu();
-            }
-        }
+        Intent searchIntent = new Intent(this, SearchableActivity.class);
+        startActivity(searchIntent);
     }
 
     /*
@@ -302,7 +279,7 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
     }
 
     /**
-     * Return the intent defined by the given parameters
+     * Return the {@link Intent} defined by the given parameters
      * 
      * @param context
      * @param cls
@@ -374,8 +351,6 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 nowPlayingInfoBottom.setVisibility(LinearLayout.GONE);
                 actionBar.setDisplayShowCustomEnabled(true);
-            } else if (mSearchModeEnabled) {
-                nowPlayingInfoBottom.setVisibility(LinearLayout.GONE);
             } else {
                 nowPlayingInfoBottom.setVisibility(LinearLayout.VISIBLE);
                 actionBar.setDisplayShowCustomEnabled(false);
@@ -384,9 +359,9 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
     }
 
     /**
-     * Returns this Activities current Collection.
+     * Returns this {@link Activity}s current {@link Collection}.
      * 
-     * @return the current Collection in this Activity.
+     * @return the current {@link Collection} in this {@link Activity}.
      */
     public Collection getCollection() {
         return mCollection;
@@ -405,37 +380,15 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
      */
     @Override
     public void onBackPressed() {
-        if (mSearchModeEnabled)
-            onSearchButtonClicked();
         if (!mTabsAdapter.back()) {
             super.onBackPressed();
         }
     }
 
     /**
-     * Called when the back button is pressed
+     * Called when the back {@link Button} is pressed
      * @param view */
     public void onBackPressed(View view) {
         this.onBackPressed();
-    }
-
-    /* 
-     * (non-Javadoc)
-     * @see com.actionbarsherlock.view.MenuItem.OnActionExpandListener#onMenuItemActionExpand(com.actionbarsherlock.view.MenuItem)
-     */
-    @Override
-    public boolean onMenuItemActionExpand(MenuItem item) {
-        return true;
-    }
-
-    /* 
-     * (non-Javadoc)
-     * @see com.actionbarsherlock.view.MenuItem.OnActionExpandListener#onMenuItemActionCollapse(com.actionbarsherlock.view.MenuItem)
-     */
-    @Override
-    public boolean onMenuItemActionCollapse(MenuItem item) {
-        if (mSearchModeEnabled)
-            onBackPressed();
-        return true;
     }
 }
