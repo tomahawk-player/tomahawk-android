@@ -49,7 +49,6 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        getListView().setFastScrollEnabled(true);
         getListView().setOnItemClickListener(this);
         getListView().setOnItemLongClickListener(this);
         TextView textView = (TextView) getActivity().findViewById(R.id.fragmentLayout_backbutton_textView);

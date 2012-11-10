@@ -55,7 +55,7 @@ public class LocalCollectionFragment extends SherlockListFragment implements OnI
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getListView().setFastScrollEnabled(true);
+        
         getListView().setOnItemClickListener(this);
         mLocalCollectionAdapter = new ArrayAdapter<String>(getActivity(), R.layout.single_line_list_menu,
                 R.id.single_line_list_menu_textview, getResources().getStringArray(R.array.local_collection_menu_items));

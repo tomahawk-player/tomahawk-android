@@ -119,7 +119,6 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
         ensureList();
         setSearchText((EditText) searchView.findViewById(R.id.search_edittext));
 
-        mList.setFastScrollEnabled(true);
         mList.setOnItemClickListener(this);
     }
 

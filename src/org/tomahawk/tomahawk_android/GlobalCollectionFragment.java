@@ -58,7 +58,7 @@ public class GlobalCollectionFragment extends SherlockListFragment implements On
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getListView().setFastScrollEnabled(true);
+        
         getListView().setOnItemClickListener(this);
         mGlobalCollectionAdapter = new ArrayAdapter<String>(getActivity(), R.layout.single_line_list_menu,
                 R.id.single_line_list_menu_textview,

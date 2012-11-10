@@ -42,6 +42,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:drawSelectorOnTop="false"
+            android:fastScrollEnabled="true"
             android:listSelector="@drawable/selectable_background_tomahawk" />
     </FrameLayout>
 
@@ -55,10 +56,9 @@
             android:id="@+id/gridview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:drawSelectorOnTop="true"
             android:fastScrollEnabled="true"
             android:horizontalSpacing="2dp"
-            android:listSelector="@drawable/selectable_background_tomahawk"
+            android:listSelector="@android:color/transparent"
             android:numColumns="auto_fit"
             android:scrollbars="none"
             android:verticalSpacing="2dp" />
