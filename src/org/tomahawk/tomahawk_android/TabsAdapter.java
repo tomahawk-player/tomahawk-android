@@ -110,7 +110,9 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
     public int getItemPosition(Object object) {
         for (ArrayList<Fragment> fragmentsStack : mFragments) {
             for (Fragment fragment : fragmentsStack) {
-                if (object instanceof Fragment && fragment.getClass() != object.getClass()) {
+                if (!(object instanceof Fragment))
+                    return POSITION_NONE;
+                else if (fragment.getClass() != object.getClass()) {
                     return POSITION_NONE;
                 }
             }
