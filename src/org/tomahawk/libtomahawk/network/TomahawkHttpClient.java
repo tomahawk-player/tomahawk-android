@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.security.KeyStore;
 
 import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
@@ -44,8 +45,8 @@ public class TomahawkHttpClient extends DefaultHttpClient {
 
         SchemeRegistry registry = new SchemeRegistry();
         registry.register(new Scheme("https", getSslSocketFactory(), 443));
+        registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
         return new ThreadSafeClientConnManager(getParams(), registry);
-
     }
 
     private SSLSocketFactory getSslSocketFactory() {

@@ -12,6 +12,5 @@
         android:layout_weight="1" />
 
     <include
-        android:id="@+id/fake_split_action_bar"
-        layout="@layout/fake_split_action_bar" />
+        android:id="@+id/fake_split_action_bar"/>
 </LinearLayout>

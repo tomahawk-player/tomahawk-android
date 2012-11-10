@@ -24,7 +24,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -60,6 +59,9 @@ import com.codebutler.android_websockets.WebSocketClient;
 public class TomahawkService extends Service implements WebSocketClient.Listener {
 
     private final static String TAG = TomahawkService.class.getName();
+
+    public static final String AUTH_URL = "http://auth.toma.hk/";
+    public static final String HATCHET_URL = "ws://hatchet.toma.hk/";
 
     public static final String ACCOUNT_TYPE = "org.tomahawk";
     public static final String AUTH_TOKEN_TYPE = "org.tomahawk.authtoken";
@@ -120,7 +122,7 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
             if (mAccessTokens == null)
                 return;
 
-            mWebSocketClient = new WebSocketClient(URI.create("wss://hatchet.jefferai.org"),
+            mWebSocketClient = new WebSocketClient(URI.create(HATCHET_URL),
                                                    TomahawkService.this, null);
             mWebSocketClient.connect();
         }
@@ -134,13 +136,15 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
 
     private static class AccessToken {
         String token;
+        String host;
+        String type;
         int port;
         int expiration;
-        String hostname;
 
-        AccessToken(String token, String hostname, int port, int expiration) {
+        AccessToken(String token, String host, String type, int port, int expiration) {
             this.token = token;
-            this.hostname = hostname;
+            this.host = host;
+            this.type = type;
             this.port = port;
             this.expiration = expiration;
         }
@@ -185,10 +189,10 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
         JSONObject register = new JSONObject();
         try {
             register.put("command", "register");
-            register.put("hostname", token.hostname);
+            register.put("hostname", token.host);
             register.put("port", token.port);
             register.put("accesstoken", token.token);
-            register.put("username", mUserId);
+            // register.put("username", mUserId);
             register.put("dbid", "nil");
         } catch (JSONException e) {
             e.printStackTrace();
@@ -247,23 +251,15 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
             return null;
 
         List<AccessToken> accessTokens = new ArrayList<AccessToken>();
+        JSONArray tokens = new JSONArray(json);
+        for (int i = 0; i < tokens.length(); i++) {
 
-        JSONObject obj = new JSONObject(json);
-        JSONObject tokens = obj.getJSONObject("accesstokens");
-        Iterator<String> keys = tokens.keys();
+            JSONObject host = tokens.getJSONObject(i);
+            AccessToken token = new AccessToken(host.getString("token"), host.getString("host"), host.getString("type"), host.getInt("port"), host.getInt("expiration"));
 
-        while(keys.hasNext()){
-            String key = keys.next();
-
-            JSONArray hosts = tokens.getJSONArray(key);
-            for (int i = 0; i < hosts.length(); i++) {
-
-                JSONObject host = hosts.getJSONObject(i);
-                AccessToken token = new AccessToken(key, host.getString("host"), host.getInt("port"), host.getInt("expiration"));
-
-                accessTokens.add(token);
-            }
+            accessTokens.add(token);
         }
+
         return accessTokens;
     }
 
@@ -297,7 +293,8 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
         httpParams.setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
         TomahawkHttpClient httpclient = new TomahawkHttpClient(httpParams);
 
-        HttpPost httpost = new HttpPost("https://auth.jefferai.org/login");
+        String query = params.has("authtoken") ? "tokens" : "login";
+        HttpPost httpost = new HttpPost(AUTH_URL + query);
 
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH)
             TrafficStats.setThreadStatsTag(0xF00D);
@@ -323,10 +320,13 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
             if (jsonObj.has("error") && jsonObj.getString("error").equals("true"))
                 throw new IllegalArgumentException(jsonObj.getString("errormsg"));
 
-            if (jsonObj.has("accesstokens"))
-                return jsonObj.toString();
+            JSONObject msg = jsonObj.getJSONObject("message");
 
-            return jsonObj.getJSONObject("Message").getString("authtoken");
+            if (msg.has("accesstokens"))
+                return msg.getJSONArray("accesstokens").toString();
+
+            String token = msg.getJSONObject("authtoken").getString("token");
+            return token;
 
         } catch (UnsupportedEncodingException e1) {
             e1.printStackTrace();

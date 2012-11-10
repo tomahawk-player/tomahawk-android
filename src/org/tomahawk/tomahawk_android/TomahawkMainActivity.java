@@ -77,20 +77,8 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
          * called and starts the TomahawkServerConnection.
          */
         // if (TomahawkPreferences.goOnline())
-            accountManager.getAuthToken(accounts[0], TomahawkService.AUTH_TOKEN_TYPE, null,
+        accountManager.getAuthToken(accounts[0], TomahawkService.AUTH_TOKEN_TYPE, null,
                     new TomahawkAccountAuthenticatorActivity(), (TomahawkApp) getApplication(), null);
-    }
-
-    /* 
-     * (non-Javadoc)
-     * @see android.support.v4.app.FragmentActivity#onResume()
-     */
-    @Override
-    public void onResume() {
-        super.onResume();
-        //<TEMPORARY>
-        finish();
-        //<TEMPORARY/>
     }
 
     /* (non-Javadoc)
