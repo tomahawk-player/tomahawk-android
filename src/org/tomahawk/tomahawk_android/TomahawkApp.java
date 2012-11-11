@@ -110,7 +110,7 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
 
     /**
      * This method is called when the Authenticator has finished.
-     * 
+     * why d
      * Ideally, we start the Tomahawk web service here.
      */
     @Override

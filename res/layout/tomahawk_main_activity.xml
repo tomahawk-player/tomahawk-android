@@ -19,37 +19,8 @@
  */
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/tomahawk_main_activity"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical" >
-
-    <FrameLayout
-        android:id="@+id/tomahawk_main_activity_frame_layout"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" >
-
-        <android.support.v4.view.ViewPager
-            android:id="@+id/view_pager"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent" />
-    </FrameLayout>
-
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/now_playing_bottom_bar"
-        android:layout_width="fill_parent"
-        android:layout_height="45dp"
-        android:orientation="vertical"
-        android:visibility="gone" >
-
-        <View
-            android:layout_width="fill_parent"
-            android:layout_height="2dp"
-            android:background="@color/divider" />
-
-        <include layout="@layout/now_playing_bottom" />
-    </LinearLayout>
 
 </LinearLayout>

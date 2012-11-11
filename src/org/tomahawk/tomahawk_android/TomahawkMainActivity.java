@@ -51,8 +51,12 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
         AccountManager accountManager = AccountManager.get(this);
         Account[] accounts = accountManager.getAccountsByType(TomahawkService.ACCOUNT_TYPE);
 
-        if (accounts.length <= 0)
-            startActivity(new Intent(this, TomahawkAccountAuthenticatorActivity.class));
+//        if (accounts.length <= 0)
+//            startActivity(new Intent(this, TomahawkAccountAuthenticatorActivity.class));
+        Intent i = new Intent(this, CollectionActivity.class);
+        i.putExtra(CollectionActivity.COLLECTION_ID_EXTRA,
+                ((TomahawkApp) getApplication()).getSourceList().getLocalSource().getCollection().getId());
+        startActivity(i);
     }
 
     /*
