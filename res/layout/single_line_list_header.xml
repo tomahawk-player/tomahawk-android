@@ -20,19 +20,35 @@
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="20dp"
     android:background="@color/divider"
-    android:orientation="vertical"
-    android:paddingBottom="5dip"
-    android:paddingLeft="10dip"
-    android:paddingTop="5dip" >
+    android:orientation="horizontal"
+    android:paddingBottom="1dip"
+    android:paddingLeft="1dip"
+    android:paddingTop="1dip" >
+
+    <org.tomahawk.tomahawk_android.SquareHeightRelativeLayout
+        android:id="@+id/single_line_list_header_icon_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" >
+
+        <ImageView
+            android:id="@+id/single_line_list_header_icon_imageview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="false"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_action_artist" />
+    </org.tomahawk.tomahawk_android.SquareHeightRelativeLayout>
 
     <TextView
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/single_line_list_header_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ellipsize="marquee"
+        android:paddingBottom="2dp"
+        android:paddingLeft="2dp"
+        android:paddingTop="2dp"
         android:singleLine="true"
         android:textColor="#FFFFFF"
         android:textSize="6pt"

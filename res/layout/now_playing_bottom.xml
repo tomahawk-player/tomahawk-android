@@ -32,13 +32,20 @@
         android:clickable="false"
         android:onClick="onNowPlayingClicked" >
 
-        <ImageView
-            android:id="@+id/now_playing_album_art_bottom"
-            android:layout_width="36dip"
-            android:layout_height="36dip"
-            android:layout_gravity="center_vertical"
-            android:layout_marginLeft="5dip"
-            android:scaleType="fitCenter" />
+        <org.tomahawk.tomahawk_android.SquareHeightRelativeLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/now_playing_album_art_container"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" >
+
+            <ImageView
+                android:id="@+id/now_playing_album_art_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:padding="4dp"
+                android:scaleType="centerCrop" />
+        </org.tomahawk.tomahawk_android.SquareHeightRelativeLayout>
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -72,10 +79,10 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:background="@drawable/selectable_background_tomahawk"
+        android:onClick="onSearchButtonClicked"
         android:paddingLeft="14dip"
         android:paddingRight="14dip"
-        android:src="@drawable/ic_action_search"
-        android:onClick="onSearchButtonClicked" />
+        android:src="@drawable/ic_action_search" />
 
     <ImageButton
         android:id="@+id/imageButton_overflowmenu"

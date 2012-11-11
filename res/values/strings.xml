@@ -47,3 +47,4 @@
 	<string name="authenticationactivity_invalid_credentials_string">Username or password incorrect</string>
     <string name="settingsactivity_title_string">Settings</string>
 </resources>
+

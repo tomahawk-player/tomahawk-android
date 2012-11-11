@@ -23,6 +23,12 @@
     <array name="settings_menu_items_icons">
         <item>@drawable/ic_menu_account</item>
     </array>
+    <array name="local_collection_menu_items_icons">
+        <item>@drawable/ic_action_track</item>
+        <item>@drawable/ic_action_album</item>
+        <item>@drawable/ic_action_artist</item>
+        <item>@drawable/ic_action_playlist</item>
+    </array>
 
     <string-array name="settings_menu_items">
         <item>Account Settings</item>
@@ -31,7 +37,6 @@
         <item>Tracks</item>
         <item>Albums</item>
         <item>Artists</item>
-        <item>Genres</item>
         <item>Playlists</item>
     </string-array>
     <string-array name="remote_collection_menu_items">

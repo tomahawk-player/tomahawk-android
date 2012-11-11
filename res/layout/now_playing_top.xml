@@ -27,19 +27,20 @@
     android:clickable="false"
     android:onClick="onNowPlayingClicked" >
 
-    <org.tomahawk.tomahawk_android.SquareWidthRelativeLayout
+    <org.tomahawk.tomahawk_android.SquareHeightRelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/now_playing_album_art_container"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
+        android:layout_height="match_parent" >
 
         <ImageView
             android:id="@+id/now_playing_album_art_top"
-            android:layout_width="36dip"
-            android:layout_height="36dip"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:scaleType="fitCenter" />
-    </org.tomahawk.tomahawk_android.SquareWidthRelativeLayout>
+            android:padding="4dp"
+            android:scaleType="centerCrop" />
+    </org.tomahawk.tomahawk_android.SquareHeightRelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

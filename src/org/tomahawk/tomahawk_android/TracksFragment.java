@@ -33,6 +33,7 @@ import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
@@ -60,6 +61,8 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         getListView().setOnItemClickListener(this);
         TextView textView = (TextView) getActivity().findViewById(R.id.fragmentLayout_backbutton_textView);
         textView.setText(getString(R.string.tracksfragment_title_string));
+        ImageView imageView = (ImageView) getActivity().findViewById(R.id.fragmentLayout_backbutton_icon_imageButton);
+        imageView.setBackgroundResource(R.drawable.ic_action_track);
     }
 
     /* (non-Javadoc)
@@ -94,6 +97,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         else
             tracks.addAll(coll.getTracks());
 
-        setListAdapter(new TomahawkListAdapter(getActivity(), R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, tracks));
+        setListAdapter(new TomahawkListAdapter(getActivity(), R.layout.double_line_list_item,
+                R.id.double_line_list_textview, R.id.double_line_list_textview2, tracks));
     }
 }

@@ -5,27 +5,62 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="45dip"
+        android:layout_height="50dp"
         android:background="@drawable/selectable_background_tomahawk"
-        android:clickable="false"
-        android:onClick="onBackPressed" >
+        android:onClick="onBackPressed"
+        android:paddingBottom="5dip"
+        android:paddingLeft="5dip"
+        android:paddingTop="5dip" >
 
-        <ImageButton
-            android:id="@+id/fragmentLayout_backbutton_imageButton"
+        <org.tomahawk.tomahawk_android.SquareHeightRelativeLayout
+            android:id="@+id/SquareHeightRelativeLayoutIcon"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:background="@drawable/ic_action_back" />
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true">
+
+            <ImageView
+                android:id="@+id/fragmentLayout_backbutton_icon_imageButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="false"
+                android:scaleType="centerCrop" />
+        </org.tomahawk.tomahawk_android.SquareHeightRelativeLayout>
 
         <TextView
             android:id="@+id/fragmentLayout_backbutton_textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-    </LinearLayout>
+            android:layout_alignBaseline="@+id/SquareHeightRelativeLayoutIcon"
+            android:layout_toRightOf="@+id/SquareHeightRelativeLayoutIcon"
+            android:ellipsize="marquee"
+            android:paddingBottom="5dp"
+            android:paddingLeft="5dp"
+            android:paddingTop="5dp"
+            android:singleLine="true"
+            android:textColor="#F2F2F2"
+            android:textSize="10pt"
+            android:typeface="sans" />
+
+        <org.tomahawk.tomahawk_android.SquareHeightRelativeLayout
+            android:id="@+id/SquareHeightRelativeLayoutUpIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignBaseline="@+id/SquareHeightRelativeLayoutIcon"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true">
+
+            <ImageView
+                android:id="@+id/fragmentLayout_backbutton_imageButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="false"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_action_up" />
+        </org.tomahawk.tomahawk_android.SquareHeightRelativeLayout>
+    </RelativeLayout>
 
     <View
         android:layout_width="fill_parent"

@@ -45,4 +45,14 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
                 ((TomahawkApp) getApplication()).getSourceList().getLocalSource().getCollection().getId());
         startActivity(i);
     }
+
+    /* 
+     * (non-Javadoc)
+     * @see android.support.v4.app.FragmentActivity#onResume()
+     */
+    @Override
+    public void onResume() {
+        super.onResume();
+        finish();
+    }
 }

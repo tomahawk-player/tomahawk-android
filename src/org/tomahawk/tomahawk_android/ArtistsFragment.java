@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.TextView;
@@ -53,6 +54,8 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
         getListView().setOnItemLongClickListener(this);
         TextView textView = (TextView) getActivity().findViewById(R.id.fragmentLayout_backbutton_textView);
         textView.setText(getString(R.string.artistsfragment_title_string));
+        ImageView imageView = (ImageView) getActivity().findViewById(R.id.fragmentLayout_backbutton_icon_imageButton);
+        imageView.setBackgroundResource(R.drawable.ic_action_artist);
     }
 
     /* (non-Javadoc)
