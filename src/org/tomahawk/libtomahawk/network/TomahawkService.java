@@ -21,7 +21,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.net.URI;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,13 +39,17 @@ import org.apache.http.params.HttpParams;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.annotation.TargetApi;
 import android.app.Service;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.net.TrafficStats;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -136,17 +142,28 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
 
     private static class AccessToken {
         String token;
-        String host;
+        String remotehost;
+        String localhost;
         String type;
         int port;
         int expiration;
 
-        AccessToken(String token, String host, String type, int port, int expiration) {
+        AccessToken(String token, String remotehost, String type, int port, int expiration) {
             this.token = token;
-            this.host = host;
+            this.remotehost = remotehost;
             this.type = type;
             this.port = port;
             this.expiration = expiration;
+
+            try {
+                localhost = InetAddress.getLocalHost().getHostName();
+            } catch (UnknownHostException e) {
+
+                WifiManager wifiMan = (WifiManager) TomahawkApp.getContext().getSystemService(Context.WIFI_SERVICE);
+                WifiInfo wifiInf = wifiMan.getConnectionInfo();
+
+                localhost = Integer.toString(wifiInf.getIpAddress());
+            }
         }
     }
 
@@ -189,10 +206,10 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
         JSONObject register = new JSONObject();
         try {
             register.put("command", "register");
-            register.put("hostname", token.host);
+            register.put("hostname", token.localhost);
             register.put("port", token.port);
             register.put("accesstoken", token.token);
-            // register.put("username", mUserId);
+            register.put("username", mUserId);
             register.put("dbid", "nil");
         } catch (JSONException e) {
             e.printStackTrace();
