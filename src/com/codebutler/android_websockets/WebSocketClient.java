@@ -47,6 +47,7 @@ import org.apache.http.client.HttpResponseException;
 import org.apache.http.message.BasicLineParser;
 import org.apache.http.message.BasicNameValuePair;
 
+import android.annotation.SuppressLint;
 import android.net.TrafficStats;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -54,6 +55,7 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 
+@SuppressLint("NewApi")
 public class WebSocketClient {
     private static final String TAG = "WebSocketClient";
 
@@ -112,7 +114,8 @@ public class WebSocketClient {
                     mSocket = factory.createSocket(mURI.getHost(), port);
 
                     /** In use by tomahawk */
-                    TrafficStats.tagSocket(mSocket);
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+                        TrafficStats.tagSocket(mSocket);
 
                     PrintWriter out = new PrintWriter(mSocket.getOutputStream());
                     out.print("GET " + path + " HTTP/1.1\r\n");
@@ -241,7 +244,7 @@ public class WebSocketClient {
             public void run() {
 
                 /** In use by tomahawk */
-                if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                     TrafficStats.setThreadStatsTag(0x00E);
                     try {
                         TrafficStats.tagSocket(mSocket);
@@ -260,7 +263,7 @@ public class WebSocketClient {
                     mListener.onError(e);
                 } finally {
 
-                    if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 
                         try {
                             TrafficStats.untagSocket(mSocket);
