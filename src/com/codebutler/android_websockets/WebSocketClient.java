@@ -47,7 +47,6 @@ import org.apache.http.client.HttpResponseException;
 import org.apache.http.message.BasicLineParser;
 import org.apache.http.message.BasicNameValuePair;
 
-import android.annotation.SuppressLint;
 import android.net.TrafficStats;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -55,18 +54,17 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 
-@SuppressLint("NewApi")
 public class WebSocketClient {
     private static final String TAG = "WebSocketClient";
 
-    private URI mURI;
-    private Listener mListener;
-    private Socket mSocket;
-    private Thread mThread;
-    private HandlerThread mHandlerThread;
-    private Handler mHandler;
+    private URI                      mURI;
+    private Listener                 mListener;
+    private Socket                   mSocket;
+    private Thread                   mThread;
+    private HandlerThread            mHandlerThread;
+    private Handler                  mHandler;
     private List<BasicNameValuePair> mExtraHeaders;
-    private HybiParser mParser;
+    private HybiParser               mParser;
 
     private final Object mSendLock = new Object();
 
@@ -77,10 +75,10 @@ public class WebSocketClient {
     }
 
     public WebSocketClient(URI uri, Listener listener, List<BasicNameValuePair> extraHeaders) {
-        mURI = uri;
+        mURI          = uri;
         mListener = listener;
         mExtraHeaders = extraHeaders;
-        mParser = new HybiParser(this);
+        mParser       = new HybiParser(this);
 
         mHandlerThread = new HandlerThread("websocket-thread");
         mHandlerThread.start();
@@ -110,33 +108,29 @@ public class WebSocketClient {
                     String originScheme = mURI.getScheme().equals("wss") ? "https" : "http";
                     URI origin = new URI(originScheme, "//" + mURI.getHost(), null);
 
-                    SocketFactory factory = mURI.getScheme().equals("wss") ? getSSLSocketFactory()
-                            : SocketFactory.getDefault();
+                    SocketFactory factory = mURI.getScheme().equals("wss") ? getSSLSocketFactory() : SocketFactory.getDefault();
                     mSocket = factory.createSocket(mURI.getHost(), port);
 
                     /** In use by tomahawk */
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                        TrafficStats.tagSocket(mSocket);
+                    TrafficStats.tagSocket(mSocket);
 
-                        PrintWriter out = new PrintWriter(mSocket.getOutputStream());
-                        out.print("GET " + path + " HTTP/1.1\r\n");
-                        out.print("Upgrade: websocket\r\n");
-                        out.print("Connection: Upgrade\r\n");
-                        out.print("Host: " + mURI.getHost() + "\r\n");
-                        out.print("Origin: " + origin.toString() + "\r\n");
-                        out.print("Sec-WebSocket-Key: " + createSecret() + "\r\n");
-                        out.print("Sec-WebSocket-Version: 13\r\n");
-                        if (mExtraHeaders != null) {
-                            for (NameValuePair pair : mExtraHeaders) {
-                                out.print(String.format("%s: %s\r\n", pair.getName(), pair.getValue()));
-                            }
+                    PrintWriter out = new PrintWriter(mSocket.getOutputStream());
+                    out.print("GET " + path + " HTTP/1.1\r\n");
+                    out.print("Upgrade: websocket\r\n");
+                    out.print("Connection: Upgrade\r\n");
+                    out.print("Host: " + mURI.getHost() + "\r\n");
+                    out.print("Origin: " + origin.toString() + "\r\n");
+                    out.print("Sec-WebSocket-Key: " + createSecret() + "\r\n");
+                    out.print("Sec-WebSocket-Version: 13\r\n");
+                    if (mExtraHeaders != null) {
+                        for (NameValuePair pair : mExtraHeaders) {
+                            out.print(String.format("%s: %s\r\n", pair.getName(), pair.getValue()));
                         }
-                        out.print("\r\n");
-                        out.flush();
                     }
+                    out.print("\r\n");
+                    out.flush();
 
-                    HybiParser.HappyDataInputStream stream = new HybiParser.HappyDataInputStream(
-                            mSocket.getInputStream());
+                    HybiParser.HappyDataInputStream stream = new HybiParser.HappyDataInputStream(mSocket.getInputStream());
 
                     // Read HTTP response status line.
                     StatusLine statusLine = parseStatusLine(readLine(stream));
@@ -247,31 +241,31 @@ public class WebSocketClient {
             public void run() {
 
                 /** In use by tomahawk */
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                     TrafficStats.setThreadStatsTag(0x00E);
                     try {
                         TrafficStats.tagSocket(mSocket);
                     } catch (SocketException e) {
                         e.printStackTrace();
                     }
+                }
 
-                    try {
-                        synchronized (mSendLock) {
-                            OutputStream outputStream = mSocket.getOutputStream();
-                            outputStream.write(frame);
-                            outputStream.flush();
-                        }
-                    } catch (IOException e) {
-                        mListener.onError(e);
-                    } finally {
+                try {
+                    synchronized (mSendLock) {
+                        OutputStream outputStream = mSocket.getOutputStream();
+                        outputStream.write(frame);
+                        outputStream.flush();
+                    }
+                } catch (IOException e) {
+                    mListener.onError(e);
+                } finally {
 
-                        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                    if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 
-                            try {
-                                TrafficStats.untagSocket(mSocket);
-                            } catch (SocketException e) {
-                                e.printStackTrace();
-                            }
+                        try {
+                            TrafficStats.untagSocket(mSocket);
+                        } catch (SocketException e) {
+                            e.printStackTrace();
                         }
                     }
                 }
@@ -281,13 +275,9 @@ public class WebSocketClient {
 
     public interface Listener {
         public void onConnect();
-
         public void onMessage(String message);
-
         public void onMessage(byte[] data);
-
         public void onDisconnect(int code, String reason);
-
         public void onError(Exception error);
     }
 
