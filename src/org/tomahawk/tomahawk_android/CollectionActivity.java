@@ -255,6 +255,11 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
         startActivity(searchIntent);
     }
 
+    public void onOverflowButtonClicked(View view) {
+        Intent searchIntent = new Intent(this, SettingsActivity.class);
+        startActivity(searchIntent);
+    }
+
     /*
      * (non-Javadoc)
      * 

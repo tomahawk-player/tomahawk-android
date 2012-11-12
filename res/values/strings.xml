@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
 /*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
@@ -44,17 +45,5 @@
 	<string name="loginactivity_loginbutton_label_string">Login</string>
 	<string name="authenticationdialog_text_string">Authenticating...</string>
 	<string name="authenticationactivity_invalid_credentials_string">Username or password incorrect</string>
-    <string-array name="local_collection_menu_items">
-        <item >Tracks</item>
-        <item >Albums</item>
-        <item >Artists</item>
-        <item >Genres</item>
-        <item >Playlists</item>
-    </string-array>
-    <string-array name="remote_collection_menu_items">
-        <item >none</item>
-    </string-array>
-    <string-array name="global_collection_menu_items">
-        <item >none</item>
-    </string-array>
+    <string name="settingsactivity_title_string">Settings</string>
 </resources>

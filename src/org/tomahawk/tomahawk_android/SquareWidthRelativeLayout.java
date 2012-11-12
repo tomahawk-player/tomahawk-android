@@ -25,21 +25,21 @@ import android.widget.RelativeLayout;
  * @author Enno Gottschalk <mrmaffen@googlemail.com>
  *
  */
-public class SquareRelativeLayout extends RelativeLayout {
+public class SquareWidthRelativeLayout extends RelativeLayout {
 
     /**
-     * Constructs a new {@link SquareRelativeLayout}
+     * Constructs a new {@link SquareWidthRelativeLayout}
      * 
      */
-    public SquareRelativeLayout(Context context) {
+    public SquareWidthRelativeLayout(Context context) {
         super(context);
     }
 
     /**
-     * Constructs a new {@link SquareRelativeLayout}
+     * Constructs a new {@link SquareWidthRelativeLayout}
      * 
      */
-    public SquareRelativeLayout(Context context, AttributeSet attrs) {
+    public SquareWidthRelativeLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 

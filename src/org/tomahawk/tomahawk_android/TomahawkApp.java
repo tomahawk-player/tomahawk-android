@@ -38,7 +38,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-
 /**
  * This class contains represents the Application core.
  */
@@ -151,4 +150,3 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
 
     }
 }
-

@@ -84,6 +84,7 @@
         android:background="@drawable/selectable_background_tomahawk"
         android:paddingLeft="14dip"
         android:paddingRight="14dip"
-        android:src="@drawable/abs__ic_menu_moreoverflow_holo_dark" />
+        android:src="@drawable/abs__ic_menu_moreoverflow_holo_dark"
+        android:onClick="onOverflowButtonClicked" />
 
 </LinearLayout>

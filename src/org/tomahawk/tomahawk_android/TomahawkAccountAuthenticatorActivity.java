@@ -110,6 +110,28 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
         EditText passwd = (EditText) findViewById(R.id.password_edit);
         passwd.setText(TomahawkPreferences.getPassword());
     }
+    
+    @Override
+    public void onResume(){
+        super.onResume();
+
+
+        /** Setup account. */
+        AccountManager accountManager = AccountManager.get(this);
+        Account[] accounts = accountManager.getAccountsByType(TomahawkService.ACCOUNT_TYPE);
+
+        if (accounts.length <= 0)
+            return;
+
+        /**
+         * 'Getting' the auth token here is asynchronous. When the
+         * AccountManager has the auth token the TomahawkMainActivity.run is
+         * called and starts the TomahawkServerConnection.
+         */
+        // if (TomahawkPreferences.goOnline())
+        accountManager.getAuthToken(accounts[0], TomahawkService.AUTH_TOKEN_TYPE, null,
+                    new TomahawkAccountAuthenticatorActivity(), (TomahawkApp) getApplication(), null);
+    }
 
     /**
      * Called when the progress dialog is created.
