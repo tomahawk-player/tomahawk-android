@@ -32,6 +32,7 @@ import org.tomahawk.libtomahawk.playlist.CollectionPlaylist;
 import org.tomahawk.libtomahawk.playlist.Playlist;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.SearchableActivity;
+import org.tomahawk.tomahawk_android.SettingsActivity;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.BroadcastReceiver;
@@ -51,6 +52,7 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
 public class PlaybackActivity extends SherlockActivity implements PlaybackServiceConnectionListener {
@@ -169,8 +171,8 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.clear();
-        MenuItem searchActionItem = menu.add(0, R.id.collectionactivity_search_menu_button, 0, "Search");
-        searchActionItem.setIcon(R.drawable.ic_action_search).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        MenuInflater inflater = getSupportMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
         return true;
     }
 
@@ -184,8 +186,13 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item != null) {
-            if (item.getItemId() == R.id.collectionactivity_search_menu_button) {
-                onSearchButtonClicked();
+            if (item.getItemId() == R.id.action_search_item) {
+                Intent searchIntent = new Intent(this, SearchableActivity.class);
+                startActivity(searchIntent);
+                return true;
+            } else if (item.getItemId() == R.id.action_settings_item) {
+                Intent searchIntent = new Intent(this, SettingsActivity.class);
+                startActivity(searchIntent);
                 return true;
             } else if (item.getItemId() == android.R.id.home) {
                 super.onBackPressed();
@@ -193,11 +200,6 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
             }
         }
         return false;
-    }
-
-    public void onSearchButtonClicked() {
-        Intent searchIntent = new Intent(this, SearchableActivity.class);
-        startActivity(searchIntent);
     }
 
     /**

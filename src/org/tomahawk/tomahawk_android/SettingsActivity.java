@@ -25,7 +25,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.MenuItem;
 
 /**
  * Fragment which represents the "LocalCollection" tabview.
@@ -41,8 +43,14 @@ public class SettingsActivity extends SherlockListActivity implements OnItemClic
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         View view = getLayoutInflater().inflate(R.layout.settings_activity, null, false);
         setContentView(view);
+
+        final ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
     /* 
@@ -56,8 +64,23 @@ public class SettingsActivity extends SherlockListActivity implements OnItemClic
         getListView().setOnItemClickListener(this);
         mTomahawkMenuAdapter = new TomahawkMenuAdapter(this,
                 getResources().getStringArray(R.array.settings_menu_items), getResources().obtainTypedArray(
-                        R.array.settings_menu_items_icons));
+                        R.array.settings_icons));
         setListAdapter(mTomahawkMenuAdapter);
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see com.actionbarsherlock.app.SherlockFragmentActivity#onOptionsItemSelected(android.view.MenuItem)
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item != null) {
+            if (item.getItemId() == android.R.id.home) {
+                super.onBackPressed();
+                return true;
+            }
+        }
+        return false;
     }
 
     /* (non-Javadoc)

@@ -68,7 +68,8 @@
             android:name="org.tomahawk.tomahawk_android.CollectionActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/mainactivity_title_string"
-            android:launchMode="singleTop" >
+            android:launchMode="singleTop"
+            android:uiOptions="splitActionBarWhenNarrow" >
         </activity>
         <activity
             android:name="org.tomahawk.tomahawk_android.SearchableActivity"

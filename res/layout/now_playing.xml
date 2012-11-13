@@ -19,10 +19,8 @@
  */
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/now_playing_top"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_gravity="fill_horizontal"
     android:background="@drawable/selectable_background_tomahawk"
     android:clickable="false"
     android:onClick="onNowPlayingClicked" >
@@ -31,29 +29,29 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/now_playing_album_art_container"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent" >
+        android:layout_height="wrap_content" >
 
         <ImageView
-            android:id="@+id/now_playing_album_art_top"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:id="@+id/now_playing_album_art"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
             android:layout_gravity="center"
             android:padding="4dp"
             android:scaleType="centerCrop" />
     </org.tomahawk.tomahawk_android.SquareHeightRelativeLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="180dp"
+        android:layout_height="46dp"
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="5dip"
         android:layout_toRightOf="@id/now_playing_album_art_container"
         android:orientation="vertical" >
 
         <TextView
-            android:id="@+id/now_playing_title_top"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:id="@+id/now_playing_title"
+            android:layout_width="wrap_content"
+            android:layout_height="46dp"
             android:layout_weight="1"
             android:ellipsize="marquee"
             android:gravity="center_vertical"
@@ -61,9 +59,9 @@
             android:textSize="14sp" />
 
         <TextView
-            android:id="@+id/now_playing_artist_top"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:id="@+id/now_playing_artist"
+            android:layout_width="wrap_content"
+            android:layout_height="46dp"
             android:layout_weight="1"
             android:ellipsize="marquee"
             android:gravity="center_vertical"

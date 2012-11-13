@@ -26,7 +26,6 @@ import org.tomahawk.libtomahawk.audio.PlaybackService;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -38,18 +37,15 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.view.View;
-import android.view.ViewConfiguration;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
 public class CollectionActivity extends SherlockFragmentActivity implements PlaybackServiceConnectionListener {
@@ -63,6 +59,7 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
     private TabsAdapter mTabsAdapter;
     private FragmentManager mFragmentManager;
     private Collection mCollection;
+    private View mNowPlayingView;
 
     private PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(this);
     private CollectionActivityBroadcastReceiver mCollectionActivityBroadcastReceiver;
@@ -98,9 +95,6 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         actionBar.setDisplayShowHomeEnabled(false);
         actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setDisplayShowCustomEnabled(false);
-        View actionBarPlaybackTop = getLayoutInflater().inflate(R.layout.now_playing_top, null);
-        actionBar.setCustomView(actionBarPlaybackTop);
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
         mFragmentManager = getSupportFragmentManager();
@@ -188,41 +182,17 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.actionbarsherlock.app.SherlockFragmentActivity#onPrepareOptionsMenu
-     * (android.view.Menu)
-     */
-    @SuppressLint("NewApi")
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.clear();
-        ImageButton overflowMenuButton = (ImageButton) findViewById(R.id.imageButton_overflowmenu);
-        MenuItem searchActionItem = menu.add(0, R.id.collectionactivity_search_menu_button, 0, "Search");
-        searchActionItem.setIcon(R.drawable.ic_action_search).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            searchActionItem.setVisible(true);
-            getSupportActionBar().setDisplayShowCustomEnabled(true);
-        } else {
-            searchActionItem.setVisible(false);
-            getSupportActionBar().setDisplayShowCustomEnabled(false);
-        }
-
-        if ((android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH && ViewConfiguration.get(
-                getApplicationContext()).hasPermanentMenuKey())
-                || android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-            overflowMenuButton.setVisibility(ImageButton.GONE);
-            overflowMenuButton.setClickable(false);
-            overflowMenuButton.setLayoutParams(new LayoutParams(0, 0));
-        }
-        refreshNowPlayingBarVisibility();
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getSupportMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        RelativeLayout relativeLayout = (RelativeLayout) menu.findItem(R.id.now_playing_layout_item).getActionView();
+        mNowPlayingView = getLayoutInflater().inflate(R.layout.now_playing, null);
+        relativeLayout.addView(mNowPlayingView);
         if (mPlaybackService != null)
             setNowPlayingInfo(mPlaybackService.getCurrentTrack());
 
-        return super.onPrepareOptionsMenu(menu);
+        return true;
     }
 
     /* 
@@ -232,8 +202,13 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item != null) {
-            if (item.getItemId() == R.id.collectionactivity_search_menu_button) {
-                onSearchButtonClicked();
+            if (item.getItemId() == R.id.action_search_item) {
+                Intent searchIntent = new Intent(this, SearchableActivity.class);
+                startActivity(searchIntent);
+                return true;
+            } else if (item.getItemId() == R.id.action_settings_item) {
+                Intent searchIntent = new Intent(this, SettingsActivity.class);
+                startActivity(searchIntent);
                 return true;
             } else if (item.getItemId() == android.R.id.home) {
                 super.onBackPressed();
@@ -241,23 +216,6 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
             }
         }
         return false;
-    }
-
-    /**
-     * Called when the search {@link Button} is pressed
-     * @param view */
-    public void onSearchButtonClicked(View view) {
-        onSearchButtonClicked();
-    }
-
-    public void onSearchButtonClicked() {
-        Intent searchIntent = new Intent(this, SearchableActivity.class);
-        startActivity(searchIntent);
-    }
-
-    public void onOverflowButtonClicked(View view) {
-        Intent searchIntent = new Intent(this, SettingsActivity.class);
-        startActivity(searchIntent);
     }
 
     /*
@@ -302,63 +260,24 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
      * @param track
      */
     public void setNowPlayingInfo(Track track) {
-        RelativeLayout nowPlayingInfoTop = (RelativeLayout) findViewById(R.id.now_playing_top);
-        LinearLayout nowPlayingBottom = (LinearLayout) findViewById(R.id.now_playing_bottom);
-        if (nowPlayingInfoTop != null)
-            nowPlayingInfoTop.setClickable(false);
-        if (nowPlayingBottom != null)
-            nowPlayingBottom.setClickable(false);
+        mNowPlayingView.setClickable(false);
 
-        if (track == null)
-            return;
-
-        ImageView nowPlayingInfoAlbumArtTop = (ImageView) findViewById(R.id.now_playing_album_art_top);
-        TextView nowPlayingInfoArtistTop = (TextView) findViewById(R.id.now_playing_artist_top);
-        TextView nowPlayingInfoTitleTop = (TextView) findViewById(R.id.now_playing_title_top);
-        ImageView nowPlayingInfoAlbumArtBottom = (ImageView) findViewById(R.id.now_playing_album_art_bottom);
-        TextView nowPlayingInfoArtistBottom = (TextView) findViewById(R.id.now_playing_artist_bottom);
-        TextView nowPlayingInfoTitleBottom = (TextView) findViewById(R.id.now_playing_title_bottom);
-        Bitmap albumArt = null;
-        if (track.getAlbum() != null)
-            albumArt = track.getAlbum().getAlbumArt();
-        if (nowPlayingInfoAlbumArtTop != null && nowPlayingInfoArtistTop != null && nowPlayingInfoTitleTop != null) {
-            if (albumArt != null)
-                nowPlayingInfoAlbumArtTop.setImageBitmap(albumArt);
-            else
-                nowPlayingInfoAlbumArtTop.setImageDrawable(getResources().getDrawable(
-                        R.drawable.no_album_art_placeholder));
-            nowPlayingInfoArtistTop.setText(track.getArtist().toString());
-            nowPlayingInfoTitleTop.setText(track.getName());
-            nowPlayingInfoTop.setClickable(true);
-        }
-        if (nowPlayingInfoAlbumArtBottom != null && nowPlayingInfoArtistBottom != null
-                && nowPlayingInfoTitleBottom != null) {
-            if (albumArt != null)
-                nowPlayingInfoAlbumArtBottom.setImageBitmap(albumArt);
-            else
-                nowPlayingInfoAlbumArtBottom.setImageDrawable(getResources().getDrawable(
-                        R.drawable.no_album_art_placeholder));
-            nowPlayingInfoArtistBottom.setText(track.getArtist().toString());
-            nowPlayingInfoTitleBottom.setText(track.getName());
-            nowPlayingBottom.setClickable(true);
-        }
-    }
-
-    /**
-     * Make the playback info panel invisible, if device is in landscape-mode.
-     * Otherwise make it visible
-     * 
-     */
-    public void refreshNowPlayingBarVisibility() {
-        LinearLayout nowPlayingInfoBottom = (LinearLayout) findViewById(R.id.now_playing_bottom_bar);
-        final ActionBar actionBar = getSupportActionBar();
-        if (nowPlayingInfoBottom != null) {
-            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                nowPlayingInfoBottom.setVisibility(LinearLayout.GONE);
-                actionBar.setDisplayShowCustomEnabled(true);
-            } else {
-                nowPlayingInfoBottom.setVisibility(LinearLayout.VISIBLE);
-                actionBar.setDisplayShowCustomEnabled(false);
+        if (track != null) {
+            ImageView nowPlayingInfoAlbumArt = (ImageView) mNowPlayingView.findViewById(R.id.now_playing_album_art);
+            TextView nowPlayingInfoArtist = (TextView) mNowPlayingView.findViewById(R.id.now_playing_artist);
+            TextView nowPlayingInfoTitle = (TextView) mNowPlayingView.findViewById(R.id.now_playing_title);
+            Bitmap albumArt = null;
+            if (track.getAlbum() != null)
+                albumArt = track.getAlbum().getAlbumArt();
+            if (nowPlayingInfoAlbumArt != null && nowPlayingInfoArtist != null && nowPlayingInfoTitle != null) {
+                if (albumArt != null)
+                    nowPlayingInfoAlbumArt.setImageBitmap(albumArt);
+                else
+                    nowPlayingInfoAlbumArt.setImageDrawable(getResources().getDrawable(
+                            R.drawable.no_album_art_placeholder));
+                nowPlayingInfoArtist.setText(track.getArtist().toString());
+                nowPlayingInfoTitle.setText(track.getName());
+                mNowPlayingView.setClickable(true);
             }
         }
     }

@@ -20,8 +20,8 @@
 -->
 <resources>
 
-    <array name="settings_menu_items_icons">
-        <item>@drawable/ic_menu_account</item>
+    <array name="settings_icons">
+        <item>@drawable/ic_settings_account</item>
     </array>
     <array name="local_collection_menu_items_icons">
         <item>@drawable/ic_action_track</item>

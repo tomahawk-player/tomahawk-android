@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item name="collectionactivity_search_menu_button" type="id"/>
     <item name="tomahawklistadapter_viewtype_header" type="id"/>
     <item name="tomahawklistadapter_viewtype_listitem" type="id"/>
     <item name="tomahawklistadapter_viewtype_griditem" type="id"/>
