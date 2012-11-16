@@ -260,24 +260,28 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
      * @param track
      */
     public void setNowPlayingInfo(Track track) {
-        mNowPlayingView.setClickable(false);
+        if (mNowPlayingView == null)
+            supportInvalidateOptionsMenu();
+        if (mNowPlayingView != null) {
+            mNowPlayingView.setClickable(false);
 
-        if (track != null) {
-            ImageView nowPlayingInfoAlbumArt = (ImageView) mNowPlayingView.findViewById(R.id.now_playing_album_art);
-            TextView nowPlayingInfoArtist = (TextView) mNowPlayingView.findViewById(R.id.now_playing_artist);
-            TextView nowPlayingInfoTitle = (TextView) mNowPlayingView.findViewById(R.id.now_playing_title);
-            Bitmap albumArt = null;
-            if (track.getAlbum() != null)
-                albumArt = track.getAlbum().getAlbumArt();
-            if (nowPlayingInfoAlbumArt != null && nowPlayingInfoArtist != null && nowPlayingInfoTitle != null) {
-                if (albumArt != null)
-                    nowPlayingInfoAlbumArt.setImageBitmap(albumArt);
-                else
-                    nowPlayingInfoAlbumArt.setImageDrawable(getResources().getDrawable(
-                            R.drawable.no_album_art_placeholder));
-                nowPlayingInfoArtist.setText(track.getArtist().toString());
-                nowPlayingInfoTitle.setText(track.getName());
-                mNowPlayingView.setClickable(true);
+            if (track != null) {
+                ImageView nowPlayingInfoAlbumArt = (ImageView) mNowPlayingView.findViewById(R.id.now_playing_album_art);
+                TextView nowPlayingInfoArtist = (TextView) mNowPlayingView.findViewById(R.id.now_playing_artist);
+                TextView nowPlayingInfoTitle = (TextView) mNowPlayingView.findViewById(R.id.now_playing_title);
+                Bitmap albumArt = null;
+                if (track.getAlbum() != null)
+                    albumArt = track.getAlbum().getAlbumArt();
+                if (nowPlayingInfoAlbumArt != null && nowPlayingInfoArtist != null && nowPlayingInfoTitle != null) {
+                    if (albumArt != null)
+                        nowPlayingInfoAlbumArt.setImageBitmap(albumArt);
+                    else
+                        nowPlayingInfoAlbumArt.setImageDrawable(getResources().getDrawable(
+                                R.drawable.no_album_art_placeholder));
+                    nowPlayingInfoArtist.setText(track.getArtist().toString());
+                    nowPlayingInfoTitle.setText(track.getName());
+                    mNowPlayingView.setClickable(true);
+                }
             }
         }
     }
