@@ -121,9 +121,11 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
         mCollection = sl.getCollectionFromId(intent.getIntExtra(COLLECTION_ID_EXTRA, 0));
         if (intent.hasExtra(COLLECTION_ID_ALBUM)) {
             Long albumId = intent.getLongExtra(COLLECTION_ID_ALBUM, 0);
+            intent.removeExtra(COLLECTION_ID_ALBUM);
             getTabsAdapter().replace(new TracksFragment(getCollection().getAlbumById(albumId)), false);
         } else if (intent.hasExtra(COLLECTION_ID_ARTIST)) {
             Long artistId = intent.getLongExtra(COLLECTION_ID_ARTIST, 0);
+            intent.removeExtra(COLLECTION_ID_ARTIST);
             getTabsAdapter().replace(new AlbumsFragment(getCollection().getArtistById(artistId)), false);
         }
 
