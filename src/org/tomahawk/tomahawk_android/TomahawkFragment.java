@@ -57,6 +57,8 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
     ListView mList;
     GridView mGrid;
 
+    private int mPosition;
+
     final private Handler mHandler = new Handler();
 
     final private Runnable mRequestFocus = new Runnable() {
@@ -147,6 +149,12 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
             mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
             getActivity().registerReceiver(mCollectionUpdatedReceiver, sCollectionUpdateIntentFilter);
         }
+
+        if (mShowAsGrid) {
+            getGridView().setSelection(mPosition);
+        } else {
+            getListView().setSelection(mPosition);
+        }
     }
 
     /*
@@ -157,6 +165,12 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
     @Override
     public void onPause() {
         super.onPause();
+
+        if (mShowAsGrid) {
+            mPosition = getGridView().getFirstVisiblePosition();
+        } else {
+            mPosition = getListView().getFirstVisiblePosition();
+        }
 
         if (mCollectionUpdatedReceiver != null) {
             getActivity().unregisterReceiver(mCollectionUpdatedReceiver);
