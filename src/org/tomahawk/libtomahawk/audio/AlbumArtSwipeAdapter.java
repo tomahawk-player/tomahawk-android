@@ -34,8 +34,9 @@ import android.widget.ImageView;
  */
 public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPageChangeListener {
 
+    private static final int FAKE_INFINITY_COUNT = 20000;
+
     private Context mContext;
-    private int mFakeInfinityCount;
     private int mFakeInfinityOffset;
     private boolean mByUser;
     private boolean mSwiped;
@@ -50,7 +51,6 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      */
     public AlbumArtSwipeAdapter(Context context, ViewPager viewPager) {
         this.mContext = context;
-        this.mFakeInfinityCount = Integer.MAX_VALUE;
         this.mByUser = true;
         this.mSwiped = false;
         this.mViewPager = viewPager;
@@ -94,7 +94,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         if (mPlaylist == null)
             return 1;
         if (mPlaylist.isRepeating())
-            return mFakeInfinityCount;
+            return FAKE_INFINITY_COUNT;
         return mPlaylist.getCount();
     }
 
@@ -152,7 +152,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     /** @param position to set the current item to
     /** @param smoothScroll boolean to determine wether or not to show a scrolling animation */
     public void setCurrentItem(int position, boolean smoothScroll) {
-        if (position != mCurrentViewPage && position != mCurrentViewPage % mPlaylist.getCount()) {
+        if (position != mCurrentViewPage) {
             if (mPlaylist.isRepeating()) {
                 if (position == (mCurrentViewPage % mPlaylist.getCount()) + 1
                         || ((mCurrentViewPage % mPlaylist.getCount()) == mPlaylist.getCount() - 1 && position == 0))
@@ -162,25 +162,22 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                     setCurrentToPreviousItem(smoothScroll);
                 else {
                     mViewPager.setCurrentItem(position, false);
-                    mCurrentViewPage = position;
                 }
             } else {
                 mViewPager.setCurrentItem(position, smoothScroll);
-                mCurrentViewPage = position;
             }
+            mCurrentViewPage = mViewPager.getCurrentItem();
         }
     }
 
     /** @param smoothScroll boolean to determine wether or not to show a scrolling animation */
     public void setCurrentToNextItem(boolean smoothScroll) {
         mViewPager.setCurrentItem(mCurrentViewPage + 1, smoothScroll);
-        mCurrentViewPage = mViewPager.getCurrentItem();
     }
 
     /** @param smoothScroll boolean to determine wether or not to show a scrolling animation */
     public void setCurrentToPreviousItem(boolean smoothScroll) {
         mViewPager.setCurrentItem(mCurrentViewPage - 1, smoothScroll);
-        mCurrentViewPage = mViewPager.getCurrentItem();
     }
 
     /**
@@ -192,7 +189,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         if (mPlaybackService != null)
             mPlaylist = mPlaybackService.getCurrentPlaylist();
         if (mPlaylist != null) {
-            mFakeInfinityOffset = mPlaylist.getCount() * (10000 / mPlaylist.getCount());
+            mFakeInfinityOffset = mPlaylist.getCount() * ((FAKE_INFINITY_COUNT / 2) / mPlaylist.getCount());
             setByUser(false);
             if (mPlaylist.isRepeating()) {
                 setCurrentItem(mPlaylist.getPosition() + getFakeInfinityOffset(), false);
