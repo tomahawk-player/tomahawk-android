@@ -128,6 +128,8 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
             intent.removeExtra(COLLECTION_ID_ARTIST);
             getTabsAdapter().replace(new AlbumsFragment(getCollection().getArtistById(artistId)), false);
         }
+        if (mPlaybackService != null)
+            setNowPlayingInfo(mPlaybackService.getCurrentTrack());
 
         if (mCollectionActivityBroadcastReceiver == null)
             mCollectionActivityBroadcastReceiver = new CollectionActivityBroadcastReceiver();
