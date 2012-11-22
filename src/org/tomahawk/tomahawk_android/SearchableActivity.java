@@ -365,6 +365,7 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
             mSearchEditText.addTextChangedListener(this);
             mSearchEditText.setOnEditorActionListener(this);
             mSearchEditText.setImeActionLabel("Go", KeyEvent.KEYCODE_ENTER);
+            mSearchEditText.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         }
     }
 
