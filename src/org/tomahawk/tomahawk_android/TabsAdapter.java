@@ -57,8 +57,7 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
      * Add a tab to the ActionBar
      * 
      * @param tab
-     * @param clss
-     * @param args
+     * @param fragment
      */
     public void addTab(ActionBar.Tab tab, Fragment fragment) {
         tab.setTabListener(this);
@@ -232,5 +231,26 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
         // Restore the remembered fragment and remove it from back fragments.
         this.replace(previousFragment, true);
         return true;
+    }
+
+    public boolean backToFragment(int position, Fragment fragment){
+        if (mFragments.get(position).contains(fragment)){
+            ArrayList<Fragment> fragmentsStack = mFragments.get(position);
+            while (fragmentsStack.get(fragmentsStack.size() - 1) != fragment)
+                back();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean backToRoot(int position){
+        ArrayList<Fragment> fragmentsStack = mFragments.get(position);
+        while (fragmentsStack.size()>1)
+            back();
+        return true;
+    }
+
+    public ArrayList<Fragment> getBackStack(int position){
+        return mFragments.get(position);
     }
 }

@@ -32,10 +32,8 @@ import android.os.Bundle;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.TextView;
 
 /**
  * Fragment which represents the "Album" tabview.
@@ -62,10 +60,6 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
         setShowAsGrid(true);
         getGridView().setOnItemClickListener(this);
         getGridView().setOnItemLongClickListener(this);
-        TextView textView = (TextView) getActivity().findViewById(R.id.fragmentLayout_backbutton_textView);
-        textView.setText(getString(R.string.albumsfragment_title_string));
-        ImageView imageView = (ImageView) getActivity().findViewById(R.id.fragmentLayout_backbutton_icon_imageButton);
-        imageView.setBackgroundResource(R.drawable.ic_action_album);
     }
 
     /* (non-Javadoc)
@@ -109,4 +103,9 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
         setListAdapter(new TomahawkListAdapter(getActivity(), R.layout.album_art_grid_item, R.id.album_art_grid_image,
                 R.id.album_art_grid_textView1, R.id.album_art_grid_textView2, albums));
     }
+
+    public Artist getArtist() {
+        return mArtist;
+    }
+
 }

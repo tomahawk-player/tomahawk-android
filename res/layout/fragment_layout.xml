@@ -1,66 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+ *
+ *   Copyright 2012, Enno Gottschalk <mrmaffen@googlemail.com>
+ *
+ *   Tomahawk is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Tomahawk is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/fragment_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <RelativeLayout
+    <LinearLayout
+        android:id="@+id/fragmentLayout_breadcrumbLayout_linearLayout"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@drawable/selectable_background_tomahawk"
-        android:onClick="onBackPressed"
-        android:paddingBottom="5dip"
-        android:paddingLeft="5dip"
-        android:paddingTop="5dip" >
+        android:layout_height="48dp" >
 
         <org.tomahawk.tomahawk_android.SquareHeightRelativeLayout
-            android:id="@+id/SquareHeightRelativeLayoutIcon"
-            android:layout_width="wrap_content"
+            android:id="@+id/fragmentLayout_homeIcon_squareHeightRelativeLayout"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true">
+            android:background="@drawable/selectable_background_tomahawk"
+            android:onClick="onBackToRootPressed"
+            android:padding="5dip">
 
             <ImageView
-                android:id="@+id/fragmentLayout_backbutton_icon_imageButton"
+                android:id="@+id/fragmentLayout_homeIcon_imageView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:adjustViewBounds="false"
+                android:src="@drawable/ic_action_collection"
                 android:scaleType="centerCrop" />
         </org.tomahawk.tomahawk_android.SquareHeightRelativeLayout>
-
-        <TextView
-            android:id="@+id/fragmentLayout_backbutton_textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/SquareHeightRelativeLayoutIcon"
-            android:layout_toRightOf="@+id/SquareHeightRelativeLayoutIcon"
-            android:ellipsize="marquee"
-            android:paddingBottom="5dp"
-            android:paddingLeft="5dp"
-            android:paddingTop="5dp"
-            android:singleLine="true"
-            android:textColor="#F2F2F2"
-            android:textSize="10pt"
-            android:typeface="sans" />
-
-        <org.tomahawk.tomahawk_android.SquareHeightRelativeLayout
-            android:id="@+id/SquareHeightRelativeLayoutUpIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_alignBaseline="@+id/SquareHeightRelativeLayoutIcon"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true">
-
-            <ImageView
-                android:id="@+id/fragmentLayout_backbutton_imageButton"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:adjustViewBounds="false"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_action_up" />
-        </org.tomahawk.tomahawk_android.SquareHeightRelativeLayout>
-    </RelativeLayout>
+    </LinearLayout>
 
     <View
         android:layout_width="fill_parent"

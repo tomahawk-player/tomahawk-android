@@ -52,10 +52,6 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
 
         getListView().setOnItemClickListener(this);
         getListView().setOnItemLongClickListener(this);
-        TextView textView = (TextView) getActivity().findViewById(R.id.fragmentLayout_backbutton_textView);
-        textView.setText(getString(R.string.artistsfragment_title_string));
-        ImageView imageView = (ImageView) getActivity().findViewById(R.id.fragmentLayout_backbutton_icon_imageButton);
-        imageView.setBackgroundResource(R.drawable.ic_action_artist);
     }
 
     /* (non-Javadoc)

@@ -321,6 +321,10 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
      * Called when the back {@link Button} is pressed
      * @param view */
     public void onBackPressed(View view) {
-        this.onBackPressed();
+        onBackPressed();
+    }
+
+    public void onBackToRootPressed(View view) {
+        getTabsAdapter().backToRoot(0);
     }
 }

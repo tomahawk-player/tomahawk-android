@@ -17,6 +17,8 @@
  */
 package org.tomahawk.tomahawk_android;
 
+import java.util.ArrayList;
+
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.CollectionLoader;
 import org.tomahawk.libtomahawk.TomahawkListAdapter;
@@ -29,14 +31,13 @@ import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
-import android.widget.ListAdapter;
-import android.widget.ListView;
+import android.widget.*;
 
 import com.actionbarsherlock.app.SherlockFragment;
 
@@ -117,6 +118,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ensureList();
+        updateBreadCrumbNavigation();
     }
 
     /* 
@@ -217,6 +219,78 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
                 getGridView().setNumColumns(4);
             else
                 getGridView().setNumColumns(2);
+        }
+    }
+
+    public void updateBreadCrumbNavigation() {
+        ArrayList<Fragment> backStack = mCollectionActivity.getTabsAdapter().getBackStack(0);
+        LinearLayout navigationLayoutView = (LinearLayout) getActivity().findViewById(
+                R.id.fragmentLayout_breadcrumbLayout_linearLayout);
+        int validFragmentCount = 0;
+        for (Fragment fragment : backStack) {
+            if (fragment instanceof AlbumsFragment || fragment instanceof TracksFragment
+                    || fragment instanceof ArtistsFragment)
+                validFragmentCount++;
+        }
+        for (Fragment fragment : backStack) {
+            LinearLayout breadcrumbItem = (LinearLayout) getActivity().getLayoutInflater().inflate(
+                    R.layout.fragment_layout_breadcrumb_item, null);
+            ImageView breadcrumbItemImageView = (ImageView) breadcrumbItem.findViewById(R.id.fragmentLayout_icon_imageButton);
+            SquareHeightRelativeLayout breadcrumbItemImageViewLayout = (SquareHeightRelativeLayout) breadcrumbItem.findViewById(R.id.fragmentLayout_icon_squareHeightRelativeLayout);
+            TextView breadcrumbItemTextView = (TextView) breadcrumbItem.findViewById(R.id.fragmentLayout_text_textView);
+            if (fragment instanceof AlbumsFragment) {
+                AlbumsFragment albumsFragment = (AlbumsFragment) fragment;
+                if (albumsFragment.getArtist() != null) {
+                    breadcrumbItemTextView.setText(albumsFragment.getArtist().getName());
+                    breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.GONE);
+                } else {
+                    if (validFragmentCount == 1)
+                        breadcrumbItemTextView.setText(getString(R.string.albumsfragment_title_string));
+                    else
+                        breadcrumbItemTextView.setVisibility(TextView.GONE);
+                    breadcrumbItemImageView.setBackground(getResources().getDrawable(R.drawable.ic_action_album));
+                    breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
+                }
+                breadcrumbItem.setOnClickListener(new BreadCrumbOnClickListener(fragment));
+                navigationLayoutView.addView(breadcrumbItem);
+            } else if (fragment instanceof ArtistsFragment) {
+                if (validFragmentCount == 1)
+                    breadcrumbItemTextView.setText(getString(R.string.artistsfragment_title_string));
+                else
+                    breadcrumbItemTextView.setVisibility(TextView.GONE);
+                breadcrumbItemImageView.setBackground(getResources().getDrawable(R.drawable.ic_action_artist));
+                breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
+                breadcrumbItem.setOnClickListener(new BreadCrumbOnClickListener(fragment));
+                navigationLayoutView.addView(breadcrumbItem);
+            } else if (fragment instanceof TracksFragment) {
+                TracksFragment tracksFragment = (TracksFragment) fragment;
+                if (tracksFragment.getAlbum() != null) {
+                    breadcrumbItemTextView.setText(tracksFragment.getAlbum().getName());
+                    breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.GONE);
+                } else {
+                    if (validFragmentCount == 1)
+                        breadcrumbItemTextView.setText(getString(R.string.tracksfragment_title_string));
+                    else
+                        breadcrumbItemTextView.setVisibility(TextView.GONE);
+                    breadcrumbItemImageView.setBackground(getResources().getDrawable(R.drawable.ic_action_track));
+                    breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
+                }
+                breadcrumbItem.setOnClickListener(new BreadCrumbOnClickListener(fragment));
+                navigationLayoutView.addView(breadcrumbItem);
+            }
+        }
+    }
+
+    public class BreadCrumbOnClickListener implements View.OnClickListener {
+        Fragment mSavedFragment;
+
+        public BreadCrumbOnClickListener(Fragment savedFragment) {
+            mSavedFragment = savedFragment;
+        }
+
+        @Override
+        public void onClick(View view) {
+            mCollectionActivity.getTabsAdapter().backToFragment(0, mSavedFragment);
         }
     }
 

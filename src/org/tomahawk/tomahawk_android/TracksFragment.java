@@ -59,10 +59,6 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         super.onActivityCreated(savedInstanceState);
 
         getListView().setOnItemClickListener(this);
-        TextView textView = (TextView) getActivity().findViewById(R.id.fragmentLayout_backbutton_textView);
-        textView.setText(getString(R.string.tracksfragment_title_string));
-        ImageView imageView = (ImageView) getActivity().findViewById(R.id.fragmentLayout_backbutton_icon_imageButton);
-        imageView.setBackgroundResource(R.drawable.ic_action_track);
     }
 
     /* (non-Javadoc)
@@ -99,5 +95,9 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
 
         setListAdapter(new TomahawkListAdapter(getActivity(), R.layout.double_line_list_item,
                 R.id.double_line_list_textview, R.id.double_line_list_textview2, tracks));
+    }
+
+    public Album getAlbum() {
+        return mAlbum;
     }
 }
