@@ -25,7 +25,7 @@
     <org.tomahawk.tomahawk_android.SquareWidthRelativeLayout
         android:layout_width="150dip"
         android:layout_height="wrap_content"
-        android:padding="15dip">
+        android:padding="10dip">
 
         <ImageView
             android:id="@+id/content_header_image"
@@ -41,7 +41,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:gravity="left"
-        android:padding="15dip">
+        android:padding="10dip">
 
         <TextView
             android:id="@+id/content_header_textview"

@@ -24,7 +24,8 @@
     android:orientation="vertical"
     android:paddingBottom="2dip"
     android:paddingTop="2dip"
-    android:paddingLeft="10dip" >
+    android:paddingLeft="10dip"
+    android:background="@drawable/selectable_background_tomahawk" >
 
     <TextView
         xmlns:android="http://schemas.android.com/apk/res/android"

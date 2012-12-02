@@ -10,6 +10,6 @@
         android:layout_height="fill_parent"
         android:drawSelectorOnTop="false"
         android:fastScrollEnabled="true"
-        android:listSelector="@drawable/selectable_background_tomahawk" />
+        android:listSelector="@android:color/transparent" />
 
 </LinearLayout>

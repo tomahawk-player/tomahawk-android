@@ -73,18 +73,25 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         super.onLoadFinished(loader, coll);
 
         List<TomahawkBaseAdapter.TomahawkListItem> tracks = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-        if (mAlbum != null)
+        TomahawkListAdapter tomahawkListAdapter;
+        if (mAlbum != null) {
             tracks.addAll(mAlbum.getTracks());
-        else
-            tracks.addAll(coll.getTracks());
-
-        TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(getActivity(),
-                R.layout.double_line_list_item, R.id.double_line_list_textview, R.id.double_line_list_textview2, tracks);
-        if (mAlbum != null)
+            List<TomahawkBaseAdapter.TomahawkMenuItem> headerArray = new ArrayList<TomahawkBaseAdapter.TomahawkMenuItem>();
+            String trackListTitle = getResources().getString(R.string.tracksfragment_title_string);
+            headerArray.add(new TomahawkBaseAdapter.TomahawkMenuItem(trackListTitle, R.drawable.ic_action_album));
+            tomahawkListAdapter = new TomahawkListAdapter(getActivity(), R.layout.double_line_list_item,
+                    R.id.double_line_list_textview, R.id.double_line_list_textview2, tracks);
             tomahawkListAdapter.setShowContentHeader(mAlbum, R.layout.content_header, R.id.content_header_image,
                     R.id.content_header_textview, R.id.content_header_textview2);
-        setListAdapter(tomahawkListAdapter);
+            tomahawkListAdapter.setShowCategoryHeaders(headerArray, R.layout.single_line_list_header,
+                    R.id.single_line_list_header_icon_imageview, R.id.single_line_list_header_textview);
+        } else {
+            tracks.addAll(coll.getTracks());
+            tomahawkListAdapter = new TomahawkListAdapter(getActivity(), R.layout.double_line_list_item,
+                    R.id.double_line_list_textview, R.id.double_line_list_textview2, tracks);
+        }
 
+        setListAdapter(tomahawkListAdapter);
         getListView().setOnItemClickListener(this);
     }
 

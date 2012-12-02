@@ -22,7 +22,10 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="horizontal"
-              android:padding="2dip">
+              android:paddingBottom="2dip"
+              android:paddingTop="2dip"
+              android:paddingLeft="2dip"
+              android:background="@drawable/selectable_background_tomahawk">
 
     <ImageView
         android:id="@+id/album_art_grid_image"

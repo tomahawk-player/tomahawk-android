@@ -85,16 +85,16 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
         List<TomahawkBaseAdapter.TomahawkListItem> albums = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
         if (mArtist != null) {
             albums.addAll(mArtist.getAlbums());
-            List<String> headerArray = new ArrayList<String>();
+            List<TomahawkBaseAdapter.TomahawkMenuItem> headerArray = new ArrayList<TomahawkBaseAdapter.TomahawkMenuItem>();
             String albumListTitle = getResources().getString(R.string.albumsfragment_title_string);
-            headerArray.add(albumListTitle);
+            headerArray.add(new TomahawkBaseAdapter.TomahawkMenuItem(albumListTitle, R.drawable.ic_action_album));
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(getActivity(),
                     R.layout.double_line_list_item_with_image, R.id.album_art_grid_image,
                     R.id.double_line_list_textview, R.id.double_line_list_textview2, albums);
             tomahawkListAdapter.setShowContentHeader(mArtist, R.layout.content_header, R.id.content_header_image,
                     R.id.content_header_textview, R.id.content_header_textview2);
             tomahawkListAdapter.setShowCategoryHeaders(headerArray, R.layout.single_line_list_header,
-                    R.id.single_line_list_header_textview);
+                    R.id.single_line_list_header_icon_imageview, R.id.single_line_list_header_textview);
             setListAdapter(tomahawkListAdapter);
             getListView().setOnItemClickListener(this);
             getListView().setOnItemLongClickListener(this);

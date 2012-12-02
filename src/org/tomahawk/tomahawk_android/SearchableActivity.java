@@ -298,24 +298,24 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
-        List<String> headerArray = new ArrayList<String>();
+        List<TomahawkBaseAdapter.TomahawkMenuItem> headerArray = new ArrayList<TomahawkBaseAdapter.TomahawkMenuItem>();
         String trackListTitle = getResources().getString(R.string.tracksfragment_title_string);
         String artistListTitle = getResources().getString(R.string.artistsfragment_title_string);
         String albumListTitle = getResources().getString(R.string.albumsfragment_title_string);
 
         listArray.add(new ArrayList<TomahawkBaseAdapter.TomahawkListItem>());
-        headerArray.add(trackListTitle);
+        headerArray.add(new TomahawkBaseAdapter.TomahawkMenuItem(trackListTitle, R.drawable.ic_action_track));
         listArray.add(new ArrayList<TomahawkBaseAdapter.TomahawkListItem>());
-        headerArray.add(artistListTitle);
+        headerArray.add(new TomahawkBaseAdapter.TomahawkMenuItem(artistListTitle, R.drawable.ic_action_artist));
         listArray.add(new ArrayList<TomahawkBaseAdapter.TomahawkListItem>());
-        headerArray.add(albumListTitle);
+        headerArray.add(new TomahawkBaseAdapter.TomahawkMenuItem(albumListTitle, R.drawable.ic_action_album));
         listArray.get(0).addAll(coll.getTracks());
         listArray.get(1).addAll(coll.getArtists());
         listArray.get(2).addAll(coll.getAlbums());
 
         mTomahawkListAdapter = new TomahawkListAdapter(this, R.layout.single_line_list_header,
-                R.id.single_line_list_header_textview, R.layout.single_line_list_item, R.id.single_line_list_textview,
-                listArray, headerArray);
+                R.id.single_line_list_header_icon_imageview, R.id.single_line_list_header_textview,
+                R.layout.single_line_list_item, R.id.single_line_list_textview, listArray, headerArray);
         setListAdapter(mTomahawkListAdapter);
         mTomahawkListAdapter.setFiltered(true);
         mTomahawkListAdapter.getFilter().filter(mSearchString);

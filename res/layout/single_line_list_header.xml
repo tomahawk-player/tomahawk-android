@@ -37,8 +37,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:adjustViewBounds="false"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_action_artist" />
+            android:scaleType="centerCrop" />
     </org.tomahawk.tomahawk_android.SquareHeightRelativeLayout>
 
     <TextView

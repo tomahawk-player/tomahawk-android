@@ -61,6 +61,16 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
         public Album getAlbum();
     }
 
+    public static class TomahawkMenuItem {
+        public TomahawkMenuItem(String menuItemString, Integer menuItemIconResource) {
+            mMenuItemString = menuItemString;
+            mMenuItemIconResource = menuItemIconResource;
+        }
+
+        protected String mMenuItemString;
+        protected Integer mMenuItemIconResource;
+    }
+
     static class AsyncDrawable extends BitmapDrawable {
         private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
 
