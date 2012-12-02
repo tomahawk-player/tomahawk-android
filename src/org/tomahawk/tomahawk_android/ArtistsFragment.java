@@ -22,8 +22,8 @@ import java.util.List;
 
 import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.Collection;
+import org.tomahawk.libtomahawk.TomahawkBaseAdapter;
 import org.tomahawk.libtomahawk.TomahawkListAdapter;
-import org.tomahawk.libtomahawk.TomahawkListAdapter.TomahawkListItem;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 
 import android.content.Intent;
@@ -31,28 +31,13 @@ import android.os.Bundle;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.TextView;
 
 /**
  * Fragment which represents the "Artist" tabview.
  */
 public class ArtistsFragment extends TomahawkFragment implements OnItemClickListener, OnItemLongClickListener {
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-     */
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        getListView().setOnItemClickListener(this);
-        getListView().setOnItemLongClickListener(this);
-    }
 
     /* (non-Javadoc)
      * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
@@ -85,8 +70,12 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
 
-        List<TomahawkListItem> items = new ArrayList<TomahawkListItem>(coll.getArtists());
+        List<TomahawkBaseAdapter.TomahawkListItem> items = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>(
+                coll.getArtists());
         setListAdapter(new TomahawkListAdapter(getActivity(), R.layout.single_line_list_item,
                 R.id.single_line_list_textview, items));
+
+        getListView().setOnItemClickListener(this);
+        getListView().setOnItemLongClickListener(this);
     }
 }

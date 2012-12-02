@@ -22,8 +22,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import org.tomahawk.libtomahawk.TomahawkListAdapter.TomahawkListItem;
-
 /**
  * This class is used to compare two Artists.
  */
@@ -36,7 +34,7 @@ class ArtistComparator implements Comparator<Artist> {
 /**
  * This class represents an Artist.
  */
-public class Artist implements TomahawkListItem {
+public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
 
     private static HashMap<Long, Artist> sArtists = new HashMap<Long, Artist>();
 

@@ -20,13 +20,7 @@ package org.tomahawk.tomahawk_android;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.tomahawk.libtomahawk.Album;
-import org.tomahawk.libtomahawk.Artist;
-import org.tomahawk.libtomahawk.Collection;
-import org.tomahawk.libtomahawk.CollectionLoader;
-import org.tomahawk.libtomahawk.TomahawkListAdapter;
-import org.tomahawk.libtomahawk.TomahawkListAdapter.TomahawkListItem;
-import org.tomahawk.libtomahawk.Track;
+import org.tomahawk.libtomahawk.*;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 
 import android.app.Fragment;
@@ -225,7 +219,7 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
      * @param idx the position of the item inside the shown {@link ListView} */
     public void showFragment(int idx) {
         Object item = mTomahawkListAdapter.getItem(idx);
-        if (item instanceof TomahawkListItem) {
+        if (item instanceof TomahawkBaseAdapter.TomahawkListItem) {
             if (item instanceof Album) {
                 Intent intent = getIntent(this, CollectionActivity.class);
                 intent.putExtra(CollectionActivity.COLLECTION_ID_ALBUM, ((Album) item).getId());
@@ -303,17 +297,17 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
      */
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
-        List<List<TomahawkListItem>> listArray = new ArrayList<List<TomahawkListItem>>();
+        List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
         List<String> headerArray = new ArrayList<String>();
         String trackListTitle = getResources().getString(R.string.tracksfragment_title_string);
         String artistListTitle = getResources().getString(R.string.artistsfragment_title_string);
         String albumListTitle = getResources().getString(R.string.albumsfragment_title_string);
 
-        listArray.add(new ArrayList<TomahawkListItem>());
+        listArray.add(new ArrayList<TomahawkBaseAdapter.TomahawkListItem>());
         headerArray.add(trackListTitle);
-        listArray.add(new ArrayList<TomahawkListItem>());
+        listArray.add(new ArrayList<TomahawkBaseAdapter.TomahawkListItem>());
         headerArray.add(artistListTitle);
-        listArray.add(new ArrayList<TomahawkListItem>());
+        listArray.add(new ArrayList<TomahawkBaseAdapter.TomahawkListItem>());
         headerArray.add(albumListTitle);
         listArray.get(0).addAll(coll.getTracks());
         listArray.get(1).addAll(coll.getArtists());
@@ -323,6 +317,7 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
                 R.id.single_line_list_header_textview, R.layout.single_line_list_item, R.id.single_line_list_textview,
                 listArray, headerArray);
         setListAdapter(mTomahawkListAdapter);
+        mTomahawkListAdapter.setFiltered(true);
         mTomahawkListAdapter.getFilter().filter(mSearchString);
         Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {

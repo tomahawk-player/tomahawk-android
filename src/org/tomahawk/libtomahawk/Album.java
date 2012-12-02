@@ -22,8 +22,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import org.tomahawk.libtomahawk.TomahawkListAdapter.TomahawkListItem;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v4.util.LruCache;
@@ -40,7 +38,7 @@ class AlbumComparator implements Comparator<Album> {
 /**
  * Class which represents a Tomahawk Album.
  */
-public class Album implements TomahawkListItem {
+public class Album implements TomahawkBaseAdapter.TomahawkListItem {
 
     private static HashMap<Long, Album> sAlbums = new HashMap<Long, Album>();
 

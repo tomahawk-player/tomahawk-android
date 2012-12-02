@@ -2,6 +2,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item name="tomahawklistadapter_viewtype_header" type="id"/>
+    <item name="tomahawklistadapter_viewtype_contentheader" type="id"/>
     <item name="tomahawklistadapter_viewtype_listitem" type="id"/>
     <item name="tomahawklistadapter_viewtype_griditem" type="id"/>
     <item name="tomahawklistadapter_viewholder" type="id"/>

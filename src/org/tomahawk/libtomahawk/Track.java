@@ -20,8 +20,6 @@ package org.tomahawk.libtomahawk;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import org.tomahawk.libtomahawk.TomahawkListAdapter.TomahawkListItem;
-
 /**
  * This class is used to compare two Tracks.
  */
@@ -58,7 +56,7 @@ class TrackComparator implements Comparator<Track> {
 /**
  * This class represents a track.
  */
-public class Track implements TomahawkListItem {
+public class Track implements TomahawkBaseAdapter.TomahawkListItem {
 
     private static HashMap<Long, Track> sTracks = new HashMap<Long, Track>();
 
