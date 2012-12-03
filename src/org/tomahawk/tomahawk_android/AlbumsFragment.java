@@ -104,6 +104,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                     R.id.album_art_grid_image, R.id.album_art_grid_textView1, R.id.album_art_grid_textView2, albums));
             getGridView().setOnItemClickListener(this);
             getGridView().setOnItemLongClickListener(this);
+            adaptColumnCount();
         }
     }
 
