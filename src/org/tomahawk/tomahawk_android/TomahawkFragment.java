@@ -249,7 +249,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
                         breadcrumbItemTextView.setText(getString(R.string.albumsfragment_title_string));
                     else
                         breadcrumbItemTextView.setVisibility(TextView.GONE);
-                    breadcrumbItemImageView.setBackground(getResources().getDrawable(R.drawable.ic_action_album));
+                    breadcrumbItemImageView.setBackgroundDrawable(getResources().getDrawable(R.drawable.ic_action_album));
                     breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
                 }
                 breadcrumbItem.setOnClickListener(new BreadCrumbOnClickListener(fragment));
@@ -259,7 +259,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
                     breadcrumbItemTextView.setText(getString(R.string.artistsfragment_title_string));
                 else
                     breadcrumbItemTextView.setVisibility(TextView.GONE);
-                breadcrumbItemImageView.setBackground(getResources().getDrawable(R.drawable.ic_action_artist));
+                breadcrumbItemImageView.setBackgroundDrawable(getResources().getDrawable(R.drawable.ic_action_artist));
                 breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
                 breadcrumbItem.setOnClickListener(new BreadCrumbOnClickListener(fragment));
                 navigationLayoutView.addView(breadcrumbItem);
@@ -273,7 +273,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
                         breadcrumbItemTextView.setText(getString(R.string.tracksfragment_title_string));
                     else
                         breadcrumbItemTextView.setVisibility(TextView.GONE);
-                    breadcrumbItemImageView.setBackground(getResources().getDrawable(R.drawable.ic_action_track));
+                    breadcrumbItemImageView.setBackgroundDrawable(getResources().getDrawable(R.drawable.ic_action_track));
                     breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
                 }
                 breadcrumbItem.setOnClickListener(new BreadCrumbOnClickListener(fragment));
