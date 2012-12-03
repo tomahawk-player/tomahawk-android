@@ -36,20 +36,24 @@
     </style>
 
     <style name="tomahawk_solid_ActionBar" parent="@style/Widget.Sherlock.ActionBar.Solid">
-        <item name="background">@drawable/ab_solid_tomahawk</item>
-        <item name="backgroundStacked">@drawable/ab_stacked_solid_tomahawk</item>
-        <item name="backgroundSplit">@drawable/ab_bottom_solid_tomahawk</item>
+        <item name="background">@drawable/ab_transparent_tomahawk</item>
+        <item name="backgroundStacked">@drawable/ab_transparent_tomahawk</item>
+        <item name="backgroundSplit">@drawable/ab_transparent_tomahawk</item>
         <item name="progressBarStyle">@style/tomahawk_ProgressBar</item>
-        <item name="android:background">@drawable/ab_solid_tomahawk</item>
-        <item name="android:backgroundStacked">@drawable/ab_stacked_solid_tomahawk</item>
-        <item name="android:backgroundSplit">@drawable/ab_bottom_solid_tomahawk</item>
+        <item name="android:background">@drawable/ab_transparent_tomahawk</item>
+        <item name="android:backgroundStacked">@drawable/ab_transparent_tomahawk</item>
+        <item name="android:backgroundSplit">@drawable/ab_transparent_tomahawk</item>
         <item name="android:progressBarStyle">@style/tomahawk_ProgressBar</item>
     </style>
 
     <style name="tomahawk_transparent_ActionBar" parent="@style/Widget.Sherlock.ActionBar">
         <item name="background">@drawable/ab_transparent_tomahawk</item>
+        <item name="backgroundStacked">@drawable/ab_transparent_tomahawk</item>
+        <item name="backgroundSplit">@drawable/ab_split_transparent_tomahawk</item>
         <item name="progressBarStyle">@style/tomahawk_ProgressBar</item>
         <item name="android:background">@drawable/ab_transparent_tomahawk</item>
+        <item name="android:backgroundStacked">@drawable/ab_transparent_tomahawk</item>
+        <item name="android:backgroundSplit">@drawable/ab_split_transparent_tomahawk</item>
         <item name="android:progressBarStyle">@style/tomahawk_ProgressBar</item>
     </style>
 
