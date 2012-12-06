@@ -248,9 +248,9 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
     /**
      * Return the {@link Intent} defined by the given parameters
      * 
-     * @param context
-     * @param cls
-     * @return
+     * @param context the context with which the intent will be created
+     * @param cls the class which contains the activity to launch
+     * @return the created intent
      */
     private static Intent getIntent(Context context, Class<?> cls) {
         Intent intent = new Intent(context, cls);
@@ -316,9 +316,13 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
         mTomahawkListAdapter = new TomahawkListAdapter(this, R.layout.single_line_list_header,
                 R.id.single_line_list_header_icon_imageview, R.id.single_line_list_header_textview,
                 R.layout.single_line_list_item, R.id.single_line_list_textview, listArray, headerArray);
-        setListAdapter(mTomahawkListAdapter);
+        mTomahawkListAdapter.setDoubleLineImageListItemResources(R.layout.double_line_list_item_with_image,
+                R.id.double_line_list_imageview, R.id.double_line_list_textview, R.id.double_line_list_textview2);
+        mTomahawkListAdapter.setDoubleLineListItemResources(R.layout.double_line_list_item,
+                R.id.double_line_list_textview, R.id.double_line_list_textview2);
         mTomahawkListAdapter.setFiltered(true);
         mTomahawkListAdapter.getFilter().filter(mSearchString);
+        setListAdapter(mTomahawkListAdapter);
         Intent intent = getIntent();
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
@@ -353,7 +357,8 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
     }
 
     /** Set the reference to the searchText, that is used to filter the custom {@link ListView}
-     *  @param searchText */
+     *  @param searchText the EditText object which the listener is connected to
+     */
     public void setSearchText(EditText searchText) {
         mSearchEditText = searchText;
         if (mSearchEditText != null) {

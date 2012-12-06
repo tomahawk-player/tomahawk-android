@@ -28,7 +28,7 @@
               android:background="@drawable/selectable_background_tomahawk">
 
     <ImageView
-        android:id="@+id/album_art_grid_image"
+        android:id="@+id/double_line_list_imageview"
         android:layout_width="48dip"
         android:layout_height="48dip"
         android:adjustViewBounds="false"

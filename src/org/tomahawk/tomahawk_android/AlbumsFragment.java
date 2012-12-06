@@ -89,7 +89,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
             String albumListTitle = getResources().getString(R.string.albumsfragment_title_string);
             headerArray.add(new TomahawkBaseAdapter.TomahawkMenuItem(albumListTitle, R.drawable.ic_action_album));
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(getActivity(),
-                    R.layout.double_line_list_item_with_image, R.id.album_art_grid_image,
+                    R.layout.double_line_list_item_with_image, R.id.double_line_list_imageview,
                     R.id.double_line_list_textview, R.id.double_line_list_textview2, albums);
             tomahawkListAdapter.setShowContentHeader(mArtist, R.layout.content_header, R.id.content_header_image,
                     R.id.content_header_textview, R.id.content_header_textview2);

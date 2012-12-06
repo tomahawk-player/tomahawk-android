@@ -3,7 +3,9 @@
 
     <item name="tomahawklistadapter_viewtype_categoryheader" type="id"/>
     <item name="tomahawklistadapter_viewtype_contentheader" type="id"/>
-    <item name="tomahawklistadapter_viewtype_listitem" type="id"/>
+    <item name="tomahawklistadapter_viewtype_singlelinelistitem" type="id"/>
+    <item name="tomahawklistadapter_viewtype_doublelinelistitem" type="id"/>
+    <item name="tomahawklistadapter_viewtype_doublelineimagelistitem" type="id"/>
     <item name="tomahawklistadapter_viewtype_griditem" type="id"/>
     <item name="tomahawklistadapter_viewholder" type="id"/>
 

@@ -44,7 +44,8 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
 
     protected List<List<TomahawkListItem>> mListArray;
     protected List<List<TomahawkListItem>> mFilteredListArray;
-    private Bitmap mPlaceHolderBitmap;
+    private Bitmap mAlbumPlaceHolderBitmap;
+    private Bitmap mArtistPlaceHolderBitmap;
 
     /**
      * This interface represents an item displayed in our {@link Collection} list.
@@ -118,9 +119,50 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
     }
 
     /**
+     * This {@link ResourceHolder} holds the resources to an entry in the grid/listView
+     */
+    static class ResourceHolder {
+        public ResourceHolder(int resourceId, int imageViewId, int textViewId1, int textViewId2) {
+            this.resourceId = resourceId;
+            this.imageViewId = imageViewId;
+            this.textViewId1 = textViewId1;
+            this.textViewId2 = textViewId2;
+        }
+
+        protected int resourceId;
+        protected int imageViewId;
+        protected int textViewId1;
+        protected int textViewId2;
+    }
+
+    /**
      * This {@link ViewHolder} holds the data to an entry in the grid/listView
      */
     static class ViewHolder {
+        public ViewHolder(int viewType, ImageView imageView, TextView textFirstLine, TextView textSecondLine) {
+            this.viewType = viewType;
+            this.imageView = imageView;
+            this.textFirstLine = textFirstLine;
+            this.textSecondLine = textSecondLine;
+        }
+
+        public ViewHolder(int viewType, TextView textFirstLine, TextView textSecondLine) {
+            this.viewType = viewType;
+            this.textFirstLine = textFirstLine;
+            this.textSecondLine = textSecondLine;
+        }
+
+        public ViewHolder(int viewType, ImageView imageView, TextView textFirstLine) {
+            this.viewType = viewType;
+            this.imageView = imageView;
+            this.textFirstLine = textFirstLine;
+        }
+
+        public ViewHolder(int viewType, TextView textFirstLine) {
+            this.viewType = viewType;
+            this.textFirstLine = textFirstLine;
+        }
+
         protected int viewType;
         protected ImageView imageView;
         protected TextView textFirstLine;
@@ -211,18 +253,36 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
 
     /**
      * Load a {@link Bitmap} asynchronously
-     * @param pathToBitmap the file path to the {@link Bitmap} to load
+     * @param item the item for which the corresponding {@link Bitmap} should be loaded
      * @param imageView the {@link ImageView}, which will be used to show the {@link Bitmap}*/
-    public void loadBitmap(String pathToBitmap, ImageView imageView) {
-        if (cancelPotentialWork(pathToBitmap, imageView)) {
-            final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
-            if (mPlaceHolderBitmap == null)
-                mPlaceHolderBitmap = BitmapFactory.decodeResource(mActivity.getResources(),
+    public void loadBitmap(TomahawkListItem item, ImageView imageView) {
+        Bitmap placeHolderBitmap = null;
+        String pathToBitmap = null;
+        if (item instanceof Artist) {
+            if (mArtistPlaceHolderBitmap == null)
+                mArtistPlaceHolderBitmap = BitmapFactory.decodeResource(mActivity.getResources(),
+                        R.drawable.no_artist_placeholder);
+            placeHolderBitmap = mArtistPlaceHolderBitmap;
+            //pathToBitmap = ((Artist) item).getArtistArtPath();
+        } else if (item instanceof Album) {
+            if (mAlbumPlaceHolderBitmap == null)
+                mAlbumPlaceHolderBitmap = BitmapFactory.decodeResource(mActivity.getResources(),
                         R.drawable.no_album_art_placeholder);
-            final AsyncDrawable asyncDrawable = new AsyncDrawable(mActivity.getResources(), mPlaceHolderBitmap, task);
-            imageView.setImageDrawable(asyncDrawable);
-            task.execute(pathToBitmap);
+            placeHolderBitmap = mAlbumPlaceHolderBitmap;
+            pathToBitmap = ((Album) item).getAlbumArtPath();
         }
+        if (pathToBitmap != null) {
+            if (cancelPotentialWork(pathToBitmap, imageView)) {
+                final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
+                final AsyncDrawable asyncDrawable = new AsyncDrawable(mActivity.getResources(), placeHolderBitmap, task);
+                if (asyncDrawable != null)
+                    imageView.setImageDrawable(asyncDrawable);
+                else
+                    imageView.setImageBitmap(placeHolderBitmap);
+                task.execute(((Album) item).getAlbumArtPath());
+            }
+        } else
+            imageView.setImageBitmap(placeHolderBitmap);
     }
 
     /**

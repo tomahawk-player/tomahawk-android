@@ -37,10 +37,7 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
 
     private LayoutInflater mInflater;
 
-    private int mResourceGridItem;
-    private int mImageViewResourceGridItem;
-    private int mTextViewResourceGridItemId1;
-    private int mTextViewResourceGridItemId2;
+    private ResourceHolder mGridItemResourceHolder;
 
     /**
      * Constructs a new {@link TomahawkGridAdapter}
@@ -59,12 +56,15 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
             int textViewResourceGridItemId1, int textViewResourceGridItemId2, List<TomahawkListItem> list) {
         mActivity = activity;
         mInflater = activity.getLayoutInflater();
-        mResourceGridItem = resourceGridItem;
-        mImageViewResourceGridItem = imageViewResourceGridItem;
-        mTextViewResourceGridItemId1 = textViewResourceGridItemId1;
-        mTextViewResourceGridItemId2 = textViewResourceGridItemId2;
+        setGridItemResources(resourceGridItem, imageViewResourceGridItem, textViewResourceGridItemId1,
+                textViewResourceGridItemId2);
         mListArray = new ArrayList<List<TomahawkListItem>>();
         mListArray.add(list);
+    }
+
+    public void setGridItemResources(int resourceGridItem, int imageViewResourcesGridItemId, int textViewResourceGridItemId1, int textViewResourceGridItemId2) {
+        mGridItemResourceHolder = new ResourceHolder(resourceGridItem, imageViewResourcesGridItemId,
+                textViewResourceGridItemId1, textViewResourceGridItemId2);
     }
 
     /*
@@ -77,36 +77,24 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
         Object item = getItem(position);
 
         if (item != null) {
-            ViewHolder viewHolder = new ViewHolder();
-
+            ViewHolder viewHolder;
             if ((item instanceof TomahawkListItem && convertView == null)
                     || (item instanceof TomahawkListItem && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_griditem)) {
-                view = mInflater.inflate(mResourceGridItem, null);
-                viewHolder.viewType = R.id.tomahawklistadapter_viewtype_griditem;
-                viewHolder.imageView = (ImageView) view.findViewById(mImageViewResourceGridItem);
-                viewHolder.textFirstLine = (TextView) view.findViewById(mTextViewResourceGridItemId1);
-                viewHolder.textSecondLine = (TextView) view.findViewById(mTextViewResourceGridItemId2);
+                view = mInflater.inflate(mGridItemResourceHolder.resourceId, null);
+                viewHolder = new ViewHolder(R.id.tomahawklistadapter_viewtype_griditem,
+                        (ImageView) view.findViewById(mGridItemResourceHolder.imageViewId),
+                        (TextView) view.findViewById(mGridItemResourceHolder.textViewId1),
+                        (TextView) view.findViewById(mGridItemResourceHolder.textViewId2));
                 view.setTag(viewHolder);
             } else {
                 view = convertView;
                 viewHolder = (ViewHolder) view.getTag();
             }
-            if (viewHolder.textFirstLine != null) {
-                if (item instanceof String)
-                    viewHolder.textFirstLine.setText((String) item);
-                else if (item instanceof TomahawkListItem)
-                    viewHolder.textFirstLine.setText(((TomahawkListItem) item).getName());
-            }
-            if (viewHolder.textSecondLine != null && item instanceof TomahawkListItem)
+            if (viewHolder.viewType == R.id.tomahawklistadapter_viewtype_griditem) {
+                viewHolder.textFirstLine.setText(((TomahawkListItem) item).getName());
                 viewHolder.textSecondLine.setText(((TomahawkListItem) item).getArtist().getName());
-            if (viewHolder.imageView != null && item instanceof TomahawkListItem) {
-                String albumArtPath = ((TomahawkListItem) item).getAlbum().getAlbumArtPath();
-                if (albumArtPath != null)
-                    loadBitmap(albumArtPath, viewHolder.imageView);
-                else
-                    viewHolder.imageView.setImageResource(R.drawable.no_album_art_placeholder);
+                loadBitmap((TomahawkListItem) item, viewHolder.imageView);
             }
-
         }
         return view;
     }
