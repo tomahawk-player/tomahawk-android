@@ -37,12 +37,12 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
 
     private Album mAlbum;
 
-    public TracksFragment() {
-        mAlbum = null;
-    }
-
-    public TracksFragment(Album album) {
-        mAlbum = album;
+    @Override
+    public void onCreate(Bundle inState) {
+        super.onCreate(inState);
+        if (mCollectionActivity.getCollection() != null && getArguments() != null
+                && getArguments().containsKey(TOMAHAWK_ITEM_ID) && getArguments().getLong(TOMAHAWK_ITEM_ID) > 0)
+            mAlbum = mCollectionActivity.getCollection().getAlbumById(getArguments().getLong(TOMAHAWK_ITEM_ID));
     }
 
     /* (non-Javadoc)

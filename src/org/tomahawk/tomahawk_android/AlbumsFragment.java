@@ -38,12 +38,12 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
 
     private Artist mArtist;
 
-    public AlbumsFragment() {
-        mArtist = null;
-    }
-
-    public AlbumsFragment(Artist artist) {
-        mArtist = artist;
+    @Override
+    public void onCreate(Bundle inState) {
+        super.onCreate(inState);
+        if (mCollectionActivity.getCollection() != null && getArguments() != null
+                && getArguments().containsKey(TOMAHAWK_ITEM_ID) && getArguments().getLong(TOMAHAWK_ITEM_ID) > 0)
+            mArtist = mCollectionActivity.getCollection().getArtistById(getArguments().getLong(TOMAHAWK_ITEM_ID));
     }
 
     /* (non-Javadoc)
@@ -51,9 +51,12 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
      */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        if (getListAdapter().getItem(idx) instanceof Album)
-            mCollectionActivity.getTabsAdapter().replace(new TracksFragment((Album) getListAdapter().getItem(idx)),
-                    false);
+        if (getListAdapter().getItem(idx) instanceof Album) {
+            Bundle bundle = new Bundle();
+            bundle.putLong(TOMAHAWK_ITEM_ID, ((Album) getListAdapter().getItem(idx)).getId());
+            mCollectionActivity.getTabsAdapter().replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
+                    TracksFragment.class, ((Album) getListAdapter().getItem(idx)).getId(), false);
+        }
     }
 
     /* 

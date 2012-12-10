@@ -19,10 +19,7 @@ package org.tomahawk.tomahawk_android;
 
 import java.util.ArrayList;
 
-import org.tomahawk.libtomahawk.Collection;
-import org.tomahawk.libtomahawk.CollectionLoader;
-import org.tomahawk.libtomahawk.TomahawkBaseAdapter;
-import org.tomahawk.libtomahawk.TomahawkGridAdapter;
+import org.tomahawk.libtomahawk.*;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -32,7 +29,6 @@ import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
@@ -43,6 +39,9 @@ import android.widget.*;
 import com.actionbarsherlock.app.SherlockFragment;
 
 public abstract class TomahawkFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Collection> {
+
+    public static final String TOMAHAWK_ITEM_ID = "tomahawk_item_id";
+    public static final String TOMAHAWK_LIST_SCROLL_POSITION = "tomahawk_list_scroll_position";
 
     private static IntentFilter sCollectionUpdateIntentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
 
@@ -58,7 +57,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
     ListView mList;
     GridView mGrid;
 
-    private int mPosition;
+    private int mListScrollPosition = 0;
 
     final private Handler mHandler = new Handler();
 
@@ -96,6 +95,9 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null && getArguments().containsKey(TOMAHAWK_LIST_SCROLL_POSITION)
+                && getArguments().getInt(TOMAHAWK_LIST_SCROLL_POSITION) > 0)
+            mListScrollPosition = getArguments().getInt(TOMAHAWK_LIST_SCROLL_POSITION);
         setHasOptionsMenu(true);
         setRetainInstance(true);
     }
@@ -106,9 +108,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = new View(getActivity().getApplicationContext());
-        view = inflater.inflate(R.layout.fragment_layout, null, false);
-        return view;
+        return inflater.inflate(R.layout.fragment_layout, null, false);
     }
 
     /* 
@@ -154,9 +154,9 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
         }
 
         if (mTomahawkBaseAdapter instanceof TomahawkGridAdapter) {
-            getGridView().setSelection(mPosition);
+            getGridView().setSelection(mListScrollPosition);
         } else {
-            getListView().setSelection(mPosition);
+            getListView().setSelection(mListScrollPosition);
         }
     }
 
@@ -168,12 +168,6 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
     @Override
     public void onPause() {
         super.onPause();
-
-        if (mTomahawkBaseAdapter instanceof TomahawkGridAdapter) {
-            mPosition = getGridView().getFirstVisiblePosition();
-        } else {
-            mPosition = getListView().getFirstVisiblePosition();
-        }
 
         if (mCollectionUpdatedReceiver != null) {
             getActivity().unregisterReceiver(mCollectionUpdatedReceiver);
@@ -223,78 +217,6 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
         }
     }
 
-    public void updateBreadCrumbNavigation() {
-        ArrayList<Fragment> backStack = mCollectionActivity.getTabsAdapter().getBackStack(0);
-        LinearLayout navigationLayoutView = (LinearLayout) getActivity().findViewById(
-                R.id.fragmentLayout_breadcrumbLayout_linearLayout);
-        int validFragmentCount = 0;
-        for (Fragment fragment : backStack) {
-            if (fragment instanceof AlbumsFragment || fragment instanceof TracksFragment
-                    || fragment instanceof ArtistsFragment)
-                validFragmentCount++;
-        }
-        for (Fragment fragment : backStack) {
-            LinearLayout breadcrumbItem = (LinearLayout) getActivity().getLayoutInflater().inflate(
-                    R.layout.fragment_layout_breadcrumb_item, null);
-            ImageView breadcrumbItemImageView = (ImageView) breadcrumbItem.findViewById(R.id.fragmentLayout_icon_imageButton);
-            SquareHeightRelativeLayout breadcrumbItemImageViewLayout = (SquareHeightRelativeLayout) breadcrumbItem.findViewById(R.id.fragmentLayout_icon_squareHeightRelativeLayout);
-            TextView breadcrumbItemTextView = (TextView) breadcrumbItem.findViewById(R.id.fragmentLayout_text_textView);
-            if (fragment instanceof AlbumsFragment) {
-                AlbumsFragment albumsFragment = (AlbumsFragment) fragment;
-                if (albumsFragment.getArtist() != null) {
-                    breadcrumbItemTextView.setText(albumsFragment.getArtist().getName());
-                    breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.GONE);
-                } else {
-                    if (validFragmentCount == 1)
-                        breadcrumbItemTextView.setText(getString(R.string.albumsfragment_title_string));
-                    else
-                        breadcrumbItemTextView.setVisibility(TextView.GONE);
-                    breadcrumbItemImageView.setBackgroundDrawable(getResources().getDrawable(R.drawable.ic_action_album));
-                    breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
-                }
-                breadcrumbItem.setOnClickListener(new BreadCrumbOnClickListener(fragment));
-                navigationLayoutView.addView(breadcrumbItem);
-            } else if (fragment instanceof ArtistsFragment) {
-                if (validFragmentCount == 1)
-                    breadcrumbItemTextView.setText(getString(R.string.artistsfragment_title_string));
-                else
-                    breadcrumbItemTextView.setVisibility(TextView.GONE);
-                breadcrumbItemImageView.setBackgroundDrawable(getResources().getDrawable(R.drawable.ic_action_artist));
-                breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
-                breadcrumbItem.setOnClickListener(new BreadCrumbOnClickListener(fragment));
-                navigationLayoutView.addView(breadcrumbItem);
-            } else if (fragment instanceof TracksFragment) {
-                TracksFragment tracksFragment = (TracksFragment) fragment;
-                if (tracksFragment.getAlbum() != null) {
-                    breadcrumbItemTextView.setText(tracksFragment.getAlbum().getName());
-                    breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.GONE);
-                } else {
-                    if (validFragmentCount == 1)
-                        breadcrumbItemTextView.setText(getString(R.string.tracksfragment_title_string));
-                    else
-                        breadcrumbItemTextView.setVisibility(TextView.GONE);
-                    breadcrumbItemImageView.setBackgroundDrawable(getResources().getDrawable(R.drawable.ic_action_track));
-                    breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
-                }
-                breadcrumbItem.setOnClickListener(new BreadCrumbOnClickListener(fragment));
-                navigationLayoutView.addView(breadcrumbItem);
-            }
-        }
-    }
-
-    public class BreadCrumbOnClickListener implements View.OnClickListener {
-        Fragment mSavedFragment;
-
-        public BreadCrumbOnClickListener(Fragment savedFragment) {
-            mSavedFragment = savedFragment;
-        }
-
-        @Override
-        public void onClick(View view) {
-            mCollectionActivity.getTabsAdapter().backToFragment(0, mSavedFragment);
-        }
-    }
-
     /**
      * Called when a Collection has been updated.
      */
@@ -334,6 +256,86 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
      */
     @Override
     public void onLoaderReset(Loader<Collection> loader) {
+    }
+
+    public void updateBreadCrumbNavigation() {
+        ArrayList<TabsAdapter.FragmentStateHolder> backStack = ((CollectionActivity) getActivity()).getTabsAdapter().getBackStackAtPosition(
+                CollectionActivity.LOCAL_COLLECTION_TAB_POSITION);
+        LinearLayout navigationLayoutView = (LinearLayout) getActivity().findViewById(
+                R.id.fragmentLayout_breadcrumbLayout_linearLayout);
+        if (navigationLayoutView != null) {
+            int validFragmentCount = 0;
+            for (TabsAdapter.FragmentStateHolder fpb : backStack) {
+                if (fpb.clss == AlbumsFragment.class || fpb.clss == ArtistsFragment.class
+                        || fpb.clss == TracksFragment.class)
+                    validFragmentCount++;
+            }
+            Collection currentCollection = mCollectionActivity.getCollection();
+            for (TabsAdapter.FragmentStateHolder fpb : backStack) {
+                LinearLayout breadcrumbItem = (LinearLayout) getActivity().getLayoutInflater().inflate(
+                        R.layout.fragment_layout_breadcrumb_item, null);
+                ImageView breadcrumbItemImageView = (ImageView) breadcrumbItem.findViewById(R.id.fragmentLayout_icon_imageButton);
+                SquareHeightRelativeLayout breadcrumbItemImageViewLayout = (SquareHeightRelativeLayout) breadcrumbItem.findViewById(R.id.fragmentLayout_icon_squareHeightRelativeLayout);
+                TextView breadcrumbItemTextView = (TextView) breadcrumbItem.findViewById(R.id.fragmentLayout_text_textView);
+                if (fpb.clss == AlbumsFragment.class) {
+                    Artist correspondingArtist = currentCollection.getArtistById(fpb.tomahawkListItemId);
+                    if (currentCollection.getArtistById(fpb.tomahawkListItemId) != null) {
+                        breadcrumbItemTextView.setText(correspondingArtist.getName());
+                        breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.GONE);
+                    } else {
+                        if (validFragmentCount == 1)
+                            breadcrumbItemTextView.setText(getString(R.string.albumsfragment_title_string));
+                        else
+                            breadcrumbItemTextView.setVisibility(TextView.GONE);
+                        breadcrumbItemImageView.setBackgroundDrawable(getResources().getDrawable(
+                                R.drawable.ic_action_album));
+                        breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
+                    }
+                    breadcrumbItem.setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
+                    navigationLayoutView.addView(breadcrumbItem);
+                } else if (fpb.clss == ArtistsFragment.class) {
+                    if (validFragmentCount == 1)
+                        breadcrumbItemTextView.setText(getString(R.string.artistsfragment_title_string));
+                    else
+                        breadcrumbItemTextView.setVisibility(TextView.GONE);
+                    breadcrumbItemImageView.setBackgroundDrawable(getResources().getDrawable(
+                            R.drawable.ic_action_artist));
+                    breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
+                    breadcrumbItem.setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
+                    navigationLayoutView.addView(breadcrumbItem);
+                } else if (fpb.clss == TracksFragment.class) {
+                    Album correspondingAlbum = currentCollection.getAlbumById(fpb.tomahawkListItemId);
+                    if (correspondingAlbum != null) {
+                        breadcrumbItemTextView.setText(correspondingAlbum.getName());
+                        breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.GONE);
+                    } else {
+                        if (validFragmentCount == 1)
+                            breadcrumbItemTextView.setText(getString(R.string.tracksfragment_title_string));
+                        else
+                            breadcrumbItemTextView.setVisibility(TextView.GONE);
+                        breadcrumbItemImageView.setBackgroundDrawable(getResources().getDrawable(
+                                R.drawable.ic_action_track));
+                        breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
+                    }
+                    breadcrumbItem.setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
+                    navigationLayoutView.addView(breadcrumbItem);
+                }
+            }
+        }
+    }
+
+    public class BreadCrumbOnClickListener implements View.OnClickListener {
+        String mSavedFragmentTag;
+
+        public BreadCrumbOnClickListener(String savedFragmentTag) {
+            mSavedFragmentTag = savedFragmentTag;
+        }
+
+        @Override
+        public void onClick(View view) {
+            mCollectionActivity.getTabsAdapter().backToFragment(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
+                    mSavedFragmentTag);
+        }
     }
 
     /**
@@ -422,5 +424,14 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
      */
     public Collection getCurrentCollection() {
         return ((CollectionActivity) getActivity()).getCollection();
+    }
+
+    /**
+     * @return the current scrolling position of the list- or gridView
+     */
+    public int getListScrollPosition() {
+        if (mTomahawkBaseAdapter instanceof TomahawkGridAdapter)
+            return getGridView().getFirstVisiblePosition();
+        return mListScrollPosition = getListView().getFirstVisiblePosition();
     }
 }

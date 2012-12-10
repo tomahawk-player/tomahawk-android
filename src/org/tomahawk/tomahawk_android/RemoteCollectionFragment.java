@@ -45,9 +45,7 @@ public class RemoteCollectionFragment extends SherlockListFragment implements On
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = new View(getActivity().getApplicationContext());
-        view = inflater.inflate(R.layout.menu_layout, null, false);
-        return view;
+        return inflater.inflate(R.layout.menu_layout, null, false);
     }
 
     /*
@@ -58,7 +56,7 @@ public class RemoteCollectionFragment extends SherlockListFragment implements On
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        
+
         getListView().setOnItemClickListener(this);
         mRemoteCollectionAdapter = new ArrayAdapter<String>(getActivity(), R.layout.single_line_list_menu,
                 R.id.single_line_list_menu_textview,

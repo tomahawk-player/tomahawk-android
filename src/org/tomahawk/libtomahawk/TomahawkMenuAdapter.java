@@ -24,7 +24,6 @@ import org.tomahawk.tomahawk_android.R;
 
 import android.app.Activity;
 import android.content.res.TypedArray;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -35,9 +34,10 @@ import android.widget.TextView;
  * @author Enno Gottschalk <mrmaffen@googlemail.com>
  *
  */
-public class TomahawkMenuAdapter extends BaseAdapter {
+public class TomahawkMenuAdapter extends BaseAdapter{
 
-    private LayoutInflater mInflater;
+    protected final Activity mActivity;
+
     private List<String> mStringArray = new ArrayList<String>();
     private List<Integer> mIconArray = new ArrayList<Integer>();
 
@@ -46,7 +46,7 @@ public class TomahawkMenuAdapter extends BaseAdapter {
      * 
      */
     public TomahawkMenuAdapter(Activity activity, String[] stringArray, TypedArray iconArray) {
-        mInflater = activity.getLayoutInflater();
+        mActivity = activity;
         for (int i = 0; i < stringArray.length; i++)
             mStringArray.add(stringArray[i]);
         for (int i = 0; i < iconArray.length(); i++)
@@ -86,7 +86,7 @@ public class TomahawkMenuAdapter extends BaseAdapter {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View view = mInflater.inflate(R.layout.single_line_list_menu, null);
+        View view = mActivity.getLayoutInflater().inflate(R.layout.single_line_list_menu, null);
         TextView textView = (TextView) view.findViewById(R.id.single_line_list_menu_textview);
         ImageView imageView = (ImageView) view.findViewById(R.id.icon_menu_imageview);
         String string = mStringArray.get(position);

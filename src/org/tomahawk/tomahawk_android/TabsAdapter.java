@@ -17,111 +17,215 @@
  */
 package org.tomahawk.tomahawk_android;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 
-public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabListener, ViewPager.OnPageChangeListener {
+public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, ViewPager.OnPageChangeListener {
 
-    private final ArrayList<ArrayList<Fragment>> mFragments = new ArrayList<ArrayList<Fragment>>();
+    private CollectionActivity mCollectionActivity;
     private ActionBar mActionBar;
     private ViewPager mViewPager;
     private FragmentManager mFragmentManager;
+    private ArrayList<TabHolder> mTabHolders = new ArrayList<TabHolder>();
+    private boolean mHasRecentlyInstantiatedItems = false;
+
+    /**
+     * A FragmentStateHolder represents and stores all information needed to construct a Fragment.
+     */
+    static final class FragmentStateHolder implements Serializable {
+        //The Class variable stores the class of the fragment.
+        protected final Class clss;
+        //The fragmentTag is unique inside the complete BackStack.
+        protected final String fragmentTag;
+        //tomahawkListItemId is the id of the corresponding TomahawkListItem which is being passed to the actual
+        //fragment instance.
+        protected long tomahawkListItemId = -1;
+        //the listScrollPosition which is being stored and restored when the fragment is popped or stashed.
+        protected int listScrollPosition = 0;
+
+        FragmentStateHolder(Class clss, String fragmentTag) {
+            this.clss = clss;
+            this.fragmentTag = fragmentTag;
+        }
+
+        FragmentStateHolder(Class clss, String fragmentTag, long tomahawkListItemId) {
+            this.clss = clss;
+            this.fragmentTag = fragmentTag;
+            this.tomahawkListItemId = tomahawkListItemId;
+        }
+    }
+
+    /**
+     * This class represents a complete Tab (page in the ViewPager). It consists of a backStack and a resource id
+     * of the fragmentContainer which shows the top fragment object in the backStack.
+     */
+    static final class TabHolder implements Serializable {
+        private ArrayList<FragmentStateHolder> fragmentStateHolders = new ArrayList<FragmentStateHolder>();
+        private int fragmentContainerId;
+    }
 
     /**
      * Constructs a new TabsAdapter
-     * 
      * @param activity
-     *            the activity context in which a new TabsAdapter is constructed
+     * @param fragmentManager
      * @param pager
-     *            the ViewPager object to display the content of the tabs
      */
-    public TabsAdapter(SherlockFragmentActivity activity, FragmentManager fragmentManager, ViewPager pager) {
-        super(fragmentManager);
+    public TabsAdapter(CollectionActivity activity, FragmentManager fragmentManager, ViewPager pager) {
         mActionBar = activity.getSupportActionBar();
+        mCollectionActivity = activity;
         mViewPager = pager;
         mViewPager.setAdapter(this);
         mViewPager.setOnPageChangeListener(this);
+        mViewPager.setOffscreenPageLimit(2);
         mFragmentManager = fragmentManager;
     }
 
     /**
      * Add a tab to the ActionBar
-     * 
      * @param tab
-     * @param fragment
      */
-    public void addTab(ActionBar.Tab tab, Fragment fragment) {
+    public void addTab(ActionBar.Tab tab) {
         tab.setTabListener(this);
         mActionBar.addTab(tab);
-        ArrayList<Fragment> fragmentsStack = new ArrayList<Fragment>();
-        fragmentsStack.add(fragment);
-        mFragments.add(fragmentsStack);
-        notifyDataSetChanged();
+    }
+
+    /**
+     * Add the root of the backStack to the tab. Set the resource id for the fragmentContainer for this tab.
+     * @param clss the class of the rootFragment to add
+     */
+    public void addRootToTab(Class clss) {
+        TabHolder tabHolder = new TabHolder();
+        tabHolder.fragmentContainerId = mTabHolders.size() + 10000000;
+        tabHolder.fragmentStateHolders.add(new FragmentStateHolder(clss, getFragmentTag(mTabHolders.size(), 0)));
+        mTabHolders.add(tabHolder);
+    }
+
+    @Override
+    public int getItemPosition(Object object) {
+        return POSITION_NONE;
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.support.v4.view.PagerAdapter#getCount()
      */
     @Override
     public int getCount() {
-        return mFragments.size();
+        return mTabHolders.size();
+    }
+
+    @Override
+    public boolean isViewFromObject(View view, Object object) {
+        return view == object;
+    }
+
+    @Override
+    public Object instantiateItem(ViewGroup collection, int position) {
+        TabHolder tabHolder = mTabHolders.get(position);
+        FragmentStateHolder currentFSH = tabHolder.fragmentStateHolders.get(tabHolder.fragmentStateHolders.size() - 1);
+        Fragment currentFragment = mFragmentManager.findFragmentByTag(currentFSH.fragmentTag);
+        FrameLayout fragmentContainer = null;
+        if (currentFragment != null && currentFragment.getView() != null
+                && currentFragment.getView().getParent() != null) {
+            fragmentContainer = (FrameLayout) currentFragment.getView().getParent();
+        }
+        if (fragmentContainer == null || fragmentContainer.getId() != tabHolder.fragmentContainerId) {
+            fragmentContainer = new FrameLayout(mCollectionActivity);
+            fragmentContainer.setId(tabHolder.fragmentContainerId);
+        }
+        collection.addView(fragmentContainer);
+        mHasRecentlyInstantiatedItems = true;
+
+        return fragmentContainer;
     }
 
     /*
      * (non-Javadoc)
-     * 
-     * @see android.support.v4.app.FragmentPagerAdapter#getItem(int)
+     *
+     * @see android.support.v4.view.PagerAdapter#destroyItem(android.view.View,
+     * int, java.lang.Object)
      */
     @Override
-    public Fragment getItem(int position) {
-        ArrayList<Fragment> fragmentsStack = mFragments.get(position);
-        return fragmentsStack.get(fragmentsStack.size() - 1);
+    public void destroyItem(ViewGroup collection, int position, Object object) {
+        collection.removeView((View) object);
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see android.support.v4.app.FragmentPagerAdapter#getItemId(int)
-     */
     @Override
-    public long getItemId(int position) {
-        // Get currently active fragment.
-        ArrayList<Fragment> fragmentsStack = mFragments.get(position);
-
-        return fragmentsStack.size() - 1 + 100 * position;
-    }
-
-    /* 
-     * (non-Javadoc)
-     * @see android.support.v4.view.PagerAdapter#getItemPosition(java.lang.Object)
-     */
-    @Override
-    public int getItemPosition(Object object) {
-        for (ArrayList<Fragment> fragmentsStack : mFragments) {
-            for (Fragment fragment : fragmentsStack) {
-                if (!(object instanceof Fragment))
-                    return POSITION_NONE;
-                else if (fragment.getClass() != object.getClass()) {
-                    return POSITION_NONE;
+    public void finishUpdate(ViewGroup viewGroup) {
+        super.finishUpdate(viewGroup);
+        if (mHasRecentlyInstantiatedItems) {
+            mFragmentManager.executePendingTransactions();
+            for (TabHolder tabHolder : mTabHolders) {
+                FragmentStateHolder currentFSH = tabHolder.fragmentStateHolders.get(tabHolder.fragmentStateHolders.size() - 1);
+                Fragment currentFragment = mFragmentManager.findFragmentByTag(currentFSH.fragmentTag);
+                if (currentFragment == null || currentFragment.getView() == null
+                        || currentFragment.getView().getParent() == null) {
+                    FragmentTransaction ft = mFragmentManager.beginTransaction();
+                    Bundle bundle = new Bundle();
+                    for (FragmentStateHolder fSH : tabHolder.fragmentStateHolders) {
+                        Fragment fragment = mFragmentManager.findFragmentByTag(fSH.fragmentTag);
+                        if (fragment != null)
+                            ft.remove(fragment);
+                    }
+                    bundle.putLong(TomahawkFragment.TOMAHAWK_ITEM_ID, currentFSH.tomahawkListItemId);
+                    bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION, currentFSH.listScrollPosition);
+                    ft.add(tabHolder.fragmentContainerId,
+                            Fragment.instantiate(mCollectionActivity, currentFSH.clss.getName(), bundle),
+                            currentFSH.fragmentTag);
+                    ft.commit();
                 }
             }
+            mHasRecentlyInstantiatedItems = false;
         }
-        return POSITION_UNCHANGED;
+    }
+
+    /**
+     * Generate the fragmentTag to the given position and offset.
+     * Examples:    Position 0 for first tab and offset 0 for the current item in the stack.
+     *              Position 1 for the second tab and offset -1 for the previous item in the stack.
+     * @param position the position of the viewpager
+     * @param offset offset which will be added to the position of the current top item in the backstack
+     * @return the generated fragmentTag String
+     */
+    public String getFragmentTag(int position, int offset) {
+        if (mTabHolders.size() - 1 < position)
+            return String.valueOf(offset + 1000 * position);
+        ArrayList<FragmentStateHolder> fragmentsStack = mTabHolders.get(position).fragmentStateHolders;
+        return String.valueOf(fragmentsStack.size() - 1 + offset + 1000 * position);
+    }
+
+    /**
+     * @return get the current position of the viewpager
+     */
+    public int getCurrentPosition() {
+        return mViewPager.getCurrentItem();
+    }
+
+    /**
+     * Set the current position of the viewpager
+     * @param position
+     */
+    public void setCurrentPosition(int position) {
+        mViewPager.setCurrentItem(position);
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * android.support.v4.view.ViewPager.OnPageChangeListener#onPageScrolled
      * (int, float, int)
@@ -132,7 +236,7 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * android.support.v4.view.ViewPager.OnPageChangeListener#onPageSelected
      * (int)
@@ -144,7 +248,7 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.support.v4.view.ViewPager.OnPageChangeListener#
      * onPageScrollStateChanged(int)
      */
@@ -154,7 +258,7 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.actionbarsherlock.app.ActionBar.TabListener#onTabSelected(com.
      * actionbarsherlock.app.ActionBar.Tab,
      * android.support.v4.app.FragmentTransaction)
@@ -166,7 +270,7 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.actionbarsherlock.app.ActionBar.TabListener#onTabUnselected(com.
      * actionbarsherlock.app.ActionBar.Tab,
      * android.support.v4.app.FragmentTransaction)
@@ -177,7 +281,7 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.actionbarsherlock.app.ActionBar.TabListener#onTabReselected(com.
      * actionbarsherlock.app.ActionBar.Tab,
      * android.support.v4.app.FragmentTransaction)
@@ -189,68 +293,152 @@ public class TabsAdapter extends FragmentPagerAdapter implements ActionBar.TabLi
     /**
      * Replaces the view pager fragment at specified position.
      */
-    public void replace(int position, Fragment newFragment, boolean isBackAction) {
-        // Get currently active fragment.
-        ArrayList<Fragment> fragmentsStack = mFragments.get(position);
-        Fragment currentFragment = fragmentsStack.get(fragmentsStack.size() - 1);
-        if (currentFragment == null) {
-            return;
+    public void replace(int position, FragmentStateHolder fragmentStateHolder, boolean isBackAction) {
+        // Get fragmentsStack for the given (tabs)position
+        TabHolder tabHolder = mTabHolders.get(position);
+        FragmentStateHolder currentFragmentStateHolder = tabHolder.fragmentStateHolders.get(tabHolder.fragmentStateHolders.size() - 1);
+        if (currentFragmentStateHolder != null) {
+            // Replace the fragment using a transaction.
+            FragmentTransaction ft = mFragmentManager.beginTransaction();
+            if (isBackAction) {
+                tabHolder.fragmentStateHolders.remove(currentFragmentStateHolder);
+                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
+            } else {
+                Fragment currentFragment = mFragmentManager.findFragmentByTag(currentFragmentStateHolder.fragmentTag);
+                if (currentFragment != null && currentFragment instanceof TomahawkFragment) {
+                    currentFragmentStateHolder.listScrollPosition = ((TomahawkFragment) currentFragment).getListScrollPosition();
+                    tabHolder.fragmentStateHolders.set(tabHolder.fragmentStateHolders.size() - 1,
+                            currentFragmentStateHolder);
+                }
+                tabHolder.fragmentStateHolders.add(fragmentStateHolder);
+                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            }
+            Bundle bundle = new Bundle();
+            bundle.putLong(TomahawkFragment.TOMAHAWK_ITEM_ID, fragmentStateHolder.tomahawkListItemId);
+            bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION, fragmentStateHolder.listScrollPosition);
+            ft.replace(tabHolder.fragmentContainerId,
+                    Fragment.instantiate(mCollectionActivity, fragmentStateHolder.clss.getName(), bundle),
+                    fragmentStateHolder.fragmentTag);
+            ft.commit();
         }
-        // Replace the fragment using a transaction.
-        this.startUpdate(mViewPager);
-        FragmentTransaction ft = mFragmentManager.beginTransaction();
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        ft.attach(newFragment).remove(currentFragment).commit();
-        if (isBackAction == true)
-            fragmentsStack.remove(currentFragment);
-        else
-            fragmentsStack.add(newFragment);
-        this.notifyDataSetChanged();
-        this.finishUpdate(mViewPager);
     }
 
     /**
-     * Replaces the view pager fragment at current position.
+     * Replaces the fragment at the current position.
      */
-    public void replace(Fragment newFragment, boolean isBackAction) {
-        replace(mViewPager.getCurrentItem(), newFragment, isBackAction);
+    public void replace(FragmentStateHolder fragmentStateHolder, boolean isBackAction) {
+        replace(getCurrentPosition(), fragmentStateHolder, isBackAction);
     }
 
     /**
-     * Replaces the current fragment by fragment stored in back stack. Does nothing and returns
+     * Replaces the fragment at the given position.
+     */
+    public void replace(int position, Class clss, long tomahawkListItemId, boolean isBackAction) {
+        replace(position, new FragmentStateHolder(clss, getFragmentTag(getCurrentPosition(), 1), tomahawkListItemId),
+                isBackAction);
+    }
+
+    /**
+     * Replaces the current fragment by the previous fragment stored in the backStack. Does nothing and returns
      * false if no fragment is back-stacked.
      */
     public boolean back() {
         int position = mViewPager.getCurrentItem();
-        ArrayList<Fragment> fragmentsStack = mFragments.get(position);
-        if (fragmentsStack.size() < 2) {
-            // Nothing to go back.
-            return false;
+        ArrayList<FragmentStateHolder> fragmentsStack = mTabHolders.get(position).fragmentStateHolders;
+        if (fragmentsStack.size() > 1) {
+            FragmentStateHolder previousFragmentStateHolder = fragmentsStack.get(fragmentsStack.size() - 2);
+            // Restore the remembered fragment and remove it from back fragments.
+            this.replace(previousFragmentStateHolder, true);
+            return true;
         }
-        Fragment previousFragment = fragmentsStack.get(fragmentsStack.size() - 2);
-        // Restore the remembered fragment and remove it from back fragments.
-        this.replace(previousFragment, true);
-        return true;
+        // Nothing to go back.
+        return false;
     }
 
-    public boolean backToFragment(int position, Fragment fragment){
-        if (mFragments.get(position).contains(fragment)){
-            ArrayList<Fragment> fragmentsStack = mFragments.get(position);
-            while (fragmentsStack.get(fragmentsStack.size() - 1) != fragment)
-                back();
-            return true;
+    /**
+     * Pop the backstack at the given position until the Fragment with the given fragmentTag is on top
+     * @param position the position of the backstack which should be used
+     * @param fragmentTag the fragmentTag which belongs to the Fragment that should be gone back to
+     * @return true if the Fragment with the given fragmentTag is now on top. False if Fragment with given fragmentTag
+     * not found
+     */
+    public boolean backToFragment(int position, String fragmentTag) {
+        ArrayList<FragmentStateHolder> fragmentsStack = mTabHolders.get(position).fragmentStateHolders;
+        for (FragmentStateHolder fpb : fragmentsStack) {
+            if (fpb.fragmentTag.equals(fragmentTag)) {
+                if (fragmentsStack.size() > 2
+                        && !(fragmentsStack.get(fragmentsStack.size() - 1).fragmentTag.equals(fragmentTag))) {
+                    while (!(fragmentsStack.get(fragmentsStack.size() - 2).fragmentTag.equals(fragmentTag))) {
+                        fragmentsStack.remove(fragmentsStack.get(fragmentsStack.size() - 2));
+                    }
+                    this.replace(fragmentsStack.get(fragmentsStack.size() - 2), true);
+                    return fragmentsStack.get(fragmentsStack.size() - 2).equals(fragmentTag);
+                }
+                break;
+            }
         }
         return false;
     }
 
-    public boolean backToRoot(int position){
-        ArrayList<Fragment> fragmentsStack = mFragments.get(position);
-        while (fragmentsStack.size()>1)
-            back();
-        return true;
+    /**
+     * Go back to the root of the backstack at the given position
+     * @param position the position of the backstack which should be used
+     * @return true if the rootFragment is now on top. False otherwise.
+     */
+    public boolean backToRoot(int position) {
+        ArrayList<FragmentStateHolder> fragmentsStack = mTabHolders.get(position).fragmentStateHolders;
+        if (fragmentsStack.size() > 1) {
+            while (fragmentsStack.size() > 2) {
+                fragmentsStack.remove(fragmentsStack.get(fragmentsStack.size() - 2));
+            }
+            this.replace(fragmentsStack.get(fragmentsStack.size() - 2), true);
+        }
+        return fragmentsStack.size() == 1;
     }
 
-    public ArrayList<Fragment> getBackStack(int position){
-        return mFragments.get(position);
+    /**
+     * Get the backstack at the given position
+     * @param position the position of the backstack which should be used
+     * @return backstack at the given position
+     */
+    public ArrayList<FragmentStateHolder> getBackStackAtPosition(int position) {
+        return mTabHolders.get(position).fragmentStateHolders;
+    }
+
+    /**
+     * Get the complete backstack
+     * @return the complete backstack for every tab
+     */
+    public ArrayList<TabHolder> getBackStack() {
+        ArrayList<FragmentStateHolder> fragmentsStack = mTabHolders.get(getCurrentPosition()).fragmentStateHolders;
+        FragmentStateHolder currentFragmentStateHolder = fragmentsStack.get(fragmentsStack.size() - 1);
+        Fragment currentFragment = mFragmentManager.findFragmentByTag(currentFragmentStateHolder.fragmentTag);
+        if (currentFragment != null && currentFragment instanceof TomahawkFragment) {
+            currentFragmentStateHolder.listScrollPosition = ((TomahawkFragment) currentFragment).getListScrollPosition();
+            fragmentsStack.set(fragmentsStack.size() - 1, currentFragmentStateHolder);
+        }
+        return mTabHolders;
+    }
+
+    /**
+     * Set the complete backstack
+     * @param tabHolders the new backstack
+     */
+    public void setBackStack(ArrayList<TabHolder> tabHolders) {
+        mTabHolders = tabHolders;
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Add a new Fragment to the backstack (should only be used when the TabsAdapter is not yet fully instantiated,
+     * otherwise use the replace(...) methods)
+     * @param position position of the backStack
+     * @param clss the class of the fragment that should be added
+     * @param tomahawkListItemId the corresponding tomahawkListItem. If not needed this should be -1
+     */
+    public void addFragmentToBackStack(int position, Class clss, long tomahawkListItemId) {
+        FragmentStateHolder fSH = new FragmentStateHolder(clss, getFragmentTag(getCurrentPosition(), 1),
+                tomahawkListItemId);
+        mTabHolders.get(position).fragmentStateHolders.add(fSH);
     }
 }

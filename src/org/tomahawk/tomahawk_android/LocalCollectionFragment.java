@@ -43,9 +43,7 @@ public class LocalCollectionFragment extends SherlockListFragment implements OnI
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = new View(getActivity().getApplicationContext());
-        view = inflater.inflate(R.layout.menu_layout, null, false);
-        return view;
+        return inflater.inflate(R.layout.menu_layout, null, false);
     }
 
     /*
@@ -93,13 +91,16 @@ public class LocalCollectionFragment extends SherlockListFragment implements OnI
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
         switch ((int) arg3) {
         case 0:
-            mCollectionActivity.getTabsAdapter().replace(new TracksFragment(), false);
+            mCollectionActivity.getTabsAdapter().replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
+                    TracksFragment.class, -1, false);
             break;
         case 1:
-            mCollectionActivity.getTabsAdapter().replace(new AlbumsFragment(), false);
+            mCollectionActivity.getTabsAdapter().replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
+                    AlbumsFragment.class, -1, false);
             break;
         case 2:
-            mCollectionActivity.getTabsAdapter().replace(new ArtistsFragment(), false);
+            mCollectionActivity.getTabsAdapter().replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
+                    ArtistsFragment.class, -1, false);
             break;
         case 3:
         case 4:

@@ -218,29 +218,31 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
     /** Show the corresponding {@link Fragment} (depends of which instance the item at position idx is of)
      * @param idx the position of the item inside the shown {@link ListView} */
     public void showFragment(int idx) {
-        Object item = mTomahawkListAdapter.getItem(idx);
-        if (item instanceof TomahawkBaseAdapter.TomahawkListItem) {
-            if (item instanceof Album) {
-                Intent intent = getIntent(this, CollectionActivity.class);
-                intent.putExtra(CollectionActivity.COLLECTION_ID_ALBUM, ((Album) item).getId());
-                startActivity(intent);
-                finish();
-            }
-            if (item instanceof Artist) {
-                Intent intent = getIntent(this, CollectionActivity.class);
-                intent.putExtra(CollectionActivity.COLLECTION_ID_ARTIST, ((Artist) item).getId());
-                startActivity(intent);
-                finish();
-            }
-            if (item instanceof Track) {
-                Bundle bundle = new Bundle();
-                bundle.putInt(PlaybackActivity.PLAYLIST_COLLECTION_ID,
-                        ((TomahawkApp) getApplication()).getSourceList().getLocalSource().getCollection().getId());
-                bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID, ((Track) item).getId());
-                Intent playbackIntent = getIntent(this, PlaybackActivity.class);
-                playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
-                startActivity(playbackIntent);
-                finish();
+        if (mTomahawkListAdapter != null) {
+            Object item = mTomahawkListAdapter.getItem(idx);
+            if (item instanceof TomahawkBaseAdapter.TomahawkListItem) {
+                if (item instanceof Album) {
+                    Intent intent = getIntent(this, CollectionActivity.class);
+                    intent.putExtra(CollectionActivity.COLLECTION_ID_ALBUM, ((Album) item).getId());
+                    startActivity(intent);
+                    finish();
+                }
+                if (item instanceof Artist) {
+                    Intent intent = getIntent(this, CollectionActivity.class);
+                    intent.putExtra(CollectionActivity.COLLECTION_ID_ARTIST, ((Artist) item).getId());
+                    startActivity(intent);
+                    finish();
+                }
+                if (item instanceof Track) {
+                    Bundle bundle = new Bundle();
+                    bundle.putInt(PlaybackActivity.PLAYLIST_COLLECTION_ID,
+                            ((TomahawkApp) getApplication()).getSourceList().getLocalSource().getCollection().getId());
+                    bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID, ((Track) item).getId());
+                    Intent playbackIntent = getIntent(this, PlaybackActivity.class);
+                    playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
+                    startActivity(playbackIntent);
+                    finish();
+                }
             }
         }
     }
@@ -353,7 +355,8 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         mSearchString = s.toString();
-        mTomahawkListAdapter.getFilter().filter(s.toString());
+        if (mTomahawkListAdapter != null)
+            mTomahawkListAdapter.getFilter().filter(s.toString());
     }
 
     /** Set the reference to the searchText, that is used to filter the custom {@link ListView}

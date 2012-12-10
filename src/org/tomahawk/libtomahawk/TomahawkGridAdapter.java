@@ -35,8 +35,6 @@ import android.widget.TextView;
  */
 public class TomahawkGridAdapter extends TomahawkBaseAdapter {
 
-    private LayoutInflater mInflater;
-
     private ResourceHolder mGridItemResourceHolder;
 
     /**
@@ -55,7 +53,6 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
     public TomahawkGridAdapter(Activity activity, int resourceGridItem, int imageViewResourceGridItem,
             int textViewResourceGridItemId1, int textViewResourceGridItemId2, List<TomahawkListItem> list) {
         mActivity = activity;
-        mInflater = activity.getLayoutInflater();
         setGridItemResources(resourceGridItem, imageViewResourceGridItem, textViewResourceGridItemId1,
                 textViewResourceGridItemId2);
         mListArray = new ArrayList<List<TomahawkListItem>>();
@@ -80,7 +77,7 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
             ViewHolder viewHolder;
             if ((item instanceof TomahawkListItem && convertView == null)
                     || (item instanceof TomahawkListItem && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_griditem)) {
-                view = mInflater.inflate(mGridItemResourceHolder.resourceId, null);
+                view = mActivity.getLayoutInflater().inflate(mGridItemResourceHolder.resourceId, null);
                 viewHolder = new ViewHolder(R.id.tomahawklistadapter_viewtype_griditem,
                         (ImageView) view.findViewById(mGridItemResourceHolder.imageViewId),
                         (TextView) view.findViewById(mGridItemResourceHolder.textViewId1),

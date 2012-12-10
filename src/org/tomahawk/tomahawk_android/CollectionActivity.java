@@ -18,6 +18,8 @@
  */
 package org.tomahawk.tomahawk_android;
 
+import java.util.ArrayList;
+
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.SourceList;
 import org.tomahawk.libtomahawk.Track;
@@ -34,7 +36,6 @@ import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.Button;
@@ -51,13 +52,14 @@ import com.actionbarsherlock.view.MenuItem;
 public class CollectionActivity extends SherlockFragmentActivity implements PlaybackServiceConnectionListener {
 
     public static final String COLLECTION_ID_EXTRA = "collection_id";
-
     public static final String COLLECTION_ID_ALBUM = "collection_album_id";
     public static final String COLLECTION_ID_ARTIST = "collection_artist_id";
+    public static final String COLLECTION_ID_STOREDBACKSTACK = "collection_id_storedbackstack";
+
+    protected static final int LOCAL_COLLECTION_TAB_POSITION = 0;
 
     private PlaybackService mPlaybackService;
     private TabsAdapter mTabsAdapter;
-    private FragmentManager mFragmentManager;
     private Collection mCollection;
     private View mNowPlayingView;
 
@@ -97,14 +99,41 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
         actionBar.setDisplayShowTitleEnabled(false);
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
-        mFragmentManager = getSupportFragmentManager();
-        mTabsAdapter = new TabsAdapter(this, mFragmentManager, viewPager);
-        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.localcollectionactivity_title_string),
-                new LocalCollectionFragment());
-        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.remotecollectionactivity_title_string),
-                new RemoteCollectionFragment());
-        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.globalcollectionfragment_title_string),
-                new GlobalCollectionFragment());
+        mTabsAdapter = new TabsAdapter(this, getSupportFragmentManager(), viewPager);
+        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.localcollectionactivity_title_string));
+        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.remotecollectionactivity_title_string));
+        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.globalcollectionfragment_title_string));
+        if (savedInstanceState == null) {
+            mTabsAdapter.addRootToTab(LocalCollectionFragment.class);
+            mTabsAdapter.addRootToTab(RemoteCollectionFragment.class);
+            mTabsAdapter.addRootToTab(GlobalCollectionFragment.class);
+        } else {
+            ArrayList<TabsAdapter.TabHolder> fragmentStateHolderStack = (ArrayList<TabsAdapter.TabHolder>) savedInstanceState.getSerializable(COLLECTION_ID_STOREDBACKSTACK);
+            if (fragmentStateHolderStack != null && fragmentStateHolderStack.size() > 0)
+                mTabsAdapter.setBackStack(fragmentStateHolderStack);
+            else {
+                mTabsAdapter.addRootToTab(LocalCollectionFragment.class);
+                mTabsAdapter.addRootToTab(RemoteCollectionFragment.class);
+                mTabsAdapter.addRootToTab(GlobalCollectionFragment.class);
+            }
+        }
+        Intent intent = getIntent();
+        if (intent.hasExtra(COLLECTION_ID_ALBUM)) {
+            Long albumId = intent.getLongExtra(COLLECTION_ID_ALBUM, 0);
+            intent.removeExtra(COLLECTION_ID_ALBUM);
+            getTabsAdapter().addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, TracksFragment.class, albumId);
+        } else if (intent.hasExtra(COLLECTION_ID_ARTIST)) {
+            Long artistId = intent.getLongExtra(COLLECTION_ID_ARTIST, 0);
+            intent.removeExtra(COLLECTION_ID_ARTIST);
+            getTabsAdapter().addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, AlbumsFragment.class, artistId);
+        }
+        mTabsAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle bundle) {
+        bundle.putSerializable(COLLECTION_ID_STOREDBACKSTACK, getTabsAdapter().getBackStack());
+        super.onSaveInstanceState(bundle);
     }
 
     /*
@@ -119,15 +148,6 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
         SourceList sl = ((TomahawkApp) getApplication()).getSourceList();
         Intent intent = getIntent();
         mCollection = sl.getCollectionFromId(intent.getIntExtra(COLLECTION_ID_EXTRA, 0));
-        if (intent.hasExtra(COLLECTION_ID_ALBUM)) {
-            Long albumId = intent.getLongExtra(COLLECTION_ID_ALBUM, 0);
-            intent.removeExtra(COLLECTION_ID_ALBUM);
-            getTabsAdapter().replace(new TracksFragment(getCollection().getAlbumById(albumId)), false);
-        } else if (intent.hasExtra(COLLECTION_ID_ARTIST)) {
-            Long artistId = intent.getLongExtra(COLLECTION_ID_ARTIST, 0);
-            intent.removeExtra(COLLECTION_ID_ARTIST);
-            getTabsAdapter().replace(new AlbumsFragment(getCollection().getArtistById(artistId)), false);
-        }
         if (mPlaybackService != null)
             setNowPlayingInfo(mPlaybackService.getCurrentTrack());
 
@@ -138,6 +158,16 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
 
         Intent playbackIntent = new Intent(this, PlaybackService.class);
         bindService(playbackIntent, mPlaybackServiceConnection, Context.BIND_WAIVE_PRIORITY);
+        if (intent.hasExtra(COLLECTION_ID_ALBUM)) {
+            Long albumId = intent.getLongExtra(COLLECTION_ID_ALBUM, 0);
+            intent.removeExtra(COLLECTION_ID_ALBUM);
+            getTabsAdapter().addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, TracksFragment.class, albumId);
+        } else if (intent.hasExtra(COLLECTION_ID_ARTIST)) {
+            Long artistId = intent.getLongExtra(COLLECTION_ID_ARTIST, 0);
+            intent.removeExtra(COLLECTION_ID_ARTIST);
+            getTabsAdapter().addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, AlbumsFragment.class, artistId);
+        }
+        mTabsAdapter.notifyDataSetChanged();
     }
 
     /* 
@@ -325,6 +355,6 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
     }
 
     public void onBackToRootPressed(View view) {
-        getTabsAdapter().backToRoot(0);
+        getTabsAdapter().backToRoot(mTabsAdapter.getCurrentPosition());
     }
 }

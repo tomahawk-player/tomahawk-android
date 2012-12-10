@@ -162,7 +162,7 @@ class TomahawkExceptionReporter implements ReportSender {
 
     /**
      * Use strict mode to determine app bottlenecks.
-     * 
+     *
      * Does nothing if api version is less than 11.
      */
     @TargetApi(11)

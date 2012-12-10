@@ -27,11 +27,7 @@ import org.tomahawk.libtomahawk.network.TomahawkService;
 import org.tomahawk.libtomahawk.network.TomahawkService.TomahawkServiceConnection;
 import org.tomahawk.libtomahawk.network.TomahawkService.TomahawkServiceConnection.TomahawkServiceConnectionListener;
 
-import android.accounts.AccountManager;
-import android.accounts.AccountManagerCallback;
-import android.accounts.AccountManagerFuture;
-import android.accounts.AuthenticatorException;
-import android.accounts.OperationCanceledException;
+import android.accounts.*;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;

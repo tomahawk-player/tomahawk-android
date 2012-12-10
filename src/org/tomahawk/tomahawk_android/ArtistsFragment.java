@@ -44,7 +44,12 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
      */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        mCollectionActivity.getTabsAdapter().replace(new AlbumsFragment((Artist) getListAdapter().getItem(idx)), false);
+        if (getListAdapter().getItem(idx) instanceof Artist) {
+            Bundle bundle = new Bundle();
+            bundle.putLong(TOMAHAWK_ITEM_ID, ((Artist) getListAdapter().getItem(idx)).getId());
+            mCollectionActivity.getTabsAdapter().replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
+                    AlbumsFragment.class, ((Artist) getListAdapter().getItem(idx)).getId(), false);
+        }
     }
 
     /* 
