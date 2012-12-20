@@ -18,6 +18,8 @@
  */
 package org.tomahawk.libtomahawk;
 
+import org.tomahawk.libtomahawk.playlist.PlaylistDummy;
+
 import java.util.List;
 
 /**
@@ -50,7 +52,7 @@ public abstract class Collection {
     public abstract Album getAlbumById(Long id);
 
     /**
-     * Return a list of all {@link Track}s from the {@link Album}.
+     * Return a list of all {@link Track}s.
      */
     public abstract List<Track> getTracks();
 
@@ -59,6 +61,17 @@ public abstract class Collection {
      *  @param id
      *  @return the {@link Track} object*/
     public abstract Track getTrackById(Long id);
+
+    /**
+     * Return a list of all {@link PlaylistDummy}s from the {@link Album}.
+     */
+    public abstract List<PlaylistDummy> getPlaylists();
+
+    /**
+     *  Get the {@link PlaylistDummy} by giving the {@link PlaylistDummy}'s ID
+     *  @param id
+     *  @return the {@link PlaylistDummy} object*/
+    public abstract PlaylistDummy getPlaylistById(Long id);
 
     /**
      * Update this {@link Collection}'s content.

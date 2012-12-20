@@ -53,6 +53,8 @@ public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, 
         //tomahawkListItemId is the id of the corresponding TomahawkListItem which is being passed to the actual
         //fragment instance.
         protected long tomahawkListItemId = -1;
+        //the type of the corresponding TomahawkListItem
+        protected String tomahawkListItemType = null;
         //the listScrollPosition which is being stored and restored when the fragment is popped or stashed.
         protected int listScrollPosition = 0;
 
@@ -61,10 +63,11 @@ public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, 
             this.fragmentTag = fragmentTag;
         }
 
-        FragmentStateHolder(Class clss, String fragmentTag, long tomahawkListItemId) {
+        FragmentStateHolder(Class clss, String fragmentTag, long tomahawkListItemId, String tomahawkListItemType) {
             this.clss = clss;
             this.fragmentTag = fragmentTag;
             this.tomahawkListItemId = tomahawkListItemId;
+            this.tomahawkListItemType = tomahawkListItemType;
         }
     }
 
@@ -181,7 +184,7 @@ public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, 
                         if (fragment != null)
                             ft.remove(fragment);
                     }
-                    bundle.putLong(TomahawkFragment.TOMAHAWK_ITEM_ID, currentFSH.tomahawkListItemId);
+                    bundle.putLong(currentFSH.tomahawkListItemType, currentFSH.tomahawkListItemId);
                     bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION, currentFSH.listScrollPosition);
                     ft.add(tabHolder.fragmentContainerId,
                             Fragment.instantiate(mCollectionActivity, currentFSH.clss.getName(), bundle),
@@ -314,7 +317,7 @@ public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, 
                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             }
             Bundle bundle = new Bundle();
-            bundle.putLong(TomahawkFragment.TOMAHAWK_ITEM_ID, fragmentStateHolder.tomahawkListItemId);
+            bundle.putLong(fragmentStateHolder.tomahawkListItemType, fragmentStateHolder.tomahawkListItemId);
             bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION, fragmentStateHolder.listScrollPosition);
             ft.replace(tabHolder.fragmentContainerId,
                     Fragment.instantiate(mCollectionActivity, fragmentStateHolder.clss.getName(), bundle),
@@ -333,9 +336,9 @@ public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, 
     /**
      * Replaces the fragment at the given position.
      */
-    public void replace(int position, Class clss, long tomahawkListItemId, boolean isBackAction) {
-        replace(position, new FragmentStateHolder(clss, getFragmentTag(getCurrentPosition(), 1), tomahawkListItemId),
-                isBackAction);
+    public void replace(int position, Class clss, long tomahawkListItemId, String tomahawkListItemType, boolean isBackAction) {
+        replace(position, new FragmentStateHolder(clss, getFragmentTag(getCurrentPosition(), 1), tomahawkListItemId,
+                tomahawkListItemType), isBackAction);
     }
 
     /**
@@ -436,9 +439,9 @@ public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, 
      * @param clss the class of the fragment that should be added
      * @param tomahawkListItemId the corresponding tomahawkListItem. If not needed this should be -1
      */
-    public void addFragmentToBackStack(int position, Class clss, long tomahawkListItemId) {
+    public void addFragmentToBackStack(int position, Class clss, long tomahawkListItemId, String tomahawkListItemType) {
         FragmentStateHolder fSH = new FragmentStateHolder(clss, getFragmentTag(getCurrentPosition(), 1),
-                tomahawkListItemId);
+                tomahawkListItemId, tomahawkListItemType);
         mTabHolders.get(position).fragmentStateHolders.add(fSH);
     }
 }

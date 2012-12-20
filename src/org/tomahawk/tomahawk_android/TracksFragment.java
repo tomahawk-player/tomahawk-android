@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.tomahawk.libtomahawk.*;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
+import org.tomahawk.libtomahawk.playlist.PlaylistDummy;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -36,13 +37,17 @@ import android.widget.AdapterView.OnItemClickListener;
 public class TracksFragment extends TomahawkFragment implements OnItemClickListener {
 
     private Album mAlbum;
+    private PlaylistDummy mPlaylistDummy;
 
     @Override
     public void onCreate(Bundle inState) {
         super.onCreate(inState);
-        if (mCollectionActivity.getCollection() != null && getArguments() != null
-                && getArguments().containsKey(TOMAHAWK_ITEM_ID) && getArguments().getLong(TOMAHAWK_ITEM_ID) > 0)
-            mAlbum = mCollectionActivity.getCollection().getAlbumById(getArguments().getLong(TOMAHAWK_ITEM_ID));
+        if (mCollectionActivity.getCollection() != null && getArguments() != null)
+            if (getArguments().containsKey(TOMAHAWK_ALBUM_ID) && getArguments().getLong(TOMAHAWK_ALBUM_ID) > 0)
+                mAlbum = mCollectionActivity.getCollection().getAlbumById(getArguments().getLong(TOMAHAWK_ALBUM_ID));
+            else if (getArguments().containsKey(TOMAHAWK_PLAYLIST_ID)
+                    && getArguments().getLong(TOMAHAWK_PLAYLIST_ID) > 0)
+                mPlaylistDummy = null;//mCollectionActivity.getCollection().getPlaylistById(getArguments().getLong(TOMAHAWK_PLAYLIST_ID));
     }
 
     /* (non-Javadoc)

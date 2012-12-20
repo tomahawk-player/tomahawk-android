@@ -79,6 +79,8 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
 
     public static final String PLAYLIST_COLLECTION_ID = "playlist_collection_id";
 
+    public static final String PLAYLIST_PLAYLIST_ID = "playlist_playlist_id";
+
     private class PlaybackServiceBroadcastReceiver extends BroadcastReceiver {
 
         @Override
@@ -328,6 +330,10 @@ public class PlaybackActivity extends SherlockActivity implements PlaybackServic
             } else if (playlistBundle.containsKey(PLAYLIST_ARTIST_ID)) {
                 long artistid = playlistBundle.getLong(PLAYLIST_ARTIST_ID);
                 playlist = ArtistPlaylist.fromArtist(Artist.get(artistid));
+            }
+            else if (playlistBundle.containsKey(PLAYLIST_PLAYLIST_ID)) {
+                long playlistid = playlistBundle.getLong(PLAYLIST_PLAYLIST_ID);
+                //playlist = PlaylistPlaylist.fromPlaylist(PlaylistDummy.get(playlistid));
             }
             try {
                 mPlaybackService.setCurrentPlaylist(playlist);

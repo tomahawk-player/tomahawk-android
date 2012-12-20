@@ -20,11 +20,12 @@ package org.tomahawk.tomahawk_android;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.TomahawkBaseAdapter;
 import org.tomahawk.libtomahawk.TomahawkListAdapter;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
+import org.tomahawk.libtomahawk.playlist.Playlist;
+import org.tomahawk.libtomahawk.playlist.PlaylistDummy;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -35,20 +36,21 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 
 /**
- * Fragment which represents the "Artist" tabview.
+ * Fragment which represents the "Playlist" tabview.
  */
-public class ArtistsFragment extends TomahawkFragment implements OnItemClickListener, OnItemLongClickListener {
+public class PlaylistsFragment extends TomahawkFragment implements OnItemClickListener, OnItemLongClickListener {
 
     /* (non-Javadoc)
      * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
      */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        if (getListAdapter().getItem(idx) instanceof Artist) {
+        if (getListAdapter().getItem(idx) instanceof Playlist) {
             Bundle bundle = new Bundle();
-            bundle.putLong(TOMAHAWK_ARTIST_ID, ((Artist) getListAdapter().getItem(idx)).getId());
+            bundle.putLong(TOMAHAWK_PLAYLIST_ID, ((PlaylistDummy) getListAdapter().getItem(idx)).getId());
             mCollectionActivity.getTabsAdapter().replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
-                    AlbumsFragment.class, ((Artist) getListAdapter().getItem(idx)).getId(), TOMAHAWK_ARTIST_ID, false);
+                    TracksFragment.class, ((PlaylistDummy) getListAdapter().getItem(idx)).getId(),
+                    TOMAHAWK_PLAYLIST_ID, false);
         }
     }
 
@@ -59,7 +61,8 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
     @Override
     public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
         Bundle bundle = new Bundle();
-        bundle.putLong(PlaybackActivity.PLAYLIST_ARTIST_ID, ((Artist) getListAdapter().getItem(position)).getId());
+        bundle.putLong(PlaybackActivity.PLAYLIST_PLAYLIST_ID,
+                ((PlaylistDummy) getListAdapter().getItem(position)).getId());
 
         Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
         playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
@@ -75,8 +78,9 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
 
-        List<TomahawkBaseAdapter.TomahawkListItem> items = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>(
-                coll.getArtists());
+//        List<TomahawkBaseAdapter.TomahawkListItem> items = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>(
+//                coll.getPlaylists());
+        List<TomahawkBaseAdapter.TomahawkListItem> items = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
         setListAdapter(new TomahawkListAdapter(getActivity(), R.layout.single_line_list_item,
                 R.id.single_line_list_textview, items));
 

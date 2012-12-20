@@ -40,7 +40,10 @@ import com.actionbarsherlock.app.SherlockFragment;
 
 public abstract class TomahawkFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Collection> {
 
-    public static final String TOMAHAWK_ITEM_ID = "tomahawk_item_id";
+    public static final String TOMAHAWK_ALBUM_ID = "tomahawk_album_id";
+    public static final String TOMAHAWK_TRACK_ID = "tomahawk_track_id";
+    public static final String TOMAHAWK_ARTIST_ID = "tomahawk_artist_id";
+    public static final String TOMAHAWK_PLAYLIST_ID = "tomahawk_playlist_id";
     public static final String TOMAHAWK_LIST_SCROLL_POSITION = "tomahawk_list_scroll_position";
 
     private static IntentFilter sCollectionUpdateIntentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
@@ -267,7 +270,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
             int validFragmentCount = 0;
             for (TabsAdapter.FragmentStateHolder fpb : backStack) {
                 if (fpb.clss == AlbumsFragment.class || fpb.clss == ArtistsFragment.class
-                        || fpb.clss == TracksFragment.class)
+                        || fpb.clss == TracksFragment.class || fpb.clss == PlaylistsFragment.class)
                     validFragmentCount++;
             }
             Collection currentCollection = mCollectionActivity.getCollection();
@@ -317,6 +320,16 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
                                 R.drawable.ic_action_track));
                         breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
                     }
+                    breadcrumbItem.setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
+                    navigationLayoutView.addView(breadcrumbItem);
+                } else if (fpb.clss == PlaylistsFragment.class) {
+                    if (validFragmentCount == 1)
+                        breadcrumbItemTextView.setText(getString(R.string.playlistsfragment_title_string));
+                    else
+                        breadcrumbItemTextView.setVisibility(TextView.GONE);
+                    breadcrumbItemImageView.setBackgroundDrawable(getResources().getDrawable(
+                            R.drawable.ic_action_playlist));
+                    breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
                     breadcrumbItem.setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
                     navigationLayoutView.addView(breadcrumbItem);
                 }

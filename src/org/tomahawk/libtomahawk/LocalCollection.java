@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.tomahawk.libtomahawk.playlist.PlaylistDummy;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.ContentResolver;
@@ -132,6 +133,22 @@ public class LocalCollection extends Collection {
     @Override
     public Album getAlbumById(Long id) {
         return mAlbums.get(id);
+    }
+
+    /**
+     * JUST A DUMMY !
+     */
+    @Override
+    public List<PlaylistDummy> getPlaylists(){
+        return null;
+    }
+
+    /**
+     * JUST A DUMMY !
+     */
+    @Override
+    public PlaylistDummy getPlaylistById(Long id){
+        return null;
     }
 
     /* 

@@ -121,11 +121,13 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
         if (intent.hasExtra(COLLECTION_ID_ALBUM)) {
             Long albumId = intent.getLongExtra(COLLECTION_ID_ALBUM, 0);
             intent.removeExtra(COLLECTION_ID_ALBUM);
-            getTabsAdapter().addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, TracksFragment.class, albumId);
+            getTabsAdapter().addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, TracksFragment.class, albumId,
+                    TomahawkFragment.TOMAHAWK_ALBUM_ID);
         } else if (intent.hasExtra(COLLECTION_ID_ARTIST)) {
             Long artistId = intent.getLongExtra(COLLECTION_ID_ARTIST, 0);
             intent.removeExtra(COLLECTION_ID_ARTIST);
-            getTabsAdapter().addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, AlbumsFragment.class, artistId);
+            getTabsAdapter().addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, AlbumsFragment.class, artistId,
+                    TomahawkFragment.TOMAHAWK_ARTIST_ID);
         }
         mTabsAdapter.notifyDataSetChanged();
     }
@@ -161,11 +163,13 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
         if (intent.hasExtra(COLLECTION_ID_ALBUM)) {
             Long albumId = intent.getLongExtra(COLLECTION_ID_ALBUM, 0);
             intent.removeExtra(COLLECTION_ID_ALBUM);
-            getTabsAdapter().addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, TracksFragment.class, albumId);
+            getTabsAdapter().addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, TracksFragment.class, albumId,
+                    TomahawkFragment.TOMAHAWK_ALBUM_ID);
         } else if (intent.hasExtra(COLLECTION_ID_ARTIST)) {
             Long artistId = intent.getLongExtra(COLLECTION_ID_ARTIST, 0);
             intent.removeExtra(COLLECTION_ID_ARTIST);
-            getTabsAdapter().addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, AlbumsFragment.class, artistId);
+            getTabsAdapter().addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, AlbumsFragment.class, artistId,
+                    TomahawkFragment.TOMAHAWK_ARTIST_ID);
         }
         mTabsAdapter.notifyDataSetChanged();
     }

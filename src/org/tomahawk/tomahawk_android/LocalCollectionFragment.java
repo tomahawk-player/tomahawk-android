@@ -92,17 +92,20 @@ public class LocalCollectionFragment extends SherlockListFragment implements OnI
         switch ((int) arg3) {
         case 0:
             mCollectionActivity.getTabsAdapter().replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
-                    TracksFragment.class, -1, false);
+                    TracksFragment.class, -1, null, false);
             break;
         case 1:
             mCollectionActivity.getTabsAdapter().replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
-                    AlbumsFragment.class, -1, false);
+                    AlbumsFragment.class, -1, null, false);
             break;
         case 2:
             mCollectionActivity.getTabsAdapter().replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
-                    ArtistsFragment.class, -1, false);
+                    ArtistsFragment.class, -1, null, false);
             break;
         case 3:
+            mCollectionActivity.getTabsAdapter().replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
+                    PlaylistsFragment.class, -1, null, false);
+            break;
         case 4:
         }
     }
