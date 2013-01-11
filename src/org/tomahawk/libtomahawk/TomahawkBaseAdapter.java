@@ -42,6 +42,9 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
 
     protected boolean mFiltered = false;
 
+    protected int mHighlightedItemPosition = -1;
+    protected boolean mHighlightedItemIsPlaying = false;
+
     protected List<List<TomahawkListItem>> mListArray;
     protected List<List<TomahawkListItem>> mFilteredListArray;
     private Bitmap mAlbumPlaceHolderBitmap;
@@ -320,5 +323,21 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
             }
         }
         return null;
+    }
+
+    /**
+     * set the position of the item, which should be highlighted
+     * @param position
+     */
+    public void setHighlightedItem(int position) {
+        mHighlightedItemPosition = position;
+    }
+
+    /**
+     * set wether or not the highlighted item should show the play or the pause drawable
+     * @param highlightedItemIsPlaying
+     */
+    public void setHighlightedItemIsPlaying(boolean highlightedItemIsPlaying) {
+        this.mHighlightedItemIsPlaying = highlightedItemIsPlaying;
     }
 }

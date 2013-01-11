@@ -355,6 +355,26 @@ public class PlaybackService extends Service implements OnCompletionListener,
     }
 
     /**
+     * Set the current playlist to shuffle mode.
+     *
+     * @param shuffled
+     */
+    public void setShuffled(boolean shuffled){
+        mCurrentPlaylist.setShuffled(shuffled);
+        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+    }
+
+    /**
+     * Set the current playlist to repeat mode.
+     *
+     * @param repeating
+     */
+    public void setRepeating(boolean repeating){
+        mCurrentPlaylist.setRepeating(repeating);
+        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+    }
+
+    /**
      * Get the current Track
      *
      * @return
@@ -370,10 +390,10 @@ public class PlaybackService extends Service implements OnCompletionListener,
     /**
      * This method sets the current back and prepares it for playback.
      * 
-     * @param mCurrentPlaylist
+     * @param track
      * @throws IOException
      */
-    private void setCurrentTrack(Track track) throws IOException {
+    public void setCurrentTrack(Track track) throws IOException {
 
         mMediaPlayer.reset();
         mMediaPlayer.setDataSource(track.getPath());

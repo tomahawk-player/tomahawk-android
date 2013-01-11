@@ -35,7 +35,7 @@ import com.actionbarsherlock.app.ActionBar.Tab;
 
 public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, ViewPager.OnPageChangeListener {
 
-    private CollectionActivity mCollectionActivity;
+    private TomahawkTabsActivity mActivity;
     private ActionBar mActionBar;
     private ViewPager mViewPager;
     private FragmentManager mFragmentManager;
@@ -75,7 +75,7 @@ public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, 
      * This class represents a complete Tab (page in the ViewPager). It consists of a backStack and a resource id
      * of the fragmentContainer which shows the top fragment object in the backStack.
      */
-    static final class TabHolder implements Serializable {
+    public static final class TabHolder implements Serializable {
         private ArrayList<FragmentStateHolder> fragmentStateHolders = new ArrayList<FragmentStateHolder>();
         private int fragmentContainerId;
     }
@@ -85,13 +85,16 @@ public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, 
      * @param activity
      * @param fragmentManager
      * @param pager
+     * @param tabsFunctionality
      */
-    public TabsAdapter(CollectionActivity activity, FragmentManager fragmentManager, ViewPager pager) {
+    public TabsAdapter(TomahawkTabsActivity activity, FragmentManager fragmentManager, ViewPager pager,
+            boolean tabsFunctionality) {
         mActionBar = activity.getSupportActionBar();
-        mCollectionActivity = activity;
+        mActivity = activity;
         mViewPager = pager;
         mViewPager.setAdapter(this);
-        mViewPager.setOnPageChangeListener(this);
+        if (tabsFunctionality)
+            mViewPager.setOnPageChangeListener(this);
         mViewPager.setOffscreenPageLimit(2);
         mFragmentManager = fragmentManager;
     }
@@ -147,7 +150,7 @@ public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, 
             fragmentContainer = (FrameLayout) currentFragment.getView().getParent();
         }
         if (fragmentContainer == null || fragmentContainer.getId() != tabHolder.fragmentContainerId) {
-            fragmentContainer = new FrameLayout(mCollectionActivity);
+            fragmentContainer = new FrameLayout(mActivity);
             fragmentContainer.setId(tabHolder.fragmentContainerId);
         }
         collection.addView(fragmentContainer);
@@ -170,6 +173,7 @@ public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, 
     @Override
     public void finishUpdate(ViewGroup viewGroup) {
         super.finishUpdate(viewGroup);
+        boolean allFragmentsReady = true;
         if (mHasRecentlyInstantiatedItems) {
             mFragmentManager.executePendingTransactions();
             for (TabHolder tabHolder : mTabHolders) {
@@ -177,6 +181,7 @@ public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, 
                 Fragment currentFragment = mFragmentManager.findFragmentByTag(currentFSH.fragmentTag);
                 if (currentFragment == null || currentFragment.getView() == null
                         || currentFragment.getView().getParent() == null) {
+                    allFragmentsReady = false;
                     FragmentTransaction ft = mFragmentManager.beginTransaction();
                     Bundle bundle = new Bundle();
                     for (FragmentStateHolder fSH : tabHolder.fragmentStateHolders) {
@@ -187,13 +192,14 @@ public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, 
                     bundle.putLong(currentFSH.tomahawkListItemType, currentFSH.tomahawkListItemId);
                     bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION, currentFSH.listScrollPosition);
                     ft.add(tabHolder.fragmentContainerId,
-                            Fragment.instantiate(mCollectionActivity, currentFSH.clss.getName(), bundle),
-                            currentFSH.fragmentTag);
+                            Fragment.instantiate(mActivity, currentFSH.clss.getName(), bundle), currentFSH.fragmentTag);
                     ft.commit();
                 }
             }
             mHasRecentlyInstantiatedItems = false;
         }
+        if (allFragmentsReady)
+            mActivity.onTabsAdapterReady();
     }
 
     /**
@@ -320,7 +326,7 @@ public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, 
             bundle.putLong(fragmentStateHolder.tomahawkListItemType, fragmentStateHolder.tomahawkListItemId);
             bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION, fragmentStateHolder.listScrollPosition);
             ft.replace(tabHolder.fragmentContainerId,
-                    Fragment.instantiate(mCollectionActivity, fragmentStateHolder.clss.getName(), bundle),
+                    Fragment.instantiate(mActivity, fragmentStateHolder.clss.getName(), bundle),
                     fragmentStateHolder.fragmentTag);
             ft.commit();
         }
@@ -443,5 +449,16 @@ public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, 
         FragmentStateHolder fSH = new FragmentStateHolder(clss, getFragmentTag(getCurrentPosition(), 1),
                 tomahawkListItemId, tomahawkListItemType);
         mTabHolders.get(position).fragmentStateHolders.add(fSH);
+    }
+
+    /**
+     * Get the fragment which currently is on top in the given tab
+     * @param position
+     * @return
+     */
+    public Fragment getFragmentOnTop(int position) {
+        ArrayList<FragmentStateHolder> fragmentsStack = mTabHolders.get(position).fragmentStateHolders;
+        FragmentStateHolder currentFragmentStateHolder = fragmentsStack.get(fragmentsStack.size() - 1);
+        return mFragmentManager.findFragmentByTag(currentFragmentStateHolder.fragmentTag);
     }
 }

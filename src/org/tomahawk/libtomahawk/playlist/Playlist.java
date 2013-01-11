@@ -1,6 +1,7 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
  *   Copyright 2012, Christopher Reichert <creichert07@gmail.com>
+ *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,12 +18,12 @@
  */
 package org.tomahawk.libtomahawk.playlist;
 
-import org.tomahawk.libtomahawk.Track;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import org.tomahawk.libtomahawk.Track;
 
 /**
  * This class represents an abstract Playlist.
@@ -133,9 +134,10 @@ public abstract class Playlist implements Playable {
      */
     @Override
     public Track getTrackAtPos(int i) {
-        if (i >= 0 && i < (mShuffled ? mShuffledTracks.size() : mTracks.size()))
+        if (i >= 0 && i < (mShuffled ? mShuffledTracks.size() : mTracks.size())) {
+            mCurrentTrackIndex = i;
             return mShuffled ? mShuffledTracks.get(i) : mTracks.get(i);
-
+        }
         return null;
     }
 
@@ -221,6 +223,19 @@ public abstract class Playlist implements Playable {
     }
 
     /**
+     * Returns the Track at the given position but does not update the internal Track
+     * iterator.
+     *
+     * @return Returns the Track at the given position. Returns null if there is none.
+     */
+    public Track peekTrackAtPos(int i) {
+        if (i >= 0 && i < (mShuffled ? mShuffledTracks.size() : mTracks.size())) {
+            return mShuffled ? mShuffledTracks.get(i) : mTracks.get(i);
+        }
+        return null;
+    }
+
+    /**
      * Set this playlist to shuffle mode.
      *
      * @param shuffled
@@ -247,6 +262,11 @@ public abstract class Playlist implements Playable {
         }
     }
 
+    /**
+     * Set this playlist to repeat mode.
+     *
+     * @param repeating
+     */
     public void setRepeating(boolean repeating) {
         mRepeating = repeating;
     }
@@ -285,5 +305,14 @@ public abstract class Playlist implements Playable {
      */
     public int getPosition() {
         return mCurrentTrackIndex;
+    }
+
+    /**
+     * Return all tracks in the playlist
+     *
+     * @return
+     */
+    public ArrayList<Track> getTracks() {
+        return mShuffled ? mShuffledTracks : mTracks;
     }
 }

@@ -44,12 +44,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
-public class CollectionActivity extends SherlockFragmentActivity implements PlaybackServiceConnectionListener {
+public class CollectionActivity extends TomahawkTabsActivity implements PlaybackServiceConnectionListener {
 
     public static final String COLLECTION_ID_EXTRA = "collection_id";
     public static final String COLLECTION_ID_ALBUM = "collection_album_id";
@@ -99,7 +98,7 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
         actionBar.setDisplayShowTitleEnabled(false);
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
-        mTabsAdapter = new TabsAdapter(this, getSupportFragmentManager(), viewPager);
+        mTabsAdapter = new TabsAdapter(this, getSupportFragmentManager(), viewPager, true);
         mTabsAdapter.addTab(actionBar.newTab().setText(R.string.localcollectionactivity_title_string));
         mTabsAdapter.addTab(actionBar.newTab().setText(R.string.remotecollectionactivity_title_string));
         mTabsAdapter.addTab(actionBar.newTab().setText(R.string.globalcollectionfragment_title_string));
@@ -360,5 +359,9 @@ public class CollectionActivity extends SherlockFragmentActivity implements Play
 
     public void onBackToRootPressed(View view) {
         getTabsAdapter().backToRoot(mTabsAdapter.getCurrentPosition());
+    }
+
+    @Override
+    public void onTabsAdapterReady() {
     }
 }

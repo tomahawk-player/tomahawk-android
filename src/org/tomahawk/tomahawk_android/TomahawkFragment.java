@@ -1,6 +1,7 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2012, Enno Gottschalk, Christopher Reichert <creichert07@gmail.com>
+ *   Copyright 2013, Christopher Reichert <creichert07@gmail.com>
+ *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -71,6 +72,8 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
         }
     };
 
+    private boolean mBreadCrumbNavigationEnabled = true;
+
     /**
      * Handles incoming {@link Collection} updated broadcasts.
      */
@@ -101,8 +104,6 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
         if (getArguments() != null && getArguments().containsKey(TOMAHAWK_LIST_SCROLL_POSITION)
                 && getArguments().getInt(TOMAHAWK_LIST_SCROLL_POSITION) > 0)
             mListScrollPosition = getArguments().getInt(TOMAHAWK_LIST_SCROLL_POSITION);
-        setHasOptionsMenu(true);
-        setRetainInstance(true);
     }
 
     /* 
@@ -111,7 +112,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_layout, null, false);
+        return inflater.inflate(R.layout.tomahawkfragment_layout, null, false);
     }
 
     /* 
@@ -122,7 +123,8 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ensureList();
-        updateBreadCrumbNavigation();
+        if (mBreadCrumbNavigationEnabled)
+            updateBreadCrumbNavigation();
     }
 
     /* 
@@ -262,7 +264,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
     }
 
     public void updateBreadCrumbNavigation() {
-        ArrayList<TabsAdapter.FragmentStateHolder> backStack = ((CollectionActivity) getActivity()).getTabsAdapter().getBackStackAtPosition(
+        ArrayList<TabsAdapter.FragmentStateHolder> backStack = mCollectionActivity.getTabsAdapter().getBackStackAtPosition(
                 CollectionActivity.LOCAL_COLLECTION_TAB_POSITION);
         LinearLayout navigationLayoutView = (LinearLayout) getActivity().findViewById(
                 R.id.fragmentLayout_breadcrumbLayout_linearLayout);
@@ -276,7 +278,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
             Collection currentCollection = mCollectionActivity.getCollection();
             for (TabsAdapter.FragmentStateHolder fpb : backStack) {
                 LinearLayout breadcrumbItem = (LinearLayout) getActivity().getLayoutInflater().inflate(
-                        R.layout.fragment_layout_breadcrumb_item, null);
+                        R.layout.tomahawkfragment_layout_breadcrumb_item, null);
                 ImageView breadcrumbItemImageView = (ImageView) breadcrumbItem.findViewById(R.id.fragmentLayout_icon_imageButton);
                 SquareHeightRelativeLayout breadcrumbItemImageViewLayout = (SquareHeightRelativeLayout) breadcrumbItem.findViewById(R.id.fragmentLayout_icon_squareHeightRelativeLayout);
                 TextView breadcrumbItemTextView = (TextView) breadcrumbItem.findViewById(R.id.fragmentLayout_text_textView);
@@ -436,7 +438,9 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
      * @return the current Collection
      */
     public Collection getCurrentCollection() {
-        return ((CollectionActivity) getActivity()).getCollection();
+        if (mCollectionActivity != null)
+            return mCollectionActivity.getCollection();
+        return null;
     }
 
     /**
@@ -446,5 +450,13 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
         if (mTomahawkBaseAdapter instanceof TomahawkGridAdapter)
             return getGridView().getFirstVisiblePosition();
         return mListScrollPosition = getListView().getFirstVisiblePosition();
+    }
+
+    /**
+     * Set wether or not the breadcrumbNavigationView should be updated
+     * @param breadCrumbNavigationEnabled
+     */
+    public void setBreadCrumbNavigationEnabled(boolean breadCrumbNavigationEnabled) {
+        this.mBreadCrumbNavigationEnabled = breadCrumbNavigationEnabled;
     }
 }
