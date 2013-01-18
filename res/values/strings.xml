@@ -40,6 +40,7 @@
     <string name="playbackactivity_toastshuffleoff_string">"Shuffle is off"</string>
     <string name="playbackactivity_toastrepeaton_string">"Repeat is on"</string>
     <string name="playbackactivity_toastrepeatoff_string">"Repeat is off"</string>
+    <string name="playbackactivity_unknown_string">"&#60;unknown&#62;"</string>
     <string name="playbackservice_label_string">PlaybackService</string>
     <string name="loginactivity_username_label_string">Username:</string>
     <string name="loginactivity_password_label_string">Password:</string>

@@ -30,7 +30,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import com.actionbarsherlock.app.SherlockListFragment;
 
 /**
- * Fragment which represents the "LocalCollection" tabview.
+ * Fragment which represents the "UserCollection" tabview.
  */
 public class LocalCollectionFragment extends SherlockListFragment implements OnItemClickListener {
 

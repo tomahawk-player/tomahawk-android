@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2012, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -15,46 +15,36 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomahawk.libtomahawk.playlist;
+package org.tomahawk.libtomahawk.resolver;
 
-import org.tomahawk.libtomahawk.Album;
-import org.tomahawk.libtomahawk.Artist;
-import org.tomahawk.libtomahawk.TomahawkBaseAdapter;
+import android.content.Context;
+import android.util.AttributeSet;
+import android.webkit.WebView;
 
 /**
  * Author Enno Gottschalk <mrmaffen@googlemail.com>
- * Date: 20.12.12
+ * Date: 17.01.13
+ *
+ * Just a renamed WebView for now.
  */
-public class PlaylistDummy implements TomahawkBaseAdapter.TomahawkListItem {
+public class ScriptEngine extends WebView {
+    private ScriptResolver mScriptResolver;
 
-    /**
-     * JUST A DUMMY !
-     */
-    @Override
-    public String getName() {
-        return "PlaylistItem";
+    private String mScriptPath;
+
+    public ScriptEngine(Context context) {
+        super(context);
     }
 
-    /**
-     * JUST A DUMMY !
-     */
-    @Override
-    public Artist getArtist() {
-        return null;
+    public ScriptEngine(Context context, AttributeSet attrs) {
+        super(context, attrs);
     }
 
-    /**
-     * JUST A DUMMY !
-     */
-    @Override
-    public Album getAlbum() {
-        return null;
+    public void setScriptPath(String scriptPath) {
+        this.mScriptPath = scriptPath;
     }
 
-    /**
-     * JUST A DUMMY !
-     */
-    public long getId(){
-        return 0;
+    public boolean shouldInterruptJavaScript() {
+        return true;
     }
 }

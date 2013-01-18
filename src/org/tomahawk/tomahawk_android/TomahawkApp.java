@@ -20,12 +20,13 @@ package org.tomahawk.tomahawk_android;
 import java.io.IOException;
 
 import org.acra.annotation.ReportsCrashes;
-import org.tomahawk.libtomahawk.LocalCollection;
 import org.tomahawk.libtomahawk.Source;
 import org.tomahawk.libtomahawk.SourceList;
+import org.tomahawk.libtomahawk.UserCollection;
 import org.tomahawk.libtomahawk.network.TomahawkService;
 import org.tomahawk.libtomahawk.network.TomahawkService.TomahawkServiceConnection;
 import org.tomahawk.libtomahawk.network.TomahawkService.TomahawkServiceConnection.TomahawkServiceConnectionListener;
+import org.tomahawk.libtomahawk.resolver.PipeLine;
 
 import android.accounts.*;
 import android.app.Application;
@@ -47,17 +48,23 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
 
     private AccountManager mAccountManager = null;
     private SourceList mSourceList;
+    private PipeLine mPipeLine;
+    private long mTrackIdCounter;
+    private long mAlbumIdCounter;
+    private long mArtistIdCounter;
+    private long mQueryIdCounter;
 
     private TomahawkServiceConnection mTomahawkServiceConnection = new TomahawkServiceConnection(this);
     private TomahawkService mTomahawkService;
 
     @Override
     public void onCreate() {
-        TomahawkExceptionReporter.init(this);
+        //        TomahawkExceptionReporter.init(this);
         super.onCreate();
         sApplicationContext = getApplicationContext();
 
         mSourceList = new SourceList();
+        mPipeLine = new PipeLine(this);
 
         initialize();
     }
@@ -74,7 +81,7 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
      */
     public void initLocalCollection() {
         Log.d(TAG, "Initializing Local Collection.");
-        Source src = new Source(new LocalCollection(), 0, "My Collection");
+        Source src = new Source(new UserCollection(), 0, "My Collection");
         mSourceList.setLocalSource(src);
     }
 
@@ -92,6 +99,10 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
      */
     public SourceList getSourceList() {
         return mSourceList;
+    }
+
+    public PipeLine getPipeLine() {
+        return mPipeLine;
     }
 
     /**
@@ -144,5 +155,21 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
     @Override
     public void onTomahawkServiceReady() {
 
+    }
+
+    public long getUniqueTrackId() {
+        return mTrackIdCounter++;
+    }
+
+    public long getUniqueAlbumId() {
+        return mAlbumIdCounter++;
+    }
+
+    public long getUniqueArtistId() {
+        return mArtistIdCounter++;
+    }
+
+    public String getUniqueQueryId() {
+        return String.valueOf(mQueryIdCounter++);
     }
 }

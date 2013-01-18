@@ -24,8 +24,8 @@ import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.TomahawkBaseAdapter;
 import org.tomahawk.libtomahawk.TomahawkListAdapter;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
+import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
 import org.tomahawk.libtomahawk.playlist.Playlist;
-import org.tomahawk.libtomahawk.playlist.PlaylistDummy;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -47,9 +47,9 @@ public class PlaylistsFragment extends TomahawkFragment implements OnItemClickLi
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
         if (getListAdapter().getItem(idx) instanceof Playlist) {
             Bundle bundle = new Bundle();
-            bundle.putLong(TOMAHAWK_PLAYLIST_ID, ((PlaylistDummy) getListAdapter().getItem(idx)).getId());
+            bundle.putLong(TOMAHAWK_PLAYLIST_ID, ((CustomPlaylist) getListAdapter().getItem(idx)).getId());
             mCollectionActivity.getTabsAdapter().replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
-                    TracksFragment.class, ((PlaylistDummy) getListAdapter().getItem(idx)).getId(),
+                    TracksFragment.class, ((CustomPlaylist) getListAdapter().getItem(idx)).getId(),
                     TOMAHAWK_PLAYLIST_ID, false);
         }
     }
@@ -62,7 +62,7 @@ public class PlaylistsFragment extends TomahawkFragment implements OnItemClickLi
     public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
         Bundle bundle = new Bundle();
         bundle.putLong(PlaybackActivity.PLAYLIST_PLAYLIST_ID,
-                ((PlaylistDummy) getListAdapter().getItem(position)).getId());
+                ((CustomPlaylist) getListAdapter().getItem(position)).getId());
 
         Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
         playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
@@ -78,8 +78,8 @@ public class PlaylistsFragment extends TomahawkFragment implements OnItemClickLi
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
 
-//        List<TomahawkBaseAdapter.TomahawkListItem> items = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>(
-//                coll.getPlaylists());
+        //        List<TomahawkBaseAdapter.TomahawkListItem> items = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>(
+        //                coll.getPlaylists());
         List<TomahawkBaseAdapter.TomahawkListItem> items = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
         setListAdapter(new TomahawkListAdapter(getActivity(), R.layout.single_line_list_item,
                 R.id.single_line_list_textview, items));

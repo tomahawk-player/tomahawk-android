@@ -17,41 +17,9 @@
  */
 package org.tomahawk.libtomahawk;
 
-import java.util.Comparator;
 import java.util.HashMap;
 
-/**
- * This class is used to compare two Tracks.
- */
-class TrackComparator implements Comparator<Track> {
-
-    public static final int COMPARE_DISCNUM = 0;
-    public static final int COMPARE_ALPHA = 1;
-
-    private static int mFlag = COMPARE_DISCNUM;
-
-    public TrackComparator(int flag) {
-        super();
-        mFlag = flag;
-    }
-
-    public int compare(Track t1, Track t2) {
-
-        switch (mFlag) {
-
-        case COMPARE_DISCNUM:
-            Integer num1 = t1.getTrackNumber();
-            Integer num2 = t2.getTrackNumber();
-            return num1.compareTo(num2);
-
-        case COMPARE_ALPHA:
-            return t1.getName().compareTo(t2.getName());
-
-        }
-
-        return 0;
-    }
-}
+import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 
 /**
  * This class represents a track.
@@ -64,12 +32,18 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
      * Path of file or URL.
      */
     private String mPath;
+    private boolean mIsLocal = true;
     private String mName;
     private Album mAlbum;
     private Artist mArtist;
+    private int mBitrate;
+    private int mSize;
     private long mDuration;
     private int mTrackNumber;
+    private int mYear;
     private long mId;
+    private ScriptResolver mScriptResolver;
+    private float mScore;
 
     public Track(long l) {
         setId(l);
@@ -140,6 +114,14 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
         this.mPath = path;
     }
 
+    public boolean isLocal() {
+        return mIsLocal;
+    }
+
+    public void setLocal(boolean mIsLocal) {
+        this.mIsLocal = mIsLocal;
+    }
+
     public void setName(String name) {
         this.mName = name;
     }
@@ -150,6 +132,22 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
 
     public void setArtist(Artist artist) {
         this.mArtist = artist;
+    }
+
+    public int getBitrate() {
+        return mBitrate;
+    }
+
+    public void setBitrate(int bitrate) {
+        this.mBitrate = bitrate;
+    }
+
+    public int getSize() {
+        return mSize;
+    }
+
+    public void setSize(int size) {
+        this.mSize = size;
     }
 
     public long getDuration() {
@@ -167,4 +165,29 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
     public void setTrackNumber(int trackNumber) {
         this.mTrackNumber = trackNumber;
     }
+
+    public int getYear() {
+        return mYear;
+    }
+
+    public void setYear(int year) {
+        this.mYear = year;
+    }
+
+    public ScriptResolver getScriptResolver() {
+        return mScriptResolver;
+    }
+
+    public void setScriptResolver(ScriptResolver scriptResolver) {
+        this.mScriptResolver = scriptResolver;
+    }
+
+    public float getScore() {
+        return mScore;
+    }
+
+    public void setScore(float score) {
+        this.mScore = score;
+    }
+
 }

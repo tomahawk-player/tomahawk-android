@@ -18,13 +18,9 @@
  */
 package org.tomahawk.libtomahawk;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import org.tomahawk.libtomahawk.playlist.PlaylistDummy;
+import org.tomahawk.libtomahawk.playlist.Playlist;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.ContentResolver;
@@ -36,9 +32,11 @@ import android.os.HandlerThread;
 import android.provider.MediaStore;
 import android.util.Log;
 
-public class LocalCollection extends Collection {
+public class UserCollection extends Collection {
 
-    private static final String TAG = LocalCollection.class.getName();
+    private static final String TAG = UserCollection.class.getName();
+
+    public static final int Id = 0;
 
     private HandlerThread mCollectionUpdateHandlerThread;
     private Handler mHandler;
@@ -46,6 +44,8 @@ public class LocalCollection extends Collection {
     private Map<Long, Artist> mArtists;
     private Map<Long, Album> mAlbums;
     private Map<Long, Track> mTracks;
+    private Map<Long, Playlist> mPlaylists;
+    private long mPlaylistIdCounter;
 
     private Runnable mUpdateRunnable = new Runnable() {
         /* 
@@ -75,14 +75,13 @@ public class LocalCollection extends Collection {
     };
 
     /**
-     * Construct a new LocalCollection and initialize.
-     * 
-     * @param resolver
+     * Construct a new UserCollection and initialize.
      */
-    public LocalCollection() {
+    public UserCollection() {
         mArtists = new HashMap<Long, Artist>();
         mAlbums = new HashMap<Long, Album>();
         mTracks = new HashMap<Long, Track>();
+        mPlaylists = new HashMap<Long, Playlist>();
 
         TomahawkApp.getContext().getContentResolver().registerContentObserver(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false, mLocalMediaObserver);
@@ -135,20 +134,32 @@ public class LocalCollection extends Collection {
         return mAlbums.get(id);
     }
 
-    /**
-     * JUST A DUMMY !
+    /*
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.Collection#getPlaylists()
      */
     @Override
-    public List<PlaylistDummy> getPlaylists(){
-        return null;
+    public List<Playlist> getPlaylists() {
+        ArrayList<Playlist> playlists = new ArrayList<Playlist>(mPlaylists.values());
+        return playlists;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.Collection#getPlaylistById(java.lang.Long)
+     */
+    @Override
+    public Playlist getPlaylistById(Long id) {
+        return mPlaylists.get(id);
     }
 
     /**
-     * JUST A DUMMY !
+     * Add a playlist to the collection
+     * @param playlist
      */
-    @Override
-    public PlaylistDummy getPlaylistById(Long id){
-        return null;
+    public long addPlaylist(Playlist playlist) {
+        mPlaylists.put(mPlaylistIdCounter, playlist);
+        return mPlaylistIdCounter++;
     }
 
     /* 
@@ -201,7 +212,6 @@ public class LocalCollection extends Collection {
                 artist.setName(cursor.getString(6));
 
                 mArtists.put(artist.getId(), artist);
-                Log.d(TAG, "New Artist: " + artist.toString());
             }
 
             Album album = mAlbums.get(cursor.getLong(7));
@@ -224,7 +234,6 @@ public class LocalCollection extends Collection {
                     album.setLastYear(albumcursor.getString(2));
 
                     mAlbums.put(album.getId(), album);
-                    Log.d(TAG, "New Album: " + album.toString());
                 }
 
                 if (albumcursor != null)
@@ -240,7 +249,6 @@ public class LocalCollection extends Collection {
                 track.setTrackNumber(cursor.getInt(4));
 
                 mTracks.put(track.getId(), track);
-                Log.d(TAG, "New Track: " + track.toString());
             }
 
             artist.addAlbum(album);
@@ -274,6 +282,6 @@ public class LocalCollection extends Collection {
      */
     @Override
     public int getId() {
-        return 0;
+        return Id;
     }
 }

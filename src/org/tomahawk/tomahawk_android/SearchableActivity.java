@@ -18,19 +18,22 @@
 package org.tomahawk.tomahawk_android;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.tomahawk.libtomahawk.*;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
+import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
+import org.tomahawk.libtomahawk.resolver.PipeLine;
 
+import android.app.Activity;
 import android.app.Fragment;
-import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.Editable;
@@ -55,17 +58,27 @@ import com.actionbarsherlock.view.MenuItem;
  *
  */
 public class SearchableActivity extends SherlockFragmentActivity implements OnItemClickListener, TextWatcher,
-        OnEditorActionListener, LoaderManager.LoaderCallbacks<Collection> {
+        OnEditorActionListener, LoaderManager.LoaderCallbacks<Collection>, Handler.Callback {
 
-    private static IntentFilter sCollectionUpdateIntentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
+    private Activity mActivity = this;
+    private PipeLine mPipeline;
+
+    private Collection mCollection;
 
     private CollectionUpdateReceiver mCollectionUpdatedReceiver;
+    private PipelineBroadcastReceiver mPipelineBroadcastReceiver;
 
+    private ArrayList<Track> mCurrentShownTracks;
+    private String mCurrentQueryString;
     private EditText mSearchEditText = null;
     private String mSearchString = null;
     private TomahawkListAdapter mTomahawkListAdapter;
-    ListView mList;
+    private ListView mList;
     final private Handler mHandler = new Handler();
+
+    private Handler mAnimationHandler = new Handler(this);
+    private static final int MSG_UPDATE_ANIMATION = 0x20;
+    private Drawable mProgressDrawable;
 
     final private Runnable mRequestFocus = new Runnable() {
         public void run() {
@@ -80,7 +93,7 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see
          * android.content.BroadcastReceiver#onReceive(android.content.Context,
          * android.content.Intent)
@@ -89,6 +102,26 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(Collection.COLLECTION_UPDATED))
                 onCollectionUpdated();
+        }
+    }
+
+    private class PipelineBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(PipeLine.PIPELINE_RESULTSREPORTED)) {
+                PipeLine pipeLine = ((TomahawkApp) getApplication()).getPipeLine();
+                String qid = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
+                mCurrentQueryString = pipeLine.getQuery(qid).getFullTextQuery();
+                ArrayList<TomahawkBaseAdapter.TomahawkListItem> tomahawkListItems = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+                mCurrentShownTracks = (pipeLine.getQuery(qid).getTracks());
+                tomahawkListItems.addAll(mCurrentShownTracks);
+                mTomahawkListAdapter = new TomahawkListAdapter(mActivity,
+                        R.layout.double_line_list_item_with_playstate_image, R.id.double_line_list_imageview,
+                        R.id.double_line_list_textview, R.id.double_line_list_textview2, tomahawkListItems);
+                mTomahawkListAdapter.setShowResolvedBy(true);
+                setListAdapter(mTomahawkListAdapter);
+            }
         }
     }
 
@@ -114,6 +147,8 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
         setSearchText((EditText) searchView.findViewById(R.id.search_edittext));
 
         mList.setOnItemClickListener(this);
+
+        mPipeline = ((TomahawkApp) getApplication()).getPipeLine();
     }
 
     /* 
@@ -127,10 +162,18 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
         getSupportLoaderManager().destroyLoader(0);
         getSupportLoaderManager().initLoader(0, null, this);
 
+        IntentFilter intentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
         if (mCollectionUpdatedReceiver == null) {
             mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
-            registerReceiver(mCollectionUpdatedReceiver, sCollectionUpdateIntentFilter);
+            registerReceiver(mCollectionUpdatedReceiver, intentFilter);
         }
+        intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED);
+        if (mPipelineBroadcastReceiver == null) {
+            mPipelineBroadcastReceiver = new PipelineBroadcastReceiver();
+            registerReceiver(mPipelineBroadcastReceiver, intentFilter);
+        }
+        mSearchEditText.setOnEditorActionListener(this);
+        mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
     }
 
     /* 
@@ -144,6 +187,10 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
         if (mCollectionUpdatedReceiver != null) {
             unregisterReceiver(mCollectionUpdatedReceiver);
             mCollectionUpdatedReceiver = null;
+        }
+        if (mPipelineBroadcastReceiver != null) {
+            unregisterReceiver(mPipelineBroadcastReceiver);
+            mPipelineBroadcastReceiver = null;
         }
     }
 
@@ -179,7 +226,18 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
      */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        showFragment(idx);
+        //        showFragment(idx);
+        if (mTomahawkListAdapter.getItem(idx) instanceof Track) {
+            long playlistId = mCollection.addPlaylist(CustomPlaylist.fromTrackList(mCurrentQueryString,
+                    mCurrentShownTracks, (Track) mTomahawkListAdapter.getItem(idx)));
+            Bundle bundle = new Bundle();
+            bundle.putLong(PlaybackActivity.PLAYLIST_PLAYLIST_ID, playlistId);
+            bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID, ((Track) mTomahawkListAdapter.getItem(idx)).getId());
+
+            Intent playbackIntent = new Intent(this, PlaybackActivity.class);
+            playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
+            startActivity(playbackIntent);
+        }
     }
 
     private void ensureList() {
@@ -210,7 +268,6 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
     public void setListAdapter(TomahawkListAdapter adapter) {
         mTomahawkListAdapter = adapter;
         if (mList != null) {
-            adapter.setFiltered(true);
             mList.setAdapter(adapter);
         }
     }
@@ -265,8 +322,8 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
      */
     protected void onCollectionUpdated() {
         getSupportLoaderManager().restartLoader(0, null, this);
-        if (mTomahawkListAdapter != null)
-            mTomahawkListAdapter.getFilter().filter(mSearchString);
+        //        if (mTomahawkListAdapter != null)
+        //            mTomahawkListAdapter.getFilter().filter(mSearchString);
     }
 
     /*
@@ -299,37 +356,38 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
      */
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
-        List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
-        List<TomahawkBaseAdapter.TomahawkMenuItem> headerArray = new ArrayList<TomahawkBaseAdapter.TomahawkMenuItem>();
-        String trackListTitle = getResources().getString(R.string.tracksfragment_title_string);
-        String artistListTitle = getResources().getString(R.string.artistsfragment_title_string);
-        String albumListTitle = getResources().getString(R.string.albumsfragment_title_string);
-
-        listArray.add(new ArrayList<TomahawkBaseAdapter.TomahawkListItem>());
-        headerArray.add(new TomahawkBaseAdapter.TomahawkMenuItem(trackListTitle, R.drawable.ic_action_track));
-        listArray.add(new ArrayList<TomahawkBaseAdapter.TomahawkListItem>());
-        headerArray.add(new TomahawkBaseAdapter.TomahawkMenuItem(artistListTitle, R.drawable.ic_action_artist));
-        listArray.add(new ArrayList<TomahawkBaseAdapter.TomahawkListItem>());
-        headerArray.add(new TomahawkBaseAdapter.TomahawkMenuItem(albumListTitle, R.drawable.ic_action_album));
-        listArray.get(0).addAll(coll.getTracks());
-        listArray.get(1).addAll(coll.getArtists());
-        listArray.get(2).addAll(coll.getAlbums());
-
-        mTomahawkListAdapter = new TomahawkListAdapter(this, R.layout.single_line_list_header,
-                R.id.single_line_list_header_icon_imageview, R.id.single_line_list_header_textview,
-                R.layout.single_line_list_item, R.id.single_line_list_textview, listArray, headerArray);
-        mTomahawkListAdapter.setDoubleLineImageListItemResources(R.layout.double_line_list_item_with_image,
-                R.id.double_line_list_imageview, R.id.double_line_list_textview, R.id.double_line_list_textview2);
-        mTomahawkListAdapter.setDoubleLineListItemResources(R.layout.double_line_list_item,
-                R.id.double_line_list_textview, R.id.double_line_list_textview2);
-        mTomahawkListAdapter.setFiltered(true);
-        mTomahawkListAdapter.getFilter().filter(mSearchString);
-        setListAdapter(mTomahawkListAdapter);
-        Intent intent = getIntent();
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            mTomahawkListAdapter.getFilter().filter(query);
-        }
+        mCollection = coll;
+        //        List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+        //        List<TomahawkBaseAdapter.TomahawkMenuItem> headerArray = new ArrayList<TomahawkBaseAdapter.TomahawkMenuItem>();
+        //        String trackListTitle = getResources().getString(R.string.tracksfragment_title_string);
+        //        String artistListTitle = getResources().getString(R.string.artistsfragment_title_string);
+        //        String albumListTitle = getResources().getString(R.string.albumsfragment_title_string);
+        //
+        //        listArray.add(new ArrayList<TomahawkBaseAdapter.TomahawkListItem>());
+        //        headerArray.add(new TomahawkBaseAdapter.TomahawkMenuItem(trackListTitle, R.drawable.ic_action_track));
+        //        listArray.add(new ArrayList<TomahawkBaseAdapter.TomahawkListItem>());
+        //        headerArray.add(new TomahawkBaseAdapter.TomahawkMenuItem(artistListTitle, R.drawable.ic_action_artist));
+        //        listArray.add(new ArrayList<TomahawkBaseAdapter.TomahawkListItem>());
+        //        headerArray.add(new TomahawkBaseAdapter.TomahawkMenuItem(albumListTitle, R.drawable.ic_action_album));
+        //        listArray.get(0).addAll(coll.getTracks());
+        //        listArray.get(1).addAll(coll.getArtists());
+        //        listArray.get(2).addAll(coll.getAlbums());
+        //
+        //        mTomahawkListAdapter = new TomahawkListAdapter(this, R.layout.single_line_list_header,
+        //                R.id.single_line_list_header_icon_imageview, R.id.single_line_list_header_textview,
+        //                R.layout.single_line_list_item, R.id.single_line_list_textview, listArray, headerArray);
+        //        mTomahawkListAdapter.setDoubleLineImageListItemResources(R.layout.double_line_list_item_with_image,
+        //                R.id.double_line_list_imageview, R.id.double_line_list_textview, R.id.double_line_list_textview2);
+        //        mTomahawkListAdapter.setDoubleLineListItemResources(R.layout.double_line_list_item,
+        //                R.id.double_line_list_textview, R.id.double_line_list_textview2);
+        //        mTomahawkListAdapter.setFiltered(true);
+        //        mTomahawkListAdapter.getFilter().filter(mSearchString);
+        //        setListAdapter(mTomahawkListAdapter);
+        //        Intent intent = getIntent();
+        //        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+        //            String query = intent.getStringExtra(SearchManager.QUERY);
+        //            mTomahawkListAdapter.getFilter().filter(query);
+        //        }
     }
 
     /* 
@@ -354,9 +412,9 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
      */
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        mSearchString = s.toString();
-        if (mTomahawkListAdapter != null)
-            mTomahawkListAdapter.getFilter().filter(s.toString());
+        //        mSearchString = s.toString();
+        //        if (mTomahawkListAdapter != null)
+        //            mTomahawkListAdapter.getFilter().filter(s.toString());
     }
 
     /** Set the reference to the searchText, that is used to filter the custom {@link ListView}
@@ -387,10 +445,40 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (event == null || actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE
                 || event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);
-            return true;
+            if (v.getText().toString() != null && !v.getText().toString().isEmpty()) {
+                ((TomahawkApp) getApplication()).getPipeLine().resolve(v.getText().toString());
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);
+                startLoadingAnimation();
+                return true;
+            }
         }
         return false;
+    }
+
+    @Override
+    public boolean handleMessage(Message msg) {
+        switch (msg.what) {
+        case MSG_UPDATE_ANIMATION:
+            if (mPipeline.isResolving()) {
+                mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 500);
+                getSupportActionBar().setLogo(mProgressDrawable);
+                mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
+                mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
+            } else {
+                stopLoadingAnimation();
+            }
+            break;
+        }
+        return true;
+    }
+
+    public void startLoadingAnimation() {
+        mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
+    }
+
+    public void stopLoadingAnimation() {
+        mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
+        getSupportActionBar().setLogo(R.drawable.ic_launcher);
     }
 }

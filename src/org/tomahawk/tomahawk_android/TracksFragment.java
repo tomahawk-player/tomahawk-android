@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.tomahawk.libtomahawk.*;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
-import org.tomahawk.libtomahawk.playlist.PlaylistDummy;
+import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -37,7 +37,7 @@ import android.widget.AdapterView.OnItemClickListener;
 public class TracksFragment extends TomahawkFragment implements OnItemClickListener {
 
     private Album mAlbum;
-    private PlaylistDummy mPlaylistDummy;
+    private CustomPlaylist mCustomPlaylist;
 
     @Override
     public void onCreate(Bundle inState) {
@@ -47,7 +47,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 mAlbum = mCollectionActivity.getCollection().getAlbumById(getArguments().getLong(TOMAHAWK_ALBUM_ID));
             else if (getArguments().containsKey(TOMAHAWK_PLAYLIST_ID)
                     && getArguments().getLong(TOMAHAWK_PLAYLIST_ID) > 0)
-                mPlaylistDummy = null;//mCollectionActivity.getCollection().getPlaylistById(getArguments().getLong(TOMAHAWK_PLAYLIST_ID));
+                mCustomPlaylist = null;//mCollectionActivity.getCollection().getPlaylistById(getArguments().getLong(TOMAHAWK_PLAYLIST_ID));
     }
 
     /* (non-Javadoc)

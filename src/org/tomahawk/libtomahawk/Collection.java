@@ -18,9 +18,9 @@
  */
 package org.tomahawk.libtomahawk;
 
-import org.tomahawk.libtomahawk.playlist.PlaylistDummy;
-
 import java.util.List;
+
+import org.tomahawk.libtomahawk.playlist.Playlist;
 
 /**
  * This class represents a {@link Collection} of media.
@@ -63,15 +63,22 @@ public abstract class Collection {
     public abstract Track getTrackById(Long id);
 
     /**
-     * Return a list of all {@link PlaylistDummy}s from the {@link Album}.
+     * Return a list of all {@link Playlist}s.
      */
-    public abstract List<PlaylistDummy> getPlaylists();
+    public abstract List<Playlist> getPlaylists();
 
     /**
-     *  Get the {@link PlaylistDummy} by giving the {@link PlaylistDummy}'s ID
+     *  Get the {@link Playlist} by giving the {@link Playlist}'s ID
      *  @param id
-     *  @return the {@link PlaylistDummy} object*/
-    public abstract PlaylistDummy getPlaylistById(Long id);
+     *  @return the {@link Playlist} object*/
+    public abstract Playlist getPlaylistById(Long id);
+
+    /**
+     * Add a playlist to the collection
+     * @param playlist
+     * @return the generated id for this playlist
+     */
+    public abstract long addPlaylist(Playlist playlist);
 
     /**
      * Update this {@link Collection}'s content.
@@ -88,7 +95,7 @@ public abstract class Collection {
     }
 
     /**
-     * Returns whether this {@link Collection} is a {@link LocalCollection}.
+     * Returns whether this {@link Collection} is a {@link UserCollection}.
      */
     public boolean isLocal() {
         return false;

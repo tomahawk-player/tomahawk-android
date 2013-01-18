@@ -249,9 +249,18 @@ public class PlaybackFragment extends SherlockFragment {
             final TextView artistTextView = (TextView) mPlaybackActivity.findViewById(R.id.textView_artist);
             final TextView albumTextView = (TextView) mPlaybackActivity.findViewById(R.id.textView_album);
             final TextView titleTextView = (TextView) mPlaybackActivity.findViewById(R.id.textView_title);
-            artistTextView.setText(track.getArtist().toString());
-            albumTextView.setText(track.getAlbum().toString());
-            titleTextView.setText(track.getName().toString());
+            if (track.getArtist() != null && track.getArtist().getName() != null)
+                artistTextView.setText(track.getArtist().toString());
+            else
+                artistTextView.setText(R.string.playbackactivity_unknown_string);
+            if (track.getAlbum() != null && track.getAlbum().getName() != null)
+                albumTextView.setText(track.getAlbum().toString());
+            else
+                albumTextView.setText(R.string.playbackactivity_unknown_string);
+            if (track.getName() != null)
+                titleTextView.setText(track.getName().toString());
+            else
+                titleTextView.setText(R.string.playbackactivity_unknown_string);
             mPlaybackActivity.findViewById(R.id.imageButton_playpause).setClickable(true);
             mPlaybackActivity.findViewById(R.id.imageButton_next).setClickable(true);
             mPlaybackActivity.findViewById(R.id.imageButton_previous).setClickable(true);

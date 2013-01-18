@@ -18,6 +18,8 @@
  */
 package org.tomahawk.tomahawk_android;
 
+import org.tomahawk.libtomahawk.resolver.ScriptResolver;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;

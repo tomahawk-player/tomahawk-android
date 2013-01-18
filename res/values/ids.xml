@@ -9,5 +9,10 @@
     <item name="tomahawklistadapter_viewtype_doublelineplaystateimagelistitem" type="id"/>
     <item name="tomahawklistadapter_viewtype_griditem" type="id"/>
     <item name="tomahawklistadapter_viewholder" type="id"/>
+    <item name="scriptresolver_resolver_init" type="id"/>
+    <item name="scriptresolver_resolver_settings" type="id"/>
+    <item name="scriptresolver_resolver_userconfig" type="id"/>
+    <item name="scriptresolver_resolve" type="id"/>
+    <item name="scriptresolver_add_track_results_string" type="id"/>
 
 </resources>

@@ -30,7 +30,7 @@ import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.MenuItem;
 
 /**
- * Fragment which represents the "LocalCollection" tabview.
+ * Fragment which represents the "UserCollection" tabview.
  */
 public class SettingsActivity extends SherlockListActivity implements OnItemClickListener {
 

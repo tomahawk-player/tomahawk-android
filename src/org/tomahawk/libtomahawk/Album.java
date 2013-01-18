@@ -79,7 +79,7 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
         }
     }
 
-    private Album(long id) {
+    public Album(long id) {
         setId(id);
         mTracks = new HashMap<Long, Track>();
     }

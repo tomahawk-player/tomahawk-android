@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import org.tomahawk.libtomahawk.Album;
 import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.Track;
+import org.tomahawk.libtomahawk.UserCollection;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
 import org.tomahawk.libtomahawk.playlist.AlbumPlaylist;
@@ -253,7 +254,9 @@ public class PlaybackActivity extends TomahawkTabsActivity implements PlaybackSe
                 playlist = ArtistPlaylist.fromArtist(Artist.get(artistid));
             } else if (playlistBundle.containsKey(PLAYLIST_PLAYLIST_ID)) {
                 long playlistid = playlistBundle.getLong(PLAYLIST_PLAYLIST_ID);
-                //playlist = PlaylistPlaylist.fromPlaylist(PlaylistDummy.get(playlistid));
+                TomahawkApp app = (TomahawkApp) getApplication();
+                playlist = app.getSourceList().getCollectionFromId(UserCollection.Id).getPlaylistById(playlistid);
+                playlist.setCurrentTrack(Track.get(trackid));
             }
             try {
                 mPlaybackService.setCurrentPlaylist(playlist);
