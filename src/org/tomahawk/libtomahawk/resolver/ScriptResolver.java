@@ -39,7 +39,7 @@ import android.webkit.WebSettings;
  *
  * This class represents a javascript resolver.
  */
-public class ScriptResolver {
+public class ScriptResolver implements Resolver {
     private final static String TAG = ScriptResolver.class.getName();
 
     private final static String RESOLVER_LEGACY_CODE = "var resolver = Tomahawk.resolver.instance ? Tomahawk.resolver.instance : TomahawkResolver;";
@@ -245,25 +245,23 @@ public class ScriptResolver {
                     if (obj.has("size"))
                         track.setSize(Integer.valueOf(obj.get("size").toString()));
                     if (obj.has("purchaseUrl"))
-                        result.setPurchaseUrl(obj.get("purchaseUrl").toString());
+                        track.setPurchaseUrl(obj.get("purchaseUrl").toString());
                     if (obj.has("linkUrl"))
-                        result.setLinkUrl(obj.get("linkUrl").toString());
+                        track.setLinkUrl(obj.get("linkUrl").toString());
                     if (obj.has("score"))
                         result.setScore(Float.valueOf(obj.get("score").toString()));
                     if (obj.has("discnumber"))
-                        result.setDiscNumber(Integer.valueOf(obj.get("discnumber").toString()));
+                        track.setTrackNumber(Integer.valueOf(obj.get("discnumber").toString()));
                     //                    if (obj.has("year") && obj.get("year") != null)
                     //                        track.setYear(Integer.valueOf(obj.get("year").toString()));
                     if (obj.has("duration")) {
                         track.setDuration(Math.round(Float.valueOf(obj.get("duration").toString()) * 1000));
                     }
-                    result.setScriptResolver(this);
-                    track.setScriptResolver(this);
+                    track.setResolver(this);
+                    result.setResolver(this);
                     result.setArtist(artist);
                     result.setAlbum(album);
                     result.setTrack(track);
-                    result.setFriendlySource(mName);
-                    result.setSourceIcon(mIcon);
                     resultList.add(result);
                 }
             } catch (JSONException e) {

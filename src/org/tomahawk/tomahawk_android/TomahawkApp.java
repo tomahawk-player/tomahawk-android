@@ -20,18 +20,22 @@ package org.tomahawk.tomahawk_android;
 import java.io.IOException;
 
 import org.acra.annotation.ReportsCrashes;
+import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.Source;
 import org.tomahawk.libtomahawk.SourceList;
 import org.tomahawk.libtomahawk.UserCollection;
 import org.tomahawk.libtomahawk.network.TomahawkService;
 import org.tomahawk.libtomahawk.network.TomahawkService.TomahawkServiceConnection;
 import org.tomahawk.libtomahawk.network.TomahawkService.TomahawkServiceConnection.TomahawkServiceConnectionListener;
+import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 
 import android.accounts.*;
 import android.app.Application;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -43,6 +47,9 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
         TomahawkServiceConnectionListener {
 
     private static final String TAG = TomahawkApp.class.getName();
+
+    private static IntentFilter sCollectionUpdateIntentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
+    private CollectionUpdateReceiver mCollectionUpdatedReceiver;
 
     private static Context sApplicationContext;
 
@@ -57,6 +64,25 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
     private TomahawkServiceConnection mTomahawkServiceConnection = new TomahawkServiceConnection(this);
     private TomahawkService mTomahawkService;
 
+    /**
+     * Handles incoming {@link Collection} updated broadcasts.
+     */
+    private class CollectionUpdateReceiver extends BroadcastReceiver {
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * android.content.BroadcastReceiver#onReceive(android.content.Context,
+         * android.content.Intent)
+         */
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(Collection.COLLECTION_UPDATED))
+                onCollectionUpdated();
+        }
+    }
+
     @Override
     public void onCreate() {
         //        TomahawkExceptionReporter.init(this);
@@ -65,8 +91,19 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
 
         mSourceList = new SourceList();
         mPipeLine = new PipeLine(this);
+        if (mCollectionUpdatedReceiver == null) {
+            mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
+            registerReceiver(mCollectionUpdatedReceiver, sCollectionUpdateIntentFilter);
+        }
 
         initialize();
+    }
+
+    /**
+     * Called when a Collection has been updated.
+     */
+    protected void onCollectionUpdated() {
+        mPipeLine.addResolver(new DataBaseResolver(this, mSourceList.getLocalSource().getCollection()));
     }
 
     /**

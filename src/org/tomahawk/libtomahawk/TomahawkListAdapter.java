@@ -283,9 +283,11 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter {
                             viewHolder.imageView.setVisibility(ImageView.GONE);
                         }
                     } else if (mShowResolvedBy) {
-                        Drawable resolverIcon = ((Track) item).getScriptResolver().getIcon();
+                        Drawable resolverIcon = null;
+                        if (((Track) item).getResolver() != null)
+                            resolverIcon = ((Track) item).getResolver().getIcon();
                         if (resolverIcon != null)
-                            viewHolder.imageView.setImageDrawable(((Track) item).getScriptResolver().getIcon());
+                            viewHolder.imageView.setImageDrawable(((Track) item).getResolver().getIcon());
                         else if (((Track) item).isLocal())
                             viewHolder.imageView.setImageResource(R.drawable.ic_action_collection);
                         else

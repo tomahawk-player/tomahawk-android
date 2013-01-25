@@ -19,11 +19,7 @@ package org.tomahawk.libtomahawk.resolver;
 
 import org.tomahawk.libtomahawk.Album;
 import org.tomahawk.libtomahawk.Artist;
-import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.Track;
-
-import android.app.Application;
-import android.graphics.drawable.Drawable;
 
 /**
  * Author Enno Gottschalk <mrmaffen@googlemail.com>
@@ -31,36 +27,33 @@ import android.graphics.drawable.Drawable;
  * This class represents a result, which will be returned by a resolver.
  */
 public class Result {
-    private Application mApplication;
     private String mRid;
-    private Collection mCollection;
-    private Query mQuery;
-    private ScriptResolver mScriptResolver;
+    private Resolver mResolver;
 
     private Artist mArtist;
     private Album mAlbum;
     private Track mTrack;
 
-    private String mPurchaseUrl;
-    private String mLinkUrl;
     private String mMimeType;
-    private String mFriendlySource;
 
-    private Drawable mSourceIcon;
-
-    private int mDuration;
-    private int mBitRate;
-    private int mSize;
-    private int mAlbumPos;
-    private int mModTime;
-    private int mDiscNumber;
-    private int mYear;
     private float mScore;
 
-    private int mTrackId;
-    private int mFileId;
-
     public Result() {
+    }
+
+    public Result(Track track) {
+        mArtist = track.getArtist();
+        mAlbum = track.getAlbum();
+        mTrack = track;
+    }
+
+    public Result(Artist artist) {
+        mArtist = artist;
+        mAlbum = artist.getAlbum();
+    }
+
+    public Result(Album album) {
+        mAlbum = album;
     }
 
     public Track getTrack() {
@@ -71,100 +64,12 @@ public class Result {
         this.mTrack = mTrack;
     }
 
-    public String getPurchaseUrl() {
-        return mPurchaseUrl;
-    }
-
-    public void setPurchaseUrl(String mPurchaseUrl) {
-        this.mPurchaseUrl = mPurchaseUrl;
-    }
-
     public String getMimeType() {
         return mMimeType;
     }
 
     public void setMimeType(String mMimeType) {
         this.mMimeType = mMimeType;
-    }
-
-    public String getLinkUrl() {
-        return mLinkUrl;
-    }
-
-    public void setLinkUrl(String mLinkUrl) {
-        this.mLinkUrl = mLinkUrl;
-    }
-
-    public String getFriendlySource() {
-        return mFriendlySource;
-    }
-
-    public void setFriendlySource(String mFriendlySource) {
-        this.mFriendlySource = mFriendlySource;
-    }
-
-    public Drawable getSourceIcon() {
-        return mSourceIcon;
-    }
-
-    public void setSourceIcon(Drawable mSourceIcon) {
-        this.mSourceIcon = mSourceIcon;
-    }
-
-    public int getDuration() {
-        return mDuration;
-    }
-
-    public void setDuration(int mDuration) {
-        this.mDuration = mDuration;
-    }
-
-    public int getBitRate() {
-        return mBitRate;
-    }
-
-    public void setBitRate(int mBitRate) {
-        this.mBitRate = mBitRate;
-    }
-
-    public int getSize() {
-        return mSize;
-    }
-
-    public void setSize(int mSize) {
-        this.mSize = mSize;
-    }
-
-    public int getAlbumPos() {
-        return mAlbumPos;
-    }
-
-    public void setAlbumPos(int mAlbumPos) {
-        this.mAlbumPos = mAlbumPos;
-    }
-
-    public int getModTime() {
-        return mModTime;
-    }
-
-    public void setModTime(int mModTime) {
-        this.mModTime = mModTime;
-    }
-
-    public int getYear() {
-        return mYear;
-    }
-
-    public void setYear(int mYear) {
-        this.mYear = mYear;
-    }
-
-    public int getDiscNumber() {
-        return mDiscNumber;
-    }
-
-    public void setDiscNumber(int mDiscNumber) {
-        this.mDiscNumber = mDiscNumber;
     }
 
     public float getScore() {
@@ -175,22 +80,6 @@ public class Result {
         this.mScore = score;
         if (getTrack() != null)
             getTrack().setScore(score);
-    }
-
-    public int getTrackId() {
-        return mTrackId;
-    }
-
-    public void setTrackId(int mTrackId) {
-        this.mTrackId = mTrackId;
-    }
-
-    public int getFileId() {
-        return mFileId;
-    }
-
-    public void setFileId(int mFileId) {
-        this.mFileId = mFileId;
     }
 
     public Artist getArtist() {
@@ -209,12 +98,12 @@ public class Result {
         this.mAlbum = mAlbum;
     }
 
-    public ScriptResolver getScriptResolver() {
-        return mScriptResolver;
+    public Resolver getResolver() {
+        return mResolver;
     }
 
-    public void setScriptResolver(ScriptResolver mScriptResolver) {
-        this.mScriptResolver = mScriptResolver;
+    public void setResolver(Resolver resolver) {
+        this.mResolver = resolver;
     }
 
     public String getRid() {
@@ -223,13 +112,5 @@ public class Result {
 
     public void setRid(String mRid) {
         this.mRid = mRid;
-    }
-
-    public Collection getCollection() {
-        return mCollection;
-    }
-
-    public void setCollection(Collection mCollection) {
-        this.mCollection = mCollection;
     }
 }

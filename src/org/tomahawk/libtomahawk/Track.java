@@ -19,7 +19,7 @@ package org.tomahawk.libtomahawk;
 
 import java.util.HashMap;
 
-import org.tomahawk.libtomahawk.resolver.ScriptResolver;
+import org.tomahawk.libtomahawk.resolver.Resolver;
 
 /**
  * This class represents a track.
@@ -42,7 +42,9 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
     private int mTrackNumber;
     private int mYear;
     private long mId;
-    private ScriptResolver mScriptResolver;
+    private Resolver mResolver;
+    private String linkUrl;
+    private String purchaseUrl;
     private float mScore;
 
     public Track(long l) {
@@ -174,12 +176,12 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
         this.mYear = year;
     }
 
-    public ScriptResolver getScriptResolver() {
-        return mScriptResolver;
+    public Resolver getResolver() {
+        return mResolver;
     }
 
-    public void setScriptResolver(ScriptResolver scriptResolver) {
-        this.mScriptResolver = scriptResolver;
+    public void setResolver(Resolver resolver) {
+        this.mResolver = resolver;
     }
 
     public float getScore() {
@@ -188,6 +190,22 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
 
     public void setScore(float score) {
         this.mScore = score;
+    }
+
+    public String getPurchaseUrl() {
+        return purchaseUrl;
+    }
+
+    public void setPurchaseUrl(String purchaseUrl) {
+        this.purchaseUrl = purchaseUrl;
+    }
+
+    public String getLinkUrl() {
+        return linkUrl;
+    }
+
+    public void setLinkUrl(String linkUrl) {
+        this.linkUrl = linkUrl;
     }
 
 }

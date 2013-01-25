@@ -37,7 +37,7 @@ public class PipeLine {
 
     Application mApplication;
 
-    private ArrayList<ScriptResolver> mResolvers = new ArrayList<ScriptResolver>();
+    private ArrayList<Resolver> mResolvers = new ArrayList<Resolver>();
 
     private ArrayList<Query> mPendingQueries = new ArrayList<Query>();
     private ArrayList<Query> mTemporaryQueries = new ArrayList<Query>();
@@ -66,7 +66,7 @@ public class PipeLine {
      * Add a resolver to the internal list.
      * @param resolver
      */
-    public void addResolver(ScriptResolver resolver) {
+    public void addResolver(Resolver resolver) {
         mResolvers.add(resolver);
     }
 
@@ -85,8 +85,8 @@ public class PipeLine {
                 q = new Query(((TomahawkApp) mApplication).getUniqueQueryId(), fullTextQuery);
             if (!mQids.containsKey(q.getQid())) {
                 mQids.put(q.getQid(), q);
-                for (ScriptResolver scriptResolver : mResolvers) {
-                    scriptResolver.resolve(q);
+                for (Resolver resolver : mResolvers) {
+                    resolver.resolve(q);
                 }
             } else if (q.isSolved()) {
                 sendReportResultsBroadcast(q.getQid());
@@ -101,8 +101,8 @@ public class PipeLine {
     public void resolve(Query q) {
         if (!mQids.containsKey(q.getQid())) {
             mQids.put(q.getQid(), q);
-            for (ScriptResolver scriptResolver : mResolvers) {
-                scriptResolver.resolve(q);
+            for (Resolver resolver : mResolvers) {
+                resolver.resolve(q);
             }
         } else if (q.isSolved()) {
             sendReportResultsBroadcast(q.getQid());
@@ -150,8 +150,8 @@ public class PipeLine {
      */
     public boolean isResolving() {
         boolean isResolving = false;
-        for (ScriptResolver scriptResolver : mResolvers)
-            isResolving = scriptResolver.isResolving();
+        for (Resolver resolver : mResolvers)
+            isResolving = resolver.isResolving();
         return isResolving;
     }
 
