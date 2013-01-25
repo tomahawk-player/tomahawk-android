@@ -364,11 +364,9 @@ public class PlaybackActivity extends TomahawkTabsActivity implements PlaybackSe
      * Make sure to get all FragmentReferences from the TabsAdapter
      */
     public void ensureFragmentReferences() {
-        if (mPlaybackFragment == null
-                || (mPlaybackFragment != null && mPlaybackFragment != mTabsAdapter.getFragmentOnTop(0)))
+        if (mPlaybackFragment == null)
             mPlaybackFragment = (PlaybackFragment) mTabsAdapter.getFragmentOnTop(0);
-        if (mPlaybackPlaylistFragment == null
-                || (mPlaybackPlaylistFragment != null && mPlaybackPlaylistFragment != mTabsAdapter.getFragmentOnTop(1)))
+        if (mPlaybackPlaylistFragment == null)
             mPlaybackPlaylistFragment = (PlaybackPlaylistFragment) mTabsAdapter.getFragmentOnTop(1);
     }
 

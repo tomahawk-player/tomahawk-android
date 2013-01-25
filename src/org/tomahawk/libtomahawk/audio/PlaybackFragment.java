@@ -17,9 +17,6 @@
  */
 package org.tomahawk.libtomahawk.audio;
 
-import android.graphics.drawable.Drawable;
-import android.os.Handler;
-import android.os.Message;
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.tomahawk_android.R;
 
@@ -70,6 +67,14 @@ public class PlaybackFragment extends SherlockFragment {
         if (mPlaybackSeekBar != null) {
             mPlaybackSeekBar.setTextViewCurrentTime((TextView) mPlaybackActivity.findViewById(R.id.textView_currentTime));
             mPlaybackSeekBar.setTextViewCompletionTime((TextView) mPlaybackActivity.findViewById(R.id.textView_completionTime));
+        }
+        if (mAlbumArtSwipeAdapter != null && mPlaybackActivity != null && mPlaybackSeekBar != null) {
+            mAlbumArtSwipeAdapter.setPlaybackService(mPlaybackService);
+            mPlaybackSeekBar.setPlaybackService(mPlaybackService);
+            refreshActivityTrackInfo();
+            refreshPlayPauseButtonState();
+            refreshRepeatButtonState();
+            refreshShuffleButtonState();
         }
     }
 
@@ -242,6 +247,7 @@ public class PlaybackFragment extends SherlockFragment {
      */
     protected void refreshActivityTrackInfo(Track track) {
         if (track != null) {
+            mAlbumArtSwipeAdapter.setPlaybackService(mPlaybackService);
             if (!mAlbumArtSwipeAdapter.isSwiped()) {
                 mAlbumArtSwipeAdapter.setByUser(false);
                 if (mPlaybackService.getCurrentPlaylist().getPosition() >= 0)
