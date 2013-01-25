@@ -23,7 +23,7 @@
     <string name="appname_string">Tomahawk</string>
     <string name="nodata_string">No data</string>
     <string name="mainactivity_title_string">Tomahawk</string>
-    <string name="localcollectionactivity_title_string">Local</string>
+    <string name="localcollectionactivity_title_string">"My Music"</string>
     <string name="remotecollectionactivity_title_string">Remote</string>
     <string name="globalcollectionfragment_title_string">Global</string>
     <string name="tracksfragment_title_string">Tracks</string>
