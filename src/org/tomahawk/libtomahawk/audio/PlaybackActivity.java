@@ -220,11 +220,11 @@ public class PlaybackActivity extends TomahawkTabsActivity implements PlaybackSe
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item != null) {
             if (item.getItemId() == R.id.action_search_item) {
-                Intent searchIntent = new Intent(this, SearchableActivity.class);
+                Intent searchIntent = getIntent(this, SearchableActivity.class);
                 startActivity(searchIntent);
                 return true;
             } else if (item.getItemId() == R.id.action_settings_item) {
-                Intent searchIntent = new Intent(this, SettingsActivity.class);
+                Intent searchIntent = getIntent(this, SettingsActivity.class);
                 startActivity(searchIntent);
                 return true;
             } else if (item.getItemId() == android.R.id.home) {
@@ -233,6 +233,19 @@ public class PlaybackActivity extends TomahawkTabsActivity implements PlaybackSe
             }
         }
         return false;
+    }
+
+    /**
+     * Return the {@link Intent} defined by the given parameters
+     *
+     * @param context the context with which the intent will be created
+     * @param cls the class which contains the activity to launch
+     * @return the created intent
+     */
+    private static Intent getIntent(Context context, Class<?> cls) {
+        Intent intent = new Intent(context, cls);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        return intent;
     }
 
     public void setPlaybackService(PlaybackService ps) {

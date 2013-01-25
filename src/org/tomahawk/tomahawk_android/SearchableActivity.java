@@ -234,7 +234,7 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
             bundle.putLong(PlaybackActivity.PLAYLIST_PLAYLIST_ID, playlistId);
             bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID, ((Track) mTomahawkListAdapter.getItem(idx)).getId());
 
-            Intent playbackIntent = new Intent(this, PlaybackActivity.class);
+            Intent playbackIntent = getIntent(this, PlaybackActivity.class);
             playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
             startActivity(playbackIntent);
         }
@@ -279,13 +279,13 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
             Object item = mTomahawkListAdapter.getItem(idx);
             if (item instanceof TomahawkBaseAdapter.TomahawkListItem) {
                 if (item instanceof Album) {
-                    Intent intent = getIntent(this, CollectionActivity.class);
+                    Intent intent = new Intent(this, CollectionActivity.class);
                     intent.putExtra(CollectionActivity.COLLECTION_ID_ALBUM, ((Album) item).getId());
                     startActivity(intent);
                     finish();
                 }
                 if (item instanceof Artist) {
-                    Intent intent = getIntent(this, CollectionActivity.class);
+                    Intent intent = new Intent(this, CollectionActivity.class);
                     intent.putExtra(CollectionActivity.COLLECTION_ID_ARTIST, ((Artist) item).getId());
                     startActivity(intent);
                     finish();

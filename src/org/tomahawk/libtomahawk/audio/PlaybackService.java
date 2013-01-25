@@ -486,7 +486,7 @@ public class PlaybackService extends Service implements OnCompletionListener, On
         Context context = getApplicationContext();
         CharSequence contentTitle = track.getArtist().getName();
         CharSequence contentText = track.getName();
-        Intent notificationIntent = new Intent(this, PlaybackActivity.class);
+        Intent notificationIntent = getIntent(this, PlaybackActivity.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent contentIntent = PendingIntent.getActivity(context, Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT,
                 notificationIntent, 0);
@@ -496,6 +496,19 @@ public class PlaybackService extends Service implements OnCompletionListener, On
         notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
 
         startForeground(3, notification);
+    }
+
+    /**
+     * Return the {@link Intent} defined by the given parameters
+     *
+     * @param context the context with which the intent will be created
+     * @param cls the class which contains the activity to launch
+     * @return the created intent
+     */
+    private static Intent getIntent(Context context, Class<?> cls) {
+        Intent intent = new Intent(context, cls);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        return intent;
     }
 
     /**

@@ -61,8 +61,7 @@
         </activity>
         <activity
             android:name="org.tomahawk.libtomahawk.audio.PlaybackActivity"
-            android:label="@string/playbackfragment_title_string"
-            android:launchMode="singleTop" >
+            android:label="@string/playbackfragment_title_string">
         </activity>
         <activity
             android:name="org.tomahawk.tomahawk_android.CollectionActivity"
