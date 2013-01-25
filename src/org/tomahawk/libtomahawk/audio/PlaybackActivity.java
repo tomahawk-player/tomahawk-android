@@ -38,8 +38,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -47,12 +50,17 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
-public class PlaybackActivity extends TomahawkTabsActivity implements PlaybackServiceConnectionListener {
+public class PlaybackActivity extends TomahawkTabsActivity implements PlaybackServiceConnectionListener,
+        Handler.Callback {
 
     private PlaybackFragment mPlaybackFragment;
     private PlaybackPlaylistFragment mPlaybackPlaylistFragment;
     private TabsAdapter mTabsAdapter;
     private PlaybackDirectionalViewPager mPlaybackDirectionalViewPager;
+
+    private Drawable mProgressDrawable;
+    private Handler mAnimationHandler = new Handler(this);
+    private static final int MSG_UPDATE_ANIMATION = 0x20;
 
     private PlaybackService mPlaybackService;
     /** Allow communication to the PlaybackService. */
@@ -85,6 +93,7 @@ public class PlaybackActivity extends TomahawkTabsActivity implements PlaybackSe
                     mPlaybackFragment.onTrackChanged();
                 if (mPlaybackPlaylistFragment != null)
                     mPlaybackPlaylistFragment.onTrackChanged();
+                startLoadingAnimation();
             }
             if (intent.getAction().equals(PlaybackService.BROADCAST_PLAYLISTCHANGED)) {
                 if (mPlaybackFragment != null)
@@ -151,6 +160,8 @@ public class PlaybackActivity extends TomahawkTabsActivity implements PlaybackSe
     @Override
     public void onResume() {
         super.onResume();
+
+        mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
 
         Intent playbackIntent = new Intent(this, PlaybackService.class);
         startService(playbackIntent);
@@ -359,5 +370,31 @@ public class PlaybackActivity extends TomahawkTabsActivity implements PlaybackSe
         if (mPlaybackPlaylistFragment == null
                 || (mPlaybackPlaylistFragment != null && mPlaybackPlaylistFragment != mTabsAdapter.getFragmentOnTop(1)))
             mPlaybackPlaylistFragment = (PlaybackPlaylistFragment) mTabsAdapter.getFragmentOnTop(1);
+    }
+
+    @Override
+    public boolean handleMessage(Message msg) {
+        switch (msg.what) {
+        case MSG_UPDATE_ANIMATION:
+            if (mPlaybackService.isPreparing()) {
+                mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 500);
+                getSupportActionBar().setLogo(mProgressDrawable);
+                mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
+                mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
+            } else {
+                stopLoadingAnimation();
+            }
+            break;
+        }
+        return true;
+    }
+
+    public void startLoadingAnimation() {
+        mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 200);
+    }
+
+    public void stopLoadingAnimation() {
+        mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
+        getSupportActionBar().setLogo(R.drawable.ic_launcher);
     }
 }

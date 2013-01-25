@@ -33,6 +33,7 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
     private Handler mUiHandler;
     private TextView mTextViewCurrentTime;
     private TextView mTextViewCompletionTime;
+    private int mUpdateInterval;
 
     private static final int MSG_UPDATE_PROGRESS = 0x1;
 
@@ -90,35 +91,49 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
         return true;
     }
 
+    public void setMax() {
+        setMax((int) mPlaybackService.getCurrentTrack().getDuration());
+    }
+
+    public void setUpdateInterval() {
+        mUpdateInterval = (int) (mPlaybackService.getCurrentTrack().getDuration() / 300);
+        mUpdateInterval = Math.min(mUpdateInterval, 250);
+        mUpdateInterval = Math.max(mUpdateInterval, 20);
+    }
+
     /** Updates the position on seekbar and the related textviews */
     public void updateSeekBarPosition() {
-        if (!mPlaybackService.isPlaying() && !isIsSeeking())
-            return;
         if (!isIsSeeking()) {
+            if (mPlaybackService.isPreparing() || mPlaybackService.getCurrentTrack().getDuration() == 0) {
+                setEnabled(false);
+            } else {
+                setEnabled(true);
+            }
             setProgress(mPlaybackService.getPosition());
             updateTextViewCurrentTime();
         }
         mUiHandler.removeMessages(MSG_UPDATE_PROGRESS);
-        mUiHandler.sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS, 100);
+        mUiHandler.sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS, mUpdateInterval);
     }
 
     /** Updates the textview that shows the current time the track is at */
     protected void updateTextViewCurrentTime() {
         if (mTextViewCurrentTime != null)
             if (!isIsSeeking())
-                mTextViewCurrentTime.setText(String.format("%02d", mPlaybackService.getPosition() / 60000) + ":" + String.format(
-                        "%02.0f", (double) ((mPlaybackService.getPosition() / 1000) % 60)));
+                mTextViewCurrentTime.setText(String.format("%02d", mPlaybackService.getPosition() / 60000) + ":"
+                        + String.format("%02.0f", (double) ((mPlaybackService.getPosition() / 1000) % 60)));
             else
-                mTextViewCurrentTime.setText(String.format("%02d", getProgress() / 60000) + ":" + String.format(
-                        "%02.0f", (double) ((getProgress() / 1000) % 60)));
+                mTextViewCurrentTime.setText(String.format("%02d", getProgress() / 60000) + ":"
+                        + String.format("%02.0f", (double) ((getProgress() / 1000) % 60)));
     }
 
     /** Updates the textview that shows the duration of the current track */
     protected void updateTextViewCompleteTime() {
         if (mTextViewCompletionTime != null)
             mTextViewCompletionTime.setText(String.format("%02d",
-                    mPlaybackService.getCurrentTrack().getDuration() / 60000) + ":" + String.format("%02.0f",
-                    (double) ((mPlaybackService.getCurrentTrack().getDuration() / 1000) % 60)));
+                    mPlaybackService.getCurrentTrack().getDuration() / 60000)
+                    + ":"
+                    + String.format("%02.0f", (double) ((mPlaybackService.getCurrentTrack().getDuration() / 1000) % 60)));
     }
 
     /** @return mIsSeeking showing whether or not the user is currently seeking */

@@ -17,6 +17,9 @@
  */
 package org.tomahawk.libtomahawk.audio;
 
+import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.Message;
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.tomahawk_android.R;
 
@@ -266,14 +269,12 @@ public class PlaybackFragment extends SherlockFragment {
             mPlaybackActivity.findViewById(R.id.imageButton_previous).setClickable(true);
             mPlaybackActivity.findViewById(R.id.imageButton_shuffle).setClickable(true);
             mPlaybackActivity.findViewById(R.id.imageButton_repeat).setClickable(true);
-            mPlaybackSeekBar.setEnabled(true);
             mPlaybackSeekBar.setPlaybackService(mPlaybackService);
-            mPlaybackSeekBar.setMax((int) mPlaybackService.getCurrentTrack().getDuration());
+            mPlaybackSeekBar.setMax();
+            mPlaybackSeekBar.setUpdateInterval();
             mPlaybackSeekBar.updateSeekBarPosition();
             mPlaybackSeekBar.updateTextViewCompleteTime();
             mPlaybackSeekBar.updateTextViewCurrentTime();
-            // Update the progressbar the next second
-            mPlaybackSeekBar.getUiHandler().sendEmptyMessageDelayed(PlaybackSeekBar.getMsgUpdateProgress(), 1000);
         } else {
             mPlaybackActivity.findViewById(R.id.imageButton_playpause).setClickable(false);
             mPlaybackActivity.findViewById(R.id.imageButton_next).setClickable(false);

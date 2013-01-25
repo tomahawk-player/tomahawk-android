@@ -26,12 +26,7 @@ import org.tomahawk.tomahawk_android.R;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
+import android.content.*;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -45,8 +40,7 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
-public class PlaybackService extends Service implements OnCompletionListener,
-        OnErrorListener, OnPreparedListener {
+public class PlaybackService extends Service implements OnCompletionListener, OnErrorListener, OnPreparedListener {
 
     private static String TAG = PlaybackService.class.getName();
 
@@ -56,9 +50,16 @@ public class PlaybackService extends Service implements OnCompletionListener,
     public static final String BROADCAST_PLAYLISTCHANGED = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_PLAYLISTCHANGED";
     public static final String BROADCAST_PLAYSTATECHANGED = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_PLAYSTATECHANGED";
 
+    private static final int PLAYBACKSERVICE_PLAYSTATE_PLAYING = 0;
+    private static final int PLAYBACKSERVICE_PLAYSTATE_PAUSED = 1;
+    private static final int PLAYBACKSERVICE_PLAYSTATE_STOPPED = 2;
+
+    private int mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
+
     private Playlist mCurrentPlaylist;
     private MediaPlayer mMediaPlayer;
     private PowerManager.WakeLock mWakeLock;
+    private boolean mIsPreparing;
     private HeadsetBroadcastReceiver mHeadsetBroadcastReceiver;
     private Handler mHandler;
 
@@ -68,6 +69,7 @@ public class PlaybackService extends Service implements OnCompletionListener,
 
         public interface PlaybackServiceConnectionListener {
             public void setPlaybackService(PlaybackService ps);
+
             public void onPlaybackServiceReady();
         }
 
@@ -126,11 +128,20 @@ public class PlaybackService extends Service implements OnCompletionListener,
      * Listens for Headset changes.
      */
     private class HeadsetBroadcastReceiver extends BroadcastReceiver {
+        private boolean headsetConnected;
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (isPlaying())
-                pause();
+            if (intent.hasExtra("state")) {
+                if (headsetConnected && intent.getIntExtra("state", 0) == 0) {
+                    headsetConnected = false;
+                    if (isPlaying()) {
+                        pause();
+                    }
+                } else if (!headsetConnected && intent.getIntExtra("state", 0) == 1) {
+                    headsetConnected = true;
+                }
+            }
         }
     }
 
@@ -171,18 +182,24 @@ public class PlaybackService extends Service implements OnCompletionListener,
         TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         telephonyManager.listen(new PhoneCallListener(), PhoneStateListener.LISTEN_CALL_STATE);
 
-        mMediaPlayer = new MediaPlayer();
-        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mMediaPlayer.setOnCompletionListener(this);
-        mMediaPlayer.setOnPreparedListener(this);
-        mMediaPlayer.setOnErrorListener(this);
+        initMediaPlayer();
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
 
         mHeadsetBroadcastReceiver = new HeadsetBroadcastReceiver();
-        registerReceiver(mHeadsetBroadcastReceiver, new IntentFilter(
-                Intent.ACTION_HEADSET_PLUG));
+        registerReceiver(mHeadsetBroadcastReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
+    }
+
+    /**
+     * Initializes the mediaplayer. Sets the listeners and AudioStreamType.
+     */
+    public void initMediaPlayer() {
+        mMediaPlayer = new MediaPlayer();
+        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mMediaPlayer.setOnCompletionListener(this);
+        mMediaPlayer.setOnPreparedListener(this);
+        mMediaPlayer.setOnErrorListener(this);
     }
 
     /* (non-Javadoc)
@@ -191,7 +208,7 @@ public class PlaybackService extends Service implements OnCompletionListener,
     @Override
     public void onDestroy() {
         unregisterReceiver(mHeadsetBroadcastReceiver);
-        stop();
+        mMediaPlayer.release();
     }
 
     /* (non-Javadoc)
@@ -202,14 +219,44 @@ public class PlaybackService extends Service implements OnCompletionListener,
         return mBinder;
     }
 
+    public void handlePlayState() {
+        if (!mIsPreparing) {
+            switch (mPlayState) {
+            case PLAYBACKSERVICE_PLAYSTATE_PLAYING:
+                if (!mWakeLock.isHeld())
+                    mWakeLock.acquire();
+                mMediaPlayer.start();
+                createPlayingNotification();
+                break;
+            case PLAYBACKSERVICE_PLAYSTATE_PAUSED:
+                //Workaround. First start the mediaplayer to correctly initialize its playback position.
+                mMediaPlayer.start();
+                mMediaPlayer.pause();
+                if (mWakeLock.isHeld())
+                    mWakeLock.release();
+                stopForeground(true);
+                break;
+            case PLAYBACKSERVICE_PLAYSTATE_STOPPED:
+                //Workaround. First start the mediaplayer to correctly initialize its playback position.
+                mMediaPlayer.start();
+                mMediaPlayer.stop();
+                if (mWakeLock.isHeld())
+                    mWakeLock.release();
+                stopForeground(true);
+            }
+        }
+    }
+
     /**
      * Start or pause playback.
      */
     public void playPause() {
-        if (isPlaying())
-            pause();
-        else
-            start();
+        if (mPlayState == PLAYBACKSERVICE_PLAYSTATE_PLAYING)
+            mPlayState = PLAYBACKSERVICE_PLAYSTATE_PAUSED;
+        else if (mPlayState == PLAYBACKSERVICE_PLAYSTATE_PAUSED || mPlayState == PLAYBACKSERVICE_PLAYSTATE_STOPPED)
+            mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
+        sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
+        handlePlayState();
     }
 
     /**
@@ -217,38 +264,27 @@ public class PlaybackService extends Service implements OnCompletionListener,
      *
      */
     public void start() {
-        if (!mWakeLock.isHeld())
-            mWakeLock.acquire();
-        mMediaPlayer.start();
-        createPlayingNotification();
-        
+        mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
         sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
+        handlePlayState();
     }
 
     /**
      * Stop playback.
      */
     public void stop() {
-        mMediaPlayer.stop();
-
-        if (mWakeLock.isHeld())
-            mWakeLock.release();
-        stopForeground(true);
-        
+        mPlayState = PLAYBACKSERVICE_PLAYSTATE_STOPPED;
         sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
+        handlePlayState();
     }
 
     /**
      * Pause playback.
      */
     public void pause() {
-        mMediaPlayer.pause();
-
-        if (mWakeLock.isHeld())
-            mWakeLock.release();
-        stopForeground(true);
-        
+        mPlayState = PLAYBACKSERVICE_PLAYSTATE_PAUSED;
         sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
+        handlePlayState();
     }
 
     /**
@@ -260,7 +296,7 @@ public class PlaybackService extends Service implements OnCompletionListener,
             try {
                 setCurrentTrack(track);
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "next(): " + IOException.class.getName() + ": " + e.getLocalizedMessage());
             }
         }
     }
@@ -269,14 +305,12 @@ public class PlaybackService extends Service implements OnCompletionListener,
      * Play the previous track.
      */
     public void previous() {
-
         Track track = mCurrentPlaylist.getPreviousTrack();
-
         if (track != null) {
             try {
                 setCurrentTrack(track);
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "previous(): " + IOException.class.getName() + ": " + e.getLocalizedMessage());
             }
         }
     }
@@ -286,8 +320,34 @@ public class PlaybackService extends Service implements OnCompletionListener,
      */
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        Log.e(TAG, "Error with media player");
-        stop();
+        String whatString = "CODE UNSPECIFIED";
+        switch (what) {
+        case MediaPlayer.MEDIA_ERROR_UNKNOWN:
+            whatString = "MEDIA_ERROR_UNKNOWN";
+            break;
+        case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
+            whatString = "MEDIA_ERROR_SERVER_DIED";
+        }
+
+        String extraString = "CODE UNSPECIFIED";
+        switch (extra) {
+        case MediaPlayer.MEDIA_ERROR_IO:
+            extraString = "MEDIA_ERROR_IO";
+            break;
+
+        case MediaPlayer.MEDIA_ERROR_MALFORMED:
+            extraString = "MEDIA_ERROR_MALFORMED";
+            break;
+
+        case MediaPlayer.MEDIA_ERROR_UNSUPPORTED:
+            extraString = "MEDIA_ERROR_UNSUPPORTED";
+            break;
+        case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
+            extraString = "MEDIA_ERROR_TIMED_OUT";
+        }
+
+        Log.e(TAG, "onError - " + whatString + " - " + extraString);
+        next();
         return false;
     }
 
@@ -318,17 +378,23 @@ public class PlaybackService extends Service implements OnCompletionListener,
      */
     @Override
     public void onPrepared(MediaPlayer mp) {
-		Log.d(TAG, "Starting playback.");
-
-        sendBroadcast(new Intent(BROADCAST_NEWTRACK));
-        start();
+        Log.d(TAG, "Mediaplayer is prepared.");
+        mIsPreparing = false;
+        handlePlayState();
     }
 
     /**
      * Returns whether this PlaybackService is currently playing media.
      */
     public boolean isPlaying() {
-        return mMediaPlayer.isPlaying();
+        return mPlayState == PLAYBACKSERVICE_PLAYSTATE_PLAYING;
+    }
+
+    /**
+     * @return Whether or not the mediaPlayer currently prepares a track
+     */
+    public boolean isPreparing() {
+        return mIsPreparing;
     }
 
     /**
@@ -350,7 +416,6 @@ public class PlaybackService extends Service implements OnCompletionListener,
     public void setCurrentPlaylist(Playlist playlist) throws IOException {
         mCurrentPlaylist = playlist;
         setCurrentTrack(mCurrentPlaylist.getCurrentTrack());
-        
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
 
@@ -359,7 +424,7 @@ public class PlaybackService extends Service implements OnCompletionListener,
      *
      * @param shuffled
      */
-    public void setShuffled(boolean shuffled){
+    public void setShuffled(boolean shuffled) {
         mCurrentPlaylist.setShuffled(shuffled);
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
@@ -369,7 +434,7 @@ public class PlaybackService extends Service implements OnCompletionListener,
      *
      * @param repeating
      */
-    public void setRepeating(boolean repeating){
+    public void setRepeating(boolean repeating) {
         mCurrentPlaylist.setRepeating(repeating);
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
@@ -388,16 +453,23 @@ public class PlaybackService extends Service implements OnCompletionListener,
     }
 
     /**
-     * This method sets the current back and prepares it for playback.
+     * This method sets the current track and prepares it for playback.
      * 
      * @param track
      * @throws IOException
      */
     public void setCurrentTrack(Track track) throws IOException {
-
-        mMediaPlayer.reset();
+        if (!mIsPreparing) {
+            mMediaPlayer.reset();
+        } else {
+            mMediaPlayer.release();
+            initMediaPlayer();
+        }
         mMediaPlayer.setDataSource(track.getPath());
         mMediaPlayer.prepareAsync();
+        mIsPreparing = true;
+
+        sendBroadcast(new Intent(BROADCAST_NEWTRACK));
     }
 
     /**
@@ -415,13 +487,12 @@ public class PlaybackService extends Service implements OnCompletionListener,
         CharSequence contentTitle = track.getArtist().getName();
         CharSequence contentText = track.getName();
         Intent notificationIntent = new Intent(this, PlaybackActivity.class);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent contentIntent = PendingIntent.getActivity(context,
-                Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT, notificationIntent, 0);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent contentIntent = PendingIntent.getActivity(context, Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT,
+                notificationIntent, 0);
 
-        notification.flags |= Notification.FLAG_ONGOING_EVENT
-                | Notification.FLAG_FOREGROUND_SERVICE | Notification.FLAG_NO_CLEAR;
+        notification.flags |= Notification.FLAG_ONGOING_EVENT | Notification.FLAG_FOREGROUND_SERVICE
+                | Notification.FLAG_NO_CLEAR;
         notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
 
         startForeground(3, notification);
@@ -433,7 +504,7 @@ public class PlaybackService extends Service implements OnCompletionListener,
     public int getPosition() {
         return mMediaPlayer.getCurrentPosition();
     }
-    
+
     /**
      * Seeks to position msec
      * @param msec
