@@ -329,24 +329,7 @@ public class PlaybackService extends Service implements OnCompletionListener, On
             whatString = "MEDIA_ERROR_SERVER_DIED";
         }
 
-        String extraString = "CODE UNSPECIFIED";
-        switch (extra) {
-        case MediaPlayer.MEDIA_ERROR_IO:
-            extraString = "MEDIA_ERROR_IO";
-            break;
-
-        case MediaPlayer.MEDIA_ERROR_MALFORMED:
-            extraString = "MEDIA_ERROR_MALFORMED";
-            break;
-
-        case MediaPlayer.MEDIA_ERROR_UNSUPPORTED:
-            extraString = "MEDIA_ERROR_UNSUPPORTED";
-            break;
-        case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
-            extraString = "MEDIA_ERROR_TIMED_OUT";
-        }
-
-        Log.e(TAG, "onError - " + whatString + " - " + extraString);
+        Log.e(TAG, "onError - " + whatString);
         next();
         return false;
     }
