@@ -64,18 +64,12 @@ public class PlaybackFragment extends SherlockFragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (mPlaybackSeekBar != null) {
-            mPlaybackSeekBar.setTextViewCurrentTime((TextView) mPlaybackActivity.findViewById(R.id.textView_currentTime));
-            mPlaybackSeekBar.setTextViewCompletionTime((TextView) mPlaybackActivity.findViewById(R.id.textView_completionTime));
-        }
-        if (mAlbumArtSwipeAdapter != null && mPlaybackActivity != null && mPlaybackSeekBar != null) {
-            mAlbumArtSwipeAdapter.setPlaybackService(mPlaybackService);
-            mPlaybackSeekBar.setPlaybackService(mPlaybackService);
-            refreshActivityTrackInfo();
-            refreshPlayPauseButtonState();
-            refreshRepeatButtonState();
-            refreshShuffleButtonState();
-        }
+        init();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
     }
 
     /* 
@@ -113,12 +107,17 @@ public class PlaybackFragment extends SherlockFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (view.getParent() != null) {
-            ViewPager viewPager = (ViewPager) view.findViewById(R.id.album_art_view_pager);
+    }
+
+    public void init() {
+        if (getView().getParent() != null) {
+            ViewPager viewPager = (ViewPager) getView().findViewById(R.id.album_art_view_pager);
             mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter(mPlaybackActivity, viewPager);
             mAlbumArtSwipeAdapter.setPlaybackService(mPlaybackService);
 
-            mPlaybackSeekBar = (PlaybackSeekBar) view.findViewById(R.id.seekBar_track);
+            mPlaybackSeekBar = (PlaybackSeekBar) getView().findViewById(R.id.seekBar_track);
+            mPlaybackSeekBar.setTextViewCurrentTime((TextView) mPlaybackActivity.findViewById(R.id.textView_currentTime));
+            mPlaybackSeekBar.setTextViewCompletionTime((TextView) mPlaybackActivity.findViewById(R.id.textView_completionTime));
             mPlaybackSeekBar.setPlaybackService(mPlaybackService);
 
             refreshActivityTrackInfo();

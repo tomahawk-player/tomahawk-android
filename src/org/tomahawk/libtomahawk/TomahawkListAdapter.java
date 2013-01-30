@@ -30,11 +30,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.emilsjolander.components.stickylistheaders.StickyListHeadersAdapter;
+
 /**
  * @author Enno Gottschalk <mrmaffen@googlemail.com>
  *
  */
-public class TomahawkListAdapter extends TomahawkBaseAdapter {
+public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyListHeadersAdapter {
+
+    private LayoutInflater mLayoutInflater;
 
     private ResourceHolder mSingleLineListItemResourceHolder;
     private ResourceHolder mDoubleLineListItemResourceHolder;
@@ -63,6 +67,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter {
     public TomahawkListAdapter(Activity activity, int resourceListItem, int textViewResourceListItemId1,
             List<TomahawkListItem> list) {
         mActivity = activity;
+        mLayoutInflater = mActivity.getLayoutInflater();
         setSingleLineListItemResources(resourceListItem, textViewResourceListItemId1);
         mListArray = new ArrayList<List<TomahawkListItem>>();
         mListArray.add(list);
@@ -85,6 +90,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter {
             int textViewResourceCategoryHeaderId, int resourceListItem, int textViewResourceListItemId1,
             List<List<TomahawkListItem>> listArray, List<TomahawkMenuItem> categoryHeaderArray) {
         mActivity = activity;
+        mLayoutInflater = mActivity.getLayoutInflater();
         setShowCategoryHeaders(categoryHeaderArray, resourceCategoryHeader, imageViewResourceCategoryHeaderId,
                 textViewResourceCategoryHeaderId);
         setSingleLineListItemResources(resourceListItem, textViewResourceListItemId1);
@@ -107,6 +113,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter {
     public TomahawkListAdapter(Activity activity, int resourceListItem, int textViewResourceListItemId1,
             int textViewResourceListItemId2, List<TomahawkListItem> list) {
         mActivity = activity;
+        mLayoutInflater = mActivity.getLayoutInflater();
         setDoubleLineListItemResources(resourceListItem, textViewResourceListItemId1, textViewResourceListItemId2);
         mListArray = new ArrayList<List<TomahawkListItem>>();
         mListArray.add(list);
@@ -128,6 +135,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter {
     public TomahawkListAdapter(Activity activity, int resourceListItem, int imageViewResourcesListItemId,
             int textViewResourceListItemId1, int textViewResourceListItemId2, List<TomahawkListItem> list) {
         mActivity = activity;
+        mLayoutInflater = mActivity.getLayoutInflater();
         setDoubleLineImageListItemResources(resourceListItem, imageViewResourcesListItemId,
                 textViewResourceListItemId1, textViewResourceListItemId2);
         mListArray = new ArrayList<List<TomahawkListItem>>();
@@ -198,7 +206,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter {
             ViewHolder viewHolder;
             if ((item == mCorrespondingTomahawkListItem && position == 0 && convertView == null)
                     || (item == mCorrespondingTomahawkListItem && position == 0 && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_contentheader)) {
-                view = mActivity.getLayoutInflater().inflate(mContentHeaderResourceHolder.resourceId, null);
+                view = mLayoutInflater.inflate(mContentHeaderResourceHolder.resourceId, null);
                 viewHolder = new ViewHolder(R.id.tomahawklistadapter_viewtype_contentheader,
                         (ImageView) view.findViewById(mContentHeaderResourceHolder.imageViewId),
                         (TextView) view.findViewById(mContentHeaderResourceHolder.textViewId1),
@@ -206,14 +214,14 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter {
                 view.setTag(viewHolder);
             } else if ((item instanceof TomahawkMenuItem && convertView == null)
                     || (item instanceof TomahawkMenuItem && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_categoryheader)) {
-                view = mActivity.getLayoutInflater().inflate(mCategoryHeaderResourceHolder.resourceId, null);
+                view = mLayoutInflater.inflate(mCategoryHeaderResourceHolder.resourceId, null);
                 viewHolder = new ViewHolder(R.id.tomahawklistadapter_viewtype_categoryheader,
                         (ImageView) view.findViewById(mCategoryHeaderResourceHolder.imageViewId),
                         (TextView) view.findViewById(mCategoryHeaderResourceHolder.textViewId1));
                 view.setTag(viewHolder);
             } else if ((item instanceof Artist && item != mCorrespondingTomahawkListItem && convertView == null)
                     || (item instanceof Artist && item != mCorrespondingTomahawkListItem && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_singlelinelistitem)) {
-                view = mActivity.getLayoutInflater().inflate(mSingleLineListItemResourceHolder.resourceId, null);
+                view = mLayoutInflater.inflate(mSingleLineListItemResourceHolder.resourceId, null);
                 viewHolder = new ViewHolder(R.id.tomahawklistadapter_viewtype_singlelinelistitem,
                         (TextView) view.findViewById(mSingleLineListItemResourceHolder.textViewId1));
                 view.setTag(viewHolder);
@@ -221,7 +229,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter {
                     && !mShowResolvedBy
                     && ((item instanceof Track && item != mCorrespondingTomahawkListItem && convertView == null) || (item instanceof Track
                             && item != mCorrespondingTomahawkListItem && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_doublelinelistitem))) {
-                view = mActivity.getLayoutInflater().inflate(mDoubleLineListItemResourceHolder.resourceId, null);
+                view = mLayoutInflater.inflate(mDoubleLineListItemResourceHolder.resourceId, null);
                 viewHolder = new ViewHolder(R.id.tomahawklistadapter_viewtype_doublelinelistitem,
                         (TextView) view.findViewById(mDoubleLineListItemResourceHolder.textViewId1),
                         (TextView) view.findViewById(mDoubleLineListItemResourceHolder.textViewId2));
@@ -229,7 +237,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter {
             } else if ((mShowHighlightingAndPlaystate || mShowResolvedBy)
                     && ((item instanceof Track && item != mCorrespondingTomahawkListItem && convertView == null) || (item instanceof Track
                             && item != mCorrespondingTomahawkListItem && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_doublelineplaystateimagelistitem))) {
-                view = mActivity.getLayoutInflater().inflate(mDoubleLineImageListItemResourceHolder.resourceId, null);
+                view = mLayoutInflater.inflate(mDoubleLineImageListItemResourceHolder.resourceId, null);
                 viewHolder = new ViewHolder(R.id.tomahawklistadapter_viewtype_doublelineplaystateimagelistitem,
                         (ImageView) view.findViewById(mDoubleLineImageListItemResourceHolder.imageViewId),
                         (TextView) view.findViewById(mDoubleLineImageListItemResourceHolder.textViewId1),
@@ -237,7 +245,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter {
                 view.setTag(viewHolder);
             } else if ((item instanceof Album && item != mCorrespondingTomahawkListItem && convertView == null)
                     || (item instanceof Album && item != mCorrespondingTomahawkListItem && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_doublelineimagelistitem)) {
-                view = mActivity.getLayoutInflater().inflate(mDoubleLineImageListItemResourceHolder.resourceId, null);
+                view = mLayoutInflater.inflate(mDoubleLineImageListItemResourceHolder.resourceId, null);
                 viewHolder = new ViewHolder(R.id.tomahawklistadapter_viewtype_doublelineimagelistitem,
                         (ImageView) view.findViewById(mDoubleLineImageListItemResourceHolder.imageViewId),
                         (TextView) view.findViewById(mDoubleLineImageListItemResourceHolder.textViewId1),
@@ -361,4 +369,20 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter {
     public long getItemId(int position) {
         return position;
     }
+
+    @Override
+    public View getHeaderView(int position, View convertView, ViewGroup parent) {
+        if (convertView == null) {
+            convertView = mLayoutInflater.inflate(R.layout.show_playlist_header, parent, false);
+        }
+        return convertView;
+    }
+
+    //remember that these have to be static, postion=1 should walys return the same Id that is.
+    @Override
+    public long getHeaderId(int position) {
+        //return the first character of the country as ID because this is what headers are based upon
+        return 0;
+    }
+
 }

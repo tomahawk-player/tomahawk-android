@@ -132,6 +132,10 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
             this.textViewId2 = textViewId2;
         }
 
+        public ResourceHolder(int resourceId) {
+            this.resourceId = resourceId;
+        }
+
         protected int resourceId;
         protected int imageViewId;
         protected int textViewId1;

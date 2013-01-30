@@ -1,11 +1,14 @@
 package org.tomahawk.libtomahawk.resolver;
 
-/**
- * Author: Chas Emerick (source: http://mrfoo.de/archiv/1176-Levenshtein-Distance-in-Java.html)
- */
+import android.content.Context;
+import android.content.res.Resources;
+import android.util.DisplayMetrics;
+
 public class TomahawkUtils {
 
     /**
+     * Author: Chas Emerick (source: http://mrfoo.de/archiv/1176-Levenshtein-Distance-in-Java.html)
+     * 
      * This method uses the LevenstheinDistance algorithm to compute the similarity of two strings.
      * @param s
      * @param t
@@ -59,5 +62,19 @@ public class TomahawkUtils {
         // our last action in the above loop was to switch d and p, so p now
         // actually has the most recent cost counts
         return p[n];
+    }
+
+    /**
+     * This method converts dp unit to equivalent device specific value in pixels. 
+     *
+     * @param dp A value in dp(Device independent pixels) unit. Which we need to convert into pixels
+     * @param context Context to get resources and device specific display metrics
+     * @return A float value to represent Pixels equivalent to dp according to device
+     */
+    public static float convertDpToPixel(float dp, Context context) {
+        Resources resources = context.getResources();
+        DisplayMetrics metrics = resources.getDisplayMetrics();
+        float px = dp * (metrics.densityDpi / 160f);
+        return px;
     }
 }

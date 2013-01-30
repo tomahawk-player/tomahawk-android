@@ -59,7 +59,7 @@
 
     <RelativeLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_marginBottom="-16dip"
         android:layout_weight="1">
 
@@ -177,55 +177,6 @@
             android:padding="15dip"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_player_repeat"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/playback_showPlaylistBar"
-        android:layout_width="match_parent"
-        android:layout_height="32dp"
-        android:orientation="vertical"
-        android:onClick="onShowPlaylistClicked"
-        android:background="@drawable/selectable_background_tomahawk">
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="@color/transparent_white"/>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <org.tomahawk.tomahawk_android.SquareWidthRelativeLayout
-                android:layout_width="40dip"
-                android:layout_height="wrap_content">
-                <ImageButton
-                    android:id="@+id/imageButton_showPlaylistBar_up1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:scaleType="fitCenter"
-                    android:background="@drawable/ic_action_up"/>
-            </org.tomahawk.tomahawk_android.SquareWidthRelativeLayout>
-            <TextView
-                android:id="@+id/textView_showPlaylistBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="5dp"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/playbackplaylistfragment_title_string"/>
-
-            <org.tomahawk.tomahawk_android.SquareWidthRelativeLayout
-                android:layout_width="40dip"
-                android:layout_height="wrap_content">
-                <ImageButton
-                    android:id="@+id/imageButton_showPlaylistBar_up2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:scaleType="fitCenter"
-                    android:background="@drawable/ic_action_up"/>
-            </org.tomahawk.tomahawk_android.SquareWidthRelativeLayout>
-        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>
