@@ -85,7 +85,7 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
 
     @Override
     public void onCreate() {
-        //        TomahawkExceptionReporter.init(this);
+        TomahawkExceptionReporter.init(this);
         super.onCreate();
         sApplicationContext = getApplicationContext();
 
