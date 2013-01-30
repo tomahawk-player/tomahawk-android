@@ -280,13 +280,16 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
                 long playlistid = playlistBundle.getLong(PLAYLIST_PLAYLIST_ID);
                 TomahawkApp app = (TomahawkApp) getApplication();
                 playlist = app.getSourceList().getCollectionFromId(UserCollection.Id).getPlaylistById(playlistid);
-                playlist.setCurrentTrack(Track.get(trackid));
+                if (playlist != null)
+                    playlist.setCurrentTrack(Track.get(trackid));
             }
-            try {
-                mPlaybackService.setCurrentPlaylist(playlist);
-                mPlaylist = mPlaybackService.getCurrentPlaylist();
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (playlist != null) {
+                try {
+                    mPlaybackService.setCurrentPlaylist(playlist);
+                    mPlaylist = mPlaybackService.getCurrentPlaylist();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
         onPlaylistChanged();
@@ -370,10 +373,12 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
     public void onPlaylistChanged() {
         if (mTomahawkListAdapter != null) {
             mPlaylist = mPlaybackService.getCurrentPlaylist();
-            ArrayList<TomahawkBaseAdapter.TomahawkListItem> tracks = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-            tracks.addAll(mPlaylist.getTracks());
-            mTomahawkListAdapter.setListWithIndex(0, tracks);
-            mTomahawkListAdapter.notifyDataSetChanged();
+            if (mPlaylist != null) {
+                ArrayList<TomahawkBaseAdapter.TomahawkListItem> tracks = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+                tracks.addAll(mPlaylist.getTracks());
+                mTomahawkListAdapter.setListWithIndex(0, tracks);
+                mTomahawkListAdapter.notifyDataSetChanged();
+            }
         } else {
             initAdapter();
         }
