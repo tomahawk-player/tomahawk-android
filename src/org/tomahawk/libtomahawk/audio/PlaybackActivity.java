@@ -377,6 +377,8 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
                 ArrayList<TomahawkBaseAdapter.TomahawkListItem> tracks = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
                 tracks.addAll(mPlaylist.getTracks());
                 mTomahawkListAdapter.setListWithIndex(0, tracks);
+                mTomahawkListAdapter.setHighlightedItem(mPlaylist.getPosition());
+                mTomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
                 mTomahawkListAdapter.notifyDataSetChanged();
             }
         } else {
