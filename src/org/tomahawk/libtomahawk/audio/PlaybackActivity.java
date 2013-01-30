@@ -349,7 +349,7 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
         if (mPlaylist != null) {
             mTomahawkListAdapter.setHighlightedItem(mPlaylist.getPosition());
             mTomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
-            mTomahawkListAdapter.notifyDataSetInvalidated();
+            mTomahawkListAdapter.notifyDataSetChanged();
         }
     }
 
@@ -360,7 +360,7 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
         if (mPlaylist != null) {
             mTomahawkListAdapter.setHighlightedItem(mPlaylist.getPosition());
             mTomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
-            mTomahawkListAdapter.notifyDataSetInvalidated();
+            mTomahawkListAdapter.notifyDataSetChanged();
         }
     }
 
@@ -368,7 +368,15 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
      * Called when the playlist has Changed inside our PlaybackService
      */
     public void onPlaylistChanged() {
-        initAdapter();
+        if (mTomahawkListAdapter != null) {
+            mPlaylist = mPlaybackService.getCurrentPlaylist();
+            ArrayList<TomahawkBaseAdapter.TomahawkListItem> tracks = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+            tracks.addAll(mPlaylist.getTracks());
+            mTomahawkListAdapter.setListWithIndex(0, tracks);
+            mTomahawkListAdapter.notifyDataSetChanged();
+        } else {
+            initAdapter();
+        }
     }
 
     private void initAdapter() {

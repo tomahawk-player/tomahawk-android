@@ -196,6 +196,12 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
         return false;
     }
 
+    public void setListWithIndex(int index, ArrayList<TomahawkListItem> itemList) {
+        if (hasListWithIndex(index)) {
+            mListArray.set(index, itemList);
+        }
+    }
+
     /** test if the list with the given index exists
      *  @param index the index of the list
      *  @return true if list exists, false otherwise*/
