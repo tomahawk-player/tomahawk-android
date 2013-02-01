@@ -24,21 +24,25 @@ import org.tomahawk.libtomahawk.playlist.Playlist;
 import org.tomahawk.tomahawk_android.R;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.*;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
-import android.os.Binder;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.PowerManager;
+import android.os.*;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 public class PlaybackService extends Service implements OnCompletionListener, OnErrorListener, OnPreparedListener {
 
@@ -49,18 +53,23 @@ public class PlaybackService extends Service implements OnCompletionListener, On
     public static final String BROADCAST_NEWTRACK = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_NEWTRACK";
     public static final String BROADCAST_PLAYLISTCHANGED = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_PLAYLISTCHANGED";
     public static final String BROADCAST_PLAYSTATECHANGED = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_PLAYSTATECHANGED";
+    public static final String BROADCAST_NOTIFICATIONINTENT_PREVIOUS = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_NOTIFICATIONINTENT_PREVIOUS";
+    public static final String BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE";
+    public static final String BROADCAST_NOTIFICATIONINTENT_NEXT = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_NOTIFICATIONINTENT_NEXT";
+    public static final String BROADCAST_NOTIFICATIONINTENT_EXIT = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_NOTIFICATIONINTENT_EXIT";
 
     private static final int PLAYBACKSERVICE_PLAYSTATE_PLAYING = 0;
     private static final int PLAYBACKSERVICE_PLAYSTATE_PAUSED = 1;
     private static final int PLAYBACKSERVICE_PLAYSTATE_STOPPED = 2;
-
     private int mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
+
+    private static final int PLAYBACKSERVICE_NOTIFICATION_ID = 0;
 
     private Playlist mCurrentPlaylist;
     private MediaPlayer mMediaPlayer;
     private PowerManager.WakeLock mWakeLock;
     private boolean mIsPreparing;
-    private HeadsetBroadcastReceiver mHeadsetBroadcastReceiver;
+    private ServiceBroadcastReceiver mServiceBroadcastReceiver;
     private Handler mHandler;
 
     public static class PlaybackServiceConnection implements ServiceConnection {
@@ -124,10 +133,7 @@ public class PlaybackService extends Service implements OnCompletionListener, On
         }
     }
 
-    /**
-     * Listens for Headset changes.
-     */
-    private class HeadsetBroadcastReceiver extends BroadcastReceiver {
+    private class ServiceBroadcastReceiver extends BroadcastReceiver {
         private boolean headsetConnected;
 
         @Override
@@ -141,6 +147,16 @@ public class PlaybackService extends Service implements OnCompletionListener, On
                 } else if (!headsetConnected && intent.getIntExtra("state", 0) == 1) {
                     headsetConnected = true;
                 }
+            } else if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_PREVIOUS) {
+                previous();
+            } else if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE) {
+                playPause();
+            } else if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_NEXT) {
+                next();
+            } else if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_EXIT) {
+                pause();
+                NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.cancel(PLAYBACKSERVICE_NOTIFICATION_ID);
             }
         }
     }
@@ -187,8 +203,12 @@ public class PlaybackService extends Service implements OnCompletionListener, On
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
 
-        mHeadsetBroadcastReceiver = new HeadsetBroadcastReceiver();
-        registerReceiver(mHeadsetBroadcastReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
+        mServiceBroadcastReceiver = new ServiceBroadcastReceiver();
+        registerReceiver(mServiceBroadcastReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
+        registerReceiver(mServiceBroadcastReceiver, new IntentFilter(BROADCAST_NOTIFICATIONINTENT_PREVIOUS));
+        registerReceiver(mServiceBroadcastReceiver, new IntentFilter(BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE));
+        registerReceiver(mServiceBroadcastReceiver, new IntentFilter(BROADCAST_NOTIFICATIONINTENT_NEXT));
+        registerReceiver(mServiceBroadcastReceiver, new IntentFilter(BROADCAST_NOTIFICATIONINTENT_EXIT));
     }
 
     /**
@@ -207,7 +227,7 @@ public class PlaybackService extends Service implements OnCompletionListener, On
      */
     @Override
     public void onDestroy() {
-        unregisterReceiver(mHeadsetBroadcastReceiver);
+        unregisterReceiver(mServiceBroadcastReceiver);
         mMediaPlayer.release();
     }
 
@@ -226,7 +246,7 @@ public class PlaybackService extends Service implements OnCompletionListener, On
                 if (!mWakeLock.isHeld())
                     mWakeLock.acquire();
                 mMediaPlayer.start();
-                createPlayingNotification();
+                updatePlayingNotification();
                 break;
             case PLAYBACKSERVICE_PLAYSTATE_PAUSED:
                 //Workaround. First start the mediaplayer to correctly initialize its playback position.
@@ -234,7 +254,7 @@ public class PlaybackService extends Service implements OnCompletionListener, On
                 mMediaPlayer.pause();
                 if (mWakeLock.isHeld())
                     mWakeLock.release();
-                stopForeground(true);
+                updatePlayingNotification();
                 break;
             case PLAYBACKSERVICE_PLAYSTATE_STOPPED:
                 //Workaround. First start the mediaplayer to correctly initialize its playback position.
@@ -242,7 +262,7 @@ public class PlaybackService extends Service implements OnCompletionListener, On
                 mMediaPlayer.stop();
                 if (mWakeLock.isHeld())
                     mWakeLock.release();
-                stopForeground(true);
+                updatePlayingNotification();
             }
         }
     }
@@ -299,6 +319,7 @@ public class PlaybackService extends Service implements OnCompletionListener, On
                 Log.e(TAG, "next(): " + IOException.class.getName() + ": " + e.getLocalizedMessage());
             }
         }
+        updatePlayingNotification();
     }
 
     /**
@@ -313,6 +334,7 @@ public class PlaybackService extends Service implements OnCompletionListener, On
                 Log.e(TAG, "previous(): " + IOException.class.getName() + ": " + e.getLocalizedMessage());
             }
         }
+        updatePlayingNotification();
     }
 
     /* (non-Javadoc)
@@ -456,29 +478,89 @@ public class PlaybackService extends Service implements OnCompletionListener, On
     }
 
     /**
-     * Create an ongoing notification and start this service in the foreground.
+     * Create or update an ongoing notification
      */
-    @SuppressWarnings("deprecation")
-    private void createPlayingNotification() {
+    private void updatePlayingNotification() {
 
         Track track = getCurrentTrack();
 
-        Notification notification = new Notification(R.drawable.ic_launcher, track.getName(),
-                System.currentTimeMillis());
+        Resources resources = getResources();
+        Bitmap albumArtTemp;
+        if (track.getAlbum().getAlbumArt() != null)
+            albumArtTemp = track.getAlbum().getAlbumArt();
+        else
+            albumArtTemp = BitmapFactory.decodeResource(resources, R.drawable.no_album_art_placeholder);
+        Bitmap largeAlbumArt = Bitmap.createScaledBitmap(albumArtTemp, 256, 256, false);
+        Bitmap smallAlbumArt = Bitmap.createScaledBitmap(albumArtTemp,
+                resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width),
+                resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_height), false);
 
-        Context context = getApplicationContext();
-        CharSequence contentTitle = track.getArtist().getName();
-        CharSequence contentText = track.getName();
+        Intent intent = new Intent(BROADCAST_NOTIFICATIONINTENT_PREVIOUS);
+        PendingIntent previousPendingIntent = PendingIntent.getBroadcast(this, 0, intent,
+                PendingIntent.FLAG_CANCEL_CURRENT);
+        intent = new Intent(BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE);
+        PendingIntent playPausePendingIntent = PendingIntent.getBroadcast(this, 0, intent,
+                PendingIntent.FLAG_CANCEL_CURRENT);
+        intent = new Intent(BROADCAST_NOTIFICATIONINTENT_NEXT);
+        PendingIntent nextPendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        intent = new Intent(BROADCAST_NOTIFICATIONINTENT_EXIT);
+        PendingIntent exitPendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        RemoteViews smallNotificationView;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            smallNotificationView = new RemoteViews(getPackageName(), R.layout.notification_small);
+            smallNotificationView.setImageViewBitmap(R.id.notification_small_imageview_albumart, smallAlbumArt);
+        } else
+            smallNotificationView = new RemoteViews(getPackageName(), R.layout.notification_small_compat);
+        smallNotificationView.setTextViewText(R.id.notification_small_textview, track.getName());
+        smallNotificationView.setTextViewText(R.id.notification_small_textview2, track.getArtist().getName() + " - "
+                + track.getAlbum().getName());
+        if (isPlaying())
+            smallNotificationView.setImageViewResource(R.id.notification_small_imageview_playpause,
+                    R.drawable.ic_player_pause);
+        else
+            smallNotificationView.setImageViewResource(R.id.notification_small_imageview_playpause,
+                    R.drawable.ic_player_play);
+        smallNotificationView.setOnClickPendingIntent(R.id.notification_small_imageview_playpause,
+                playPausePendingIntent);
+        smallNotificationView.setOnClickPendingIntent(R.id.notification_small_imageview_next, nextPendingIntent);
+        smallNotificationView.setOnClickPendingIntent(R.id.notification_small_imageview_exit, exitPendingIntent);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this).setSmallIcon(R.drawable.ic_launcher).setContentTitle(
+                track.getArtist().getName()).setContentText(track.getName()).setLargeIcon(smallAlbumArt).setOngoing(
+                true).setPriority(NotificationCompat.PRIORITY_MAX).setContent(smallNotificationView);
+
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(PlaybackActivity.class);
         Intent notificationIntent = getIntent(this, PlaybackActivity.class);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent contentIntent = PendingIntent.getActivity(context, Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT,
-                notificationIntent, 0);
+        stackBuilder.addNextIntent(notificationIntent);
+        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(resultPendingIntent);
 
-        notification.flags |= Notification.FLAG_ONGOING_EVENT | Notification.FLAG_FOREGROUND_SERVICE
-                | Notification.FLAG_NO_CLEAR;
-        notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
+        Notification notification = builder.build();
 
-        startForeground(3, notification);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            RemoteViews largeNotificationView = new RemoteViews(getPackageName(), R.layout.notification_large);
+            largeNotificationView.setImageViewBitmap(R.id.notification_large_imageview_albumart, largeAlbumArt);
+            largeNotificationView.setTextViewText(R.id.notification_large_textview, track.getName());
+            largeNotificationView.setTextViewText(R.id.notification_large_textview2, track.getArtist().getName());
+            largeNotificationView.setTextViewText(R.id.notification_large_textview3, track.getAlbum().getName());
+            if (isPlaying())
+                largeNotificationView.setImageViewResource(R.id.notification_large_imageview_playpause,
+                        R.drawable.ic_player_pause);
+            else
+                largeNotificationView.setImageViewResource(R.id.notification_large_imageview_playpause,
+                        R.drawable.ic_player_play);
+            largeNotificationView.setOnClickPendingIntent(R.id.notification_large_imageview_previous,
+                    previousPendingIntent);
+            largeNotificationView.setOnClickPendingIntent(R.id.notification_large_imageview_playpause,
+                    playPausePendingIntent);
+            largeNotificationView.setOnClickPendingIntent(R.id.notification_large_imageview_next, nextPendingIntent);
+            largeNotificationView.setOnClickPendingIntent(R.id.notification_large_imageview_exit, exitPendingIntent);
+            notification.bigContentView = largeNotificationView;
+        }
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(PLAYBACKSERVICE_NOTIFICATION_ID, notification);
     }
 
     /**

@@ -31,10 +31,7 @@ import org.tomahawk.libtomahawk.playlist.ArtistPlaylist;
 import org.tomahawk.libtomahawk.playlist.CollectionPlaylist;
 import org.tomahawk.libtomahawk.playlist.Playlist;
 import org.tomahawk.libtomahawk.resolver.TomahawkUtils;
-import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.SearchableActivity;
-import org.tomahawk.tomahawk_android.SettingsActivity;
-import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.*;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -214,7 +211,8 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
                 startActivity(searchIntent);
                 return true;
             } else if (item.getItemId() == android.R.id.home) {
-                super.onBackPressed();
+                Intent collectionIntent = getIntent(this, CollectionActivity.class);
+                startActivity(collectionIntent);
                 return true;
             }
         }
