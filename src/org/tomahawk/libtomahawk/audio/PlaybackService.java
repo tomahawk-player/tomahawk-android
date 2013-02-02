@@ -516,7 +516,13 @@ public class PlaybackService extends Service implements OnCompletionListener, On
 
         Resources resources = getResources();
         Bitmap albumArtTemp;
-        if (track.getAlbum().getAlbumArt() != null)
+        String albumName = "";
+        String artistName = "";
+        if (track.getAlbum() != null)
+            albumName = track.getAlbum().getName();
+        if (track.getArtist() != null)
+            artistName = track.getArtist().getName();
+        if (track.getAlbum() != null && track.getAlbum().getAlbumArt() != null)
             albumArtTemp = track.getAlbum().getAlbumArt();
         else
             albumArtTemp = BitmapFactory.decodeResource(resources, R.drawable.no_album_art_placeholder);
@@ -543,8 +549,10 @@ public class PlaybackService extends Service implements OnCompletionListener, On
         } else
             smallNotificationView = new RemoteViews(getPackageName(), R.layout.notification_small_compat);
         smallNotificationView.setTextViewText(R.id.notification_small_textview, track.getName());
-        smallNotificationView.setTextViewText(R.id.notification_small_textview2, track.getArtist().getName() + " - "
-                + track.getAlbum().getName());
+        if (albumName == "")
+            smallNotificationView.setTextViewText(R.id.notification_small_textview2, artistName);
+        else
+            smallNotificationView.setTextViewText(R.id.notification_small_textview2, artistName + " - " + albumName);
         if (isPlaying())
             smallNotificationView.setImageViewResource(R.id.notification_small_imageview_playpause,
                     R.drawable.ic_player_pause);
@@ -557,8 +565,8 @@ public class PlaybackService extends Service implements OnCompletionListener, On
         smallNotificationView.setOnClickPendingIntent(R.id.notification_small_imageview_exit, exitPendingIntent);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this).setSmallIcon(R.drawable.ic_launcher).setContentTitle(
-                track.getArtist().getName()).setContentText(track.getName()).setLargeIcon(smallAlbumArt).setOngoing(
-                true).setPriority(NotificationCompat.PRIORITY_MAX).setContent(smallNotificationView);
+                artistName).setContentText(track.getName()).setLargeIcon(smallAlbumArt).setOngoing(true).setPriority(
+                NotificationCompat.PRIORITY_MAX).setContent(smallNotificationView);
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addParentStack(PlaybackActivity.class);
@@ -573,8 +581,8 @@ public class PlaybackService extends Service implements OnCompletionListener, On
             RemoteViews largeNotificationView = new RemoteViews(getPackageName(), R.layout.notification_large);
             largeNotificationView.setImageViewBitmap(R.id.notification_large_imageview_albumart, largeAlbumArt);
             largeNotificationView.setTextViewText(R.id.notification_large_textview, track.getName());
-            largeNotificationView.setTextViewText(R.id.notification_large_textview2, track.getArtist().getName());
-            largeNotificationView.setTextViewText(R.id.notification_large_textview3, track.getAlbum().getName());
+            largeNotificationView.setTextViewText(R.id.notification_large_textview2, artistName);
+            largeNotificationView.setTextViewText(R.id.notification_large_textview3, albumName);
             if (isPlaying())
                 largeNotificationView.setImageViewResource(R.id.notification_large_imageview_playpause,
                         R.drawable.ic_player_pause);
