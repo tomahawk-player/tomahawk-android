@@ -223,8 +223,13 @@ public class PlaybackService extends Service implements OnCompletionListener, On
 
     @Override
     public boolean onUnbind(Intent intent) {
-        if (isPlaying())
+        if (isPlaying()) {
+            Message msg = mKillTimerHandler.obtainMessage();
+            mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
             return true;
+        }
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(PLAYBACKSERVICE_NOTIFICATION_ID);
         stopSelf();
         return true;
     }
@@ -233,8 +238,11 @@ public class PlaybackService extends Service implements OnCompletionListener, On
         @Override
         public void handleMessage(Message msg) {
             if (isPlaying()) {
+                mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
                 return;
             }
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.cancel(PLAYBACKSERVICE_NOTIFICATION_ID);
             stopSelf();
         }
     };
