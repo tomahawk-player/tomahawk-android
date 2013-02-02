@@ -257,7 +257,8 @@ public class PlaybackService extends Service implements OnCompletionListener, On
     public void onDestroy() {
         unregisterReceiver(mServiceBroadcastReceiver);
         mMediaPlayer.release();
-        mWakeLock.release();
+        if (mWakeLock.isHeld())
+            mWakeLock.release();
     }
 
     /* (non-Javadoc)
