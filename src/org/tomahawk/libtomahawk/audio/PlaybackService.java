@@ -65,6 +65,8 @@ public class PlaybackService extends Service implements OnCompletionListener, On
 
     private static final int PLAYBACKSERVICE_NOTIFICATION_ID = 0;
 
+    private static final int DELAY_TO_KILL = 100000;
+
     private Playlist mCurrentPlaylist;
     private MediaPlayer mMediaPlayer;
     private PowerManager.WakeLock mWakeLock;
@@ -211,6 +213,32 @@ public class PlaybackService extends Service implements OnCompletionListener, On
         registerReceiver(mServiceBroadcastReceiver, new IntentFilter(BROADCAST_NOTIFICATIONINTENT_EXIT));
     }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        mKillTimerHandler.removeCallbacksAndMessages(null);
+        Message msg = mKillTimerHandler.obtainMessage();
+        mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
+        return START_STICKY;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        if (isPlaying())
+            return true;
+        stopSelf();
+        return true;
+    }
+
+    private final Handler mKillTimerHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if (isPlaying()) {
+                return;
+            }
+            stopSelf();
+        }
+    };
+
     /**
      * Initializes the mediaplayer. Sets the listeners and AudioStreamType.
      */
@@ -229,6 +257,7 @@ public class PlaybackService extends Service implements OnCompletionListener, On
     public void onDestroy() {
         unregisterReceiver(mServiceBroadcastReceiver);
         mMediaPlayer.release();
+        mWakeLock.release();
     }
 
     /* (non-Javadoc)
