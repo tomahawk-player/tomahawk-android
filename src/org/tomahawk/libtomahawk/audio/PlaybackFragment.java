@@ -279,7 +279,6 @@ public class PlaybackFragment extends SherlockFragment {
             mPlaybackSeekBar.setUpdateInterval();
             mPlaybackSeekBar.updateSeekBarPosition();
             mPlaybackSeekBar.updateTextViewCompleteTime();
-            mPlaybackSeekBar.updateTextViewCurrentTime();
         } else {
             mPlaybackActivity.findViewById(R.id.imageButton_playpause).setClickable(false);
             mPlaybackActivity.findViewById(R.id.imageButton_next).setClickable(false);

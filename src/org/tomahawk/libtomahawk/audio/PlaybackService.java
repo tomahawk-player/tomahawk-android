@@ -238,7 +238,6 @@ public class PlaybackService extends Service implements OnCompletionListener, On
         @Override
         public void handleMessage(Message msg) {
             if (isPlaying()) {
-                mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
                 return;
             }
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -287,16 +286,13 @@ public class PlaybackService extends Service implements OnCompletionListener, On
                 updatePlayingNotification();
                 break;
             case PLAYBACKSERVICE_PLAYSTATE_PAUSED:
-                //Workaround. First start the mediaplayer to correctly initialize its playback position.
-                mMediaPlayer.start();
-                mMediaPlayer.pause();
+                if (mMediaPlayer.isPlaying())
+                    mMediaPlayer.pause();
                 if (mWakeLock.isHeld())
                     mWakeLock.release();
                 updatePlayingNotification();
                 break;
             case PLAYBACKSERVICE_PLAYSTATE_STOPPED:
-                //Workaround. First start the mediaplayer to correctly initialize its playback position.
-                mMediaPlayer.start();
                 mMediaPlayer.stop();
                 if (mWakeLock.isHeld())
                     mWakeLock.release();
@@ -626,7 +622,12 @@ public class PlaybackService extends Service implements OnCompletionListener, On
      * Returns the position of playback in the current Track.
      */
     public int getPosition() {
-        return mMediaPlayer.getCurrentPosition();
+        int position = 0;
+        try {
+            position = mMediaPlayer.getCurrentPosition();
+        } catch (IllegalStateException e) {
+        }
+        return position;
     }
 
     /**
