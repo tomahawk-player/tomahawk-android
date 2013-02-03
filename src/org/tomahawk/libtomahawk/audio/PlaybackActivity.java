@@ -39,6 +39,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -442,7 +443,18 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
     @Override
     public void onHeaderClick(StickyListHeadersListView l, View header, int itemPosition, long headerId, boolean currentlySticky) {
         ensureList();
-        mList.smoothScrollToPositionFromTop(0, 0, 200);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            mList.smoothScrollToPositionFromTop(0, 0, 200);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+            int firstVisible = mList.getFirstVisiblePosition();
+            int lastVisible = mList.getLastVisiblePosition();
+            if (0 < firstVisible)
+                mList.smoothScrollToPosition(0);
+            else
+                mList.smoothScrollToPosition(0 + lastVisible - firstVisible - 2);
+        } else {
+            mList.setSelectionFromTop(0, 0);
+        }
     }
 
     @Override
