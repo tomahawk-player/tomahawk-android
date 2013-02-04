@@ -52,7 +52,8 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
              */
             @Override
             public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
-                updateTextViewCurrentTime(mPlaybackService.getPosition());
+                if (isIsSeeking())
+                    updateTextViewCurrentTime(mPlaybackService.getPosition());
             }
 
             /*
