@@ -136,6 +136,15 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
         super.onSaveInstanceState(bundle);
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        Intent playbackIntent = new Intent(this, PlaybackService.class);
+        startService(playbackIntent);
+        bindService(playbackIntent, mPlaybackServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
     /*
      * (non-Javadoc)
      *
@@ -157,10 +166,6 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
         registerReceiver(mPlaybackServiceBroadcastReceiver, intentFilter);
         intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYSTATECHANGED);
         registerReceiver(mPlaybackServiceBroadcastReceiver, intentFilter);
-
-        Intent playbackIntent = new Intent(this, PlaybackService.class);
-        startService(playbackIntent);
-        bindService(playbackIntent, mPlaybackServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     /*
@@ -172,13 +177,18 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
     public void onPause() {
         super.onPause();
 
-        if (mPlaybackService != null)
-            unbindService(mPlaybackServiceConnection);
-
         if (mPlaybackServiceBroadcastReceiver != null) {
             unregisterReceiver(mPlaybackServiceBroadcastReceiver);
             mPlaybackServiceBroadcastReceiver = null;
         }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (mPlaybackService != null)
+            unbindService(mPlaybackServiceConnection);
     }
 
     /*
@@ -291,6 +301,8 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
                 }
             }
         }
+        if (mPlaybackFragment != null)
+            mPlaybackFragment.setPlaybackService(mPlaybackService);
         onPlaylistChanged();
     }
 

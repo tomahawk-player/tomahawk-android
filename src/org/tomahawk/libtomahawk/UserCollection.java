@@ -30,7 +30,6 @@ import android.database.Cursor;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.provider.MediaStore;
-import android.util.Log;
 
 public class UserCollection extends Collection {
 
@@ -45,7 +44,8 @@ public class UserCollection extends Collection {
     private Map<Long, Album> mAlbums;
     private Map<Long, Track> mTracks;
     private Map<Long, Playlist> mPlaylists;
-    private long mPlaylistIdCounter;
+    public static final long USERCOLLECTION_CACHEDPLAYLIST_ID = 0;
+    private long mPlaylistIdCounter = USERCOLLECTION_CACHEDPLAYLIST_ID + 1;
 
     private Runnable mUpdateRunnable = new Runnable() {
         /* 
@@ -160,6 +160,16 @@ public class UserCollection extends Collection {
     public long addPlaylist(Playlist playlist) {
         mPlaylists.put(mPlaylistIdCounter, playlist);
         return mPlaylistIdCounter++;
+    }
+
+    /**
+     * Store the PlaybackService's currentPlaylist
+     * @param playlist
+     * @return
+     */
+    public long addCachedPlaylist(Playlist playlist) {
+        mPlaylists.put(USERCOLLECTION_CACHEDPLAYLIST_ID, playlist);
+        return USERCOLLECTION_CACHEDPLAYLIST_ID;
     }
 
     /* 
