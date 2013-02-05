@@ -132,11 +132,6 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle bundle) {
-        super.onSaveInstanceState(bundle);
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
 
@@ -191,6 +186,11 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
             unbindService(mPlaybackServiceConnection);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle bundle) {
+        super.onSaveInstanceState(bundle);
+    }
+
     /*
      * (non-Javadoc)
      * @see com.actionbarsherlock.app.SherlockActivity#onCreateOptionsMenu(android.view.Menu)
@@ -230,30 +230,77 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
         return false;
     }
 
-    private void ensureList() {
-        View rawListView = findViewById(R.id.listview);
-        if (!(rawListView instanceof TomahawkStickyListHeadersListView)) {
-            if (rawListView == null) {
-                throw new RuntimeException("Your content must have a ListView whose id attribute is "
-                        + "'R.id.listview'");
+    /* (non-Javadoc)
+     * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
+     */
+    @Override
+    public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
+        Object obj = mTomahawkListAdapter.getItem(idx - 1);
+        if (obj instanceof Track) {
+            if (mPlaylist.getPosition() == idx - 1)
+                mPlaybackService.playPause();
+            else {
+                try {
+                    mPlaybackService.setCurrentTrack(mPlaylist.getTrackAtPos(idx - 1));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-            throw new RuntimeException("Content has view with id attribute 'R.id.listview' "
-                    + "that is not a ListView class");
         }
-        mList = (TomahawkStickyListHeadersListView) rawListView;
     }
 
-    /**
-     * Return the {@link Intent} defined by the given parameters
-     *
-     * @param context the context with which the intent will be created
-     * @param cls the class which contains the activity to launch
-     * @return the created intent
-     */
-    private static Intent getIntent(Context context, Class<?> cls) {
-        Intent intent = new Intent(context, cls);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        return intent;
+    @Override
+    public void onHeaderClick(StickyListHeadersListView l, View header, int itemPosition, long headerId, boolean currentlySticky) {
+        ensureList();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            mList.smoothScrollToPositionFromTop(0, 0, 200);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+            int firstVisible = mList.getFirstVisiblePosition();
+            int lastVisible = mList.getLastVisiblePosition();
+            if (0 < firstVisible)
+                mList.smoothScrollToPosition(0);
+            else
+                mList.smoothScrollToPosition(0 + lastVisible - firstVisible - 2);
+        } else {
+            mList.setSelectionFromTop(0, 0);
+        }
+    }
+
+    @Override
+    public void onGlobalLayout() {
+        mFragmentLayoutHeight = getWindow().getDecorView().findViewById(android.R.id.content).getHeight()
+                - (int) TomahawkUtils.convertDpToPixel(32f, this);
+        mPlaybackFragment = (PlaybackFragment) getSupportFragmentManager().findFragmentById(R.id.playbackFragment);
+        if (mPlaybackFragment != null && mPlaybackFragment.getView() != null)
+            mPlaybackFragment.getView().setLayoutParams(
+                    new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, mFragmentLayoutHeight));
+        getWindow().getDecorView().getViewTreeObserver().removeGlobalOnLayoutListener(this);
+    }
+
+    @Override
+    public boolean handleMessage(Message msg) {
+        switch (msg.what) {
+        case MSG_UPDATE_ANIMATION:
+            if (mPlaybackService.isPreparing()) {
+                mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 500);
+                getSupportActionBar().setLogo(mProgressDrawable);
+                mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
+                mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
+            } else {
+                stopLoadingAnimation();
+            }
+            break;
+        }
+        return true;
+    }
+
+    public void startLoadingAnimation() {
+        mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 200);
+    }
+
+    public void stopLoadingAnimation() {
+        mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
+        getSupportActionBar().setLogo(R.drawable.ic_launcher);
     }
 
     @Override
@@ -306,6 +353,109 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
         onPlaylistChanged();
     }
 
+    private void initAdapter() {
+        if (mPlaybackService != null)
+            mPlaylist = mPlaybackService.getCurrentPlaylist();
+        if (mPlaylist != null) {
+            List<TomahawkBaseAdapter.TomahawkListItem> tracks = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+            tracks.addAll(mPlaylist.getTracks());
+            mTomahawkListAdapter = new TomahawkListAdapter(this, R.layout.double_line_list_item_with_playstate_image,
+                    R.id.double_line_list_imageview, R.id.double_line_list_textview, R.id.double_line_list_textview2,
+                    tracks);
+            mTomahawkListAdapter.setShowHighlightingAndPlaystate(true);
+            mTomahawkListAdapter.setHighlightedItem(mPlaylist.getPosition());
+            mTomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
+            ensureList();
+            mList.setOnItemClickListener(this);
+            mList.setOnHeaderClickListener(this);
+            if (mList.getHeaderViewsCount() == 0) {
+                mPlaybackFragment = (PlaybackFragment) getSupportFragmentManager().findFragmentById(
+                        R.id.playbackFragment);
+                View headerView;
+                if (mPlaybackFragment == null || (mPlaybackFragment != null && mPlaybackFragment.getView() == null)) {
+                    headerView = getLayoutInflater().inflate(R.layout.fragment_container_list_item, null);
+                    mPlaybackFragment = (PlaybackFragment) getSupportFragmentManager().findFragmentById(
+                            R.id.playbackFragment);
+                } else {
+                    headerView = (View) mPlaybackFragment.getView().getParent();
+                }
+                mPlaybackFragment.getView().setLayoutParams(
+                        new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, mFragmentLayoutHeight));
+                mPlaybackFragment.setPlaybackService(mPlaybackService);
+                mList.addHeaderView(headerView);
+            }
+            mPlaybackFragment.init();
+            mList.setAdapter(mTomahawkListAdapter);
+        }
+    }
+
+    private void ensureList() {
+        View rawListView = findViewById(R.id.listview);
+        if (!(rawListView instanceof TomahawkStickyListHeadersListView)) {
+            if (rawListView == null) {
+                throw new RuntimeException("Your content must have a ListView whose id attribute is "
+                        + "'R.id.listview'");
+            }
+            throw new RuntimeException("Content has view with id attribute 'R.id.listview' "
+                    + "that is not a ListView class");
+        }
+        mList = (TomahawkStickyListHeadersListView) rawListView;
+    }
+
+    /**
+     * Called when the track has Changed inside our PlaybackService
+     */
+    public void onTrackChanged() {
+        if (mPlaylist != null) {
+            mTomahawkListAdapter.setHighlightedItem(mPlaylist.getPosition());
+            mTomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
+            mTomahawkListAdapter.notifyDataSetChanged();
+        }
+    }
+
+    /**
+     * Called when the playState (playing or paused) has Changed inside our PlaybackService
+     */
+    public void onPlaystateChanged() {
+        if (mPlaylist != null) {
+            mTomahawkListAdapter.setHighlightedItem(mPlaylist.getPosition());
+            mTomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
+            mTomahawkListAdapter.notifyDataSetChanged();
+        }
+    }
+
+    /**
+     * Called when the playlist has Changed inside our PlaybackService
+     */
+    public void onPlaylistChanged() {
+        if (mTomahawkListAdapter != null) {
+            mPlaylist = mPlaybackService.getCurrentPlaylist();
+            if (mPlaylist != null) {
+                ArrayList<TomahawkBaseAdapter.TomahawkListItem> tracks = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+                tracks.addAll(mPlaylist.getTracks());
+                mTomahawkListAdapter.setListWithIndex(0, tracks);
+                mTomahawkListAdapter.setHighlightedItem(mPlaylist.getPosition());
+                mTomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
+                mTomahawkListAdapter.notifyDataSetChanged();
+            }
+        } else {
+            initAdapter();
+        }
+    }
+
+    /**
+     * Return the {@link Intent} defined by the given parameters
+     *
+     * @param context the context with which the intent will be created
+     * @param cls the class which contains the activity to launch
+     * @return the created intent
+     */
+    private static Intent getIntent(Context context, Class<?> cls) {
+        Intent intent = new Intent(context, cls);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        return intent;
+    }
+
     /**
      * Called when the play/pause button is clicked.
      *
@@ -354,155 +504,5 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
     public void onRepeatClicked(View view) {
         if (mPlaybackFragment != null)
             mPlaybackFragment.onRepeatClicked();
-    }
-
-    /**
-     * Called when the track has Changed inside our PlaybackService
-     */
-    public void onTrackChanged() {
-        if (mPlaylist != null) {
-            mTomahawkListAdapter.setHighlightedItem(mPlaylist.getPosition());
-            mTomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
-            mTomahawkListAdapter.notifyDataSetChanged();
-        }
-    }
-
-    /**
-     * Called when the playState (playing or paused) has Changed inside our PlaybackService
-     */
-    public void onPlaystateChanged() {
-        if (mPlaylist != null) {
-            mTomahawkListAdapter.setHighlightedItem(mPlaylist.getPosition());
-            mTomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
-            mTomahawkListAdapter.notifyDataSetChanged();
-        }
-    }
-
-    /**
-     * Called when the playlist has Changed inside our PlaybackService
-     */
-    public void onPlaylistChanged() {
-        if (mTomahawkListAdapter != null) {
-            mPlaylist = mPlaybackService.getCurrentPlaylist();
-            if (mPlaylist != null) {
-                ArrayList<TomahawkBaseAdapter.TomahawkListItem> tracks = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-                tracks.addAll(mPlaylist.getTracks());
-                mTomahawkListAdapter.setListWithIndex(0, tracks);
-                mTomahawkListAdapter.setHighlightedItem(mPlaylist.getPosition());
-                mTomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
-                mTomahawkListAdapter.notifyDataSetChanged();
-            }
-        } else {
-            initAdapter();
-        }
-    }
-
-    private void initAdapter() {
-        if (mPlaybackService != null)
-            mPlaylist = mPlaybackService.getCurrentPlaylist();
-        if (mPlaylist != null) {
-            List<TomahawkBaseAdapter.TomahawkListItem> tracks = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-            tracks.addAll(mPlaylist.getTracks());
-            mTomahawkListAdapter = new TomahawkListAdapter(this, R.layout.double_line_list_item_with_playstate_image,
-                    R.id.double_line_list_imageview, R.id.double_line_list_textview, R.id.double_line_list_textview2,
-                    tracks);
-            mTomahawkListAdapter.setShowHighlightingAndPlaystate(true);
-            mTomahawkListAdapter.setHighlightedItem(mPlaylist.getPosition());
-            mTomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
-            ensureList();
-            mList.setOnItemClickListener(this);
-            mList.setOnHeaderClickListener(this);
-            if (mList.getHeaderViewsCount() == 0) {
-                mPlaybackFragment = (PlaybackFragment) getSupportFragmentManager().findFragmentById(
-                        R.id.playbackFragment);
-                View headerView;
-                if (mPlaybackFragment == null || (mPlaybackFragment != null && mPlaybackFragment.getView() == null)) {
-                    headerView = getLayoutInflater().inflate(R.layout.fragment_container_list_item, null);
-                    mPlaybackFragment = (PlaybackFragment) getSupportFragmentManager().findFragmentById(
-                            R.id.playbackFragment);
-                } else {
-                    headerView = (View) mPlaybackFragment.getView().getParent();
-                }
-                mPlaybackFragment.getView().setLayoutParams(
-                        new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, mFragmentLayoutHeight));
-                mPlaybackFragment.setPlaybackService(mPlaybackService);
-                mList.addHeaderView(headerView);
-            }
-            mPlaybackFragment.init();
-            mList.setAdapter(mTomahawkListAdapter);
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
-     */
-    @Override
-    public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        Object obj = mTomahawkListAdapter.getItem(idx - 1);
-        if (obj instanceof Track) {
-            if (mPlaylist.getPosition() == idx - 1)
-                mPlaybackService.playPause();
-            else {
-                try {
-                    mPlaybackService.setCurrentTrack(mPlaylist.getTrackAtPos(idx - 1));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onHeaderClick(StickyListHeadersListView l, View header, int itemPosition, long headerId, boolean currentlySticky) {
-        ensureList();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            mList.smoothScrollToPositionFromTop(0, 0, 200);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-            int firstVisible = mList.getFirstVisiblePosition();
-            int lastVisible = mList.getLastVisiblePosition();
-            if (0 < firstVisible)
-                mList.smoothScrollToPosition(0);
-            else
-                mList.smoothScrollToPosition(0 + lastVisible - firstVisible - 2);
-        } else {
-            mList.setSelectionFromTop(0, 0);
-        }
-    }
-
-    @Override
-    public boolean handleMessage(Message msg) {
-        switch (msg.what) {
-        case MSG_UPDATE_ANIMATION:
-            if (mPlaybackService.isPreparing()) {
-                mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 500);
-                getSupportActionBar().setLogo(mProgressDrawable);
-                mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
-                mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
-            } else {
-                stopLoadingAnimation();
-            }
-            break;
-        }
-        return true;
-    }
-
-    public void startLoadingAnimation() {
-        mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 200);
-    }
-
-    public void stopLoadingAnimation() {
-        mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
-        getSupportActionBar().setLogo(R.drawable.ic_launcher);
-    }
-
-    @Override
-    public void onGlobalLayout() {
-        mFragmentLayoutHeight = getWindow().getDecorView().findViewById(android.R.id.content).getHeight()
-                - (int) TomahawkUtils.convertDpToPixel(32f, this);
-        mPlaybackFragment = (PlaybackFragment) getSupportFragmentManager().findFragmentById(R.id.playbackFragment);
-        if (mPlaybackFragment != null && mPlaybackFragment.getView() != null)
-            mPlaybackFragment.getView().setLayoutParams(
-                    new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, mFragmentLayoutHeight));
-        getWindow().getDecorView().getViewTreeObserver().removeGlobalOnLayoutListener(this);
     }
 }
