@@ -170,6 +170,8 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
     @Override
     public int onStartCommand(Intent i, int j, int k) {
         super.onStartCommand(i, j, k);
+        if (i==null)
+            return -1;
 
         if (!i.hasExtra(ACCOUNT_NAME) || !i.hasExtra(AUTH_TOKEN_TYPE)) {
             stopSelf();
@@ -251,7 +253,7 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
 
     /**s
      * Requests access tokens for the given user id and valid auth token.
-     * 
+     *
      * @param userid
      * @param authToken
      * @return
