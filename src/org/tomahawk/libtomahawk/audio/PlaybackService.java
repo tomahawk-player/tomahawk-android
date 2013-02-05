@@ -517,6 +517,8 @@ public class PlaybackService extends Service implements OnCompletionListener, On
     private void updatePlayingNotification() {
 
         Track track = getCurrentTrack();
+        if (track == null)
+            return;
 
         Resources resources = getResources();
         Bitmap albumArtTemp;
