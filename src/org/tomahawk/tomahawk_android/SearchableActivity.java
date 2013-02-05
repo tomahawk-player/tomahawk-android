@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android;
 
 import java.util.ArrayList;
 
+import android.text.TextUtils;
 import org.tomahawk.libtomahawk.*;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
@@ -445,7 +446,7 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (event == null || actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE
                 || event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-            if (v.getText().toString() != null && !v.getText().toString().isEmpty()) {
+            if (v.getText().toString() != null && !TextUtils.isEmpty(v.getText().toString())) {
                 ((TomahawkApp) getApplication()).getPipeLine().resolve(v.getText().toString());
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);

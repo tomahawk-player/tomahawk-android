@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.resolver;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import android.text.TextUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.app.Application;
@@ -76,7 +77,7 @@ public class PipeLine {
      * @param fullTextQuery
      */
     public void resolve(String fullTextQuery) {
-        if (fullTextQuery != null && !fullTextQuery.isEmpty()) {
+        if (fullTextQuery != null && !TextUtils.isEmpty(fullTextQuery)) {
             Query q = null;
             for (Query query : mQids.values())
                 if (query.getFullTextQuery() == fullTextQuery)

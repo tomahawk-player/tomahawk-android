@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.resolver;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.text.TextUtils;
 import org.json.JSONObject;
 import org.tomahawk.libtomahawk.*;
 import org.tomahawk.tomahawk_android.R;
@@ -114,7 +115,7 @@ public class DataBaseResolver implements Resolver {
 
             protected ArrayList<Result> getFilteredResults(CharSequence constraint) {
                 ArrayList<Result> filteredResults = new ArrayList<Result>();
-                if (constraint == null || constraint.toString().isEmpty())
+                if (constraint == null || TextUtils.isEmpty(constraint.toString()))
                     return filteredResults;
                 List<TomahawkBaseAdapter.TomahawkListItem> inputList = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
                 switch (filterMode) {
