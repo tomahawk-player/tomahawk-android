@@ -195,6 +195,19 @@ public class PlaybackService extends Service implements OnCompletionListener, On
         }
     };
 
+    private final Handler mKillTimerHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if (isPlaying()) {
+                mKillTimerHandler.removeCallbacksAndMessages(null);
+                Message msgx = mKillTimerHandler.obtainMessage();
+                mKillTimerHandler.sendMessageDelayed(msgx, DELAY_TO_KILL);
+            } else if (!mHasBoundServices) {
+                stopSelf();
+            }
+        }
+    };
+
     /* (non-Javadoc)
      * @see android.app.Service#onCreate()
      */
@@ -224,27 +237,18 @@ public class PlaybackService extends Service implements OnCompletionListener, On
         restoreState();
     }
 
-    private void saveState() {
-        UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication()).getSourceList().getCollectionFromId(
-                UserCollection.Id));
-        userCollection.addCachedPlaylist(getCurrentPlaylist());
-    }
-
-    private void restoreState() {
-        UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication()).getSourceList().getCollectionFromId(
-                UserCollection.Id));
-        try {
-            setCurrentPlaylist(userCollection.getPlaylistById(UserCollection.USERCOLLECTION_CACHEDPLAYLIST_ID));
-        } catch (IOException e) {
-            Log.e(TAG, "restoreState(): " + IOException.class.getName() + ": " + e.getLocalizedMessage());
-        }
-        if (getCurrentPlaylist() != null && isPlaying())
-            pause();
-    }
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         return START_STICKY;
+    }
+
+    /* (non-Javadoc)
+     * @see android.app.Service#onBind(android.content.Intent)
+     */
+    @Override
+    public IBinder onBind(Intent intent) {
+        mHasBoundServices = true;
+        return mBinder;
     }
 
     @Override
@@ -254,30 +258,6 @@ public class PlaybackService extends Service implements OnCompletionListener, On
             stopSelf();
         }
         return false;
-    }
-
-    private final Handler mKillTimerHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            if (isPlaying()) {
-                mKillTimerHandler.removeCallbacksAndMessages(null);
-                Message msgx = mKillTimerHandler.obtainMessage();
-                mKillTimerHandler.sendMessageDelayed(msgx, DELAY_TO_KILL);
-            } else if (!mHasBoundServices) {
-                stopSelf();
-            }
-        }
-    };
-
-    /**
-     * Initializes the mediaplayer. Sets the listeners and AudioStreamType.
-     */
-    public void initMediaPlayer() {
-        mTomahawkMediaPlayer = new TomahawkMediaPlayer();
-        mTomahawkMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mTomahawkMediaPlayer.setOnCompletionListener(this);
-        mTomahawkMediaPlayer.setOnPreparedListener(this);
-        mTomahawkMediaPlayer.setOnErrorListener(this);
     }
 
     /* (non-Javadoc)
@@ -298,39 +278,89 @@ public class PlaybackService extends Service implements OnCompletionListener, On
     }
 
     /* (non-Javadoc)
-     * @see android.app.Service#onBind(android.content.Intent)
+     * @see android.media.MediaPlayer.OnPreparedListener#onPrepared(android.media.MediaPlayer)
      */
     @Override
-    public IBinder onBind(Intent intent) {
-        mHasBoundServices = true;
-        return mBinder;
+    public void onPrepared(MediaPlayer mp) {
+        Log.d(TAG, "Mediaplayer is prepared.");
+        mTomahawkMediaPlayer.mIsPreparing = false;
+        handlePlayState();
     }
 
-    public void handlePlayState() {
-        if (!isPreparing()) {
-            switch (mPlayState) {
-            case PLAYBACKSERVICE_PLAYSTATE_PLAYING:
-                if (!mWakeLock.isHeld())
-                    mWakeLock.acquire();
-                if (!mTomahawkMediaPlayer.isPlaying())
-                    mTomahawkMediaPlayer.start();
-                break;
-            case PLAYBACKSERVICE_PLAYSTATE_PAUSED:
-                if (mTomahawkMediaPlayer.isPlaying())
-                    mTomahawkMediaPlayer.pause();
-                if (mWakeLock.isHeld())
-                    mWakeLock.release();
-                break;
-            case PLAYBACKSERVICE_PLAYSTATE_STOPPED:
-                mTomahawkMediaPlayer.stop();
-                if (mWakeLock.isHeld())
-                    mWakeLock.release();
-            }
-            mKillTimerHandler.removeCallbacksAndMessages(null);
-            Message msg = mKillTimerHandler.obtainMessage();
-            mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
+    /* (non-Javadoc)
+     * @see android.media.MediaPlayer.OnCompletionListener#onCompletion(android.media.MediaPlayer)
+     */
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+
+        if (mCurrentPlaylist == null) {
+            stop();
+            return;
         }
-        updatePlayingNotification();
+
+        Track track = mCurrentPlaylist.getNextTrack();
+        if (track != null) {
+            try {
+                setCurrentTrack(track);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else
+            stop();
+    }
+
+    /* (non-Javadoc)
+     * @see android.media.MediaPlayer.OnErrorListener#onError(android.media.MediaPlayer, int, int)
+     */
+    @Override
+    public boolean onError(MediaPlayer mp, int what, int extra) {
+        String whatString = "CODE UNSPECIFIED";
+        switch (what) {
+        case MediaPlayer.MEDIA_ERROR_UNKNOWN:
+            whatString = "MEDIA_ERROR_UNKNOWN";
+            break;
+        case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
+            whatString = "MEDIA_ERROR_SERVER_DIED";
+        }
+
+        Log.e(TAG, "onError - " + whatString);
+        next();
+        return false;
+    }
+
+    /**
+     * Initializes the mediaplayer. Sets the listeners and AudioStreamType.
+     */
+    public void initMediaPlayer() {
+        mTomahawkMediaPlayer = new TomahawkMediaPlayer();
+        mTomahawkMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mTomahawkMediaPlayer.setOnCompletionListener(this);
+        mTomahawkMediaPlayer.setOnPreparedListener(this);
+        mTomahawkMediaPlayer.setOnErrorListener(this);
+    }
+
+    /**
+     * Save the current playlist in the UserCollection
+     */
+    private void saveState() {
+        UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication()).getSourceList().getCollectionFromId(
+                UserCollection.Id));
+        userCollection.addCachedPlaylist(getCurrentPlaylist());
+    }
+
+    /**
+     * Restore the current playlist from the UserCollection
+     */
+    private void restoreState() {
+        UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication()).getSourceList().getCollectionFromId(
+                UserCollection.Id));
+        try {
+            setCurrentPlaylist(userCollection.getPlaylistById(UserCollection.USERCOLLECTION_CACHEDPLAYLIST_ID));
+        } catch (IOException e) {
+            Log.e(TAG, "restoreState(): " + IOException.class.getName() + ": " + e.getLocalizedMessage());
+        }
+        if (getCurrentPlaylist() != null && isPlaying())
+            pause();
     }
 
     /**
@@ -374,6 +404,36 @@ public class PlaybackService extends Service implements OnCompletionListener, On
     }
 
     /**
+     * Update the TomahawkMediaPlayer so that it reflects the current playState
+     */
+    public void handlePlayState() {
+        if (!isPreparing()) {
+            switch (mPlayState) {
+            case PLAYBACKSERVICE_PLAYSTATE_PLAYING:
+                if (!mWakeLock.isHeld())
+                    mWakeLock.acquire();
+                if (!mTomahawkMediaPlayer.isPlaying())
+                    mTomahawkMediaPlayer.start();
+                break;
+            case PLAYBACKSERVICE_PLAYSTATE_PAUSED:
+                if (mTomahawkMediaPlayer.isPlaying())
+                    mTomahawkMediaPlayer.pause();
+                if (mWakeLock.isHeld())
+                    mWakeLock.release();
+                break;
+            case PLAYBACKSERVICE_PLAYSTATE_STOPPED:
+                mTomahawkMediaPlayer.stop();
+                if (mWakeLock.isHeld())
+                    mWakeLock.release();
+            }
+            mKillTimerHandler.removeCallbacksAndMessages(null);
+            Message msg = mKillTimerHandler.obtainMessage();
+            mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
+        }
+        updatePlayingNotification();
+    }
+
+    /**
      * Start playing the next Track.
      */
     public void next() {
@@ -403,55 +463,24 @@ public class PlaybackService extends Service implements OnCompletionListener, On
         updatePlayingNotification();
     }
 
-    /* (non-Javadoc)
-     * @see android.media.MediaPlayer.OnErrorListener#onError(android.media.MediaPlayer, int, int)
+    /**
+     * Set the current playlist to shuffle mode.
+     *
+     * @param shuffled
      */
-    @Override
-    public boolean onError(MediaPlayer mp, int what, int extra) {
-        String whatString = "CODE UNSPECIFIED";
-        switch (what) {
-        case MediaPlayer.MEDIA_ERROR_UNKNOWN:
-            whatString = "MEDIA_ERROR_UNKNOWN";
-            break;
-        case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
-            whatString = "MEDIA_ERROR_SERVER_DIED";
-        }
-
-        Log.e(TAG, "onError - " + whatString);
-        next();
-        return false;
+    public void setShuffled(boolean shuffled) {
+        mCurrentPlaylist.setShuffled(shuffled);
+        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
 
-    /* (non-Javadoc)
-     * @see android.media.MediaPlayer.OnCompletionListener#onCompletion(android.media.MediaPlayer)
+    /**
+     * Set the current playlist to repeat mode.
+     *
+     * @param repeating
      */
-    @Override
-    public void onCompletion(MediaPlayer mp) {
-
-        if (mCurrentPlaylist == null) {
-            stop();
-            return;
-        }
-
-        Track track = mCurrentPlaylist.getNextTrack();
-        if (track != null) {
-            try {
-                setCurrentTrack(track);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else
-            stop();
-    }
-
-    /* (non-Javadoc)
-     * @see android.media.MediaPlayer.OnPreparedListener#onPrepared(android.media.MediaPlayer)
-     */
-    @Override
-    public void onPrepared(MediaPlayer mp) {
-        Log.d(TAG, "Mediaplayer is prepared.");
-        mTomahawkMediaPlayer.mIsPreparing = false;
-        handlePlayState();
+    public void setRepeating(boolean repeating) {
+        mCurrentPlaylist.setRepeating(repeating);
+        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
 
     /**
@@ -466,6 +495,45 @@ public class PlaybackService extends Service implements OnCompletionListener, On
      */
     public boolean isPreparing() {
         return mTomahawkMediaPlayer == null || mTomahawkMediaPlayer.mIsPreparing;
+    }
+
+    /**
+     * Get the current Track
+     *
+     * @return
+     */
+    public Track getCurrentTrack() {
+
+        if (mCurrentPlaylist == null)
+            return null;
+
+        return mCurrentPlaylist.getCurrentTrack();
+    }
+
+    /**
+     * This method sets the current track and prepares it for playback.
+     *
+     * @param track
+     * @throws IOException
+     */
+    public void setCurrentTrack(Track track) throws IOException {
+        if (mTomahawkMediaPlayer != null && track != null) {
+            if (!isPreparing()) {
+                mTomahawkMediaPlayer.reset();
+            } else {
+                mTomahawkMediaPlayer.release();
+                initMediaPlayer();
+            }
+            mTomahawkMediaPlayer.setDataSource(track.getPath());
+            mTomahawkMediaPlayer.prepareAsync();
+            mTomahawkMediaPlayer.mIsPreparing = true;
+
+            mKillTimerHandler.removeCallbacksAndMessages(null);
+            Message msg = mKillTimerHandler.obtainMessage();
+            mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
+
+            sendBroadcast(new Intent(BROADCAST_NEWTRACK));
+        }
     }
 
     /**
@@ -493,62 +561,23 @@ public class PlaybackService extends Service implements OnCompletionListener, On
     }
 
     /**
-     * Set the current playlist to shuffle mode.
-     *
-     * @param shuffled
+     * Returns the position of playback in the current Track.
      */
-    public void setShuffled(boolean shuffled) {
-        mCurrentPlaylist.setShuffled(shuffled);
-        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
-    }
-
-    /**
-     * Set the current playlist to repeat mode.
-     *
-     * @param repeating
-     */
-    public void setRepeating(boolean repeating) {
-        mCurrentPlaylist.setRepeating(repeating);
-        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
-    }
-
-    /**
-     * Get the current Track
-     *
-     * @return
-     */
-    public Track getCurrentTrack() {
-
-        if (mCurrentPlaylist == null)
-            return null;
-
-        return mCurrentPlaylist.getCurrentTrack();
-    }
-
-    /**
-     * This method sets the current track and prepares it for playback.
-     * 
-     * @param track
-     * @throws IOException
-     */
-    public void setCurrentTrack(Track track) throws IOException {
-        if (mTomahawkMediaPlayer != null && track != null) {
-            if (!isPreparing()) {
-                mTomahawkMediaPlayer.reset();
-            } else {
-                mTomahawkMediaPlayer.release();
-                initMediaPlayer();
-            }
-            mTomahawkMediaPlayer.setDataSource(track.getPath());
-            mTomahawkMediaPlayer.prepareAsync();
-            mTomahawkMediaPlayer.mIsPreparing = true;
-
-            mKillTimerHandler.removeCallbacksAndMessages(null);
-            Message msg = mKillTimerHandler.obtainMessage();
-            mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
-
-            sendBroadcast(new Intent(BROADCAST_NEWTRACK));
+    public int getPosition() {
+        int position = 0;
+        try {
+            position = mTomahawkMediaPlayer.getCurrentPosition();
+        } catch (IllegalStateException e) {
         }
+        return position;
+    }
+
+    /**
+     * Seeks to position msec
+     * @param msec
+     */
+    public void seekTo(int msec) {
+        mTomahawkMediaPlayer.seekTo(msec);
     }
 
     /**
@@ -658,25 +687,5 @@ public class PlaybackService extends Service implements OnCompletionListener, On
         Intent intent = new Intent(context, cls);
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         return intent;
-    }
-
-    /**
-     * Returns the position of playback in the current Track.
-     */
-    public int getPosition() {
-        int position = 0;
-        try {
-            position = mTomahawkMediaPlayer.getCurrentPosition();
-        } catch (IllegalStateException e) {
-        }
-        return position;
-    }
-
-    /**
-     * Seeks to position msec
-     * @param msec
-     */
-    public void seekTo(int msec) {
-        mTomahawkMediaPlayer.seekTo(msec);
     }
 }
