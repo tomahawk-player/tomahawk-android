@@ -315,7 +315,7 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
         String query = params.has("authtoken") ? "tokens" : "login";
         HttpPost httpost = new HttpPost(AUTH_URL + query);
 
-        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH)
             TrafficStats.setThreadStatsTag(0xF00D);
 
         try {
@@ -357,7 +357,7 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
             e.printStackTrace();
         } finally {
 
-            if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH)
                 TrafficStats.clearThreadStatsTag();
         }
 
