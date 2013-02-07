@@ -30,4 +30,6 @@ public interface Resolver {
     public Drawable getIcon();
 
     public void resolve(Query query);
+
+    public int getId();
 }

@@ -74,7 +74,8 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(PlaybackService.BROADCAST_NEWTRACK)) {
-                setNowPlayingInfo(mPlaybackService.getCurrentTrack());
+                if (mPlaybackService != null)
+                    setNowPlayingInfo(mPlaybackService.getCurrentTrack());
             }
         }
     }
@@ -100,20 +101,20 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
         ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
         mTabsAdapter = new TabsAdapter(this, getSupportFragmentManager(), viewPager, true);
         mTabsAdapter.addTab(actionBar.newTab().setText(R.string.localcollectionactivity_title_string));
-//        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.remotecollectionactivity_title_string));
-//        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.globalcollectionfragment_title_string));
+        //        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.remotecollectionactivity_title_string));
+        //        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.globalcollectionfragment_title_string));
         if (savedInstanceState == null) {
             mTabsAdapter.addRootToTab(LocalCollectionFragment.class);
-//            mTabsAdapter.addRootToTab(RemoteCollectionFragment.class);
-//            mTabsAdapter.addRootToTab(GlobalCollectionFragment.class);
+            //            mTabsAdapter.addRootToTab(RemoteCollectionFragment.class);
+            //            mTabsAdapter.addRootToTab(GlobalCollectionFragment.class);
         } else {
             ArrayList<TabsAdapter.TabHolder> fragmentStateHolderStack = (ArrayList<TabsAdapter.TabHolder>) savedInstanceState.getSerializable(COLLECTION_ID_STOREDBACKSTACK);
             if (fragmentStateHolderStack != null && fragmentStateHolderStack.size() > 0)
                 mTabsAdapter.setBackStack(fragmentStateHolderStack);
             else {
                 mTabsAdapter.addRootToTab(LocalCollectionFragment.class);
-//                mTabsAdapter.addRootToTab(RemoteCollectionFragment.class);
-//                mTabsAdapter.addRootToTab(GlobalCollectionFragment.class);
+                //                mTabsAdapter.addRootToTab(RemoteCollectionFragment.class);
+                //                mTabsAdapter.addRootToTab(GlobalCollectionFragment.class);
             }
         }
         Intent intent = getIntent();
@@ -137,6 +138,15 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
         super.onSaveInstanceState(bundle);
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        Intent playbackIntent = new Intent(this, PlaybackService.class);
+        startService(playbackIntent);
+        bindService(playbackIntent, mPlaybackServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -157,8 +167,6 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
         IntentFilter intentFilter = new IntentFilter(PlaybackService.BROADCAST_NEWTRACK);
         registerReceiver(mCollectionActivityBroadcastReceiver, intentFilter);
 
-        Intent playbackIntent = new Intent(this, PlaybackService.class);
-        bindService(playbackIntent, mPlaybackServiceConnection, Context.BIND_WAIVE_PRIORITY);
         if (intent.hasExtra(COLLECTION_ID_ALBUM)) {
             Long albumId = intent.getLongExtra(COLLECTION_ID_ALBUM, 0);
             intent.removeExtra(COLLECTION_ID_ALBUM);
@@ -171,6 +179,14 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
                     TomahawkFragment.TOMAHAWK_ARTIST_ID);
         }
         mTabsAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (mPlaybackService != null)
+            unbindService(mPlaybackServiceConnection);
     }
 
     /* 
@@ -209,9 +225,6 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
     @Override
     public void onPause() {
         super.onPause();
-
-        if (mPlaybackService != null)
-            unbindService(mPlaybackServiceConnection);
 
         if (mCollectionActivityBroadcastReceiver != null) {
             unregisterReceiver(mCollectionActivityBroadcastReceiver);

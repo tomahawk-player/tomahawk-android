@@ -43,9 +43,13 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
     private int mYear;
     private long mId;
     private Resolver mResolver;
-    private String linkUrl;
-    private String purchaseUrl;
+    private String mLinkUrl;
+    private String mPurchaseUrl;
     private float mScore;
+    private boolean isResolved;
+
+    public Track() {
+    }
 
     public Track(long l) {
         setId(l);
@@ -193,19 +197,28 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
     }
 
     public String getPurchaseUrl() {
-        return purchaseUrl;
+        return mPurchaseUrl;
     }
 
-    public void setPurchaseUrl(String purchaseUrl) {
-        this.purchaseUrl = purchaseUrl;
+    public void setPurchaseUrl(String mPurchaseUrl) {
+        this.mPurchaseUrl = mPurchaseUrl;
     }
 
     public String getLinkUrl() {
-        return linkUrl;
+        return mLinkUrl;
     }
 
-    public void setLinkUrl(String linkUrl) {
-        this.linkUrl = linkUrl;
+    public void setLinkUrl(String mLinkUrl) {
+        this.mLinkUrl = mLinkUrl;
     }
+
+    public boolean isResolved() {
+        return isResolved;
+    }
+
+    public void setResolved(boolean resolved) {
+        isResolved = resolved;
+    }
+
 
 }

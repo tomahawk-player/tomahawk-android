@@ -43,6 +43,7 @@ public class ScriptResolver implements Resolver {
     private final static String TAG = ScriptResolver.class.getName();
 
     private final static String RESOLVER_LEGACY_CODE = "var resolver = Tomahawk.resolver.instance ? Tomahawk.resolver.instance : TomahawkResolver;";
+    private final static String RESOLVER_LEGACY_CODE2 = "var resolver = Tomahawk.resolver.instance ? Tomahawk.resolver.instance : window;";
     private final static String SCRIPT_INTERFACE_NAME = "Tomahawk";
 
     //TEMPORARY WORKAROUND
@@ -52,6 +53,7 @@ public class ScriptResolver implements Resolver {
     private final static String BASEURL_SOUNDCLOUD = "http://developer.echonest.com";
 
     private TomahawkApp mTomahawkApp;
+    private int mId;
     private ScriptEngine mScriptEngine;
 
     private String mScriptFilePath;
@@ -64,9 +66,10 @@ public class ScriptResolver implements Resolver {
     private boolean mReady;
     private boolean mStopped;
 
-    public ScriptResolver(TomahawkApp tomahawkApp, String scriptPath) {
+    public ScriptResolver(int id,TomahawkApp tomahawkApp, String scriptPath) {
         mReady = false;
         mStopped = true;
+        mId = id;
         mTomahawkApp = tomahawkApp;
         mScriptEngine = new ScriptEngine(mTomahawkApp);
         WebSettings settings = mScriptEngine.getSettings();
@@ -86,7 +89,7 @@ public class ScriptResolver implements Resolver {
     }
 
     /**
-     * @return wether or not this scriptresolver is currently resolving
+     * @return whether or not this scriptresolver is currently resolving
      */
     public boolean isResolving() {
         return mReady && !mStopped;
@@ -202,13 +205,21 @@ public class ScriptResolver implements Resolver {
      */
     public void resolve(Query query) {
         mStopped = false;
-        mScriptEngine.loadUrl("javascript:"
-                + RESOLVER_LEGACY_CODE
-                + makeJSFunctionCallbackJava(
-                        R.id.scriptresolver_resolve,
-                        "(Tomahawk.resolver.instance !== undefined) ?resolver.search( '" + query.getQid() + "', '"
-                                + query.getFullTextQuery() + "' ):resolve( '" + query.getQid() + "', '', '', '"
-                                + query.getFullTextQuery() + "' )", false));
+        if (!query.isFullTextQuery()) {
+            mScriptEngine.loadUrl("javascript:"
+                    + RESOLVER_LEGACY_CODE2
+                    + makeJSFunctionCallbackJava(
+                            R.id.scriptresolver_resolve,
+                            "resolver.resolve( '" + query.getQid() + "', '" + query.getArtistName() + "', '"
+                                    + query.getAlbumName() + "', '" + query.getTrackName() + "' )", false));
+        } else {
+            mScriptEngine.loadUrl("javascript:"
+                    + RESOLVER_LEGACY_CODE
+                    + makeJSFunctionCallbackJava(R.id.scriptresolver_resolve,
+                            "(Tomahawk.resolver.instance !== undefined) ?resolver.search( '" + query.getQid() + "', '"
+                                    + query.getFullTextQuery() + "' ):resolve( '" + query.getQid() + "', '', '', '"
+                                    + query.getFullTextQuery() + "' )", false));
+        }
     }
 
     /**
@@ -276,12 +287,16 @@ public class ScriptResolver implements Resolver {
      * the exposed java method callbackToJava in the ScriptInterface
      * @param id used to later identify the callback
      * @param string the string which should be surrounded. Usually a simple js function call.
-     * @param shouldReturnResult wether or not this js function call will return with a JSONObject as a result
+     * @param shouldReturnResult whether or not this js function call will return with a JSONObject as a result
      * @return the computed String
      */
     private String makeJSFunctionCallbackJava(int id, String string, boolean shouldReturnResult) {
         return SCRIPT_INTERFACE_NAME + ".callbackToJava(" + id + ",JSON.stringify(" + string + "),"
                 + shouldReturnResult + ");";
+    }
+
+    public int getId() {
+        return mId;
     }
 
     /**
@@ -292,7 +307,7 @@ public class ScriptResolver implements Resolver {
     }
 
     /**
-     * @return the JSONObject containing the Config information, which was returned by the correspoding script
+     * @return the JSONObject containing the Config information, which was returned by the corresponding script
      */
     public JSONObject getConfig() {
         return mConfig;

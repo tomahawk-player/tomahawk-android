@@ -23,7 +23,6 @@ import java.util.HashMap;
 import android.text.TextUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
-import android.app.Application;
 import android.content.Intent;
 
 /**
@@ -34,9 +33,9 @@ public class PipeLine {
     public static final String PIPELINE_RESULTSREPORTED = "pipeline_resultsreported";
     public static final String PIPELINE_RESULTSREPORTED_QID = "pipeline_resultsreported_qid";
 
-    private static final float MINSCORE = 0.3F;
+    private static final float MINSCORE = 0.5F;
 
-    Application mApplication;
+    TomahawkApp mTomahawkApp;
 
     private ArrayList<Resolver> mResolvers = new ArrayList<Resolver>();
 
@@ -44,23 +43,8 @@ public class PipeLine {
     private ArrayList<Query> mTemporaryQueries = new ArrayList<Query>();
     private HashMap<String, Query> mQids = new HashMap<String, Query>();
 
-    public PipeLine(Application application) {
-        mApplication = application;
-        init();
-    }
-
-    /**
-     * Initilialize the pipeline. Load every resolver.
-     */
-    private void init() {
-        ScriptResolver scriptResolver = new ScriptResolver((TomahawkApp) mApplication, "js/jamendo/jamendo-resolver.js");
-        addResolver(scriptResolver);
-        scriptResolver = new ScriptResolver((TomahawkApp) mApplication, "js/official.fm/officialfm.js");
-        addResolver(scriptResolver);
-        scriptResolver = new ScriptResolver((TomahawkApp) mApplication, "js/exfm/exfm.js");
-        addResolver(scriptResolver);
-        scriptResolver = new ScriptResolver((TomahawkApp) mApplication, "js/soundcloud/soundcloud.js");
-        addResolver(scriptResolver);
+    public PipeLine(TomahawkApp tomahawkApp) {
+        mTomahawkApp = tomahawkApp;
     }
 
     /**
@@ -69,6 +53,18 @@ public class PipeLine {
      */
     public void addResolver(Resolver resolver) {
         mResolvers.add(resolver);
+    }
+
+    /**
+     * Get the resolver with the given id, null if not found
+     * @param id
+     * @return
+     */
+    public Resolver getResolver(int id) {
+        for (Resolver resolver : mResolvers)
+            if (resolver.getId() == id)
+                return resolver;
+        return null;
     }
 
     /**
@@ -83,7 +79,7 @@ public class PipeLine {
                 if (query.getFullTextQuery() == fullTextQuery)
                     q = query;
             if (q == null)
-                q = new Query(((TomahawkApp) mApplication).getUniqueQueryId(), fullTextQuery);
+                q = new Query(mTomahawkApp.getUniqueQueryId(), fullTextQuery);
             if (!mQids.containsKey(q.getQid())) {
                 mQids.put(q.getQid(), q);
                 for (Resolver resolver : mResolvers) {
@@ -117,7 +113,7 @@ public class PipeLine {
     private void sendReportResultsBroadcast(String qid) {
         Intent reportIntent = new Intent(PIPELINE_RESULTSREPORTED);
         reportIntent.putExtra(PIPELINE_RESULTSREPORTED_QID, qid);
-        mApplication.sendBroadcast(reportIntent);
+        mTomahawkApp.sendBroadcast(reportIntent);
     }
 
     /**

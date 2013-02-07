@@ -30,6 +30,7 @@ import org.tomahawk.libtomahawk.network.TomahawkService.TomahawkServiceConnectio
 import org.tomahawk.libtomahawk.network.TomahawkService.TomahawkServiceConnection.TomahawkServiceConnectionListener;
 import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
+import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 
 import android.accounts.*;
 import android.app.Application;
@@ -48,6 +49,12 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
         TomahawkServiceConnectionListener {
 
     private static final String TAG = TomahawkApp.class.getName();
+
+    public static final int RESOLVER_ID_USERCOLLECTION = 0;
+    public static final int RESOLVER_ID_JAMENDO = 100;
+    public static final int RESOLVER_ID_OFFICIALFM = 101;
+    public static final int RESOLVER_ID_EXFM = 102;
+    public static final int RESOLVER_ID_SOUNDCLOUD = 103;
 
     private static IntentFilter sCollectionUpdateIntentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
     private CollectionUpdateReceiver mCollectionUpdatedReceiver;
@@ -96,6 +103,14 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
             mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
             registerReceiver(mCollectionUpdatedReceiver, sCollectionUpdateIntentFilter);
         }
+        ScriptResolver scriptResolver = new ScriptResolver(RESOLVER_ID_JAMENDO, this, "js/jamendo/jamendo-resolver.js");
+        mPipeLine.addResolver(scriptResolver);
+        scriptResolver = new ScriptResolver(RESOLVER_ID_OFFICIALFM, this, "js/official.fm/officialfm.js");
+        mPipeLine.addResolver(scriptResolver);
+        scriptResolver = new ScriptResolver(RESOLVER_ID_EXFM, this, "js/exfm/exfm.js");
+        mPipeLine.addResolver(scriptResolver);
+        scriptResolver = new ScriptResolver(RESOLVER_ID_SOUNDCLOUD, this, "js/soundcloud/soundcloud.js");
+        mPipeLine.addResolver(scriptResolver);
 
         initialize();
     }
@@ -104,7 +119,8 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
      * Called when a Collection has been updated.
      */
     protected void onCollectionUpdated() {
-        mPipeLine.addResolver(new DataBaseResolver(this, mSourceList.getLocalSource().getCollection()));
+        mPipeLine.addResolver(new DataBaseResolver(RESOLVER_ID_USERCOLLECTION, this,
+                mSourceList.getLocalSource().getCollection()));
     }
 
     /**

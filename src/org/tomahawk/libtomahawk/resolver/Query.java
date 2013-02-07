@@ -23,6 +23,7 @@ import java.util.Collections;
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.TrackComparator;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 /**
@@ -42,8 +43,9 @@ public class Query {
     private String mFullTextQuery;
     private boolean mIsFullTextQuery;
 
-    public Query() {
-    }
+    private String mTrackName;
+    private String mAlbumName;
+    private String mArtistName;
 
     /**
      * Constructs a new Query with the given QueryID. ID should be generated in TomahawkApp.
@@ -57,12 +59,20 @@ public class Query {
      * Constructs a new Query with the given QueryID and a fullTextQuery String.
      * ID should be generated in TomahawkApp.
      * @param qid
-     * @param query
+     * @param fullTextQuery
      */
-    public Query(final String qid, final String query) {
-        mFullTextQuery = query;
+    public Query(final String qid, final String fullTextQuery) {
+        mFullTextQuery = fullTextQuery.replace("'", "\\'");
         mIsFullTextQuery = true;
         mQid = qid;
+    }
+
+    public Query(final String qid, final String trackName, final String albumName, final String artistName) {
+        mTrackName = trackName.replace("'", "\\'");
+        mAlbumName = albumName.replace("'", "\\'");
+        mArtistName = artistName.replace("'", "\\'");
+        mQid = qid;
+        mIsFullTextQuery = false;
     }
 
     /**
@@ -124,16 +134,13 @@ public class Query {
         if (r.getTrack().getName() != null)
             resultTrackName = cleanUpString(r.getTrack().getName(), false);
 
-        final String cleanFullTextQueryWithoutArticle = cleanUpString(getFullTextQuery(), true);
-        final String cleanFullTextQueryWithArticle = cleanUpString(getFullTextQuery(), false);
+        int distanceArtist = TomahawkUtils.getLevenshteinDistance(mArtistName, resultArtistName);
+        int distanceAlbum = TomahawkUtils.getLevenshteinDistance(mAlbumName, resultAlbumName);
+        int distanceTrack = TomahawkUtils.getLevenshteinDistance(mTrackName, resultTrackName);
 
-        int distanceArtist = TomahawkUtils.getLevenshteinDistance(cleanFullTextQueryWithoutArticle, resultArtistName);
-        int distanceAlbum = TomahawkUtils.getLevenshteinDistance(cleanFullTextQueryWithArticle, resultAlbumName);
-        int distanceTrack = TomahawkUtils.getLevenshteinDistance(cleanFullTextQueryWithArticle, resultTrackName);
-
-        int maxLengthArtist = Math.max(cleanFullTextQueryWithoutArticle.length(), resultArtistName.length());
-        int maxLengthAlbum = Math.max(cleanFullTextQueryWithArticle.length(), resultAlbumName.length());
-        int maxLengthTrack = Math.max(cleanFullTextQueryWithArticle.length(), resultTrackName.length());
+        int maxLengthArtist = Math.max(mArtistName.length(), resultArtistName.length());
+        int maxLengthAlbum = Math.max(mAlbumName.length(), resultAlbumName.length());
+        int maxLengthTrack = Math.max(mTrackName.length(), resultTrackName.length());
 
         float distanceScoreArtist = (float) (maxLengthArtist - distanceArtist) / maxLengthArtist;
         float distanceScoreAlbum = (float) (maxLengthAlbum - distanceAlbum) / maxLengthAlbum;
@@ -154,12 +161,17 @@ public class Query {
             result = Math.max(result, distanceScoreTrack);
             if (resultArtistTrackname.contains(artistTrackname))
                 result = Math.max(result, 0.9F);
-            Log.d(TAG, "cleanFullTextQueryWithArticle = " + cleanFullTextQueryWithArticle + ", resultArtistName= "
-                    + resultArtistName + ", resultAlbumName= " + resultAlbumName + ", resultTrackName= "
-                    + resultTrackName + ", score = " + Math.max(result, distanceScoreArtistTrack));
+            Log.d(TAG, "cleanFullTextQueryWithArticle = " + artistTrackname + ", resultArtistName= " + resultArtistName
+                    + ", resultAlbumName= " + resultAlbumName + ", resultTrackName= " + resultTrackName + ", score = "
+                    + Math.max(result, distanceScoreArtistTrack));
             return result;
+        } else {
+            if (TextUtils.isEmpty(mAlbumName))
+                distanceScoreAlbum = 1F;
+
+            float combined = (distanceScoreArtist * 4 + distanceScoreAlbum + distanceScoreTrack * 5) / 10;
+            return combined;
         }
-        return 0;
     }
 
     /**
@@ -173,5 +185,17 @@ public class Query {
         if (replaceArticle && out.startsWith("the "))
             out = out.substring(4);
         return out;
+    }
+
+    public String getTrackName() {
+        return mTrackName;
+    }
+
+    public String getAlbumName() {
+        return mAlbumName;
+    }
+
+    public String getArtistName() {
+        return mArtistName;
     }
 }

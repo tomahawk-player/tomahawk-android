@@ -49,13 +49,26 @@ public class CustomPlaylist extends Playlist {
     }
 
     /**
+     * Creates a CustomPlaylist from a list of tracks and sets the current Track index
+     * to the given track index
+     *
+     * @return a reference to the constructed CustomPlaylist
+     */
+    public static CustomPlaylist fromTrackList(String name, ArrayList<Track> tracks, int currentTrackIndex) {
+        CustomPlaylist pl = new CustomPlaylist(name);
+        pl.setTracks(tracks);
+        pl.setCurrentTrackIndex(currentTrackIndex);
+        return pl;
+    }
+
+    /**
      * Construct a new empty CustomPlaylist.
      */
     protected CustomPlaylist(String name) {
         super(name);
     }
 
-    public long getId(){
+    public long getId() {
         return 0;
     }
 }

@@ -26,6 +26,7 @@ import java.util.List;
 import org.tomahawk.libtomahawk.*;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
+import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.playlist.AlbumPlaylist;
 import org.tomahawk.libtomahawk.playlist.ArtistPlaylist;
 import org.tomahawk.libtomahawk.playlist.CollectionPlaylist;
@@ -43,6 +44,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
@@ -58,6 +60,8 @@ import com.emilsjolander.components.stickylistheaders.StickyListHeadersListView;
 public class PlaybackActivity extends SherlockFragmentActivity implements PlaybackServiceConnectionListener,
         Handler.Callback, AdapterView.OnItemClickListener, StickyListHeadersListView.OnHeaderClickListener,
         ViewTreeObserver.OnGlobalLayoutListener {
+
+    public static final String TAG = PlaybackActivity.class.getName();
 
     private int mFragmentLayoutHeight;
 

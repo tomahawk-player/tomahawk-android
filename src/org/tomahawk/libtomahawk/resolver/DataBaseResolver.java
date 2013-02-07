@@ -20,13 +20,16 @@ package org.tomahawk.libtomahawk.resolver;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.text.TextUtils;
 import org.json.JSONObject;
-import org.tomahawk.libtomahawk.*;
+import org.tomahawk.libtomahawk.Collection;
+import org.tomahawk.libtomahawk.TomahawkBaseAdapter;
+import org.tomahawk.libtomahawk.Track;
+import org.tomahawk.libtomahawk.UserCollection;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 import android.widget.Filter;
 
 /**
@@ -40,6 +43,7 @@ public class DataBaseResolver implements Resolver {
     public static final int DATABASERESOLVER_FILTER_MODE_ALBUMS = 2;
 
     private TomahawkApp mTomahawkApp;
+    private int mId;
     private Collection mCollection;
 
     private String mName;
@@ -51,10 +55,11 @@ public class DataBaseResolver implements Resolver {
     private boolean mReady;
     private boolean mStopped;
 
-    public DataBaseResolver(TomahawkApp tomahawkApp, Collection collection) {
+    public DataBaseResolver(int id, TomahawkApp tomahawkApp, Collection collection) {
         mReady = false;
         mStopped = true;
         mTomahawkApp = tomahawkApp;
+        mId = id;
         mName = String.valueOf(collection.getId());
         if (collection.getId() == UserCollection.Id)
             mIcon = mTomahawkApp.getResources().getDrawable(R.drawable.ic_action_collection);
@@ -85,77 +90,96 @@ public class DataBaseResolver implements Resolver {
      */
     public void resolve(Query query) {
         mStopped = false;
-        getFilter(query.getQid(), this, DATABASERESOLVER_FILTER_MODE_TRACKS).filter(query.getFullTextQuery());
+        if (query.isFullTextQuery())
+            new TomahawkListItemFilter(query.getQid(), this, query.getFullTextQuery()).filter(null);
+        else
+            new TomahawkListItemFilter(query.getQid(), this, query.getTrackName(), query.getAlbumName(),
+                    query.getArtistName()).filter(null);
     }
 
-    /** @return the {@link Filter}, which allows to filter a list of TomahawkListItems*/
-    public Filter getFilter(final String qid, final Resolver resolver, final int filterMode) {
-        return new Filter() {
-            @SuppressWarnings("unchecked")
-            @Override
-            protected void publishResults(CharSequence constraint, FilterResults results) {
-                ArrayList<Result> resultList = (ArrayList<Result>) results.values;
-                mStopped = true;
-                mTomahawkApp.getPipeLine().reportResults(qid, resultList);
+    private class TomahawkListItemFilter extends Filter {
+        private String mQid;
+        private Resolver mResolver;
+        private String mFullTextQuery = "";
+        private String mTrackName = "";
+        private String mAlbumName = "";
+        private String mArtistName = "";
+
+        public TomahawkListItemFilter(final String qid, final Resolver resolver, final String fullTextQuery) {
+            mQid = qid;
+            mResolver = resolver;
+            mFullTextQuery = fullTextQuery.toLowerCase().trim();
+        }
+
+        public TomahawkListItemFilter(final String qid, final Resolver resolver, final String trackName,
+                final String albumName, final String artistName) {
+            mQid = qid;
+            mResolver = resolver;
+            mTrackName = trackName.toLowerCase().trim();
+            mAlbumName = albumName.toLowerCase().trim();
+            mArtistName = artistName.toLowerCase().trim();
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            ArrayList<Result> resultList = (ArrayList<Result>) results.values;
+            mStopped = true;
+            mTomahawkApp.getPipeLine().reportResults(mQid, resultList);
+        }
+
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            ArrayList<Result> filteredResults = getFilteredResults();
+
+            FilterResults results = new FilterResults();
+            synchronized (this) {
+                results.values = filteredResults;
             }
 
-            @Override
-            protected FilterResults performFiltering(CharSequence constraint) {
-                constraint = constraint.toString().toLowerCase();
-                constraint = constraint.toString().trim();
-                ArrayList<Result> filteredResults = getFilteredResults(constraint);
+            return results;
+        }
 
-                FilterResults results = new FilterResults();
-                synchronized (this) {
-                    results.values = filteredResults;
-                }
+        protected ArrayList<Result> getFilteredResults() {
+            ArrayList<Result> filteredResults = new ArrayList<Result>();
+            if (TextUtils.isEmpty(mFullTextQuery) && TextUtils.isEmpty(mTrackName) && TextUtils.isEmpty(mAlbumName)
+                    && TextUtils.isEmpty(mArtistName))
+                return filteredResults;
+            List<TomahawkBaseAdapter.TomahawkListItem> inputList = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+            inputList.addAll(mCollection.getTracks());
 
-                return results;
-            }
-
-            protected ArrayList<Result> getFilteredResults(CharSequence constraint) {
-                ArrayList<Result> filteredResults = new ArrayList<Result>();
-                if (constraint == null || TextUtils.isEmpty(constraint.toString()))
-                    return filteredResults;
-                List<TomahawkBaseAdapter.TomahawkListItem> inputList = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-                switch (filterMode) {
-                case DATABASERESOLVER_FILTER_MODE_TRACKS:
-                    inputList.addAll(mCollection.getTracks());
-                    break;
-                case DATABASERESOLVER_FILTER_MODE_ARTISTS:
-                    inputList.addAll(mCollection.getArtists());
-                    break;
-                case DATABASERESOLVER_FILTER_MODE_ALBUMS:
-                    inputList.addAll(mCollection.getAlbums());
-                }
-
-                for (int i = 0; i < inputList.size(); i++) {
-                    TomahawkBaseAdapter.TomahawkListItem item = inputList.get(i);
-                    if (item.getName().toLowerCase().contains(constraint)
+            for (int i = 0; i < inputList.size(); i++) {
+                TomahawkBaseAdapter.TomahawkListItem item = inputList.get(i);
+                if (TextUtils.isEmpty(mFullTextQuery)) {
+                    if (item.getName().toLowerCase().contains(mFullTextQuery)
                             || (item.getArtist() != null && item.getArtist().getName().toLowerCase().contains(
-                                    constraint))
-                            || (item.getAlbum() != null && item.getAlbum().getName().toLowerCase().contains(constraint))) {
+                                    mFullTextQuery))
+                            || (item.getAlbum() != null && item.getAlbum().getName().toLowerCase().contains(
+                                    mFullTextQuery))) {
                         Result r;
-                        switch (filterMode) {
-                        case DATABASERESOLVER_FILTER_MODE_TRACKS:
-                            r = new Result((Track) item);
-                            r.setResolver(resolver);
-                            filteredResults.add(r);
-                            break;
-                        case DATABASERESOLVER_FILTER_MODE_ARTISTS:
-                            r = new Result((Artist) item);
-                            r.setResolver(resolver);
-                            filteredResults.add(r);
-                            break;
-                        case DATABASERESOLVER_FILTER_MODE_ALBUMS:
-                            r = new Result((Album) item);
-                            r.setResolver(resolver);
-                            filteredResults.add(r);
-                        }
+                        r = new Result((Track) item);
+                        r.setResolver(mResolver);
+                        filteredResults.add(r);
+                        break;
+                    }
+                } else {
+                    if (item.getName().toLowerCase().contains(mTrackName)
+                            || (item.getArtist() != null && item.getArtist().getName().toLowerCase().contains(
+                                    mArtistName))
+                            || (item.getAlbum() != null && item.getAlbum().getName().toLowerCase().contains(mAlbumName))) {
+                        Result r;
+                        r = new Result((Track) item);
+                        r.setResolver(mResolver);
+                        filteredResults.add(r);
+                        break;
                     }
                 }
-                return filteredResults;
             }
-        };
+            return filteredResults;
+        }
+    }
+
+    public int getId() {
+        return mId;
     }
 }

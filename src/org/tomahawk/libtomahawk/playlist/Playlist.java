@@ -80,6 +80,10 @@ public abstract class Playlist implements Playable {
         }
     }
 
+    public void setCurrentTrackIndex(int currentTrackIndex) {
+        mCurrentTrackIndex = currentTrackIndex;
+    }
+
     /* 
      * (non-Javadoc)
      * @see org.tomahawk.libtomahawk.playlist.Playable#getCurrentTrack()
@@ -90,6 +94,10 @@ public abstract class Playlist implements Playable {
         if (tracks != null && mCurrentTrackIndex >= 0 && mCurrentTrackIndex < tracks.size())
             return tracks.get(mCurrentTrackIndex);
         return null;
+    }
+
+    public int getCurrentTrackIndex() {
+        return mCurrentTrackIndex;
     }
 
     /* 

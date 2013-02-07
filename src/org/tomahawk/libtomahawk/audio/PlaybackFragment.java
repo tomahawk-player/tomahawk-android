@@ -191,17 +191,21 @@ public class PlaybackFragment extends SherlockFragment {
 
     /** Called when the PlaybackService signals the current Track has changed. */
     protected void onTrackChanged() {
-        refreshActivityTrackInfo();
+        if (mPlaybackActivity != null) {
+            refreshActivityTrackInfo();
+        }
     }
 
     /**
      * Called when the PlaybackService signals the current Playlist has changed.
      */
     protected void onPlaylistChanged() {
-        if (mAlbumArtSwipeAdapter != null)
-            mAlbumArtSwipeAdapter.updatePlaylist();
-        refreshRepeatButtonState();
-        refreshShuffleButtonState();
+        if (mPlaybackActivity != null) {
+            if (mAlbumArtSwipeAdapter != null)
+                mAlbumArtSwipeAdapter.updatePlaylist();
+            refreshRepeatButtonState();
+            refreshShuffleButtonState();
+        }
     }
 
     /**
@@ -209,13 +213,15 @@ public class PlaybackFragment extends SherlockFragment {
      * changed.
      */
     protected void onPlaystateChanged() {
-        refreshPlayPauseButtonState();
-        if (mPlaybackSeekBar != null)
-            mPlaybackSeekBar.updateSeekBarPosition();
+        if (mPlaybackActivity != null) {
+            refreshPlayPauseButtonState();
+            if (mPlaybackSeekBar != null)
+                mPlaybackSeekBar.updateSeekBarPosition();
+        }
     }
 
     public void setPlaybackService(PlaybackService ps) {
-        if (mPlaybackService != ps) {
+        if (mPlaybackActivity != null && mPlaybackService != ps) {
             mPlaybackService = ps;
             if (mAlbumArtSwipeAdapter != null && mPlaybackActivity != null && mPlaybackSeekBar != null) {
                 mAlbumArtSwipeAdapter.setPlaybackService(mPlaybackService);
@@ -233,11 +239,12 @@ public class PlaybackFragment extends SherlockFragment {
      * Track, if possible (meaning mPlaybackService is not null).
      */
     protected void refreshActivityTrackInfo() {
-        if (mPlaybackService != null && mAlbumArtSwipeAdapter != null && mPlaybackActivity != null
-                && mPlaybackSeekBar != null)
-            refreshActivityTrackInfo(mPlaybackService.getCurrentTrack());
-        else
-            refreshActivityTrackInfo(null);
+        if (mPlaybackActivity != null) {
+            if (mPlaybackService != null && mAlbumArtSwipeAdapter != null && mPlaybackSeekBar != null)
+                refreshActivityTrackInfo(mPlaybackService.getCurrentTrack());
+            else
+                refreshActivityTrackInfo(null);
+        }
     }
 
     /**

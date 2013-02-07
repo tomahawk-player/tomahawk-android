@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.UserCollection;
+import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.playlist.Playlist;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -50,7 +51,6 @@ import android.widget.RemoteViews;
 public class PlaybackService extends Service implements OnCompletionListener, OnErrorListener, OnPreparedListener {
 
     private static String TAG = PlaybackService.class.getName();
-
     private final IBinder mBinder = new PlaybackServiceBinder();
     private boolean mHasBoundServices;
 
@@ -76,6 +76,8 @@ public class PlaybackService extends Service implements OnCompletionListener, On
     private PowerManager.WakeLock mWakeLock;
     private ServiceBroadcastReceiver mServiceBroadcastReceiver;
     private Handler mHandler;
+
+    private UserPlaylistsDataSource userPlaylistsDataSource;
 
     public static class PlaybackServiceConnection implements ServiceConnection {
 
@@ -234,6 +236,9 @@ public class PlaybackService extends Service implements OnCompletionListener, On
         Message msg = mKillTimerHandler.obtainMessage();
         mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
 
+        userPlaylistsDataSource = new UserPlaylistsDataSource(this, ((TomahawkApp) getApplication()).getPipeLine());
+        userPlaylistsDataSource.open();
+
         initMediaPlayer();
         restoreState();
     }
@@ -267,8 +272,9 @@ public class PlaybackService extends Service implements OnCompletionListener, On
     @Override
     public void onDestroy() {
         saveState();
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(PLAYBACKSERVICE_NOTIFICATION_ID);
+        userPlaylistsDataSource.close();
+//        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//        notificationManager.cancel(PLAYBACKSERVICE_NOTIFICATION_ID);
         unregisterReceiver(mServiceBroadcastReceiver);
         mTomahawkMediaPlayer.release();
         mTomahawkMediaPlayer = null;
@@ -347,6 +353,12 @@ public class PlaybackService extends Service implements OnCompletionListener, On
         UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication()).getSourceList().getCollectionFromId(
                 UserCollection.Id));
         userCollection.addCachedPlaylist(getCurrentPlaylist());
+
+        if (getCurrentPlaylist() != null) {
+            long startTime = System.currentTimeMillis();
+            userPlaylistsDataSource.storeCachedUserPlaylist(getCurrentPlaylist());
+            Log.d(TAG, "Playlist stored in " + (System.currentTimeMillis() - startTime) + "ms");
+        }
     }
 
     /**
@@ -357,6 +369,11 @@ public class PlaybackService extends Service implements OnCompletionListener, On
                 UserCollection.Id));
         try {
             setCurrentPlaylist(userCollection.getPlaylistById(UserCollection.USERCOLLECTION_CACHEDPLAYLIST_ID));
+            if (getCurrentPlaylist() == null) {
+                long startTime = System.currentTimeMillis();
+                setCurrentPlaylist(userPlaylistsDataSource.getCachedUserPlaylist());
+                Log.d(TAG, "Playlist loaded in " + (System.currentTimeMillis() - startTime) + "ms");
+            }
         } catch (IOException e) {
             Log.e(TAG, "restoreState(): " + IOException.class.getName() + ": " + e.getLocalizedMessage());
         }

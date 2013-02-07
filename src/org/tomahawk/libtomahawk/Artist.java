@@ -43,6 +43,9 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
     private HashMap<Long, Album> mAlbums;
     private HashMap<Long, Track> mTracks;
 
+    public Artist() {
+    }
+
     public Artist(long id) {
         mId = id;
         mAlbums = new HashMap<Long, Album>();
