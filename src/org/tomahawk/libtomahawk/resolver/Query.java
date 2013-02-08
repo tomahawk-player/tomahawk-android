@@ -43,9 +43,9 @@ public class Query {
     private String mFullTextQuery;
     private boolean mIsFullTextQuery;
 
-    private String mTrackName;
-    private String mAlbumName;
-    private String mArtistName;
+    private String mTrackName = "";
+    private String mAlbumName = "";
+    private String mArtistName = "";
 
     /**
      * Constructs a new Query with the given QueryID. ID should be generated in TomahawkApp.
@@ -143,7 +143,11 @@ public class Query {
         int maxLengthTrack = Math.max(mTrackName.length(), resultTrackName.length());
 
         float distanceScoreArtist = (float) (maxLengthArtist - distanceArtist) / maxLengthArtist;
-        float distanceScoreAlbum = (float) (maxLengthAlbum - distanceAlbum) / maxLengthAlbum;
+        float distanceScoreAlbum;
+        if (maxLengthAlbum > 0)
+            distanceScoreAlbum = (float) (maxLengthAlbum - distanceAlbum) / maxLengthAlbum;
+        else
+            distanceScoreAlbum = 0F;
         float distanceScoreTrack = (float) (maxLengthTrack - distanceTrack) / maxLengthTrack;
 
         if (isFullTextQuery()) {

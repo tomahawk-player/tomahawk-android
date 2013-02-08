@@ -2,6 +2,7 @@ package org.tomahawk.libtomahawk.resolver;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 
 public class TomahawkUtils {
@@ -18,6 +19,10 @@ public class TomahawkUtils {
         if (s == null || t == null) {
             throw new IllegalArgumentException("Strings must not be null");
         }
+        if (s == null || TextUtils.isEmpty(s))
+            return t.length();
+        else if (t == null || TextUtils.isEmpty(t))
+            return s.length();
         int n = s.length(); // length of s
         int m = t.length(); // length of t
 
