@@ -231,16 +231,18 @@ public class PlaybackService extends Service implements OnCompletionListener, On
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_PREVIOUS) {
-            previous();
-        } else if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE) {
-            playPause();
-        } else if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_NEXT) {
-            next();
-        } else if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_EXIT) {
-            pause();
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.cancel(PLAYBACKSERVICE_NOTIFICATION_ID);
+        if (intent != null) {
+            if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_PREVIOUS) {
+                previous();
+            } else if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE) {
+                playPause();
+            } else if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_NEXT) {
+                next();
+            } else if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_EXIT) {
+                pause();
+                NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.cancel(PLAYBACKSERVICE_NOTIFICATION_ID);
+            }
         }
         return START_STICKY;
     }
