@@ -132,7 +132,7 @@ public class PlaybackFragment extends SherlockFragment {
      */
     public void onPlayPauseClicked() {
         if (mPlaybackService != null)
-            mPlaybackService.playPause();
+            mPlaybackService.playPause(true);
     }
 
     /** play the next track and set the playbutton to pause icon */

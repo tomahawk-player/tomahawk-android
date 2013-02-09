@@ -270,7 +270,7 @@ public class PlaybackService extends Service implements OnCompletionListener, On
      */
     @Override
     public void onDestroy() {
-        pause();
+        pause(true);
         saveState();
         userPlaylistsDataSource.close();
         unregisterReceiver(mServiceBroadcastReceiver);
@@ -376,17 +376,33 @@ public class PlaybackService extends Service implements OnCompletionListener, On
             Log.e(TAG, "restoreState(): " + IOException.class.getName() + ": " + e.getLocalizedMessage());
         }
         if (getCurrentPlaylist() != null && isPlaying())
-            pause();
+            pause(true);
+    }
+
+    /**
+     * Start or pause playback (doesn't dismiss notification on pause)
+     */
+    public void playPause() {
+        playPause(false);
     }
 
     /**
      * Start or pause playback.
+     * @param dismissNotificationOnPause
      */
-    public void playPause() {
-        if (mPlayState == PLAYBACKSERVICE_PLAYSTATE_PLAYING)
+    public void playPause(boolean dismissNotificationOnPause) {
+        if (mPlayState == PLAYBACKSERVICE_PLAYSTATE_PLAYING) {
             mPlayState = PLAYBACKSERVICE_PLAYSTATE_PAUSED;
-        else if (mPlayState == PLAYBACKSERVICE_PLAYSTATE_PAUSED || mPlayState == PLAYBACKSERVICE_PLAYSTATE_STOPPED)
+            if (dismissNotificationOnPause) {
+                NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.cancel(PLAYBACKSERVICE_NOTIFICATION_ID);
+            } else {
+                updatePlayingNotification();
+            }
+        } else if (mPlayState == PLAYBACKSERVICE_PLAYSTATE_PAUSED || mPlayState == PLAYBACKSERVICE_PLAYSTATE_STOPPED) {
             mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
+            updatePlayingNotification();
+        }
         sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
         handlePlayState();
     }
@@ -399,6 +415,7 @@ public class PlaybackService extends Service implements OnCompletionListener, On
         mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
         sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
         handlePlayState();
+        updatePlayingNotification();
     }
 
     /**
@@ -408,15 +425,30 @@ public class PlaybackService extends Service implements OnCompletionListener, On
         mPlayState = PLAYBACKSERVICE_PLAYSTATE_STOPPED;
         sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
         handlePlayState();
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(PLAYBACKSERVICE_NOTIFICATION_ID);
     }
 
     /**
      * Pause playback.
      */
     public void pause() {
+        pause(false);
+    }
+
+    /**
+     * Pause playback.
+     */
+    public void pause(boolean dismissNotificationOnPause) {
         mPlayState = PLAYBACKSERVICE_PLAYSTATE_PAUSED;
         sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
         handlePlayState();
+        if (dismissNotificationOnPause) {
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.cancel(PLAYBACKSERVICE_NOTIFICATION_ID);
+        } else {
+            updatePlayingNotification();
+        }
     }
 
     /**
@@ -446,7 +478,6 @@ public class PlaybackService extends Service implements OnCompletionListener, On
             Message msg = mKillTimerHandler.obtainMessage();
             mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
         }
-        updatePlayingNotification();
     }
 
     /**
