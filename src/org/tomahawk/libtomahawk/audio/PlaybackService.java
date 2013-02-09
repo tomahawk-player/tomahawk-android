@@ -154,16 +154,6 @@ public class PlaybackService extends Service implements OnCompletionListener, On
                 } else if (!headsetConnected && intent.getIntExtra("state", 0) == 1) {
                     headsetConnected = true;
                 }
-            } else if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_PREVIOUS) {
-                previous();
-            } else if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE) {
-                playPause();
-            } else if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_NEXT) {
-                next();
-            } else if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_EXIT) {
-                pause();
-                NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                notificationManager.cancel(PLAYBACKSERVICE_NOTIFICATION_ID);
             }
         }
     }
@@ -227,10 +217,6 @@ public class PlaybackService extends Service implements OnCompletionListener, On
 
         mServiceBroadcastReceiver = new ServiceBroadcastReceiver();
         registerReceiver(mServiceBroadcastReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
-        registerReceiver(mServiceBroadcastReceiver, new IntentFilter(BROADCAST_NOTIFICATIONINTENT_PREVIOUS));
-        registerReceiver(mServiceBroadcastReceiver, new IntentFilter(BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE));
-        registerReceiver(mServiceBroadcastReceiver, new IntentFilter(BROADCAST_NOTIFICATIONINTENT_NEXT));
-        registerReceiver(mServiceBroadcastReceiver, new IntentFilter(BROADCAST_NOTIFICATIONINTENT_EXIT));
 
         mKillTimerHandler.removeCallbacksAndMessages(null);
         Message msg = mKillTimerHandler.obtainMessage();
@@ -245,6 +231,17 @@ public class PlaybackService extends Service implements OnCompletionListener, On
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_PREVIOUS) {
+            previous();
+        } else if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE) {
+            playPause();
+        } else if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_NEXT) {
+            next();
+        } else if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_EXIT) {
+            pause();
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.cancel(PLAYBACKSERVICE_NOTIFICATION_ID);
+        }
         return START_STICKY;
     }
 
@@ -271,10 +268,9 @@ public class PlaybackService extends Service implements OnCompletionListener, On
      */
     @Override
     public void onDestroy() {
+        pause();
         saveState();
         userPlaylistsDataSource.close();
-//        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//        notificationManager.cancel(PLAYBACKSERVICE_NOTIFICATION_ID);
         unregisterReceiver(mServiceBroadcastReceiver);
         mTomahawkMediaPlayer.release();
         mTomahawkMediaPlayer = null;
@@ -624,16 +620,17 @@ public class PlaybackService extends Service implements OnCompletionListener, On
                 resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width),
                 resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_height), false);
 
-        Intent intent = new Intent(BROADCAST_NOTIFICATIONINTENT_PREVIOUS);
-        PendingIntent previousPendingIntent = PendingIntent.getBroadcast(this, 0, intent,
+        Intent intent = new Intent(BROADCAST_NOTIFICATIONINTENT_PREVIOUS, null, this, PlaybackService.class);
+        PendingIntent previousPendingIntent = PendingIntent.getService(this, 0, intent,
                 PendingIntent.FLAG_CANCEL_CURRENT);
-        intent = new Intent(BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE);
-        PendingIntent playPausePendingIntent = PendingIntent.getBroadcast(this, 0, intent,
+
+        intent = new Intent(BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE, null, this, PlaybackService.class);
+        PendingIntent playPausePendingIntent = PendingIntent.getService(this, 0, intent,
                 PendingIntent.FLAG_CANCEL_CURRENT);
-        intent = new Intent(BROADCAST_NOTIFICATIONINTENT_NEXT);
-        PendingIntent nextPendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-        intent = new Intent(BROADCAST_NOTIFICATIONINTENT_EXIT);
-        PendingIntent exitPendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        intent = new Intent(BROADCAST_NOTIFICATIONINTENT_NEXT, null, this, PlaybackService.class);
+        PendingIntent nextPendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        intent = new Intent(BROADCAST_NOTIFICATIONINTENT_EXIT, null, this, PlaybackService.class);
+        PendingIntent exitPendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         RemoteViews smallNotificationView;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
