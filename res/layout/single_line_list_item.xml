@@ -19,23 +19,29 @@
  */
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingBottom="8dip"
-    android:paddingLeft="10dip"
-    android:paddingTop="8dip"
-    android:background="@drawable/selectable_background_tomahawk" >
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="horizontal"
+              android:paddingBottom="2dip"
+              android:paddingTop="2dip"
+              android:paddingLeft="2dip"
+              android:background="@drawable/selectable_background_tomahawk"
+              android:descendantFocusability="blocksDescendants">
 
     <TextView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/single_line_list_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_gravity="center_vertical"
+        android:paddingTop="8dip"
+        android:paddingBottom="8dip"
+        android:paddingLeft="10dip"
         android:ellipsize="marquee"
         android:singleLine="true"
         android:textColor="#F2F2F2"
         android:textSize="10pt"
-        android:typeface="sans" />
+        android:typeface="sans"/>
 
 </LinearLayout>

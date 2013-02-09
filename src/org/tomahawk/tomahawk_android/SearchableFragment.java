@@ -48,8 +48,6 @@ public class SearchableFragment extends TomahawkFragment implements OnItemClickL
         CompoundButton.OnCheckedChangeListener {
 
     private static final String SEARCHABLEFRAGMENT_QUERY_STRING = "org.tomahawk.tomahawk_android.SEARCHABLEFRAGMENT_QUERY_STRING";
-    public static final String SEARCHABLEFRAGMENT_ARTISTCACHED = "org.tomahawk.tomahawk_android.SEARCHABLEFRAGMENT_ARTISTCACHED";
-    public static final String SEARCHABLEFRAGMENT_ALBUMCACHED = "org.tomahawk.tomahawk_android.SEARCHABLEFRAGMENT_ALBUMCACHED";
 
     private SearchableFragment mSearchableFragment = this;
     private ArrayList<Track> mCurrentShownTracks;
@@ -129,10 +127,10 @@ public class SearchableFragment extends TomahawkFragment implements OnItemClickL
         idx -= mList.getHeaderViewsCount();
         if (idx >= 0) {
             if (getListAdapter().getItem(idx) instanceof Track) {
-                long playlistId = mCollection.addPlaylist(CustomPlaylist.fromTrackList(mCurrentQueryString,
-                        mCurrentShownTracks, (Track) getListAdapter().getItem(idx)));
+                ((UserCollection) mActivity.getCollection()).setCachedPlaylist(CustomPlaylist.fromTrackList(
+                        mCurrentQueryString, mCurrentShownTracks, (Track) getListAdapter().getItem(idx)));
                 Bundle bundle = new Bundle();
-                bundle.putLong(PlaybackActivity.PLAYLIST_PLAYLIST_ID, playlistId);
+                bundle.putBoolean(UserCollection.USERCOLLECTION_PLAYLISTCACHED, true);
                 bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID, ((Track) getListAdapter().getItem(idx)).getId());
 
                 Intent playbackIntent = getIntent(mActivity, PlaybackActivity.class);
@@ -141,7 +139,7 @@ public class SearchableFragment extends TomahawkFragment implements OnItemClickL
             } else if (getListAdapter().getItem(idx) instanceof Album) {
                 mCollection.setCachedAlbum((Album) getListAdapter().getItem(idx));
                 Bundle bundle = new Bundle();
-                bundle.putBoolean(SEARCHABLEFRAGMENT_ALBUMCACHED, true);
+                bundle.putBoolean(UserCollection.USERCOLLECTION_ALBUMCACHED, true);
 
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
                 ft.replace(R.id.searchactivity_fragmentcontainer_framelayout,
@@ -151,7 +149,7 @@ public class SearchableFragment extends TomahawkFragment implements OnItemClickL
             } else if (getListAdapter().getItem(idx) instanceof Artist) {
                 mCollection.setCachedArtist((Artist) getListAdapter().getItem(idx));
                 Bundle bundle = new Bundle();
-                bundle.putBoolean(SEARCHABLEFRAGMENT_ARTISTCACHED, true);
+                bundle.putBoolean(UserCollection.USERCOLLECTION_ARTISTCACHED, true);
 
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
                 ft.replace(R.id.searchactivity_fragmentcontainer_framelayout,

@@ -48,6 +48,14 @@ public abstract class Playlist implements Playable {
         setTracks(new ArrayList<Track>());
     }
 
+    public String getName() {
+        return mName;
+    }
+
+    public void setName(String name) {
+        this.mName = name;
+    }
+
     /* 
      * (non-Javadoc)
      * @see org.tomahawk.libtomahawk.playlist.Playable#setTracks(java.util.Collection)

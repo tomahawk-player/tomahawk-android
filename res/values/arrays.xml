@@ -47,11 +47,5 @@
     <string-array name="global_collection_menu_items">
         <item>none</item>
     </string-array>
-    <string-array name="searchactivity_searchtype_spinner_items">
-        <item>all types</item>
-        <item>tracks</item>
-        <item>artists</item>
-        <item>albums</item>
-    </string-array>
 
 </resources>

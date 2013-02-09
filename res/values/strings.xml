@@ -2,7 +2,7 @@
 <!--
 /*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2012, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
  *   Copyright 2012, Christopher Reichert <creichert07@gmail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
@@ -23,6 +23,8 @@
     <string name="appname_string">Tomahawk</string>
     <string name="nodata_string">No data</string>
     <string name="mainactivity_title_string">Tomahawk</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
     <string name="localcollectionactivity_title_string">"My Music"</string>
     <string name="remotecollectionactivity_title_string">Remote</string>
     <string name="globalcollectionfragment_title_string">Global</string>
@@ -43,6 +45,8 @@
     <string name="playbackactivity_toastrepeaton_string">"Repeat is on"</string>
     <string name="playbackactivity_toastrepeatoff_string">"Repeat is off"</string>
     <string name="playbackactivity_unknown_string">"&#60;unknown&#62;"</string>
+    <string name="playbackactivity_save_playlist_dialog_title">"Save the current playlist"</string>
+    <string name="playbackactivity_save_playlist_dialog_hint">"Name"</string>
     <string name="playbackservice_label_string">PlaybackService</string>
     <string name="loginactivity_username_label_string">Username:</string>
     <string name="loginactivity_password_label_string">Password:</string>

@@ -8,6 +8,8 @@
         <item name="android:listViewStyle">@style/ListViewTomahawkTheme</item>
         <item name="android:listViewWhiteStyle">@style/ListViewTomahawkTheme.White</item>
         <item name="android:spinnerItemStyle">@style/SpinnerItemTomahawkTheme</item>
+        <item name="android:checkboxStyle">@style/CheckBoxTomahawkTheme</item>
+        <item name="android:radioButtonStyle">@style/RadioButtonTomahawkTheme</item>
     </style>
 
     <style name="EditTextTomahawkTheme" parent="android:Widget.EditText">
@@ -31,6 +33,14 @@
 
     <style name="SpinnerItemTomahawkTheme" parent="android:TextAppearance.Widget.TextView.SpinnerItem">
         <item name="android:textColor">#ffffff</item>
+    </style>
+
+    <style name="CheckBoxTomahawkTheme" parent="android:Widget.CompoundButton.CheckBox">
+        <item name="android:button">@drawable/btn_check_holo_dark</item>
+    </style>
+
+    <style name="RadioButtonTomahawkTheme" parent="android:Widget.CompoundButton.RadioButton">
+        <item name="android:button">@drawable/btn_radio_holo_dark</item>
     </style>
 
 </resources>
