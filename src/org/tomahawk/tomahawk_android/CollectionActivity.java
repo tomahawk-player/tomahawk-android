@@ -101,20 +101,14 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
         ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
         mTabsAdapter = new TabsAdapter(this, getSupportFragmentManager(), viewPager, true);
         mTabsAdapter.addTab(actionBar.newTab().setText(R.string.localcollectionactivity_title_string));
-        //        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.remotecollectionactivity_title_string));
-        //        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.globalcollectionfragment_title_string));
         if (savedInstanceState == null) {
             mTabsAdapter.addRootToTab(LocalCollectionFragment.class);
-            //            mTabsAdapter.addRootToTab(RemoteCollectionFragment.class);
-            //            mTabsAdapter.addRootToTab(GlobalCollectionFragment.class);
         } else {
             ArrayList<TabsAdapter.TabHolder> fragmentStateHolderStack = (ArrayList<TabsAdapter.TabHolder>) savedInstanceState.getSerializable(COLLECTION_ID_STOREDBACKSTACK);
             if (fragmentStateHolderStack != null && fragmentStateHolderStack.size() > 0)
                 mTabsAdapter.setBackStack(fragmentStateHolderStack);
             else {
                 mTabsAdapter.addRootToTab(LocalCollectionFragment.class);
-                //                mTabsAdapter.addRootToTab(RemoteCollectionFragment.class);
-                //                mTabsAdapter.addRootToTab(GlobalCollectionFragment.class);
             }
         }
         Intent intent = getIntent();

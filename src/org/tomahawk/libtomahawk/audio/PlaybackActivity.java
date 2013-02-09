@@ -26,7 +26,6 @@ import java.util.List;
 import org.tomahawk.libtomahawk.*;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
-import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.playlist.AlbumPlaylist;
 import org.tomahawk.libtomahawk.playlist.ArtistPlaylist;
 import org.tomahawk.libtomahawk.playlist.CollectionPlaylist;
@@ -44,7 +43,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
@@ -272,13 +270,16 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
 
     @Override
     public void onGlobalLayout() {
-        mFragmentLayoutHeight = getWindow().getDecorView().findViewById(android.R.id.content).getHeight()
-                - (int) TomahawkUtils.convertDpToPixel(32f, this);
+        final View activityRootView = getWindow().getDecorView().findViewById(android.R.id.content);
+        mFragmentLayoutHeight = activityRootView.getHeight() - (int) TomahawkUtils.convertDpToPixel(32f, this);
         mPlaybackFragment = (PlaybackFragment) getSupportFragmentManager().findFragmentById(R.id.playbackFragment);
         if (mPlaybackFragment != null && mPlaybackFragment.getView() != null)
             mPlaybackFragment.getView().setLayoutParams(
                     new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, mFragmentLayoutHeight));
-        getWindow().getDecorView().getViewTreeObserver().removeGlobalOnLayoutListener(this);
+        //is softkeyboard shown hack
+        int heightdiff = activityRootView.getRootView().getHeight() - activityRootView.getHeight();
+        if (heightdiff < 200)
+            getWindow().getDecorView().getViewTreeObserver().removeGlobalOnLayoutListener(this);
     }
 
     @Override
