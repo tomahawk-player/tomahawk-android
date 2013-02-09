@@ -21,6 +21,8 @@ package org.tomahawk.tomahawk_android;
 import java.util.ArrayList;
 
 import org.tomahawk.libtomahawk.*;
+import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
+import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -32,9 +34,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.*;
 
 import com.actionbarsherlock.app.SherlockFragment;
@@ -50,6 +50,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
     private static IntentFilter sCollectionUpdateIntentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
 
     private CollectionUpdateReceiver mCollectionUpdatedReceiver;
+    private UserPlaylistsDataSource mUserPlaylistsDataSource;
 
     protected TomahawkTabsActivity mActivity;
 
@@ -167,6 +168,10 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
         } else {
             getListView().setSelection(mListScrollPosition);
         }
+
+        mUserPlaylistsDataSource = new UserPlaylistsDataSource(mActivity,
+                ((TomahawkApp) mActivity.getApplication()).getPipeLine());
+        mUserPlaylistsDataSource.open();
     }
 
     /*
@@ -182,6 +187,8 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
             getActivity().unregisterReceiver(mCollectionUpdatedReceiver);
             mCollectionUpdatedReceiver = null;
         }
+        if (mUserPlaylistsDataSource != null)
+            mUserPlaylistsDataSource.close();
     }
 
     /*
@@ -212,6 +219,29 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         adaptColumnCount();
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        android.view.MenuInflater inflater = mActivity.getMenuInflater();
+        inflater.inflate(R.menu.popup_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+        case R.id.popupmenu_delete_item:
+            TomahawkBaseAdapter.TomahawkListItem tomahawkListItem = ((TomahawkBaseAdapter.TomahawkListItem) mTomahawkBaseAdapter.getItem(info.position));
+            if (tomahawkListItem instanceof CustomPlaylist)
+                mUserPlaylistsDataSource.deleteUserPlaylist(((CustomPlaylist) tomahawkListItem).getId());
+            ((UserCollection) ((TomahawkApp) mActivity.getApplication()).getSourceList().getCollectionFromId(
+                    UserCollection.Id)).updateUserPlaylists();
+            return true;
+        default:
+            return onContextItemSelected(item);
+        }
     }
 
     /** Adjust the column count so it fits to the current screen configuration */
@@ -312,8 +342,12 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
                     navigationLayoutView.addView(breadcrumbItem);
                 } else if (fpb.clss == TracksFragment.class) {
                     Album correspondingAlbum = currentCollection.getAlbumById(fpb.tomahawkListItemId);
-                    if (correspondingAlbum != null) {
+                    CustomPlaylist correspondingCustomPlaylist = currentCollection.getCustomPlaylistById(fpb.tomahawkListItemId);
+                    if (fpb.tomahawkListItemType == TOMAHAWK_ALBUM_ID && correspondingAlbum != null) {
                         breadcrumbItemTextView.setText(correspondingAlbum.getName());
+                        breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.GONE);
+                    } else if (fpb.tomahawkListItemType == TOMAHAWK_PLAYLIST_ID && correspondingCustomPlaylist != null) {
+                        breadcrumbItemTextView.setText(correspondingCustomPlaylist.getName());
                         breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.GONE);
                     } else {
                         if (validFragmentCount == 1)
@@ -403,6 +437,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
                             + "that is not a TomahawkStickyListHeadersListView class");
                 }
                 mList = (TomahawkStickyListHeadersListView) rawListView;
+                registerForContextMenu(mList);
             } else {
                 View rawListView = root.findViewById(R.id.gridview);
                 if (!(rawListView instanceof GridView)) {
@@ -414,6 +449,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
                             + "that is not a GridView class");
                 }
                 mGrid = (GridView) rawListView;
+                registerForContextMenu(mGrid);
             }
         }
         if (mTomahawkBaseAdapter != null) {

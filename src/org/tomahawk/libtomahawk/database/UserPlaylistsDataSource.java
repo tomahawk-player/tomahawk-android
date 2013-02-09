@@ -38,8 +38,8 @@ import android.database.sqlite.SQLiteDatabase;
  */
 public class UserPlaylistsDataSource {
 
-    private static final String CACHED_PLAYLIST_NAME = "Last used playlist";
-    private static final long CACHED_PLAYLIST_ID = 0;
+    public static final String CACHED_PLAYLIST_NAME = "Last used playlist";
+    public static final long CACHED_PLAYLIST_ID = 0;
 
     // Database fields
     private SQLiteDatabase mDatabase;
@@ -130,11 +130,26 @@ public class UserPlaylistsDataSource {
         return insertId;
     }
 
-    public Playlist getCachedUserPlaylist() {
+    public CustomPlaylist getCachedUserPlaylist() {
         return getUserPlaylist(CACHED_PLAYLIST_ID);
     }
 
-    public Playlist getUserPlaylist(long playlistId) {
+    public ArrayList<CustomPlaylist> getAllUserPlaylists() {
+        ArrayList<CustomPlaylist> playListList = new ArrayList<CustomPlaylist>();
+        Cursor userplaylistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_USERPLAYLISTS,
+                mAllUserPlaylistsColumns, null, null, null, null, null);
+        userplaylistsCursor.moveToFirst();
+        while (!userplaylistsCursor.isAfterLast()) {
+            CustomPlaylist customPlaylist = getUserPlaylist(userplaylistsCursor.getLong(0));
+            customPlaylist.setName(userplaylistsCursor.getString(1));
+            playListList.add(customPlaylist);
+            userplaylistsCursor.moveToNext();
+        }
+        userplaylistsCursor.close();
+        return playListList;
+    }
+
+    public CustomPlaylist getUserPlaylist(long playlistId) {
         ArrayList<Track> trackList;
         int currentTrackIndex = 0;
         Cursor userplaylistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_USERPLAYLISTS,
@@ -162,8 +177,8 @@ public class UserPlaylistsDataSource {
                     album.setFirstYear(albumsCursor.getString(3));
                     album.setLastYear(albumsCursor.getString(4));
                     track.setAlbum(album);
-                    albumsCursor.close();
                 }
+                albumsCursor.close();
 
                 Artist artist = new Artist();
                 artist.setName(tracksCursor.getString(4));
@@ -182,18 +197,21 @@ public class UserPlaylistsDataSource {
                 trackList.add(track);
                 tracksCursor.moveToNext();
             }
-            Playlist playList = CustomPlaylist.fromTrackList(userplaylistsCursor.getString(1), trackList,
+            CustomPlaylist customPlaylist = CustomPlaylist.fromTrackList(userplaylistsCursor.getString(1), trackList,
                     currentTrackIndex);
+            customPlaylist.setId(userplaylistsCursor.getLong(0));
             tracksCursor.close();
             userplaylistsCursor.close();
-            return playList;
+            return customPlaylist;
         }
         userplaylistsCursor.close();
         return null;
     }
 
     public void deleteUserPlaylist(long playlistId) {
-        mDatabase.delete(TomahawkSQLiteHelper.TABLE_USERPLAYLISTS, TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS
+        mDatabase.delete(TomahawkSQLiteHelper.TABLE_USERPLAYLISTS, TomahawkSQLiteHelper.TRACKS_COLUMN_ID
+                + " = " + playlistId, null);
+        mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS, TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS
                 + " = " + playlistId, null);
     }
 }

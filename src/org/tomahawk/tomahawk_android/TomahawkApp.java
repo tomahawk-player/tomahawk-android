@@ -135,7 +135,7 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
      */
     public void initLocalCollection() {
         Log.d(TAG, "Initializing Local Collection.");
-        Source src = new Source(new UserCollection(), 0, "My Collection");
+        Source src = new Source(new UserCollection(this), 0, "My Collection");
         mSourceList.setLocalSource(src);
     }
 

@@ -201,7 +201,7 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.clear();
         MenuInflater inflater = getSupportMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
+        inflater.inflate(R.menu.playback_menu, menu);
         return true;
     }
 
@@ -218,6 +218,10 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
             if (item.getItemId() == R.id.action_search_item) {
                 Intent searchIntent = getIntent(this, SearchableActivity.class);
                 startActivity(searchIntent);
+                return true;
+            } else if (item.getItemId() == R.id.action_saveplaylist_item) {
+                new SavePlaylistDialog(mPlaylist).show(getSupportFragmentManager(),
+                        getString(R.string.playbackactivity_save_playlist_dialog_title));
                 return true;
             } else if (item.getItemId() == R.id.action_settings_item) {
                 Intent searchIntent = getIntent(this, SettingsActivity.class);
@@ -326,12 +330,12 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
             long trackid = playlistBundle.getLong(PLAYLIST_TRACK_ID);
 
             Playlist playlist = null;
+            TomahawkApp app = (TomahawkApp) getApplication();
             if (playlistBundle.containsKey(PLAYLIST_ALBUM_ID)) {
                 long albumid = playlistBundle.getLong(PLAYLIST_ALBUM_ID);
                 playlist = AlbumPlaylist.fromAlbum(Album.get(albumid), Track.get(trackid));
             } else if (playlistBundle.containsKey(PLAYLIST_COLLECTION_ID)) {
                 int collid = playlistBundle.getInt(PLAYLIST_COLLECTION_ID);
-                TomahawkApp app = (TomahawkApp) getApplication();
                 playlist = CollectionPlaylist.fromCollection(app.getSourceList().getCollectionFromId(collid),
                         Track.get(trackid));
             } else if (playlistBundle.containsKey(PLAYLIST_ARTIST_ID)) {
@@ -339,10 +343,11 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
                 playlist = ArtistPlaylist.fromArtist(Artist.get(artistid));
             } else if (playlistBundle.containsKey(PLAYLIST_PLAYLIST_ID)) {
                 long playlistid = playlistBundle.getLong(PLAYLIST_PLAYLIST_ID);
-                TomahawkApp app = (TomahawkApp) getApplication();
-                playlist = app.getSourceList().getCollectionFromId(UserCollection.Id).getPlaylistById(playlistid);
+                playlist = app.getSourceList().getCollectionFromId(UserCollection.Id).getCustomPlaylistById(playlistid);
                 if (playlist != null)
                     playlist.setCurrentTrack(Track.get(trackid));
+            } else if (playlistBundle.containsKey(UserCollection.USERCOLLECTION_PLAYLISTCACHED)) {
+                playlist = ((UserCollection) app.getSourceList().getCollectionFromId(UserCollection.Id)).getCachedCustomPlaylist();
             }
             if (playlist != null) {
                 try {
