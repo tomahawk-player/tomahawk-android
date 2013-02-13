@@ -150,7 +150,7 @@ public class DataBaseResolver implements Resolver {
 
             for (int i = 0; i < inputList.size(); i++) {
                 TomahawkBaseAdapter.TomahawkListItem item = inputList.get(i);
-                if (TextUtils.isEmpty(mFullTextQuery)) {
+                if (!TextUtils.isEmpty(mFullTextQuery)) {
                     if (item.getName().toLowerCase().contains(mFullTextQuery)
                             || (item.getArtist() != null && item.getArtist().getName().toLowerCase().contains(
                                     mFullTextQuery))
@@ -160,7 +160,6 @@ public class DataBaseResolver implements Resolver {
                         r = new Result((Track) item);
                         r.setResolver(mResolver);
                         filteredResults.add(r);
-                        break;
                     }
                 } else {
                     if (item.getName().toLowerCase().contains(mTrackName)
@@ -171,7 +170,6 @@ public class DataBaseResolver implements Resolver {
                         r = new Result((Track) item);
                         r.setResolver(mResolver);
                         filteredResults.add(r);
-                        break;
                     }
                 }
             }
