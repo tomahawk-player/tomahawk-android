@@ -181,6 +181,7 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
      * @return the index of the just added list*/
     public int addList(String title) {
         mListArray.add(new ArrayList<TomahawkListItem>());
+        notifyDataSetChanged();
         return mListArray.size() - 1;
     }
 
@@ -191,6 +192,7 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
     public boolean addItemToList(int index, TomahawkListItem item) {
         if (hasListWithIndex(index)) {
             mListArray.get(index).add(item);
+            notifyDataSetChanged();
             return true;
         }
         return false;
@@ -200,6 +202,7 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
         if (hasListWithIndex(index)) {
             mListArray.set(index, itemList);
         }
+        notifyDataSetChanged();
     }
 
     /** test if the list with the given index exists
@@ -213,6 +216,7 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
     public void clearAllLists() {
         for (int i = 0; i < mListArray.size(); i++)
             mListArray.get(i).clear();
+        notifyDataSetChanged();
     }
 
     /** @return the {@link Filter}, which allows to filter the items inside the custom {@link ListView} fed by {@link TomahawkBaseAdapter}*/
@@ -341,6 +345,7 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
      */
     public void setHighlightedItem(int position) {
         mHighlightedItemPosition = position;
+        notifyDataSetChanged();
     }
 
     /**
@@ -349,5 +354,6 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
      */
     public void setHighlightedItemIsPlaying(boolean highlightedItemIsPlaying) {
         this.mHighlightedItemIsPlaying = highlightedItemIsPlaying;
+        notifyDataSetChanged();
     }
 }

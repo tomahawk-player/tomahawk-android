@@ -20,10 +20,10 @@ package org.tomahawk.libtomahawk.resolver;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import android.text.TextUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.Intent;
+import android.text.TextUtils;
 
 /**
  * Author Enno Gottschalk <mrmaffen@googlemail.com>
@@ -146,10 +146,10 @@ public class PipeLine {
      * @return true if one or more ScriptResolvers are currently resolving. False otherwise
      */
     public boolean isResolving() {
-        boolean isResolving = false;
         for (Resolver resolver : mResolvers)
-            isResolving = resolver.isResolving();
-        return isResolving;
+            if (resolver.isResolving())
+                return true;
+        return false;
     }
 
     /**
