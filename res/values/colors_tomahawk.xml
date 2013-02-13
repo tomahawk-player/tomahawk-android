@@ -19,6 +19,7 @@
 
 <resources>
 
+    <color name="tomahawk_red">#FFe23a2e</color>
     <color name="pressed_tomahawk">#CCe23a2e</color>
     <color name="divider">#3B3F45</color>
     <color name="transparent_black">#99000000</color>

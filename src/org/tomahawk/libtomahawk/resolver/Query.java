@@ -123,7 +123,7 @@ public class Query {
      * @param r
      * @return
      */
-    public float howSimilar(Result r) {
+    public float howSimilar(Result r, int searchType) {
         String resultArtistName = "";
         String resultAlbumName = "";
         String resultTrackName = "";
@@ -151,24 +151,44 @@ public class Query {
         float distanceScoreTrack = (float) (maxLengthTrack - distanceTrack) / maxLengthTrack;
 
         if (isFullTextQuery()) {
-            final String artistTrackname = cleanUpString(getFullTextQuery(), false);
-            final String resultArtistTrackname = cleanUpString(r.getArtist().getName() + " " + r.getTrack().getName(),
-                    false);
+            final String searchString = cleanUpString(getFullTextQuery(), false);
+            ArrayList<String> resultSearchStrings = new ArrayList<String>();
+            switch (searchType) {
+            case PipeLine.PIPELINE_SEARCHTYPE_ALL:
+                resultSearchStrings.add(cleanUpString(resultArtistName + " " + resultTrackName, false));
+                resultSearchStrings.add(cleanUpString(resultArtistName, false));
+                resultSearchStrings.add(cleanUpString(resultAlbumName, false));
+                resultSearchStrings.add(cleanUpString(resultTrackName, false));
+                break;
+            case PipeLine.PIPELINE_SEARCHTYPE_TRACKS:
+                resultSearchStrings.add(cleanUpString(resultTrackName, false));
+                break;
+            case PipeLine.PIPELINE_SEARCHTYPE_ARTISTS:
+                resultSearchStrings.add(cleanUpString(resultArtistName, false));
+                break;
+            case PipeLine.PIPELINE_SEARCHTYPE_ALBUMS:
+                resultSearchStrings.add(cleanUpString(resultAlbumName, false));
+                break;
+            }
 
-            int distanceArtistTrack = TomahawkUtils.getLevenshteinDistance(artistTrackname, resultArtistTrackname);
-            int maxLengthArtistTrack = Math.max(artistTrackname.length(), resultArtistTrackname.length());
-            float distanceScoreArtistTrack = (float) (maxLengthArtistTrack - distanceArtistTrack)
-                    / maxLengthArtistTrack;
+            float maxResult = 0F;
+            for (String resultSearchString : resultSearchStrings) {
+                int distanceArtistTrack = TomahawkUtils.getLevenshteinDistance(searchString, resultSearchString);
+                int maxLengthArtistTrack = Math.max(searchString.length(), resultSearchString.length());
+                float distanceScoreArtistTrack = (float) (maxLengthArtistTrack - distanceArtistTrack)
+                        / maxLengthArtistTrack;
 
-            float result = Math.max(distanceScoreArtist, distanceScoreAlbum);
-            result = Math.max(result, distanceScoreArtistTrack);
-            result = Math.max(result, distanceScoreTrack);
-            if (resultArtistTrackname.contains(artistTrackname))
-                result = Math.max(result, 0.9F);
-            Log.d(TAG, "cleanFullTextQueryWithArticle = " + artistTrackname + ", resultArtistName= " + resultArtistName
-                    + ", resultAlbumName= " + resultAlbumName + ", resultTrackName= " + resultTrackName + ", score = "
-                    + Math.max(result, distanceScoreArtistTrack));
-            return result;
+                float result = Math.max(distanceScoreArtist, distanceScoreAlbum);
+                result = Math.max(result, distanceScoreArtistTrack);
+                result = Math.max(result, distanceScoreTrack);
+                if (resultSearchString.contains(searchString))
+                    result = Math.max(result, 0.9F);
+                maxResult = Math.max(result, maxResult);
+                Log.d(TAG, "cleanFullTextQueryWithArticle = " + searchString + ", resultArtistName= "
+                        + resultArtistName + ", resultAlbumName= " + resultAlbumName + ", resultTrackName= "
+                        + resultTrackName + ", score = " + Math.max(result, distanceScoreArtistTrack));
+            }
+            return maxResult;
         } else {
             if (TextUtils.isEmpty(mAlbumName))
                 distanceScoreAlbum = 1F;

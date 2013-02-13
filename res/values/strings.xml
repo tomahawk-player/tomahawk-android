@@ -32,6 +32,8 @@
     <string name="playlistsfragment_title_string">Playlists</string>
     <string name="searchfragment_title_string">Search</string>
     <string name="searchactivity_title_string">Search</string>
+    <string name="searchactivity_searchforonlinesources">Also search online</string>
+    <string name="searchactivity_searchtype">Search for</string>
     <string name="playbackfragment_title_string">Playback</string>
     <string name="playbackplaylistfragment_title_string">Playlist</string>
     <string name="playbackactivity_seekbar_completion_time_string">-:--</string>
