@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
 /*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
@@ -45,7 +46,7 @@
         android:xlargeScreens="true" />
 
     <application
-        android:name="TomahawkApp"
+        android:name="org.tomahawk.tomahawk_android.TomahawkApp"
         android:icon="@drawable/ic_launcher"
         android:label="@string/appname_string"
         android:theme="@style/Theme.tomahawk.nativeandroid" >
@@ -61,7 +62,7 @@
         </activity>
         <activity
             android:name="org.tomahawk.libtomahawk.audio.PlaybackActivity"
-            android:label="@string/playbackfragment_title_string">
+            android:label="@string/playbackfragment_title_string" >
         </activity>
         <activity
             android:name="org.tomahawk.tomahawk_android.CollectionActivity"
@@ -109,6 +110,7 @@
             android:name="org.tomahawk.tomahawk_android.TomahawkAccountAuthenticatorActivity"
             android:label="@string/appname_string" >
         </activity>
+
         <activity
             android:name="org.tomahawk.tomahawk_android.TomahawkPreferenceActivity"
             android:configChanges="keyboardHidden|orientation" >
@@ -118,6 +120,11 @@
             android:name="org.tomahawk.libtomahawk.network.TomahawkService"
             android:label="@string/appname_string" >
         </service>
+
+        <activity
+            android:name="org.tomahawk.tomahawk_android.TomahawkPlaybackSettingsActivity"
+            android:label="@string/playbacksettingsactivity_title_string" >
+        </activity>
     </application>
 
 </manifest>
