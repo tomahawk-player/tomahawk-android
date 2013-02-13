@@ -50,6 +50,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/appname_string"
         android:theme="@style/Theme.tomahawk.nativeandroid" >
+
         <activity
             android:name="org.tomahawk.tomahawk_android.TomahawkMainActivity"
             android:label="@string/mainactivity_title_string"
@@ -60,10 +61,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name="org.tomahawk.libtomahawk.audio.PlaybackActivity"
             android:label="@string/playbackfragment_title_string" >
         </activity>
+
         <activity
             android:name="org.tomahawk.tomahawk_android.CollectionActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -71,6 +74,7 @@
             android:launchMode="singleTop"
             android:uiOptions="splitActionBarWhenNarrow" >
         </activity>
+
         <activity
             android:name="org.tomahawk.tomahawk_android.SearchableActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -84,6 +88,7 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
+
         <activity
             android:name="org.tomahawk.tomahawk_android.SettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -96,6 +101,7 @@
             android:label="@string/playbackservice_label_string"
             android:stopWithTask="true" >
         </service>
+
         <service android:name="org.tomahawk.libtomahawk.network.TomahawkAccountAuthenticator$TomahawkAuthenticationService" >
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
@@ -112,7 +118,7 @@
         </activity>
 
         <activity
-            android:name="org.tomahawk.tomahawk_android.TomahawkPreferenceActivity"
+            android:name="org.tomahawk.tomahawk_android.TomahawkAccountPreferenceActivity"
             android:configChanges="keyboardHidden|orientation" >
         </activity>
 
@@ -123,7 +129,8 @@
 
         <activity
             android:name="org.tomahawk.tomahawk_android.TomahawkPlaybackSettingsActivity"
-            android:label="@string/playbacksettingsactivity_title_string" >
+            android:label="@string/playbacksettingsactivity_title_string"
+            android:launchMode="singleTop" >
         </activity>
     </application>
 

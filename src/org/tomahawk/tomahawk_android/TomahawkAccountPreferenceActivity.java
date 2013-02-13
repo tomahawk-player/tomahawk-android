@@ -17,10 +17,13 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import android.os.Bundle;
-import android.preference.PreferenceActivity;
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockPreferenceActivity;
+import com.actionbarsherlock.view.MenuItem;
 
-public class TomahawkPreferenceActivity extends PreferenceActivity {
+import android.os.Bundle;
+
+public class TomahawkAccountPreferenceActivity extends SherlockPreferenceActivity {
 
     /**
      * Creates the preferences.
@@ -28,6 +31,27 @@ public class TomahawkPreferenceActivity extends PreferenceActivity {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
+        
+        final ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+		
         addPreferencesFromResource(R.xml.account_preferences);
+    }
+    
+    /* 
+     * (non-Javadoc)
+     * @see com.actionbarsherlock.app.SherlockFragmentActivity#onOptionsItemSelected(android.view.MenuItem)
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item != null) {
+            if (item.getItemId() == android.R.id.home) {
+                super.onBackPressed();
+                return true;
+            }
+        }
+        return false;
     }
 }

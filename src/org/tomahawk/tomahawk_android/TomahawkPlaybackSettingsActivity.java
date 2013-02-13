@@ -1,19 +1,18 @@
 package org.tomahawk.tomahawk_android;
 
-import android.annotation.TargetApi;
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockPreferenceActivity;
+import com.actionbarsherlock.view.MenuItem;
+
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
-import android.support.v4.app.NavUtils;
-import android.view.MenuItem;
 
-public class TomahawkPlaybackSettingsActivity extends PreferenceActivity 
+public class TomahawkPlaybackSettingsActivity extends SherlockPreferenceActivity 
         implements OnPreferenceChangeListener {
 
     public static final String PLAYBACK_ON_HEADSET = "playbackonheadset";
@@ -24,7 +23,11 @@ public class TomahawkPlaybackSettingsActivity extends PreferenceActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setupActionBar();
+
+        final ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
 		addPreferencesFromResource(R.xml.playback_settings);
 
@@ -35,26 +38,21 @@ public class TomahawkPlaybackSettingsActivity extends PreferenceActivity
 
         mPlaybackOnHeadsetPref.setChecked(playbackOnHeadsetInsert);
 	}
-
-	/**
-	 * Set up the {@link android.app.ActionBar}, if the API is available.
-	 */
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	private void setupActionBar() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			getActionBar().setDisplayHomeAsUpEnabled(true);
-		}
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case android.R.id.home:
-			NavUtils.navigateUpFromSameTask(this);
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
+	
+    /* 
+     * (non-Javadoc)
+     * @see com.actionbarsherlock.app.SherlockFragmentActivity#onOptionsItemSelected(android.view.MenuItem)
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item != null) {
+            if (item.getItemId() == android.R.id.home) {
+                super.onBackPressed();
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
