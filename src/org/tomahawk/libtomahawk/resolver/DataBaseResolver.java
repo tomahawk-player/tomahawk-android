@@ -38,10 +38,6 @@ import android.widget.Filter;
  */
 public class DataBaseResolver implements Resolver {
 
-    public static final int DATABASERESOLVER_FILTER_MODE_TRACKS = 0;
-    public static final int DATABASERESOLVER_FILTER_MODE_ARTISTS = 1;
-    public static final int DATABASERESOLVER_FILTER_MODE_ALBUMS = 2;
-
     private TomahawkApp mTomahawkApp;
     private int mId;
     private Collection mCollection;

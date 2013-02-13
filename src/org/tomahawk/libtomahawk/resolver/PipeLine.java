@@ -30,6 +30,11 @@ import android.text.TextUtils;
  * Date: 19.01.13
  */
 public class PipeLine {
+    public static final int PIPELINE_SEARCHTYPE_ALL = 0;
+    public static final int PIPELINE_SEARCHTYPE_TRACKS = 1;
+    public static final int PIPELINE_SEARCHTYPE_ARTISTS = 2;
+    public static final int PIPELINE_SEARCHTYPE_ALBUMS = 3;
+
     public static final String PIPELINE_RESULTSREPORTED = "pipeline_resultsreported";
     public static final String PIPELINE_RESULTSREPORTED_QID = "pipeline_resultsreported_qid";
 
@@ -42,6 +47,8 @@ public class PipeLine {
     private ArrayList<Query> mPendingQueries = new ArrayList<Query>();
     private ArrayList<Query> mTemporaryQueries = new ArrayList<Query>();
     private HashMap<String, Query> mQids = new HashMap<String, Query>();
+
+    private int mSearchType = PIPELINE_SEARCHTYPE_ALL;
 
     public PipeLine(TomahawkApp tomahawkApp) {
         mTomahawkApp = tomahawkApp;
@@ -73,6 +80,15 @@ public class PipeLine {
      * @param fullTextQuery
      */
     public void resolve(String fullTextQuery) {
+        resolve(fullTextQuery, false);
+    }
+
+    /**
+     * This will invoke every resolver to resolve the given fullTextQuery.
+     * If there already is a Query with the same fullTextQuery, the old resultList will be reported.
+     * @param fullTextQuery
+     */
+    public void resolve(String fullTextQuery, boolean onlyLocal) {
         if (fullTextQuery != null && !TextUtils.isEmpty(fullTextQuery)) {
             Query q = null;
             for (Query query : mQids.values())
@@ -83,7 +99,8 @@ public class PipeLine {
             if (!mQids.containsKey(q.getQid())) {
                 mQids.put(q.getQid(), q);
                 for (Resolver resolver : mResolvers) {
-                    resolver.resolve(q);
+                    if ((onlyLocal && resolver instanceof DataBaseResolver) || !onlyLocal)
+                        resolver.resolve(q);
                 }
             } else if (q.isSolved()) {
                 sendReportResultsBroadcast(q.getQid());
@@ -96,10 +113,19 @@ public class PipeLine {
      * @param q
      */
     public void resolve(Query q) {
+        resolve(q, false);
+    }
+
+    /**
+     * This will invoke every resolver to resolve the given Query.
+     * @param q
+     */
+    public void resolve(Query q, boolean onlyLocal) {
         if (!mQids.containsKey(q.getQid())) {
             mQids.put(q.getQid(), q);
             for (Resolver resolver : mResolvers) {
-                resolver.resolve(q);
+                if ((onlyLocal && resolver instanceof DataBaseResolver) || !onlyLocal)
+                    resolver.resolve(q);
             }
         } else if (q.isSolved()) {
             sendReportResultsBroadcast(q.getQid());
@@ -130,7 +156,7 @@ public class PipeLine {
             for (Result r : results) {
                 float score = 0F;
                 if (r != null) {
-                    score = q.howSimilar(r);
+                    score = q.howSimilar(r, mSearchType);
                     r.setScore(score);
                 }
                 if (q.isFullTextQuery() && score >= MINSCORE) {
@@ -159,6 +185,10 @@ public class PipeLine {
      */
     public Query getQuery(String qid) {
         return mQids.get(qid);
+    }
+
+    public void setSearchType(int searchType) {
+        this.mSearchType = searchType;
     }
 
 }

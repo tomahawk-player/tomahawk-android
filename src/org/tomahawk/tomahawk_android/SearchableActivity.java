@@ -19,7 +19,6 @@ package org.tomahawk.tomahawk_android;
 
 import java.util.ArrayList;
 
-import android.util.Log;
 import org.tomahawk.libtomahawk.*;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
@@ -38,15 +37,13 @@ import android.os.Message;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
+import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -386,8 +383,12 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (event == null || actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE
                 || event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+            CheckBox onlineSourcesCheckBox = (CheckBox) findViewById(R.id.searchactivity_onlinesources_checkbox);
             if (v.getText().toString() != null && !TextUtils.isEmpty(v.getText().toString())) {
-                ((TomahawkApp) getApplication()).getPipeLine().resolve(v.getText().toString());
+                PipeLine pipeLine = ((TomahawkApp) getApplication()).getPipeLine();
+                Spinner searchTypeSpinner = (Spinner) findViewById(R.id.searchactivity_searchtype_spinner);
+                pipeLine.setSearchType(searchTypeSpinner.getSelectedItemPosition());
+                pipeLine.resolve(v.getText().toString(), !onlineSourcesCheckBox.isChecked());
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);
                 startLoadingAnimation();
@@ -408,7 +409,7 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
                 mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
             } else {
                 long time = System.currentTimeMillis() - testTime;
-                Log.d("org.tomahawk","mPipeline stopped resolving, stopping animation after "+time+"ms");
+                Log.d("org.tomahawk", "mPipeline stopped resolving, stopping animation after " + time + "ms");
                 stopLoadingAnimation();
             }
             break;
@@ -420,13 +421,13 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
 
     public void startLoadingAnimation() {
         testTime = System.currentTimeMillis();
-        Log.d("org.tomahawk","starting animation");
+        Log.d("org.tomahawk", "starting animation");
         mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
     }
 
     public void stopLoadingAnimation() {
         long time = System.currentTimeMillis() - testTime;
-        Log.d("org.tomahawk","stopping animation after "+time+"ms");
+        Log.d("org.tomahawk", "stopping animation after " + time + "ms");
         mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
         getSupportActionBar().setLogo(R.drawable.ic_launcher);
     }
