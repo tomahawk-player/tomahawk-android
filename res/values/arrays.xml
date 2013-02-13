@@ -21,7 +21,7 @@
 <resources>
 
     <array name="settings_icons">
-        <item>@drawable/ic_player_play</item>
+        <item>@drawable/ic_settings_play</item>
         <item>@drawable/ic_settings_account</item>
     </array>
     <array name="local_collection_menu_items_icons">
