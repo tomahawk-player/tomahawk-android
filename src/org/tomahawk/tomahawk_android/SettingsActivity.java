@@ -90,6 +90,9 @@ public class SettingsActivity extends SherlockListActivity implements OnItemClic
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
         switch ((int) arg3) {
         case 0:
+            startActivity(new Intent(this, TomahawkPlaybackSettingsActivity.class));
+            break;
+        case 1:
             startActivity(new Intent(this, TomahawkAccountAuthenticatorActivity.class));
             break;
         }
