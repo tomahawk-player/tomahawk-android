@@ -41,6 +41,7 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.os.*;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.telephony.PhoneStateListener;
@@ -66,6 +67,8 @@ public class PlaybackService extends Service implements OnCompletionListener, On
     private static final int PLAYBACKSERVICE_PLAYSTATE_PAUSED = 1;
     private static final int PLAYBACKSERVICE_PLAYSTATE_STOPPED = 2;
     private int mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
+
+    public static final String PREF_PLAYBACK_ON_HEADSET = "playback_on_headset";
 
     private static final int PLAYBACKSERVICE_NOTIFICATION_ID = 0;
 
@@ -153,6 +156,13 @@ public class PlaybackService extends Service implements OnCompletionListener, On
                     }
                 } else if (!headsetConnected && intent.getIntExtra("state", 0) == 1) {
                     headsetConnected = true;
+
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+                    boolean playbackOnHeadsetInsert = prefs.getBoolean(PREF_PLAYBACK_ON_HEADSET, false);
+
+                    if (!isPlaying() && playbackOnHeadsetInsert) {
+                        start();
+                    }
                 }
             }
         }
