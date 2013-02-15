@@ -44,11 +44,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
-public class CollectionActivity extends TomahawkTabsActivity implements PlaybackServiceConnectionListener {
+public class CollectionActivity extends SherlockFragmentActivity implements PlaybackServiceConnectionListener {
 
     public static final String COLLECTION_ID_EXTRA = "collection_id";
     public static final String COLLECTION_ID_ALBUM = "collection_album_id";
@@ -127,12 +128,6 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle bundle) {
-        bundle.putSerializable(COLLECTION_ID_STOREDBACKSTACK, getTabsAdapter().getBackStack());
-        super.onSaveInstanceState(bundle);
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
 
@@ -175,42 +170,6 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
         mTabsAdapter.notifyDataSetChanged();
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        if (mPlaybackService != null)
-            unbindService(mPlaybackServiceConnection);
-    }
-
-    /* 
-     * (non-Javadoc)
-     * @see android.app.Activity#onNewIntent(android.content.Intent)
-     */
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        setIntent(intent);
-    }
-
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener#setPlaybackService(org.tomahawk.libtomahawk.audio.PlaybackService)
-     */
-    @Override
-    public void setPlaybackService(PlaybackService ps) {
-        mPlaybackService = ps;
-    }
-
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener#onPlaybackServiceReady()
-     */
-    @Override
-    public void onPlaybackServiceReady() {
-        setNowPlayingInfo(mPlaybackService.getCurrentTrack());
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -224,6 +183,44 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
             unregisterReceiver(mCollectionActivityBroadcastReceiver);
             mCollectionActivityBroadcastReceiver = null;
         }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (mPlaybackService != null)
+            unbindService(mPlaybackServiceConnection);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle bundle) {
+        bundle.putSerializable(COLLECTION_ID_STOREDBACKSTACK, getTabsAdapter().getBackStack());
+        super.onSaveInstanceState(bundle);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.actionbarsherlock.app.SherlockFragmentActivity#onConfigurationChanged
+     * (android.content.res.Configuration)
+     */
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        supportInvalidateOptionsMenu();
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see android.app.Activity#onNewIntent(android.content.Intent)
+     */
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
     }
 
     @Override
@@ -262,18 +259,44 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
         return false;
     }
 
-    /*
+    /* 
      * (non-Javadoc)
-     * 
-     * @see
-     * com.actionbarsherlock.app.SherlockFragmentActivity#onConfigurationChanged
-     * (android.content.res.Configuration)
+     * @see org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener#onPlaybackServiceReady()
      */
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
+    public void onPlaybackServiceReady() {
+        setNowPlayingInfo(mPlaybackService.getCurrentTrack());
+    }
 
-        supportInvalidateOptionsMenu();
+    /* 
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener#setPlaybackService(org.tomahawk.libtomahawk.audio.PlaybackService)
+     */
+    @Override
+    public void setPlaybackService(PlaybackService ps) {
+        mPlaybackService = ps;
+    }
+
+    /* 
+     * (non-Javadoc)
+     * @see android.support.v4.app.FragmentActivity#onBackPressed()
+     */
+    @Override
+    public void onBackPressed() {
+        if (!mTabsAdapter.back()) {
+            super.onBackPressed();
+        }
+    }
+
+    /**
+     * Called when the back {@link Button} is pressed
+     * @param view */
+    public void onBackPressed(View view) {
+        onBackPressed();
+    }
+
+    public void onBackToRootPressed(View view) {
+        getTabsAdapter().backToRoot(mTabsAdapter.getCurrentPosition());
     }
 
     /**
@@ -344,31 +367,5 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
      */
     public TabsAdapter getTabsAdapter() {
         return mTabsAdapter;
-    }
-
-    /* 
-     * (non-Javadoc)
-     * @see android.support.v4.app.FragmentActivity#onBackPressed()
-     */
-    @Override
-    public void onBackPressed() {
-        if (!mTabsAdapter.back()) {
-            super.onBackPressed();
-        }
-    }
-
-    /**
-     * Called when the back {@link Button} is pressed
-     * @param view */
-    public void onBackPressed(View view) {
-        onBackPressed();
-    }
-
-    public void onBackToRootPressed(View view) {
-        getTabsAdapter().backToRoot(mTabsAdapter.getCurrentPosition());
-    }
-
-    @Override
-    public void onTabsAdapterReady() {
     }
 }

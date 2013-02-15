@@ -32,10 +32,11 @@ import android.widget.FrameLayout;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, ViewPager.OnPageChangeListener {
 
-    private TomahawkTabsActivity mActivity;
+    private SherlockFragmentActivity mActivity;
     private ActionBar mActionBar;
     private ViewPager mViewPager;
     private FragmentManager mFragmentManager;
@@ -87,7 +88,7 @@ public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, 
      * @param pager
      * @param tabsFunctionality
      */
-    public TabsAdapter(TomahawkTabsActivity activity, FragmentManager fragmentManager, ViewPager pager,
+    public TabsAdapter(SherlockFragmentActivity activity, FragmentManager fragmentManager, ViewPager pager,
             boolean tabsFunctionality) {
         mActionBar = activity.getSupportActionBar();
         mActivity = activity;
@@ -97,26 +98,6 @@ public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, 
             mViewPager.setOnPageChangeListener(this);
         mViewPager.setOffscreenPageLimit(2);
         mFragmentManager = fragmentManager;
-    }
-
-    /**
-     * Add a tab to the ActionBar
-     * @param tab
-     */
-    public void addTab(ActionBar.Tab tab) {
-        tab.setTabListener(this);
-        mActionBar.addTab(tab);
-    }
-
-    /**
-     * Add the root of the backStack to the tab. Set the resource id for the fragmentContainer for this tab.
-     * @param clss the class of the rootFragment to add
-     */
-    public void addRootToTab(Class clss) {
-        TabHolder tabHolder = new TabHolder();
-        tabHolder.fragmentContainerId = mTabHolders.size() + 10000000;
-        tabHolder.fragmentStateHolders.add(new FragmentStateHolder(clss, getFragmentTag(mTabHolders.size(), 0)));
-        mTabHolders.add(tabHolder);
     }
 
     @Override
@@ -173,7 +154,6 @@ public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, 
     @Override
     public void finishUpdate(ViewGroup viewGroup) {
         super.finishUpdate(viewGroup);
-        boolean allFragmentsReady = true;
         if (mHasRecentlyInstantiatedItems) {
             mFragmentManager.executePendingTransactions();
             for (TabHolder tabHolder : mTabHolders) {
@@ -181,7 +161,6 @@ public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, 
                 Fragment currentFragment = mFragmentManager.findFragmentByTag(currentFSH.fragmentTag);
                 if (currentFragment == null || currentFragment.getView() == null
                         || currentFragment.getView().getParent() == null) {
-                    allFragmentsReady = false;
                     FragmentTransaction ft = mFragmentManager.beginTransaction();
                     Bundle bundle = new Bundle();
                     for (FragmentStateHolder fSH : tabHolder.fragmentStateHolders) {
@@ -198,38 +177,6 @@ public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, 
             }
             mHasRecentlyInstantiatedItems = false;
         }
-        if (allFragmentsReady)
-            mActivity.onTabsAdapterReady();
-    }
-
-    /**
-     * Generate the fragmentTag to the given position and offset.
-     * Examples:    Position 0 for first tab and offset 0 for the current item in the stack.
-     *              Position 1 for the second tab and offset -1 for the previous item in the stack.
-     * @param position the position of the viewpager
-     * @param offset offset which will be added to the position of the current top item in the backstack
-     * @return the generated fragmentTag String
-     */
-    public String getFragmentTag(int position, int offset) {
-        if (mTabHolders.size() - 1 < position)
-            return String.valueOf(offset + 1000 * position);
-        ArrayList<FragmentStateHolder> fragmentsStack = mTabHolders.get(position).fragmentStateHolders;
-        return String.valueOf(fragmentsStack.size() - 1 + offset + 1000 * position);
-    }
-
-    /**
-     * @return get the current position of the viewpager
-     */
-    public int getCurrentPosition() {
-        return mViewPager.getCurrentItem();
-    }
-
-    /**
-     * Set the current position of the viewpager
-     * @param position
-     */
-    public void setCurrentPosition(int position) {
-        mViewPager.setCurrentItem(position);
     }
 
     /*
@@ -297,6 +244,56 @@ public class TabsAdapter extends PagerAdapter implements ActionBar.TabListener, 
      */
     @Override
     public void onTabReselected(Tab tab, FragmentTransaction ft) {
+    }
+
+    /**
+     * Add a tab to the ActionBar
+     * @param tab
+     */
+    public void addTab(ActionBar.Tab tab) {
+        tab.setTabListener(this);
+        mActionBar.addTab(tab);
+    }
+
+    /**
+     * Add the root of the backStack to the tab. Set the resource id for the fragmentContainer for this tab.
+     * @param clss the class of the rootFragment to add
+     */
+    public void addRootToTab(Class clss) {
+        TabHolder tabHolder = new TabHolder();
+        tabHolder.fragmentContainerId = mTabHolders.size() + 10000000;
+        tabHolder.fragmentStateHolders.add(new FragmentStateHolder(clss, getFragmentTag(mTabHolders.size(), 0)));
+        mTabHolders.add(tabHolder);
+    }
+
+    /**
+     * Generate the fragmentTag to the given position and offset.
+     * Examples:    Position 0 for first tab and offset 0 for the current item in the stack.
+     *              Position 1 for the second tab and offset -1 for the previous item in the stack.
+     * @param position the position of the viewpager
+     * @param offset offset which will be added to the position of the current top item in the backstack
+     * @return the generated fragmentTag String
+     */
+    public String getFragmentTag(int position, int offset) {
+        if (mTabHolders.size() - 1 < position)
+            return String.valueOf(offset + 1000 * position);
+        ArrayList<FragmentStateHolder> fragmentsStack = mTabHolders.get(position).fragmentStateHolders;
+        return String.valueOf(fragmentsStack.size() - 1 + offset + 1000 * position);
+    }
+
+    /**
+     * @return get the current position of the viewpager
+     */
+    public int getCurrentPosition() {
+        return mViewPager.getCurrentItem();
+    }
+
+    /**
+     * Set the current position of the viewpager
+     * @param position
+     */
+    public void setCurrentPosition(int position) {
+        mViewPager.setCurrentItem(position);
     }
 
     /**
