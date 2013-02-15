@@ -271,7 +271,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
             } else if (viewHolder.viewType == R.id.tomahawklistadapter_viewtype_doublelineimagelistitem) {
                 if (item instanceof Album) {
                     viewHolder.textFirstLine.setText(((Album) item).getName());
-                    viewHolder.textSecondLine.setText(((Album) item).getArtist().getName());
+                    if (((Album) item).getArtist() != null)
+                        viewHolder.textSecondLine.setText(((Album) item).getArtist().getName());
                     loadBitmap((Album) item, viewHolder.imageView);
                 }
             } else if (viewHolder.viewType == R.id.tomahawklistadapter_viewtype_doublelineplaystateimagelistitem) {

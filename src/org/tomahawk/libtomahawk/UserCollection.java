@@ -101,7 +101,7 @@ public class UserCollection extends Collection {
     @Override
     public List<Artist> getArtists() {
         ArrayList<Artist> artists = new ArrayList<Artist>(mArtists.values());
-        Collections.sort(artists, new ArtistComparator());
+        Collections.sort(artists, new ArtistComparator(ArtistComparator.COMPARE_ALPHA));
         return artists;
     }
 
@@ -121,7 +121,7 @@ public class UserCollection extends Collection {
     @Override
     public List<Album> getAlbums() {
         ArrayList<Album> albums = new ArrayList<Album>(mAlbums.values());
-        Collections.sort(albums, new AlbumComparator());
+        Collections.sort(albums, new AlbumComparator(AlbumComparator.COMPARE_ALPHA));
         return albums;
     }
 
@@ -174,7 +174,7 @@ public class UserCollection extends Collection {
 
     /* 
      * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.Collection#getTracks()
+     * @see org.tomahawk.libtomahawk.Collection#getTrackResults()
      */
     @Override
     public List<Track> getTracks() {

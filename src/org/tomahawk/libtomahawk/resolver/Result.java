@@ -36,7 +36,9 @@ public class Result {
 
     private String mMimeType;
 
-    private float mScore;
+    private float mTrackScore;
+    private float mAlbumScore;
+    private float mArtistScore;
 
     public Result() {
     }
@@ -72,14 +74,34 @@ public class Result {
         this.mMimeType = mMimeType;
     }
 
-    public float getScore() {
-        return mScore;
+    public float getTrackScore() {
+        return mTrackScore;
     }
 
-    public void setScore(float score) {
-        this.mScore = score;
+    public void setTrackScore(float score) {
+        this.mTrackScore = score;
         if (getTrack() != null)
             getTrack().setScore(score);
+    }
+
+    public float getAlbumScore() {
+        return mAlbumScore;
+    }
+
+    public void setAlbumScore(float score) {
+        this.mAlbumScore = score;
+        if (getAlbum() != null)
+            getAlbum().setScore(score);
+    }
+
+    public float getArtistScore() {
+        return mArtistScore;
+    }
+
+    public void setArtistScore(float score) {
+        this.mArtistScore = score;
+        if (getArtist() != null)
+            getArtist().setScore(score);
     }
 
     public Artist getArtist() {

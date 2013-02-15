@@ -18,6 +18,7 @@
 package org.tomahawk.tomahawk_android;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.tomahawk.libtomahawk.*;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
@@ -66,6 +67,8 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
     private PipelineBroadcastReceiver mPipelineBroadcastReceiver;
 
     private ArrayList<Track> mCurrentShownTracks;
+    private ArrayList<Album> mCurrentShownAlbums;
+    private ArrayList<Artist> mCurrentShownArtists;
     private String mCurrentQueryString;
     private EditText mSearchEditText = null;
     private String mSearchString = null;
@@ -110,15 +113,40 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
                 PipeLine pipeLine = ((TomahawkApp) getApplication()).getPipeLine();
                 String qid = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
                 mCurrentQueryString = pipeLine.getQuery(qid).getFullTextQuery();
-                ArrayList<TomahawkBaseAdapter.TomahawkListItem> tomahawkListItems = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-                mCurrentShownTracks = (pipeLine.getQuery(qid).getTracks());
-                tomahawkListItems.addAll(mCurrentShownTracks);
-                if (mTomahawkListAdapter == null)
-                    mTomahawkListAdapter = new TomahawkListAdapter(mActivity,
-                            R.layout.double_line_list_item_with_playstate_image, R.id.double_line_list_imageview,
-                            R.id.double_line_list_textview, R.id.double_line_list_textview2, tomahawkListItems);
-                else
-                    mTomahawkListAdapter.setListWithIndex(0, tomahawkListItems);
+                List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+                ArrayList<TomahawkBaseAdapter.TomahawkListItem> trackResultList = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+                mCurrentShownTracks = (pipeLine.getQuery(qid).getTrackResults());
+                trackResultList.addAll(mCurrentShownTracks);
+                listArray.add(trackResultList);
+                ArrayList<TomahawkBaseAdapter.TomahawkListItem> artistResultList = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+                mCurrentShownArtists = (pipeLine.getQuery(qid).getArtistResults());
+                artistResultList.addAll(mCurrentShownArtists);
+                listArray.add(artistResultList);
+                ArrayList<TomahawkBaseAdapter.TomahawkListItem> albumResultList = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+                mCurrentShownAlbums = (pipeLine.getQuery(qid).getAlbumResults());
+                albumResultList.addAll(mCurrentShownAlbums);
+                listArray.add(albumResultList);
+                //                if (mTomahawkListAdapter == null) {
+                List<TomahawkBaseAdapter.TomahawkMenuItem> headerArray = new ArrayList<TomahawkBaseAdapter.TomahawkMenuItem>();
+                String trackListTitle = getResources().getString(R.string.tracksfragment_title_string);
+                headerArray.add(new TomahawkBaseAdapter.TomahawkMenuItem(trackListTitle, R.drawable.ic_action_track));
+                String artistListTitle = getResources().getString(R.string.artistsfragment_title_string);
+                headerArray.add(new TomahawkBaseAdapter.TomahawkMenuItem(artistListTitle, R.drawable.ic_action_artist));
+                String albumListTitle = getResources().getString(R.string.albumsfragment_title_string);
+                headerArray.add(new TomahawkBaseAdapter.TomahawkMenuItem(albumListTitle, R.drawable.ic_action_album));
+
+                mTomahawkListAdapter = new TomahawkListAdapter(mActivity, R.layout.single_line_list_header,
+                        R.id.single_line_list_header_icon_imageview, R.id.single_line_list_header_textview,
+                        R.layout.single_line_list_item, R.id.single_line_list_textview, listArray, headerArray);
+                mTomahawkListAdapter.setDoubleLineImageListItemResources(R.layout.double_line_list_item_with_image,
+                        R.id.double_line_list_imageview, R.id.double_line_list_textview,
+                        R.id.double_line_list_textview2);
+                mTomahawkListAdapter.setDoubleLineListItemResources(R.layout.double_line_list_item,
+                        R.id.double_line_list_textview, R.id.double_line_list_textview2);
+                mTomahawkListAdapter.setShowCategoryHeaders(headerArray, R.layout.single_line_list_header,
+                        R.id.single_line_list_header_icon_imageview, R.id.single_line_list_header_textview);
+                //                } else
+                //                    mTomahawkListAdapter.setListWithIndex(0, trackResultList);
                 mTomahawkListAdapter.setShowResolvedBy(true);
                 setListAdapter(mTomahawkListAdapter);
             }
@@ -386,8 +414,6 @@ public class SearchableActivity extends SherlockFragmentActivity implements OnIt
             CheckBox onlineSourcesCheckBox = (CheckBox) findViewById(R.id.searchactivity_onlinesources_checkbox);
             if (v.getText().toString() != null && !TextUtils.isEmpty(v.getText().toString())) {
                 PipeLine pipeLine = ((TomahawkApp) getApplication()).getPipeLine();
-                Spinner searchTypeSpinner = (Spinner) findViewById(R.id.searchactivity_searchtype_spinner);
-                pipeLine.setSearchType(searchTypeSpinner.getSelectedItemPosition());
                 pipeLine.resolve(v.getText().toString(), !onlineSourcesCheckBox.isChecked());
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);
