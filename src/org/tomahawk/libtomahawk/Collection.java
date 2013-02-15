@@ -41,6 +41,17 @@ public abstract class Collection {
     public abstract Artist getArtistById(Long id);
 
     /**
+     * Caches an artist inside the playlist
+     * @param artist
+     */
+    public abstract void setCachedArtist(Artist artist);
+
+    /**
+     * @return the cached artist
+     */
+    public abstract Artist getCachedArtist();
+
+    /**
      * Get all {@link Album}s from this {@link Collection}.
      */
     public abstract List<Album> getAlbums();
@@ -50,6 +61,17 @@ public abstract class Collection {
      *  @param id
      *  @return the {@link Album} object*/
     public abstract Album getAlbumById(Long id);
+
+    /**
+     * Caches an album inside the playlist
+     * @param album
+     */
+    public abstract void setCachedAlbum(Album album);
+
+    /**
+     * @return the cached album
+     */
+    public abstract Album getCachedAlbum();
 
     /**
      * Return a list of all {@link Track}s.

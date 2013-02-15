@@ -258,7 +258,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
 
             if (viewHolder.viewType == R.id.tomahawklistadapter_viewtype_contentheader) {
                 viewHolder.textFirstLine.setText(((TomahawkListItem) item).getName());
-                viewHolder.textSecondLine.setText(((TomahawkListItem) item).getArtist().getName());
+                if (((TomahawkListItem) item).getArtist() != null)
+                    viewHolder.textSecondLine.setText(((TomahawkListItem) item).getArtist().getName());
                 loadBitmap((TomahawkListItem) item, viewHolder.imageView);
             } else if (viewHolder.viewType == R.id.tomahawklistadapter_viewtype_categoryheader) {
                 viewHolder.imageView.setImageResource(((TomahawkMenuItem) item).mMenuItemIconResource);

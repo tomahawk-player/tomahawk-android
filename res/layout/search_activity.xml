@@ -4,11 +4,13 @@
               android:layout_height="match_parent"
               android:orientation="vertical"
               android:background="@color/transparent_black">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="center_horizontal">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -16,6 +18,7 @@
             android:text="@string/searchactivity_searchforonlinesources"
             android:textSize="14sp"
             android:padding="2dp"/>
+
         <CheckBox
             android:id="@+id/searchactivity_onlinesources_checkbox"
             android:layout_width="wrap_content"
@@ -28,12 +31,12 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/tomahawk_red"/>
-    <ListView
-        android:id="@+id/listview"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:drawSelectorOnTop="false"
-        android:fastScrollEnabled="true"
-        android:listSelector="@android:color/transparent"/>
+
+    <FrameLayout
+        android:id="@+id/searchactivity_fragmentcontainer_framelayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+    </FrameLayout>
 
 </LinearLayout>

@@ -41,9 +41,9 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
     @Override
     public void onCreate(Bundle inState) {
         super.onCreate(inState);
-        if (mCollectionActivity.getCollection() != null && getArguments() != null
+        if (mActivity.getCollection() != null && getArguments() != null
                 && getArguments().containsKey(TOMAHAWK_ARTIST_ID) && getArguments().getLong(TOMAHAWK_ARTIST_ID) > 0)
-            mArtist = mCollectionActivity.getCollection().getArtistById(getArguments().getLong(TOMAHAWK_ARTIST_ID));
+            mArtist = mActivity.getCollection().getArtistById(getArguments().getLong(TOMAHAWK_ARTIST_ID));
     }
 
     /* (non-Javadoc)
@@ -54,8 +54,10 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
         if (getListAdapter().getItem(idx) instanceof Album) {
             Bundle bundle = new Bundle();
             bundle.putLong(TOMAHAWK_ALBUM_ID, ((Album) getListAdapter().getItem(idx)).getId());
-            mCollectionActivity.getTabsAdapter().replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
-                    TracksFragment.class, ((Album) getListAdapter().getItem(idx)).getId(), TOMAHAWK_ALBUM_ID, false);
+            if (mActivity instanceof CollectionActivity)
+                ((CollectionActivity) mActivity).getTabsAdapter().replace(
+                        CollectionActivity.LOCAL_COLLECTION_TAB_POSITION, TracksFragment.class,
+                        ((Album) getListAdapter().getItem(idx)).getId(), TOMAHAWK_ALBUM_ID, false);
         }
     }
 

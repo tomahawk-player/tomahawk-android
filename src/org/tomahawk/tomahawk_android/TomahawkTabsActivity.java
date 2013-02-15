@@ -18,6 +18,7 @@
 package org.tomahawk.tomahawk_android;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import org.tomahawk.libtomahawk.Collection;
 
 /**
  * Author Enno Gottschalk <mrmaffen@googlemail.com>
@@ -25,5 +26,5 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
  */
 public abstract class TomahawkTabsActivity extends SherlockFragmentActivity {
 
-    public abstract void onTabsAdapterReady();
+    public abstract Collection getCollection();
 }
