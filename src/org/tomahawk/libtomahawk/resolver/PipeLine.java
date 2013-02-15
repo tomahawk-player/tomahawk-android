@@ -30,10 +30,9 @@ import android.text.TextUtils;
  * Date: 19.01.13
  */
 public class PipeLine {
-    public static final int PIPELINE_SEARCHTYPE_ALL = 0;
-    public static final int PIPELINE_SEARCHTYPE_TRACKS = 1;
-    public static final int PIPELINE_SEARCHTYPE_ARTISTS = 2;
-    public static final int PIPELINE_SEARCHTYPE_ALBUMS = 3;
+    public static final int PIPELINE_SEARCHTYPE_TRACKS = 0;
+    public static final int PIPELINE_SEARCHTYPE_ARTISTS = 1;
+    public static final int PIPELINE_SEARCHTYPE_ALBUMS = 2;
 
     public static final String PIPELINE_RESULTSREPORTED = "pipeline_resultsreported";
     public static final String PIPELINE_RESULTSREPORTED_QID = "pipeline_resultsreported_qid";
@@ -47,8 +46,6 @@ public class PipeLine {
     private ArrayList<Query> mPendingQueries = new ArrayList<Query>();
     private ArrayList<Query> mTemporaryQueries = new ArrayList<Query>();
     private HashMap<String, Query> mQids = new HashMap<String, Query>();
-
-    private int mSearchType = PIPELINE_SEARCHTYPE_ALL;
 
     public PipeLine(TomahawkApp tomahawkApp) {
         mTomahawkApp = tomahawkApp;
@@ -150,20 +147,30 @@ public class PipeLine {
      * @param results the unfiltered ArrayList<Result>
      */
     public void reportResults(String qid, ArrayList<Result> results) {
-        ArrayList<Result> cleanResults = new ArrayList<Result>();
+        ArrayList<Result> cleanTrackResults = new ArrayList<Result>();
+        ArrayList<Result> cleanAlbumResults = new ArrayList<Result>();
+        ArrayList<Result> cleanArtistResults = new ArrayList<Result>();
         Query q = getQuery(qid);
         if (q != null) {
             for (Result r : results) {
-                float score = 0F;
                 if (r != null) {
-                    score = q.howSimilar(r, mSearchType);
-                    r.setScore(score);
-                }
-                if (q.isFullTextQuery() && score >= MINSCORE) {
-                    cleanResults.add(r);
+                    r.setTrackScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_TRACKS));
+                    if (q.isFullTextQuery() && r.getTrackScore() >= MINSCORE) {
+                        cleanTrackResults.add(r);
+                    }
+                    r.setAlbumScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_ALBUMS));
+                    if (q.isFullTextQuery() && r.getAlbumScore() >= MINSCORE) {
+                        cleanAlbumResults.add(r);
+                    }
+                    r.setArtistScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_ARTISTS));
+                    if (q.isFullTextQuery() && r.getArtistScore() >= MINSCORE) {
+                        cleanArtistResults.add(r);
+                    }
                 }
             }
-            mQids.get(qid).addResults(cleanResults);
+            mQids.get(qid).addArtistResults(cleanArtistResults);
+            mQids.get(qid).addAlbumResults(cleanAlbumResults);
+            mQids.get(qid).addTrackResults(cleanTrackResults);
             sendReportResultsBroadcast(qid);
         }
     }
@@ -186,9 +193,4 @@ public class PipeLine {
     public Query getQuery(String qid) {
         return mQids.get(qid);
     }
-
-    public void setSearchType(int searchType) {
-        this.mSearchType = searchType;
-    }
-
 }

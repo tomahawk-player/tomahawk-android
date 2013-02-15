@@ -19,9 +19,9 @@ package org.tomahawk.libtomahawk.resolver;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 
-import org.tomahawk.libtomahawk.Track;
-import org.tomahawk.libtomahawk.TrackComparator;
+import org.tomahawk.libtomahawk.*;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -31,12 +31,15 @@ import android.util.Log;
  * Date: 18.01.13
  * 
  * This class represents a query which is passed to a resolver. It contains all the information needed to
- * enable the ScriptResolver to resolve the results.
+ * enable the Resolver to resolve the results.
  */
 public class Query {
     public static final String TAG = Query.class.getName();
 
-    private ArrayList<Result> mResults = new ArrayList<Result>();
+    private HashMap<String, ArrayList<Result>> mTrackResults = new HashMap<String, ArrayList<Result>>();
+    private HashMap<String, ArrayList<Result>> mAlbumResults = new HashMap<String, ArrayList<Result>>();
+    private HashMap<String, ArrayList<Result>> mArtistResults = new HashMap<String, ArrayList<Result>>();
+
     private boolean mSolved;
     private String mQid;
 
@@ -76,30 +79,138 @@ public class Query {
     }
 
     /**
-     * @return the ArrayList containing all results
+     * @return A ArrayList<Track> which contains all tracks in the resultList, sorted by score.
      */
-    public ArrayList<Result> getResults() {
-        return mResults;
+    public ArrayList<Track> getTrackResults() {
+        ArrayList<Track> tracks = new ArrayList<Track>();
+        for (ArrayList<Result> resultList : mTrackResults.values())
+            if (!resultList.isEmpty())
+                tracks.add(resultList.get(0).getTrack());
+        Collections.sort(tracks, new TrackComparator(TrackComparator.COMPARE_SCORE));
+        return tracks;
     }
 
     /**
-     * Append an ArrayList<Result> to the current result list
+     * Append an ArrayList<Result> to the track result list
      * @param results
      */
-    public void addResults(ArrayList<Result> results) {
-        mResults.addAll(results);
+    public void addTrackResults(ArrayList<Result> results) {
+        for (Result r : results) {
+            String trackName = "";
+            Track track = r.getTrack();
+            if (track != null && track.getName() != null)
+                trackName = cleanUpString(track.getName(), false);
+            String artistName = "";
+            Artist artist = r.getArtist();
+            if (artist != null && artist.getName() != null)
+                artistName = cleanUpString(artist.getName(), true);
+            String albumName = "";
+            Album album = r.getAlbum();
+            if (album != null && album.getName() != null)
+                albumName = cleanUpString(album.getName(), false);
+            String key = trackName + "+" + artistName + "+" + albumName;
+            ArrayList<Result> value = mTrackResults.get(key);
+            if (value == null) {
+                value = new ArrayList<Result>();
+            }
+            value.add(r);
+            mTrackResults.put(key, value);
+
+            key = artistName;
+            value = mArtistResults.get(key);
+            if (value != null) {
+                for (Result artistResult : value) {
+                    artistResult.getArtist().addTrack(track);
+                }
+            }
+
+            key = artistName + "+" + albumName;
+            value = mAlbumResults.get(key);
+            if (value != null) {
+                for (Result albumResult : value) {
+                    albumResult.getAlbum().addTrack(track);
+                }
+            }
+        }
         mSolved = true;
     }
 
     /**
-     * @return A ArrayList<Track> which contains all tracks in the resultList, sorted by score.
+     * @return A ArrayList<Album> which contains all albums in the resultList, sorted by score.
      */
-    public ArrayList<Track> getTracks() {
-        ArrayList<Track> tracks = new ArrayList<Track>();
-        for (Result r : mResults)
-            tracks.add(r.getTrack());
-        Collections.sort(tracks, new TrackComparator(TrackComparator.COMPARE_SCORE));
-        return tracks;
+    public ArrayList<Album> getAlbumResults() {
+        ArrayList<Album> albums = new ArrayList<Album>();
+        for (ArrayList<Result> resultList : mAlbumResults.values())
+            if (!resultList.isEmpty())
+                albums.add(resultList.get(0).getAlbum());
+        Collections.sort(albums, new AlbumComparator(AlbumComparator.COMPARE_SCORE));
+        return albums;
+    }
+
+    /**
+     * Append an ArrayList<Result> to the track result list
+     * @param results
+     */
+    public void addAlbumResults(ArrayList<Result> results) {
+        for (Result r : results) {
+            String artistName = "";
+            Artist artist = r.getArtist();
+            if (artist != null && artist.getName() != null)
+                artistName = cleanUpString(artist.getName(), true);
+            String albumName = "";
+            Album album = r.getAlbum();
+            if (album != null && album.getName() != null)
+                albumName = cleanUpString(album.getName(), false);
+            String key = artistName + "+" + albumName;
+            ArrayList<Result> value = mAlbumResults.get(key);
+            if (value == null) {
+                value = new ArrayList<Result>();
+            }
+            value.add(r);
+            mAlbumResults.put(key, value);
+
+            key = artistName;
+            value = mArtistResults.get(key);
+            if (value != null) {
+                for (Result artistResult : value) {
+                    artistResult.getArtist().addAlbum(album);
+                }
+            }
+        }
+        mSolved = true;
+    }
+
+    /**
+     * @return the ArrayList containing all track results
+     */
+    public ArrayList<Artist> getArtistResults() {
+        ArrayList<Artist> artists = new ArrayList<Artist>();
+        for (ArrayList<Result> resultList : mArtistResults.values())
+            if (!resultList.isEmpty())
+                artists.add(resultList.get(0).getArtist());
+        Collections.sort(artists, new ArtistComparator(ArtistComparator.COMPARE_SCORE));
+        return artists;
+    }
+
+    /**
+     * Append an ArrayList<Result> to the track result list
+     * @param results
+     */
+    public void addArtistResults(ArrayList<Result> results) {
+        for (Result r : results) {
+            String artistName = "";
+            Artist artist = r.getArtist();
+            if (artist != null && artist.getName() != null)
+                artistName = cleanUpString(artist.getName(), true);
+            String key = artistName;
+            ArrayList<Result> value = mArtistResults.get(key);
+            if (value == null) {
+                value = new ArrayList<Result>();
+            }
+            value.add(r);
+            mArtistResults.put(key, value);
+        }
+        mSolved = true;
     }
 
     public String getFullTextQuery() {
@@ -154,20 +265,18 @@ public class Query {
             final String searchString = cleanUpString(getFullTextQuery(), false);
             ArrayList<String> resultSearchStrings = new ArrayList<String>();
             switch (searchType) {
-            case PipeLine.PIPELINE_SEARCHTYPE_ALL:
-                resultSearchStrings.add(cleanUpString(resultArtistName + " " + resultTrackName, false));
-                resultSearchStrings.add(cleanUpString(resultArtistName, false));
-                resultSearchStrings.add(cleanUpString(resultAlbumName, false));
-                resultSearchStrings.add(cleanUpString(resultTrackName, false));
-                break;
             case PipeLine.PIPELINE_SEARCHTYPE_TRACKS:
+                resultSearchStrings.add(cleanUpString(resultArtistName + " " + resultTrackName, false));
                 resultSearchStrings.add(cleanUpString(resultTrackName, false));
                 break;
             case PipeLine.PIPELINE_SEARCHTYPE_ARTISTS:
                 resultSearchStrings.add(cleanUpString(resultArtistName, false));
                 break;
             case PipeLine.PIPELINE_SEARCHTYPE_ALBUMS:
-                resultSearchStrings.add(cleanUpString(resultAlbumName, false));
+                if (!TextUtils.isEmpty(resultAlbumName)) {
+                    resultSearchStrings.add(cleanUpString(resultArtistName + " " + resultAlbumName, false));
+                    resultSearchStrings.add(cleanUpString(resultAlbumName, false));
+                }
                 break;
             }
 

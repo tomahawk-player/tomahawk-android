@@ -260,7 +260,7 @@ public class ScriptResolver implements Resolver {
                     if (obj.has("linkUrl"))
                         track.setLinkUrl(obj.get("linkUrl").toString());
                     if (obj.has("score"))
-                        result.setScore(Float.valueOf(obj.get("score").toString()));
+                        result.setTrackScore(Float.valueOf(obj.get("score").toString()));
                     if (obj.has("discnumber"))
                         track.setTrackNumber(Integer.valueOf(obj.get("discnumber").toString()));
                     //                    if (obj.has("year") && obj.get("year") != null)

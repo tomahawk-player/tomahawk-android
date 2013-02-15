@@ -23,15 +23,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 /**
- * This class is used to compare two Artists.
- */
-class ArtistComparator implements Comparator<Artist> {
-    public int compare(Artist a1, Artist a2) {
-        return a1.getName().compareTo(a2.getName());
-    }
-}
-
-/**
  * This class represents an Artist.
  */
 public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
@@ -42,6 +33,7 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
     private String mName;
     private HashMap<Long, Album> mAlbums;
     private HashMap<Long, Track> mTracks;
+    private float mScore;
 
     public Artist() {
     }
@@ -117,7 +109,7 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
 
     public ArrayList<Album> getAlbums() {
         ArrayList<Album> albums = new ArrayList<Album>(mAlbums.values());
-        Collections.sort(albums, new AlbumComparator());
+        Collections.sort(albums, new AlbumComparator(AlbumComparator.COMPARE_ALPHA));
         return albums;
     }
 
@@ -131,5 +123,13 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
 
     public long getId() {
         return mId;
+    }
+
+    public float getScore() {
+        return mScore;
+    }
+
+    public void setScore(float score) {
+        this.mScore = score;
     }
 }

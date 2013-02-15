@@ -19,21 +19,11 @@ package org.tomahawk.libtomahawk;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v4.util.LruCache;
-
-/**
- * This class is used to compare two Albums.
- */
-class AlbumComparator implements Comparator<Album> {
-    public int compare(Album a1, Album a2) {
-        return a1.getName().compareTo(a2.getName());
-    }
-}
 
 /**
  * Class which represents a Tomahawk Album.
@@ -51,6 +41,7 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
     private String mFirstYear;
     private String mLastYear;
     private Artist mArtist;
+    private float mScore;
 
     /**
      * Cache album cover art.
@@ -216,4 +207,13 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
     public void setArtist(Artist artist) {
         mArtist = artist;
     }
+
+    public float getScore() {
+        return mScore;
+    }
+
+    public void setScore(float score) {
+        this.mScore = score;
+    }
+
 }
