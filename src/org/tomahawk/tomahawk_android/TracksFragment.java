@@ -24,6 +24,7 @@ import org.tomahawk.libtomahawk.*;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.Loader;
@@ -37,17 +38,24 @@ import android.widget.AdapterView.OnItemClickListener;
 public class TracksFragment extends TomahawkFragment implements OnItemClickListener {
 
     private Album mAlbum;
+    private Artist mArtist;
     private CustomPlaylist mCustomPlaylist;
 
     @Override
     public void onCreate(Bundle inState) {
         super.onCreate(inState);
-        if (mCollectionActivity.getCollection() != null && getArguments() != null)
+        if (mActivity.getCollection() != null && getArguments() != null) {
             if (getArguments().containsKey(TOMAHAWK_ALBUM_ID) && getArguments().getLong(TOMAHAWK_ALBUM_ID) > 0)
-                mAlbum = mCollectionActivity.getCollection().getAlbumById(getArguments().getLong(TOMAHAWK_ALBUM_ID));
+                mAlbum = mActivity.getCollection().getAlbumById(getArguments().getLong(TOMAHAWK_ALBUM_ID));
             else if (getArguments().containsKey(TOMAHAWK_PLAYLIST_ID)
                     && getArguments().getLong(TOMAHAWK_PLAYLIST_ID) > 0)
-                mCustomPlaylist = null;//mCollectionActivity.getCollection().getPlaylistById(getArguments().getLong(TOMAHAWK_PLAYLIST_ID));
+                mCustomPlaylist = null;//mActivity.getCollection().getPlaylistById(getArguments().getLong(TOMAHAWK_PLAYLIST_ID));+
+            else if (getArguments().containsKey(SearchableFragment.SEARCHABLEFRAGMENT_ARTISTCACHED))
+                mArtist = mActivity.getCollection().getCachedArtist();
+            else if (getArguments().containsKey(SearchableFragment.SEARCHABLEFRAGMENT_ALBUMCACHED))
+                mAlbum = mActivity.getCollection().getCachedAlbum();
+        }
+
     }
 
     /* (non-Javadoc)
@@ -56,15 +64,20 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
         if (getListAdapter().getItem(idx) instanceof Track) {
-            Bundle bundle = new Bundle();
+            ArrayList<Track> tracks = new ArrayList<Track>();
             if (mAlbum != null)
-                bundle.putLong(PlaybackActivity.PLAYLIST_ALBUM_ID, mAlbum.getId());
+                tracks = mAlbum.getTracks();
+            else if (mArtist != null)
+                tracks = mArtist.getTracks();
             else
-                bundle.putInt(PlaybackActivity.PLAYLIST_COLLECTION_ID, getCurrentCollection().getId());
-
+                tracks.addAll(mActivity.getCollection().getTracks());
+            long playlistId = mActivity.getCollection().addPlaylist(
+                    CustomPlaylist.fromTrackList("Last used playlist", tracks, (Track) getListAdapter().getItem(idx)));
+            Bundle bundle = new Bundle();
+            bundle.putLong(PlaybackActivity.PLAYLIST_PLAYLIST_ID, playlistId);
             bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID, ((Track) getListAdapter().getItem(idx)).getId());
 
-            Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
+            Intent playbackIntent = getIntent(mActivity, PlaybackActivity.class);
             playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
             startActivity(playbackIntent);
         }
@@ -90,6 +103,17 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                     R.id.content_header_textview, R.id.content_header_textview2);
             tomahawkListAdapter.setShowCategoryHeaders(headerArray, R.layout.single_line_list_header,
                     R.id.single_line_list_header_icon_imageview, R.id.single_line_list_header_textview);
+        } else if (mArtist != null) {
+            tracks.addAll(mArtist.getTracks());
+            List<TomahawkBaseAdapter.TomahawkMenuItem> headerArray = new ArrayList<TomahawkBaseAdapter.TomahawkMenuItem>();
+            String trackListTitle = getResources().getString(R.string.tracksfragment_title_string);
+            headerArray.add(new TomahawkBaseAdapter.TomahawkMenuItem(trackListTitle, R.drawable.ic_action_album));
+            tomahawkListAdapter = new TomahawkListAdapter(getActivity(), R.layout.double_line_list_item,
+                    R.id.double_line_list_textview, R.id.double_line_list_textview2, tracks);
+            tomahawkListAdapter.setShowContentHeader(mArtist, R.layout.content_header, R.id.content_header_image,
+                    R.id.content_header_textview, R.id.content_header_textview2);
+            tomahawkListAdapter.setShowCategoryHeaders(headerArray, R.layout.single_line_list_header,
+                    R.id.single_line_list_header_icon_imageview, R.id.single_line_list_header_textview);
         } else {
             tracks.addAll(coll.getTracks());
             tomahawkListAdapter = new TomahawkListAdapter(getActivity(), R.layout.double_line_list_item,
@@ -102,5 +126,18 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
 
     public Album getAlbum() {
         return mAlbum;
+    }
+
+    /**
+     * Return the {@link Intent} defined by the given parameters
+     *
+     * @param context the context with which the intent will be created
+     * @param cls the class which contains the activity to launch
+     * @return the created intent
+     */
+    private static Intent getIntent(Context context, Class<?> cls) {
+        Intent intent = new Intent(context, cls);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        return intent;
     }
 }

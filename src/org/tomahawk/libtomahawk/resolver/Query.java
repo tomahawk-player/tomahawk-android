@@ -96,6 +96,7 @@ public class Query {
      */
     public void addTrackResults(ArrayList<Result> results) {
         for (Result r : results) {
+            boolean isDuplicate = true;
             String trackName = "";
             Track track = r.getTrack();
             if (track != null && track.getName() != null)
@@ -111,6 +112,7 @@ public class Query {
             String key = trackName + "+" + artistName + "+" + albumName;
             ArrayList<Result> value = mTrackResults.get(key);
             if (value == null) {
+                isDuplicate = false;
                 value = new ArrayList<Result>();
             }
             value.add(r);
@@ -118,7 +120,7 @@ public class Query {
 
             key = artistName;
             value = mArtistResults.get(key);
-            if (value != null) {
+            if (value != null && !isDuplicate) {
                 for (Result artistResult : value) {
                     artistResult.getArtist().addTrack(track);
                 }
@@ -126,7 +128,7 @@ public class Query {
 
             key = artistName + "+" + albumName;
             value = mAlbumResults.get(key);
-            if (value != null) {
+            if (value != null && !isDuplicate) {
                 for (Result albumResult : value) {
                     albumResult.getAlbum().addTrack(track);
                 }
@@ -153,6 +155,7 @@ public class Query {
      */
     public void addAlbumResults(ArrayList<Result> results) {
         for (Result r : results) {
+            boolean isDuplicate = true;
             String artistName = "";
             Artist artist = r.getArtist();
             if (artist != null && artist.getName() != null)
@@ -164,6 +167,7 @@ public class Query {
             String key = artistName + "+" + albumName;
             ArrayList<Result> value = mAlbumResults.get(key);
             if (value == null) {
+                isDuplicate = false;
                 value = new ArrayList<Result>();
             }
             value.add(r);
@@ -171,7 +175,7 @@ public class Query {
 
             key = artistName;
             value = mArtistResults.get(key);
-            if (value != null) {
+            if (value != null && !isDuplicate) {
                 for (Result artistResult : value) {
                     artistResult.getArtist().addAlbum(album);
                 }

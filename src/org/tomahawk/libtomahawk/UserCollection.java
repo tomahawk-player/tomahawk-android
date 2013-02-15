@@ -41,7 +41,9 @@ public class UserCollection extends Collection {
     private Handler mHandler;
 
     private Map<Long, Artist> mArtists;
+    private Artist mCachedArtist;
     private Map<Long, Album> mAlbums;
+    private Album mCachedAlbum;
     private Map<Long, Track> mTracks;
     private Map<Long, Playlist> mPlaylists;
     public static final long USERCOLLECTION_CACHEDPLAYLIST_ID = 0;
@@ -114,6 +116,23 @@ public class UserCollection extends Collection {
         return mArtists.get(id);
     }
 
+    /**
+     * Caches an artist inside the playlist
+     * @param artist
+     */
+    @Override
+    public void setCachedArtist(Artist artist) {
+        mCachedArtist = artist;
+    }
+
+    /**
+     * @return the cached artist
+     */
+    @Override
+    public Artist getCachedArtist() {
+        return mCachedArtist;
+    }
+
     /* 
      * (non-Javadoc)
      * @see org.tomahawk.libtomahawk.Collection#getAlbums()
@@ -132,6 +151,23 @@ public class UserCollection extends Collection {
     @Override
     public Album getAlbumById(Long id) {
         return mAlbums.get(id);
+    }
+
+    /**
+     * Caches an album inside the playlist
+     * @param album
+     */
+    @Override
+    public void setCachedAlbum(Album album) {
+        mCachedAlbum = album;
+    }
+
+    /**
+     * @return the cached album
+     */
+    @Override
+    public Album getCachedAlbum() {
+        return mCachedAlbum;
     }
 
     /*
@@ -157,6 +193,7 @@ public class UserCollection extends Collection {
      * Add a playlist to the collection
      * @param playlist
      */
+    @Override
     public long addPlaylist(Playlist playlist) {
         mPlaylists.put(mPlaylistIdCounter, playlist);
         return mPlaylistIdCounter++;

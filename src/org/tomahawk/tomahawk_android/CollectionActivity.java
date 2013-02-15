@@ -49,7 +49,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
-public class CollectionActivity extends SherlockFragmentActivity implements PlaybackServiceConnectionListener {
+public class CollectionActivity extends TomahawkTabsActivity implements PlaybackServiceConnectionListener {
 
     public static final String COLLECTION_ID_EXTRA = "collection_id";
     public static final String COLLECTION_ID_ALBUM = "collection_album_id";

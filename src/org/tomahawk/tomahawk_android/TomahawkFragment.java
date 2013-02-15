@@ -51,7 +51,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
 
     private CollectionUpdateReceiver mCollectionUpdatedReceiver;
 
-    protected CollectionActivity mCollectionActivity;
+    protected TomahawkTabsActivity mActivity;
 
     static final int INTERNAL_EMPTY_ID = 0x00ff0001;
     static final int INTERNAL_PROGRESS_CONTAINER_ID = 0x00ff0002;
@@ -101,6 +101,8 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (mActivity instanceof SearchableActivity)
+            setBreadCrumbNavigationEnabled(false);
         if (getArguments() != null && getArguments().containsKey(TOMAHAWK_LIST_SCROLL_POSITION)
                 && getArguments().getInt(TOMAHAWK_LIST_SCROLL_POSITION) > 0)
             mListScrollPosition = getArguments().getInt(TOMAHAWK_LIST_SCROLL_POSITION);
@@ -125,6 +127,8 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
         ensureList();
         if (mBreadCrumbNavigationEnabled)
             updateBreadCrumbNavigation();
+        else if (mActivity.findViewById(R.id.fragmentLayout_breadcrumbLayout_linearLayout) != null)
+            mActivity.findViewById(R.id.fragmentLayout_breadcrumbLayout_linearLayout).setVisibility(View.GONE);
     }
 
     /* 
@@ -186,9 +190,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
      */
     @Override
     public void onAttach(Activity activity) {
-        if (activity instanceof CollectionActivity) {
-            mCollectionActivity = (CollectionActivity) activity;
-        }
+        mActivity = (TomahawkTabsActivity) activity;
         super.onAttach(activity);
     }
 
@@ -200,7 +202,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
     public void onDetach() {
         super.onDetach();
 
-        mCollectionActivity = null;
+        mActivity = null;
     }
 
     /* 
@@ -264,7 +266,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
     }
 
     public void updateBreadCrumbNavigation() {
-        ArrayList<TabsAdapter.FragmentStateHolder> backStack = mCollectionActivity.getTabsAdapter().getBackStackAtPosition(
+        ArrayList<TabsAdapter.FragmentStateHolder> backStack = ((CollectionActivity) mActivity).getTabsAdapter().getBackStackAtPosition(
                 CollectionActivity.LOCAL_COLLECTION_TAB_POSITION);
         LinearLayout navigationLayoutView = (LinearLayout) getActivity().findViewById(
                 R.id.fragmentLayout_breadcrumbLayout_linearLayout);
@@ -275,7 +277,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
                         || fpb.clss == TracksFragment.class || fpb.clss == PlaylistsFragment.class)
                     validFragmentCount++;
             }
-            Collection currentCollection = mCollectionActivity.getCollection();
+            Collection currentCollection = mActivity.getCollection();
             for (TabsAdapter.FragmentStateHolder fpb : backStack) {
                 LinearLayout breadcrumbItem = (LinearLayout) getActivity().getLayoutInflater().inflate(
                         R.layout.tomahawkfragment_layout_breadcrumb_item, null);
@@ -348,8 +350,8 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
 
         @Override
         public void onClick(View view) {
-            mCollectionActivity.getTabsAdapter().backToFragment(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
-                    mSavedFragmentTag);
+            ((CollectionActivity) mActivity).getTabsAdapter().backToFragment(
+                    CollectionActivity.LOCAL_COLLECTION_TAB_POSITION, mSavedFragmentTag);
         }
     }
 
@@ -438,8 +440,8 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
      * @return the current Collection
      */
     public Collection getCurrentCollection() {
-        if (mCollectionActivity != null)
-            return mCollectionActivity.getCollection();
+        if (mActivity != null)
+            return mActivity.getCollection();
         return null;
     }
 
