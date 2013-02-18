@@ -20,8 +20,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.tomahawk.tomahawk_android"
-    android:versionCode="0130"
-    android:versionName="0.13" >
+    android:versionCode="0140"
+    android:versionName="0.14" >
 
     <uses-sdk
         android:minSdkVersion="8"
