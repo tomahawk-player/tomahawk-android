@@ -320,4 +320,8 @@ public class ScriptResolver implements Resolver {
         return mIcon;
     }
 
+    public int getWeight(){
+        return mWeight;
+    }
+
 }

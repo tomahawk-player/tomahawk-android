@@ -108,7 +108,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
             mListScrollPosition = getArguments().getInt(TOMAHAWK_LIST_SCROLL_POSITION);
     }
 
-    /* 
+    /*
      * (non-Javadoc)
      * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
      */
@@ -117,7 +117,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
         return inflater.inflate(R.layout.tomahawkfragment_layout, null, false);
     }
 
-    /* 
+    /*
      * (non-Javadoc)
      * @see android.support.v4.app.Fragment#onViewCreated(android.view.View, android.os.Bundle)
      */
@@ -131,7 +131,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
             mActivity.findViewById(R.id.fragmentLayout_breadcrumbLayout_linearLayout).setVisibility(View.GONE);
     }
 
-    /* 
+    /*
      * (non-Javadoc)
      * @see android.support.v4.app.Fragment#onDestroyView()
      */
@@ -145,7 +145,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.support.v4.app.Fragment#onResume()
      */
     @Override
@@ -171,7 +171,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.support.v4.app.Fragment#onPause()
      */
     @Override
@@ -184,7 +184,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
         }
     }
 
-    /* 
+    /*
      * (non-Javadoc)
      * @see com.actionbarsherlock.app.SherlockListFragment#onAttach(android.app.Activity)
      */
@@ -194,7 +194,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
         super.onAttach(activity);
     }
 
-    /* 
+    /*
      * (non-Javadoc)
      * @see com.actionbarsherlock.app.SherlockListFragment#onDetach()
      */

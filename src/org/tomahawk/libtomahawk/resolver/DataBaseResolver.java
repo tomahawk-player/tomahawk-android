@@ -52,6 +52,7 @@ public class DataBaseResolver implements Resolver {
     private boolean mStopped;
 
     public DataBaseResolver(int id, TomahawkApp tomahawkApp, Collection collection) {
+        mWeight = 1000;
         mReady = false;
         mStopped = true;
         mTomahawkApp = tomahawkApp;
@@ -175,5 +176,9 @@ public class DataBaseResolver implements Resolver {
 
     public int getId() {
         return mId;
+    }
+
+    public int getWeight(){
+        return mWeight;
     }
 }
