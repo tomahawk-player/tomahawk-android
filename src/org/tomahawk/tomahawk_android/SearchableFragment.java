@@ -126,36 +126,39 @@ public class SearchableFragment extends TomahawkFragment implements OnItemClickL
      */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        if (getListAdapter().getItem(idx) instanceof Track) {
-            long playlistId = mCollection.addPlaylist(CustomPlaylist.fromTrackList(mCurrentQueryString,
-                    mCurrentShownTracks, (Track) getListAdapter().getItem(idx)));
-            Bundle bundle = new Bundle();
-            bundle.putLong(PlaybackActivity.PLAYLIST_PLAYLIST_ID, playlistId);
-            bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID, ((Track) getListAdapter().getItem(idx)).getId());
+        idx -= mList.getHeaderViewsCount();
+        if (idx >= 0) {
+            if (getListAdapter().getItem(idx) instanceof Track) {
+                long playlistId = mCollection.addPlaylist(CustomPlaylist.fromTrackList(mCurrentQueryString,
+                        mCurrentShownTracks, (Track) getListAdapter().getItem(idx)));
+                Bundle bundle = new Bundle();
+                bundle.putLong(PlaybackActivity.PLAYLIST_PLAYLIST_ID, playlistId);
+                bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID, ((Track) getListAdapter().getItem(idx)).getId());
 
-            Intent playbackIntent = getIntent(mActivity, PlaybackActivity.class);
-            playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
-            startActivity(playbackIntent);
-        } else if (getListAdapter().getItem(idx) instanceof Album) {
-            mCollection.setCachedAlbum((Album) getListAdapter().getItem(idx));
-            Bundle bundle = new Bundle();
-            bundle.putBoolean(SEARCHABLEFRAGMENT_ALBUMCACHED, true);
+                Intent playbackIntent = getIntent(mActivity, PlaybackActivity.class);
+                playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
+                startActivity(playbackIntent);
+            } else if (getListAdapter().getItem(idx) instanceof Album) {
+                mCollection.setCachedAlbum((Album) getListAdapter().getItem(idx));
+                Bundle bundle = new Bundle();
+                bundle.putBoolean(SEARCHABLEFRAGMENT_ALBUMCACHED, true);
 
-            FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.searchactivity_fragmentcontainer_framelayout,
-                    android.support.v4.app.Fragment.instantiate(mActivity, TracksFragment.class.getName(), bundle));
-            ft.addToBackStack(null);
-            ft.commit();
-        } else if (getListAdapter().getItem(idx) instanceof Artist) {
-            mCollection.setCachedArtist((Artist) getListAdapter().getItem(idx));
-            Bundle bundle = new Bundle();
-            bundle.putBoolean(SEARCHABLEFRAGMENT_ARTISTCACHED, true);
+                FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.searchactivity_fragmentcontainer_framelayout,
+                        android.support.v4.app.Fragment.instantiate(mActivity, TracksFragment.class.getName(), bundle));
+                ft.addToBackStack(null);
+                ft.commit();
+            } else if (getListAdapter().getItem(idx) instanceof Artist) {
+                mCollection.setCachedArtist((Artist) getListAdapter().getItem(idx));
+                Bundle bundle = new Bundle();
+                bundle.putBoolean(SEARCHABLEFRAGMENT_ARTISTCACHED, true);
 
-            FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.searchactivity_fragmentcontainer_framelayout,
-                    android.support.v4.app.Fragment.instantiate(mActivity, TracksFragment.class.getName(), bundle));
-            ft.addToBackStack(null);
-            ft.commit();
+                FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.searchactivity_fragmentcontainer_framelayout,
+                        android.support.v4.app.Fragment.instantiate(mActivity, TracksFragment.class.getName(), bundle));
+                ft.addToBackStack(null);
+                ft.commit();
+            }
         }
     }
 
