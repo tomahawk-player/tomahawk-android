@@ -94,30 +94,23 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         TomahawkListAdapter tomahawkListAdapter;
         if (mAlbum != null) {
             tracks.addAll(mAlbum.getTracks());
-            List<TomahawkBaseAdapter.TomahawkMenuItem> headerArray = new ArrayList<TomahawkBaseAdapter.TomahawkMenuItem>();
-            String trackListTitle = getResources().getString(R.string.tracksfragment_title_string);
-            headerArray.add(new TomahawkBaseAdapter.TomahawkMenuItem(trackListTitle, R.drawable.ic_action_album));
-            tomahawkListAdapter = new TomahawkListAdapter(getActivity(), R.layout.double_line_list_item,
-                    R.id.double_line_list_textview, R.id.double_line_list_textview2, tracks);
-            tomahawkListAdapter.setShowContentHeader(mAlbum, R.layout.content_header, R.id.content_header_image,
-                    R.id.content_header_textview, R.id.content_header_textview2);
-            tomahawkListAdapter.setShowCategoryHeaders(headerArray, R.layout.single_line_list_header,
-                    R.id.single_line_list_header_icon_imageview, R.id.single_line_list_header_textview);
+            List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+            listArray.add(tracks);
+            tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
+            tomahawkListAdapter.setShowCategoryHeaders(true);
+            tomahawkListAdapter.setShowContentHeader(true, mList, mAlbum);
         } else if (mArtist != null) {
             tracks.addAll(mArtist.getTracks());
-            List<TomahawkBaseAdapter.TomahawkMenuItem> headerArray = new ArrayList<TomahawkBaseAdapter.TomahawkMenuItem>();
-            String trackListTitle = getResources().getString(R.string.tracksfragment_title_string);
-            headerArray.add(new TomahawkBaseAdapter.TomahawkMenuItem(trackListTitle, R.drawable.ic_action_album));
-            tomahawkListAdapter = new TomahawkListAdapter(getActivity(), R.layout.double_line_list_item,
-                    R.id.double_line_list_textview, R.id.double_line_list_textview2, tracks);
-            tomahawkListAdapter.setShowContentHeader(mArtist, R.layout.content_header, R.id.content_header_image,
-                    R.id.content_header_textview, R.id.content_header_textview2);
-            tomahawkListAdapter.setShowCategoryHeaders(headerArray, R.layout.single_line_list_header,
-                    R.id.single_line_list_header_icon_imageview, R.id.single_line_list_header_textview);
+            List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+            listArray.add(tracks);
+            tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
+            tomahawkListAdapter.setShowCategoryHeaders(true);
+            tomahawkListAdapter.setShowContentHeader(true, mList, mArtist);
         } else {
             tracks.addAll(coll.getTracks());
-            tomahawkListAdapter = new TomahawkListAdapter(getActivity(), R.layout.double_line_list_item,
-                    R.id.double_line_list_textview, R.id.double_line_list_textview2, tracks);
+            List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+            listArray.add(tracks);
+            tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
         }
 
         setListAdapter(tomahawkListAdapter);

@@ -364,10 +364,12 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
         if (mPlaylist != null) {
             List<TomahawkBaseAdapter.TomahawkListItem> tracks = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
             tracks.addAll(mPlaylist.getTracks());
-            mTomahawkListAdapter = new TomahawkListAdapter(this, R.layout.double_line_list_item_with_playstate_image,
-                    R.id.double_line_list_imageview, R.id.double_line_list_textview, R.id.double_line_list_textview2,
-                    tracks);
+            List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+            listArray.add(tracks);
+            mTomahawkListAdapter = new TomahawkListAdapter(this, listArray);
             mTomahawkListAdapter.setShowHighlightingAndPlaystate(true);
+            mTomahawkListAdapter.setShowResolvedBy(true);
+            mTomahawkListAdapter.setShowPlaylistHeader(true);
             mTomahawkListAdapter.setHighlightedItem(mPlaylist.getPosition());
             mTomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
             ensureList();

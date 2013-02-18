@@ -65,16 +65,6 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
         public Album getAlbum();
     }
 
-    public static class TomahawkMenuItem {
-        public TomahawkMenuItem(String menuItemString, Integer menuItemIconResource) {
-            mMenuItemString = menuItemString;
-            mMenuItemIconResource = menuItemIconResource;
-        }
-
-        protected String mMenuItemString;
-        protected Integer mMenuItemIconResource;
-    }
-
     static class AsyncDrawable extends BitmapDrawable {
         private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
 
@@ -84,11 +74,11 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
         }
 
         public BitmapWorkerTask getBitmapWorkerTask() {
-            return (BitmapWorkerTask) bitmapWorkerTaskReference.get();
+            return bitmapWorkerTaskReference.get();
         }
     }
 
-    private class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
+    public class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
         private final WeakReference<ImageView> imageViewReference;
         private String data;
 
@@ -112,7 +102,7 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
             }
 
             if (imageViewReference != null && bitmap != null) {
-                final ImageView imageView = (ImageView) imageViewReference.get();
+                final ImageView imageView = imageViewReference.get();
                 final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
                 if (this == bitmapWorkerTask && imageView != null) {
                     imageView.setImageBitmap(bitmap);
@@ -125,19 +115,17 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
      * This {@link ResourceHolder} holds the resources to an entry in the grid/listView
      */
     static class ResourceHolder {
-        public ResourceHolder(int resourceId, int imageViewId, int textViewId1, int textViewId2) {
+        public ResourceHolder(int resourceId, int imageViewId, int imageViewId2, int textViewId1, int textViewId2) {
             this.resourceId = resourceId;
             this.imageViewId = imageViewId;
+            this.imageViewId2 = imageViewId2;
             this.textViewId1 = textViewId1;
             this.textViewId2 = textViewId2;
         }
 
-        public ResourceHolder(int resourceId) {
-            this.resourceId = resourceId;
-        }
-
         protected int resourceId;
         protected int imageViewId;
+        protected int imageViewId2;
         protected int textViewId1;
         protected int textViewId2;
     }
@@ -146,9 +134,18 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
      * This {@link ViewHolder} holds the data to an entry in the grid/listView
      */
     static class ViewHolder {
+        public ViewHolder(int viewType, ImageView imageViewLeft, ImageView imageViewRight, TextView textFirstLine,
+                TextView textSecondLine) {
+            this.viewType = viewType;
+            this.imageViewLeft = imageViewLeft;
+            this.imageViewRight = imageViewRight;
+            this.textFirstLine = textFirstLine;
+            this.textSecondLine = textSecondLine;
+        }
+
         public ViewHolder(int viewType, ImageView imageView, TextView textFirstLine, TextView textSecondLine) {
             this.viewType = viewType;
-            this.imageView = imageView;
+            this.imageViewLeft = imageView;
             this.textFirstLine = textFirstLine;
             this.textSecondLine = textSecondLine;
         }
@@ -161,7 +158,7 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
 
         public ViewHolder(int viewType, ImageView imageView, TextView textFirstLine) {
             this.viewType = viewType;
-            this.imageView = imageView;
+            this.imageViewLeft = imageView;
             this.textFirstLine = textFirstLine;
         }
 
@@ -171,7 +168,8 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
         }
 
         protected int viewType;
-        protected ImageView imageView;
+        protected ImageView imageViewLeft;
+        protected ImageView imageViewRight;
         protected TextView textFirstLine;
         protected TextView textSecondLine;
     }
@@ -233,7 +231,7 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
             protected FilterResults performFiltering(CharSequence constraint) {
                 constraint = constraint.toString().toLowerCase();
                 constraint = constraint.toString().trim();
-                List<List<TomahawkListItem>> filteredResults = (List<List<TomahawkListItem>>) getFilteredResults(constraint);
+                List<List<TomahawkListItem>> filteredResults = getFilteredResults(constraint);
 
                 FilterResults results = new FilterResults();
                 synchronized (this) {
@@ -280,7 +278,6 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
                 mArtistPlaceHolderBitmap = BitmapFactory.decodeResource(mActivity.getResources(),
                         R.drawable.no_artist_placeholder);
             placeHolderBitmap = mArtistPlaceHolderBitmap;
-            //pathToBitmap = ((Artist) item).getArtistArtPath();
         } else if (item instanceof Album) {
             if (mAlbumPlaceHolderBitmap == null)
                 mAlbumPlaceHolderBitmap = BitmapFactory.decodeResource(mActivity.getResources(),
@@ -328,7 +325,7 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
      * Used to get the {@link BitmapWorkerTask}, which is used to asynchronously load a {@link Bitmap} into to {@link ImageView}
      * @param imageView
      * @return */
-    private static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
+    public static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
         if (imageView != null) {
             final Drawable drawable = imageView.getDrawable();
             if (drawable instanceof AsyncDrawable) {

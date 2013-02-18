@@ -2,7 +2,7 @@
 <!--
 /*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2012, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,31 +19,65 @@
  */
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingBottom="2dip"
-    android:paddingTop="2dip"
-    android:paddingLeft="10dip"
-    android:background="@drawable/selectable_background_tomahawk" >
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="horizontal"
+              android:padding="2dip"
+              android:background="@drawable/selectable_background_tomahawk">
 
-    <TextView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/double_line_list_textview"
-        android:layout_width="wrap_content"
+    <org.tomahawk.tomahawk_android.SquareWidthRelativeLayout
+        android:layout_width="44dip"
         android:layout_height="wrap_content"
-        android:ellipsize="marquee"
-        android:singleLine="true"
-        android:textColor="#FFFFFF"
-        android:textSize="8pt" />
+        android:layout_gravity="center"
+        android:visibility="gone">
 
-    <TextView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/double_line_list_textview2"
-        android:layout_width="wrap_content"
+        <ImageView
+            android:id="@+id/double_line_list_imageview"
+            android:layout_weight="8"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"/>
+    </org.tomahawk.tomahawk_android.SquareWidthRelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ellipsize="marquee"
-        android:singleLine="true"
-        android:textSize="6pt" />
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingBottom="2dip"
+        android:paddingTop="2dip"
+        android:paddingLeft="10dip">
 
+        <TextView
+            android:id="@+id/double_line_list_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:textColor="#FFFFFF"
+            android:textSize="8pt"/>
+
+        <TextView
+            android:id="@+id/double_line_list_textview2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:textSize="6pt"/>
+    </LinearLayout>
+
+    <org.tomahawk.tomahawk_android.SquareWidthRelativeLayout
+        android:layout_width="44dip"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/double_line_list_imageview2"
+            android:layout_weight="8"
+            android:layout_margin="7dip"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"/>
+    </org.tomahawk.tomahawk_android.SquareWidthRelativeLayout>
 </LinearLayout>

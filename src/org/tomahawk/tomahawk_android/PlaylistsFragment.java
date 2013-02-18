@@ -79,11 +79,10 @@ public class PlaylistsFragment extends TomahawkFragment implements OnItemClickLi
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
 
-        //        List<TomahawkBaseAdapter.TomahawkListItem> items = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>(
-        //                coll.getPlaylists());
-        List<TomahawkBaseAdapter.TomahawkListItem> items = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-        setListAdapter(new TomahawkListAdapter(getActivity(), R.layout.single_line_list_item,
-                R.id.single_line_list_textview, items));
+        List<TomahawkBaseAdapter.TomahawkListItem> playlists = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+        List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+        listArray.add(playlists);
+        setListAdapter(new TomahawkListAdapter(getActivity(), listArray));
 
         getListView().setOnItemClickListener(this);
         getListView().setOnItemLongClickListener(this);
