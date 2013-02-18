@@ -44,13 +44,16 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
      */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        if (getListAdapter().getItem(idx) instanceof Artist) {
-            Bundle bundle = new Bundle();
-            bundle.putLong(TOMAHAWK_ARTIST_ID, ((Artist) getListAdapter().getItem(idx)).getId());
-            if (mActivity instanceof CollectionActivity)
-                ((CollectionActivity) mActivity).getTabsAdapter().replace(
-                        CollectionActivity.LOCAL_COLLECTION_TAB_POSITION, AlbumsFragment.class,
-                        ((Artist) getListAdapter().getItem(idx)).getId(), TOMAHAWK_ARTIST_ID, false);
+        idx -= mList.getHeaderViewsCount();
+        if (idx >= 0) {
+            if (getListAdapter().getItem(idx) instanceof Artist) {
+                Bundle bundle = new Bundle();
+                bundle.putLong(TOMAHAWK_ARTIST_ID, ((Artist) getListAdapter().getItem(idx)).getId());
+                if (mActivity instanceof CollectionActivity)
+                    ((CollectionActivity) mActivity).getTabsAdapter().replace(
+                            CollectionActivity.LOCAL_COLLECTION_TAB_POSITION, AlbumsFragment.class,
+                            ((Artist) getListAdapter().getItem(idx)).getId(), TOMAHAWK_ARTIST_ID, false);
+            }
         }
     }
 
@@ -60,12 +63,15 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
      */
     @Override
     public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-        Bundle bundle = new Bundle();
-        bundle.putLong(PlaybackActivity.PLAYLIST_ARTIST_ID, ((Artist) getListAdapter().getItem(position)).getId());
+        position -= mList.getHeaderViewsCount();
+        if (position >= 0) {
+            Bundle bundle = new Bundle();
+            bundle.putLong(PlaybackActivity.PLAYLIST_ARTIST_ID, ((Artist) getListAdapter().getItem(position)).getId());
 
-        Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
-        playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
-        startActivity(playbackIntent);
+            Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
+            playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
+            startActivity(playbackIntent);
+        }
         return true;
     }
 
