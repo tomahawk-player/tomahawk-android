@@ -60,7 +60,7 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
     }
 
     public void setGridItemResources(int resourceGridItem, int imageViewResourcesGridItemId, int textViewResourceGridItemId1, int textViewResourceGridItemId2) {
-        mGridItemResourceHolder = new ResourceHolder(resourceGridItem, imageViewResourcesGridItemId,
+        mGridItemResourceHolder = new ResourceHolder(resourceGridItem, imageViewResourcesGridItemId, -1,
                 textViewResourceGridItemId1, textViewResourceGridItemId2);
     }
 
@@ -90,7 +90,7 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
             if (viewHolder.viewType == R.id.tomahawklistadapter_viewtype_griditem) {
                 viewHolder.textFirstLine.setText(((TomahawkListItem) item).getName());
                 viewHolder.textSecondLine.setText(((TomahawkListItem) item).getArtist().getName());
-                loadBitmap((TomahawkListItem) item, viewHolder.imageView);
+                loadBitmap((TomahawkListItem) item, viewHolder.imageViewLeft);
             }
         }
         return view;

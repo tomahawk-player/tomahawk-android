@@ -58,7 +58,7 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
     static final int INTERNAL_LIST_CONTAINER_ID = 0x00ff0003;
 
     TomahawkBaseAdapter mTomahawkBaseAdapter;
-    ListView mList;
+    TomahawkStickyListHeadersListView mList;
     GridView mGrid;
 
     private int mListScrollPosition = 0;
@@ -386,22 +386,23 @@ public abstract class TomahawkFragment extends SherlockFragment implements Loade
         if (root == null) {
             throw new IllegalStateException("Content view not yet created");
         }
-        if (root instanceof ListView) {
-            mList = (ListView) root;
+        if (root instanceof TomahawkStickyListHeadersListView) {
+            mList = (TomahawkStickyListHeadersListView) root;
         } else if (root instanceof GridView) {
             mGrid = (GridView) root;
         } else {
             if (!(mTomahawkBaseAdapter instanceof TomahawkGridAdapter)) {
                 View rawListView = root.findViewById(R.id.listview);
-                if (!(rawListView instanceof ListView)) {
+                if (!(rawListView instanceof TomahawkStickyListHeadersListView)) {
                     if (rawListView == null) {
-                        throw new RuntimeException("Your content must have a ListView whose id attribute is "
-                                + "'R.id.listview'");
+                        throw new RuntimeException(
+                                "Your content must have a TomahawkStickyListHeadersListView whose id attribute is "
+                                        + "'R.id.listview'");
                     }
                     throw new RuntimeException("Content has view with id attribute 'R.id.listview' "
-                            + "that is not a ListView class");
+                            + "that is not a TomahawkStickyListHeadersListView class");
                 }
-                mList = (ListView) rawListView;
+                mList = (TomahawkStickyListHeadersListView) rawListView;
             } else {
                 View rawListView = root.findViewById(R.id.gridview);
                 if (!(rawListView instanceof GridView)) {

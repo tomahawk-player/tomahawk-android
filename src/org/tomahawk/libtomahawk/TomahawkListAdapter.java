@@ -17,10 +17,10 @@
  */
 package org.tomahawk.libtomahawk;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.SquareWidthRelativeLayout;
 
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
@@ -28,6 +28,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.emilsjolander.components.stickylistheaders.StickyListHeadersAdapter;
@@ -42,147 +43,56 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
 
     private ResourceHolder mSingleLineListItemResourceHolder;
     private ResourceHolder mDoubleLineListItemResourceHolder;
-    private ResourceHolder mDoubleLineImageListItemResourceHolder;
     private ResourceHolder mCategoryHeaderResourceHolder;
-    private ResourceHolder mContentHeaderResourceHolder;
 
     private boolean mShowCategoryHeaders = false;
-    private List<TomahawkMenuItem> mCategoryHeaderArray;
-
+    private boolean mShowPlaylistHeader = false;
     private boolean mShowContentHeader = false;
-    private TomahawkListItem mCorrespondingTomahawkListItem;
 
     private boolean mShowHighlightingAndPlaystate = false;
     private boolean mShowResolvedBy = false;
 
     /**
-     * Constructs a new {@link TomahawkListAdapter} to display list items with a single line of text
-     *
-     * @param activity the activity, which uses the {@link TomahawkListAdapter}. Used to get the {@link LayoutInflater}
-     * @param resourceListItem the resource id for the view, that represents a listItem
-     * @param textViewResourceListItemId1 the resource id for the textView inside resourceListItem that displays the
-     * first line of text
-     * @param list contains a list of TomahawkListItems.
-     */
-    public TomahawkListAdapter(Activity activity, int resourceListItem, int textViewResourceListItemId1,
-            List<TomahawkListItem> list) {
-        mActivity = activity;
-        mLayoutInflater = mActivity.getLayoutInflater();
-        setSingleLineListItemResources(resourceListItem, textViewResourceListItemId1);
-        mListArray = new ArrayList<List<TomahawkListItem>>();
-        mListArray.add(list);
-        fillHeaderArray();
-    }
-
-    /**
      * Constructs a new {@link TomahawkListAdapter} to display list items with a single line of text and categoryHeaders
      * 
      * @param activity
-     * @param resourceCategoryHeader
-     * @param imageViewResourceCategoryHeaderId
-     * @param textViewResourceCategoryHeaderId
-     * @param resourceListItem
-     * @param textViewResourceListItemId1
      * @param listArray
-     * @param categoryHeaderArray
      */
-    public TomahawkListAdapter(Activity activity, int resourceCategoryHeader, int imageViewResourceCategoryHeaderId,
-            int textViewResourceCategoryHeaderId, int resourceListItem, int textViewResourceListItemId1,
-            List<List<TomahawkListItem>> listArray, List<TomahawkMenuItem> categoryHeaderArray) {
+    public TomahawkListAdapter(Activity activity, List<List<TomahawkListItem>> listArray) {
         mActivity = activity;
         mLayoutInflater = mActivity.getLayoutInflater();
-        setShowCategoryHeaders(categoryHeaderArray, resourceCategoryHeader, imageViewResourceCategoryHeaderId,
-                textViewResourceCategoryHeaderId);
-        setSingleLineListItemResources(resourceListItem, textViewResourceListItemId1);
         mListArray = listArray;
-        fillHeaderArray();
-
+        mSingleLineListItemResourceHolder = new ResourceHolder(R.layout.single_line_list_item, -1, -1,
+                R.id.single_line_list_textview, -1);
+        mDoubleLineListItemResourceHolder = new ResourceHolder(R.layout.double_line_list_item,
+                R.id.double_line_list_imageview, R.id.double_line_list_imageview2, R.id.double_line_list_textview,
+                R.id.double_line_list_textview2);
     }
 
-    /**
-     * Constructs a new {@link TomahawkListAdapter} to display list items with two lines of text
-     *
-     * @param activity the activity, which uses the {@link TomahawkListAdapter}. Used to get the {@link LayoutInflater}
-     * @param resourceListItem the resource id for the view, that represents a listItem
-     * @param textViewResourceListItemId1 the resource id for the textView inside resourceListItem that displays the
-     * first line of text
-     * @param textViewResourceListItemId2 the resource id for the textView inside resourceListItem that displays the
-     * second line of text
-     * @param list contains a list of TomahawkListItems.
-     */
-    public TomahawkListAdapter(Activity activity, int resourceListItem, int textViewResourceListItemId1,
-            int textViewResourceListItemId2, List<TomahawkListItem> list) {
-        mActivity = activity;
-        mLayoutInflater = mActivity.getLayoutInflater();
-        setDoubleLineListItemResources(resourceListItem, textViewResourceListItemId1, textViewResourceListItemId2);
-        mListArray = new ArrayList<List<TomahawkListItem>>();
-        mListArray.add(list);
-        fillHeaderArray();
+    public void setShowCategoryHeaders(boolean showCategoryHeaders) {
+        mCategoryHeaderResourceHolder = new ResourceHolder(R.layout.single_line_list_header,
+                R.id.single_line_list_header_icon_imageview, -1, R.id.single_line_list_header_textview, -1);
+        mShowCategoryHeaders = showCategoryHeaders;
     }
 
-    /**
-     * Constructs a new {@link TomahawkListAdapter} to display list items with two lines of text and an imageView
-     *
-     * @param activity the activity, which uses the {@link TomahawkListAdapter}. Used to get the {@link LayoutInflater}
-     * @param resourceListItem the resource id for the view, that represents a listItem
-     * @param imageViewResourcesListItemId the resource id for the imageView
-     * @param textViewResourceListItemId1 the resource id for the textView inside resourceListItem that displays the
-     * first line of text
-     * @param textViewResourceListItemId2 the resource id for the textView inside resourceListItem that displays the
-     * second line of text
-     * @param list contains a list of TomahawkListItems.
-     */
-    public TomahawkListAdapter(Activity activity, int resourceListItem, int imageViewResourcesListItemId,
-            int textViewResourceListItemId1, int textViewResourceListItemId2, List<TomahawkListItem> list) {
-        mActivity = activity;
-        mLayoutInflater = mActivity.getLayoutInflater();
-        setDoubleLineImageListItemResources(resourceListItem, imageViewResourcesListItemId,
-                textViewResourceListItemId1, textViewResourceListItemId2);
-        mListArray = new ArrayList<List<TomahawkListItem>>();
-        mListArray.add(list);
-        fillHeaderArray();
+    public void setShowPlaylistHeader(boolean showPlaylistHeader) {
+        mCategoryHeaderResourceHolder = new ResourceHolder(R.layout.show_playlist_header, -1, -1, -1, -1);
+        mShowPlaylistHeader = showPlaylistHeader;
     }
 
-    /**  fill mCategoryHeaderArray with "No header" strings  */
-    public void fillHeaderArray() {
-        if (mCategoryHeaderArray == null) {
-            mShowCategoryHeaders = false;
-            mCategoryHeaderArray = new ArrayList<TomahawkMenuItem>();
-            for (int i = 0; i < mListArray.size(); i++) {
-                mCategoryHeaderArray.add(new TomahawkMenuItem("No header", null));
+    public void setShowContentHeader(boolean showContentHeader, ListView list, TomahawkBaseAdapter.TomahawkListItem contentHeaderTomahawkListItem) {
+        if (list.getHeaderViewsCount() == 0) {
+            View contentHeaderView = mLayoutInflater.inflate(R.layout.content_header, null);
+            if (contentHeaderView != null) {
+                loadBitmap(contentHeaderTomahawkListItem,
+                        (ImageView) contentHeaderView.findViewById(R.id.content_header_image));
+                ((TextView) contentHeaderView.findViewById(R.id.content_header_textview)).setText(contentHeaderTomahawkListItem.getName());
+                if (contentHeaderTomahawkListItem.getArtist() != null && contentHeaderTomahawkListItem instanceof Album)
+                    ((TextView) contentHeaderView.findViewById(R.id.content_header_textview2)).setText(contentHeaderTomahawkListItem.getArtist().getName());
             }
+            list.addHeaderView(contentHeaderView);
+            mShowContentHeader = showContentHeader;
         }
-        while (mCategoryHeaderArray.size() < mListArray.size()) {
-            mCategoryHeaderArray.add(new TomahawkMenuItem("No header", null));
-        }
-    }
-
-    public void setSingleLineListItemResources(int resourceListItem, int textViewResourceListItemId1) {
-        mSingleLineListItemResourceHolder = new ResourceHolder(resourceListItem, -1, textViewResourceListItemId1, -1);
-    }
-
-    public void setDoubleLineListItemResources(int resourceListItem, int textViewResourceListItemId1, int textViewResourceListItemId2) {
-        mDoubleLineListItemResourceHolder = new ResourceHolder(resourceListItem, -1, textViewResourceListItemId1,
-                textViewResourceListItemId2);
-    }
-
-    public void setDoubleLineImageListItemResources(int resourceListItem, int imageViewResourcesListItemId, int textViewResourceListItemId1, int textViewResourceListItemId2) {
-        mDoubleLineImageListItemResourceHolder = new ResourceHolder(resourceListItem, imageViewResourcesListItemId,
-                textViewResourceListItemId1, textViewResourceListItemId2);
-    }
-
-    public void setShowCategoryHeaders(List<TomahawkMenuItem> categoryHeaderArray, int resourceCategoryHeader, int imageViewResourceCategoryHeaderId, int textViewResourceCategoryHeaderId) {
-        mCategoryHeaderArray = categoryHeaderArray;
-        mCategoryHeaderResourceHolder = new ResourceHolder(resourceCategoryHeader, imageViewResourceCategoryHeaderId,
-                textViewResourceCategoryHeaderId, -1);
-        mShowCategoryHeaders = true;
-    }
-
-    public void setShowContentHeader(TomahawkListItem correspondingTomahawkListItem, int resourceContentHeader, int imageViewResourceContentHeaderId, int textViewResourceContentHeaderId1, int textViewResourceContentHeaderId2) {
-        mCorrespondingTomahawkListItem = correspondingTomahawkListItem;
-        mContentHeaderResourceHolder = new ResourceHolder(resourceContentHeader, imageViewResourceContentHeaderId,
-                textViewResourceContentHeaderId1, textViewResourceContentHeaderId2);
-        mShowContentHeader = true;
     }
 
     public void setShowHighlightingAndPlaystate(boolean showHighlightingAndPlaystate) {
@@ -204,67 +114,43 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
 
         if (item != null) {
             ViewHolder viewHolder;
-            if ((item == mCorrespondingTomahawkListItem && position == 0 && convertView == null)
-                    || (item == mCorrespondingTomahawkListItem && position == 0 && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_contentheader)) {
-                view = mLayoutInflater.inflate(mContentHeaderResourceHolder.resourceId, null);
-                viewHolder = new ViewHolder(R.id.tomahawklistadapter_viewtype_contentheader,
-                        (ImageView) view.findViewById(mContentHeaderResourceHolder.imageViewId),
-                        (TextView) view.findViewById(mContentHeaderResourceHolder.textViewId1),
-                        (TextView) view.findViewById(mContentHeaderResourceHolder.textViewId2));
-                view.setTag(viewHolder);
-            } else if ((item instanceof TomahawkMenuItem && convertView == null)
-                    || (item instanceof TomahawkMenuItem && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_categoryheader)) {
-                view = mLayoutInflater.inflate(mCategoryHeaderResourceHolder.resourceId, null);
-                viewHolder = new ViewHolder(R.id.tomahawklistadapter_viewtype_categoryheader,
-                        (ImageView) view.findViewById(mCategoryHeaderResourceHolder.imageViewId),
-                        (TextView) view.findViewById(mCategoryHeaderResourceHolder.textViewId1));
-                view.setTag(viewHolder);
-            } else if ((item instanceof Artist && item != mCorrespondingTomahawkListItem && convertView == null)
-                    || (item instanceof Artist && item != mCorrespondingTomahawkListItem && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_singlelinelistitem)) {
+            if ((item instanceof Artist && convertView == null)
+                    || (item instanceof Artist && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_singlelinelistitem)) {
                 view = mLayoutInflater.inflate(mSingleLineListItemResourceHolder.resourceId, null);
                 viewHolder = new ViewHolder(R.id.tomahawklistadapter_viewtype_singlelinelistitem,
                         (TextView) view.findViewById(mSingleLineListItemResourceHolder.textViewId1));
                 view.setTag(viewHolder);
             } else if (!mShowHighlightingAndPlaystate
                     && !mShowResolvedBy
-                    && ((item instanceof Track && item != mCorrespondingTomahawkListItem && convertView == null) || (item instanceof Track
-                            && item != mCorrespondingTomahawkListItem && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_doublelinelistitem))) {
+                    && ((item instanceof Track && convertView == null) || (item instanceof Track && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_doublelinelistitem))) {
                 view = mLayoutInflater.inflate(mDoubleLineListItemResourceHolder.resourceId, null);
                 viewHolder = new ViewHolder(R.id.tomahawklistadapter_viewtype_doublelinelistitem,
                         (TextView) view.findViewById(mDoubleLineListItemResourceHolder.textViewId1),
                         (TextView) view.findViewById(mDoubleLineListItemResourceHolder.textViewId2));
                 view.setTag(viewHolder);
-            } else if ((mShowHighlightingAndPlaystate || mShowResolvedBy)
-                    && ((item instanceof Track && item != mCorrespondingTomahawkListItem && convertView == null) || (item instanceof Track
-                            && item != mCorrespondingTomahawkListItem && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_doublelineplaystateimagelistitem))) {
-                view = mLayoutInflater.inflate(mDoubleLineImageListItemResourceHolder.resourceId, null);
+            } else if ((mShowResolvedBy || mShowHighlightingAndPlaystate)
+                    && ((item instanceof Track && convertView == null) || (item instanceof Track && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_doublelineplaystateimagelistitem))) {
+                view = mLayoutInflater.inflate(mDoubleLineListItemResourceHolder.resourceId, null);
                 viewHolder = new ViewHolder(R.id.tomahawklistadapter_viewtype_doublelineplaystateimagelistitem,
-                        (ImageView) view.findViewById(mDoubleLineImageListItemResourceHolder.imageViewId),
-                        (TextView) view.findViewById(mDoubleLineImageListItemResourceHolder.textViewId1),
-                        (TextView) view.findViewById(mDoubleLineImageListItemResourceHolder.textViewId2));
+                        (ImageView) view.findViewById(mDoubleLineListItemResourceHolder.imageViewId),
+                        (ImageView) view.findViewById(mDoubleLineListItemResourceHolder.imageViewId2),
+                        (TextView) view.findViewById(mDoubleLineListItemResourceHolder.textViewId1),
+                        (TextView) view.findViewById(mDoubleLineListItemResourceHolder.textViewId2));
                 view.setTag(viewHolder);
-            } else if ((item instanceof Album && item != mCorrespondingTomahawkListItem && convertView == null)
-                    || (item instanceof Album && item != mCorrespondingTomahawkListItem && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_doublelineimagelistitem)) {
-                view = mLayoutInflater.inflate(mDoubleLineImageListItemResourceHolder.resourceId, null);
+            } else if ((item instanceof Album && convertView == null)
+                    || (item instanceof Album && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_doublelineimagelistitem)) {
+                view = mLayoutInflater.inflate(mDoubleLineListItemResourceHolder.resourceId, null);
                 viewHolder = new ViewHolder(R.id.tomahawklistadapter_viewtype_doublelineimagelistitem,
-                        (ImageView) view.findViewById(mDoubleLineImageListItemResourceHolder.imageViewId),
-                        (TextView) view.findViewById(mDoubleLineImageListItemResourceHolder.textViewId1),
-                        (TextView) view.findViewById(mDoubleLineImageListItemResourceHolder.textViewId2));
+                        (ImageView) view.findViewById(mDoubleLineListItemResourceHolder.imageViewId),
+                        (TextView) view.findViewById(mDoubleLineListItemResourceHolder.textViewId1),
+                        (TextView) view.findViewById(mDoubleLineListItemResourceHolder.textViewId2));
                 view.setTag(viewHolder);
             } else {
                 view = convertView;
                 viewHolder = (ViewHolder) view.getTag();
             }
 
-            if (viewHolder.viewType == R.id.tomahawklistadapter_viewtype_contentheader) {
-                viewHolder.textFirstLine.setText(((TomahawkListItem) item).getName());
-                if (((TomahawkListItem) item).getArtist() != null)
-                    viewHolder.textSecondLine.setText(((TomahawkListItem) item).getArtist().getName());
-                loadBitmap((TomahawkListItem) item, viewHolder.imageView);
-            } else if (viewHolder.viewType == R.id.tomahawklistadapter_viewtype_categoryheader) {
-                viewHolder.imageView.setImageResource(((TomahawkMenuItem) item).mMenuItemIconResource);
-                viewHolder.textFirstLine.setText(((TomahawkMenuItem) item).mMenuItemString);
-            } else if (viewHolder.viewType == R.id.tomahawklistadapter_viewtype_singlelinelistitem) {
+            if (viewHolder.viewType == R.id.tomahawklistadapter_viewtype_singlelinelistitem) {
                 viewHolder.textFirstLine.setText(((Artist) item).getName());
             } else if (viewHolder.viewType == R.id.tomahawklistadapter_viewtype_doublelinelistitem) {
                 viewHolder.textFirstLine.setText(((Track) item).getName());
@@ -274,7 +160,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                     viewHolder.textFirstLine.setText(((Album) item).getName());
                     if (((Album) item).getArtist() != null)
                         viewHolder.textSecondLine.setText(((Album) item).getArtist().getName());
-                    loadBitmap((Album) item, viewHolder.imageView);
+                    ((SquareWidthRelativeLayout) viewHolder.imageViewLeft.getParent()).setVisibility(SquareWidthRelativeLayout.VISIBLE);
+                    loadBitmap((Album) item, viewHolder.imageViewLeft);
                 }
             } else if (viewHolder.viewType == R.id.tomahawklistadapter_viewtype_doublelineplaystateimagelistitem) {
                 if (item instanceof Track) {
@@ -284,24 +171,27 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                         if (position == mHighlightedItemPosition) {
                             view.setBackgroundResource(R.color.pressed_tomahawk);
                             if (mHighlightedItemIsPlaying) {
-                                viewHolder.imageView.setVisibility(ImageView.VISIBLE);
-                                viewHolder.imageView.setImageResource(R.drawable.ic_playlist_is_playing);
-                            } else
-                                viewHolder.imageView.setVisibility(ImageView.GONE);
+                                ((SquareWidthRelativeLayout) viewHolder.imageViewLeft.getParent()).setVisibility(SquareWidthRelativeLayout.VISIBLE);
+                                viewHolder.imageViewLeft.setImageResource(R.drawable.ic_playlist_is_playing);
+                            } else {
+                                ((SquareWidthRelativeLayout) viewHolder.imageViewLeft.getParent()).setVisibility(SquareWidthRelativeLayout.GONE);
+                            }
                         } else {
+                            ((SquareWidthRelativeLayout) viewHolder.imageViewLeft.getParent()).setVisibility(SquareWidthRelativeLayout.GONE);
                             view.setBackgroundResource(R.drawable.selectable_background_tomahawk);
-                            viewHolder.imageView.setVisibility(ImageView.GONE);
                         }
-                    } else if (mShowResolvedBy) {
+                    }
+                    if (mShowResolvedBy) {
+                        ((SquareWidthRelativeLayout) viewHolder.imageViewRight.getParent()).setVisibility(SquareWidthRelativeLayout.VISIBLE);
                         Drawable resolverIcon = null;
                         if (((Track) item).getResolver() != null)
                             resolverIcon = ((Track) item).getResolver().getIcon();
                         if (resolverIcon != null)
-                            viewHolder.imageView.setImageDrawable(((Track) item).getResolver().getIcon());
+                            viewHolder.imageViewRight.setImageDrawable(((Track) item).getResolver().getIcon());
                         else if (((Track) item).isLocal())
-                            viewHolder.imageView.setImageResource(R.drawable.ic_action_collection);
+                            viewHolder.imageViewRight.setImageResource(R.drawable.ic_action_collection);
                         else
-                            viewHolder.imageView.setImageResource(R.drawable.ic_resolver_default);
+                            viewHolder.imageViewRight.setImageResource(R.drawable.ic_resolver_default);
                     }
                 }
             }
@@ -318,16 +208,13 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
         if ((mFiltered ? mFilteredListArray : mListArray) == null)
             return 0;
         int displayedListArrayItemsCount = 0;
-        int displayedHeaderArrayItemsCount = 0;
         int displayedContentHeaderCount = 0;
         for (List<TomahawkListItem> list : (mFiltered ? mFilteredListArray : mListArray)) {
             displayedListArrayItemsCount += list.size();
-            if (list.size() > 0 && mShowCategoryHeaders)
-                displayedHeaderArrayItemsCount++;
         }
         if (mShowContentHeader)
             displayedContentHeaderCount = 1;
-        return displayedListArrayItemsCount + displayedHeaderArrayItemsCount + displayedContentHeaderCount;
+        return displayedListArrayItemsCount + displayedContentHeaderCount;
     }
 
     /*
@@ -338,27 +225,13 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
     public Object getItem(int position) {
         Object item = null;
         int offsetCounter = 0;
-        if (mShowContentHeader)
-            offsetCounter++;
-        if (mShowContentHeader && position == 0)
-            item = mCorrespondingTomahawkListItem;
-        else {
-            for (int i = 0; i < (mFiltered ? mFilteredListArray : mListArray).size(); i++) {
-                List<TomahawkListItem> list = (mFiltered ? mFilteredListArray : mListArray).get(i);
-                if (mShowCategoryHeaders) {
-                    if (!list.isEmpty())
-                        offsetCounter++;
-                    if (position - offsetCounter == -1) {
-                        item = mCategoryHeaderArray.get(i);
-                        break;
-                    }
-                }
-                if (position - offsetCounter < list.size()) {
-                    item = list.get(position - offsetCounter);
-                    break;
-                }
-                offsetCounter += list.size();
+        for (int i = 0; i < (mFiltered ? mFilteredListArray : mListArray).size(); i++) {
+            List<TomahawkListItem> list = (mFiltered ? mFilteredListArray : mListArray).get(i);
+            if (position - offsetCounter < list.size()) {
+                item = list.get(position - offsetCounter);
+                break;
             }
+            offsetCounter += list.size();
         }
         return item;
     }
@@ -374,17 +247,48 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
 
     @Override
     public View getHeaderView(int position, View convertView, ViewGroup parent) {
-        if (convertView == null) {
-            convertView = mLayoutInflater.inflate(R.layout.show_playlist_header, parent, false);
-        }
-        return convertView;
+        if (mShowPlaylistHeader || mShowCategoryHeaders) {
+            ViewHolder viewHolder;
+            if (convertView == null) {
+                convertView = mLayoutInflater.inflate(mCategoryHeaderResourceHolder.resourceId, null);
+                viewHolder = new ViewHolder(R.id.tomahawklistadapter_viewtype_header,
+                        (ImageView) convertView.findViewById(mCategoryHeaderResourceHolder.imageViewId),
+                        (TextView) convertView.findViewById(mCategoryHeaderResourceHolder.textViewId1));
+                convertView.setTag(viewHolder);
+            }
+            viewHolder = (ViewHolder) convertView.getTag();
+            if (mShowCategoryHeaders && getItem(position) != null) {
+                if (getItem(position) instanceof Track) {
+                    viewHolder.imageViewLeft.setImageResource(R.drawable.ic_action_track);
+                    viewHolder.textFirstLine.setText(R.string.tracksfragment_title_string);
+                } else if (getItem(position) instanceof Artist) {
+                    viewHolder.imageViewLeft.setImageResource(R.drawable.ic_action_artist);
+                    viewHolder.textFirstLine.setText(R.string.artistsfragment_title_string);
+                } else if (getItem(position) instanceof Album) {
+                    viewHolder.imageViewLeft.setImageResource(R.drawable.ic_action_album);
+                    viewHolder.textFirstLine.setText(R.string.albumsfragment_title_string);
+                }
+            }
+            return convertView;
+        } else
+            return new View(mActivity);
     }
 
-    //remember that these have to be static, postion=1 should walys return the same Id that is.
+    //remember that these have to be static, position=1 should always return the same Id that is.
     @Override
     public long getHeaderId(int position) {
         //return the first character of the country as ID because this is what headers are based upon
-        return 0;
+        long result = 0;
+        int sizeSum = 0;
+        if (mShowContentHeader)
+            sizeSum += 1;
+        for (List<TomahawkListItem> list : mFiltered ? mFilteredListArray : mListArray) {
+            sizeSum += list.size();
+            if (position < sizeSum)
+                break;
+            else
+                result++;
+        }
+        return result;
     }
-
 }

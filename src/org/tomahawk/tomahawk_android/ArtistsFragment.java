@@ -77,10 +77,11 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
 
-        List<TomahawkBaseAdapter.TomahawkListItem> items = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>(
+        List<TomahawkBaseAdapter.TomahawkListItem> artists = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>(
                 coll.getArtists());
-        setListAdapter(new TomahawkListAdapter(getActivity(), R.layout.single_line_list_item,
-                R.id.single_line_list_textview, items));
+        List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+        listArray.add(artists);
+        setListAdapter(new TomahawkListAdapter(getActivity(), listArray));
 
         getListView().setOnItemClickListener(this);
         getListView().setOnItemLongClickListener(this);

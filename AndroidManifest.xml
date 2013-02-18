@@ -77,7 +77,6 @@
 
         <activity
             android:name="org.tomahawk.tomahawk_android.SearchableActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/searchactivity_title_string"
             android:launchMode="singleTop" >
             <intent-filter>

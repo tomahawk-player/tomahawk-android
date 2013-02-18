@@ -184,23 +184,8 @@ public class SearchableFragment extends TomahawkFragment implements OnItemClickL
         albumResultList.addAll(mCurrentShownAlbums);
         listArray.add(albumResultList);
         //                if (mTomahawkListAdapter == null) {
-        List<TomahawkBaseAdapter.TomahawkMenuItem> headerArray = new ArrayList<TomahawkBaseAdapter.TomahawkMenuItem>();
-        String trackListTitle = getResources().getString(R.string.tracksfragment_title_string);
-        headerArray.add(new TomahawkBaseAdapter.TomahawkMenuItem(trackListTitle, R.drawable.ic_action_track));
-        String artistListTitle = getResources().getString(R.string.artistsfragment_title_string);
-        headerArray.add(new TomahawkBaseAdapter.TomahawkMenuItem(artistListTitle, R.drawable.ic_action_artist));
-        String albumListTitle = getResources().getString(R.string.albumsfragment_title_string);
-        headerArray.add(new TomahawkBaseAdapter.TomahawkMenuItem(albumListTitle, R.drawable.ic_action_album));
-
-        TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(mActivity, R.layout.single_line_list_header,
-                R.id.single_line_list_header_icon_imageview, R.id.single_line_list_header_textview,
-                R.layout.single_line_list_item, R.id.single_line_list_textview, listArray, headerArray);
-        tomahawkListAdapter.setDoubleLineImageListItemResources(R.layout.double_line_list_item_with_image,
-                R.id.double_line_list_imageview, R.id.double_line_list_textview, R.id.double_line_list_textview2);
-        tomahawkListAdapter.setDoubleLineListItemResources(R.layout.double_line_list_item,
-                R.id.double_line_list_textview, R.id.double_line_list_textview2);
-        tomahawkListAdapter.setShowCategoryHeaders(headerArray, R.layout.single_line_list_header,
-                R.id.single_line_list_header_icon_imageview, R.id.single_line_list_header_textview);
+        TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
+        tomahawkListAdapter.setShowCategoryHeaders(true);
         //                } else
         //                    mTomahawkListAdapter.setListWithIndex(0, trackResultList);
         tomahawkListAdapter.setShowResolvedBy(true);
