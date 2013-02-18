@@ -30,11 +30,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -133,7 +133,6 @@ public class SearchableActivity extends TomahawkTabsActivity implements OnEditor
             registerReceiver(mCollectionUpdatedReceiver, intentFilter);
         }
 
-        mSearchEditText.setOnEditorActionListener(this);
         mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
     }
 
@@ -229,17 +228,22 @@ public class SearchableActivity extends TomahawkTabsActivity implements OnEditor
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (event == null || actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE
                 || event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-            CheckBox onlineSourcesCheckBox = (CheckBox) findViewById(R.id.searchactivity_onlinesources_checkbox);
             if (v.getText().toString() != null && !TextUtils.isEmpty(v.getText().toString())) {
-                PipeLine pipeLine = ((TomahawkApp) getApplication()).getPipeLine();
-                pipeLine.resolve(v.getText().toString(), !onlineSourcesCheckBox.isChecked());
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);
-                startLoadingAnimation();
+                resolveFullTextQuery(v.getText().toString());
                 return true;
             }
         }
         return false;
+    }
+
+    public void resolveFullTextQuery(String fullTextQuery) {
+        getSupportFragmentManager().popBackStack();
+        CheckBox onlineSourcesCheckBox = (CheckBox) findViewById(R.id.searchactivity_onlinesources_checkbox);
+        PipeLine pipeLine = ((TomahawkApp) getApplication()).getPipeLine();
+        pipeLine.resolve(fullTextQuery, !onlineSourcesCheckBox.isChecked());
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);
+        startLoadingAnimation();
     }
 
     @Override
@@ -252,8 +256,6 @@ public class SearchableActivity extends TomahawkTabsActivity implements OnEditor
                 mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
                 mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
             } else {
-                long time = System.currentTimeMillis() - testTime;
-                Log.d("org.tomahawk", "mPipeline stopped resolving, stopping animation after " + time + "ms");
                 stopLoadingAnimation();
             }
             break;
@@ -261,17 +263,11 @@ public class SearchableActivity extends TomahawkTabsActivity implements OnEditor
         return true;
     }
 
-    long testTime;
-
     public void startLoadingAnimation() {
-        testTime = System.currentTimeMillis();
-        Log.d("org.tomahawk", "starting animation");
         mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
     }
 
     public void stopLoadingAnimation() {
-        long time = System.currentTimeMillis() - testTime;
-        Log.d("org.tomahawk", "stopping animation after " + time + "ms");
         mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
         getSupportActionBar().setLogo(R.drawable.ic_launcher);
     }

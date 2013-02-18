@@ -89,10 +89,10 @@ public class PipeLine {
         if (fullTextQuery != null && !TextUtils.isEmpty(fullTextQuery)) {
             Query q = null;
             for (Query query : mQids.values())
-                if (query.getFullTextQuery() == fullTextQuery)
+                if (query.getFullTextQuery() == fullTextQuery && query.isOnlyLocal() == onlyLocal)
                     q = query;
             if (q == null)
-                q = new Query(mTomahawkApp.getUniqueQueryId(), fullTextQuery);
+                q = new Query(mTomahawkApp.getUniqueQueryId(), fullTextQuery, onlyLocal);
             if (!mQids.containsKey(q.getQid())) {
                 mQids.put(q.getQid(), q);
                 for (Resolver resolver : mResolvers) {
@@ -169,7 +169,7 @@ public class PipeLine {
                 }
             }
             mQids.get(qid).addArtistResults(cleanArtistResults);
-            mQids.get(qid).addAlbumResults(cleanAlbumResults);
+            //            mQids.get(qid).addAlbumResults(cleanAlbumResults);
             mQids.get(qid).addTrackResults(cleanTrackResults);
             sendReportResultsBroadcast(qid);
         }

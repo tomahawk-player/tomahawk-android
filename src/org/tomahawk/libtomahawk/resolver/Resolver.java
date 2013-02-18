@@ -32,4 +32,6 @@ public interface Resolver {
     public void resolve(Query query);
 
     public int getId();
+
+    public int getWeight();
 }

@@ -26,7 +26,6 @@ import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 
-import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -39,14 +38,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ListView;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 
 /**
  * Fragment which represents the "Tracks" tabview.
  */
-public class SearchableFragment extends TomahawkFragment implements OnItemClickListener {
+public class SearchableFragment extends TomahawkFragment implements OnItemClickListener,
+        CompoundButton.OnCheckedChangeListener {
 
-    private static final String SEARCHABLEFRAGMENT_QUERY_ID = "org.tomahawk.tomahawk_android.SEARCHABLEFRAGMENT_QUERY_ID";
+    private static final String SEARCHABLEFRAGMENT_QUERY_STRING = "org.tomahawk.tomahawk_android.SEARCHABLEFRAGMENT_QUERY_STRING";
     public static final String SEARCHABLEFRAGMENT_ARTISTCACHED = "org.tomahawk.tomahawk_android.SEARCHABLEFRAGMENT_ARTISTCACHED";
     public static final String SEARCHABLEFRAGMENT_ALBUMCACHED = "org.tomahawk.tomahawk_android.SEARCHABLEFRAGMENT_ALBUMCACHED";
 
@@ -75,8 +76,8 @@ public class SearchableFragment extends TomahawkFragment implements OnItemClickL
     @Override
     public void onCreate(Bundle inState) {
         super.onCreate(inState);
-        if (inState != null && inState.containsKey(SEARCHABLEFRAGMENT_QUERY_ID))
-            mCurrentQueryId = inState.getString(SEARCHABLEFRAGMENT_QUERY_ID);
+        if (inState != null && inState.containsKey(SEARCHABLEFRAGMENT_QUERY_STRING))
+            mCurrentQueryString = inState.getString(SEARCHABLEFRAGMENT_QUERY_STRING);
     }
 
     @Override
@@ -87,15 +88,17 @@ public class SearchableFragment extends TomahawkFragment implements OnItemClickL
     @Override
     public void onResume() {
         super.onResume();
-
-        if (mCurrentQueryId != null)
-            showQueryResults(mCurrentQueryId);
+        CheckBox onlineSourcesCheckBox = (CheckBox) mActivity.findViewById(R.id.searchactivity_onlinesources_checkbox);
+        onlineSourcesCheckBox.setOnCheckedChangeListener(this);
 
         IntentFilter intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED);
         if (mPipelineBroadcastReceiver == null) {
             mPipelineBroadcastReceiver = new PipelineBroadcastReceiver();
             mActivity.registerReceiver(mPipelineBroadcastReceiver, intentFilter);
         }
+
+        if (mCurrentQueryString != null)
+            ((SearchableActivity) mActivity).resolveFullTextQuery(mCurrentQueryString);
     }
 
     /*
@@ -114,7 +117,7 @@ public class SearchableFragment extends TomahawkFragment implements OnItemClickL
 
     @Override
     public void onSaveInstanceState(Bundle out) {
-        out.putString(SEARCHABLEFRAGMENT_QUERY_ID, mCurrentQueryId);
+        out.putString(SEARCHABLEFRAGMENT_QUERY_STRING, mCurrentQueryString);
         super.onSaveInstanceState(out);
     }
 
@@ -154,6 +157,11 @@ public class SearchableFragment extends TomahawkFragment implements OnItemClickL
             ft.addToBackStack(null);
             ft.commit();
         }
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        ((SearchableActivity) mActivity).resolveFullTextQuery(mCurrentQueryString);
     }
 
     /* (non-Javadoc)
@@ -204,10 +212,5 @@ public class SearchableFragment extends TomahawkFragment implements OnItemClickL
         Intent intent = new Intent(context, cls);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         return intent;
-    }
-
-    /** Show the corresponding {@link Fragment} (depends of which instance the item at position idx is of)
-     * @param idx the position of the item inside the shown {@link ListView} */
-    public void showFragment(int idx) {
     }
 }

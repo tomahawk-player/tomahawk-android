@@ -46,6 +46,8 @@ public class Query {
     private String mFullTextQuery;
     private boolean mIsFullTextQuery;
 
+    private boolean mIsOnlyLocal;
+
     private String mTrackName = "";
     private String mAlbumName = "";
     private String mArtistName = "";
@@ -64,18 +66,21 @@ public class Query {
      * @param qid
      * @param fullTextQuery
      */
-    public Query(final String qid, final String fullTextQuery) {
+    public Query(final String qid, final String fullTextQuery, final boolean onlyLocal) {
         mFullTextQuery = fullTextQuery.replace("'", "\\'");
         mIsFullTextQuery = true;
+        mIsOnlyLocal = onlyLocal;
         mQid = qid;
     }
 
-    public Query(final String qid, final String trackName, final String albumName, final String artistName) {
+    public Query(final String qid, final String trackName, final String albumName, final String artistName,
+            final boolean onlyLocal) {
         mTrackName = trackName.replace("'", "\\'");
         mAlbumName = albumName.replace("'", "\\'");
         mArtistName = artistName.replace("'", "\\'");
         mQid = qid;
         mIsFullTextQuery = false;
+        mIsOnlyLocal = onlyLocal;
     }
 
     /**
@@ -104,7 +109,7 @@ public class Query {
             String artistName = "";
             Artist artist = r.getArtist();
             if (artist != null && artist.getName() != null)
-                artistName = cleanUpString(artist.getName(), true);
+                artistName = cleanUpString(artist.getName(), false);
             String albumName = "";
             Album album = r.getAlbum();
             if (album != null && album.getName() != null)
@@ -115,7 +120,18 @@ public class Query {
                 isDuplicate = false;
                 value = new ArrayList<Result>();
             }
-            value.add(r);
+            for (int i = 0; i <= value.size(); i++) {
+                if (i == value.size()) {
+                    value.add(r);
+                    break;
+                } else {
+                    Result trackResult = value.get(i);
+                    if (r.getResolver().getWeight() > trackResult.getResolver().getWeight()) {
+                        value.add(i, r);
+                        break;
+                    }
+                }
+            }
             mTrackResults.put(key, value);
 
             key = artistName;
@@ -159,7 +175,7 @@ public class Query {
             String artistName = "";
             Artist artist = r.getArtist();
             if (artist != null && artist.getName() != null)
-                artistName = cleanUpString(artist.getName(), true);
+                artistName = cleanUpString(artist.getName(), false);
             String albumName = "";
             Album album = r.getAlbum();
             if (album != null && album.getName() != null)
@@ -205,7 +221,7 @@ public class Query {
             String artistName = "";
             Artist artist = r.getArtist();
             if (artist != null && artist.getName() != null)
-                artistName = cleanUpString(artist.getName(), true);
+                artistName = cleanUpString(artist.getName(), false);
             String key = artistName;
             ArrayList<Result> value = mArtistResults.get(key);
             if (value == null) {
@@ -223,6 +239,10 @@ public class Query {
 
     public boolean isFullTextQuery() {
         return mIsFullTextQuery;
+    }
+
+    public boolean isOnlyLocal() {
+        return mIsOnlyLocal;
     }
 
     public boolean isSolved() {
@@ -243,7 +263,7 @@ public class Query {
         String resultAlbumName = "";
         String resultTrackName = "";
         if (r.getArtist().getName() != null)
-            resultArtistName = cleanUpString(r.getArtist().getName(), true);
+            resultArtistName = cleanUpString(r.getArtist().getName(), false);
         if (r.getAlbum().getName() != null)
             resultAlbumName = cleanUpString(r.getAlbum().getName(), false);
         if (r.getTrack().getName() != null)
