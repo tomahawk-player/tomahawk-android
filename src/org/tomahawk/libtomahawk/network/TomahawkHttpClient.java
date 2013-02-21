@@ -35,7 +35,6 @@ public class TomahawkHttpClient extends DefaultHttpClient {
 
     private static final String TAG = TomahawkHttpClient.class.getName();
 
-
     public TomahawkHttpClient(HttpParams params) {
         super(params);
     }
