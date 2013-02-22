@@ -45,17 +45,17 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
     public void onCreate(Bundle inState) {
         super.onCreate(inState);
         if (mActivity.getCollection() != null && getArguments() != null) {
-            if (getArguments().containsKey(TOMAHAWK_ALBUM_ID) && getArguments().getLong(TOMAHAWK_ALBUM_ID) > 0)
+            if (getArguments().containsKey(TOMAHAWK_ALBUM_ID) && getArguments().getLong(TOMAHAWK_ALBUM_ID) >= 0)
                 mAlbum = mActivity.getCollection().getAlbumById(getArguments().getLong(TOMAHAWK_ALBUM_ID));
             else if (getArguments().containsKey(TOMAHAWK_PLAYLIST_ID)
-                    && getArguments().getLong(TOMAHAWK_PLAYLIST_ID) > 0)
-                mCustomPlaylist = null;//mActivity.getCollection().getPlaylistById(getArguments().getLong(TOMAHAWK_PLAYLIST_ID));+
-            else if (getArguments().containsKey(SearchableFragment.SEARCHABLEFRAGMENT_ARTISTCACHED))
+                    && getArguments().getLong(TOMAHAWK_PLAYLIST_ID) >= 0)
+                mCustomPlaylist = mActivity.getCollection().getCustomPlaylistById(
+                        getArguments().getLong(TOMAHAWK_PLAYLIST_ID));
+            else if (getArguments().containsKey(UserCollection.USERCOLLECTION_ARTISTCACHED))
                 mArtist = mActivity.getCollection().getCachedArtist();
-            else if (getArguments().containsKey(SearchableFragment.SEARCHABLEFRAGMENT_ALBUMCACHED))
+            else if (getArguments().containsKey(UserCollection.USERCOLLECTION_ALBUMCACHED))
                 mAlbum = mActivity.getCollection().getCachedAlbum();
         }
-
     }
 
     /* (non-Javadoc)
@@ -71,13 +71,16 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                     tracks = mAlbum.getTracks();
                 else if (mArtist != null)
                     tracks = mArtist.getTracks();
+                else if (mCustomPlaylist != null)
+                    tracks = mCustomPlaylist.getTracks();
                 else
                     tracks.addAll(mActivity.getCollection().getTracks());
-                long playlistId = mActivity.getCollection().addPlaylist(
-                        CustomPlaylist.fromTrackList("Last used playlist", tracks,
-                                (Track) getListAdapter().getItem(idx)));
+                CustomPlaylist playlist = CustomPlaylist.fromTrackList("Last used playlist", tracks,
+                        (Track) getListAdapter().getItem(idx));
+                playlist.setCurrentTrackIndex(idx);
+                ((UserCollection) mActivity.getCollection()).setCachedPlaylist(playlist);
                 Bundle bundle = new Bundle();
-                bundle.putLong(PlaybackActivity.PLAYLIST_PLAYLIST_ID, playlistId);
+                bundle.putBoolean(UserCollection.USERCOLLECTION_PLAYLISTCACHED, true);
                 bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID, ((Track) getListAdapter().getItem(idx)).getId());
 
                 Intent playbackIntent = getIntent(mActivity, PlaybackActivity.class);
@@ -111,6 +114,14 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             tomahawkListAdapter.setShowResolvedBy(true);
             tomahawkListAdapter.setShowCategoryHeaders(true);
             tomahawkListAdapter.setShowContentHeader(true, mList, mArtist);
+        } else if (mCustomPlaylist != null) {
+            tracks.addAll(mCustomPlaylist.getTracks());
+            List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+            listArray.add(tracks);
+            tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
+            tomahawkListAdapter.setShowResolvedBy(true);
+            tomahawkListAdapter.setShowCategoryHeaders(true);
+            //            tomahawkListAdapter.setShowContentHeader(true, mList, mArtist);
         } else {
             tracks.addAll(coll.getTracks());
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
