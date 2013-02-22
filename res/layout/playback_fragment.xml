@@ -55,7 +55,8 @@
         android:id="@+id/album_art_view_pager"
         android:layout_width="fill_parent"
         android:layout_height="320dip"
-        android:layout_weight="25"/>
+        android:layout_weight="25" >
+    </android.support.v4.view.ViewPager>
 
     <RelativeLayout
         android:layout_width="wrap_content"

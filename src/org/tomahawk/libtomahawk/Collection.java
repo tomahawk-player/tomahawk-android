@@ -21,7 +21,6 @@ package org.tomahawk.libtomahawk;
 import java.util.List;
 
 import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
-import org.tomahawk.libtomahawk.playlist.Playlist;
 
 /**
  * This class represents a {@link Collection} of media.
