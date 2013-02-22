@@ -496,30 +496,34 @@ public class PlaybackService extends Service implements OnCompletionListener, On
      * Start playing the next Track.
      */
     public void next() {
-        Track track = mCurrentPlaylist.getNextTrack();
-        if (track != null) {
-            try {
-                setCurrentTrack(track);
-            } catch (IOException e) {
-                Log.e(TAG, "next(): " + IOException.class.getName() + ": " + e.getLocalizedMessage());
+        if (mCurrentPlaylist != null) {
+            Track track = mCurrentPlaylist.getNextTrack();
+            if (track != null) {
+                try {
+                    setCurrentTrack(track);
+                } catch (IOException e) {
+                    Log.e(TAG, "next(): " + IOException.class.getName() + ": " + e.getLocalizedMessage());
+                }
             }
+            updatePlayingNotification();
         }
-        updatePlayingNotification();
     }
 
     /**
      * Play the previous track.
      */
     public void previous() {
-        Track track = mCurrentPlaylist.getPreviousTrack();
-        if (track != null) {
-            try {
-                setCurrentTrack(track);
-            } catch (IOException e) {
-                Log.e(TAG, "previous(): " + IOException.class.getName() + ": " + e.getLocalizedMessage());
+        if (mCurrentPlaylist != null) {
+            Track track = mCurrentPlaylist.getPreviousTrack();
+            if (track != null) {
+                try {
+                    setCurrentTrack(track);
+                } catch (IOException e) {
+                    Log.e(TAG, "previous(): " + IOException.class.getName() + ": " + e.getLocalizedMessage());
+                }
             }
+            updatePlayingNotification();
         }
-        updatePlayingNotification();
     }
 
     /**
