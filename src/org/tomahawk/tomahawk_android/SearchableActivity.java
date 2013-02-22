@@ -115,15 +115,9 @@ public class SearchableActivity extends TomahawkTabsActivity implements
         actionBar.setCustomView(searchView);
         setSearchText((EditText) searchView.findViewById(R.id.search_edittext));
 
-        // Autocomplete code
-        AutoCompleteTextView textView = (AutoCompleteTextView) findViewById(R.id.search_edittext);
-        ArrayList<String> autoCompleteSuggestions = getAutoCompleteArray();
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, autoCompleteSuggestions);
-        textView.setAdapter(adapter);
-
         // Sets the background colour to grey so that the text is visible
-        textView.setDropDownBackgroundResource(R.drawable.ab_solid_tomahawk);
+        AutoCompleteTextView textView = (AutoCompleteTextView) findViewById(R.id.search_edittext);
+        textView.setDropDownBackgroundResource(R.drawable.menu_dropdown_panel_tomahawk);
 
         mPipeline = ((TomahawkApp) getApplication()).getPipeLine();
 
@@ -137,6 +131,15 @@ public class SearchableActivity extends TomahawkTabsActivity implements
         }
     }
 
+    private void setupAutoComplete() {
+        // Autocomplete code
+        AutoCompleteTextView textView = (AutoCompleteTextView) findViewById(R.id.search_edittext);
+        ArrayList<String> autoCompleteSuggestions = getAutoCompleteArray();
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_1, autoCompleteSuggestions);
+        textView.setAdapter(adapter);
+    }
+
     /*
      * (non-Javadoc)
      *
@@ -145,6 +148,8 @@ public class SearchableActivity extends TomahawkTabsActivity implements
     @Override
     public void onResume() {
         super.onResume();
+
+        setupAutoComplete();
 
         getSupportLoaderManager().destroyLoader(0);
         getSupportLoaderManager().initLoader(0, null, this);
@@ -267,9 +272,11 @@ public class SearchableActivity extends TomahawkTabsActivity implements
                 || actionId == EditorInfo.IME_ACTION_DONE
                 || event.getAction() == KeyEvent.ACTION_DOWN
                 && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-            if (v.getText().toString() != null
-                    && !TextUtils.isEmpty(v.getText().toString())) {
-                resolveFullTextQuery(v.getText().toString());
+            String searchText = v.getText().toString();
+            if (searchText != null
+                    && !TextUtils.isEmpty(searchText)) {
+                addToAutoCompleteArray(searchText);
+                resolveFullTextQuery(searchText);
                 return true;
             }
         }
@@ -277,8 +284,6 @@ public class SearchableActivity extends TomahawkTabsActivity implements
     }
 
     public void resolveFullTextQuery(String fullTextQuery) {
-        addToAutoCompleteArray(fullTextQuery);
-
         getSupportFragmentManager().popBackStack();
         CheckBox onlineSourcesCheckBox = (CheckBox) findViewById(R.id.searchactivity_onlinesources_checkbox);
         PipeLine pipeLine = ((TomahawkApp) getApplication()).getPipeLine();
