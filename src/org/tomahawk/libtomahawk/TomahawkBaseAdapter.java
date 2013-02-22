@@ -289,10 +289,7 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
             if (cancelPotentialWork(pathToBitmap, imageView)) {
                 final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
                 final AsyncDrawable asyncDrawable = new AsyncDrawable(mActivity.getResources(), placeHolderBitmap, task);
-                if (asyncDrawable != null)
-                    imageView.setImageDrawable(asyncDrawable);
-                else
-                    imageView.setImageBitmap(placeHolderBitmap);
+                imageView.setImageDrawable(asyncDrawable);
                 task.execute(((Album) item).getAlbumArtPath());
             }
         } else
