@@ -276,6 +276,7 @@ public class SearchableActivity extends TomahawkTabsActivity implements
             if (searchText != null
                     && !TextUtils.isEmpty(searchText)) {
                 addToAutoCompleteArray(searchText);
+                setupAutoComplete();
                 resolveFullTextQuery(searchText);
                 return true;
             }
