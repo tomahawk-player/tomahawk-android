@@ -60,6 +60,7 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class PlaybackService extends Service
         implements OnCompletionListener, OnErrorListener, OnPreparedListener {
@@ -409,13 +410,12 @@ public class PlaybackService extends Service
      * Save the current playlist in the UserCollection
      */
     private void saveState() {
-        UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication())
-                .getSourceList().getCollectionFromId(UserCollection.Id));
-        userCollection.setCachedPlaylist(CustomPlaylist
-                .fromTrackList(UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
-                        getCurrentPlaylist().getTracks()));
-
-        if (getCurrentPlaylist() != null) {
+        if (getCurrentPlaylist() != null && getCurrentPlaylist().getCount() > 0) {
+            UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication())
+                    .getSourceList().getCollectionFromId(UserCollection.Id));
+            userCollection.setCachedPlaylist(CustomPlaylist
+                    .fromTrackList(UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
+                            getCurrentPlaylist().getTracks()));
             long startTime = System.currentTimeMillis();
             userPlaylistsDataSource.storeCachedUserPlaylist(getCurrentPlaylist());
             Log.d(TAG, "Playlist stored in " + (System.currentTimeMillis() - startTime) + "ms");
@@ -665,11 +665,40 @@ public class PlaybackService extends Service
      * Track.
      */
     public void setCurrentPlaylist(Playlist playlist) throws IOException {
+        mCurrentPlaylist = playlist;
         if (playlist != null) {
-            mCurrentPlaylist = playlist;
             setCurrentTrack(mCurrentPlaylist.getCurrentTrack());
-            sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
         }
+        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+    }
+
+    public void addTracksToCurrentPlaylist(ArrayList<Track> tracks) {
+        mCurrentPlaylist.addTracks(tracks);
+        if (mCurrentPlaylist.getCount() == 1) {
+            mCurrentPlaylist.setCurrentTrack(mCurrentPlaylist.getTrackAtPos(0));
+        }
+        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+    }
+
+    public void addTracksToCurrentPlaylist(int position, ArrayList<Track> tracks) {
+        if (position < mCurrentPlaylist.getCount()) {
+            mCurrentPlaylist.addTracks(position, tracks);
+        } else {
+            mCurrentPlaylist.addTracks(tracks);
+        }
+        if (mCurrentPlaylist.getCount() == 1) {
+            try {
+                setCurrentTrack(mCurrentPlaylist.getTrackAtPos(0));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+    }
+
+    public void deleteTrackAtPos(int position) {
+        mCurrentPlaylist.deleteTrackAtPos(position);
+        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
 
     /**

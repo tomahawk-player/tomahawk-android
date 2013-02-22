@@ -313,16 +313,28 @@ public abstract class Playlist implements Playable {
     }
 
     /**
-     * Return the position of the currently played track inside the playlist
-     */
-    public int getPosition() {
-        return mCurrentTrackIndex;
-    }
-
-    /**
      * Return all tracks in the playlist
      */
     public ArrayList<Track> getTracks() {
         return mShuffled ? mShuffledTracks : mTracks;
+    }
+
+    public void addTracks(int position, ArrayList<Track> tracks) {
+        (mShuffled ? mShuffledTracks : mTracks).addAll(position, tracks);
+    }
+
+    public void addTracks(ArrayList<Track> tracks) {
+        (mShuffled ? mShuffledTracks : mTracks).addAll(tracks);
+    }
+
+    public void deleteTrackAtPos(int position) {
+        if (mShuffledTracks != null) {
+            (!mShuffled ? mShuffledTracks : mTracks)
+                    .remove((mShuffled ? mShuffledTracks : mTracks).get(position));
+        }
+        (mShuffled ? mShuffledTracks : mTracks).remove(position);
+        if (mCurrentTrackIndex > position) {
+            mCurrentTrackIndex--;
+        }
     }
 }

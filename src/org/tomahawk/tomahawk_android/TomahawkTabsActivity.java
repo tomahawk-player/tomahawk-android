@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 import org.tomahawk.libtomahawk.Collection;
+import org.tomahawk.libtomahawk.audio.PlaybackService;
 
 /**
  * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 14.01.13
@@ -27,4 +28,6 @@ import org.tomahawk.libtomahawk.Collection;
 public abstract class TomahawkTabsActivity extends SherlockFragmentActivity {
 
     public abstract Collection getCollection();
+
+    public abstract PlaybackService getPlaybackService();
 }

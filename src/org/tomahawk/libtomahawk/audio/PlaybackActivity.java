@@ -35,6 +35,7 @@ import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.UserCollection;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
+import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.playlist.AlbumPlaylist;
 import org.tomahawk.libtomahawk.playlist.ArtistPlaylist;
 import org.tomahawk.libtomahawk.playlist.CollectionPlaylist;
@@ -56,6 +57,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.ContextMenu;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
@@ -89,6 +91,8 @@ public class PlaybackActivity extends SherlockFragmentActivity
     private static final int MSG_UPDATE_ANIMATION = 0x20;
 
     private PlaybackService mPlaybackService;
+
+    private UserPlaylistsDataSource mUserPlaylistsDataSource;
 
     /**
      * Allow communication to the PlaybackService.
@@ -189,6 +193,10 @@ public class PlaybackActivity extends SherlockFragmentActivity
         registerReceiver(mPlaybackServiceBroadcastReceiver, intentFilter);
         intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYSTATECHANGED);
         registerReceiver(mPlaybackServiceBroadcastReceiver, intentFilter);
+
+        mUserPlaylistsDataSource = new UserPlaylistsDataSource(this,
+                ((TomahawkApp) getApplication()).getPipeLine());
+        mUserPlaylistsDataSource.open();
     }
 
     /*
@@ -203,6 +211,9 @@ public class PlaybackActivity extends SherlockFragmentActivity
         if (mPlaybackServiceBroadcastReceiver != null) {
             unregisterReceiver(mPlaybackServiceBroadcastReceiver);
             mPlaybackServiceBroadcastReceiver = null;
+        }
+        if (mUserPlaylistsDataSource != null) {
+            mUserPlaylistsDataSource.close();
         }
     }
 
@@ -263,6 +274,98 @@ public class PlaybackActivity extends SherlockFragmentActivity
         return false;
     }
 
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+            ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        android.view.MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.popup_menu, menu);
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+        info.position -= mList.getHeaderViewsCount();
+        TomahawkBaseAdapter.TomahawkListItem tomahawkListItem;
+        if (info.position >= 0) {
+            tomahawkListItem = ((TomahawkBaseAdapter.TomahawkListItem) mTomahawkListAdapter
+                    .getItem(info.position));
+        } else {
+            tomahawkListItem = mTomahawkListAdapter.getContentHeaderTomahawkListItem();
+        }
+        menu.findItem(R.id.popupmenu_play_item).setVisible(false);
+        menu.findItem(R.id.popupmenu_playaftercurrenttrack_item).setVisible(false);
+        menu.findItem(R.id.popupmenu_appendtoplaybacklist_item).setVisible(false);
+        menu.findItem(R.id.popupmenu_addtoplaylist_item).setVisible(false);
+        menu.findItem(R.id.popupmenu_delete_item).setVisible(false);
+        if (tomahawkListItem instanceof Track) {
+            menu.findItem(R.id.popupmenu_play_item).setVisible(true);
+            menu.findItem(R.id.popupmenu_addtoplaylist_item).setVisible(true);
+            menu.findItem(R.id.popupmenu_delete_item).setVisible(true);
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(android.view.MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
+                .getMenuInfo();
+        TomahawkBaseAdapter.TomahawkListItem tomahawkListItem = null;
+        if (info.position >= 0) {
+            tomahawkListItem = ((TomahawkBaseAdapter.TomahawkListItem) mTomahawkListAdapter
+                    .getItem(info.position));
+        }
+        switch (item.getItemId()) {
+            case R.id.popupmenu_delete_item:
+                if (tomahawkListItem instanceof Track) {
+                    if (mPlaylist.getCurrentTrackIndex() == info.position) {
+                        boolean wasPlaying = mPlaybackService.isPlaying();
+                        if (wasPlaying) {
+                            mPlaybackService.pause();
+                        }
+                        try {
+                            if (mPlaybackService.getCurrentPlaylist().peekTrackAtPos(
+                                    mPlaybackService.getCurrentPlaylist().getCurrentTrackIndex()
+                                            + 1) != null) {
+                                mPlaybackService.setCurrentTrack(
+                                        mPlaybackService.getCurrentPlaylist().getTrackAtPos(
+                                                mPlaybackService.getCurrentPlaylist()
+                                                        .getCurrentTrackIndex() + 1));
+                            } else if (mPlaybackService.getCurrentPlaylist().peekTrackAtPos(
+                                    mPlaybackService.getCurrentPlaylist().getCurrentTrackIndex()
+                                            - 1) != null) {
+                                mPlaybackService.setCurrentTrack(
+                                        mPlaybackService.getCurrentPlaylist().getTrackAtPos(
+                                                mPlaybackService.getCurrentPlaylist()
+                                                        .getCurrentTrackIndex() - 1));
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        if (wasPlaying) {
+                            mPlaybackService.start();
+                        }
+                    }
+                    mPlaybackService.deleteTrackAtPos(info.position);
+                }
+                return true;
+            case R.id.popupmenu_play_item:
+                if (tomahawkListItem instanceof Track) {
+                    if (mPlaylist.getCurrentTrackIndex() == info.position) {
+                        if (!mPlaybackService.isPlaying()) {
+                            mPlaybackService.start();
+                        }
+                    } else {
+                        try {
+                            mPlaybackService.setCurrentTrack(mPlaybackService.getCurrentPlaylist()
+                                    .peekTrackAtPos(info.position));
+                            mPlaybackService.start();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
+
     /* (non-Javadoc)
      * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
      */
@@ -270,7 +373,7 @@ public class PlaybackActivity extends SherlockFragmentActivity
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
         Object obj = mTomahawkListAdapter.getItem(idx - 1);
         if (obj instanceof Track) {
-            if (mPlaylist.getPosition() == idx - 1) {
+            if (mPlaylist.getCurrentTrackIndex() == idx - 1) {
                 mPlaybackService.playPause();
             } else {
                 try {
@@ -417,7 +520,7 @@ public class PlaybackActivity extends SherlockFragmentActivity
             mTomahawkListAdapter.setShowHighlightingAndPlaystate(true);
             mTomahawkListAdapter.setShowResolvedBy(true);
             mTomahawkListAdapter.setShowPlaylistHeader(true);
-            mTomahawkListAdapter.setHighlightedItem(mPlaylist.getPosition());
+            mTomahawkListAdapter.setHighlightedItem(mPlaylist.getCurrentTrackIndex());
             mTomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
             ensureList();
             mList.setOnItemClickListener(this);
@@ -458,6 +561,7 @@ public class PlaybackActivity extends SherlockFragmentActivity
                     + "that is not a ListView class");
         }
         mList = (TomahawkStickyListHeadersListView) rawListView;
+        registerForContextMenu(mList);
     }
 
     /**
@@ -465,7 +569,7 @@ public class PlaybackActivity extends SherlockFragmentActivity
      */
     public void onTrackChanged() {
         if (mPlaylist != null) {
-            mTomahawkListAdapter.setHighlightedItem(mPlaylist.getPosition());
+            mTomahawkListAdapter.setHighlightedItem(mPlaylist.getCurrentTrackIndex());
             mTomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
             mTomahawkListAdapter.notifyDataSetChanged();
         }
@@ -476,7 +580,7 @@ public class PlaybackActivity extends SherlockFragmentActivity
      */
     public void onPlaystateChanged() {
         if (mPlaylist != null) {
-            mTomahawkListAdapter.setHighlightedItem(mPlaylist.getPosition());
+            mTomahawkListAdapter.setHighlightedItem(mPlaylist.getCurrentTrackIndex());
             mTomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
             mTomahawkListAdapter.notifyDataSetChanged();
         }
@@ -486,14 +590,14 @@ public class PlaybackActivity extends SherlockFragmentActivity
      * Called when the playlist has Changed inside our PlaybackService
      */
     public void onPlaylistChanged() {
-        if (mTomahawkListAdapter != null) {
+        if (mTomahawkListAdapter != null && mPlaybackService.getCurrentPlaylist().getCount() > 0) {
             mPlaylist = mPlaybackService.getCurrentPlaylist();
             if (mPlaylist != null) {
                 ArrayList<TomahawkBaseAdapter.TomahawkListItem> tracks
                         = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
                 tracks.addAll(mPlaylist.getTracks());
                 mTomahawkListAdapter.setListWithIndex(0, tracks);
-                mTomahawkListAdapter.setHighlightedItem(mPlaylist.getPosition());
+                mTomahawkListAdapter.setHighlightedItem(mPlaylist.getCurrentTrackIndex());
                 mTomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
                 mTomahawkListAdapter.notifyDataSetChanged();
             }

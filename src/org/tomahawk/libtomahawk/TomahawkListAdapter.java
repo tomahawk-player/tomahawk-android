@@ -53,6 +53,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
 
     private boolean mShowContentHeader = false;
 
+    private TomahawkBaseAdapter.TomahawkListItem mContentHeaderTomahawkListItem;
+
     private boolean mShowHighlightingAndPlaystate = false;
 
     private boolean mShowResolvedBy = false;
@@ -87,6 +89,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
 
     public void setShowContentHeader(boolean showContentHeader, ListView list,
             TomahawkBaseAdapter.TomahawkListItem contentHeaderTomahawkListItem) {
+        mContentHeaderTomahawkListItem = contentHeaderTomahawkListItem;
+        mShowContentHeader = showContentHeader;
         if (list.getHeaderViewsCount() == 0) {
             View contentHeaderView = mLayoutInflater.inflate(R.layout.content_header, null);
             if (contentHeaderView != null) {
@@ -101,7 +105,6 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                 }
             }
             list.addHeaderView(contentHeaderView);
-            mShowContentHeader = showContentHeader;
         }
     }
 
@@ -256,9 +259,6 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
         for (List<TomahawkListItem> list : (mFiltered ? mFilteredListArray : mListArray)) {
             displayedListArrayItemsCount += list.size();
         }
-        if (mShowContentHeader) {
-            displayedContentHeaderCount = 1;
-        }
         return displayedListArrayItemsCount + displayedContentHeaderCount;
     }
 
@@ -342,4 +342,9 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
         }
         return result;
     }
+
+    public TomahawkListItem getContentHeaderTomahawkListItem() {
+        return mContentHeaderTomahawkListItem;
+    }
+
 }
