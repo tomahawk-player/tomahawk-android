@@ -34,8 +34,6 @@ import android.provider.MediaStore;
 
 public class UserCollection extends Collection {
 
-    private static final String TAG = UserCollection.class.getName();
-
     public static final String USERCOLLECTION_ARTISTCACHED = "org.tomahawk.libtomahawk.USERCOLLECTION_ARTISTCACHED";
     public static final String USERCOLLECTION_ALBUMCACHED = "org.tomahawk.libtomahawk.USERCOLLECTION_ALBUMCACHED";
     public static final String USERCOLLECTION_PLAYLISTCACHED = "org.tomahawk.libtomahawk.USERCOLLECTION_PLAYLISTCACHED";

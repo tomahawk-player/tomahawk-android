@@ -49,7 +49,8 @@
         android:name="org.tomahawk.tomahawk_android.TomahawkApp"
         android:icon="@drawable/ic_launcher"
         android:label="@string/appname_string"
-        android:theme="@style/Theme.tomahawk.nativeandroid" >
+        android:theme="@style/Theme.tomahawk.nativeandroid"
+        android:allowBackup="false" >
 
         <activity
             android:name="org.tomahawk.tomahawk_android.TomahawkMainActivity"
@@ -79,10 +80,6 @@
             android:name="org.tomahawk.tomahawk_android.SearchableActivity"
             android:label="@string/searchactivity_title_string"
             android:launchMode="singleTop" >
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
-
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
@@ -102,10 +99,6 @@
         </service>
 
         <service android:name="org.tomahawk.libtomahawk.network.TomahawkAccountAuthenticator$TomahawkAuthenticationService" >
-            <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator" />
-            </intent-filter>
-
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator" />
