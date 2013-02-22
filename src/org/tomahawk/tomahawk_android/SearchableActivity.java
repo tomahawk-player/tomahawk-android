@@ -17,23 +17,23 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import android.widget.*;
+import java.util.ArrayList;
+
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.CollectionLoader;
-import org.tomahawk.libtomahawk.TomahawkListAdapter;
-import org.tomahawk.libtomahawk.Track;
-import org.tomahawk.libtomahawk.audio.PlaybackActivity;
-import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
@@ -43,6 +43,12 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -50,10 +56,12 @@ import com.actionbarsherlock.view.MenuItem;
 
 /**
  * @author Enno Gottschalk <mrmaffen@googlemail.com>
+ * This class contains the UI code to search for music
  *
  */
-public class SearchableActivity extends TomahawkTabsActivity implements OnEditorActionListener,
-        LoaderManager.LoaderCallbacks<Collection>, Handler.Callback {
+public class SearchableActivity extends TomahawkTabsActivity implements
+        OnEditorActionListener, LoaderManager.LoaderCallbacks<Collection>,
+        Handler.Callback {
 
     private PipeLine mPipeline;
 
@@ -88,7 +96,7 @@ public class SearchableActivity extends TomahawkTabsActivity implements OnEditor
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.app.Activity#onCreate(android.os.Bundle)
      */
     @Override
@@ -102,22 +110,36 @@ public class SearchableActivity extends TomahawkTabsActivity implements OnEditor
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayShowCustomEnabled(true);
-        View searchView = getLayoutInflater().inflate(R.layout.collapsible_edittext, null);
+        View searchView = getLayoutInflater().inflate(
+                R.layout.collapsible_edittext, null);
         actionBar.setCustomView(searchView);
         setSearchText((EditText) searchView.findViewById(R.id.search_edittext));
+
+        // Autocomplete code
+        AutoCompleteTextView textView = (AutoCompleteTextView) findViewById(R.id.search_edittext);
+        ArrayList<String> autoCompleteSuggestions = getAutoCompleteArray();
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_1, autoCompleteSuggestions);
+        textView.setAdapter(adapter);
+
+        // Sets the background colour to grey so that the text is visible
+        textView.setDropDownBackgroundResource(R.drawable.ab_solid_tomahawk);
 
         mPipeline = ((TomahawkApp) getApplication()).getPipeLine();
 
         if (savedInstanceState == null) {
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            FragmentTransaction ft = getSupportFragmentManager()
+                    .beginTransaction();
             ft.add(R.id.searchactivity_fragmentcontainer_framelayout,
-                    Fragment.instantiate(this, SearchableFragment.class.getName()));
+                    Fragment.instantiate(this,
+                            SearchableFragment.class.getName()));
             ft.commit();
         }
     }
 
-    /* 
+    /*
      * (non-Javadoc)
+     *
      * @see android.support.v4.app.FragmentActivity#onResume()
      */
     @Override
@@ -127,13 +149,15 @@ public class SearchableActivity extends TomahawkTabsActivity implements OnEditor
         getSupportLoaderManager().destroyLoader(0);
         getSupportLoaderManager().initLoader(0, null, this);
 
-        IntentFilter intentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
+        IntentFilter intentFilter = new IntentFilter(
+                Collection.COLLECTION_UPDATED);
         if (mCollectionUpdatedReceiver == null) {
             mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
             registerReceiver(mCollectionUpdatedReceiver, intentFilter);
         }
 
-        mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
+        mProgressDrawable = getResources().getDrawable(
+                R.drawable.progress_indeterminate_tomahawk);
     }
 
     @Override
@@ -146,9 +170,12 @@ public class SearchableActivity extends TomahawkTabsActivity implements OnEditor
         }
     }
 
-    /* 
+    /*
      * (non-Javadoc)
-     * @see com.actionbarsherlock.app.SherlockFragmentActivity#onOptionsItemSelected(android.view.MenuItem)
+     *
+     * @see
+     * com.actionbarsherlock.app.SherlockFragmentActivity#onOptionsItemSelected
+     * (android.view.MenuItem)
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -170,20 +197,20 @@ public class SearchableActivity extends TomahawkTabsActivity implements OnEditor
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
      * android.os.Bundle)
      */
     @Override
     public Loader<Collection> onCreateLoader(int id, Bundle args) {
-        return new CollectionLoader(this,
-                ((TomahawkApp) getApplication()).getSourceList().getLocalSource().getCollection());
+        return new CollectionLoader(this, ((TomahawkApp) getApplication())
+                .getSourceList().getLocalSource().getCollection());
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
      * .support.v4.content.Loader)
@@ -192,17 +219,24 @@ public class SearchableActivity extends TomahawkTabsActivity implements OnEditor
     public void onLoaderReset(Loader<Collection> loader) {
     }
 
-    /* 
+    /*
      * (non-Javadoc)
-     * @see android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android.support.v4.content.Loader, java.lang.Object)
+     *
+     * @see
+     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
+     * .support.v4.content.Loader, java.lang.Object)
      */
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         mCollection = coll;
     }
 
-    /** Set the reference to the searchText, that is used to filter the custom {@link ListView}
-     *  @param searchText the EditText object which the listener is connected to
+    /**
+     * Set the reference to the searchText, that is used to filter the custom
+     * {@link ListView}
+     *
+     * @param searchText
+     *            the EditText object which the listener is connected to
      */
     public void setSearchText(EditText searchText) {
         mSearchEditText = searchText;
@@ -220,15 +254,21 @@ public class SearchableActivity extends TomahawkTabsActivity implements OnEditor
         return mSearchString;
     }
 
-    /* 
+    /*
      * (non-Javadoc)
-     * @see android.widget.TextView.OnEditorActionListener#onEditorAction(android.widget.TextView, int, android.view.KeyEvent)
+     *
+     * @see
+     * android.widget.TextView.OnEditorActionListener#onEditorAction(android
+     * .widget.TextView, int, android.view.KeyEvent)
      */
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-        if (event == null || actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE
-                || event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-            if (v.getText().toString() != null && !TextUtils.isEmpty(v.getText().toString())) {
+        if (event == null || actionId == EditorInfo.IME_ACTION_SEARCH
+                || actionId == EditorInfo.IME_ACTION_DONE
+                || event.getAction() == KeyEvent.ACTION_DOWN
+                && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+            if (v.getText().toString() != null
+                    && !TextUtils.isEmpty(v.getText().toString())) {
                 resolveFullTextQuery(v.getText().toString());
                 return true;
             }
@@ -237,6 +277,8 @@ public class SearchableActivity extends TomahawkTabsActivity implements OnEditor
     }
 
     public void resolveFullTextQuery(String fullTextQuery) {
+        addToAutoCompleteArray(fullTextQuery);
+
         getSupportFragmentManager().popBackStack();
         CheckBox onlineSourcesCheckBox = (CheckBox) findViewById(R.id.searchactivity_onlinesources_checkbox);
         PipeLine pipeLine = ((TomahawkApp) getApplication()).getPipeLine();
@@ -244,6 +286,39 @@ public class SearchableActivity extends TomahawkTabsActivity implements OnEditor
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);
         startLoadingAnimation();
+    }
+
+    public void addToAutoCompleteArray(String newString) {
+        ArrayList<String> myArrayList = getAutoCompleteArray();
+        int highestIndex = myArrayList.size();
+
+        for (int i = 0; i < highestIndex; i++) {
+            if (newString.equals(myArrayList.get(i))) {
+                return;
+            }
+        }
+
+        myArrayList.add(newString);
+
+        SharedPreferences sPrefs = PreferenceManager
+                .getDefaultSharedPreferences(getBaseContext());
+        Editor sEdit = sPrefs.edit();
+
+        sEdit.putString("autocomplete_" + highestIndex, myArrayList.get(highestIndex));
+        sEdit.putInt("autocomplete_size", myArrayList.size());
+        sEdit.commit();
+    }
+
+    public ArrayList<String> getAutoCompleteArray() {
+        SharedPreferences sPrefs = PreferenceManager
+                .getDefaultSharedPreferences(getBaseContext());
+        ArrayList<String> myAList = new ArrayList<String>();
+        int size = sPrefs.getInt("autocomplete_size", 0);
+
+        for (int j = 0; j < size; j++) {
+            myAList.add(sPrefs.getString("autocomplete_" + j, null));
+        }
+        return myAList;
     }
 
     @Override
