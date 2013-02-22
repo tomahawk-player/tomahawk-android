@@ -36,7 +36,9 @@ public class CustomPlaylist extends Playlist implements TomahawkBaseAdapter.Toma
     public static CustomPlaylist fromTrackList(String name, ArrayList<Track> tracks) {
         CustomPlaylist pl = new CustomPlaylist(name);
         pl.setTracks(tracks);
-        pl.setCurrentTrack(tracks.get(0));
+        if (tracks.size() > 0) {
+            pl.setCurrentTrack(tracks.get(0));
+        }
         return pl;
     }
 

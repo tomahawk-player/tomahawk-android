@@ -18,7 +18,6 @@
 package org.tomahawk.tomahawk_android;
 
 import org.tomahawk.libtomahawk.Album;
-import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.TomahawkBaseAdapter;
 import org.tomahawk.libtomahawk.TomahawkListAdapter;
@@ -42,12 +41,6 @@ import java.util.List;
  * Fragment which represents the "Tracks" tabview.
  */
 public class TracksFragment extends TomahawkFragment implements OnItemClickListener {
-
-    private Album mAlbum;
-
-    private Artist mArtist;
-
-    private CustomPlaylist mCustomPlaylist;
 
     @Override
     public void onCreate(Bundle inState) {

@@ -116,7 +116,8 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
      */
     public void updateSeekBarPosition() {
         if (!isIsSeeking()) {
-            if (mPlaybackService.isPreparing()
+            if (mPlaybackService.isPreparing() ||
+                    mPlaybackService.getCurrentTrack() == null
                     || mPlaybackService.getCurrentTrack().getDuration() == 0) {
                 setEnabled(false);
             } else {

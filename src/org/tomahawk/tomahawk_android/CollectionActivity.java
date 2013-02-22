@@ -298,6 +298,11 @@ public class CollectionActivity extends TomahawkTabsActivity
         mPlaybackService = ps;
     }
 
+    @Override
+    public PlaybackService getPlaybackService() {
+        return mPlaybackService;
+    }
+
     /* 
      * (non-Javadoc)
      * @see android.support.v4.app.FragmentActivity#onBackPressed()
@@ -350,14 +355,14 @@ public class CollectionActivity extends TomahawkTabsActivity
         }
         if (mNowPlayingView != null) {
             mNowPlayingView.setClickable(false);
+            ImageView nowPlayingInfoAlbumArt = (ImageView) mNowPlayingView
+                    .findViewById(R.id.now_playing_album_art);
+            TextView nowPlayingInfoArtist = (TextView) mNowPlayingView
+                    .findViewById(R.id.now_playing_artist);
+            TextView nowPlayingInfoTitle = (TextView) mNowPlayingView
+                    .findViewById(R.id.now_playing_title);
 
             if (track != null) {
-                ImageView nowPlayingInfoAlbumArt = (ImageView) mNowPlayingView
-                        .findViewById(R.id.now_playing_album_art);
-                TextView nowPlayingInfoArtist = (TextView) mNowPlayingView
-                        .findViewById(R.id.now_playing_artist);
-                TextView nowPlayingInfoTitle = (TextView) mNowPlayingView
-                        .findViewById(R.id.now_playing_title);
                 Bitmap albumArt = null;
                 if (track.getAlbum() != null) {
                     albumArt = track.getAlbum().getAlbumArt();
@@ -372,8 +377,15 @@ public class CollectionActivity extends TomahawkTabsActivity
                     }
                     nowPlayingInfoArtist.setText(track.getArtist().toString());
                     nowPlayingInfoTitle.setText(track.getName());
+                    nowPlayingInfoAlbumArt.setVisibility(View.VISIBLE);
+                    nowPlayingInfoArtist.setVisibility(View.VISIBLE);
+                    nowPlayingInfoTitle.setVisibility(View.VISIBLE);
                     mNowPlayingView.setClickable(true);
                 }
+            } else {
+                nowPlayingInfoAlbumArt.setVisibility(View.GONE);
+                nowPlayingInfoArtist.setVisibility(View.GONE);
+                nowPlayingInfoTitle.setVisibility(View.GONE);
             }
         }
     }

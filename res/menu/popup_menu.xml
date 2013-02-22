@@ -21,6 +21,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+            android:id="@+id/popupmenu_play_item"
+            android:icon="@drawable/ic_player_play"
+            android:title="Play"/>
+    <item
+            android:id="@+id/popupmenu_playaftercurrenttrack_item"
+            android:icon="@drawable/ic_player_play"
+            android:title="Play after current track"/>
+    <item
+            android:id="@+id/popupmenu_appendtoplaybacklist_item"
+            android:icon="@drawable/ic_player_play"
+            android:title="Append to playback list"/>
+    <item
+            android:id="@+id/popupmenu_addtoplaylist_item"
+            android:icon="@drawable/ic_player_play"
+            android:title="Add to playlist"/>
+    <item
             android:id="@+id/popupmenu_delete_item"
             android:icon="@drawable/ic_player_exit"
             android:title="Delete"/>

@@ -262,8 +262,8 @@ public class PlaybackFragment extends SherlockFragment {
      */
     protected void refreshActivityTrackInfo() {
         if (mPlaybackActivity != null) {
-            if (mPlaybackService != null && mAlbumArtSwipeAdapter != null
-                    && mPlaybackSeekBar != null) {
+            if (mPlaybackService != null && mPlaybackService.getCurrentTrack() != null
+                    && mAlbumArtSwipeAdapter != null && mPlaybackSeekBar != null) {
                 refreshActivityTrackInfo(mPlaybackService.getCurrentTrack());
             } else {
                 refreshActivityTrackInfo(null);
@@ -279,10 +279,9 @@ public class PlaybackFragment extends SherlockFragment {
             mAlbumArtSwipeAdapter.setPlaybackService(mPlaybackService);
             if (!mAlbumArtSwipeAdapter.isSwiped()) {
                 mAlbumArtSwipeAdapter.setByUser(false);
-                if (mPlaybackService.getCurrentPlaylist().getPosition() >= 0) {
-                    mAlbumArtSwipeAdapter
-                            .setCurrentItem(mPlaybackService.getCurrentPlaylist().getPosition(),
-                                    true);
+                if (mPlaybackService.getCurrentPlaylist().getCurrentTrackIndex() >= 0) {
+                    mAlbumArtSwipeAdapter.setCurrentItem(
+                            mPlaybackService.getCurrentPlaylist().getCurrentTrackIndex(), true);
                 }
                 mAlbumArtSwipeAdapter.setByUser(true);
             }
@@ -319,12 +318,23 @@ public class PlaybackFragment extends SherlockFragment {
             mPlaybackSeekBar.updateSeekBarPosition();
             mPlaybackSeekBar.updateTextViewCompleteTime();
         } else {
+            final TextView artistTextView = (TextView) mPlaybackActivity
+                    .findViewById(R.id.textView_artist);
+            final TextView albumTextView = (TextView) mPlaybackActivity
+                    .findViewById(R.id.textView_album);
+            final TextView titleTextView = (TextView) mPlaybackActivity
+                    .findViewById(R.id.textView_title);
+            artistTextView.setText("");
+            albumTextView.setText("");
+            titleTextView.setText(R.string.playbackactivity_no_track);
             mPlaybackActivity.findViewById(R.id.imageButton_playpause).setClickable(false);
             mPlaybackActivity.findViewById(R.id.imageButton_next).setClickable(false);
             mPlaybackActivity.findViewById(R.id.imageButton_previous).setClickable(false);
             mPlaybackActivity.findViewById(R.id.imageButton_shuffle).setClickable(false);
             mPlaybackActivity.findViewById(R.id.imageButton_repeat).setClickable(false);
             mPlaybackSeekBar.setEnabled(false);
+            mPlaybackSeekBar.updateSeekBarPosition();
+            mPlaybackSeekBar.updateTextViewCompleteTime();
         }
     }
 

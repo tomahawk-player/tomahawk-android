@@ -21,15 +21,15 @@ import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.TomahawkBaseAdapter;
 import org.tomahawk.libtomahawk.TomahawkListAdapter;
-import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +37,7 @@ import java.util.List;
 /**
  * Fragment which represents the "Artist" tabview.
  */
-public class ArtistsFragment extends TomahawkFragment
-        implements OnItemClickListener, OnItemLongClickListener {
+public class ArtistsFragment extends TomahawkFragment implements OnItemClickListener {
 
     /* (non-Javadoc)
      * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
@@ -64,25 +63,6 @@ public class ArtistsFragment extends TomahawkFragment
 
     /* 
      * (non-Javadoc)
-     * @see com.actionbarsherlock.internal.widget.IcsAdapterView.OnItemLongClickListener#onItemLongClick(com.actionbarsherlock.internal.widget.IcsAdapterView, android.view.View, int, long)
-     */
-    @Override
-    public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-        position -= mList.getHeaderViewsCount();
-        if (position >= 0) {
-            Bundle bundle = new Bundle();
-            bundle.putLong(PlaybackActivity.PLAYLIST_ARTIST_ID,
-                    ((Artist) getListAdapter().getItem(position)).getId());
-
-            Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
-            playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
-            startActivity(playbackIntent);
-        }
-        return true;
-    }
-
-    /* 
-     * (non-Javadoc)
      * @see org.tomahawk.tomahawk_android.TomahawkListFragment#onLoadFinished(android.support.v4.content.Loader, org.tomahawk.libtomahawk.Collection)
      */
     @Override
@@ -97,6 +77,5 @@ public class ArtistsFragment extends TomahawkFragment
         setListAdapter(new TomahawkListAdapter(getActivity(), listArray));
 
         getListView().setOnItemClickListener(this);
-        getListView().setOnItemLongClickListener(this);
     }
 }

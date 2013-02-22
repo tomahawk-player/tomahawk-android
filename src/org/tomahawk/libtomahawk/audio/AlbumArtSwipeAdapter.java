@@ -73,7 +73,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     @Override
     public Object instantiateItem(View collection, int position) {
         ImageView albumArt = new ImageView(mContext);
-        if (mPlaylist != null) {
+        if (mPlaylist != null && mPlaylist.getCount() > 0) {
             Bitmap albumArtBitmap = null;
             if (mPlaylist.isRepeating()
                     && mPlaylist.peekTrackAtPos((position) % mPlaylist.getCount()).getAlbum()
@@ -209,14 +209,14 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         if (mPlaybackService != null) {
             mPlaylist = mPlaybackService.getCurrentPlaylist();
         }
-        if (mPlaylist != null) {
+        if (mPlaylist != null && mPlaylist.getCount() > 0) {
             mFakeInfinityOffset = mPlaylist.getCount() * ((FAKE_INFINITY_COUNT / 2) / mPlaylist
                     .getCount());
             setByUser(false);
             if (mPlaylist.isRepeating()) {
-                setCurrentItem(mPlaylist.getPosition() + getFakeInfinityOffset(), false);
+                setCurrentItem(mPlaylist.getCurrentTrackIndex() + getFakeInfinityOffset(), false);
             } else {
-                setCurrentItem(mPlaylist.getPosition(), false);
+                setCurrentItem(mPlaylist.getCurrentTrackIndex(), false);
             }
             notifyDataSetChanged();
             setByUser(true);

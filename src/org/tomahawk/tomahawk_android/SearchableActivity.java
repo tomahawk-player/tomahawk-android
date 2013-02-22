@@ -22,6 +22,7 @@ import com.actionbarsherlock.view.MenuItem;
 
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.CollectionLoader;
+import org.tomahawk.libtomahawk.audio.PlaybackService;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 
 import android.content.BroadcastReceiver;
@@ -60,13 +61,19 @@ import java.util.ArrayList;
  */
 public class SearchableActivity extends TomahawkTabsActivity
         implements OnEditorActionListener, LoaderManager.LoaderCallbacks<Collection>,
-        Handler.Callback {
+        Handler.Callback,
+        PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener {
 
     private PipeLine mPipeline;
 
     private Collection mCollection;
 
     private CollectionUpdateReceiver mCollectionUpdatedReceiver;
+
+    private PlaybackService mPlaybackService;
+
+    private PlaybackService.PlaybackServiceConnection mPlaybackServiceConnection
+            = new PlaybackService.PlaybackServiceConnection(this);
 
     private EditText mSearchEditText = null;
 
@@ -132,13 +139,13 @@ public class SearchableActivity extends TomahawkTabsActivity
         }
     }
 
-    private void setupAutoComplete() {
-        // Autocomplete code
-        AutoCompleteTextView textView = (AutoCompleteTextView) findViewById(R.id.search_edittext);
-        ArrayList<String> autoCompleteSuggestions = getAutoCompleteArray();
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, autoCompleteSuggestions);
-        textView.setAdapter(adapter);
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        Intent playbackIntent = new Intent(this, PlaybackService.class);
+        startService(playbackIntent);
+        bindService(playbackIntent, mPlaybackServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     /*
@@ -171,6 +178,15 @@ public class SearchableActivity extends TomahawkTabsActivity
         if (mCollectionUpdatedReceiver != null) {
             unregisterReceiver(mCollectionUpdatedReceiver);
             mCollectionUpdatedReceiver = null;
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if (mPlaybackService != null) {
+            unbindService(mPlaybackServiceConnection);
         }
     }
 
@@ -233,6 +249,15 @@ public class SearchableActivity extends TomahawkTabsActivity
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         mCollection = coll;
+    }
+
+    private void setupAutoComplete() {
+        // Autocomplete code
+        AutoCompleteTextView textView = (AutoCompleteTextView) findViewById(R.id.search_edittext);
+        ArrayList<String> autoCompleteSuggestions = getAutoCompleteArray();
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_1, autoCompleteSuggestions);
+        textView.setAdapter(adapter);
     }
 
     /**
@@ -352,5 +377,27 @@ public class SearchableActivity extends TomahawkTabsActivity
     @Override
     public Collection getCollection() {
         return mCollection;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener#onPlaybackServiceReady()
+     */
+    @Override
+    public void onPlaybackServiceReady() {
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener#setPlaybackService(org.tomahawk.libtomahawk.audio.PlaybackService)
+     */
+    @Override
+    public void setPlaybackService(PlaybackService ps) {
+        mPlaybackService = ps;
+    }
+
+    @Override
+    public PlaybackService getPlaybackService() {
+        return mPlaybackService;
     }
 }

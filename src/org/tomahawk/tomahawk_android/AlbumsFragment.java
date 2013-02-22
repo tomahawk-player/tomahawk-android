@@ -23,15 +23,15 @@ import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.TomahawkBaseAdapter;
 import org.tomahawk.libtomahawk.TomahawkGridAdapter;
 import org.tomahawk.libtomahawk.TomahawkListAdapter;
-import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +39,7 @@ import java.util.List;
 /**
  * Fragment which represents the "Album" tabview.
  */
-public class AlbumsFragment extends TomahawkFragment
-        implements OnItemClickListener, OnItemLongClickListener {
+public class AlbumsFragment extends TomahawkFragment implements OnItemClickListener {
 
     private Artist mArtist;
 
@@ -76,29 +75,6 @@ public class AlbumsFragment extends TomahawkFragment
         }
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see com.actionbarsherlock.internal.widget.IcsAdapterView.OnItemLongClickListener#onItemLongClick(com.actionbarsherlock.internal.widget.IcsAdapterView, android.view.View, int, long)
-     */
-    @Override
-    public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-        position -= mList.getHeaderViewsCount();
-        if (position >= 0) {
-            if (getListAdapter().getItem(position) instanceof Album) {
-                Bundle bundle = new Bundle();
-                bundle.putLong(PlaybackActivity.PLAYLIST_ALBUM_ID,
-                        ((Album) getListAdapter().getItem(position)).getId());
-                bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID,
-                        ((Album) getListAdapter().getItem(position)).getTracks().get(0).getId());
-
-                Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
-                playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
-                startActivity(playbackIntent);
-            }
-        }
-        return true;
-    }
-
     /* (non-Javadoc)
      * @see org.tomahawk.tomahawk_android.TomahawkListFragment#onLoadFinished(android.support.v4.content.Loader, org.tomahawk.libtomahawk.Collection)
      */
@@ -118,14 +94,12 @@ public class AlbumsFragment extends TomahawkFragment
             tomahawkListAdapter.setShowContentHeader(true, mList, mArtist);
             setListAdapter(tomahawkListAdapter);
             getListView().setOnItemClickListener(this);
-            getListView().setOnItemLongClickListener(this);
         } else {
             albums.addAll(coll.getAlbums());
             setListAdapter(new TomahawkGridAdapter(getActivity(), R.layout.album_art_grid_item,
                     R.id.album_art_grid_image, R.id.album_art_grid_textView1,
                     R.id.album_art_grid_textView2, albums));
             getGridView().setOnItemClickListener(this);
-            getGridView().setOnItemLongClickListener(this);
             adaptColumnCount();
         }
     }
