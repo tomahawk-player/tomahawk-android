@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk;
 
 import java.util.List;
 
+import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
 import org.tomahawk.libtomahawk.playlist.Playlist;
 
 /**
@@ -85,22 +86,20 @@ public abstract class Collection {
     public abstract Track getTrackById(Long id);
 
     /**
-     * Return a list of all {@link Playlist}s.
+     * Return a list of all {@link CustomPlaylist}s.
      */
-    public abstract List<Playlist> getPlaylists();
+    public abstract List<CustomPlaylist> getCustomPlaylists();
 
     /**
-     *  Get the {@link Playlist} by giving the {@link Playlist}'s ID
+     *  Get the {@link CustomPlaylist} by giving the {@link CustomPlaylist}'s ID
      *  @param id
-     *  @return the {@link Playlist} object*/
-    public abstract Playlist getPlaylistById(Long id);
+     *  @return the {@link CustomPlaylist} object*/
+    public abstract CustomPlaylist getCustomPlaylistById(Long id);
 
     /**
      * Add a playlist to the collection
-     * @param playlist
-     * @return the generated id for this playlist
      */
-    public abstract long addPlaylist(Playlist playlist);
+    public abstract void addCustomPlaylist(long playlistId,CustomPlaylist customPlaylist);
 
     /**
      * Update this {@link Collection}'s content.

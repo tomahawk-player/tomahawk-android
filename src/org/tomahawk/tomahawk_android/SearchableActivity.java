@@ -17,8 +17,13 @@
  */
 package org.tomahawk.tomahawk_android;
 
+import android.widget.*;
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.CollectionLoader;
+import org.tomahawk.libtomahawk.TomahawkListAdapter;
+import org.tomahawk.libtomahawk.Track;
+import org.tomahawk.libtomahawk.audio.PlaybackActivity;
+import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 
 import android.content.BroadcastReceiver;
@@ -38,10 +43,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import com.actionbarsherlock.app.ActionBar;

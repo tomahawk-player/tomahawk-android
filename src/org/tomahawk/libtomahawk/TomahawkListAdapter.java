@@ -19,6 +19,7 @@ package org.tomahawk.libtomahawk;
 
 import java.util.List;
 
+import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.SquareWidthRelativeLayout;
 
@@ -114,8 +115,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
 
         if (item != null) {
             ViewHolder viewHolder;
-            if ((item instanceof Artist && convertView == null)
-                    || (item instanceof Artist && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_singlelinelistitem)) {
+            if (((item instanceof Artist || item instanceof CustomPlaylist) && convertView == null)
+                    || ((item instanceof Artist || item instanceof CustomPlaylist) && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_singlelinelistitem)) {
                 view = mLayoutInflater.inflate(mSingleLineListItemResourceHolder.resourceId, null);
                 viewHolder = new ViewHolder(R.id.tomahawklistadapter_viewtype_singlelinelistitem,
                         (TextView) view.findViewById(mSingleLineListItemResourceHolder.textViewId1));
@@ -151,7 +152,10 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
             }
 
             if (viewHolder.viewType == R.id.tomahawklistadapter_viewtype_singlelinelistitem) {
-                viewHolder.textFirstLine.setText(((Artist) item).getName());
+                if (item instanceof Artist)
+                    viewHolder.textFirstLine.setText(((Artist) item).getName());
+                else if (item instanceof CustomPlaylist)
+                    viewHolder.textFirstLine.setText(((CustomPlaylist) item).getName());
             } else if (viewHolder.viewType == R.id.tomahawklistadapter_viewtype_doublelinelistitem) {
                 viewHolder.textFirstLine.setText(((Track) item).getName());
                 viewHolder.textSecondLine.setText(((Track) item).getArtist().getName());

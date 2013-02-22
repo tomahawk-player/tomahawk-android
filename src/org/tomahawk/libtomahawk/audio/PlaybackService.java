@@ -23,6 +23,7 @@ import java.io.IOException;
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.UserCollection;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
+import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
 import org.tomahawk.libtomahawk.playlist.Playlist;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -360,7 +361,8 @@ public class PlaybackService extends Service implements OnCompletionListener, On
     private void saveState() {
         UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication()).getSourceList().getCollectionFromId(
                 UserCollection.Id));
-        userCollection.addCachedPlaylist(getCurrentPlaylist());
+        userCollection.setCachedPlaylist(CustomPlaylist.fromTrackList(UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
+                getCurrentPlaylist().getTracks()));
 
         if (getCurrentPlaylist() != null) {
             long startTime = System.currentTimeMillis();
@@ -376,7 +378,7 @@ public class PlaybackService extends Service implements OnCompletionListener, On
         UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication()).getSourceList().getCollectionFromId(
                 UserCollection.Id));
         try {
-            setCurrentPlaylist(userCollection.getPlaylistById(UserCollection.USERCOLLECTION_CACHEDPLAYLIST_ID));
+            setCurrentPlaylist(userCollection.getCachedCustomPlaylist());
             if (getCurrentPlaylist() == null) {
                 long startTime = System.currentTimeMillis();
                 setCurrentPlaylist(userPlaylistsDataSource.getCachedUserPlaylist());

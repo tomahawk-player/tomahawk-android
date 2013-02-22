@@ -20,7 +20,8 @@ package org.tomahawk.libtomahawk;
 
 import java.util.*;
 
-import org.tomahawk.libtomahawk.playlist.Playlist;
+import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
+import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.ContentResolver;
@@ -35,7 +36,13 @@ public class UserCollection extends Collection {
 
     private static final String TAG = UserCollection.class.getName();
 
+    public static final String USERCOLLECTION_ARTISTCACHED = "org.tomahawk.libtomahawk.USERCOLLECTION_ARTISTCACHED";
+    public static final String USERCOLLECTION_ALBUMCACHED = "org.tomahawk.libtomahawk.USERCOLLECTION_ALBUMCACHED";
+    public static final String USERCOLLECTION_PLAYLISTCACHED = "org.tomahawk.libtomahawk.USERCOLLECTION_PLAYLISTCACHED";
+
     public static final int Id = 0;
+
+    private UserPlaylistsDataSource mUserPlaylistsDataSource;
 
     private HandlerThread mCollectionUpdateHandlerThread;
     private Handler mHandler;
@@ -45,9 +52,8 @@ public class UserCollection extends Collection {
     private Map<Long, Album> mAlbums;
     private Album mCachedAlbum;
     private Map<Long, Track> mTracks;
-    private Map<Long, Playlist> mPlaylists;
-    public static final long USERCOLLECTION_CACHEDPLAYLIST_ID = 0;
-    private long mPlaylistIdCounter = USERCOLLECTION_CACHEDPLAYLIST_ID + 1;
+    private CustomPlaylist mCachedCustomPlaylist;
+    private Map<Long, CustomPlaylist> mCustomPlaylists;
 
     private Runnable mUpdateRunnable = new Runnable() {
         /* 
@@ -79,11 +85,12 @@ public class UserCollection extends Collection {
     /**
      * Construct a new UserCollection and initialize.
      */
-    public UserCollection() {
+    public UserCollection(TomahawkApp tomahawkApp) {
+        mUserPlaylistsDataSource = new UserPlaylistsDataSource(tomahawkApp, tomahawkApp.getPipeLine());
         mArtists = new HashMap<Long, Artist>();
         mAlbums = new HashMap<Long, Album>();
         mTracks = new HashMap<Long, Track>();
-        mPlaylists = new HashMap<Long, Playlist>();
+        mCustomPlaylists = new HashMap<Long, CustomPlaylist>();
 
         TomahawkApp.getContext().getContentResolver().registerContentObserver(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false, mLocalMediaObserver);
@@ -172,41 +179,44 @@ public class UserCollection extends Collection {
 
     /*
      * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.Collection#getPlaylists()
+     * @see org.tomahawk.libtomahawk.Collection#getCustomPlaylists()
      */
     @Override
-    public List<Playlist> getPlaylists() {
-        ArrayList<Playlist> playlists = new ArrayList<Playlist>(mPlaylists.values());
+    public List<CustomPlaylist> getCustomPlaylists() {
+        ArrayList<CustomPlaylist> playlists = new ArrayList<CustomPlaylist>(mCustomPlaylists.values());
         return playlists;
     }
 
     /*
      * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.Collection#getPlaylistById(java.lang.Long)
+     * @see org.tomahawk.libtomahawk.Collection#getCustomPlaylistById(java.lang.Long)
      */
     @Override
-    public Playlist getPlaylistById(Long id) {
-        return mPlaylists.get(id);
+    public CustomPlaylist getCustomPlaylistById(Long id) {
+        return mCustomPlaylists.get(id);
     }
 
     /**
      * Add a playlist to the collection
-     * @param playlist
      */
-    @Override
-    public long addPlaylist(Playlist playlist) {
-        mPlaylists.put(mPlaylistIdCounter, playlist);
-        return mPlaylistIdCounter++;
+    public void addCustomPlaylist(long playlistId, CustomPlaylist customPlaylist) {
+        customPlaylist.setId(playlistId);
+        mCustomPlaylists.put(playlistId, customPlaylist);
     }
 
     /**
      * Store the PlaybackService's currentPlaylist
-     * @param playlist
-     * @return
+     * @param customPlaylist
      */
-    public long addCachedPlaylist(Playlist playlist) {
-        mPlaylists.put(USERCOLLECTION_CACHEDPLAYLIST_ID, playlist);
-        return USERCOLLECTION_CACHEDPLAYLIST_ID;
+    public void setCachedPlaylist(CustomPlaylist customPlaylist) {
+        mCachedCustomPlaylist = customPlaylist;
+    }
+
+    /**
+     * @return the previously cached customplaylist
+     */
+    public CustomPlaylist getCachedCustomPlaylist() {
+        return mCachedCustomPlaylist;
     }
 
     /* 
@@ -310,6 +320,20 @@ public class UserCollection extends Collection {
 
         if (cursor != null)
             cursor.close();
+        updateUserPlaylists();
+    }
+
+    public void updateUserPlaylists() {
+        mUserPlaylistsDataSource.open();
+        mCustomPlaylists.clear();
+        ArrayList<CustomPlaylist> customPlayListList = mUserPlaylistsDataSource.getAllUserPlaylists();
+        for (CustomPlaylist customPlaylist : customPlayListList) {
+            if (customPlaylist.getId() == UserPlaylistsDataSource.CACHED_PLAYLIST_ID)
+                setCachedPlaylist(customPlaylist);
+            else
+                mCustomPlaylists.put(customPlaylist.getId(), customPlaylist);
+        }
+        TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
     }
 
     /* 

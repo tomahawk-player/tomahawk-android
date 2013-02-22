@@ -225,7 +225,7 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getSupportMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
+        inflater.inflate(R.menu.collection_menu, menu);
         RelativeLayout relativeLayout = (RelativeLayout) menu.findItem(R.id.now_playing_layout_item).getActionView();
         mNowPlayingView = getLayoutInflater().inflate(R.layout.now_playing, null);
         relativeLayout.addView(mNowPlayingView);

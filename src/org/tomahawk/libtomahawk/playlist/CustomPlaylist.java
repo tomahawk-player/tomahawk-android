@@ -19,9 +19,13 @@ package org.tomahawk.libtomahawk.playlist;
 
 import java.util.ArrayList;
 
+import org.tomahawk.libtomahawk.Album;
+import org.tomahawk.libtomahawk.Artist;
+import org.tomahawk.libtomahawk.TomahawkBaseAdapter;
 import org.tomahawk.libtomahawk.Track;
 
-public class CustomPlaylist extends Playlist {
+public class CustomPlaylist extends Playlist implements TomahawkBaseAdapter.TomahawkListItem {
+    private long mId;
 
     /**
      * Create a CustomPlaylist from a list of tracks.
@@ -68,7 +72,26 @@ public class CustomPlaylist extends Playlist {
         super(name);
     }
 
+    public void setId(long id) {
+        this.mId = id;
+    }
+
     public long getId() {
-        return 0;
+        return mId;
+    }
+
+    @Override
+    public String getName() {
+        return super.getName();
+    }
+
+    @Override
+    public Artist getArtist() {
+        return null;
+    }
+
+    @Override
+    public Album getAlbum() {
+        return null;
     }
 }
