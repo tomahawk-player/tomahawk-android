@@ -17,17 +17,7 @@
  */
 package org.tomahawk.libtomahawk.network;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.codebutler.android_websockets.WebSocketClient;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
@@ -57,7 +47,17 @@ import android.os.IBinder;
 import android.os.Process;
 import android.util.Log;
 
-import com.codebutler.android_websockets.WebSocketClient;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a Tomahawk ControlConnection. Used for LAN communications.
@@ -67,19 +67,25 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
     private final static String TAG = TomahawkService.class.getName();
 
     public static final String AUTH_URL = "http://auth.toma.hk/";
+
     public static final String HATCHET_URL = "ws://hatchet.toma.hk/";
 
     public static final String ACCOUNT_TYPE = "org.tomahawk";
+
     public static final String AUTH_TOKEN_TYPE = "org.tomahawk.authtoken";
+
     public static final String ACCOUNT_NAME = "Tomahawk";
 
     private final IBinder mBinder = new TomahawkServiceBinder();
 
     private WebSocketClient mWebSocketClient;
+
     private HandlerThread mCollectionUpdateHandlerThread;
+
     private Handler mHandler;
 
     private String mUserId;
+
     private String mAuthToken;
 
     private List<AccessToken> mAccessTokens;
@@ -89,12 +95,14 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
         private TomahawkServiceConnectionListener mTomahawkServiceConnectionListener;
 
         public interface TomahawkServiceConnectionListener {
+
             public void setTomahawkService(TomahawkService ps);
 
             public void onTomahawkServiceReady();
         }
 
-        public TomahawkServiceConnection(TomahawkServiceConnectionListener tomahawkServiceConnectedListener) {
+        public TomahawkServiceConnection(
+                TomahawkServiceConnectionListener tomahawkServiceConnectedListener) {
             mTomahawkServiceConnectionListener = tomahawkServiceConnectedListener;
         }
 
@@ -110,7 +118,9 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
         public void onServiceDisconnected(ComponentName arg0) {
             mTomahawkServiceConnectionListener.setTomahawkService(null);
         }
-    };
+    }
+
+    ;
 
     /**
      * Runnable that requests accessTokens to start a Connection on.
@@ -125,27 +135,35 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
                 e.printStackTrace();
             }
 
-            if (mAccessTokens == null)
+            if (mAccessTokens == null) {
                 return;
+            }
 
-            mWebSocketClient = new WebSocketClient(URI.create(HATCHET_URL),
-                                                   TomahawkService.this, null);
+            mWebSocketClient = new WebSocketClient(URI.create(HATCHET_URL), TomahawkService.this,
+                    null);
             mWebSocketClient.connect();
         }
     };
 
     public class TomahawkServiceBinder extends Binder {
+
         public TomahawkService getService() {
             return TomahawkService.this;
         }
     }
 
     private static class AccessToken {
+
         String token;
+
         String remotehost;
+
         String localhost;
+
         String type;
+
         int port;
+
         int expiration;
 
         AccessToken(String token, String remotehost, String type, int port, int expiration) {
@@ -159,7 +177,8 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
                 localhost = InetAddress.getLocalHost().getHostName();
             } catch (UnknownHostException e) {
 
-                WifiManager wifiMan = (WifiManager) TomahawkApp.getContext().getSystemService(Context.WIFI_SERVICE);
+                WifiManager wifiMan = (WifiManager) TomahawkApp.getContext()
+                        .getSystemService(Context.WIFI_SERVICE);
                 WifiInfo wifiInf = wifiMan.getConnectionInfo();
 
                 localhost = Integer.toString(wifiInf.getIpAddress());
@@ -170,8 +189,9 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
     @Override
     public int onStartCommand(Intent i, int j, int k) {
         super.onStartCommand(i, j, k);
-        if (i==null)
+        if (i == null) {
             return -1;
+        }
 
         if (!i.hasExtra(ACCOUNT_NAME) || !i.hasExtra(AUTH_TOKEN_TYPE)) {
             stopSelf();
@@ -251,30 +271,28 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
         throw new IllegalArgumentException(error.toString());
     }
 
-    /**s
-     * Requests access tokens for the given user id and valid auth token.
-     *
-     * @param userid
-     * @param authToken
-     * @return
-     * @throws JSONException
+    /**
+     * s Requests access tokens for the given user id and valid auth token.
      */
-    private static List<AccessToken> requestAccessTokens(String userid, String authToken) throws JSONException {
+    private static List<AccessToken> requestAccessTokens(String userid, String authToken)
+            throws JSONException {
 
         Map<String, String> params = new HashMap<String, String>();
         params.put("username", userid);
         params.put("authtoken", authToken);
 
         String json = post(new JSONObject(params));
-        if (json == null)
+        if (json == null) {
             return null;
+        }
 
         List<AccessToken> accessTokens = new ArrayList<AccessToken>();
         JSONArray tokens = new JSONArray(json);
         for (int i = 0; i < tokens.length(); i++) {
 
             JSONObject host = tokens.getJSONObject(i);
-            AccessToken token = new AccessToken(host.getString("token"), host.getString("host"), host.getString("type"), host.getInt("port"), host.getInt("expiration"));
+            AccessToken token = new AccessToken(host.getString("token"), host.getString("host"),
+                    host.getString("type"), host.getInt("port"), host.getInt("expiration"));
 
             accessTokens.add(token);
         }
@@ -283,11 +301,8 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
     }
 
     /**
-     * Authenticates the credentials against the Tomahawk server and return the
-     * auth token.
-     * 
-     * @param username
-     * @param password
+     * Authenticates the credentials against the Tomahawk server and return the auth token.
+     *
      * @return auth token.
      */
     public static String authenticate(String name, String passwd) {
@@ -301,9 +316,6 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
 
     /**
      * Post parameters to the Tomahawk server.
-     * 
-     * @param params
-     * @return
      */
     @TargetApi(14)
     private static String post(JSONObject params) {
@@ -315,8 +327,9 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
         String query = params.has("authtoken") ? "tokens" : "login";
         HttpPost httpost = new HttpPost(AUTH_URL + query);
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             TrafficStats.setThreadStatsTag(0xF00D);
+        }
 
         try {
 
@@ -329,20 +342,23 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
             BufferedReader reader = null;
             JSONObject jsonObj = null;
 
-            reader = new BufferedReader(new InputStreamReader(httpresponse.getEntity().getContent(), "UTF-8"));
+            reader = new BufferedReader(
+                    new InputStreamReader(httpresponse.getEntity().getContent(), "UTF-8"));
             String json = reader.readLine();
             jsonObj = new JSONObject(json);
 
             Log.d(TAG, "Tomahawk server response: " + jsonObj.toString());
 
             /* Test if an error occurred. */
-            if (jsonObj.has("error") && jsonObj.getString("error").equals("true"))
+            if (jsonObj.has("error") && jsonObj.getString("error").equals("true")) {
                 throw new IllegalArgumentException(jsonObj.getString("errormsg"));
+            }
 
             JSONObject msg = jsonObj.getJSONObject("message");
 
-            if (msg.has("accesstokens"))
+            if (msg.has("accesstokens")) {
                 return msg.getJSONArray("accesstokens").toString();
+            }
 
             String token = msg.getJSONObject("authtoken").getString("token");
             return token;
@@ -357,8 +373,10 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
             e.printStackTrace();
         } finally {
 
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+            if (android.os.Build.VERSION.SDK_INT
+                    >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                 TrafficStats.clearThreadStatsTag();
+            }
         }
 
         Log.e(TAG, "Uknown error authenticating against Tomahawk server.");

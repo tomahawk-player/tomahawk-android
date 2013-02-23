@@ -17,9 +17,6 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.TomahawkBaseAdapter;
@@ -34,10 +31,14 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Fragment which represents the "Artist" tabview.
  */
-public class ArtistsFragment extends TomahawkFragment implements OnItemClickListener, OnItemLongClickListener {
+public class ArtistsFragment extends TomahawkFragment
+        implements OnItemClickListener, OnItemLongClickListener {
 
     /* (non-Javadoc)
      * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
@@ -48,11 +49,15 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
         if (idx >= 0) {
             if (getListAdapter().getItem(idx) instanceof Artist) {
                 Bundle bundle = new Bundle();
-                bundle.putLong(TOMAHAWK_ARTIST_ID, ((Artist) getListAdapter().getItem(idx)).getId());
-                if (mActivity instanceof CollectionActivity)
-                    ((CollectionActivity) mActivity).getTabsAdapter().replace(
-                            CollectionActivity.LOCAL_COLLECTION_TAB_POSITION, AlbumsFragment.class,
-                            ((Artist) getListAdapter().getItem(idx)).getId(), TOMAHAWK_ARTIST_ID, false);
+                bundle.putLong(TOMAHAWK_ARTIST_ID,
+                        ((Artist) getListAdapter().getItem(idx)).getId());
+                if (mActivity instanceof CollectionActivity) {
+                    ((CollectionActivity) mActivity).getTabsAdapter()
+                            .replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
+                                    AlbumsFragment.class,
+                                    ((Artist) getListAdapter().getItem(idx)).getId(),
+                                    TOMAHAWK_ARTIST_ID, false);
+                }
             }
         }
     }
@@ -66,7 +71,8 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
         position -= mList.getHeaderViewsCount();
         if (position >= 0) {
             Bundle bundle = new Bundle();
-            bundle.putLong(PlaybackActivity.PLAYLIST_ARTIST_ID, ((Artist) getListAdapter().getItem(position)).getId());
+            bundle.putLong(PlaybackActivity.PLAYLIST_ARTIST_ID,
+                    ((Artist) getListAdapter().getItem(position)).getId());
 
             Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
             playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
@@ -83,9 +89,10 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
 
-        List<TomahawkBaseAdapter.TomahawkListItem> artists = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>(
-                coll.getArtists());
-        List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+        List<TomahawkBaseAdapter.TomahawkListItem> artists
+                = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>(coll.getArtists());
+        List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
+                = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
         listArray.add(artists);
         setListAdapter(new TomahawkListAdapter(getActivity(), listArray));
 

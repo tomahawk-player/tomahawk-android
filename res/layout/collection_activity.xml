@@ -19,21 +19,21 @@
  */
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical"
-    android:background="@color/transparent_black">
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:orientation="vertical"
+              android:background="@color/transparent_black">
 
     <FrameLayout
-        android:id="@+id/tomahawk_main_activity_frame_layout"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" >
+            android:id="@+id/tomahawk_main_activity_frame_layout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
         <android.support.v4.view.ViewPager
-            android:id="@+id/view_pager"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent" />
+                android:id="@+id/view_pager"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"/>
     </FrameLayout>
 
 </LinearLayout>

@@ -17,6 +17,10 @@
  */
 package org.tomahawk.tomahawk_android;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.MenuItem;
+
 import org.tomahawk.libtomahawk.TomahawkMenuAdapter;
 
 import android.content.Intent;
@@ -24,10 +28,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockListActivity;
-import com.actionbarsherlock.view.MenuItem;
 
 /**
  * Fragment which represents the "UserCollection" tabview.
@@ -63,8 +63,8 @@ public class SettingsActivity extends SherlockListActivity implements OnItemClic
 
         getListView().setOnItemClickListener(this);
         mTomahawkMenuAdapter = new TomahawkMenuAdapter(this,
-                getResources().getStringArray(R.array.settings_menu_items), getResources().obtainTypedArray(
-                        R.array.settings_icons));
+                getResources().getStringArray(R.array.settings_menu_items),
+                getResources().obtainTypedArray(R.array.settings_icons));
         setListAdapter(mTomahawkMenuAdapter);
     }
 
@@ -89,12 +89,12 @@ public class SettingsActivity extends SherlockListActivity implements OnItemClic
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
         switch ((int) arg3) {
-        case 0:
-            startActivity(new Intent(this, TomahawkPlaybackSettingsActivity.class));
-            break;
-        case 1:
-            startActivity(new Intent(this, TomahawkAccountAuthenticatorActivity.class));
-            break;
+            case 0:
+                startActivity(new Intent(this, TomahawkPlaybackSettingsActivity.class));
+                break;
+            case 1:
+                startActivity(new Intent(this, TomahawkAccountAuthenticatorActivity.class));
+                break;
         }
     }
 }

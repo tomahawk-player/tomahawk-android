@@ -51,11 +51,15 @@
     <string name="loginactivity_username_label_string">Username:</string>
     <string name="loginactivity_password_label_string">Password:</string>
     <string name="accounttype_string">org.tomahawk</string>
-	<string name="loginactivity_loginbutton_label_string">Login</string>
-	<string name="authenticationdialog_text_string">Authenticating...</string>
-	<string name="authenticationactivity_invalid_credentials_string">Username or password incorrect</string>
+    <string name="loginactivity_loginbutton_label_string">Login</string>
+    <string name="authenticationdialog_text_string">Authenticating...</string>
+    <string name="authenticationactivity_invalid_credentials_string">Username or password
+        incorrect
+    </string>
     <string name="settingsactivity_title_string">Settings</string>
     <string name="playbacksettingsactivity_title_string">Playback Settings</string>
     <string name="playbacksettingsactivity_playbackonheadset_title_string">Headset playback</string>
-    <string name="playbacksettingsactivity_playbackonheadset_summary_string">Starts playing music when a headset is connected</string>
+    <string name="playbacksettingsactivity_playbackonheadset_summary_string">Starts playing music
+        when a headset is connected
+    </string>
 </resources>

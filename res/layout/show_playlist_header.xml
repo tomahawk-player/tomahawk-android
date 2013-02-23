@@ -25,45 +25,45 @@
               android:orientation="vertical"
               android:background="@color/transparent_black">
     <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="@color/transparent_white"/>
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/transparent_white"/>
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="30dp">
+            android:layout_width="match_parent"
+            android:layout_height="30dp">
 
         <org.tomahawk.tomahawk_android.SquareWidthRelativeLayout
-            android:layout_width="40dip"
-            android:layout_height="wrap_content">
+                android:layout_width="40dip"
+                android:layout_height="wrap_content">
             <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:scaleType="fitCenter"
-                android:background="@drawable/ic_action_up"/>
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:scaleType="fitCenter"
+                    android:background="@drawable/ic_action_up"/>
         </org.tomahawk.tomahawk_android.SquareWidthRelativeLayout>
         <TextView
-            android:id="@+id/textView_showPlaylistBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/playbackplaylistfragment_title_string"/>
-
-        <org.tomahawk.tomahawk_android.SquareWidthRelativeLayout
-            android:layout_width="40dip"
-            android:layout_height="wrap_content">
-            <ImageView
+                android:id="@+id/textView_showPlaylistBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:scaleType="fitCenter"
-                android:background="@drawable/ic_action_up"/>
+                android:padding="5dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/playbackplaylistfragment_title_string"/>
+
+        <org.tomahawk.tomahawk_android.SquareWidthRelativeLayout
+                android:layout_width="40dip"
+                android:layout_height="wrap_content">
+            <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:scaleType="fitCenter"
+                    android:background="@drawable/ic_action_up"/>
         </org.tomahawk.tomahawk_android.SquareWidthRelativeLayout>
     </LinearLayout>
     <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="@color/transparent_white"/>
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/transparent_white"/>
 </LinearLayout>

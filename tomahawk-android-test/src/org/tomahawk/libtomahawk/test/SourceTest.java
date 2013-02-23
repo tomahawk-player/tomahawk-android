@@ -28,6 +28,7 @@ import android.test.AndroidTestCase;
 public class SourceTest extends AndroidTestCase {
 
     private Source tstLocalSource;
+
     private Collection tstLocalCollection;
 
     public void setUp() {

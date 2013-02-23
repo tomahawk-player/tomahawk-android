@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/menu_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+             android:id="@+id/menu_layout"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
 
     <ListView
-        android:id="@android:id/list"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:drawSelectorOnTop="false"
-        android:fastScrollEnabled="true"
-        android:listSelector="@drawable/selectable_background_tomahawk" />
+            android:id="@android:id/list"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:drawSelectorOnTop="false"
+            android:fastScrollEnabled="true"
+            android:listSelector="@drawable/selectable_background_tomahawk"/>
 
 </FrameLayout>

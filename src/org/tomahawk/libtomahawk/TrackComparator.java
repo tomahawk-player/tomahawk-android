@@ -25,7 +25,9 @@ import java.util.Comparator;
 public class TrackComparator implements Comparator<Track> {
 
     public static final int COMPARE_DISCNUM = 0;
+
     public static final int COMPARE_ALPHA = 1;
+
     public static final int COMPARE_SCORE = 2;
 
     private static int mFlag = COMPARE_DISCNUM;
@@ -39,18 +41,18 @@ public class TrackComparator implements Comparator<Track> {
 
         switch (mFlag) {
 
-        case COMPARE_DISCNUM:
-            Integer num1 = t1.getTrackNumber();
-            Integer num2 = t2.getTrackNumber();
-            return num1.compareTo(num2);
+            case COMPARE_DISCNUM:
+                Integer num1 = t1.getTrackNumber();
+                Integer num2 = t2.getTrackNumber();
+                return num1.compareTo(num2);
 
-        case COMPARE_ALPHA:
-            return t1.getName().compareTo(t2.getName());
+            case COMPARE_ALPHA:
+                return t1.getName().compareTo(t2.getName());
 
-        case COMPARE_SCORE:
-            Float score1 = t1.getScore();
-            Float score2 = t2.getScore();
-            return score2.compareTo(score1);
+            case COMPARE_SCORE:
+                Float score1 = t1.getScore();
+                Float score2 = t2.getScore();
+                return score2.compareTo(score1);
 
         }
 

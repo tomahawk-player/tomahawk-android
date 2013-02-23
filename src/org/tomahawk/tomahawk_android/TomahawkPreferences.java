@@ -31,11 +31,14 @@ public class TomahawkPreferences {
     public static final String PREFERENCE_GO_ONLINE = "go_online";
 
     private TomahawkPreferences() {
-    };
+    }
+
+    ;
 
     public static void setUsernamePassword(String username, String passwd) {
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(TomahawkApp.getContext());
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(PREFERENCE_USERNAME, username);
 
@@ -45,7 +48,8 @@ public class TomahawkPreferences {
     }
 
     public static final String getUsername() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(TomahawkApp.getContext());
         return prefs.getString(PREFERENCE_USERNAME, "username");
     }
 
@@ -53,12 +57,14 @@ public class TomahawkPreferences {
      * Primarily user for testing purposes before we start encrypting passwords.
      */
     public static final String getPassword() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(TomahawkApp.getContext());
         return prefs.getString(PREFERENCE_PASSWORD, "");
     }
 
     public static boolean goOnline() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(TomahawkApp.getContext());
         return prefs.getBoolean(PREFERENCE_GO_ONLINE, false);
     }
 }

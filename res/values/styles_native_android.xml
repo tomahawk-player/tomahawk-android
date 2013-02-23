@@ -4,7 +4,8 @@
 
     <style name="Theme.tomahawk.nativeandroid" parent="@style/Theme.tomahawk.abs">
         <item name="android:editTextStyle">@style/EditTextTomahawkTheme</item>
-        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewTomahawkTheme</item>
+        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewTomahawkTheme
+        </item>
         <item name="android:listViewStyle">@style/ListViewTomahawkTheme</item>
         <item name="android:listViewWhiteStyle">@style/ListViewTomahawkTheme.White</item>
         <item name="android:spinnerItemStyle">@style/SpinnerItemTomahawkTheme</item>
@@ -31,7 +32,8 @@
         <item name="android:listSelector">@drawable/list_selector_holo_dark</item>
     </style>
 
-    <style name="SpinnerItemTomahawkTheme" parent="android:TextAppearance.Widget.TextView.SpinnerItem">
+    <style name="SpinnerItemTomahawkTheme"
+           parent="android:TextAppearance.Widget.TextView.SpinnerItem">
         <item name="android:textColor">#ffffff</item>
     </style>
 

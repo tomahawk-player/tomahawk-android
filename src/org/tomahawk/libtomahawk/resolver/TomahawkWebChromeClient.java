@@ -22,10 +22,10 @@ import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com>
- * Date: 17.01.13
+ * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 17.01.13
  */
 public class TomahawkWebChromeClient extends WebChromeClient {
+
     private final static String TAG = TomahawkWebChromeClient.class.getName();
 
     @Override
@@ -36,7 +36,8 @@ public class TomahawkWebChromeClient extends WebChromeClient {
 
     @Override
     public void onConsoleMessage(String message, int lineNumber, String sourceID) {
-        Log.d(TAG, "invoked: onConsoleMessage() - " + sourceID + ":" + lineNumber + " - " + message);
+        Log.d(TAG,
+                "invoked: onConsoleMessage() - " + sourceID + ":" + lineNumber + " - " + message);
         super.onConsoleMessage(message, lineNumber, sourceID);
     }
 }

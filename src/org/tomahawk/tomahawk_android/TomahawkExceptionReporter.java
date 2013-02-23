@@ -17,10 +17,6 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.acra.ACRA;
 import org.acra.CrashReportData;
 import org.acra.ErrorReporter;
@@ -41,6 +37,10 @@ import android.os.Debug;
 import android.os.StrictMode;
 import android.util.Log;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This class uploads a Tomahawk Exception Report to oops.tomahawk-player.org.
  */
@@ -50,7 +50,7 @@ class TomahawkExceptionReporter implements ReportSender {
 
     /**
      * Construct a new TomahawkExceptionReporter
-     * 
+     *
      * Use init() to create a TomahawkExceptionReporter publicly.
      */
     protected TomahawkExceptionReporter() {
@@ -76,14 +76,14 @@ class TomahawkExceptionReporter implements ReportSender {
         StringBuilder body = new StringBuilder();
 
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-        nameValuePairs.add(new BasicNameValuePair("Version", data
-                .getProperty(ReportField.APP_VERSION_NAME)));
+        nameValuePairs.add(new BasicNameValuePair("Version",
+                data.getProperty(ReportField.APP_VERSION_NAME)));
 
         nameValuePairs.add(new BasicNameValuePair("BuildID", data.getProperty(ReportField.BUILD)));
         nameValuePairs.add(new BasicNameValuePair("ProductName", "tomahawk-android"));
         nameValuePairs.add(new BasicNameValuePair("Vendor", "Tomahawk"));
-        nameValuePairs.add(new BasicNameValuePair("timestamp", data
-                .getProperty(ReportField.USER_CRASH_DATE)));
+        nameValuePairs.add(new BasicNameValuePair("timestamp",
+                data.getProperty(ReportField.USER_CRASH_DATE)));
 
         for (NameValuePair pair : nameValuePairs) {
             body.append("--thkboundary\r\n");
@@ -92,13 +92,15 @@ class TomahawkExceptionReporter implements ReportSender {
         }
 
         body.append("--thkboundary\r\n");
-        body.append("Content-Disposition: form-data; name=\"upload_file_minidump\"; filename=\""
-                + data.getProperty(ReportField.REPORT_ID) + "\"\r\n");
+        body.append(
+                "Content-Disposition: form-data; name=\"upload_file_minidump\"; filename=\"" + data
+                        .getProperty(ReportField.REPORT_ID) + "\"\r\n");
         body.append("Content-Type: application/octet-stream\r\n\r\n");
 
         body.append("============== Tomahawk Exception Report ==============\r\n\r\n");
         body.append("Report ID: " + data.getProperty(ReportField.REPORT_ID) + "\r\n");
-        body.append("App Start Date: " + data.getProperty(ReportField.USER_APP_START_DATE) + "\r\n");
+        body.append(
+                "App Start Date: " + data.getProperty(ReportField.USER_APP_START_DATE) + "\r\n");
         body.append("Crash Date: " + data.getProperty(ReportField.USER_CRASH_DATE) + "\r\n\r\n");
 
         body.append("--------- Phone Details  ----------\r\n");
@@ -115,8 +117,8 @@ class TomahawkExceptionReporter implements ReportSender {
         body.append("------- Operating System  ---------\r\n");
         body.append("App Version Name: " + data.getProperty(ReportField.APP_VERSION_NAME) + "\r\n");
         body.append("Total Mem Size: " + data.getProperty(ReportField.TOTAL_MEM_SIZE) + "\r\n");
-        body.append("Available Mem Size: " + data.getProperty(ReportField.AVAILABLE_MEM_SIZE)
-                + "\r\n");
+        body.append(
+                "Available Mem Size: " + data.getProperty(ReportField.AVAILABLE_MEM_SIZE) + "\r\n");
         body.append("Dumpsys Meminfo: " + data.getProperty(ReportField.DUMPSYS_MEMINFO) + "\r\n");
         body.append("-----------------------------------\r\n\r\n");
 
@@ -126,8 +128,8 @@ class TomahawkExceptionReporter implements ReportSender {
 
         body.append("Android Version: " + data.getProperty(ReportField.ANDROID_VERSION) + "\r\n");
         body.append("Build: " + data.getProperty(ReportField.BUILD) + "\r\n");
-        body.append("Initial Configuration:  "
-                + data.getProperty(ReportField.INITIAL_CONFIGURATION) + "\r\n");
+        body.append("Initial Configuration:  " + data.getProperty(ReportField.INITIAL_CONFIGURATION)
+                + "\r\n");
         body.append("Crash Configuration: " + data.getProperty(ReportField.CRASH_CONFIGURATION)
                 + "\r\n");
         body.append("Settings Secure: " + data.getProperty(ReportField.SETTINGS_SECURE) + "\r\n");
@@ -143,7 +145,8 @@ class TomahawkExceptionReporter implements ReportSender {
 
         body.append("=======================================================\r\n\r\n");
         body.append("--thkboundary\r\n");
-        body.append("Content-Disposition: form-data; name=\"upload_file_tomahawklog\"; filename=\"Tomahawk.log\"\r\n");
+        body.append(
+                "Content-Disposition: form-data; name=\"upload_file_tomahawklog\"; filename=\"Tomahawk.log\"\r\n");
         body.append("Content-Type: text/plain\r\n\r\n");
         body.append(data.getProperty(ReportField.LOGCAT));
         body.append("\r\n--thkboundary--\r\n");
@@ -168,16 +171,17 @@ class TomahawkExceptionReporter implements ReportSender {
     @TargetApi(11)
     private static void initStrictMode() {
 
-        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB)
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
             return;
+        }
 
-        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectCustomSlowCalls()
-                .detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog()
-                .penaltyFlashScreen().build());
+        StrictMode.setThreadPolicy(
+                new StrictMode.ThreadPolicy.Builder().detectCustomSlowCalls().detectDiskReads()
+                        .detectDiskWrites().detectNetwork().penaltyLog().penaltyFlashScreen()
+                        .build());
 
         try {
-            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                    .detectLeakedSqlLiteObjects()
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects()
                     .detectLeakedClosableObjects()
                     .setClassInstanceLimit(Class.forName(PlaybackService.class.getName()), 1)
                     .penaltyLog().build());

@@ -19,110 +19,111 @@
  */
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.tomahawk.tomahawk_android"
-    android:versionCode="0140"
-    android:versionName="0.14" >
+          package="org.tomahawk.tomahawk_android"
+          android:versionCode="0140"
+          android:versionName="0.14">
 
     <uses-sdk
-        android:minSdkVersion="8"
-        android:targetSdkVersion="16" />
+            android:minSdkVersion="8"
+            android:targetSdkVersion="16"/>
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.STATUS_BAR" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.READ_LOGS" />
-    <uses-permission android:name="android.permission.DUMP" />
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
-    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
-    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.STATUS_BAR"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_LOGS"/>
+    <uses-permission android:name="android.permission.DUMP"/>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
 
     <supports-screens
-        android:anyDensity="true"
-        android:largeScreens="true"
-        android:normalScreens="true"
-        android:smallScreens="true"
-        android:xlargeScreens="true" />
+            android:anyDensity="true"
+            android:largeScreens="true"
+            android:normalScreens="true"
+            android:smallScreens="true"
+            android:xlargeScreens="true"/>
 
     <application
-        android:name="org.tomahawk.tomahawk_android.TomahawkApp"
-        android:icon="@drawable/ic_launcher"
-        android:label="@string/appname_string"
-        android:theme="@style/Theme.tomahawk.nativeandroid"
-        android:allowBackup="true" >
+            android:name="org.tomahawk.tomahawk_android.TomahawkApp"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/appname_string"
+            android:theme="@style/Theme.tomahawk.nativeandroid"
+            android:allowBackup="true">
 
         <activity
-            android:name="org.tomahawk.tomahawk_android.TomahawkMainActivity"
-            android:label="@string/mainactivity_title_string"
-            android:launchMode="singleTop" >
+                android:name="org.tomahawk.tomahawk_android.TomahawkMainActivity"
+                android:label="@string/mainactivity_title_string"
+                android:launchMode="singleTop">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
         <activity
-            android:name="org.tomahawk.libtomahawk.audio.PlaybackActivity"
-            android:label="@string/playbackfragment_title_string" >
+                android:name="org.tomahawk.libtomahawk.audio.PlaybackActivity"
+                android:label="@string/playbackfragment_title_string">
         </activity>
 
         <activity
-            android:name="org.tomahawk.tomahawk_android.CollectionActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="@string/mainactivity_title_string"
-            android:launchMode="singleTop"
-            android:uiOptions="splitActionBarWhenNarrow" >
+                android:name="org.tomahawk.tomahawk_android.CollectionActivity"
+                android:configChanges="keyboardHidden|orientation|screenSize"
+                android:label="@string/mainactivity_title_string"
+                android:launchMode="singleTop"
+                android:uiOptions="splitActionBarWhenNarrow">
         </activity>
 
         <activity
-            android:name="org.tomahawk.tomahawk_android.SearchableActivity"
-            android:label="@string/searchactivity_title_string"
-            android:launchMode="singleTop" >
+                android:name="org.tomahawk.tomahawk_android.SearchableActivity"
+                android:label="@string/searchactivity_title_string"
+                android:launchMode="singleTop">
             <meta-data
-                android:name="android.app.searchable"
-                android:resource="@xml/searchable" />
+                    android:name="android.app.searchable"
+                    android:resource="@xml/searchable"/>
         </activity>
 
         <activity
-            android:name="org.tomahawk.tomahawk_android.SettingsActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="@string/settingsactivity_title_string"
-            android:launchMode="singleTop" >
+                android:name="org.tomahawk.tomahawk_android.SettingsActivity"
+                android:configChanges="keyboardHidden|orientation|screenSize"
+                android:label="@string/settingsactivity_title_string"
+                android:launchMode="singleTop">
         </activity>
 
         <service
-            android:name="org.tomahawk.libtomahawk.audio.PlaybackService"
-            android:label="@string/playbackservice_label_string"
-            android:stopWithTask="true" >
+                android:name="org.tomahawk.libtomahawk.audio.PlaybackService"
+                android:label="@string/playbackservice_label_string"
+                android:stopWithTask="true">
         </service>
 
-        <service android:name="org.tomahawk.libtomahawk.network.TomahawkAccountAuthenticator$TomahawkAuthenticationService" >
+        <service
+                android:name="org.tomahawk.libtomahawk.network.TomahawkAccountAuthenticator$TomahawkAuthenticationService">
             <meta-data
-                android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator" />
+                    android:name="android.accounts.AccountAuthenticator"
+                    android:resource="@xml/authenticator"/>
         </service>
 
         <activity
-            android:name="org.tomahawk.tomahawk_android.TomahawkAccountAuthenticatorActivity"
-            android:label="@string/appname_string" >
+                android:name="org.tomahawk.tomahawk_android.TomahawkAccountAuthenticatorActivity"
+                android:label="@string/appname_string">
         </activity>
 
         <activity
-            android:name="org.tomahawk.tomahawk_android.TomahawkAccountPreferenceActivity"
-            android:configChanges="keyboardHidden|orientation" >
+                android:name="org.tomahawk.tomahawk_android.TomahawkAccountPreferenceActivity"
+                android:configChanges="keyboardHidden|orientation">
         </activity>
 
         <service
-            android:name="org.tomahawk.libtomahawk.network.TomahawkService"
-            android:label="@string/appname_string" >
+                android:name="org.tomahawk.libtomahawk.network.TomahawkService"
+                android:label="@string/appname_string">
         </service>
 
         <activity
-            android:name="org.tomahawk.tomahawk_android.TomahawkPlaybackSettingsActivity"
-            android:label="@string/playbacksettingsactivity_title_string"
-            android:launchMode="singleTop" >
+                android:name="org.tomahawk.tomahawk_android.TomahawkPlaybackSettingsActivity"
+                android:label="@string/playbacksettingsactivity_title_string"
+                android:launchMode="singleTop">
         </activity>
     </application>
 

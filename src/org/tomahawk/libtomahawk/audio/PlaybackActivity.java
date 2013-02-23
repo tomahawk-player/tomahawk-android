@@ -19,11 +19,20 @@
  */
 package org.tomahawk.libtomahawk.audio;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+import com.emilsjolander.components.stickylistheaders.StickyListHeadersListView;
 
-import org.tomahawk.libtomahawk.*;
+import org.tomahawk.libtomahawk.Album;
+import org.tomahawk.libtomahawk.Artist;
+import org.tomahawk.libtomahawk.TomahawkBaseAdapter;
+import org.tomahawk.libtomahawk.TomahawkListAdapter;
+import org.tomahawk.libtomahawk.TomahawkStickyListHeadersListView;
+import org.tomahawk.libtomahawk.Track;
+import org.tomahawk.libtomahawk.UserCollection;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
 import org.tomahawk.libtomahawk.playlist.AlbumPlaylist;
@@ -31,7 +40,11 @@ import org.tomahawk.libtomahawk.playlist.ArtistPlaylist;
 import org.tomahawk.libtomahawk.playlist.CollectionPlaylist;
 import org.tomahawk.libtomahawk.playlist.Playlist;
 import org.tomahawk.libtomahawk.resolver.TomahawkUtils;
-import org.tomahawk.tomahawk_android.*;
+import org.tomahawk.tomahawk_android.CollectionActivity;
+import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.SearchableActivity;
+import org.tomahawk.tomahawk_android.SettingsActivity;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -48,15 +61,13 @@ import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.emilsjolander.components.stickylistheaders.StickyListHeadersListView;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class PlaybackActivity extends SherlockFragmentActivity implements PlaybackServiceConnectionListener,
-        Handler.Callback, AdapterView.OnItemClickListener, StickyListHeadersListView.OnHeaderClickListener,
+public class PlaybackActivity extends SherlockFragmentActivity
+        implements PlaybackServiceConnectionListener, Handler.Callback,
+        AdapterView.OnItemClickListener, StickyListHeadersListView.OnHeaderClickListener,
         ViewTreeObserver.OnGlobalLayoutListener {
 
     public static final String TAG = PlaybackActivity.class.getName();
@@ -64,21 +75,32 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
     private int mFragmentLayoutHeight;
 
     private PlaybackFragment mPlaybackFragment;
+
     private Playlist mPlaylist;
+
     private TomahawkListAdapter mTomahawkListAdapter;
+
     private TomahawkStickyListHeadersListView mList;
 
     private Drawable mProgressDrawable;
+
     private Handler mAnimationHandler = new Handler(this);
+
     private static final int MSG_UPDATE_ANIMATION = 0x20;
 
     private PlaybackService mPlaybackService;
-    /** Allow communication to the PlaybackService. */
-    private PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(this);
+
+    /**
+     * Allow communication to the PlaybackService.
+     */
+    private PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(
+            this);
 
     private PlaybackServiceBroadcastReceiver mPlaybackServiceBroadcastReceiver;
 
-    /** Identifier for passing a Track as an extra in an Intent. */
+    /**
+     * Identifier for passing a Track as an extra in an Intent.
+     */
     public static final String PLAYLIST_EXTRA = "playlist_extra";
 
     public static final String PLAYLIST_ALBUM_ID = "playlist_album_id";
@@ -96,19 +118,22 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(PlaybackService.BROADCAST_NEWTRACK)) {
-                if (mPlaybackFragment != null)
+                if (mPlaybackFragment != null) {
                     mPlaybackFragment.onTrackChanged();
+                }
                 onTrackChanged();
                 startLoadingAnimation();
             }
             if (intent.getAction().equals(PlaybackService.BROADCAST_PLAYLISTCHANGED)) {
-                if (mPlaybackFragment != null)
+                if (mPlaybackFragment != null) {
                     mPlaybackFragment.onPlaylistChanged();
+                }
                 onPlaylistChanged();
             }
             if (intent.getAction().equals(PlaybackService.BROADCAST_PLAYSTATECHANGED)) {
-                if (mPlaybackFragment != null)
+                if (mPlaybackFragment != null) {
                     mPlaybackFragment.onPlaystateChanged();
+                }
                 onPlaystateChanged();
             }
         }
@@ -155,8 +180,9 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
 
         mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
 
-        if (mPlaybackServiceBroadcastReceiver == null)
+        if (mPlaybackServiceBroadcastReceiver == null) {
             mPlaybackServiceBroadcastReceiver = new PlaybackServiceBroadcastReceiver();
+        }
         IntentFilter intentFilter = new IntentFilter(PlaybackService.BROADCAST_NEWTRACK);
         registerReceiver(mPlaybackServiceBroadcastReceiver, intentFilter);
         intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYLISTCHANGED);
@@ -184,8 +210,9 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
     public void onStop() {
         super.onStop();
 
-        if (mPlaybackService != null)
+        if (mPlaybackService != null) {
             unbindService(mPlaybackServiceConnection);
+        }
     }
 
     @Override
@@ -243,9 +270,9 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
         Object obj = mTomahawkListAdapter.getItem(idx - 1);
         if (obj instanceof Track) {
-            if (mPlaylist.getPosition() == idx - 1)
+            if (mPlaylist.getPosition() == idx - 1) {
                 mPlaybackService.playPause();
-            else {
+            } else {
                 try {
                     mPlaybackService.setCurrentTrack(mPlaylist.getTrackAtPos(idx - 1));
                 } catch (IOException e) {
@@ -256,17 +283,19 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
     }
 
     @Override
-    public void onHeaderClick(StickyListHeadersListView l, View header, int itemPosition, long headerId, boolean currentlySticky) {
+    public void onHeaderClick(StickyListHeadersListView l, View header, int itemPosition,
+            long headerId, boolean currentlySticky) {
         ensureList();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             mList.smoothScrollToPositionFromTop(0, 0, 200);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
             int firstVisible = mList.getFirstVisiblePosition();
             int lastVisible = mList.getLastVisiblePosition();
-            if (0 < firstVisible)
+            if (0 < firstVisible) {
                 mList.smoothScrollToPosition(0);
-            else
+            } else {
                 mList.smoothScrollToPosition(0 + lastVisible - firstVisible - 2);
+            }
         } else {
             mList.setSelectionFromTop(0, 0);
         }
@@ -275,30 +304,35 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
     @Override
     public void onGlobalLayout() {
         final View activityRootView = getWindow().getDecorView().findViewById(android.R.id.content);
-        mFragmentLayoutHeight = activityRootView.getHeight() - (int) TomahawkUtils.convertDpToPixel(32f, this);
-        mPlaybackFragment = (PlaybackFragment) getSupportFragmentManager().findFragmentById(R.id.playbackFragment);
-        if (mPlaybackFragment != null && mPlaybackFragment.getView() != null)
+        mFragmentLayoutHeight = activityRootView.getHeight() - (int) TomahawkUtils
+                .convertDpToPixel(32f, this);
+        mPlaybackFragment = (PlaybackFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.playbackFragment);
+        if (mPlaybackFragment != null && mPlaybackFragment.getView() != null) {
             mPlaybackFragment.getView().setLayoutParams(
-                    new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, mFragmentLayoutHeight));
+                    new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+                            mFragmentLayoutHeight));
+        }
         //is softkeyboard shown hack
         int heightdiff = activityRootView.getRootView().getHeight() - activityRootView.getHeight();
-        if (heightdiff < 200)
+        if (heightdiff < 200) {
             getWindow().getDecorView().getViewTreeObserver().removeGlobalOnLayoutListener(this);
+        }
     }
 
     @Override
     public boolean handleMessage(Message msg) {
         switch (msg.what) {
-        case MSG_UPDATE_ANIMATION:
-            if (mPlaybackService.isPreparing()) {
-                mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 500);
-                getSupportActionBar().setLogo(mProgressDrawable);
-                mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
-                mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
-            } else {
-                stopLoadingAnimation();
-            }
-            break;
+            case MSG_UPDATE_ANIMATION:
+                if (mPlaybackService.isPreparing()) {
+                    mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 500);
+                    getSupportActionBar().setLogo(mProgressDrawable);
+                    mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
+                    mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
+                } else {
+                    stopLoadingAnimation();
+                }
+                break;
         }
         return true;
     }
@@ -336,18 +370,22 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
                 playlist = AlbumPlaylist.fromAlbum(Album.get(albumid), Track.get(trackid));
             } else if (playlistBundle.containsKey(PLAYLIST_COLLECTION_ID)) {
                 int collid = playlistBundle.getInt(PLAYLIST_COLLECTION_ID);
-                playlist = CollectionPlaylist.fromCollection(app.getSourceList().getCollectionFromId(collid),
-                        Track.get(trackid));
+                playlist = CollectionPlaylist
+                        .fromCollection(app.getSourceList().getCollectionFromId(collid),
+                                Track.get(trackid));
             } else if (playlistBundle.containsKey(PLAYLIST_ARTIST_ID)) {
                 long artistid = playlistBundle.getLong(PLAYLIST_ARTIST_ID);
                 playlist = ArtistPlaylist.fromArtist(Artist.get(artistid));
             } else if (playlistBundle.containsKey(PLAYLIST_PLAYLIST_ID)) {
                 long playlistid = playlistBundle.getLong(PLAYLIST_PLAYLIST_ID);
-                playlist = app.getSourceList().getCollectionFromId(UserCollection.Id).getCustomPlaylistById(playlistid);
-                if (playlist != null)
+                playlist = app.getSourceList().getCollectionFromId(UserCollection.Id)
+                        .getCustomPlaylistById(playlistid);
+                if (playlist != null) {
                     playlist.setCurrentTrack(Track.get(trackid));
+                }
             } else if (playlistBundle.containsKey(UserCollection.USERCOLLECTION_PLAYLISTCACHED)) {
-                playlist = ((UserCollection) app.getSourceList().getCollectionFromId(UserCollection.Id)).getCachedCustomPlaylist();
+                playlist = ((UserCollection) app.getSourceList()
+                        .getCollectionFromId(UserCollection.Id)).getCachedCustomPlaylist();
             }
             if (playlist != null) {
                 try {
@@ -358,18 +396,22 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
                 }
             }
         }
-        if (mPlaybackFragment != null)
+        if (mPlaybackFragment != null) {
             mPlaybackFragment.setPlaybackService(mPlaybackService);
+        }
         onPlaylistChanged();
     }
 
     private void initAdapter() {
-        if (mPlaybackService != null)
+        if (mPlaybackService != null) {
             mPlaylist = mPlaybackService.getCurrentPlaylist();
+        }
         if (mPlaylist != null) {
-            List<TomahawkBaseAdapter.TomahawkListItem> tracks = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+            List<TomahawkBaseAdapter.TomahawkListItem> tracks
+                    = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
             tracks.addAll(mPlaylist.getTracks());
-            List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+            List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
+                    = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(tracks);
             mTomahawkListAdapter = new TomahawkListAdapter(this, listArray);
             mTomahawkListAdapter.setShowHighlightingAndPlaystate(true);
@@ -381,18 +423,21 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
             mList.setOnItemClickListener(this);
             mList.setOnHeaderClickListener(this);
             if (mList.getHeaderViewsCount() == 0) {
-                mPlaybackFragment = (PlaybackFragment) getSupportFragmentManager().findFragmentById(
-                        R.id.playbackFragment);
+                mPlaybackFragment = (PlaybackFragment) getSupportFragmentManager()
+                        .findFragmentById(R.id.playbackFragment);
                 View headerView;
-                if (mPlaybackFragment == null || (mPlaybackFragment != null && mPlaybackFragment.getView() == null)) {
-                    headerView = getLayoutInflater().inflate(R.layout.fragment_container_list_item, null);
-                    mPlaybackFragment = (PlaybackFragment) getSupportFragmentManager().findFragmentById(
-                            R.id.playbackFragment);
+                if (mPlaybackFragment == null || (mPlaybackFragment != null
+                        && mPlaybackFragment.getView() == null)) {
+                    headerView = getLayoutInflater()
+                            .inflate(R.layout.fragment_container_list_item, null);
+                    mPlaybackFragment = (PlaybackFragment) getSupportFragmentManager()
+                            .findFragmentById(R.id.playbackFragment);
                 } else {
                     headerView = (View) mPlaybackFragment.getView().getParent();
                 }
                 mPlaybackFragment.getView().setLayoutParams(
-                        new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, mFragmentLayoutHeight));
+                        new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+                                mFragmentLayoutHeight));
                 mPlaybackFragment.setPlaybackService(mPlaybackService);
                 mList.addHeaderView(headerView);
             }
@@ -405,8 +450,9 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
         View rawListView = findViewById(R.id.listview);
         if (!(rawListView instanceof TomahawkStickyListHeadersListView)) {
             if (rawListView == null) {
-                throw new RuntimeException("Your content must have a ListView whose id attribute is "
-                        + "'R.id.listview'");
+                throw new RuntimeException(
+                        "Your content must have a ListView whose id attribute is "
+                                + "'R.id.listview'");
             }
             throw new RuntimeException("Content has view with id attribute 'R.id.listview' "
                     + "that is not a ListView class");
@@ -443,7 +489,8 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
         if (mTomahawkListAdapter != null) {
             mPlaylist = mPlaybackService.getCurrentPlaylist();
             if (mPlaylist != null) {
-                ArrayList<TomahawkBaseAdapter.TomahawkListItem> tracks = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+                ArrayList<TomahawkBaseAdapter.TomahawkListItem> tracks
+                        = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
                 tracks.addAll(mPlaylist.getTracks());
                 mTomahawkListAdapter.setListWithIndex(0, tracks);
                 mTomahawkListAdapter.setHighlightedItem(mPlaylist.getPosition());
@@ -459,7 +506,7 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
      * Return the {@link Intent} defined by the given parameters
      *
      * @param context the context with which the intent will be created
-     * @param cls the class which contains the activity to launch
+     * @param cls     the class which contains the activity to launch
      * @return the created intent
      */
     private static Intent getIntent(Context context, Class<?> cls) {
@@ -470,51 +517,46 @@ public class PlaybackActivity extends SherlockFragmentActivity implements Playba
 
     /**
      * Called when the play/pause button is clicked.
-     *
-     * @param view
      */
     public void onPlayPauseClicked(View view) {
-        if (mPlaybackFragment != null)
+        if (mPlaybackFragment != null) {
             mPlaybackFragment.onPlayPauseClicked();
+        }
     }
 
     /**
      * Called when the next button is clicked.
-     *
-     * @param view
      */
     public void onNextClicked(View view) {
-        if (mPlaybackFragment != null)
+        if (mPlaybackFragment != null) {
             mPlaybackFragment.onNextClicked();
+        }
     }
 
     /**
      * Called when the previous button is clicked.
-     *
-     * @param view
      */
     public void onPreviousClicked(View view) {
-        if (mPlaybackFragment != null)
+        if (mPlaybackFragment != null) {
             mPlaybackFragment.onPreviousClicked();
+        }
     }
 
     /**
      * Called when the shuffle button is clicked.
-     *
-     * @param view
      */
     public void onShuffleClicked(View view) {
-        if (mPlaybackFragment != null)
+        if (mPlaybackFragment != null) {
             mPlaybackFragment.onShuffleClicked();
+        }
     }
 
     /**
      * Called when the repeat button is clicked.
-     *
-     * @param view
      */
     public void onRepeatClicked(View view) {
-        if (mPlaybackFragment != null)
+        if (mPlaybackFragment != null) {
             mPlaybackFragment.onRepeatClicked();
+        }
     }
 }

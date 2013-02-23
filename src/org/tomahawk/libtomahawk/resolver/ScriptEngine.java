@@ -22,12 +22,12 @@ import android.util.AttributeSet;
 import android.webkit.WebView;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com>
- * Date: 17.01.13
+ * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 17.01.13
  *
  * Just a renamed WebView for now.
  */
 public class ScriptEngine extends WebView {
+
     private ScriptResolver mScriptResolver;
 
     private String mScriptPath;

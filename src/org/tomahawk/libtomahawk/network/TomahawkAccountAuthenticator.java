@@ -47,7 +47,8 @@ public class TomahawkAccountAuthenticator extends AbstractAccountAuthenticator {
 
         @Override
         public void onCreate() {
-            mTomahawkAccountAuthenticator = new TomahawkAccountAuthenticator(getApplicationContext());
+            mTomahawkAccountAuthenticator = new TomahawkAccountAuthenticator(
+                    getApplicationContext());
         }
 
         @Override
@@ -62,8 +63,9 @@ public class TomahawkAccountAuthenticator extends AbstractAccountAuthenticator {
     }
 
     @Override
-    public Bundle addAccount(AccountAuthenticatorResponse response, String accountType, String authTokenType,
-            String[] requiredFeatures, Bundle options) throws NetworkErrorException {
+    public Bundle addAccount(AccountAuthenticatorResponse response, String accountType,
+            String authTokenType, String[] requiredFeatures, Bundle options)
+            throws NetworkErrorException {
 
         final Intent intent = new Intent(mContext, TomahawkAccountAuthenticatorActivity.class);
         intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
@@ -74,7 +76,8 @@ public class TomahawkAccountAuthenticator extends AbstractAccountAuthenticator {
     }
 
     @Override
-    public Bundle confirmCredentials(AccountAuthenticatorResponse response, Account account, Bundle options) {
+    public Bundle confirmCredentials(AccountAuthenticatorResponse response, Account account,
+            Bundle options) {
         return null;
     }
 
@@ -84,8 +87,8 @@ public class TomahawkAccountAuthenticator extends AbstractAccountAuthenticator {
     }
 
     @Override
-    public Bundle getAuthToken(AccountAuthenticatorResponse response, Account account, String authTokenType,
-            Bundle options) throws NetworkErrorException {
+    public Bundle getAuthToken(AccountAuthenticatorResponse response, Account account,
+            String authTokenType, Bundle options) throws NetworkErrorException {
 
         final AccountManager am = AccountManager.get(mContext);
         String authToken = am.peekAuthToken(account, authTokenType);
@@ -93,8 +96,9 @@ public class TomahawkAccountAuthenticator extends AbstractAccountAuthenticator {
         if (authToken == null) {
 
             final String password = am.getPassword(account);
-            if (password != null)
+            if (password != null) {
                 authToken = TomahawkService.authenticate(account.name, password);
+            }
 
         }
 
@@ -125,8 +129,8 @@ public class TomahawkAccountAuthenticator extends AbstractAccountAuthenticator {
     }
 
     @Override
-    public Bundle hasFeatures(AccountAuthenticatorResponse response, Account account, String[] features)
-            throws NetworkErrorException {
+    public Bundle hasFeatures(AccountAuthenticatorResponse response, Account account,
+            String[] features) throws NetworkErrorException {
         final Bundle result = new Bundle();
         result.putBoolean(AccountManager.KEY_BOOLEAN_RESULT, false);
         return result;

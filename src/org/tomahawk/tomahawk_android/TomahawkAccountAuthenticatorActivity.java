@@ -38,6 +38,7 @@ import android.widget.EditText;
 public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorActivity {
 
     public static final String PARAM_CONFIRM_CREDENTIALS = "confirmCredentials";
+
     private static final String TAG = "AuthenticatorActivity";
 
     /**
@@ -46,7 +47,9 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
     private static final int ERROR_INVALID_CREDENTIALS = 0;
 
     private AccountManager mAccountManager;
+
     private LoginTask mAuthTask = null;
+
     private ProgressDialog mProgressDialog = null;
 
     /**
@@ -59,8 +62,9 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
         @Override
         protected String doInBackground(Pair<String, String>... params) {
 
-            if (params.length < 1)
+            if (params.length < 1) {
                 return null;
+            }
 
             mErrorOccurred = false;
             String userid = params[0].first;
@@ -77,12 +81,13 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
         @Override
         protected void onPostExecute(final String response) {
 
-            if (!mErrorOccurred)
+            if (!mErrorOccurred) {
                 onAuthenticationResult(response);
-            else {
+            } else {
                 // Check the error code here when api supports it.
-                if (response.equals("Invalid credentials"))
+                if (response.equals("Invalid credentials")) {
                     onAuthenticationError(ERROR_INVALID_CREDENTIALS);
+                }
             }
         }
 
@@ -102,7 +107,8 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
         setContentView(R.layout.login_activity);
 
         mAccountManager = AccountManager.get(this);
-        getWindow().setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, android.R.drawable.ic_dialog_alert);
+        getWindow().setFeatureDrawableResource(Window.FEATURE_LEFT_ICON,
+                android.R.drawable.ic_dialog_alert);
 
         EditText user = (EditText) findViewById(R.id.username_edit);
         user.setText(TomahawkPreferences.getUsername());
@@ -110,18 +116,18 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
         EditText passwd = (EditText) findViewById(R.id.password_edit);
         passwd.setText(TomahawkPreferences.getPassword());
     }
-    
-    @Override
-    public void onResume(){
-        super.onResume();
 
+    @Override
+    public void onResume() {
+        super.onResume();
 
         /** Setup account. */
         AccountManager accountManager = AccountManager.get(this);
         Account[] accounts = accountManager.getAccountsByType(TomahawkService.ACCOUNT_TYPE);
 
-        if (accounts.length <= 0)
+        if (accounts.length <= 0) {
             return;
+        }
 
         /**
          * 'Getting' the auth token here is asynchronous. When the
@@ -130,7 +136,7 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
          */
         // if (TomahawkPreferences.goOnline())
         accountManager.getAuthToken(accounts[0], TomahawkService.AUTH_TOKEN_TYPE, null,
-                    new TomahawkAccountAuthenticatorActivity(), (TomahawkApp) getApplication(), null);
+                new TomahawkAccountAuthenticatorActivity(), (TomahawkApp) getApplication(), null);
     }
 
     /**
@@ -140,7 +146,8 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
     protected Dialog onCreateDialog(int id, Bundle args) {
 
         mProgressDialog = new ProgressDialog(this);
-        mProgressDialog.setMessage(getResources().getString(R.string.authenticationdialog_text_string));
+        mProgressDialog
+                .setMessage(getResources().getString(R.string.authenticationdialog_text_string));
         mProgressDialog.setIndeterminate(true);
         mProgressDialog.setCancelable(true);
 
@@ -158,10 +165,8 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
 
     /**
      * Handle a login request (when the login button is pressed).
-     * 
-     * @param view
      */
-    @SuppressWarnings({ "unchecked", "deprecation" })
+    @SuppressWarnings({"unchecked", "deprecation"})
     public void handleLogin(View view) {
         showDialog(0);
 
@@ -169,36 +174,39 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
         EditText passwd = (EditText) findViewById(R.id.password_edit);
 
         mAuthTask = new LoginTask();
-        mAuthTask.execute(new Pair<String, String>(user.getText().toString(), passwd.getText().toString()));
+        mAuthTask.execute(
+                new Pair<String, String>(user.getText().toString(), passwd.getText().toString()));
     }
 
     /**
      * Called when the authentication is finished.
-     * 
-     * @param authToken
      */
     public void onAuthenticationResult(String authToken) {
 
         mAuthTask = null;
         hideProgressDialog();
 
-        if (authToken == null)
+        if (authToken == null) {
             return;
+        }
 
         EditText user = (EditText) findViewById(R.id.username_edit);
         EditText passwd = (EditText) findViewById(R.id.password_edit);
 
-        final Account account = new Account(user.getText().toString(), TomahawkService.ACCOUNT_TYPE);
+        final Account account = new Account(user.getText().toString(),
+                TomahawkService.ACCOUNT_TYPE);
 
         final Bundle result = new Bundle();
         mAccountManager.addAccountExplicitly(account, passwd.getText().toString(), result);
         mAccountManager.setAuthToken(account, TomahawkService.AUTH_TOKEN_TYPE, authToken);
 
-        TomahawkPreferences.setUsernamePassword(user.getText().toString(), passwd.getText().toString());
+        TomahawkPreferences
+                .setUsernamePassword(user.getText().toString(), passwd.getText().toString());
 
         final Intent intent = new Intent();
         intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, TomahawkService.ACCOUNT_NAME);
-        intent.putExtra(AccountManager.KEY_ACCOUNT_TYPE, getResources().getString(R.string.accounttype_string));
+        intent.putExtra(AccountManager.KEY_ACCOUNT_TYPE,
+                getResources().getString(R.string.accounttype_string));
         setAccountAuthenticatorResult(intent.getExtras());
         setResult(RESULT_OK, intent);
         finish();
@@ -206,8 +214,6 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
 
     /**
      * Called when an error ocurred during authentication.
-     * 
-     * @param errorcode
      */
     public void onAuthenticationError(final int errorcode) {
 
@@ -217,20 +223,24 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
         String errormsg = null;
         switch (errorcode) {
 
-        case ERROR_INVALID_CREDENTIALS:
-            errormsg = getResources().getString(R.string.authenticationactivity_invalid_credentials_string);
-            break;
+            case ERROR_INVALID_CREDENTIALS:
+                errormsg = getResources()
+                        .getString(R.string.authenticationactivity_invalid_credentials_string);
+                break;
         }
 
-        if (errormsg == null)
+        if (errormsg == null) {
             return;
+        }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(TomahawkAccountAuthenticatorActivity.this);
-        builder.setMessage(errormsg).setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                dialog.cancel();
-            }
-        });
+        AlertDialog.Builder builder = new AlertDialog.Builder(
+                TomahawkAccountAuthenticatorActivity.this);
+        builder.setMessage(errormsg).setCancelable(false)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
 
         AlertDialog alert = builder.create();
         alert.show();
@@ -248,8 +258,9 @@ public class TomahawkAccountAuthenticatorActivity extends AccountAuthenticatorAc
      * Hides the progress dlg.
      */
     private void hideProgressDialog() {
-        if (mProgressDialog == null)
+        if (mProgressDialog == null) {
             return;
+        }
 
         mProgressDialog.dismiss();
         mProgressDialog = null;

@@ -18,8 +18,6 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import java.io.IOException;
-
 import org.acra.annotation.ReportsCrashes;
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.Source;
@@ -32,7 +30,11 @@ import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 
-import android.accounts.*;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -41,35 +43,51 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.io.IOException;
+
 /**
  * This class contains represents the Application core.
  */
 @ReportsCrashes(formKey = "")
-public class TomahawkApp extends Application implements AccountManagerCallback<Bundle>,
-        TomahawkServiceConnectionListener {
+public class TomahawkApp extends Application
+        implements AccountManagerCallback<Bundle>, TomahawkServiceConnectionListener {
 
     private static final String TAG = TomahawkApp.class.getName();
 
     public static final int RESOLVER_ID_USERCOLLECTION = 0;
+
     public static final int RESOLVER_ID_JAMENDO = 100;
+
     public static final int RESOLVER_ID_OFFICIALFM = 101;
+
     public static final int RESOLVER_ID_EXFM = 102;
+
     public static final int RESOLVER_ID_SOUNDCLOUD = 103;
 
-    private static IntentFilter sCollectionUpdateIntentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
+    private static IntentFilter sCollectionUpdateIntentFilter = new IntentFilter(
+            Collection.COLLECTION_UPDATED);
+
     private CollectionUpdateReceiver mCollectionUpdatedReceiver;
 
     private static Context sApplicationContext;
 
     private AccountManager mAccountManager = null;
+
     private SourceList mSourceList;
+
     private PipeLine mPipeLine;
+
     private long mTrackIdCounter;
+
     private long mAlbumIdCounter;
+
     private long mArtistIdCounter;
+
     private long mQueryIdCounter;
 
-    private TomahawkServiceConnection mTomahawkServiceConnection = new TomahawkServiceConnection(this);
+    private TomahawkServiceConnection mTomahawkServiceConnection = new TomahawkServiceConnection(
+            this);
+
     private TomahawkService mTomahawkService;
 
     /**
@@ -86,8 +104,9 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
          */
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(Collection.COLLECTION_UPDATED))
+            if (intent.getAction().equals(Collection.COLLECTION_UPDATED)) {
                 onCollectionUpdated();
+            }
         }
     }
 
@@ -103,13 +122,16 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
             mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
             registerReceiver(mCollectionUpdatedReceiver, sCollectionUpdateIntentFilter);
         }
-        ScriptResolver scriptResolver = new ScriptResolver(RESOLVER_ID_JAMENDO, this, "js/jamendo/jamendo-resolver.js");
+        ScriptResolver scriptResolver = new ScriptResolver(RESOLVER_ID_JAMENDO, this,
+                "js/jamendo/jamendo-resolver.js");
         mPipeLine.addResolver(scriptResolver);
-        scriptResolver = new ScriptResolver(RESOLVER_ID_OFFICIALFM, this, "js/official.fm/officialfm.js");
+        scriptResolver = new ScriptResolver(RESOLVER_ID_OFFICIALFM, this,
+                "js/official.fm/officialfm.js");
         mPipeLine.addResolver(scriptResolver);
         scriptResolver = new ScriptResolver(RESOLVER_ID_EXFM, this, "js/exfm/exfm.js");
         mPipeLine.addResolver(scriptResolver);
-        scriptResolver = new ScriptResolver(RESOLVER_ID_SOUNDCLOUD, this, "js/soundcloud/soundcloud.js");
+        scriptResolver = new ScriptResolver(RESOLVER_ID_SOUNDCLOUD, this,
+                "js/soundcloud/soundcloud.js");
         mPipeLine.addResolver(scriptResolver);
 
         initialize();
@@ -148,7 +170,7 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
 
     /**
      * Return the list of Sources for this TomahawkApp.
-     * 
+     *
      * @return SourceList
      */
     public SourceList getSourceList() {
@@ -161,17 +183,14 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
 
     /**
      * Returns the context for the application
-     * 
-     * @return
      */
     public static Context getContext() {
         return sApplicationContext;
     }
 
     /**
-     * This method is called when the Authenticator has finished.
-     * why d
-     * Ideally, we start the Tomahawk web service here.
+     * This method is called when the Authenticator has finished. why d Ideally, we start the
+     * Tomahawk web service here.
      */
     @Override
     public void run(AccountManagerFuture<Bundle> result) {
@@ -181,7 +200,8 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
             String token = result.getResult().getString(AccountManager.KEY_AUTHTOKEN);
             String username = result.getResult().getString(AccountManager.KEY_ACCOUNT_NAME);
             if (token == null) {
-                Intent i = new Intent(getApplicationContext(), TomahawkAccountAuthenticatorActivity.class);
+                Intent i = new Intent(getApplicationContext(),
+                        TomahawkAccountAuthenticatorActivity.class);
                 startActivity(i);
             } else {
                 Log.d(TAG, "Starting Tomahawk Service: " + token);

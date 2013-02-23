@@ -27,8 +27,6 @@ public class AlbumPlaylist extends Playlist {
 
     /**
      * Create an AlbumPlaylist from Album.
-     * 
-     * @return
      */
     public static AlbumPlaylist fromAlbum(Album album) {
         AlbumPlaylist pl = new AlbumPlaylist(album.getName());
@@ -38,8 +36,7 @@ public class AlbumPlaylist extends Playlist {
     }
 
     /**
-     * Creates an AlbumPlaylist from Album and sets the current Track to the
-     * Track at idx.
+     * Creates an AlbumPlaylist from Album and sets the current Track to the Track at idx.
      */
     public static AlbumPlaylist fromAlbum(Album album, Track currentTrack) {
         AlbumPlaylist pl = new AlbumPlaylist(album.getName());

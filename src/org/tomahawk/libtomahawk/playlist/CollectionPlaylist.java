@@ -24,8 +24,6 @@ public class CollectionPlaylist extends Playlist {
 
     /**
      * Create a CollectionPlaylist from Collection.
-     * 
-     * @return
      */
     public static CollectionPlaylist fromCollection(Collection coll) {
         CollectionPlaylist pl = new CollectionPlaylist(coll.toString());
@@ -35,8 +33,7 @@ public class CollectionPlaylist extends Playlist {
     }
 
     /**
-     * Creates a CollectionPlaylist from Collection and sets the current Track
-     * to the Track at idx.
+     * Creates a CollectionPlaylist from Collection and sets the current Track to the Track at idx.
      */
     public static CollectionPlaylist fromCollection(Collection coll, Track currentTrack) {
         CollectionPlaylist pl = new CollectionPlaylist(coll.toString());

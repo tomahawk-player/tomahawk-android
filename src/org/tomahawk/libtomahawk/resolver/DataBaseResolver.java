@@ -17,9 +17,6 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.json.JSONObject;
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.TomahawkBaseAdapter;
@@ -32,23 +29,32 @@ import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.widget.Filter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com>
- * Date: 25.01.13
+ * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 25.01.13
  */
 public class DataBaseResolver implements Resolver {
 
     private TomahawkApp mTomahawkApp;
+
     private int mId;
+
     private Collection mCollection;
 
     private String mName;
+
     private Drawable mIcon;
+
     private int mWeight;
+
     private int mTimeout;
+
     private JSONObject mConfig;
 
     private boolean mReady;
+
     private boolean mStopped;
 
     public DataBaseResolver(int id, TomahawkApp tomahawkApp, Collection collection) {
@@ -58,10 +64,11 @@ public class DataBaseResolver implements Resolver {
         mTomahawkApp = tomahawkApp;
         mId = id;
         mName = String.valueOf(collection.getId());
-        if (collection.getId() == UserCollection.Id)
+        if (collection.getId() == UserCollection.Id) {
             mIcon = mTomahawkApp.getResources().getDrawable(R.drawable.ic_action_collection);
-        else
+        } else {
             mIcon = mTomahawkApp.getResources().getDrawable(R.drawable.ic_resolver_default);
+        }
         mCollection = collection;
 
         mReady = true;
@@ -83,33 +90,42 @@ public class DataBaseResolver implements Resolver {
 
     /**
      * resolve the given Query.
+     *
      * @param query the query which should be resolved
      */
     public void resolve(Query query) {
         mStopped = false;
-        if (query.isFullTextQuery())
+        if (query.isFullTextQuery()) {
             new TomahawkListItemFilter(query.getQid(), this, query.getFullTextQuery()).filter(null);
-        else
-            new TomahawkListItemFilter(query.getQid(), this, query.getTrackName(), query.getAlbumName(),
-                    query.getArtistName()).filter(null);
+        } else {
+            new TomahawkListItemFilter(query.getQid(), this, query.getTrackName(),
+                    query.getAlbumName(), query.getArtistName()).filter(null);
+        }
     }
 
     private class TomahawkListItemFilter extends Filter {
+
         private String mQid;
+
         private Resolver mResolver;
+
         private String mFullTextQuery = "";
+
         private String mTrackName = "";
+
         private String mAlbumName = "";
+
         private String mArtistName = "";
 
-        public TomahawkListItemFilter(final String qid, final Resolver resolver, final String fullTextQuery) {
+        public TomahawkListItemFilter(final String qid, final Resolver resolver,
+                final String fullTextQuery) {
             mQid = qid;
             mResolver = resolver;
             mFullTextQuery = fullTextQuery.toLowerCase().trim();
         }
 
-        public TomahawkListItemFilter(final String qid, final Resolver resolver, final String trackName,
-                final String albumName, final String artistName) {
+        public TomahawkListItemFilter(final String qid, final Resolver resolver,
+                final String trackName, final String albumName, final String artistName) {
             mQid = qid;
             mResolver = resolver;
             mTrackName = trackName.toLowerCase().trim();
@@ -139,30 +155,31 @@ public class DataBaseResolver implements Resolver {
 
         protected ArrayList<Result> getFilteredResults() {
             ArrayList<Result> filteredResults = new ArrayList<Result>();
-            if (TextUtils.isEmpty(mFullTextQuery) && TextUtils.isEmpty(mTrackName) && TextUtils.isEmpty(mAlbumName)
-                    && TextUtils.isEmpty(mArtistName))
+            if (TextUtils.isEmpty(mFullTextQuery) && TextUtils.isEmpty(mTrackName) && TextUtils
+                    .isEmpty(mAlbumName) && TextUtils.isEmpty(mArtistName)) {
                 return filteredResults;
-            List<TomahawkBaseAdapter.TomahawkListItem> inputList = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+            }
+            List<TomahawkBaseAdapter.TomahawkListItem> inputList
+                    = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
             inputList.addAll(mCollection.getTracks());
 
             for (int i = 0; i < inputList.size(); i++) {
                 TomahawkBaseAdapter.TomahawkListItem item = inputList.get(i);
                 if (!TextUtils.isEmpty(mFullTextQuery)) {
-                    if (item.getName().toLowerCase().contains(mFullTextQuery)
-                            || (item.getArtist() != null && item.getArtist().getName().toLowerCase().contains(
-                                    mFullTextQuery))
-                            || (item.getAlbum() != null && item.getAlbum().getName().toLowerCase().contains(
-                                    mFullTextQuery))) {
+                    if (item.getName().toLowerCase().contains(mFullTextQuery) || (
+                            item.getArtist() != null && item.getArtist().getName().toLowerCase()
+                                    .contains(mFullTextQuery)) || (item.getAlbum() != null && item
+                            .getAlbum().getName().toLowerCase().contains(mFullTextQuery))) {
                         Result r;
                         r = new Result((Track) item);
                         r.setResolver(mResolver);
                         filteredResults.add(r);
                     }
                 } else {
-                    if (item.getName().toLowerCase().contains(mTrackName)
-                            || (item.getArtist() != null && item.getArtist().getName().toLowerCase().contains(
-                                    mArtistName))
-                            || (item.getAlbum() != null && item.getAlbum().getName().toLowerCase().contains(mAlbumName))) {
+                    if (item.getName().toLowerCase().contains(mTrackName) || (
+                            item.getArtist() != null && item.getArtist().getName().toLowerCase()
+                                    .contains(mArtistName)) || (item.getAlbum() != null && item
+                            .getAlbum().getName().toLowerCase().contains(mAlbumName))) {
                         Result r;
                         r = new Result((Track) item);
                         r.setResolver(mResolver);
@@ -178,7 +195,7 @@ public class DataBaseResolver implements Resolver {
         return mId;
     }
 
-    public int getWeight(){
+    public int getWeight() {
         return mWeight;
     }
 }

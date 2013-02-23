@@ -25,6 +25,7 @@ import java.util.Comparator;
 public class ArtistComparator implements Comparator<Artist> {
 
     public static final int COMPARE_ALPHA = 1;
+
     public static final int COMPARE_SCORE = 2;
 
     private static int mFlag = COMPARE_ALPHA;
@@ -38,13 +39,13 @@ public class ArtistComparator implements Comparator<Artist> {
 
         switch (mFlag) {
 
-        case COMPARE_ALPHA:
-            return a1.getName().compareTo(a2.getName());
+            case COMPARE_ALPHA:
+                return a1.getName().compareTo(a2.getName());
 
-        case COMPARE_SCORE:
-            Float score1 = a1.getScore();
-            Float score2 = a2.getScore();
-            return score2.compareTo(score1);
+            case COMPARE_SCORE:
+                Float score1 = a1.getScore();
+                Float score2 = a2.getScore();
+                return score2.compareTo(score1);
 
         }
 

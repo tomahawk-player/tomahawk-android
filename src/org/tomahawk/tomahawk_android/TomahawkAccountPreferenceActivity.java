@@ -31,15 +31,15 @@ public class TomahawkAccountPreferenceActivity extends SherlockPreferenceActivit
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        
+
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
-		
+
         addPreferencesFromResource(R.xml.account_preferences);
     }
-    
+
     /* 
      * (non-Javadoc)
      * @see com.actionbarsherlock.app.SherlockFragmentActivity#onOptionsItemSelected(android.view.MenuItem)

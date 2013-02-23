@@ -20,8 +20,7 @@ package org.tomahawk.libtomahawk.resolver;
 import android.graphics.drawable.Drawable;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com>
- * Date: 25.01.13
+ * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 25.01.13
  */
 public interface Resolver {
 

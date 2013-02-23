@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android" android:exitFadeDuration="@android:integer/config_mediumAnimTime">
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+          android:exitFadeDuration="@android:integer/config_mediumAnimTime">
 
-    <item android:drawable="@drawable/list_focused_tomahawk" android:state_focused="true" android:state_pressed="false"/>
-    <item android:drawable="@drawable/pressed_background_playback_large_land_tomahawk" android:state_pressed="true"/>
+    <item android:drawable="@drawable/list_focused_tomahawk" android:state_focused="true"
+          android:state_pressed="false"/>
+    <item android:drawable="@drawable/pressed_background_playback_large_land_tomahawk"
+          android:state_pressed="true"/>
     <item android:drawable="@android:color/transparent"/>
 
 </selector>

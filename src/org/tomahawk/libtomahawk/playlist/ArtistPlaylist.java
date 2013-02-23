@@ -27,8 +27,6 @@ public class ArtistPlaylist extends Playlist {
 
     /**
      * Create an ArtistPlaylist from Artist.
-     * 
-     * @return
      */
     public static ArtistPlaylist fromArtist(Artist artist) {
         ArtistPlaylist pl = new ArtistPlaylist(artist.getName());
@@ -38,8 +36,7 @@ public class ArtistPlaylist extends Playlist {
     }
 
     /**
-     * Creates an ArtistPlaylist from Artist and sets the current Track to the
-     * Track at idx.
+     * Creates an ArtistPlaylist from Artist and sets the current Track to the Track at idx.
      */
     public static ArtistPlaylist fromArtist(Artist artist, Track currentTrack) {
         ArtistPlaylist pl = new ArtistPlaylist(artist.getName());
@@ -50,8 +47,6 @@ public class ArtistPlaylist extends Playlist {
 
     /**
      * Constructor.
-     * 
-     * @param name
      */
     protected ArtistPlaylist(String name) {
         super(name);

@@ -17,9 +17,6 @@
  */
 package org.tomahawk.libtomahawk.network;
 
-import java.io.InputStream;
-import java.security.KeyStore;
-
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
@@ -30,6 +27,9 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.HttpParams;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+
+import java.io.InputStream;
+import java.security.KeyStore;
 
 public class TomahawkHttpClient extends DefaultHttpClient {
 

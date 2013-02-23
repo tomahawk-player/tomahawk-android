@@ -17,10 +17,6 @@
  */
 package org.tomahawk.libtomahawk.test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import junit.framework.Assert;
 
 import org.tomahawk.libtomahawk.Album;
@@ -32,10 +28,16 @@ import android.database.Cursor;
 import android.provider.MediaStore;
 import android.test.AndroidTestCase;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 public class LocalCollectionTest extends AndroidTestCase {
 
     private Map<Long, Artist> testArtists;
+
     private Map<Long, Album> testAlbums;
+
     private Map<Long, Track> testTracks;
 
     public void setUp() {
@@ -95,14 +97,15 @@ public class LocalCollectionTest extends AndroidTestCase {
 
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
 
-        String[] projection = { MediaStore.Audio.Media._ID, MediaStore.Audio.Media.DATA,
+        String[] projection = {MediaStore.Audio.Media._ID, MediaStore.Audio.Media.DATA,
                 MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.DURATION,
                 MediaStore.Audio.Media.TRACK, MediaStore.Audio.Media.ARTIST_ID,
                 MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM_ID,
-                MediaStore.Audio.Media.ALBUM };
+                MediaStore.Audio.Media.ALBUM};
 
-        Cursor cursor = getContext().getContentResolver().query(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, selection, null, null);
+        Cursor cursor = getContext().getContentResolver()
+                .query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, selection, null,
+                        null);
 
         while (cursor != null && cursor.moveToNext()) {
             Artist artist = testArtists.get(cursor.getLong(5));
@@ -118,15 +121,15 @@ public class LocalCollectionTest extends AndroidTestCase {
                 album = new Album(cursor.getLong(7));
                 album.setName(cursor.getString(8));
 
-                String albumsel = MediaStore.Audio.Albums._ID + " == "
-                        + Long.toString(album.getId());
+                String albumsel = MediaStore.Audio.Albums._ID + " == " + Long
+                        .toString(album.getId());
 
-                String[] albumproj = { MediaStore.Audio.Albums.ALBUM_ART,
-                        MediaStore.Audio.Albums.FIRST_YEAR, MediaStore.Audio.Albums.LAST_YEAR };
+                String[] albumproj = {MediaStore.Audio.Albums.ALBUM_ART,
+                        MediaStore.Audio.Albums.FIRST_YEAR, MediaStore.Audio.Albums.LAST_YEAR};
 
-                Cursor albumcursor = getContext().getContentResolver().query(
-                        MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, albumproj, albumsel, null,
-                        null);
+                Cursor albumcursor = getContext().getContentResolver()
+                        .query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, albumproj, albumsel,
+                                null, null);
 
                 if (albumcursor != null && albumcursor.moveToNext()) {
 

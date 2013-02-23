@@ -8,10 +8,10 @@
  * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
  * Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -20,23 +20,6 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package com.codebutler.android_websockets;
-
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.URI;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
-
-import javax.net.SocketFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
 
 import org.apache.http.Header;
 import org.apache.http.HttpException;
@@ -55,18 +38,43 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.URI;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+
+import javax.net.SocketFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+
 @SuppressLint("NewApi")
 public class WebSocketClient {
+
     private static final String TAG = "WebSocketClient";
 
-    private URI                      mURI;
-    private Listener                 mListener;
-    private Socket                   mSocket;
-    private Thread                   mThread;
-    private HandlerThread            mHandlerThread;
-    private Handler                  mHandler;
+    private URI mURI;
+
+    private Listener mListener;
+
+    private Socket mSocket;
+
+    private Thread mThread;
+
+    private HandlerThread mHandlerThread;
+
+    private Handler mHandler;
+
     private List<BasicNameValuePair> mExtraHeaders;
-    private HybiParser               mParser;
+
+    private HybiParser mParser;
 
     private final Object mSendLock = new Object();
 
@@ -77,10 +85,10 @@ public class WebSocketClient {
     }
 
     public WebSocketClient(URI uri, Listener listener, List<BasicNameValuePair> extraHeaders) {
-        mURI          = uri;
+        mURI = uri;
         mListener = listener;
         mExtraHeaders = extraHeaders;
-        mParser       = new HybiParser(this);
+        mParser = new HybiParser(this);
 
         mHandlerThread = new HandlerThread("websocket-thread");
         mHandlerThread.start();
@@ -100,7 +108,8 @@ public class WebSocketClient {
             @Override
             public void run() {
                 try {
-                    int port = (mURI.getPort() != -1) ? mURI.getPort() : (mURI.getScheme().equals("wss") ? 443 : 80);
+                    int port = (mURI.getPort() != -1) ? mURI.getPort()
+                            : (mURI.getScheme().equals("wss") ? 443 : 80);
 
                     String path = TextUtils.isEmpty(mURI.getPath()) ? "/" : mURI.getPath();
                     if (!TextUtils.isEmpty(mURI.getQuery())) {
@@ -110,12 +119,15 @@ public class WebSocketClient {
                     String originScheme = mURI.getScheme().equals("wss") ? "https" : "http";
                     URI origin = new URI(originScheme, "//" + mURI.getHost(), null);
 
-                    SocketFactory factory = mURI.getScheme().equals("wss") ? getSSLSocketFactory() : SocketFactory.getDefault();
+                    SocketFactory factory = mURI.getScheme().equals("wss") ? getSSLSocketFactory()
+                            : SocketFactory.getDefault();
                     mSocket = factory.createSocket(mURI.getHost(), port);
 
                     /** In use by tomahawk */
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+                    if (android.os.Build.VERSION.SDK_INT
+                            >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                         TrafficStats.tagSocket(mSocket);
+                    }
 
                     PrintWriter out = new PrintWriter(mSocket.getOutputStream());
                     out.print("GET " + path + " HTTP/1.1\r\n");
@@ -133,14 +145,16 @@ public class WebSocketClient {
                     out.print("\r\n");
                     out.flush();
 
-                    HybiParser.HappyDataInputStream stream = new HybiParser.HappyDataInputStream(mSocket.getInputStream());
+                    HybiParser.HappyDataInputStream stream = new HybiParser.HappyDataInputStream(
+                            mSocket.getInputStream());
 
                     // Read HTTP response status line.
                     StatusLine statusLine = parseStatusLine(readLine(stream));
                     if (statusLine == null) {
                         throw new HttpException("Received no reply from server.");
                     } else if (statusLine.getStatusCode() != HttpStatus.SC_SWITCHING_PROTOCOLS) {
-                        throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
+                        throw new HttpResponseException(statusLine.getStatusCode(),
+                                statusLine.getReasonPhrase());
                     }
 
                     // Read HTTP response headers.
@@ -244,7 +258,8 @@ public class WebSocketClient {
             public void run() {
 
                 /** In use by tomahawk */
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                if (android.os.Build.VERSION.SDK_INT
+                        >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                     TrafficStats.setThreadStatsTag(0x00E);
                     try {
                         TrafficStats.tagSocket(mSocket);
@@ -263,7 +278,8 @@ public class WebSocketClient {
                     mListener.onError(e);
                 } finally {
 
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                    if (android.os.Build.VERSION.SDK_INT
+                            >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 
                         try {
                             TrafficStats.untagSocket(mSocket);
@@ -277,14 +293,20 @@ public class WebSocketClient {
     }
 
     public interface Listener {
+
         public void onConnect();
+
         public void onMessage(String message);
+
         public void onMessage(byte[] data);
+
         public void onDisconnect(int code, String reason);
+
         public void onError(Exception error);
     }
 
-    private SSLSocketFactory getSSLSocketFactory() throws NoSuchAlgorithmException, KeyManagementException {
+    private SSLSocketFactory getSSLSocketFactory()
+            throws NoSuchAlgorithmException, KeyManagementException {
         SSLContext context = SSLContext.getInstance("TLS");
         context.init(null, sTrustManagers, null);
         return context.getSocketFactory();

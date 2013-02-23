@@ -29,58 +29,58 @@
               android:descendantFocusability="blocksDescendants">
 
     <org.tomahawk.tomahawk_android.SquareWidthRelativeLayout
-        android:layout_width="44dip"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone">
+            android:layout_width="44dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone">
 
         <ImageView
-            android:id="@+id/double_line_list_imageview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:adjustViewBounds="true"
-            android:scaleType="centerCrop"/>
+                android:id="@+id/double_line_list_imageview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"/>
     </org.tomahawk.tomahawk_android.SquareWidthRelativeLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:paddingBottom="2dip"
-        android:paddingTop="2dip"
-        android:paddingLeft="10dip">
-
-        <TextView
-            android:id="@+id/double_line_list_textview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:singleLine="true"
-            android:textColor="#FFFFFF"
-            android:textSize="8pt"/>
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingBottom="2dip"
+            android:paddingTop="2dip"
+            android:paddingLeft="10dip">
 
         <TextView
-            android:id="@+id/double_line_list_textview2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:singleLine="true"
-            android:textSize="6pt"/>
+                android:id="@+id/double_line_list_textview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:textColor="#FFFFFF"
+                android:textSize="8pt"/>
+
+        <TextView
+                android:id="@+id/double_line_list_textview2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:textSize="6pt"/>
     </LinearLayout>
 
     <org.tomahawk.tomahawk_android.SquareWidthRelativeLayout
-        android:layout_width="44dip"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_gravity="center"
-        android:visibility="gone">
+            android:layout_width="44dip"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="center"
+            android:visibility="gone">
 
         <ImageView
-            android:id="@+id/double_line_list_imageview2"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="7dip"
-            android:adjustViewBounds="true"
-            android:scaleType="centerCrop"/>
+                android:id="@+id/double_line_list_imageview2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="7dip"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"/>
     </org.tomahawk.tomahawk_android.SquareWidthRelativeLayout>
 </LinearLayout>

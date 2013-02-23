@@ -17,9 +17,9 @@
  */
 package org.tomahawk.libtomahawk.playlist;
 
-import java.util.Collection;
-
 import org.tomahawk.libtomahawk.Track;
+
+import java.util.Collection;
 
 /**
  * A simple interface to represent a collection of 0 or more Tracks.
@@ -28,73 +28,51 @@ public interface Playable {
 
     /**
      * Set the tracks for this PlayableInterface.
-     * 
-     * @param tracks
      */
     public void setTracks(Collection<Track> tracks);
 
     /**
-     * Set the current Track to track.
-     * If Track cannot be found the current Track stays the same.
-     * 
-     * @param track
+     * Set the current Track to track. If Track cannot be found the current Track stays the same.
      */
     public void setCurrentTrack(Track track);
 
     /**
      * Return the current Track for this PlayableInterface.
-     * 
-     * @return
      */
     public Track getCurrentTrack();
 
     /**
      * Return the next Track for this PlayableInterface.
-     * 
-     * @return
      */
     public Track getNextTrack();
 
     /**
      * Return the previous Track for this PlayableInterface.
-     * 
-     * @return
      */
     public Track getPreviousTrack();
 
     /**
      * Return the Track at pos i.
-     * 
-     * @param i
-     * @return
      */
     public Track getTrackAtPos(int i);
 
     /**
      * Return the first Track in this PlayableInterface.
-     * 
-     * @return
      */
     public Track getFirstTrack();
 
     /**
      * Return the last Track in this PlayableInterface.
-     * 
-     * @return
      */
     public Track getLastTrack();
 
     /**
      * Returns true if the PlayableInterface has a next Track.
-     * 
-     * @return
      */
     public boolean hasNextTrack();
 
     /**
      * Returns true if the PlayableInterface has a previous Track.
-     * 
-     * @return
      */
     public boolean hasPreviousTrack();
 }

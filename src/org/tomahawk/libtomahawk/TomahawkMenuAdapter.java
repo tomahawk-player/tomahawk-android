@@ -17,9 +17,6 @@
  */
 package org.tomahawk.libtomahawk;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.tomahawk.tomahawk_android.R;
 
 import android.app.Activity;
@@ -30,27 +27,31 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Enno Gottschalk <mrmaffen@googlemail.com>
- *
  */
-public class TomahawkMenuAdapter extends BaseAdapter{
+public class TomahawkMenuAdapter extends BaseAdapter {
 
     protected final Activity mActivity;
 
     private List<String> mStringArray = new ArrayList<String>();
+
     private List<Integer> mIconArray = new ArrayList<Integer>();
 
     /**
      * Constructs a new {@link TomahawkMenuAdapter}
-     * 
      */
     public TomahawkMenuAdapter(Activity activity, String[] stringArray, TypedArray iconArray) {
         mActivity = activity;
-        for (int i = 0; i < stringArray.length; i++)
+        for (int i = 0; i < stringArray.length; i++) {
             mStringArray.add(stringArray[i]);
-        for (int i = 0; i < iconArray.length(); i++)
+        }
+        for (int i = 0; i < iconArray.length(); i++) {
             mIconArray.add(iconArray.getResourceId(i, 0));
+        }
     }
 
     /* 
@@ -91,10 +92,12 @@ public class TomahawkMenuAdapter extends BaseAdapter{
         ImageView imageView = (ImageView) view.findViewById(R.id.icon_menu_imageview);
         String string = mStringArray.get(position);
         Integer icon = mIconArray.get(position);
-        if (string != null)
+        if (string != null) {
             textView.setText(string);
-        if (icon != null)
+        }
+        if (icon != null) {
             imageView.setBackgroundResource(icon);
+        }
         return view;
     }
 

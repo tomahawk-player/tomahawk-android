@@ -18,7 +18,10 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import java.util.ArrayList;
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.SourceList;
@@ -43,26 +46,32 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
+import java.util.ArrayList;
 
-public class CollectionActivity extends TomahawkTabsActivity implements PlaybackServiceConnectionListener {
+public class CollectionActivity extends TomahawkTabsActivity
+        implements PlaybackServiceConnectionListener {
 
     public static final String COLLECTION_ID_EXTRA = "collection_id";
+
     public static final String COLLECTION_ID_ALBUM = "collection_album_id";
+
     public static final String COLLECTION_ID_ARTIST = "collection_artist_id";
+
     public static final String COLLECTION_ID_STOREDBACKSTACK = "collection_id_storedbackstack";
 
     protected static final int LOCAL_COLLECTION_TAB_POSITION = 0;
 
     private PlaybackService mPlaybackService;
+
     private TabsAdapter mTabsAdapter;
+
     private Collection mCollection;
+
     private View mNowPlayingView;
 
-    private PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(this);
+    private PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(
+            this);
+
     private CollectionActivityBroadcastReceiver mCollectionActivityBroadcastReceiver;
 
     private class CollectionActivityBroadcastReceiver extends BroadcastReceiver {
@@ -74,8 +83,9 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(PlaybackService.BROADCAST_NEWTRACK)) {
-                if (mPlaybackService != null)
+                if (mPlaybackService != null) {
                     setNowPlayingInfo(mPlaybackService.getCurrentTrack());
+                }
             }
         }
     }
@@ -100,14 +110,17 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
         mTabsAdapter = new TabsAdapter(this, getSupportFragmentManager(), viewPager, true);
-        mTabsAdapter.addTab(actionBar.newTab().setText(R.string.localcollectionactivity_title_string));
+        mTabsAdapter
+                .addTab(actionBar.newTab().setText(R.string.localcollectionactivity_title_string));
         if (savedInstanceState == null) {
             mTabsAdapter.addRootToTab(LocalCollectionFragment.class);
         } else {
-            ArrayList<TabsAdapter.TabHolder> fragmentStateHolderStack = (ArrayList<TabsAdapter.TabHolder>) savedInstanceState.getSerializable(COLLECTION_ID_STOREDBACKSTACK);
-            if (fragmentStateHolderStack != null && fragmentStateHolderStack.size() > 0)
+            ArrayList<TabsAdapter.TabHolder> fragmentStateHolderStack
+                    = (ArrayList<TabsAdapter.TabHolder>) savedInstanceState
+                    .getSerializable(COLLECTION_ID_STOREDBACKSTACK);
+            if (fragmentStateHolderStack != null && fragmentStateHolderStack.size() > 0) {
                 mTabsAdapter.setBackStack(fragmentStateHolderStack);
-            else {
+            } else {
                 mTabsAdapter.addRootToTab(LocalCollectionFragment.class);
             }
         }
@@ -115,13 +128,15 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
         if (intent.hasExtra(COLLECTION_ID_ALBUM)) {
             Long albumId = intent.getLongExtra(COLLECTION_ID_ALBUM, 0);
             intent.removeExtra(COLLECTION_ID_ALBUM);
-            getTabsAdapter().addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, TracksFragment.class, albumId,
-                    TomahawkFragment.TOMAHAWK_ALBUM_ID);
+            getTabsAdapter()
+                    .addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, TracksFragment.class,
+                            albumId, TomahawkFragment.TOMAHAWK_ALBUM_ID);
         } else if (intent.hasExtra(COLLECTION_ID_ARTIST)) {
             Long artistId = intent.getLongExtra(COLLECTION_ID_ARTIST, 0);
             intent.removeExtra(COLLECTION_ID_ARTIST);
-            getTabsAdapter().addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, AlbumsFragment.class, artistId,
-                    TomahawkFragment.TOMAHAWK_ARTIST_ID);
+            getTabsAdapter()
+                    .addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, AlbumsFragment.class,
+                            artistId, TomahawkFragment.TOMAHAWK_ARTIST_ID);
         }
         mTabsAdapter.notifyDataSetChanged();
     }
@@ -147,24 +162,28 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
         SourceList sl = ((TomahawkApp) getApplication()).getSourceList();
         Intent intent = getIntent();
         mCollection = sl.getCollectionFromId(intent.getIntExtra(COLLECTION_ID_EXTRA, 0));
-        if (mPlaybackService != null)
+        if (mPlaybackService != null) {
             setNowPlayingInfo(mPlaybackService.getCurrentTrack());
+        }
 
-        if (mCollectionActivityBroadcastReceiver == null)
+        if (mCollectionActivityBroadcastReceiver == null) {
             mCollectionActivityBroadcastReceiver = new CollectionActivityBroadcastReceiver();
+        }
         IntentFilter intentFilter = new IntentFilter(PlaybackService.BROADCAST_NEWTRACK);
         registerReceiver(mCollectionActivityBroadcastReceiver, intentFilter);
 
         if (intent.hasExtra(COLLECTION_ID_ALBUM)) {
             Long albumId = intent.getLongExtra(COLLECTION_ID_ALBUM, 0);
             intent.removeExtra(COLLECTION_ID_ALBUM);
-            getTabsAdapter().addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, TracksFragment.class, albumId,
-                    TomahawkFragment.TOMAHAWK_ALBUM_ID);
+            getTabsAdapter()
+                    .addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, TracksFragment.class,
+                            albumId, TomahawkFragment.TOMAHAWK_ALBUM_ID);
         } else if (intent.hasExtra(COLLECTION_ID_ARTIST)) {
             Long artistId = intent.getLongExtra(COLLECTION_ID_ARTIST, 0);
             intent.removeExtra(COLLECTION_ID_ARTIST);
-            getTabsAdapter().addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, AlbumsFragment.class, artistId,
-                    TomahawkFragment.TOMAHAWK_ARTIST_ID);
+            getTabsAdapter()
+                    .addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, AlbumsFragment.class,
+                            artistId, TomahawkFragment.TOMAHAWK_ARTIST_ID);
         }
         mTabsAdapter.notifyDataSetChanged();
     }
@@ -188,8 +207,9 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
     public void onStop() {
         super.onStop();
 
-        if (mPlaybackService != null)
+        if (mPlaybackService != null) {
             unbindService(mPlaybackServiceConnection);
+        }
     }
 
     @Override
@@ -226,11 +246,13 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getSupportMenuInflater();
         inflater.inflate(R.menu.collection_menu, menu);
-        RelativeLayout relativeLayout = (RelativeLayout) menu.findItem(R.id.now_playing_layout_item).getActionView();
+        RelativeLayout relativeLayout = (RelativeLayout) menu.findItem(R.id.now_playing_layout_item)
+                .getActionView();
         mNowPlayingView = getLayoutInflater().inflate(R.layout.now_playing, null);
         relativeLayout.addView(mNowPlayingView);
-        if (mPlaybackService != null)
+        if (mPlaybackService != null) {
             setNowPlayingInfo(mPlaybackService.getCurrentTrack());
+        }
 
         return true;
     }
@@ -289,7 +311,7 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
 
     /**
      * Called when the back {@link Button} is pressed
-     * @param view */
+     */
     public void onBackPressed(View view) {
         onBackPressed();
     }
@@ -300,7 +322,6 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
 
     /**
      * Called when the nowPlayingInfo is clicked
-     * 
      */
     public void onNowPlayingClicked(View view) {
         Intent playbackIntent = getIntent(this, PlaybackActivity.class);
@@ -311,7 +332,7 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
      * Return the {@link Intent} defined by the given parameters
      *
      * @param context the context with which the intent will be created
-     * @param cls the class which contains the activity to launch
+     * @param cls     the class which contains the activity to launch
      * @return the created intent
      */
     private static Intent getIntent(Context context, Class<?> cls) {
@@ -322,28 +343,33 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
 
     /**
      * Sets the playback information
-     * 
-     * @param track
      */
     public void setNowPlayingInfo(Track track) {
-        if (mNowPlayingView == null)
+        if (mNowPlayingView == null) {
             supportInvalidateOptionsMenu();
+        }
         if (mNowPlayingView != null) {
             mNowPlayingView.setClickable(false);
 
             if (track != null) {
-                ImageView nowPlayingInfoAlbumArt = (ImageView) mNowPlayingView.findViewById(R.id.now_playing_album_art);
-                TextView nowPlayingInfoArtist = (TextView) mNowPlayingView.findViewById(R.id.now_playing_artist);
-                TextView nowPlayingInfoTitle = (TextView) mNowPlayingView.findViewById(R.id.now_playing_title);
+                ImageView nowPlayingInfoAlbumArt = (ImageView) mNowPlayingView
+                        .findViewById(R.id.now_playing_album_art);
+                TextView nowPlayingInfoArtist = (TextView) mNowPlayingView
+                        .findViewById(R.id.now_playing_artist);
+                TextView nowPlayingInfoTitle = (TextView) mNowPlayingView
+                        .findViewById(R.id.now_playing_title);
                 Bitmap albumArt = null;
-                if (track.getAlbum() != null)
+                if (track.getAlbum() != null) {
                     albumArt = track.getAlbum().getAlbumArt();
-                if (nowPlayingInfoAlbumArt != null && nowPlayingInfoArtist != null && nowPlayingInfoTitle != null) {
-                    if (albumArt != null)
+                }
+                if (nowPlayingInfoAlbumArt != null && nowPlayingInfoArtist != null
+                        && nowPlayingInfoTitle != null) {
+                    if (albumArt != null) {
                         nowPlayingInfoAlbumArt.setImageBitmap(albumArt);
-                    else
-                        nowPlayingInfoAlbumArt.setImageDrawable(getResources().getDrawable(
-                                R.drawable.no_album_art_placeholder));
+                    } else {
+                        nowPlayingInfoAlbumArt.setImageDrawable(
+                                getResources().getDrawable(R.drawable.no_album_art_placeholder));
+                    }
                     nowPlayingInfoArtist.setText(track.getArtist().toString());
                     nowPlayingInfoTitle.setText(track.getName());
                     mNowPlayingView.setClickable(true);
@@ -354,7 +380,7 @@ public class CollectionActivity extends TomahawkTabsActivity implements Playback
 
     /**
      * Returns this {@link Activity}s current {@link Collection}.
-     * 
+     *
      * @return the current {@link Collection} in this {@link Activity}.
      */
     public Collection getCollection() {

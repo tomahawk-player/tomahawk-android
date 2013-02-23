@@ -17,9 +17,6 @@
  */
 package org.tomahawk.libtomahawk;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.tomahawk.tomahawk_android.R;
 
 import android.app.Activity;
@@ -29,9 +26,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Enno Gottschalk <mrmaffen@googlemail.com>
- *
  */
 public class TomahawkGridAdapter extends TomahawkBaseAdapter {
 
@@ -39,29 +38,33 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
 
     /**
      * Constructs a new {@link TomahawkGridAdapter}
-     * 
-     * @param activity the activity, which uses the {@link TomahawkListAdapter}. Used to get the {@link LayoutInflater}
-     * @param resourceGridItem the resource id for the view, that displays the album art image
-     * @param imageViewResourceGridItem the resource id for the imageView inside resourceListItem that displays the
-     * albumArt bitmap
-     * @param textViewResourceGridItemId1 the resource id for the textView inside resourceListItem that displays the
-     * first line of text
-     * @param textViewResourceGridItemId2 the resource id for the textView inside resourceListItem that displays the
-     * second line of text
-     * @param list contains a list of TomahawkListItems.
+     *
+     * @param activity                    the activity, which uses the {@link TomahawkListAdapter}.
+     *                                    Used to get the {@link LayoutInflater}
+     * @param resourceGridItem            the resource id for the view, that displays the album art
+     *                                    image
+     * @param imageViewResourceGridItem   the resource id for the imageView inside resourceListItem
+     *                                    that displays the albumArt bitmap
+     * @param textViewResourceGridItemId1 the resource id for the textView inside resourceListItem
+     *                                    that displays the first line of text
+     * @param textViewResourceGridItemId2 the resource id for the textView inside resourceListItem
+     *                                    that displays the second line of text
+     * @param list                        contains a list of TomahawkListItems.
      */
-    public TomahawkGridAdapter(Activity activity, int resourceGridItem, int imageViewResourceGridItem,
-            int textViewResourceGridItemId1, int textViewResourceGridItemId2, List<TomahawkListItem> list) {
+    public TomahawkGridAdapter(Activity activity, int resourceGridItem,
+            int imageViewResourceGridItem, int textViewResourceGridItemId1,
+            int textViewResourceGridItemId2, List<TomahawkListItem> list) {
         mActivity = activity;
-        setGridItemResources(resourceGridItem, imageViewResourceGridItem, textViewResourceGridItemId1,
-                textViewResourceGridItemId2);
+        setGridItemResources(resourceGridItem, imageViewResourceGridItem,
+                textViewResourceGridItemId1, textViewResourceGridItemId2);
         mListArray = new ArrayList<List<TomahawkListItem>>();
         mListArray.add(list);
     }
 
-    public void setGridItemResources(int resourceGridItem, int imageViewResourcesGridItemId, int textViewResourceGridItemId1, int textViewResourceGridItemId2) {
-        mGridItemResourceHolder = new ResourceHolder(resourceGridItem, imageViewResourcesGridItemId, -1,
-                textViewResourceGridItemId1, textViewResourceGridItemId2);
+    public void setGridItemResources(int resourceGridItem, int imageViewResourcesGridItemId,
+            int textViewResourceGridItemId1, int textViewResourceGridItemId2) {
+        mGridItemResourceHolder = new ResourceHolder(resourceGridItem, imageViewResourcesGridItemId,
+                -1, textViewResourceGridItemId1, textViewResourceGridItemId2);
     }
 
     /*
@@ -75,9 +78,11 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
 
         if (item != null) {
             ViewHolder viewHolder;
-            if ((item instanceof TomahawkListItem && convertView == null)
-                    || (item instanceof TomahawkListItem && ((ViewHolder) convertView.getTag()).viewType != R.id.tomahawklistadapter_viewtype_griditem)) {
-                view = mActivity.getLayoutInflater().inflate(mGridItemResourceHolder.resourceId, null);
+            if ((item instanceof TomahawkListItem && convertView == null) || (
+                    item instanceof TomahawkListItem && ((ViewHolder) convertView.getTag()).viewType
+                            != R.id.tomahawklistadapter_viewtype_griditem)) {
+                view = mActivity.getLayoutInflater()
+                        .inflate(mGridItemResourceHolder.resourceId, null);
                 viewHolder = new ViewHolder(R.id.tomahawklistadapter_viewtype_griditem,
                         (ImageView) view.findViewById(mGridItemResourceHolder.imageViewId),
                         (TextView) view.findViewById(mGridItemResourceHolder.textViewId1),
@@ -102,8 +107,9 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
      */
     @Override
     public int getCount() {
-        if ((mFiltered ? mFilteredListArray : mListArray) == null)
+        if ((mFiltered ? mFilteredListArray : mListArray) == null) {
             return 0;
+        }
         int displayedListArrayItemsCount = 0;
         for (List<TomahawkListItem> list : (mFiltered ? mFilteredListArray : mListArray)) {
             displayedListArrayItemsCount += list.size();
