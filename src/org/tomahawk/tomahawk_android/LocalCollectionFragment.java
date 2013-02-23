@@ -17,6 +17,8 @@
  */
 package org.tomahawk.tomahawk_android;
 
+import com.actionbarsherlock.app.SherlockListFragment;
+
 import org.tomahawk.libtomahawk.TomahawkMenuAdapter;
 
 import android.app.Activity;
@@ -27,14 +29,13 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-
 /**
  * Fragment which represents the "UserCollection" tabview.
  */
 public class LocalCollectionFragment extends SherlockListFragment implements OnItemClickListener {
 
     private TomahawkMenuAdapter mLocalCollectionMenuAdapter;
+
     protected CollectionActivity mCollectionActivity;
 
     /* 
@@ -42,7 +43,8 @@ public class LocalCollectionFragment extends SherlockListFragment implements OnI
      * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
      */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
         return inflater.inflate(R.layout.menu_layout, null, false);
     }
 
@@ -56,9 +58,9 @@ public class LocalCollectionFragment extends SherlockListFragment implements OnI
         super.onActivityCreated(savedInstanceState);
 
         getListView().setOnItemClickListener(this);
-        mLocalCollectionMenuAdapter = new TomahawkMenuAdapter(getActivity(), getResources().getStringArray(
-                R.array.local_collection_menu_items), getResources().obtainTypedArray(
-                R.array.local_collection_menu_items_icons));
+        mLocalCollectionMenuAdapter = new TomahawkMenuAdapter(getActivity(),
+                getResources().getStringArray(R.array.local_collection_menu_items),
+                getResources().obtainTypedArray(R.array.local_collection_menu_items_icons));
         setListAdapter(mLocalCollectionMenuAdapter);
     }
 
@@ -90,23 +92,27 @@ public class LocalCollectionFragment extends SherlockListFragment implements OnI
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
         switch ((int) arg3) {
-        case 0:
-            mCollectionActivity.getTabsAdapter().replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
-                    TracksFragment.class, -1, null, false);
-            break;
-        case 1:
-            mCollectionActivity.getTabsAdapter().replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
-                    AlbumsFragment.class, -1, null, false);
-            break;
-        case 2:
-            mCollectionActivity.getTabsAdapter().replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
-                    ArtistsFragment.class, -1, null, false);
-            break;
-        case 3:
-            mCollectionActivity.getTabsAdapter().replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
-                    PlaylistsFragment.class, -1, null, false);
-            break;
-        case 4:
+            case 0:
+                mCollectionActivity.getTabsAdapter()
+                        .replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
+                                TracksFragment.class, -1, null, false);
+                break;
+            case 1:
+                mCollectionActivity.getTabsAdapter()
+                        .replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
+                                AlbumsFragment.class, -1, null, false);
+                break;
+            case 2:
+                mCollectionActivity.getTabsAdapter()
+                        .replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
+                                ArtistsFragment.class, -1, null, false);
+                break;
+            case 3:
+                mCollectionActivity.getTabsAdapter()
+                        .replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
+                                PlaylistsFragment.class, -1, null, false);
+                break;
+            case 4:
         }
     }
 }

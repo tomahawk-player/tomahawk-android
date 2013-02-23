@@ -29,9 +29,13 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
     private static HashMap<Long, Artist> sArtists = new HashMap<Long, Artist>();
 
     private long mId;
+
     private String mName;
+
     private HashMap<Long, Album> mAlbums;
+
     private HashMap<Long, Track> mTracks;
+
     private float mScore;
 
     public Artist() {
@@ -45,17 +49,17 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
 
     /**
      * Construct a new Album from the id
-     * 
-     * @param id
      */
     public static Artist get(long id) {
 
-        if (!sArtists.containsKey(id))
+        if (!sArtists.containsKey(id)) {
             sArtists.put(id, new Artist(id));
+        }
 
         return sArtists.get(id);
     }
-    /* 
+
+    /*
      * (non-Javadoc)
      * @see java.lang.Object#toString()
      */

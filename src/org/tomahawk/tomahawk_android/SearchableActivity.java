@@ -17,7 +17,8 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import java.util.ArrayList;
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.view.MenuItem;
 
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.CollectionLoader;
@@ -51,28 +52,30 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.MenuItem;
+import java.util.ArrayList;
 
 /**
- * @author Enno Gottschalk <mrmaffen@googlemail.com>
- * This class contains the UI code to search for music
- *
+ * @author Enno Gottschalk <mrmaffen@googlemail.com> This class contains the UI code to search for
+ *         music
  */
-public class SearchableActivity extends TomahawkTabsActivity implements
-        OnEditorActionListener, LoaderManager.LoaderCallbacks<Collection>,
+public class SearchableActivity extends TomahawkTabsActivity
+        implements OnEditorActionListener, LoaderManager.LoaderCallbacks<Collection>,
         Handler.Callback {
 
     private PipeLine mPipeline;
 
     private Collection mCollection;
+
     private CollectionUpdateReceiver mCollectionUpdatedReceiver;
 
     private EditText mSearchEditText = null;
+
     private String mSearchString = null;
 
     private Handler mAnimationHandler = new Handler(this);
+
     private static final int MSG_UPDATE_ANIMATION = 0x20;
+
     private Drawable mProgressDrawable;
 
     /**
@@ -89,8 +92,9 @@ public class SearchableActivity extends TomahawkTabsActivity implements
          */
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(Collection.COLLECTION_UPDATED))
+            if (intent.getAction().equals(Collection.COLLECTION_UPDATED)) {
                 onCollectionUpdated();
+            }
         }
     }
 
@@ -110,8 +114,7 @@ public class SearchableActivity extends TomahawkTabsActivity implements
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayShowCustomEnabled(true);
-        View searchView = getLayoutInflater().inflate(
-                R.layout.collapsible_edittext, null);
+        View searchView = getLayoutInflater().inflate(R.layout.collapsible_edittext, null);
         actionBar.setCustomView(searchView);
         setSearchText((EditText) searchView.findViewById(R.id.search_edittext));
 
@@ -122,11 +125,9 @@ public class SearchableActivity extends TomahawkTabsActivity implements
         mPipeline = ((TomahawkApp) getApplication()).getPipeLine();
 
         if (savedInstanceState == null) {
-            FragmentTransaction ft = getSupportFragmentManager()
-                    .beginTransaction();
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.add(R.id.searchactivity_fragmentcontainer_framelayout,
-                    Fragment.instantiate(this,
-                            SearchableFragment.class.getName()));
+                    Fragment.instantiate(this, SearchableFragment.class.getName()));
             ft.commit();
         }
     }
@@ -154,15 +155,13 @@ public class SearchableActivity extends TomahawkTabsActivity implements
         getSupportLoaderManager().destroyLoader(0);
         getSupportLoaderManager().initLoader(0, null, this);
 
-        IntentFilter intentFilter = new IntentFilter(
-                Collection.COLLECTION_UPDATED);
+        IntentFilter intentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
         if (mCollectionUpdatedReceiver == null) {
             mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
             registerReceiver(mCollectionUpdatedReceiver, intentFilter);
         }
 
-        mProgressDrawable = getResources().getDrawable(
-                R.drawable.progress_indeterminate_tomahawk);
+        mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
     }
 
     @Override
@@ -209,8 +208,8 @@ public class SearchableActivity extends TomahawkTabsActivity implements
      */
     @Override
     public Loader<Collection> onCreateLoader(int id, Bundle args) {
-        return new CollectionLoader(this, ((TomahawkApp) getApplication())
-                .getSourceList().getLocalSource().getCollection());
+        return new CollectionLoader(this,
+                ((TomahawkApp) getApplication()).getSourceList().getLocalSource().getCollection());
     }
 
     /*
@@ -237,11 +236,9 @@ public class SearchableActivity extends TomahawkTabsActivity implements
     }
 
     /**
-     * Set the reference to the searchText, that is used to filter the custom
-     * {@link ListView}
+     * Set the reference to the searchText, that is used to filter the custom {@link ListView}
      *
-     * @param searchText
-     *            the EditText object which the listener is connected to
+     * @param searchText the EditText object which the listener is connected to
      */
     public void setSearchText(EditText searchText) {
         mSearchEditText = searchText;
@@ -273,8 +270,7 @@ public class SearchableActivity extends TomahawkTabsActivity implements
                 || event.getAction() == KeyEvent.ACTION_DOWN
                 && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
             String searchText = v.getText().toString();
-            if (searchText != null
-                    && !TextUtils.isEmpty(searchText)) {
+            if (searchText != null && !TextUtils.isEmpty(searchText)) {
                 addToAutoCompleteArray(searchText);
                 setupAutoComplete();
                 resolveFullTextQuery(searchText);
@@ -286,10 +282,12 @@ public class SearchableActivity extends TomahawkTabsActivity implements
 
     public void resolveFullTextQuery(String fullTextQuery) {
         getSupportFragmentManager().popBackStack();
-        CheckBox onlineSourcesCheckBox = (CheckBox) findViewById(R.id.searchactivity_onlinesources_checkbox);
+        CheckBox onlineSourcesCheckBox = (CheckBox) findViewById(
+                R.id.searchactivity_onlinesources_checkbox);
         PipeLine pipeLine = ((TomahawkApp) getApplication()).getPipeLine();
         pipeLine.resolve(fullTextQuery, !onlineSourcesCheckBox.isChecked());
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) getSystemService(
+                Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);
         startLoadingAnimation();
     }
@@ -306,8 +304,7 @@ public class SearchableActivity extends TomahawkTabsActivity implements
 
         myArrayList.add(newString);
 
-        SharedPreferences sPrefs = PreferenceManager
-                .getDefaultSharedPreferences(getBaseContext());
+        SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         Editor sEdit = sPrefs.edit();
 
         sEdit.putString("autocomplete_" + highestIndex, myArrayList.get(highestIndex));
@@ -316,8 +313,7 @@ public class SearchableActivity extends TomahawkTabsActivity implements
     }
 
     public ArrayList<String> getAutoCompleteArray() {
-        SharedPreferences sPrefs = PreferenceManager
-                .getDefaultSharedPreferences(getBaseContext());
+        SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         ArrayList<String> myAList = new ArrayList<String>();
         int size = sPrefs.getInt("autocomplete_size", 0);
 
@@ -330,16 +326,16 @@ public class SearchableActivity extends TomahawkTabsActivity implements
     @Override
     public boolean handleMessage(Message msg) {
         switch (msg.what) {
-        case MSG_UPDATE_ANIMATION:
-            if (mPipeline.isResolving()) {
-                mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 500);
-                getSupportActionBar().setLogo(mProgressDrawable);
-                mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
-                mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
-            } else {
-                stopLoadingAnimation();
-            }
-            break;
+            case MSG_UPDATE_ANIMATION:
+                if (mPipeline.isResolving()) {
+                    mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 500);
+                    getSupportActionBar().setLogo(mProgressDrawable);
+                    mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
+                    mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
+                } else {
+                    stopLoadingAnimation();
+                }
+                break;
         }
         return true;
     }

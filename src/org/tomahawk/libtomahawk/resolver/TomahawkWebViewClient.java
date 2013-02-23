@@ -21,10 +21,10 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com>
- * Date: 18.01.13
+ * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 18.01.13
  */
 public class TomahawkWebViewClient extends WebViewClient {
+
     ScriptResolver mScriptResolver;
 
     public TomahawkWebViewClient(ScriptResolver scriptResolver) {

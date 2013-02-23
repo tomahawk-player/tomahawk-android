@@ -19,54 +19,54 @@
  */
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="50dp"
-    android:background="@drawable/selectable_background_tomahawk" >
+              android:layout_width="wrap_content"
+              android:layout_height="50dp"
+              android:background="@drawable/selectable_background_tomahawk">
     <org.tomahawk.tomahawk_android.SquareHeightRelativeLayout
-        android:id="@+id/fragmentLayout_arrow_squareHeightRelativeLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:paddingTop="5dip"
-        android:paddingBottom="5dip"
-        android:layout_marginLeft="-15dip"
-        android:layout_marginRight="-15dip" >
+            android:id="@+id/fragmentLayout_arrow_squareHeightRelativeLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:paddingTop="5dip"
+            android:paddingBottom="5dip"
+            android:layout_marginLeft="-15dip"
+            android:layout_marginRight="-15dip">
 
         <ImageView
-            android:id="@+id/fragmentLayout_arrow_imageButton"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:adjustViewBounds="false"
-            android:src="@drawable/ic_action_next"
-            android:scaleType="centerCrop" />
-    </org.tomahawk.tomahawk_android.SquareHeightRelativeLayout >
+                android:id="@+id/fragmentLayout_arrow_imageButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="false"
+                android:src="@drawable/ic_action_next"
+                android:scaleType="centerCrop"/>
+    </org.tomahawk.tomahawk_android.SquareHeightRelativeLayout>
 
     <org.tomahawk.tomahawk_android.SquareHeightRelativeLayout
-        android:id="@+id/fragmentLayout_icon_squareHeightRelativeLayout"
-        android:layout_width="wrap_content"
-        android:visibility="gone"
-        android:layout_height="match_parent"
-        android:padding="5dip" >
+            android:id="@+id/fragmentLayout_icon_squareHeightRelativeLayout"
+            android:layout_width="wrap_content"
+            android:visibility="gone"
+            android:layout_height="match_parent"
+            android:padding="5dip">
 
         <ImageView
-            android:id="@+id/fragmentLayout_icon_imageButton"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:adjustViewBounds="false"
-            android:scaleType="centerCrop" />
-    </org.tomahawk.tomahawk_android.SquareHeightRelativeLayout >
+                android:id="@+id/fragmentLayout_icon_imageButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="false"
+                android:scaleType="centerCrop"/>
+    </org.tomahawk.tomahawk_android.SquareHeightRelativeLayout>
 
     <TextView
-        android:id="@+id/fragmentLayout_text_textView"
-        android:maxWidth="100dip"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:padding="5dip"
-        android:ellipsize="marquee"
-        android:gravity="center_vertical"
-        android:maxLines="2"
-        android:scrollHorizontally="false"
-        android:textColor="#F2F2F2"
-        android:textSize="6pt"
-        android:typeface="sans" />
+            android:id="@+id/fragmentLayout_text_textView"
+            android:maxWidth="100dip"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="5dip"
+            android:ellipsize="marquee"
+            android:gravity="center_vertical"
+            android:maxLines="2"
+            android:scrollHorizontally="false"
+            android:textColor="#F2F2F2"
+            android:textSize="6pt"
+            android:typeface="sans"/>
 
-</LinearLayout >
+</LinearLayout>

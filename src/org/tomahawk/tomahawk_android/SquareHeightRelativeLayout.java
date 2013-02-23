@@ -23,13 +23,11 @@ import android.widget.RelativeLayout;
 
 /**
  * @author Enno Gottschalk <mrmaffen@googlemail.com>
- *
  */
 public class SquareHeightRelativeLayout extends RelativeLayout {
 
     /**
      * Constructs a new {@link SquareHeightRelativeLayout}
-     * 
      */
     public SquareHeightRelativeLayout(Context context) {
         super(context);
@@ -37,7 +35,6 @@ public class SquareHeightRelativeLayout extends RelativeLayout {
 
     /**
      * Constructs a new {@link SquareHeightRelativeLayout}
-     * 
      */
     public SquareHeightRelativeLayout(Context context, AttributeSet attrs) {
         super(context, attrs);

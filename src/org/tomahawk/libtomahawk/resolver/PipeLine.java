@@ -17,24 +17,27 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.Intent;
 import android.text.TextUtils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com>
- * Date: 19.01.13
+ * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 19.01.13
  */
 public class PipeLine {
+
     public static final int PIPELINE_SEARCHTYPE_TRACKS = 0;
+
     public static final int PIPELINE_SEARCHTYPE_ARTISTS = 1;
+
     public static final int PIPELINE_SEARCHTYPE_ALBUMS = 2;
 
     public static final String PIPELINE_RESULTSREPORTED = "pipeline_resultsreported";
+
     public static final String PIPELINE_RESULTSREPORTED_QID = "pipeline_resultsreported_qid";
 
     private static final float MINSCORE = 0.5F;
@@ -44,7 +47,9 @@ public class PipeLine {
     private ArrayList<Resolver> mResolvers = new ArrayList<Resolver>();
 
     private ArrayList<Query> mPendingQueries = new ArrayList<Query>();
+
     private ArrayList<Query> mTemporaryQueries = new ArrayList<Query>();
+
     private HashMap<String, Query> mQids = new HashMap<String, Query>();
 
     public PipeLine(TomahawkApp tomahawkApp) {
@@ -53,7 +58,6 @@ public class PipeLine {
 
     /**
      * Add a resolver to the internal list.
-     * @param resolver
      */
     public void addResolver(Resolver resolver) {
         mResolvers.add(resolver);
@@ -61,43 +65,45 @@ public class PipeLine {
 
     /**
      * Get the resolver with the given id, null if not found
-     * @param id
-     * @return
      */
     public Resolver getResolver(int id) {
-        for (Resolver resolver : mResolvers)
-            if (resolver.getId() == id)
+        for (Resolver resolver : mResolvers) {
+            if (resolver.getId() == id) {
                 return resolver;
+            }
+        }
         return null;
     }
 
     /**
-     * This will invoke every resolver to resolve the given fullTextQuery.
-     * If there already is a Query with the same fullTextQuery, the old resultList will be reported.
-     * @param fullTextQuery
+     * This will invoke every resolver to resolve the given fullTextQuery. If there already is a
+     * Query with the same fullTextQuery, the old resultList will be reported.
      */
     public void resolve(String fullTextQuery) {
         resolve(fullTextQuery, false);
     }
 
     /**
-     * This will invoke every resolver to resolve the given fullTextQuery.
-     * If there already is a Query with the same fullTextQuery, the old resultList will be reported.
-     * @param fullTextQuery
+     * This will invoke every resolver to resolve the given fullTextQuery. If there already is a
+     * Query with the same fullTextQuery, the old resultList will be reported.
      */
     public void resolve(String fullTextQuery, boolean onlyLocal) {
         if (fullTextQuery != null && !TextUtils.isEmpty(fullTextQuery)) {
             Query q = null;
-            for (Query query : mQids.values())
-                if (query.getFullTextQuery() == fullTextQuery && query.isOnlyLocal() == onlyLocal)
+            for (Query query : mQids.values()) {
+                if (query.getFullTextQuery() == fullTextQuery && query.isOnlyLocal() == onlyLocal) {
                     q = query;
-            if (q == null)
+                }
+            }
+            if (q == null) {
                 q = new Query(mTomahawkApp.getUniqueQueryId(), fullTextQuery, onlyLocal);
+            }
             if (!mQids.containsKey(q.getQid())) {
                 mQids.put(q.getQid(), q);
                 for (Resolver resolver : mResolvers) {
-                    if ((onlyLocal && resolver instanceof DataBaseResolver) || !onlyLocal)
+                    if ((onlyLocal && resolver instanceof DataBaseResolver) || !onlyLocal) {
                         resolver.resolve(q);
+                    }
                 }
             } else if (q.isSolved()) {
                 sendReportResultsBroadcast(q.getQid());
@@ -107,7 +113,6 @@ public class PipeLine {
 
     /**
      * This will invoke every resolver to resolve the given Query.
-     * @param q
      */
     public void resolve(Query q) {
         resolve(q, false);
@@ -115,14 +120,14 @@ public class PipeLine {
 
     /**
      * This will invoke every resolver to resolve the given Query.
-     * @param q
      */
     public void resolve(Query q, boolean onlyLocal) {
         if (!mQids.containsKey(q.getQid())) {
             mQids.put(q.getQid(), q);
             for (Resolver resolver : mResolvers) {
-                if ((onlyLocal && resolver instanceof DataBaseResolver) || !onlyLocal)
+                if ((onlyLocal && resolver instanceof DataBaseResolver) || !onlyLocal) {
                     resolver.resolve(q);
+                }
             }
         } else if (q.isSolved()) {
             sendReportResultsBroadcast(q.getQid());
@@ -131,7 +136,6 @@ public class PipeLine {
 
     /**
      * Send a broadcast containing the id of the resolved query.
-     * @param qid
      */
     private void sendReportResultsBroadcast(String qid) {
         Intent reportIntent = new Intent(PIPELINE_RESULTSREPORTED);
@@ -140,10 +144,11 @@ public class PipeLine {
     }
 
     /**
-     * If the ScriptResolver has resolved the query, this method will be called.
-     * This method will then calculate a score and assign it to every result. If the score is higher than MINSCORE
+     * If the ScriptResolver has resolved the query, this method will be called. This method will
+     * then calculate a score and assign it to every result. If the score is higher than MINSCORE
      * the result is added to the output resultList.
-     * @param qid the query id
+     *
+     * @param qid     the query id
      * @param results the unfiltered ArrayList<Result>
      */
     public void reportResults(String qid, ArrayList<Result> results) {
@@ -179,16 +184,16 @@ public class PipeLine {
      * @return true if one or more ScriptResolvers are currently resolving. False otherwise
      */
     public boolean isResolving() {
-        for (Resolver resolver : mResolvers)
-            if (resolver.isResolving())
+        for (Resolver resolver : mResolvers) {
+            if (resolver.isResolving()) {
                 return true;
+            }
+        }
         return false;
     }
 
     /**
      * Get the query with the given id
-     * @param qid
-     * @return
      */
     public Query getQuery(String qid) {
         return mQids.get(qid);

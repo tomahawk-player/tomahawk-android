@@ -17,10 +17,13 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.tomahawk.libtomahawk.*;
+import org.tomahawk.libtomahawk.Album;
+import org.tomahawk.libtomahawk.Artist;
+import org.tomahawk.libtomahawk.Collection;
+import org.tomahawk.libtomahawk.TomahawkBaseAdapter;
+import org.tomahawk.libtomahawk.TomahawkListAdapter;
+import org.tomahawk.libtomahawk.Track;
+import org.tomahawk.libtomahawk.UserCollection;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
@@ -41,19 +44,28 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Fragment which represents the "Tracks" tabview.
  */
-public class SearchableFragment extends TomahawkFragment implements OnItemClickListener,
-        CompoundButton.OnCheckedChangeListener {
+public class SearchableFragment extends TomahawkFragment
+        implements OnItemClickListener, CompoundButton.OnCheckedChangeListener {
 
-    private static final String SEARCHABLEFRAGMENT_QUERY_STRING = "org.tomahawk.tomahawk_android.SEARCHABLEFRAGMENT_QUERY_STRING";
+    private static final String SEARCHABLEFRAGMENT_QUERY_STRING
+            = "org.tomahawk.tomahawk_android.SEARCHABLEFRAGMENT_QUERY_STRING";
 
     private SearchableFragment mSearchableFragment = this;
+
     private ArrayList<Track> mCurrentShownTracks;
+
     private ArrayList<Album> mCurrentShownAlbums;
+
     private ArrayList<Artist> mCurrentShownArtists;
+
     private String mCurrentQueryString;
+
     private String mCurrentQueryId;
 
     private PipelineBroadcastReceiver mPipelineBroadcastReceiver;
@@ -74,19 +86,22 @@ public class SearchableFragment extends TomahawkFragment implements OnItemClickL
     @Override
     public void onCreate(Bundle inState) {
         super.onCreate(inState);
-        if (inState != null && inState.containsKey(SEARCHABLEFRAGMENT_QUERY_STRING))
+        if (inState != null && inState.containsKey(SEARCHABLEFRAGMENT_QUERY_STRING)) {
             mCurrentQueryString = inState.getString(SEARCHABLEFRAGMENT_QUERY_STRING);
+        }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
         return inflater.inflate(R.layout.searchablefragment_layout, null, false);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        CheckBox onlineSourcesCheckBox = (CheckBox) mActivity.findViewById(R.id.searchactivity_onlinesources_checkbox);
+        CheckBox onlineSourcesCheckBox = (CheckBox) mActivity
+                .findViewById(R.id.searchactivity_onlinesources_checkbox);
         onlineSourcesCheckBox.setOnCheckedChangeListener(this);
 
         IntentFilter intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED);
@@ -95,8 +110,9 @@ public class SearchableFragment extends TomahawkFragment implements OnItemClickL
             mActivity.registerReceiver(mPipelineBroadcastReceiver, intentFilter);
         }
 
-        if (mCurrentQueryString != null)
+        if (mCurrentQueryString != null) {
             ((SearchableActivity) mActivity).resolveFullTextQuery(mCurrentQueryString);
+        }
     }
 
     /*
@@ -127,11 +143,13 @@ public class SearchableFragment extends TomahawkFragment implements OnItemClickL
         idx -= mList.getHeaderViewsCount();
         if (idx >= 0) {
             if (getListAdapter().getItem(idx) instanceof Track) {
-                ((UserCollection) mActivity.getCollection()).setCachedPlaylist(CustomPlaylist.fromTrackList(
-                        mCurrentQueryString, mCurrentShownTracks, (Track) getListAdapter().getItem(idx)));
+                ((UserCollection) mActivity.getCollection()).setCachedPlaylist(CustomPlaylist
+                        .fromTrackList(mCurrentQueryString, mCurrentShownTracks,
+                                (Track) getListAdapter().getItem(idx)));
                 Bundle bundle = new Bundle();
                 bundle.putBoolean(UserCollection.USERCOLLECTION_PLAYLISTCACHED, true);
-                bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID, ((Track) getListAdapter().getItem(idx)).getId());
+                bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID,
+                        ((Track) getListAdapter().getItem(idx)).getId());
 
                 Intent playbackIntent = getIntent(mActivity, PlaybackActivity.class);
                 playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
@@ -143,7 +161,8 @@ public class SearchableFragment extends TomahawkFragment implements OnItemClickL
 
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
                 ft.replace(R.id.searchactivity_fragmentcontainer_framelayout,
-                        android.support.v4.app.Fragment.instantiate(mActivity, TracksFragment.class.getName(), bundle));
+                        android.support.v4.app.Fragment
+                                .instantiate(mActivity, TracksFragment.class.getName(), bundle));
                 ft.addToBackStack(null);
                 ft.commit();
             } else if (getListAdapter().getItem(idx) instanceof Artist) {
@@ -153,7 +172,8 @@ public class SearchableFragment extends TomahawkFragment implements OnItemClickL
 
                 FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
                 ft.replace(R.id.searchactivity_fragmentcontainer_framelayout,
-                        android.support.v4.app.Fragment.instantiate(mActivity, TracksFragment.class.getName(), bundle));
+                        android.support.v4.app.Fragment
+                                .instantiate(mActivity, TracksFragment.class.getName(), bundle));
                 ft.addToBackStack(null);
                 ft.commit();
             }
@@ -179,16 +199,20 @@ public class SearchableFragment extends TomahawkFragment implements OnItemClickL
         PipeLine pipeLine = ((TomahawkApp) mActivity.getApplication()).getPipeLine();
         Query query = pipeLine.getQuery(qid);
         mCurrentQueryString = query.getFullTextQuery();
-        List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
-        ArrayList<TomahawkBaseAdapter.TomahawkListItem> trackResultList = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+        List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
+                = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+        ArrayList<TomahawkBaseAdapter.TomahawkListItem> trackResultList
+                = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
         mCurrentShownTracks = query.getTrackResults();
         trackResultList.addAll(mCurrentShownTracks);
         listArray.add(trackResultList);
-        ArrayList<TomahawkBaseAdapter.TomahawkListItem> artistResultList = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+        ArrayList<TomahawkBaseAdapter.TomahawkListItem> artistResultList
+                = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
         mCurrentShownArtists = query.getArtistResults();
         artistResultList.addAll(mCurrentShownArtists);
         listArray.add(artistResultList);
-        ArrayList<TomahawkBaseAdapter.TomahawkListItem> albumResultList = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+        ArrayList<TomahawkBaseAdapter.TomahawkListItem> albumResultList
+                = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
         mCurrentShownAlbums = query.getAlbumResults();
         albumResultList.addAll(mCurrentShownAlbums);
         listArray.add(albumResultList);
@@ -206,7 +230,7 @@ public class SearchableFragment extends TomahawkFragment implements OnItemClickL
      * Return the {@link Intent} defined by the given parameters
      *
      * @param context the context with which the intent will be created
-     * @param cls the class which contains the activity to launch
+     * @param cls     the class which contains the activity to launch
      * @return the created intent
      */
     private static Intent getIntent(Context context, Class<?> cls) {

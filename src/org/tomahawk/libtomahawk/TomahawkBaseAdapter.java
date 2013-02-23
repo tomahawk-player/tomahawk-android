@@ -17,10 +17,6 @@
  */
 package org.tomahawk.libtomahawk;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.tomahawk.tomahawk_android.R;
 
 import android.app.Activity;
@@ -30,11 +26,18 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.widget.*;
+import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Enno Gottschalk <mrmaffen@googlemail.com>
- *
  */
 public abstract class TomahawkBaseAdapter extends BaseAdapter {
 
@@ -43,11 +46,15 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
     protected boolean mFiltered = false;
 
     protected int mHighlightedItemPosition = -1;
+
     protected boolean mHighlightedItemIsPlaying = false;
 
     protected List<List<TomahawkListItem>> mListArray;
+
     protected List<List<TomahawkListItem>> mFilteredListArray;
+
     private Bitmap mAlbumPlaceHolderBitmap;
+
     private Bitmap mArtistPlaceHolderBitmap;
 
     /**
@@ -55,17 +62,24 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
      */
     public interface TomahawkListItem {
 
-        /** @return the corresponding name/title */
+        /**
+         * @return the corresponding name/title
+         */
         public String getName();
 
-        /** @return the corresponding {@link Artist} */
+        /**
+         * @return the corresponding {@link Artist}
+         */
         public Artist getArtist();
 
-        /** @return the corresponding {@link Album} */
+        /**
+         * @return the corresponding {@link Album}
+         */
         public Album getAlbum();
     }
 
     static class AsyncDrawable extends BitmapDrawable {
+
         private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
 
         public AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerTask bitmapWorkerTask) {
@@ -79,7 +93,9 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
     }
 
     public class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
+
         private final WeakReference<ImageView> imageViewReference;
+
         private String data;
 
         public BitmapWorkerTask(ImageView imageView) {
@@ -115,7 +131,9 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
      * This {@link ResourceHolder} holds the resources to an entry in the grid/listView
      */
     static class ResourceHolder {
-        public ResourceHolder(int resourceId, int imageViewId, int imageViewId2, int textViewId1, int textViewId2) {
+
+        public ResourceHolder(int resourceId, int imageViewId, int imageViewId2, int textViewId1,
+                int textViewId2) {
             this.resourceId = resourceId;
             this.imageViewId = imageViewId;
             this.imageViewId2 = imageViewId2;
@@ -124,9 +142,13 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
         }
 
         protected int resourceId;
+
         protected int imageViewId;
+
         protected int imageViewId2;
+
         protected int textViewId1;
+
         protected int textViewId2;
     }
 
@@ -134,8 +156,9 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
      * This {@link ViewHolder} holds the data to an entry in the grid/listView
      */
     static class ViewHolder {
-        public ViewHolder(int viewType, ImageView imageViewLeft, ImageView imageViewRight, TextView textFirstLine,
-                TextView textSecondLine) {
+
+        public ViewHolder(int viewType, ImageView imageViewLeft, ImageView imageViewRight,
+                TextView textFirstLine, TextView textSecondLine) {
             this.viewType = viewType;
             this.imageViewLeft = imageViewLeft;
             this.imageViewRight = imageViewRight;
@@ -143,7 +166,8 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
             this.textSecondLine = textSecondLine;
         }
 
-        public ViewHolder(int viewType, ImageView imageView, TextView textFirstLine, TextView textSecondLine) {
+        public ViewHolder(int viewType, ImageView imageView, TextView textFirstLine,
+                TextView textSecondLine) {
             this.viewType = viewType;
             this.imageViewLeft = imageView;
             this.textFirstLine = textFirstLine;
@@ -168,25 +192,36 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
         }
 
         protected int viewType;
+
         protected ImageView imageViewLeft;
+
         protected ImageView imageViewRight;
+
         protected TextView textFirstLine;
+
         protected TextView textSecondLine;
     }
 
-    /** Add a list to the {@link TomahawkGridAdapter}.
-     * @param title the title of the list, which will be displayed as a header, if the list is not empty
-     * @return the index of the just added list*/
+    /**
+     * Add a list to the {@link TomahawkGridAdapter}.
+     *
+     * @param title the title of the list, which will be displayed as a header, if the list is not
+     *              empty
+     * @return the index of the just added list
+     */
     public int addList(String title) {
         mListArray.add(new ArrayList<TomahawkListItem>());
         notifyDataSetChanged();
         return mListArray.size() - 1;
     }
 
-    /** Add an item to the list with the given index
-     *  @param index the index which specifies which list the item should be added to
-     *  @param item the item to add
-     *  @return true if successful, otherwise false*/
+    /**
+     * Add an item to the list with the given index
+     *
+     * @param index the index which specifies which list the item should be added to
+     * @param item  the item to add
+     * @return true if successful, otherwise false
+     */
     public boolean addItemToList(int index, TomahawkListItem item) {
         if (hasListWithIndex(index)) {
             mListArray.get(index).add(item);
@@ -203,21 +238,30 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    /** test if the list with the given index exists
-     *  @param index the index of the list
-     *  @return true if list exists, false otherwise*/
+    /**
+     * test if the list with the given index exists
+     *
+     * @param index the index of the list
+     * @return true if list exists, false otherwise
+     */
     public boolean hasListWithIndex(int index) {
         return (mListArray.get(index) != null);
     }
 
-    /** Removes every element from every list there is  */
+    /**
+     * Removes every element from every list there is
+     */
     public void clearAllLists() {
-        for (int i = 0; i < mListArray.size(); i++)
+        for (int i = 0; i < mListArray.size(); i++) {
             mListArray.get(i).clear();
+        }
         notifyDataSetChanged();
     }
 
-    /** @return the {@link Filter}, which allows to filter the items inside the custom {@link ListView} fed by {@link TomahawkBaseAdapter}*/
+    /**
+     * @return the {@link Filter}, which allows to filter the items inside the custom {@link
+     *         ListView} fed by {@link TomahawkBaseAdapter}
+     */
     public Filter getFilter() {
         return new Filter() {
             @SuppressWarnings("unchecked")
@@ -242,16 +286,19 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
             }
 
             protected List<List<TomahawkListItem>> getFilteredResults(CharSequence constraint) {
-                List<List<TomahawkListItem>> filteredResults = new ArrayList<List<TomahawkListItem>>();
-                if (constraint == null || constraint.toString().length() <= 1)
+                List<List<TomahawkListItem>> filteredResults
+                        = new ArrayList<List<TomahawkListItem>>();
+                if (constraint == null || constraint.toString().length() <= 1) {
                     return filteredResults;
+                }
 
                 for (int i = 0; i < mListArray.size(); i++) {
                     filteredResults.add(new ArrayList<TomahawkListItem>());
                     for (int j = 0; j < mListArray.get(i).size(); j++) {
                         TomahawkListItem item = mListArray.get(i).get(j);
-                        if (item.getName().toLowerCase().contains(constraint))
+                        if (item.getName().toLowerCase().contains(constraint)) {
                             filteredResults.get(i).add(item);
+                        }
                     }
                 }
                 return filteredResults;
@@ -268,39 +315,43 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
 
     /**
      * Load a {@link Bitmap} asynchronously
-     * @param item the item for which the corresponding {@link Bitmap} should be loaded
-     * @param imageView the {@link ImageView}, which will be used to show the {@link Bitmap}*/
+     *
+     * @param item      the item for which the corresponding {@link Bitmap} should be loaded
+     * @param imageView the {@link ImageView}, which will be used to show the {@link Bitmap}
+     */
     public void loadBitmap(TomahawkListItem item, ImageView imageView) {
         Bitmap placeHolderBitmap = null;
         String pathToBitmap = null;
         if (item instanceof Artist) {
-            if (mArtistPlaceHolderBitmap == null)
-                mArtistPlaceHolderBitmap = BitmapFactory.decodeResource(mActivity.getResources(),
-                        R.drawable.no_artist_placeholder);
+            if (mArtistPlaceHolderBitmap == null) {
+                mArtistPlaceHolderBitmap = BitmapFactory
+                        .decodeResource(mActivity.getResources(), R.drawable.no_artist_placeholder);
+            }
             placeHolderBitmap = mArtistPlaceHolderBitmap;
         } else if (item instanceof Album) {
-            if (mAlbumPlaceHolderBitmap == null)
+            if (mAlbumPlaceHolderBitmap == null) {
                 mAlbumPlaceHolderBitmap = BitmapFactory.decodeResource(mActivity.getResources(),
                         R.drawable.no_album_art_placeholder);
+            }
             placeHolderBitmap = mAlbumPlaceHolderBitmap;
             pathToBitmap = ((Album) item).getAlbumArtPath();
         }
         if (pathToBitmap != null) {
             if (cancelPotentialWork(pathToBitmap, imageView)) {
                 final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
-                final AsyncDrawable asyncDrawable = new AsyncDrawable(mActivity.getResources(), placeHolderBitmap, task);
+                final AsyncDrawable asyncDrawable = new AsyncDrawable(mActivity.getResources(),
+                        placeHolderBitmap, task);
                 imageView.setImageDrawable(asyncDrawable);
                 task.execute(((Album) item).getAlbumArtPath());
             }
-        } else
+        } else {
             imageView.setImageBitmap(placeHolderBitmap);
+        }
     }
 
     /**
      * Checks if another running task is already associated with the {@link ImageView}
-     * @param data
-     * @param imageView
-     * @return */
+     */
     public static boolean cancelPotentialWork(String data, ImageView imageView) {
         final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
 
@@ -319,9 +370,9 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
     }
 
     /**
-     * Used to get the {@link BitmapWorkerTask}, which is used to asynchronously load a {@link Bitmap} into to {@link ImageView}
-     * @param imageView
-     * @return */
+     * Used to get the {@link BitmapWorkerTask}, which is used to asynchronously load a {@link
+     * Bitmap} into to {@link ImageView}
+     */
     public static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
         if (imageView != null) {
             final Drawable drawable = imageView.getDrawable();
@@ -335,7 +386,6 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
 
     /**
      * set the position of the item, which should be highlighted
-     * @param position
      */
     public void setHighlightedItem(int position) {
         mHighlightedItemPosition = position;
@@ -344,7 +394,6 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
 
     /**
      * set wether or not the highlighted item should show the play or the pause drawable
-     * @param highlightedItemIsPlaying
      */
     public void setHighlightedItemIsPlaying(boolean highlightedItemIsPlaying) {
         this.mHighlightedItemIsPlaying = highlightedItemIsPlaying;

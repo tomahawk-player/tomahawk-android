@@ -17,9 +17,9 @@
  */
 package org.tomahawk.libtomahawk;
 
-import java.util.HashMap;
-
 import org.tomahawk.libtomahawk.resolver.Resolver;
+
+import java.util.HashMap;
 
 /**
  * This class represents a track.
@@ -32,20 +32,35 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
      * Path of file or URL.
      */
     private String mPath;
+
     private boolean mIsLocal = true;
+
     private String mName;
+
     private Album mAlbum;
+
     private Artist mArtist;
+
     private int mBitrate;
+
     private int mSize;
+
     private long mDuration;
+
     private int mTrackNumber;
+
     private int mYear;
+
     private long mId;
+
     private Resolver mResolver;
+
     private String mLinkUrl;
+
     private String mPurchaseUrl;
+
     private float mScore;
+
     private boolean isResolved;
 
     public Track() {
@@ -57,13 +72,12 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
 
     /**
      * Construct a new Album from the id
-     * 
-     * @param id
      */
     public static Track get(long id) {
 
-        if (!sTracks.containsKey(id))
+        if (!sTracks.containsKey(id)) {
             sTracks.put(id, new Track(id));
+        }
 
         return sTracks.get(id);
     }

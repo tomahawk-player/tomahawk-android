@@ -18,11 +18,11 @@
 package org.tomahawk.tomahawk_android;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+
 import org.tomahawk.libtomahawk.Collection;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com>
- * Date: 14.01.13
+ * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 14.01.13
  */
 public abstract class TomahawkTabsActivity extends SherlockFragmentActivity {
 

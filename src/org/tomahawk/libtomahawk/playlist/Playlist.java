@@ -18,12 +18,12 @@
  */
 package org.tomahawk.libtomahawk.playlist;
 
+import org.tomahawk.libtomahawk.Track;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
-import org.tomahawk.libtomahawk.Track;
 
 /**
  * This class represents an abstract Playlist.
@@ -31,11 +31,15 @@ import org.tomahawk.libtomahawk.Track;
 public abstract class Playlist implements Playable {
 
     private String mName;
+
     private ArrayList<Track> mTracks;
+
     private ArrayList<Track> mShuffledTracks;
 
     private int mCurrentTrackIndex;
+
     private boolean mShuffled;
+
     private boolean mRepeating;
 
     /**
@@ -66,8 +70,9 @@ public abstract class Playlist implements Playable {
 
         if (mTracks != null && !mTracks.isEmpty()) {
             mCurrentTrackIndex = 0;
-        } else
+        } else {
             mCurrentTrackIndex = -1;
+        }
     }
 
     /* 
@@ -99,8 +104,9 @@ public abstract class Playlist implements Playable {
     @Override
     public Track getCurrentTrack() {
         List<Track> tracks = mShuffled ? mShuffledTracks : mTracks;
-        if (tracks != null && mCurrentTrackIndex >= 0 && mCurrentTrackIndex < tracks.size())
+        if (tracks != null && mCurrentTrackIndex >= 0 && mCurrentTrackIndex < tracks.size()) {
             return tracks.get(mCurrentTrackIndex);
+        }
         return null;
     }
 
@@ -163,8 +169,9 @@ public abstract class Playlist implements Playable {
      */
     @Override
     public Track getFirstTrack() {
-        if (mShuffled ? mShuffledTracks.isEmpty() : mTracks.isEmpty())
+        if (mShuffled ? mShuffledTracks.isEmpty() : mTracks.isEmpty()) {
             return null;
+        }
 
         return mShuffled ? mShuffledTracks.get(0) : mTracks.get(0);
     }
@@ -175,10 +182,12 @@ public abstract class Playlist implements Playable {
      */
     @Override
     public Track getLastTrack() {
-        if (mShuffled ? mShuffledTracks.isEmpty() : mTracks.isEmpty())
+        if (mShuffled ? mShuffledTracks.isEmpty() : mTracks.isEmpty()) {
             return null;
+        }
 
-        return mShuffled ? mShuffledTracks.get(mShuffledTracks.size() - 1) : mTracks.get(mTracks.size() - 1);
+        return mShuffled ? mShuffledTracks.get(mShuffledTracks.size() - 1)
+                : mTracks.get(mTracks.size() - 1);
     }
 
     /**
@@ -222,8 +231,7 @@ public abstract class Playlist implements Playable {
     }
 
     /**
-     * Returns the previous Track but does not update the internal Track
-     * iterator.
+     * Returns the previous Track but does not update the internal Track iterator.
      *
      * @return Returns previous Track. Returns null if there is none.
      */
@@ -239,8 +247,7 @@ public abstract class Playlist implements Playable {
     }
 
     /**
-     * Returns the Track at the given position but does not update the internal Track
-     * iterator.
+     * Returns the Track at the given position but does not update the internal Track iterator.
      *
      * @return Returns the Track at the given position. Returns null if there is none.
      */
@@ -253,8 +260,6 @@ public abstract class Playlist implements Playable {
 
     /**
      * Set this playlist to shuffle mode.
-     *
-     * @param shuffled
      */
     @SuppressWarnings("unchecked")
     public void setShuffled(boolean shuffled) {
@@ -265,8 +270,9 @@ public abstract class Playlist implements Playable {
         if (shuffled) {
             mShuffledTracks = (ArrayList<Track>) mTracks.clone();
             Collections.shuffle(mShuffledTracks);
-        } else
+        } else {
             mShuffledTracks = null;
+        }
 
         List<Track> tracks = mShuffled ? mShuffledTracks : mTracks;
         while (i < tracks.size()) {
@@ -280,8 +286,6 @@ public abstract class Playlist implements Playable {
 
     /**
      * Set this playlist to repeat mode.
-     *
-     * @param repeating
      */
     public void setRepeating(boolean repeating) {
         mRepeating = repeating;
@@ -289,8 +293,6 @@ public abstract class Playlist implements Playable {
 
     /**
      * Return whether this Playlist is currently shuffled.
-     *
-     * @return
      */
     public boolean isShuffled() {
         return mShuffled;
@@ -298,8 +300,6 @@ public abstract class Playlist implements Playable {
 
     /**
      * Return whether this Playlist is currently repeating.
-     *
-     * @return
      */
     public boolean isRepeating() {
         return mRepeating;
@@ -307,8 +307,6 @@ public abstract class Playlist implements Playable {
 
     /**
      * Return the current count of tracks in the playlist
-     *
-     * @return
      */
     public int getCount() {
         return mTracks.size();
@@ -316,8 +314,6 @@ public abstract class Playlist implements Playable {
 
     /**
      * Return the position of the currently played track inside the playlist
-     *
-     * @return
      */
     public int getPosition() {
         return mCurrentTrackIndex;
@@ -325,8 +321,6 @@ public abstract class Playlist implements Playable {
 
     /**
      * Return all tracks in the playlist
-     *
-     * @return
      */
     public ArrayList<Track> getTracks() {
         return mShuffled ? mShuffledTracks : mTracks;

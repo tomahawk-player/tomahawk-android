@@ -17,43 +17,45 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_checked="true" android:state_window_focused="false"
           android:state_enabled="true"
-          android:drawable="@drawable/btn_radio_on_holo_dark" />
+          android:drawable="@drawable/btn_radio_on_holo_dark"/>
     <item android:state_checked="false" android:state_window_focused="false"
           android:state_enabled="true"
-          android:drawable="@drawable/btn_radio_off_holo_dark" />
-          
+          android:drawable="@drawable/btn_radio_off_holo_dark"/>
+
     <item android:state_checked="true" android:state_pressed="true"
           android:state_enabled="true"
-          android:drawable="@drawable/btn_radio_on_pressed_holo_dark" />
+          android:drawable="@drawable/btn_radio_on_pressed_holo_dark"/>
     <item android:state_checked="false" android:state_pressed="true"
           android:state_enabled="true"
-          android:drawable="@drawable/btn_radio_off_pressed_holo_dark" />
+          android:drawable="@drawable/btn_radio_off_pressed_holo_dark"/>
 
     <item android:state_checked="true" android:state_focused="true"
           android:state_enabled="true"
-          android:drawable="@drawable/btn_radio_on_focused_holo_dark" />
+          android:drawable="@drawable/btn_radio_on_focused_holo_dark"/>
     <item android:state_checked="false" android:state_focused="true"
           android:state_enabled="true"
-          android:drawable="@drawable/btn_radio_off_focused_holo_dark" />
+          android:drawable="@drawable/btn_radio_off_focused_holo_dark"/>
 
     <item android:state_checked="false" android:state_enabled="true"
-          android:drawable="@drawable/btn_radio_off_holo_dark" />
+          android:drawable="@drawable/btn_radio_off_holo_dark"/>
     <item android:state_checked="true" android:state_enabled="true"
-          android:drawable="@drawable/btn_radio_on_holo_dark" />
+          android:drawable="@drawable/btn_radio_on_holo_dark"/>
 
     <!-- Disabled states -->
 
     <item android:state_checked="true" android:state_window_focused="false"
-          android:drawable="@drawable/btn_radio_on_disabled_holo_dark" />
+          android:drawable="@drawable/btn_radio_on_disabled_holo_dark"/>
     <item android:state_checked="false" android:state_window_focused="false"
-          android:drawable="@drawable/btn_radio_off_disabled_holo_dark" />
+          android:drawable="@drawable/btn_radio_off_disabled_holo_dark"/>
 
     <item android:state_checked="true" android:state_focused="true"
-          android:drawable="@drawable/btn_radio_on_disabled_focused_holo_dark" />
+          android:drawable="@drawable/btn_radio_on_disabled_focused_holo_dark"/>
     <item android:state_checked="false" android:state_focused="true"
-          android:drawable="@drawable/btn_radio_off_disabled_focused_holo_dark" />
+          android:drawable="@drawable/btn_radio_off_disabled_focused_holo_dark"/>
 
-    <item android:state_checked="false" android:drawable="@drawable/btn_radio_off_disabled_holo_dark" />
-    <item android:state_checked="true" android:drawable="@drawable/btn_radio_on_disabled_holo_dark" />
+    <item android:state_checked="false"
+          android:drawable="@drawable/btn_radio_off_disabled_holo_dark"/>
+    <item android:state_checked="true"
+          android:drawable="@drawable/btn_radio_on_disabled_holo_dark"/>
 
 </selector>

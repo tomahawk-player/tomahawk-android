@@ -27,7 +27,9 @@ import android.test.AndroidTestCase;
 public class ArtistTest extends AndroidTestCase {
 
     private final long mId = 12345L;
+
     private Artist mTstArtist;
+
     private String mTestArtistName = "Artist";
 
     public void setUp() {

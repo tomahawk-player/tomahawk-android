@@ -17,13 +17,13 @@
  */
 package org.tomahawk.libtomahawk;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v4.util.LruCache;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 
 /**
  * Class which represents a Tomahawk Album.
@@ -33,14 +33,21 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
     private static HashMap<Long, Album> sAlbums = new HashMap<Long, Album>();
 
     private static CoverCache sCoverCache;
+
     private HashMap<Long, Track> mTracks;
 
     private long mId;
+
     private String mName;
+
     private String mAlbumArt;
+
     private String mFirstYear;
+
     private String mLastYear;
+
     private Artist mArtist;
+
     private float mScore;
 
     /**
@@ -80,13 +87,12 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
 
     /**
      * Construct a new Album from the id
-     * 
-     * @param id
      */
     public static Album get(long id) {
 
-        if (!sAlbums.containsKey(id))
+        if (!sAlbums.containsKey(id)) {
             sAlbums.put(id, new Album(id));
+        }
 
         return sAlbums.get(id);
     }
@@ -129,8 +135,6 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
 
     /**
      * Add a Track to this Album.
-     * 
-     * @param track
      */
     public void addTrack(Track track) {
         mTracks.put(track.getId(), track);
@@ -138,8 +142,6 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
 
     /**
      * Get a list of all Tracks from this Album.
-     * 
-     * @return
      */
     public ArrayList<Track> getTracks() {
         ArrayList<Track> tracks = new ArrayList<Track>(mTracks.values());
@@ -149,8 +151,6 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
 
     /**
      * Return the Album id.
-     * 
-     * @return
      */
     public long getId() {
         return mId;
@@ -158,8 +158,6 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
 
     /**
      * Set the Album id.
-     * 
-     * @param id
      */
     public void setId(long id) {
         this.mId = id;
@@ -171,11 +169,13 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
 
     public Bitmap getAlbumArt() {
 
-        if (mAlbumArt == null)
+        if (mAlbumArt == null) {
             return null;
+        }
 
-        if (sCoverCache == null)
+        if (sCoverCache == null) {
             sCoverCache = new CoverCache();
+        }
 
         return sCoverCache.get(mAlbumArt);
     }

@@ -23,42 +23,42 @@
               android:layout_height="wrap_content">
 
     <org.tomahawk.tomahawk_android.SquareWidthRelativeLayout
-        android:layout_width="150dip"
-        android:layout_height="wrap_content"
-        android:padding="10dip">
+            android:layout_width="150dip"
+            android:layout_height="wrap_content"
+            android:padding="10dip">
 
         <ImageView
-            android:id="@+id/content_header_image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:src="@drawable/no_album_art_placeholder"/>
+                android:id="@+id/content_header_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@drawable/no_album_art_placeholder"/>
 
     </org.tomahawk.tomahawk_android.SquareWidthRelativeLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="left"
-        android:padding="10dip">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="left"
+            android:padding="10dip">
 
         <TextView
-            android:id="@+id/content_header_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="marquee"
-            android:singleLine="true"
-            android:textColor="#FFFFFF"
-            android:textSize="8pt"/>
+                android:id="@+id/content_header_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:singleLine="true"
+                android:textColor="#FFFFFF"
+                android:textSize="8pt"/>
         <TextView
-            android:id="@+id/content_header_textview2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="marquee"
-            android:singleLine="true"
-            android:textColor="#FFFFFF"
-            android:textSize="6pt"/>
+                android:id="@+id/content_header_textview2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:singleLine="true"
+                android:textColor="#FFFFFF"
+                android:textSize="6pt"/>
     </LinearLayout>
 
 </LinearLayout>

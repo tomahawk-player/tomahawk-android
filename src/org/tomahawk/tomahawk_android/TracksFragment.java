@@ -17,10 +17,13 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.tomahawk.libtomahawk.*;
+import org.tomahawk.libtomahawk.Album;
+import org.tomahawk.libtomahawk.Artist;
+import org.tomahawk.libtomahawk.Collection;
+import org.tomahawk.libtomahawk.TomahawkBaseAdapter;
+import org.tomahawk.libtomahawk.TomahawkListAdapter;
+import org.tomahawk.libtomahawk.Track;
+import org.tomahawk.libtomahawk.UserCollection;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
 
@@ -32,29 +35,37 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Fragment which represents the "Tracks" tabview.
  */
 public class TracksFragment extends TomahawkFragment implements OnItemClickListener {
 
     private Album mAlbum;
+
     private Artist mArtist;
+
     private CustomPlaylist mCustomPlaylist;
 
     @Override
     public void onCreate(Bundle inState) {
         super.onCreate(inState);
         if (mActivity.getCollection() != null && getArguments() != null) {
-            if (getArguments().containsKey(TOMAHAWK_ALBUM_ID) && getArguments().getLong(TOMAHAWK_ALBUM_ID) >= 0)
-                mAlbum = mActivity.getCollection().getAlbumById(getArguments().getLong(TOMAHAWK_ALBUM_ID));
-            else if (getArguments().containsKey(TOMAHAWK_PLAYLIST_ID)
-                    && getArguments().getLong(TOMAHAWK_PLAYLIST_ID) >= 0)
-                mCustomPlaylist = mActivity.getCollection().getCustomPlaylistById(
-                        getArguments().getLong(TOMAHAWK_PLAYLIST_ID));
-            else if (getArguments().containsKey(UserCollection.USERCOLLECTION_ARTISTCACHED))
+            if (getArguments().containsKey(TOMAHAWK_ALBUM_ID)
+                    && getArguments().getLong(TOMAHAWK_ALBUM_ID) >= 0) {
+                mAlbum = mActivity.getCollection()
+                        .getAlbumById(getArguments().getLong(TOMAHAWK_ALBUM_ID));
+            } else if (getArguments().containsKey(TOMAHAWK_PLAYLIST_ID)
+                    && getArguments().getLong(TOMAHAWK_PLAYLIST_ID) >= 0) {
+                mCustomPlaylist = mActivity.getCollection()
+                        .getCustomPlaylistById(getArguments().getLong(TOMAHAWK_PLAYLIST_ID));
+            } else if (getArguments().containsKey(UserCollection.USERCOLLECTION_ARTISTCACHED)) {
                 mArtist = mActivity.getCollection().getCachedArtist();
-            else if (getArguments().containsKey(UserCollection.USERCOLLECTION_ALBUMCACHED))
+            } else if (getArguments().containsKey(UserCollection.USERCOLLECTION_ALBUMCACHED)) {
                 mAlbum = mActivity.getCollection().getCachedAlbum();
+            }
         }
     }
 
@@ -67,21 +78,23 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         if (idx >= 0) {
             if (getListAdapter().getItem(idx) instanceof Track) {
                 ArrayList<Track> tracks = new ArrayList<Track>();
-                if (mAlbum != null)
+                if (mAlbum != null) {
                     tracks = mAlbum.getTracks();
-                else if (mArtist != null)
+                } else if (mArtist != null) {
                     tracks = mArtist.getTracks();
-                else if (mCustomPlaylist != null)
+                } else if (mCustomPlaylist != null) {
                     tracks = mCustomPlaylist.getTracks();
-                else
+                } else {
                     tracks.addAll(mActivity.getCollection().getTracks());
+                }
                 CustomPlaylist playlist = CustomPlaylist.fromTrackList("Last used playlist", tracks,
                         (Track) getListAdapter().getItem(idx));
                 playlist.setCurrentTrackIndex(idx);
                 ((UserCollection) mActivity.getCollection()).setCachedPlaylist(playlist);
                 Bundle bundle = new Bundle();
                 bundle.putBoolean(UserCollection.USERCOLLECTION_PLAYLISTCACHED, true);
-                bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID, ((Track) getListAdapter().getItem(idx)).getId());
+                bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID,
+                        ((Track) getListAdapter().getItem(idx)).getId());
 
                 Intent playbackIntent = getIntent(mActivity, PlaybackActivity.class);
                 playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
@@ -97,18 +110,21 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
 
-        List<TomahawkBaseAdapter.TomahawkListItem> tracks = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+        List<TomahawkBaseAdapter.TomahawkListItem> tracks
+                = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
         TomahawkListAdapter tomahawkListAdapter;
         if (mAlbum != null) {
             tracks.addAll(mAlbum.getTracks());
-            List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+            List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
+                    = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(tracks);
             tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
             tomahawkListAdapter.setShowCategoryHeaders(true);
             tomahawkListAdapter.setShowContentHeader(true, mList, mAlbum);
         } else if (mArtist != null) {
             tracks.addAll(mArtist.getTracks());
-            List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+            List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
+                    = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(tracks);
             tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
             tomahawkListAdapter.setShowResolvedBy(true);
@@ -116,7 +132,8 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             tomahawkListAdapter.setShowContentHeader(true, mList, mArtist);
         } else if (mCustomPlaylist != null) {
             tracks.addAll(mCustomPlaylist.getTracks());
-            List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+            List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
+                    = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(tracks);
             tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
             tomahawkListAdapter.setShowResolvedBy(true);
@@ -124,7 +141,8 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             //            tomahawkListAdapter.setShowContentHeader(true, mList, mArtist);
         } else {
             tracks.addAll(coll.getTracks());
-            List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+            List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
+                    = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(tracks);
             tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
         }
@@ -141,7 +159,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
      * Return the {@link Intent} defined by the given parameters
      *
      * @param context the context with which the intent will be created
-     * @param cls the class which contains the activity to launch
+     * @param cls     the class which contains the activity to launch
      * @return the created intent
      */
     private static Intent getIntent(Context context, Class<?> cls) {

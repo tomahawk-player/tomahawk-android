@@ -20,14 +20,13 @@ package org.tomahawk.libtomahawk;
 public class Source {
 
     private int mId;
+
     private String mName;
+
     private Collection mCollection;
 
     /**
      * Constructs a new Source from the given id.
-     * 
-     * @param id
-     * @param username
      */
     public Source(Collection coll, int id, String name) {
         mId = id;
@@ -37,8 +36,6 @@ public class Source {
 
     /**
      * Returns whether this source is local.
-     * 
-     * @return
      */
     public boolean isLocal() {
         return mCollection.isLocal();
@@ -46,8 +43,6 @@ public class Source {
 
     /**
      * Returns the name of this source.
-     * 
-     * @return
      */
     public String getName() {
         return mName;

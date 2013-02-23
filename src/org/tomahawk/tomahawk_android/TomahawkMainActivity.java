@@ -18,11 +18,11 @@
  */
 package org.tomahawk.tomahawk_android;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 /**
  * This class represents the main Activity for the app.
@@ -42,7 +42,8 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
 
         Intent i = new Intent(this, CollectionActivity.class);
         i.putExtra(CollectionActivity.COLLECTION_ID_EXTRA,
-                ((TomahawkApp) getApplication()).getSourceList().getLocalSource().getCollection().getId());
+                ((TomahawkApp) getApplication()).getSourceList().getLocalSource().getCollection()
+                        .getId());
         startActivity(i);
     }
 

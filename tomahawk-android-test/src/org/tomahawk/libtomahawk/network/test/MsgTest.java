@@ -17,10 +17,6 @@
  */
 package org.tomahawk.libtomahawk.network.test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
 import junit.framework.Assert;
 
 import org.tomahawk.libtomahawk.network.Msg;
@@ -28,10 +24,16 @@ import org.tomahawk.tomahawk_android.test.TomahawkTestData;
 
 import android.test.AndroidTestCase;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+
 public class MsgTest extends AndroidTestCase {
 
     private Msg nullMsg = null;
+
     private Msg emptyMsg = null;
+
     private Msg fullMsg = null;
 
     public void setUp() {

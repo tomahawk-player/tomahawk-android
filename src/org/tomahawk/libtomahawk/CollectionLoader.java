@@ -22,9 +22,9 @@ import android.support.v4.content.AsyncTaskLoader;
 
 /**
  * Represents a Loader for a Collection.
- * 
- * This class aids in refreshing and keeping the Collection views in sync with
- * their underlying Collection.
+ *
+ * This class aids in refreshing and keeping the Collection views in sync with their underlying
+ * Collection.
  */
 public class CollectionLoader extends AsyncTaskLoader<Collection> {
 
@@ -32,8 +32,6 @@ public class CollectionLoader extends AsyncTaskLoader<Collection> {
 
     /**
      * Consutructs a new CollectionLoader.
-     * 
-     * @param context
      */
     public CollectionLoader(Context context, Collection coll) {
         super(context);
@@ -54,8 +52,9 @@ public class CollectionLoader extends AsyncTaskLoader<Collection> {
      */
     @Override
     public void deliverResult(Collection coll) {
-        if (isStarted())
+        if (isStarted()) {
             super.deliverResult(coll);
+        }
     }
 
     /**

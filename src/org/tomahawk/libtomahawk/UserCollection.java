@@ -18,8 +18,6 @@
  */
 package org.tomahawk.libtomahawk;
 
-import java.util.*;
-
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -32,25 +30,43 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.provider.MediaStore;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class UserCollection extends Collection {
 
-    public static final String USERCOLLECTION_ARTISTCACHED = "org.tomahawk.libtomahawk.USERCOLLECTION_ARTISTCACHED";
-    public static final String USERCOLLECTION_ALBUMCACHED = "org.tomahawk.libtomahawk.USERCOLLECTION_ALBUMCACHED";
-    public static final String USERCOLLECTION_PLAYLISTCACHED = "org.tomahawk.libtomahawk.USERCOLLECTION_PLAYLISTCACHED";
+    public static final String USERCOLLECTION_ARTISTCACHED
+            = "org.tomahawk.libtomahawk.USERCOLLECTION_ARTISTCACHED";
+
+    public static final String USERCOLLECTION_ALBUMCACHED
+            = "org.tomahawk.libtomahawk.USERCOLLECTION_ALBUMCACHED";
+
+    public static final String USERCOLLECTION_PLAYLISTCACHED
+            = "org.tomahawk.libtomahawk.USERCOLLECTION_PLAYLISTCACHED";
 
     public static final int Id = 0;
 
     private UserPlaylistsDataSource mUserPlaylistsDataSource;
 
     private HandlerThread mCollectionUpdateHandlerThread;
+
     private Handler mHandler;
 
     private Map<Long, Artist> mArtists;
+
     private Artist mCachedArtist;
+
     private Map<Long, Album> mAlbums;
+
     private Album mCachedAlbum;
+
     private Map<Long, Track> mTracks;
+
     private CustomPlaylist mCachedCustomPlaylist;
+
     private Map<Long, CustomPlaylist> mCustomPlaylists;
 
     private Runnable mUpdateRunnable = new Runnable() {
@@ -84,14 +100,16 @@ public class UserCollection extends Collection {
      * Construct a new UserCollection and initialize.
      */
     public UserCollection(TomahawkApp tomahawkApp) {
-        mUserPlaylistsDataSource = new UserPlaylistsDataSource(tomahawkApp, tomahawkApp.getPipeLine());
+        mUserPlaylistsDataSource = new UserPlaylistsDataSource(tomahawkApp,
+                tomahawkApp.getPipeLine());
         mArtists = new HashMap<Long, Artist>();
         mAlbums = new HashMap<Long, Album>();
         mTracks = new HashMap<Long, Track>();
         mCustomPlaylists = new HashMap<Long, CustomPlaylist>();
 
-        TomahawkApp.getContext().getContentResolver().registerContentObserver(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false, mLocalMediaObserver);
+        TomahawkApp.getContext().getContentResolver()
+                .registerContentObserver(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false,
+                        mLocalMediaObserver);
 
         mCollectionUpdateHandlerThread = new HandlerThread("CollectionUpdate",
                 android.os.Process.THREAD_PRIORITY_BACKGROUND);
@@ -123,7 +141,6 @@ public class UserCollection extends Collection {
 
     /**
      * Caches an artist inside the playlist
-     * @param artist
      */
     @Override
     public void setCachedArtist(Artist artist) {
@@ -160,7 +177,6 @@ public class UserCollection extends Collection {
 
     /**
      * Caches an album inside the playlist
-     * @param album
      */
     @Override
     public void setCachedAlbum(Album album) {
@@ -181,7 +197,8 @@ public class UserCollection extends Collection {
      */
     @Override
     public List<CustomPlaylist> getCustomPlaylists() {
-        ArrayList<CustomPlaylist> playlists = new ArrayList<CustomPlaylist>(mCustomPlaylists.values());
+        ArrayList<CustomPlaylist> playlists = new ArrayList<CustomPlaylist>(
+                mCustomPlaylists.values());
         return playlists;
     }
 
@@ -204,7 +221,6 @@ public class UserCollection extends Collection {
 
     /**
      * Store the PlaybackService's currentPlaylist
-     * @param customPlaylist
      */
     public void setCachedPlaylist(CustomPlaylist customPlaylist) {
         mCachedCustomPlaylist = customPlaylist;
@@ -252,13 +268,17 @@ public class UserCollection extends Collection {
     private void initializeCollection() {
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
 
-        String[] projection = { MediaStore.Audio.Media._ID, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.TITLE,
-                MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.TRACK, MediaStore.Audio.Media.ARTIST_ID,
-                MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM_ID, MediaStore.Audio.Media.ALBUM };
+        String[] projection = {MediaStore.Audio.Media._ID, MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.DURATION,
+                MediaStore.Audio.Media.TRACK, MediaStore.Audio.Media.ARTIST_ID,
+                MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM_ID,
+                MediaStore.Audio.Media.ALBUM};
 
         ContentResolver resolver = TomahawkApp.getContext().getContentResolver();
 
-        Cursor cursor = resolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, selection, null, null);
+        Cursor cursor = resolver
+                .query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, selection, null,
+                        null);
 
         while (cursor != null && cursor.moveToNext()) {
             Artist artist = mArtists.get(cursor.getLong(5));
@@ -274,13 +294,15 @@ public class UserCollection extends Collection {
                 album = Album.get(cursor.getLong(7));
                 album.setName(cursor.getString(8));
 
-                String albumsel = MediaStore.Audio.Albums._ID + " == " + Long.toString(album.getId());
+                String albumsel = MediaStore.Audio.Albums._ID + " == " + Long
+                        .toString(album.getId());
 
-                String[] albumproj = { MediaStore.Audio.Albums.ALBUM_ART, MediaStore.Audio.Albums.FIRST_YEAR,
-                        MediaStore.Audio.Albums.LAST_YEAR };
+                String[] albumproj = {MediaStore.Audio.Albums.ALBUM_ART,
+                        MediaStore.Audio.Albums.FIRST_YEAR, MediaStore.Audio.Albums.LAST_YEAR};
 
-                Cursor albumcursor = resolver.query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, albumproj, albumsel,
-                        null, null);
+                Cursor albumcursor = resolver
+                        .query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, albumproj, albumsel,
+                                null, null);
 
                 if (albumcursor != null && albumcursor.moveToNext()) {
 
@@ -291,8 +313,9 @@ public class UserCollection extends Collection {
                     mAlbums.put(album.getId(), album);
                 }
 
-                if (albumcursor != null)
+                if (albumcursor != null) {
                     albumcursor.close();
+                }
             }
 
             Track track = mTracks.get(cursor.getLong(0));
@@ -316,20 +339,23 @@ public class UserCollection extends Collection {
             track.setArtist(artist);
         }
 
-        if (cursor != null)
+        if (cursor != null) {
             cursor.close();
+        }
         updateUserPlaylists();
     }
 
     public void updateUserPlaylists() {
         mUserPlaylistsDataSource.open();
         mCustomPlaylists.clear();
-        ArrayList<CustomPlaylist> customPlayListList = mUserPlaylistsDataSource.getAllUserPlaylists();
+        ArrayList<CustomPlaylist> customPlayListList = mUserPlaylistsDataSource
+                .getAllUserPlaylists();
         for (CustomPlaylist customPlaylist : customPlayListList) {
-            if (customPlaylist.getId() == UserPlaylistsDataSource.CACHED_PLAYLIST_ID)
+            if (customPlaylist.getId() == UserPlaylistsDataSource.CACHED_PLAYLIST_ID) {
                 setCachedPlaylist(customPlaylist);
-            else
+            } else {
                 mCustomPlaylists.put(customPlaylist.getId(), customPlaylist);
+            }
         }
         TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
     }

@@ -17,17 +17,16 @@
  */
 package org.tomahawk.libtomahawk;
 
+import com.emilsjolander.components.stickylistheaders.StickyListHeadersListView;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
-import com.emilsjolander.components.stickylistheaders.StickyListHeadersListView;
-
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com>
- * Date: 29.01.13
+ * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 29.01.13
  */
 public class TomahawkStickyListHeadersListView extends StickyListHeadersListView {
 
@@ -61,6 +60,7 @@ public class TomahawkStickyListHeadersListView extends StickyListHeadersListView
     }
 
     class YScrollDetector extends GestureDetector.SimpleOnGestureListener {
+
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             try {

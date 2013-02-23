@@ -9,20 +9,20 @@ public class TomahawkUtils {
 
     /**
      * Author: Chas Emerick (source: http://mrfoo.de/archiv/1176-Levenshtein-Distance-in-Java.html)
-     * 
+     *
      * This method uses the LevenstheinDistance algorithm to compute the similarity of two strings.
-     * @param s
-     * @param t
+     *
      * @return a value between 0 and 1
      */
     public static int getLevenshteinDistance(String s, String t) {
         if (s == null || t == null) {
             throw new IllegalArgumentException("Strings must not be null");
         }
-        if (s == null || TextUtils.isEmpty(s))
+        if (s == null || TextUtils.isEmpty(s)) {
             return t.length();
-        else if (t == null || TextUtils.isEmpty(t))
+        } else if (t == null || TextUtils.isEmpty(t)) {
             return s.length();
+        }
         int n = s.length(); // length of s
         int m = t.length(); // length of t
 
@@ -70,9 +70,10 @@ public class TomahawkUtils {
     }
 
     /**
-     * This method converts dp unit to equivalent device specific value in pixels. 
+     * This method converts dp unit to equivalent device specific value in pixels.
      *
-     * @param dp A value in dp(Device independent pixels) unit. Which we need to convert into pixels
+     * @param dp      A value in dp(Device independent pixels) unit. Which we need to convert into
+     *                pixels
      * @param context Context to get resources and device specific display metrics
      * @return A float value to represent Pixels equivalent to dp according to device
      */

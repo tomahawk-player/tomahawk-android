@@ -29,6 +29,8 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package com.codebutler.android_websockets;
 
+import android.util.Log;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -37,9 +39,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 
-import android.util.Log;
-
 public class HybiParser {
+
     private static final String TAG = "HybiParser";
 
     private WebSocketClient mClient;
@@ -49,13 +50,19 @@ public class HybiParser {
     private int mStage;
 
     private boolean mFinal;
+
     private boolean mMasked;
+
     private int mOpcode;
+
     private int mLengthSize;
+
     private int mLength;
+
     private int mMode;
 
     private byte[] mMask = new byte[0];
+
     private byte[] mPayload = new byte[0];
 
     private boolean mClosed = false;
@@ -63,35 +70,51 @@ public class HybiParser {
     private ByteArrayOutputStream mBuffer = new ByteArrayOutputStream();
 
     private static final int BYTE = 255;
+
     private static final int FIN = 128;
+
     private static final int MASK = 128;
+
     private static final int RSV1 = 64;
+
     private static final int RSV2 = 32;
+
     private static final int RSV3 = 16;
+
     private static final int OPCODE = 15;
+
     private static final int LENGTH = 127;
 
     private static final int MODE_TEXT = 1;
+
     private static final int MODE_BINARY = 2;
 
     private static final int OP_CONTINUATION = 0;
+
     private static final int OP_TEXT = 1;
+
     private static final int OP_BINARY = 2;
+
     private static final int OP_CLOSE = 8;
+
     private static final int OP_PING = 9;
+
     private static final int OP_PONG = 10;
 
-    private static final List<Integer> OPCODES = Arrays.asList(OP_CONTINUATION, OP_TEXT, OP_BINARY, OP_CLOSE, OP_PING, OP_PONG);
+    private static final List<Integer> OPCODES = Arrays
+            .asList(OP_CONTINUATION, OP_TEXT, OP_BINARY, OP_CLOSE, OP_PING, OP_PONG);
 
-    private static final List<Integer> FRAGMENTED_OPCODES = Arrays.asList(OP_CONTINUATION, OP_TEXT, OP_BINARY);
+    private static final List<Integer> FRAGMENTED_OPCODES = Arrays
+            .asList(OP_CONTINUATION, OP_TEXT, OP_BINARY);
 
     public HybiParser(WebSocketClient client) {
         mClient = client;
     }
 
     private static byte[] mask(byte[] payload, byte[] mask, int offset) {
-        if (mask.length == 0)
+        if (mask.length == 0) {
             return payload;
+        }
 
         for (int i = 0; i < payload.length - offset; i++) {
             payload[offset + i] = (byte) (payload[offset + i] ^ mask[i % 4]);
@@ -101,27 +124,28 @@ public class HybiParser {
 
     public void start(HappyDataInputStream stream) throws IOException {
         while (true) {
-            if (stream.available() == -1)
+            if (stream.available() == -1) {
                 break;
+            }
             switch (mStage) {
-            case 0:
-                parseOpcode(stream.readByte());
-                break;
-            case 1:
-                parseLength(stream.readByte());
-                break;
-            case 2:
-                parseExtendedLength(stream.readBytes(mLengthSize));
-                break;
-            case 3:
-                mMask = stream.readBytes(4);
-                mStage = 4;
-                break;
-            case 4:
-                mPayload = stream.readBytes(mLength);
-                emitFrame();
-                mStage = 0;
-                break;
+                case 0:
+                    parseOpcode(stream.readByte());
+                    break;
+                case 1:
+                    parseLength(stream.readByte());
+                    break;
+                case 2:
+                    parseExtendedLength(stream.readBytes(mLengthSize));
+                    break;
+                case 3:
+                    mMask = stream.readBytes(4);
+                    mStage = 4;
+                    break;
+                case 4:
+                    mPayload = stream.readBytes(mLength);
+                    emitFrame();
+                    mStage = 0;
+                    break;
             }
         }
         mClient.getListener().onDisconnect(0, "EOF");
@@ -186,8 +210,9 @@ public class HybiParser {
     }
 
     private byte[] frame(Object data, int opcode, int errorCode) {
-        if (mClosed)
+        if (mClosed) {
             return null;
+        }
 
         Log.d(TAG, "Creating frame for: " + data + " op: " + opcode + " err: " + errorCode);
 
@@ -226,8 +251,9 @@ public class HybiParser {
         System.arraycopy(buffer, 0, frame, offset + insert, buffer.length);
 
         if (mMasking) {
-            byte[] mask = { (byte) Math.floor(Math.random() * 256), (byte) Math.floor(Math.random() * 256),
-                    (byte) Math.floor(Math.random() * 256), (byte) Math.floor(Math.random() * 256) };
+            byte[] mask = {(byte) Math.floor(Math.random() * 256),
+                    (byte) Math.floor(Math.random() * 256), (byte) Math.floor(Math.random() * 256),
+                    (byte) Math.floor(Math.random() * 256)};
             System.arraycopy(mask, 0, frame, header, mask.length);
             mask(frame, mask, offset);
         }
@@ -240,8 +266,9 @@ public class HybiParser {
     }
 
     public void close(int code, String reason) {
-        if (mClosed)
+        if (mClosed) {
             return;
+        }
         mClient.send(frame(reason, OP_CLOSE, code));
         mClosed = true;
     }
@@ -336,14 +363,16 @@ public class HybiParser {
     }
 
     public static class ProtocolError extends IOException {
+
         public ProtocolError(String detailMessage) {
             super(detailMessage);
         }
     }
 
     private static long byteArrayToLong(byte[] b, int offset, int length) {
-        if (b.length < length)
+        if (b.length < length) {
             throw new IllegalArgumentException("length must be less than or equal to b.length");
+        }
 
         long value = 0;
         for (int i = 0; i < length; i++) {
@@ -354,6 +383,7 @@ public class HybiParser {
     }
 
     public static class HappyDataInputStream extends DataInputStream {
+
         public HappyDataInputStream(InputStream in) {
             super(in);
         }
@@ -372,7 +402,9 @@ public class HybiParser {
             }
 
             if (total != length) {
-                throw new IOException(String.format("Read wrong number of bytes. Got: %s, Expected: %s.", total, length));
+                throw new IOException(
+                        String.format("Read wrong number of bytes. Got: %s, Expected: %s.", total,
+                                length));
             }
 
             return buffer;

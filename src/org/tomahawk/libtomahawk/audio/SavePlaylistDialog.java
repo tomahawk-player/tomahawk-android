@@ -33,11 +33,11 @@ import android.view.LayoutInflater;
 import android.widget.EditText;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com>
- * Date: 20.02.13
+ * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.02.13
  */
 
 public class SavePlaylistDialog extends DialogFragment {
+
     Playlist mPlaylist;
 
     public SavePlaylistDialog(Playlist playlist) {
@@ -49,19 +49,23 @@ public class SavePlaylistDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        builder.setView(inflater.inflate(R.layout.save_playlist_dialog, null)).setPositiveButton(R.string.ok,
-                new DialogInterface.OnClickListener() {
+        builder.setView(inflater.inflate(R.layout.save_playlist_dialog, null))
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        EditText editText = (EditText) getDialog().findViewById(R.id.save_playlist_dialog_name_textview);
-                        UserPlaylistsDataSource userPlaylistsDataSource = new UserPlaylistsDataSource(getActivity(),
+                        EditText editText = (EditText) getDialog()
+                                .findViewById(R.id.save_playlist_dialog_name_textview);
+                        UserPlaylistsDataSource userPlaylistsDataSource
+                                = new UserPlaylistsDataSource(getActivity(),
                                 ((TomahawkApp) getActivity().getApplication()).getPipeLine());
                         userPlaylistsDataSource.open();
-                        userPlaylistsDataSource.storeUserPlaylist(-1, TextUtils.isEmpty(editText.getText().toString())
-                                ? getString(R.string.playlistsfragment_title_string) : editText.getText().toString(),
-                                mPlaylist);
-                        ((UserCollection) ((TomahawkApp) getActivity().getApplication()).getSourceList().getCollectionFromId(
-                                UserCollection.Id)).updateUserPlaylists();
+                        userPlaylistsDataSource.storeUserPlaylist(-1,
+                                TextUtils.isEmpty(editText.getText().toString()) ? getString(
+                                        R.string.playlistsfragment_title_string)
+                                        : editText.getText().toString(), mPlaylist);
+                        ((UserCollection) ((TomahawkApp) getActivity().getApplication())
+                                .getSourceList().getCollectionFromId(UserCollection.Id))
+                                .updateUserPlaylists();
                     }
                 }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {

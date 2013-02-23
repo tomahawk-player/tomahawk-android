@@ -17,13 +17,13 @@
  */
 package org.tomahawk.tomahawk_android.test;
 
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.json.JSONObject;
 import org.tomahawk.libtomahawk.network.Msg;
 import org.tomahawk.libtomahawk.network.TomahawkNetworkUtils;
+
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TomahawkTestData {
 

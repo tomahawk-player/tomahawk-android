@@ -27,7 +27,9 @@ import android.test.AndroidTestCase;
 public class AlbumTest extends AndroidTestCase {
 
     private final long mId = 12345L;
+
     private Album mTstAlbum;
+
     private String mTestAlbumName = "Album";
 
     public void setUp() {

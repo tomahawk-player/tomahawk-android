@@ -22,22 +22,27 @@ import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.Track;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com>
- * Date: 19.01.13
- * This class represents a result, which will be returned by a resolver.
+ * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 19.01.13 This class represents a result,
+ * which will be returned by a resolver.
  */
 public class Result {
+
     private String mRid;
+
     private Resolver mResolver;
 
     private Artist mArtist;
+
     private Album mAlbum;
+
     private Track mTrack;
 
     private String mMimeType;
 
     private float mTrackScore;
+
     private float mAlbumScore;
+
     private float mArtistScore;
 
     public Result() {
@@ -80,8 +85,9 @@ public class Result {
 
     public void setTrackScore(float score) {
         this.mTrackScore = score;
-        if (getTrack() != null)
+        if (getTrack() != null) {
             getTrack().setScore(score);
+        }
     }
 
     public float getAlbumScore() {
@@ -90,8 +96,9 @@ public class Result {
 
     public void setAlbumScore(float score) {
         this.mAlbumScore = score;
-        if (getAlbum() != null)
+        if (getAlbum() != null) {
             getAlbum().setScore(score);
+        }
     }
 
     public float getArtistScore() {
@@ -100,8 +107,9 @@ public class Result {
 
     public void setArtistScore(float score) {
         this.mArtistScore = score;
-        if (getArtist() != null)
+        if (getArtist() != null) {
             getArtist().setScore(score);
+        }
     }
 
     public Artist getArtist() {

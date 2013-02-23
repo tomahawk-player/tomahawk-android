@@ -12,33 +12,35 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 
-public class TomahawkPlaybackSettingsActivity extends SherlockPreferenceActivity 
+public class TomahawkPlaybackSettingsActivity extends SherlockPreferenceActivity
         implements OnPreferenceChangeListener {
 
     public static final String PLAYBACK_ON_HEADSET = "playbackonheadset";
+
     public static final String PREF_PLAYBACK_ON_HEADSET = "playback_on_headset";
 
     private CheckBoxPreference mPlaybackOnHeadsetPref;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-		addPreferencesFromResource(R.xml.playback_settings);
+        addPreferencesFromResource(R.xml.playback_settings);
 
-        mPlaybackOnHeadsetPref = (CheckBoxPreference)findPreference(PLAYBACK_ON_HEADSET);
+        mPlaybackOnHeadsetPref = (CheckBoxPreference) findPreference(PLAYBACK_ON_HEADSET);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(TomahawkApp.getContext());
         boolean playbackOnHeadsetInsert = prefs.getBoolean(PREF_PLAYBACK_ON_HEADSET, false);
 
         mPlaybackOnHeadsetPref.setChecked(playbackOnHeadsetInsert);
-	}
-	
+    }
+
     /* 
      * (non-Javadoc)
      * @see com.actionbarsherlock.app.SherlockFragmentActivity#onOptionsItemSelected(android.view.MenuItem)
@@ -56,9 +58,10 @@ public class TomahawkPlaybackSettingsActivity extends SherlockPreferenceActivity
 
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-        if (preference == mPlaybackOnHeadsetPref) {        
-        	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-        	SharedPreferences.Editor editor = prefs.edit();
+        if (preference == mPlaybackOnHeadsetPref) {
+            SharedPreferences prefs = PreferenceManager
+                    .getDefaultSharedPreferences(TomahawkApp.getContext());
+            SharedPreferences.Editor editor = prefs.edit();
 
             editor.putBoolean(PREF_PLAYBACK_ON_HEADSET, mPlaybackOnHeadsetPref.isChecked());
             editor.commit();
@@ -69,8 +72,8 @@ public class TomahawkPlaybackSettingsActivity extends SherlockPreferenceActivity
         return false;
     }
 
-	@Override
-	public boolean onPreferenceChange(Preference preference, Object newValue) {
-		return false;
-	}
+    @Override
+    public boolean onPreferenceChange(Preference preference, Object newValue) {
+        return false;
+    }
 }

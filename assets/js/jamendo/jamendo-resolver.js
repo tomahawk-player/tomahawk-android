@@ -8,7 +8,7 @@ var JamendoResolver = Tomahawk.extend(TomahawkResolver, {
         weight: 75,
         timeout: 5
     },
-    handleResponse: function(qid, xhr) {    
+    handleResponse: function (qid, xhr) {
         // parse xml
         var domParser = new DOMParser();
         xmlDoc = domParser.parseFromString(xhr.responseText, "text/xml");
@@ -45,7 +45,7 @@ var JamendoResolver = Tomahawk.extend(TomahawkResolver, {
         };
         Tomahawk.addTrackResults(return1);
     },
-    
+
     sendRequest: function (url) {
         // send request and parse it into javascript
         Tomahawk.asyncRequest(url, this.handleResponse);
@@ -53,25 +53,37 @@ var JamendoResolver = Tomahawk.extend(TomahawkResolver, {
     resolve: function (qid, artist, album, title) {
         // build query to Jamendo
         var url = "http://api.jamendo.com/get2/id+name+duration+stream+album_name+artist_name/track/xml/track_album+album_artist/?";
-        if (title !== "") url += "name=" + encodeURIComponent(title) + "&";
+        if (title !== "") {
+            url += "name=" + encodeURIComponent(title) + "&";
+        }
 
-        if (artist !== "") url += "artist_name=" + encodeURIComponent(artist) + "&";
+        if (artist !== "") {
+            url += "artist_name=" + encodeURIComponent(artist) + "&";
+        }
 
-        if (album !== "") url += "album_name=" + encodeURIComponent(album) + "&";
+        if (album !== "") {
+            url += "album_name=" + encodeURIComponent(album) + "&";
+        }
 
         url += "n=20";
 
         var that = this;
-        Tomahawk.asyncRequest(url, function(xhr) { that.handleResponse(qid, xhr); } );
+        Tomahawk.asyncRequest(url, function (xhr) {
+            that.handleResponse(qid, xhr);
+        });
     },
     search: function (qid, searchString) {
         // build query to Jamendo
         var url = "http://api.jamendo.com/get2/id+name+duration+stream+album_name+artist_name/track/xml/track_album+album_artist/?";
-        if (searchString !== "") url += "searchquery=" + encodeURIComponent(searchString);
+        if (searchString !== "") {
+            url += "searchquery=" + encodeURIComponent(searchString);
+        }
 
         url += "&n=20";
         var that = this;
-        Tomahawk.asyncRequest(url, function(xhr) { that.handleResponse(qid, xhr); } );
+        Tomahawk.asyncRequest(url, function (xhr) {
+            that.handleResponse(qid, xhr);
+        });
     },
 });
 

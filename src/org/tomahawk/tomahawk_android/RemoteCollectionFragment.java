@@ -17,6 +17,8 @@
  */
 package org.tomahawk.tomahawk_android;
 
+import com.actionbarsherlock.app.SherlockListFragment;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -25,8 +27,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-
-import com.actionbarsherlock.app.SherlockListFragment;
 
 /**
  * Fragment which represents the "RemoteCollection" tabview.
@@ -37,6 +37,7 @@ public class RemoteCollectionFragment extends SherlockListFragment implements On
     private static final String TAG = RemoteCollectionFragment.class.getName();
 
     private ArrayAdapter<String> mRemoteCollectionAdapter;
+
     protected CollectionActivity mCollectionActivity;
 
     /* 
@@ -44,7 +45,8 @@ public class RemoteCollectionFragment extends SherlockListFragment implements On
      * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
      */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
         return inflater.inflate(R.layout.menu_layout, null, false);
     }
 
@@ -58,8 +60,8 @@ public class RemoteCollectionFragment extends SherlockListFragment implements On
         super.onActivityCreated(savedInstanceState);
 
         getListView().setOnItemClickListener(this);
-        mRemoteCollectionAdapter = new ArrayAdapter<String>(getActivity(), R.layout.single_line_list_menu,
-                R.id.single_line_list_menu_textview,
+        mRemoteCollectionAdapter = new ArrayAdapter<String>(getActivity(),
+                R.layout.single_line_list_menu, R.id.single_line_list_menu_textview,
                 getResources().getStringArray(R.array.remote_collection_menu_items));
         setListAdapter(mRemoteCollectionAdapter);
     }

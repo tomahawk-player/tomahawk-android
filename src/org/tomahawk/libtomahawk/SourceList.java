@@ -26,6 +26,7 @@ import java.util.List;
 public class SourceList {
 
     private List<Source> mSources = null;
+
     private Source mLocalSource = null;
 
     /**
@@ -37,8 +38,6 @@ public class SourceList {
 
     /**
      * Sets the local source.
-     * 
-     * @param source
      */
     public void setLocalSource(Source source) {
         mSources.remove(mLocalSource);
@@ -48,8 +47,6 @@ public class SourceList {
 
     /**
      * Returns the Source that represents this device.
-     * 
-     * @return
      */
     public Source getLocalSource() {
         return mLocalSource;
@@ -61,15 +58,13 @@ public class SourceList {
 
     /**
      * Returns the Collection with this id.
-     * 
-     * @param id
-     * @return
      */
     public Collection getCollectionFromId(int id) {
 
         for (Source source : getSources()) {
-            if (source.getCollection().getId() == id)
+            if (source.getCollection().getId() == id) {
                 return source.getCollection();
+            }
         }
         return null;
     }

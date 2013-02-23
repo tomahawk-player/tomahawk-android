@@ -17,9 +17,6 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.TomahawkBaseAdapter;
 import org.tomahawk.libtomahawk.TomahawkListAdapter;
@@ -31,6 +28,9 @@ import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Fragment which represents the "Playlist" tabview.
@@ -46,11 +46,15 @@ public class PlaylistsFragment extends TomahawkFragment implements OnItemClickLi
         if (idx >= 0) {
             if (getListAdapter().getItem(idx) instanceof Playlist) {
                 Bundle bundle = new Bundle();
-                bundle.putLong(TOMAHAWK_PLAYLIST_ID, ((CustomPlaylist) getListAdapter().getItem(idx)).getId());
-                if (mActivity instanceof CollectionActivity)
-                    ((CollectionActivity) mActivity).getTabsAdapter().replace(
-                            CollectionActivity.LOCAL_COLLECTION_TAB_POSITION, TracksFragment.class,
-                            ((CustomPlaylist) getListAdapter().getItem(idx)).getId(), TOMAHAWK_PLAYLIST_ID, false);
+                bundle.putLong(TOMAHAWK_PLAYLIST_ID,
+                        ((CustomPlaylist) getListAdapter().getItem(idx)).getId());
+                if (mActivity instanceof CollectionActivity) {
+                    ((CollectionActivity) mActivity).getTabsAdapter()
+                            .replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
+                                    TracksFragment.class,
+                                    ((CustomPlaylist) getListAdapter().getItem(idx)).getId(),
+                                    TOMAHAWK_PLAYLIST_ID, false);
+                }
             }
         }
     }
@@ -63,9 +67,11 @@ public class PlaylistsFragment extends TomahawkFragment implements OnItemClickLi
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
 
-        List<TomahawkBaseAdapter.TomahawkListItem> playlists = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+        List<TomahawkBaseAdapter.TomahawkListItem> playlists
+                = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
         playlists.addAll(coll.getCustomPlaylists());
-        List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+        List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
+                = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
         listArray.add(playlists);
         setListAdapter(new TomahawkListAdapter(getActivity(), listArray));
 

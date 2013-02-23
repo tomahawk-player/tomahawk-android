@@ -19,39 +19,39 @@
  */
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:paddingBottom="5dip"
-    android:paddingLeft="10dip"
-    android:paddingTop="5dip"
-    android:background="@drawable/selectable_background_tomahawk" >
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="horizontal"
+              android:paddingBottom="5dip"
+              android:paddingLeft="10dip"
+              android:paddingTop="5dip"
+              android:background="@drawable/selectable_background_tomahawk">
 
     <org.tomahawk.tomahawk_android.SquareHeightRelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent" >
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
 
         <ImageView
-            android:id="@+id/icon_menu_imageview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:adjustViewBounds="false"
-            android:scaleType="centerCrop" />
+                android:id="@+id/icon_menu_imageview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="false"
+                android:scaleType="centerCrop"/>
     </org.tomahawk.tomahawk_android.SquareHeightRelativeLayout>
 
     <TextView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/single_line_list_menu_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ellipsize="marquee"
-        android:paddingBottom="10dp"
-        android:paddingLeft="5dp"
-        android:paddingTop="10dp"
-        android:singleLine="true"
-        android:textColor="#F2F2F2"
-        android:textSize="10pt"
-        android:typeface="sans" />
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/single_line_list_menu_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:paddingBottom="10dp"
+            android:paddingLeft="5dp"
+            android:paddingTop="10dp"
+            android:singleLine="true"
+            android:textColor="#F2F2F2"
+            android:textSize="10pt"
+            android:typeface="sans"/>
 
 </LinearLayout>

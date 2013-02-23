@@ -17,14 +17,15 @@
  */
 package org.tomahawk.libtomahawk.playlist;
 
-import java.util.ArrayList;
-
 import org.tomahawk.libtomahawk.Album;
 import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.TomahawkBaseAdapter;
 import org.tomahawk.libtomahawk.Track;
 
+import java.util.ArrayList;
+
 public class CustomPlaylist extends Playlist implements TomahawkBaseAdapter.TomahawkListItem {
+
     private long mId;
 
     /**
@@ -40,12 +41,12 @@ public class CustomPlaylist extends Playlist implements TomahawkBaseAdapter.Toma
     }
 
     /**
-     * Creates a CustomPlaylist from a list of tracks and sets the current Track
-     * to the given track
+     * Creates a CustomPlaylist from a list of tracks and sets the current Track to the given track
      *
      * @return a reference to the constructed CustomPlaylist
      */
-    public static CustomPlaylist fromTrackList(String name, ArrayList<Track> tracks, Track currentTrack) {
+    public static CustomPlaylist fromTrackList(String name, ArrayList<Track> tracks,
+            Track currentTrack) {
         CustomPlaylist pl = new CustomPlaylist(name);
         pl.setTracks(tracks);
         pl.setCurrentTrack(currentTrack);
@@ -53,12 +54,13 @@ public class CustomPlaylist extends Playlist implements TomahawkBaseAdapter.Toma
     }
 
     /**
-     * Creates a CustomPlaylist from a list of tracks and sets the current Track index
-     * to the given track index
+     * Creates a CustomPlaylist from a list of tracks and sets the current Track index to the given
+     * track index
      *
      * @return a reference to the constructed CustomPlaylist
      */
-    public static CustomPlaylist fromTrackList(String name, ArrayList<Track> tracks, int currentTrackIndex) {
+    public static CustomPlaylist fromTrackList(String name, ArrayList<Track> tracks,
+            int currentTrackIndex) {
         CustomPlaylist pl = new CustomPlaylist(name);
         pl.setTracks(tracks);
         pl.setCurrentTrackIndex(currentTrackIndex);
