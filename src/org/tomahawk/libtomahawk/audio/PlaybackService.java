@@ -102,7 +102,7 @@ public class PlaybackService extends Service
 
     public static final String PREF_PLAYBACK_ON_HEADSET = "playback_on_headset";
 
-    private static final int PLAYBACKSERVICE_NOTIFICATION_ID = 0;
+    private static final int PLAYBACKSERVICE_NOTIFICATION_ID = 1;
 
     private static final int DELAY_TO_KILL = 300000;
 
@@ -299,9 +299,7 @@ public class PlaybackService extends Service
                 next();
             } else if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_EXIT) {
                 pause();
-                NotificationManager notificationManager = (NotificationManager) getSystemService(
-                        Context.NOTIFICATION_SERVICE);
-                notificationManager.cancel(PLAYBACKSERVICE_NOTIFICATION_ID);
+                stopForeground(true);
             }
         }
         return START_STICKY;
@@ -458,9 +456,7 @@ public class PlaybackService extends Service
         if (mPlayState == PLAYBACKSERVICE_PLAYSTATE_PLAYING) {
             mPlayState = PLAYBACKSERVICE_PLAYSTATE_PAUSED;
             if (dismissNotificationOnPause) {
-                NotificationManager notificationManager = (NotificationManager) getSystemService(
-                        Context.NOTIFICATION_SERVICE);
-                notificationManager.cancel(PLAYBACKSERVICE_NOTIFICATION_ID);
+                stopForeground(true);
             } else {
                 updatePlayingNotification();
             }
@@ -490,9 +486,7 @@ public class PlaybackService extends Service
         mPlayState = PLAYBACKSERVICE_PLAYSTATE_STOPPED;
         sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
         handlePlayState();
-        NotificationManager notificationManager = (NotificationManager) getSystemService(
-                Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(PLAYBACKSERVICE_NOTIFICATION_ID);
+        stopForeground(true);
     }
 
     /**
@@ -510,9 +504,7 @@ public class PlaybackService extends Service
         sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
         handlePlayState();
         if (dismissNotificationOnPause) {
-            NotificationManager notificationManager = (NotificationManager) getSystemService(
-                    Context.NOTIFICATION_SERVICE);
-            notificationManager.cancel(PLAYBACKSERVICE_NOTIFICATION_ID);
+            stopForeground(true);
         } else {
             updatePlayingNotification();
         }
@@ -855,9 +847,7 @@ public class PlaybackService extends Service
                     exitPendingIntent);
             notification.bigContentView = largeNotificationView;
         }
-        NotificationManager notificationManager = (NotificationManager) getSystemService(
-                Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(PLAYBACKSERVICE_NOTIFICATION_ID, notification);
+        startForeground(PLAYBACKSERVICE_NOTIFICATION_ID, notification);
     }
 
     /**
