@@ -410,7 +410,7 @@ public class PlaybackService extends Service
      * Save the current playlist in the UserCollection
      */
     private void saveState() {
-        if (getCurrentPlaylist() != null && getCurrentPlaylist().getCount() > 0) {
+        if (getCurrentPlaylist() != null) {
             UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication())
                     .getSourceList().getCollectionFromId(UserCollection.Id));
             userCollection.setCachedPlaylist(CustomPlaylist
@@ -673,20 +673,26 @@ public class PlaybackService extends Service
     }
 
     public void addTracksToCurrentPlaylist(ArrayList<Track> tracks) {
+        boolean wasEmpty = mCurrentPlaylist.getCount() <= 0;
         mCurrentPlaylist.addTracks(tracks);
-        if (mCurrentPlaylist.getCount() == 1) {
-            mCurrentPlaylist.setCurrentTrack(mCurrentPlaylist.getTrackAtPos(0));
+        if (wasEmpty && mCurrentPlaylist.getCount() > 0) {
+            try {
+                setCurrentTrack(mCurrentPlaylist.getTrackAtPos(0));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
 
     public void addTracksToCurrentPlaylist(int position, ArrayList<Track> tracks) {
+        boolean wasEmpty = mCurrentPlaylist.getCount() <= 0;
         if (position < mCurrentPlaylist.getCount()) {
             mCurrentPlaylist.addTracks(position, tracks);
         } else {
             mCurrentPlaylist.addTracks(tracks);
         }
-        if (mCurrentPlaylist.getCount() == 1) {
+        if (wasEmpty && mCurrentPlaylist.getCount() > 0) {
             try {
                 setCurrentTrack(mCurrentPlaylist.getTrackAtPos(0));
             } catch (IOException e) {

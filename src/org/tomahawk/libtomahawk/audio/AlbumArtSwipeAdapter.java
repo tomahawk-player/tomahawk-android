@@ -103,7 +103,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      */
     @Override
     public int getCount() {
-        if (mPlaylist == null) {
+        if (mPlaylist == null || mPlaylist.getCount() == 0) {
             return 1;
         }
         if (mPlaylist.isRepeating()) {

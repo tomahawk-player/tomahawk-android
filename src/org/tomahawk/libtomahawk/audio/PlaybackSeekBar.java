@@ -140,13 +140,16 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
      */
     protected void updateTextViewCurrentTime(int position) {
         if (mTextViewCurrentTime != null) {
-            if (!isIsSeeking()) {
+            if (!isIsSeeking() && mPlaybackService.getCurrentPlaylist().getCount() > 0) {
                 mTextViewCurrentTime.setText(String.format("%02d", position / 60000) + ":" + String
                         .format("%02.0f", (double) ((position / 1000) % 60)));
-            } else {
+            } else if (mPlaybackService.getCurrentPlaylist().getCount() > 0) {
                 mTextViewCurrentTime.setText(
                         String.format("%02d", getProgress() / 60000) + ":" + String
                                 .format("%02.0f", (double) ((getProgress() / 1000) % 60)));
+            } else {
+                mTextViewCurrentTime.setText(
+                        String.format("%02d", 0) + ":" + String.format("%02.0f", (double) (0)));
             }
         }
     }
