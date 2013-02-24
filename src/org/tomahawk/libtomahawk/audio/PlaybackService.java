@@ -673,6 +673,9 @@ public class PlaybackService extends Service
     }
 
     public void addTracksToCurrentPlaylist(ArrayList<Track> tracks) {
+        if (mCurrentPlaylist == null) {
+            mCurrentPlaylist = CustomPlaylist.fromTrackList("Temp", new ArrayList<Track>());
+        }
         boolean wasEmpty = mCurrentPlaylist.getCount() <= 0;
         mCurrentPlaylist.addTracks(tracks);
         if (wasEmpty && mCurrentPlaylist.getCount() > 0) {
@@ -686,6 +689,9 @@ public class PlaybackService extends Service
     }
 
     public void addTracksToCurrentPlaylist(int position, ArrayList<Track> tracks) {
+        if (mCurrentPlaylist == null) {
+            mCurrentPlaylist = CustomPlaylist.fromTrackList("Temp", new ArrayList<Track>());
+        }
         boolean wasEmpty = mCurrentPlaylist.getCount() <= 0;
         if (position < mCurrentPlaylist.getCount()) {
             mCurrentPlaylist.addTracks(position, tracks);

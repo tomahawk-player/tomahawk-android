@@ -366,9 +366,13 @@ public abstract class TomahawkFragment extends SherlockFragment
                 } else if (tomahawkListItem instanceof Artist) {
                     tracks = ((Artist) tomahawkListItem).getTracks();
                 }
-                mActivity.getPlaybackService().addTracksToCurrentPlaylist(
-                        mActivity.getPlaybackService().getCurrentPlaylist().getCurrentTrackIndex()
-                                + 1, tracks);
+                if (mActivity.getPlaybackService().getCurrentPlaylist() != null) {
+                    mActivity.getPlaybackService().addTracksToCurrentPlaylist(
+                            mActivity.getPlaybackService().getCurrentPlaylist()
+                                    .getCurrentTrackIndex() + 1, tracks);
+                } else {
+                    mActivity.getPlaybackService().addTracksToCurrentPlaylist(tracks);
+                }
                 return true;
             case R.id.popupmenu_appendtoplaybacklist_item:
                 if (tomahawkListItem instanceof Track) {
