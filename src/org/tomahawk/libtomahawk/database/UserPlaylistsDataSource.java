@@ -98,6 +98,18 @@ public class UserPlaylistsDataSource {
                 values.put(TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ID, insertId);
                 mDatabase.insert(TomahawkSQLiteHelper.TABLE_USERPLAYLISTS, null, values);
             }
+            Cursor tracksCursor = mDatabase
+                    .query(TomahawkSQLiteHelper.TABLE_TRACKS, mAllTracksColumns,
+                            TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS + " = " + insertId,
+                            null, null, null, null);
+            tracksCursor.moveToFirst();
+            while (!tracksCursor.isAfterLast()) {
+                mDatabase.delete(TomahawkSQLiteHelper.TABLE_ALBUMS,
+                        TomahawkSQLiteHelper.ALBUMS_COLUMN_ID + " = " + tracksCursor.getLong(3),
+                        null);
+                tracksCursor.moveToNext();
+            }
+            tracksCursor.close();
             mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
                     TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS + " = " + insertId, null);
         } else {
@@ -228,13 +240,32 @@ public class UserPlaylistsDataSource {
     }
 
     public void deleteUserPlaylist(long playlistId) {
-        mDatabase.delete(TomahawkSQLiteHelper.TABLE_USERPLAYLISTS,
-                TomahawkSQLiteHelper.TRACKS_COLUMN_ID + " = " + playlistId, null);
+        Cursor tracksCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_TRACKS, mAllTracksColumns,
+                TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS + " = " + playlistId, null, null,
+                null, null);
+        tracksCursor.moveToFirst();
+        while (!tracksCursor.isAfterLast()) {
+            mDatabase.delete(TomahawkSQLiteHelper.TABLE_ALBUMS,
+                    TomahawkSQLiteHelper.ALBUMS_COLUMN_ID + " = " + tracksCursor.getLong(3), null);
+            tracksCursor.moveToNext();
+        }
+        tracksCursor.close();
         mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
                 TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS + " = " + playlistId, null);
+        mDatabase.delete(TomahawkSQLiteHelper.TABLE_USERPLAYLISTS,
+                TomahawkSQLiteHelper.TRACKS_COLUMN_ID + " = " + playlistId, null);
     }
 
     public void deleteTrackInUserPlaylist(long playlistId, long trackId) {
+        Cursor tracksCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_TRACKS, mAllTracksColumns,
+                TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS + " = " + playlistId + " and " +
+                        TomahawkSQLiteHelper.TRACKS_COLUMN_ID + " = " + trackId, null, null, null,
+                null);
+        if (tracksCursor.moveToFirst()) {
+            mDatabase.delete(TomahawkSQLiteHelper.TABLE_ALBUMS,
+                    TomahawkSQLiteHelper.ALBUMS_COLUMN_ID + " = " + tracksCursor.getLong(3), null);
+        }
+        tracksCursor.close();
         mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
                 TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS + " = " + playlistId + " and " +
                         TomahawkSQLiteHelper.TRACKS_COLUMN_ID + " = " + trackId, null);
