@@ -266,6 +266,8 @@ public class UserCollection extends Collection {
      * Initialize Tracks.
      */
     private void initializeCollection() {
+        updateUserPlaylists();
+
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
 
         String[] projection = {MediaStore.Audio.Media._ID, MediaStore.Audio.Media.DATA,
@@ -342,7 +344,6 @@ public class UserCollection extends Collection {
         if (cursor != null) {
             cursor.close();
         }
-        updateUserPlaylists();
     }
 
     public void updateUserPlaylists() {

@@ -182,6 +182,7 @@ public class UserPlaylistsDataSource {
             tracksCursor.moveToFirst();
             while (!tracksCursor.isAfterLast()) {
                 Track track = new Track();
+                track.setId(tracksCursor.getLong(0));
                 track.setName(tracksCursor.getString(2));
 
                 Cursor albumsCursor = mDatabase
@@ -231,5 +232,59 @@ public class UserPlaylistsDataSource {
                 TomahawkSQLiteHelper.TRACKS_COLUMN_ID + " = " + playlistId, null);
         mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
                 TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS + " = " + playlistId, null);
+    }
+
+    public void deleteTrackInUserPlaylist(long playlistId, long trackId) {
+        mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
+                TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS + " = " + playlistId + " and " +
+                        TomahawkSQLiteHelper.TRACKS_COLUMN_ID + " = " + trackId, null);
+    }
+
+    public void addTracksToUserPlaylist(long playlistId, ArrayList<Track> tracks) {
+        ContentValues values = new ContentValues();
+        Cursor userplaylistsCursor = mDatabase
+                .query(TomahawkSQLiteHelper.TABLE_USERPLAYLISTS, mAllUserPlaylistsColumns,
+                        TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ID + " = " + playlistId, null,
+                        null, null, null);
+        if (userplaylistsCursor.moveToFirst()) {
+            for (Track track : tracks) {
+                Album album = track.getAlbum();
+                long albumInsertId = -1;
+                if (album != null) {
+                    values.clear();
+                    values.put(TomahawkSQLiteHelper.ALBUMS_COLUMN_NAME, album.getName());
+                    values.put(TomahawkSQLiteHelper.ALBUMS_COLUMN_ALBUMART,
+                            album.getAlbumArtPath());
+                    values.put(TomahawkSQLiteHelper.ALBUMS_COLUMN_FIRSTYEAR, album.getFirstYear());
+                    values.put(TomahawkSQLiteHelper.ALBUMS_COLUMN_LASTYEAR, album.getLastYear());
+                    albumInsertId = mDatabase
+                            .insert(TomahawkSQLiteHelper.TABLE_ALBUMS, null, values);
+                }
+                values.clear();
+                values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS, playlistId);
+                values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME, track.getName());
+                if (albumInsertId >= 0) {
+                    values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_IDALBUMS, albumInsertId);
+                }
+                if (track.getArtist() != null) {
+                    values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ARTISTNAME,
+                            track.getArtist().getName());
+                }
+                values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PATH, track.getPath());
+                values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_BITRATE, track.getBitrate());
+                values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_DURATION, track.getDuration());
+                values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_SIZE, track.getSize());
+                values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNUMBER, track.getTrackNumber());
+                values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_YEAR, track.getYear());
+                if (track.getResolver() != null) {
+                    values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_RESOLVERID,
+                            track.getResolver().getId());
+                }
+                values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_LINKURL, track.getLinkUrl());
+                values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PURCHASEURL, track.getPurchaseUrl());
+                values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_SCORE, track.getScore());
+                mDatabase.insert(TomahawkSQLiteHelper.TABLE_TRACKS, null, values);
+            }
+        }
     }
 }

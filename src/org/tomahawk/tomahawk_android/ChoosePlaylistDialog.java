@@ -15,64 +15,59 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomahawk.libtomahawk.audio;
+package org.tomahawk.tomahawk_android;
 
+import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.UserCollection;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
-import org.tomahawk.libtomahawk.playlist.Playlist;
-import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.widget.EditText;
+
+import java.util.ArrayList;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.02.13
+ * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 24.02.13
  */
 
-public class SavePlaylistDialog extends DialogFragment {
+public class ChoosePlaylistDialog extends DialogFragment {
 
-    Playlist mPlaylist;
+    UserCollection mUserCollection;
 
-    public SavePlaylistDialog(Playlist playlist) {
+    ArrayList<Track> mTracks;
+
+    public ChoosePlaylistDialog(UserCollection userCollection, ArrayList<Track> tracks) {
         setRetainInstance(true);
-        mPlaylist = playlist;
+        mUserCollection = userCollection;
+        mTracks = tracks;
     }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-        builder.setView(inflater.inflate(R.layout.save_playlist_dialog, null))
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+        String[] playlistNames = new String[mUserCollection.getCustomPlaylists().size()];
+        for (int i = 0; i < mUserCollection.getCustomPlaylists().size(); i++) {
+            playlistNames[i] = mUserCollection.getCustomPlaylists().get(i).getName();
+        }
+        builder.setTitle(R.string.playbackactivity_choose_playlist_dialog_title)
+                .setItems(playlistNames, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        EditText editText = (EditText) getDialog()
-                                .findViewById(R.id.save_playlist_dialog_name_textview);
+                    public void onClick(DialogInterface dialog, int which) {
                         UserPlaylistsDataSource userPlaylistsDataSource
                                 = new UserPlaylistsDataSource(getActivity(),
                                 ((TomahawkApp) getActivity().getApplication()).getPipeLine());
                         userPlaylistsDataSource.open();
-                        userPlaylistsDataSource.storeUserPlaylist(-1,
-                                TextUtils.isEmpty(editText.getText().toString()) ? getString(
-                                        R.string.playlistsfragment_title_string)
-                                        : editText.getText().toString(), mPlaylist);
+                        userPlaylistsDataSource.addTracksToUserPlaylist(
+                                mUserCollection.getCustomPlaylists().get(which).getId(), mTracks);
                         userPlaylistsDataSource.close();
                         ((UserCollection) ((TomahawkApp) getActivity().getApplication())
                                 .getSourceList().getCollectionFromId(UserCollection.Id))
                                 .updateUserPlaylists();
                     }
-                }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                getDialog().cancel();
-            }
-        });
+                });
         return builder.create();
     }
 }

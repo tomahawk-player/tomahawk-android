@@ -39,8 +39,10 @@ import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.playlist.AlbumPlaylist;
 import org.tomahawk.libtomahawk.playlist.ArtistPlaylist;
 import org.tomahawk.libtomahawk.playlist.CollectionPlaylist;
+import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
 import org.tomahawk.libtomahawk.playlist.Playlist;
 import org.tomahawk.libtomahawk.resolver.TomahawkUtils;
+import org.tomahawk.tomahawk_android.ChoosePlaylistDialog;
 import org.tomahawk.tomahawk_android.CollectionActivity;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.SearchableActivity;
@@ -326,6 +328,9 @@ public class PlaybackActivity extends SherlockFragmentActivity
                                         mPlaybackService.getCurrentPlaylist().getTrackAtPos(
                                                 mPlaybackService.getCurrentPlaylist()
                                                         .getCurrentTrackIndex() + 1));
+                                if (wasPlaying) {
+                                    mPlaybackService.start();
+                                }
                             } else if (mPlaybackService.getCurrentPlaylist().peekTrackAtPos(
                                     mPlaybackService.getCurrentPlaylist().getCurrentTrackIndex()
                                             - 1) != null) {
@@ -333,12 +338,12 @@ public class PlaybackActivity extends SherlockFragmentActivity
                                         mPlaybackService.getCurrentPlaylist().getTrackAtPos(
                                                 mPlaybackService.getCurrentPlaylist()
                                                         .getCurrentTrackIndex() - 1));
+                                if (wasPlaying) {
+                                    mPlaybackService.start();
+                                }
                             }
                         } catch (IOException e) {
                             e.printStackTrace();
-                        }
-                        if (wasPlaying) {
-                            mPlaybackService.start();
                         }
                     }
                     mPlaybackService.deleteTrackAtPos(info.position);
@@ -360,6 +365,23 @@ public class PlaybackActivity extends SherlockFragmentActivity
                         }
                     }
                 }
+                return true;
+            case R.id.popupmenu_addtoplaylist_item:
+                UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication())
+                        .getSourceList().getCollectionFromId(UserCollection.Id));
+                ArrayList<Track> tracks = new ArrayList<Track>();
+                if (tomahawkListItem instanceof Track) {
+                    tracks.add((Track) tomahawkListItem);
+                } else if (tomahawkListItem instanceof CustomPlaylist) {
+                    tracks = ((CustomPlaylist) tomahawkListItem).getTracks();
+                } else if (tomahawkListItem instanceof Album) {
+                    tracks = ((Album) tomahawkListItem).getTracks();
+                } else if (tomahawkListItem instanceof Artist) {
+                    tracks = ((Artist) tomahawkListItem).getTracks();
+                }
+                new ChoosePlaylistDialog(userCollection, tracks)
+                        .show(getSupportFragmentManager(), "ChoosePlaylistDialog");
+                userCollection.updateUserPlaylists();
                 return true;
             default:
                 return super.onContextItemSelected(item);

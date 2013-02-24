@@ -285,15 +285,19 @@ public abstract class TomahawkFragment extends SherlockFragment
             tomahawkListItem = ((TomahawkListAdapter) mTomahawkBaseAdapter)
                     .getContentHeaderTomahawkListItem();
         }
-        if (!(tomahawkListItem instanceof CustomPlaylist)) {
+        if (!(tomahawkListItem instanceof CustomPlaylist || (tomahawkListItem instanceof Track
+                && mCustomPlaylist != null))) {
             menu.findItem(R.id.popupmenu_delete_item).setVisible(false);
-        } else {
+        }
+        if (tomahawkListItem instanceof CustomPlaylist) {
             menu.findItem(R.id.popupmenu_addtoplaylist_item).setVisible(false);
         }
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
+        UserCollection userCollection = ((UserCollection) ((TomahawkApp) mActivity.getApplication())
+                .getSourceList().getCollectionFromId(UserCollection.Id));
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
                 .getMenuInfo();
         info.position -= mList.getHeaderViewsCount();
@@ -312,9 +316,11 @@ public abstract class TomahawkFragment extends SherlockFragment
                 if (tomahawkListItem instanceof CustomPlaylist) {
                     mUserPlaylistsDataSource
                             .deleteUserPlaylist(((CustomPlaylist) tomahawkListItem).getId());
+                } else if (tomahawkListItem instanceof Track && mCustomPlaylist != null) {
+                    mUserPlaylistsDataSource.deleteTrackInUserPlaylist(mCustomPlaylist.getId(),
+                            ((Track) tomahawkListItem).getId());
                 }
-                ((UserCollection) ((TomahawkApp) mActivity.getApplication()).getSourceList()
-                        .getCollectionFromId(UserCollection.Id)).updateUserPlaylists();
+                userCollection.updateUserPlaylists();
                 return true;
             case R.id.popupmenu_play_item:
                 if (tomahawkListItem instanceof Track) {
@@ -330,7 +336,7 @@ public abstract class TomahawkFragment extends SherlockFragment
                     CustomPlaylist playlist = CustomPlaylist
                             .fromTrackList("Last used playlist", tracks, (Track) tomahawkListItem);
                     playlist.setCurrentTrackIndex(info.position);
-                    ((UserCollection) mActivity.getCollection()).setCachedPlaylist(playlist);
+                    userCollection.setCachedPlaylist(playlist);
                     bundle.putBoolean(UserCollection.USERCOLLECTION_PLAYLISTCACHED, true);
                     bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID,
                             ((Track) tomahawkListItem).getId());
@@ -375,6 +381,20 @@ public abstract class TomahawkFragment extends SherlockFragment
                     tracks = ((Artist) tomahawkListItem).getTracks();
                 }
                 mActivity.getPlaybackService().addTracksToCurrentPlaylist(tracks);
+                return true;
+            case R.id.popupmenu_addtoplaylist_item:
+                if (tomahawkListItem instanceof Track) {
+                    tracks.add((Track) tomahawkListItem);
+                } else if (tomahawkListItem instanceof CustomPlaylist) {
+                    tracks = ((CustomPlaylist) tomahawkListItem).getTracks();
+                } else if (tomahawkListItem instanceof Album) {
+                    tracks = ((Album) tomahawkListItem).getTracks();
+                } else if (tomahawkListItem instanceof Artist) {
+                    tracks = ((Artist) tomahawkListItem).getTracks();
+                }
+                new ChoosePlaylistDialog(userCollection, tracks)
+                        .show(mActivity.getSupportFragmentManager(), "ChoosePlaylistDialog");
+                userCollection.updateUserPlaylists();
                 return true;
             default:
                 return super.onContextItemSelected(item);
