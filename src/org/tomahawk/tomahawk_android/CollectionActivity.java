@@ -30,6 +30,7 @@ import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 import org.tomahawk.libtomahawk.audio.PlaybackService;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
+import org.tomahawk.libtomahawk.audio.PlaylistDialog;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -267,6 +268,10 @@ public class CollectionActivity extends TomahawkTabsActivity
             if (item.getItemId() == R.id.action_search_item) {
                 Intent searchIntent = getIntent(this, SearchableActivity.class);
                 startActivity(searchIntent);
+                return true;
+            } else if (item.getItemId() == R.id.action_createplaylist_item) {
+                new PlaylistDialog().show(getSupportFragmentManager(),
+                        getString(R.string.playbackactivity_create_playlist_dialog_title));
                 return true;
             } else if (item.getItemId() == R.id.action_settings_item) {
                 Intent searchIntent = getIntent(this, SettingsActivity.class);

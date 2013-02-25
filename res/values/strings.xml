@@ -47,8 +47,9 @@
     <string name="playbackactivity_unknown_string">"&#60;unknown&#62;"</string>
     <string name="playbackactivity_no_track">"&#60;no track&#62;"</string>
     <string name="playbackactivity_save_playlist_dialog_title">"Save the current playlist"</string>
-    <string name="playbackactivity_save_playlist_dialog_hint">"Name"</string>
     <string name="playbackactivity_choose_playlist_dialog_title">"Choose a playlist"</string>
+    <string name="playbackactivity_create_playlist_dialog_title">"Create a new playlist"</string>
+    <string name="playbackactivity_playlist_dialog_name_hint">"Name"</string>
     <string name="playbackservice_label_string">PlaybackService</string>
     <string name="loginactivity_username_label_string">Username:</string>
     <string name="loginactivity_password_label_string">Password:</string>
