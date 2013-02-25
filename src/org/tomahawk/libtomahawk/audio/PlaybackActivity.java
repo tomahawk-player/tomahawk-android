@@ -259,6 +259,11 @@ public class PlaybackActivity extends SherlockFragmentActivity
                 Intent searchIntent = getIntent(this, SearchableActivity.class);
                 startActivity(searchIntent);
                 return true;
+            } else if (item.getItemId() == R.id.action_clearplaylist_item) {
+                while (mPlaybackService.getCurrentPlaylist().getCount() > 0) {
+                    mPlaybackService.deleteTrackAtPos(0);
+                }
+                return true;
             } else if (item.getItemId() == R.id.action_saveplaylist_item) {
                 new SavePlaylistDialog(mPlaylist).show(getSupportFragmentManager(),
                         getString(R.string.playbackactivity_save_playlist_dialog_title));

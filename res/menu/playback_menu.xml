@@ -35,5 +35,10 @@
             android:icon="@drawable/ic_action_saveplaylist"
             android:showAsAction="ifRoom"
             android:title="Save playlist"/>
+    <item
+            android:id="@+id/action_clearplaylist_item"
+            android:icon="@drawable/ic_action_discard"
+            android:showAsAction="ifRoom"
+            android:title="Clear playlist"/>
 
 </menu>
