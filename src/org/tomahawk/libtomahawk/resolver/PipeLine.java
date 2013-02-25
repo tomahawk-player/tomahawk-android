@@ -156,7 +156,7 @@ public class PipeLine {
         ArrayList<Result> cleanAlbumResults = new ArrayList<Result>();
         ArrayList<Result> cleanArtistResults = new ArrayList<Result>();
         Query q = getQuery(qid);
-        if (q != null) {
+        if (q != null && results != null) {
             for (Result r : results) {
                 if (r != null) {
                     r.setTrackScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_TRACKS));
