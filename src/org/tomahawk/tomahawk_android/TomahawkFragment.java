@@ -324,18 +324,28 @@ public abstract class TomahawkFragment extends SherlockFragment
                 return true;
             case R.id.popupmenu_play_item:
                 if (tomahawkListItem instanceof Track) {
+                    CustomPlaylist playlist;
                     if (mAlbum != null) {
                         tracks = mAlbum.getTracks();
+                        playlist = CustomPlaylist.fromTrackList("Last used playlist", tracks,
+                                (Track) tomahawkListItem);
+                        playlist.setCurrentTrackIndex(info.position);
                     } else if (mArtist != null) {
                         tracks = mArtist.getTracks();
+                        playlist = CustomPlaylist.fromTrackList("Last used playlist", tracks,
+                                (Track) tomahawkListItem);
+                        playlist.setCurrentTrackIndex(info.position);
                     } else if (mCustomPlaylist != null) {
                         tracks = mCustomPlaylist.getTracks();
+                        playlist = CustomPlaylist.fromTrackList("Last used playlist", tracks,
+                                (Track) tomahawkListItem);
+                        playlist.setCurrentTrackIndex(info.position);
                     } else {
-                        tracks.addAll(mActivity.getCollection().getTracks());
+                        tracks.add((Track) tomahawkListItem);
+                        playlist = CustomPlaylist.fromTrackList("Last used playlist", tracks,
+                                (Track) tomahawkListItem);
+                        playlist.setCurrentTrackIndex(0);
                     }
-                    CustomPlaylist playlist = CustomPlaylist
-                            .fromTrackList("Last used playlist", tracks, (Track) tomahawkListItem);
-                    playlist.setCurrentTrackIndex(info.position);
                     userCollection.setCachedPlaylist(playlist);
                     bundle.putBoolean(UserCollection.USERCOLLECTION_PLAYLISTCACHED, true);
                     bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID,
