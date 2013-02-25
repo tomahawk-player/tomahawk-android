@@ -265,7 +265,7 @@ public class PlaybackActivity extends SherlockFragmentActivity
                 }
                 return true;
             } else if (item.getItemId() == R.id.action_saveplaylist_item) {
-                new SavePlaylistDialog(mPlaylist).show(getSupportFragmentManager(),
+                new PlaylistDialog(mPlaylist).show(getSupportFragmentManager(),
                         getString(R.string.playbackactivity_save_playlist_dialog_title));
                 return true;
             } else if (item.getItemId() == R.id.action_settings_item) {
