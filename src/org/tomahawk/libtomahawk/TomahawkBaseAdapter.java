@@ -238,6 +238,11 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void setListArray(List<List<TomahawkListItem>> listArray) {
+        mListArray = listArray;
+        notifyDataSetChanged();
+    }
+
     /**
      * test if the list with the given index exists
      *
