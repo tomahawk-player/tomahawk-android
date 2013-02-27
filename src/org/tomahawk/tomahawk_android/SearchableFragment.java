@@ -216,13 +216,14 @@ public class SearchableFragment extends TomahawkFragment
         mCurrentShownAlbums = query.getAlbumResults();
         albumResultList.addAll(mCurrentShownAlbums);
         listArray.add(albumResultList);
-        //                if (mTomahawkListAdapter == null) {
-        TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
-        tomahawkListAdapter.setShowCategoryHeaders(true);
-        //                } else
-        //                    mTomahawkListAdapter.setListWithIndex(0, trackResultList);
-        tomahawkListAdapter.setShowResolvedBy(true);
-        setListAdapter(tomahawkListAdapter);
+        if (mTomahawkBaseAdapter == null) {
+            TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
+            tomahawkListAdapter.setShowCategoryHeaders(true);
+            tomahawkListAdapter.setShowResolvedBy(true);
+            setListAdapter(tomahawkListAdapter);
+        } else {
+            mTomahawkBaseAdapter.setListArray(listArray);
+        }
         getListView().setOnItemClickListener(mSearchableFragment);
     }
 
