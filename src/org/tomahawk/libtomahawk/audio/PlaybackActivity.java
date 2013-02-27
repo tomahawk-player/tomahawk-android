@@ -544,12 +544,12 @@ public class PlaybackActivity extends SherlockFragmentActivity
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(tracks);
-            mTomahawkListAdapter = new TomahawkListAdapter(this, listArray);
-            mTomahawkListAdapter.setShowHighlightingAndPlaystate(true);
-            mTomahawkListAdapter.setShowResolvedBy(true);
-            mTomahawkListAdapter.setShowPlaylistHeader(true);
-            mTomahawkListAdapter.setHighlightedItem(mPlaylist.getCurrentTrackIndex());
-            mTomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
+            TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(this, listArray);
+            tomahawkListAdapter.setShowHighlightingAndPlaystate(true);
+            tomahawkListAdapter.setShowResolvedBy(true);
+            tomahawkListAdapter.setShowPlaylistHeader(true);
+            tomahawkListAdapter.setHighlightedItem(mPlaylist.getCurrentTrackIndex());
+            tomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
             ensureList();
             mList.setOnItemClickListener(this);
             mList.setOnHeaderClickListener(this);
@@ -573,7 +573,7 @@ public class PlaybackActivity extends SherlockFragmentActivity
                 mList.addHeaderView(headerView);
             }
             mPlaybackFragment.init();
-            mList.setAdapter(mTomahawkListAdapter);
+            setListAdapter(tomahawkListAdapter);
         }
     }
 
@@ -590,6 +590,14 @@ public class PlaybackActivity extends SherlockFragmentActivity
         }
         mList = (TomahawkStickyListHeadersListView) rawListView;
         registerForContextMenu(mList);
+    }
+
+    /**
+     * Provide the cursor for the list view.
+     */
+    public void setListAdapter(TomahawkListAdapter adapter) {
+        mTomahawkListAdapter = adapter;
+        mList.setAdapter(adapter);
     }
 
     /**
