@@ -525,6 +525,7 @@ public class PlaybackActivity extends SherlockFragmentActivity
                     e.printStackTrace();
                 }
             }
+            mPlaybackService.start();
         }
         if (mPlaybackFragment != null) {
             mPlaybackFragment.setPlaybackService(mPlaybackService);
