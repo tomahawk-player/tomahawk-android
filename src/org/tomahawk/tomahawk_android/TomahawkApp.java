@@ -18,6 +18,7 @@
  */
 package org.tomahawk.tomahawk_android;
 
+import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.Source;
@@ -48,7 +49,13 @@ import java.io.IOException;
 /**
  * This class contains represents the Application core.
  */
-@ReportsCrashes(formKey = "")
+@ReportsCrashes(formKey = "",
+        mode = ReportingInteractionMode.DIALOG,
+        resDialogText = R.string.crash_dialog_text,
+        resDialogIcon = android.R.drawable.ic_dialog_info,
+        resDialogTitle = R.string.crash_dialog_title,
+        resDialogCommentPrompt = R.string.crash_dialog_comment_prompt,
+        resDialogOkToast = R.string.crash_dialog_ok_toast)
 public class TomahawkApp extends Application
         implements AccountManagerCallback<Bundle>, TomahawkServiceConnectionListener {
 
