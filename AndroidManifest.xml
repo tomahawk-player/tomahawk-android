@@ -125,6 +125,12 @@
                 android:label="@string/playbacksettingsactivity_title_string"
                 android:launchMode="singleTop">
         </activity>
+
+        <activity android:name="org.acra.CrashReportDialog"
+                  android:theme="@style/Theme.Sherlock.Dialog"
+                  android:launchMode="singleInstance"
+                  android:excludeFromRecents="true"
+                  android:finishOnTaskLaunch="true"/>
     </application>
 
 </manifest>

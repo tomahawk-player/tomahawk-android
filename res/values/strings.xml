@@ -65,4 +65,13 @@
     <string name="playbacksettingsactivity_playbackonheadset_summary_string">Starts playing music
         when a headset is connected
     </string>
+    <string name="crash_dialog_title">Tomahawk has crashed</string>
+    <string name="crash_dialog_text">An unexpected error occurred forcing the
+        application to stop. Please help us fix this by sending us error data,
+        all you have to do is click OK.
+    </string>
+    <string name="crash_dialog_comment_prompt">You might add your comments about the problem
+        below:
+    </string>
+    <string name="crash_dialog_ok_toast">Thank you !</string>
 </resources>
