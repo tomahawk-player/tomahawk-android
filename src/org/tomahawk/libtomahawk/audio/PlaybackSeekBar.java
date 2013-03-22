@@ -18,6 +18,7 @@
  */
 package org.tomahawk.libtomahawk.audio;
 
+import org.tomahawk.libtomahawk.resolver.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 
 import android.content.Context;
@@ -141,15 +142,11 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
     protected void updateTextViewCurrentTime(int position) {
         if (mTextViewCurrentTime != null) {
             if (!isIsSeeking() && mPlaybackService.getCurrentPlaylist().getCount() > 0) {
-                mTextViewCurrentTime.setText(String.format("%02d", position / 60000) + ":" + String
-                        .format("%02.0f", (double) ((position / 1000) % 60)));
+                mTextViewCurrentTime.setText(TomahawkUtils.durationToString(position));
             } else if (mPlaybackService.getCurrentPlaylist().getCount() > 0) {
-                mTextViewCurrentTime.setText(
-                        String.format("%02d", getProgress() / 60000) + ":" + String
-                                .format("%02.0f", (double) ((getProgress() / 1000) % 60)));
+                mTextViewCurrentTime.setText(TomahawkUtils.durationToString(getProgress()));
             } else {
-                mTextViewCurrentTime.setText(
-                        String.format("%02d", 0) + ":" + String.format("%02.0f", (double) (0)));
+                mTextViewCurrentTime.setText(TomahawkUtils.durationToString(0));
             }
         }
     }
@@ -161,11 +158,8 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
         if (mTextViewCompletionTime != null) {
             if (mPlaybackService.getCurrentTrack() != null
                     && mPlaybackService.getCurrentTrack().getDuration() > 0) {
-                mTextViewCompletionTime.setText(String.format("%02d",
-                        mPlaybackService.getCurrentTrack().getDuration() / 60000) + ":" + String
-                        .format("%02.0f",
-                                (double) ((mPlaybackService.getCurrentTrack().getDuration() / 1000)
-                                        % 60)));
+                mTextViewCompletionTime.setText(TomahawkUtils
+                        .durationToString(mPlaybackService.getCurrentTrack().getDuration()));
             } else {
                 mTextViewCompletionTime.setText(getResources()
                         .getString(R.string.playbackactivity_seekbar_completion_time_string));

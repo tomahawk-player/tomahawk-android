@@ -83,4 +83,15 @@ public class TomahawkUtils {
         float px = dp * (metrics.densityDpi / 160f);
         return px;
     }
+
+    /**
+     * Converts a track duration int into the proper String format
+     *
+     * @param duration the track's duration
+     * @return the formated string
+     */
+    public static String durationToString(long duration) {
+        return String.format("%02d", (duration / 60000)) + ":" + String
+                .format("%02.0f", (double) (duration / 1000) % 60);
+    }
 }
