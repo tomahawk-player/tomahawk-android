@@ -18,9 +18,9 @@
 package org.tomahawk.tomahawk_android;
 
 import org.acra.ACRA;
-import org.acra.CrashReportData;
 import org.acra.ErrorReporter;
 import org.acra.ReportField;
+import org.acra.collector.CrashReportData;
 import org.acra.sender.ReportSender;
 import org.acra.sender.ReportSenderException;
 import org.apache.http.NameValuePair;
