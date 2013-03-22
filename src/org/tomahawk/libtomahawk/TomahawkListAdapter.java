@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk;
 import com.emilsjolander.components.stickylistheaders.StickyListHeadersAdapter;
 
 import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
+import org.tomahawk.libtomahawk.resolver.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.SquareWidthRelativeLayout;
 
@@ -68,22 +69,23 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
         mLayoutInflater = mActivity.getLayoutInflater();
         mListArray = listArray;
         mSingleLineListItemResourceHolder = new ResourceHolder(R.layout.single_line_list_item, -1,
-                -1, R.id.single_line_list_textview, -1);
+                -1, R.id.single_line_list_textview, -1, -1);
         mDoubleLineListItemResourceHolder = new ResourceHolder(R.layout.double_line_list_item,
                 R.id.double_line_list_imageview, R.id.double_line_list_imageview2,
-                R.id.double_line_list_textview, R.id.double_line_list_textview2);
+                R.id.double_line_list_textview, R.id.double_line_list_textview2,
+                R.id.double_line_list_textview3);
     }
 
     public void setShowCategoryHeaders(boolean showCategoryHeaders) {
         mCategoryHeaderResourceHolder = new ResourceHolder(R.layout.single_line_list_header,
                 R.id.single_line_list_header_icon_imageview, -1,
-                R.id.single_line_list_header_textview, -1);
+                R.id.single_line_list_header_textview, -1, -1);
         mShowCategoryHeaders = showCategoryHeaders;
     }
 
     public void setShowPlaylistHeader(boolean showPlaylistHeader) {
         mCategoryHeaderResourceHolder = new ResourceHolder(R.layout.show_playlist_header, -1, -1,
-                -1, -1);
+                -1, -1, -1);
         mShowPlaylistHeader = showPlaylistHeader;
     }
 
@@ -143,8 +145,9 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                 view = mLayoutInflater.inflate(mDoubleLineListItemResourceHolder.resourceId, null);
                 viewHolder = new ViewHolder(R.id.tomahawklistadapter_viewtype_doublelinelistitem,
                         (TextView) view.findViewById(mDoubleLineListItemResourceHolder.textViewId1),
+                        (TextView) view.findViewById(mDoubleLineListItemResourceHolder.textViewId2),
                         (TextView) view
-                                .findViewById(mDoubleLineListItemResourceHolder.textViewId2));
+                                .findViewById(mDoubleLineListItemResourceHolder.textViewId3));
                 view.setTag(viewHolder);
             } else if ((mShowResolvedBy || mShowHighlightingAndPlaystate) && (
                     (item instanceof Track && convertView == null) || (item instanceof Track
@@ -158,8 +161,9 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                         (ImageView) view
                                 .findViewById(mDoubleLineListItemResourceHolder.imageViewId2),
                         (TextView) view.findViewById(mDoubleLineListItemResourceHolder.textViewId1),
+                        (TextView) view.findViewById(mDoubleLineListItemResourceHolder.textViewId2),
                         (TextView) view
-                                .findViewById(mDoubleLineListItemResourceHolder.textViewId2));
+                                .findViewById(mDoubleLineListItemResourceHolder.textViewId3));
                 view.setTag(viewHolder);
             } else if ((item instanceof Album && convertView == null) || (item instanceof Album
                     && ((ViewHolder) convertView.getTag()).viewType
@@ -187,6 +191,13 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                     == R.id.tomahawklistadapter_viewtype_doublelinelistitem) {
                 viewHolder.textFirstLine.setText(((Track) item).getName());
                 viewHolder.textSecondLine.setText(((Track) item).getArtist().getName());
+                if (((Track) item).getDuration() > 0) {
+                    viewHolder.textThirdLine
+                            .setText(TomahawkUtils.durationToString(((Track) item).getDuration()));
+                } else {
+                    viewHolder.textThirdLine.setText(mActivity.getResources()
+                            .getString(R.string.playbackactivity_seekbar_completion_time_string));
+                }
             } else if (viewHolder.viewType
                     == R.id.tomahawklistadapter_viewtype_doublelineimagelistitem) {
                 if (item instanceof Album) {
@@ -203,6 +214,13 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                 if (item instanceof Track) {
                     viewHolder.textFirstLine.setText(((Track) item).getName());
                     viewHolder.textSecondLine.setText(((Track) item).getArtist().getName());
+                    if (((Track) item).getDuration() > 0) {
+                        viewHolder.textThirdLine.setText(
+                                TomahawkUtils.durationToString(((Track) item).getDuration()));
+                    } else {
+                        viewHolder.textThirdLine.setText(mActivity.getResources().getString(
+                                R.string.playbackactivity_seekbar_completion_time_string));
+                    }
                     if (mShowHighlightingAndPlaystate) {
                         if (position == mHighlightedItemPosition) {
                             view.setBackgroundResource(R.color.pressed_tomahawk);

@@ -133,12 +133,13 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
     static class ResourceHolder {
 
         public ResourceHolder(int resourceId, int imageViewId, int imageViewId2, int textViewId1,
-                int textViewId2) {
+                int textViewId2, int textViewId3) {
             this.resourceId = resourceId;
             this.imageViewId = imageViewId;
             this.imageViewId2 = imageViewId2;
             this.textViewId1 = textViewId1;
             this.textViewId2 = textViewId2;
+            this.textViewId3 = textViewId3;
         }
 
         protected int resourceId;
@@ -150,6 +151,8 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
         protected int textViewId1;
 
         protected int textViewId2;
+
+        protected int textViewId3;
     }
 
     /**
@@ -158,12 +161,13 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
     static class ViewHolder {
 
         public ViewHolder(int viewType, ImageView imageViewLeft, ImageView imageViewRight,
-                TextView textFirstLine, TextView textSecondLine) {
+                TextView textFirstLine, TextView textSecondLine, TextView textThirdLine) {
             this.viewType = viewType;
             this.imageViewLeft = imageViewLeft;
             this.imageViewRight = imageViewRight;
             this.textFirstLine = textFirstLine;
             this.textSecondLine = textSecondLine;
+            this.textThirdLine = textThirdLine;
         }
 
         public ViewHolder(int viewType, ImageView imageView, TextView textFirstLine,
@@ -174,10 +178,12 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
             this.textSecondLine = textSecondLine;
         }
 
-        public ViewHolder(int viewType, TextView textFirstLine, TextView textSecondLine) {
+        public ViewHolder(int viewType, TextView textFirstLine, TextView textSecondLine,
+                TextView textThirdLine) {
             this.viewType = viewType;
             this.textFirstLine = textFirstLine;
             this.textSecondLine = textSecondLine;
+            this.textThirdLine = textThirdLine;
         }
 
         public ViewHolder(int viewType, ImageView imageView, TextView textFirstLine) {
@@ -200,6 +206,8 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
         protected TextView textFirstLine;
 
         protected TextView textSecondLine;
+
+        protected TextView textThirdLine;
     }
 
     /**
