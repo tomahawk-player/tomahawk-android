@@ -77,5 +77,6 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
         setListAdapter(new TomahawkListAdapter(getActivity(), listArray));
 
         getListView().setOnItemClickListener(this);
+        getListView().setAreHeadersSticky(false);
     }
 }

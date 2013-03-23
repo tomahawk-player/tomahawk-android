@@ -139,6 +139,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(tracks);
             tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
+            getListView().setAreHeadersSticky(false);
         }
 
         setListAdapter(tomahawkListAdapter);

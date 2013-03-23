@@ -598,7 +598,7 @@ public abstract class TomahawkFragment extends SherlockFragment
     /**
      * Get the activity's list view widget.
      */
-    public ListView getListView() {
+    public TomahawkStickyListHeadersListView getListView() {
         ensureList();
         return mList;
     }

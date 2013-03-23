@@ -76,5 +76,6 @@ public class PlaylistsFragment extends TomahawkFragment implements OnItemClickLi
         setListAdapter(new TomahawkListAdapter(getActivity(), listArray));
 
         getListView().setOnItemClickListener(this);
+        getListView().setAreHeadersSticky(false);
     }
 }
