@@ -29,7 +29,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 18.01.13
@@ -41,14 +41,14 @@ public class Query {
 
     public static final String TAG = Query.class.getName();
 
-    private HashMap<String, ArrayList<Result>> mTrackResults
-            = new HashMap<String, ArrayList<Result>>();
+    private ConcurrentHashMap<String, ArrayList<Result>> mTrackResults
+            = new ConcurrentHashMap<String, ArrayList<Result>>();
 
-    private HashMap<String, ArrayList<Result>> mAlbumResults
-            = new HashMap<String, ArrayList<Result>>();
+    private ConcurrentHashMap<String, ArrayList<Result>> mAlbumResults
+            = new ConcurrentHashMap<String, ArrayList<Result>>();
 
-    private HashMap<String, ArrayList<Result>> mArtistResults
-            = new HashMap<String, ArrayList<Result>>();
+    private ConcurrentHashMap<String, ArrayList<Result>> mArtistResults
+            = new ConcurrentHashMap<String, ArrayList<Result>>();
 
     private boolean mSolved;
 

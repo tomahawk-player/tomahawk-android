@@ -19,22 +19,22 @@ package org.tomahawk.libtomahawk;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class represents an Artist.
  */
 public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
 
-    private static HashMap<Long, Artist> sArtists = new HashMap<Long, Artist>();
+    private static ConcurrentHashMap<Long, Artist> sArtists = new ConcurrentHashMap<Long, Artist>();
 
     private long mId;
 
     private String mName;
 
-    private HashMap<Long, Album> mAlbums;
+    private ConcurrentHashMap<Long, Album> mAlbums;
 
-    private HashMap<Long, Track> mTracks;
+    private ConcurrentHashMap<Long, Track> mTracks;
 
     private float mScore;
 
@@ -43,8 +43,8 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
 
     public Artist(long id) {
         mId = id;
-        mAlbums = new HashMap<Long, Album>();
-        mTracks = new HashMap<Long, Track>();
+        mAlbums = new ConcurrentHashMap<Long, Album>();
+        mTracks = new ConcurrentHashMap<Long, Track>();
     }
 
     /**

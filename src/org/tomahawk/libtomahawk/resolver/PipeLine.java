@@ -23,7 +23,7 @@ import android.content.Intent;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 19.01.13
@@ -50,7 +50,7 @@ public class PipeLine {
 
     private ArrayList<Query> mTemporaryQueries = new ArrayList<Query>();
 
-    private HashMap<String, Query> mQids = new HashMap<String, Query>();
+    private ConcurrentHashMap<String, Query> mQids = new ConcurrentHashMap<String, Query>();
 
     public PipeLine(TomahawkApp tomahawkApp) {
         mTomahawkApp = tomahawkApp;

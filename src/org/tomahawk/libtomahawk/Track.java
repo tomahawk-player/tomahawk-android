@@ -19,14 +19,14 @@ package org.tomahawk.libtomahawk;
 
 import org.tomahawk.libtomahawk.resolver.Resolver;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class represents a track.
  */
 public class Track implements TomahawkBaseAdapter.TomahawkListItem {
 
-    private static HashMap<Long, Track> sTracks = new HashMap<Long, Track>();
+    private static ConcurrentHashMap<Long, Track> sTracks = new ConcurrentHashMap<Long, Track>();
 
     /**
      * Path of file or URL.

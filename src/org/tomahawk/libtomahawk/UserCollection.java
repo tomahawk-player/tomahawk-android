@@ -32,9 +32,8 @@ import android.provider.MediaStore;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class UserCollection extends Collection {
 
@@ -55,19 +54,20 @@ public class UserCollection extends Collection {
 
     private Handler mHandler;
 
-    private Map<Long, Artist> mArtists;
+    private ConcurrentHashMap<Long, Artist> mArtists = new ConcurrentHashMap<Long, Artist>();
 
     private Artist mCachedArtist;
 
-    private Map<Long, Album> mAlbums;
+    private ConcurrentHashMap<Long, Album> mAlbums = new ConcurrentHashMap<Long, Album>();
 
     private Album mCachedAlbum;
 
-    private Map<Long, Track> mTracks;
+    private ConcurrentHashMap<Long, Track> mTracks = new ConcurrentHashMap<Long, Track>();
 
     private CustomPlaylist mCachedCustomPlaylist;
 
-    private Map<Long, CustomPlaylist> mCustomPlaylists;
+    private ConcurrentHashMap<Long, CustomPlaylist> mCustomPlaylists
+            = new ConcurrentHashMap<Long, CustomPlaylist>();
 
     private Runnable mUpdateRunnable = new Runnable() {
         /* 
@@ -102,10 +102,6 @@ public class UserCollection extends Collection {
     public UserCollection(TomahawkApp tomahawkApp) {
         mUserPlaylistsDataSource = new UserPlaylistsDataSource(tomahawkApp,
                 tomahawkApp.getPipeLine());
-        mArtists = new HashMap<Long, Artist>();
-        mAlbums = new HashMap<Long, Album>();
-        mTracks = new HashMap<Long, Track>();
-        mCustomPlaylists = new HashMap<Long, CustomPlaylist>();
 
         TomahawkApp.getContext().getContentResolver()
                 .registerContentObserver(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false,
