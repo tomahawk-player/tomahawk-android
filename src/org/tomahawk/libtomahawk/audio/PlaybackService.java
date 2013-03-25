@@ -27,7 +27,6 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -45,6 +44,8 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
@@ -182,6 +183,19 @@ public class PlaybackService extends Service
                     break;
             }
         }
+
+        @Override
+        public void onDataConnectionStateChanged(int state) {
+            super.onDataConnectionStateChanged(state);
+            switch (state) {
+                case TelephonyManager.DATA_CONNECTED:
+                    try {
+                        setCurrentTrack(getCurrentTrack());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+            }
+        }
     }
 
     private class ServiceBroadcastReceiver extends BroadcastReceiver {
@@ -269,6 +283,8 @@ public class PlaybackService extends Service
         TelephonyManager telephonyManager = (TelephonyManager) getSystemService(
                 Context.TELEPHONY_SERVICE);
         telephonyManager.listen(new PhoneCallListener(), PhoneStateListener.LISTEN_CALL_STATE);
+        telephonyManager
+                .listen(new PhoneCallListener(), PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
 
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
@@ -389,7 +405,9 @@ public class PlaybackService extends Service
         }
 
         Log.e(TAG, "onError - " + whatString);
-        next();
+        if (mp == mTomahawkMediaPlayer && isNetworkAvailable()) {
+            next();
+        }
         return false;
     }
 
@@ -515,28 +533,34 @@ public class PlaybackService extends Service
      */
     public void handlePlayState() {
         if (!isPreparing()) {
-            switch (mPlayState) {
-                case PLAYBACKSERVICE_PLAYSTATE_PLAYING:
-                    if (!mWakeLock.isHeld()) {
-                        mWakeLock.acquire();
-                    }
-                    if (!mTomahawkMediaPlayer.isPlaying()) {
-                        mTomahawkMediaPlayer.start();
-                    }
-                    break;
-                case PLAYBACKSERVICE_PLAYSTATE_PAUSED:
-                    if (mTomahawkMediaPlayer.isPlaying()) {
-                        mTomahawkMediaPlayer.pause();
-                    }
-                    if (mWakeLock.isHeld()) {
-                        mWakeLock.release();
-                    }
-                    break;
-                case PLAYBACKSERVICE_PLAYSTATE_STOPPED:
-                    mTomahawkMediaPlayer.stop();
-                    if (mWakeLock.isHeld()) {
-                        mWakeLock.release();
-                    }
+            try {
+                switch (mPlayState) {
+                    case PLAYBACKSERVICE_PLAYSTATE_PLAYING:
+                        if (!mWakeLock.isHeld()) {
+                            mWakeLock.acquire();
+                        }
+                        if (!mTomahawkMediaPlayer.isPlaying()) {
+                            mTomahawkMediaPlayer.start();
+                        }
+                        break;
+                    case PLAYBACKSERVICE_PLAYSTATE_PAUSED:
+                        if (mTomahawkMediaPlayer.isPlaying()) {
+                            mTomahawkMediaPlayer.pause();
+                        }
+                        if (mWakeLock.isHeld()) {
+                            mWakeLock.release();
+                        }
+                        break;
+                    case PLAYBACKSERVICE_PLAYSTATE_STOPPED:
+                        mTomahawkMediaPlayer.stop();
+                        if (mWakeLock.isHeld()) {
+                            mWakeLock.release();
+                        }
+                }
+            } catch (IllegalStateException e1) {
+                Log.e(TAG,
+                        "handlePlayState() IllegalStateException, msg:" + e1.getLocalizedMessage()
+                                + " , preparing=" + isPreparing());
             }
             mKillTimerHandler.removeCallbacksAndMessages(null);
             Message msg = mKillTimerHandler.obtainMessage();
@@ -625,17 +649,52 @@ public class PlaybackService extends Service
     /**
      * This method sets the current track and prepares it for playback.
      */
-    public void setCurrentTrack(Track track) throws IOException {
+    public void setCurrentTrack(final Track track) throws IOException {
         if (mTomahawkMediaPlayer != null && track != null) {
-            if (!isPreparing()) {
-                mTomahawkMediaPlayer.reset();
-            } else {
-                mTomahawkMediaPlayer.release();
-                initMediaPlayer();
-            }
-            mTomahawkMediaPlayer.setDataSource(track.getPath());
-            mTomahawkMediaPlayer.prepareAsync();
-            mTomahawkMediaPlayer.mIsPreparing = true;
+            Runnable releaseRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    int loopCounter = 0;
+                    while (true) {
+                        if (loopCounter++ > 10) {
+                            Log.e(TAG, "MediaPlayer was unable to prepare the track");
+                            break;
+                        }
+                        long startTime = System.currentTimeMillis();
+                        mTomahawkMediaPlayer.release();
+                        initMediaPlayer();
+                        long endTime = System.currentTimeMillis();
+                        Log.d(TAG, "MediaPlayer reinitialize in " + (endTime - startTime)
+                                + "ms, preparing=" + isPreparing());
+                        mTomahawkMediaPlayer.mIsPreparing = true;
+                        try {
+                            mTomahawkMediaPlayer.setDataSource(track.getPath());
+                        } catch (IllegalStateException e1) {
+                            Log.e(TAG, "setDataSource() IllegalStateException, msg:" + e1
+                                    .getLocalizedMessage() + " , preparing=" + isPreparing());
+                            continue;
+                        } catch (IOException e2) {
+                            Log.e(TAG,
+                                    "setDataSource() IOException, msg:" + e2.getLocalizedMessage()
+                                            + " , preparing=" + isPreparing());
+                            continue;
+                        }
+                        try {
+                            mTomahawkMediaPlayer.prepare();
+                        } catch (IllegalStateException e1) {
+                            Log.e(TAG, "prepare() IllegalStateException, msg:" + e1
+                                    .getLocalizedMessage() + " , preparing=" + isPreparing());
+                            continue;
+                        } catch (IOException e2) {
+                            Log.e(TAG, "prepare() IOException, msg:" + e2.getLocalizedMessage()
+                                    + " , preparing=" + isPreparing());
+                            continue;
+                        }
+                        break;
+                    }
+                }
+            };
+            new Thread(releaseRunnable).start();
 
             mKillTimerHandler.removeCallbacksAndMessages(null);
             Message msg = mKillTimerHandler.obtainMessage();
@@ -643,6 +702,13 @@ public class PlaybackService extends Service
 
             sendBroadcast(new Intent(BROADCAST_NEWTRACK));
         }
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(
+                Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
     }
 
     /**
