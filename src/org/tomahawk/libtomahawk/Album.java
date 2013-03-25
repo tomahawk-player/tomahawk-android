@@ -23,18 +23,18 @@ import android.support.v4.util.LruCache;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Class which represents a Tomahawk Album.
  */
 public class Album implements TomahawkBaseAdapter.TomahawkListItem {
 
-    private static HashMap<Long, Album> sAlbums = new HashMap<Long, Album>();
+    private static ConcurrentHashMap<Long, Album> sAlbums = new ConcurrentHashMap<Long, Album>();
 
     private static CoverCache sCoverCache;
 
-    private HashMap<Long, Track> mTracks;
+    private ConcurrentHashMap<Long, Track> mTracks;
 
     private long mId;
 
@@ -82,7 +82,7 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
 
     public Album(long id) {
         setId(id);
-        mTracks = new HashMap<Long, Track>();
+        mTracks = new ConcurrentHashMap<Long, Track>();
     }
 
     /**
