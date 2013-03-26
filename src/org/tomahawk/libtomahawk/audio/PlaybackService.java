@@ -190,9 +190,13 @@ public class PlaybackService extends Service
             switch (state) {
                 case TelephonyManager.DATA_CONNECTED:
                     try {
-                        setCurrentTrack(getCurrentTrack());
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        if (mTomahawkMediaPlayer.getCurrentPosition() == 0) {
+                            setCurrentTrack(getCurrentTrack());
+                        }
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    } catch (IllegalStateException e2) {
+                        e2.printStackTrace();
                     }
             }
         }
