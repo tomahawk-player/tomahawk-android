@@ -317,5 +317,6 @@ public class UserPlaylistsDataSource {
                 mDatabase.insert(TomahawkSQLiteHelper.TABLE_TRACKS, null, values);
             }
         }
+        userplaylistsCursor.close();
     }
 }
