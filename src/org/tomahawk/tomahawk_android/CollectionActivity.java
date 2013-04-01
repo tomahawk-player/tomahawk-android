@@ -22,6 +22,7 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.slidingmenu.lib.SlidingMenu;
 
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.CollectionLoader;
@@ -62,6 +63,8 @@ public class CollectionActivity extends TomahawkTabsActivity
     public static final String COLLECTION_ID_ARTIST = "collection_artist_id";
 
     public static final String COLLECTION_ID_STOREDBACKSTACK = "collection_id_storedbackstack";
+
+    public static final String COLLECTION_ACTIONBAR_EXPANDED = "collection_actionbar_expanded";
 
     private PlaybackService mPlaybackService;
 
@@ -123,24 +126,44 @@ public class CollectionActivity extends TomahawkTabsActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        View view = getLayoutInflater().inflate(R.layout.collection_activity, null);
-        setContentView(view);
+        setContentView(R.layout.collection_activity);
+        // check if the content frame contains the menu frame
+        if (findViewById(R.id.slide_menu_frame) == null) {
+            setBehindContentView(R.layout.slide_menu_layout);
+            getSlidingMenu().setSlidingEnabled(true);
+            getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+            // show home as up so we can toggle
+        } else {
+            // add a dummy view
+            View v = new View(this);
+            setBehindContentView(v);
+            getSlidingMenu().setSlidingEnabled(false);
+            getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
+        }
+
+        // customize the SlidingMenu
+        SlidingMenu sm = getSlidingMenu();
+        sm.setFadeDegree(0.35f);
+        sm.setShadowWidthRes(R.dimen.shadow_width);
+        sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
+        sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+
+        // set the Behind View Fragment
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.slide_menu_frame, new SlideMenuFragment()).commit();
 
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(true);
-        actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
-        View searchView = getLayoutInflater().inflate(R.layout.collapsible_edittext, null);
-        actionBar.setCustomView(searchView);
-        actionBar.setDisplayShowCustomEnabled(false);
+        actionBar.setHomeButtonEnabled(true);
+        actionBar.setLogo(R.drawable.ic_action_slidemenu);
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
         mTabsAdapter = new TabsAdapter(this, getSupportFragmentManager(), viewPager, true);
-        mTabsAdapter
-                .addTab(actionBar.newTab().setText(R.string.localcollectionactivity_title_string));
         if (savedInstanceState == null) {
-            mTabsAdapter.addRootToTab(LocalCollectionFragment.class);
             mTabsAdapter.addRootToTab(SearchableFragment.class);
+            mTabsAdapter.addRootToTab(LocalCollectionFragment.class);
+            mTabsAdapter.addRootToTab(PlaylistsFragment.class);
         } else {
             ArrayList<TabsAdapter.TabHolder> fragmentStateHolderStack
                     = (ArrayList<TabsAdapter.TabHolder>) savedInstanceState
@@ -148,8 +171,9 @@ public class CollectionActivity extends TomahawkTabsActivity
             if (fragmentStateHolderStack != null && fragmentStateHolderStack.size() > 0) {
                 mTabsAdapter.setBackStack(fragmentStateHolderStack);
             } else {
-                mTabsAdapter.addRootToTab(LocalCollectionFragment.class);
                 mTabsAdapter.addRootToTab(SearchableFragment.class);
+                mTabsAdapter.addRootToTab(LocalCollectionFragment.class);
+                mTabsAdapter.addRootToTab(PlaylistsFragment.class);
             }
         }
 
@@ -273,20 +297,8 @@ public class CollectionActivity extends TomahawkTabsActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item != null) {
-            if (item.getItemId() == R.id.action_search_item) {
-                Intent searchIntent = getIntent(this, SearchableActivity.class);
-                startActivity(searchIntent);
-                return true;
-            } else if (item.getItemId() == R.id.action_createplaylist_item) {
-                new PlaylistDialog().show(getSupportFragmentManager(),
-                        getString(R.string.playbackactivity_create_playlist_dialog_title));
-                return true;
-            } else if (item.getItemId() == R.id.action_settings_item) {
-                Intent searchIntent = getIntent(this, SettingsActivity.class);
-                startActivity(searchIntent);
-                return true;
-            } else if (item.getItemId() == android.R.id.home) {
-                super.onBackPressed();
+            if (item.getItemId() == android.R.id.home) {
+                toggle();
                 return true;
             }
         }
@@ -444,6 +456,17 @@ public class CollectionActivity extends TomahawkTabsActivity
                 nowPlayingInfoTitle.setVisibility(View.GONE);
             }
         }
+    }
+
+    public void showSearchEditText() {
+        View searchView = getLayoutInflater().inflate(R.layout.collapsible_edittext, null);
+        getSupportActionBar().setCustomView(searchView);
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
+        sendBroadcast(new Intent(COLLECTION_ACTIONBAR_EXPANDED));
+    }
+
+    public void hideSearchEditText() {
+        getSupportActionBar().setDisplayShowCustomEnabled(false);
     }
 
     /**

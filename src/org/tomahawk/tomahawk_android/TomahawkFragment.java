@@ -469,7 +469,7 @@ public abstract class TomahawkFragment extends SherlockFragment
 
     public void updateBreadCrumbNavigation() {
         ArrayList<TabsAdapter.FragmentStateHolder> backStack = ((CollectionActivity) mActivity)
-                .getTabsAdapter().getBackStackAtPosition(TomahawkTabsActivity.TAB_ID_MYMUSIC);
+                .getTabsAdapter().getBackStackAtPosition(TomahawkTabsActivity.TAB_ID_COLLECTION);
         LinearLayout navigationLayoutView = (LinearLayout) getActivity()
                 .findViewById(R.id.fragmentLayout_breadcrumbLayout_linearLayout);
         if (navigationLayoutView != null) {
@@ -586,7 +586,7 @@ public abstract class TomahawkFragment extends SherlockFragment
         @Override
         public void onClick(View view) {
             ((CollectionActivity) mActivity).getTabsAdapter()
-                    .backToFragment(TomahawkTabsActivity.TAB_ID_MYMUSIC, mSavedFragmentTag);
+                    .backToFragment(TomahawkTabsActivity.TAB_ID_COLLECTION, mSavedFragmentTag);
         }
     }
 

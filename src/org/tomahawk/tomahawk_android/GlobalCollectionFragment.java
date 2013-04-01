@@ -47,7 +47,7 @@ public class GlobalCollectionFragment extends SherlockListFragment implements On
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.menu_layout, null, false);
+        return inflater.inflate(R.layout.collection_menu_layout, null, false);
     }
 
     /*
