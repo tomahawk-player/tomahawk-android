@@ -49,7 +49,7 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
                         ((Artist) getListAdapter().getItem(idx)).getId());
                 if (mActivity instanceof CollectionActivity) {
                     mActivity.getTabsAdapter()
-                            .replace(TomahawkTabsActivity.TAB_ID_MYMUSIC, AlbumsFragment.class,
+                            .replace(TomahawkTabsActivity.TAB_ID_COLLECTION, AlbumsFragment.class,
                                     ((Artist) getListAdapter().getItem(idx)).getId(),
                                     TOMAHAWK_ARTIST_ID, false);
                 }

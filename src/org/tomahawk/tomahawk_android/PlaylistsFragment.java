@@ -50,7 +50,7 @@ public class PlaylistsFragment extends TomahawkFragment implements OnItemClickLi
                         ((CustomPlaylist) getListAdapter().getItem(idx)).getId());
                 if (mActivity instanceof CollectionActivity) {
                     mActivity.getTabsAdapter()
-                            .replace(TomahawkTabsActivity.TAB_ID_MYMUSIC, TracksFragment.class,
+                            .replace(TomahawkTabsActivity.TAB_ID_COLLECTION, TracksFragment.class,
                                     ((CustomPlaylist) getListAdapter().getItem(idx)).getId(),
                                     TOMAHAWK_PLAYLIST_ID, false);
                 }

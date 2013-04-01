@@ -45,7 +45,7 @@ public class LocalCollectionFragment extends SherlockListFragment implements OnI
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.menu_layout, null, false);
+        return inflater.inflate(R.layout.collection_menu_layout, null, false);
     }
 
     /*
@@ -60,7 +60,7 @@ public class LocalCollectionFragment extends SherlockListFragment implements OnI
         getListView().setOnItemClickListener(this);
         mLocalCollectionMenuAdapter = new TomahawkMenuAdapter(getActivity(),
                 getResources().getStringArray(R.array.local_collection_menu_items),
-                getResources().obtainTypedArray(R.array.local_collection_menu_items_icons));
+                getResources().obtainTypedArray(R.array.slide));
         setListAdapter(mLocalCollectionMenuAdapter);
     }
 
@@ -94,25 +94,19 @@ public class LocalCollectionFragment extends SherlockListFragment implements OnI
         switch ((int) arg3) {
             case 0:
                 mCollectionActivity.getTabsAdapter()
-                        .replace(TomahawkTabsActivity.TAB_ID_MYMUSIC, TracksFragment.class, -1,
+                        .replace(TomahawkTabsActivity.TAB_ID_COLLECTION, TracksFragment.class, -1,
                                 null, false);
                 break;
             case 1:
                 mCollectionActivity.getTabsAdapter()
-                        .replace(TomahawkTabsActivity.TAB_ID_MYMUSIC, AlbumsFragment.class, -1,
+                        .replace(TomahawkTabsActivity.TAB_ID_COLLECTION, AlbumsFragment.class, -1,
                                 null, false);
                 break;
             case 2:
                 mCollectionActivity.getTabsAdapter()
-                        .replace(TomahawkTabsActivity.TAB_ID_MYMUSIC, ArtistsFragment.class, -1,
+                        .replace(TomahawkTabsActivity.TAB_ID_COLLECTION, ArtistsFragment.class, -1,
                                 null, false);
                 break;
-            case 3:
-                mCollectionActivity.getTabsAdapter()
-                        .replace(TomahawkTabsActivity.TAB_ID_MYMUSIC, PlaylistsFragment.class, -1,
-                                null, false);
-                break;
-            case 4:
         }
     }
 }

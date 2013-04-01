@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2012, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,42 +17,34 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import com.actionbarsherlock.app.SherlockListFragment;
+import org.tomahawk.libtomahawk.TomahawkMenuAdapter;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 
 /**
- * Fragment which represents the "RemoteCollection" tabview.
+ * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 06.04.13
  */
-public class RemoteCollectionFragment extends SherlockListFragment implements OnItemClickListener {
+public class SlideMenuFragment extends ListFragment implements AdapterView.OnItemClickListener {
 
-    @SuppressWarnings("unused")
-    private static final String TAG = RemoteCollectionFragment.class.getName();
-
-    private ArrayAdapter<String> mRemoteCollectionAdapter;
+    private TomahawkMenuAdapter mSlideMenuAdapter;
 
     protected CollectionActivity mCollectionActivity;
 
-    /* 
-     * (non-Javadoc)
-     * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
-     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.collection_menu_layout, null, false);
+        return inflater.inflate(R.layout.slide_menu_layout, null);
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
      */
     @Override
@@ -60,13 +52,13 @@ public class RemoteCollectionFragment extends SherlockListFragment implements On
         super.onActivityCreated(savedInstanceState);
 
         getListView().setOnItemClickListener(this);
-        mRemoteCollectionAdapter = new ArrayAdapter<String>(getActivity(),
-                R.layout.single_line_list_menu, R.id.single_line_list_menu_textview,
-                getResources().getStringArray(R.array.remote_collection_menu_items));
-        setListAdapter(mRemoteCollectionAdapter);
+        mSlideMenuAdapter = new TomahawkMenuAdapter(getActivity(),
+                getResources().getStringArray(R.array.slide_menu_items),
+                getResources().obtainTypedArray(R.array.slide_menu_items_icons));
+        setListAdapter(mSlideMenuAdapter);
     }
 
-    /* 
+    /*
      * (non-Javadoc)
      * @see com.actionbarsherlock.app.SherlockListFragment#onAttach(android.app.Activity)
      */
@@ -78,7 +70,7 @@ public class RemoteCollectionFragment extends SherlockListFragment implements On
         super.onAttach(activity);
     }
 
-    /* 
+    /*
      * (non-Javadoc)
      * @see com.actionbarsherlock.app.SherlockListFragment#onDetach()
      */
@@ -93,5 +85,23 @@ public class RemoteCollectionFragment extends SherlockListFragment implements On
      */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
+        if ((int) arg3 != 1) {
+            mCollectionActivity.hideSearchEditText();
+        }
+        switch ((int) arg3) {
+            case TomahawkTabsActivity.TAB_ID_SEARCH:
+                mCollectionActivity.getTabsAdapter()
+                        .setCurrentPosition(TomahawkTabsActivity.TAB_ID_SEARCH);
+                mCollectionActivity.showSearchEditText();
+                break;
+            case TomahawkTabsActivity.TAB_ID_COLLECTION:
+                mCollectionActivity.getTabsAdapter()
+                        .setCurrentPosition(TomahawkTabsActivity.TAB_ID_COLLECTION);
+                break;
+            case TomahawkTabsActivity.TAB_ID_PLAYLISTS:
+                mCollectionActivity.getTabsAdapter()
+                        .setCurrentPosition(TomahawkTabsActivity.TAB_ID_PLAYLISTS);
+                break;
+        }
     }
 }

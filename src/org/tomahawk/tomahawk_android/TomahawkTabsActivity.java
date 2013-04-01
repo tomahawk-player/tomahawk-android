@@ -17,7 +17,7 @@
  */
 package org.tomahawk.tomahawk_android;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.slidingmenu.lib.app.SlidingFragmentActivity;
 
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.audio.PlaybackService;
@@ -25,17 +25,21 @@ import org.tomahawk.libtomahawk.audio.PlaybackService;
 /**
  * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 14.01.13
  */
-public abstract class TomahawkTabsActivity extends SherlockFragmentActivity {
+public abstract class TomahawkTabsActivity extends SlidingFragmentActivity {
 
-    public static final int TAB_ID_USERHOME = 0;
-
-    public static final int TAB_ID_MYMUSIC = 0;
-
-    public static final int TAB_ID_PLAYLISTS = 2;
-
-    public static final int TAB_ID_STATIONS = 3;
+    public static final int TAB_ID_HOME = 0;
 
     public static final int TAB_ID_SEARCH = 1;
+
+    public static final int TAB_ID_COLLECTION = 2;
+
+    public static final int TAB_ID_PLAYLISTS = 3;
+
+    public static final int TAB_ID_STATIONS = 4;
+
+    public static final int TAB_ID_FRIENDS = 5;
+
+    public static final int TAB_ID_SETTINGS = 6;
 
     public abstract Collection getCollection();
 

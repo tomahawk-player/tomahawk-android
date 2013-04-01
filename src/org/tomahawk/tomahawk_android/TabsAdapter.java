@@ -37,7 +37,7 @@ import java.util.ArrayList;
 public class TabsAdapter extends PagerAdapter
         implements ActionBar.TabListener, ViewPager.OnPageChangeListener {
 
-    private SherlockFragmentActivity mActivity;
+    private TomahawkTabsActivity mActivity;
 
     private ActionBar mActionBar;
 
@@ -99,7 +99,7 @@ public class TabsAdapter extends PagerAdapter
     /**
      * Constructs a new TabsAdapter
      */
-    public TabsAdapter(SherlockFragmentActivity activity, FragmentManager fragmentManager,
+    public TabsAdapter(TomahawkTabsActivity activity, FragmentManager fragmentManager,
             ViewPager pager, boolean tabsFunctionality) {
         mActionBar = activity.getSupportActionBar();
         mActivity = activity;
@@ -218,7 +218,7 @@ public class TabsAdapter extends PagerAdapter
      */
     @Override
     public void onPageSelected(int position) {
-//        mActionBar.setSelectedNavigationItem(position);
+        //        mActionBar.setSelectedNavigationItem(position);
     }
 
     /*
@@ -317,7 +317,8 @@ public class TabsAdapter extends PagerAdapter
      * Set the current position of the viewpager
      */
     public void setCurrentPosition(int position) {
-        mViewPager.setCurrentItem(position);
+        mViewPager.setCurrentItem(position, false);
+        mActivity.getSlidingMenu().showContent();
     }
 
     /**
@@ -371,8 +372,9 @@ public class TabsAdapter extends PagerAdapter
      */
     public void replace(int position, Class clss, long tomahawkListItemId,
             String tomahawkListItemType, boolean isBackAction) {
-        replace(position, new FragmentStateHolder(clss, getFragmentTag(getCurrentPosition(), 1),
-                tomahawkListItemId, tomahawkListItemType), isBackAction);
+        replace(position,
+                new FragmentStateHolder(clss, getFragmentTag(position, 1), tomahawkListItemId,
+                        tomahawkListItemType), isBackAction);
     }
 
     /**
@@ -492,8 +494,8 @@ public class TabsAdapter extends PagerAdapter
      */
     public void addFragmentToBackStack(int position, Class clss, long tomahawkListItemId,
             String tomahawkListItemType) {
-        FragmentStateHolder fSH = new FragmentStateHolder(clss,
-                getFragmentTag(getCurrentPosition(), 1), tomahawkListItemId, tomahawkListItemType);
+        FragmentStateHolder fSH = new FragmentStateHolder(clss, getFragmentTag(position, 1),
+                tomahawkListItemId, tomahawkListItemType);
         mTabHolders.get(position).fragmentStateHolders.add(fSH);
     }
 
