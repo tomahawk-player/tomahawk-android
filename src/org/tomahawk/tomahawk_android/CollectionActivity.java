@@ -24,6 +24,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
 import org.tomahawk.libtomahawk.Collection;
+import org.tomahawk.libtomahawk.CollectionLoader;
 import org.tomahawk.libtomahawk.SourceList;
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
@@ -40,6 +41,8 @@ import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.Button;
@@ -50,7 +53,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class CollectionActivity extends TomahawkTabsActivity
-        implements PlaybackServiceConnectionListener {
+        implements PlaybackServiceConnectionListener, LoaderManager.LoaderCallbacks<Collection> {
 
     public static final String COLLECTION_ID_EXTRA = "collection_id";
 
@@ -60,13 +63,13 @@ public class CollectionActivity extends TomahawkTabsActivity
 
     public static final String COLLECTION_ID_STOREDBACKSTACK = "collection_id_storedbackstack";
 
-    protected static final int LOCAL_COLLECTION_TAB_POSITION = 0;
-
     private PlaybackService mPlaybackService;
 
     private TabsAdapter mTabsAdapter;
 
     private Collection mCollection;
+
+    private CollectionUpdateReceiver mCollectionUpdatedReceiver;
 
     private View mNowPlayingView;
 
@@ -74,6 +77,26 @@ public class CollectionActivity extends TomahawkTabsActivity
             this);
 
     private CollectionActivityBroadcastReceiver mCollectionActivityBroadcastReceiver;
+
+    /**
+     * Handles incoming {@link Collection} updated broadcasts.
+     */
+    private class CollectionUpdateReceiver extends BroadcastReceiver {
+
+        /*
+         * (non-Javadoc)
+         *
+         * @see
+         * android.content.BroadcastReceiver#onReceive(android.content.Context,
+         * android.content.Intent)
+         */
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(Collection.COLLECTION_UPDATED)) {
+                onCollectionUpdated();
+            }
+        }
+    }
 
     private class CollectionActivityBroadcastReceiver extends BroadcastReceiver {
 
@@ -104,10 +127,12 @@ public class CollectionActivity extends TomahawkTabsActivity
         setContentView(view);
 
         final ActionBar actionBar = getSupportActionBar();
-        actionBar.removeAllTabs();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        actionBar.setDisplayShowHomeEnabled(false);
+        actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
+        View searchView = getLayoutInflater().inflate(R.layout.collapsible_edittext, null);
+        actionBar.setCustomView(searchView);
+        actionBar.setDisplayShowCustomEnabled(false);
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
         mTabsAdapter = new TabsAdapter(this, getSupportFragmentManager(), viewPager, true);
@@ -115,6 +140,7 @@ public class CollectionActivity extends TomahawkTabsActivity
                 .addTab(actionBar.newTab().setText(R.string.localcollectionactivity_title_string));
         if (savedInstanceState == null) {
             mTabsAdapter.addRootToTab(LocalCollectionFragment.class);
+            mTabsAdapter.addRootToTab(SearchableFragment.class);
         } else {
             ArrayList<TabsAdapter.TabHolder> fragmentStateHolderStack
                     = (ArrayList<TabsAdapter.TabHolder>) savedInstanceState
@@ -123,22 +149,10 @@ public class CollectionActivity extends TomahawkTabsActivity
                 mTabsAdapter.setBackStack(fragmentStateHolderStack);
             } else {
                 mTabsAdapter.addRootToTab(LocalCollectionFragment.class);
+                mTabsAdapter.addRootToTab(SearchableFragment.class);
             }
         }
-        Intent intent = getIntent();
-        if (intent.hasExtra(COLLECTION_ID_ALBUM)) {
-            Long albumId = intent.getLongExtra(COLLECTION_ID_ALBUM, 0);
-            intent.removeExtra(COLLECTION_ID_ALBUM);
-            getTabsAdapter()
-                    .addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, TracksFragment.class,
-                            albumId, TomahawkFragment.TOMAHAWK_ALBUM_ID);
-        } else if (intent.hasExtra(COLLECTION_ID_ARTIST)) {
-            Long artistId = intent.getLongExtra(COLLECTION_ID_ARTIST, 0);
-            intent.removeExtra(COLLECTION_ID_ARTIST);
-            getTabsAdapter()
-                    .addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, AlbumsFragment.class,
-                            artistId, TomahawkFragment.TOMAHAWK_ARTIST_ID);
-        }
+
         mTabsAdapter.notifyDataSetChanged();
     }
 
@@ -167,25 +181,15 @@ public class CollectionActivity extends TomahawkTabsActivity
             setNowPlayingInfo(mPlaybackService.getCurrentTrack());
         }
 
-        if (mCollectionActivityBroadcastReceiver == null) {
-            mCollectionActivityBroadcastReceiver = new CollectionActivityBroadcastReceiver();
-        }
-        IntentFilter intentFilter = new IntentFilter(PlaybackService.BROADCAST_NEWTRACK);
-        registerReceiver(mCollectionActivityBroadcastReceiver, intentFilter);
+        getSupportLoaderManager().destroyLoader(0);
+        getSupportLoaderManager().initLoader(0, null, this);
 
-        if (intent.hasExtra(COLLECTION_ID_ALBUM)) {
-            Long albumId = intent.getLongExtra(COLLECTION_ID_ALBUM, 0);
-            intent.removeExtra(COLLECTION_ID_ALBUM);
-            getTabsAdapter()
-                    .addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, TracksFragment.class,
-                            albumId, TomahawkFragment.TOMAHAWK_ALBUM_ID);
-        } else if (intent.hasExtra(COLLECTION_ID_ARTIST)) {
-            Long artistId = intent.getLongExtra(COLLECTION_ID_ARTIST, 0);
-            intent.removeExtra(COLLECTION_ID_ARTIST);
-            getTabsAdapter()
-                    .addFragmentToBackStack(LOCAL_COLLECTION_TAB_POSITION, AlbumsFragment.class,
-                            artistId, TomahawkFragment.TOMAHAWK_ARTIST_ID);
+        IntentFilter intentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
+        if (mCollectionUpdatedReceiver == null) {
+            mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
+            registerReceiver(mCollectionUpdatedReceiver, intentFilter);
         }
+
         mTabsAdapter.notifyDataSetChanged();
     }
 
@@ -201,6 +205,10 @@ public class CollectionActivity extends TomahawkTabsActivity
         if (mCollectionActivityBroadcastReceiver != null) {
             unregisterReceiver(mCollectionActivityBroadcastReceiver);
             mCollectionActivityBroadcastReceiver = null;
+        }
+        if (mCollectionUpdatedReceiver != null) {
+            unregisterReceiver(mCollectionUpdatedReceiver);
+            mCollectionUpdatedReceiver = null;
         }
     }
 
@@ -317,6 +325,49 @@ public class CollectionActivity extends TomahawkTabsActivity
         if (!mTabsAdapter.back()) {
             super.onBackPressed();
         }
+    }
+
+    /**
+     * Called when a {@link Collection} has been updated.
+     */
+    protected void onCollectionUpdated() {
+        getSupportLoaderManager().restartLoader(0, null, this);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
+     * android.os.Bundle)
+     */
+    @Override
+    public Loader<Collection> onCreateLoader(int id, Bundle args) {
+        return new CollectionLoader(this,
+                ((TomahawkApp) getApplication()).getSourceList().getLocalSource().getCollection());
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
+     * .support.v4.content.Loader)
+     */
+    @Override
+    public void onLoaderReset(Loader<Collection> loader) {
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
+     * .support.v4.content.Loader, java.lang.Object)
+     */
+    @Override
+    public void onLoadFinished(Loader<Collection> loader, Collection coll) {
+        mCollection = coll;
     }
 
     /**

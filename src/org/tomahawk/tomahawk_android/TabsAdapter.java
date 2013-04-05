@@ -218,7 +218,7 @@ public class TabsAdapter extends PagerAdapter
      */
     @Override
     public void onPageSelected(int position) {
-        mActionBar.setSelectedNavigationItem(position);
+//        mActionBar.setSelectedNavigationItem(position);
     }
 
     /*

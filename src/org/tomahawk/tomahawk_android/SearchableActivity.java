@@ -64,6 +64,11 @@ public class SearchableActivity extends TomahawkTabsActivity
         Handler.Callback,
         PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener {
 
+
+    public TabsAdapter getTabsAdapter(){
+        return null;
+    }
+
     private PipeLine mPipeline;
 
     private Collection mCollection;

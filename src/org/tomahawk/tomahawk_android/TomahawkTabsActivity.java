@@ -27,7 +27,19 @@ import org.tomahawk.libtomahawk.audio.PlaybackService;
  */
 public abstract class TomahawkTabsActivity extends SherlockFragmentActivity {
 
+    public static final int TAB_ID_USERHOME = 0;
+
+    public static final int TAB_ID_MYMUSIC = 0;
+
+    public static final int TAB_ID_PLAYLISTS = 2;
+
+    public static final int TAB_ID_STATIONS = 3;
+
+    public static final int TAB_ID_SEARCH = 1;
+
     public abstract Collection getCollection();
 
     public abstract PlaybackService getPlaybackService();
+
+    public abstract TabsAdapter getTabsAdapter();
 }
