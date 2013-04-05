@@ -33,9 +33,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Fragment which represents the "Album" tabview.
  */
@@ -65,9 +62,8 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                 Bundle bundle = new Bundle();
                 bundle.putLong(TOMAHAWK_ALBUM_ID, ((Album) getListAdapter().getItem(idx)).getId());
                 if (mActivity instanceof CollectionActivity) {
-                    ((CollectionActivity) mActivity).getTabsAdapter()
-                            .replace(CollectionActivity.LOCAL_COLLECTION_TAB_POSITION,
-                                    TracksFragment.class,
+                    mActivity.getTabsAdapter()
+                            .replace(TomahawkTabsActivity.TAB_ID_MYMUSIC, TracksFragment.class,
                                     ((Album) getListAdapter().getItem(idx)).getId(),
                                     TOMAHAWK_ALBUM_ID, false);
                 }

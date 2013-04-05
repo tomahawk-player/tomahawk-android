@@ -33,16 +33,29 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
+import android.os.Handler;
+import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,12 +64,15 @@ import java.util.List;
  * Fragment which represents the "Tracks" tabview.
  */
 public class SearchableFragment extends TomahawkFragment
-        implements OnItemClickListener, CompoundButton.OnCheckedChangeListener {
+        implements OnItemClickListener, CompoundButton.OnCheckedChangeListener,
+        TextView.OnEditorActionListener {
 
     private static final String SEARCHABLEFRAGMENT_QUERY_STRING
             = "org.tomahawk.tomahawk_android.SEARCHABLEFRAGMENT_QUERY_STRING";
 
     private SearchableFragment mSearchableFragment = this;
+
+    private PipeLine mPipeline;
 
     private ArrayList<Track> mCurrentShownTracks;
 
@@ -71,6 +87,31 @@ public class SearchableFragment extends TomahawkFragment
     private PipelineBroadcastReceiver mPipelineBroadcastReceiver;
 
     private Collection mCollection;
+
+    private EditText mSearchEditText = null;
+
+    private Handler mAnimationHandler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_UPDATE_ANIMATION:
+                    if (mPipeline.isResolving()) {
+                        mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 500);
+                        mActivity.getSupportActionBar().setLogo(mProgressDrawable);
+                        mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
+                        mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
+                    } else {
+                        stopLoadingAnimation();
+                    }
+                    break;
+            }
+            return true;
+        }
+    });
+
+    private static final int MSG_UPDATE_ANIMATION = 0x20;
+
+    private Drawable mProgressDrawable;
 
     private class PipelineBroadcastReceiver extends BroadcastReceiver {
 
@@ -89,6 +130,12 @@ public class SearchableFragment extends TomahawkFragment
         if (inState != null && inState.containsKey(SEARCHABLEFRAGMENT_QUERY_STRING)) {
             mCurrentQueryString = inState.getString(SEARCHABLEFRAGMENT_QUERY_STRING);
         }
+
+        mActivity.getSupportActionBar().setDisplayShowCustomEnabled(true);
+        // Sets the background colour to grey so that the text is visible
+        AutoCompleteTextView textView = (AutoCompleteTextView) mActivity.getSupportActionBar()
+                .getCustomView().findViewById(R.id.search_edittext);
+        textView.setDropDownBackgroundResource(R.drawable.menu_dropdown_panel_tomahawk);
     }
 
     @Override
@@ -100,9 +147,18 @@ public class SearchableFragment extends TomahawkFragment
     @Override
     public void onResume() {
         super.onResume();
-        CheckBox onlineSourcesCheckBox = (CheckBox) mActivity
+
+        setSearchText((EditText) mActivity.getSupportActionBar().getCustomView()
+                .findViewById(R.id.search_edittext));
+        setupAutoComplete();
+
+        CheckBox onlineSourcesCheckBox = (CheckBox) getView()
                 .findViewById(R.id.searchactivity_onlinesources_checkbox);
         onlineSourcesCheckBox.setOnCheckedChangeListener(this);
+
+        mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
+
+        mPipeline = ((TomahawkApp) mActivity.getApplication()).getPipeLine();
 
         IntentFilter intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED);
         if (mPipelineBroadcastReceiver == null) {
@@ -156,26 +212,14 @@ public class SearchableFragment extends TomahawkFragment
                 startActivity(playbackIntent);
             } else if (getListAdapter().getItem(idx) instanceof Album) {
                 mCollection.setCachedAlbum((Album) getListAdapter().getItem(idx));
-                Bundle bundle = new Bundle();
-                bundle.putBoolean(UserCollection.USERCOLLECTION_ALBUMCACHED, true);
-
-                FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
-                ft.replace(R.id.searchactivity_fragmentcontainer_framelayout,
-                        android.support.v4.app.Fragment
-                                .instantiate(mActivity, TracksFragment.class.getName(), bundle));
-                ft.addToBackStack(null);
-                ft.commit();
+                mActivity.getTabsAdapter().
+                        replace(TomahawkTabsActivity.TAB_ID_SEARCH, TracksFragment.class, -1,
+                                UserCollection.USERCOLLECTION_ALBUMCACHED, false);
             } else if (getListAdapter().getItem(idx) instanceof Artist) {
                 mCollection.setCachedArtist((Artist) getListAdapter().getItem(idx));
-                Bundle bundle = new Bundle();
-                bundle.putBoolean(UserCollection.USERCOLLECTION_ARTISTCACHED, true);
-
-                FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
-                ft.replace(R.id.searchactivity_fragmentcontainer_framelayout,
-                        android.support.v4.app.Fragment
-                                .instantiate(mActivity, TracksFragment.class.getName(), bundle));
-                ft.addToBackStack(null);
-                ft.commit();
+                mActivity.getTabsAdapter().
+                        replace(TomahawkTabsActivity.TAB_ID_SEARCH, TracksFragment.class, -1,
+                                UserCollection.USERCOLLECTION_ARTISTCACHED, false);
             }
         }
     }
@@ -193,6 +237,30 @@ public class SearchableFragment extends TomahawkFragment
         super.onLoadFinished(loader, coll);
 
         mCollection = coll;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * android.widget.TextView.OnEditorActionListener#onEditorAction(android
+     * .widget.TextView, int, android.view.KeyEvent)
+     */
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        if (event == null || actionId == EditorInfo.IME_ACTION_SEARCH
+                || actionId == EditorInfo.IME_ACTION_DONE
+                || event.getAction() == KeyEvent.ACTION_DOWN
+                && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+            String searchText = v.getText().toString();
+            if (searchText != null && !TextUtils.isEmpty(searchText)) {
+                addToAutoCompleteArray(searchText);
+                setupAutoComplete();
+                resolveFullTextQuery(searchText);
+                return true;
+            }
+        }
+        return false;
     }
 
     public void showQueryResults(String qid) {
@@ -238,5 +306,84 @@ public class SearchableFragment extends TomahawkFragment
         Intent intent = new Intent(context, cls);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         return intent;
+    }
+
+    private void setupAutoComplete() {
+        // Autocomplete code
+        AutoCompleteTextView textView = (AutoCompleteTextView) mActivity.getSupportActionBar()
+                .getCustomView().findViewById(R.id.search_edittext);
+        ArrayList<String> autoCompleteSuggestions = getAutoCompleteArray();
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(mActivity,
+                android.R.layout.simple_list_item_1, autoCompleteSuggestions);
+        textView.setAdapter(adapter);
+    }
+
+    /**
+     * Set the reference to the searchText, that is used to filter the custom {@link
+     * android.widget.ListView}
+     *
+     * @param searchText the EditText object which the listener is connected to
+     */
+    public void setSearchText(EditText searchText) {
+        mSearchEditText = searchText;
+        if (mSearchEditText != null) {
+            mSearchEditText.setOnEditorActionListener(this);
+            mSearchEditText.setImeActionLabel("Go", KeyEvent.KEYCODE_ENTER);
+            mSearchEditText.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+        }
+    }
+
+    public void resolveFullTextQuery(String fullTextQuery) {
+        mActivity.getTabsAdapter().backToRoot(TomahawkTabsActivity.TAB_ID_SEARCH);
+        CheckBox onlineSourcesCheckBox = (CheckBox) getView()
+                .findViewById(R.id.searchactivity_onlinesources_checkbox);
+        PipeLine pipeLine = ((TomahawkApp) mActivity.getApplication()).getPipeLine();
+        pipeLine.resolve(fullTextQuery, !onlineSourcesCheckBox.isChecked());
+        InputMethodManager imm = (InputMethodManager) mActivity
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);
+        startLoadingAnimation();
+    }
+
+    public void addToAutoCompleteArray(String newString) {
+        ArrayList<String> myArrayList = getAutoCompleteArray();
+        int highestIndex = myArrayList.size();
+
+        for (int i = 0; i < highestIndex; i++) {
+            if (newString.equals(myArrayList.get(i))) {
+                return;
+            }
+        }
+
+        myArrayList.add(newString);
+
+        SharedPreferences sPrefs = PreferenceManager
+                .getDefaultSharedPreferences(mActivity.getBaseContext());
+        SharedPreferences.Editor sEdit = sPrefs.edit();
+
+        sEdit.putString("autocomplete_" + highestIndex, myArrayList.get(highestIndex));
+        sEdit.putInt("autocomplete_size", myArrayList.size());
+        sEdit.commit();
+    }
+
+    public ArrayList<String> getAutoCompleteArray() {
+        SharedPreferences sPrefs = PreferenceManager
+                .getDefaultSharedPreferences(mActivity.getBaseContext());
+        ArrayList<String> myAList = new ArrayList<String>();
+        int size = sPrefs.getInt("autocomplete_size", 0);
+
+        for (int j = 0; j < size; j++) {
+            myAList.add(sPrefs.getString("autocomplete_" + j, null));
+        }
+        return myAList;
+    }
+
+    public void startLoadingAnimation() {
+        mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
+    }
+
+    public void stopLoadingAnimation() {
+        mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
+        mActivity.getSupportActionBar().setLogo(R.drawable.ic_launcher);
     }
 }
