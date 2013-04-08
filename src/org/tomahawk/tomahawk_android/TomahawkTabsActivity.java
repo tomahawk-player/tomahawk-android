@@ -45,5 +45,5 @@ public abstract class TomahawkTabsActivity extends SlidingFragmentActivity {
 
     public abstract PlaybackService getPlaybackService();
 
-    public abstract TabsAdapter getTabsAdapter();
+    public abstract ContentViewer getContentViewer();
 }

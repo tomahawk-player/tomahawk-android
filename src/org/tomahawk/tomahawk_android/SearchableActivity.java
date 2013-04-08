@@ -65,7 +65,7 @@ public class SearchableActivity extends TomahawkTabsActivity
         PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener {
 
 
-    public TabsAdapter getTabsAdapter(){
+    public ContentViewer getContentViewer(){
         return null;
     }
 

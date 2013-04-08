@@ -468,13 +468,13 @@ public abstract class TomahawkFragment extends SherlockFragment
     }
 
     public void updateBreadCrumbNavigation() {
-        ArrayList<TabsAdapter.FragmentStateHolder> backStack = ((CollectionActivity) mActivity)
-                .getTabsAdapter().getBackStackAtPosition(TomahawkTabsActivity.TAB_ID_COLLECTION);
+        ArrayList<ContentViewer.FragmentStateHolder> backStack = mActivity.getContentViewer()
+                .getBackStackAtPosition(mActivity.getContentViewer().getCurrentlyShownStack());
         LinearLayout navigationLayoutView = (LinearLayout) getActivity()
                 .findViewById(R.id.fragmentLayout_breadcrumbLayout_linearLayout);
         if (navigationLayoutView != null) {
             int validFragmentCount = 0;
-            for (TabsAdapter.FragmentStateHolder fpb : backStack) {
+            for (ContentViewer.FragmentStateHolder fpb : backStack) {
                 if (fpb.clss == AlbumsFragment.class || fpb.clss == ArtistsFragment.class
                         || fpb.clss == TracksFragment.class
                         || fpb.clss == PlaylistsFragment.class) {
@@ -482,7 +482,7 @@ public abstract class TomahawkFragment extends SherlockFragment
                 }
             }
             Collection currentCollection = mActivity.getCollection();
-            for (TabsAdapter.FragmentStateHolder fpb : backStack) {
+            for (ContentViewer.FragmentStateHolder fpb : backStack) {
                 LinearLayout breadcrumbItem = (LinearLayout) getActivity().getLayoutInflater()
                         .inflate(R.layout.tomahawkfragment_layout_breadcrumb_item, null);
                 ImageView breadcrumbItemImageView = (ImageView) breadcrumbItem
@@ -585,8 +585,9 @@ public abstract class TomahawkFragment extends SherlockFragment
 
         @Override
         public void onClick(View view) {
-            ((CollectionActivity) mActivity).getTabsAdapter()
-                    .backToFragment(TomahawkTabsActivity.TAB_ID_COLLECTION, mSavedFragmentTag);
+            mActivity.getContentViewer()
+                    .backToFragment(mActivity.getContentViewer().getCurrentlyShownStack(),
+                            mSavedFragmentTag);
         }
     }
 

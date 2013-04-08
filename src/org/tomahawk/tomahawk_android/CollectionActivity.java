@@ -32,7 +32,6 @@ import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 import org.tomahawk.libtomahawk.audio.PlaybackService;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
-import org.tomahawk.libtomahawk.audio.PlaylistDialog;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -44,7 +43,6 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -52,6 +50,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CollectionActivity extends TomahawkTabsActivity
         implements PlaybackServiceConnectionListener, LoaderManager.LoaderCallbacks<Collection> {
@@ -68,7 +68,7 @@ public class CollectionActivity extends TomahawkTabsActivity
 
     private PlaybackService mPlaybackService;
 
-    private TabsAdapter mTabsAdapter;
+    private ContentViewer mContentViewer;
 
     private Collection mCollection;
 
@@ -146,7 +146,6 @@ public class CollectionActivity extends TomahawkTabsActivity
         sm.setFadeDegree(0.35f);
         sm.setShadowWidthRes(R.dimen.shadow_width);
         sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
-        sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
 
         // set the Behind View Fragment
         getSupportFragmentManager().beginTransaction()
@@ -158,26 +157,36 @@ public class CollectionActivity extends TomahawkTabsActivity
         actionBar.setHomeButtonEnabled(true);
         actionBar.setLogo(R.drawable.ic_action_slidemenu);
 
-        ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
-        mTabsAdapter = new TabsAdapter(this, getSupportFragmentManager(), viewPager, true);
+        mContentViewer = new ContentViewer(this, getSupportFragmentManager(), R.id.content_frame);
         if (savedInstanceState == null) {
-            mTabsAdapter.addRootToTab(SearchableFragment.class);
-            mTabsAdapter.addRootToTab(LocalCollectionFragment.class);
-            mTabsAdapter.addRootToTab(PlaylistsFragment.class);
+            mContentViewer
+                    .addRootToTab(TomahawkTabsActivity.TAB_ID_SEARCH, SearchableFragment.class);
+            mContentViewer.addRootToTab(TomahawkTabsActivity.TAB_ID_COLLECTION,
+                    LocalCollectionFragment.class);
+            mContentViewer
+                    .addRootToTab(TomahawkTabsActivity.TAB_ID_PLAYLISTS, PlaylistsFragment.class);
         } else {
-            ArrayList<TabsAdapter.TabHolder> fragmentStateHolderStack
-                    = (ArrayList<TabsAdapter.TabHolder>) savedInstanceState
+            HashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>> storedBackStack
+                    = (HashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>>) savedInstanceState
                     .getSerializable(COLLECTION_ID_STOREDBACKSTACK);
-            if (fragmentStateHolderStack != null && fragmentStateHolderStack.size() > 0) {
-                mTabsAdapter.setBackStack(fragmentStateHolderStack);
+            ConcurrentHashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>>
+                    concurrentStoredBackStack
+                    = new ConcurrentHashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>>();
+            for (Integer key : storedBackStack.keySet()) {
+                concurrentStoredBackStack.put(key, storedBackStack.get(key));
+            }
+            if (concurrentStoredBackStack != null && concurrentStoredBackStack.size() > 0) {
+                mContentViewer.setBackStack(concurrentStoredBackStack);
             } else {
-                mTabsAdapter.addRootToTab(SearchableFragment.class);
-                mTabsAdapter.addRootToTab(LocalCollectionFragment.class);
-                mTabsAdapter.addRootToTab(PlaylistsFragment.class);
+                mContentViewer
+                        .addRootToTab(TomahawkTabsActivity.TAB_ID_SEARCH, SearchableFragment.class);
+                mContentViewer.addRootToTab(TomahawkTabsActivity.TAB_ID_COLLECTION,
+                        LocalCollectionFragment.class);
+                mContentViewer.addRootToTab(TomahawkTabsActivity.TAB_ID_PLAYLISTS,
+                        PlaylistsFragment.class);
             }
         }
-
-        mTabsAdapter.notifyDataSetChanged();
+        mContentViewer.setCurrentlyShownStack(TomahawkTabsActivity.TAB_ID_COLLECTION);
     }
 
     @Override
@@ -213,8 +222,6 @@ public class CollectionActivity extends TomahawkTabsActivity
             mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
             registerReceiver(mCollectionUpdatedReceiver, intentFilter);
         }
-
-        mTabsAdapter.notifyDataSetChanged();
     }
 
     /*
@@ -247,7 +254,7 @@ public class CollectionActivity extends TomahawkTabsActivity
 
     @Override
     protected void onSaveInstanceState(Bundle bundle) {
-        bundle.putSerializable(COLLECTION_ID_STOREDBACKSTACK, getTabsAdapter().getBackStack());
+        bundle.putSerializable(COLLECTION_ID_STOREDBACKSTACK, getContentViewer().getBackStack());
         super.onSaveInstanceState(bundle);
     }
 
@@ -334,7 +341,7 @@ public class CollectionActivity extends TomahawkTabsActivity
      */
     @Override
     public void onBackPressed() {
-        if (!mTabsAdapter.back()) {
+        if (!mContentViewer.back(mContentViewer.getCurrentlyShownStack())) {
             super.onBackPressed();
         }
     }
@@ -390,7 +397,7 @@ public class CollectionActivity extends TomahawkTabsActivity
     }
 
     public void onBackToRootPressed(View view) {
-        getTabsAdapter().backToRoot(mTabsAdapter.getCurrentPosition());
+        getContentViewer().backToRoot(mContentViewer.getCurrentlyShownStack());
     }
 
     /**
@@ -479,9 +486,9 @@ public class CollectionActivity extends TomahawkTabsActivity
     }
 
     /**
-     * @return the mTabsAdapter
+     * @return the mContentViewer
      */
-    public TabsAdapter getTabsAdapter() {
-        return mTabsAdapter;
+    public ContentViewer getContentViewer() {
+        return mContentViewer;
     }
 }

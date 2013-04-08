@@ -205,12 +205,12 @@ public class SearchableFragment extends TomahawkFragment
                 startActivity(playbackIntent);
             } else if (getListAdapter().getItem(idx) instanceof Album) {
                 mCollection.setCachedAlbum((Album) getListAdapter().getItem(idx));
-                mActivity.getTabsAdapter().
+                mActivity.getContentViewer().
                         replace(TomahawkTabsActivity.TAB_ID_SEARCH, TracksFragment.class, -1,
                                 UserCollection.USERCOLLECTION_ALBUMCACHED, false);
             } else if (getListAdapter().getItem(idx) instanceof Artist) {
                 mCollection.setCachedArtist((Artist) getListAdapter().getItem(idx));
-                mActivity.getTabsAdapter().
+                mActivity.getContentViewer().
                         replace(TomahawkTabsActivity.TAB_ID_SEARCH, TracksFragment.class, -1,
                                 UserCollection.USERCOLLECTION_ARTISTCACHED, false);
             }
@@ -337,7 +337,7 @@ public class SearchableFragment extends TomahawkFragment
     }
 
     public void resolveFullTextQuery(String fullTextQuery) {
-        mActivity.getTabsAdapter().backToRoot(TomahawkTabsActivity.TAB_ID_SEARCH);
+        mActivity.getContentViewer().backToRoot(TomahawkTabsActivity.TAB_ID_SEARCH);
         CheckBox onlineSourcesCheckBox = (CheckBox) getView()
                 .findViewById(R.id.searchactivity_onlinesources_checkbox);
         PipeLine pipeLine = ((TomahawkApp) mActivity.getApplication()).getPipeLine();
