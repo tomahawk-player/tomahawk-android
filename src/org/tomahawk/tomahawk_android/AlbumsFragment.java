@@ -62,7 +62,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                 Bundle bundle = new Bundle();
                 bundle.putLong(TOMAHAWK_ALBUM_ID, ((Album) getListAdapter().getItem(idx)).getId());
                 if (mActivity instanceof CollectionActivity) {
-                    mActivity.getTabsAdapter()
+                    mActivity.getContentViewer()
                             .replace(TomahawkTabsActivity.TAB_ID_COLLECTION, TracksFragment.class,
                                     ((Album) getListAdapter().getItem(idx)).getId(),
                                     TOMAHAWK_ALBUM_ID, false);

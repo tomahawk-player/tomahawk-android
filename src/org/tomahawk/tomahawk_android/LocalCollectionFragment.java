@@ -93,17 +93,17 @@ public class LocalCollectionFragment extends SherlockListFragment implements OnI
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
         switch ((int) arg3) {
             case 0:
-                mCollectionActivity.getTabsAdapter()
+                mCollectionActivity.getContentViewer()
                         .replace(TomahawkTabsActivity.TAB_ID_COLLECTION, TracksFragment.class, -1,
                                 null, false);
                 break;
             case 1:
-                mCollectionActivity.getTabsAdapter()
+                mCollectionActivity.getContentViewer()
                         .replace(TomahawkTabsActivity.TAB_ID_COLLECTION, AlbumsFragment.class, -1,
                                 null, false);
                 break;
             case 2:
-                mCollectionActivity.getTabsAdapter()
+                mCollectionActivity.getContentViewer()
                         .replace(TomahawkTabsActivity.TAB_ID_COLLECTION, ArtistsFragment.class, -1,
                                 null, false);
                 break;

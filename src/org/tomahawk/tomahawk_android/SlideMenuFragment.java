@@ -87,21 +87,23 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
         if ((int) arg3 != 1) {
             mCollectionActivity.hideSearchEditText();
+        } else {
+            mCollectionActivity.showSearchEditText();
         }
         switch ((int) arg3) {
             case TomahawkTabsActivity.TAB_ID_SEARCH:
-                mCollectionActivity.getTabsAdapter()
-                        .setCurrentPosition(TomahawkTabsActivity.TAB_ID_SEARCH);
-                mCollectionActivity.showSearchEditText();
+                mCollectionActivity.getContentViewer()
+                        .setCurrentlyShownStack(TomahawkTabsActivity.TAB_ID_SEARCH);
                 break;
             case TomahawkTabsActivity.TAB_ID_COLLECTION:
-                mCollectionActivity.getTabsAdapter()
-                        .setCurrentPosition(TomahawkTabsActivity.TAB_ID_COLLECTION);
+                mCollectionActivity.getContentViewer()
+                        .setCurrentlyShownStack(TomahawkTabsActivity.TAB_ID_COLLECTION);
                 break;
             case TomahawkTabsActivity.TAB_ID_PLAYLISTS:
-                mCollectionActivity.getTabsAdapter()
-                        .setCurrentPosition(TomahawkTabsActivity.TAB_ID_PLAYLISTS);
+                mCollectionActivity.getContentViewer()
+                        .setCurrentlyShownStack(TomahawkTabsActivity.TAB_ID_PLAYLISTS);
                 break;
         }
+        mCollectionActivity.showContent();
     }
 }
