@@ -66,8 +66,8 @@ public class SearchableFragment extends TomahawkFragment
         implements OnItemClickListener, CompoundButton.OnCheckedChangeListener,
         TextView.OnEditorActionListener {
 
-    private static final String SEARCHABLEFRAGMENT_QUERY_STRING
-            = "org.tomahawk.tomahawk_android.SEARCHABLEFRAGMENT_QUERY_STRING";
+    public static final String SEARCHABLEFRAGMENT_QUERY_ID
+            = "org.tomahawk.tomahawk_android.SEARCHABLEFRAGMENT_QUERRY_ID";
 
     private SearchableFragment mSearchableFragment = this;
 
@@ -118,10 +118,10 @@ public class SearchableFragment extends TomahawkFragment
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(PipeLine.PIPELINE_RESULTSREPORTED)) {
                 mCurrentQueryId = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
+                mActivity.getContentViewer()
+                        .getBackStackAtPosition(TomahawkTabsActivity.TAB_ID_SEARCH).get(0).queryId
+                        = mCurrentQueryId;
                 showQueryResults(mCurrentQueryId);
-            } else if (intent.getAction()
-                    .equals(CollectionActivity.COLLECTION_ACTIONBAR_EXPANDED)) {
-                onActionBarExpanded();
             }
         }
     }
@@ -129,8 +129,13 @@ public class SearchableFragment extends TomahawkFragment
     @Override
     public void onCreate(Bundle inState) {
         super.onCreate(inState);
-        if (inState != null && inState.containsKey(SEARCHABLEFRAGMENT_QUERY_STRING)) {
-            mCurrentQueryString = inState.getString(SEARCHABLEFRAGMENT_QUERY_STRING);
+        if (inState != null && inState.containsKey(SEARCHABLEFRAGMENT_QUERY_ID)
+                && inState.getString(SEARCHABLEFRAGMENT_QUERY_ID) != null) {
+            mCurrentQueryId = inState.getString(SEARCHABLEFRAGMENT_QUERY_ID);
+        }
+        if (getArguments() != null && getArguments().containsKey(SEARCHABLEFRAGMENT_QUERY_ID)
+                && getArguments().getString(SEARCHABLEFRAGMENT_QUERY_ID) != null) {
+            mCurrentQueryId = getArguments().getString(SEARCHABLEFRAGMENT_QUERY_ID);
         }
     }
 
@@ -144,6 +149,14 @@ public class SearchableFragment extends TomahawkFragment
     public void onResume() {
         super.onResume();
 
+        setSearchText((EditText) mActivity.getSupportActionBar().getCustomView()
+                .findViewById(R.id.search_edittext));
+        // Sets the background colour to grey so that the text is visible
+        AutoCompleteTextView textView = (AutoCompleteTextView) mActivity.getSupportActionBar()
+                .getCustomView().findViewById(R.id.search_edittext);
+        textView.setDropDownBackgroundResource(R.drawable.menu_dropdown_panel_tomahawk);
+        setupAutoComplete();
+
         CheckBox onlineSourcesCheckBox = (CheckBox) getView()
                 .findViewById(R.id.searchactivity_onlinesources_checkbox);
         onlineSourcesCheckBox.setOnCheckedChangeListener(this);
@@ -155,12 +168,13 @@ public class SearchableFragment extends TomahawkFragment
             mSearchableBroadcastReceiver = new SearchableBroadcastReceiver();
             IntentFilter intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED);
             mActivity.registerReceiver(mSearchableBroadcastReceiver, intentFilter);
-            intentFilter = new IntentFilter(CollectionActivity.COLLECTION_ACTIONBAR_EXPANDED);
-            mActivity.registerReceiver(mSearchableBroadcastReceiver, intentFilter);
         }
 
-        if (mCurrentQueryString != null) {
+        if (mCurrentQueryId != null) {
+            mCurrentQueryString = mPipeline.getQuery(mCurrentQueryId).getFullTextQuery();
             resolveFullTextQuery(mCurrentQueryString);
+            mSearchEditText.setText(mCurrentQueryString);
+            mSearchEditText.setSelection(mCurrentQueryString.length());
         }
     }
 
@@ -180,7 +194,7 @@ public class SearchableFragment extends TomahawkFragment
 
     @Override
     public void onSaveInstanceState(Bundle out) {
-        out.putString(SEARCHABLEFRAGMENT_QUERY_STRING, mCurrentQueryString);
+        out.putString(SEARCHABLEFRAGMENT_QUERY_ID, mCurrentQueryId);
         super.onSaveInstanceState(out);
     }
 
@@ -254,16 +268,6 @@ public class SearchableFragment extends TomahawkFragment
             }
         }
         return false;
-    }
-
-    public void onActionBarExpanded() {
-        setSearchText((EditText) mActivity.getSupportActionBar().getCustomView()
-                .findViewById(R.id.search_edittext));
-        // Sets the background colour to grey so that the text is visible
-        AutoCompleteTextView textView = (AutoCompleteTextView) mActivity.getSupportActionBar()
-                .getCustomView().findViewById(R.id.search_edittext);
-        textView.setDropDownBackgroundResource(R.drawable.menu_dropdown_panel_tomahawk);
-        setupAutoComplete();
     }
 
     public void showQueryResults(String qid) {

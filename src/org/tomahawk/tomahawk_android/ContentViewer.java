@@ -57,6 +57,8 @@ public class ContentViewer {
         //the type of the corresponding TomahawkListItem
         protected String tomahawkListItemType = null;
 
+        protected String queryId = null;
+
         //the listScrollPosition which is being stored and restored when the fragment is popped or stashed.
         protected int listScrollPosition = 0;
 
@@ -146,6 +148,8 @@ public class ContentViewer {
                     fragmentStateHolder.tomahawkListItemId);
             bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION,
                     fragmentStateHolder.listScrollPosition);
+            bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_ID,
+                    fragmentStateHolder.queryId);
             ft.replace(mContentFrameId,
                     Fragment.instantiate(mActivity, fragmentStateHolder.clss.getName(), bundle),
                     fragmentStateHolder.fragmentTag);
@@ -284,8 +288,10 @@ public class ContentViewer {
     }
 
     public void setCurrentlyShownStack(int stackToShow) {
-        mCurrentlyShownStack = stackToShow;
-        ArrayList<FragmentStateHolder> stack = mMapOfStacks.get(stackToShow);
-        replace(stackToShow, stack.get(stack.size() - 1), false);
+        if (mCurrentlyShownStack != stackToShow) {
+            mCurrentlyShownStack = stackToShow;
+            ArrayList<FragmentStateHolder> stack = mMapOfStacks.get(stackToShow);
+            replace(stackToShow, stack.get(stack.size() - 1), false);
+        }
     }
 }

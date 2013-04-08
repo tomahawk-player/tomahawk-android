@@ -32,6 +32,7 @@ import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 import org.tomahawk.libtomahawk.audio.PlaybackService;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
+import org.tomahawk.libtomahawk.resolver.TomahawkUtils;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -40,12 +41,18 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Point;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -63,8 +70,6 @@ public class CollectionActivity extends TomahawkTabsActivity
     public static final String COLLECTION_ID_ARTIST = "collection_artist_id";
 
     public static final String COLLECTION_ID_STOREDBACKSTACK = "collection_id_storedbackstack";
-
-    public static final String COLLECTION_ACTIONBAR_EXPANDED = "collection_actionbar_expanded";
 
     private PlaybackService mPlaybackService;
 
@@ -156,6 +161,9 @@ public class CollectionActivity extends TomahawkTabsActivity
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setHomeButtonEnabled(true);
         actionBar.setLogo(R.drawable.ic_action_slidemenu);
+        View searchView = getLayoutInflater().inflate(R.layout.search_edittext, null);
+        actionBar.setCustomView(searchView);
+        actionBar.setDisplayShowCustomEnabled(true);
 
         mContentViewer = new ContentViewer(this, getSupportFragmentManager(), R.id.content_frame);
         if (savedInstanceState == null) {
@@ -187,6 +195,7 @@ public class CollectionActivity extends TomahawkTabsActivity
             }
         }
         mContentViewer.setCurrentlyShownStack(TomahawkTabsActivity.TAB_ID_COLLECTION);
+        hideSearchEditText();
     }
 
     @Override
@@ -284,12 +293,20 @@ public class CollectionActivity extends TomahawkTabsActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getSupportMenuInflater();
-        inflater.inflate(R.menu.collection_menu, menu);
-        RelativeLayout relativeLayout = (RelativeLayout) menu.findItem(R.id.now_playing_layout_item)
-                .getActionView();
         mNowPlayingView = getLayoutInflater().inflate(R.layout.now_playing, null);
-        relativeLayout.addView(mNowPlayingView);
+        FrameLayout nowPlayingFrameTop = (FrameLayout) getSupportActionBar().getCustomView()
+                .findViewById(R.id.now_playing_frame_top);
+        FrameLayout nowPlayingFrameBottom = (FrameLayout) findViewById(
+                R.id.now_playing_frame_bottom);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            nowPlayingFrameTop.addView(mNowPlayingView);
+            nowPlayingFrameTop.setVisibility(FrameLayout.VISIBLE);
+            nowPlayingFrameBottom.setVisibility(FrameLayout.GONE);
+        } else {
+            nowPlayingFrameBottom.addView(mNowPlayingView);
+            nowPlayingFrameTop.setVisibility(FrameLayout.GONE);
+            nowPlayingFrameBottom.setVisibility(FrameLayout.VISIBLE);
+        }
         if (mPlaybackService != null) {
             setNowPlayingInfo(mPlaybackService.getCurrentTrack());
         }
@@ -466,14 +483,15 @@ public class CollectionActivity extends TomahawkTabsActivity
     }
 
     public void showSearchEditText() {
-        View searchView = getLayoutInflater().inflate(R.layout.collapsible_edittext, null);
-        getSupportActionBar().setCustomView(searchView);
-        getSupportActionBar().setDisplayShowCustomEnabled(true);
-        sendBroadcast(new Intent(COLLECTION_ACTIONBAR_EXPANDED));
+        AutoCompleteTextView searchFrameTop = (AutoCompleteTextView) getSupportActionBar()
+                .getCustomView().findViewById(R.id.search_edittext);
+        searchFrameTop.setVisibility(AutoCompleteTextView.VISIBLE);
     }
 
     public void hideSearchEditText() {
-        getSupportActionBar().setDisplayShowCustomEnabled(false);
+        AutoCompleteTextView searchFrameTop = (AutoCompleteTextView) getSupportActionBar()
+                .getCustomView().findViewById(R.id.search_edittext);
+        searchFrameTop.setVisibility(AutoCompleteTextView.GONE);
     }
 
     /**

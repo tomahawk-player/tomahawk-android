@@ -21,6 +21,7 @@ import org.tomahawk.libtomahawk.TomahawkMenuAdapter;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -104,6 +105,11 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
                         .setCurrentlyShownStack(TomahawkTabsActivity.TAB_ID_PLAYLISTS);
                 break;
         }
-        mCollectionActivity.showContent();
+        Handler h = new Handler();
+        h.postDelayed(new Runnable() {
+            public void run() {
+                mCollectionActivity.showContent();
+            }
+        }, 50);
     }
 }
