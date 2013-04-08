@@ -255,11 +255,7 @@ public class PlaybackActivity extends SherlockFragmentActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item != null) {
-            if (item.getItemId() == R.id.action_search_item) {
-                Intent searchIntent = getIntent(this, SearchableActivity.class);
-                startActivity(searchIntent);
-                return true;
-            } else if (item.getItemId() == R.id.action_clearplaylist_item) {
+            if (item.getItemId() == R.id.action_clearplaylist_item) {
                 while (mPlaybackService.getCurrentPlaylist().getCount() > 0) {
                     mPlaybackService.deleteTrackAtPos(0);
                 }
@@ -267,10 +263,6 @@ public class PlaybackActivity extends SherlockFragmentActivity
             } else if (item.getItemId() == R.id.action_saveplaylist_item) {
                 new PlaylistDialog(mPlaylist).show(getSupportFragmentManager(),
                         getString(R.string.playbackactivity_save_playlist_dialog_title));
-                return true;
-            } else if (item.getItemId() == R.id.action_settings_item) {
-                Intent searchIntent = getIntent(this, SettingsActivity.class);
-                startActivity(searchIntent);
                 return true;
             } else if (item.getItemId() == android.R.id.home) {
                 Intent collectionIntent = getIntent(this, CollectionActivity.class);

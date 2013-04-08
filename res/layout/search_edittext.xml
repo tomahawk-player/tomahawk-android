@@ -21,37 +21,30 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:orientation="horizontal"
-              android:background="@color/transparent_black">
+              android:orientation="horizontal">
 
     <FrameLayout
-            android:id="@+id/slide_menu_frame"
+            android:id="@+id/search_frame_top"
+            android:layout_width="550dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+        <AutoCompleteTextView
+                android:id="@+id/search_edittext"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:hint="@string/searchfragment_title_string"
+                android:inputType="text"
+                android:completionThreshold="1">
+            <requestFocus/>
+        </AutoCompleteTextView>
+    </FrameLayout>
+
+    <FrameLayout
+            android:id="@+id/now_playing_frame_top"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"/>
-
-    <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="2"
-            android:orientation="vertical">
-
-        <FrameLayout
-                android:id="@+id/bread_crumb_frame"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-
-        <FrameLayout
-                android:id="@+id/content_frame"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"/>
-
-        <FrameLayout
-                android:id="@+id/now_playing_frame_bottom"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-
-    </LinearLayout>
 
 </LinearLayout>

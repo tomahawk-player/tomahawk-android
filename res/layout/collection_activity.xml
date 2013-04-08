@@ -24,10 +24,36 @@
               android:orientation="horizontal"
               android:background="@color/transparent_black">
 
-    <FrameLayout
-            android:id="@+id/content_frame"
+    <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+        <FrameLayout
+                android:id="@+id/bread_crumb_frame"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <FrameLayout
+                android:id="@+id/content_frame"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+
+        <FrameLayout
+                android:id="@+id/now_playing_frame_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent_black">
+
+            <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/tomahawk_red"/>
+
+        </FrameLayout>
+
+    </LinearLayout>
 
 </LinearLayout>
