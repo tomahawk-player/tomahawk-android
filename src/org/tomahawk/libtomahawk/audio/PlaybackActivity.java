@@ -45,8 +45,6 @@ import org.tomahawk.libtomahawk.resolver.TomahawkUtils;
 import org.tomahawk.tomahawk_android.ChoosePlaylistDialog;
 import org.tomahawk.tomahawk_android.CollectionActivity;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.SearchableActivity;
-import org.tomahawk.tomahawk_android.SettingsActivity;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.BroadcastReceiver;

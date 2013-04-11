@@ -80,12 +80,6 @@ public abstract class TomahawkFragment extends SherlockFragment
 
     protected TomahawkTabsActivity mActivity;
 
-    static final int INTERNAL_EMPTY_ID = 0x00ff0001;
-
-    static final int INTERNAL_PROGRESS_CONTAINER_ID = 0x00ff0002;
-
-    static final int INTERNAL_LIST_CONTAINER_ID = 0x00ff0003;
-
     TomahawkBaseAdapter mTomahawkBaseAdapter;
 
     TomahawkStickyListHeadersListView mList;
@@ -110,8 +104,6 @@ public abstract class TomahawkFragment extends SherlockFragment
                                     : mList));
         }
     };
-
-    private boolean mBreadCrumbNavigationEnabled = true;
 
     /**
      * Handles incoming {@link Collection} updated broadcasts.
@@ -141,9 +133,6 @@ public abstract class TomahawkFragment extends SherlockFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (mActivity instanceof SearchableActivity) {
-            setBreadCrumbNavigationEnabled(false);
-        }
         if (getArguments() != null && getArguments().containsKey(TOMAHAWK_LIST_SCROLL_POSITION)
                 && getArguments().getInt(TOMAHAWK_LIST_SCROLL_POSITION) > 0) {
             mListScrollPosition = getArguments().getInt(TOMAHAWK_LIST_SCROLL_POSITION);
@@ -168,13 +157,6 @@ public abstract class TomahawkFragment extends SherlockFragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ensureList();
-        if (mBreadCrumbNavigationEnabled) {
-            updateBreadCrumbNavigation();
-        } else if (mActivity.findViewById(R.id.fragmentLayout_breadcrumbLayout_linearLayout)
-                != null) {
-            mActivity.findViewById(R.id.fragmentLayout_breadcrumbLayout_linearLayout)
-                    .setVisibility(View.GONE);
-        }
     }
 
     /*
@@ -467,130 +449,6 @@ public abstract class TomahawkFragment extends SherlockFragment
     public void onLoaderReset(Loader<Collection> loader) {
     }
 
-    public void updateBreadCrumbNavigation() {
-        ArrayList<ContentViewer.FragmentStateHolder> backStack = mActivity.getContentViewer()
-                .getBackStackAtPosition(mActivity.getContentViewer().getCurrentlyShownStack());
-        LinearLayout navigationLayoutView = (LinearLayout) getActivity()
-                .findViewById(R.id.fragmentLayout_breadcrumbLayout_linearLayout);
-        if (navigationLayoutView != null) {
-            int validFragmentCount = 0;
-            for (ContentViewer.FragmentStateHolder fpb : backStack) {
-                if (fpb.clss == AlbumsFragment.class || fpb.clss == ArtistsFragment.class
-                        || fpb.clss == TracksFragment.class
-                        || fpb.clss == PlaylistsFragment.class) {
-                    validFragmentCount++;
-                }
-            }
-            Collection currentCollection = mActivity.getCollection();
-            for (ContentViewer.FragmentStateHolder fpb : backStack) {
-                LinearLayout breadcrumbItem = (LinearLayout) getActivity().getLayoutInflater()
-                        .inflate(R.layout.tomahawkfragment_layout_breadcrumb_item, null);
-                ImageView breadcrumbItemImageView = (ImageView) breadcrumbItem
-                        .findViewById(R.id.fragmentLayout_icon_imageButton);
-                SquareHeightRelativeLayout breadcrumbItemImageViewLayout
-                        = (SquareHeightRelativeLayout) breadcrumbItem
-                        .findViewById(R.id.fragmentLayout_icon_squareHeightRelativeLayout);
-                TextView breadcrumbItemTextView = (TextView) breadcrumbItem
-                        .findViewById(R.id.fragmentLayout_text_textView);
-                if (fpb.clss == AlbumsFragment.class) {
-                    Artist correspondingArtist = currentCollection
-                            .getArtistById(fpb.tomahawkListItemId);
-                    if (currentCollection.getArtistById(fpb.tomahawkListItemId) != null) {
-                        breadcrumbItemTextView.setText(correspondingArtist.getName());
-                        breadcrumbItemImageViewLayout
-                                .setVisibility(SquareHeightRelativeLayout.GONE);
-                    } else {
-                        if (validFragmentCount == 1) {
-                            breadcrumbItemTextView
-                                    .setText(getString(R.string.albumsfragment_title_string));
-                        } else {
-                            breadcrumbItemTextView.setVisibility(TextView.GONE);
-                        }
-                        breadcrumbItemImageView.setBackgroundDrawable(
-                                getResources().getDrawable(R.drawable.ic_action_album));
-                        breadcrumbItemImageViewLayout
-                                .setVisibility(SquareHeightRelativeLayout.VISIBLE);
-                    }
-                    breadcrumbItem
-                            .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
-                    navigationLayoutView.addView(breadcrumbItem);
-                } else if (fpb.clss == ArtistsFragment.class) {
-                    if (validFragmentCount == 1) {
-                        breadcrumbItemTextView
-                                .setText(getString(R.string.artistsfragment_title_string));
-                    } else {
-                        breadcrumbItemTextView.setVisibility(TextView.GONE);
-                    }
-                    breadcrumbItemImageView.setBackgroundDrawable(
-                            getResources().getDrawable(R.drawable.ic_action_artist));
-                    breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
-                    breadcrumbItem
-                            .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
-                    navigationLayoutView.addView(breadcrumbItem);
-                } else if (fpb.clss == TracksFragment.class) {
-                    Album correspondingAlbum = currentCollection
-                            .getAlbumById(fpb.tomahawkListItemId);
-                    CustomPlaylist correspondingCustomPlaylist = currentCollection
-                            .getCustomPlaylistById(fpb.tomahawkListItemId);
-                    if (fpb.tomahawkListItemType == TOMAHAWK_ALBUM_ID
-                            && correspondingAlbum != null) {
-                        breadcrumbItemTextView.setText(correspondingAlbum.getName());
-                        breadcrumbItemImageViewLayout
-                                .setVisibility(SquareHeightRelativeLayout.GONE);
-                    } else if (fpb.tomahawkListItemType == TOMAHAWK_PLAYLIST_ID
-                            && correspondingCustomPlaylist != null) {
-                        breadcrumbItemTextView.setText(correspondingCustomPlaylist.getName());
-                        breadcrumbItemImageViewLayout
-                                .setVisibility(SquareHeightRelativeLayout.GONE);
-                    } else {
-                        if (validFragmentCount == 1) {
-                            breadcrumbItemTextView
-                                    .setText(getString(R.string.tracksfragment_title_string));
-                        } else {
-                            breadcrumbItemTextView.setVisibility(TextView.GONE);
-                        }
-                        breadcrumbItemImageView.setBackgroundDrawable(
-                                getResources().getDrawable(R.drawable.ic_action_track));
-                        breadcrumbItemImageViewLayout
-                                .setVisibility(SquareHeightRelativeLayout.VISIBLE);
-                    }
-                    breadcrumbItem
-                            .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
-                    navigationLayoutView.addView(breadcrumbItem);
-                } else if (fpb.clss == PlaylistsFragment.class) {
-                    if (validFragmentCount == 1) {
-                        breadcrumbItemTextView
-                                .setText(getString(R.string.playlistsfragment_title_string));
-                    } else {
-                        breadcrumbItemTextView.setVisibility(TextView.GONE);
-                    }
-                    breadcrumbItemImageView.setBackgroundDrawable(
-                            getResources().getDrawable(R.drawable.ic_action_playlist));
-                    breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
-                    breadcrumbItem
-                            .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
-                    navigationLayoutView.addView(breadcrumbItem);
-                }
-            }
-        }
-    }
-
-    public class BreadCrumbOnClickListener implements View.OnClickListener {
-
-        String mSavedFragmentTag;
-
-        public BreadCrumbOnClickListener(String savedFragmentTag) {
-            mSavedFragmentTag = savedFragmentTag;
-        }
-
-        @Override
-        public void onClick(View view) {
-            mActivity.getContentViewer()
-                    .backToFragment(mActivity.getContentViewer().getCurrentlyShownStack(),
-                            mSavedFragmentTag);
-        }
-    }
-
     /**
      * Get the activity's list view widget.
      */
@@ -695,12 +553,5 @@ public abstract class TomahawkFragment extends SherlockFragment
             return getGridView().getFirstVisiblePosition();
         }
         return mListScrollPosition = getListView().getFirstVisiblePosition();
-    }
-
-    /**
-     * Set wether or not the breadcrumbNavigationView should be updated
-     */
-    public void setBreadCrumbNavigationEnabled(boolean breadCrumbNavigationEnabled) {
-        this.mBreadCrumbNavigationEnabled = breadCrumbNavigationEnabled;
     }
 }

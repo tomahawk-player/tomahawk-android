@@ -138,9 +138,8 @@ public class ContentViewer {
                 if (currentFragment != null && currentFragment instanceof TomahawkFragment) {
                     currentFragmentStateHolder.listScrollPosition
                             = ((TomahawkFragment) currentFragment).getListScrollPosition();
-                    fragmentStateHolders
-                            .set(fragmentStateHolders.size() - 1, currentFragmentStateHolder);
                 }
+                fragmentStateHolders.add(fragmentStateHolder);
                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             }
             Bundle bundle = new Bundle();
@@ -155,6 +154,7 @@ public class ContentViewer {
                     fragmentStateHolder.fragmentTag);
             ft.commit();
         }
+        mActivity.onBackStackChanged();
     }
 
     /**
@@ -165,11 +165,6 @@ public class ContentViewer {
         FragmentStateHolder fragmentStateHolder = new FragmentStateHolder(clss,
                 getFragmentTag(stackId, 1), tomahawkListItemId, tomahawkListItemType);
         replace(stackId, fragmentStateHolder, isBackAction);
-        addToStack(stackId, fragmentStateHolder);
-    }
-
-    public void addToStack(int stackId, FragmentStateHolder fragmentStateHolder) {
-        mMapOfStacks.get(stackId).add(fragmentStateHolder);
     }
 
     /**
@@ -183,6 +178,7 @@ public class ContentViewer {
                     .get(fragmentsStack.size() - 2);
             // Restore the remembered fragment and remove it from back fragments.
             this.replace(stackId, previousFragmentStateHolder, true);
+            mActivity.onBackStackChanged();
             return true;
         }
         // Nothing to go back.
@@ -198,20 +194,35 @@ public class ContentViewer {
      * @return true if the Fragment with the given fragmentTag is now on top. False if Fragment with
      *         given fragmentTag not found
      */
-    public boolean backToFragment(int stackId, String fragmentTag) {
+    public boolean backToFragment(int stackId, String fragmentTag, boolean withBundle) {
         ArrayList<FragmentStateHolder> fragmentsStack = mMapOfStacks.get(stackId);
         for (FragmentStateHolder fpb : fragmentsStack) {
             if (fpb.fragmentTag.equals(fragmentTag)) {
-                if (fragmentsStack.size() > 2 && !(fragmentsStack.get(fragmentsStack.size() - 1)
-                        .fragmentTag.equals(fragmentTag))) {
-                    while (!(fragmentsStack.get(fragmentsStack.size() - 2).fragmentTag
-                            .equals(fragmentTag))) {
-                        fragmentsStack.remove(fragmentsStack.get(fragmentsStack.size() - 2));
+                if (fragmentsStack.size() > 1) {
+                    while (fragmentsStack.size() > 0 && !(fragmentsStack
+                            .get(fragmentsStack.size() - 1).fragmentTag.equals(fragmentTag))) {
+                        fragmentsStack.remove(fragmentsStack.get(fragmentsStack.size() - 1));
                     }
-                    this.replace(stackId, fragmentsStack.get(fragmentsStack.size() - 2), true);
-                    return fragmentsStack.get(fragmentsStack.size() - 2).equals(fragmentTag);
+                    FragmentTransaction ft = mFragmentManager.beginTransaction();
+                    if (withBundle) {
+                        Bundle bundle = new Bundle();
+                        bundle.putLong(fpb.tomahawkListItemType, fpb.tomahawkListItemId);
+                        bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION,
+                                fpb.listScrollPosition);
+                        bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_ID,
+                                fpb.queryId);
+                        ft.replace(mContentFrameId,
+                                Fragment.instantiate(mActivity, fpb.clss.getName(), bundle),
+                                fpb.fragmentTag);
+                    } else {
+                        ft.replace(mContentFrameId,
+                                Fragment.instantiate(mActivity, fpb.clss.getName()),
+                                fpb.fragmentTag);
+                    }
+                    ft.commit();
+                    mActivity.onBackStackChanged();
                 }
-                break;
+                return fragmentsStack.get(fragmentsStack.size() - 1).equals(fragmentTag);
             }
         }
         return false;
@@ -223,15 +234,8 @@ public class ContentViewer {
      * @param stackId the position of the backstack which should be used
      * @return true if the rootFragment is now on top. False otherwise.
      */
-    public boolean backToRoot(int stackId) {
-        ArrayList<FragmentStateHolder> fragmentsStack = mMapOfStacks.get(stackId);
-        if (fragmentsStack.size() > 1) {
-            while (fragmentsStack.size() > 2) {
-                fragmentsStack.remove(fragmentsStack.get(fragmentsStack.size() - 2));
-            }
-            this.replace(stackId, fragmentsStack.get(fragmentsStack.size() - 2), true);
-        }
-        return fragmentsStack.size() == 1;
+    public boolean backToRoot(int stackId, boolean withBundle) {
+        return backToFragment(stackId, mMapOfStacks.get(stackId).get(0).fragmentTag, withBundle);
     }
 
     /**
@@ -283,15 +287,28 @@ public class ContentViewer {
         return mFragmentManager.findFragmentByTag(currentFragmentStateHolder.fragmentTag);
     }
 
-    public int getCurrentlyShownStack() {
+    public int getCurrentStackId() {
         return mCurrentlyShownStack;
     }
 
-    public void setCurrentlyShownStack(int stackToShow) {
+    public void setCurrentStackId(int stackToShow) {
         if (mCurrentlyShownStack != stackToShow) {
             mCurrentlyShownStack = stackToShow;
             ArrayList<FragmentStateHolder> stack = mMapOfStacks.get(stackToShow);
-            replace(stackToShow, stack.get(stack.size() - 1), false);
+            FragmentTransaction ft = mFragmentManager.beginTransaction();
+            FragmentStateHolder fragmentStateHolder = stack.get(stack.size() - 1);
+            Bundle bundle = new Bundle();
+            bundle.putLong(fragmentStateHolder.tomahawkListItemType,
+                    fragmentStateHolder.tomahawkListItemId);
+            bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION,
+                    fragmentStateHolder.listScrollPosition);
+            bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_ID,
+                    fragmentStateHolder.queryId);
+            ft.replace(mContentFrameId,
+                    Fragment.instantiate(mActivity, fragmentStateHolder.clss.getName(), bundle),
+                    stack.get(stack.size() - 1).fragmentTag);
+            ft.commit();
         }
+        mActivity.onBackStackChanged();
     }
 }
