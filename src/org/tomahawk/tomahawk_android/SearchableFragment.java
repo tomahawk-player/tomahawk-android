@@ -45,6 +45,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -129,6 +130,7 @@ public class SearchableFragment extends TomahawkFragment
     @Override
     public void onCreate(Bundle inState) {
         super.onCreate(inState);
+
         if (inState != null && inState.containsKey(SEARCHABLEFRAGMENT_QUERY_ID)
                 && inState.getString(SEARCHABLEFRAGMENT_QUERY_ID) != null) {
             mCurrentQueryId = inState.getString(SEARCHABLEFRAGMENT_QUERY_ID);
@@ -142,7 +144,7 @@ public class SearchableFragment extends TomahawkFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.searchablefragment_layout, null, false);
+        return inflater.inflate(R.layout.tomahawkfragment_layout, null, false);
     }
 
     @Override
@@ -151,14 +153,16 @@ public class SearchableFragment extends TomahawkFragment
 
         setSearchText((EditText) mActivity.getSupportActionBar().getCustomView()
                 .findViewById(R.id.search_edittext));
+        mActivity.getWindow()
+                .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         // Sets the background colour to grey so that the text is visible
         AutoCompleteTextView textView = (AutoCompleteTextView) mActivity.getSupportActionBar()
                 .getCustomView().findViewById(R.id.search_edittext);
         textView.setDropDownBackgroundResource(R.drawable.menu_dropdown_panel_tomahawk);
         setupAutoComplete();
 
-        CheckBox onlineSourcesCheckBox = (CheckBox) getView()
-                .findViewById(R.id.searchactivity_onlinesources_checkbox);
+        CheckBox onlineSourcesCheckBox = (CheckBox) mActivity
+                .findViewById(R.id.search_onlinesources_checkbox);
         onlineSourcesCheckBox.setOnCheckedChangeListener(this);
 
         mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
@@ -259,6 +263,9 @@ public class SearchableFragment extends TomahawkFragment
                 || actionId == EditorInfo.IME_ACTION_DONE
                 || event.getAction() == KeyEvent.ACTION_DOWN
                 && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+            InputMethodManager imm = (InputMethodManager) mActivity
+                    .getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);
             String searchText = v.getText().toString();
             if (searchText != null && !TextUtils.isEmpty(searchText)) {
                 addToAutoCompleteArray(searchText);
@@ -341,14 +348,12 @@ public class SearchableFragment extends TomahawkFragment
     }
 
     public void resolveFullTextQuery(String fullTextQuery) {
-        mActivity.getContentViewer().backToRoot(TomahawkTabsActivity.TAB_ID_SEARCH);
-        CheckBox onlineSourcesCheckBox = (CheckBox) getView()
-                .findViewById(R.id.searchactivity_onlinesources_checkbox);
+        mActivity.getContentViewer().backToRoot(TomahawkTabsActivity.TAB_ID_SEARCH, false);
+        mCurrentQueryString = fullTextQuery;
+        CheckBox onlineSourcesCheckBox = (CheckBox) mActivity
+                .findViewById(R.id.search_onlinesources_checkbox);
         PipeLine pipeLine = ((TomahawkApp) mActivity.getApplication()).getPipeLine();
         pipeLine.resolve(fullTextQuery, !onlineSourcesCheckBox.isChecked());
-        InputMethodManager imm = (InputMethodManager) mActivity
-                .getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);
         startLoadingAnimation();
     }
 

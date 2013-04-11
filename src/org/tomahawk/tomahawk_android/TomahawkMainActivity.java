@@ -41,9 +41,6 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
         setContentView(view);
 
         Intent i = new Intent(this, CollectionActivity.class);
-        i.putExtra(CollectionActivity.COLLECTION_ID_EXTRA,
-                ((TomahawkApp) getApplication()).getSourceList().getLocalSource().getCollection()
-                        .getId());
         startActivity(i);
     }
 

@@ -46,4 +46,6 @@ public abstract class TomahawkTabsActivity extends SlidingFragmentActivity {
     public abstract PlaybackService getPlaybackService();
 
     public abstract ContentViewer getContentViewer();
+
+    public abstract void onBackStackChanged();
 }

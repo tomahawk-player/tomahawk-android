@@ -37,7 +37,6 @@
                 android:hint="@string/searchfragment_title_string"
                 android:inputType="text"
                 android:completionThreshold="1">
-            <requestFocus/>
         </AutoCompleteTextView>
     </FrameLayout>
 

@@ -71,25 +71,7 @@
 
         <activity
                 android:name="org.tomahawk.tomahawk_android.CollectionActivity"
-                android:configChanges="keyboardHidden|orientation|screenSize"
                 android:label="@string/mainactivity_title_string"
-                android:launchMode="singleTop"
-                android:uiOptions="splitActionBarWhenNarrow">
-        </activity>
-
-        <activity
-                android:name="org.tomahawk.tomahawk_android.SearchableActivity"
-                android:label="@string/searchactivity_title_string"
-                android:launchMode="singleTop">
-            <meta-data
-                    android:name="android.app.searchable"
-                    android:resource="@xml/searchable"/>
-        </activity>
-
-        <activity
-                android:name="org.tomahawk.tomahawk_android.SettingsActivity"
-                android:configChanges="keyboardHidden|orientation|screenSize"
-                android:label="@string/settingsactivity_title_string"
                 android:launchMode="singleTop">
         </activity>
 

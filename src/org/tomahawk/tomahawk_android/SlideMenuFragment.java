@@ -86,30 +86,41 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
      */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        if ((int) arg3 != 1) {
-            mCollectionActivity.hideSearchEditText();
-        } else {
-            mCollectionActivity.showSearchEditText();
-        }
+        Handler h = new Handler();
         switch ((int) arg3) {
             case TomahawkTabsActivity.TAB_ID_SEARCH:
                 mCollectionActivity.getContentViewer()
-                        .setCurrentlyShownStack(TomahawkTabsActivity.TAB_ID_SEARCH);
+                        .setCurrentStackId(TomahawkTabsActivity.TAB_ID_SEARCH);
+                mCollectionActivity.showBreadcrumbs(false);
+                mCollectionActivity.showSearchEditText();
+                h.postDelayed(new Runnable() {
+                    public void run() {
+                        mCollectionActivity.showContent();
+                    }
+                }, 50);
                 break;
             case TomahawkTabsActivity.TAB_ID_COLLECTION:
                 mCollectionActivity.getContentViewer()
-                        .setCurrentlyShownStack(TomahawkTabsActivity.TAB_ID_COLLECTION);
+                        .setCurrentStackId(TomahawkTabsActivity.TAB_ID_COLLECTION);
+                mCollectionActivity.showBreadcrumbs(true);
+                mCollectionActivity.hideSearchEditText();
+                h.postDelayed(new Runnable() {
+                    public void run() {
+                        mCollectionActivity.showContent();
+                    }
+                }, 50);
                 break;
             case TomahawkTabsActivity.TAB_ID_PLAYLISTS:
                 mCollectionActivity.getContentViewer()
-                        .setCurrentlyShownStack(TomahawkTabsActivity.TAB_ID_PLAYLISTS);
+                        .setCurrentStackId(TomahawkTabsActivity.TAB_ID_PLAYLISTS);
+                mCollectionActivity.showBreadcrumbs(false);
+                mCollectionActivity.hideSearchEditText();
+                h.postDelayed(new Runnable() {
+                    public void run() {
+                        mCollectionActivity.showContent();
+                    }
+                }, 50);
                 break;
         }
-        Handler h = new Handler();
-        h.postDelayed(new Runnable() {
-            public void run() {
-                mCollectionActivity.showContent();
-            }
-        }, 50);
     }
 }

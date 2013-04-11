@@ -24,34 +24,6 @@
               android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <LinearLayout
-            android:id="@+id/fragmentLayout_breadcrumbLayout_linearLayout"
-            android:layout_width="match_parent"
-            android:layout_height="48dp">
-
-        <org.tomahawk.tomahawk_android.SquareHeightRelativeLayout
-                android:id="@+id/fragmentLayout_homeIcon_squareHeightRelativeLayout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/selectable_background_tomahawk"
-                android:onClick="onBackToRootPressed"
-                android:padding="5dip">
-
-            <ImageView
-                    android:id="@+id/fragmentLayout_homeIcon_imageView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:adjustViewBounds="false"
-                    android:src="@drawable/ic_action_collection"
-                    android:scaleType="centerCrop"/>
-        </org.tomahawk.tomahawk_android.SquareHeightRelativeLayout>
-    </LinearLayout>
-
-    <View
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="@color/divider"/>
-
     <FrameLayout
             android:id="@+id/fragmentLayout_listLayout_frameLayout"
             android:layout_width="match_parent"

@@ -20,19 +20,21 @@ package org.tomahawk.tomahawk_android;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.slidingmenu.lib.SlidingMenu;
 
+import org.tomahawk.libtomahawk.Album;
+import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.CollectionLoader;
 import org.tomahawk.libtomahawk.SourceList;
 import org.tomahawk.libtomahawk.Track;
+import org.tomahawk.libtomahawk.UserCollection;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 import org.tomahawk.libtomahawk.audio.PlaybackService;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
-import org.tomahawk.libtomahawk.resolver.TomahawkUtils;
+import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -41,19 +43,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.Point;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -63,13 +61,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CollectionActivity extends TomahawkTabsActivity
         implements PlaybackServiceConnectionListener, LoaderManager.LoaderCallbacks<Collection> {
 
-    public static final String COLLECTION_ID_EXTRA = "collection_id";
-
-    public static final String COLLECTION_ID_ALBUM = "collection_album_id";
-
-    public static final String COLLECTION_ID_ARTIST = "collection_artist_id";
-
     public static final String COLLECTION_ID_STOREDBACKSTACK = "collection_id_storedbackstack";
+
+    public static final String COLLECTION_ID_STACKPOSITION = "collection_id_stackposition";
 
     private PlaybackService mPlaybackService;
 
@@ -85,6 +79,8 @@ public class CollectionActivity extends TomahawkTabsActivity
             this);
 
     private CollectionActivityBroadcastReceiver mCollectionActivityBroadcastReceiver;
+
+    private int mCurrentStackPosition = -1;
 
     /**
      * Handles incoming {@link Collection} updated broadcasts.
@@ -122,6 +118,22 @@ public class CollectionActivity extends TomahawkTabsActivity
         }
     }
 
+    private class BreadCrumbOnClickListener implements View.OnClickListener {
+
+        String mSavedFragmentTag;
+
+        public BreadCrumbOnClickListener(String savedFragmentTag) {
+            mSavedFragmentTag = savedFragmentTag;
+        }
+
+        @Override
+        public void onClick(View view) {
+            getContentViewer()
+                    .backToFragment(getContentViewer().getCurrentStackId(), mSavedFragmentTag,
+                            true);
+        }
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -137,20 +149,28 @@ public class CollectionActivity extends TomahawkTabsActivity
             setBehindContentView(R.layout.slide_menu_layout);
             getSlidingMenu().setSlidingEnabled(true);
             getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
-            // show home as up so we can toggle
+            final ActionBar actionBar = getSupportActionBar();
+            actionBar.setHomeButtonEnabled(true);
+            actionBar.setLogo(R.drawable.ic_action_slidemenu);
         } else {
-            // add a dummy view
             View v = new View(this);
             setBehindContentView(v);
             getSlidingMenu().setSlidingEnabled(false);
             getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
+            final ActionBar actionBar = getSupportActionBar();
+            actionBar.setHomeButtonEnabled(false);
+            actionBar.setLogo(R.drawable.ic_launcher);
         }
 
         // customize the SlidingMenu
         SlidingMenu sm = getSlidingMenu();
         sm.setFadeDegree(0.35f);
         sm.setShadowWidthRes(R.dimen.shadow_width);
-        sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            sm.setBehindOffsetRes(R.dimen.slidingmenu_offset_landscape);
+        } else {
+            sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
+        }
 
         // set the Behind View Fragment
         getSupportFragmentManager().beginTransaction()
@@ -159,11 +179,13 @@ public class CollectionActivity extends TomahawkTabsActivity
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setHomeButtonEnabled(true);
-        actionBar.setLogo(R.drawable.ic_action_slidemenu);
         View searchView = getLayoutInflater().inflate(R.layout.search_edittext, null);
         actionBar.setCustomView(searchView);
         actionBar.setDisplayShowCustomEnabled(true);
+
+        if (mCurrentStackPosition == -1) {
+            mCurrentStackPosition = TomahawkTabsActivity.TAB_ID_COLLECTION;
+        }
 
         mContentViewer = new ContentViewer(this, getSupportFragmentManager(), R.id.content_frame);
         if (savedInstanceState == null) {
@@ -174,17 +196,13 @@ public class CollectionActivity extends TomahawkTabsActivity
             mContentViewer
                     .addRootToTab(TomahawkTabsActivity.TAB_ID_PLAYLISTS, PlaylistsFragment.class);
         } else {
-            HashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>> storedBackStack
-                    = (HashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>>) savedInstanceState
+            mCurrentStackPosition = savedInstanceState
+                    .getInt(COLLECTION_ID_STACKPOSITION, TomahawkTabsActivity.TAB_ID_COLLECTION);
+            ConcurrentHashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>> storedBackStack
+                    = (ConcurrentHashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>>) savedInstanceState
                     .getSerializable(COLLECTION_ID_STOREDBACKSTACK);
-            ConcurrentHashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>>
-                    concurrentStoredBackStack
-                    = new ConcurrentHashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>>();
-            for (Integer key : storedBackStack.keySet()) {
-                concurrentStoredBackStack.put(key, storedBackStack.get(key));
-            }
-            if (concurrentStoredBackStack != null && concurrentStoredBackStack.size() > 0) {
-                mContentViewer.setBackStack(concurrentStoredBackStack);
+            if (storedBackStack != null && storedBackStack.size() > 0) {
+                mContentViewer.setBackStack(storedBackStack);
             } else {
                 mContentViewer
                         .addRootToTab(TomahawkTabsActivity.TAB_ID_SEARCH, SearchableFragment.class);
@@ -194,8 +212,6 @@ public class CollectionActivity extends TomahawkTabsActivity
                         PlaylistsFragment.class);
             }
         }
-        mContentViewer.setCurrentlyShownStack(TomahawkTabsActivity.TAB_ID_COLLECTION);
-        hideSearchEditText();
     }
 
     @Override
@@ -217,8 +233,7 @@ public class CollectionActivity extends TomahawkTabsActivity
         super.onResume();
 
         SourceList sl = ((TomahawkApp) getApplication()).getSourceList();
-        Intent intent = getIntent();
-        mCollection = sl.getCollectionFromId(intent.getIntExtra(COLLECTION_ID_EXTRA, 0));
+        mCollection = sl.getCollectionFromId(sl.getLocalSource().getCollection().getId());
         if (mPlaybackService != null) {
             setNowPlayingInfo(mPlaybackService.getCurrentTrack());
         }
@@ -230,6 +245,13 @@ public class CollectionActivity extends TomahawkTabsActivity
         if (mCollectionUpdatedReceiver == null) {
             mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
             registerReceiver(mCollectionUpdatedReceiver, intentFilter);
+        }
+
+        mContentViewer.setCurrentStackId(mCurrentStackPosition);
+        if (mCurrentStackPosition == TomahawkTabsActivity.TAB_ID_SEARCH) {
+            showSearchEditText();
+        } else {
+            hideSearchEditText();
         }
     }
 
@@ -264,21 +286,8 @@ public class CollectionActivity extends TomahawkTabsActivity
     @Override
     protected void onSaveInstanceState(Bundle bundle) {
         bundle.putSerializable(COLLECTION_ID_STOREDBACKSTACK, getContentViewer().getBackStack());
+        bundle.putInt(COLLECTION_ID_STACKPOSITION, getContentViewer().getCurrentStackId());
         super.onSaveInstanceState(bundle);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.actionbarsherlock.app.SherlockFragmentActivity#onConfigurationChanged
-     * (android.content.res.Configuration)
-     */
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        supportInvalidateOptionsMenu();
     }
 
     /* 
@@ -358,7 +367,7 @@ public class CollectionActivity extends TomahawkTabsActivity
      */
     @Override
     public void onBackPressed() {
-        if (!mContentViewer.back(mContentViewer.getCurrentlyShownStack())) {
+        if (!mContentViewer.back(mContentViewer.getCurrentStackId())) {
             super.onBackPressed();
         }
     }
@@ -411,10 +420,6 @@ public class CollectionActivity extends TomahawkTabsActivity
      */
     public void onBackPressed(View view) {
         onBackPressed();
-    }
-
-    public void onBackToRootPressed(View view) {
-        getContentViewer().backToRoot(mContentViewer.getCurrentlyShownStack());
     }
 
     /**
@@ -486,12 +491,171 @@ public class CollectionActivity extends TomahawkTabsActivity
         AutoCompleteTextView searchFrameTop = (AutoCompleteTextView) getSupportActionBar()
                 .getCustomView().findViewById(R.id.search_edittext);
         searchFrameTop.setVisibility(AutoCompleteTextView.VISIBLE);
+        findViewById(R.id.search_panel).setVisibility(LinearLayout.VISIBLE);
     }
 
     public void hideSearchEditText() {
         AutoCompleteTextView searchFrameTop = (AutoCompleteTextView) getSupportActionBar()
                 .getCustomView().findViewById(R.id.search_edittext);
         searchFrameTop.setVisibility(AutoCompleteTextView.GONE);
+        findViewById(R.id.search_panel).setVisibility(LinearLayout.GONE);
+    }
+
+    public void updateBreadCrumbNavigation() {
+        ArrayList<ContentViewer.FragmentStateHolder> backStack = getContentViewer()
+                .getBackStackAtPosition(getContentViewer().getCurrentStackId());
+        LinearLayout breadCrumbFrame = (LinearLayout) findViewById(R.id.bread_crumb_frame);
+        breadCrumbFrame.removeAllViews();
+        if (breadCrumbFrame != null) {
+            int validFragmentCount = 0;
+            for (ContentViewer.FragmentStateHolder fpb : backStack) {
+                if (fpb.clss == AlbumsFragment.class || fpb.clss == ArtistsFragment.class
+                        || fpb.clss == TracksFragment.class || fpb.clss == PlaylistsFragment.class
+                        || fpb.clss == SearchableFragment.class
+                        || fpb.clss == LocalCollectionFragment.class) {
+                    validFragmentCount++;
+                }
+            }
+            for (ContentViewer.FragmentStateHolder fpb : backStack) {
+                LinearLayout breadcrumbItem = (LinearLayout) getLayoutInflater()
+                        .inflate(R.layout.tomahawkfragment_layout_breadcrumb_item, null);
+                ImageView breadcrumbItemImageView = (ImageView) breadcrumbItem
+                        .findViewById(R.id.fragmentLayout_icon_imageButton);
+                SquareHeightRelativeLayout breadcrumbItemArrowLayout
+                        = (SquareHeightRelativeLayout) breadcrumbItem
+                        .findViewById(R.id.fragmentLayout_arrow_squareHeightRelativeLayout);
+                SquareHeightRelativeLayout breadcrumbItemImageViewLayout
+                        = (SquareHeightRelativeLayout) breadcrumbItem
+                        .findViewById(R.id.fragmentLayout_icon_squareHeightRelativeLayout);
+                TextView breadcrumbItemTextView = (TextView) breadcrumbItem
+                        .findViewById(R.id.fragmentLayout_text_textView);
+                if (fpb.clss == LocalCollectionFragment.class) {
+                    if (validFragmentCount == 1) {
+                        breadcrumbItemTextView
+                                .setText(getString(R.string.localcollectionactivity_title_string));
+                    } else {
+                        breadcrumbItemTextView.setVisibility(TextView.GONE);
+                    }
+                    breadcrumbItemImageView.setBackgroundDrawable(
+                            getResources().getDrawable(R.drawable.ic_action_collection));
+                    breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
+                    breadcrumbItemArrowLayout.setVisibility(SquareHeightRelativeLayout.GONE);
+                    breadcrumbItem
+                            .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
+                    breadCrumbFrame.addView(breadcrumbItem);
+                } else if (fpb.clss == PlaylistsFragment.class) {
+                    if (validFragmentCount == 1) {
+                        breadcrumbItemTextView
+                                .setText(getString(R.string.playlistsfragment_title_string));
+                    } else {
+                        breadcrumbItemTextView.setVisibility(TextView.GONE);
+                    }
+                    breadcrumbItemImageView.setBackgroundDrawable(
+                            getResources().getDrawable(R.drawable.ic_action_playlist));
+                    breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
+                    breadcrumbItemArrowLayout.setVisibility(SquareHeightRelativeLayout.GONE);
+                    breadcrumbItem
+                            .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
+                    breadCrumbFrame.addView(breadcrumbItem);
+                } else if (fpb.clss == SearchableFragment.class) {
+                    if (validFragmentCount == 1) {
+                        breadcrumbItemTextView
+                                .setText(getString(R.string.searchfragment_title_string));
+                    } else {
+                        breadcrumbItemTextView.setVisibility(TextView.GONE);
+                    }
+                    breadcrumbItemImageView.setBackgroundDrawable(
+                            getResources().getDrawable(R.drawable.ic_action_search));
+                    breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
+                    breadcrumbItemArrowLayout.setVisibility(SquareHeightRelativeLayout.GONE);
+                    breadcrumbItem
+                            .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
+                    breadCrumbFrame.addView(breadcrumbItem);
+                } else if (fpb.clss == AlbumsFragment.class) {
+                    Artist correspondingArtist = mCollection.getArtistById(fpb.tomahawkListItemId);
+                    if (mCollection.getArtistById(fpb.tomahawkListItemId) != null) {
+                        breadcrumbItemTextView.setText(correspondingArtist.getName());
+                        breadcrumbItemImageViewLayout
+                                .setVisibility(SquareHeightRelativeLayout.GONE);
+                    } else {
+                        if (validFragmentCount == 2) {
+                            breadcrumbItemTextView
+                                    .setText(getString(R.string.albumsfragment_title_string));
+                        } else {
+                            breadcrumbItemTextView.setVisibility(TextView.GONE);
+                        }
+                        breadcrumbItemImageView.setBackgroundDrawable(
+                                getResources().getDrawable(R.drawable.ic_action_album));
+                        breadcrumbItemImageViewLayout
+                                .setVisibility(SquareHeightRelativeLayout.VISIBLE);
+                    }
+                    breadcrumbItem
+                            .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
+                    breadCrumbFrame.addView(breadcrumbItem);
+                } else if (fpb.clss == ArtistsFragment.class) {
+                    if (validFragmentCount == 2) {
+                        breadcrumbItemTextView
+                                .setText(getString(R.string.artistsfragment_title_string));
+                    } else {
+                        breadcrumbItemTextView.setVisibility(TextView.GONE);
+                    }
+                    breadcrumbItemImageView.setBackgroundDrawable(
+                            getResources().getDrawable(R.drawable.ic_action_artist));
+                    breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
+                    breadcrumbItem
+                            .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
+                    breadCrumbFrame.addView(breadcrumbItem);
+                } else if (fpb.clss == TracksFragment.class) {
+                    Album correspondingAlbum = mCollection.getAlbumById(fpb.tomahawkListItemId);
+                    CustomPlaylist correspondingCustomPlaylist = mCollection
+                            .getCustomPlaylistById(fpb.tomahawkListItemId);
+                    if (fpb.tomahawkListItemType == TomahawkFragment.TOMAHAWK_ALBUM_ID
+                            && correspondingAlbum != null) {
+                        breadcrumbItemTextView.setText(correspondingAlbum.getName());
+                        breadcrumbItemImageViewLayout
+                                .setVisibility(SquareHeightRelativeLayout.GONE);
+                    } else if (fpb.tomahawkListItemType == TomahawkFragment.TOMAHAWK_PLAYLIST_ID
+                            && correspondingCustomPlaylist != null) {
+                        breadcrumbItemTextView.setText(correspondingCustomPlaylist.getName());
+                        breadcrumbItemImageViewLayout
+                                .setVisibility(SquareHeightRelativeLayout.GONE);
+                    } else if (fpb.tomahawkListItemType
+                            == UserCollection.USERCOLLECTION_ALBUMCACHED) {
+                        breadcrumbItemTextView.setText(mCollection.getCachedAlbum().getName());
+                        breadcrumbItemImageViewLayout
+                                .setVisibility(SquareHeightRelativeLayout.GONE);
+                    } else if (fpb.tomahawkListItemType
+                            == UserCollection.USERCOLLECTION_ARTISTCACHED) {
+                        breadcrumbItemTextView.setText(mCollection.getCachedArtist().getName());
+                        breadcrumbItemImageViewLayout
+                                .setVisibility(SquareHeightRelativeLayout.GONE);
+                    } else {
+                        if (validFragmentCount == 2) {
+                            breadcrumbItemTextView
+                                    .setText(getString(R.string.tracksfragment_title_string));
+                        } else {
+                            breadcrumbItemTextView.setVisibility(TextView.GONE);
+                        }
+                        breadcrumbItemImageView.setBackgroundDrawable(
+                                getResources().getDrawable(R.drawable.ic_action_track));
+                        breadcrumbItemImageViewLayout
+                                .setVisibility(SquareHeightRelativeLayout.VISIBLE);
+                    }
+                    breadcrumbItem
+                            .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
+                    breadCrumbFrame.addView(breadcrumbItem);
+                }
+            }
+        }
+
+    }
+
+    public void showBreadcrumbs(boolean showBreadcrumbs) {
+        if (showBreadcrumbs) {
+            findViewById(R.id.bread_crumb_container).setVisibility(FrameLayout.VISIBLE);
+        } else {
+            findViewById(R.id.bread_crumb_container).setVisibility(FrameLayout.GONE);
+        }
     }
 
     /**
@@ -508,5 +672,10 @@ public class CollectionActivity extends TomahawkTabsActivity
      */
     public ContentViewer getContentViewer() {
         return mContentViewer;
+    }
+
+    @Override
+    public void onBackStackChanged() {
+        updateBreadCrumbNavigation();
     }
 }
