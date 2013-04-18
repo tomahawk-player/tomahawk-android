@@ -198,12 +198,20 @@ public class CollectionActivity extends TomahawkTabsActivity
         } else {
             mCurrentStackPosition = savedInstanceState
                     .getInt(COLLECTION_ID_STACKPOSITION, TomahawkTabsActivity.TAB_ID_COLLECTION);
-            HashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>> temp
-                    = (HashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>>) savedInstanceState
-                    .getSerializable(COLLECTION_ID_STOREDBACKSTACK);
             ConcurrentHashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>> storedBackStack
                     = new ConcurrentHashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>>();
-            storedBackStack.putAll(temp);
+            if (savedInstanceState
+                    .getSerializable(COLLECTION_ID_STOREDBACKSTACK) instanceof HashMap) {
+                HashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>> temp
+                        = (HashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>>) savedInstanceState
+                        .getSerializable(COLLECTION_ID_STOREDBACKSTACK);
+                storedBackStack.putAll(temp);
+            } else if (savedInstanceState
+                    .getSerializable(COLLECTION_ID_STOREDBACKSTACK) instanceof ConcurrentHashMap) {
+                storedBackStack
+                        = (ConcurrentHashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>>) savedInstanceState
+                        .getSerializable(COLLECTION_ID_STOREDBACKSTACK);
+            }
 
             if (storedBackStack != null && storedBackStack.size() > 0) {
                 mContentViewer.setBackStack(storedBackStack);
