@@ -110,7 +110,6 @@
         </activity>
 
         <activity android:name="org.acra.CrashReportDialog"
-                  android:theme="@style/Theme.Sherlock"
                   android:launchMode="singleInstance"
                   android:excludeFromRecents="true"
                   android:finishOnTaskLaunch="true"/>
