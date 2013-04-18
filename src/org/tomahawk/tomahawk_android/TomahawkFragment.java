@@ -191,10 +191,12 @@ public abstract class TomahawkFragment extends SherlockFragment
                     .registerReceiver(mCollectionUpdatedReceiver, sCollectionUpdateIntentFilter);
         }
 
-        if (mTomahawkBaseAdapter instanceof TomahawkGridAdapter) {
-            getGridView().setSelection(mListScrollPosition);
-        } else {
-            getListView().setSelection(mListScrollPosition);
+        if (mListScrollPosition >= 0) {
+            if (mTomahawkBaseAdapter instanceof TomahawkGridAdapter) {
+                getGridView().setSelection(mListScrollPosition);
+            } else {
+                getListView().setSelection(mListScrollPosition);
+            }
         }
 
         mUserPlaylistsDataSource = new UserPlaylistsDataSource(mActivity,
@@ -255,7 +257,6 @@ public abstract class TomahawkFragment extends SherlockFragment
         android.view.MenuInflater inflater = mActivity.getMenuInflater();
         inflater.inflate(R.menu.popup_menu, menu);
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-        info.position -= mList.getHeaderViewsCount();
         TomahawkBaseAdapter.TomahawkListItem tomahawkListItem;
         if (info.position >= 0) {
             tomahawkListItem = ((TomahawkBaseAdapter.TomahawkListItem) mTomahawkBaseAdapter
@@ -279,7 +280,6 @@ public abstract class TomahawkFragment extends SherlockFragment
                 .getSourceList().getCollectionFromId(UserCollection.Id));
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
                 .getMenuInfo();
-        info.position -= mList.getHeaderViewsCount();
         TomahawkBaseAdapter.TomahawkListItem tomahawkListItem;
         if (info.position >= 0) {
             tomahawkListItem = ((TomahawkBaseAdapter.TomahawkListItem) mTomahawkBaseAdapter
