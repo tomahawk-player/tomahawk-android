@@ -278,7 +278,6 @@ public class PlaybackActivity extends SherlockFragmentActivity
         android.view.MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.popup_menu, menu);
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-        info.position -= mList.getHeaderViewsCount();
         TomahawkBaseAdapter.TomahawkListItem tomahawkListItem;
         if (info.position >= 0) {
             tomahawkListItem = ((TomahawkBaseAdapter.TomahawkListItem) mTomahawkListAdapter

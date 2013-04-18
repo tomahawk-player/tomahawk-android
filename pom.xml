@@ -106,6 +106,9 @@
                         <!-- platform or api level (api level 4 = platform 1.6)-->
                         <platform>16</platform>
                     </sdk>
+		    <zipalign>
+			    <verbose>true</verbose>
+		    </zipalign>
                 </configuration>
             </plugin>
         </plugins>
