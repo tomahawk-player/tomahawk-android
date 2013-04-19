@@ -191,7 +191,7 @@ public abstract class TomahawkFragment extends SherlockFragment
                     .registerReceiver(mCollectionUpdatedReceiver, sCollectionUpdateIntentFilter);
         }
 
-        if (mListScrollPosition >= 0) {
+        if (mListScrollPosition > 0) {
             if (mTomahawkBaseAdapter instanceof TomahawkGridAdapter) {
                 getGridView().setSelection(mListScrollPosition);
             } else {
