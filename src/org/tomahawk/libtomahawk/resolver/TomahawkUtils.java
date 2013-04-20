@@ -4,8 +4,17 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class TomahawkUtils {
+
+    public static String TAG = TomahawkUtils.class.getName();
 
     /**
      * Author: Chas Emerick (source: http://mrfoo.de/archiv/1176-Levenshtein-Distance-in-Java.html)
@@ -93,5 +102,16 @@ public class TomahawkUtils {
     public static String durationToString(long duration) {
         return String.format("%02d", (duration / 60000)) + ":" + String
                 .format("%02.0f", (double) (duration / 1000) % 60);
+    }
+
+    public static Date stringToDate(String rawDate) {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-ddTkk:mm:ssZ", Locale.getDefault());
+        Date date = null;
+        try {
+            date = dateFormat.parse(rawDate);
+        } catch (ParseException e) {
+            Log.e(TAG, "stringToDate: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
+        return date;
     }
 }
