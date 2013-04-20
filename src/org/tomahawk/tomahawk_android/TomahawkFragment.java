@@ -190,13 +190,10 @@ public abstract class TomahawkFragment extends SherlockFragment
             getActivity()
                     .registerReceiver(mCollectionUpdatedReceiver, sCollectionUpdateIntentFilter);
         }
-
-        if (mListScrollPosition > 0) {
-            if (mTomahawkBaseAdapter instanceof TomahawkGridAdapter) {
-                getGridView().setSelection(mListScrollPosition);
-            } else {
-                getListView().setSelection(mListScrollPosition);
-            }
+        if (mTomahawkBaseAdapter instanceof TomahawkGridAdapter) {
+            getGridView().setSelection(mListScrollPosition);
+        } else {
+            getListView().setSelection(mListScrollPosition);
         }
 
         mUserPlaylistsDataSource = new UserPlaylistsDataSource(mActivity,
