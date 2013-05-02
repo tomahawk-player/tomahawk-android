@@ -57,7 +57,7 @@ public class ContentViewer {
         //the type of the corresponding TomahawkListItem
         protected String tomahawkListItemType = null;
 
-        protected String queryId = null;
+        protected String queryString = null;
 
         //the listScrollPosition which is being stored and restored when the fragment is popped or stashed.
         protected int listScrollPosition = 0;
@@ -147,8 +147,8 @@ public class ContentViewer {
                     fragmentStateHolder.tomahawkListItemId);
             bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION,
                     fragmentStateHolder.listScrollPosition);
-            bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_ID,
-                    fragmentStateHolder.queryId);
+            bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING,
+                    fragmentStateHolder.queryString);
             ft.replace(mContentFrameId,
                     Fragment.instantiate(mActivity, fragmentStateHolder.clss.getName(), bundle),
                     fragmentStateHolder.fragmentTag);
@@ -209,8 +209,8 @@ public class ContentViewer {
                         bundle.putLong(fpb.tomahawkListItemType, fpb.tomahawkListItemId);
                         bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION,
                                 fpb.listScrollPosition);
-                        bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_ID,
-                                fpb.queryId);
+                        bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING,
+                                fpb.queryString);
                         ft.replace(mContentFrameId,
                                 Fragment.instantiate(mActivity, fpb.clss.getName(), bundle),
                                 fpb.fragmentTag);
@@ -302,8 +302,8 @@ public class ContentViewer {
                     fragmentStateHolder.tomahawkListItemId);
             bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION,
                     fragmentStateHolder.listScrollPosition);
-            bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_ID,
-                    fragmentStateHolder.queryId);
+            bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING,
+                    fragmentStateHolder.queryString);
             ft.replace(mContentFrameId,
                     Fragment.instantiate(mActivity, fragmentStateHolder.clss.getName(), bundle),
                     stack.get(stack.size() - 1).fragmentTag);
