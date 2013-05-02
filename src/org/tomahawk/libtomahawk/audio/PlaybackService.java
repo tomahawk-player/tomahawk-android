@@ -205,27 +205,20 @@ public class PlaybackService extends Service
 
     private class ServiceBroadcastReceiver extends BroadcastReceiver {
 
-        private boolean headsetConnected;
-
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.hasExtra("state")) {
-                if (headsetConnected && intent.getIntExtra("state", 0) == 0) {
-                    headsetConnected = false;
-                    if (isPlaying()) {
-                        pause();
-                    }
-                } else if (!headsetConnected && intent.getIntExtra("state", 0) == 1) {
-                    headsetConnected = true;
+            if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(intent.getAction())) {
+                if (isPlaying()) {
+                    pause();
+                }
+            } else if (intent.hasExtra("state") && intent.getIntExtra("state", 0) == 1) {
 
-                    SharedPreferences prefs = PreferenceManager
-                            .getDefaultSharedPreferences(TomahawkApp.getContext());
-                    boolean playbackOnHeadsetInsert = prefs
-                            .getBoolean(PREF_PLAYBACK_ON_HEADSET, false);
+                SharedPreferences prefs = PreferenceManager
+                        .getDefaultSharedPreferences(TomahawkApp.getContext());
+                boolean playbackOnHeadsetInsert = prefs.getBoolean(PREF_PLAYBACK_ON_HEADSET, false);
 
-                    if (!isPlaying() && playbackOnHeadsetInsert) {
-                        start();
-                    }
+                if (!isPlaying() && playbackOnHeadsetInsert) {
+                    start();
                 }
             }
         }
@@ -296,6 +289,8 @@ public class PlaybackService extends Service
 
         mServiceBroadcastReceiver = new ServiceBroadcastReceiver();
         registerReceiver(mServiceBroadcastReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
+        registerReceiver(mServiceBroadcastReceiver,
+                new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
 
         mKillTimerHandler.removeCallbacksAndMessages(null);
         Message msg = mKillTimerHandler.obtainMessage();
