@@ -67,7 +67,7 @@ public class SearchableFragment extends TomahawkFragment
         implements OnItemClickListener, CompoundButton.OnCheckedChangeListener,
         TextView.OnEditorActionListener {
 
-    public static final String SEARCHABLEFRAGMENT_QUERY_ID
+    public static final String SEARCHABLEFRAGMENT_QUERY_STRING
             = "org.tomahawk.tomahawk_android.SEARCHABLEFRAGMENT_QUERRY_ID";
 
     private SearchableFragment mSearchableFragment = this;
@@ -120,8 +120,8 @@ public class SearchableFragment extends TomahawkFragment
             if (intent.getAction().equals(PipeLine.PIPELINE_RESULTSREPORTED)) {
                 mCurrentQueryId = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
                 mActivity.getContentViewer()
-                        .getBackStackAtPosition(TomahawkTabsActivity.TAB_ID_SEARCH).get(0).queryId
-                        = mCurrentQueryId;
+                        .getBackStackAtPosition(TomahawkTabsActivity.TAB_ID_SEARCH).get(0).queryString
+                        = mCurrentQueryString;
                 showQueryResults(mCurrentQueryId);
             }
         }
@@ -131,13 +131,13 @@ public class SearchableFragment extends TomahawkFragment
     public void onCreate(Bundle inState) {
         super.onCreate(inState);
 
-        if (inState != null && inState.containsKey(SEARCHABLEFRAGMENT_QUERY_ID)
-                && inState.getString(SEARCHABLEFRAGMENT_QUERY_ID) != null) {
-            mCurrentQueryId = inState.getString(SEARCHABLEFRAGMENT_QUERY_ID);
+        if (inState != null && inState.containsKey(SEARCHABLEFRAGMENT_QUERY_STRING)
+                && inState.getString(SEARCHABLEFRAGMENT_QUERY_STRING) != null) {
+            mCurrentQueryString = inState.getString(SEARCHABLEFRAGMENT_QUERY_STRING);
         }
-        if (getArguments() != null && getArguments().containsKey(SEARCHABLEFRAGMENT_QUERY_ID)
-                && getArguments().getString(SEARCHABLEFRAGMENT_QUERY_ID) != null) {
-            mCurrentQueryId = getArguments().getString(SEARCHABLEFRAGMENT_QUERY_ID);
+        if (getArguments() != null && getArguments().containsKey(SEARCHABLEFRAGMENT_QUERY_STRING)
+                && getArguments().getString(SEARCHABLEFRAGMENT_QUERY_STRING) != null) {
+            mCurrentQueryString = getArguments().getString(SEARCHABLEFRAGMENT_QUERY_STRING);
         }
     }
 
@@ -174,8 +174,7 @@ public class SearchableFragment extends TomahawkFragment
             mActivity.registerReceiver(mSearchableBroadcastReceiver, intentFilter);
         }
 
-        if (mCurrentQueryId != null) {
-            mCurrentQueryString = mPipeline.getQuery(mCurrentQueryId).getFullTextQuery();
+        if (mCurrentQueryString != null) {
             resolveFullTextQuery(mCurrentQueryString);
             mSearchEditText.setText(mCurrentQueryString);
             mSearchEditText.setSelection(mCurrentQueryString.length());
@@ -198,7 +197,7 @@ public class SearchableFragment extends TomahawkFragment
 
     @Override
     public void onSaveInstanceState(Bundle out) {
-        out.putString(SEARCHABLEFRAGMENT_QUERY_ID, mCurrentQueryId);
+        out.putString(SEARCHABLEFRAGMENT_QUERY_STRING, mCurrentQueryString);
         super.onSaveInstanceState(out);
     }
 
