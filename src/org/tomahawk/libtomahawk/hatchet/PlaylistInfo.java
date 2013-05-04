@@ -17,25 +17,36 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.tomahawk.libtomahawk.resolver.TomahawkUtils;
+
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Date;
 
 /**
  * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.04.13
  */
-public class PlaylistInfo {
+public class PlaylistInfo implements Info {
 
-    public static String PLAYLISTINFO_KEY_CREATED = "Created";
+    private final static String TAG = PlaylistInfo.class.getName();
 
-    public static String PLAYLISTINFO_KEY_CURRENTREVISION = "CurrentRevision";
+    public static final String PLAYLISTINFO_KEY_PLAYLISTS = "Playlists";
 
-    public static String PLAYLISTINFO_KEY_ENTRIES = "Entries";
+    public static final String PLAYLISTINFO_KEY_CREATED = "Created";
 
-    public static String PLAYLISTINFO_KEY_ID = "Id";
+    public static final String PLAYLISTINFO_KEY_CURRENTREVISION = "CurrentRevision";
 
-    public static String PLAYLISTINFO_KEY_REVISIONS = "Revisions";
+    public static final String PLAYLISTINFO_KEY_ENTRIES = "Entries";
 
-    public static String PLAYLISTINFO_KEY_TITLE = "Title";
+    public static final String PLAYLISTINFO_KEY_ID = "Id";
+
+    public static final String PLAYLISTINFO_KEY_REVISIONS = "Revisions";
+
+    public static final String PLAYLISTINFO_KEY_TITLE = "Title";
 
     private Date mCreated;
 
@@ -48,4 +59,60 @@ public class PlaylistInfo {
     private ArrayList<String> mRevisions;
 
     private String mTitle;
+
+    @Override
+    public void parseInfo(JSONObject rawInfo) {
+        try {
+            if (!rawInfo.isNull(PLAYLISTINFO_KEY_CREATED)) {
+                mCreated = TomahawkUtils.stringToDate(rawInfo.getString(PLAYLISTINFO_KEY_CREATED));
+            }
+            if (!rawInfo.isNull(PLAYLISTINFO_KEY_CURRENTREVISION)) {
+                mCurrentRevision = rawInfo.getString(PLAYLISTINFO_KEY_CURRENTREVISION);
+            }
+            if (!rawInfo.isNull(PLAYLISTINFO_KEY_ENTRIES)) {
+                JSONArray rawEntryInfos = rawInfo.getJSONArray(PLAYLISTINFO_KEY_ENTRIES);
+                mEntries = new ArrayList<EntryInfo>();
+                for (int i = 0; i < rawEntryInfos.length(); i++) {
+                    EntryInfo entryInfo = new EntryInfo();
+                    entryInfo.parseInfo(rawEntryInfos.getJSONObject(i));
+                    mEntries.add(entryInfo);
+                }
+            }
+            if (!rawInfo.isNull(PLAYLISTINFO_KEY_ID)) {
+                mId = rawInfo.getString(PLAYLISTINFO_KEY_ID);
+            }
+            if (!rawInfo.isNull(PLAYLISTINFO_KEY_REVISIONS)) {
+
+            }
+            if (!rawInfo.isNull(PLAYLISTINFO_KEY_TITLE)) {
+                mTitle = rawInfo.getString(PLAYLISTINFO_KEY_TITLE);
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
+    }
+
+    public Date getCreated() {
+        return mCreated;
+    }
+
+    public String getCurrentRevision() {
+        return mCurrentRevision;
+    }
+
+    public ArrayList<EntryInfo> getEntries() {
+        return mEntries;
+    }
+
+    public String getId() {
+        return mId;
+    }
+
+    public ArrayList<String> getRevisions() {
+        return mRevisions;
+    }
+
+    public String getTitle() {
+        return mTitle;
+    }
 }

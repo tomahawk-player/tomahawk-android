@@ -17,56 +17,45 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Log;
 
+import java.util.ArrayList;
+
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.04.13
+ * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 04.05.13
  */
-public class ImageInfo implements Info {
+public class ArtistChartItemsInfo implements Info {
 
-    private final static String TAG = ImageInfo.class.getName();
+    private final static String TAG = ArtistChartItemsInfo.class.getName();
 
-    public static final String IMAGEINFO_KEY_WIDTH = "Width";
+    public static final String ARTISTCHARTITEMSINFO_KEY_ARTISTCHARTITEMS = "ArtistChartItems";
 
-    public static final String IMAGEINFO_KEY_HEIGHT = "Height";
-
-    public static final String IMAGEINFO_KEY_URL = "Url";
-
-    private int mWidth;
-
-    private int mHeight;
-
-    private String mUrl;
+    private ArrayList<ArtistChartItemInfo> mArtistChartItems;
 
     @Override
     public void parseInfo(JSONObject rawInfo) {
         try {
-            if (!rawInfo.isNull(IMAGEINFO_KEY_WIDTH)) {
-                mWidth = rawInfo.getInt(IMAGEINFO_KEY_WIDTH);
-            }
-            if (!rawInfo.isNull(IMAGEINFO_KEY_HEIGHT)) {
-                mHeight = rawInfo.getInt(IMAGEINFO_KEY_HEIGHT);
-            }
-            if (!rawInfo.isNull(IMAGEINFO_KEY_URL)) {
-                mUrl = rawInfo.getString(IMAGEINFO_KEY_URL);
+            if (!rawInfo.isNull(ARTISTCHARTITEMSINFO_KEY_ARTISTCHARTITEMS)) {
+                JSONArray rawArtistChartItemInfos = rawInfo
+                        .getJSONArray(ARTISTCHARTITEMSINFO_KEY_ARTISTCHARTITEMS);
+                mArtistChartItems = new ArrayList<ArtistChartItemInfo>();
+                for (int i = 0; i < rawArtistChartItemInfos.length(); i++) {
+                    ArtistChartItemInfo artistChartItemInfo = new ArtistChartItemInfo();
+                    artistChartItemInfo.parseInfo(rawArtistChartItemInfos.getJSONObject(i));
+                    mArtistChartItems.add(artistChartItemInfo);
+                }
             }
         } catch (JSONException e) {
             Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
     }
 
-    public int getWidth() {
-        return mWidth;
+    public ArrayList<ArtistChartItemInfo> getArtistChartItems() {
+        return mArtistChartItems;
     }
 
-    public int getHeight() {
-        return mHeight;
-    }
-
-    public String getUrl() {
-        return mUrl;
-    }
 }

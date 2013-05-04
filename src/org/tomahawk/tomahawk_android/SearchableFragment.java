@@ -25,6 +25,8 @@ import org.tomahawk.libtomahawk.TomahawkListAdapter;
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.UserCollection;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
+import org.tomahawk.libtomahawk.hatchet.InfoRequestData;
+import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -120,8 +122,8 @@ public class SearchableFragment extends TomahawkFragment
             if (intent.getAction().equals(PipeLine.PIPELINE_RESULTSREPORTED)) {
                 mCurrentQueryId = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
                 mActivity.getContentViewer()
-                        .getBackStackAtPosition(TomahawkTabsActivity.TAB_ID_SEARCH).get(0).queryString
-                        = mCurrentQueryString;
+                        .getBackStackAtPosition(TomahawkTabsActivity.TAB_ID_SEARCH)
+                        .get(0).queryString = mCurrentQueryString;
                 showQueryResults(mCurrentQueryId);
             }
         }

@@ -17,56 +17,45 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Log;
 
+import java.util.ArrayList;
+
 /**
  * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.04.13
  */
-public class ImageInfo implements Info {
+public class TrackChartItemsInfo implements Info {
 
-    private final static String TAG = ImageInfo.class.getName();
+    private final static String TAG = TrackChartItemsInfo.class.getName();
 
-    public static final String IMAGEINFO_KEY_WIDTH = "Width";
+    public static final String TRACKCHARTITEMINFO_KEY_TRACKCHARTITEMS = "TrackChartItems";
 
-    public static final String IMAGEINFO_KEY_HEIGHT = "Height";
-
-    public static final String IMAGEINFO_KEY_URL = "Url";
-
-    private int mWidth;
-
-    private int mHeight;
-
-    private String mUrl;
+    private ArrayList<TrackChartItemInfo> mTrackChartItems;
 
     @Override
     public void parseInfo(JSONObject rawInfo) {
         try {
-            if (!rawInfo.isNull(IMAGEINFO_KEY_WIDTH)) {
-                mWidth = rawInfo.getInt(IMAGEINFO_KEY_WIDTH);
-            }
-            if (!rawInfo.isNull(IMAGEINFO_KEY_HEIGHT)) {
-                mHeight = rawInfo.getInt(IMAGEINFO_KEY_HEIGHT);
-            }
-            if (!rawInfo.isNull(IMAGEINFO_KEY_URL)) {
-                mUrl = rawInfo.getString(IMAGEINFO_KEY_URL);
+            if (!rawInfo.isNull(TRACKCHARTITEMINFO_KEY_TRACKCHARTITEMS)) {
+                JSONArray rawTrackChartItemInfos = rawInfo
+                        .getJSONArray(TRACKCHARTITEMINFO_KEY_TRACKCHARTITEMS);
+                mTrackChartItems = new ArrayList<TrackChartItemInfo>();
+                for (int i = 0; i < rawTrackChartItemInfos.length(); i++) {
+                    TrackChartItemInfo trackChartItemInfo = new TrackChartItemInfo();
+                    trackChartItemInfo.parseInfo(rawTrackChartItemInfos.getJSONObject(i));
+                    mTrackChartItems.add(trackChartItemInfo);
+                }
             }
         } catch (JSONException e) {
             Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
     }
 
-    public int getWidth() {
-        return mWidth;
+    public ArrayList<TrackChartItemInfo> getTrackChartItems() {
+        return mTrackChartItems;
     }
 
-    public int getHeight() {
-        return mHeight;
-    }
-
-    public String getUrl() {
-        return mUrl;
-    }
 }

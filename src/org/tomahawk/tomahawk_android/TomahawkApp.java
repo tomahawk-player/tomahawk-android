@@ -24,6 +24,7 @@ import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.Source;
 import org.tomahawk.libtomahawk.SourceList;
 import org.tomahawk.libtomahawk.UserCollection;
+import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.network.TomahawkService;
 import org.tomahawk.libtomahawk.network.TomahawkService.TomahawkServiceConnection;
 import org.tomahawk.libtomahawk.network.TomahawkService.TomahawkServiceConnection.TomahawkServiceConnectionListener;
@@ -84,6 +85,8 @@ public class TomahawkApp extends Application
 
     private PipeLine mPipeLine;
 
+    private InfoSystem mInfoSystem;
+
     private long mTrackIdCounter;
 
     private long mAlbumIdCounter;
@@ -91,6 +94,8 @@ public class TomahawkApp extends Application
     private long mArtistIdCounter;
 
     private long mQueryIdCounter;
+
+    private long mInfoRequestIdCounter;
 
     private TomahawkServiceConnection mTomahawkServiceConnection = new TomahawkServiceConnection(
             this);
@@ -125,6 +130,7 @@ public class TomahawkApp extends Application
 
         mSourceList = new SourceList();
         mPipeLine = new PipeLine(this);
+        mInfoSystem = new InfoSystem(this);
         if (mCollectionUpdatedReceiver == null) {
             mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
             registerReceiver(mCollectionUpdatedReceiver, sCollectionUpdateIntentFilter);
@@ -186,6 +192,10 @@ public class TomahawkApp extends Application
 
     public PipeLine getPipeLine() {
         return mPipeLine;
+    }
+
+    public InfoSystem getInfoSystem() {
+        return mInfoSystem;
     }
 
     /**
@@ -252,5 +262,9 @@ public class TomahawkApp extends Application
 
     public String getUniqueQueryId() {
         return String.valueOf(mQueryIdCounter++);
+    }
+
+    public String getUniqueInfoRequestId() {
+        return String.valueOf(mInfoRequestIdCounter++);
     }
 }

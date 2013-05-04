@@ -17,12 +17,17 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
-import java.util.ArrayList;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.util.Log;
 
 /**
  * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.04.13
  */
-public class EntryInfo {
+public class EntryInfo implements Info {
+
+    private final static String TAG = EntryInfo.class.getName();
 
     public static String ENTRYINFO_KEY_ID = "Id";
 
@@ -32,4 +37,26 @@ public class EntryInfo {
 
     private TrackInfo mTrack;
 
+    @Override
+    public void parseInfo(JSONObject rawInfo) {
+        try {
+            if (!rawInfo.isNull(ENTRYINFO_KEY_ID)) {
+                mId = rawInfo.getString(ENTRYINFO_KEY_ID);
+            }
+            if (!rawInfo.isNull(ENTRYINFO_KEY_TRACK)) {
+                mTrack = new TrackInfo();
+                mTrack.parseInfo(rawInfo.getJSONObject(ENTRYINFO_KEY_TRACK));
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
+    }
+
+    public String getId() {
+        return mId;
+    }
+
+    public TrackInfo getTrack() {
+        return mTrack;
+    }
 }

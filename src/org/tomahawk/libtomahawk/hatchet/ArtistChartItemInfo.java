@@ -23,50 +23,41 @@ import org.json.JSONObject;
 import android.util.Log;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.04.13
+ * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 04.05.13
  */
-public class ImageInfo implements Info {
+public class ArtistChartItemInfo implements Info {
 
-    private final static String TAG = ImageInfo.class.getName();
+    private final static String TAG = ArtistChartItemInfo.class.getName();
 
-    public static final String IMAGEINFO_KEY_WIDTH = "Width";
+    public static final String ARTISTCHARTITEMINFO_KEY_PLAYS = "Plays";
 
-    public static final String IMAGEINFO_KEY_HEIGHT = "Height";
+    public static final String ARTISTCHARTITEMINFO_KEY_ARTIST = "Artist";
 
-    public static final String IMAGEINFO_KEY_URL = "Url";
+    private int mPlays;
 
-    private int mWidth;
+    private ArtistInfo mArtist;
 
-    private int mHeight;
-
-    private String mUrl;
-
-    @Override
     public void parseInfo(JSONObject rawInfo) {
         try {
-            if (!rawInfo.isNull(IMAGEINFO_KEY_WIDTH)) {
-                mWidth = rawInfo.getInt(IMAGEINFO_KEY_WIDTH);
+            if (!rawInfo.isNull(ARTISTCHARTITEMINFO_KEY_PLAYS)) {
+                mPlays = rawInfo.getInt(ARTISTCHARTITEMINFO_KEY_PLAYS);
             }
-            if (!rawInfo.isNull(IMAGEINFO_KEY_HEIGHT)) {
-                mHeight = rawInfo.getInt(IMAGEINFO_KEY_HEIGHT);
-            }
-            if (!rawInfo.isNull(IMAGEINFO_KEY_URL)) {
-                mUrl = rawInfo.getString(IMAGEINFO_KEY_URL);
+            if (!rawInfo.isNull(ARTISTCHARTITEMINFO_KEY_ARTIST)) {
+                JSONObject rawArtistInfo = rawInfo.getJSONObject(ARTISTCHARTITEMINFO_KEY_ARTIST);
+                mArtist = new ArtistInfo();
+                mArtist.parseInfo(rawArtistInfo);
             }
         } catch (JSONException e) {
             Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
     }
 
-    public int getWidth() {
-        return mWidth;
+    public int getPlays() {
+        return mPlays;
     }
 
-    public int getHeight() {
-        return mHeight;
+    public ArtistInfo getArtist() {
+        return mArtist;
     }
 
-    public String getUrl() {
-        return mUrl;
-    }
 }
