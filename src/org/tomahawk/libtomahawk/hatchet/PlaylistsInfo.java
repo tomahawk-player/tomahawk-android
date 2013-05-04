@@ -17,56 +17,43 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Log;
 
+import java.util.ArrayList;
+
 /**
  * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.04.13
  */
-public class ImageInfo implements Info {
+public class PlaylistsInfo implements Info {
 
-    private final static String TAG = ImageInfo.class.getName();
+    private final static String TAG = PlaylistsInfo.class.getName();
 
-    public static final String IMAGEINFO_KEY_WIDTH = "Width";
+    public static final String PLAYLISTINFO_KEY_PLAYLISTS = "Playlists";
 
-    public static final String IMAGEINFO_KEY_HEIGHT = "Height";
-
-    public static final String IMAGEINFO_KEY_URL = "Url";
-
-    private int mWidth;
-
-    private int mHeight;
-
-    private String mUrl;
+    private ArrayList<PlaylistInfo> mPlaylists;
 
     @Override
     public void parseInfo(JSONObject rawInfo) {
         try {
-            if (!rawInfo.isNull(IMAGEINFO_KEY_WIDTH)) {
-                mWidth = rawInfo.getInt(IMAGEINFO_KEY_WIDTH);
-            }
-            if (!rawInfo.isNull(IMAGEINFO_KEY_HEIGHT)) {
-                mHeight = rawInfo.getInt(IMAGEINFO_KEY_HEIGHT);
-            }
-            if (!rawInfo.isNull(IMAGEINFO_KEY_URL)) {
-                mUrl = rawInfo.getString(IMAGEINFO_KEY_URL);
+            if (!rawInfo.isNull(PLAYLISTINFO_KEY_PLAYLISTS)) {
+                JSONArray rawRevisionInfos = rawInfo.getJSONArray(PLAYLISTINFO_KEY_PLAYLISTS);
+                mPlaylists = new ArrayList<PlaylistInfo>();
+                for (int i = 0; i < rawRevisionInfos.length(); i++) {
+                    PlaylistInfo playlistInfo = new PlaylistInfo();
+                    playlistInfo.parseInfo(rawRevisionInfos.getJSONObject(i));
+                    mPlaylists.add(playlistInfo);
+                }
             }
         } catch (JSONException e) {
             Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
     }
 
-    public int getWidth() {
-        return mWidth;
-    }
-
-    public int getHeight() {
-        return mHeight;
-    }
-
-    public String getUrl() {
-        return mUrl;
+    public ArrayList<PlaylistInfo> getPlaylists() {
+        return mPlaylists;
     }
 }

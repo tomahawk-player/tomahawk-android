@@ -17,27 +17,28 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Log;
 
+import java.util.ArrayList;
+
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.04.13
+ * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 04.05.13
  */
-public class TrackInfo implements Info {
+public class UserInfo implements Info {
 
-    private final static String TAG = TrackInfo.class.getName();
+    private final static String TAG = UserInfo.class.getName();
 
-    public static final String TRACKINFO_KEY_ARTIST = "Artist";
+    public static final String PERSONINFO_KEY_ID = "Id";
 
-    public static final String TRACKINFO_KEY_ID = "Id";
+    public static final String PERSONINFO_KEY_NAME = "Name";
 
-    public static final String TRACKINFO_KEY_NAME = "Name";
+    public static final String PERSONINFO_KEY_URL = "Url";
 
-    public static final String TRACKINFO_KEY_URL = "Url";
-
-    private ArtistInfo mArtist;
+    public static final String PERSONINFO_KEY_FOLLOWS = "Follows";
 
     private String mId;
 
@@ -45,30 +46,33 @@ public class TrackInfo implements Info {
 
     private String mUrl;
 
+    private ArrayList<UserInfo> mFollows;
+
     @Override
     public void parseInfo(JSONObject rawInfo) {
         try {
-            if (!rawInfo.isNull(TRACKINFO_KEY_ARTIST)) {
-                JSONObject rawArtistInfo = rawInfo.getJSONObject(TRACKINFO_KEY_ARTIST);
-                mArtist = new ArtistInfo();
-                mArtist.parseInfo(rawArtistInfo);
+            if (!rawInfo.isNull(PERSONINFO_KEY_ID)) {
+                mId = rawInfo.getString(PERSONINFO_KEY_ID);
             }
-            if (!rawInfo.isNull(TRACKINFO_KEY_ID)) {
-                mId = rawInfo.getString(TRACKINFO_KEY_ID);
+            if (!rawInfo.isNull(PERSONINFO_KEY_NAME)) {
+                mName = rawInfo.getString(PERSONINFO_KEY_NAME);
             }
-            if (!rawInfo.isNull(TRACKINFO_KEY_NAME)) {
-                mName = rawInfo.getString(TRACKINFO_KEY_NAME);
+            if (!rawInfo.isNull(PERSONINFO_KEY_URL)) {
+                mUrl = rawInfo.getString(PERSONINFO_KEY_URL);
             }
-            if (!rawInfo.isNull(TRACKINFO_KEY_URL)) {
-                mUrl = rawInfo.getString(TRACKINFO_KEY_URL);
+            if (!rawInfo.isNull(PERSONINFO_KEY_FOLLOWS)) {
+                JSONArray rawFollowsInfos = rawInfo
+                        .getJSONArray(PlaylistInfo.PLAYLISTINFO_KEY_ENTRIES);
+                mFollows = new ArrayList<UserInfo>();
+                for (int i = 0; i < rawFollowsInfos.length(); i++) {
+                    UserInfo userInfo = new UserInfo();
+                    userInfo.parseInfo(rawFollowsInfos.getJSONObject(i));
+                    mFollows.add(userInfo);
+                }
             }
         } catch (JSONException e) {
             Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
-    }
-
-    public ArtistInfo getArtist() {
-        return mArtist;
     }
 
     public String getId() {
@@ -81,5 +85,9 @@ public class TrackInfo implements Info {
 
     public String getUrl() {
         return mUrl;
+    }
+
+    public ArrayList<UserInfo> getFollows() {
+        return mFollows;
     }
 }

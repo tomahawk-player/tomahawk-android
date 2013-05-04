@@ -19,34 +19,40 @@ package org.tomahawk.libtomahawk.hatchet;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.tomahawk.libtomahawk.resolver.TomahawkUtils;
 
 import android.util.Log;
 
+import java.util.Date;
+
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.04.13
+ * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 04.05.13
  */
-public class TrackChartItemInfo implements Info {
+public class TrackActionItemInfo implements Info {
 
-    private final static String TAG = TrackChartItemInfo.class.getName();
+    private final static String TAG = TrackActionItemInfo.class.getName();
 
-    public static final String TRACKCHARTITEMINFO_KEY_TRACKCHARTITEMS = "TrackChartItems";
+    public static final String TRACKACTIONITEMINFO_KEY_PLAYBACKLOGS = "PlaybackLogs";
 
-    public static final String TRACKCHARTITEMINFO_KEY_PLAYS = "Plays";
+    public static final String TRACKACTIONITEMINFO_KEY_LOVES = "Loves";
 
-    public static final String TRACKCHARTITEMINFO_KEY_TRACK = "Track";
+    public static final String TRACKACTIONITEMINFO_KEY_TIMESTAMP = "TimeStamp";
 
-    private int mPlays;
+    public static final String TRACKACTIONITEMINFO_KEY_TRACK = "Track";
+
+    private Date mTimeStamp;
 
     private TrackInfo mTrack;
 
     @Override
     public void parseInfo(JSONObject rawInfo) {
         try {
-            if (!rawInfo.isNull(TRACKCHARTITEMINFO_KEY_PLAYS)) {
-                mPlays = rawInfo.getInt(TRACKCHARTITEMINFO_KEY_PLAYS);
+            if (!rawInfo.isNull(TRACKACTIONITEMINFO_KEY_TIMESTAMP)) {
+                mTimeStamp = TomahawkUtils
+                        .stringToDate(rawInfo.getString(TRACKACTIONITEMINFO_KEY_TIMESTAMP));
             }
-            if (!rawInfo.isNull(TRACKCHARTITEMINFO_KEY_TRACK)) {
-                JSONObject rawTrackInfo = rawInfo.getJSONObject(TRACKCHARTITEMINFO_KEY_TRACK);
+            if (!rawInfo.isNull(TRACKACTIONITEMINFO_KEY_TRACK)) {
+                JSONObject rawTrackInfo = rawInfo.getJSONObject(TRACKACTIONITEMINFO_KEY_TRACK);
                 mTrack = new TrackInfo();
                 mTrack.parseInfo(rawTrackInfo);
             }
@@ -55,12 +61,11 @@ public class TrackChartItemInfo implements Info {
         }
     }
 
-    public int getPlays() {
-        return mPlays;
+    public Date getTimeStamp() {
+        return mTimeStamp;
     }
 
     public TrackInfo getTrack() {
         return mTrack;
     }
-
 }

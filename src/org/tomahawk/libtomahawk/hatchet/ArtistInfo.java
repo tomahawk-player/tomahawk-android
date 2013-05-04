@@ -17,30 +17,38 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.util.Log;
+
 import java.util.ArrayList;
 
 /**
  * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.04.13
  */
-public class ArtistInfo {
+public class ArtistInfo implements Info {
 
-    public static String ARTISTINFO_KEY_DISAMBIGUATION = "Disambiguation";
+    private final static String TAG = ArtistInfo.class.getName();
 
-    public static String ARTISTINFO_KEY_ID = "Id";
+    public static final String ARTISTINFO_KEY_DISAMBIGUATION = "Disambiguation";
 
-    public static String ARTISTINFO_KEY_IMAGES = "Images";
+    public static final String ARTISTINFO_KEY_ID = "Id";
 
-    public static String ARTISTINFO_KEY_MEMBERS = "Members";
+    public static final String ARTISTINFO_KEY_IMAGES = "Images";
 
-    public static String ARTISTINFO_KEY_NAME = "Name";
+    public static final String ARTISTINFO_KEY_MEMBERS = "Members";
 
-    public static String ARTISTINFO_KEY_NAMES = "Names";
+    public static final String ARTISTINFO_KEY_NAME = "Name";
 
-    public static String ARTISTINFO_KEY_RESOURCES = "Resources";
+    public static final String ARTISTINFO_KEY_NAMES = "Names";
 
-    public static String ARTISTINFO_KEY_URL = "Url";
+    public static final String ARTISTINFO_KEY_RESOURCES = "Resources";
 
-    public static String ARTISTINFO_KEY_WIKIABSTRACT = "WikiAbstract";
+    public static final String ARTISTINFO_KEY_URL = "Url";
+
+    public static final String ARTISTINFO_KEY_WIKIABSTRACT = "WikiAbstract";
 
     private String mDisambiguation;
 
@@ -60,75 +68,95 @@ public class ArtistInfo {
 
     private String mWikiAbstract;
 
-    public String getDisambiguation() {
-        return mDisambiguation;
+    public void parseInfo(JSONObject rawInfo) {
+        try {
+            if (!rawInfo.isNull(ARTISTINFO_KEY_DISAMBIGUATION)) {
+                mDisambiguation = rawInfo.getString(ARTISTINFO_KEY_DISAMBIGUATION);
+            }
+            if (!rawInfo.isNull(ARTISTINFO_KEY_ID)) {
+                mId = rawInfo.getString(ARTISTINFO_KEY_ID);
+            }
+            if (!rawInfo.isNull(ARTISTINFO_KEY_IMAGES)) {
+                JSONArray rawImageInfos = rawInfo.getJSONArray(ARTISTINFO_KEY_IMAGES);
+                mImages = new ArrayList<ImageInfo>();
+                for (int i = 0; i < rawImageInfos.length(); i++) {
+                    ImageInfo imageInfo = new ImageInfo();
+                    imageInfo.parseInfo(rawImageInfos.getJSONObject(i));
+                    mImages.add(imageInfo);
+                }
+            }
+            if (!rawInfo.isNull(ARTISTINFO_KEY_MEMBERS)) {
+                JSONArray rawResourceInfos = rawInfo.getJSONArray(ARTISTINFO_KEY_MEMBERS);
+                mMembers = new ArrayList<PersonInfo>();
+                for (int i = 0; i < rawResourceInfos.length(); i++) {
+                    PersonInfo personInfo = new PersonInfo();
+                    personInfo.parseInfo(rawResourceInfos.getJSONObject(i));
+                    mMembers.add(personInfo);
+                }
+            }
+            if (!rawInfo.isNull(ARTISTINFO_KEY_NAME)) {
+                mName = rawInfo.getString(ARTISTINFO_KEY_NAME);
+            }
+            if (!rawInfo.isNull(ARTISTINFO_KEY_NAMES)) {
+                JSONArray rawNameInfos = rawInfo.getJSONArray(ARTISTINFO_KEY_NAMES);
+                mNames = new ArrayList<String>();
+                for (int i = 0; i < rawNameInfos.length(); i++) {
+                    mNames.add(rawNameInfos.getString(i));
+                }
+            }
+            if (!rawInfo.isNull(ARTISTINFO_KEY_RESOURCES)) {
+                JSONArray rawResourceInfos = rawInfo.getJSONArray(ARTISTINFO_KEY_RESOURCES);
+                mResources = new ArrayList<ResourceInfo>();
+                for (int i = 0; i < rawResourceInfos.length(); i++) {
+                    ResourceInfo resourceInfo = new ResourceInfo();
+                    resourceInfo.parseInfo(rawResourceInfos.getJSONObject(i));
+                    mResources.add(resourceInfo);
+                }
+            }
+            if (!rawInfo.isNull(ARTISTINFO_KEY_URL)) {
+                mUrl = rawInfo.getString(ARTISTINFO_KEY_URL);
+            }
+            if (!rawInfo.isNull(ARTISTINFO_KEY_WIKIABSTRACT)) {
+                mWikiAbstract = rawInfo.getString(ARTISTINFO_KEY_WIKIABSTRACT);
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
     }
 
-    public void setDisambiguation(String disambiguation) {
-        mDisambiguation = disambiguation;
+    public String getDisambiguation() {
+        return mDisambiguation;
     }
 
     public String getId() {
         return mId;
     }
 
-    public void setId(String id) {
-        mId = id;
-    }
-
     public ArrayList<ImageInfo> getImages() {
         return mImages;
-    }
-
-    public void setImages(ArrayList<ImageInfo> images) {
-        mImages = images;
     }
 
     public ArrayList<PersonInfo> getMembers() {
         return mMembers;
     }
 
-    public void setMembers(ArrayList<PersonInfo> members) {
-        mMembers = members;
-    }
-
     public String getName() {
         return mName;
-    }
-
-    public void setName(String name) {
-        mName = name;
     }
 
     public ArrayList<String> getNames() {
         return mNames;
     }
 
-    public void setNames(ArrayList<String> names) {
-        mNames = names;
-    }
-
     public ArrayList<ResourceInfo> getResources() {
         return mResources;
-    }
-
-    public void setResources(ArrayList<ResourceInfo> resources) {
-        mResources = resources;
     }
 
     public String getUrl() {
         return mUrl;
     }
 
-    public void setUrl(String url) {
-        mUrl = url;
-    }
-
     public String getWikiAbstract() {
         return mWikiAbstract;
-    }
-
-    public void setWikiAbstract(String wikiAbstract) {
-        mWikiAbstract = wikiAbstract;
     }
 }

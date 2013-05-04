@@ -105,7 +105,7 @@ public class TomahawkUtils {
     }
 
     public static Date stringToDate(String rawDate) {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-ddTkk:mm:ssZ", Locale.getDefault());
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         Date date = null;
         try {
             date = dateFormat.parse(rawDate);

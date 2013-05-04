@@ -24,18 +24,18 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.tomahawk.libtomahawk.resolver.TomahawkUtils;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -46,247 +46,215 @@ public class InfoSystem {
 
     private final static String TAG = InfoSystem.class.getName();
 
-    public static String HATCHET_BASE_URL = "http://api.hatchet.is";
+    public static final String INFOSYSTEM_RESULTSREPORTED = "infosystem_resultsreported";
 
-    public static String HATCHET_ARTIST_PATH = "artist";
+    public static final String INFOSYSTEM_RESULTSREPORTED_REQUESTID
+            = "infosystem_resultsreported_requestid";
 
-    public static String HATCHET_ALBUM_PATH = "album";
+    public static final String HATCHET_BASE_URL = "http://api.hatchet.is";
 
-    public static String HATCHET_TRACK_PATH = "track";
+    public static final String HATCHET_ARTIST_PATH = "artist";
 
-    public static String HATCHET_USER_PATH = "user";
+    public static final String HATCHET_ARTISTS_PATH = "artists";
 
-    public static String HATCHET_PERSON_PATH = "person";
+    public static final String HATCHET_ALBUM_PATH = "album";
 
-    public static String HATCHET_INFO_PATH = "info";
+    public static final String HATCHET_ALBUMS_PATH = "albums";
 
-    public static String HATCHET_PLAYLIST_PATH = "playlist";
+    public static final String HATCHET_TRACK_PATH = "track";
 
-    public static String HATCHET_PLAYLISTS_PATH = "playlists";
+    public static final String HATCHET_TRACKS_PATH = "tracks";
 
-    public static String HATCHET_PLAYBACKLOG_PATH = "playbacklog";
+    public static final String HATCHET_USER_PATH = "user";
 
-    public static String HATCHET_LOVED_PATH = "loved";
+    public static final String HATCHET_PERSON_PATH = "person";
 
-    public static String HATCHET_FEED_PATH = "feed";
+    public static final String HATCHET_INFO_PATH = "info";
 
-    public static String HATCHET_CHARTS_PATH = "charts";
+    public static final String HATCHET_PLAYLIST_PATH = "playlist";
 
-    public static String HATCHET_SIMILARITY_PATH = "similarity";
+    public static final String HATCHET_PLAYLISTS_PATH = "playlists";
 
-    public static String HATCHET_ALBUMS_PATH = "albums";
+    public static final String HATCHET_PLAYBACKLOG_PATH = "playbacklog";
 
-    private ConcurrentHashMap<String, AlbumInfo> mCachedAlbumInfos;
+    public static final String HATCHET_LOVED_PATH = "loved";
 
-    private ConcurrentHashMap<String, ArtistInfo> mCachedArtistInfos;
+    public static final String HATCHET_FEED_PATH = "feed";
 
-    private ConcurrentHashMap<String, PersonInfo> mCachedPersonInfos;
+    public static final String HATCHET_CHARTS_PATH = "charts";
 
-    private ConcurrentHashMap<String, PlaylistInfo> mCachedPlaylistInfos;
+    public static final String HATCHET_SIMILARITY_PATH = "similarity";
 
-    private ConcurrentHashMap<String, TrackInfo> mCachedTrackInfos;
+    TomahawkApp mTomahawkApp;
 
-    public AlbumInfo getAlbumInfo(String artistName, String albumName) {
-        HttpGet httpGet = new HttpGet(
-                HATCHET_BASE_URL + "/" + HATCHET_ALBUM_PATH + "/" + artistName + "/" + albumName
-                        + "/" + HATCHET_INFO_PATH);
-        JSONObject rawJSON = getJSONResponse(httpGet);
-        return parseAlbumInfo(rawJSON);
+    private ConcurrentHashMap<String, InfoRequestData> mRequests
+            = new ConcurrentHashMap<String, InfoRequestData>();
+
+    private ConcurrentHashMap<String, Info> mCachedInfos = new ConcurrentHashMap<String, Info>();
+
+    public InfoSystem(TomahawkApp tomahawkApp) {
+        mTomahawkApp = tomahawkApp;
     }
 
-    public ArtistInfo getArtistInfo(String artistName) {
-        HttpGet httpGet = new HttpGet(
-                HATCHET_BASE_URL + "/" + HATCHET_ARTIST_PATH + "/" + artistName + "/"
-                        + HATCHET_INFO_PATH);
-        JSONObject rawJSON = getJSONResponse(httpGet);
-        return parseArtistInfo(rawJSON);
+    public void resolve(InfoRequestData infoRequestData) {
+        mRequests.put(infoRequestData.getRequestId(), infoRequestData);
+        new JSONResponseTask().execute(infoRequestData);
     }
 
-    private AlbumInfo parseAlbumInfo(JSONObject rawAlbumInfo) {
-        AlbumInfo result = new AlbumInfo();
-        try {
-            if (rawAlbumInfo.has(AlbumInfo.ALBUMINFO_KEY_ARTIST)) {
-                JSONObject rawArtistInfo = rawAlbumInfo
-                        .getJSONObject(AlbumInfo.ALBUMINFO_KEY_ARTIST);
-                result.setArtist(parseArtistInfo(rawArtistInfo));
-            }
-            if (rawAlbumInfo.has(AlbumInfo.ALBUMINFO_KEY_ID)) {
-                result.setId(rawAlbumInfo.getString(AlbumInfo.ALBUMINFO_KEY_ID));
-            }
-            if (rawAlbumInfo.has(AlbumInfo.ALBUMINFO_KEY_IMAGES)) {
-                JSONArray rawImageInfos = rawAlbumInfo.getJSONArray(AlbumInfo.ALBUMINFO_KEY_IMAGES);
-                ArrayList<ImageInfo> images = new ArrayList<ImageInfo>();
-                for (int i = 0; i < rawImageInfos.length(); i++) {
-                    images.add(parseImageInfo(rawImageInfos.getJSONObject(i)));
+    public InfoRequestData getInfoRequestById(String requestId) {
+        return mRequests.get(requestId);
+    }
+
+    private class JSONResponseTask extends AsyncTask<InfoRequestData, Void, ArrayList<String>> {
+
+        @Override
+        protected ArrayList<String> doInBackground(InfoRequestData... infoRequestDatas) {
+            ArrayList<String> doneRequestsIds = new ArrayList<String>();
+            HttpClient httpClient = new DefaultHttpClient();
+            StringBuilder builder = new StringBuilder();
+            try {
+                for (InfoRequestData infoRequestData : infoRequestDatas) {
+                    long start = System.currentTimeMillis();
+                    if (infoRequestData.isUseCache() && mCachedInfos
+                            .containsKey(infoRequestData.getCacheKey())) {
+                        infoRequestData.mResult = mCachedInfos.get(infoRequestData.getCacheKey());
+                        doneRequestsIds.add(infoRequestData.getRequestId());
+                    } else {
+                        HttpGet httpGet = infoRequestData.getRequestGet();
+                        HttpResponse httpResponse = httpClient.execute(httpGet);
+                        StatusLine statusLine = httpResponse.getStatusLine();
+                        if (statusLine.getStatusCode() == 200) {
+                            HttpEntity httpEntity = httpResponse.getEntity();
+                            InputStream content = httpEntity.getContent();
+                            BufferedReader bufferedReader = new BufferedReader(
+                                    new InputStreamReader(content));
+                            String line;
+                            while ((line = bufferedReader.readLine()) != null) {
+                                builder.append(line);
+                            }
+                            JSONObject rawInfo = new JSONObject(builder.toString());
+                            switch (infoRequestData.getType()) {
+                                case InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMINFO:
+                                    infoRequestData.mResult = new AlbumInfo();
+                                    infoRequestData.mResult.parseInfo(rawInfo);
+                                    mCachedInfos.put(infoRequestData.getCacheKey(),
+                                            infoRequestData.mResult);
+                                    doneRequestsIds.add(infoRequestData.getRequestId());
+                                    break;
+                                case InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTINFO:
+                                    infoRequestData.mResult = new ArtistInfo();
+                                    infoRequestData.mResult.parseInfo(rawInfo);
+                                    mCachedInfos.put(infoRequestData.getCacheKey(),
+                                            infoRequestData.mResult);
+                                    doneRequestsIds.add(infoRequestData.getRequestId());
+                                    break;
+                                case InfoRequestData.INFOREQUESTDATA_TYPE_USERINFO:
+                                    infoRequestData.mResult = new UserInfo();
+                                    infoRequestData.mResult.parseInfo(rawInfo);
+                                    mCachedInfos.put(infoRequestData.getCacheKey(),
+                                            infoRequestData.mResult);
+                                    doneRequestsIds.add(infoRequestData.getRequestId());
+                                    break;
+                                case InfoRequestData.INFOREQUESTDATA_TYPE_PERSONINFO:
+                                    infoRequestData.mResult = new PersonInfo();
+                                    infoRequestData.mResult.parseInfo(rawInfo);
+                                    mCachedInfos.put(infoRequestData.getCacheKey(),
+                                            infoRequestData.mResult);
+                                    doneRequestsIds.add(infoRequestData.getRequestId());
+                                    break;
+                                case InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTINFO:
+                                    infoRequestData.mResult = new PlaylistInfo();
+                                    infoRequestData.mResult.parseInfo(rawInfo);
+                                    mCachedInfos.put(infoRequestData.getCacheKey(),
+                                            infoRequestData.mResult);
+                                    doneRequestsIds.add(infoRequestData.getRequestId());
+                                    break;
+                                case InfoRequestData.INFOREQUESTDATA_TYPE_USERPLAYLISTS:
+                                    infoRequestData.mResult = new PlaylistsInfo();
+                                    infoRequestData.mResult.parseInfo(rawInfo);
+                                    mCachedInfos.put(infoRequestData.getCacheKey(),
+                                            infoRequestData.mResult);
+                                    doneRequestsIds.add(infoRequestData.getRequestId());
+                                    break;
+                                case InfoRequestData.INFOREQUESTDATA_TYPE_USERPLAYBACKLOG:
+                                    infoRequestData.mResult = new TrackActionItemsInfo();
+                                    infoRequestData.mResult.parseInfo(rawInfo);
+                                    mCachedInfos.put(infoRequestData.getCacheKey(),
+                                            infoRequestData.mResult);
+                                    doneRequestsIds.add(infoRequestData.getRequestId());
+                                    break;
+                                case InfoRequestData.INFOREQUESTDATA_TYPE_USERLOVED:
+                                    infoRequestData.mResult = new TrackActionItemsInfo();
+                                    infoRequestData.mResult.parseInfo(rawInfo);
+                                    mCachedInfos.put(infoRequestData.getCacheKey(),
+                                            infoRequestData.mResult);
+                                    doneRequestsIds.add(infoRequestData.getRequestId());
+                                    break;
+                                case InfoRequestData.INFOREQUESTDATA_TYPE_USERFEED:
+
+                                case InfoRequestData.INFOREQUESTDATA_TYPE_TRACKCHARTS:
+                                    infoRequestData.mResult = new TrackChartItemsInfo();
+                                    infoRequestData.mResult.parseInfo(rawInfo);
+                                    mCachedInfos.put(infoRequestData.getCacheKey(),
+                                            infoRequestData.mResult);
+                                    doneRequestsIds.add(infoRequestData.getRequestId());
+                                    break;
+                                case InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTCHARTS:
+                                    infoRequestData.mResult = new ArtistChartItemsInfo();
+                                    infoRequestData.mResult.parseInfo(rawInfo);
+                                    mCachedInfos.put(infoRequestData.getCacheKey(),
+                                            infoRequestData.mResult);
+                                    doneRequestsIds.add(infoRequestData.getRequestId());
+                                    break;
+                                case InfoRequestData.INFOREQUESTDATA_TYPE_USERTRACKCHARTS:
+                                    infoRequestData.mResult = new TrackChartItemsInfo();
+                                    infoRequestData.mResult.parseInfo(rawInfo);
+                                    mCachedInfos.put(infoRequestData.getCacheKey(),
+                                            infoRequestData.mResult);
+                                    doneRequestsIds.add(infoRequestData.getRequestId());
+                                    break;
+                                case InfoRequestData.INFOREQUESTDATA_TYPE_USERARTISTCHARTS:
+                                    infoRequestData.mResult = new ArtistChartItemsInfo();
+                                    infoRequestData.mResult.parseInfo(rawInfo);
+                                    mCachedInfos.put(infoRequestData.getCacheKey(),
+                                            infoRequestData.mResult);
+                                    doneRequestsIds.add(infoRequestData.getRequestId());
+                                    break;
+                            }
+                        } else {
+                            Log.e(TAG,
+                                    "JSONResponseTask Failed to download: StatusCode='" + statusLine
+                                            .getStatusCode() + "', URI='" + httpGet.getURI()
+                                            .toString() + "'");
+                        }
+                    }
+                    Log.d(TAG, "doInBackground(...) took " + (System.currentTimeMillis() - start)
+                            + "ms to finish, useCache = " + infoRequestData.isUseCache());
                 }
-                result.setImages(images);
+            } catch (ClientProtocolException e) {
+                Log.e(TAG, "JSONResponseTask: " + e.getClass() + ": " + e.getLocalizedMessage());
+            } catch (IOException e) {
+                Log.e(TAG, "JSONResponseTask: " + e.getClass() + ": " + e.getLocalizedMessage());
+            } catch (JSONException e) {
+                Log.e(TAG, "JSONResponseTask: " + e.getClass() + ": " + e.getLocalizedMessage());
             }
-            if (rawAlbumInfo.has(AlbumInfo.ALBUMINFO_KEY_LABELS)) {
-                JSONArray rawImageInfos = rawAlbumInfo.getJSONArray(AlbumInfo.ALBUMINFO_KEY_LABELS);
-                ArrayList<String> labels = new ArrayList<String>();
-                for (int i = 0; i < rawImageInfos.length(); i++) {
-                    labels.add(rawImageInfos.getString(i));
-                }
-                result.setLabels(labels);
-            }
-            if (rawAlbumInfo.has(AlbumInfo.ALBUMINFO_KEY_LENGTH)) {
-                result.setLength(rawAlbumInfo.getInt(AlbumInfo.ALBUMINFO_KEY_LENGTH));
-            }
-            if (rawAlbumInfo.has(AlbumInfo.ALBUMINFO_KEY_NAME)) {
-                result.setName(rawAlbumInfo.getString(AlbumInfo.ALBUMINFO_KEY_NAME));
-            }
-            if (rawAlbumInfo.has(AlbumInfo.ALBUMINFO_KEY_NAMES)) {
-                JSONArray rawImageInfos = rawAlbumInfo.getJSONArray(AlbumInfo.ALBUMINFO_KEY_NAMES);
-                ArrayList<String> names = new ArrayList<String>();
-                for (int i = 0; i < rawImageInfos.length(); i++) {
-                    names.add(rawImageInfos.getString(i));
-                }
-                result.setNames(names);
-            }
-            if (rawAlbumInfo.has(AlbumInfo.ALBUMINFO_KEY_PRODUCERS)) {
-                JSONArray rawProducerInfos = rawAlbumInfo
-                        .getJSONArray(AlbumInfo.ALBUMINFO_KEY_PRODUCERS);
-                ArrayList<PersonInfo> producers = new ArrayList<PersonInfo>();
-                for (int i = 0; i < rawProducerInfos.length(); i++) {
-                    producers.add(parsePersonInfo(rawProducerInfos.getJSONObject(i)));
-                }
-                result.setProducers(producers);
-            }
-            if (rawAlbumInfo.has(AlbumInfo.ALBUMINFO_KEY_RELEASEDATE)) {
-                result.setReleaseDate(TomahawkUtils
-                        .stringToDate(rawAlbumInfo.getString(AlbumInfo.ALBUMINFO_KEY_RELEASEDATE)));
-            }
-            if (rawAlbumInfo.has(AlbumInfo.ALBUMINFO_KEY_TRACKS)) {
-                JSONArray rawTrackInfos = rawAlbumInfo.getJSONArray(AlbumInfo.ALBUMINFO_KEY_TRACKS);
-                ArrayList<TrackInfo> tracks = new ArrayList<TrackInfo>();
-                for (int i = 0; i < rawTrackInfos.length(); i++) {
-                    tracks.add(parseTrackInfo(rawTrackInfos.getJSONObject(i)));
-                }
-                result.setTracks(tracks);
-            }
-            if (rawAlbumInfo.has(AlbumInfo.ALBUMINFO_KEY_URL)) {
-                result.setUrl(rawAlbumInfo.getString(AlbumInfo.ALBUMINFO_KEY_URL));
-            }
-            if (rawAlbumInfo.has(AlbumInfo.ALBUMINFO_KEY_WIKIABSTRACT)) {
-                result.setWikiAbstract(
-                        rawAlbumInfo.getString(AlbumInfo.ALBUMINFO_KEY_WIKIABSTRACT));
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, "parseAlbumInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
+            return doneRequestsIds;
         }
-        return result;
-    }
 
-    private ArtistInfo parseArtistInfo(JSONObject rawArtistInfo) {
-        ArtistInfo result = new ArtistInfo();
-        try {
-            if (rawArtistInfo.has(ArtistInfo.ARTISTINFO_KEY_DISAMBIGUATION)) {
-                result.setDisambiguation(
-                        rawArtistInfo.getString(ArtistInfo.ARTISTINFO_KEY_DISAMBIGUATION));
+        @Override
+        protected void onPostExecute(ArrayList<String> doneRequestsIds) {
+            for (String doneRequestId : doneRequestsIds) {
+                sendReportResultsBroadcast(doneRequestId);
             }
-            if (rawArtistInfo.has(ArtistInfo.ARTISTINFO_KEY_ID)) {
-                result.setId(rawArtistInfo.getString(ArtistInfo.ARTISTINFO_KEY_ID));
-            }
-            if (rawArtistInfo.has(ArtistInfo.ARTISTINFO_KEY_IMAGES)) {
-                JSONArray rawImageInfos = rawArtistInfo
-                        .getJSONArray(ArtistInfo.ARTISTINFO_KEY_IMAGES);
-                ArrayList<ImageInfo> images = new ArrayList<ImageInfo>();
-                for (int i = 0; i < rawImageInfos.length(); i++) {
-                    images.add(parseImageInfo(rawImageInfos.getJSONObject(i)));
-                }
-                result.setImages(images);
-            }
-            if (rawArtistInfo.has(ArtistInfo.ARTISTINFO_KEY_MEMBERS)) {
-                JSONArray rawProducerInfos = rawArtistInfo
-                        .getJSONArray(ArtistInfo.ARTISTINFO_KEY_MEMBERS);
-                ArrayList<PersonInfo> members = new ArrayList<PersonInfo>();
-                for (int i = 0; i < rawProducerInfos.length(); i++) {
-                    members.add(parsePersonInfo(rawProducerInfos.getJSONObject(i)));
-                }
-                result.setMembers(members);
-            }
-            if (rawArtistInfo.has(ArtistInfo.ARTISTINFO_KEY_NAME)) {
-                result.setName(rawArtistInfo.getString(ArtistInfo.ARTISTINFO_KEY_NAME));
-            }
-            if (rawArtistInfo.has(ArtistInfo.ARTISTINFO_KEY_NAMES)) {
-                JSONArray rawImageInfos = rawArtistInfo
-                        .getJSONArray(ArtistInfo.ARTISTINFO_KEY_NAMES);
-                ArrayList<String> names = new ArrayList<String>();
-                for (int i = 0; i < rawImageInfos.length(); i++) {
-                    names.add(rawImageInfos.getString(i));
-                }
-                result.setNames(names);
-            }
-            if (rawArtistInfo.has(ArtistInfo.ARTISTINFO_KEY_RESOURCES)) {
-                JSONArray rawResourceInfos = rawArtistInfo
-                        .getJSONArray(ArtistInfo.ARTISTINFO_KEY_RESOURCES);
-                ArrayList<ResourceInfo> resources = new ArrayList<ResourceInfo>();
-                for (int i = 0; i < rawResourceInfos.length(); i++) {
-                    resources.add(parseResourceInfo(rawResourceInfos.getJSONObject(i)));
-                }
-                result.setResources(resources);
-            }
-            if (rawArtistInfo.has(ArtistInfo.ARTISTINFO_KEY_URL)) {
-                result.setUrl(rawArtistInfo.getString(ArtistInfo.ARTISTINFO_KEY_URL));
-            }
-            if (rawArtistInfo.has(ArtistInfo.ARTISTINFO_KEY_WIKIABSTRACT)) {
-                result.setWikiAbstract(
-                        rawArtistInfo.getString(ArtistInfo.ARTISTINFO_KEY_WIKIABSTRACT));
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, "parseArtistInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
-        return result;
     }
 
-    private ImageInfo parseImageInfo(JSONObject rawImageInfo) {
-        return new ImageInfo();
+    /**
+     * Send a broadcast containing the id of the resolved inforequest.
+     */
+    private void sendReportResultsBroadcast(String requestId) {
+        Intent reportIntent = new Intent(INFOSYSTEM_RESULTSREPORTED);
+        reportIntent.putExtra(INFOSYSTEM_RESULTSREPORTED_REQUESTID, requestId);
+        mTomahawkApp.sendBroadcast(reportIntent);
     }
-
-    private PersonInfo parsePersonInfo(JSONObject rawPersonInfo) {
-        return new PersonInfo();
-    }
-
-    private ResourceInfo parseResourceInfo(JSONObject rawResourceInfo) {
-        return new ResourceInfo();
-    }
-
-    private TrackChartItemInfo parseTrackChartItemInfo(JSONObject rawTrackChartItemInfo) {
-        return new TrackChartItemInfo();
-    }
-
-    private TrackInfo parseTrackInfo(JSONObject rawTrackInfo) {
-        return new TrackInfo();
-    }
-
-    public JSONObject getJSONResponse(HttpGet httpGet) {
-        JSONObject result = null;
-        HttpClient httpClient = new DefaultHttpClient();
-        StringBuilder builder = new StringBuilder();
-        try {
-            HttpResponse httpResponse = httpClient.execute(httpGet);
-            StatusLine statusLine = httpResponse.getStatusLine();
-            if (statusLine.getStatusCode() == 200) {
-                HttpEntity httpEntity = httpResponse.getEntity();
-                InputStream content = httpEntity.getContent();
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(content));
-                String line;
-                while ((line = bufferedReader.readLine()) != null) {
-                    builder.append(line);
-                }
-                result = new JSONObject(builder.toString());
-            } else {
-                Log.e(TAG, "getAlbumInfo: Failed to download: StatusCode='" + statusLine
-                        .getStatusCode() + "', URI='" + httpGet.getURI().toString() + "'");
-            }
-        } catch (ClientProtocolException e) {
-            Log.e(TAG, "getAlbumInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
-        } catch (IOException e) {
-            Log.e(TAG, "getAlbumInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
-        } catch (JSONException e) {
-            Log.e(TAG, "getAlbumInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
-        return result;
-    }
-
 }

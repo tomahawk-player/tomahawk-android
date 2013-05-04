@@ -17,37 +17,46 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.tomahawk.libtomahawk.resolver.TomahawkUtils;
+
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Date;
 
 /**
  * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.04.13
  */
-public class AlbumInfo {
+public class AlbumInfo implements Info {
 
-    public static String ALBUMINFO_KEY_ARTIST = "Artist";
+    private final static String TAG = AlbumInfo.class.getName();
 
-    public static String ALBUMINFO_KEY_ID = "Id";
+    public static final String ALBUMINFO_KEY_ARTIST = "Artist";
 
-    public static String ALBUMINFO_KEY_IMAGES = "Images";
+    public static final String ALBUMINFO_KEY_ID = "Id";
 
-    public static String ALBUMINFO_KEY_LABELS = "Labels";
+    public static final String ALBUMINFO_KEY_IMAGES = "Images";
 
-    public static String ALBUMINFO_KEY_LENGTH = "Length";
+    public static final String ALBUMINFO_KEY_LABELS = "Labels";
 
-    public static String ALBUMINFO_KEY_NAME = "Name";
+    public static final String ALBUMINFO_KEY_LENGTH = "Length";
 
-    public static String ALBUMINFO_KEY_NAMES = "Names";
+    public static final String ALBUMINFO_KEY_NAME = "Name";
 
-    public static String ALBUMINFO_KEY_PRODUCERS = "Producers";
+    public static final String ALBUMINFO_KEY_NAMES = "Names";
 
-    public static String ALBUMINFO_KEY_RELEASEDATE = "ReleaseDate";
+    public static final String ALBUMINFO_KEY_PRODUCERS = "Producers";
 
-    public static String ALBUMINFO_KEY_TRACKS = "Tracks";
+    public static final String ALBUMINFO_KEY_RELEASEDATE = "ReleaseDate";
 
-    public static String ALBUMINFO_KEY_URL = "Url";
+    public static final String ALBUMINFO_KEY_TRACKS = "Tracks";
 
-    public static String ALBUMINFO_KEY_WIKIABSTRACT = "WikiAbstract";
+    public static final String ALBUMINFO_KEY_URL = "Url";
+
+    public static final String ALBUMINFO_KEY_WIKIABSTRACT = "WikiAbstract";
 
     private ArtistInfo mArtist;
 
@@ -73,100 +82,125 @@ public class AlbumInfo {
 
     private String mWikiAbstract;
 
-    public ArtistInfo getArtist() {
-        return mArtist;
+    @Override
+    public void parseInfo(JSONObject rawInfo) {
+        try {
+            if (!rawInfo.isNull(ALBUMINFO_KEY_ARTIST)) {
+                JSONObject rawArtistInfo = rawInfo.getJSONObject(ALBUMINFO_KEY_ARTIST);
+                mArtist = new ArtistInfo();
+                mArtist.parseInfo(rawArtistInfo);
+            }
+            if (!rawInfo.isNull(ALBUMINFO_KEY_ID)) {
+                mId = rawInfo.getString(ALBUMINFO_KEY_ID);
+            }
+            if (!rawInfo.isNull(ALBUMINFO_KEY_IMAGES)) {
+                JSONArray rawImageInfos = rawInfo.getJSONArray(ALBUMINFO_KEY_IMAGES);
+                mImages = new ArrayList<ImageInfo>();
+                for (int i = 0; i < rawImageInfos.length(); i++) {
+                    ImageInfo imageInfo = new ImageInfo();
+                    imageInfo.parseInfo(rawImageInfos.getJSONObject(i));
+                    mImages.add(imageInfo);
+                }
+            }
+            if (!rawInfo.isNull(ALBUMINFO_KEY_LABELS)) {
+                JSONArray rawImageInfos = rawInfo.getJSONArray(ALBUMINFO_KEY_LABELS);
+                mLabels = new ArrayList<String>();
+                for (int i = 0; i < rawImageInfos.length(); i++) {
+                    mLabels.add(rawImageInfos.getString(i));
+                }
+            }
+            if (!rawInfo.isNull(ALBUMINFO_KEY_LENGTH)) {
+                mLength = rawInfo.getInt(ALBUMINFO_KEY_LENGTH);
+            }
+            if (!rawInfo.isNull(ALBUMINFO_KEY_NAME)) {
+                mName = rawInfo.getString(ALBUMINFO_KEY_NAME);
+            }
+            if (!rawInfo.isNull(ALBUMINFO_KEY_NAMES)) {
+                JSONArray rawImageInfos = rawInfo.getJSONArray(ALBUMINFO_KEY_NAMES);
+                mNames = new ArrayList<String>();
+                for (int i = 0; i < rawImageInfos.length(); i++) {
+                    mNames.add(rawImageInfos.getString(i));
+                }
+            }
+            if (!rawInfo.isNull(ALBUMINFO_KEY_PRODUCERS)) {
+                JSONArray rawProducerInfos = rawInfo.getJSONArray(ALBUMINFO_KEY_PRODUCERS);
+                mProducers = new ArrayList<PersonInfo>();
+                for (int i = 0; i < rawProducerInfos.length(); i++) {
+                    PersonInfo personInfo = new PersonInfo();
+                    personInfo.parseInfo(rawProducerInfos.getJSONObject(i));
+                    mProducers.add(personInfo);
+                }
+            }
+            if (!rawInfo.isNull(ALBUMINFO_KEY_RELEASEDATE)) {
+                mReleaseDate = TomahawkUtils
+                        .stringToDate(rawInfo.getString(ALBUMINFO_KEY_RELEASEDATE));
+            }
+            if (!rawInfo.isNull(ALBUMINFO_KEY_TRACKS)) {
+                JSONArray rawTrackInfos = rawInfo.getJSONArray(ALBUMINFO_KEY_TRACKS);
+                mTracks = new ArrayList<TrackInfo>();
+                for (int i = 0; i < rawTrackInfos.length(); i++) {
+                    TrackInfo trackInfo = new TrackInfo();
+                    trackInfo.parseInfo(rawTrackInfos.getJSONObject(i));
+                    mTracks.add(trackInfo);
+                }
+            }
+            if (!rawInfo.isNull(ALBUMINFO_KEY_URL)) {
+                mUrl = rawInfo.getString(ALBUMINFO_KEY_URL);
+            }
+            if (!rawInfo.isNull(ALBUMINFO_KEY_WIKIABSTRACT)) {
+                mWikiAbstract = rawInfo.getString(ALBUMINFO_KEY_WIKIABSTRACT);
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
     }
 
-    public void setArtist(ArtistInfo artist) {
-        mArtist = artist;
+    public ArtistInfo getArtist() {
+        return mArtist;
     }
 
     public String getId() {
         return mId;
     }
 
-    public void setId(String id) {
-        mId = id;
-    }
-
     public ArrayList<ImageInfo> getImages() {
         return mImages;
-    }
-
-    public void setImages(ArrayList<ImageInfo> images) {
-        mImages = images;
     }
 
     public ArrayList<String> getLabels() {
         return mLabels;
     }
 
-    public void setLabels(ArrayList<String> labels) {
-        mLabels = labels;
-    }
-
     public int getLength() {
         return mLength;
-    }
-
-    public void setLength(int length) {
-        mLength = length;
     }
 
     public String getName() {
         return mName;
     }
 
-    public void setName(String name) {
-        mName = name;
-    }
-
     public ArrayList<String> getNames() {
         return mNames;
-    }
-
-    public void setNames(ArrayList<String> names) {
-        mNames = names;
     }
 
     public ArrayList<PersonInfo> getProducers() {
         return mProducers;
     }
 
-    public void setProducers(ArrayList<PersonInfo> producers) {
-        mProducers = producers;
-    }
-
     public Date getReleaseDate() {
         return mReleaseDate;
-    }
-
-    public void setReleaseDate(Date releaseDate) {
-        mReleaseDate = releaseDate;
     }
 
     public ArrayList<TrackInfo> getTracks() {
         return mTracks;
     }
 
-    public void setTracks(ArrayList<TrackInfo> tracks) {
-        mTracks = tracks;
-    }
-
     public String getUrl() {
         return mUrl;
     }
 
-    public void setUrl(String url) {
-        mUrl = url;
-    }
-
     public String getWikiAbstract() {
         return mWikiAbstract;
-    }
-
-    public void setWikiAbstract(String wikiAbstract) {
-        mWikiAbstract = wikiAbstract;
     }
 
 }

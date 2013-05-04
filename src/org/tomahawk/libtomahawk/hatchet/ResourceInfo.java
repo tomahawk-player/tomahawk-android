@@ -17,28 +17,45 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.util.Log;
+
 /**
  * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.04.13
  */
-public class ResourceInfo {
+public class ResourceInfo implements Info {
+
+    private final static String TAG = ResourceInfo.class.getName();
+
+    public static final String RESOURCEINFO_KEY_TYPE = "Type";
+
+    public static final String RESOURCEINFO_KEY_URL = "Url";
 
     private String mType;
 
     private String mUrl;
 
+    @Override
+    public void parseInfo(JSONObject rawInfo) {
+        try {
+            if (!rawInfo.isNull(RESOURCEINFO_KEY_TYPE)) {
+                mType = rawInfo.getString(RESOURCEINFO_KEY_TYPE);
+            }
+            if (!rawInfo.isNull(RESOURCEINFO_KEY_URL)) {
+                mUrl = rawInfo.getString(RESOURCEINFO_KEY_URL);
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
+    }
+
     public String getType() {
         return mType;
     }
 
-    public void setType(String type) {
-        mType = type;
-    }
-
     public String getUrl() {
         return mUrl;
-    }
-
-    public void setUrl(String url) {
-        mUrl = url;
     }
 }

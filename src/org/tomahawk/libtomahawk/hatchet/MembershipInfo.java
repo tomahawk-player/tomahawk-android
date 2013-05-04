@@ -17,29 +17,47 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.util.Log;
+
 /**
  * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.04.13
  */
-public class MembershipInfo {
+public class MembershipInfo implements Info {
+
+    private final static String TAG = MembershipInfo.class.getName();
+
+    public static final String MEMBERSHIPINFO_KEY_ARTIST = "Artist";
+
+    public static final String MEMBERSHIPINFO_KEY_TIMESPAN = "TimeSpan";
 
     private ArtistInfo mArtist;
 
     private TimeSpanInfo mTimeSpan;
 
-    public TimeSpanInfo getTimeSpan() {
-        return mTimeSpan;
+    @Override
+    public void parseInfo(JSONObject rawInfo) {
+        try {
+            if (!rawInfo.isNull(MEMBERSHIPINFO_KEY_ARTIST)) {
+                mArtist = new ArtistInfo();
+                mArtist.parseInfo(rawInfo.getJSONObject(MEMBERSHIPINFO_KEY_ARTIST));
+            }
+            if (!rawInfo.isNull(MEMBERSHIPINFO_KEY_TIMESPAN)) {
+                mTimeSpan = new TimeSpanInfo();
+                mTimeSpan.parseInfo(rawInfo.getJSONObject(MEMBERSHIPINFO_KEY_TIMESPAN));
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
     }
 
-    public void setTimeSpan(TimeSpanInfo timeSpan) {
-        mTimeSpan = timeSpan;
+    public TimeSpanInfo getTimeSpan() {
+        return mTimeSpan;
     }
 
     public ArtistInfo getArtist() {
         return mArtist;
     }
-
-    public void setArtist(ArtistInfo artist) {
-        mArtist = artist;
-    }
-
 }
