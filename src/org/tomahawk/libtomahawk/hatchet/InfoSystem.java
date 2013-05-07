@@ -85,6 +85,8 @@ public class InfoSystem {
 
     public static final String HATCHET_SIMILARITY_PATH = "similarity";
 
+    public static final String HATCHET_NAME_PATH = "name";
+
     TomahawkApp mTomahawkApp;
 
     private ConcurrentHashMap<String, InfoRequestData> mRequests
