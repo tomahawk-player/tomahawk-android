@@ -18,6 +18,9 @@
 package org.tomahawk.libtomahawk.hatchet;
 
 import org.apache.http.client.methods.HttpGet;
+import org.tomahawk.libtomahawk.Album;
+import org.tomahawk.libtomahawk.Artist;
+import org.tomahawk.libtomahawk.Track;
 
 import java.util.ArrayList;
 
@@ -30,13 +33,15 @@ public class InfoRequestData {
 
     public static final int INFOREQUESTDATA_TYPE_ALBUMINFO = 0;
 
-    public static final int INFOREQUESTDATA_TYPE_ARTISTINFO = 1;
+    public static final int INFOREQUESTDATA_TYPE_ARTISTALBUMS = 1;
 
-    public static final int INFOREQUESTDATA_TYPE_USERINFO = 2;
+    public static final int INFOREQUESTDATA_TYPE_ARTISTINFO = 2;
 
-    public static final int INFOREQUESTDATA_TYPE_PERSONINFO = 3;
+    public static final int INFOREQUESTDATA_TYPE_USERINFO = 3;
 
-    public static final int INFOREQUESTDATA_TYPE_USERPLAYLISTS = 4;
+    public static final int INFOREQUESTDATA_TYPE_PERSONINFO = 4;
+
+    public static final int INFOREQUESTDATA_TYPE_USERPLAYLISTS = 5;
 
     public static final int INFOREQUESTDATA_TYPE_PLAYLISTINFO = 10;
 
@@ -70,36 +75,6 @@ public class InfoRequestData {
 
     public Info mResult;
 
-    public ArrayList<Info> mResultList;
-
-    public String getRequestId() {
-        return mRequestId;
-    }
-
-    public int getType() {
-        return mType;
-    }
-
-    public boolean isUseCache() {
-        return mUseCache;
-    }
-
-    public String getFirstParam() {
-        return mFirstParam;
-    }
-
-    public String getSecondParam() {
-        return mSecondParam;
-    }
-
-    public String getCacheKey() {
-        return mCacheKey;
-    }
-
-    public HttpGet getRequestGet() {
-        return mRequestGet;
-    }
-
     public InfoRequestData(String requestId, int type, boolean useCache) {
         mRequestId = requestId;
         mType = type;
@@ -128,6 +103,89 @@ public class InfoRequestData {
         mRequestGet = buildRequestGet(mFirstParam, mSecondParam);
     }
 
+    public static ArrayList<Album> albumInfoListToAlbumList(ArrayList<AlbumInfo> albumInfos) {
+        ArrayList<Album> albums = new ArrayList<Album>();
+        for (AlbumInfo albumInfo : albumInfos) {
+            albums.add(albumInfoToAlbum(albumInfo));
+        }
+        return albums;
+    }
+
+    public static Album albumInfoToAlbum(AlbumInfo albumInfo) {
+        return albumInfoToAlbum(albumInfo, null);
+    }
+
+    public static Album albumInfoToAlbum(AlbumInfo albumInfo, Album album) {
+        if (album == null) {
+            album = new Album();
+        }
+        if (albumInfo.getArtist() != null) {
+            album.setArtist(artistInfoToArtist(albumInfo.getArtist(), new Artist()));
+        }
+        if (albumInfo.getId() != null) {
+            album.setId(Long.valueOf(albumInfo.getId()));
+        }
+        if (albumInfo.getImages() != null && albumInfo.getImages().get(0) != null) {
+            album.setAlbumArt(albumInfo.getImages().get(0).getUrl());
+        }
+        if (albumInfo.getName() != null) {
+            album.setName(albumInfo.getName());
+        }
+        if (albumInfo.getReleaseDate() != null) {
+            album.setFirstYear(String.valueOf(albumInfo.getReleaseDate().getYear()));
+            album.setLastYear(String.valueOf(albumInfo.getReleaseDate().getYear()));
+        }
+        return album;
+    }
+
+    public static ArrayList<Track> trackInfoListToTrackList(ArrayList<TrackInfo> trackInfos) {
+        ArrayList<Track> tracks = new ArrayList<Track>();
+        for (TrackInfo trackInfo : trackInfos) {
+            tracks.add(trackInfoToTrack(trackInfo));
+        }
+        return tracks;
+    }
+
+    public static Track trackInfoToTrack(TrackInfo trackInfo) {
+        return trackInfoToTrack(trackInfo, null);
+    }
+
+    public static Track trackInfoToTrack(TrackInfo trackInfo, Track track) {
+        if (track == null) {
+            track = new Track();
+        }
+        if (trackInfo.getArtist() != null) {
+            track.setArtist(artistInfoToArtist(trackInfo.getArtist(), new Artist()));
+        }
+        if (trackInfo.getId() != null) {
+            track.setId(Long.valueOf(trackInfo.getId()));
+        }
+        if (trackInfo.getName() != null) {
+            track.setName(trackInfo.getName());
+        }
+        if (trackInfo.getUrl() != null) {
+            track.setLinkUrl(trackInfo.getUrl());
+        }
+        return track;
+    }
+
+    public static Artist artistInfoToArtist(ArtistInfo artistInfo) {
+        return artistInfoToArtist(artistInfo, null);
+    }
+
+    public static Artist artistInfoToArtist(ArtistInfo artistInfo, Artist artist) {
+        if (artist == null) {
+            artist = new Artist();
+        }
+        if (artistInfo.getId() != null) {
+            artist.setId(Long.valueOf(artistInfo.getId()));
+        }
+        if (artistInfo.getName() != null) {
+            artist.setName(artistInfo.getName());
+        }
+        return artist;
+    }
+
     private HttpGet buildRequestGet() {
         HttpGet httpGet = null;
         switch (mType) {
@@ -148,6 +206,12 @@ public class InfoRequestData {
     private HttpGet buildRequestGet(String firstParam) {
         HttpGet httpGet = null;
         switch (mType) {
+            case INFOREQUESTDATA_TYPE_ARTISTALBUMS:
+                httpGet = new HttpGet(
+                        InfoSystem.HATCHET_BASE_URL + "/" + InfoSystem.HATCHET_ARTIST_PATH + "/"
+                                + InfoSystem.HATCHET_NAME_PATH + "/" + firstParam + "/"
+                                + InfoSystem.HATCHET_ALBUMS_PATH);
+                break;
             case INFOREQUESTDATA_TYPE_ARTISTINFO:
                 httpGet = new HttpGet(
                         InfoSystem.HATCHET_BASE_URL + "/" + InfoSystem.HATCHET_ARTIST_PATH + "/"
@@ -216,5 +280,33 @@ public class InfoRequestData {
                 break;
         }
         return httpGet;
+    }
+
+    public String getRequestId() {
+        return mRequestId;
+    }
+
+    public int getType() {
+        return mType;
+    }
+
+    public boolean isUseCache() {
+        return mUseCache;
+    }
+
+    public String getFirstParam() {
+        return mFirstParam;
+    }
+
+    public String getSecondParam() {
+        return mSecondParam;
+    }
+
+    public String getCacheKey() {
+        return mCacheKey;
+    }
+
+    public HttpGet getRequestGet() {
+        return mRequestGet;
     }
 }
