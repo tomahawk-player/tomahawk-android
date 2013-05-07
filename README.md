@@ -3,6 +3,11 @@ tomahawk-android
 
 Tomahawk's Android Music Player
 
+Nightly
+================
+Nightly builds are available here:
+http://download.tomahawk-player.org/nightly/android/
+
 setup
 ================
 
