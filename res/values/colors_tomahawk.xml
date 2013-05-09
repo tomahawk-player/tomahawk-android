@@ -24,5 +24,7 @@
     <color name="divider">#3B3F45</color>
     <color name="transparent_black">#99000000</color>
     <color name="transparent_white">#99FFFFFF</color>
+    <color name="disabled_grey">#FF848484</color>
+    <color name="plain_white">#FFFFFFFF</color>
 
 </resources>

@@ -94,6 +94,14 @@ public class Query {
         mIsOnlyLocal = onlyLocal;
     }
 
+    public static Track trackResultToTrack(Track trackResult, Track track) {
+        track.setResolved(trackResult.isResolved());
+        track.setPath(trackResult.getPath());
+        track.setResolver(trackResult.getResolver());
+        track.setLocal(trackResult.isLocal());
+        return track;
+    }
+
     /**
      * @return A ArrayList<Track> which contains all tracks in the resultList, sorted by score.
      */
@@ -101,7 +109,9 @@ public class Query {
         ArrayList<Track> tracks = new ArrayList<Track>();
         for (ArrayList<Result> resultList : mTrackResults.values()) {
             if (!resultList.isEmpty()) {
-                tracks.add(resultList.get(0).getTrack());
+                Track track = resultList.get(0).getTrack();
+                track.setResolved(true);
+                tracks.add(track);
             }
         }
         Collections.sort(tracks, new TrackComparator(TrackComparator.COMPARE_SCORE));

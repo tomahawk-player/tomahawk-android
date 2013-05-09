@@ -21,6 +21,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.tomahawk.libtomahawk.Album;
 import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.Track;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import java.util.ArrayList;
 
@@ -59,6 +60,8 @@ public class InfoRequestData {
 
     public static final int INFOREQUESTDATA_TYPE_USERARTISTCHARTS = 23;
 
+    static TomahawkApp mTomahawkApp;
+
     private String mRequestId;
 
     private int mType;
@@ -75,7 +78,8 @@ public class InfoRequestData {
 
     public Info mResult;
 
-    public InfoRequestData(String requestId, int type, boolean useCache) {
+    public InfoRequestData(TomahawkApp tomahawkApp, String requestId, int type, boolean useCache) {
+        mTomahawkApp = tomahawkApp;
         mRequestId = requestId;
         mType = type;
         mUseCache = useCache;
@@ -83,24 +87,31 @@ public class InfoRequestData {
         mRequestGet = buildRequestGet();
     }
 
-    public InfoRequestData(String requestId, int type, boolean useCache, String firstParam) {
+    public InfoRequestData(TomahawkApp tomahawkApp, String requestId, int type, boolean useCache,
+            String firstParam) {
+        mTomahawkApp = tomahawkApp;
         mRequestId = requestId;
         mType = type;
         mUseCache = useCache;
-        mFirstParam = firstParam;
+        mFirstParam = prepareString(firstParam);
         mCacheKey = mType + "/" + mFirstParam;
         mRequestGet = buildRequestGet(mFirstParam);
     }
 
-    public InfoRequestData(String requestId, int type, boolean useCache, String firstParam,
-            String secondParam) {
+    public InfoRequestData(TomahawkApp tomahawkApp, String requestId, int type, boolean useCache,
+            String firstParam, String secondParam) {
+        mTomahawkApp = tomahawkApp;
         mRequestId = requestId;
         mType = type;
         mUseCache = useCache;
-        mFirstParam = firstParam;
-        mSecondParam = secondParam;
+        mFirstParam = prepareString(firstParam);
+        mSecondParam = prepareString(secondParam);
         mCacheKey = mType + "/" + mFirstParam + "/" + mSecondParam;
         mRequestGet = buildRequestGet(mFirstParam, mSecondParam);
+    }
+
+    private String prepareString(String in) {
+        return in.replace(" ", "%20");
     }
 
     public static ArrayList<Album> albumInfoListToAlbumList(ArrayList<AlbumInfo> albumInfos) {
@@ -119,13 +130,13 @@ public class InfoRequestData {
         if (album == null) {
             album = new Album();
         }
+        album.setId(mTomahawkApp.getUniqueAlbumId());
         if (albumInfo.getArtist() != null) {
             album.setArtist(artistInfoToArtist(albumInfo.getArtist(), new Artist()));
         }
         if (albumInfo.getId() != null) {
-            album.setId(Long.valueOf(albumInfo.getId()));
         }
-        if (albumInfo.getImages() != null && albumInfo.getImages().get(0) != null) {
+        if (albumInfo.getImages() != null && albumInfo.getImages().size() > 0) {
             album.setAlbumArt(albumInfo.getImages().get(0).getUrl());
         }
         if (albumInfo.getName() != null) {
@@ -134,6 +145,13 @@ public class InfoRequestData {
         if (albumInfo.getReleaseDate() != null) {
             album.setFirstYear(String.valueOf(albumInfo.getReleaseDate().getYear()));
             album.setLastYear(String.valueOf(albumInfo.getReleaseDate().getYear()));
+        }
+        if (albumInfo.getTracks() != null) {
+            for (TrackInfo trackInfo : albumInfo.getTracks()) {
+                Track track = trackInfoToTrack(trackInfo);
+                track.setAlbum(album);
+                album.addTrack(track);
+            }
         }
         return album;
     }
@@ -154,11 +172,13 @@ public class InfoRequestData {
         if (track == null) {
             track = new Track();
         }
+        track.setId(mTomahawkApp.getUniqueTrackId());
+        track.setResolved(false);
+        track.setLocal(false);
         if (trackInfo.getArtist() != null) {
             track.setArtist(artistInfoToArtist(trackInfo.getArtist(), new Artist()));
         }
         if (trackInfo.getId() != null) {
-            track.setId(Long.valueOf(trackInfo.getId()));
         }
         if (trackInfo.getName() != null) {
             track.setName(trackInfo.getName());
@@ -177,8 +197,8 @@ public class InfoRequestData {
         if (artist == null) {
             artist = new Artist();
         }
+        artist.setId(mTomahawkApp.getUniqueArtistId());
         if (artistInfo.getId() != null) {
-            artist.setId(Long.valueOf(artistInfo.getId()));
         }
         if (artistInfo.getName() != null) {
             artist.setName(artistInfo.getName());
@@ -215,7 +235,8 @@ public class InfoRequestData {
             case INFOREQUESTDATA_TYPE_ARTISTINFO:
                 httpGet = new HttpGet(
                         InfoSystem.HATCHET_BASE_URL + "/" + InfoSystem.HATCHET_ARTIST_PATH + "/"
-                                + firstParam + "/" + InfoSystem.HATCHET_INFO_PATH);
+                                + "/" + InfoSystem.HATCHET_NAME_PATH + firstParam + "/"
+                                + InfoSystem.HATCHET_INFO_PATH);
                 break;
             case INFOREQUESTDATA_TYPE_USERINFO:
                 httpGet = new HttpGet(
@@ -269,8 +290,8 @@ public class InfoRequestData {
             case INFOREQUESTDATA_TYPE_ALBUMINFO:
                 httpGet = new HttpGet(
                         InfoSystem.HATCHET_BASE_URL + "/" + InfoSystem.HATCHET_ALBUM_PATH + "/"
-                                + firstParam + "/" + secondParam + "/"
-                                + InfoSystem.HATCHET_INFO_PATH);
+                                + "/" + InfoSystem.HATCHET_NAME_PATH + firstParam + "/"
+                                + secondParam + "/" + InfoSystem.HATCHET_INFO_PATH);
                 break;
             case INFOREQUESTDATA_TYPE_PLAYLISTINFO:
                 httpGet = new HttpGet(
