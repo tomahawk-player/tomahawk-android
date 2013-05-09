@@ -25,8 +25,6 @@ import org.tomahawk.libtomahawk.TomahawkListAdapter;
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.UserCollection;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
-import org.tomahawk.libtomahawk.hatchet.InfoRequestData;
-import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -36,10 +34,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
@@ -74,8 +69,6 @@ public class SearchableFragment extends TomahawkFragment
 
     private SearchableFragment mSearchableFragment = this;
 
-    private PipeLine mPipeline;
-
     private ArrayList<Track> mCurrentShownTracks;
 
     private ArrayList<Album> mCurrentShownAlbums;
@@ -84,47 +77,24 @@ public class SearchableFragment extends TomahawkFragment
 
     private String mCurrentQueryString;
 
-    private String mCurrentQueryId;
-
     private SearchableBroadcastReceiver mSearchableBroadcastReceiver;
 
     private Collection mCollection;
 
     private EditText mSearchEditText = null;
 
-    private Handler mAnimationHandler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_UPDATE_ANIMATION:
-                    if (mPipeline.isResolving()) {
-                        mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 500);
-                        mActivity.getSupportActionBar().setLogo(mProgressDrawable);
-                        mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
-                        mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
-                    } else {
-                        stopLoadingAnimation();
-                    }
-                    break;
-            }
-            return true;
-        }
-    });
-
-    private static final int MSG_UPDATE_ANIMATION = 0x20;
-
-    private Drawable mProgressDrawable;
-
     private class SearchableBroadcastReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(PipeLine.PIPELINE_RESULTSREPORTED)) {
-                mCurrentQueryId = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
-                mActivity.getContentViewer()
-                        .getBackStackAtPosition(TomahawkTabsActivity.TAB_ID_SEARCH)
-                        .get(0).queryString = mCurrentQueryString;
-                showQueryResults(mCurrentQueryId);
+                String queryId = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
+                if (mCorrespondingQueryIds.containsKey(queryId)) {
+                    mActivity.getContentViewer()
+                            .getBackStackAtPosition(TomahawkTabsActivity.TAB_ID_SEARCH)
+                            .get(0).queryString = mCurrentQueryString;
+                    showQueryResults(queryId);
+                }
             }
         }
     }
@@ -167,9 +137,6 @@ public class SearchableFragment extends TomahawkFragment
                 .findViewById(R.id.search_onlinesources_checkbox);
         onlineSourcesCheckBox.setOnCheckedChangeListener(this);
 
-        mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
-
-        mPipeline = ((TomahawkApp) mActivity.getApplication()).getPipeLine();
         if (mSearchableBroadcastReceiver == null) {
             mSearchableBroadcastReceiver = new SearchableBroadcastReceiver();
             IntentFilter intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED);
@@ -230,7 +197,7 @@ public class SearchableFragment extends TomahawkFragment
             } else if (getListAdapter().getItem(idx) instanceof Artist) {
                 mCollection.setCachedArtist((Artist) getListAdapter().getItem(idx));
                 mActivity.getContentViewer().
-                        replace(TomahawkTabsActivity.TAB_ID_SEARCH, TracksFragment.class, -1,
+                        replace(TomahawkTabsActivity.TAB_ID_SEARCH, AlbumsFragment.class, -1,
                                 UserCollection.USERCOLLECTION_ARTISTCACHED, false);
             }
         }
@@ -279,8 +246,7 @@ public class SearchableFragment extends TomahawkFragment
     }
 
     public void showQueryResults(String qid) {
-        PipeLine pipeLine = ((TomahawkApp) mActivity.getApplication()).getPipeLine();
-        Query query = pipeLine.getQuery(qid);
+        Query query = mPipeline.getQuery(qid);
         mCurrentQueryString = query.getFullTextQuery();
         List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                 = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
@@ -353,9 +319,11 @@ public class SearchableFragment extends TomahawkFragment
         mCurrentQueryString = fullTextQuery;
         CheckBox onlineSourcesCheckBox = (CheckBox) mActivity
                 .findViewById(R.id.search_onlinesources_checkbox);
-        PipeLine pipeLine = ((TomahawkApp) mActivity.getApplication()).getPipeLine();
-        pipeLine.resolve(fullTextQuery, !onlineSourcesCheckBox.isChecked());
-        startLoadingAnimation();
+        String queryId = mPipeline.resolve(fullTextQuery, !onlineSourcesCheckBox.isChecked());
+        if (queryId != null) {
+            mCorrespondingQueryIds.put(queryId, new Track());
+            startLoadingAnimation();
+        }
     }
 
     public void addToAutoCompleteArray(String newString) {
@@ -389,14 +357,5 @@ public class SearchableFragment extends TomahawkFragment
             myAList.add(sPrefs.getString("autocomplete_" + j, null));
         }
         return myAList;
-    }
-
-    public void startLoadingAnimation() {
-        mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
-    }
-
-    public void stopLoadingAnimation() {
-        mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
-        mActivity.getSupportActionBar().setLogo(R.drawable.ic_action_slidemenu);
     }
 }

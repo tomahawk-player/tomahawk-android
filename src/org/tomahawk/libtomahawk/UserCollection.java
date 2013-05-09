@@ -323,6 +323,8 @@ public class UserCollection extends Collection {
                 track.setName(cursor.getString(2));
                 track.setDuration(cursor.getLong(3));
                 track.setTrackNumber(cursor.getInt(4));
+                track.setResolved(true);
+                track.setLocal(true);
 
                 mTracks.put(track.getId(), track);
             }

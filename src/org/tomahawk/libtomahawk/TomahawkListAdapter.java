@@ -93,19 +93,19 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
             TomahawkBaseAdapter.TomahawkListItem contentHeaderTomahawkListItem) {
         mContentHeaderTomahawkListItem = contentHeaderTomahawkListItem;
         mShowContentHeader = showContentHeader;
-        if (list.getHeaderViewsCount() == 0) {
-            View contentHeaderView = mLayoutInflater.inflate(R.layout.content_header, null);
-            if (contentHeaderView != null) {
-                loadBitmap(contentHeaderTomahawkListItem,
-                        (ImageView) contentHeaderView.findViewById(R.id.content_header_image));
-                ((TextView) contentHeaderView.findViewById(R.id.content_header_textview))
-                        .setText(contentHeaderTomahawkListItem.getName());
-                if (contentHeaderTomahawkListItem.getArtist() != null
-                        && contentHeaderTomahawkListItem instanceof Album) {
-                    ((TextView) contentHeaderView.findViewById(R.id.content_header_textview2))
-                            .setText(contentHeaderTomahawkListItem.getArtist().getName());
-                }
+        View contentHeaderView = mLayoutInflater.inflate(R.layout.content_header, null);
+        if (contentHeaderView != null) {
+            loadBitmap(contentHeaderTomahawkListItem,
+                    (ImageView) contentHeaderView.findViewById(R.id.content_header_image));
+            ((TextView) contentHeaderView.findViewById(R.id.content_header_textview))
+                    .setText(contentHeaderTomahawkListItem.getName());
+            if (contentHeaderTomahawkListItem.getArtist() != null
+                    && contentHeaderTomahawkListItem instanceof Album) {
+                ((TextView) contentHeaderView.findViewById(R.id.content_header_textview2))
+                        .setText(contentHeaderTomahawkListItem.getArtist().getName());
             }
+        }
+        if (list.getHeaderViewsCount() == 0) {
             list.addHeaderView(contentHeaderView);
         }
     }
@@ -198,6 +198,15 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                     viewHolder.textThirdLine.setText(mActivity.getResources()
                             .getString(R.string.playbackactivity_seekbar_completion_time_string));
                 }
+                if (!((Track) item).isResolved()) {
+                    viewHolder.textFirstLine.setTextColor(R.color.disabled_grey);
+                    viewHolder.textSecondLine.setTextColor(R.color.disabled_grey);
+                    viewHolder.textThirdLine.setTextColor(R.color.disabled_grey);
+                } else {
+                    viewHolder.textFirstLine.setTextColor(R.color.plain_white);
+                    viewHolder.textSecondLine.setTextColor(R.color.plain_white);
+                    viewHolder.textThirdLine.setTextColor(R.color.plain_white);
+                }
             } else if (viewHolder.viewType
                     == R.id.tomahawklistadapter_viewtype_doublelineimagelistitem) {
                 if (item instanceof Album) {
@@ -212,6 +221,21 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
             } else if (viewHolder.viewType
                     == R.id.tomahawklistadapter_viewtype_doublelineplaystateimagelistitem) {
                 if (item instanceof Track) {
+                    if (!((Track) item).isResolved()) {
+                        viewHolder.textFirstLine.setTextColor(
+                                mActivity.getResources().getColor(R.color.disabled_grey));
+                        viewHolder.textSecondLine.setTextColor(
+                                mActivity.getResources().getColor(R.color.disabled_grey));
+                        viewHolder.textThirdLine.setTextColor(
+                                mActivity.getResources().getColor(R.color.disabled_grey));
+                    } else {
+                        viewHolder.textFirstLine.setTextColor(
+                                mActivity.getResources().getColor(R.color.plain_white));
+                        viewHolder.textSecondLine.setTextColor(
+                                mActivity.getResources().getColor(R.color.plain_white));
+                        viewHolder.textThirdLine.setTextColor(
+                                mActivity.getResources().getColor(R.color.plain_white));
+                    }
                     viewHolder.textFirstLine.setText(((Track) item).getName());
                     viewHolder.textSecondLine.setText(((Track) item).getArtist().getName());
                     if (((Track) item).getDuration() > 0) {
@@ -239,7 +263,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                             view.setBackgroundResource(R.drawable.selectable_background_tomahawk);
                         }
                     }
-                    if (mShowResolvedBy) {
+                    if (mShowResolvedBy && ((Track) item).isResolved()) {
                         ((SquareWidthRelativeLayout) viewHolder.imageViewRight.getParent())
                                 .setVisibility(SquareWidthRelativeLayout.VISIBLE);
                         Drawable resolverIcon = null;

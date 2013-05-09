@@ -79,17 +79,17 @@ public class PipeLine {
      * This will invoke every resolver to resolve the given fullTextQuery. If there already is a
      * Query with the same fullTextQuery, the old resultList will be reported.
      */
-    public void resolve(String fullTextQuery) {
-        resolve(fullTextQuery, false);
+    public String resolve(String fullTextQuery) {
+        return resolve(fullTextQuery, false);
     }
 
     /**
      * This will invoke every resolver to resolve the given fullTextQuery. If there already is a
      * Query with the same fullTextQuery, the old resultList will be reported.
      */
-    public void resolve(String fullTextQuery, boolean onlyLocal) {
+    public String resolve(String fullTextQuery, boolean onlyLocal) {
+        Query q = null;
         if (fullTextQuery != null && !TextUtils.isEmpty(fullTextQuery)) {
-            Query q = null;
             for (Query query : mQids.values()) {
                 if (query.getFullTextQuery() == fullTextQuery && query.isOnlyLocal() == onlyLocal) {
                     q = query;
@@ -109,6 +109,47 @@ public class PipeLine {
                 sendReportResultsBroadcast(q.getQid());
             }
         }
+        return q == null ? null : q.getQid();
+    }
+
+    /**
+     * This will invoke every resolver to resolve the given track/artist/album. If there already is
+     * a Query with the same track/artist/album, the old resultList will be reported.
+     */
+    public String resolve(String trackName, String albumName, String artistName) {
+        return resolve(trackName, albumName, artistName, false);
+    }
+
+    /**
+     * This will invoke every resolver to resolve the given track/artist/album. If there already is
+     * a Query with the same track/artist/album, the old resultList will be reported.
+     */
+    public String resolve(String trackName, String albumName, String artistName,
+            boolean onlyLocal) {
+        Query q = null;
+        if (trackName != null && !TextUtils.isEmpty(trackName)) {
+            for (Query query : mQids.values()) {
+                if (query.getTrackName() == trackName && query.getArtistName() == artistName
+                        && query.getAlbumName() == albumName && query.isOnlyLocal() == onlyLocal) {
+                    q = query;
+                }
+            }
+            if (q == null) {
+                q = new Query(mTomahawkApp.getUniqueQueryId(), trackName, albumName, artistName,
+                        onlyLocal);
+            }
+            if (!mQids.containsKey(q.getQid())) {
+                mQids.put(q.getQid(), q);
+                for (Resolver resolver : mResolvers) {
+                    if ((onlyLocal && resolver instanceof DataBaseResolver) || !onlyLocal) {
+                        resolver.resolve(q);
+                    }
+                }
+            } else if (q.isSolved()) {
+                sendReportResultsBroadcast(q.getQid());
+            }
+        }
+        return q.getQid();
     }
 
     /**
@@ -160,15 +201,15 @@ public class PipeLine {
             for (Result r : results) {
                 if (r != null) {
                     r.setTrackScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_TRACKS));
-                    if (q.isFullTextQuery() && r.getTrackScore() >= MINSCORE) {
+                    if (r.getTrackScore() >= MINSCORE) {
                         cleanTrackResults.add(r);
                     }
                     r.setAlbumScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_ALBUMS));
-                    if (q.isFullTextQuery() && r.getAlbumScore() >= MINSCORE) {
+                    if (r.getAlbumScore() >= MINSCORE) {
                         cleanAlbumResults.add(r);
                     }
                     r.setArtistScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_ARTISTS));
-                    if (q.isFullTextQuery() && r.getArtistScore() >= MINSCORE) {
+                    if (r.getArtistScore() >= MINSCORE) {
                         cleanArtistResults.add(r);
                     }
                 }

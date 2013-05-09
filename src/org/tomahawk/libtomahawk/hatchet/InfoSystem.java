@@ -143,6 +143,13 @@ public class InfoSystem {
                                             infoRequestData.mResult);
                                     doneRequestsIds.add(infoRequestData.getRequestId());
                                     break;
+                                case InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTALBUMS:
+                                    infoRequestData.mResult = new AlbumsInfo();
+                                    infoRequestData.mResult.parseInfo(rawInfo);
+                                    mCachedInfos.put(infoRequestData.getCacheKey(),
+                                            infoRequestData.mResult);
+                                    doneRequestsIds.add(infoRequestData.getRequestId());
+                                    break;
                                 case InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTINFO:
                                     infoRequestData.mResult = new ArtistInfo();
                                     infoRequestData.mResult.parseInfo(rawInfo);

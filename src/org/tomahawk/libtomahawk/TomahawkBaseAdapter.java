@@ -26,13 +26,18 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +45,8 @@ import java.util.List;
  * @author Enno Gottschalk <mrmaffen@googlemail.com>
  */
 public abstract class TomahawkBaseAdapter extends BaseAdapter {
+
+    private static final String TAG = TomahawkBaseAdapter.class.getName();
 
     protected Activity mActivity;
 
@@ -107,7 +114,22 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
         @Override
         protected Bitmap doInBackground(String... params) {
             data = params[0];
-            return BitmapFactory.decodeFile(data);
+            if (data.contains("http://")) {
+                try {
+                    URL url = new URL(data);
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setDoInput(true);
+                    connection.connect();
+                    InputStream input = connection.getInputStream();
+                    Bitmap myBitmap = BitmapFactory.decodeStream(input);
+                    return myBitmap;
+                } catch (IOException e) {
+                    Log.e(TAG, "doInBackground: " + e.getClass() + ": " + e.getLocalizedMessage());
+                    return null;
+                }
+            } else {
+                return BitmapFactory.decodeFile(data);
+            }
         }
 
         // Once complete, see if ImageView is still around and set bitmap.

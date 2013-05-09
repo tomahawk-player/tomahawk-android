@@ -78,6 +78,7 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
     }
 
     public Album() {
+        mTracks = new ConcurrentHashMap<Long, Track>();
     }
 
     public Album(long id) {

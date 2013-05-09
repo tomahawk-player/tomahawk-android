@@ -32,7 +32,9 @@ import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.UserCollection;
 import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
+import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
+import org.tomahawk.libtomahawk.resolver.PipeLine;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -40,8 +42,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.ContextMenu;
@@ -51,12 +55,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListAdapter;
-import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class TomahawkFragment extends SherlockFragment
         implements LoaderManager.LoaderCallbacks<Collection> {
@@ -71,10 +73,18 @@ public abstract class TomahawkFragment extends SherlockFragment
 
     public static final String TOMAHAWK_LIST_SCROLL_POSITION = "tomahawk_list_scroll_position";
 
-    private static IntentFilter sCollectionUpdateIntentFilter = new IntentFilter(
-            Collection.COLLECTION_UPDATED);
+    protected TomahawkApp mTomahawkApp;
 
-    private CollectionUpdateReceiver mCollectionUpdatedReceiver;
+    private TomahawkFragmentReceiver mTomahawkFragmentReceiver;
+
+    protected ArrayList<String> mCurrentRequestIds = new ArrayList<String>();
+
+    protected InfoSystem mInfoSystem;
+
+    protected PipeLine mPipeline;
+
+    protected ConcurrentHashMap<String, Track> mCorrespondingQueryIds
+            = new ConcurrentHashMap<String, Track>();
 
     private UserPlaylistsDataSource mUserPlaylistsDataSource;
 
@@ -94,6 +104,8 @@ public abstract class TomahawkFragment extends SherlockFragment
 
     protected CustomPlaylist mCustomPlaylist;
 
+    private Drawable mProgressDrawable;
+
     final private Handler mHandler = new Handler();
 
     final private Runnable mRequestFocus = new Runnable() {
@@ -105,10 +117,31 @@ public abstract class TomahawkFragment extends SherlockFragment
         }
     };
 
+    private Handler mAnimationHandler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_UPDATE_ANIMATION:
+                    if (mPipeline.isResolving()) {
+                        mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 500);
+                        mActivity.getSupportActionBar().setLogo(mProgressDrawable);
+                        mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
+                        mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
+                    } else {
+                        stopLoadingAnimation();
+                    }
+                    break;
+            }
+            return true;
+        }
+    });
+
+    private static final int MSG_UPDATE_ANIMATION = 0x20;
+
     /**
      * Handles incoming {@link Collection} updated broadcasts.
      */
-    private class CollectionUpdateReceiver extends BroadcastReceiver {
+    private class TomahawkFragmentReceiver extends BroadcastReceiver {
 
         /*
          * (non-Javadoc)
@@ -137,6 +170,9 @@ public abstract class TomahawkFragment extends SherlockFragment
                 && getArguments().getInt(TOMAHAWK_LIST_SCROLL_POSITION) > 0) {
             mListScrollPosition = getArguments().getInt(TOMAHAWK_LIST_SCROLL_POSITION);
         }
+        mTomahawkApp = ((TomahawkApp) mActivity.getApplication());
+        mInfoSystem = mTomahawkApp.getInfoSystem();
+        mPipeline = mTomahawkApp.getPipeLine();
     }
 
     /*
@@ -180,15 +216,17 @@ public abstract class TomahawkFragment extends SherlockFragment
     public void onResume() {
         super.onResume();
 
+        mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
+
         adaptColumnCount();
 
         getSherlockActivity().getSupportLoaderManager().destroyLoader(getId());
         getSherlockActivity().getSupportLoaderManager().initLoader(getId(), null, this);
 
-        if (mCollectionUpdatedReceiver == null) {
-            mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
-            getActivity()
-                    .registerReceiver(mCollectionUpdatedReceiver, sCollectionUpdateIntentFilter);
+        if (mTomahawkFragmentReceiver == null) {
+            mTomahawkFragmentReceiver = new TomahawkFragmentReceiver();
+            IntentFilter intentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
+            getActivity().registerReceiver(mTomahawkFragmentReceiver, intentFilter);
         }
         if (mTomahawkBaseAdapter instanceof TomahawkGridAdapter) {
             getGridView().setSelection(mListScrollPosition);
@@ -197,7 +235,7 @@ public abstract class TomahawkFragment extends SherlockFragment
         }
 
         mUserPlaylistsDataSource = new UserPlaylistsDataSource(mActivity,
-                ((TomahawkApp) mActivity.getApplication()).getPipeLine());
+                mTomahawkApp.getPipeLine());
         mUserPlaylistsDataSource.open();
     }
 
@@ -210,9 +248,9 @@ public abstract class TomahawkFragment extends SherlockFragment
     public void onPause() {
         super.onPause();
 
-        if (mCollectionUpdatedReceiver != null) {
-            getActivity().unregisterReceiver(mCollectionUpdatedReceiver);
-            mCollectionUpdatedReceiver = null;
+        if (mTomahawkFragmentReceiver != null) {
+            getActivity().unregisterReceiver(mTomahawkFragmentReceiver);
+            mTomahawkFragmentReceiver = null;
         }
         if (mUserPlaylistsDataSource != null) {
             mUserPlaylistsDataSource.close();
@@ -273,8 +311,8 @@ public abstract class TomahawkFragment extends SherlockFragment
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        UserCollection userCollection = ((UserCollection) ((TomahawkApp) mActivity.getApplication())
-                .getSourceList().getCollectionFromId(UserCollection.Id));
+        UserCollection userCollection = ((UserCollection) mTomahawkApp.getSourceList()
+                .getCollectionFromId(UserCollection.Id));
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
                 .getMenuInfo();
         TomahawkBaseAdapter.TomahawkListItem tomahawkListItem;
@@ -550,5 +588,14 @@ public abstract class TomahawkFragment extends SherlockFragment
             return getGridView().getFirstVisiblePosition();
         }
         return mListScrollPosition = getListView().getFirstVisiblePosition();
+    }
+
+    public void startLoadingAnimation() {
+        mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
+    }
+
+    public void stopLoadingAnimation() {
+        mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
+        mActivity.getSupportActionBar().setLogo(R.drawable.ic_action_slidemenu);
     }
 }

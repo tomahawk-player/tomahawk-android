@@ -17,6 +17,7 @@
  */
 package org.tomahawk.libtomahawk;
 
+import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -199,6 +200,11 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
     }
 
     public void setResolver(Resolver resolver) {
+        if (!(resolver instanceof DataBaseResolver)) {
+            setLocal(false);
+        } else {
+            setLocal(true);
+        }
         this.mResolver = resolver;
     }
 
