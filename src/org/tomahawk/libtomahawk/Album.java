@@ -17,10 +17,14 @@
  */
 package org.tomahawk.libtomahawk;
 
+import org.tomahawk.tomahawk_android.R;
+
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.v4.util.LruCache;
+import android.widget.ImageView;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,11 +32,11 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Class which represents a Tomahawk Album.
  */
-public class Album implements TomahawkBaseAdapter.TomahawkListItem {
+public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkListItem {
+
+    private static final String TAG = Album.class.getName();
 
     private static ConcurrentHashMap<Long, Album> sAlbums = new ConcurrentHashMap<Long, Album>();
-
-    private static CoverCache sCoverCache;
 
     private ConcurrentHashMap<Long, Track> mTracks;
 
@@ -40,7 +44,9 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
 
     private String mName;
 
-    private String mAlbumArt;
+    private String mAlbumArtPath;
+
+    private static Bitmap sAlbumPlaceHolderBitmap;
 
     private String mFirstYear;
 
@@ -49,33 +55,6 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
     private Artist mArtist;
 
     private float mScore;
-
-    /**
-     * Cache album cover art.
-     */
-    private static class CoverCache extends LruCache<String, Bitmap> {
-
-        private static final BitmapFactory.Options sBitmapOptions = new BitmapFactory.Options();
-
-        static {
-            sBitmapOptions.inPreferredConfig = Bitmap.Config.RGB_565;
-            sBitmapOptions.inDither = false;
-        }
-
-        public CoverCache() {
-            super(4 * 1024 * 1024);
-        }
-
-        @Override
-        public Bitmap create(String path) {
-            return BitmapFactory.decodeFile(path, sBitmapOptions);
-        }
-
-        @Override
-        protected int sizeOf(String key, Bitmap value) {
-            return value.getRowBytes() * value.getHeight();
-        }
-    }
 
     public Album() {
         mTracks = new ConcurrentHashMap<Long, Track>();
@@ -168,25 +147,68 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
         mName = name;
     }
 
-    public Bitmap getAlbumArt() {
-
-        if (mAlbumArt == null) {
-            return null;
-        }
-
-        if (sCoverCache == null) {
-            sCoverCache = new CoverCache();
-        }
-
-        return sCoverCache.get(mAlbumArt);
-    }
-
     public String getAlbumArtPath() {
-        return mAlbumArt;
+        return mAlbumArtPath;
     }
 
-    public void setAlbumArt(String albumArt) {
-        mAlbumArt = albumArt;
+    public void setAlbumArtPath(String albumArt) {
+        mAlbumArtPath = albumArt;
+    }
+
+    /**
+     * Load a {@link android.graphics.Bitmap} asynchronously
+     *
+     * @param context     the context needed for fetching resources
+     * @param asyncBitmap the {@link android.widget.ImageView}, which will be used to show the
+     *                    {@link android.graphics.Bitmap}
+     */
+    public void loadBitmap(Context context, AsyncBitmap asyncBitmap) {
+        Bitmap placeHolderBitmap;
+        String pathToBitmap;
+        if (sAlbumPlaceHolderBitmap == null) {
+            sAlbumPlaceHolderBitmap = BitmapFactory
+                    .decodeResource(context.getResources(), R.drawable.no_album_art_placeholder);
+        }
+        placeHolderBitmap = sAlbumPlaceHolderBitmap;
+        pathToBitmap = getAlbumArtPath();
+        if (pathToBitmap != null) {
+            if (cancelPotentialWork(pathToBitmap, asyncBitmap)) {
+                final BitmapWorkerTask task = new BitmapWorkerTask(context, asyncBitmap);
+                asyncBitmap.setBitmapWorkerTaskReference(new WeakReference<BitmapWorkerTask>(task));
+                task.execute(getAlbumArtPath());
+            }
+        } else {
+            asyncBitmap.bitmap = placeHolderBitmap;
+        }
+    }
+
+    /**
+     * Load a {@link android.graphics.Bitmap} asynchronously
+     *
+     * @param context   the context needed for fetching resources
+     * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
+     *                  android.graphics.Bitmap}
+     */
+    public void loadBitmap(Context context, ImageView imageView) {
+        Bitmap placeHolderBitmap;
+        String pathToBitmap;
+        if (sAlbumPlaceHolderBitmap == null) {
+            sAlbumPlaceHolderBitmap = BitmapFactory
+                    .decodeResource(context.getResources(), R.drawable.no_album_art_placeholder);
+        }
+        placeHolderBitmap = sAlbumPlaceHolderBitmap;
+        pathToBitmap = getAlbumArtPath();
+        if (pathToBitmap != null) {
+            if (cancelPotentialWork(pathToBitmap, imageView)) {
+                final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
+                final AsyncDrawable asyncDrawable = new AsyncDrawable(context.getResources(),
+                        placeHolderBitmap, task);
+                imageView.setImageDrawable(asyncDrawable);
+                task.execute(getAlbumArtPath());
+            }
+        } else {
+            imageView.setImageBitmap(placeHolderBitmap);
+        }
     }
 
     public String getFirstYear() {

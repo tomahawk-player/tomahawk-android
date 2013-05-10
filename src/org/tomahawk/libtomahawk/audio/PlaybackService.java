@@ -18,6 +18,7 @@
  */
 package org.tomahawk.libtomahawk.audio;
 
+import org.tomahawk.libtomahawk.BitmapItem;
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.UserCollection;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
@@ -117,7 +118,9 @@ public class PlaybackService extends Service
 
     private Handler mHandler;
 
-    private UserPlaylistsDataSource userPlaylistsDataSource;
+    private UserPlaylistsDataSource mUserPlaylistsDataSource;
+
+    private BitmapItem.AsyncBitmap mNotificationAsyncBitmap = new BitmapItem.AsyncBitmap(null);
 
     public static class PlaybackServiceConnection implements ServiceConnection {
 
@@ -220,6 +223,11 @@ public class PlaybackService extends Service
                 if (!isPlaying() && playbackOnHeadsetInsert) {
                     start();
                 }
+            } else if (intent.getAction().equals(BitmapItem.BITMAPITEM_BITMAPLOADED)) {
+                if (intent.getStringExtra(BitmapItem.BITMAPITEM_BITMAPLOADED_PATH)
+                        .equals(mCurrentPlaylist.getCurrentTrack().getAlbum().getAlbumArtPath())) {
+                    updatePlayingNotification();
+                }
             }
         }
     }
@@ -291,14 +299,16 @@ public class PlaybackService extends Service
         registerReceiver(mServiceBroadcastReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
         registerReceiver(mServiceBroadcastReceiver,
                 new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
+        registerReceiver(mServiceBroadcastReceiver,
+                new IntentFilter(BitmapItem.BITMAPITEM_BITMAPLOADED));
 
         mKillTimerHandler.removeCallbacksAndMessages(null);
         Message msg = mKillTimerHandler.obtainMessage();
         mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
 
-        userPlaylistsDataSource = new UserPlaylistsDataSource(this,
+        mUserPlaylistsDataSource = new UserPlaylistsDataSource(this,
                 ((TomahawkApp) getApplication()).getPipeLine());
-        userPlaylistsDataSource.open();
+        mUserPlaylistsDataSource.open();
 
         initMediaPlayer();
         restoreState();
@@ -346,7 +356,7 @@ public class PlaybackService extends Service
     public void onDestroy() {
         pause(true);
         saveState();
-        userPlaylistsDataSource.close();
+        mUserPlaylistsDataSource.close();
         unregisterReceiver(mServiceBroadcastReceiver);
         mTomahawkMediaPlayer.release();
         mTomahawkMediaPlayer = null;
@@ -433,7 +443,7 @@ public class PlaybackService extends Service
                     .fromTrackList(UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
                             getCurrentPlaylist().getTracks()));
             long startTime = System.currentTimeMillis();
-            userPlaylistsDataSource.storeCachedUserPlaylist(getCurrentPlaylist());
+            mUserPlaylistsDataSource.storeCachedUserPlaylist(getCurrentPlaylist());
             Log.d(TAG, "Playlist stored in " + (System.currentTimeMillis() - startTime) + "ms");
         }
     }
@@ -448,7 +458,7 @@ public class PlaybackService extends Service
             setCurrentPlaylist(userCollection.getCachedCustomPlaylist());
             if (getCurrentPlaylist() == null) {
                 long startTime = System.currentTimeMillis();
-                setCurrentPlaylist(userPlaylistsDataSource.getCachedUserPlaylist());
+                setCurrentPlaylist(mUserPlaylistsDataSource.getCachedUserPlaylist());
                 Log.d(TAG, "Playlist loaded in " + (System.currentTimeMillis() - startTime) + "ms");
             }
         } catch (IOException e) {
@@ -650,6 +660,7 @@ public class PlaybackService extends Service
      * This method sets the current track and prepares it for playback.
      */
     public void setCurrentTrack(final Track track) throws IOException {
+        mNotificationAsyncBitmap.bitmap = null;
         if (mTomahawkMediaPlayer != null && track != null) {
             Runnable releaseRunnable = new Runnable() {
                 @Override
@@ -810,8 +821,14 @@ public class PlaybackService extends Service
         if (track.getArtist() != null) {
             artistName = track.getArtist().getName();
         }
-        if (track.getAlbum() != null && track.getAlbum().getAlbumArt() != null) {
-            albumArtTemp = track.getAlbum().getAlbumArt();
+        if (track.getAlbum() != null) {
+            if (mNotificationAsyncBitmap.bitmap != null) {
+                albumArtTemp = mNotificationAsyncBitmap.bitmap;
+            } else {
+                track.getAlbum().loadBitmap(this, mNotificationAsyncBitmap);
+                albumArtTemp = BitmapFactory
+                        .decodeResource(resources, R.drawable.no_album_art_placeholder);
+            }
         } else {
             albumArtTemp = BitmapFactory
                     .decodeResource(resources, R.drawable.no_album_art_placeholder);

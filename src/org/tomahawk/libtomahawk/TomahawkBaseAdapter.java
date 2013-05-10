@@ -60,10 +60,6 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
 
     protected List<List<TomahawkListItem>> mFilteredListArray;
 
-    private Bitmap mAlbumPlaceHolderBitmap;
-
-    private Bitmap mArtistPlaceHolderBitmap;
-
     /**
      * This interface represents an item displayed in our {@link Collection} list.
      */
@@ -83,70 +79,6 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
          * @return the corresponding {@link Album}
          */
         public Album getAlbum();
-    }
-
-    static class AsyncDrawable extends BitmapDrawable {
-
-        private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
-
-        public AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerTask bitmapWorkerTask) {
-            super(res, bitmap);
-            bitmapWorkerTaskReference = new WeakReference<BitmapWorkerTask>(bitmapWorkerTask);
-        }
-
-        public BitmapWorkerTask getBitmapWorkerTask() {
-            return bitmapWorkerTaskReference.get();
-        }
-    }
-
-    public class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
-
-        private final WeakReference<ImageView> imageViewReference;
-
-        private String data;
-
-        public BitmapWorkerTask(ImageView imageView) {
-            // Use a WeakReference to ensure the ImageView can be garbage collected
-            imageViewReference = new WeakReference<ImageView>(imageView);
-        }
-
-        // Decode image in background.
-        @Override
-        protected Bitmap doInBackground(String... params) {
-            data = params[0];
-            if (data.contains("http://")) {
-                try {
-                    URL url = new URL(data);
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setDoInput(true);
-                    connection.connect();
-                    InputStream input = connection.getInputStream();
-                    Bitmap myBitmap = BitmapFactory.decodeStream(input);
-                    return myBitmap;
-                } catch (IOException e) {
-                    Log.e(TAG, "doInBackground: " + e.getClass() + ": " + e.getLocalizedMessage());
-                    return null;
-                }
-            } else {
-                return BitmapFactory.decodeFile(data);
-            }
-        }
-
-        // Once complete, see if ImageView is still around and set bitmap.
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            if (isCancelled()) {
-                bitmap = null;
-            }
-
-            if (imageViewReference != null && bitmap != null) {
-                final ImageView imageView = imageViewReference.get();
-                final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
-                if (this == bitmapWorkerTask && imageView != null) {
-                    imageView.setImageBitmap(bitmap);
-                }
-            }
-        }
     }
 
     /**
@@ -346,77 +278,6 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
      */
     public void setFiltered(boolean filtered) {
         this.mFiltered = filtered;
-    }
-
-    /**
-     * Load a {@link Bitmap} asynchronously
-     *
-     * @param item      the item for which the corresponding {@link Bitmap} should be loaded
-     * @param imageView the {@link ImageView}, which will be used to show the {@link Bitmap}
-     */
-    public void loadBitmap(TomahawkListItem item, ImageView imageView) {
-        Bitmap placeHolderBitmap = null;
-        String pathToBitmap = null;
-        if (item instanceof Artist) {
-            if (mArtistPlaceHolderBitmap == null) {
-                mArtistPlaceHolderBitmap = BitmapFactory
-                        .decodeResource(mActivity.getResources(), R.drawable.no_artist_placeholder);
-            }
-            placeHolderBitmap = mArtistPlaceHolderBitmap;
-        } else if (item instanceof Album) {
-            if (mAlbumPlaceHolderBitmap == null) {
-                mAlbumPlaceHolderBitmap = BitmapFactory.decodeResource(mActivity.getResources(),
-                        R.drawable.no_album_art_placeholder);
-            }
-            placeHolderBitmap = mAlbumPlaceHolderBitmap;
-            pathToBitmap = ((Album) item).getAlbumArtPath();
-        }
-        if (pathToBitmap != null) {
-            if (cancelPotentialWork(pathToBitmap, imageView)) {
-                final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
-                final AsyncDrawable asyncDrawable = new AsyncDrawable(mActivity.getResources(),
-                        placeHolderBitmap, task);
-                imageView.setImageDrawable(asyncDrawable);
-                task.execute(((Album) item).getAlbumArtPath());
-            }
-        } else {
-            imageView.setImageBitmap(placeHolderBitmap);
-        }
-    }
-
-    /**
-     * Checks if another running task is already associated with the {@link ImageView}
-     */
-    public static boolean cancelPotentialWork(String data, ImageView imageView) {
-        final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
-
-        if (bitmapWorkerTask != null) {
-            final String bitmapData = bitmapWorkerTask.data;
-            if (bitmapData != data) {
-                // Cancel previous task
-                bitmapWorkerTask.cancel(true);
-            } else {
-                // The same work is already in progress
-                return false;
-            }
-        }
-        // No task associated with the ImageView, or an existing task was cancelled
-        return true;
-    }
-
-    /**
-     * Used to get the {@link BitmapWorkerTask}, which is used to asynchronously load a {@link
-     * Bitmap} into to {@link ImageView}
-     */
-    public static BitmapWorkerTask getBitmapWorkerTask(ImageView imageView) {
-        if (imageView != null) {
-            final Drawable drawable = imageView.getDrawable();
-            if (drawable instanceof AsyncDrawable) {
-                final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
-                return asyncDrawable.getBitmapWorkerTask();
-            }
-        }
-        return null;
     }
 
     /**

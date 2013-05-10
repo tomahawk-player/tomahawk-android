@@ -304,7 +304,7 @@ public class UserCollection extends Collection {
 
                 if (albumcursor != null && albumcursor.moveToNext()) {
 
-                    album.setAlbumArt(albumcursor.getString(0));
+                    album.setAlbumArtPath(albumcursor.getString(0));
                     album.setFirstYear(albumcursor.getString(1));
                     album.setLastYear(albumcursor.getString(2));
 

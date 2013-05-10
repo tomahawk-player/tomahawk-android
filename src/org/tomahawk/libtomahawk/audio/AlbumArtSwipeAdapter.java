@@ -21,7 +21,6 @@ import org.tomahawk.libtomahawk.playlist.Playlist;
 import org.tomahawk.tomahawk_android.R;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -72,28 +71,23 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      */
     @Override
     public Object instantiateItem(View collection, int position) {
-        ImageView albumArt = new ImageView(mContext);
+        ImageView albumArtImageView = new ImageView(mContext);
         if (mPlaylist != null && mPlaylist.getCount() > 0) {
-            Bitmap albumArtBitmap = null;
             if (mPlaylist.isRepeating()
                     && mPlaylist.peekTrackAtPos((position) % mPlaylist.getCount()).getAlbum()
                     != null) {
-                albumArtBitmap = mPlaylist.peekTrackAtPos((position) % mPlaylist.getCount())
-                        .getAlbum().getAlbumArt();
+                mPlaylist.peekTrackAtPos((position) % mPlaylist.getCount()).getAlbum()
+                        .loadBitmap(mContext, albumArtImageView);
             } else if (!mPlaylist.isRepeating()
                     && mPlaylist.peekTrackAtPos(position).getAlbum() != null) {
-                albumArtBitmap = mPlaylist.peekTrackAtPos(position).getAlbum().getAlbumArt();
-            }
-            if (albumArtBitmap != null) {
-                albumArt.setImageBitmap(albumArtBitmap);
-            } else {
-                albumArt.setImageResource(R.drawable.no_album_art_placeholder);
+                mPlaylist.peekTrackAtPos(position).getAlbum()
+                        .loadBitmap(mContext, albumArtImageView);
             }
         } else {
-            albumArt.setImageResource(R.drawable.no_album_art_placeholder);
+            albumArtImageView.setImageResource(R.drawable.no_album_art_placeholder);
         }
-        ((ViewPager) collection).addView(albumArt);
-        return albumArt;
+        ((ViewPager) collection).addView(albumArtImageView);
+        return albumArtImageView;
     }
 
     /*

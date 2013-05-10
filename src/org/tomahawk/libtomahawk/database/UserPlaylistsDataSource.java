@@ -204,7 +204,7 @@ public class UserPlaylistsDataSource {
                 if (albumsCursor.moveToFirst()) {
                     Album album = new Album();
                     album.setName(albumsCursor.getString(1));
-                    album.setAlbumArt(albumsCursor.getString(2));
+                    album.setAlbumArtPath(albumsCursor.getString(2));
                     album.setFirstYear(albumsCursor.getString(3));
                     album.setLastYear(albumsCursor.getString(4));
                     track.setAlbum(album);

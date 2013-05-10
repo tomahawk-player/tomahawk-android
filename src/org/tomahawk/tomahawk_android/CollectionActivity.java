@@ -34,7 +34,6 @@ import org.tomahawk.libtomahawk.audio.PlaybackActivity;
 import org.tomahawk.libtomahawk.audio.PlaybackService;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
-import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
 
 import android.app.Activity;
@@ -43,7 +42,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -473,18 +471,9 @@ public class CollectionActivity extends TomahawkTabsActivity
                     .findViewById(R.id.now_playing_title);
 
             if (track != null) {
-                Bitmap albumArt = null;
-                if (track.getAlbum() != null) {
-                    albumArt = track.getAlbum().getAlbumArt();
-                }
                 if (nowPlayingInfoAlbumArt != null && nowPlayingInfoArtist != null
                         && nowPlayingInfoTitle != null) {
-                    if (albumArt != null) {
-                        nowPlayingInfoAlbumArt.setImageBitmap(albumArt);
-                    } else {
-                        nowPlayingInfoAlbumArt.setImageDrawable(
-                                getResources().getDrawable(R.drawable.no_album_art_placeholder));
-                    }
+                    track.getAlbum().loadBitmap(this, nowPlayingInfoAlbumArt);
                     nowPlayingInfoArtist.setText(track.getArtist().toString());
                     nowPlayingInfoTitle.setText(track.getName());
                     nowPlayingInfoAlbumArt.setVisibility(View.VISIBLE);
