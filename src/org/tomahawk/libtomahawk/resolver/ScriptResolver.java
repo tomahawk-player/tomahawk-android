@@ -27,6 +27,9 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.webkit.WebSettings;
 
@@ -80,6 +83,8 @@ public class ScriptResolver implements Resolver {
     private boolean mReady;
 
     private boolean mStopped;
+
+    private Handler UiThreadHandler;
 
     public ScriptResolver(int id, TomahawkApp tomahawkApp, String scriptPath) {
         mReady = false;
@@ -155,25 +160,50 @@ public class ScriptResolver implements Resolver {
      * This method calls the js function resolver.init().
      */
     private void resolverInit() {
-        mScriptEngine.loadUrl("javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
-                R.id.scriptresolver_resolver_init, "resolver.init()", false));
+        UiThreadHandler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message inputMessage) {
+                mScriptEngine.loadUrl(
+                        "javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
+                                R.id.scriptresolver_resolver_init, "resolver.init()", false));
+            }
+        };
+        Message message = UiThreadHandler.obtainMessage();
+        message.sendToTarget();
     }
 
     /**
      * This method tries to get the resolver's settings.
      */
     private void resolverSettings() {
-        mScriptEngine.loadUrl("javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
-                R.id.scriptresolver_resolver_settings,
-                "resolver.settings ? resolver.settings : getSettings() ", true));
+        UiThreadHandler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message inputMessage) {
+                mScriptEngine.loadUrl(
+                        "javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
+                                R.id.scriptresolver_resolver_settings,
+                                "resolver.settings ? resolver.settings : getSettings() ", true));
+            }
+        };
+        Message message = UiThreadHandler.obtainMessage();
+        message.sendToTarget();
     }
 
     /**
      * This method tries to get the resolver's UserConfig.
      */
     private void resolverUserConfig() {
-        mScriptEngine.loadUrl("javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
-                R.id.scriptresolver_resolver_userconfig, "resolver.getUserConfig()", true));
+        UiThreadHandler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message inputMessage) {
+                mScriptEngine.loadUrl(
+                        "javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
+                                R.id.scriptresolver_resolver_userconfig, "resolver.getUserConfig()",
+                                true));
+            }
+        };
+        Message message = UiThreadHandler.obtainMessage();
+        message.sendToTarget();
     }
 
     /**
@@ -184,41 +214,50 @@ public class ScriptResolver implements Resolver {
      * @param id  used to identify which function did the callback
      * @param obj the JSONObject containing the result information. Can be null
      */
-    public void handleCallbackToJava(int id, JSONObject obj) {
-        String s = "null";
-        if (obj != null) {
-            s = obj.toString();
-        }
-        Log.d(TAG,
-                "handleCallbackToJava: id='" + mTomahawkApp.getResources().getResourceEntryName(id)
-                        + "(" + id + ")" + "', result='" + s + "'");
-        try {
-            if (id == R.id.scriptresolver_resolver_settings) {
-                mName = obj.getString("name");
-                mWeight = obj.getInt("weight");
-                mTimeout = obj.getInt("timeout") * 1000;
-                String[] tokens = getScriptFilePath().split("/");
-                String basepath = "";
-                for (int i = 0; i < tokens.length - 1; i++) {
-                    basepath += tokens[i];
-                    basepath += "/";
+    public void handleCallbackToJava(final int id, final JSONObject obj) {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                String s = "null";
+                if (obj != null) {
+                    s = obj.toString();
                 }
-                mIcon = Drawable.createFromStream(
-                        mTomahawkApp.getAssets().open(basepath + obj.getString("icon")), null);
-            } else if (id == R.id.scriptresolver_resolver_userconfig) {
-            } else if (id == R.id.scriptresolver_resolver_init) {
-                resolverSettings();
-            } else if (id == R.id.scriptresolver_add_track_results_string) {
-                String qid = obj.get("qid").toString();
-                JSONArray resultList = obj.getJSONArray("results");
-                mTomahawkApp.getPipeLine().reportResults(qid, parseResultList(resultList));
-                mStopped = true;
+                Log.d(TAG, "handleCallbackToJava: id='" + mTomahawkApp.getResources()
+                        .getResourceEntryName(id) + "(" + id + ")" + "', result='" + s + "'");
+                try {
+                    if (id == R.id.scriptresolver_resolver_settings) {
+                        mName = obj.getString("name");
+                        mWeight = obj.getInt("weight");
+                        mTimeout = obj.getInt("timeout") * 1000;
+                        String[] tokens = getScriptFilePath().split("/");
+                        String basepath = "";
+                        for (int i = 0; i < tokens.length - 1; i++) {
+                            basepath += tokens[i];
+                            basepath += "/";
+                        }
+                        mIcon = Drawable.createFromStream(
+                                mTomahawkApp.getAssets().open(basepath + obj.getString("icon")),
+                                null);
+                    } else if (id == R.id.scriptresolver_resolver_userconfig) {
+                    } else if (id == R.id.scriptresolver_resolver_init) {
+                        resolverSettings();
+                    } else if (id == R.id.scriptresolver_add_track_results_string) {
+                        String qid = obj.get("qid").toString();
+                        JSONArray resultList = obj.getJSONArray("results");
+                        mTomahawkApp.getPipeLine().reportResults(qid, parseResultList(resultList));
+                        mStopped = true;
+                    }
+                } catch (JSONException e) {
+                    Log.e(TAG, "handleCallbackToJava: " + e.getClass() + ": " + e
+                            .getLocalizedMessage());
+                } catch (IOException e) {
+                    Log.e(TAG, "handleCallbackToJava: " + e.getClass() + ": " + e
+                            .getLocalizedMessage());
+                }
             }
-        } catch (JSONException e) {
-            Log.e(TAG, "handleCallbackToJava: " + e.getClass() + ": " + e.getLocalizedMessage());
-        } catch (IOException e) {
-            Log.e(TAG, "handleCallbackToJava: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
+        };
+        Thread t = new Thread(r);
+        t.start();
     }
 
     /**
@@ -226,6 +265,7 @@ public class ScriptResolver implements Resolver {
      *
      * @param query the query which should be resolved
      */
+
     public void resolve(Query query) {
         mStopped = false;
         if (!query.isFullTextQuery()) {

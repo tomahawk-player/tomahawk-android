@@ -192,39 +192,58 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(items);
-            tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
-            tomahawkListAdapter.setShowResolvedBy(true);
-            tomahawkListAdapter.setShowCategoryHeaders(true);
-            tomahawkListAdapter.setShowContentHeader(true, mList, mAlbum);
+            if (getListAdapter() == null) {
+                tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
+                tomahawkListAdapter.setShowResolvedBy(true);
+                tomahawkListAdapter.setShowCategoryHeaders(true);
+                tomahawkListAdapter.setShowContentHeader(true, mList, mAlbum);
+                setListAdapter(tomahawkListAdapter);
+            } else {
+                mTomahawkBaseAdapter.setListArray(listArray);
+            }
         } else if (mArtist != null) {
             items.addAll(mArtist.getTracks());
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(items);
-            tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
-            tomahawkListAdapter.setShowResolvedBy(true);
-            tomahawkListAdapter.setShowCategoryHeaders(true);
-            tomahawkListAdapter.setShowContentHeader(true, mList, mArtist);
+            if (getListAdapter() == null) {
+                tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
+                tomahawkListAdapter.setShowResolvedBy(true);
+                tomahawkListAdapter.setShowCategoryHeaders(true);
+                tomahawkListAdapter.setShowContentHeader(true, mList, mArtist);
+                setListAdapter(tomahawkListAdapter);
+            } else {
+                mTomahawkBaseAdapter.setListArray(listArray);
+            }
         } else if (mCustomPlaylist != null) {
             mCustomPlaylist = coll.getCustomPlaylistById(mCustomPlaylist.getId());
             items.addAll(mCustomPlaylist.getTracks());
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(items);
-            tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
-            tomahawkListAdapter.setShowResolvedBy(true);
-            tomahawkListAdapter.setShowCategoryHeaders(true);
-            tomahawkListAdapter.setShowContentHeader(true, mList, mArtist);
+            if (getListAdapter() == null) {
+                tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
+                tomahawkListAdapter.setShowResolvedBy(true);
+                tomahawkListAdapter.setShowCategoryHeaders(true);
+                tomahawkListAdapter.setShowContentHeader(true, mList, mArtist);
+                setListAdapter(tomahawkListAdapter);
+            } else {
+                mTomahawkBaseAdapter.setListArray(listArray);
+            }
         } else {
             items.addAll(coll.getTracks());
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(items);
-            tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
-            getListView().setAreHeadersSticky(false);
+            if (getListAdapter() == null) {
+                tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
+                getListView().setAreHeadersSticky(false);
+                setListAdapter(tomahawkListAdapter);
+            } else {
+                mTomahawkBaseAdapter.setListArray(listArray);
+            }
         }
 
-        setListAdapter(tomahawkListAdapter);
         getListView().setOnItemClickListener(this);
     }
 
