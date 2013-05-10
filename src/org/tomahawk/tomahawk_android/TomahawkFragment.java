@@ -73,6 +73,10 @@ public abstract class TomahawkFragment extends SherlockFragment
 
     public static final String TOMAHAWK_LIST_SCROLL_POSITION = "tomahawk_list_scroll_position";
 
+    public static final String TOMAHAWK_TAB_ID = "tomahawk_tab_id";
+
+    public static final String TOMAHAWK_QUERY_IDS = "tomahawk_query_ids";
+
     protected TomahawkApp mTomahawkApp;
 
     private TomahawkFragmentReceiver mTomahawkFragmentReceiver;
@@ -95,6 +99,8 @@ public abstract class TomahawkFragment extends SherlockFragment
     TomahawkStickyListHeadersListView mList;
 
     GridView mGrid;
+
+    protected int mCorrespondingStackId;
 
     private int mListScrollPosition = 0;
 
@@ -166,9 +172,21 @@ public abstract class TomahawkFragment extends SherlockFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null && getArguments().containsKey(TOMAHAWK_LIST_SCROLL_POSITION)
-                && getArguments().getInt(TOMAHAWK_LIST_SCROLL_POSITION) > 0) {
-            mListScrollPosition = getArguments().getInt(TOMAHAWK_LIST_SCROLL_POSITION);
+        if (getArguments() != null) {
+            if (getArguments().containsKey(TOMAHAWK_LIST_SCROLL_POSITION)
+                    && getArguments().getInt(TOMAHAWK_LIST_SCROLL_POSITION) > 0) {
+                mListScrollPosition = getArguments().getInt(TOMAHAWK_LIST_SCROLL_POSITION);
+            }
+            if (getArguments().containsKey(TOMAHAWK_TAB_ID)
+                    && getArguments().getInt(TOMAHAWK_TAB_ID) > 0) {
+                mCorrespondingStackId = getArguments().getInt(TOMAHAWK_TAB_ID);
+            }
+            if (getArguments().containsKey(TOMAHAWK_QUERY_IDS)
+                    && getArguments().getIntegerArrayList(TOMAHAWK_QUERY_IDS) != null) {
+                for (String string : getArguments().getStringArrayList(TOMAHAWK_QUERY_IDS)) {
+                    mCorrespondingQueryIds.put(string, new Track());
+                }
+            }
         }
         mTomahawkApp = ((TomahawkApp) mActivity.getApplication());
         mInfoSystem = mTomahawkApp.getInfoSystem();
@@ -193,6 +211,11 @@ public abstract class TomahawkFragment extends SherlockFragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ensureList();
+        if (mGrid != null) {
+            mGrid.setSelection(mListScrollPosition);
+        } else if (mList != null) {
+            mList.setSelection(mListScrollPosition);
+        }
     }
 
     /*
@@ -597,5 +620,9 @@ public abstract class TomahawkFragment extends SherlockFragment
     public void stopLoadingAnimation() {
         mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
         mActivity.getSupportActionBar().setLogo(R.drawable.ic_action_slidemenu);
+    }
+
+    public ConcurrentHashMap<String, Track> getCorrespondingQueryIds() {
+        return mCorrespondingQueryIds;
     }
 }

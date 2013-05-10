@@ -156,7 +156,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
             if (getListAdapter().getItem(idx) instanceof Album) {
                 mActivity.getCollection().setCachedAlbum((Album) getListAdapter().getItem(idx));
                 mActivity.getContentViewer().
-                        replace(TomahawkTabsActivity.TAB_ID_SEARCH, TracksFragment.class, -1,
+                        replace(mCorrespondingStackId, TracksFragment.class, -1,
                                 UserCollection.USERCOLLECTION_ALBUMCACHED, false);
             }
         }

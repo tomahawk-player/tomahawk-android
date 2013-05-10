@@ -125,7 +125,6 @@ public class Query {
      */
     public void addTrackResults(ArrayList<Result> results) {
         for (Result r : results) {
-            boolean isDuplicate = true;
             String trackName = "";
             Track track = r.getTrack();
             if (track != null && track.getName() != null) {
@@ -144,7 +143,6 @@ public class Query {
             String key = trackName + "+" + artistName + "+" + albumName;
             ArrayList<Result> value = mTrackResults.get(key);
             if (value == null) {
-                isDuplicate = false;
                 value = new ArrayList<Result>();
             }
             for (int i = 0; i <= value.size(); i++) {
@@ -160,22 +158,6 @@ public class Query {
                 }
             }
             mTrackResults.put(key, value);
-
-            key = artistName;
-            value = mArtistResults.get(key);
-            if (value != null && !isDuplicate) {
-                for (Result artistResult : value) {
-                    artistResult.getArtist().addTrack(track);
-                }
-            }
-
-            key = artistName + "+" + albumName;
-            value = mAlbumResults.get(key);
-            if (value != null && !isDuplicate) {
-                for (Result albumResult : value) {
-                    albumResult.getAlbum().addTrack(track);
-                }
-            }
         }
         mSolved = true;
     }
