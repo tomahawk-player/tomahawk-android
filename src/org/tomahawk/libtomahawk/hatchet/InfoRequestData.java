@@ -137,7 +137,7 @@ public class InfoRequestData {
         if (albumInfo.getId() != null) {
         }
         if (albumInfo.getImages() != null && albumInfo.getImages().size() > 0) {
-            album.setAlbumArt(albumInfo.getImages().get(0).getUrl());
+            album.setAlbumArtPath(albumInfo.getImages().get(0).getUrl());
         }
         if (albumInfo.getName() != null) {
             album.setName(albumInfo.getName());

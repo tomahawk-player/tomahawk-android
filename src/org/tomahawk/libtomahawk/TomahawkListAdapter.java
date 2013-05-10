@@ -95,8 +95,12 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
         mShowContentHeader = showContentHeader;
         View contentHeaderView = mLayoutInflater.inflate(R.layout.content_header, null);
         if (contentHeaderView != null) {
-            loadBitmap(contentHeaderTomahawkListItem,
-                    (ImageView) contentHeaderView.findViewById(R.id.content_header_image));
+            if (mContentHeaderTomahawkListItem instanceof Album) {
+                ((Album) mContentHeaderTomahawkListItem).loadBitmap(mActivity,
+                        (ImageView) contentHeaderView.findViewById(R.id.content_header_image));
+            } else if (mContentHeaderTomahawkListItem instanceof Artist) {
+                //((Artist) mContentHeaderTomahawkListItem).loadBitmap(mActivity, (ImageView) contentHeaderView.findViewById(R.id.content_header_image));
+            }
             ((TextView) contentHeaderView.findViewById(R.id.content_header_textview))
                     .setText(contentHeaderTomahawkListItem.getName());
             if (contentHeaderTomahawkListItem.getArtist() != null
@@ -216,7 +220,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                     }
                     ((SquareWidthRelativeLayout) viewHolder.imageViewLeft.getParent())
                             .setVisibility(SquareWidthRelativeLayout.VISIBLE);
-                    loadBitmap((Album) item, viewHolder.imageViewLeft);
+                    ((Album) item).loadBitmap(mActivity, viewHolder.imageViewLeft);
                 }
             } else if (viewHolder.viewType
                     == R.id.tomahawklistadapter_viewtype_doublelineplaystateimagelistitem) {
