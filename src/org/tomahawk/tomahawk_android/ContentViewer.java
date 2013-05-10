@@ -24,6 +24,7 @@ import android.support.v4.app.FragmentTransaction;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ContentViewer {
@@ -62,15 +63,25 @@ public class ContentViewer {
         //the listScrollPosition which is being stored and restored when the fragment is popped or stashed.
         protected int listScrollPosition = 0;
 
-        FragmentStateHolder(Class clss, String fragmentTag) {
+        protected int correspondingStackId = -1;
+
+        protected ArrayList<String> correspondingQueryIds;
+
+        FragmentStateHolder(Class clss, String fragmentTag, int correspondingStackId,
+                ArrayList<String> correspondingQueryIds) {
             this.clss = clss;
             this.fragmentTag = fragmentTag;
+            this.correspondingStackId = correspondingStackId;
+            this.correspondingQueryIds = correspondingQueryIds;
         }
 
-        FragmentStateHolder(Class clss, String fragmentTag, long tomahawkListItemId,
+        FragmentStateHolder(Class clss, String fragmentTag, int correspondingStackId,
+                ArrayList<String> correspondingQueryIds, long tomahawkListItemId,
                 String tomahawkListItemType) {
             this.clss = clss;
             this.fragmentTag = fragmentTag;
+            this.correspondingStackId = correspondingStackId;
+            this.correspondingQueryIds = correspondingQueryIds;
             this.tomahawkListItemId = tomahawkListItemId;
             this.tomahawkListItemType = tomahawkListItemType;
         }
@@ -95,7 +106,8 @@ public class ContentViewer {
     public void addRootToTab(int stackId, Class clss) {
         ArrayList<FragmentStateHolder> fragmentStateHolders = new ArrayList<FragmentStateHolder>();
         fragmentStateHolders
-                .add(new FragmentStateHolder(clss, getFragmentTag(mMapOfStacks.size(), 0)));
+                .add(new FragmentStateHolder(clss, getFragmentTag(mMapOfStacks.size(), 0), stackId,
+                        null));
         mMapOfStacks.put(stackId, fragmentStateHolders);
     }
 
@@ -138,6 +150,18 @@ public class ContentViewer {
                 if (currentFragment != null && currentFragment instanceof TomahawkFragment) {
                     currentFragmentStateHolder.listScrollPosition
                             = ((TomahawkFragment) currentFragment).getListScrollPosition();
+                    Enumeration<String> keys = ((TomahawkFragment) currentFragment)
+                            .getCorrespondingQueryIds().keys();
+                    while (keys.hasMoreElements()) {
+                        if (currentFragmentStateHolder.correspondingQueryIds == null) {
+                            currentFragmentStateHolder.correspondingQueryIds
+                                    = new ArrayList<String>();
+                        }
+                        String key = keys.nextElement();
+                        if (!currentFragmentStateHolder.correspondingQueryIds.contains(key)) {
+                            currentFragmentStateHolder.correspondingQueryIds.add(key);
+                        }
+                    }
                 }
                 fragmentStateHolders.add(fragmentStateHolder);
                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
@@ -147,6 +171,10 @@ public class ContentViewer {
                     fragmentStateHolder.tomahawkListItemId);
             bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION,
                     fragmentStateHolder.listScrollPosition);
+            bundle.putInt(TomahawkFragment.TOMAHAWK_TAB_ID,
+                    fragmentStateHolder.correspondingStackId);
+            bundle.putStringArrayList(TomahawkFragment.TOMAHAWK_QUERY_IDS,
+                    fragmentStateHolder.correspondingQueryIds);
             bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING,
                     fragmentStateHolder.queryString);
             ft.replace(mContentFrameId,
@@ -154,6 +182,7 @@ public class ContentViewer {
                     fragmentStateHolder.fragmentTag);
             ft.commit();
         }
+
         mActivity.onBackStackChanged();
     }
 
@@ -163,7 +192,8 @@ public class ContentViewer {
     public void replace(int stackId, Class clss, long tomahawkListItemId,
             String tomahawkListItemType, boolean isBackAction) {
         FragmentStateHolder fragmentStateHolder = new FragmentStateHolder(clss,
-                getFragmentTag(stackId, 1), tomahawkListItemId, tomahawkListItemType);
+                getFragmentTag(stackId, 1), stackId, null, tomahawkListItemId,
+                tomahawkListItemType);
         replace(stackId, fragmentStateHolder, isBackAction);
     }
 
@@ -209,14 +239,21 @@ public class ContentViewer {
                         bundle.putLong(fpb.tomahawkListItemType, fpb.tomahawkListItemId);
                         bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION,
                                 fpb.listScrollPosition);
+                        bundle.putInt(TomahawkFragment.TOMAHAWK_TAB_ID, fpb.correspondingStackId);
+                        bundle.putStringArrayList(TomahawkFragment.TOMAHAWK_QUERY_IDS,
+                                fpb.correspondingQueryIds);
                         bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING,
                                 fpb.queryString);
                         ft.replace(mContentFrameId,
                                 Fragment.instantiate(mActivity, fpb.clss.getName(), bundle),
                                 fpb.fragmentTag);
                     } else {
+                        Bundle bundle = new Bundle();
+                        bundle.putInt(TomahawkFragment.TOMAHAWK_TAB_ID, fpb.correspondingStackId);
+                        bundle.putStringArrayList(TomahawkFragment.TOMAHAWK_QUERY_IDS,
+                                fpb.correspondingQueryIds);
                         ft.replace(mContentFrameId,
-                                Fragment.instantiate(mActivity, fpb.clss.getName()),
+                                Fragment.instantiate(mActivity, fpb.clss.getName(), bundle),
                                 fpb.fragmentTag);
                     }
                     ft.commit();
@@ -302,6 +339,10 @@ public class ContentViewer {
                     fragmentStateHolder.tomahawkListItemId);
             bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION,
                     fragmentStateHolder.listScrollPosition);
+            bundle.putInt(TomahawkFragment.TOMAHAWK_TAB_ID,
+                    fragmentStateHolder.correspondingStackId);
+            bundle.putStringArrayList(TomahawkFragment.TOMAHAWK_QUERY_IDS,
+                    fragmentStateHolder.correspondingQueryIds);
             bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING,
                     fragmentStateHolder.queryString);
             ft.replace(mContentFrameId,

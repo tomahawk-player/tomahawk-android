@@ -90,8 +90,7 @@ public class SearchableFragment extends TomahawkFragment
             if (intent.getAction().equals(PipeLine.PIPELINE_RESULTSREPORTED)) {
                 String queryId = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
                 if (mCorrespondingQueryIds.containsKey(queryId)) {
-                    mActivity.getContentViewer()
-                            .getBackStackAtPosition(TomahawkTabsActivity.TAB_ID_SEARCH)
+                    mActivity.getContentViewer().getBackStackAtPosition(mCorrespondingStackId)
                             .get(0).queryString = mCurrentQueryString;
                     showQueryResults(queryId);
                 }
@@ -111,12 +110,6 @@ public class SearchableFragment extends TomahawkFragment
                 && getArguments().getString(SEARCHABLEFRAGMENT_QUERY_STRING) != null) {
             mCurrentQueryString = getArguments().getString(SEARCHABLEFRAGMENT_QUERY_STRING);
         }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.tomahawkfragment_layout, null, false);
     }
 
     @Override
@@ -192,12 +185,12 @@ public class SearchableFragment extends TomahawkFragment
             } else if (getListAdapter().getItem(idx) instanceof Album) {
                 mCollection.setCachedAlbum((Album) getListAdapter().getItem(idx));
                 mActivity.getContentViewer().
-                        replace(TomahawkTabsActivity.TAB_ID_SEARCH, TracksFragment.class, -1,
+                        replace(mCorrespondingStackId, TracksFragment.class, -1,
                                 UserCollection.USERCOLLECTION_ALBUMCACHED, false);
             } else if (getListAdapter().getItem(idx) instanceof Artist) {
                 mCollection.setCachedArtist((Artist) getListAdapter().getItem(idx));
                 mActivity.getContentViewer().
-                        replace(TomahawkTabsActivity.TAB_ID_SEARCH, AlbumsFragment.class, -1,
+                        replace(mCorrespondingStackId, AlbumsFragment.class, -1,
                                 UserCollection.USERCOLLECTION_ARTISTCACHED, false);
             }
         }
@@ -315,7 +308,7 @@ public class SearchableFragment extends TomahawkFragment
     }
 
     public void resolveFullTextQuery(String fullTextQuery) {
-        mActivity.getContentViewer().backToRoot(TomahawkTabsActivity.TAB_ID_SEARCH, false);
+        mActivity.getContentViewer().backToRoot(mCorrespondingStackId, false);
         mCurrentQueryString = fullTextQuery;
         CheckBox onlineSourcesCheckBox = (CheckBox) mActivity
                 .findViewById(R.id.search_onlinesources_checkbox);
