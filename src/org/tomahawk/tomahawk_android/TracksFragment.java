@@ -71,8 +71,10 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                     ArrayList<Track> tracks = mPipeline.getQuery(queryId).getTrackResults();
                     if (tracks != null && tracks.size() > 0) {
                         Track track = mCorrespondingQueryIds.get(queryId);
-                        Query.trackResultToTrack(tracks.get(0), track);
-                        updateAdapter();
+                        if (track.getScore() < tracks.get(0).getScore()) {
+                            Query.trackResultToTrack(tracks.get(0), track);
+                            updateAdapter();
+                        }
                     }
                 }
             } else if (intent.getAction().equals(InfoSystem.INFOSYSTEM_RESULTSREPORTED)) {
