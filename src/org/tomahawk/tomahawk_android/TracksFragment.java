@@ -246,13 +246,15 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
     }
 
     private void resolveAlbum(Album album) {
-        for (Track track : album.getTracks()) {
-            if (!track.isResolved()) {
-                String queryId = mPipeline.resolve(track.getName(), track.getAlbum().getName(),
-                        track.getArtist().getName());
-                if (queryId != null) {
-                    mCorrespondingQueryIds.put(queryId, track);
-                    startLoadingAnimation();
+        if (album != null && album.getTracks() != null) {
+            for (Track track : album.getTracks()) {
+                if (!track.isResolved()) {
+                    String queryId = mPipeline.resolve(track.getName(), track.getAlbum().getName(),
+                            track.getArtist().getName());
+                    if (queryId != null) {
+                        mCorrespondingQueryIds.put(queryId, track);
+                        startLoadingAnimation();
+                    }
                 }
             }
         }
