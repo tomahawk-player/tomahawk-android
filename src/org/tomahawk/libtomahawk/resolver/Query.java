@@ -99,6 +99,8 @@ public class Query {
         track.setPath(trackResult.getPath());
         track.setResolver(trackResult.getResolver());
         track.setLocal(trackResult.isLocal());
+        track.setDuration(trackResult.getDuration());
+        track.setName(trackResult.getName());
         return track;
     }
 
