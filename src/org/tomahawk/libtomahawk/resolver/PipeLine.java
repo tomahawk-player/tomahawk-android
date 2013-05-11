@@ -36,7 +36,11 @@ public class PipeLine {
 
     public static final int PIPELINE_SEARCHTYPE_ALBUMS = 2;
 
-    public static final String PIPELINE_RESULTSREPORTED = "pipeline_resultsreported";
+    public static final String PIPELINE_RESULTSREPORTED_FULLTEXTQUERY
+            = "pipeline_resultsreported_fulltextquery";
+
+    public static final String PIPELINE_RESULTSREPORTED_NON_FULLTEXTQUERY
+            = "pipeline_resultsreported_non_fulltextquery";
 
     public static final String PIPELINE_RESULTSREPORTED_QID = "pipeline_resultsreported_qid";
 
@@ -45,10 +49,6 @@ public class PipeLine {
     TomahawkApp mTomahawkApp;
 
     private ArrayList<Resolver> mResolvers = new ArrayList<Resolver>();
-
-    private ArrayList<Query> mPendingQueries = new ArrayList<Query>();
-
-    private ArrayList<Query> mTemporaryQueries = new ArrayList<Query>();
 
     private ConcurrentHashMap<String, Query> mQids = new ConcurrentHashMap<String, Query>();
 
@@ -106,7 +106,7 @@ public class PipeLine {
                     }
                 }
             } else if (q.isSolved()) {
-                sendReportResultsBroadcast(q.getQid());
+                sendReportFulltextQueryResultsBroadcast(q.getQid());
             }
         }
         return q == null ? null : q.getQid();
@@ -146,7 +146,7 @@ public class PipeLine {
                     }
                 }
             } else if (q.isSolved()) {
-                sendReportResultsBroadcast(q.getQid());
+                sendReportNonFulltextQueryResultsBroadcast(q.getQid());
             }
         }
         return q.getQid();
@@ -171,15 +171,28 @@ public class PipeLine {
                 }
             }
         } else if (q.isSolved()) {
-            sendReportResultsBroadcast(q.getQid());
+            if (q.isFullTextQuery()) {
+                sendReportFulltextQueryResultsBroadcast(q.getQid());
+            } else {
+                sendReportNonFulltextQueryResultsBroadcast(q.getQid());
+            }
         }
     }
 
     /**
      * Send a broadcast containing the id of the resolved query.
      */
-    private void sendReportResultsBroadcast(String qid) {
-        Intent reportIntent = new Intent(PIPELINE_RESULTSREPORTED);
+    private void sendReportFulltextQueryResultsBroadcast(String qid) {
+        Intent reportIntent = new Intent(PIPELINE_RESULTSREPORTED_FULLTEXTQUERY);
+        reportIntent.putExtra(PIPELINE_RESULTSREPORTED_QID, qid);
+        mTomahawkApp.sendBroadcast(reportIntent);
+    }
+
+    /**
+     * Send a broadcast containing the id of the resolved query.
+     */
+    private void sendReportNonFulltextQueryResultsBroadcast(String qid) {
+        Intent reportIntent = new Intent(PIPELINE_RESULTSREPORTED_NON_FULLTEXTQUERY);
         reportIntent.putExtra(PIPELINE_RESULTSREPORTED_QID, qid);
         mTomahawkApp.sendBroadcast(reportIntent);
     }
@@ -217,7 +230,13 @@ public class PipeLine {
             mQids.get(qid).addArtistResults(cleanArtistResults);
             //            mQids.get(qid).addAlbumResults(cleanAlbumResults);
             mQids.get(qid).addTrackResults(cleanTrackResults);
-            sendReportResultsBroadcast(qid);
+            if (q.isSolved()) {
+                if (q.isFullTextQuery()) {
+                    sendReportFulltextQueryResultsBroadcast(q.getQid());
+                } else {
+                    sendReportNonFulltextQueryResultsBroadcast(q.getQid());
+                }
+            }
         }
     }
 

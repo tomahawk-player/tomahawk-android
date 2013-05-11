@@ -150,18 +150,6 @@ public class ContentViewer {
                 if (currentFragment != null && currentFragment instanceof TomahawkFragment) {
                     currentFragmentStateHolder.listScrollPosition
                             = ((TomahawkFragment) currentFragment).getListScrollPosition();
-                    Enumeration<String> keys = ((TomahawkFragment) currentFragment)
-                            .getCorrespondingQueryIds().keys();
-                    while (keys.hasMoreElements()) {
-                        if (currentFragmentStateHolder.correspondingQueryIds == null) {
-                            currentFragmentStateHolder.correspondingQueryIds
-                                    = new ArrayList<String>();
-                        }
-                        String key = keys.nextElement();
-                        if (!currentFragmentStateHolder.correspondingQueryIds.contains(key)) {
-                            currentFragmentStateHolder.correspondingQueryIds.add(key);
-                        }
-                    }
                 }
                 fragmentStateHolders.add(fragmentStateHolder);
                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
@@ -173,8 +161,6 @@ public class ContentViewer {
                     fragmentStateHolder.listScrollPosition);
             bundle.putInt(TomahawkFragment.TOMAHAWK_TAB_ID,
                     fragmentStateHolder.correspondingStackId);
-            bundle.putStringArrayList(TomahawkFragment.TOMAHAWK_QUERY_IDS,
-                    fragmentStateHolder.correspondingQueryIds);
             bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING,
                     fragmentStateHolder.queryString);
             ft.replace(mContentFrameId,
@@ -240,8 +226,6 @@ public class ContentViewer {
                         bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION,
                                 fpb.listScrollPosition);
                         bundle.putInt(TomahawkFragment.TOMAHAWK_TAB_ID, fpb.correspondingStackId);
-                        bundle.putStringArrayList(TomahawkFragment.TOMAHAWK_QUERY_IDS,
-                                fpb.correspondingQueryIds);
                         bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING,
                                 fpb.queryString);
                         ft.replace(mContentFrameId,
@@ -250,8 +234,6 @@ public class ContentViewer {
                     } else {
                         Bundle bundle = new Bundle();
                         bundle.putInt(TomahawkFragment.TOMAHAWK_TAB_ID, fpb.correspondingStackId);
-                        bundle.putStringArrayList(TomahawkFragment.TOMAHAWK_QUERY_IDS,
-                                fpb.correspondingQueryIds);
                         ft.replace(mContentFrameId,
                                 Fragment.instantiate(mActivity, fpb.clss.getName(), bundle),
                                 fpb.fragmentTag);
@@ -341,8 +323,6 @@ public class ContentViewer {
                     fragmentStateHolder.listScrollPosition);
             bundle.putInt(TomahawkFragment.TOMAHAWK_TAB_ID,
                     fragmentStateHolder.correspondingStackId);
-            bundle.putStringArrayList(TomahawkFragment.TOMAHAWK_QUERY_IDS,
-                    fragmentStateHolder.correspondingQueryIds);
             bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING,
                     fragmentStateHolder.queryString);
             ft.replace(mContentFrameId,

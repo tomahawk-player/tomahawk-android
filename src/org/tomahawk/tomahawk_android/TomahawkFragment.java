@@ -75,8 +75,6 @@ public abstract class TomahawkFragment extends SherlockFragment
 
     public static final String TOMAHAWK_TAB_ID = "tomahawk_tab_id";
 
-    public static final String TOMAHAWK_QUERY_IDS = "tomahawk_query_ids";
-
     protected TomahawkApp mTomahawkApp;
 
     private TomahawkFragmentReceiver mTomahawkFragmentReceiver;
@@ -180,12 +178,6 @@ public abstract class TomahawkFragment extends SherlockFragment
             if (getArguments().containsKey(TOMAHAWK_TAB_ID)
                     && getArguments().getInt(TOMAHAWK_TAB_ID) > 0) {
                 mCorrespondingStackId = getArguments().getInt(TOMAHAWK_TAB_ID);
-            }
-            if (getArguments().containsKey(TOMAHAWK_QUERY_IDS)
-                    && getArguments().getIntegerArrayList(TOMAHAWK_QUERY_IDS) != null) {
-                for (String string : getArguments().getStringArrayList(TOMAHAWK_QUERY_IDS)) {
-                    mCorrespondingQueryIds.put(string, new Track());
-                }
             }
         }
         mTomahawkApp = ((TomahawkApp) mActivity.getApplication());
@@ -624,9 +616,5 @@ public abstract class TomahawkFragment extends SherlockFragment
     public void stopLoadingAnimation() {
         mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
         mActivity.getSupportActionBar().setLogo(R.drawable.ic_action_slidemenu);
-    }
-
-    public ConcurrentHashMap<String, Track> getCorrespondingQueryIds() {
-        return mCorrespondingQueryIds;
     }
 }
