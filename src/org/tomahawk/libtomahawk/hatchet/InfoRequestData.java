@@ -173,7 +173,6 @@ public class InfoRequestData {
             track = new Track();
         }
         track.setId(mTomahawkApp.getUniqueTrackId());
-        track.setResolved(false);
         track.setLocal(false);
         if (trackInfo.getArtist() != null) {
             track.setArtist(artistInfoToArtist(trackInfo.getArtist(), new Artist()));

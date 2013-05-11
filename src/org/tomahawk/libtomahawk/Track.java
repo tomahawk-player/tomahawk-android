@@ -20,6 +20,8 @@ package org.tomahawk.libtomahawk;
 import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 
+import android.text.TextUtils;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -133,6 +135,9 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
 
     public void setPath(String path) {
         this.mPath = path;
+        if (path != null && !TextUtils.isEmpty(path)) {
+            isResolved = true;
+        }
     }
 
     public boolean isLocal() {
@@ -235,10 +240,5 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
     public boolean isResolved() {
         return isResolved;
     }
-
-    public void setResolved(boolean resolved) {
-        isResolved = resolved;
-    }
-
 
 }
