@@ -110,6 +110,10 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
         mAlbums.put(album.getId(), album);
     }
 
+    public void clearAlbums() {
+        mAlbums = new ConcurrentHashMap<Long, Album>();
+    }
+
     public ArrayList<Album> getAlbums() {
         ArrayList<Album> albums = new ArrayList<Album>(mAlbums.values());
         Collections.sort(albums, new AlbumComparator(AlbumComparator.COMPARE_ALPHA));

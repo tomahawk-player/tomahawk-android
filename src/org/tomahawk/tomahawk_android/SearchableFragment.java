@@ -39,9 +39,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -87,13 +85,11 @@ public class SearchableFragment extends TomahawkFragment
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(PipeLine.PIPELINE_RESULTSREPORTED)) {
+            if (intent.getAction().equals(PipeLine.PIPELINE_RESULTSREPORTED_FULLTEXTQUERY)) {
                 String queryId = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
-                if (mCorrespondingQueryIds.containsKey(queryId)) {
-                    mActivity.getContentViewer().getBackStackAtPosition(mCorrespondingStackId)
-                            .get(0).queryString = mCurrentQueryString;
-                    showQueryResults(queryId);
-                }
+                mActivity.getContentViewer().getBackStackAtPosition(mCorrespondingStackId)
+                        .get(0).queryString = mCurrentQueryString;
+                showQueryResults(queryId);
             }
         }
     }
@@ -132,7 +128,8 @@ public class SearchableFragment extends TomahawkFragment
 
         if (mSearchableBroadcastReceiver == null) {
             mSearchableBroadcastReceiver = new SearchableBroadcastReceiver();
-            IntentFilter intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED);
+            IntentFilter intentFilter = new IntentFilter(
+                    PipeLine.PIPELINE_RESULTSREPORTED_FULLTEXTQUERY);
             mActivity.registerReceiver(mSearchableBroadcastReceiver, intentFilter);
         }
 

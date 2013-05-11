@@ -77,6 +77,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                         }
                         ArrayList<Album> albums = InfoRequestData.albumInfoListToAlbumList(
                                 ((AlbumsInfo) infoRequestData.mResult).getAlbums());
+                        mArtist.clearAlbums();
                         for (Album album : albums) {
                             mArtist.addAlbum(album);
                         }
@@ -133,16 +134,13 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                     .getArtistById(getArguments().getLong(TOMAHAWK_ARTIST_ID));
         } else if (getArguments().containsKey(UserCollection.USERCOLLECTION_ARTISTCACHED)) {
             mArtist = mActivity.getCollection().getCachedArtist();
-            String requestId = mTomahawkApp.getUniqueInfoRequestId();
+            String requestId = mInfoSystem
+                    .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTALBUMS, true,
+                            mActivity.getCollection().getCachedArtist().getName());
             mCurrentRequestIds.add(requestId);
-            mInfoSystem.resolve(new InfoRequestData(mTomahawkApp, requestId,
-                    InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTALBUMS, true,
-                    mActivity.getCollection().getCachedArtist().getName()));
-            requestId = mTomahawkApp.getUniqueInfoRequestId();
+            requestId = mInfoSystem.resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTINFO, true,
+                    mActivity.getCollection().getCachedArtist().getName());
             mCurrentRequestIds.add(requestId);
-            mInfoSystem.resolve(new InfoRequestData(mTomahawkApp, requestId,
-                    InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTINFO, true,
-                    mActivity.getCollection().getCachedArtist().getName()));
         }
     }
 

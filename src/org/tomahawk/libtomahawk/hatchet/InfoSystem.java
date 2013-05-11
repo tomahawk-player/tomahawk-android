@@ -98,6 +98,31 @@ public class InfoSystem {
         mTomahawkApp = tomahawkApp;
     }
 
+    public String resolve(int type, boolean useCache) {
+        return resolve(type, useCache, null, null);
+    }
+
+    public String resolve(int type, boolean useCache, String firstParam) {
+        return resolve(type, useCache, firstParam, null);
+    }
+
+    public String resolve(int type, boolean useCache, String firstParam, String secondParam) {
+        String requestId = mTomahawkApp.getUniqueInfoRequestId();
+        InfoRequestData infoRequestData;
+        if (firstParam == null && secondParam == null) {
+            infoRequestData = new InfoRequestData(mTomahawkApp, requestId, type, useCache);
+        } else if (firstParam != null && secondParam == null) {
+            infoRequestData = new InfoRequestData(mTomahawkApp, requestId, type, useCache,
+                    firstParam);
+        } else {
+            infoRequestData = new InfoRequestData(mTomahawkApp, requestId, type, useCache,
+                    secondParam);
+        }
+        mRequests.put(infoRequestData.getRequestId(), infoRequestData);
+        new JSONResponseTask().execute(infoRequestData);
+        return infoRequestData.getRequestId();
+    }
+
     public void resolve(InfoRequestData infoRequestData) {
         mRequests.put(infoRequestData.getRequestId(), infoRequestData);
         new JSONResponseTask().execute(infoRequestData);

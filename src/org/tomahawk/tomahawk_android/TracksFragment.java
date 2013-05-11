@@ -65,7 +65,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
          */
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(PipeLine.PIPELINE_RESULTSREPORTED)) {
+            if (intent.getAction().equals(PipeLine.PIPELINE_RESULTSREPORTED_NON_FULLTEXTQUERY)) {
                 String queryId = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
                 if (mCorrespondingQueryIds.containsKey(queryId)) {
                     ArrayList<Track> tracks = mPipeline.getQuery(queryId).getTrackResults();
@@ -117,7 +117,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             getActivity().registerReceiver(mTrackFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
             getActivity().registerReceiver(mTrackFragmentReceiver, intentFilter);
-            intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED);
+            intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED_NON_FULLTEXTQUERY);
             getActivity().registerReceiver(mTrackFragmentReceiver, intentFilter);
         }
         if (mShouldShowLoadingAnimation) {
