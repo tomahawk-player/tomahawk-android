@@ -278,10 +278,12 @@ public class PlaybackActivity extends SherlockFragmentActivity
         android.view.MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.popup_menu, menu);
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+        int position = info.position;
         TomahawkBaseAdapter.TomahawkListItem tomahawkListItem;
-        if (info.position >= 0) {
+        position -= mList.getHeaderViewsCount();
+        if (position >= 0) {
             tomahawkListItem = ((TomahawkBaseAdapter.TomahawkListItem) mTomahawkListAdapter
-                    .getItem(info.position));
+                    .getItem(position));
         } else {
             tomahawkListItem = mTomahawkListAdapter.getContentHeaderTomahawkListItem();
         }
@@ -301,15 +303,17 @@ public class PlaybackActivity extends SherlockFragmentActivity
     public boolean onContextItemSelected(android.view.MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
                 .getMenuInfo();
+        int position = info.position;
         TomahawkBaseAdapter.TomahawkListItem tomahawkListItem = null;
-        if (info.position >= 0) {
+        position -= mList.getHeaderViewsCount();
+        if (position >= 0) {
             tomahawkListItem = ((TomahawkBaseAdapter.TomahawkListItem) mTomahawkListAdapter
-                    .getItem(info.position));
+                    .getItem(position));
         }
         switch (item.getItemId()) {
             case R.id.popupmenu_delete_item:
                 if (tomahawkListItem instanceof Track) {
-                    if (mPlaylist.getCurrentTrackIndex() == info.position) {
+                    if (mPlaylist.getCurrentTrackIndex() == position) {
                         boolean wasPlaying = mPlaybackService.isPlaying();
                         if (wasPlaying) {
                             mPlaybackService.pause();
@@ -340,19 +344,19 @@ public class PlaybackActivity extends SherlockFragmentActivity
                             e.printStackTrace();
                         }
                     }
-                    mPlaybackService.deleteTrackAtPos(info.position);
+                    mPlaybackService.deleteTrackAtPos(position);
                 }
                 return true;
             case R.id.popupmenu_play_item:
                 if (tomahawkListItem instanceof Track) {
-                    if (mPlaylist.getCurrentTrackIndex() == info.position) {
+                    if (mPlaylist.getCurrentTrackIndex() == position) {
                         if (!mPlaybackService.isPlaying()) {
                             mPlaybackService.start();
                         }
                     } else {
                         try {
-                            mPlaybackService.setCurrentTrack(mPlaybackService.getCurrentPlaylist()
-                                    .peekTrackAtPos(info.position));
+                            mPlaybackService.setCurrentTrack(
+                                    mPlaybackService.getCurrentPlaylist().peekTrackAtPos(position));
                             mPlaybackService.start();
                         } catch (IOException e) {
                             e.printStackTrace();

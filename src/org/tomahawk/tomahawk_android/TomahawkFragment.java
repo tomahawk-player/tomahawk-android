@@ -315,10 +315,12 @@ public abstract class TomahawkFragment extends SherlockFragment
         android.view.MenuInflater inflater = mActivity.getMenuInflater();
         inflater.inflate(R.menu.popup_menu, menu);
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+        int position = info.position;
         TomahawkBaseAdapter.TomahawkListItem tomahawkListItem;
-        if (info.position >= 0) {
+        position -= mList.getHeaderViewsCount();
+        if (position >= 0) {
             tomahawkListItem = ((TomahawkBaseAdapter.TomahawkListItem) mTomahawkBaseAdapter
-                    .getItem(info.position));
+                    .getItem(position));
         } else {
             tomahawkListItem = ((TomahawkListAdapter) mTomahawkBaseAdapter)
                     .getContentHeaderTomahawkListItem();
@@ -338,10 +340,12 @@ public abstract class TomahawkFragment extends SherlockFragment
                 .getCollectionFromId(UserCollection.Id));
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
                 .getMenuInfo();
+        int position = info.position;
         TomahawkBaseAdapter.TomahawkListItem tomahawkListItem;
-        if (info.position >= 0) {
+        position -= mList.getHeaderViewsCount();
+        if (position >= 0) {
             tomahawkListItem = ((TomahawkBaseAdapter.TomahawkListItem) mTomahawkBaseAdapter
-                    .getItem(info.position));
+                    .getItem(position));
         } else {
             tomahawkListItem = ((TomahawkListAdapter) mTomahawkBaseAdapter)
                     .getContentHeaderTomahawkListItem();
@@ -366,17 +370,17 @@ public abstract class TomahawkFragment extends SherlockFragment
                         tracks = mAlbum.getTracks();
                         playlist = CustomPlaylist.fromTrackList("Last used playlist", tracks,
                                 (Track) tomahawkListItem);
-                        playlist.setCurrentTrackIndex(info.position);
+                        playlist.setCurrentTrackIndex(position);
                     } else if (mArtist != null) {
                         tracks = mArtist.getTracks();
                         playlist = CustomPlaylist.fromTrackList("Last used playlist", tracks,
                                 (Track) tomahawkListItem);
-                        playlist.setCurrentTrackIndex(info.position);
+                        playlist.setCurrentTrackIndex(position);
                     } else if (mCustomPlaylist != null) {
                         tracks = mCustomPlaylist.getTracks();
                         playlist = CustomPlaylist.fromTrackList("Last used playlist", tracks,
                                 (Track) tomahawkListItem);
-                        playlist.setCurrentTrackIndex(info.position);
+                        playlist.setCurrentTrackIndex(position);
                     } else {
                         tracks.add((Track) tomahawkListItem);
                         playlist = CustomPlaylist.fromTrackList("Last used playlist", tracks,

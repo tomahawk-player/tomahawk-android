@@ -227,7 +227,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true);
-                tomahawkListAdapter.setShowContentHeader(true, mList, mArtist);
+                tomahawkListAdapter.setShowContentHeader(true, mList, mCustomPlaylist);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 mTomahawkBaseAdapter.setListArray(listArray);

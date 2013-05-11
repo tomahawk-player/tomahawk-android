@@ -662,56 +662,59 @@ public class PlaybackService extends Service
     public void setCurrentTrack(final Track track) throws IOException {
         mNotificationAsyncBitmap.bitmap = null;
         if (mTomahawkMediaPlayer != null && track != null) {
-            Runnable releaseRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    int loopCounter = 0;
-                    while (true) {
-                        if (loopCounter++ > 10) {
-                            Log.e(TAG, "MediaPlayer was unable to prepare the track");
+            if (track.isResolved()) {
+                Runnable releaseRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        int loopCounter = 0;
+                        while (true) {
+                            if (loopCounter++ > 10) {
+                                Log.e(TAG, "MediaPlayer was unable to prepare the track");
+                                break;
+                            }
+                            long startTime = System.currentTimeMillis();
+                            mTomahawkMediaPlayer.release();
+                            initMediaPlayer();
+                            long endTime = System.currentTimeMillis();
+                            Log.d(TAG, "MediaPlayer reinitialize in " + (endTime - startTime)
+                                    + "ms, preparing=" + isPreparing());
+                            mTomahawkMediaPlayer.mIsPreparing = true;
+                            try {
+                                mTomahawkMediaPlayer.setDataSource(track.getPath());
+                            } catch (IllegalStateException e1) {
+                                Log.e(TAG, "setDataSource() IllegalStateException, msg:" + e1
+                                        .getLocalizedMessage() + " , preparing=" + isPreparing());
+                                continue;
+                            } catch (IOException e2) {
+                                Log.e(TAG, "setDataSource() IOException, msg:" + e2
+                                        .getLocalizedMessage() + " , preparing=" + isPreparing());
+                                continue;
+                            }
+                            try {
+                                mTomahawkMediaPlayer.prepare();
+                            } catch (IllegalStateException e1) {
+                                Log.e(TAG, "prepare() IllegalStateException, msg:" + e1
+                                        .getLocalizedMessage() + " , preparing=" + isPreparing());
+                                continue;
+                            } catch (IOException e2) {
+                                Log.e(TAG, "prepare() IOException, msg:" + e2.getLocalizedMessage()
+                                        + " , preparing=" + isPreparing());
+                                continue;
+                            }
                             break;
                         }
-                        long startTime = System.currentTimeMillis();
-                        mTomahawkMediaPlayer.release();
-                        initMediaPlayer();
-                        long endTime = System.currentTimeMillis();
-                        Log.d(TAG, "MediaPlayer reinitialize in " + (endTime - startTime)
-                                + "ms, preparing=" + isPreparing());
-                        mTomahawkMediaPlayer.mIsPreparing = true;
-                        try {
-                            mTomahawkMediaPlayer.setDataSource(track.getPath());
-                        } catch (IllegalStateException e1) {
-                            Log.e(TAG, "setDataSource() IllegalStateException, msg:" + e1
-                                    .getLocalizedMessage() + " , preparing=" + isPreparing());
-                            continue;
-                        } catch (IOException e2) {
-                            Log.e(TAG,
-                                    "setDataSource() IOException, msg:" + e2.getLocalizedMessage()
-                                            + " , preparing=" + isPreparing());
-                            continue;
-                        }
-                        try {
-                            mTomahawkMediaPlayer.prepare();
-                        } catch (IllegalStateException e1) {
-                            Log.e(TAG, "prepare() IllegalStateException, msg:" + e1
-                                    .getLocalizedMessage() + " , preparing=" + isPreparing());
-                            continue;
-                        } catch (IOException e2) {
-                            Log.e(TAG, "prepare() IOException, msg:" + e2.getLocalizedMessage()
-                                    + " , preparing=" + isPreparing());
-                            continue;
-                        }
-                        break;
                     }
-                }
-            };
-            new Thread(releaseRunnable).start();
+                };
+                new Thread(releaseRunnable).start();
 
-            mKillTimerHandler.removeCallbacksAndMessages(null);
-            Message msg = mKillTimerHandler.obtainMessage();
-            mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
+                mKillTimerHandler.removeCallbacksAndMessages(null);
+                Message msg = mKillTimerHandler.obtainMessage();
+                mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
 
-            sendBroadcast(new Intent(BROADCAST_NEWTRACK));
+                sendBroadcast(new Intent(BROADCAST_NEWTRACK));
+            } else {
+                next();
+            }
         }
     }
 

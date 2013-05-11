@@ -95,7 +95,6 @@ public class Query {
     }
 
     public static Track trackResultToTrack(Track trackResult, Track track) {
-        track.setResolved(trackResult.isResolved());
         track.setPath(trackResult.getPath());
         track.setResolver(trackResult.getResolver());
         track.setLocal(trackResult.isLocal());
@@ -112,7 +111,6 @@ public class Query {
         for (ArrayList<Result> resultList : mTrackResults.values()) {
             if (!resultList.isEmpty()) {
                 Track track = resultList.get(0).getTrack();
-                track.setResolved(true);
                 tracks.add(track);
             }
         }
