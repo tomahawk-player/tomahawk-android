@@ -202,15 +202,6 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                     viewHolder.textThirdLine.setText(mActivity.getResources()
                             .getString(R.string.playbackactivity_seekbar_completion_time_string));
                 }
-                if (!((Track) item).isResolved()) {
-                    viewHolder.textFirstLine.setTextColor(R.color.disabled_grey);
-                    viewHolder.textSecondLine.setTextColor(R.color.disabled_grey);
-                    viewHolder.textThirdLine.setTextColor(R.color.disabled_grey);
-                } else {
-                    viewHolder.textFirstLine.setTextColor(R.color.plain_white);
-                    viewHolder.textSecondLine.setTextColor(R.color.plain_white);
-                    viewHolder.textThirdLine.setTextColor(R.color.plain_white);
-                }
             } else if (viewHolder.viewType
                     == R.id.tomahawklistadapter_viewtype_doublelineimagelistitem) {
                 if (item instanceof Album) {
