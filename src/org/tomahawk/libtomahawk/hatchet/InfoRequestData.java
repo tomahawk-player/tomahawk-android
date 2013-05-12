@@ -234,7 +234,7 @@ public class InfoRequestData {
             case INFOREQUESTDATA_TYPE_ARTISTINFO:
                 httpGet = new HttpGet(
                         InfoSystem.HATCHET_BASE_URL + "/" + InfoSystem.HATCHET_ARTIST_PATH + "/"
-                                + "/" + InfoSystem.HATCHET_NAME_PATH + firstParam + "/"
+                                + "/" + InfoSystem.HATCHET_NAME_PATH + "/" + firstParam + "/"
                                 + InfoSystem.HATCHET_INFO_PATH);
                 break;
             case INFOREQUESTDATA_TYPE_USERINFO:
@@ -289,7 +289,7 @@ public class InfoRequestData {
             case INFOREQUESTDATA_TYPE_ALBUMINFO:
                 httpGet = new HttpGet(
                         InfoSystem.HATCHET_BASE_URL + "/" + InfoSystem.HATCHET_ALBUM_PATH + "/"
-                                + "/" + InfoSystem.HATCHET_NAME_PATH + firstParam + "/"
+                                + "/" + InfoSystem.HATCHET_NAME_PATH + "/" + firstParam + "/"
                                 + secondParam + "/" + InfoSystem.HATCHET_INFO_PATH);
                 break;
             case INFOREQUESTDATA_TYPE_PLAYLISTINFO:
