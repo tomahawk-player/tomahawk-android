@@ -240,23 +240,21 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                         viewHolder.textThirdLine.setText(mActivity.getResources().getString(
                                 R.string.playbackactivity_seekbar_completion_time_string));
                     }
-                    if (mShowHighlightingAndPlaystate) {
-                        if (position == mHighlightedItemPosition) {
-                            view.setBackgroundResource(R.color.pressed_tomahawk);
-                            if (mHighlightedItemIsPlaying) {
-                                ((SquareWidthRelativeLayout) viewHolder.imageViewLeft.getParent())
-                                        .setVisibility(SquareWidthRelativeLayout.VISIBLE);
-                                viewHolder.imageViewLeft
-                                        .setImageResource(R.drawable.ic_playlist_is_playing);
-                            } else {
-                                ((SquareWidthRelativeLayout) viewHolder.imageViewLeft.getParent())
-                                        .setVisibility(SquareWidthRelativeLayout.GONE);
-                            }
+                    if (mShowHighlightingAndPlaystate && position == mHighlightedItemPosition) {
+                        view.setBackgroundResource(R.color.pressed_tomahawk);
+                        if (mHighlightedItemIsPlaying) {
+                            ((SquareWidthRelativeLayout) viewHolder.imageViewLeft.getParent())
+                                    .setVisibility(SquareWidthRelativeLayout.VISIBLE);
+                            viewHolder.imageViewLeft
+                                    .setImageResource(R.drawable.ic_playlist_is_playing);
                         } else {
                             ((SquareWidthRelativeLayout) viewHolder.imageViewLeft.getParent())
                                     .setVisibility(SquareWidthRelativeLayout.GONE);
-                            view.setBackgroundResource(R.drawable.selectable_background_tomahawk);
                         }
+                    } else {
+                        ((SquareWidthRelativeLayout) viewHolder.imageViewLeft.getParent())
+                                .setVisibility(SquareWidthRelativeLayout.GONE);
+                        view.setBackgroundResource(R.drawable.selectable_background_tomahawk);
                     }
                     if (mShowResolvedBy && ((Track) item).isResolved()) {
                         ((SquareWidthRelativeLayout) viewHolder.imageViewRight.getParent())
@@ -275,6 +273,9 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                             viewHolder.imageViewRight
                                     .setImageResource(R.drawable.ic_resolver_default);
                         }
+                    } else {
+                        ((SquareWidthRelativeLayout) viewHolder.imageViewRight.getParent())
+                                .setVisibility(SquareWidthRelativeLayout.GONE);
                     }
                 }
             }
