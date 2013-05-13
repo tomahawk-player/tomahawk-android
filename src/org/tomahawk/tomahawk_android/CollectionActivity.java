@@ -46,6 +46,7 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -275,6 +276,8 @@ public class CollectionActivity extends TomahawkTabsActivity
     public void onPause() {
         super.onPause();
 
+        mCurrentStackPosition = mContentViewer.getCurrentStackId();
+
         if (mCollectionActivityBroadcastReceiver != null) {
             unregisterReceiver(mCollectionActivityBroadcastReceiver);
             mCollectionActivityBroadcastReceiver = null;
@@ -494,6 +497,10 @@ public class CollectionActivity extends TomahawkTabsActivity
                 .getCustomView().findViewById(R.id.search_edittext);
         searchFrameTop.setVisibility(AutoCompleteTextView.VISIBLE);
         findViewById(R.id.search_panel).setVisibility(LinearLayout.VISIBLE);
+
+        InputMethodManager imm = (InputMethodManager) getSystemService(
+                Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
     }
 
     public void hideSearchEditText() {

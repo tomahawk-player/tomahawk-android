@@ -91,7 +91,6 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
             case TomahawkTabsActivity.TAB_ID_SEARCH:
                 mCollectionActivity.getContentViewer()
                         .setCurrentStackId(TomahawkTabsActivity.TAB_ID_SEARCH);
-                mCollectionActivity.showBreadcrumbs(false);
                 mCollectionActivity.showSearchEditText();
                 h.postDelayed(new Runnable() {
                     public void run() {
@@ -102,7 +101,6 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
             case TomahawkTabsActivity.TAB_ID_COLLECTION:
                 mCollectionActivity.getContentViewer()
                         .setCurrentStackId(TomahawkTabsActivity.TAB_ID_COLLECTION);
-                mCollectionActivity.showBreadcrumbs(true);
                 mCollectionActivity.hideSearchEditText();
                 h.postDelayed(new Runnable() {
                     public void run() {
@@ -113,7 +111,6 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
             case TomahawkTabsActivity.TAB_ID_PLAYLISTS:
                 mCollectionActivity.getContentViewer()
                         .setCurrentStackId(TomahawkTabsActivity.TAB_ID_PLAYLISTS);
-                mCollectionActivity.showBreadcrumbs(false);
                 mCollectionActivity.hideSearchEditText();
                 h.postDelayed(new Runnable() {
                     public void run() {
