@@ -50,7 +50,11 @@ public class Query {
     private ConcurrentHashMap<String, ArrayList<Result>> mArtistResults
             = new ConcurrentHashMap<String, ArrayList<Result>>();
 
-    private boolean mSolved;
+    private boolean mSolved = false;
+
+    private int mResolversTodoCount = 0;
+
+    private int mResolversDoneCount = 0;
 
     private String mQid;
 
@@ -66,6 +70,8 @@ public class Query {
 
     private String mArtistName = "";
 
+    private String mCacheKey;
+
     /**
      * Constructs a new Query with the given QueryID. ID should be generated in TomahawkApp.
      */
@@ -80,6 +86,7 @@ public class Query {
     public Query(final String qid, final String fullTextQuery, final boolean onlyLocal) {
         mFullTextQuery = fullTextQuery.replace("'", "\\'");
         mIsFullTextQuery = true;
+        mCacheKey = constructCacheKey(mFullTextQuery);
         mIsOnlyLocal = onlyLocal;
         mQid = qid;
     }
@@ -89,9 +96,18 @@ public class Query {
         mTrackName = trackName.replace("'", "\\'");
         mAlbumName = albumName.replace("'", "\\'");
         mArtistName = artistName.replace("'", "\\'");
+        mCacheKey = constructCacheKey(mTrackName, mAlbumName, mArtistName);
         mQid = qid;
         mIsFullTextQuery = false;
         mIsOnlyLocal = onlyLocal;
+    }
+
+    public static String constructCacheKey(String fullTextQuery) {
+        return fullTextQuery;
+    }
+
+    public static String constructCacheKey(String trackName, String albumName, String artistName) {
+        return trackName + "+" + albumName + "+" + artistName;
     }
 
     public static Track trackResultToTrack(Track trackResult, Track track) {
@@ -157,7 +173,6 @@ public class Query {
             }
             mTrackResults.put(key, value);
         }
-        mSolved = true;
     }
 
     /**
@@ -207,7 +222,6 @@ public class Query {
                 }
             }
         }
-        mSolved = true;
     }
 
     /**
@@ -242,7 +256,6 @@ public class Query {
             value.add(r);
             mArtistResults.put(key, value);
         }
-        mSolved = true;
     }
 
     public String getFullTextQuery() {
@@ -379,5 +392,27 @@ public class Query {
 
     public String getArtistName() {
         return mArtistName;
+    }
+
+    public void incResolversTodoCount() {
+        mResolversTodoCount++;
+        updateSolved();
+    }
+
+    public void incResolversDoneCount() {
+        mResolversDoneCount++;
+        updateSolved();
+    }
+
+    private void updateSolved() {
+        if (mResolversDoneCount != 0 && mResolversTodoCount == mResolversDoneCount) {
+            mSolved = true;
+        } else {
+            mSolved = false;
+        }
+    }
+
+    public String getCacheKey() {
+        return mCacheKey;
     }
 }
