@@ -33,6 +33,23 @@ public class CustomPlaylist extends Playlist implements TomahawkBaseAdapter.Toma
      *
      * @return a reference to the constructed CustomPlaylist
      */
+    public static CustomPlaylist fromTrackList(ArrayList<Track> tracks) {
+        if (tracks == null) {
+            tracks = new ArrayList<Track>();
+        }
+        CustomPlaylist pl = new CustomPlaylist();
+        pl.setTracks(tracks);
+        if (tracks.size() > 0) {
+            pl.setCurrentTrack(tracks.get(0));
+        }
+        return pl;
+    }
+
+    /**
+     * Create a CustomPlaylist from a list of tracks.
+     *
+     * @return a reference to the constructed CustomPlaylist
+     */
     public static CustomPlaylist fromTrackList(String name, ArrayList<Track> tracks) {
         if (tracks == null) {
             tracks = new ArrayList<Track>();
@@ -76,6 +93,13 @@ public class CustomPlaylist extends Playlist implements TomahawkBaseAdapter.Toma
         pl.setTracks(tracks);
         pl.setCurrentTrackIndex(currentTrackIndex);
         return pl;
+    }
+
+    /**
+     * Construct a new empty CustomPlaylist.
+     */
+    protected CustomPlaylist() {
+        super();
     }
 
     /**

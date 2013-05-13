@@ -19,7 +19,9 @@ package org.tomahawk.tomahawk_android;
 
 import org.tomahawk.libtomahawk.Track;
 import org.tomahawk.libtomahawk.UserCollection;
+import org.tomahawk.libtomahawk.audio.PlaylistDialog;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
+import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -39,6 +41,8 @@ public class ChoosePlaylistDialog extends DialogFragment {
 
     ArrayList<Track> mTracks;
 
+    int mCustomPlaylistCount;
+
     public ChoosePlaylistDialog(UserCollection userCollection, ArrayList<Track> tracks) {
         setRetainInstance(true);
         mUserCollection = userCollection;
@@ -48,24 +52,34 @@ public class ChoosePlaylistDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        String[] playlistNames = new String[mUserCollection.getCustomPlaylists().size()];
-        for (int i = 0; i < mUserCollection.getCustomPlaylists().size(); i++) {
+        mCustomPlaylistCount = mUserCollection.getCustomPlaylists().size();
+        String[] playlistNames = new String[mCustomPlaylistCount + 1];
+        for (int i = 0; i < mCustomPlaylistCount; i++) {
             playlistNames[i] = mUserCollection.getCustomPlaylists().get(i).getName();
         }
+        playlistNames[mCustomPlaylistCount] = getResources()
+                .getString(R.string.playbackactivity_create_playlist_dialog_title);
         builder.setTitle(R.string.playbackactivity_choose_playlist_dialog_title)
                 .setItems(playlistNames, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        UserPlaylistsDataSource userPlaylistsDataSource
-                                = new UserPlaylistsDataSource(getActivity(),
-                                ((TomahawkApp) getActivity().getApplication()).getPipeLine());
-                        userPlaylistsDataSource.open();
-                        userPlaylistsDataSource.addTracksToUserPlaylist(
-                                mUserCollection.getCustomPlaylists().get(which).getId(), mTracks);
-                        userPlaylistsDataSource.close();
-                        ((UserCollection) ((TomahawkApp) getActivity().getApplication())
-                                .getSourceList().getCollectionFromId(UserCollection.Id))
-                                .updateUserPlaylists();
+                        if (which < mCustomPlaylistCount) {
+                            UserPlaylistsDataSource userPlaylistsDataSource
+                                    = new UserPlaylistsDataSource(getActivity(),
+                                    ((TomahawkApp) getActivity().getApplication()).getPipeLine());
+                            userPlaylistsDataSource.open();
+                            userPlaylistsDataSource.addTracksToUserPlaylist(
+                                    mUserCollection.getCustomPlaylists().get(which).getId(),
+                                    mTracks);
+                            userPlaylistsDataSource.close();
+                            ((UserCollection) ((TomahawkApp) getActivity().getApplication())
+                                    .getSourceList().getCollectionFromId(UserCollection.Id))
+                                    .updateUserPlaylists();
+                        } else {
+                            new PlaylistDialog(CustomPlaylist.fromTrackList(mTracks))
+                                    .show(getFragmentManager(), getString(
+                                            R.string.playbackactivity_create_playlist_dialog_title));
+                        }
                     }
                 });
         return builder.create();
