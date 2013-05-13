@@ -147,9 +147,11 @@ public class InfoRequestData {
             album.setLastYear(String.valueOf(albumInfo.getReleaseDate().getYear()));
         }
         if (albumInfo.getTracks() != null) {
+            int trackNumCounter = 0;
             for (TrackInfo trackInfo : albumInfo.getTracks()) {
                 Track track = trackInfoToTrack(trackInfo);
                 track.setAlbum(album);
+                track.setTrackNumber(trackNumCounter++);
                 album.addTrack(track);
             }
         }
