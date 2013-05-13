@@ -476,7 +476,12 @@ public class CollectionActivity extends TomahawkTabsActivity
             if (track != null) {
                 if (nowPlayingInfoAlbumArt != null && nowPlayingInfoArtist != null
                         && nowPlayingInfoTitle != null) {
-                    track.getAlbum().loadBitmap(this, nowPlayingInfoAlbumArt);
+                    if (track.getAlbum() != null) {
+                        track.getAlbum().loadBitmap(this, nowPlayingInfoAlbumArt);
+                    } else {
+                        nowPlayingInfoAlbumArt
+                                .setImageResource(R.drawable.no_album_art_placeholder);
+                    }
                     nowPlayingInfoArtist.setText(track.getArtist().toString());
                     nowPlayingInfoTitle.setText(track.getName());
                     nowPlayingInfoAlbumArt.setVisibility(View.VISIBLE);

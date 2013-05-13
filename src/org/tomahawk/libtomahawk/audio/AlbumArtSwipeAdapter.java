@@ -82,6 +82,8 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                     && mPlaylist.peekTrackAtPos(position).getAlbum() != null) {
                 mPlaylist.peekTrackAtPos(position).getAlbum()
                         .loadBitmap(mContext, albumArtImageView);
+            } else {
+                albumArtImageView.setImageResource(R.drawable.no_album_art_placeholder);
             }
         } else {
             albumArtImageView.setImageResource(R.drawable.no_album_art_placeholder);
