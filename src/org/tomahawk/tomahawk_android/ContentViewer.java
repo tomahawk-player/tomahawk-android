@@ -24,12 +24,11 @@ import android.support.v4.app.FragmentTransaction;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ContentViewer {
 
-    private TomahawkTabsActivity mActivity;
+    private CollectionActivity mCollectionActivity;
 
     private FragmentManager mFragmentManager;
 
@@ -90,9 +89,9 @@ public class ContentViewer {
     /**
      * Constructs a new ContentViewer
      */
-    public ContentViewer(TomahawkTabsActivity activity, FragmentManager fragmentManager,
+    public ContentViewer(CollectionActivity activity, FragmentManager fragmentManager,
             int contentFrameId) {
-        mActivity = activity;
+        mCollectionActivity = activity;
         mFragmentManager = fragmentManager;
         mContentFrameId = contentFrameId;
     }
@@ -164,12 +163,12 @@ public class ContentViewer {
             bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING,
                     fragmentStateHolder.queryString);
             ft.replace(mContentFrameId,
-                    Fragment.instantiate(mActivity, fragmentStateHolder.clss.getName(), bundle),
-                    fragmentStateHolder.fragmentTag);
+                    Fragment.instantiate(mCollectionActivity, fragmentStateHolder.clss.getName(),
+                            bundle), fragmentStateHolder.fragmentTag);
             ft.commit();
         }
 
-        mActivity.onBackStackChanged();
+        mCollectionActivity.onBackStackChanged();
     }
 
     /**
@@ -194,7 +193,7 @@ public class ContentViewer {
                     .get(fragmentsStack.size() - 2);
             // Restore the remembered fragment and remove it from back fragments.
             this.replace(stackId, previousFragmentStateHolder, true);
-            mActivity.onBackStackChanged();
+            mCollectionActivity.onBackStackChanged();
             return true;
         }
         // Nothing to go back.
@@ -229,17 +228,17 @@ public class ContentViewer {
                         bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING,
                                 fpb.queryString);
                         ft.replace(mContentFrameId,
-                                Fragment.instantiate(mActivity, fpb.clss.getName(), bundle),
-                                fpb.fragmentTag);
+                                Fragment.instantiate(mCollectionActivity, fpb.clss.getName(),
+                                        bundle), fpb.fragmentTag);
                     } else {
                         Bundle bundle = new Bundle();
                         bundle.putInt(TomahawkFragment.TOMAHAWK_TAB_ID, fpb.correspondingStackId);
                         ft.replace(mContentFrameId,
-                                Fragment.instantiate(mActivity, fpb.clss.getName(), bundle),
-                                fpb.fragmentTag);
+                                Fragment.instantiate(mCollectionActivity, fpb.clss.getName(),
+                                        bundle), fpb.fragmentTag);
                     }
                     ft.commit();
-                    mActivity.onBackStackChanged();
+                    mCollectionActivity.onBackStackChanged();
                 }
                 return fragmentsStack.get(fragmentsStack.size() - 1).equals(fragmentTag);
             }
@@ -326,10 +325,15 @@ public class ContentViewer {
             bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING,
                     fragmentStateHolder.queryString);
             ft.replace(mContentFrameId,
-                    Fragment.instantiate(mActivity, fragmentStateHolder.clss.getName(), bundle),
-                    stack.get(stack.size() - 1).fragmentTag);
+                    Fragment.instantiate(mCollectionActivity, fragmentStateHolder.clss.getName(),
+                            bundle), stack.get(stack.size() - 1).fragmentTag);
             ft.commit();
+            if (fragmentStateHolder.correspondingStackId == TomahawkTabsActivity.TAB_ID_SEARCH) {
+                mCollectionActivity.showBreadcrumbs(false);
+            } else {
+                mCollectionActivity.showBreadcrumbs(true);
+            }
         }
-        mActivity.onBackStackChanged();
+        mCollectionActivity.onBackStackChanged();
     }
 }

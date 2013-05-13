@@ -40,7 +40,6 @@ import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -114,8 +113,6 @@ public class SearchableFragment extends TomahawkFragment
 
         setSearchText((EditText) mActivity.getSupportActionBar().getCustomView()
                 .findViewById(R.id.search_edittext));
-        mActivity.getWindow()
-                .setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         // Sets the background colour to grey so that the text is visible
         AutoCompleteTextView textView = (AutoCompleteTextView) mActivity.getSupportActionBar()
                 .getCustomView().findViewById(R.id.search_edittext);
@@ -147,6 +144,10 @@ public class SearchableFragment extends TomahawkFragment
     @Override
     public void onPause() {
         super.onPause();
+
+        InputMethodManager imm = (InputMethodManager) mActivity
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);
 
         if (mSearchableBroadcastReceiver != null) {
             mActivity.unregisterReceiver(mSearchableBroadcastReceiver);
