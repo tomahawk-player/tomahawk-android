@@ -52,6 +52,8 @@ public class PipeLine {
 
     private ConcurrentHashMap<String, Query> mQids = new ConcurrentHashMap<String, Query>();
 
+    private ConcurrentHashMap<String, String> mQueryMap = new ConcurrentHashMap<String, String>();
+
     public PipeLine(TomahawkApp tomahawkApp) {
         mTomahawkApp = tomahawkApp;
     }
@@ -90,24 +92,15 @@ public class PipeLine {
     public String resolve(String fullTextQuery, boolean onlyLocal) {
         Query q = null;
         if (fullTextQuery != null && !TextUtils.isEmpty(fullTextQuery)) {
-            for (Query query : mQids.values()) {
-                if (query.getFullTextQuery() == fullTextQuery && query.isOnlyLocal() == onlyLocal) {
-                    q = query;
-                }
+            if (mQueryMap.contains(Query.constructCacheKey(fullTextQuery)) &&
+                    mQids.get(mQueryMap.get(Query.constructCacheKey(fullTextQuery))).isOnlyLocal()
+                            == onlyLocal) {
+                q = mQids.get(mQueryMap.get(Query.constructCacheKey(fullTextQuery)));
             }
             if (q == null) {
                 q = new Query(mTomahawkApp.getUniqueQueryId(), fullTextQuery, onlyLocal);
             }
-            if (!mQids.containsKey(q.getQid())) {
-                mQids.put(q.getQid(), q);
-                for (Resolver resolver : mResolvers) {
-                    if ((onlyLocal && resolver instanceof DataBaseResolver) || !onlyLocal) {
-                        resolver.resolve(q);
-                    }
-                }
-            } else if (q.isSolved()) {
-                sendReportFulltextQueryResultsBroadcast(q.getQid());
-            }
+            resolve(q, onlyLocal);
         }
         return q == null ? null : q.getQid();
     }
@@ -128,26 +121,18 @@ public class PipeLine {
             boolean onlyLocal) {
         Query q = null;
         if (trackName != null && !TextUtils.isEmpty(trackName)) {
-            for (Query query : mQids.values()) {
-                if (query.getTrackName() == trackName && query.getArtistName() == artistName
-                        && query.getAlbumName() == albumName && query.isOnlyLocal() == onlyLocal) {
-                    q = query;
-                }
+            if (mQueryMap.contains(Query.constructCacheKey(trackName, albumName, artistName)) &&
+                    mQids.get(mQueryMap
+                            .get(Query.constructCacheKey(trackName, albumName, artistName)))
+                            .isOnlyLocal() == onlyLocal) {
+                q = mQids.get(mQueryMap
+                        .get(Query.constructCacheKey(trackName, albumName, artistName)));
             }
             if (q == null) {
                 q = new Query(mTomahawkApp.getUniqueQueryId(), trackName, albumName, artistName,
                         onlyLocal);
             }
-            if (!mQids.containsKey(q.getQid())) {
-                mQids.put(q.getQid(), q);
-                for (Resolver resolver : mResolvers) {
-                    if ((onlyLocal && resolver instanceof DataBaseResolver) || !onlyLocal) {
-                        resolver.resolve(q);
-                    }
-                }
-            } else if (q.isSolved()) {
-                sendReportNonFulltextQueryResultsBroadcast(q.getQid());
-            }
+            resolve(q, onlyLocal);
         }
         return q.getQid();
     }
@@ -163,18 +148,26 @@ public class PipeLine {
      * This will invoke every resolver to resolve the given Query.
      */
     public void resolve(Query q, boolean onlyLocal) {
-        if (!mQids.containsKey(q.getQid())) {
-            mQids.put(q.getQid(), q);
-            for (Resolver resolver : mResolvers) {
-                if ((onlyLocal && resolver instanceof DataBaseResolver) || !onlyLocal) {
-                    resolver.resolve(q);
-                }
-            }
-        } else if (q.isSolved()) {
+        if (q.isSolved()) {
             if (q.isFullTextQuery()) {
                 sendReportFulltextQueryResultsBroadcast(q.getQid());
             } else {
                 sendReportNonFulltextQueryResultsBroadcast(q.getQid());
+            }
+        } else if (!mQids.containsKey(q.getQid())) {
+            mQids.put(q.getQid(), q);
+            mQueryMap.put(q.getCacheKey(), q.getQid());
+            for (Resolver resolver : mResolvers) {
+                if ((onlyLocal && resolver instanceof DataBaseResolver) || !onlyLocal) {
+                    resolver.resolve(q);
+                    q.incResolversTodoCount();
+                }
+            }
+        } else {
+            for (Resolver resolver : mResolvers) {
+                if ((onlyLocal && resolver instanceof DataBaseResolver) || !onlyLocal) {
+                    resolver.resolve(q);
+                }
             }
         }
     }
@@ -230,12 +223,11 @@ public class PipeLine {
             mQids.get(qid).addArtistResults(cleanArtistResults);
             //            mQids.get(qid).addAlbumResults(cleanAlbumResults);
             mQids.get(qid).addTrackResults(cleanTrackResults);
-            if (q.isSolved()) {
-                if (q.isFullTextQuery()) {
-                    sendReportFulltextQueryResultsBroadcast(q.getQid());
-                } else {
-                    sendReportNonFulltextQueryResultsBroadcast(q.getQid());
-                }
+            mQids.get(qid).incResolversDoneCount();
+            if (q.isFullTextQuery()) {
+                sendReportFulltextQueryResultsBroadcast(q.getQid());
+            } else {
+                sendReportNonFulltextQueryResultsBroadcast(q.getQid());
             }
         }
     }
