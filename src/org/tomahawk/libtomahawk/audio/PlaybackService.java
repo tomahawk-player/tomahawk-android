@@ -224,7 +224,8 @@ public class PlaybackService extends Service
                     start();
                 }
             } else if (intent.getAction().equals(BitmapItem.BITMAPITEM_BITMAPLOADED)) {
-                if (intent.getStringExtra(BitmapItem.BITMAPITEM_BITMAPLOADED_PATH)
+                if (mCurrentPlaylist.getCurrentTrack() != null && intent
+                        .getStringExtra(BitmapItem.BITMAPITEM_BITMAPLOADED_PATH)
                         .equals(mCurrentPlaylist.getCurrentTrack().getAlbum().getAlbumArtPath())) {
                     updatePlayingNotification();
                 }
