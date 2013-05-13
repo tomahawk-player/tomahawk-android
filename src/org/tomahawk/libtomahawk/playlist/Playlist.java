@@ -45,6 +45,15 @@ public abstract class Playlist implements Playable {
     /**
      * Create a playlist with a list of empty tracks.
      */
+    protected Playlist() {
+        mShuffled = false;
+        mRepeating = false;
+        setTracks(new ArrayList<Track>());
+    }
+
+    /**
+     * Create a playlist with a list of empty tracks.
+     */
     protected Playlist(String name) {
         mName = name;
         mShuffled = false;
