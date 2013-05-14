@@ -173,7 +173,8 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
         pathToBitmap = getAlbumArtPath();
         if (pathToBitmap != null) {
             if (cancelPotentialWork(pathToBitmap, asyncBitmap)) {
-                final BitmapWorkerTask task = new BitmapWorkerTask(context, asyncBitmap);
+                final BitmapWorkerTask task = new BitmapWorkerTask(context, asyncBitmap,
+                        sAlbumPlaceHolderBitmap);
                 asyncBitmap.setBitmapWorkerTaskReference(new WeakReference<BitmapWorkerTask>(task));
                 task.execute(getAlbumArtPath());
             }
@@ -200,7 +201,8 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
         pathToBitmap = getAlbumArtPath();
         if (pathToBitmap != null) {
             if (cancelPotentialWork(pathToBitmap, imageView)) {
-                final BitmapWorkerTask task = new BitmapWorkerTask(imageView);
+                final BitmapWorkerTask task = new BitmapWorkerTask(imageView,
+                        sAlbumPlaceHolderBitmap);
                 final AsyncDrawable asyncDrawable = new AsyncDrawable(context.getResources(),
                         placeHolderBitmap, task);
                 imageView.setImageDrawable(asyncDrawable);
