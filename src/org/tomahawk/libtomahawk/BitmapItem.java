@@ -117,21 +117,26 @@ public class BitmapItem {
 
         private WeakReference<ImageView> imageViewReference = null;
 
+        private Bitmap placeHolderBitmap;
+
         private AsyncBitmap bitMapToFill = null;
 
         private String path;
 
         private BitmapFactory.Options opts = new BitmapFactory.Options();
 
-        public BitmapWorkerTask(ImageView imageView) {
+        public BitmapWorkerTask(ImageView imageView, Bitmap placeHolderBitmap) {
+            this.placeHolderBitmap = placeHolderBitmap;
             // Use a WeakReference to ensure the ImageView can be garbage collected
             imageViewReference = new WeakReference<ImageView>(imageView);
             opts.inPreferredConfig = Bitmap.Config.RGB_565;
         }
 
-        public BitmapWorkerTask(Context context, AsyncBitmap asyncBitmap) {
+        public BitmapWorkerTask(Context context, AsyncBitmap asyncBitmap,
+                Bitmap placeHolderBitmap) {
             this.context = context;
             bitMapToFill = asyncBitmap;
+            this.placeHolderBitmap = placeHolderBitmap;
             opts.inPreferredConfig = Bitmap.Config.RGB_565;
         }
 
@@ -174,25 +179,36 @@ public class BitmapItem {
             }
             sAlbumArtCache.addAlbumArtToCache(path, bitmap);
 
-            if (imageViewReference != null && bitmap != null) {
+            if (imageViewReference != null) {
                 final ImageView imageView = imageViewReference.get();
                 final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
                 if (this == bitmapWorkerTask && imageView != null) {
-                    imageView.setImageBitmap(bitmap);
+                    if (bitmap != null) {
+                        imageView.setImageBitmap(bitmap);
+                    } else {
+                        imageView.setImageBitmap(placeHolderBitmap);
+                    }
                 }
-            } else if (bitMapToFill != null && bitmap != null) {
+            } else if (bitMapToFill != null) {
                 final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(bitMapToFill);
                 if (this == bitmapWorkerTask && bitMapToFill != null) {
-                    bitMapToFill.bitmap = bitmap;
-                    Intent intent = new Intent(BITMAPITEM_BITMAPLOADED);
-                    intent.putExtra(BITMAPITEM_BITMAPLOADED_PATH, path);
-                    context.sendBroadcast(intent);
+                    if (bitmap != null) {
+                        bitMapToFill.bitmap = bitmap;
+                    } else {
+                        bitMapToFill.bitmap = placeHolderBitmap;
+                    }
                 }
+                Intent intent = new Intent(BITMAPITEM_BITMAPLOADED);
+                intent.putExtra(BITMAPITEM_BITMAPLOADED_PATH, path);
+                context.sendBroadcast(intent);
             }
         }
 
         private Bitmap resizeBitmap(Bitmap bitmap) {
             int scaledHeight, scaledWidth;
+            if (bitmap == null) {
+                return null;
+            }
             if (bitmap.getHeight() > BITMAP_MAXSIZE || bitmap.getWidth() > BITMAP_MAXSIZE) {
                 if (bitmap.getHeight() > bitmap.getWidth()) {
                     scaledWidth = bitmap.getWidth() * BITMAP_MAXSIZE / bitmap.getHeight();
