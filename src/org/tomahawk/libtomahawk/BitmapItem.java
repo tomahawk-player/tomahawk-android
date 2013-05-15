@@ -177,7 +177,9 @@ public class BitmapItem {
             if (sAlbumArtCache == null) {
                 sAlbumArtCache = new AlbumArtCache();
             }
-            sAlbumArtCache.addAlbumArtToCache(path, bitmap);
+            if (path != null && bitmap != null) {
+                sAlbumArtCache.addAlbumArtToCache(path, bitmap);
+            }
 
             if (imageViewReference != null) {
                 final ImageView imageView = imageViewReference.get();
