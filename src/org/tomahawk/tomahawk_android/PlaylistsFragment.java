@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android;
 import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.TomahawkBaseAdapter;
 import org.tomahawk.libtomahawk.TomahawkListAdapter;
+import org.tomahawk.libtomahawk.audio.PlaylistDialog;
 import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
 import org.tomahawk.libtomahawk.playlist.Playlist;
 
@@ -54,6 +55,9 @@ public class PlaylistsFragment extends TomahawkFragment implements OnItemClickLi
                                     ((CustomPlaylist) getListAdapter().getItem(idx)).getId(),
                                     TOMAHAWK_PLAYLIST_ID, false);
                 }
+            } else {
+                new PlaylistDialog().show(getFragmentManager(),
+                        getString(R.string.playbackactivity_create_playlist_dialog_title));
             }
         }
     }
@@ -72,7 +76,10 @@ public class PlaylistsFragment extends TomahawkFragment implements OnItemClickLi
         List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                 = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
         listArray.add(playlists);
-        setListAdapter(new TomahawkListAdapter(getActivity(), listArray));
+        TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(getActivity(), listArray);
+        tomahawkListAdapter.setShowAddButton(true, getListView(),
+                getResources().getString(R.string.playbackactivity_create_playlist_dialog_title));
+        setListAdapter(tomahawkListAdapter);
 
         getListView().setOnItemClickListener(this);
         getListView().setAreHeadersSticky(false);

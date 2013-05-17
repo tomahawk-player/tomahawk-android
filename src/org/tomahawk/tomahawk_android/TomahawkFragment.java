@@ -50,9 +50,9 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ListAdapter;
@@ -61,7 +61,7 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class TomahawkFragment extends SherlockFragment
-        implements LoaderManager.LoaderCallbacks<Collection> {
+        implements LoaderManager.LoaderCallbacks<Collection>, FakeContextMenu {
 
     public static final String TOMAHAWK_ALBUM_ID = "tomahawk_album_id";
 
@@ -303,11 +303,9 @@ public abstract class TomahawkFragment extends SherlockFragment
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
             ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        android.view.MenuInflater inflater = mActivity.getMenuInflater();
-        inflater.inflate(R.menu.popup_menu, menu);
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
         int position = info.position;
+        String[] menuItemTitles;
         TomahawkBaseAdapter.TomahawkListItem tomahawkListItem;
         position -= mList.getHeaderViewsCount();
         if (position >= 0) {
@@ -319,20 +317,22 @@ public abstract class TomahawkFragment extends SherlockFragment
         }
         if (!(tomahawkListItem instanceof CustomPlaylist || (tomahawkListItem instanceof Track
                 && mCustomPlaylist != null))) {
-            menu.findItem(R.id.popupmenu_delete_item).setVisible(false);
+            menuItemTitles = getResources()
+                    .getStringArray(R.array.fake_context_menu_items_without_delete);
+        } else if (tomahawkListItem instanceof CustomPlaylist) {
+            menuItemTitles = getResources()
+                    .getStringArray(R.array.fake_context_menu_items_without_addplaylist);
+        } else {
+            menuItemTitles = getResources().getStringArray(R.array.fake_context_menu_items);
         }
-        if (tomahawkListItem instanceof CustomPlaylist) {
-            menu.findItem(R.id.popupmenu_addtoplaylist_item).setVisible(false);
-        }
+        new FakeContextMenuDialog(menuItemTitles, info.position, this)
+                .show(getFragmentManager(), null);
     }
 
     @Override
-    public boolean onContextItemSelected(MenuItem item) {
+    public void onFakeContextItemSelected(String menuItemTitle, int position) {
         UserCollection userCollection = ((UserCollection) mTomahawkApp.getSourceList()
                 .getCollectionFromId(UserCollection.Id));
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
-                .getMenuInfo();
-        int position = info.position;
         TomahawkBaseAdapter.TomahawkListItem tomahawkListItem;
         position -= mList.getHeaderViewsCount();
         if (position >= 0) {
@@ -344,107 +344,103 @@ public abstract class TomahawkFragment extends SherlockFragment
         }
         Bundle bundle = new Bundle();
         ArrayList<Track> tracks = new ArrayList<Track>();
-        switch (item.getItemId()) {
-            case R.id.popupmenu_delete_item:
-                if (tomahawkListItem instanceof CustomPlaylist) {
-                    mUserPlaylistsDataSource
-                            .deleteUserPlaylist(((CustomPlaylist) tomahawkListItem).getId());
-                } else if (tomahawkListItem instanceof Track && mCustomPlaylist != null) {
-                    mUserPlaylistsDataSource.deleteTrackInUserPlaylist(mCustomPlaylist.getId(),
-                            ((Track) tomahawkListItem).getId());
-                }
-                userCollection.updateUserPlaylists();
-                return true;
-            case R.id.popupmenu_play_item:
-                if (tomahawkListItem instanceof Track) {
-                    CustomPlaylist playlist;
-                    if (mAlbum != null) {
-                        tracks = mAlbum.getTracks();
-                        playlist = CustomPlaylist.fromTrackList("Last used playlist", tracks,
-                                (Track) tomahawkListItem);
-                        playlist.setCurrentTrackIndex(position);
-                    } else if (mArtist != null) {
-                        tracks = mArtist.getTracks();
-                        playlist = CustomPlaylist.fromTrackList("Last used playlist", tracks,
-                                (Track) tomahawkListItem);
-                        playlist.setCurrentTrackIndex(position);
-                    } else if (mCustomPlaylist != null) {
-                        tracks = mCustomPlaylist.getTracks();
-                        playlist = CustomPlaylist.fromTrackList("Last used playlist", tracks,
-                                (Track) tomahawkListItem);
-                        playlist.setCurrentTrackIndex(position);
-                    } else {
-                        tracks.add((Track) tomahawkListItem);
-                        playlist = CustomPlaylist.fromTrackList("Last used playlist", tracks,
-                                (Track) tomahawkListItem);
-                        playlist.setCurrentTrackIndex(0);
-                    }
-                    userCollection.setCachedPlaylist(playlist);
-                    bundle.putBoolean(UserCollection.USERCOLLECTION_PLAYLISTCACHED, true);
-                    bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID,
-                            ((Track) tomahawkListItem).getId());
-                } else if (tomahawkListItem instanceof CustomPlaylist) {
-                    bundle.putLong(PlaybackActivity.PLAYLIST_PLAYLIST_ID,
-                            ((CustomPlaylist) tomahawkListItem).getId());
-                } else if (tomahawkListItem instanceof Album) {
-                    bundle.putLong(PlaybackActivity.PLAYLIST_ALBUM_ID,
-                            ((Album) tomahawkListItem).getId());
-                    bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID,
-                            ((Album) tomahawkListItem).getTracks().get(0).getId());
-                } else if (tomahawkListItem instanceof Artist) {
-                    bundle.putLong(PlaybackActivity.PLAYLIST_ARTIST_ID,
-                            ((Artist) tomahawkListItem).getId());
-                }
-                Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
-                playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
-                startActivity(playbackIntent);
-                return true;
-            case R.id.popupmenu_playaftercurrenttrack_item:
-                if (tomahawkListItem instanceof Track) {
-                    tracks.add((Track) tomahawkListItem);
-                } else if (tomahawkListItem instanceof CustomPlaylist) {
-                    tracks = ((CustomPlaylist) tomahawkListItem).getTracks();
-                } else if (tomahawkListItem instanceof Album) {
-                    tracks = ((Album) tomahawkListItem).getTracks();
-                } else if (tomahawkListItem instanceof Artist) {
-                    tracks = ((Artist) tomahawkListItem).getTracks();
-                }
-                if (mActivity.getPlaybackService().getCurrentPlaylist() != null) {
-                    mActivity.getPlaybackService().addTracksToCurrentPlaylist(
-                            mActivity.getPlaybackService().getCurrentPlaylist()
-                                    .getCurrentTrackIndex() + 1, tracks);
+        if (menuItemTitle.equals(getResources().getString(R.string.fake_context_menu_delete))) {
+            if (tomahawkListItem instanceof CustomPlaylist) {
+                mUserPlaylistsDataSource
+                        .deleteUserPlaylist(((CustomPlaylist) tomahawkListItem).getId());
+            } else if (tomahawkListItem instanceof Track && mCustomPlaylist != null) {
+                mUserPlaylistsDataSource.deleteTrackInUserPlaylist(mCustomPlaylist.getId(),
+                        ((Track) tomahawkListItem).getId());
+            }
+            userCollection.updateUserPlaylists();
+        } else if (menuItemTitle
+                .equals(getResources().getString(R.string.fake_context_menu_play))) {
+            if (tomahawkListItem instanceof Track) {
+                CustomPlaylist playlist;
+                if (mAlbum != null) {
+                    tracks = mAlbum.getTracks();
+                    playlist = CustomPlaylist
+                            .fromTrackList("Last used playlist", tracks, (Track) tomahawkListItem);
+                    playlist.setCurrentTrackIndex(position);
+                } else if (mArtist != null) {
+                    tracks = mArtist.getTracks();
+                    playlist = CustomPlaylist
+                            .fromTrackList("Last used playlist", tracks, (Track) tomahawkListItem);
+                    playlist.setCurrentTrackIndex(position);
+                } else if (mCustomPlaylist != null) {
+                    tracks = mCustomPlaylist.getTracks();
+                    playlist = CustomPlaylist
+                            .fromTrackList("Last used playlist", tracks, (Track) tomahawkListItem);
+                    playlist.setCurrentTrackIndex(position);
                 } else {
-                    mActivity.getPlaybackService().addTracksToCurrentPlaylist(tracks);
-                }
-                return true;
-            case R.id.popupmenu_appendtoplaybacklist_item:
-                if (tomahawkListItem instanceof Track) {
                     tracks.add((Track) tomahawkListItem);
-                } else if (tomahawkListItem instanceof CustomPlaylist) {
-                    tracks = ((CustomPlaylist) tomahawkListItem).getTracks();
-                } else if (tomahawkListItem instanceof Album) {
-                    tracks = ((Album) tomahawkListItem).getTracks();
-                } else if (tomahawkListItem instanceof Artist) {
-                    tracks = ((Artist) tomahawkListItem).getTracks();
+                    playlist = CustomPlaylist
+                            .fromTrackList("Last used playlist", tracks, (Track) tomahawkListItem);
+                    playlist.setCurrentTrackIndex(0);
                 }
+                userCollection.setCachedPlaylist(playlist);
+                bundle.putBoolean(UserCollection.USERCOLLECTION_PLAYLISTCACHED, true);
+                bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID,
+                        ((Track) tomahawkListItem).getId());
+            } else if (tomahawkListItem instanceof CustomPlaylist) {
+                bundle.putLong(PlaybackActivity.PLAYLIST_PLAYLIST_ID,
+                        ((CustomPlaylist) tomahawkListItem).getId());
+            } else if (tomahawkListItem instanceof Album) {
+                bundle.putLong(PlaybackActivity.PLAYLIST_ALBUM_ID,
+                        ((Album) tomahawkListItem).getId());
+                bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID,
+                        ((Album) tomahawkListItem).getTracks().get(0).getId());
+            } else if (tomahawkListItem instanceof Artist) {
+                bundle.putLong(PlaybackActivity.PLAYLIST_ARTIST_ID,
+                        ((Artist) tomahawkListItem).getId());
+            }
+            Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
+            playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
+            startActivity(playbackIntent);
+        } else if (menuItemTitle.equals(getResources()
+                .getString(R.string.fake_context_menu_playaftercurrenttrack))) {
+            if (tomahawkListItem instanceof Track) {
+                tracks.add((Track) tomahawkListItem);
+            } else if (tomahawkListItem instanceof CustomPlaylist) {
+                tracks = ((CustomPlaylist) tomahawkListItem).getTracks();
+            } else if (tomahawkListItem instanceof Album) {
+                tracks = ((Album) tomahawkListItem).getTracks();
+            } else if (tomahawkListItem instanceof Artist) {
+                tracks = ((Artist) tomahawkListItem).getTracks();
+            }
+            if (mActivity.getPlaybackService().getCurrentPlaylist() != null) {
+                mActivity.getPlaybackService().addTracksToCurrentPlaylist(
+                        mActivity.getPlaybackService().getCurrentPlaylist().getCurrentTrackIndex()
+                                + 1, tracks);
+            } else {
                 mActivity.getPlaybackService().addTracksToCurrentPlaylist(tracks);
-                return true;
-            case R.id.popupmenu_addtoplaylist_item:
-                if (tomahawkListItem instanceof Track) {
-                    tracks.add((Track) tomahawkListItem);
-                } else if (tomahawkListItem instanceof CustomPlaylist) {
-                    tracks = ((CustomPlaylist) tomahawkListItem).getTracks();
-                } else if (tomahawkListItem instanceof Album) {
-                    tracks = ((Album) tomahawkListItem).getTracks();
-                } else if (tomahawkListItem instanceof Artist) {
-                    tracks = ((Artist) tomahawkListItem).getTracks();
-                }
-                new ChoosePlaylistDialog(userCollection, tracks)
-                        .show(mActivity.getSupportFragmentManager(), "ChoosePlaylistDialog");
-                userCollection.updateUserPlaylists();
-                return true;
-            default:
-                return super.onContextItemSelected(item);
+            }
+        } else if (menuItemTitle.equals(getResources()
+                .getString(R.string.fake_context_menu_appendtoplaybacklist))) {
+            if (tomahawkListItem instanceof Track) {
+                tracks.add((Track) tomahawkListItem);
+            } else if (tomahawkListItem instanceof CustomPlaylist) {
+                tracks = ((CustomPlaylist) tomahawkListItem).getTracks();
+            } else if (tomahawkListItem instanceof Album) {
+                tracks = ((Album) tomahawkListItem).getTracks();
+            } else if (tomahawkListItem instanceof Artist) {
+                tracks = ((Artist) tomahawkListItem).getTracks();
+            }
+            mActivity.getPlaybackService().addTracksToCurrentPlaylist(tracks);
+        } else if (menuItemTitle
+                .equals(getResources().getString(R.string.fake_context_menu_addtoplaylist))) {
+            if (tomahawkListItem instanceof Track) {
+                tracks.add((Track) tomahawkListItem);
+            } else if (tomahawkListItem instanceof CustomPlaylist) {
+                tracks = ((CustomPlaylist) tomahawkListItem).getTracks();
+            } else if (tomahawkListItem instanceof Album) {
+                tracks = ((Album) tomahawkListItem).getTracks();
+            } else if (tomahawkListItem instanceof Artist) {
+                tracks = ((Artist) tomahawkListItem).getTracks();
+            }
+            new ChoosePlaylistDialog(userCollection, tracks)
+                    .show(mActivity.getSupportFragmentManager(), "ChoosePlaylistDialog");
+            userCollection.updateUserPlaylists();
         }
     }
 

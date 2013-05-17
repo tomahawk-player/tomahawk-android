@@ -98,7 +98,7 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
                 if (item instanceof Album) {
                     ((Album) item).loadBitmap(mActivity, viewHolder.imageViewLeft);
                 } else if (item instanceof Artist) {
-//                    ((Artist) item).loadBitmap(mActivity, viewHolder.imageViewLeft);
+//                    ((Artist) item).loadBitmap(mContext, viewHolder.imageViewLeft);
                 }
             }
         }
