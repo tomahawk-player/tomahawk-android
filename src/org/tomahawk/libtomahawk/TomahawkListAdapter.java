@@ -48,6 +48,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
 
     private ResourceHolder mCategoryHeaderResourceHolder;
 
+    private ResourceHolder mAddButtonResourceHolder;
+
     private boolean mShowCategoryHeaders = false;
 
     private boolean mShowPlaylistHeader = false;
@@ -59,6 +61,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
     private boolean mShowHighlightingAndPlaystate = false;
 
     private boolean mShowResolvedBy = false;
+
+    private boolean mShowAddButton = false;
 
     /**
      * Constructs a new {@link TomahawkListAdapter} to display list items with a single line of text
@@ -94,12 +98,12 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
         mContentHeaderTomahawkListItem = contentHeaderTomahawkListItem;
         mShowContentHeader = showContentHeader;
         View contentHeaderView = mLayoutInflater.inflate(R.layout.content_header, null);
-        if (contentHeaderView != null) {
+        if (contentHeaderView != null && list.getHeaderViewsCount() == 0) {
             if (mContentHeaderTomahawkListItem instanceof Album) {
                 ((Album) mContentHeaderTomahawkListItem).loadBitmap(mActivity,
                         (ImageView) contentHeaderView.findViewById(R.id.content_header_image));
             } else if (mContentHeaderTomahawkListItem instanceof Artist) {
-                //((Artist) mContentHeaderTomahawkListItem).loadBitmap(mActivity, (ImageView) contentHeaderView.findViewById(R.id.content_header_image));
+                //((Artist) mContentHeaderTomahawkListItem).loadBitmap(mContext, (ImageView) contentHeaderView.findViewById(R.id.content_header_image));
             }
             ((TextView) contentHeaderView.findViewById(R.id.content_header_textview))
                     .setText(contentHeaderTomahawkListItem.getName());
@@ -108,8 +112,6 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                 ((TextView) contentHeaderView.findViewById(R.id.content_header_textview2))
                         .setText(contentHeaderTomahawkListItem.getArtist().getName());
             }
-        }
-        if (list.getHeaderViewsCount() == 0) {
             list.addHeaderView(contentHeaderView);
         }
     }
@@ -120,6 +122,16 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
 
     public void setShowResolvedBy(boolean showResolvedBy) {
         this.mShowResolvedBy = showResolvedBy;
+    }
+
+    public void setShowAddButton(boolean showAddButton, ListView list, String buttonText) {
+        mShowAddButton = showAddButton;
+        View addButtonFooterView = mLayoutInflater.inflate(R.layout.add_button_layout, null);
+        if (addButtonFooterView != null && list.getFooterViewsCount() == 0) {
+            ((TextView) addButtonFooterView.findViewById(R.id.add_button_textview))
+                    .setText(buttonText);
+            list.addFooterView(addButtonFooterView);
+        }
     }
 
     /*
@@ -364,7 +376,6 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
     //remember that these have to be static, position=1 should always return the same Id that is.
     @Override
     public long getHeaderId(int position) {
-        //return the first character of the country as ID because this is what headers are based upon
         long result = 0;
         int sizeSum = 0;
         if (mShowContentHeader) {

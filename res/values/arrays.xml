@@ -58,11 +58,23 @@
         <item>Friends</item>
         <item>Settings</item>
     </string-array>
-    <string-array name="remote_collection_menu_items">
-        <item>none</item>
+    <string-array name="fake_context_menu_items">
+        <item>@string/fake_context_menu_play</item>
+        <item>@string/fake_context_menu_playaftercurrenttrack</item>
+        <item>@string/fake_context_menu_appendtoplaybacklist</item>
+        <item>@string/fake_context_menu_addtoplaylist</item>
+        <item>@string/fake_context_menu_delete</item>
     </string-array>
-    <string-array name="global_collection_menu_items">
-        <item>none</item>
+    <string-array name="fake_context_menu_items_without_delete">
+        <item>@string/fake_context_menu_play</item>
+        <item>@string/fake_context_menu_playaftercurrenttrack</item>
+        <item>@string/fake_context_menu_appendtoplaybacklist</item>
+        <item>@string/fake_context_menu_addtoplaylist</item>
     </string-array>
-
+    <string-array name="fake_context_menu_items_without_addplaylist">
+        <item>@string/fake_context_menu_play</item>
+        <item>@string/fake_context_menu_playaftercurrenttrack</item>
+        <item>@string/fake_context_menu_appendtoplaybacklist</item>
+        <item>@string/fake_context_menu_delete</item>
+    </string-array>
 </resources>

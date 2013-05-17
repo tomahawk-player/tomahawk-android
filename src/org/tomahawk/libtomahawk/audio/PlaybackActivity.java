@@ -44,6 +44,8 @@ import org.tomahawk.libtomahawk.playlist.Playlist;
 import org.tomahawk.libtomahawk.resolver.TomahawkUtils;
 import org.tomahawk.tomahawk_android.ChoosePlaylistDialog;
 import org.tomahawk.tomahawk_android.CollectionActivity;
+import org.tomahawk.tomahawk_android.FakeContextMenu;
+import org.tomahawk.tomahawk_android.FakeContextMenuDialog;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -60,6 +62,7 @@ import android.os.Message;
 import android.view.ContextMenu;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 
@@ -70,7 +73,7 @@ import java.util.List;
 public class PlaybackActivity extends SherlockFragmentActivity
         implements PlaybackServiceConnectionListener, Handler.Callback,
         AdapterView.OnItemClickListener, StickyListHeadersListView.OnHeaderClickListener,
-        ViewTreeObserver.OnGlobalLayoutListener {
+        ViewTreeObserver.OnGlobalLayoutListener, FakeContextMenu {
 
     public static final String TAG = PlaybackActivity.class.getName();
 
@@ -274,115 +277,87 @@ public class PlaybackActivity extends SherlockFragmentActivity
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
             ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        android.view.MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.popup_menu, menu);
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-        int position = info.position;
-        TomahawkBaseAdapter.TomahawkListItem tomahawkListItem;
-        position -= mList.getHeaderViewsCount();
-        if (position >= 0) {
-            tomahawkListItem = ((TomahawkBaseAdapter.TomahawkListItem) mTomahawkListAdapter
-                    .getItem(position));
-        } else {
-            tomahawkListItem = mTomahawkListAdapter.getContentHeaderTomahawkListItem();
-        }
-        menu.findItem(R.id.popupmenu_play_item).setVisible(false);
-        menu.findItem(R.id.popupmenu_playaftercurrenttrack_item).setVisible(false);
-        menu.findItem(R.id.popupmenu_appendtoplaybacklist_item).setVisible(false);
-        menu.findItem(R.id.popupmenu_addtoplaylist_item).setVisible(false);
-        menu.findItem(R.id.popupmenu_delete_item).setVisible(false);
-        if (tomahawkListItem instanceof Track) {
-            menu.findItem(R.id.popupmenu_play_item).setVisible(true);
-            menu.findItem(R.id.popupmenu_addtoplaylist_item).setVisible(true);
-            menu.findItem(R.id.popupmenu_delete_item).setVisible(true);
-        }
+        String[] menuItemTitles = getResources().getStringArray(R.array.fake_context_menu_items);
+        new FakeContextMenuDialog(menuItemTitles, info.position, this)
+                .show(getSupportFragmentManager(), null);
     }
 
     @Override
-    public boolean onContextItemSelected(android.view.MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item
-                .getMenuInfo();
-        int position = info.position;
+    public void onFakeContextItemSelected(String menuItemTitle, int position) {
         TomahawkBaseAdapter.TomahawkListItem tomahawkListItem = null;
         position -= mList.getHeaderViewsCount();
         if (position >= 0) {
             tomahawkListItem = ((TomahawkBaseAdapter.TomahawkListItem) mTomahawkListAdapter
                     .getItem(position));
         }
-        switch (item.getItemId()) {
-            case R.id.popupmenu_delete_item:
-                if (tomahawkListItem instanceof Track) {
-                    if (mPlaylist.getCurrentTrackIndex() == position) {
-                        boolean wasPlaying = mPlaybackService.isPlaying();
-                        if (wasPlaying) {
-                            mPlaybackService.pause();
-                        }
-                        try {
-                            if (mPlaybackService.getCurrentPlaylist().peekTrackAtPos(
-                                    mPlaybackService.getCurrentPlaylist().getCurrentTrackIndex()
-                                            + 1) != null) {
-                                mPlaybackService.setCurrentTrack(
-                                        mPlaybackService.getCurrentPlaylist().getTrackAtPos(
-                                                mPlaybackService.getCurrentPlaylist()
-                                                        .getCurrentTrackIndex() + 1));
-                                if (wasPlaying) {
-                                    mPlaybackService.start();
-                                }
-                            } else if (mPlaybackService.getCurrentPlaylist().peekTrackAtPos(
-                                    mPlaybackService.getCurrentPlaylist().getCurrentTrackIndex()
-                                            - 1) != null) {
-                                mPlaybackService.setCurrentTrack(
-                                        mPlaybackService.getCurrentPlaylist().getTrackAtPos(
-                                                mPlaybackService.getCurrentPlaylist()
-                                                        .getCurrentTrackIndex() - 1));
-                                if (wasPlaying) {
-                                    mPlaybackService.start();
-                                }
+        if (menuItemTitle.equals(getResources().getString(R.string.fake_context_menu_delete))) {
+            if (tomahawkListItem instanceof Track) {
+                if (mPlaylist.getCurrentTrackIndex() == position) {
+                    boolean wasPlaying = mPlaybackService.isPlaying();
+                    if (wasPlaying) {
+                        mPlaybackService.pause();
+                    }
+                    try {
+                        if (mPlaybackService.getCurrentPlaylist().peekTrackAtPos(
+                                mPlaybackService.getCurrentPlaylist().getCurrentTrackIndex() + 1)
+                                != null) {
+                            mPlaybackService.setCurrentTrack(mPlaybackService.getCurrentPlaylist()
+                                    .getTrackAtPos(mPlaybackService.getCurrentPlaylist()
+                                            .getCurrentTrackIndex() + 1));
+                            if (wasPlaying) {
+                                mPlaybackService.start();
                             }
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                        } else if (mPlaybackService.getCurrentPlaylist().peekTrackAtPos(
+                                mPlaybackService.getCurrentPlaylist().getCurrentTrackIndex() - 1)
+                                != null) {
+                            mPlaybackService.setCurrentTrack(mPlaybackService.getCurrentPlaylist()
+                                    .getTrackAtPos(mPlaybackService.getCurrentPlaylist()
+                                            .getCurrentTrackIndex() - 1));
+                            if (wasPlaying) {
+                                mPlaybackService.start();
+                            }
                         }
-                    }
-                    mPlaybackService.deleteTrackAtPos(position);
-                }
-                return true;
-            case R.id.popupmenu_play_item:
-                if (tomahawkListItem instanceof Track) {
-                    if (mPlaylist.getCurrentTrackIndex() == position) {
-                        if (!mPlaybackService.isPlaying()) {
-                            mPlaybackService.start();
-                        }
-                    } else {
-                        try {
-                            mPlaybackService.setCurrentTrack(
-                                    mPlaybackService.getCurrentPlaylist().peekTrackAtPos(position));
-                            mPlaybackService.start();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
-                return true;
-            case R.id.popupmenu_addtoplaylist_item:
-                UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication())
-                        .getSourceList().getCollectionFromId(UserCollection.Id));
-                ArrayList<Track> tracks = new ArrayList<Track>();
-                if (tomahawkListItem instanceof Track) {
-                    tracks.add((Track) tomahawkListItem);
-                } else if (tomahawkListItem instanceof CustomPlaylist) {
-                    tracks = ((CustomPlaylist) tomahawkListItem).getTracks();
-                } else if (tomahawkListItem instanceof Album) {
-                    tracks = ((Album) tomahawkListItem).getTracks();
-                } else if (tomahawkListItem instanceof Artist) {
-                    tracks = ((Artist) tomahawkListItem).getTracks();
+                mPlaybackService.deleteTrackAtPos(position);
+            }
+        } else if (menuItemTitle
+                .equals(getResources().getString(R.string.fake_context_menu_play))) {
+            if (tomahawkListItem instanceof Track) {
+                if (mPlaylist.getCurrentTrackIndex() == position) {
+                    if (!mPlaybackService.isPlaying()) {
+                        mPlaybackService.start();
+                    }
+                } else {
+                    try {
+                        mPlaybackService.setCurrentTrack(
+                                mPlaybackService.getCurrentPlaylist().peekTrackAtPos(position));
+                        mPlaybackService.start();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-                new ChoosePlaylistDialog(userCollection, tracks)
-                        .show(getSupportFragmentManager(), "ChoosePlaylistDialog");
-                userCollection.updateUserPlaylists();
-                return true;
-            default:
-                return super.onContextItemSelected(item);
+            }
+        } else if (menuItemTitle
+                .equals(getResources().getString(R.string.fake_context_menu_addtoplaylist))) {
+            UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication())
+                    .getSourceList().getCollectionFromId(UserCollection.Id));
+            ArrayList<Track> tracks = new ArrayList<Track>();
+            if (tomahawkListItem instanceof Track) {
+                tracks.add((Track) tomahawkListItem);
+            } else if (tomahawkListItem instanceof CustomPlaylist) {
+                tracks = ((CustomPlaylist) tomahawkListItem).getTracks();
+            } else if (tomahawkListItem instanceof Album) {
+                tracks = ((Album) tomahawkListItem).getTracks();
+            } else if (tomahawkListItem instanceof Artist) {
+                tracks = ((Artist) tomahawkListItem).getTracks();
+            }
+            new ChoosePlaylistDialog(userCollection, tracks)
+                    .show(getSupportFragmentManager(), "ChoosePlaylistDialog");
+            userCollection.updateUserPlaylists();
         }
     }
 
