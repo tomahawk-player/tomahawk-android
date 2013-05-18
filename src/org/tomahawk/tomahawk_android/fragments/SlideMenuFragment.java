@@ -36,8 +36,6 @@ import android.widget.AdapterView;
  */
 public class SlideMenuFragment extends ListFragment implements AdapterView.OnItemClickListener {
 
-    private TomahawkMenuAdapter mSlideMenuAdapter;
-
     protected CollectionActivity mCollectionActivity;
 
     @Override
@@ -56,10 +54,10 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
         super.onActivityCreated(savedInstanceState);
 
         getListView().setOnItemClickListener(this);
-        mSlideMenuAdapter = new TomahawkMenuAdapter(getActivity(),
+        TomahawkMenuAdapter slideMenuAdapter = new TomahawkMenuAdapter(getActivity(),
                 getResources().getStringArray(R.array.slide_menu_items),
                 getResources().obtainTypedArray(R.array.slide_menu_items_icons));
-        setListAdapter(mSlideMenuAdapter);
+        setListAdapter(slideMenuAdapter);
     }
 
     /*

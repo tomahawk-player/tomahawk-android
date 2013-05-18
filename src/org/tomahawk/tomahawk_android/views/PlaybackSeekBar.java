@@ -35,8 +35,6 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
 
     private PlaybackService mPlaybackService;
 
-    private OnSeekBarChangeListener mOnSeekBarChangeListener;
-
     private Handler mUiHandler;
 
     private TextView mTextViewCurrentTime;
@@ -47,12 +45,10 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
 
     private static final int MSG_UPDATE_PROGRESS = 0x1;
 
-    /** @param context
-     * @param attrs */
     public PlaybackSeekBar(Context context, AttributeSet attrs) {
         super(context, attrs);
         mUiHandler = new Handler(this);
-        mOnSeekBarChangeListener = new OnSeekBarChangeListener() {
+        OnSeekBarChangeListener onSeekBarChangeListener = new OnSeekBarChangeListener() {
             /*
              * (non-Javadoc)
              * @see android .widget .SeekBar. OnSeekBarChangeListener # onProgressChanged (android .widget .SeekBar,
@@ -85,7 +81,7 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
                 updateSeekBarPosition();
             }
         };
-        setOnSeekBarChangeListener(mOnSeekBarChangeListener);
+        setOnSeekBarChangeListener(onSeekBarChangeListener);
         setIsSeeking(false);
     }
 
@@ -203,7 +199,6 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
         return MSG_UPDATE_PROGRESS;
     }
 
-    /** @param mPlaybackService */
     public void setPlaybackService(PlaybackService mPlaybackService) {
         this.mPlaybackService = mPlaybackService;
     }

@@ -39,7 +39,7 @@
                 android:src="@drawable/ic_action_add"/>
         <TextView
                 android:id="@+id/add_button_textview"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ellipsize="marquee"

@@ -31,7 +31,7 @@
             android:layout_marginLeft="16dp"
             android:textSize="22sp"
             android:textColor="@color/tomahawk_red"
-            android:gravity="center_vertical"></TextView>
+            android:gravity="center_vertical"/>
 
     <View
             android:layout_width="match_parent"

@@ -235,7 +235,7 @@ public class BitmapItem {
 
         if (bitmapWorkerTask != null) {
             final String bitmapData = bitmapWorkerTask.path;
-            if (bitmapData != data) {
+            if (bitmapData != null && bitmapData.equals(data)) {
                 // Cancel previous task
                 bitmapWorkerTask.cancel(true);
             } else {
@@ -255,7 +255,7 @@ public class BitmapItem {
 
         if (bitmapWorkerTask != null) {
             final String bitmapData = bitmapWorkerTask.path;
-            if (bitmapData != data) {
+            if (bitmapData != null && bitmapData.equals(data)) {
                 // Cancel previous task
                 bitmapWorkerTask.cancel(true);
             } else {

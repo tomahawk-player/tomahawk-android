@@ -94,7 +94,8 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
                 view = convertView;
                 viewHolder = (ViewHolder) view.getTag();
             }
-            if (viewHolder.viewType == R.id.tomahawklistadapter_viewtype_griditem) {
+            if (viewHolder.viewType == R.id.tomahawklistadapter_viewtype_griditem
+                    && item instanceof TomahawkListItem) {
                 viewHolder.textFirstLine.setText(((TomahawkListItem) item).getName());
                 viewHolder.textSecondLine.setText(((TomahawkListItem) item).getArtist().getName());
                 if (item instanceof Album) {

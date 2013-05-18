@@ -217,7 +217,7 @@ public class ContentViewer {
     public boolean backToFragment(int stackId, String fragmentTag, boolean withBundle) {
         ArrayList<FragmentStateHolder> fragmentsStack = mMapOfStacks.get(stackId);
         for (FragmentStateHolder fpb : fragmentsStack) {
-            if (fpb.fragmentTag.equals(fragmentTag)) {
+            if (fpb.fragmentTag != null && fpb.fragmentTag.equals(fragmentTag)) {
                 if (fragmentsStack.size() > 1) {
                     while (fragmentsStack.size() > 0 && !(fragmentsStack
                             .get(fragmentsStack.size() - 1).fragmentTag.equals(fragmentTag))) {
@@ -245,7 +245,8 @@ public class ContentViewer {
                     ft.commit();
                     mCollectionActivity.onBackStackChanged();
                 }
-                return fragmentsStack.get(fragmentsStack.size() - 1).equals(fragmentTag);
+                return fragmentsStack.get(fragmentsStack.size() - 1).fragmentTag
+                        .equals(fragmentTag);
             }
         }
         return false;

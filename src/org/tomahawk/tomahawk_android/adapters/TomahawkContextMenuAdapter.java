@@ -26,6 +26,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -42,9 +43,7 @@ public class TomahawkContextMenuAdapter extends BaseAdapter {
      */
     public TomahawkContextMenuAdapter(LayoutInflater layoutInflater, String[] stringArray) {
         mLayoutInflater = layoutInflater;
-        for (int i = 0; i < stringArray.length; i++) {
-            mStringArray.add(stringArray[i]);
-        }
+        Collections.addAll(mStringArray, stringArray);
     }
 
     /* 

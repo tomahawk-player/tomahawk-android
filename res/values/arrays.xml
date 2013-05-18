@@ -50,13 +50,13 @@
         <item>Artists</item>
     </string-array>
     <string-array name="slide_menu_items">
-        <item>Home</item>
-        <item>Search</item>
-        <item>Collection</item>
-        <item>Playlists</item>
-        <item>Stations</item>
-        <item>Friends</item>
-        <item>Settings</item>
+        <item>@string/slide_menu_home</item>
+        <item>@string/slide_menu_search</item>
+        <item>@string/slide_menu_collection</item>
+        <item>@string/slide_menu_playlists</item>
+        <item>@string/slide_menu_stations</item>
+        <item>@string/slide_menu_friends</item>
+        <item>@string/slide_menu_settings</item>
     </string-array>
     <string-array name="fake_context_menu_items">
         <item>@string/fake_context_menu_play</item>

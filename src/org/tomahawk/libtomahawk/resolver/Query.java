@@ -363,9 +363,7 @@ public class Query {
                 distanceScoreAlbum = 1F;
             }
 
-            float combined = (distanceScoreArtist * 4 + distanceScoreAlbum + distanceScoreTrack * 5)
-                    / 10;
-            return combined;
+            return (distanceScoreArtist * 4 + distanceScoreAlbum + distanceScoreTrack * 5) / 10;
         }
     }
 
@@ -406,11 +404,7 @@ public class Query {
     }
 
     private void updateSolved() {
-        if (mResolversDoneCount != 0 && mResolversTodoCount == mResolversDoneCount) {
-            mSolved = true;
-        } else {
-            mSolved = false;
-        }
+        mSolved = mResolversDoneCount != 0 && mResolversTodoCount == mResolversDoneCount;
     }
 
     public String getCacheKey() {

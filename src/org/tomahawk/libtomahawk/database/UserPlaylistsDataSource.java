@@ -178,7 +178,7 @@ public class UserPlaylistsDataSource {
 
     public CustomPlaylist getUserPlaylist(long playlistId) {
         ArrayList<Track> trackList;
-        int currentTrackIndex = 0;
+        int currentTrackIndex;
         Cursor userplaylistsCursor = mDatabase
                 .query(TomahawkSQLiteHelper.TABLE_USERPLAYLISTS, mAllUserPlaylistsColumns,
                         TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ID + " = " + playlistId, null,

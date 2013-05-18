@@ -179,14 +179,12 @@ public class PlaybackFragment extends SherlockFragment {
             if (mToast != null) {
                 mToast.cancel();
             }
-            if (mPlaybackService != null) {
-                mToast = Toast.makeText(getSherlockActivity(), getString(
-                        mPlaybackService.getCurrentPlaylist().isShuffled()
-                                ? R.string.playbackactivity_toastshuffleon_string
-                                : R.string.playbackactivity_toastshuffleoff_string),
-                        Toast.LENGTH_SHORT);
-                mToast.show();
-            }
+            mToast = Toast.makeText(getSherlockActivity(), getString(
+                    mPlaybackService.getCurrentPlaylist().isShuffled()
+                            ? R.string.playbackactivity_toastshuffleon_string
+                            : R.string.playbackactivity_toastshuffleoff_string),
+                    Toast.LENGTH_SHORT);
+            mToast.show();
         }
     }
 
@@ -200,14 +198,11 @@ public class PlaybackFragment extends SherlockFragment {
             if (mToast != null) {
                 mToast.cancel();
             }
-            if (mPlaybackService != null) {
-                mToast = Toast.makeText(getSherlockActivity(), getString(
-                        mPlaybackService.getCurrentPlaylist().isRepeating()
-                                ? R.string.playbackactivity_toastrepeaton_string
-                                : R.string.playbackactivity_toastrepeatoff_string),
-                        Toast.LENGTH_SHORT);
-                mToast.show();
-            }
+            mToast = Toast.makeText(getSherlockActivity(), getString(
+                    mPlaybackService.getCurrentPlaylist().isRepeating()
+                            ? R.string.playbackactivity_toastrepeaton_string
+                            : R.string.playbackactivity_toastrepeatoff_string), Toast.LENGTH_SHORT);
+            mToast.show();
         }
     }
 
@@ -248,8 +243,7 @@ public class PlaybackFragment extends SherlockFragment {
     public void setPlaybackService(PlaybackService ps) {
         if (mPlaybackActivity != null && mPlaybackService != ps) {
             mPlaybackService = ps;
-            if (mAlbumArtSwipeAdapter != null && mPlaybackActivity != null
-                    && mPlaybackSeekBar != null) {
+            if (mAlbumArtSwipeAdapter != null && mPlaybackSeekBar != null) {
                 mAlbumArtSwipeAdapter.setPlaybackService(mPlaybackService);
                 mPlaybackSeekBar.setPlaybackService(mPlaybackService);
                 refreshActivityTrackInfo();
@@ -307,7 +301,7 @@ public class PlaybackFragment extends SherlockFragment {
                 albumTextView.setText(R.string.playbackactivity_unknown_string);
             }
             if (track.getName() != null) {
-                titleTextView.setText(track.getName().toString());
+                titleTextView.setText(track.getName());
             } else {
                 titleTextView.setText(R.string.playbackactivity_unknown_string);
             }

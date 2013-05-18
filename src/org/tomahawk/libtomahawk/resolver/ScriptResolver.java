@@ -32,6 +32,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.webkit.WebSettings;
+import android.webkit.WebView;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class ScriptResolver implements Resolver {
 
     private int mId;
 
-    private ScriptEngine mScriptEngine;
+    private WebView mScriptEngine;
 
     private String mScriptFilePath;
 
@@ -91,7 +92,7 @@ public class ScriptResolver implements Resolver {
         mStopped = true;
         mId = id;
         mTomahawkApp = tomahawkApp;
-        mScriptEngine = new ScriptEngine(mTomahawkApp);
+        mScriptEngine = new WebView(mTomahawkApp);
         WebSettings settings = mScriptEngine.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDatabaseEnabled(true);
@@ -225,7 +226,7 @@ public class ScriptResolver implements Resolver {
                 Log.d(TAG, "handleCallbackToJava: id='" + mTomahawkApp.getResources()
                         .getResourceEntryName(id) + "(" + id + ")" + "', result='" + s + "'");
                 try {
-                    if (id == R.id.scriptresolver_resolver_settings) {
+                    if (id == R.id.scriptresolver_resolver_settings && obj != null) {
                         mName = obj.getString("name");
                         mWeight = obj.getInt("weight");
                         mTimeout = obj.getInt("timeout") * 1000;
@@ -241,7 +242,7 @@ public class ScriptResolver implements Resolver {
                     } else if (id == R.id.scriptresolver_resolver_userconfig) {
                     } else if (id == R.id.scriptresolver_resolver_init) {
                         resolverSettings();
-                    } else if (id == R.id.scriptresolver_add_track_results_string) {
+                    } else if (id == R.id.scriptresolver_add_track_results_string && obj != null) {
                         String qid = obj.get("qid").toString();
                         JSONArray resultList = obj.getJSONArray("results");
                         mTomahawkApp.getPipeLine().reportResults(qid, parseResultList(resultList));

@@ -393,7 +393,7 @@ public class PlaybackActivity extends SherlockFragmentActivity
             if (0 < firstVisible) {
                 mList.smoothScrollToPosition(0);
             } else {
-                mList.smoothScrollToPosition(0 + lastVisible - firstVisible - 2);
+                mList.smoothScrollToPosition(lastVisible - firstVisible - 2);
             }
         } else {
             mList.setSelectionFromTop(0, 0);
@@ -526,8 +526,7 @@ public class PlaybackActivity extends SherlockFragmentActivity
                 mPlaybackFragment = (PlaybackFragment) getSupportFragmentManager()
                         .findFragmentById(R.id.playbackFragment);
                 View headerView;
-                if (mPlaybackFragment == null || (mPlaybackFragment != null
-                        && mPlaybackFragment.getView() == null)) {
+                if (mPlaybackFragment == null || mPlaybackFragment.getView() == null) {
                     headerView = getLayoutInflater()
                             .inflate(R.layout.fragment_container_list_item, null);
                     mPlaybackFragment = (PlaybackFragment) getSupportFragmentManager()
