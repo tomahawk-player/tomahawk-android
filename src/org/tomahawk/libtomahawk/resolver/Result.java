@@ -17,9 +17,9 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
-import org.tomahawk.libtomahawk.Album;
-import org.tomahawk.libtomahawk.Artist;
-import org.tomahawk.libtomahawk.Track;
+import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Track;
 
 /**
  * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 19.01.13 This class represents a result,

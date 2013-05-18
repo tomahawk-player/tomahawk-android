@@ -23,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/transparent_black">
-    <org.tomahawk.libtomahawk.TomahawkStickyListHeadersListView
+    <org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView
             android:id="@+id/listview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

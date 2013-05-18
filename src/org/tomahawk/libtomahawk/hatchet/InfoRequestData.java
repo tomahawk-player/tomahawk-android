@@ -18,9 +18,9 @@
 package org.tomahawk.libtomahawk.hatchet;
 
 import org.apache.http.client.methods.HttpGet;
-import org.tomahawk.libtomahawk.Album;
-import org.tomahawk.libtomahawk.Artist;
-import org.tomahawk.libtomahawk.Track;
+import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import java.util.ArrayList;

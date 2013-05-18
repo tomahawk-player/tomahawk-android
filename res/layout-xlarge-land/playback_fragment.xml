@@ -154,7 +154,7 @@
                 android:text="@string/playbackactivity_seekbar_current_time_string"
                 android:textAppearance="?android:attr/textAppearanceSmall"/>
 
-        <org.tomahawk.libtomahawk.audio.PlaybackSeekBar
+        <org.tomahawk.tomahawk_android.views.PlaybackSeekBar
                 android:id="@+id/seekBar_track"
                 style="@style/tomahawk_ProgressBar"
                 android:layout_width="wrap_content"

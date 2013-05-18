@@ -19,10 +19,10 @@ package org.tomahawk.libtomahawk.test;
 
 import junit.framework.Assert;
 
-import org.tomahawk.libtomahawk.Album;
-import org.tomahawk.libtomahawk.Artist;
 import org.tomahawk.libtomahawk.LocalCollection;
-import org.tomahawk.libtomahawk.Track;
+import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Track;
 
 import android.database.Cursor;
 import android.provider.MediaStore;

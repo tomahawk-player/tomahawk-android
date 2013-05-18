@@ -28,7 +28,7 @@
               android:background="@drawable/selectable_background_tomahawk"
               android:descendantFocusability="blocksDescendants">
 
-    <org.tomahawk.tomahawk_android.SquareWidthRelativeLayout
+    <org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout
             android:layout_width="44dip"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -40,7 +40,7 @@
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"/>
-    </org.tomahawk.tomahawk_android.SquareWidthRelativeLayout>
+    </org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout>
 
     <LinearLayout
             android:layout_width="match_parent"
@@ -84,7 +84,7 @@
 
     </LinearLayout>
 
-    <org.tomahawk.tomahawk_android.SquareWidthRelativeLayout
+    <org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout
             android:layout_width="44dip"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -99,5 +99,5 @@
                 android:layout_margin="7dip"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"/>
-    </org.tomahawk.tomahawk_android.SquareWidthRelativeLayout>
+    </org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout>
 </LinearLayout>

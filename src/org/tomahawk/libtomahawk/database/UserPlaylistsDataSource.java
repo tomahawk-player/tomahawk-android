@@ -17,11 +17,11 @@
  */
 package org.tomahawk.libtomahawk.database;
 
-import org.tomahawk.libtomahawk.Album;
-import org.tomahawk.libtomahawk.Artist;
-import org.tomahawk.libtomahawk.Track;
-import org.tomahawk.libtomahawk.playlist.CustomPlaylist;
-import org.tomahawk.libtomahawk.playlist.Playlist;
+import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.CustomPlaylist;
+import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 
 import android.content.ContentValues;

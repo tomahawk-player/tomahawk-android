@@ -17,12 +17,13 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
-import org.tomahawk.libtomahawk.Album;
-import org.tomahawk.libtomahawk.AlbumComparator;
-import org.tomahawk.libtomahawk.Artist;
-import org.tomahawk.libtomahawk.ArtistComparator;
-import org.tomahawk.libtomahawk.Track;
-import org.tomahawk.libtomahawk.TrackComparator;
+import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.AlbumComparator;
+import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.ArtistComparator;
+import org.tomahawk.libtomahawk.collection.Track;
+import org.tomahawk.libtomahawk.collection.TrackComparator;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 
 import android.text.TextUtils;
 import android.util.Log;

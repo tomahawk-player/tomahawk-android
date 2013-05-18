@@ -20,9 +20,9 @@ package org.tomahawk.libtomahawk.resolver;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.tomahawk.libtomahawk.Album;
-import org.tomahawk.libtomahawk.Artist;
-import org.tomahawk.libtomahawk.Track;
+import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 

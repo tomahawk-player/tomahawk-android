@@ -17,7 +17,8 @@
  */
 package org.tomahawk.libtomahawk.network;
 
-import org.tomahawk.tomahawk_android.TomahawkAccountAuthenticatorActivity;
+import org.tomahawk.tomahawk_android.activities.TomahawkAccountAuthenticatorActivity;
+import org.tomahawk.tomahawk_android.services.TomahawkService;
 
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;

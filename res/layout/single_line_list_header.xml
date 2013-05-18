@@ -39,7 +39,7 @@
             android:paddingLeft="1dip"
             android:paddingTop="1dip">
 
-        <org.tomahawk.tomahawk_android.SquareHeightRelativeLayout
+        <org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout
                 android:id="@+id/single_line_list_header_icon_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent">
@@ -50,7 +50,7 @@
                     android:layout_height="match_parent"
                     android:adjustViewBounds="false"
                     android:scaleType="centerCrop"/>
-        </org.tomahawk.tomahawk_android.SquareHeightRelativeLayout>
+        </org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout>
 
         <TextView
                 android:id="@+id/single_line_list_header_textview"

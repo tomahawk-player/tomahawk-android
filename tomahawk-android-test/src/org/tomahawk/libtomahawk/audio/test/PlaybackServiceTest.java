@@ -19,12 +19,12 @@ package org.tomahawk.libtomahawk.audio.test;
 
 import junit.framework.Assert;
 
-import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.LocalCollection;
-import org.tomahawk.libtomahawk.Track;
-import org.tomahawk.libtomahawk.audio.PlaybackActivity;
-import org.tomahawk.libtomahawk.audio.PlaybackService;
-import org.tomahawk.libtomahawk.playlist.AlbumPlaylist;
+import org.tomahawk.libtomahawk.collection.AlbumPlaylist;
+import org.tomahawk.libtomahawk.collection.Collection;
+import org.tomahawk.libtomahawk.collection.Track;
+import org.tomahawk.tomahawk_android.activities.PlaybackActivity;
+import org.tomahawk.tomahawk_android.services.PlaybackService;
 
 import android.content.Intent;
 import android.test.ServiceTestCase;
