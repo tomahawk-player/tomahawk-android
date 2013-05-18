@@ -210,7 +210,7 @@ public abstract class Playlist implements Playable {
      * @see org.tomahawk.libtomahawk.playlist.Playable#hasNextTrack()
      */
     public boolean hasNextTrack() {
-        return peekNextTrack() != null ? true : false;
+        return peekNextTrack() != null;
     }
 
     /* 
@@ -218,7 +218,7 @@ public abstract class Playlist implements Playable {
      * @see org.tomahawk.libtomahawk.playlist.Playable#hasPreviousTrack()
      */
     public boolean hasPreviousTrack() {
-        return peekPreviousTrack() != null ? true : false;
+        return peekPreviousTrack() != null;
     }
 
     /**
@@ -229,8 +229,7 @@ public abstract class Playlist implements Playable {
     public Track peekNextTrack() {
         List<Track> tracks = mShuffled ? mShuffledTracks : mTracks;
         if (mCurrentTrackIndex + 1 < tracks.size()) {
-            Track track = tracks.get(mCurrentTrackIndex + 1);
-            return track;
+            return tracks.get(mCurrentTrackIndex + 1);
         } else if (mRepeating) {
             return getFirstTrack();
         }
@@ -245,8 +244,7 @@ public abstract class Playlist implements Playable {
     public Track peekPreviousTrack() {
         if (mCurrentTrackIndex - 1 >= 0) {
             List<Track> tracks = mShuffled ? mShuffledTracks : mTracks;
-            Track track = tracks.get(mCurrentTrackIndex - 1);
-            return track;
+            return tracks.get(mCurrentTrackIndex - 1);
         } else if (mRepeating) {
             return getLastTrack();
         }

@@ -26,9 +26,9 @@ public class TomahawkUtils {
         if (s == null || t == null) {
             throw new IllegalArgumentException("Strings must not be null");
         }
-        if (s == null || TextUtils.isEmpty(s)) {
+        if (TextUtils.isEmpty(s)) {
             return t.length();
-        } else if (t == null || TextUtils.isEmpty(t)) {
+        } else if (TextUtils.isEmpty(t)) {
             return s.length();
         }
         int n = s.length(); // length of s
@@ -88,8 +88,7 @@ public class TomahawkUtils {
     public static float convertDpToPixel(float dp, Context context) {
         Resources resources = context.getResources();
         DisplayMetrics metrics = resources.getDisplayMetrics();
-        float px = dp * (metrics.densityDpi / 160f);
-        return px;
+        return dp * (metrics.densityDpi / 160f);
     }
 
     /**

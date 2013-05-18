@@ -52,11 +52,7 @@ public class TomahawkStickyListHeadersListView extends StickyListHeadersListView
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         boolean result = super.onInterceptTouchEvent(ev);
-        if (gestureDetector.onTouchEvent(ev)) {
-            return result;
-        } else {
-            return false;
-        }
+        return gestureDetector.onTouchEvent(ev) && result;
     }
 
     class YScrollDetector extends GestureDetector.SimpleOnGestureListener {
@@ -64,11 +60,7 @@ public class TomahawkStickyListHeadersListView extends StickyListHeadersListView
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             try {
-                if (Math.abs(distanceY) > Math.abs(distanceX)) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return Math.abs(distanceY) > Math.abs(distanceX);
             } catch (Exception e) {
                 Log.e(TAG, e.getLocalizedMessage());
             }

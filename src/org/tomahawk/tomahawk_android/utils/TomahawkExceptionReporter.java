@@ -18,7 +18,6 @@
 package org.tomahawk.tomahawk_android.utils;
 
 import org.acra.ACRA;
-import org.acra.ErrorReporter;
 import org.acra.ReportField;
 import org.acra.collector.CrashReportData;
 import org.acra.sender.ReportSender;
@@ -64,7 +63,7 @@ public class TomahawkExceptionReporter implements ReportSender {
         if (!Debug.isDebuggerConnected()) {
             ACRA.init(app);
             TomahawkExceptionReporter reporter = new TomahawkExceptionReporter();
-            ErrorReporter.getInstance().setReportSender(reporter);
+            ACRA.getErrorReporter().setReportSender(reporter);
         }
         initStrictMode();
     }
@@ -89,59 +88,68 @@ public class TomahawkExceptionReporter implements ReportSender {
         for (NameValuePair pair : nameValuePairs) {
             body.append("--thkboundary\r\n");
             body.append("Content-Disposition: form-data; name=\"");
-            body.append(pair.getName() + "\"\r\n\r\n" + pair.getValue() + "\r\n");
+            body.append(pair.getName()).append("\"\r\n\r\n").append(pair.getValue()).append("\r\n");
         }
 
         body.append("--thkboundary\r\n");
-        body.append(
-                "Content-Disposition: form-data; name=\"upload_file_minidump\"; filename=\"" + data
-                        .getProperty(ReportField.REPORT_ID) + "\"\r\n");
+        body.append("Content-Disposition: form-data; name=\"upload_file_minidump\"; filename=\"")
+                .append(data.getProperty(ReportField.REPORT_ID)).append("\"\r\n");
         body.append("Content-Type: application/octet-stream\r\n\r\n");
 
         body.append("============== Tomahawk Exception Report ==============\r\n\r\n");
-        body.append("Report ID: " + data.getProperty(ReportField.REPORT_ID) + "\r\n");
-        body.append(
-                "App Start Date: " + data.getProperty(ReportField.USER_APP_START_DATE) + "\r\n");
-        body.append("Crash Date: " + data.getProperty(ReportField.USER_CRASH_DATE) + "\r\n\r\n");
+        body.append("Report ID: ").append(data.getProperty(ReportField.REPORT_ID)).append("\r\n");
+        body.append("App Start Date: ").append(data.getProperty(ReportField.USER_APP_START_DATE))
+                .append("\r\n");
+        body.append("Crash Date: ").append(data.getProperty(ReportField.USER_CRASH_DATE))
+                .append("\r\n\r\n");
 
         body.append("--------- Phone Details  ----------\r\n");
-        body.append("Phone Model: " + data.getProperty(ReportField.PHONE_MODEL) + "\r\n");
-        body.append("Brand: " + data.getProperty(ReportField.BRAND) + "\r\n");
-        body.append("Product: " + data.getProperty(ReportField.PRODUCT) + "\r\n");
-        body.append("Display: " + data.getProperty(ReportField.DISPLAY) + "\r\n");
+        body.append("Phone Model: ").append(data.getProperty(ReportField.PHONE_MODEL))
+                .append("\r\n");
+        body.append("Brand: ").append(data.getProperty(ReportField.BRAND)).append("\r\n");
+        body.append("Product: ").append(data.getProperty(ReportField.PRODUCT)).append("\r\n");
+        body.append("Display: ").append(data.getProperty(ReportField.DISPLAY)).append("\r\n");
         body.append("-----------------------------------\r\n\r\n");
 
         body.append("----------- Stack Trace -----------\r\n");
-        body.append(data.getProperty(ReportField.STACK_TRACE) + "\r\n");
+        body.append(data.getProperty(ReportField.STACK_TRACE)).append("\r\n");
         body.append("-----------------------------------\r\n\r\n");
 
         body.append("------- Operating System  ---------\r\n");
-        body.append("App Version Name: " + data.getProperty(ReportField.APP_VERSION_NAME) + "\r\n");
-        body.append("Total Mem Size: " + data.getProperty(ReportField.TOTAL_MEM_SIZE) + "\r\n");
-        body.append(
-                "Available Mem Size: " + data.getProperty(ReportField.AVAILABLE_MEM_SIZE) + "\r\n");
-        body.append("Dumpsys Meminfo: " + data.getProperty(ReportField.DUMPSYS_MEMINFO) + "\r\n");
+        body.append("App Version Name: ").append(data.getProperty(ReportField.APP_VERSION_NAME))
+                .append("\r\n");
+        body.append("Total Mem Size: ").append(data.getProperty(ReportField.TOTAL_MEM_SIZE))
+                .append("\r\n");
+        body.append("Available Mem Size: ").append(data.getProperty(ReportField.AVAILABLE_MEM_SIZE))
+                .append("\r\n");
+        body.append("Dumpsys Meminfo: ").append(data.getProperty(ReportField.DUMPSYS_MEMINFO))
+                .append("\r\n");
         body.append("-----------------------------------\r\n\r\n");
 
         body.append("-------------- Misc ---------------\r\n");
-        body.append("Package Name: " + data.getProperty(ReportField.PACKAGE_NAME) + "\r\n");
-        body.append("File Path: " + data.getProperty(ReportField.FILE_PATH) + "\r\n");
+        body.append("Package Name: ").append(data.getProperty(ReportField.PACKAGE_NAME))
+                .append("\r\n");
+        body.append("File Path: ").append(data.getProperty(ReportField.FILE_PATH)).append("\r\n");
 
-        body.append("Android Version: " + data.getProperty(ReportField.ANDROID_VERSION) + "\r\n");
-        body.append("Build: " + data.getProperty(ReportField.BUILD) + "\r\n");
-        body.append("Initial Configuration:  " + data.getProperty(ReportField.INITIAL_CONFIGURATION)
-                + "\r\n");
-        body.append("Crash Configuration: " + data.getProperty(ReportField.CRASH_CONFIGURATION)
-                + "\r\n");
-        body.append("Settings Secure: " + data.getProperty(ReportField.SETTINGS_SECURE) + "\r\n");
-        body.append("User Email: " + data.getProperty(ReportField.USER_EMAIL) + "\r\n");
-        body.append("User Comment: " + data.getProperty(ReportField.USER_COMMENT) + "\r\n");
+        body.append("Android Version: ").append(data.getProperty(ReportField.ANDROID_VERSION))
+                .append("\r\n");
+        body.append("Build: ").append(data.getProperty(ReportField.BUILD)).append("\r\n");
+        body.append("Initial Configuration:  ")
+                .append(data.getProperty(ReportField.INITIAL_CONFIGURATION)).append("\r\n");
+        body.append("Crash Configuration: ")
+                .append(data.getProperty(ReportField.CRASH_CONFIGURATION)).append("\r\n");
+        body.append("Settings Secure: ").append(data.getProperty(ReportField.SETTINGS_SECURE))
+                .append("\r\n");
+        body.append("User Email: ").append(data.getProperty(ReportField.USER_EMAIL)).append("\r\n");
+        body.append("User Comment: ").append(data.getProperty(ReportField.USER_COMMENT))
+                .append("\r\n");
         body.append("-----------------------------------\r\n\r\n");
 
         body.append("---------------- Logs -------------\r\n");
-        body.append("Logcat: " + data.getProperty(ReportField.LOGCAT) + "\r\n\r\n");
-        body.append("Events Log: " + data.getProperty(ReportField.EVENTSLOG) + "\r\n\r\n");
-        body.append("Radio Log: " + data.getProperty(ReportField.RADIOLOG) + "\r\n");
+        body.append("Logcat: ").append(data.getProperty(ReportField.LOGCAT)).append("\r\n\r\n");
+        body.append("Events Log: ").append(data.getProperty(ReportField.EVENTSLOG))
+                .append("\r\n\r\n");
+        body.append("Radio Log: ").append(data.getProperty(ReportField.RADIOLOG)).append("\r\n");
         body.append("-----------------------------------\r\n\r\n");
 
         body.append("=======================================================\r\n\r\n");
@@ -160,7 +168,9 @@ public class TomahawkExceptionReporter implements ReportSender {
             httpclient.execute(httppost);
 
         } catch (ClientProtocolException e) {
+            Log.e(TAG, "send: " + e.getClass() + ": " + e.getLocalizedMessage());
         } catch (IOException e) {
+            Log.e(TAG, "send: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
     }
 

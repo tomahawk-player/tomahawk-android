@@ -192,9 +192,7 @@ public class UserCollection extends Collection {
      */
     @Override
     public List<CustomPlaylist> getCustomPlaylists() {
-        ArrayList<CustomPlaylist> playlists = new ArrayList<CustomPlaylist>(
-                mCustomPlaylists.values());
-        return playlists;
+        return new ArrayList<CustomPlaylist>(mCustomPlaylists.values());
     }
 
     /*

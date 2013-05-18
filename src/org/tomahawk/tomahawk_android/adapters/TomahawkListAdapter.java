@@ -208,14 +208,16 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                 }
             } else if (viewHolder.viewType
                     == R.id.tomahawklistadapter_viewtype_doublelinelistitem) {
-                viewHolder.textFirstLine.setText(((Track) item).getName());
-                viewHolder.textSecondLine.setText(((Track) item).getArtist().getName());
-                if (((Track) item).getDuration() > 0) {
-                    viewHolder.textThirdLine
-                            .setText(TomahawkUtils.durationToString(((Track) item).getDuration()));
-                } else {
-                    viewHolder.textThirdLine.setText(mActivity.getResources()
-                            .getString(R.string.playbackactivity_seekbar_completion_time_string));
+                if (item instanceof Track) {
+                    viewHolder.textFirstLine.setText(((Track) item).getName());
+                    viewHolder.textSecondLine.setText(((Track) item).getArtist().getName());
+                    if (((Track) item).getDuration() > 0) {
+                        viewHolder.textThirdLine.setText(
+                                TomahawkUtils.durationToString(((Track) item).getDuration()));
+                    } else {
+                        viewHolder.textThirdLine.setText(mActivity.getResources().getString(
+                                R.string.playbackactivity_seekbar_completion_time_string));
+                    }
                 }
             } else if (viewHolder.viewType
                     == R.id.tomahawklistadapter_viewtype_doublelineimagelistitem) {

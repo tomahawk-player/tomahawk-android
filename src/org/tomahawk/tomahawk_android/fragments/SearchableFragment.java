@@ -322,8 +322,8 @@ public class SearchableFragment extends TomahawkFragment
         ArrayList<String> myArrayList = getAutoCompleteArray();
         int highestIndex = myArrayList.size();
 
-        for (int i = 0; i < highestIndex; i++) {
-            if (newString.equals(myArrayList.get(i))) {
+        for (String aMyArrayList : myArrayList) {
+            if (newString != null && newString.equals(aMyArrayList)) {
                 return;
             }
         }

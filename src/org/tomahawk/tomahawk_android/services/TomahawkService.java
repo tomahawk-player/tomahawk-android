@@ -121,8 +121,6 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
         }
     }
 
-    ;
-
     /**
      * Runnable that requests accessTokens to start a Connection on.
      */
@@ -361,8 +359,7 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
                 return msg.getJSONArray("accesstokens").toString();
             }
 
-            String token = msg.getJSONObject("authtoken").getString("token");
-            return token;
+            return msg.getJSONObject("authtoken").getString("token");
 
         } catch (UnsupportedEncodingException e1) {
             e1.printStackTrace();

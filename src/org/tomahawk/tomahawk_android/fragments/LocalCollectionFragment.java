@@ -37,8 +37,6 @@ import android.widget.AdapterView.OnItemClickListener;
  */
 public class LocalCollectionFragment extends SherlockListFragment implements OnItemClickListener {
 
-    private TomahawkMenuAdapter mLocalCollectionMenuAdapter;
-
     protected CollectionActivity mCollectionActivity;
 
     /* 
@@ -61,10 +59,10 @@ public class LocalCollectionFragment extends SherlockListFragment implements OnI
         super.onActivityCreated(savedInstanceState);
 
         getListView().setOnItemClickListener(this);
-        mLocalCollectionMenuAdapter = new TomahawkMenuAdapter(getActivity(),
+        TomahawkMenuAdapter tomahawkMenuAdapter = new TomahawkMenuAdapter(getActivity(),
                 getResources().getStringArray(R.array.local_collection_menu_items),
                 getResources().obtainTypedArray(R.array.slide));
-        setListAdapter(mLocalCollectionMenuAdapter);
+        setListAdapter(tomahawkMenuAdapter);
     }
 
     /* 

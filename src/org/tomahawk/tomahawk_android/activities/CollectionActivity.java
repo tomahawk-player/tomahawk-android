@@ -634,23 +634,25 @@ public class CollectionActivity extends TomahawkTabsActivity
                     Album correspondingAlbum = mCollection.getAlbumById(fpb.tomahawkListItemId);
                     CustomPlaylist correspondingCustomPlaylist = mCollection
                             .getCustomPlaylistById(fpb.tomahawkListItemId);
-                    if (fpb.tomahawkListItemType == TomahawkFragment.TOMAHAWK_ALBUM_ID
+                    if (fpb.tomahawkListItemType != null && fpb.tomahawkListItemType
+                            .equals(TomahawkFragment.TOMAHAWK_ALBUM_ID)
                             && correspondingAlbum != null) {
                         breadcrumbItemTextView.setText(correspondingAlbum.getName());
                         breadcrumbItemImageViewLayout
                                 .setVisibility(SquareHeightRelativeLayout.GONE);
-                    } else if (fpb.tomahawkListItemType == TomahawkFragment.TOMAHAWK_PLAYLIST_ID
+                    } else if (fpb.tomahawkListItemType != null &&
+                            fpb.tomahawkListItemType.equals(TomahawkFragment.TOMAHAWK_PLAYLIST_ID)
                             && correspondingCustomPlaylist != null) {
                         breadcrumbItemTextView.setText(correspondingCustomPlaylist.getName());
                         breadcrumbItemImageViewLayout
                                 .setVisibility(SquareHeightRelativeLayout.GONE);
-                    } else if (fpb.tomahawkListItemType
-                            == UserCollection.USERCOLLECTION_ALBUMCACHED) {
+                    } else if (fpb.tomahawkListItemType != null && fpb.tomahawkListItemType
+                            .equals(UserCollection.USERCOLLECTION_ALBUMCACHED)) {
                         breadcrumbItemTextView.setText(mCollection.getCachedAlbum().getName());
                         breadcrumbItemImageViewLayout
                                 .setVisibility(SquareHeightRelativeLayout.GONE);
-                    } else if (fpb.tomahawkListItemType
-                            == UserCollection.USERCOLLECTION_ARTISTCACHED) {
+                    } else if (fpb.tomahawkListItemType != null && fpb.tomahawkListItemType
+                            .equals(UserCollection.USERCOLLECTION_ARTISTCACHED)) {
                         breadcrumbItemTextView.setText(mCollection.getCachedArtist().getName());
                         breadcrumbItemImageViewLayout
                                 .setVisibility(SquareHeightRelativeLayout.GONE);

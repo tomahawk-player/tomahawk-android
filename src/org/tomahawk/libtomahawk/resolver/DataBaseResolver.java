@@ -163,8 +163,7 @@ public class DataBaseResolver implements Resolver {
                     = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
             inputList.addAll(mCollection.getTracks());
 
-            for (int i = 0; i < inputList.size(); i++) {
-                TomahawkBaseAdapter.TomahawkListItem item = inputList.get(i);
+            for (TomahawkBaseAdapter.TomahawkListItem item : inputList) {
                 if (!TextUtils.isEmpty(mFullTextQuery)) {
                     if (item.getName().toLowerCase().contains(mFullTextQuery) || (
                             item.getArtist() != null && item.getArtist().getName().toLowerCase()

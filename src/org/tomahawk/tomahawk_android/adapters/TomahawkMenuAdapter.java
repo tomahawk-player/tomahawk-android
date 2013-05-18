@@ -28,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -46,9 +47,7 @@ public class TomahawkMenuAdapter extends BaseAdapter {
      */
     public TomahawkMenuAdapter(Activity activity, String[] stringArray, TypedArray iconArray) {
         mActivity = activity;
-        for (int i = 0; i < stringArray.length; i++) {
-            mStringArray.add(stringArray[i]);
-        }
+        Collections.addAll(mStringArray, stringArray);
         for (int i = 0; i < iconArray.length(); i++) {
             mIconArray.add(iconArray.getResourceId(i, 0));
         }

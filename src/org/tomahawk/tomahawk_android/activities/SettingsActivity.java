@@ -35,8 +35,6 @@ import android.widget.AdapterView.OnItemClickListener;
  */
 public class SettingsActivity extends SherlockListActivity implements OnItemClickListener {
 
-    private TomahawkMenuAdapter mTomahawkMenuAdapter;
-
     /* 
      * (non-Javadoc)
      * @see android.app.Activity#onCreate(android.os.Bundle)
@@ -63,10 +61,10 @@ public class SettingsActivity extends SherlockListActivity implements OnItemClic
         super.onResume();
 
         getListView().setOnItemClickListener(this);
-        mTomahawkMenuAdapter = new TomahawkMenuAdapter(this,
+        TomahawkMenuAdapter tomahawkMenuAdapter = new TomahawkMenuAdapter(this,
                 getResources().getStringArray(R.array.settings_menu_items),
                 getResources().obtainTypedArray(R.array.settings_icons));
-        setListAdapter(mTomahawkMenuAdapter);
+        setListAdapter(tomahawkMenuAdapter);
     }
 
     /* 

@@ -26,8 +26,6 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="localcollectionactivity_title_string">"My Music"</string>
-    <string name="remotecollectionactivity_title_string">Remote</string>
-    <string name="globalcollectionfragment_title_string">Global</string>
     <string name="tracksfragment_title_string">Tracks</string>
     <string name="albumsfragment_title_string">Albums</string>
     <string name="artistsfragment_title_string">Artists</string>
@@ -55,7 +53,7 @@
     <string name="loginactivity_password_label_string">Password:</string>
     <string name="accounttype_string">org.tomahawk</string>
     <string name="loginactivity_loginbutton_label_string">Login</string>
-    <string name="authenticationdialog_text_string">Authenticating...</string>
+    <string name="authenticationdialog_text_string">Authenticating&#8230;</string>
     <string name="authenticationactivity_invalid_credentials_string">Username or password
         incorrect
     </string>
@@ -79,4 +77,11 @@
     <string name="fake_context_menu_appendtoplaybacklist">Append to playback list</string>
     <string name="fake_context_menu_addtoplaylist">Add to playlist</string>
     <string name="fake_context_menu_delete">Delete</string>
+    <string name="slide_menu_home">Home</string>
+    <string name="slide_menu_search">Search</string>
+    <string name="slide_menu_collection">Collection</string>
+    <string name="slide_menu_playlists">Playlists</string>
+    <string name="slide_menu_stations">Stations</string>
+    <string name="slide_menu_friends">Friends</string>
+    <string name="slide_menu_settings">Settings</string>
 </resources>

@@ -209,8 +209,8 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
      * Removes every element from every list there is
      */
     public void clearAllLists() {
-        for (int i = 0; i < mListArray.size(); i++) {
-            mListArray.get(i).clear();
+        for (List<TomahawkListItem> aMListArray : mListArray) {
+            aMListArray.clear();
         }
         notifyDataSetChanged();
     }

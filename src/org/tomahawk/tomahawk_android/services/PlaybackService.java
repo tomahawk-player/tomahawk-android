@@ -59,6 +59,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -153,7 +154,6 @@ public class PlaybackService extends Service
         }
     }
 
-    ;
 
     /**
      * Listens for incoming phone calls and handles playback.
@@ -318,14 +318,14 @@ public class PlaybackService extends Service
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null) {
-            if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_PREVIOUS) {
+        if (intent != null && intent.getAction() != null) {
+            if (intent.getAction().equals(BROADCAST_NOTIFICATIONINTENT_PREVIOUS)) {
                 previous();
-            } else if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE) {
+            } else if (intent.getAction().equals(BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE)) {
                 playPause();
-            } else if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_NEXT) {
+            } else if (intent.getAction().equals(BROADCAST_NOTIFICATIONINTENT_NEXT)) {
                 next();
-            } else if (intent.getAction() == BROADCAST_NOTIFICATIONINTENT_EXIT) {
+            } else if (intent.getAction().equals(BROADCAST_NOTIFICATIONINTENT_EXIT)) {
                 pause();
                 stopForeground(true);
             }
@@ -795,6 +795,7 @@ public class PlaybackService extends Service
         try {
             position = mTomahawkMediaPlayer.getCurrentPosition();
         } catch (IllegalStateException e) {
+            Log.e(TAG, "getPosition: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
         return position;
     }
@@ -870,7 +871,7 @@ public class PlaybackService extends Service
                     R.layout.notification_small_compat);
         }
         smallNotificationView.setTextViewText(R.id.notification_small_textview, track.getName());
-        if (albumName == "") {
+        if (TextUtils.isEmpty(albumName)) {
             smallNotificationView.setTextViewText(R.id.notification_small_textview2, artistName);
         } else {
             smallNotificationView.setTextViewText(R.id.notification_small_textview2,

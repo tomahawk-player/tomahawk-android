@@ -35,8 +35,6 @@ public class TomahawkPreferences {
     private TomahawkPreferences() {
     }
 
-    ;
-
     public static void setUsernamePassword(String username, String passwd) {
 
         SharedPreferences prefs = PreferenceManager
@@ -49,7 +47,7 @@ public class TomahawkPreferences {
         editor.commit();
     }
 
-    public static final String getUsername() {
+    public static String getUsername() {
         SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(TomahawkApp.getContext());
         return prefs.getString(PREFERENCE_USERNAME, "username");
@@ -58,7 +56,7 @@ public class TomahawkPreferences {
     /**
      * Primarily user for testing purposes before we start encrypting passwords.
      */
-    public static final String getPassword() {
+    public static String getPassword() {
         SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(TomahawkApp.getContext());
         return prefs.getString(PREFERENCE_PASSWORD, "");

@@ -135,8 +135,8 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      * java.lang.Object)
      */
     @Override
-    public boolean isViewFromObject(View arg0, Object arg1) {
-        return arg0 == ((View) arg1);
+    public boolean isViewFromObject(View view, Object object) {
+        return view == object;
     }
 
     /*

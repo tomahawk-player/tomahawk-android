@@ -134,7 +134,7 @@ public class PipeLine {
             }
             resolve(q, onlyLocal);
         }
-        return q.getQid();
+        return q == null ? null : q.getQid();
     }
 
     /**
