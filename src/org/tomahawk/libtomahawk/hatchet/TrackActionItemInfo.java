@@ -19,7 +19,7 @@ package org.tomahawk.libtomahawk.hatchet;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.tomahawk.libtomahawk.resolver.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 
 import android.util.Log;
 

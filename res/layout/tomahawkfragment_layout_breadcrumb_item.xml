@@ -22,7 +22,7 @@
               android:layout_width="wrap_content"
               android:layout_height="50dp"
               android:background="@drawable/selectable_background_tomahawk">
-    <org.tomahawk.tomahawk_android.SquareHeightRelativeLayout
+    <org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout
             android:id="@+id/fragmentLayout_arrow_squareHeightRelativeLayout"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -38,9 +38,9 @@
                 android:adjustViewBounds="false"
                 android:src="@drawable/ic_action_next"
                 android:scaleType="centerCrop"/>
-    </org.tomahawk.tomahawk_android.SquareHeightRelativeLayout>
+    </org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout>
 
-    <org.tomahawk.tomahawk_android.SquareHeightRelativeLayout
+    <org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout
             android:id="@+id/fragmentLayout_icon_squareHeightRelativeLayout"
             android:layout_width="wrap_content"
             android:visibility="gone"
@@ -53,7 +53,7 @@
                 android:layout_height="match_parent"
                 android:adjustViewBounds="false"
                 android:scaleType="centerCrop"/>
-    </org.tomahawk.tomahawk_android.SquareHeightRelativeLayout>
+    </org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout>
 
     <TextView
             android:id="@+id/fragmentLayout_text_textView"

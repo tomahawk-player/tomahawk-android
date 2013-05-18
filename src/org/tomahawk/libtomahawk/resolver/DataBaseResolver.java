@@ -18,12 +18,12 @@
 package org.tomahawk.libtomahawk.resolver;
 
 import org.json.JSONObject;
-import org.tomahawk.libtomahawk.Collection;
-import org.tomahawk.libtomahawk.TomahawkBaseAdapter;
-import org.tomahawk.libtomahawk.Track;
-import org.tomahawk.libtomahawk.UserCollection;
+import org.tomahawk.libtomahawk.collection.Collection;
+import org.tomahawk.libtomahawk.collection.Track;
+import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;

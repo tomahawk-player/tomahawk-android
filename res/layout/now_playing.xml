@@ -25,7 +25,7 @@
                 android:clickable="false"
                 android:onClick="onNowPlayingClicked">
 
-    <org.tomahawk.tomahawk_android.SquareHeightRelativeLayout
+    <org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/now_playing_album_art_container"
             android:layout_width="wrap_content"
@@ -38,7 +38,7 @@
                 android:layout_gravity="center"
                 android:padding="4dp"
                 android:scaleType="centerCrop"/>
-    </org.tomahawk.tomahawk_android.SquareHeightRelativeLayout>
+    </org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout>
 
     <LinearLayout
             android:layout_width="match_parent"

@@ -54,7 +54,7 @@
             android:allowBackup="true">
 
         <activity
-                android:name="org.tomahawk.tomahawk_android.TomahawkMainActivity"
+                android:name=".activities.TomahawkMainActivity"
                 android:label="@string/mainactivity_title_string"
                 android:launchMode="singleTop">
             <intent-filter>
@@ -65,49 +65,21 @@
         </activity>
 
         <activity
-                android:name="org.tomahawk.libtomahawk.audio.PlaybackActivity"
+                android:name=".activities.PlaybackActivity"
                 android:label="@string/playbackfragment_title_string">
         </activity>
 
         <activity
-                android:name="org.tomahawk.tomahawk_android.CollectionActivity"
+                android:name=".activities.CollectionActivity"
                 android:label="@string/mainactivity_title_string"
                 android:launchMode="singleTop">
         </activity>
 
         <service
-                android:name="org.tomahawk.libtomahawk.audio.PlaybackService"
+                android:name=".services.PlaybackService"
                 android:label="@string/playbackservice_label_string"
                 android:stopWithTask="true">
         </service>
-
-        <service
-                android:name="org.tomahawk.libtomahawk.network.TomahawkAccountAuthenticator$TomahawkAuthenticationService">
-            <meta-data
-                    android:name="android.accounts.AccountAuthenticator"
-                    android:resource="@xml/authenticator"/>
-        </service>
-
-        <activity
-                android:name="org.tomahawk.tomahawk_android.TomahawkAccountAuthenticatorActivity"
-                android:label="@string/appname_string">
-        </activity>
-
-        <activity
-                android:name="org.tomahawk.tomahawk_android.TomahawkAccountPreferenceActivity"
-                android:configChanges="keyboardHidden|orientation">
-        </activity>
-
-        <service
-                android:name="org.tomahawk.libtomahawk.network.TomahawkService"
-                android:label="@string/appname_string">
-        </service>
-
-        <activity
-                android:name="org.tomahawk.tomahawk_android.TomahawkPlaybackSettingsActivity"
-                android:label="@string/playbacksettingsactivity_title_string"
-                android:launchMode="singleTop">
-        </activity>
 
         <activity android:name="org.acra.CrashReportDialog"
                   android:launchMode="singleInstance"

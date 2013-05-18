@@ -20,17 +20,19 @@ package org.tomahawk.tomahawk_android;
 
 import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
-import org.tomahawk.libtomahawk.Collection;
-import org.tomahawk.libtomahawk.Source;
-import org.tomahawk.libtomahawk.SourceList;
-import org.tomahawk.libtomahawk.UserCollection;
+import org.tomahawk.libtomahawk.collection.Collection;
+import org.tomahawk.libtomahawk.collection.Source;
+import org.tomahawk.libtomahawk.collection.SourceList;
+import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.hatchet.InfoSystem;
-import org.tomahawk.libtomahawk.network.TomahawkService;
-import org.tomahawk.libtomahawk.network.TomahawkService.TomahawkServiceConnection;
-import org.tomahawk.libtomahawk.network.TomahawkService.TomahawkServiceConnection.TomahawkServiceConnectionListener;
 import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
+import org.tomahawk.tomahawk_android.activities.TomahawkAccountAuthenticatorActivity;
+import org.tomahawk.tomahawk_android.services.TomahawkService;
+import org.tomahawk.tomahawk_android.services.TomahawkService.TomahawkServiceConnection;
+import org.tomahawk.tomahawk_android.services.TomahawkService.TomahawkServiceConnection.TomahawkServiceConnectionListener;
+import org.tomahawk.tomahawk_android.utils.TomahawkExceptionReporter;
 
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;

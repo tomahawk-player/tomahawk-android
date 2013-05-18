@@ -19,9 +19,9 @@ package org.tomahawk.libtomahawk.test;
 
 import junit.framework.Assert;
 
-import org.tomahawk.libtomahawk.Collection;
 import org.tomahawk.libtomahawk.LocalCollection;
-import org.tomahawk.libtomahawk.Source;
+import org.tomahawk.libtomahawk.collection.Collection;
+import org.tomahawk.libtomahawk.collection.Source;
 
 import android.test.AndroidTestCase;
 
@@ -33,8 +33,7 @@ public class SourceTest extends AndroidTestCase {
 
     public void setUp() {
         tstLocalCollection = new LocalCollection(getContext());
-        tstLocalSource = new org.tomahawk.libtomahawk.Source(tstLocalCollection, 1,
-                "Test Collection");
+        tstLocalSource = new Source(tstLocalCollection, 1, "Test Collection");
     }
 
     public void tearDown() {

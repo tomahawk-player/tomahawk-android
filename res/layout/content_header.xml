@@ -22,7 +22,7 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content">
 
-    <org.tomahawk.tomahawk_android.SquareWidthRelativeLayout
+    <org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout
             android:layout_width="150dip"
             android:layout_height="wrap_content"
             android:padding="10dip">
@@ -34,7 +34,7 @@
                 android:scaleType="centerCrop"
                 android:src="@drawable/no_album_art_placeholder"/>
 
-    </org.tomahawk.tomahawk_android.SquareWidthRelativeLayout>
+    </org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout>
 
     <LinearLayout
             android:layout_width="match_parent"

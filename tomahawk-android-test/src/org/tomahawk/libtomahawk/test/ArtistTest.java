@@ -19,8 +19,8 @@ package org.tomahawk.libtomahawk.test;
 
 import junit.framework.Assert;
 
-import org.tomahawk.libtomahawk.Album;
-import org.tomahawk.libtomahawk.Artist;
+import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.Artist;
 
 import android.test.AndroidTestCase;
 
