@@ -42,7 +42,7 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
      */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        idx -= mList.getHeaderViewsCount();
+        idx -= getListView().getHeaderViewsCount();
         if (idx >= 0) {
             if (getListAdapter().getItem(idx) instanceof Artist) {
                 Bundle bundle = new Bundle();

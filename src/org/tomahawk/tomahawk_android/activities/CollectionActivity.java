@@ -543,7 +543,7 @@ public class CollectionActivity extends TomahawkTabsActivity
             }
             for (ContentViewer.FragmentStateHolder fpb : backStack) {
                 LinearLayout breadcrumbItem = (LinearLayout) getLayoutInflater()
-                        .inflate(R.layout.tomahawkfragment_layout_breadcrumb_item, null);
+                        .inflate(R.layout.breadcrumb_item, null);
                 ImageView breadcrumbItemImageView = (ImageView) breadcrumbItem
                         .findViewById(R.id.fragmentLayout_icon_imageButton);
                 SquareHeightRelativeLayout breadcrumbItemArrowLayout
