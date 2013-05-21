@@ -25,7 +25,6 @@ import org.tomahawk.libtomahawk.hatchet.AlbumsInfo;
 import org.tomahawk.libtomahawk.hatchet.ArtistInfo;
 import org.tomahawk.libtomahawk.hatchet.InfoRequestData;
 import org.tomahawk.libtomahawk.hatchet.InfoSystem;
-import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -186,14 +185,19 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                 tomahawkListAdapter.setShowResolvedBy(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                getListAdapter().setListArray(listArray);
+                ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
             }
             getListView().setOnItemClickListener(this);
         } else {
             albums.addAll(mActivity.getCollection().getAlbums());
-            setListAdapter(new TomahawkGridAdapter(getActivity(), R.layout.album_art_grid_item,
-                    R.id.album_art_grid_image, R.id.album_art_grid_textView1,
-                    R.id.album_art_grid_textView2, albums));
+            List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
+                    = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+            listArray.add(albums);
+            if (getListAdapter() == null) {
+                setListAdapter(new TomahawkGridAdapter(getActivity(), listArray));
+            } else {
+                ((TomahawkGridAdapter) getListAdapter()).setListArray(listArray);
+            }
             getGridView().setOnItemClickListener(this);
             adaptColumnCount();
         }

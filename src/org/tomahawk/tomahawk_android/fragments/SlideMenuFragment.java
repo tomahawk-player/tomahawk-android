@@ -119,6 +119,16 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
                     }
                 }, 50);
                 break;
+            case TomahawkTabsActivity.TAB_ID_SETTINGS:
+                mCollectionActivity.getContentViewer()
+                        .setCurrentStackId(TomahawkTabsActivity.TAB_ID_SETTINGS);
+                mCollectionActivity.hideSearchEditText();
+                h.postDelayed(new Runnable() {
+                    public void run() {
+                        mCollectionActivity.showContent();
+                    }
+                }, 50);
+                break;
         }
     }
 }

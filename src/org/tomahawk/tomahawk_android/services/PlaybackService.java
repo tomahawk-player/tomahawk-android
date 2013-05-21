@@ -27,6 +27,7 @@ import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.PlaybackActivity;
+import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -103,8 +104,6 @@ public class PlaybackService extends Service
     private static final int PLAYBACKSERVICE_PLAYSTATE_STOPPED = 2;
 
     private int mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
-
-    public static final String PREF_PLAYBACK_ON_HEADSET = "playback_on_headset";
 
     private static final int PLAYBACKSERVICE_NOTIFICATION_ID = 1;
 
@@ -219,7 +218,9 @@ public class PlaybackService extends Service
 
                 SharedPreferences prefs = PreferenceManager
                         .getDefaultSharedPreferences(TomahawkApp.getContext());
-                boolean playbackOnHeadsetInsert = prefs.getBoolean(PREF_PLAYBACK_ON_HEADSET, false);
+                boolean playbackOnHeadsetInsert = prefs
+                        .getBoolean(FakePreferenceFragment.FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY,
+                                false);
 
                 if (!isPlaying() && playbackOnHeadsetInsert) {
                     start();

@@ -35,6 +35,7 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
 import org.tomahawk.tomahawk_android.fragments.ArtistsFragment;
+import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.fragments.LocalCollectionFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
@@ -206,6 +207,8 @@ public class CollectionActivity extends TomahawkTabsActivity
                     LocalCollectionFragment.class);
             mContentViewer
                     .addRootToTab(TomahawkTabsActivity.TAB_ID_PLAYLISTS, PlaylistsFragment.class);
+            mContentViewer.addRootToTab(TomahawkTabsActivity.TAB_ID_SETTINGS,
+                    FakePreferenceFragment.class);
         } else {
             mCurrentStackPosition = savedInstanceState
                     .getInt(COLLECTION_ID_STACKPOSITION, TomahawkTabsActivity.TAB_ID_COLLECTION);
@@ -233,6 +236,8 @@ public class CollectionActivity extends TomahawkTabsActivity
                         LocalCollectionFragment.class);
                 mContentViewer.addRootToTab(TomahawkTabsActivity.TAB_ID_PLAYLISTS,
                         PlaylistsFragment.class);
+                mContentViewer.addRootToTab(TomahawkTabsActivity.TAB_ID_SETTINGS,
+                        FakePreferenceFragment.class);
             }
         }
     }

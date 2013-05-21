@@ -334,7 +334,9 @@ public class ContentViewer {
                     Fragment.instantiate(mCollectionActivity, fragmentStateHolder.clss.getName(),
                             bundle), stack.get(stack.size() - 1).fragmentTag);
             ft.commit();
-            if (fragmentStateHolder.correspondingStackId == TomahawkTabsActivity.TAB_ID_SEARCH) {
+            if (fragmentStateHolder.correspondingStackId == TomahawkTabsActivity.TAB_ID_SEARCH
+                    || fragmentStateHolder.correspondingStackId
+                    == TomahawkTabsActivity.TAB_ID_SETTINGS) {
                 mCollectionActivity.showBreadcrumbs(false);
             } else {
                 mCollectionActivity.showBreadcrumbs(true);

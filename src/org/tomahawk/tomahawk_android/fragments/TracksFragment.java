@@ -201,7 +201,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 tomahawkListAdapter.setShowContentHeader(true, getListView(), mAlbum);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                getListAdapter().setListArray(listArray);
+                ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
             }
         } else if (mArtist != null) {
             items.addAll(mArtist.getTracks());
@@ -215,7 +215,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 tomahawkListAdapter.setShowContentHeader(true, getListView(), mArtist);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                getListAdapter().setListArray(listArray);
+                ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
             }
         } else if (mCustomPlaylist != null) {
             mCustomPlaylist = coll.getCustomPlaylistById(mCustomPlaylist.getId());
@@ -230,7 +230,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 tomahawkListAdapter.setShowContentHeader(true, getListView(), mCustomPlaylist);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                getListAdapter().setListArray(listArray);
+                ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
             }
         } else {
             items.addAll(coll.getTracks());
@@ -242,7 +242,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 getListView().setAreHeadersSticky(false);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                getListAdapter().setListArray(listArray);
+                ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
             }
         }
 

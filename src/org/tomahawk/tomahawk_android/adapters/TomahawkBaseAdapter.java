@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.collection.Artist;
 
 import android.app.Activity;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -76,27 +77,19 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
      */
     static class ResourceHolder {
 
-        public ResourceHolder(int resourceId, int imageViewId, int imageViewId2, int textViewId1,
-                int textViewId2, int textViewId3) {
-            this.resourceId = resourceId;
-            this.imageViewId = imageViewId;
-            this.imageViewId2 = imageViewId2;
-            this.textViewId1 = textViewId1;
-            this.textViewId2 = textViewId2;
-            this.textViewId3 = textViewId3;
-        }
+        int resourceId;
 
-        protected int resourceId;
+        int imageViewId;
 
-        protected int imageViewId;
+        int imageViewId2;
 
-        protected int imageViewId2;
+        int checkBoxId;
 
-        protected int textViewId1;
+        int textViewId1;
 
-        protected int textViewId2;
+        int textViewId2;
 
-        protected int textViewId3;
+        int textViewId3;
     }
 
     /**
@@ -104,54 +97,19 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
      */
     static class ViewHolder {
 
-        public ViewHolder(int viewType, ImageView imageViewLeft, ImageView imageViewRight,
-                TextView textFirstLine, TextView textSecondLine, TextView textThirdLine) {
-            this.viewType = viewType;
-            this.imageViewLeft = imageViewLeft;
-            this.imageViewRight = imageViewRight;
-            this.textFirstLine = textFirstLine;
-            this.textSecondLine = textSecondLine;
-            this.textThirdLine = textThirdLine;
-        }
+        int viewType;
 
-        public ViewHolder(int viewType, ImageView imageView, TextView textFirstLine,
-                TextView textSecondLine) {
-            this.viewType = viewType;
-            this.imageViewLeft = imageView;
-            this.textFirstLine = textFirstLine;
-            this.textSecondLine = textSecondLine;
-        }
+        ImageView imageViewLeft;
 
-        public ViewHolder(int viewType, TextView textFirstLine, TextView textSecondLine,
-                TextView textThirdLine) {
-            this.viewType = viewType;
-            this.textFirstLine = textFirstLine;
-            this.textSecondLine = textSecondLine;
-            this.textThirdLine = textThirdLine;
-        }
+        ImageView imageViewRight;
 
-        public ViewHolder(int viewType, ImageView imageView, TextView textFirstLine) {
-            this.viewType = viewType;
-            this.imageViewLeft = imageView;
-            this.textFirstLine = textFirstLine;
-        }
+        CheckBox checkBox;
 
-        public ViewHolder(int viewType, TextView textFirstLine) {
-            this.viewType = viewType;
-            this.textFirstLine = textFirstLine;
-        }
+        TextView textFirstLine;
 
-        protected int viewType;
+        TextView textSecondLine;
 
-        protected ImageView imageViewLeft;
-
-        protected ImageView imageViewRight;
-
-        protected TextView textFirstLine;
-
-        protected TextView textSecondLine;
-
-        protected TextView textThirdLine;
+        TextView textThirdLine;
     }
 
     /**

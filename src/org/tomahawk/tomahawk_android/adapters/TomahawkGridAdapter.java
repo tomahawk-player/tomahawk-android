@@ -22,13 +22,11 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.tomahawk_android.R;
 
 import android.app.Activity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,33 +38,15 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
 
     /**
      * Constructs a new {@link TomahawkGridAdapter}
-     *
-     * @param activity                    the activity, which uses the {@link TomahawkListAdapter}.
-     *                                    Used to get the {@link LayoutInflater}
-     * @param resourceGridItem            the resource id for the view, that displays the album art
-     *                                    image
-     * @param imageViewResourceGridItem   the resource id for the imageView inside resourceListItem
-     *                                    that displays the albumArt bitmap
-     * @param textViewResourceGridItemId1 the resource id for the textView inside resourceListItem
-     *                                    that displays the first line of text
-     * @param textViewResourceGridItemId2 the resource id for the textView inside resourceListItem
-     *                                    that displays the second line of text
-     * @param list                        contains a list of TomahawkListItems.
      */
-    public TomahawkGridAdapter(Activity activity, int resourceGridItem,
-            int imageViewResourceGridItem, int textViewResourceGridItemId1,
-            int textViewResourceGridItemId2, List<TomahawkListItem> list) {
+    public TomahawkGridAdapter(Activity activity, List<List<TomahawkListItem>> listArray) {
         mActivity = activity;
-        setGridItemResources(resourceGridItem, imageViewResourceGridItem,
-                textViewResourceGridItemId1, textViewResourceGridItemId2);
-        mListArray = new ArrayList<List<TomahawkListItem>>();
-        mListArray.add(list);
-    }
-
-    public void setGridItemResources(int resourceGridItem, int imageViewResourcesGridItemId,
-            int textViewResourceGridItemId1, int textViewResourceGridItemId2) {
-        mGridItemResourceHolder = new ResourceHolder(resourceGridItem, imageViewResourcesGridItemId,
-                -1, textViewResourceGridItemId1, textViewResourceGridItemId2, -1);
+        mGridItemResourceHolder = new ResourceHolder();
+        mGridItemResourceHolder.resourceId = R.layout.album_art_grid_item;
+        mGridItemResourceHolder.imageViewId = R.id.album_art_grid_image;
+        mGridItemResourceHolder.textViewId1 = R.id.album_art_grid_textView1;
+        mGridItemResourceHolder.textViewId2 = R.id.album_art_grid_textView2;
+        mListArray = listArray;
     }
 
     /*
@@ -85,10 +65,14 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
                             != R.id.tomahawklistadapter_viewtype_griditem)) {
                 view = mActivity.getLayoutInflater()
                         .inflate(mGridItemResourceHolder.resourceId, null);
-                viewHolder = new ViewHolder(R.id.tomahawklistadapter_viewtype_griditem,
-                        (ImageView) view.findViewById(mGridItemResourceHolder.imageViewId),
-                        (TextView) view.findViewById(mGridItemResourceHolder.textViewId1),
-                        (TextView) view.findViewById(mGridItemResourceHolder.textViewId2));
+                viewHolder = new ViewHolder();
+                viewHolder.viewType = R.id.tomahawklistadapter_viewtype_griditem;
+                viewHolder.imageViewLeft = (ImageView) view
+                        .findViewById(mGridItemResourceHolder.imageViewId);
+                viewHolder.textFirstLine = (TextView) view
+                        .findViewById(mGridItemResourceHolder.textViewId1);
+                viewHolder.textSecondLine = (TextView) view
+                        .findViewById(mGridItemResourceHolder.textViewId2);
                 view.setTag(viewHolder);
             } else {
                 view = convertView;
