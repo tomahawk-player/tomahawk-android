@@ -17,6 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
+import com.emilsjolander.components.stickylistheaders.StickyListHeadersAdapter;
+
 import org.tomahawk.tomahawk_android.R;
 
 import android.app.Activity;
@@ -34,7 +36,7 @@ import java.util.List;
 /**
  * @author Enno Gottschalk <mrmaffen@googlemail.com>
  */
-public class TomahawkMenuAdapter extends BaseAdapter {
+public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeadersAdapter {
 
     protected final Activity mActivity;
 
@@ -100,4 +102,13 @@ public class TomahawkMenuAdapter extends BaseAdapter {
         return view;
     }
 
+    @Override
+    public View getHeaderView(int position, View convertView, ViewGroup parent) {
+        return new View(mActivity);
+    }
+
+    @Override
+    public long getHeaderId(int position) {
+        return 0;
+    }
 }

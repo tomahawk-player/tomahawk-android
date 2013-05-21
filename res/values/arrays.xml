@@ -24,12 +24,6 @@
         <item>@drawable/ic_settings_play</item>
         <item>@drawable/ic_settings_account</item>
     </array>
-    <array name="slide">
-        <item>@drawable/ic_action_track</item>
-        <item>@drawable/ic_action_album</item>
-        <item>@drawable/ic_action_artist</item>
-        <item>@drawable/ic_action_playlist</item>
-    </array>
     <array name="slide_menu_items_icons">
         <item>@drawable/ic_menu_useravatar</item>
         <item>@drawable/ic_action_search</item>
@@ -49,6 +43,11 @@
         <item>Albums</item>
         <item>Artists</item>
     </string-array>
+    <array name="local_collection_menu_items_icons">
+        <item>@drawable/ic_action_track</item>
+        <item>@drawable/ic_action_album</item>
+        <item>@drawable/ic_action_artist</item>
+    </array>
     <string-array name="slide_menu_items">
         <item>@string/slide_menu_home</item>
         <item>@string/slide_menu_search</item>

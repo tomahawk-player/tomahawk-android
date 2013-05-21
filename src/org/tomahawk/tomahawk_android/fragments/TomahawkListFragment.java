@@ -21,7 +21,6 @@ package org.tomahawk.tomahawk_android.fragments;
 import com.actionbarsherlock.app.SherlockFragment;
 
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
 import org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView;
 
@@ -30,13 +29,14 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.GridView;
 
 public abstract class TomahawkListFragment extends SherlockFragment {
 
     public static final String TOMAHAWK_LIST_SCROLL_POSITION = "tomahawk_list_scroll_position";
 
-    private TomahawkBaseAdapter mTomahawkBaseAdapter;
+    private BaseAdapter mBaseAdapter;
 
     private boolean mShowGridView;
 
@@ -50,10 +50,8 @@ public abstract class TomahawkListFragment extends SherlockFragment {
 
     final private Runnable mRequestFocus = new Runnable() {
         public void run() {
-            ((mTomahawkBaseAdapter instanceof TomahawkGridAdapter) ? mGrid : mList)
-                    .focusableViewAvailable(
-                            ((mTomahawkBaseAdapter instanceof TomahawkGridAdapter) ? mGrid
-                                    : mList));
+            ((mBaseAdapter instanceof TomahawkGridAdapter) ? mGrid : mList).focusableViewAvailable(
+                    ((mBaseAdapter instanceof TomahawkGridAdapter) ? mGrid : mList));
         }
     };
 
@@ -152,9 +150,8 @@ public abstract class TomahawkListFragment extends SherlockFragment {
                 registerForContextMenu(mGrid);
             }
         }
-        if (mTomahawkBaseAdapter != null) {
-            mTomahawkBaseAdapter = null;
-            setListAdapter(mTomahawkBaseAdapter);
+        if (mBaseAdapter != null) {
+            setListAdapter(mBaseAdapter);
         }
         mHandler.post(mRequestFocus);
     }
@@ -172,16 +169,16 @@ public abstract class TomahawkListFragment extends SherlockFragment {
     /**
      * Get the ListAdapter associated with this activity's ListView.
      */
-    public TomahawkBaseAdapter getListAdapter() {
-        return mTomahawkBaseAdapter;
+    public BaseAdapter getListAdapter() {
+        return mBaseAdapter;
     }
 
     /**
      * Provide the cursor for the list view.
      */
-    public void setListAdapter(TomahawkBaseAdapter adapter) {
-        mTomahawkBaseAdapter = adapter;
-        if (mTomahawkBaseAdapter instanceof TomahawkGridAdapter) {
+    public void setListAdapter(BaseAdapter adapter) {
+        mBaseAdapter = adapter;
+        if (mBaseAdapter instanceof TomahawkGridAdapter) {
             mShowGridView = true;
             GridView gridView = getGridView();
             gridView.setAdapter(adapter);

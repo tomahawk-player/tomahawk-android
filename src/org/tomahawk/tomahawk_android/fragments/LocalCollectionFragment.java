@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2012, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,8 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.CollectionActivity;
 import org.tomahawk.tomahawk_android.activities.TomahawkTabsActivity;
@@ -26,43 +24,26 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
 /**
  * Fragment which represents the "UserCollection" tabview.
  */
-public class LocalCollectionFragment extends SherlockListFragment implements OnItemClickListener {
+public class LocalCollectionFragment extends TomahawkListFragment implements OnItemClickListener {
 
     protected CollectionActivity mCollectionActivity;
 
-    /* 
-     * (non-Javadoc)
-     * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
-     */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.collection_menu_layout, null, false);
-    }
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-     */
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        getListView().setOnItemClickListener(this);
         TomahawkMenuAdapter tomahawkMenuAdapter = new TomahawkMenuAdapter(getActivity(),
                 getResources().getStringArray(R.array.local_collection_menu_items),
-                getResources().obtainTypedArray(R.array.slide));
+                getResources().obtainTypedArray(R.array.local_collection_menu_items_icons));
         setListAdapter(tomahawkMenuAdapter);
+        getListView().setOnItemClickListener(this);
     }
 
     /* 

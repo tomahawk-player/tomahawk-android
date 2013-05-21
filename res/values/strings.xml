@@ -58,11 +58,13 @@
         incorrect
     </string>
     <string name="settingsactivity_title_string">Settings</string>
-    <string name="playbacksettingsactivity_title_string">Playback Settings</string>
-    <string name="playbacksettingsactivity_playbackonheadset_title_string">Headset playback</string>
-    <string name="playbacksettingsactivity_playbackonheadset_summary_string">Starts playing music
+    <string name="fakepreference_playback_header">PLAYBACK</string>
+    <string name="fakepreference_plugintoplay_title_string">Plug in to play</string>
+    <string name="fakepreference_plugintoplay_summary_string">Starts playing music
         when a headset is connected
     </string>
+    <string name="fakepreference_info_header">INFO</string>
+    <string name="fakepreference_appversion_title_string">App-Version</string>
     <string name="crash_dialog_title">Tomahawk has crashed</string>
     <string name="crash_dialog_text">An unexpected error occurred forcing the
         application to stop. Please help us fix this by sending us error data,

@@ -263,7 +263,7 @@ public class SearchableFragment extends TomahawkFragment
             tomahawkListAdapter.setShowResolvedBy(true);
             setListAdapter(tomahawkListAdapter);
         } else {
-            getListAdapter().setListArray(listArray);
+            ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
         }
         getListView().setOnItemClickListener(mSearchableFragment);
     }
