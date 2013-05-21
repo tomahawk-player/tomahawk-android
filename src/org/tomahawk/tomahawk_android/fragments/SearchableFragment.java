@@ -167,7 +167,7 @@ public class SearchableFragment extends TomahawkFragment
      */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        idx -= mList.getHeaderViewsCount();
+        idx -= getListView().getHeaderViewsCount();
         if (idx >= 0) {
             if (getListAdapter().getItem(idx) instanceof Track) {
                 ((UserCollection) mActivity.getCollection()).setCachedPlaylist(CustomPlaylist
@@ -257,13 +257,13 @@ public class SearchableFragment extends TomahawkFragment
         mCurrentShownAlbums = query.getAlbumResults();
         albumResultList.addAll(mCurrentShownAlbums);
         listArray.add(albumResultList);
-        if (mTomahawkBaseAdapter == null) {
+        if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
             tomahawkListAdapter.setShowCategoryHeaders(true);
             tomahawkListAdapter.setShowResolvedBy(true);
             setListAdapter(tomahawkListAdapter);
         } else {
-            mTomahawkBaseAdapter.setListArray(listArray);
+            getListAdapter().setListArray(listArray);
         }
         getListView().setOnItemClickListener(mSearchableFragment);
     }

@@ -150,7 +150,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
      */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        idx -= mList.getHeaderViewsCount();
+        idx -= getListView().getHeaderViewsCount();
         if (idx >= 0) {
             if (getListAdapter().getItem(idx) instanceof Album) {
                 mActivity.getCollection().setCachedAlbum((Album) getListAdapter().getItem(idx));
@@ -182,11 +182,11 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(mActivity,
                         listArray);
                 tomahawkListAdapter.setShowCategoryHeaders(true);
-                tomahawkListAdapter.setShowContentHeader(true, mList, mArtist);
+                tomahawkListAdapter.setShowContentHeader(true, getListView(), mArtist);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                mTomahawkBaseAdapter.setListArray(listArray);
+                getListAdapter().setListArray(listArray);
             }
             getListView().setOnItemClickListener(this);
         } else {

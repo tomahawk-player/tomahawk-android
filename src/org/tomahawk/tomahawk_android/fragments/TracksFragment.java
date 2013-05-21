@@ -145,7 +145,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
      */
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        idx -= mList.getHeaderViewsCount();
+        idx -= getListView().getHeaderViewsCount();
         if (idx >= 0) {
             if (getListAdapter().getItem(idx) instanceof Track && ((Track) getListAdapter()
                     .getItem(idx)).isResolved()) {
@@ -198,10 +198,10 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true);
-                tomahawkListAdapter.setShowContentHeader(true, mList, mAlbum);
+                tomahawkListAdapter.setShowContentHeader(true, getListView(), mAlbum);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                mTomahawkBaseAdapter.setListArray(listArray);
+                getListAdapter().setListArray(listArray);
             }
         } else if (mArtist != null) {
             items.addAll(mArtist.getTracks());
@@ -212,10 +212,10 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true);
-                tomahawkListAdapter.setShowContentHeader(true, mList, mArtist);
+                tomahawkListAdapter.setShowContentHeader(true, getListView(), mArtist);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                mTomahawkBaseAdapter.setListArray(listArray);
+                getListAdapter().setListArray(listArray);
             }
         } else if (mCustomPlaylist != null) {
             mCustomPlaylist = coll.getCustomPlaylistById(mCustomPlaylist.getId());
@@ -227,10 +227,10 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true);
-                tomahawkListAdapter.setShowContentHeader(true, mList, mCustomPlaylist);
+                tomahawkListAdapter.setShowContentHeader(true, getListView(), mCustomPlaylist);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                mTomahawkBaseAdapter.setListArray(listArray);
+                getListAdapter().setListArray(listArray);
             }
         } else {
             items.addAll(coll.getTracks());
@@ -242,7 +242,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 getListView().setAreHeadersSticky(false);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                mTomahawkBaseAdapter.setListArray(listArray);
+                getListAdapter().setListArray(listArray);
             }
         }
 
