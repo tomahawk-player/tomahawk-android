@@ -19,13 +19,13 @@
  */
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
               android:orientation="vertical">
 
     <LinearLayout
             android:id="@+id/playback_trackInfoPanel"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dip"
             android:layout_weight="1"
@@ -36,24 +36,30 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:textColor="@color/primary_textcolor"
+                android:textSize="@dimen/text_size_medium"/>
 
         <TextView
                 android:id="@+id/textView_artist"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="1"/>
+                android:maxLines="1"
+                android:textSize="@dimen/text_size_small"
+                android:textColor="@color/secondary_textcolor"/>
 
         <TextView
                 android:id="@+id/textView_album"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="1"/>
+                android:maxLines="1"
+                android:textSize="@dimen/text_size_small"
+                android:textColor="@color/secondary_textcolor"/>
     </LinearLayout>
 
     <android.support.v4.view.ViewPager
             android:id="@+id/album_art_view_pager"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="480dip"
             android:layout_weight="10"/>
 
@@ -66,7 +72,7 @@
         <org.tomahawk.tomahawk_android.views.PlaybackSeekBar
                 android:id="@+id/seekBar_track"
                 style="@style/tomahawk_ProgressBar"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_centerVertical="true"
@@ -89,7 +95,8 @@
                 android:layout_alignParentRight="true"
                 android:layout_below="@+id/seekBar_track"
                 android:text="@string/playbackactivity_seekbar_completion_time_string"
-                android:textAppearance="?android:attr/textAppearanceSmall"/>
+                android:textSize="@dimen/text_size_small"
+                android:textColor="@color/secondary_textcolor"/>
 
         <TextView
                 android:id="@+id/textView_currentTime"
@@ -98,12 +105,13 @@
                 android:layout_alignParentLeft="true"
                 android:layout_below="@+id/seekBar_track"
                 android:text="@string/playbackactivity_seekbar_current_time_string"
-                android:textAppearance="?android:attr/textAppearanceSmall"/>
+                android:textSize="@dimen/text_size_small"
+                android:textColor="@color/secondary_textcolor"/>
     </RelativeLayout>
 
     <LinearLayout
             android:id="@+id/playback_buttonPanel"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1">
 

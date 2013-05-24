@@ -332,16 +332,17 @@ public class CollectionActivity extends TomahawkTabsActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        mNowPlayingView = getLayoutInflater().inflate(R.layout.now_playing, null);
         FrameLayout nowPlayingFrameTop = (FrameLayout) getSupportActionBar().getCustomView()
                 .findViewById(R.id.now_playing_frame_top);
         FrameLayout nowPlayingFrameBottom = (FrameLayout) findViewById(
                 R.id.now_playing_frame_bottom);
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            mNowPlayingView = getLayoutInflater().inflate(R.layout.now_playing_top, null);
             nowPlayingFrameTop.addView(mNowPlayingView);
             nowPlayingFrameTop.setVisibility(FrameLayout.VISIBLE);
             nowPlayingFrameBottom.setVisibility(FrameLayout.GONE);
         } else {
+            mNowPlayingView = getLayoutInflater().inflate(R.layout.now_playing_bottom, null);
             nowPlayingFrameBottom.addView(mNowPlayingView);
             nowPlayingFrameTop.setVisibility(FrameLayout.GONE);
             nowPlayingFrameBottom.setVisibility(FrameLayout.VISIBLE);

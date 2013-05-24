@@ -1,8 +1,26 @@
 <resources>
 
+    <dimen name="padding_verysmall">4dp</dimen>
     <dimen name="padding_small">8dp</dimen>
-    <dimen name="padding_medium">8dp</dimen>
-    <dimen name="padding_large">16dp</dimen>
+    <dimen name="padding_medium">16dp</dimen>
+    <dimen name="padding_large">32dp</dimen>
+
+    <dimen name="row_height_small">16dp</dimen>
+    <dimen name="row_height_medium">32dp</dimen>
+    <dimen name="row_height_large">48dp</dimen>
+    <dimen name="row_height_verylarge">64dp</dimen>
+
+    <dimen name="header_height_large">128dp</dimen>
+
+    <dimen name="divider_height_thin">1dp</dimen>
+    <dimen name="divider_height_thick">2dp</dimen>
+
+    <dimen name="breadcrumbitem_maxwidth">96dp</dimen>
+
+    <dimen name="text_size_micro">12sp</dimen>
+    <dimen name="text_size_small">14sp</dimen>
+    <dimen name="text_size_medium">18sp</dimen>
+    <dimen name="text_size_large">22sp</dimen>
 
     <dimen name="slidingmenu_offset">60dp</dimen>
     <dimen name="slidingmenu_offset_landscape">300dp</dimen>

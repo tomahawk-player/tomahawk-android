@@ -22,7 +22,9 @@
               android:id="@+id/fragment_layout"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:orientation="vertical">
+              android:orientation="vertical"
+              android:paddingLeft="@dimen/padding_medium"
+              android:paddingRight="@dimen/padding_medium">
 
     <FrameLayout
             android:id="@+id/fragmentLayout_listLayout_frameLayout"
@@ -49,11 +51,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:fastScrollEnabled="true"
-                android:horizontalSpacing="2dp"
+                android:horizontalSpacing="@dimen/divider_height_thick"
                 android:listSelector="@android:color/transparent"
                 android:numColumns="auto_fit"
                 android:scrollbars="none"
-                android:verticalSpacing="2dp"/>
+                android:verticalSpacing="@dimen/divider_height_thick"/>
     </FrameLayout>
 
 </LinearLayout>
