@@ -25,7 +25,6 @@ import org.tomahawk.libtomahawk.collection.CustomPlaylist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout;
 
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
@@ -240,8 +239,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                     if (((Album) item).getArtist() != null) {
                         viewHolder.textSecondLine.setText(((Album) item).getArtist().getName());
                     }
-                    ((SquareWidthRelativeLayout) viewHolder.imageViewLeft.getParent())
-                            .setVisibility(SquareWidthRelativeLayout.VISIBLE);
+                    viewHolder.imageViewLeft.setVisibility(ImageView.VISIBLE);
                     ((Album) item).loadBitmap(mActivity, viewHolder.imageViewLeft);
                 }
             } else if (viewHolder.viewType
@@ -256,11 +254,11 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                                 mActivity.getResources().getColor(R.color.disabled_grey));
                     } else {
                         viewHolder.textFirstLine.setTextColor(
-                                mActivity.getResources().getColor(R.color.plain_white));
+                                mActivity.getResources().getColor(R.color.primary_textcolor));
                         viewHolder.textSecondLine.setTextColor(
-                                mActivity.getResources().getColor(R.color.plain_white));
+                                mActivity.getResources().getColor(R.color.secondary_textcolor));
                         viewHolder.textThirdLine.setTextColor(
-                                mActivity.getResources().getColor(R.color.plain_white));
+                                mActivity.getResources().getColor(R.color.secondary_textcolor));
                     }
                     viewHolder.textFirstLine.setText(((Track) item).getName());
                     viewHolder.textSecondLine.setText(((Track) item).getArtist().getName());
@@ -274,22 +272,18 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                     if (mShowHighlightingAndPlaystate && position == mHighlightedItemPosition) {
                         view.setBackgroundResource(R.color.pressed_tomahawk);
                         if (mHighlightedItemIsPlaying) {
-                            ((SquareWidthRelativeLayout) viewHolder.imageViewLeft.getParent())
-                                    .setVisibility(SquareWidthRelativeLayout.VISIBLE);
+                            viewHolder.imageViewLeft.setVisibility(ImageView.VISIBLE);
                             viewHolder.imageViewLeft
                                     .setImageResource(R.drawable.ic_playlist_is_playing);
                         } else {
-                            ((SquareWidthRelativeLayout) viewHolder.imageViewLeft.getParent())
-                                    .setVisibility(SquareWidthRelativeLayout.GONE);
+                            viewHolder.imageViewLeft.setVisibility(ImageView.GONE);
                         }
                     } else {
-                        ((SquareWidthRelativeLayout) viewHolder.imageViewLeft.getParent())
-                                .setVisibility(SquareWidthRelativeLayout.GONE);
+                        viewHolder.imageViewLeft.setVisibility(ImageView.GONE);
                         view.setBackgroundResource(R.drawable.selectable_background_tomahawk);
                     }
                     if (mShowResolvedBy && ((Track) item).isResolved()) {
-                        ((SquareWidthRelativeLayout) viewHolder.imageViewRight.getParent())
-                                .setVisibility(SquareWidthRelativeLayout.VISIBLE);
+                        viewHolder.imageViewRight.setVisibility(ImageView.VISIBLE);
                         Drawable resolverIcon = null;
                         if (((Track) item).getResolver() != null) {
                             resolverIcon = ((Track) item).getResolver().getIcon();
@@ -305,8 +299,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                                     .setImageResource(R.drawable.ic_resolver_default);
                         }
                     } else {
-                        ((SquareWidthRelativeLayout) viewHolder.imageViewRight.getParent())
-                                .setVisibility(SquareWidthRelativeLayout.GONE);
+                        viewHolder.imageViewRight.setVisibility(ImageView.GONE);
                     }
                 }
             }

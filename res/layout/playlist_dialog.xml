@@ -29,13 +29,13 @@
             android:layout_width="match_parent"
             android:layout_height="64dp"
             android:layout_marginLeft="16dp"
-            android:textSize="22sp"
+            android:textSize="@dimen/text_size_large"
             android:textColor="@color/tomahawk_red"
             android:gravity="center_vertical"/>
 
     <View
             android:layout_width="match_parent"
-            android:layout_height="2dp"
+            android:layout_height="@dimen/divider_height_thick"
             android:background="@color/tomahawk_red"/>
 
     <EditText

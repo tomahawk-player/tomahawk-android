@@ -20,10 +20,10 @@
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
-              android:layout_height="64dp"
+              android:layout_height="@dimen/row_height_verylarge"
               android:baselineAligned="false"
               android:orientation="vertical"
-              android:padding="8dp"
+              android:padding="@dimen/padding_small"
               android:background="@drawable/selectable_background_tomahawk"
               android:descendantFocusability="blocksDescendants">
 
@@ -32,14 +32,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:singleLine="true"
-            android:textColor="#FFFFFF"
-            android:textSize="8pt"/>
+            android:textColor="@color/primary_textcolor"
+            android:textSize="@dimen/text_size_medium"/>
 
     <TextView
             android:id="@+id/fake_preferences_textview2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:singleLine="true"
-            android:textSize="6pt"/>
+            android:textColor="@color/secondary_textcolor"
+            android:textSize="@dimen/text_size_small"/>
 
 </LinearLayout>

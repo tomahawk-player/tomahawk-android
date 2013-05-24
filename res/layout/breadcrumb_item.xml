@@ -20,14 +20,14 @@
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="wrap_content"
-              android:layout_height="50dp"
+              android:layout_height="wrap_content"
               android:background="@drawable/selectable_background_tomahawk">
     <org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout
             android:id="@+id/fragmentLayout_arrow_squareHeightRelativeLayout"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:paddingTop="5dip"
-            android:paddingBottom="5dip"
+            android:paddingTop="@dimen/padding_small"
+            android:paddingBottom="@dimen/padding_small"
             android:layout_marginLeft="-15dip"
             android:layout_marginRight="-15dip">
 
@@ -45,7 +45,7 @@
             android:layout_width="wrap_content"
             android:visibility="gone"
             android:layout_height="match_parent"
-            android:padding="5dip">
+            android:padding="@dimen/padding_small">
 
         <ImageView
                 android:id="@+id/fragmentLayout_icon_imageButton"
@@ -57,16 +57,16 @@
 
     <TextView
             android:id="@+id/fragmentLayout_text_textView"
-            android:maxWidth="100dip"
+            android:maxWidth="@dimen/breadcrumbitem_maxwidth"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:padding="5dip"
+            android:padding="@dimen/padding_small"
             android:ellipsize="marquee"
             android:gravity="center_vertical"
             android:maxLines="2"
             android:scrollHorizontally="false"
-            android:textColor="#F2F2F2"
-            android:textSize="6pt"
+            android:textColor="@color/primary_textcolor"
+            android:textSize="@dimen/text_size_small"
             android:typeface="sans"/>
 
 </LinearLayout>

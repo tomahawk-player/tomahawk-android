@@ -26,30 +26,28 @@
               android:background="@color/transparent_black">
     <View
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="@dimen/divider_height_thin"
             android:background="@color/tomahawk_red"/>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:layout_width="match_parent"
-                  android:layout_height="48dp"
+                  android:layout_height="@dimen/row_height_large"
                   android:background="@drawable/selectable_background_tomahawk">
         <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="@dimen/row_height_large"
+                android:layout_height="@dimen/row_height_large"
                 android:src="@drawable/ic_action_add"/>
         <TextView
                 android:id="@+id/add_button_textview"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:gravity="center_vertical"
                 android:ellipsize="marquee"
-                android:paddingBottom="10dp"
-                android:paddingLeft="5dp"
-                android:paddingTop="10dp"
+                android:padding="@dimen/padding_small"
                 android:singleLine="true"
-                android:textColor="#F2F2F2"
-                android:text="@string/playbackactivity_create_playlist_dialog_title"
-                android:textSize="10pt"
-                android:typeface="sans"/>
+                android:textSize="@dimen/text_size_medium"
+                android:textColor="@color/primary_textcolor"
+                android:text="@string/playbackactivity_create_playlist_dialog_title"/>
     </LinearLayout>
 </LinearLayout>

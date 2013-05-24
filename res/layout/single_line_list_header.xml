@@ -21,13 +21,13 @@
 <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="24dp"
+        android:layout_height="@dimen/row_height_medium"
         android:orientation="vertical"
         android:background="@color/transparent_black">
 
     <View
             android:layout_width="match_parent"
-            android:layout_height="2dp"
+            android:layout_height="@dimen/divider_height_thick"
             android:background="@color/transparent_white"/>
 
     <LinearLayout
@@ -60,13 +60,13 @@
                 android:ellipsize="marquee"
                 android:paddingLeft="2dp"
                 android:singleLine="true"
-                android:textColor="#FFFFFF"
-                android:textSize="12sp"/>
+                android:textColor="@color/primary_textcolor"
+                android:textSize="@dimen/text_size_micro"/>
 
     </LinearLayout>
 
     <View
             android:layout_width="match_parent"
-            android:layout_height="2dp"
+            android:layout_height="@dimen/divider_height_thick"
             android:background="@color/transparent_white"/>
 </LinearLayout>

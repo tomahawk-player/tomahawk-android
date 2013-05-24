@@ -20,22 +20,18 @@
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:orientation="horizontal"
+              android:layout_height="@dimen/row_height_large"
               android:background="@drawable/selectable_background_tomahawk">
 
     <TextView
-            xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/single_line_list_context_menu_textview"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/row_height_large"
+            android:gravity="center_vertical"
             android:ellipsize="marquee"
-            android:paddingBottom="10dp"
-            android:paddingLeft="10dp"
-            android:paddingTop="10dp"
+            android:padding="@dimen/padding_small"
             android:singleLine="true"
-            android:textColor="#F2F2F2"
-            android:textSize="10pt"
-            android:typeface="sans"/>
+            android:textColor="@color/primary_textcolor"
+            android:textSize="@dimen/text_size_medium"/>
 
 </LinearLayout>

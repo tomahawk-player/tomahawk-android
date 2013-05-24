@@ -22,26 +22,21 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content">
 
-    <org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout
-            android:layout_width="150dip"
-            android:layout_height="wrap_content"
-            android:padding="10dip">
+    <ImageView
+            android:id="@+id/content_header_image"
+            android:layout_width="@dimen/header_height_large"
+            android:layout_height="@dimen/header_height_large"
+            android:scaleType="centerCrop"
+            android:src="@drawable/no_album_art_placeholder"
+            android:padding="@dimen/padding_small"/>
 
-        <ImageView
-                android:id="@+id/content_header_image"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/no_album_art_placeholder"/>
-
-    </org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout>
 
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:gravity="left"
-            android:padding="10dip">
+            android:padding="@dimen/padding_small">
 
         <TextView
                 android:id="@+id/content_header_textview"
@@ -49,16 +44,16 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="marquee"
                 android:singleLine="true"
-                android:textColor="#FFFFFF"
-                android:textSize="8pt"/>
+                android:textColor="@color/primary_textcolor"
+                android:textSize="@dimen/text_size_medium"/>
         <TextView
                 android:id="@+id/content_header_textview2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="marquee"
                 android:singleLine="true"
-                android:textColor="#FFFFFF"
-                android:textSize="6pt"/>
+                android:textColor="@color/primary_textcolor"
+                android:textSize="@dimen/text_size_small"/>
     </LinearLayout>
 
 </LinearLayout>

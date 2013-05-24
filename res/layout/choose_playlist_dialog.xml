@@ -33,18 +33,18 @@
 
     <View
             android:layout_width="match_parent"
-            android:layout_height="2dp"
+            android:layout_height="@dimen/divider_height_thick"
             android:background="@color/tomahawk_red"/>
 
     <LinearLayout
             android:id="@+id/playlist_dialog_addplaylist_layout"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="@dimen/row_height_large"
             android:background="@drawable/selectable_background_tomahawk"
             android:clickable="true">
         <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="@dimen/row_height_large"
+                android:layout_height="@dimen/row_height_large"
                 android:src="@drawable/ic_action_add"/>
         <TextView
                 android:id="@+id/playlist_dialog_addplaylist_textview"
@@ -52,14 +52,11 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ellipsize="marquee"
-                android:paddingBottom="10dp"
-                android:paddingLeft="5dp"
-                android:paddingTop="10dp"
+                android:padding="@dimen/padding_small"
                 android:singleLine="true"
-                android:textColor="#F2F2F2"
+                android:textColor="@color/primary_textcolor"
                 android:text="@string/playbackactivity_create_playlist_dialog_title"
-                android:textSize="10pt"
-                android:typeface="sans"/>
+                android:textSize="@dimen/text_size_medium"/>
     </LinearLayout>
 
 </LinearLayout>

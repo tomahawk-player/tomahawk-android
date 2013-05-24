@@ -26,5 +26,7 @@
     <color name="transparent_white">#99FFFFFF</color>
     <color name="disabled_grey">#FF848484</color>
     <color name="plain_white">#FFFFFFFF</color>
+    <color name="primary_textcolor">#FFF2F2F2</color>
+    <color name="secondary_textcolor">#FFBEBEBE</color>
 
 </resources>
