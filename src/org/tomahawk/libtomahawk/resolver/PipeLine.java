@@ -92,7 +92,7 @@ public class PipeLine {
     public String resolve(String fullTextQuery, boolean onlyLocal) {
         Query q = null;
         if (fullTextQuery != null && !TextUtils.isEmpty(fullTextQuery)) {
-            if (mQueryMap.contains(Query.constructCacheKey(fullTextQuery)) &&
+            if (mQueryMap.containsKey(Query.constructCacheKey(fullTextQuery)) &&
                     mQids.get(mQueryMap.get(Query.constructCacheKey(fullTextQuery))).isOnlyLocal()
                             == onlyLocal) {
                 q = mQids.get(mQueryMap.get(Query.constructCacheKey(fullTextQuery)));
