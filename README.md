@@ -8,9 +8,8 @@ Nightly
 Nightly builds are available here:
 http://download.tomahawk-player.org/nightly/android/
 
-setup
+Setup
 ================
-
     - Open Eclipse and go to "File"->"Import"
     - Under Android/ select "Existing Android Code into Workspace."
     - Browse to your tomahawk-android checkout.
@@ -19,27 +18,24 @@ setup
     - Right click on "tomahawk-android-test" and select "Properties". Now 
       select "Java Build Path" and the tab "Projects". Click on "Add" and
       choose "tomahawk-android". Finish by clicking "OK".
-    - tomahawk-android requires the third-party support library
-      "ActionBarSherlock". Download and extract the library:
-        - https://github.com/JakeWharton/ActionBarSherlock/zipball/4.1.0
-    - Now add it as an "Android Project" to your workspace: 
+    - tomahawk-android requires the following libraries:
+        - "ActionBarSherlock" git://github.com/JakeWharton/ActionBarSherlock.git
+        - "StickyListHeaders" git://github.com/emilsjolander/StickyListHeaders.git
+        - "ACRA"              git://github.com/ACRA/acra.git
+        - "SlidingMenu"       git://github.com/jfeinstein10/SlidingMenu.git
+    - Do the following steps for each library:
         - "File"-> "Import" -> "Android" -> "Existing Android Code into Workspace"
-        - Go into the folder you've extracted your downloaded zip-file to and
-          choose the "library" folder as your "Root Directory".
+        - Choose the "library" folder as your "Root Directory".
         - Check "copy projects into workspace" and click "Finish".
-    - Since the 4.1.0 release of ActionBarSherlock does include an outdated copy
-      of the android support package v4, you'll need to update that manually by
-      doing the following:
-        - Make sure you have the latest version of the android support package v4 installed.
-          You can update your support package with your Android SDK Manager.
-        - Copy "/ANDROID_SDK_FOLDER/extras/android/support/v4/android-support-v4.jar"
-          into the just created ActionBarSherlock project's "lib" folder.
-          Confirm if asked to overwrite the existing "android-support-v4.jar".
-    - Now add the just created library project to tomahawk-android by
-      right-clicking your "tomahawk-android" project and selecting "Properties"
-    - Select "Android" and add the library by clicking "Add...".
-    - To finish the process, choose your ActionBarSherlock library project and
-      click "OK".
+        - Now add the just created library project to tomahawk-android by
+          right-clicking your "tomahawk-android" project and selecting "Properties"
+        - Select "Android" and add the library by clicking "Add...".
+        - To finish the process, choose your  library project and click "OK".
+    - Make sure you have the latest version of the android support package v4 installed.
+      You can update your support package with your Android SDK Manager.
+    - Copy "/ANDROID_SDK_FOLDER/extras/android/support/v4/android-support-v4.jar"
+      into the just created ActionBarSherlock project's "lib" folder.
+      Confirm if asked to overwrite the existing "android-support-v4.jar".
 
     Notes:
         - There is a known issue when importing. The primary app name
@@ -58,7 +54,6 @@ setup
 
 Code Style Guidelines for Contributors
 ================
-
 In order to keep everything clean and cozy, please use the official android code style format preset:
     - https://github.com/android/platform_development/tree/master/ide
 
@@ -66,13 +61,13 @@ For a larger overview you could read the official android "Code Style Guidelines
     - http://source.android.com/source/code-style.html
 
 
-recommended reading
+Recommended reading
 ================
  - http://developer.android.com/training/basics/activity-lifecycle/index.html
  - http://developer.android.com/training/basics/supporting-devices/index.html
  - http://developer.android.com/training/basics/fragments/index.html
 
-recommended IDE
+Recommended IDE
 ================
 Since there are some glitches/bugs and performance issues with Eclipse, you should check out
 IntelliJ IDEA (http://www.jetbrains.com/idea/), which is basically Eclipse done better.
