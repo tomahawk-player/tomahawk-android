@@ -30,8 +30,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -51,6 +53,8 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
 
     private TomahawkBaseAdapter.ResourceHolder mFakePreferencesPlainResourceHolder;
 
+    private HashMap<String, ImageView> mProgressDrawables = new HashMap<String, ImageView>();
+
     /**
      * Constructs a new {@link org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter}
      */
@@ -68,6 +72,7 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
         mFakePreferencesCheckboxResourceHolder.checkBoxId = R.id.fake_preferences_checkbox;
         mFakePreferencesCheckboxResourceHolder.textViewId1 = R.id.fake_preferences_textview;
         mFakePreferencesCheckboxResourceHolder.textViewId2 = R.id.fake_preferences_textview2;
+        mFakePreferencesCheckboxResourceHolder.imageViewId = R.id.fake_preferences_progressdrawable;
         mFakePreferencesPlainResourceHolder = new TomahawkBaseAdapter.ResourceHolder();
         mFakePreferencesPlainResourceHolder.resourceId = R.layout.fake_preferences_plain;
         mFakePreferencesPlainResourceHolder.textViewId1 = R.id.fake_preferences_textview;
@@ -153,6 +158,23 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                 viewHolder.checkBox = (CheckBox) view
                         .findViewById(mFakePreferencesCheckboxResourceHolder.checkBoxId);
                 view.setTag(viewHolder);
+            } else if (((FakePreferenceGroup.FakePreference) item).getType()
+                    == FakePreferenceGroup.FAKEPREFERENCE_TYPE_DIALOG && ((convertView == null)
+                    || ((TomahawkBaseAdapter.ViewHolder) convertView.getTag()).viewType
+                    != R.id.fakepreferencesadapter_viewtype_dialog)) {
+                view = mLayoutInflater
+                        .inflate(mFakePreferencesCheckboxResourceHolder.resourceId, null);
+                viewHolder = new TomahawkBaseAdapter.ViewHolder();
+                viewHolder.viewType = R.id.fakepreferencesadapter_viewtype_dialog;
+                viewHolder.textFirstLine = (TextView) view
+                        .findViewById(mFakePreferencesCheckboxResourceHolder.textViewId1);
+                viewHolder.textSecondLine = (TextView) view
+                        .findViewById(mFakePreferencesCheckboxResourceHolder.textViewId2);
+                viewHolder.checkBox = (CheckBox) view
+                        .findViewById(mFakePreferencesCheckboxResourceHolder.checkBoxId);
+                viewHolder.imageViewRight = (ImageView) view
+                        .findViewById(mFakePreferencesCheckboxResourceHolder.imageViewId);
+                view.setTag(viewHolder);
             } else {
                 view = convertView;
                 viewHolder = (TomahawkBaseAdapter.ViewHolder) view.getTag();
@@ -165,11 +187,18 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
             } else if (viewHolder.viewType == R.id.fakepreferencesadapter_viewtype_checkbox) {
                 FakePreferenceGroup.FakePreference fakePreference
                         = (FakePreferenceGroup.FakePreference) item;
-                boolean playbackOnHeadsetInsert = mSharedPreferences
+                boolean preferenceState = mSharedPreferences
                         .getBoolean(fakePreference.getKey(), false);
-                viewHolder.checkBox.setChecked(playbackOnHeadsetInsert);
+                viewHolder.checkBox.setChecked(preferenceState);
                 viewHolder.textFirstLine.setText(fakePreference.getTitle());
                 viewHolder.textSecondLine.setText(fakePreference.getSummary());
+            } else if (viewHolder.viewType == R.id.fakepreferencesadapter_viewtype_dialog) {
+                FakePreferenceGroup.FakePreference fakePreference
+                        = (FakePreferenceGroup.FakePreference) item;
+                viewHolder.checkBox.setChecked(fakePreference.isLoggedIn());
+                viewHolder.textFirstLine.setText(fakePreference.getTitle());
+                viewHolder.textSecondLine.setText(fakePreference.getSummary());
+                mProgressDrawables.put(fakePreference.getKey(), viewHolder.imageViewRight);
             }
         }
         return view;

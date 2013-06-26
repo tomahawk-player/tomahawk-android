@@ -28,6 +28,10 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.PlaybackActivity;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
+import org.tomahawk.tomahawk_android.utils.OnCompletionListener;
+import org.tomahawk.tomahawk_android.utils.OnErrorListener;
+import org.tomahawk.tomahawk_android.utils.OnPreparedListener;
+import org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -42,11 +46,10 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.AudioFormat;
 import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnCompletionListener;
-import android.media.MediaPlayer.OnErrorListener;
-import android.media.MediaPlayer.OnPreparedListener;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Binder;
@@ -242,11 +245,6 @@ public class PlaybackService extends Service
         }
     }
 
-    private class TomahawkMediaPlayer extends MediaPlayer {
-
-        private boolean mIsPreparing;
-    }
-
     /**
      * This Runnable is used to increase the volume gently.
      */
@@ -370,22 +368,32 @@ public class PlaybackService extends Service
         super.onDestroy();
     }
 
-    /* (non-Javadoc)
-     * @see android.media.MediaPlayer.OnPreparedListener#onPrepared(android.media.MediaPlayer)
-     */
     @Override
-    public void onPrepared(MediaPlayer mp) {
+    public void onPrepared(TomahawkMediaPlayer mp) {
         Log.d(TAG, "Mediaplayer is prepared.");
-        mTomahawkMediaPlayer.mIsPreparing = false;
         handlePlayState();
     }
 
-    /* (non-Javadoc)
-     * @see android.media.MediaPlayer.OnCompletionListener#onCompletion(android.media.MediaPlayer)
-     */
     @Override
-    public void onCompletion(MediaPlayer mp) {
+    public boolean onError(TomahawkMediaPlayer tmp, int what, int extra) {
+        String whatString = "CODE UNSPECIFIED";
+        switch (what) {
+            case MediaPlayer.MEDIA_ERROR_UNKNOWN:
+                whatString = "MEDIA_ERROR_UNKNOWN";
+                break;
+            case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
+                whatString = "MEDIA_ERROR_SERVER_DIED";
+        }
 
+        Log.e(TAG, "onError - " + whatString);
+        if (tmp == mTomahawkMediaPlayer && isNetworkAvailable()) {
+            next();
+        }
+        return false;
+    }
+
+    @Override
+    public void onCompletion(TomahawkMediaPlayer mp) {
         if (mCurrentPlaylist == null) {
             stop();
             return;
@@ -403,33 +411,17 @@ public class PlaybackService extends Service
         }
     }
 
-    /* (non-Javadoc)
-     * @see android.media.MediaPlayer.OnErrorListener#onError(android.media.MediaPlayer, int, int)
-     */
-    @Override
-    public boolean onError(MediaPlayer mp, int what, int extra) {
-        String whatString = "CODE UNSPECIFIED";
-        switch (what) {
-            case MediaPlayer.MEDIA_ERROR_UNKNOWN:
-                whatString = "MEDIA_ERROR_UNKNOWN";
-                break;
-            case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
-                whatString = "MEDIA_ERROR_SERVER_DIED";
-        }
-
-        Log.e(TAG, "onError - " + whatString);
-        if (mp == mTomahawkMediaPlayer && isNetworkAvailable()) {
-            next();
-        }
-        return false;
-    }
-
     /**
      * Initializes the mediaplayer. Sets the listeners and AudioStreamType.
      */
     public void initMediaPlayer() {
-        mTomahawkMediaPlayer = new TomahawkMediaPlayer();
-        mTomahawkMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        MediaPlayer mediaPlayer = new MediaPlayer();
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
+                AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT, AudioTrack
+                .getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_STEREO,
+                        AudioFormat.ENCODING_PCM_16BIT), AudioTrack.MODE_STREAM);
+        mTomahawkMediaPlayer = new TomahawkMediaPlayer(mediaPlayer, audioTrack);
         mTomahawkMediaPlayer.setOnCompletionListener(this);
         mTomahawkMediaPlayer.setOnPreparedListener(this);
         mTomahawkMediaPlayer.setOnErrorListener(this);
@@ -644,7 +636,7 @@ public class PlaybackService extends Service
      * @return Whether or not the mediaPlayer currently prepares a track
      */
     public boolean isPreparing() {
-        return mTomahawkMediaPlayer == null || mTomahawkMediaPlayer.mIsPreparing;
+        return mTomahawkMediaPlayer == null || mTomahawkMediaPlayer.isPreparing();
     }
 
     /**
@@ -681,9 +673,8 @@ public class PlaybackService extends Service
                             long endTime = System.currentTimeMillis();
                             Log.d(TAG, "MediaPlayer reinitialize in " + (endTime - startTime)
                                     + "ms, preparing=" + isPreparing());
-                            mTomahawkMediaPlayer.mIsPreparing = true;
                             try {
-                                mTomahawkMediaPlayer.setDataSource(track.getPath());
+                                mTomahawkMediaPlayer.prepare(track);
                             } catch (IllegalStateException e1) {
                                 Log.e(TAG, "setDataSource() IllegalStateException, msg:" + e1
                                         .getLocalizedMessage() + " , preparing=" + isPreparing());
@@ -691,17 +682,6 @@ public class PlaybackService extends Service
                             } catch (IOException e2) {
                                 Log.e(TAG, "setDataSource() IOException, msg:" + e2
                                         .getLocalizedMessage() + " , preparing=" + isPreparing());
-                                continue;
-                            }
-                            try {
-                                mTomahawkMediaPlayer.prepare();
-                            } catch (IllegalStateException e1) {
-                                Log.e(TAG, "prepare() IllegalStateException, msg:" + e1
-                                        .getLocalizedMessage() + " , preparing=" + isPreparing());
-                                continue;
-                            } catch (IOException e2) {
-                                Log.e(TAG, "prepare() IOException, msg:" + e2.getLocalizedMessage()
-                                        + " , preparing=" + isPreparing());
                                 continue;
                             }
                             break;

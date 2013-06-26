@@ -49,15 +49,24 @@
     <string name="playbackactivity_create_playlist_dialog_title">"Create a new playlist"</string>
     <string name="playbackactivity_playlist_dialog_name_hint">"Name"</string>
     <string name="playbackservice_label_string">PlaybackService</string>
-    <string name="loginactivity_username_label_string">Username:</string>
-    <string name="loginactivity_password_label_string">Password:</string>
+    <string name="logindialog_username_label_string">E-Mail</string>
+    <string name="logindialog_password_label_string">Password</string>
     <string name="accounttype_string">org.tomahawk</string>
-    <string name="loginactivity_loginbutton_label_string">Login</string>
+    <string name="logindialog_spotify_dialog_title">Spotify login</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
     <string name="authenticationdialog_text_string">Authenticating&#8230;</string>
     <string name="authenticationactivity_invalid_credentials_string">Username or password
         incorrect
     </string>
     <string name="settingsactivity_title_string">Settings</string>
+    <string name="fakepreference_accounts_header">SERVICES</string>
+    <string name="fakepreference_spotifylogin_title_string">Spotify</string>
+    <string name="fakepreference_spotifylogin_summary_string">Play your music from and sync your
+        playlists with Spotify. Requires a Premium account.
+    </string>
     <string name="fakepreference_playback_header">PLAYBACK</string>
     <string name="fakepreference_plugintoplay_title_string">Plug in to play</string>
     <string name="fakepreference_plugintoplay_summary_string">Starts playing music

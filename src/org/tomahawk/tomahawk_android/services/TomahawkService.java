@@ -30,7 +30,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.tomahawk.libtomahawk.network.TomahawkHttpClient;
+import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
+import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.utils.OnLoggedInOutListener;
 
 import android.annotation.TargetApi;
 import android.app.Service;
@@ -38,15 +41,18 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.net.TrafficStats;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Process;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -60,9 +66,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Represents a Tomahawk ControlConnection. Used for LAN communications.
- */
 public class TomahawkService extends Service implements WebSocketClient.Listener {
 
     private final static String TAG = TomahawkService.class.getName();
@@ -71,11 +74,19 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
 
     public static final String HATCHET_URL = "ws://hatchet.toma.hk/";
 
-    public static final String ACCOUNT_TYPE = "org.tomahawk";
+    public static final String ACCOUNT_TYPE = "org.tomahawk.tomahawk_android";
+
+    public static final String ACCOUNT_USERNAME = "username";
 
     public static final String AUTH_TOKEN_TYPE = "org.tomahawk.authtoken";
 
-    public static final String ACCOUNT_NAME = "Tomahawk";
+    public static final String HATCHET_ACCOUNT_NAME = "Tomahawk";
+
+    public static final String SPOTIFY_ACCOUNT_NAME = "SpotifyTomahawk";
+
+    public static final String SPOTIFY_CREDS_BLOB = "spotify_creds_blob";
+
+    public static final String SPOTIFY_CREDS_EMAIL = "spotify_creds_email";
 
     private final IBinder mBinder = new TomahawkServiceBinder();
 
@@ -90,6 +101,78 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
     private String mAuthToken;
 
     private List<AccessToken> mAccessTokens;
+
+    private WifiManager.WifiLock mWifiLock;
+
+    private SharedPreferences mSharedPreferences;
+
+    private String mSpotifyUserId;
+
+    private boolean mIsAttemptingLogin;
+
+    private OnLoggedInOutListener mOnLoggedInOutListener;
+
+    public static interface OnLoginListener {
+
+        void onLogin(String username);
+
+        void onLoginFailed(String message);
+
+        void onLogout();
+
+    }
+
+    private OnLoginListener mOnLoginListener = new OnLoginListener() {
+        @Override
+        public void onLogin(String username) {
+            Log.d(TAG,
+                    "TomahawkService: spotify user '" + username + "' logged in successfully :)");
+            mSpotifyUserId = username;
+            logInOut(true);
+        }
+
+        @Override
+        public void onLoginFailed(String message) {
+            Log.d(TAG, "TomahawkService: spotify loginSpotify failed :( message: " + message);
+            mSpotifyUserId = null;
+            logInOut(false);
+        }
+
+        @Override
+        public void onLogout() {
+            Log.d(TAG, "TomahawkService: spotify user logged out");
+            mSpotifyUserId = null;
+            logInOut(false);
+        }
+
+        private void logInOut(boolean loggedIn) {
+            mIsAttemptingLogin = false;
+            if (mOnLoggedInOutListener != null) {
+                mOnLoggedInOutListener.onLoggedInOut(TomahawkApp.RESOLVER_ID_SPOTIFY, loggedIn);
+            }
+            SpotifyResolver spotifyResolver = (SpotifyResolver) ((TomahawkApp) getApplication())
+                    .getPipeLine().getResolver(TomahawkApp.RESOLVER_ID_SPOTIFY);
+            spotifyResolver.setReady(loggedIn);
+        }
+    };
+
+    private OnCredBlobUpdatedListener mOnCredBlobUpdatedListener = new OnCredBlobUpdatedListener() {
+
+        @Override
+        public void onCredBlobUpdated(String blob) {
+            SharedPreferences.Editor editor = mSharedPreferences.edit();
+            editor.putString(SPOTIFY_CREDS_BLOB, blob);
+            if (mSpotifyUserId != null) {
+                editor.putString(SPOTIFY_CREDS_EMAIL, mSpotifyUserId);
+            }
+            editor.commit();
+        }
+    };
+
+    public static interface OnCredBlobUpdatedListener {
+
+        void onCredBlobUpdated(String blob);
+    }
 
     public static class TomahawkServiceConnection implements ServiceConnection {
 
@@ -186,25 +269,58 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
     }
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+
+        mSharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(TomahawkApp.getContext());
+
+        System.loadLibrary("spotify");
+        System.loadLibrary("spotifywrapper");
+
+        if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            throw new RuntimeException("Storage card not available");
+        }
+        LibSpotifyWrapper.init(LibSpotifyWrapper.class.getClassLoader(),
+                Environment.getExternalStorageDirectory().getAbsolutePath()
+                        + "/Android/data/com.spotify.hacks.psyonspotify");
+
+        mWifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
+                .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
+        mWifiLock.acquire();
+
+        loginSpotifyWithStoredCreds();
+    }
+
+    @Override
+    public void onDestroy() {
+        mWifiLock.release();
+
+        // Tell the user we stopped.
+        Toast.makeText(this, "The local service has stopped", Toast.LENGTH_SHORT).show();
+        super.onDestroy();
+    }
+
+    @Override
     public int onStartCommand(Intent i, int j, int k) {
         super.onStartCommand(i, j, k);
-        if (i == null) {
-            return -1;
-        }
+        //        if (i == null) {
+        //            return -1;
+        //        }
+        //
+        //        if (!i.hasExtra(HATCHET_ACCOUNT_NAME) || !i.hasExtra(AUTH_TOKEN_TYPE)) {
+        //            stopSelf();
+        //            return -1;
+        //        }
+        //
+        //        mUserId = i.getStringExtra(HATCHET_ACCOUNT_NAME);
+        //        mAuthToken = i.getStringExtra(AUTH_TOKEN_TYPE);
 
-        if (!i.hasExtra(ACCOUNT_NAME) || !i.hasExtra(AUTH_TOKEN_TYPE)) {
-            stopSelf();
-            return -1;
-        }
-
-        mUserId = i.getStringExtra(ACCOUNT_NAME);
-        mAuthToken = i.getStringExtra(AUTH_TOKEN_TYPE);
-
-        mCollectionUpdateHandlerThread = new HandlerThread(TAG, Process.THREAD_PRIORITY_BACKGROUND);
-        mCollectionUpdateHandlerThread.start();
-        mHandler = new Handler(mCollectionUpdateHandlerThread.getLooper());
-
-        mHandler.postDelayed(mStartupConnectionRunnable, 1);
+        //        mCollectionUpdateHandlerThread = new HandlerThread(TAG, Process.THREAD_PRIORITY_BACKGROUND);
+        //        mCollectionUpdateHandlerThread.start();
+        //        mHandler = new Handler(mCollectionUpdateHandlerThread.getLooper());
+        //
+        //        mHandler.postDelayed(mStartupConnectionRunnable, 1);
 
         return START_STICKY;
     }
@@ -323,7 +439,7 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
         httpParams.setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
         TomahawkHttpClient httpclient = new TomahawkHttpClient(httpParams);
 
-        String query = params.has("authtoken") ? "tokens" : "login";
+        String query = params.has("authtoken") ? "tokens" : "loginSpotify";
         HttpPost httpost = new HttpPost(AUTH_URL + query);
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
@@ -380,4 +496,35 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
         Log.e(TAG, "Uknown error authenticating against Tomahawk server.");
         return null;
     }
+
+    public void loginSpotifyWithStoredCreds() {
+        mIsAttemptingLogin = true;
+        String email = mSharedPreferences.getString(SPOTIFY_CREDS_EMAIL, null);
+        String blob = mSharedPreferences.getString(SPOTIFY_CREDS_BLOB, null);
+        if (email != null && blob != null) {
+            LibSpotifyWrapper
+                    .loginUser(email, "", blob, mOnLoginListener, mOnCredBlobUpdatedListener);
+        }
+    }
+
+    public void loginSpotify(String email, String password) {
+        mIsAttemptingLogin = true;
+        if (email != null && password != null) {
+            LibSpotifyWrapper
+                    .loginUser(email, password, "", mOnLoginListener, mOnCredBlobUpdatedListener);
+        }
+    }
+
+    public boolean isAttemptingLogin() {
+        return mIsAttemptingLogin;
+    }
+
+    public String getSpotifyUserId() {
+        return mSpotifyUserId;
+    }
+
+    public void setOnLoggedInOutListener(OnLoggedInOutListener onLoggedInOutListener) {
+        mOnLoggedInOutListener = onLoggedInOutListener;
+    }
+
 }
