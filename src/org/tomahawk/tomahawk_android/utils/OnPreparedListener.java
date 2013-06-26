@@ -1,8 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
-/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+/* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2012, Christopher Reichert <creichert07@gmail.com>
+ *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,11 +15,12 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
--->
-<account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
-                       android:accountType="org.tomahawk.tomahawk_android"
-                       android:icon="@drawable/ic_launcher"
-                       android:smallIcon="@drawable/ic_launcher"
-                       android:label="@string/appname_string"
-                       android:accountPreferences="@xml/account_preferences"
-        />
+package org.tomahawk.tomahawk_android.utils;
+
+/**
+ * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 23.06.13
+ */
+public interface OnPreparedListener {
+
+    public abstract void onPrepared(TomahawkMediaPlayer tmp);
+}

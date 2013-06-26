@@ -28,26 +28,17 @@ import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
-import org.tomahawk.tomahawk_android.activities.TomahawkAccountAuthenticatorActivity;
+import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
-import org.tomahawk.tomahawk_android.services.TomahawkService.TomahawkServiceConnection;
-import org.tomahawk.tomahawk_android.services.TomahawkService.TomahawkServiceConnection.TomahawkServiceConnectionListener;
 import org.tomahawk.tomahawk_android.utils.TomahawkExceptionReporter;
 
 import android.accounts.AccountManager;
-import android.accounts.AccountManagerCallback;
-import android.accounts.AccountManagerFuture;
-import android.accounts.AuthenticatorException;
-import android.accounts.OperationCanceledException;
 import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Bundle;
 import android.util.Log;
-
-import java.io.IOException;
 
 /**
  * This class contains represents the Application core.
@@ -59,8 +50,7 @@ import java.io.IOException;
         resDialogTitle = R.string.crash_dialog_title,
         resDialogCommentPrompt = R.string.crash_dialog_comment_prompt,
         resDialogOkToast = R.string.crash_dialog_ok_toast)
-public class TomahawkApp extends Application
-        implements AccountManagerCallback<Bundle>, TomahawkServiceConnectionListener {
+public class TomahawkApp extends Application {
 
     private static final String TAG = TomahawkApp.class.getName();
 
@@ -73,6 +63,8 @@ public class TomahawkApp extends Application
     public static final int RESOLVER_ID_EXFM = 102;
 
     public static final int RESOLVER_ID_SOUNDCLOUD = 103;
+
+    public static final int RESOLVER_ID_SPOTIFY = 200;
 
     private static IntentFilter sCollectionUpdateIntentFilter = new IntentFilter(
             Collection.COLLECTION_UPDATED);
@@ -98,11 +90,6 @@ public class TomahawkApp extends Application
     private long mQueryIdCounter;
 
     private long mInfoRequestIdCounter;
-
-    private TomahawkServiceConnection mTomahawkServiceConnection = new TomahawkServiceConnection(
-            this);
-
-    private TomahawkService mTomahawkService;
 
     /**
      * Handles incoming {@link Collection} updated broadcasts.
@@ -148,6 +135,8 @@ public class TomahawkApp extends Application
         scriptResolver = new ScriptResolver(RESOLVER_ID_SOUNDCLOUD, this,
                 "js/soundcloud/soundcloud.js");
         mPipeLine.addResolver(scriptResolver);
+        SpotifyResolver spotifyResolver = new SpotifyResolver(RESOLVER_ID_SPOTIFY, this);
+        mPipeLine.addResolver(spotifyResolver);
 
         initialize();
     }
@@ -211,44 +200,43 @@ public class TomahawkApp extends Application
      * This method is called when the Authenticator has finished. why d Ideally, we start the
      * Tomahawk web service here.
      */
-    @Override
-    public void run(AccountManagerFuture<Bundle> result) {
-
-        try {
-
-            String token = result.getResult().getString(AccountManager.KEY_AUTHTOKEN);
-            String username = result.getResult().getString(AccountManager.KEY_ACCOUNT_NAME);
-            if (token == null) {
-                Intent i = new Intent(getApplicationContext(),
-                        TomahawkAccountAuthenticatorActivity.class);
-                startActivity(i);
-            } else {
-                Log.d(TAG, "Starting Tomahawk Service: " + token);
-                Intent intent = new Intent(this, TomahawkService.class);
-                intent.putExtra(TomahawkService.ACCOUNT_NAME, username);
-                intent.putExtra(TomahawkService.AUTH_TOKEN_TYPE, token);
-                startService(intent);
-                bindService(intent, mTomahawkServiceConnection, Context.BIND_AUTO_CREATE);
-            }
-
-        } catch (OperationCanceledException e) {
-            e.printStackTrace();
-        } catch (AuthenticatorException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void setTomahawkService(TomahawkService ps) {
-        mTomahawkService = ps;
-    }
-
-    @Override
-    public void onTomahawkServiceReady() {
-
-    }
+    //    @Override
+    //    public void run(AccountManagerFuture<Bundle> result) {
+    //
+    //        try {
+    //
+    //            String token = result.getResult().getString(AccountManager.KEY_AUTHTOKEN);
+    //            String username = result.getResult().getString(AccountManager.KEY_ACCOUNT_NAME);
+    //            if (token == null) {
+    //                Intent i = new Intent(getApplicationContext(),
+    //                        TomahawkAccountAuthenticatorActivity.class);
+    //                startActivity(i);
+    //            } else {
+    //                Log.d(TAG, "Starting Tomahawk Service: " + token);
+    //                Intent intent = new Intent(this, TomahawkService.class);
+    //                intent.putExtra(TomahawkService.HATCHET_ACCOUNT_NAME, username);
+    //                intent.putExtra(TomahawkService.AUTH_TOKEN_TYPE, token);
+    //                startService(intent);
+    //                bindService(intent, mTomahawkServiceConnection, Context.BIND_AUTO_CREATE);
+    //            }
+    //
+    //        } catch (OperationCanceledException e) {
+    //            e.printStackTrace();
+    //        } catch (AuthenticatorException e) {
+    //            e.printStackTrace();
+    //        } catch (IOException e) {
+    //            e.printStackTrace();
+    //        }
+    //    }
+    //    @Override
+    //    public void setTomahawkService(TomahawkService ps) {
+    //        mTomahawkService = ps;
+    //    }
+    //
+    //    @Override
+    //    public void onTomahawkServiceReady() {
+    //
+    //    }
 
     public long getUniqueTrackId() {
         return mTrackIdCounter++;

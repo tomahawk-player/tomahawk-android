@@ -351,11 +351,6 @@ public class Query {
                     result = Math.max(result, 0.9F);
                 }
                 maxResult = Math.max(result, maxResult);
-                Log.d(TAG,
-                        "cleanFullTextQueryWithArticle = " + searchString + ", resultArtistName= "
-                                + resultArtistName + ", resultAlbumName= " + resultAlbumName
-                                + ", resultTrackName= " + resultTrackName + ", score = " + Math
-                                .max(result, distanceScoreArtistTrack));
             }
             return maxResult;
         } else {

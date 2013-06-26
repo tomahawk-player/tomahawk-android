@@ -24,9 +24,11 @@ import java.util.ArrayList;
  */
 public class FakePreferenceGroup {
 
-    public static final int FAKEPREFERENCE_TYPE_CHECKBOX = 0;
+    public static final int FAKEPREFERENCE_TYPE_DIALOG = 0;
 
-    public static final int FAKEPREFERENCE_TYPE_PLAIN = 1;
+    public static final int FAKEPREFERENCE_TYPE_CHECKBOX = 1;
+
+    public static final int FAKEPREFERENCE_TYPE_PLAIN = 2;
 
     private ArrayList<FakePreference> mFakePreferences = new ArrayList<FakePreference>();
 
@@ -38,13 +40,17 @@ public class FakePreferenceGroup {
 
         private String key;
 
+        private boolean isLoggedIn;
+
         private String title;
 
         private String summary;
 
-        private FakePreference(int type, String key, String title, String summary) {
+        private FakePreference(int type, String key, boolean isLoggedIn, String title,
+                String summary) {
             this.type = type;
             this.key = key;
+            this.isLoggedIn = isLoggedIn;
             this.title = title;
             this.summary = summary;
         }
@@ -55,6 +61,14 @@ public class FakePreferenceGroup {
 
         public String getKey() {
             return key;
+        }
+
+        public boolean isLoggedIn() {
+            return isLoggedIn;
+        }
+
+        public void setLoggedIn(boolean loggedIn) {
+            isLoggedIn = loggedIn;
         }
 
         public String getTitle() {
@@ -71,11 +85,20 @@ public class FakePreferenceGroup {
     }
 
     public void addFakePreference(int type, String key, String title, String summary) {
-        mFakePreferences.add(new FakePreference(type, key, title, summary));
+        mFakePreferences.add(new FakePreference(type, key, false, title, summary));
     }
 
     public ArrayList<FakePreference> getFakePreferences() {
         return mFakePreferences;
+    }
+
+    public FakePreference getFakePreferenceByKey(String key) {
+        for (FakePreference fakePreference : mFakePreferences) {
+            if (fakePreference.getKey() == key) {
+                return fakePreference;
+            }
+        }
+        return null;
     }
 
     public String getHeader() {

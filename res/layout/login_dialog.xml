@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+ *
+ *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
+ *
+ *   Tomahawk is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Tomahawk is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content">
+
+    <TextView
+            android:id="@+id/login_dialog_title_textview"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:layout_marginLeft="16dp"
+            android:textSize="@dimen/text_size_large"
+            android:textColor="@color/tomahawk_red"
+            android:gravity="center_vertical"/>
+
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/divider_height_thick"
+            android:background="@color/tomahawk_red"/>
+
+    <EditText
+            android:id="@+id/login_dialog_username_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:hint="@string/logindialog_username_label_string"
+            android:inputType="textEmailAddress"/>
+
+    <EditText
+            android:id="@+id/login_dialog_password_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:hint="@string/logindialog_password_label_string"
+            android:password="true"/>
+
+</LinearLayout>

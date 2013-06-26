@@ -51,10 +51,24 @@
 
     </LinearLayout>
 
-    <CheckBox
-            android:id="@+id/fake_preferences_checkbox"
+    <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:clickable="false"/>
+            android:orientation="vertical">
+
+        <ImageView
+                android:id="@+id/fake_preferences_progressdrawable"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"/>
+
+        <CheckBox
+                android:id="@+id/fake_preferences_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:clickable="false"/>
+
+    </RelativeLayout>
+
 </LinearLayout>

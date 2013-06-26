@@ -45,6 +45,7 @@ import org.tomahawk.tomahawk_android.fragments.TracksFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
+import org.tomahawk.tomahawk_android.services.TomahawkService;
 import org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout;
 import org.tomahawk.tomahawk_android.utils.ContentViewer;
 
@@ -71,13 +72,23 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class CollectionActivity extends TomahawkTabsActivity
-        implements PlaybackServiceConnectionListener, LoaderManager.LoaderCallbacks<Collection> {
+        implements PlaybackServiceConnectionListener,
+        TomahawkService.TomahawkServiceConnection.TomahawkServiceConnectionListener,
+        LoaderManager.LoaderCallbacks<Collection> {
 
     public static final String COLLECTION_ID_STOREDBACKSTACK = "collection_id_storedbackstack";
 
     public static final String COLLECTION_ID_STACKPOSITION = "collection_id_stackposition";
 
+    private PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(
+            this);
+
     private PlaybackService mPlaybackService;
+
+    private TomahawkService.TomahawkServiceConnection mTomahawkServiceConnection
+            = new TomahawkService.TomahawkServiceConnection(this);
+
+    private TomahawkService mTomahawkService;
 
     private ContentViewer mContentViewer;
 
@@ -86,9 +97,6 @@ public class CollectionActivity extends TomahawkTabsActivity
     private CollectionUpdateReceiver mCollectionUpdatedReceiver;
 
     private View mNowPlayingView;
-
-    private PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(
-            this);
 
     private CollectionActivityBroadcastReceiver mCollectionActivityBroadcastReceiver;
 
@@ -246,9 +254,12 @@ public class CollectionActivity extends TomahawkTabsActivity
     public void onStart() {
         super.onStart();
 
-        Intent playbackIntent = new Intent(this, PlaybackService.class);
-        startService(playbackIntent);
-        bindService(playbackIntent, mPlaybackServiceConnection, Context.BIND_AUTO_CREATE);
+        Intent intent = new Intent(this, PlaybackService.class);
+        startService(intent);
+        bindService(intent, mPlaybackServiceConnection, Context.BIND_AUTO_CREATE);
+        intent = new Intent(this, TomahawkService.class);
+        startService(intent);
+        bindService(intent, mTomahawkServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     /*
@@ -310,6 +321,9 @@ public class CollectionActivity extends TomahawkTabsActivity
 
         if (mPlaybackService != null) {
             unbindService(mPlaybackServiceConnection);
+        }
+        if (mTomahawkService != null) {
+            unbindService(mTomahawkServiceConnection);
         }
     }
 
@@ -390,6 +404,19 @@ public class CollectionActivity extends TomahawkTabsActivity
     @Override
     public PlaybackService getPlaybackService() {
         return mPlaybackService;
+    }
+
+    @Override
+    public void setTomahawkService(TomahawkService ps) {
+        mTomahawkService = ps;
+    }
+
+    @Override
+    public void onTomahawkServiceReady() {
+    }
+
+    public TomahawkService getTomahawkService() {
+        return mTomahawkService;
     }
 
     /* 

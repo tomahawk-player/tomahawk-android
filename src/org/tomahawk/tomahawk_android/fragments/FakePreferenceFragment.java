@@ -21,7 +21,9 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.CollectionActivity;
 import org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter;
+import org.tomahawk.tomahawk_android.dialogs.LoginDialog;
 import org.tomahawk.tomahawk_android.utils.FakePreferenceGroup;
+import org.tomahawk.tomahawk_android.utils.OnLoggedInOutListener;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -33,7 +35,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.CheckBox;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,9 +42,13 @@ import java.util.List;
 /**
  * Fragment which represents the "UserCollection" tabview.
  */
-public class FakePreferenceFragment extends TomahawkListFragment implements OnItemClickListener {
+public class FakePreferenceFragment extends TomahawkListFragment
+        implements OnItemClickListener, OnLoggedInOutListener,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = FakePreferenceFragment.class.getName();
+
+    public static final String FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN = "spotifyloggedin";
 
     public static final String FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY = "plugintoplay";
 
@@ -53,21 +58,32 @@ public class FakePreferenceFragment extends TomahawkListFragment implements OnIt
 
     private SharedPreferences mSharedPreferences;
 
+    private List<FakePreferenceGroup> mFakePreferenceGroups;
+
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         mSharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(TomahawkApp.getContext());
+        mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
-        List<FakePreferenceGroup> preferenceGroups = new ArrayList<FakePreferenceGroup>();
+        mCollectionActivity.getTomahawkService().setOnLoggedInOutListener(this);
+
+        mFakePreferenceGroups = new ArrayList<FakePreferenceGroup>();
         FakePreferenceGroup prefGroup = new FakePreferenceGroup(
-                getString(R.string.fakepreference_playback_header));
+                getString(R.string.fakepreference_accounts_header));
+        prefGroup.addFakePreference(FakePreferenceGroup.FAKEPREFERENCE_TYPE_DIALOG,
+                FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN,
+                getString(R.string.fakepreference_spotifylogin_title_string),
+                getString(R.string.fakepreference_spotifylogin_summary_string));
+        mFakePreferenceGroups.add(prefGroup);
+        prefGroup = new FakePreferenceGroup(getString(R.string.fakepreference_playback_header));
         prefGroup.addFakePreference(FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX,
                 FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY,
                 getString(R.string.fakepreference_plugintoplay_title_string),
                 getString(R.string.fakepreference_plugintoplay_summary_string));
-        preferenceGroups.add(prefGroup);
+        mFakePreferenceGroups.add(prefGroup);
         prefGroup = new FakePreferenceGroup(getString(R.string.fakepreference_info_header));
         String versionName = "";
         try {
@@ -80,11 +96,15 @@ public class FakePreferenceFragment extends TomahawkListFragment implements OnIt
         prefGroup.addFakePreference(FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN,
                 FAKEPREFERENCEFRAGMENT_KEY_APPVERSION,
                 getString(R.string.fakepreference_appversion_title_string), versionName);
-        preferenceGroups.add(prefGroup);
+        mFakePreferenceGroups.add(prefGroup);
         FakePreferencesAdapter fakePreferencesAdapter = new FakePreferencesAdapter(
-                mCollectionActivity.getLayoutInflater(), preferenceGroups);
+                mCollectionActivity.getLayoutInflater(), mFakePreferenceGroups);
         setListAdapter(fakePreferencesAdapter);
         getListView().setOnItemClickListener(this);
+
+        if (mCollectionActivity.getTomahawkService().getSpotifyUserId() != null) {
+            onLoggedInOut(TomahawkApp.RESOLVER_ID_SPOTIFY, true);
+        }
     }
 
     /* 
@@ -118,14 +138,40 @@ public class FakePreferenceFragment extends TomahawkListFragment implements OnIt
         if (idx >= 0) {
             if (((FakePreferenceGroup.FakePreference) getListAdapter().getItem(idx)).getType()
                     == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX) {
-                CheckBox checkBox = (CheckBox) arg1.findViewById(R.id.fake_preferences_checkbox);
-                checkBox.toggle();
                 SharedPreferences.Editor editor = mSharedPreferences.edit();
+                boolean preferenceState = mSharedPreferences.getBoolean(
+                        ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(idx))
+                                .getKey(), false);
                 editor.putBoolean(
                         ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(idx))
-                                .getKey(), checkBox.isChecked());
+                                .getKey(), !preferenceState);
                 editor.commit();
+            } else if (
+                    ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(idx)).getType()
+                            == FakePreferenceGroup.FAKEPREFERENCE_TYPE_DIALOG) {
+                new LoginDialog(mCollectionActivity.getTomahawkService())
+                        .show(getFragmentManager(), null);
             }
         }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        getListAdapter().notifyDataSetChanged();
+    }
+
+    @Override
+    public void onLoggedInOut(int resolverId, boolean loggedIn) {
+        if (resolverId == TomahawkApp.RESOLVER_ID_SPOTIFY) {
+            for (FakePreferenceGroup fakePreferenceGroup : mFakePreferenceGroups) {
+                FakePreferenceGroup.FakePreference fakePreference = fakePreferenceGroup
+                        .getFakePreferenceByKey(FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN);
+                if (fakePreference != null) {
+                    fakePreference.setLoggedIn(loggedIn);
+                    break;
+                }
+            }
+        }
+        getListAdapter().notifyDataSetChanged();
     }
 }

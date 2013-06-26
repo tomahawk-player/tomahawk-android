@@ -17,6 +17,7 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
+import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.Intent;
@@ -158,14 +159,16 @@ public class PipeLine {
             mQids.put(q.getQid(), q);
             mQueryMap.put(q.getCacheKey(), q.getQid());
             for (Resolver resolver : mResolvers) {
-                if ((onlyLocal && resolver instanceof DataBaseResolver) || !onlyLocal) {
+                if ((resolver instanceof SpotifyResolver && ((SpotifyResolver) resolver).isReady())
+                        || (onlyLocal && resolver instanceof DataBaseResolver) || !onlyLocal) {
                     resolver.resolve(q);
                     q.incResolversTodoCount();
                 }
             }
         } else {
             for (Resolver resolver : mResolvers) {
-                if ((onlyLocal && resolver instanceof DataBaseResolver) || !onlyLocal) {
+                if ((resolver instanceof SpotifyResolver && ((SpotifyResolver) resolver).isReady())
+                        || (onlyLocal && resolver instanceof DataBaseResolver) || !onlyLocal) {
                     resolver.resolve(q);
                 }
             }
