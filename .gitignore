@@ -29,3 +29,6 @@ lint.xml
 local.properties
 project.properties
 notes
+
+libs/armeabi
+obj/
