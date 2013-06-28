@@ -38,7 +38,6 @@ import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
 import org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer;
 
-import android.media.AudioTrack;
 import android.os.Handler;
 import android.util.Log;
 
@@ -56,6 +55,8 @@ public class LibSpotifyWrapper {
 
     private static TomahawkMediaPlayer sTomahawkMediaPlayer;
 
+    private static int mCurrentPosition;
+
     native public static void init(ClassLoader loader, String storagePath);
 
     native public static void destroy();
@@ -66,9 +67,11 @@ public class LibSpotifyWrapper {
 
     native private static void resolve(String qid, String query);
 
-    native private static void toggleplay(String uri);
+    native public static void prepare(String uri);
 
-    native private static void playnext(String uri);
+    native public static void play();
+
+    native public static void pause();
 
     native public static void seek(int position);
 
@@ -89,24 +92,13 @@ public class LibSpotifyWrapper {
         relogin();
     }
 
-    public static void togglePlay(String uri, TomahawkMediaPlayer tomahawkMediaPlayer) {
-        sTomahawkMediaPlayer = tomahawkMediaPlayer;
-        toggleplay(uri);
+    public static void onPrepared() {
+        sTomahawkMediaPlayer.onPrepared();
     }
 
-    public static void onMusicDelivery(final byte[] audioData, final int size) {
-        AudioTrack audioTrack = sTomahawkMediaPlayer.getAudioTrack();
-        int result = audioTrack.write(audioData, 0, size);
-        Log.d(TAG, "onMusicDelivery: size = " + size + ", audioData " + (audioData == null ? "null"
-                : "not null") + ", result = " + result);
-        if (result == AudioTrack.ERROR_INVALID_OPERATION) {
-            Log.d(TAG, "onMusicDelivery: write returned ERROR INVALID OPERATION");
-        } else if (result == AudioTrack.ERROR_BAD_VALUE) {
-            Log.d(TAG, "onMusicDelivery: write returned ERROR BAD VALUE");
-        }
-        if (sTomahawkMediaPlayer.isPreparing()) {
-            sTomahawkMediaPlayer.onPrepared();
-        }
+    public static void prepare(String uri, TomahawkMediaPlayer tomahawkMediaPlayer) {
+        sTomahawkMediaPlayer = tomahawkMediaPlayer;
+        prepare(uri);
     }
 
     public static void onResolved(final String qid, final boolean success, final String message,
@@ -140,6 +132,7 @@ public class LibSpotifyWrapper {
         result.setTrack(track);
         result.setArtist(artist);
         result.setAlbum(album);
+        result.setResolver(sSpotifyResolver);
         sSpotifyResolver.addResult(result);
     }
 
@@ -177,6 +170,7 @@ public class LibSpotifyWrapper {
     }
 
     public static void onPlayerPositionChanged(final int position) {
+        mCurrentPosition = position;
     }
 
     public static void onPlayerPause() {
@@ -194,6 +188,10 @@ public class LibSpotifyWrapper {
     static private float simTimer;
 
     static void simulateTimer() {
+    }
+
+    public static int getCurrentPosition() {
+        return mCurrentPosition;
     }
 
 }

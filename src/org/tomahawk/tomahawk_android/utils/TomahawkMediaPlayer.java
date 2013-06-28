@@ -35,15 +35,11 @@ public class TomahawkMediaPlayer
 
     private MediaPlayer mMediaPlayer;
 
-    private AudioTrack mAudioTrack;
-
     private boolean mUseMediaPlayer;
 
     private boolean mIsPreparing;
 
     private boolean mIsPlaying;
-
-    public int mPositionOffset = 0; //only used for AudioTrack
 
     private OnPreparedListener mOnPreparedListener;
 
@@ -57,7 +53,6 @@ public class TomahawkMediaPlayer
         mMediaPlayer.setOnPreparedListener(this);
         mMediaPlayer.setOnErrorListener(this);
         mMediaPlayer.setOnCompletionListener(this);
-        mAudioTrack = audioTrack;
     }
 
     @Override
@@ -101,18 +96,16 @@ public class TomahawkMediaPlayer
         if (mUseMediaPlayer) {
             return mMediaPlayer.getCurrentPosition();
         } else {
-            return mPositionOffset
-                    + (mAudioTrack.getPlaybackHeadPosition() / mAudioTrack.getSampleRate()) * 1000;
+            return LibSpotifyWrapper.getCurrentPosition();
         }
     }
 
     public void setVolume(float leftVolume, float rightVolume) {
-        mAudioTrack.setStereoVolume(leftVolume, rightVolume);
+        //        mAudioTrack.setStereoVolume(leftVolume, rightVolume);
         mMediaPlayer.setVolume(leftVolume, rightVolume);
     }
 
     public void release() {
-        mAudioTrack.release();
         mMediaPlayer.release();
     }
 
@@ -137,7 +130,7 @@ public class TomahawkMediaPlayer
         if (mUseMediaPlayer) {
             mMediaPlayer.start();
         } else {
-            mAudioTrack.play();
+            LibSpotifyWrapper.play();
         }
     }
 
@@ -146,7 +139,7 @@ public class TomahawkMediaPlayer
         if (mUseMediaPlayer) {
             mMediaPlayer.pause();
         } else {
-            mAudioTrack.pause();
+            LibSpotifyWrapper.pause();
         }
     }
 
@@ -155,8 +148,7 @@ public class TomahawkMediaPlayer
         if (mUseMediaPlayer) {
             mMediaPlayer.stop();
         } else {
-            mAudioTrack.pause();
-            mAudioTrack.flush();
+            LibSpotifyWrapper.pause();
         }
     }
 
@@ -164,37 +156,25 @@ public class TomahawkMediaPlayer
         if (mUseMediaPlayer) {
             mMediaPlayer.seekTo(msec);
         } else {
-            mAudioTrack.flush();
-            mPositionOffset = msec
-                    - (mAudioTrack.getPlaybackHeadPosition() / mAudioTrack.getSampleRate()) * 1000;
             LibSpotifyWrapper.seek(msec);
         }
     }
 
     public void prepare(Track track) throws IllegalStateException, IOException {
         mIsPreparing = true;
-        mAudioTrack.pause();
-        mAudioTrack.flush();
         if (!track.isLocal() && track.getResolver().getId() == TomahawkApp.RESOLVER_ID_SPOTIFY) {
             mUseMediaPlayer = false;
             if (mMediaPlayer.isPlaying()) {
                 mMediaPlayer.stop();
             }
             mMediaPlayer.reset();
-            LibSpotifyWrapper.togglePlay(track.getPath(), this);
+            LibSpotifyWrapper.prepare(track.getPath(), this);
         } else {
             mUseMediaPlayer = true;
+            LibSpotifyWrapper.pause();
             mMediaPlayer.setDataSource(track.getPath());
             mMediaPlayer.prepare();
         }
-    }
-
-    public MediaPlayer getMediaPlayer() {
-        return mMediaPlayer;
-    }
-
-    public AudioTrack getAudioTrack() {
-        return mAudioTrack;
     }
 
     public boolean isPreparing() {

@@ -283,7 +283,7 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
         }
         LibSpotifyWrapper.init(LibSpotifyWrapper.class.getClassLoader(),
                 Environment.getExternalStorageDirectory().getAbsolutePath()
-                        + "/Android/data/com.spotify.hacks.psyonspotify");
+                        + "/Android/data/org.tomahawk.tomahawk_android");
 
         mWifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
                 .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");

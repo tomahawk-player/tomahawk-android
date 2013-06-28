@@ -44,8 +44,8 @@ using namespace std;
 
 void login(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
 void relogin(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
-void toggle_play(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
-void play_next(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
+void prepare(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
+void play(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
 void pause(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
 void star(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
 void unstar(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
