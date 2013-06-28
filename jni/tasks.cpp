@@ -32,6 +32,7 @@
 #include "run_loop.h"
 #include "jni_glue.h"
 #include "logger.h"
+#include "sound_driver.h"
 
 static int s_player_position = 0;
 static string s_current_uri;
@@ -54,7 +55,7 @@ void login(list<int> int_params, list<string> string_params, sp_session *session
 	string password = string_params.front();
 	string_params.pop_front();
 	string blob = string_params.front();
-	log ("login %s, %s, %s",username.c_str(),password.c_str(),blob.c_str());
+	log ("login %s",username.c_str());
 	if (password.empty() && !blob.empty()){
 	    sp_session_login(session, username.c_str(), NULL, true, blob.c_str());
 	}
@@ -70,76 +71,86 @@ void relogin(list<int> int_params, list<string> string_params, sp_session *sessi
 }
 
 static void SP_CALLCONV search_complete(sp_search *search, void *userdata) {
+    JNIEnv *env;
+    jclass classLibspotifyGlobal = find_class_from_native_thread(&env);
 	bool success = (sp_search_error(search) == SP_ERROR_OK) ? true : false;
-
-	JNIEnv *env;
-	jclass class_libspotify = find_class_from_native_thread(&env);
-
 	int count = sp_search_num_tracks(search);
-	jmethodID methodId = env->GetStaticMethodID(class_libspotify, "addResult",
-	    "(Ljava/lang/String;IIILjava/lang/String;Ljava/lang/String;ILjava/lang/String;)V");
+    jstring j_trackname;
+    jstring j_trackuri;
+    jstring j_albumname;
+    jstring j_artistname;
 	sp_track *track;
 	for (int i=0;i< count;i++){
 	    track = sp_search_track(search, i);
         if (track != 0 && sp_track_error(track) == SP_ERROR_OK){
-            const char *trackName = "";
             const char *temp = sp_track_name(track);
-            if (temp != 0){
-                trackName = temp;
+            if (temp != 0 && strlen(temp) != 0){
+                j_trackname = env->NewStringUTF(temp);
             }
             int trackDuration = sp_track_duration(track);
+            if (sp_track_error(track) != SP_ERROR_OK)
+                log("sp_track_error: %s",sp_error_message(sp_track_error(track)));
             int trackDiscnumber = sp_track_disc(track);
+            if (sp_track_error(track) != SP_ERROR_OK)
+                log("sp_track_error: %s",sp_error_message(sp_track_error(track)));
             int trackIndex = sp_track_index(track);
+            if (sp_track_error(track) != SP_ERROR_OK)
+                log("sp_track_error: %s",sp_error_message(sp_track_error(track)));
             char buffer [64];
             sp_link *link = sp_link_create_from_track(track, 0);
-            if (link != 0)
+            if (link != 0){
                 sp_link_as_string(link, buffer, 64);
-            const char *trackUri = "";
-            trackUri = buffer;
+            }
+            j_trackuri = env->NewStringUTF(buffer);
             sp_album *album = sp_track_album(track);
-            const char *albumName = "";
+            if (sp_track_error(track) != SP_ERROR_OK)
+                log("sp_track_error: %s",sp_error_message(sp_track_error(track)));
             int albumYear = 0;
             if (album != 0){
                 temp = sp_album_name(album);
                 albumYear = sp_album_year(album);
-                if (temp != 0){
-                    albumName = temp;
+                if (temp != 0 && strlen(temp) != 0){
+                    j_albumname = env->NewStringUTF(temp);
                 }
             }
             sp_artist *artist = sp_track_artist(track,0);
-            const char *artistName = "";
+            if (sp_track_error(track) != SP_ERROR_OK)
+                log("sp_track_error: %s",sp_error_message(sp_track_error(track)));
             if (artist != 0){
                 temp = sp_artist_name(artist);
-                if (temp != 0){
-                    artistName = temp;
+                if (temp != 0 && strlen(temp) != 0){
+                    j_artistname = env->NewStringUTF(temp);
                 }
             }
-            jstring j_trackname = env->NewStringUTF(trackName);
-            jstring j_trackuri = env->NewStringUTF(trackUri);
-            jstring j_albumname = env->NewStringUTF(albumName);
-            jstring j_artistname = env->NewStringUTF(artistName);
-            env->CallStaticVoidMethod(class_libspotify, methodId, j_trackname,
+            jmethodID methodIdAddResult = env->GetStaticMethodID(classLibspotifyGlobal, "addResult",
+                "(Ljava/lang/String;IIILjava/lang/String;Ljava/lang/String;ILjava/lang/String;)V");
+            if (env->ExceptionCheck())
+                env->ExceptionDescribe();
+            env->CallStaticVoidMethod(classLibspotifyGlobal, methodIdAddResult, j_trackname,
                 trackDuration, trackDiscnumber, trackIndex, j_trackuri,
                 j_albumname, albumYear, j_artistname);
+            if (env->ExceptionCheck())
+                env->ExceptionDescribe();
             env->DeleteLocalRef(j_trackname);
             env->DeleteLocalRef(j_trackuri);
-            env->DeleteLocalRef(j_albumname);
             env->DeleteLocalRef(j_artistname);
-            sp_album_release(album);
-            sp_artist_release(artist);
+            env->DeleteLocalRef(j_albumname);
+	        j_trackname = NULL;
+	        j_trackuri = NULL;
+	        j_artistname = NULL;
+	        j_albumname = NULL;
         }
 	}
-	sp_track_release(track);
 
-	methodId = env->GetStaticMethodID(class_libspotify, "onResolved",
+    jmethodID methodIdOnResolved = env->GetStaticMethodID(classLibspotifyGlobal, "onResolved",
 	    "(Ljava/lang/String;ZLjava/lang/String;Ljava/lang/String;)V");
-    env->CallStaticVoidMethod(class_libspotify, methodId, env->NewStringUTF(qid.c_str()), success,
+    env->CallStaticVoidMethod(classLibspotifyGlobal, methodIdOnResolved, env->NewStringUTF(qid.c_str()), success,
         env->NewStringUTF(sp_error_message(sp_search_error(search))),
         env->NewStringUTF(sp_search_did_you_mean(search)));
-	env->DeleteLocalRef(class_libspotify);
 
     log("Finished resolving query:'%s', success'%s'. track count:'%d'", sp_search_query(search),
         (success?"true":"false"), count);
+	env->DeleteGlobalRef(classLibspotifyGlobal);
     sp_search_release(search);
 }
 
@@ -148,6 +159,7 @@ void resolve(list<int> int_params, list<string> string_params, sp_session *sessi
 		exitl("Tried to resolve before session was initialized");
 	qid = string_params.front();
 	string query = string_params.back();
+	log("resolve| session is %s, query:'%s' qid:'%s'", session==0?"null":"not null", query.c_str(), qid.c_str());
     sp_search_create(session, query.c_str(), 0, 100, 0, 100, 0, 100, 0, 100, SP_SEARCH_STANDARD, &search_complete, NULL);
     log("Beginning to resolve query:'%s', qid:'%s'", query.c_str(), qid.c_str());
 }
@@ -165,11 +177,12 @@ static void load_and_play_track(sp_session *session, sp_track *track) {
 	if (s_play_after_loaded)
 		play_track(session, track);
 	(sp_track_is_starred(session, track)) ? on_starred() : on_unstarred();
+	call_static_void_method("onPrepared");
 }
 
 // Load the track if the metadata update was concerning the track
 void load_and_play_track_after_metadata_updated(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track) {
-	if (s_is_waiting_for_metadata == true && sp_track_is_loaded(track)) {
+	if (s_is_waiting_for_metadata && sp_track_is_loaded(track)) {
 		s_is_waiting_for_metadata = false;
 		load_and_play_track(session, track);
 	}
@@ -190,33 +203,31 @@ static void load_track_or_metadata(sp_session *session, sp_track *track, const c
 	s_current_uri = uri;
 
 	// either the track is already cached and can be used or we need to wait for the metadata callback
-	if (sp_track_is_loaded(track)) {
+	if (sp_track_is_loaded(track))
 		load_and_play_track(session, track);
-	}
 	else
 		s_is_waiting_for_metadata = true;
 }
 
-// Play a new track. It will only play the song if the previous song was playing
-void play_next(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track) {
+// Play the song with the given uri. Only playing when it was previously playing.
+void prepare(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track) {
 	string uri = string_params.front();
+
 	s_play_after_loaded = s_is_playing;
 	load_track_or_metadata(session, track, uri.c_str());
 }
 
-// Play or resume the song
-void toggle_play(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track) {
-	string uri = string_params.front();
-    s_play_after_loaded = true;
-    load_track_or_metadata(session, track, uri.c_str());
+void play(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track) {
+	if (!s_is_playing) {
+		s_is_playing = true;
+		sp_session_player_play(session, true);
+	}
 }
 
 void pause(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track) {
 	if (s_is_playing) {
 		s_is_playing = false;
 		sp_session_player_play(session, false);
-		//mute(opensl);
-		on_player_pause(int_params, string_params, session, track);
 	}
 }
 
@@ -242,7 +253,7 @@ void seek(list<int> int_params, list<string> string_params, sp_session *session,
 }
 
 void on_player_position_changed(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track) {
-	s_player_position++;
+	s_player_position+=1000;
 
 	JNIEnv *env;
 	jclass classLibSpotify = find_class_from_native_thread(&env);
@@ -313,17 +324,21 @@ void on_player_end_of_track(list<int> int_params, list<string> string_params, sp
 
 void destroy(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track) {
 	sp_session_release(session);
+	destroy_audio_player();
 }
 
 static void on_pause() {
 	call_static_void_method("onPlayerPause");
 }
+
 static void on_play() {
 	call_static_void_method("onPlayerPlay");
 }
+
 static void on_starred() {
 	call_static_void_method("onTrackStarred");
 }
+
 static void on_unstarred() {
 	log("Unstarred now");
 	call_static_void_method("onTrackUnStarred");

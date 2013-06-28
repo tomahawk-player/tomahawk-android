@@ -40,8 +40,12 @@
 #include "key.h"
 #include "tasks.h"
 #include "jni_glue.h"
+#include "base64.h"
 
 using namespace std;
+
+// Defined in the sound_driver to keep the buffer logic together
+int music_delivery(sp_session *sess, const sp_audioformat *format, const void *frames, int num_frames);
 
 // There is always only one track that can be played/paused
 static sp_track *s_track = NULL;
@@ -94,24 +98,6 @@ void addTask(task_fptr fptr, string name) {
 	list<int> int_params;
 	list<string> string_params;
 	addTask(fptr, name, int_params, string_params);
-}
-
-int music_delivery(sp_session *sess, const sp_audioformat *format, const void *frames, int num_frames) {
-    log("music_delivery, num_frames = %d, frames is %s",num_frames,frames==0?"null":"not null");
-	if (num_frames == 0) {
-		logPlayback("No more audio");
-		return 0; // Audio discontinuity, do nothing
-	}
-    JNIEnv *env;
-    jclass classlibspotify = find_class_from_native_thread(&env);
-    jmethodID methodId = env->GetStaticMethodID(classlibspotify, "onMusicDelivery", "([BI)V");
-    jbyteArray j_frames = env->NewByteArray(num_frames*4);
-    env->SetByteArrayRegion(j_frames, 0, num_frames*4, (const jbyte*)frames);
-    env->CallStaticVoidMethod(classlibspotify, methodId, j_frames, num_frames*4);
-	env->DeleteLocalRef(classlibspotify);
-    env->DeleteLocalRef(j_frames);
-
-	return num_frames;
 }
 
 static void connection_error(sp_session *session, sp_error error) {
@@ -230,35 +216,37 @@ static void libspotify_loop(sp_session *session) {
 }
 
 void* start_spotify(void *storage_path) {
-	string path = (char *)storage_path;
+    string path = (char *)storage_path;
 
-	pthread_mutex_init(&s_notify_mutex, NULL);
-	pthread_cond_init(&s_notify_cond, NULL);
+    pthread_mutex_init(&s_notify_mutex, NULL);
+    pthread_cond_init(&s_notify_cond, NULL);
 
-	sp_session *session;
-	sp_session_config config;
+    sp_session *session;
+    sp_session_config config;
 
-	// Libspotify does not guarantee that the structures are freshly initialized
-	memset(&config, 0, sizeof(config));
+    // Libspotify does not guarantee that the structures are freshly initialized
+    memset(&config, 0, sizeof(config));
 
-	string cache_location = path + "/cache";
-	string settings_location = path = "/settings";
+    string cache_location = path + "/cache";
+    string settings_location = path = "/settings";
 
-	config.api_version = SPOTIFY_API_VERSION;
-	config.cache_location = cache_location.c_str();
-	config.settings_location = settings_location.c_str();
-	config.application_key = g_appkey;
-	config.application_key_size = g_appkey_size;
-	config.user_agent = "PsytranceOnSpotify";
-	config.callbacks = &callbacks;
-	config.tracefile = NULL;
+    config.api_version = SPOTIFY_API_VERSION;
+    config.cache_location = cache_location.c_str();
+    config.settings_location = settings_location.c_str();
+    int plain_g_appkey_size;
+    unsigned char *plain_g_appkey = unbase64(g_appkey, g_appkey_size, &plain_g_appkey_size);
+    config.application_key = plain_g_appkey;
+    config.application_key_size = plain_g_appkey_size;
+    config.user_agent = "PsytranceOnSpotify";
+    config.callbacks = &callbacks;
+    config.tracefile = NULL;
 
-	sp_error error = sp_session_create(&config, &session);
-	log("Libspotify was initiated");
+    sp_error error = sp_session_create(&config, &session);
+    log("Libspotify was initiated");
 
-	if (SP_ERROR_OK != error)
-		exitl("failed to create session: %s\n", sp_error_message(error));
+    if (SP_ERROR_OK != error)
+        exitl("failed to create session: %s\n", sp_error_message(error));
 
-	// start the libspotify loop
-	libspotify_loop(session);
+    // start the libspotify loop
+    libspotify_loop(session);
 }

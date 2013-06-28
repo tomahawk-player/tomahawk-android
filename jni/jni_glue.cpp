@@ -39,6 +39,7 @@
 #include "tasks.h"
 #include "run_loop.h"
 #include "logger.h"
+#include "sound_driver.h"
 
 using namespace std;
 
@@ -64,6 +65,8 @@ JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotify
 
 	pthread_setname_np(tid, "Spotify Thread");
 	pthread_create(&tid, NULL, start_spotify, (void *) storage_path);
+
+	init_audio_player();
 }
 
 JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_login(JNIEnv *je, jclass jc, jstring j_username, jstring j_password, jstring j_blob) {
@@ -87,25 +90,23 @@ JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotify
 	addTask(relogin, "relogin");
 }
 
-JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_toggleplay(JNIEnv *je, jclass jc, jstring j_uri) {
+JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_prepare(JNIEnv *je, jclass jc, jstring j_uri) {
 	const char *uri = je->GetStringUTFChars(j_uri, 0);
 
 	list<string> string_params;
 	string_params.push_back(uri);
-	log("playing uri %s", string_params.front().c_str());
-	addTask(toggle_play, "play_song", string_params);
+	log("preparing uri %s", string_params.front().c_str());
+	addTask(prepare, "prepare", string_params);
 
 	je->ReleaseStringUTFChars(j_uri, uri);
 }
 
-JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_playnext(JNIEnv *je, jclass jc, jstring j_uri) {
-	const char *uri = je->GetStringUTFChars(j_uri, 0);
+JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_play(JNIEnv *je, jclass jc) {
+	addTask(play, "play");
+}
 
-	list<string> string_params;
-	string_params.push_back(uri);
-	addTask(play_next, "play_next", string_params);
-
-	je->ReleaseStringUTFChars(j_uri, uri);
+JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_pause(JNIEnv *je, jclass jc) {
+	addTask(pause, "pause");
 }
 
 JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_star(JNIEnv *je, jclass jc) {
