@@ -21,7 +21,7 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
-import android.media.AudioTrack;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 
 import java.io.IOException;
@@ -48,8 +48,9 @@ public class TomahawkMediaPlayer
     private OnCompletionListener mOnCompletionListener;
 
 
-    public TomahawkMediaPlayer(MediaPlayer mediaPlayer, AudioTrack audioTrack) {
-        mMediaPlayer = mediaPlayer;
+    public TomahawkMediaPlayer() {
+        mMediaPlayer = new MediaPlayer();
+        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mMediaPlayer.setOnPreparedListener(this);
         mMediaPlayer.setOnErrorListener(this);
         mMediaPlayer.setOnCompletionListener(this);
@@ -101,7 +102,6 @@ public class TomahawkMediaPlayer
     }
 
     public void setVolume(float leftVolume, float rightVolume) {
-        //        mAudioTrack.setStereoVolume(leftVolume, rightVolume);
         mMediaPlayer.setVolume(leftVolume, rightVolume);
     }
 
