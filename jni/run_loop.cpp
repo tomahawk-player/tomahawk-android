@@ -39,7 +39,6 @@
 #include "logger.h"
 #include "key.h"
 #include "tasks.h"
-#include "jni_glue.h"
 #include "base64.h"
 
 using namespace std;
