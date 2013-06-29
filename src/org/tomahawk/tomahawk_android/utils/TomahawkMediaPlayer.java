@@ -125,36 +125,52 @@ public class TomahawkMediaPlayer
         return mIsPlaying;
     }
 
-    public void start() {
+    public void start() throws IllegalStateException {
         mIsPlaying = true;
         if (mUseMediaPlayer) {
-            mMediaPlayer.start();
+            try {
+                mMediaPlayer.start();
+            } catch (IllegalStateException e) {
+                throw e;
+            }
         } else {
             LibSpotifyWrapper.play();
         }
     }
 
-    public void pause() {
+    public void pause() throws IllegalStateException {
         mIsPlaying = false;
         if (mUseMediaPlayer) {
-            mMediaPlayer.pause();
+            try {
+                mMediaPlayer.pause();
+            } catch (IllegalStateException e) {
+                throw e;
+            }
         } else {
             LibSpotifyWrapper.pause();
         }
     }
 
-    public void stop() {
+    public void stop() throws IllegalStateException {
         mIsPlaying = false;
         if (mUseMediaPlayer) {
-            mMediaPlayer.stop();
+            try {
+                mMediaPlayer.stop();
+            } catch (IllegalStateException e) {
+                throw e;
+            }
         } else {
             LibSpotifyWrapper.pause();
         }
     }
 
-    public void seekTo(int msec) {
+    public void seekTo(int msec) throws IllegalStateException {
         if (mUseMediaPlayer) {
-            mMediaPlayer.seekTo(msec);
+            try {
+                mMediaPlayer.seekTo(msec);
+            } catch (IllegalStateException e) {
+                throw e;
+            }
         } else {
             LibSpotifyWrapper.seek(msec);
         }
@@ -162,18 +178,25 @@ public class TomahawkMediaPlayer
 
     public void prepare(Track track) throws IllegalStateException, IOException {
         mIsPreparing = true;
-        if (!track.isLocal() && track.getResolver().getId() == TomahawkApp.RESOLVER_ID_SPOTIFY) {
-            mUseMediaPlayer = false;
-            if (mMediaPlayer.isPlaying()) {
-                mMediaPlayer.stop();
+        try {
+            if (!track.isLocal()
+                    && track.getResolver().getId() == TomahawkApp.RESOLVER_ID_SPOTIFY) {
+                mUseMediaPlayer = false;
+                if (mMediaPlayer.isPlaying()) {
+                    mMediaPlayer.stop();
+                }
+                mMediaPlayer.reset();
+                LibSpotifyWrapper.prepare(track.getPath(), this);
+            } else {
+                mUseMediaPlayer = true;
+                LibSpotifyWrapper.pause();
+                mMediaPlayer.setDataSource(track.getPath());
+                mMediaPlayer.prepare();
             }
-            mMediaPlayer.reset();
-            LibSpotifyWrapper.prepare(track.getPath(), this);
-        } else {
-            mUseMediaPlayer = true;
-            LibSpotifyWrapper.pause();
-            mMediaPlayer.setDataSource(track.getPath());
-            mMediaPlayer.prepare();
+        } catch (IllegalStateException e) {
+            throw e;
+        } catch (IOException e) {
+            throw e;
         }
     }
 
