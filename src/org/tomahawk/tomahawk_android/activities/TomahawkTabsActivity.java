@@ -17,7 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.activities;
 
-import com.slidingmenu.lib.app.SlidingFragmentActivity;
+import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
