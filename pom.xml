@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.tomahawk</groupId>
     <artifactId>tomahawk_android</artifactId>
-    <version>0.17</version>
+    <version>0.22</version>
     <packaging>apk</packaging>
     <name>TomahawkAndroid</name>
 
@@ -19,12 +19,12 @@
         <dependency>
             <groupId>android.support</groupId>
             <artifactId>compatibility-v4</artifactId>
-            <version>12</version>
+            <version>13</version>
         </dependency>
         <dependency>
             <groupId>com.actionbarsherlock</groupId>
             <artifactId>actionbarsherlock</artifactId>
-            <version>4.3.0</version>
+            <version>4.3.1</version>
             <type>apklib</type>
             <exclusions>
                 <exclusion>
@@ -34,7 +34,7 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.slidingmenu</groupId>
+            <groupId>com.jeremyfeinstein.slidingmenu</groupId>
             <artifactId>slidingmenu</artifactId>
             <version>1.3-SNAPSHOT</version>
             <type>apklib</type>
@@ -54,7 +54,7 @@
         <dependency>
             <groupId>ch.acra</groupId>
             <artifactId>acra</artifactId>
-            <version>5.0.0-SNAPSHOT</version>
+            <version>4.5.0</version>
             <type>jar</type>
         </dependency>
     </dependencies>
