@@ -108,7 +108,7 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
 
     private String mSpotifyUserId;
 
-    private boolean mIsAttemptingLogin;
+    private boolean mIsAttemptingLogInOut;
 
     private OnLoggedInOutListener mOnLoggedInOutListener;
 
@@ -146,9 +146,15 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
         }
 
         private void logInOut(boolean loggedIn) {
-            mIsAttemptingLogin = false;
+            mIsAttemptingLogInOut = false;
             if (mOnLoggedInOutListener != null) {
                 mOnLoggedInOutListener.onLoggedInOut(TomahawkApp.RESOLVER_ID_SPOTIFY, loggedIn);
+            }
+            if (!loggedIn) {
+                SharedPreferences.Editor editor = mSharedPreferences.edit();
+                editor.remove(SPOTIFY_CREDS_BLOB);
+                editor.remove(SPOTIFY_CREDS_EMAIL);
+                editor.commit();
             }
             SpotifyResolver spotifyResolver = (SpotifyResolver) ((TomahawkApp) getApplication())
                     .getPipeLine().getResolver(TomahawkApp.RESOLVER_ID_SPOTIFY);
@@ -278,12 +284,8 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
         System.loadLibrary("spotify");
         System.loadLibrary("spotifywrapper");
 
-        if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            throw new RuntimeException("Storage card not available");
-        }
-        LibSpotifyWrapper.init(LibSpotifyWrapper.class.getClassLoader(),
-                Environment.getExternalStorageDirectory().getAbsolutePath()
-                        + "/Android/data/org.tomahawk.tomahawk_android");
+        LibSpotifyWrapper
+                .init(LibSpotifyWrapper.class.getClassLoader(), getFilesDir() + "/Spotify");
 
         mWifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
                 .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
@@ -498,7 +500,7 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
     }
 
     public void loginSpotifyWithStoredCreds() {
-        mIsAttemptingLogin = true;
+        mIsAttemptingLogInOut = true;
         String email = mSharedPreferences.getString(SPOTIFY_CREDS_EMAIL, null);
         String blob = mSharedPreferences.getString(SPOTIFY_CREDS_BLOB, null);
         if (email != null && blob != null) {
@@ -508,15 +510,20 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
     }
 
     public void loginSpotify(String email, String password) {
-        mIsAttemptingLogin = true;
+        mIsAttemptingLogInOut = true;
         if (email != null && password != null) {
             LibSpotifyWrapper
                     .loginUser(email, password, "", mOnLoginListener, mOnCredBlobUpdatedListener);
         }
     }
 
-    public boolean isAttemptingLogin() {
-        return mIsAttemptingLogin;
+    public void logoutSpotify() {
+        mIsAttemptingLogInOut = true;
+        LibSpotifyWrapper.logoutUser(mOnLoginListener);
+    }
+
+    public boolean isAttemptingLogInOut() {
+        return mIsAttemptingLogInOut;
     }
 
     public String getSpotifyUserId() {

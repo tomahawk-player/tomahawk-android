@@ -236,7 +236,7 @@ void* start_spotify(void *storage_path) {
     unsigned char *plain_g_appkey = unbase64(g_appkey, g_appkey_size, &plain_g_appkey_size);
     config.application_key = plain_g_appkey;
     config.application_key_size = plain_g_appkey_size;
-    config.user_agent = "PsytranceOnSpotify";
+    config.user_agent = "TomahawkAndroid";
     config.callbacks = &callbacks;
     config.tracefile = NULL;
 

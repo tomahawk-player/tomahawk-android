@@ -45,8 +45,6 @@ public class LibSpotifyWrapper {
 
     private final static String TAG = LibSpotifyWrapper.class.getName();
 
-    private static Handler sHandler = new Handler();
-
     private static TomahawkService.OnLoginListener sOnLoginListener;
 
     private static TomahawkService.OnCredBlobUpdatedListener sOnCredBlobUpdatedListener;
@@ -64,6 +62,8 @@ public class LibSpotifyWrapper {
     native private static void login(String username, String password, String blob);
 
     native private static void relogin();
+
+    native private static void logout();
 
     native private static void resolve(String qid, String query);
 
@@ -90,6 +90,11 @@ public class LibSpotifyWrapper {
     public static void reloginUser(TomahawkService.OnLoginListener onLoginListener) {
         sOnLoginListener = onLoginListener;
         relogin();
+    }
+
+    public static void logoutUser(TomahawkService.OnLoginListener onLoginListener) {
+        sOnLoginListener = onLoginListener;
+        logout();
     }
 
     public static void onPrepared() {
@@ -142,23 +147,15 @@ public class LibSpotifyWrapper {
     }
 
     public static void onLogin(final boolean success, final String message, final String username) {
-        sHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (success) {
-                    sOnLoginListener.onLogin(username);
-                } else {
-                    sOnLoginListener.onLoginFailed(message);
-                }
-            }
-        });
+        if (success) {
+            sOnLoginListener.onLogin(username);
+        } else {
+            sOnLoginListener.onLoginFailed(message);
+        }
     }
 
     public static void onLogout() {
         sOnLoginListener.onLogout();
-    }
-
-    public static void onConnectionStateUpdated(final int connectionstate) {
     }
 
     public static void onCredentialsBlobUpdated(final String blob) {
@@ -183,11 +180,6 @@ public class LibSpotifyWrapper {
     }
 
     public static void onTrackUnStarred() {
-    }
-
-    static private float simTimer;
-
-    static void simulateTimer() {
     }
 
     public static int getCurrentPosition() {

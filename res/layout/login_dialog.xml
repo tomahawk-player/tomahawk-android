@@ -24,14 +24,25 @@
               android:layout_width="wrap_content"
               android:layout_height="wrap_content">
 
-    <TextView
-            android:id="@+id/login_dialog_title_textview"
+    <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:layout_marginLeft="16dp"
-            android:textSize="@dimen/text_size_large"
-            android:textColor="@color/tomahawk_red"
-            android:gravity="center_vertical"/>
+            android:layout_height="@dimen/row_height_verylarge"
+            android:layout_marginLeft="@dimen/padding_medium"
+            android:layout_marginRight="@dimen/padding_medium">
+
+        <TextView
+                android:id="@+id/login_dialog_title_textview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:textSize="@dimen/text_size_large"
+                android:textColor="@color/tomahawk_red"
+                android:gravity="center_vertical"/>
+        <ImageView
+                android:id="@+id/login_dialog_status_imageview"
+                android:layout_width="@dimen/row_height_medium"
+                android:layout_height="@dimen/row_height_verylarge"/>
+    </LinearLayout>
 
     <View
             android:layout_width="match_parent"
@@ -42,9 +53,9 @@
             android:id="@+id/login_dialog_username_edittext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginLeft="4dp"
-            android:layout_marginRight="4dp"
+            android:layout_marginTop="@dimen/padding_medium"
+            android:layout_marginLeft="@dimen/padding_verysmall"
+            android:layout_marginRight="@dimen/padding_verysmall"
             android:hint="@string/logindialog_username_label_string"
             android:inputType="textEmailAddress"/>
 
@@ -52,10 +63,47 @@
             android:id="@+id/login_dialog_password_edittext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginLeft="4dp"
-            android:layout_marginRight="4dp"
+            android:layout_marginTop="@dimen/padding_medium"
+            android:layout_marginLeft="@dimen/padding_verysmall"
+            android:layout_marginRight="@dimen/padding_verysmall"
             android:hint="@string/logindialog_password_label_string"
             android:password="true"/>
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/divider_height_thin"
+            android:background="@color/divider"/>
 
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/row_height_large">
+
+        <TextView
+                android:id="@+id/login_dialog_cancel_button"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:background="@drawable/selectable_background_tomahawk"
+                android:text="@string/cancel"
+                android:textSize="@dimen/text_size_small"
+                android:textColor="@color/primary_textcolor"
+                android:gravity="center"/>
+        <View
+                android:layout_width="@dimen/divider_height_thin"
+                android:layout_height="match_parent"
+                android:background="@color/divider"/>
+
+        <TextView
+                android:id="@+id/login_dialog_ok_button"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:background="@drawable/selectable_background_tomahawk"
+                android:text="@string/login"
+                android:textSize="@dimen/text_size_small"
+                android:textColor="@color/primary_textcolor"
+                android:gravity="center"/>
+
+    </LinearLayout>
 </LinearLayout>
