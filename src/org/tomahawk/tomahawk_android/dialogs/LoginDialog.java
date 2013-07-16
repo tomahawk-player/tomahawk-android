@@ -23,9 +23,13 @@ import org.tomahawk.tomahawk_android.services.TomahawkService;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
@@ -35,6 +39,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
@@ -49,7 +54,79 @@ public class LoginDialog extends DialogFragment {
 
     EditText mPasswordEditText;
 
+    TextView mPositiveButton;
+
+    TextView mNegativeButton;
+
     private TomahawkService mTomahawkService;
+
+    private Drawable mProgressDrawable;
+
+    private Drawable mLoggedInDrawable;
+
+    private Drawable mNotLoggedInDrawable;
+
+    private ImageView mStatusImageView;
+
+    private Handler mAnimationHandler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_UPDATE_ANIMATION:
+                    if (mTomahawkService.isAttemptingLogInOut()) {
+                        mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 500);
+                        mStatusImageView.setImageDrawable(mProgressDrawable);
+                        mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
+                        mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
+                    } else {
+                        stopLoadingAnimation();
+                    }
+                    break;
+            }
+            return true;
+        }
+    });
+
+    private static final int MSG_UPDATE_ANIMATION = 0x20;
+
+    private TextView.OnEditorActionListener mOnLoginActionListener
+            = new TextView.OnEditorActionListener() {
+        @Override
+        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+            if (event == null || actionId == EditorInfo.IME_ACTION_SEARCH
+                    || actionId == EditorInfo.IME_ACTION_DONE
+                    || event.getAction() == KeyEvent.ACTION_DOWN
+                    && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                attemptLogin();
+            }
+            return false;
+        }
+    };
+
+    private View.OnClickListener mPositiveButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (mTomahawkService.getSpotifyUserId() != null) {
+                hideSoftKeyboard();
+                getDialog().dismiss();
+            } else {
+                attemptLogin();
+            }
+        }
+    };
+
+    private View.OnClickListener mNegativeButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (mTomahawkService.getSpotifyUserId() != null) {
+                mTomahawkService.logoutSpotify();
+                startLoadingAnimation();
+            } else {
+                hideSoftKeyboard();
+                getDialog().cancel();
+            }
+        }
+    };
 
     public LoginDialog(TomahawkService tomahawkService) {
         setRetainInstance(true);
@@ -62,24 +139,12 @@ public class LoginDialog extends DialogFragment {
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.login_dialog, null);
         mUsernameEditText = (EditText) view.findViewById(R.id.login_dialog_username_edittext);
         mUsernameEditText.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         mUsernameEditText.setSingleLine(true);
-        mUsernameEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (event == null || actionId == EditorInfo.IME_ACTION_SEARCH
-                        || actionId == EditorInfo.IME_ACTION_DONE
-                        || event.getAction() == KeyEvent.ACTION_DOWN
-                        && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-                    attemptLogin();
-                }
-                return false;
-            }
-        });
+        mUsernameEditText.setOnEditorActionListener(mOnLoginActionListener);
         mUsernameEditText.setText(
                 mTomahawkService.getSpotifyUserId() != null ? mTomahawkService.getSpotifyUserId()
                         : "");
@@ -88,34 +153,30 @@ public class LoginDialog extends DialogFragment {
         mPasswordEditText.setSingleLine(true);
         mPasswordEditText.setTypeface(Typeface.DEFAULT);
         mPasswordEditText.setTransformationMethod(new PasswordTransformationMethod());
-        mPasswordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (event == null || actionId == EditorInfo.IME_ACTION_SEARCH
-                        || actionId == EditorInfo.IME_ACTION_DONE
-                        || event.getAction() == KeyEvent.ACTION_DOWN
-                        && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-                    attemptLogin();
-                }
-                return false;
-            }
-        });
+        mPasswordEditText.setOnEditorActionListener(mOnLoginActionListener);
+
         TextView textView = (TextView) view.findViewById(R.id.login_dialog_title_textview);
-        DialogInterface.OnClickListener onPositiveButtonClickedListener
-                = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                attemptLogin();
-            }
-        };
-        builder.setPositiveButton(R.string.ok, onPositiveButtonClickedListener);
         textView.setText(R.string.logindialog_spotify_dialog_title);
-        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                hideSoftKeyboard();
-                getDialog().cancel();
-            }
-        });
+
+        mPositiveButton = (TextView) view.findViewById(R.id.login_dialog_ok_button);
+        mPositiveButton.setOnClickListener(mPositiveButtonListener);
+        mNegativeButton = (TextView) view.findViewById(R.id.login_dialog_cancel_button);
+        mNegativeButton.setOnClickListener(mNegativeButtonListener);
+        mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
+        mLoggedInDrawable = getResources().getDrawable(R.drawable.ic_action_checked);
+        mLoggedInDrawable.setColorFilter(
+                new PorterDuffColorFilter(getResources().getColor(R.color.tomahawk_red),
+                        PorterDuff.Mode.MULTIPLY));
+        mNotLoggedInDrawable = getResources().getDrawable(R.drawable.ic_action_error);
+        mNotLoggedInDrawable.setColorFilter(
+                new PorterDuffColorFilter(getResources().getColor(R.color.tomahawk_red),
+                        PorterDuff.Mode.MULTIPLY));
+        mStatusImageView = (ImageView) view.findViewById(R.id.login_dialog_status_imageview);
+        if (mTomahawkService.getSpotifyUserId() != null) {
+            mStatusImageView.setImageDrawable(mLoggedInDrawable);
+        }
+        updateButtonTexts();
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(view);
         return builder.create();
     }
@@ -138,21 +199,6 @@ public class LoginDialog extends DialogFragment {
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password.
-        if (TextUtils.isEmpty(mPassword)) {
-            mPasswordEditText.setError(getString(R.string.error_field_required));
-            if (focusView == null) {
-                focusView = mPasswordEditText;
-            }
-            cancel = true;
-        } else if (mPassword.length() < 1) {
-            mPasswordEditText.setError(getString(R.string.error_invalid_password));
-            if (focusView == null) {
-                focusView = mPasswordEditText;
-            }
-            cancel = true;
-        }
-
         // Check for a valid email address.
         if (TextUtils.isEmpty(mEmail)) {
             mUsernameEditText.setError(getString(R.string.error_field_required));
@@ -162,14 +208,24 @@ public class LoginDialog extends DialogFragment {
             cancel = true;
         }
 
+        // Check for a valid password.
+        if (TextUtils.isEmpty(mPassword)) {
+            mPasswordEditText.setError(getString(R.string.error_field_required));
+            if (focusView == null) {
+                focusView = mPasswordEditText;
+            }
+            cancel = true;
+        }
+
         if (cancel) {
             // There was an error; don't attempt login Spotify and focus the first
             // form field with an error.
             focusView.requestFocus();
         } else {
-
+            hideSoftKeyboard();
             // Tell the service to login Spotify
             mTomahawkService.loginSpotify(mEmail, mPassword);
+            startLoadingAnimation();
         }
     }
 
@@ -179,5 +235,29 @@ public class LoginDialog extends DialogFragment {
                     .getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(mUsernameEditText.getWindowToken(), 0);
         }
+    }
+
+    private void updateButtonTexts() {
+        if (mTomahawkService.getSpotifyUserId() != null) {
+            mPositiveButton.setText(R.string.ok);
+            mNegativeButton.setText(R.string.logout);
+        } else {
+            mPositiveButton.setText(R.string.login);
+            mNegativeButton.setText(R.string.cancel);
+        }
+    }
+
+    public void startLoadingAnimation() {
+        mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
+    }
+
+    public void stopLoadingAnimation() {
+        mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
+        if (mTomahawkService.getSpotifyUserId() != null) {
+            mStatusImageView.setImageDrawable(mLoggedInDrawable);
+        } else {
+            mStatusImageView.setImageDrawable(mNotLoggedInDrawable);
+        }
+        updateButtonTexts();
     }
 }

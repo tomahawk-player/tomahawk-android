@@ -56,23 +56,36 @@ void login(list<int> int_params, list<string> string_params, sp_session *session
 	string_params.pop_front();
 	string blob = string_params.front();
 	log ("login %s",username.c_str());
+	sp_error error;
 	if (password.empty() && !blob.empty()){
-	    sp_session_login(session, username.c_str(), NULL, true, blob.c_str());
+	    error = sp_session_login(session, username.c_str(), NULL, true, blob.c_str());
 	}
 	else if (!password.empty() && blob.empty()){
-        sp_session_login(session, username.c_str(), password.c_str(), true, NULL);
+        error = sp_session_login(session, username.c_str(), password.c_str(), true, NULL);
     }
+    if (error != SP_ERROR_OK)
+        log ("!!!login error occurred: %s",sp_error_message(error));
 }
 
 void relogin(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track) {
     if (session == NULL)
         exitl("Logged in before session was initialized");
-    sp_session_relogin(session);
+    sp_error error = sp_session_relogin(session);
+    if (error != SP_ERROR_OK)
+        log ("!!!relogin error occurred: %s",sp_error_message(error));
+}
+
+void logout(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track) {
+    if (session == NULL)
+        exitl("Logged out before session was initialized");
+    sp_error error = sp_session_logout(session);
+    if (error != SP_ERROR_OK)
+        log ("!!!logout error occurred: %s",sp_error_message(error));
 }
 
 static void SP_CALLCONV search_complete(sp_search *search, void *userdata) {
     JNIEnv *env;
-    jclass classLibspotifyGlobal = find_class_from_native_thread(&env);
+    jclass classLibspotify = find_class_from_native_thread(&env);
 	bool success = (sp_search_error(search) == SP_ERROR_OK) ? true : false;
 	int count = sp_search_num_tracks(search);
     jstring j_trackname;
@@ -122,15 +135,15 @@ static void SP_CALLCONV search_complete(sp_search *search, void *userdata) {
                     j_artistname = env->NewStringUTF(temp);
                 }
             }
-            jmethodID methodIdAddResult = env->GetStaticMethodID(classLibspotifyGlobal, "addResult",
+            jmethodID methodIdAddResult = env->GetStaticMethodID(classLibspotify, "addResult",
                 "(Ljava/lang/String;IIILjava/lang/String;Ljava/lang/String;ILjava/lang/String;)V");
-            if (env->ExceptionCheck())
-                env->ExceptionDescribe();
-            env->CallStaticVoidMethod(classLibspotifyGlobal, methodIdAddResult, j_trackname,
+            env->CallStaticVoidMethod(classLibspotify, methodIdAddResult, j_trackname,
                 trackDuration, trackDiscnumber, trackIndex, j_trackuri,
                 j_albumname, albumYear, j_artistname);
-            if (env->ExceptionCheck())
+            if (env->ExceptionCheck()) {
                 env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
             env->DeleteLocalRef(j_trackname);
             env->DeleteLocalRef(j_trackuri);
             env->DeleteLocalRef(j_artistname);
@@ -141,16 +154,19 @@ static void SP_CALLCONV search_complete(sp_search *search, void *userdata) {
 	        j_albumname = NULL;
         }
 	}
-
-    jmethodID methodIdOnResolved = env->GetStaticMethodID(classLibspotifyGlobal, "onResolved",
+    jmethodID methodIdOnResolved = env->GetStaticMethodID(classLibspotify, "onResolved",
 	    "(Ljava/lang/String;ZLjava/lang/String;Ljava/lang/String;)V");
-    env->CallStaticVoidMethod(classLibspotifyGlobal, methodIdOnResolved, env->NewStringUTF(qid.c_str()), success,
+    env->CallStaticVoidMethod(classLibspotify, methodIdOnResolved, env->NewStringUTF(qid.c_str()), success,
         env->NewStringUTF(sp_error_message(sp_search_error(search))),
         env->NewStringUTF(sp_search_did_you_mean(search)));
+    if (env->ExceptionCheck()) {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
+	env->DeleteLocalRef(classLibspotify);
 
     log("Finished resolving query:'%s', success'%s'. track count:'%d'", sp_search_query(search),
         (success?"true":"false"), count);
-	env->DeleteGlobalRef(classLibspotifyGlobal);
     sp_search_release(search);
 }
 
@@ -260,6 +276,10 @@ void on_player_position_changed(list<int> int_params, list<string> string_params
 
 	jmethodID methodId = env->GetStaticMethodID(classLibSpotify,"onPlayerPositionChanged","(I)V");
 	env->CallStaticVoidMethod(classLibSpotify, methodId, s_player_position);
+    if (env->ExceptionCheck()) {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
 	env->DeleteLocalRef(classLibSpotify);
 }
 
@@ -275,32 +295,20 @@ void on_logged_in(list<int> int_params, list<string> string_params, sp_session *
 	jclass class_libspotify = find_class_from_native_thread(&env);
 
 	jmethodID methodId = env->GetStaticMethodID(class_libspotify, "onLogin", "(ZLjava/lang/String;Ljava/lang/String;)V");
+	log("on_logged_in: success:%s, error %s, sp_error_message(error) %s, session %s, sp_session_user_name(session) %s",
+	    success?"true":"false", error==0?"null":"not null", sp_error_message(error)==0?"null":"not null",
+	    session==0?"null":"not null", sp_session_user_name(session)==0?"null":"not null");
 	env->CallStaticVoidMethod(class_libspotify, methodId, success, env->NewStringUTF(sp_error_message(error)),
 	    env->NewStringUTF(sp_session_user_name(session)));
+    if (env->ExceptionCheck()) {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
 	env->DeleteLocalRef(class_libspotify);
 }
 
 void on_logged_out(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track) {
 	call_static_void_method("onLogout");
-}
-
-void on_connectionstate_updated(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track) {
-    log ("on_connection_state_update");
-    int j_connectionstate;
-    sp_connectionstate connectionstate = sp_session_connectionstate(session);
-    if (connectionstate == SP_CONNECTION_STATE_LOGGED_IN){
-        j_connectionstate = 1;
-    }
-    else{
-        j_connectionstate = 0;
-    }
-
-	JNIEnv *env;
-	jclass class_libspotify = find_class_from_native_thread(&env);
-
-	jmethodID methodId = env->GetStaticMethodID(class_libspotify, "onConnectionStateUpdated", "(I)V");
-	env->CallStaticVoidMethod(class_libspotify, methodId, j_connectionstate);
-	env->DeleteLocalRef(class_libspotify);
 }
 
 void on_credentials_blob_updated(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track){
@@ -311,6 +319,10 @@ void on_credentials_blob_updated(list<int> int_params, list<string> string_param
 
 	jmethodID methodId = env->GetStaticMethodID(class_libspotify, "onCredentialsBlobUpdated", "(Ljava/lang/String;)V");
 	env->CallStaticVoidMethod(class_libspotify, methodId, env->NewStringUTF(blob.c_str()));
+    if (env->ExceptionCheck()) {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
 	env->DeleteLocalRef(class_libspotify);
 }
 

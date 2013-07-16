@@ -37,6 +37,7 @@ JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotify
 JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_resolve(JNIEnv *je, jclass jc, jstring j_qid, jstring j_query);
 JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_login(JNIEnv *je, jclass jc, jstring j_username, jstring j_password, jstring j_blob);
 JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_relogin(JNIEnv *je, jclass jc);
+JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_logout(JNIEnv *je, jclass jc);
 JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_prepare(JNIEnv *je, jclass jc, jstring j_uri);
 JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_play(JNIEnv *je, jclass jc);
 JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_pause(JNIEnv *je, jclass jc);

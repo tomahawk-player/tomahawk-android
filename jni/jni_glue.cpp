@@ -90,6 +90,10 @@ JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotify
 	addTask(relogin, "relogin");
 }
 
+JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_logout(JNIEnv *je, jclass jc) {
+	addTask(logout, "logout");
+}
+
 JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_prepare(JNIEnv *je, jclass jc, jstring j_uri) {
 	const char *uri = je->GetStringUTFChars(j_uri, 0);
 
@@ -149,6 +153,10 @@ void call_static_void_method(const char *method_name) {
 
 	jmethodID methodId = env->GetStaticMethodID(classLibSpotify, method_name, "()V");
 	env->CallStaticVoidMethod(classLibSpotify, methodId);
+    if (env->ExceptionCheck()) {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
 	env->DeleteLocalRef(classLibSpotify);
 }
 
@@ -176,6 +184,10 @@ jclass find_class_from_native_thread(JNIEnv **envSetter) {
 	if (!result) {
 		exitl("Cant find the LibSpotify class");
 	}
+	if (env->ExceptionCheck()) {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
 
 	env->DeleteLocalRef(className);
 	env->DeleteLocalRef(cls);

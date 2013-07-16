@@ -44,6 +44,7 @@ using namespace std;
 
 void login(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
 void relogin(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
+void logout(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
 void prepare(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
 void play(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
 void pause(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
@@ -57,7 +58,6 @@ void resolve(list<int> int_params, list<string> string_params, sp_session *sessi
 // Callbacks to java
 void on_logged_in(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
 void on_logged_out(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
-void on_connectionstate_updated(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
 void on_credentials_blob_updated(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
 void on_player_position_changed(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
 void on_player_end_of_track(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);

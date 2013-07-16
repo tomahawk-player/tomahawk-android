@@ -25,6 +25,8 @@
     <string name="mainactivity_title_string">Tomahawk</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
     <string name="localcollectionactivity_title_string">"My Music"</string>
     <string name="tracksfragment_title_string">Tracks</string>
     <string name="albumsfragment_title_string">Albums</string>

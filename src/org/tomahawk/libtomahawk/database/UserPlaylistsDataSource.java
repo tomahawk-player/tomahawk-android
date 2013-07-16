@@ -75,6 +75,7 @@ public class UserPlaylistsDataSource {
     }
 
     public void open() throws SQLException {
+        mDbHelper.close();
         mDatabase = mDbHelper.getWritableDatabase();
     }
 
