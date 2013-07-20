@@ -80,6 +80,8 @@ public class CollectionActivity extends TomahawkTabsActivity
 
     public static final String COLLECTION_ID_STACKPOSITION = "collection_id_stackposition";
 
+    public static final String TOMAHAWKSERVICE_READY = "tomahawkservice_ready";
+
     private PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(
             this);
 
@@ -413,6 +415,7 @@ public class CollectionActivity extends TomahawkTabsActivity
 
     @Override
     public void onTomahawkServiceReady() {
+        sendBroadcast(new Intent(TOMAHAWKSERVICE_READY));
     }
 
     public TomahawkService getTomahawkService() {
