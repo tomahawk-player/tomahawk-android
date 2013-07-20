@@ -60,7 +60,7 @@ JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotify
 
 	// Save a reference to the java LibSpotify classloader to be able to retreive it from a native thread.
 	if (s_java_class_loader != NULL)
-		je->DeleteGlobalRef(class_loader);
+		je->DeleteGlobalRef(s_java_class_loader);
 	s_java_class_loader = je->NewGlobalRef(class_loader);
 
 	pthread_setname_np(tid, "Spotify Thread");
