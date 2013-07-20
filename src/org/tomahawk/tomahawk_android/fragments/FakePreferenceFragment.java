@@ -22,10 +22,15 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.CollectionActivity;
 import org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter;
 import org.tomahawk.tomahawk_android.dialogs.LoginDialog;
+import org.tomahawk.tomahawk_android.services.TomahawkService;
 import org.tomahawk.tomahawk_android.utils.FakePreferenceGroup;
 import org.tomahawk.tomahawk_android.utils.OnLoggedInOutListener;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -60,6 +65,17 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
     private List<FakePreferenceGroup> mFakePreferenceGroups;
 
+    private FakePreferenceBroadcastReceiver mFakePreferenceBroadcastReceiver;
+
+    private class FakePreferenceBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mCollectionActivity.getTomahawkService()
+                    .setOnLoggedInOutListener(FakePreferenceFragment.this);
+        }
+    }
+
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -68,7 +84,9 @@ public class FakePreferenceFragment extends TomahawkListFragment
                 .getDefaultSharedPreferences(TomahawkApp.getContext());
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
-        mCollectionActivity.getTomahawkService().setOnLoggedInOutListener(this);
+        if (mCollectionActivity.getTomahawkService() != null) {
+            mCollectionActivity.getTomahawkService().setOnLoggedInOutListener(this);
+        }
 
         mFakePreferenceGroups = new ArrayList<FakePreferenceGroup>();
         FakePreferenceGroup prefGroup = new FakePreferenceGroup(
@@ -102,9 +120,27 @@ public class FakePreferenceFragment extends TomahawkListFragment
         setListAdapter(fakePreferencesAdapter);
         getListView().setOnItemClickListener(this);
 
-        if (mCollectionActivity.getTomahawkService().getSpotifyUserId() != null) {
+        if (mCollectionActivity.getTomahawkService() != null
+                && mCollectionActivity.getTomahawkService().getSpotifyUserId() != null) {
             onLoggedInOut(TomahawkApp.RESOLVER_ID_SPOTIFY, true);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        mFakePreferenceBroadcastReceiver = new FakePreferenceBroadcastReceiver();
+        mCollectionActivity.registerReceiver(mFakePreferenceBroadcastReceiver, new IntentFilter(
+                CollectionActivity.TOMAHAWKSERVICE_READY));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        mCollectionActivity.unregisterReceiver(mFakePreferenceBroadcastReceiver);
+        mFakePreferenceBroadcastReceiver = null;
     }
 
     /* 
@@ -147,7 +183,9 @@ public class FakePreferenceFragment extends TomahawkListFragment
                                 .getKey(), !preferenceState);
                 editor.commit();
             } else if (
-                    ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(idx)).getType()
+                    (mCollectionActivity.getTomahawkService() != null)
+                            && ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(idx)).
+                            getType()
                             == FakePreferenceGroup.FAKEPREFERENCE_TYPE_DIALOG) {
                 new LoginDialog(mCollectionActivity.getTomahawkService())
                         .show(getFragmentManager(), null);
