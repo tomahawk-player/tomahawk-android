@@ -50,6 +50,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -87,6 +88,10 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
     public static final String SPOTIFY_CREDS_BLOB = "spotify_creds_blob";
 
     public static final String SPOTIFY_CREDS_EMAIL = "spotify_creds_email";
+
+    private static final int DELAY_TO_KILL = 300000;
+
+    private boolean mHasBoundServices;
 
     private final IBinder mBinder = new TomahawkServiceBinder();
 
@@ -274,6 +279,16 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
         }
     }
 
+
+    private final Handler mKillTimerHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            if (!mHasBoundServices) {
+                stopSelf();
+            }
+        }
+    };
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -292,14 +307,17 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
         mWifiLock.acquire();
 
         loginSpotifyWithStoredCreds();
+
+        mKillTimerHandler.removeCallbacksAndMessages(null);
+        Message msg = mKillTimerHandler.obtainMessage();
+        mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
     }
 
     @Override
     public void onDestroy() {
         mWifiLock.release();
+        LibSpotifyWrapper.destroy();
 
-        // Tell the user we stopped.
-        Toast.makeText(this, "The local service has stopped", Toast.LENGTH_SHORT).show();
         super.onDestroy();
     }
 
@@ -327,9 +345,20 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
         return START_STICKY;
     }
 
+    /* (non-Javadoc)
+     * @see android.app.Service#onBind(android.content.Intent)
+     */
     @Override
     public IBinder onBind(Intent intent) {
+        mHasBoundServices = true;
         return mBinder;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        mHasBoundServices = false;
+        stopSelf();
+        return false;
     }
 
     /**
