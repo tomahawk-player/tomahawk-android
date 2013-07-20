@@ -205,6 +205,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     public void updatePlaylist() {
         if (mPlaybackService != null) {
             mPlaylist = mPlaybackService.getCurrentPlaylist();
+            notifyDataSetChanged();
         }
         if (mPlaylist != null && mPlaylist.getCount() > 0) {
             mFakeInfinityOffset = mPlaylist.getCount() * ((FAKE_INFINITY_COUNT / 2) / mPlaylist
@@ -215,7 +216,6 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
             } else {
                 setCurrentItem(mPlaylist.getCurrentTrackIndex(), false);
             }
-            notifyDataSetChanged();
             setByUser(true);
         }
     }
