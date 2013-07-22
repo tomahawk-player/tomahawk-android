@@ -52,7 +52,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
 	return JNI_VERSION_1_6;
 }
 
-JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_init(JNIEnv * je, jclass jc, jobject class_loader, jstring j_storage_path) {
+JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_nativeinit(JNIEnv * je, jclass jc, jobject class_loader, jstring j_storage_path) {
 	static pthread_t tid;
 	static const char *storage_path;
 
@@ -69,7 +69,7 @@ JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotify
 	init_audio_player();
 }
 
-JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_login(JNIEnv *je, jclass jc, jstring j_username, jstring j_password, jstring j_blob) {
+JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_nativelogin(JNIEnv *je, jclass jc, jstring j_username, jstring j_password, jstring j_blob) {
 
 	const char *username = je->GetStringUTFChars(j_username, 0);
 	const char *password = je->GetStringUTFChars(j_password, 0);
@@ -86,15 +86,15 @@ JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotify
 	je->ReleaseStringUTFChars(j_blob, blob);
 }
 
-JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_relogin(JNIEnv *je, jclass jc) {
+JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_nativerelogin(JNIEnv *je, jclass jc) {
 	addTask(relogin, "relogin");
 }
 
-JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_logout(JNIEnv *je, jclass jc) {
+JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_nativelogout(JNIEnv *je, jclass jc) {
 	addTask(logout, "logout");
 }
 
-JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_prepare(JNIEnv *je, jclass jc, jstring j_uri) {
+JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_nativeprepare(JNIEnv *je, jclass jc, jstring j_uri) {
 	const char *uri = je->GetStringUTFChars(j_uri, 0);
 
 	list<string> string_params;
@@ -105,35 +105,35 @@ JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotify
 	je->ReleaseStringUTFChars(j_uri, uri);
 }
 
-JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_play(JNIEnv *je, jclass jc) {
+JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_nativeplay(JNIEnv *je, jclass jc) {
 	addTask(play, "play");
 }
 
-JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_pause(JNIEnv *je, jclass jc) {
+JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_nativepause(JNIEnv *je, jclass jc) {
 	addTask(pause, "pause");
 }
 
-JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_star(JNIEnv *je, jclass jc) {
+JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_nativestar(JNIEnv *je, jclass jc) {
 	addTask(star, "star");
 }
 
-JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_unstar(JNIEnv *je, jclass jc) {
+JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_nativeunstar(JNIEnv *je, jclass jc) {
 	addTask(unstar, "unstar");
 }
 
-JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_seek(JNIEnv *je, jclass jc, jint position) {
+JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_nativeseek(JNIEnv *je, jclass jc, jint position) {
 	list<int> int_params;
 	int_params.push_back(position);
 
 	addTask(seek, "seek", int_params);
 }
 
-JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_destroy(JNIEnv *je, jclass jc) {
+JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_nativedestroy(JNIEnv *je, jclass jc) {
 	log("Cleanup native code");
 	addTask(destroy, "destroy");
 }
 
-JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_resolve(JNIEnv *je, jclass jc, jstring j_qid, jstring j_query) {
+JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_nativeresolve(JNIEnv *je, jclass jc, jstring j_qid, jstring j_query) {
     const char *qid = je->GetStringUTFChars(j_qid, 0);
     const char *query = je->GetStringUTFChars(j_query, 0);
 

@@ -55,29 +55,104 @@ public class LibSpotifyWrapper {
 
     private static int mCurrentPosition;
 
-    native public static void init(ClassLoader loader, String storagePath);
+    private static boolean mInitialized;
 
-    native public static void destroy();
+    native public static void nativeinit(ClassLoader loader, String storagePath);
 
-    native private static void login(String username, String password, String blob);
+    native public static void nativedestroy();
 
-    native private static void relogin();
+    native private static void nativelogin(String username, String password, String blob);
 
-    native private static void logout();
+    native private static void nativerelogin();
 
-    native private static void resolve(String qid, String query);
+    native private static void nativelogout();
 
-    native public static void prepare(String uri);
+    native private static void nativeresolve(String qid, String query);
 
-    native public static void play();
+    native public static void nativeprepare(String uri);
 
-    native public static void pause();
+    native public static void nativeplay();
 
-    native public static void seek(int position);
+    native public static void nativepause();
 
-    native public static void star();
+    native public static void nativeseek(int position);
 
-    native public static void unstar();
+    native public static void nativestar();
+
+    native public static void nativeunstar();
+
+    public static void init(ClassLoader loader, String storagePath) {
+        nativeinit(loader, storagePath);
+        mInitialized = true;
+    }
+
+    public static void destroy() {
+        if (mInitialized) {
+            nativedestroy();
+            mInitialized = false;
+        }
+    }
+
+    public static void login(String username, String password, String blob) {
+        if (mInitialized) {
+            nativelogin(username, password, blob);
+        }
+    }
+
+    public static void relogin() {
+        if (mInitialized) {
+            nativerelogin();
+        }
+    }
+
+    public static void logout() {
+        if (mInitialized) {
+            nativelogout();
+        }
+    }
+
+    public static void resolve(String qid, String query) {
+        if (mInitialized) {
+            nativeresolve(qid, query);
+        }
+    }
+
+    public static void prepare(String uri) {
+        if (mInitialized) {
+            nativeprepare(uri);
+        }
+    }
+
+
+    public static void play() {
+        if (mInitialized) {
+            nativeplay();
+        }
+    }
+
+    public static void pause() {
+        if (mInitialized) {
+            nativepause();
+        }
+    }
+
+    public static void seek(int position) {
+        if (mInitialized) {
+            nativeseek(position);
+        }
+    }
+
+    public static void star() {
+        if (mInitialized) {
+            nativestar();
+        }
+    }
+
+    public static void unstar() {
+        if (mInitialized) {
+            nativeunstar();
+        }
+    }
 
     public static void loginUser(String username, String password, String blob,
             TomahawkService.OnLoginListener onLoginListener,
