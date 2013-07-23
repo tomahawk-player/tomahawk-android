@@ -38,7 +38,6 @@ import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
 import org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer;
 
-import android.os.Handler;
 import android.util.Log;
 
 public class LibSpotifyWrapper {
@@ -82,14 +81,16 @@ public class LibSpotifyWrapper {
     native public static void nativeunstar();
 
     public static void init(ClassLoader loader, String storagePath) {
-        nativeinit(loader, storagePath);
-        mInitialized = true;
+        if (!mInitialized) {
+            nativeinit(loader, storagePath);
+            mInitialized = true;
+        }
     }
 
     public static void destroy() {
         if (mInitialized) {
-            nativedestroy();
-            mInitialized = false;
+            //nativedestroy();
+            //mInitialized = false;
         }
     }
 
