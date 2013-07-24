@@ -30,6 +30,8 @@ public class FakePreferenceGroup {
 
     public static final int FAKEPREFERENCE_TYPE_PLAIN = 2;
 
+    public static final int FAKEPREFERENCE_TYPE_SPINNER = 3;
+
     private ArrayList<FakePreference> mFakePreferences = new ArrayList<FakePreference>();
 
     private String mHeader;
@@ -40,17 +42,17 @@ public class FakePreferenceGroup {
 
         private String key;
 
-        private boolean isLoggedIn;
+        private boolean checkboxState;
 
         private String title;
 
         private String summary;
 
-        private FakePreference(int type, String key, boolean isLoggedIn, String title,
+        private FakePreference(int type, String key, boolean checkboxState, String title,
                 String summary) {
             this.type = type;
             this.key = key;
-            this.isLoggedIn = isLoggedIn;
+            this.checkboxState = checkboxState;
             this.title = title;
             this.summary = summary;
         }
@@ -63,12 +65,12 @@ public class FakePreferenceGroup {
             return key;
         }
 
-        public boolean isLoggedIn() {
-            return isLoggedIn;
+        public boolean isCheckboxState() {
+            return checkboxState;
         }
 
-        public void setLoggedIn(boolean loggedIn) {
-            isLoggedIn = loggedIn;
+        public void setCheckboxState(boolean checkboxState) {
+            this.checkboxState = checkboxState;
         }
 
         public String getTitle() {

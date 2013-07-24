@@ -180,6 +180,28 @@ void resolve(list<int> int_params, list<string> string_params, sp_session *sessi
     log("Beginning to resolve query:'%s', qid:'%s'", query.c_str(), qid.c_str());
 }
 
+void setbitrate(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track) {
+	if (session == NULL)
+		exitl("Tried to setbitrate before session was initialized");
+	int bitratemode = int_params.front();
+	sp_bitrate bitrate;
+	switch (bitratemode) {
+        case 0:
+            bitrate = SP_BITRATE_96k;
+            break;
+        case 1:
+            bitrate = SP_BITRATE_160k;
+            break;
+        case 2:
+            bitrate = SP_BITRATE_320k;
+            break;
+	}
+	sp_error error = sp_session_preferred_bitrate(session, bitrate);
+	log ("setbitrate set to mode " + bitratemode);
+    if (error != SP_ERROR_OK)
+        log ("!!!setbitrate error occurred: %s",sp_error_message(error));
+}
+
 static void play_track(sp_session *session, sp_track *track) {
 	//unmute(opensl);
 	sp_session_player_play(session, true);

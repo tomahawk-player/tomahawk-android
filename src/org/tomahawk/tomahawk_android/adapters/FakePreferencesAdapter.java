@@ -19,8 +19,10 @@ package org.tomahawk.tomahawk_android.adapters;
 
 import com.emilsjolander.components.stickylistheaders.StickyListHeadersAdapter;
 
+import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.services.TomahawkService;
 import org.tomahawk.tomahawk_android.utils.FakePreferenceGroup;
 
 import android.content.SharedPreferences;
@@ -28,9 +30,11 @@ import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.HashMap;
@@ -52,6 +56,8 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
     private TomahawkBaseAdapter.ResourceHolder mFakePreferencesCheckboxResourceHolder;
 
     private TomahawkBaseAdapter.ResourceHolder mFakePreferencesPlainResourceHolder;
+
+    private TomahawkBaseAdapter.ResourceHolder mFakePreferencesSpinnerResourceHolder;
 
     private HashMap<String, ImageView> mProgressDrawables = new HashMap<String, ImageView>();
 
@@ -77,6 +83,11 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
         mFakePreferencesPlainResourceHolder.resourceId = R.layout.fake_preferences_plain;
         mFakePreferencesPlainResourceHolder.textViewId1 = R.id.fake_preferences_textview;
         mFakePreferencesPlainResourceHolder.textViewId2 = R.id.fake_preferences_textview2;
+        mFakePreferencesSpinnerResourceHolder = new TomahawkBaseAdapter.ResourceHolder();
+        mFakePreferencesSpinnerResourceHolder.resourceId = R.layout.fake_preferences_spinner;
+        mFakePreferencesSpinnerResourceHolder.spinnerId = R.id.fake_preferences_spinner;
+        mFakePreferencesSpinnerResourceHolder.textViewId1 = R.id.fake_preferences_textview;
+        mFakePreferencesSpinnerResourceHolder.textViewId2 = R.id.fake_preferences_textview2;
     }
 
     /* 
@@ -175,6 +186,21 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                 viewHolder.imageViewRight = (ImageView) view
                         .findViewById(mFakePreferencesCheckboxResourceHolder.imageViewId);
                 view.setTag(viewHolder);
+            } else if (((FakePreferenceGroup.FakePreference) item).getType()
+                    == FakePreferenceGroup.FAKEPREFERENCE_TYPE_SPINNER && ((convertView == null)
+                    || ((TomahawkBaseAdapter.ViewHolder) convertView.getTag()).viewType
+                    != R.id.fakepreferencesadapter_viewtype_spinner)) {
+                view = mLayoutInflater
+                        .inflate(mFakePreferencesSpinnerResourceHolder.resourceId, null);
+                viewHolder = new TomahawkBaseAdapter.ViewHolder();
+                viewHolder.viewType = R.id.fakepreferencesadapter_viewtype_spinner;
+                viewHolder.textFirstLine = (TextView) view
+                        .findViewById(mFakePreferencesSpinnerResourceHolder.textViewId1);
+                viewHolder.textSecondLine = (TextView) view
+                        .findViewById(mFakePreferencesSpinnerResourceHolder.textViewId2);
+                viewHolder.spinner = (Spinner) view
+                        .findViewById(mFakePreferencesSpinnerResourceHolder.spinnerId);
+                view.setTag(viewHolder);
             } else {
                 view = convertView;
                 viewHolder = (TomahawkBaseAdapter.ViewHolder) view.getTag();
@@ -195,10 +221,33 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
             } else if (viewHolder.viewType == R.id.fakepreferencesadapter_viewtype_dialog) {
                 FakePreferenceGroup.FakePreference fakePreference
                         = (FakePreferenceGroup.FakePreference) item;
-                viewHolder.checkBox.setChecked(fakePreference.isLoggedIn());
+                viewHolder.checkBox.setChecked(fakePreference.isCheckboxState());
                 viewHolder.textFirstLine.setText(fakePreference.getTitle());
                 viewHolder.textSecondLine.setText(fakePreference.getSummary());
                 mProgressDrawables.put(fakePreference.getKey(), viewHolder.imageViewRight);
+            } else if (viewHolder.viewType == R.id.fakepreferencesadapter_viewtype_spinner) {
+                FakePreferenceGroup.FakePreference fakePreference
+                        = (FakePreferenceGroup.FakePreference) item;
+                final String key = fakePreference.getKey();
+                viewHolder.spinner.setSelection(mSharedPreferences
+                        .getInt(key, TomahawkService.SPOTIFY_PREF_BITRATE_MODE_MEDIUM));
+                viewHolder.spinner
+                        .setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> parent, View view,
+                                    int position, long id) {
+                                SharedPreferences.Editor editor = mSharedPreferences.edit();
+                                editor.putInt(key, position);
+                                editor.commit();
+                                LibSpotifyWrapper.setbitrate(position);
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> parent) {
+                            }
+                        });
+                viewHolder.textFirstLine.setText(fakePreference.getTitle());
+                viewHolder.textSecondLine.setText(fakePreference.getSummary());
             }
         }
         return view;

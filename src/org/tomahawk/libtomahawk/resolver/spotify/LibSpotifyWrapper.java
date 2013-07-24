@@ -80,6 +80,8 @@ public class LibSpotifyWrapper {
 
     native public static void nativeunstar();
 
+    native public static void nativesetbitrate(int bitratemode);
+
     public static void init(ClassLoader loader, String storagePath) {
         if (!mInitialized) {
             nativeinit(loader, storagePath);
@@ -152,6 +154,12 @@ public class LibSpotifyWrapper {
     public static void unstar() {
         if (mInitialized) {
             nativeunstar();
+        }
+    }
+
+    public static void setbitrate(int bitratemode) {
+        if (mInitialized) {
+            nativesetbitrate(bitratemode);
         }
     }
 

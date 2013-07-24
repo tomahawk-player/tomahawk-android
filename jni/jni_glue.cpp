@@ -146,6 +146,13 @@ JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotify
 	je->ReleaseStringUTFChars(j_query, query);
 }
 
+JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_nativesetbitrate(JNIEnv *je, jclass jc, jint bitratemode) {
+	list<int> int_params;
+	int_params.push_back(bitratemode);
+
+	addTask(setbitrate, "setbitrate", int_params);
+}
+
 // Helper for calling the specified static void/void java-method
 void call_static_void_method(const char *method_name) {
 	JNIEnv *env;

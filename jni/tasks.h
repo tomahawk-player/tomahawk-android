@@ -54,6 +54,7 @@ void seek(list<int> int_params, list<string> string_params, sp_session *session,
 void load_and_play_track_after_metadata_updated(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
 void destroy(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
 void resolve(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
+void setbitrate(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);
 
 // Callbacks to java
 void on_logged_in(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track);

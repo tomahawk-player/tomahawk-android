@@ -22,7 +22,6 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.CollectionActivity;
 import org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter;
 import org.tomahawk.tomahawk_android.dialogs.LoginDialog;
-import org.tomahawk.tomahawk_android.services.TomahawkService;
 import org.tomahawk.tomahawk_android.utils.FakePreferenceGroup;
 import org.tomahawk.tomahawk_android.utils.OnLoggedInOutListener;
 
@@ -54,6 +53,8 @@ public class FakePreferenceFragment extends TomahawkListFragment
     private static final String TAG = FakePreferenceFragment.class.getName();
 
     public static final String FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN = "spotifyloggedin";
+
+    public static final String FAKEPREFERENCEFRAGMENT_KEY_PREFBITRATE = "prefbitrate";
 
     public static final String FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY = "plugintoplay";
 
@@ -101,6 +102,10 @@ public class FakePreferenceFragment extends TomahawkListFragment
                 FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY,
                 getString(R.string.fakepreference_plugintoplay_title_string),
                 getString(R.string.fakepreference_plugintoplay_summary_string));
+        prefGroup.addFakePreference(FakePreferenceGroup.FAKEPREFERENCE_TYPE_SPINNER,
+                FAKEPREFERENCEFRAGMENT_KEY_PREFBITRATE,
+                getString(R.string.fakepreference_bitrate_title_string),
+                getString(R.string.fakepreference_bitrate_summary_string));
         mFakePreferenceGroups.add(prefGroup);
         prefGroup = new FakePreferenceGroup(getString(R.string.fakepreference_info_header));
         String versionName = "";
@@ -131,8 +136,8 @@ public class FakePreferenceFragment extends TomahawkListFragment
         super.onResume();
 
         mFakePreferenceBroadcastReceiver = new FakePreferenceBroadcastReceiver();
-        mCollectionActivity.registerReceiver(mFakePreferenceBroadcastReceiver, new IntentFilter(
-                CollectionActivity.TOMAHAWKSERVICE_READY));
+        mCollectionActivity.registerReceiver(mFakePreferenceBroadcastReceiver,
+                new IntentFilter(CollectionActivity.TOMAHAWKSERVICE_READY));
     }
 
     @Override
@@ -182,11 +187,9 @@ public class FakePreferenceFragment extends TomahawkListFragment
                         ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(idx))
                                 .getKey(), !preferenceState);
                 editor.commit();
-            } else if (
-                    (mCollectionActivity.getTomahawkService() != null)
-                            && ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(idx)).
-                            getType()
-                            == FakePreferenceGroup.FAKEPREFERENCE_TYPE_DIALOG) {
+            } else if ((mCollectionActivity.getTomahawkService() != null)
+                    && ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(idx)).
+                    getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_DIALOG) {
                 new LoginDialog(mCollectionActivity.getTomahawkService())
                         .show(getFragmentManager(), null);
             }
@@ -205,7 +208,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
                 FakePreferenceGroup.FakePreference fakePreference = fakePreferenceGroup
                         .getFakePreferenceByKey(FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN);
                 if (fakePreference != null) {
-                    fakePreference.setLoggedIn(loggedIn);
+                    fakePreference.setCheckboxState(loggedIn);
                     break;
                 }
             }

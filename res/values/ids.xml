@@ -12,6 +12,7 @@
     <item name="fakepreferencesadapter_viewtype_plain" type="id"/>
     <item name="fakepreferencesadapter_viewtype_checkbox" type="id"/>
     <item name="fakepreferencesadapter_viewtype_dialog" type="id"/>
+    <item name="fakepreferencesadapter_viewtype_spinner" type="id"/>
     <item name="scriptresolver_resolver_init" type="id"/>
     <item name="scriptresolver_resolver_settings" type="id"/>
     <item name="scriptresolver_resolver_userconfig" type="id"/>

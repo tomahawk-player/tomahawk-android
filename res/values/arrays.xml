@@ -76,4 +76,9 @@
         <item>@string/fake_context_menu_appendtoplaybacklist</item>
         <item>@string/fake_context_menu_delete</item>
     </string-array>
+    <string-array name="fake_preferences_items_bitrate">
+        <item>@string/fake_preferences_bitrate_low</item>
+        <item>@string/fake_preferences_bitrate_medium</item>
+        <item>@string/fake_preferences_bitrate_high</item>
+    </string-array>
 </resources>
