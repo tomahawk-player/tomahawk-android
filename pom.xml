@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.tomahawk</groupId>
     <artifactId>tomahawk_android</artifactId>
-    <version>0.22</version>
+    <version>0.23</version>
     <packaging>apk</packaging>
     <name>TomahawkAndroid</name>
 
