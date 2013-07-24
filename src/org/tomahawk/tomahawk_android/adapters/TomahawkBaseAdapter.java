@@ -26,6 +26,7 @@ import android.widget.CheckBox;
 import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -85,6 +86,8 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
 
         int checkBoxId;
 
+        int spinnerId;
+
         int textViewId1;
 
         int textViewId2;
@@ -104,6 +107,8 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
         ImageView imageViewRight;
 
         CheckBox checkBox;
+
+        Spinner spinner;
 
         TextView textFirstLine;
 

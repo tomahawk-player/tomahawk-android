@@ -37,11 +37,15 @@ import org.tomahawk.tomahawk_android.utils.OnLoggedInOutListener;
 
 import android.annotation.TargetApi;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.TrafficStats;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -87,6 +91,14 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
 
     public static final String SPOTIFY_CREDS_EMAIL = "spotify_creds_email";
 
+    public static final String SPOTIFY_PREF_BITRATE = "spotify_pref_bitrate";
+
+    public static final int SPOTIFY_PREF_BITRATE_MODE_LOW = 0;
+
+    public static final int SPOTIFY_PREF_BITRATE_MODE_MEDIUM = 1;
+
+    public static final int SPOTIFY_PREF_BITRATE_MODE_HIGH = 2;
+
     private static final int DELAY_TO_KILL = 300000;
 
     private boolean mHasBoundServices;
@@ -96,6 +108,8 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
     private WebSocketClient mWebSocketClient;
 
     private HandlerThread mCollectionUpdateHandlerThread;
+
+    private ServiceBroadcastReceiver mServiceBroadcastReceiver;
 
     private Handler mHandler;
 
@@ -277,7 +291,6 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
         }
     }
 
-
     private final Handler mKillTimerHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -286,6 +299,25 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
             }
         }
     };
+
+    private class ServiceBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ConnectivityManager conMan = (ConnectivityManager) context
+                    .getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo netInfo = conMan.getActiveNetworkInfo();
+            if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+                Log.d("WifiReceiver", "Have Wifi Connection");
+                LibSpotifyWrapper.setbitrate(SPOTIFY_PREF_BITRATE_MODE_HIGH);
+            } else {
+                Log.d("WifiReceiver", "Don't have Wifi Connection");
+                int prefbitrate = mSharedPreferences
+                        .getInt(SPOTIFY_PREF_BITRATE, SPOTIFY_PREF_BITRATE_MODE_MEDIUM);
+                LibSpotifyWrapper.setbitrate(prefbitrate);
+            }
+        }
+    }
 
     @Override
     public void onCreate() {
@@ -309,12 +341,17 @@ public class TomahawkService extends Service implements WebSocketClient.Listener
         mKillTimerHandler.removeCallbacksAndMessages(null);
         Message msg = mKillTimerHandler.obtainMessage();
         mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
+
+        mServiceBroadcastReceiver = new ServiceBroadcastReceiver();
+        registerReceiver(mServiceBroadcastReceiver,
+                new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
     @Override
     public void onDestroy() {
         mWifiLock.release();
         LibSpotifyWrapper.destroy();
+        unregisterReceiver(mServiceBroadcastReceiver);
 
         super.onDestroy();
     }

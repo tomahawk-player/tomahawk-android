@@ -44,5 +44,6 @@ JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotify
 JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_nativeseek(JNIEnv *je, jclass jc, jint position);
 JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_nativestar(JNIEnv *je, jclass jc);
 JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_nativeunstar(JNIEnv *je, jclass jc);
+JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_nativesetbitrate(JNIEnv *je, jclass jc, jint bitratemode);
 
 }

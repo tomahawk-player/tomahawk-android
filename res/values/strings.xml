@@ -74,6 +74,10 @@
     <string name="fakepreference_plugintoplay_summary_string">Starts playing music
         when a headset is connected
     </string>
+    <string name="fakepreference_bitrate_title_string">Preferred audio quality</string>
+    <string name="fakepreference_bitrate_summary_string">The preferred audio quality when not
+        connected to wifi.
+    </string>
     <string name="fakepreference_info_header">INFO</string>
     <string name="fakepreference_appversion_title_string">App-Version</string>
     <string name="crash_dialog_title">Tomahawk has crashed</string>
@@ -97,4 +101,7 @@
     <string name="slide_menu_stations">Stations</string>
     <string name="slide_menu_friends">Friends</string>
     <string name="slide_menu_settings">Settings</string>
+    <string name="fake_preferences_bitrate_low">Normal quality</string>
+    <string name="fake_preferences_bitrate_medium">Good quality</string>
+    <string name="fake_preferences_bitrate_high">Best quality</string>
 </resources>
