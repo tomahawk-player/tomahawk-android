@@ -1,6 +1,7 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
  *   Copyright 2012, Christopher Reichert <creichert07@gmail.com>
+ *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -40,10 +41,15 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+/**
+ * This service wraps all non-playback service functionality. Like auth stuff.
+ */
 public class TomahawkService extends Service {
 
+    // Used for debug logging
     private final static String TAG = TomahawkService.class.getName();
 
+    // String tags used to store spotify credentials and preferred bitrate
     public static final String SPOTIFY_CREDS_BLOB = "spotify_creds_blob";
 
     public static final String SPOTIFY_CREDS_EMAIL = "spotify_creds_email";
@@ -56,6 +62,7 @@ public class TomahawkService extends Service {
 
     public static final int SPOTIFY_PREF_BITRATE_MODE_HIGH = 2;
 
+    // After this time we will check if this service can be killed
     private static final int DELAY_TO_KILL = 300000;
 
     private boolean mHasBoundServices;
@@ -84,6 +91,7 @@ public class TomahawkService extends Service {
 
     }
 
+    // This listener handles every event regarding the login/logout methods
     private OnLoginListener mOnLoginListener = new OnLoginListener() {
         @Override
         public void onLogin(String username) {
@@ -124,8 +132,18 @@ public class TomahawkService extends Service {
         }
     };
 
+    public static interface OnCredBlobUpdatedListener {
+
+        void onCredBlobUpdated(String blob);
+    }
+
+    // This listener fires, if libspotify calls back with a blob
     private OnCredBlobUpdatedListener mOnCredBlobUpdatedListener = new OnCredBlobUpdatedListener() {
 
+        /**
+         * Store the given blob-string, so we can relogin in a later session
+         * @param blob the given blob-string
+         */
         @Override
         public void onCredBlobUpdated(String blob) {
             SharedPreferences.Editor editor = mSharedPreferences.edit();
@@ -136,11 +154,6 @@ public class TomahawkService extends Service {
             editor.commit();
         }
     };
-
-    public static interface OnCredBlobUpdatedListener {
-
-        void onCredBlobUpdated(String blob);
-    }
 
     public static class TomahawkServiceConnection implements ServiceConnection {
 
@@ -179,6 +192,7 @@ public class TomahawkService extends Service {
         }
     }
 
+    // Stops this service if it doesn't have any bound services
     private final Handler mKillTimerHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -190,6 +204,10 @@ public class TomahawkService extends Service {
 
     private class ServiceBroadcastReceiver extends BroadcastReceiver {
 
+        /**
+         * Set the spotify preferred bitrate to high if we're connected to wifi, otherwise set
+         * bitrate to user-preferred setting, if none set yet, default to medium
+         */
         @Override
         public void onReceive(Context context, Intent intent) {
             ConnectivityManager conMan = (ConnectivityManager) context
@@ -214,9 +232,11 @@ public class TomahawkService extends Service {
         mSharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(TomahawkApp.getContext());
 
+        // Load our libspotify wrapper classes
         System.loadLibrary("spotify");
         System.loadLibrary("spotifywrapper");
 
+        // Initialize LibspotifyWrapper
         LibSpotifyWrapper
                 .init(LibSpotifyWrapper.class.getClassLoader(), getFilesDir() + "/Spotify");
 
@@ -224,8 +244,10 @@ public class TomahawkService extends Service {
                 .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
         mWifiLock.acquire();
 
+        // Try to login spotify
         loginSpotifyWithStoredCreds();
 
+        // Start our killtimer (watchdog-style)
         mKillTimerHandler.removeCallbacksAndMessages(null);
         Message msg = mKillTimerHandler.obtainMessage();
         mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
@@ -236,24 +258,12 @@ public class TomahawkService extends Service {
     }
 
     @Override
-    public void onDestroy() {
-        mWifiLock.release();
-        LibSpotifyWrapper.destroy();
-        unregisterReceiver(mServiceBroadcastReceiver);
-
-        super.onDestroy();
-    }
-
-    @Override
     public int onStartCommand(Intent i, int j, int k) {
         super.onStartCommand(i, j, k);
 
         return START_STICKY;
     }
 
-    /* (non-Javadoc)
-     * @see android.app.Service#onBind(android.content.Intent)
-     */
     @Override
     public IBinder onBind(Intent intent) {
         mHasBoundServices = true;
@@ -267,6 +277,18 @@ public class TomahawkService extends Service {
         return false;
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        mWifiLock.release();
+        LibSpotifyWrapper.destroy();
+        unregisterReceiver(mServiceBroadcastReceiver);
+    }
+
+    /**
+     * Try to login to spotify with stored credentials
+     */
     public void loginSpotifyWithStoredCreds() {
         mIsAttemptingLogInOut = true;
         String email = mSharedPreferences.getString(SPOTIFY_CREDS_EMAIL, null);
@@ -277,6 +299,9 @@ public class TomahawkService extends Service {
         }
     }
 
+    /**
+     * Try to login to spotify with given credentials
+     */
     public void loginSpotify(String email, String password) {
         mIsAttemptingLogInOut = true;
         if (email != null && password != null) {
@@ -285,6 +310,9 @@ public class TomahawkService extends Service {
         }
     }
 
+    /**
+     * Logout spotify
+     */
     public void logoutSpotify() {
         mIsAttemptingLogInOut = true;
         LibSpotifyWrapper.logoutUser(mOnLoginListener);
