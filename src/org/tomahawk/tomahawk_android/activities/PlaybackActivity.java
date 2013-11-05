@@ -71,18 +71,23 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This activity represents our Playback view in which the user can play/stop/pause and show/edit
+ * the current playlist.
+ */
 public class PlaybackActivity extends SherlockFragmentActivity
         implements PlaybackServiceConnectionListener, Handler.Callback,
         AdapterView.OnItemClickListener, StickyListHeadersListView.OnHeaderClickListener,
         ViewTreeObserver.OnGlobalLayoutListener, FakeContextMenu {
 
+    // Used for debug logging
     public static final String TAG = PlaybackActivity.class.getName();
 
+    // Used to manually assign the correct height to the PlaybackFragment
     private int mFragmentLayoutHeight;
 
+    // The playback fragment at the top of the shown listview
     private PlaybackFragment mPlaybackFragment;
-
-    private Playlist mPlaylist;
 
     private TomahawkListAdapter mTomahawkListAdapter;
 
@@ -96,6 +101,7 @@ public class PlaybackActivity extends SherlockFragmentActivity
 
     private PlaybackService mPlaybackService;
 
+    // The helper class which enables access to the user's stored playlists
     private UserPlaylistsDataSource mUserPlaylistsDataSource;
 
     /**
@@ -121,6 +127,9 @@ public class PlaybackActivity extends SherlockFragmentActivity
 
     public static final String PLAYLIST_PLAYLIST_ID = "playlist_playlist_id";
 
+    /**
+     * Listens to events in the PlaybackService
+     */
     private class PlaybackServiceBroadcastReceiver extends BroadcastReceiver {
 
         @Override
@@ -147,16 +156,13 @@ public class PlaybackActivity extends SherlockFragmentActivity
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.app.Activity#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.playback_activity);
 
+        //initalize the ActionBar
         final ActionBar bar = getSupportActionBar();
         bar.setDisplayShowHomeEnabled(true);
         bar.setDisplayShowTitleEnabled(true);
@@ -175,11 +181,6 @@ public class PlaybackActivity extends SherlockFragmentActivity
         bindService(playbackIntent, mPlaybackServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.app.Activity#onResume()
-     */
     @Override
     public void onResume() {
         super.onResume();
@@ -191,6 +192,7 @@ public class PlaybackActivity extends SherlockFragmentActivity
         if (mPlaybackServiceBroadcastReceiver == null) {
             mPlaybackServiceBroadcastReceiver = new PlaybackServiceBroadcastReceiver();
         }
+        // Register intents that mPlaybackServiceBroadcastReceiver should listen to
         IntentFilter intentFilter = new IntentFilter(PlaybackService.BROADCAST_NEWTRACK);
         registerReceiver(mPlaybackServiceBroadcastReceiver, intentFilter);
         intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYLISTCHANGED);
@@ -203,11 +205,6 @@ public class PlaybackActivity extends SherlockFragmentActivity
         mUserPlaylistsDataSource.open();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.actionbarsherlock.app.SherlockActivity#onPause()
-     */
     @Override
     public void onPause() {
         super.onPause();
@@ -231,15 +228,6 @@ public class PlaybackActivity extends SherlockFragmentActivity
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle bundle) {
-        super.onSaveInstanceState(bundle);
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see com.actionbarsherlock.app.SherlockActivity#onCreateOptionsMenu(android.view.Menu)
-     */
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.clear();
         MenuInflater inflater = getSupportMenuInflater();
@@ -247,27 +235,25 @@ public class PlaybackActivity extends SherlockFragmentActivity
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * com.actionbarsherlock.app.SherlockActivity#onOptionsItemSelected(android
-     * .view.MenuItem)
+    /**
+     * If the user clicks on a menuItem, handle what should be done here
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item != null) {
             if (item.getItemId() == R.id.action_clearplaylist_item) {
-                while (mPlaybackService.getCurrentPlaylist().getCount() > 0) {
+                while (mPlaybackService != null
+                        && mPlaybackService.getCurrentPlaylist().getCount() > 0) {
                     mPlaybackService.deleteTrackAtPos(0);
                 }
                 return true;
             } else if (item.getItemId() == R.id.action_saveplaylist_item) {
-                new PlaylistDialog(mPlaylist).show(getSupportFragmentManager(),
-                        getString(R.string.playbackactivity_save_playlist_dialog_title));
+                new PlaylistDialog(mPlaybackService.getCurrentPlaylist())
+                        .show(getSupportFragmentManager(),
+                                getString(R.string.playbackactivity_save_playlist_dialog_title));
                 return true;
             } else if (item.getItemId() == android.R.id.home) {
-                Intent collectionIntent = getIntent(this, CollectionActivity.class);
+                Intent collectionIntent = TomahawkUtils.getIntent(this, CollectionActivity.class);
                 startActivity(collectionIntent);
                 return true;
             }
@@ -275,6 +261,9 @@ public class PlaybackActivity extends SherlockFragmentActivity
         return false;
     }
 
+    /**
+     * Insert our FakeContextMenuDialog initialization here, don't call overriden super method
+     */
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
             ContextMenu.ContextMenuInfo menuInfo) {
@@ -284,122 +273,137 @@ public class PlaybackActivity extends SherlockFragmentActivity
                 .show(getSupportFragmentManager(), null);
     }
 
+    /**
+     * If the user clicks on a fakeContextItem, handle what should be done here
+     */
     @Override
     public void onFakeContextItemSelected(String menuItemTitle, int position) {
-        TomahawkBaseAdapter.TomahawkListItem tomahawkListItem = null;
-        position -= mList.getHeaderViewsCount();
-        if (position >= 0) {
-            tomahawkListItem = ((TomahawkBaseAdapter.TomahawkListItem) mTomahawkListAdapter
-                    .getItem(position));
-        }
-        if (menuItemTitle.equals(getResources().getString(R.string.fake_context_menu_delete))) {
-            if (tomahawkListItem instanceof Track) {
-                if (mPlaylist.getCurrentTrackIndex() == position) {
-                    boolean wasPlaying = mPlaybackService.isPlaying();
-                    if (wasPlaying) {
-                        mPlaybackService.pause();
-                    }
-                    try {
-                        if (mPlaybackService.getCurrentPlaylist().peekTrackAtPos(
-                                mPlaybackService.getCurrentPlaylist().getCurrentTrackIndex() + 1)
-                                != null) {
-                            mPlaybackService.setCurrentTrack(mPlaybackService.getCurrentPlaylist()
-                                    .getTrackAtPos(mPlaybackService.getCurrentPlaylist()
-                                            .getCurrentTrackIndex() + 1));
-                            if (wasPlaying) {
-                                mPlaybackService.start();
-                            }
-                        } else if (mPlaybackService.getCurrentPlaylist().peekTrackAtPos(
-                                mPlaybackService.getCurrentPlaylist().getCurrentTrackIndex() - 1)
-                                != null) {
-                            mPlaybackService.setCurrentTrack(mPlaybackService.getCurrentPlaylist()
-                                    .getTrackAtPos(mPlaybackService.getCurrentPlaylist()
-                                            .getCurrentTrackIndex() - 1));
-                            if (wasPlaying) {
-                                mPlaybackService.start();
-                            }
+        if (mPlaybackService != null) {
+            TomahawkBaseAdapter.TomahawkListItem tomahawkListItem = null;
+            position -= mList.getHeaderViewsCount();
+            if (position >= 0) {
+                tomahawkListItem = ((TomahawkBaseAdapter.TomahawkListItem) mTomahawkListAdapter
+                        .getItem(position));
+            }
+            if (menuItemTitle.equals(getResources().getString(R.string.fake_context_menu_delete))) {
+                if (tomahawkListItem instanceof Track) {
+                    if (mPlaybackService.getCurrentPlaylist().getCurrentTrackIndex() == position) {
+                        boolean wasPlaying = mPlaybackService.isPlaying();
+                        if (wasPlaying) {
+                            mPlaybackService.pause();
                         }
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        try {
+                            if (mPlaybackService.getCurrentPlaylist().peekTrackAtPos(
+                                    mPlaybackService.getCurrentPlaylist().getCurrentTrackIndex()
+                                            + 1) != null) {
+                                mPlaybackService.setCurrentTrack(
+                                        mPlaybackService.getCurrentPlaylist().getTrackAtPos(
+                                                mPlaybackService.getCurrentPlaylist()
+                                                        .getCurrentTrackIndex() + 1));
+                                if (wasPlaying) {
+                                    mPlaybackService.start();
+                                }
+                            } else if (mPlaybackService.getCurrentPlaylist().peekTrackAtPos(
+                                    mPlaybackService.getCurrentPlaylist().getCurrentTrackIndex()
+                                            - 1) != null) {
+                                mPlaybackService.setCurrentTrack(
+                                        mPlaybackService.getCurrentPlaylist().getTrackAtPos(
+                                                mPlaybackService.getCurrentPlaylist()
+                                                        .getCurrentTrackIndex() - 1));
+                                if (wasPlaying) {
+                                    mPlaybackService.start();
+                                }
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    mPlaybackService.deleteTrackAtPos(position);
+                }
+            } else if (menuItemTitle
+                    .equals(getResources().getString(R.string.fake_context_menu_play))) {
+                if (tomahawkListItem instanceof Track) {
+                    if (mPlaybackService.getCurrentPlaylist().getCurrentTrackIndex() == position) {
+                        if (!mPlaybackService.isPlaying()) {
+                            mPlaybackService.start();
+                        }
+                    } else {
+                        try {
+                            mPlaybackService.setCurrentTrack(
+                                    mPlaybackService.getCurrentPlaylist().peekTrackAtPos(position));
+                            mPlaybackService.start();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
-                mPlaybackService.deleteTrackAtPos(position);
+            } else if (menuItemTitle
+                    .equals(getResources().getString(R.string.fake_context_menu_addtoplaylist))) {
+                UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication())
+                        .getSourceList().getCollectionFromId(UserCollection.Id));
+                ArrayList<Track> tracks = new ArrayList<Track>();
+                if (tomahawkListItem instanceof Track) {
+                    tracks.add((Track) tomahawkListItem);
+                } else if (tomahawkListItem instanceof CustomPlaylist) {
+                    tracks = ((CustomPlaylist) tomahawkListItem).getTracks();
+                } else if (tomahawkListItem instanceof Album) {
+                    tracks = ((Album) tomahawkListItem).getTracks();
+                } else if (tomahawkListItem instanceof Artist) {
+                    tracks = ((Artist) tomahawkListItem).getTracks();
+                }
+                new ChoosePlaylistDialog(userCollection, tracks)
+                        .show(getSupportFragmentManager(), "ChoosePlaylistDialog");
+                userCollection.updateUserPlaylists();
             }
-        } else if (menuItemTitle
-                .equals(getResources().getString(R.string.fake_context_menu_play))) {
-            if (tomahawkListItem instanceof Track) {
-                if (mPlaylist.getCurrentTrackIndex() == position) {
-                    if (!mPlaybackService.isPlaying()) {
-                        mPlaybackService.start();
-                    }
+        }
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
+        if (mPlaybackService != null) {
+            Object obj = mTomahawkListAdapter.getItem(idx - 1);
+            if (obj instanceof Track) {
+                // if the user clicked on an already playing track
+                if (mPlaybackService.getCurrentPlaylist().getCurrentTrackIndex() == idx - 1) {
+                    mPlaybackService.playPause();
                 } else {
                     try {
                         mPlaybackService.setCurrentTrack(
-                                mPlaybackService.getCurrentPlaylist().peekTrackAtPos(position));
-                        mPlaybackService.start();
+                                mPlaybackService.getCurrentPlaylist().getTrackAtPos(idx - 1));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
             }
-        } else if (menuItemTitle
-                .equals(getResources().getString(R.string.fake_context_menu_addtoplaylist))) {
-            UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication())
-                    .getSourceList().getCollectionFromId(UserCollection.Id));
-            ArrayList<Track> tracks = new ArrayList<Track>();
-            if (tomahawkListItem instanceof Track) {
-                tracks.add((Track) tomahawkListItem);
-            } else if (tomahawkListItem instanceof CustomPlaylist) {
-                tracks = ((CustomPlaylist) tomahawkListItem).getTracks();
-            } else if (tomahawkListItem instanceof Album) {
-                tracks = ((Album) tomahawkListItem).getTracks();
-            } else if (tomahawkListItem instanceof Artist) {
-                tracks = ((Artist) tomahawkListItem).getTracks();
-            }
-            new ChoosePlaylistDialog(userCollection, tracks)
-                    .show(getSupportFragmentManager(), "ChoosePlaylistDialog");
-            userCollection.updateUserPlaylists();
         }
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
+    /**
+     * If the listview header is clicked, scroll back to the top. Uses different ways of achieving
+     * this depending on api level.
      */
     @Override
-    public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        Object obj = mTomahawkListAdapter.getItem(idx - 1);
-        if (obj instanceof Track) {
-            if (mPlaylist.getCurrentTrackIndex() == idx - 1) {
-                mPlaybackService.playPause();
-            } else {
-                try {
-                    mPlaybackService.setCurrentTrack(mPlaylist.getTrackAtPos(idx - 1));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onHeaderClick(StickyListHeadersListView l, View header, int itemPosition,
+    public void onHeaderClick(StickyListHeadersListView list, View header, int itemPosition,
             long headerId, boolean currentlySticky) {
         ensureList();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            mList.smoothScrollToPositionFromTop(0, 0, 200);
+            list.smoothScrollToPositionFromTop(0, 0, 200);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-            int firstVisible = mList.getFirstVisiblePosition();
-            int lastVisible = mList.getLastVisiblePosition();
+            int firstVisible = list.getFirstVisiblePosition();
+            int lastVisible = list.getLastVisiblePosition();
             if (0 < firstVisible) {
-                mList.smoothScrollToPosition(0);
+                list.smoothScrollToPosition(0);
             } else {
-                mList.smoothScrollToPosition(lastVisible - firstVisible - 2);
+                list.smoothScrollToPosition(lastVisible - firstVisible - 2);
             }
         } else {
-            mList.setSelectionFromTop(0, 0);
+            list.setSelectionFromTop(0, 0);
         }
     }
 
+    /**
+     * Workaround to assign the correct height to the PlaybackFragment inside the listview
+     */
     @Override
     public void onGlobalLayout() {
         final View activityRootView = getWindow().getDecorView().findViewById(android.R.id.content);
@@ -419,6 +423,12 @@ public class PlaybackActivity extends SherlockFragmentActivity
         }
     }
 
+    /**
+     * Handler method to display the loading animation as long as mPlaybackService.isPreparing() is
+     * true
+     *
+     * @return always true
+     */
     @Override
     public boolean handleMessage(Message msg) {
         switch (msg.what) {
@@ -436,22 +446,13 @@ public class PlaybackActivity extends SherlockFragmentActivity
         return true;
     }
 
-    public void startLoadingAnimation() {
-        mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 200);
-    }
-
-    public void stopLoadingAnimation() {
-        mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
-        getSupportActionBar().setLogo(R.drawable.ic_launcher);
-    }
-
     @Override
     public void setPlaybackService(PlaybackService ps) {
         mPlaybackService = ps;
     }
 
     /**
-     * Called when the playback service is ready.
+     * If the PlaybackService signals, that it is ready, this method is being called
      */
     @Override
     public void onPlaybackServiceReady() {
@@ -489,7 +490,6 @@ public class PlaybackActivity extends SherlockFragmentActivity
             if (playlist != null) {
                 try {
                     mPlaybackService.setCurrentPlaylist(playlist);
-                    mPlaylist = mPlaybackService.getCurrentPlaylist();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -502,14 +502,31 @@ public class PlaybackActivity extends SherlockFragmentActivity
         onPlaylistChanged();
     }
 
+    /**
+     * Start showing the loading animation
+     */
+    public void startLoadingAnimation() {
+        mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 200);
+    }
+
+    /**
+     * Stop showing the loading animation
+     */
+    public void stopLoadingAnimation() {
+        mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
+        getSupportActionBar().setLogo(R.drawable.ic_launcher);
+    }
+
+    /**
+     * Initialize our listview adapter. Adds the current playlist's tracks, sets boolean variables
+     * to customize the listview's appearance. Adds the PlaybackFragment to the top of the
+     * listview.
+     */
     private void initAdapter() {
-        if (mPlaybackService != null) {
-            mPlaylist = mPlaybackService.getCurrentPlaylist();
-        }
-        if (mPlaylist != null) {
+        if (mPlaybackService != null && mPlaybackService.getCurrentPlaylist() != null) {
             List<TomahawkBaseAdapter.TomahawkListItem> tracks
                     = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-            tracks.addAll(mPlaylist.getTracks());
+            tracks.addAll(mPlaybackService.getCurrentPlaylist().getTracks());
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(tracks);
@@ -517,7 +534,8 @@ public class PlaybackActivity extends SherlockFragmentActivity
             tomahawkListAdapter.setShowHighlightingAndPlaystate(true);
             tomahawkListAdapter.setShowResolvedBy(true);
             tomahawkListAdapter.setShowPlaylistHeader(true);
-            tomahawkListAdapter.setHighlightedItem(mPlaylist.getCurrentTrackIndex());
+            tomahawkListAdapter.setHighlightedItem(
+                    mPlaybackService.getCurrentPlaylist().getCurrentTrackIndex());
             tomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
             ensureList();
             mList.setOnItemClickListener(this);
@@ -545,6 +563,9 @@ public class PlaybackActivity extends SherlockFragmentActivity
         }
     }
 
+    /**
+     * Set mList to the listview layout element and catch possible exceptions.
+     */
     private void ensureList() {
         View rawListView = findViewById(R.id.listview);
         if (!(rawListView instanceof TomahawkStickyListHeadersListView)) {
@@ -561,7 +582,7 @@ public class PlaybackActivity extends SherlockFragmentActivity
     }
 
     /**
-     * Provide the cursor for the list view.
+     * Store the given adapter and set it to our listview mList
      */
     public void setListAdapter(TomahawkListAdapter adapter) {
         mTomahawkListAdapter = adapter;
@@ -569,102 +590,49 @@ public class PlaybackActivity extends SherlockFragmentActivity
     }
 
     /**
-     * Called when the track has Changed inside our PlaybackService
+     * Called when the PlaybackServiceBroadcastReceiver received a Broadcast indicating that the
+     * track has changed inside our PlaybackService
      */
     public void onTrackChanged() {
-        if (mPlaylist != null) {
-            mTomahawkListAdapter.setHighlightedItem(mPlaylist.getCurrentTrackIndex());
+        if (mPlaybackService != null && mPlaybackService.getCurrentPlaylist() != null) {
+            mTomahawkListAdapter.setHighlightedItem(
+                    mPlaybackService.getCurrentPlaylist().getCurrentTrackIndex());
             mTomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
             mTomahawkListAdapter.notifyDataSetChanged();
         }
     }
 
     /**
-     * Called when the playState (playing or paused) has Changed inside our PlaybackService
+     * Called when the PlaybackServiceBroadcastReceiver received a Broadcast indicating that the
+     * playState (playing or paused) has changed inside our PlaybackService
      */
     public void onPlaystateChanged() {
-        if (mPlaylist != null) {
-            mTomahawkListAdapter.setHighlightedItem(mPlaylist.getCurrentTrackIndex());
+        if (mPlaybackService != null && mPlaybackService.getCurrentPlaylist() != null) {
+            mTomahawkListAdapter.setHighlightedItem(
+                    mPlaybackService.getCurrentPlaylist().getCurrentTrackIndex());
             mTomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
             mTomahawkListAdapter.notifyDataSetChanged();
         }
     }
 
     /**
-     * Called when the playlist has Changed inside our PlaybackService
+     * Called when the PlaybackServiceBroadcastReceiver received a Broadcast indicating that the
+     * playlist has changed inside our PlaybackService
      */
     public void onPlaylistChanged() {
-        if (mTomahawkListAdapter != null && mPlaybackService.getCurrentPlaylist().getCount() > 0) {
-            mPlaylist = mPlaybackService.getCurrentPlaylist();
-            if (mPlaylist != null) {
-                ArrayList<TomahawkBaseAdapter.TomahawkListItem> tracks
-                        = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-                tracks.addAll(mPlaylist.getTracks());
-                mTomahawkListAdapter.setListWithIndex(0, tracks);
-                mTomahawkListAdapter.setHighlightedItem(mPlaylist.getCurrentTrackIndex());
-                mTomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
-                mTomahawkListAdapter.notifyDataSetChanged();
-            }
+        if (mTomahawkListAdapter != null && mPlaybackService != null
+                && mPlaybackService.getCurrentPlaylist() != null
+                && mPlaybackService.getCurrentPlaylist().getCount() > 0) {
+            ArrayList<TomahawkBaseAdapter.TomahawkListItem> tracks
+                    = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+            tracks.addAll(mPlaybackService.getCurrentPlaylist().getTracks());
+            mTomahawkListAdapter.setListWithIndex(0, tracks);
+            mTomahawkListAdapter.setHighlightedItem(
+                    mPlaybackService.getCurrentPlaylist().getCurrentTrackIndex());
+            mTomahawkListAdapter.setHighlightedItemIsPlaying(mPlaybackService.isPlaying());
+            mTomahawkListAdapter.notifyDataSetChanged();
         } else {
             initAdapter();
-        }
-    }
-
-    /**
-     * Return the {@link Intent} defined by the given parameters
-     *
-     * @param context the context with which the intent will be created
-     * @param cls     the class which contains the activity to launch
-     * @return the created intent
-     */
-    private static Intent getIntent(Context context, Class<?> cls) {
-        Intent intent = new Intent(context, cls);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        return intent;
-    }
-
-    /**
-     * Called when the play/pause button is clicked.
-     */
-    public void onPlayPauseClicked(View view) {
-        if (mPlaybackFragment != null) {
-            mPlaybackFragment.onPlayPauseClicked();
-        }
-    }
-
-    /**
-     * Called when the next button is clicked.
-     */
-    public void onNextClicked(View view) {
-        if (mPlaybackFragment != null) {
-            mPlaybackFragment.onNextClicked();
-        }
-    }
-
-    /**
-     * Called when the previous button is clicked.
-     */
-    public void onPreviousClicked(View view) {
-        if (mPlaybackFragment != null) {
-            mPlaybackFragment.onPreviousClicked();
-        }
-    }
-
-    /**
-     * Called when the shuffle button is clicked.
-     */
-    public void onShuffleClicked(View view) {
-        if (mPlaybackFragment != null) {
-            mPlaybackFragment.onShuffleClicked();
-        }
-    }
-
-    /**
-     * Called when the repeat button is clicked.
-     */
-    public void onRepeatClicked(View view) {
-        if (mPlaybackFragment != null) {
-            mPlaybackFragment.onRepeatClicked();
         }
     }
 }

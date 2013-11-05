@@ -1,6 +1,7 @@
 package org.tomahawk.libtomahawk.utils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -111,5 +112,18 @@ public class TomahawkUtils {
             Log.e(TAG, "stringToDate: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
         return date;
+    }
+
+    /**
+     * Return the {@link android.content.Intent} defined by the given parameters
+     *
+     * @param context the context with which the intent will be created
+     * @param cls     the class which contains the activity to launch
+     * @return the created intent
+     */
+    public static Intent getIntent(Context context, Class<?> cls) {
+        Intent intent = new Intent(context, cls);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        return intent;
     }
 }
