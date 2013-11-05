@@ -19,7 +19,6 @@
 package org.tomahawk.tomahawk_android.activities;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
@@ -31,6 +30,7 @@ import org.tomahawk.libtomahawk.collection.CustomPlaylist;
 import org.tomahawk.libtomahawk.collection.SourceList;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
@@ -61,7 +61,6 @@ import android.support.v4.content.Loader;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -71,6 +70,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * The main Tomahawk activity
+ */
 public class TomahawkMainActivity extends TomahawkTabsActivity
         implements PlaybackServiceConnectionListener,
         TomahawkService.TomahawkServiceConnection.TomahawkServiceConnectionListener,
@@ -100,8 +102,6 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
 
     private View mNowPlayingView;
 
-    private CollectionActivityBroadcastReceiver mCollectionActivityBroadcastReceiver;
-
     private int mCurrentStackPosition = -1;
 
     /**
@@ -109,13 +109,6 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
      */
     private class CollectionUpdateReceiver extends BroadcastReceiver {
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see
-         * android.content.BroadcastReceiver#onReceive(android.content.Context,
-         * android.content.Intent)
-         */
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(Collection.COLLECTION_UPDATED)) {
@@ -124,22 +117,9 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
         }
     }
 
-    private class CollectionActivityBroadcastReceiver extends BroadcastReceiver {
-
-        /* 
-         * (non-Javadoc)
-         * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
-         */
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(PlaybackService.BROADCAST_NEWTRACK)) {
-                if (mPlaybackService != null) {
-                    setNowPlayingInfo(mPlaybackService.getCurrentTrack());
-                }
-            }
-        }
-    }
-
+    /**
+     * Used to handle clicks on one of the breadcrumb items
+     */
     private class BreadCrumbOnClickListener implements View.OnClickListener {
 
         String mSavedFragmentTag;
@@ -156,16 +136,11 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.collection_activity);
+        setContentView(R.layout.tomahawk_main_activity);
         // check if the content frame contains the menu frame
         if (findViewById(R.id.slide_menu_frame) == null) {
             setBehindContentView(R.layout.slide_menu_layout);
@@ -198,6 +173,7 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.slide_menu_frame, new SlideMenuFragment()).commit();
 
+        // set customization variables on the ActionBar
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
@@ -205,10 +181,13 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
         actionBar.setCustomView(searchView);
         actionBar.setDisplayShowCustomEnabled(true);
 
+        // if not set yet, set our current default stack position to TAB_ID_COLLECTION
         if (mCurrentStackPosition == -1) {
             mCurrentStackPosition = TomahawkTabsActivity.TAB_ID_COLLECTION;
         }
 
+        // initialize our ContentViewer, which will handle switching the fragments whenever an
+        // entry in the slidingmenu is being clicked. Restore our saved state, if one exists.
         mContentViewer = new ContentViewer(this, getSupportFragmentManager(), R.id.content_frame);
         if (savedInstanceState == null) {
             mContentViewer
@@ -250,12 +229,41 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
                         FakePreferenceFragment.class);
             }
         }
+
+        //Setup our nowPlaying view at the top, if in landscape mode, otherwise at the bottom
+        FrameLayout nowPlayingFrameTop = (FrameLayout) getSupportActionBar().getCustomView()
+                .findViewById(R.id.now_playing_frame_top);
+        FrameLayout nowPlayingFrameBottom = (FrameLayout) findViewById(
+                R.id.now_playing_frame_bottom);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            mNowPlayingView = getLayoutInflater().inflate(R.layout.now_playing_top, null);
+            nowPlayingFrameTop.addView(mNowPlayingView);
+            nowPlayingFrameTop.setVisibility(FrameLayout.VISIBLE);
+            nowPlayingFrameBottom.setVisibility(FrameLayout.GONE);
+        } else {
+            mNowPlayingView = getLayoutInflater().inflate(R.layout.now_playing_bottom, null);
+            nowPlayingFrameBottom.addView(mNowPlayingView);
+            nowPlayingFrameTop.setVisibility(FrameLayout.GONE);
+            nowPlayingFrameBottom.setVisibility(FrameLayout.VISIBLE);
+        }
+        mNowPlayingView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent playbackIntent = TomahawkUtils
+                        .getIntent(TomahawkMainActivity.this, PlaybackActivity.class);
+                TomahawkMainActivity.this.startActivity(playbackIntent);
+            }
+        });
+        if (mPlaybackService != null) {
+            setNowPlayingInfo(mPlaybackService.getCurrentTrack());
+        }
     }
 
     @Override
     public void onStart() {
         super.onStart();
 
+        //Setup our services
         Intent intent = new Intent(this, PlaybackService.class);
         startService(intent);
         bindService(intent, mPlaybackServiceConnection, Context.BIND_AUTO_CREATE);
@@ -264,11 +272,6 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
         bindService(intent, mTomahawkServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.support.v4.app.FragmentActivity#onResume()
-     */
     @Override
     public void onResume() {
         super.onResume();
@@ -289,6 +292,8 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
         }
 
         mContentViewer.setCurrentStackId(mCurrentStackPosition);
+        // if we resume this activity with TAB_ID_SEARCH as the current stack position, make sure
+        // that the searchEditText is being shown accordingly
         if (mCurrentStackPosition == TomahawkTabsActivity.TAB_ID_SEARCH) {
             showSearchEditText();
         } else {
@@ -296,21 +301,12 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.actionbarsherlock.app.SherlockActivity#onPause()
-     */
     @Override
     public void onPause() {
         super.onPause();
 
         mCurrentStackPosition = mContentViewer.getCurrentStackId();
 
-        if (mCollectionActivityBroadcastReceiver != null) {
-            unregisterReceiver(mCollectionActivityBroadcastReceiver);
-            mCollectionActivityBroadcastReceiver = null;
-        }
         if (mCollectionUpdatedReceiver != null) {
             unregisterReceiver(mCollectionUpdatedReceiver);
             mCollectionUpdatedReceiver = null;
@@ -336,10 +332,6 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
         super.onSaveInstanceState(bundle);
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see android.app.Activity#onNewIntent(android.content.Intent)
-     */
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -347,36 +339,9 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        FrameLayout nowPlayingFrameTop = (FrameLayout) getSupportActionBar().getCustomView()
-                .findViewById(R.id.now_playing_frame_top);
-        FrameLayout nowPlayingFrameBottom = (FrameLayout) findViewById(
-                R.id.now_playing_frame_bottom);
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            mNowPlayingView = getLayoutInflater().inflate(R.layout.now_playing_top, null);
-            nowPlayingFrameTop.addView(mNowPlayingView);
-            nowPlayingFrameTop.setVisibility(FrameLayout.VISIBLE);
-            nowPlayingFrameBottom.setVisibility(FrameLayout.GONE);
-        } else {
-            mNowPlayingView = getLayoutInflater().inflate(R.layout.now_playing_bottom, null);
-            nowPlayingFrameBottom.addView(mNowPlayingView);
-            nowPlayingFrameTop.setVisibility(FrameLayout.GONE);
-            nowPlayingFrameBottom.setVisibility(FrameLayout.VISIBLE);
-        }
-        if (mPlaybackService != null) {
-            setNowPlayingInfo(mPlaybackService.getCurrentTrack());
-        }
-
-        return true;
-    }
-
-    /* 
-     * (non-Javadoc)
-     * @see com.actionbarsherlock.app.SherlockFragmentActivity#onOptionsItemSelected(android.view.MenuItem)
-     */
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item != null) {
+            // if the user clicks on the app icon in the top left corner, toggle the SlidingMenu
             if (item.getItemId() == android.R.id.home) {
                 toggle();
                 return true;
@@ -385,19 +350,14 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
         return false;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener#onPlaybackServiceReady()
+    /**
+     * If the PlaybackService signals, that it is ready, this method is being called
      */
     @Override
     public void onPlaybackServiceReady() {
         setNowPlayingInfo(mPlaybackService.getCurrentTrack());
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener#setPlaybackService(org.tomahawk.libtomahawk.audio.PlaybackService)
-     */
     @Override
     public void setPlaybackService(PlaybackService ps) {
         mPlaybackService = ps;
@@ -413,6 +373,9 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
         mTomahawkService = ps;
     }
 
+    /**
+     * If the TomahawkService signals, that it is ready, this method is being called
+     */
     @Override
     public void onTomahawkServiceReady() {
         sendBroadcast(new Intent(TOMAHAWKSERVICE_READY));
@@ -422,9 +385,9 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
         return mTomahawkService;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see android.support.v4.app.FragmentActivity#onBackPressed()
+    /**
+     * Whenever the back-button is pressed, go back in the ContentViewer, until the root tab is
+     * reached. After that use the normal back-button functionality.
      */
     @Override
     public void onBackPressed() {
@@ -440,68 +403,19 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
         getSupportLoaderManager().restartLoader(0, null, this);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
-     * android.os.Bundle)
-     */
     @Override
     public Loader<Collection> onCreateLoader(int id, Bundle args) {
         return new CollectionLoader(this,
                 ((TomahawkApp) getApplication()).getSourceList().getLocalSource().getCollection());
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
-     * .support.v4.content.Loader)
-     */
     @Override
     public void onLoaderReset(Loader<Collection> loader) {
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
-     * .support.v4.content.Loader, java.lang.Object)
-     */
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         mCollection = coll;
-    }
-
-    /**
-     * Called when the back {@link Button} is pressed
-     */
-    public void onBackPressed(View view) {
-        onBackPressed();
-    }
-
-    /**
-     * Called when the nowPlayingInfo is clicked
-     */
-    public void onNowPlayingClicked(View view) {
-        Intent playbackIntent = getIntent(this, PlaybackActivity.class);
-        this.startActivity(playbackIntent);
-    }
-
-    /**
-     * Return the {@link Intent} defined by the given parameters
-     *
-     * @param context the context with which the intent will be created
-     * @param cls     the class which contains the activity to launch
-     * @return the created intent
-     */
-    private static Intent getIntent(Context context, Class<?> cls) {
-        Intent intent = new Intent(context, cls);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        return intent;
     }
 
     /**
@@ -544,6 +458,9 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
         }
     }
 
+    /**
+     * Display the search editText in the top actionbar. Also display the soft keyboard.
+     */
     public void showSearchEditText() {
         AutoCompleteTextView searchFrameTop = (AutoCompleteTextView) getSupportActionBar()
                 .getCustomView().findViewById(R.id.search_edittext);
@@ -555,6 +472,9 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
         imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
     }
 
+    /**
+     * Hide the search editText in the top actionbar.
+     */
     public void hideSearchEditText() {
         AutoCompleteTextView searchFrameTop = (AutoCompleteTextView) getSupportActionBar()
                 .getCustomView().findViewById(R.id.search_edittext);
@@ -562,6 +482,9 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
         findViewById(R.id.search_panel).setVisibility(LinearLayout.GONE);
     }
 
+    /**
+     * Build the breadcumb navigation from the stack at the current tab position.
+     */
     public void updateBreadCrumbNavigation() {
         ArrayList<ContentViewer.FragmentStateHolder> backStack = getContentViewer()
                 .getBackStackAtPosition(getContentViewer().getCurrentStackId());
@@ -713,6 +636,11 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
 
     }
 
+    /**
+     * Set the visibilty of the breadcumb navigation view.
+     *
+     * @param showBreadcrumbs True, if breadcrumbs should be shown. False otherwise.
+     */
     public void showBreadcrumbs(boolean showBreadcrumbs) {
         if (showBreadcrumbs) {
             findViewById(R.id.bread_crumb_container).setVisibility(FrameLayout.VISIBLE);
@@ -737,6 +665,10 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
         return mContentViewer;
     }
 
+    /**
+     * Whenever the backstack changes, update the breadcrumb navigation, so that it can represent
+     * the correct stack.
+     */
     @Override
     public void onBackStackChanged() {
         updateBreadCrumbNavigation();

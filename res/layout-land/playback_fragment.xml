@@ -79,7 +79,6 @@
                 android:layout_weight="1"
                 android:adjustViewBounds="true"
                 android:background="@drawable/selectable_background_playback_small_land_tomahawk"
-                android:onClick="onShuffleClicked"
                 android:padding="15dip"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_player_shuffle"/>
@@ -92,7 +91,6 @@
                 android:layout_weight="1"
                 android:adjustViewBounds="true"
                 android:background="@drawable/selectable_background_playback_small_land_tomahawk"
-                android:onClick="onPreviousClicked"
                 android:paddingBottom="15dip"
                 android:paddingLeft="15dip"
                 android:paddingRight="20dip"
@@ -108,7 +106,6 @@
                 android:layout_weight="1"
                 android:adjustViewBounds="true"
                 android:background="@drawable/selectable_background_playback_large_land_tomahawk"
-                android:onClick="onPlayPauseClicked"
                 android:padding="8dip"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_player_pause"/>
@@ -121,7 +118,6 @@
                 android:layout_weight="1"
                 android:adjustViewBounds="true"
                 android:background="@drawable/selectable_background_playback_small_land_tomahawk"
-                android:onClick="onNextClicked"
                 android:paddingBottom="15dip"
                 android:paddingLeft="20dip"
                 android:paddingRight="15dip"
@@ -137,7 +133,6 @@
                 android:layout_weight="1"
                 android:adjustViewBounds="true"
                 android:background="@drawable/selectable_background_playback_small_land_tomahawk"
-                android:onClick="onRepeatClicked"
                 android:padding="15dip"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_player_repeat"/>

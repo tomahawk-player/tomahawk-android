@@ -22,8 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/selectable_background_tomahawk"
-                android:clickable="false"
-                android:onClick="onNowPlayingClicked">
+                android:clickable="false">
 
     <ImageView
             android:id="@+id/now_playing_album_art"
