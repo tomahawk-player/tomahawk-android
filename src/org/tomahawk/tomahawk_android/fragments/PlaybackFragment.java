@@ -38,7 +38,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 05.01.13
+ * This fragment represents our Playback view in which the user can play/stop/pause. It is being
+ * shown as the topmost fragment in the PlaybackActivity's listview.
  */
 public class PlaybackFragment extends SherlockFragment {
 
@@ -78,39 +79,10 @@ public class PlaybackFragment extends SherlockFragment {
         }
     };
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
-     */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.support.v4.app.Fragment#onResume()
-     */
-    @Override
-    public void onResume() {
-        super.onResume();
-        init();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
-    /* 
-     * (non-Javadoc)
-     * @see com.actionbarsherlock.app.SherlockListFragment#onAttach(android.app.Activity)
-     */
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+
         if (activity instanceof PlaybackActivity) {
             mPlaybackActivity = (PlaybackActivity) activity;
         }
@@ -118,25 +90,11 @@ public class PlaybackFragment extends SherlockFragment {
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        mPlaybackActivity = null;
-    }
-
-    /* 
-     * (non-Javadoc)
-     * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
-     */
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.playback_fragment, null, false);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.Fragment#onViewCreated(android.view.View, android.os.Bundle)
-     */
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -149,6 +107,23 @@ public class PlaybackFragment extends SherlockFragment {
         view.findViewById(R.id.imageButton_repeat).setOnClickListener(mButtonClickListener);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        init();
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        mPlaybackActivity = null;
+    }
+
+    /**
+     * All initializations are done here
+     */
     public void init() {
         if (getView().getParent() != null) {
             ViewPager viewPager = (ViewPager) getView().findViewById(R.id.album_art_view_pager);
@@ -179,7 +154,7 @@ public class PlaybackFragment extends SherlockFragment {
     }
 
     /**
-     * play the next track and set the playbutton to pause icon
+     * Called when the next button is clicked.
      */
     public void onNextClicked() {
         if (mAlbumArtSwipeAdapter != null) {
@@ -191,7 +166,7 @@ public class PlaybackFragment extends SherlockFragment {
     }
 
     /**
-     * play the previous track and set the playbutton to pause icon
+     * Called when the previous button is clicked.
      */
     public void onPreviousClicked() {
         if (mAlbumArtSwipeAdapter != null) {
@@ -240,7 +215,8 @@ public class PlaybackFragment extends SherlockFragment {
     }
 
     /**
-     * Called when the PlaybackService signals the current Track has changed.
+     * Called when the PlaybackServiceBroadcastReceiver received a Broadcast indicating that the
+     * track has changed inside our PlaybackService
      */
     public void onTrackChanged() {
         if (mPlaybackActivity != null) {
@@ -249,7 +225,8 @@ public class PlaybackFragment extends SherlockFragment {
     }
 
     /**
-     * Called when the PlaybackService signals the current Playlist has changed.
+     * Called when the PlaybackServiceBroadcastReceiver received a Broadcast indicating that the
+     * playlist has changed inside our PlaybackService
      */
     public void onPlaylistChanged() {
         if (mPlaybackActivity != null) {
@@ -262,7 +239,8 @@ public class PlaybackFragment extends SherlockFragment {
     }
 
     /**
-     * Called when the PlaybackService signals the current Playstate has changed.
+     * Called when the PlaybackServiceBroadcastReceiver in PlaybackActivity received a Broadcast
+     * indicating that the playState (playing or paused) has changed inside our PlaybackService
      */
     public void onPlaystateChanged() {
         if (mPlaybackActivity != null) {
@@ -288,7 +266,7 @@ public class PlaybackFragment extends SherlockFragment {
     }
 
     /**
-     * Refresh the information in this activity to reflect that of the current Track, if possible
+     * Refresh the information in this fragment to reflect that of the current Track, if possible
      * (meaning mPlaybackService is not null).
      */
     protected void refreshActivityTrackInfo() {
@@ -303,10 +281,19 @@ public class PlaybackFragment extends SherlockFragment {
     }
 
     /**
-     * Refresh the information in this activity to reflect that of the given Track.
+     * Refresh the information in this fragment to reflect that of the given Track.
+     *
+     * @param track the track to which the track info view stuff should be updated to
      */
     protected void refreshActivityTrackInfo(Track track) {
         if (track != null) {
+            /*
+            This logic makes sure, that if a track is being skipped by the user, it doesn't do this
+            for eternity. Because a press of the next button would cause the AlbumArtSwipeAdapter
+            to display a swipe to the next track, which would then cause another skipping to the
+            next track. That's why we have to make a difference between a swipe by the user, and a
+            programmatically called swipe.
+            */
             mAlbumArtSwipeAdapter.setPlaybackService(mPlaybackService);
             if (!mAlbumArtSwipeAdapter.isSwiped()) {
                 mAlbumArtSwipeAdapter.setByUser(false);
@@ -317,6 +304,8 @@ public class PlaybackFragment extends SherlockFragment {
                 mAlbumArtSwipeAdapter.setByUser(true);
             }
             mAlbumArtSwipeAdapter.setSwiped(false);
+
+            // Update all relevant TextViews
             final TextView artistTextView = (TextView) mPlaybackActivity
                     .findViewById(R.id.textView_artist);
             final TextView albumTextView = (TextView) mPlaybackActivity
@@ -338,17 +327,23 @@ public class PlaybackFragment extends SherlockFragment {
             } else {
                 titleTextView.setText(R.string.playbackactivity_unknown_string);
             }
+
+            // Make all buttons clickable
             mPlaybackActivity.findViewById(R.id.imageButton_playpause).setClickable(true);
             mPlaybackActivity.findViewById(R.id.imageButton_next).setClickable(true);
             mPlaybackActivity.findViewById(R.id.imageButton_previous).setClickable(true);
             mPlaybackActivity.findViewById(R.id.imageButton_shuffle).setClickable(true);
             mPlaybackActivity.findViewById(R.id.imageButton_repeat).setClickable(true);
+
+            // Update the PlaybackSeekBar
             mPlaybackSeekBar.setPlaybackService(mPlaybackService);
             mPlaybackSeekBar.setMax();
             mPlaybackSeekBar.setUpdateInterval();
             mPlaybackSeekBar.updateSeekBarPosition();
             mPlaybackSeekBar.updateTextViewCompleteTime();
         } else {
+            //No track has been given, so we update the view state accordingly
+            // Update all relevant TextViews
             final TextView artistTextView = (TextView) mPlaybackActivity
                     .findViewById(R.id.textView_artist);
             final TextView albumTextView = (TextView) mPlaybackActivity
@@ -358,11 +353,15 @@ public class PlaybackFragment extends SherlockFragment {
             artistTextView.setText("");
             albumTextView.setText("");
             titleTextView.setText(R.string.playbackactivity_no_track);
+
+            // Make all buttons not clickable
             mPlaybackActivity.findViewById(R.id.imageButton_playpause).setClickable(false);
             mPlaybackActivity.findViewById(R.id.imageButton_next).setClickable(false);
             mPlaybackActivity.findViewById(R.id.imageButton_previous).setClickable(false);
             mPlaybackActivity.findViewById(R.id.imageButton_shuffle).setClickable(false);
             mPlaybackActivity.findViewById(R.id.imageButton_repeat).setClickable(false);
+
+            // Update the PlaybackSeekBar
             mPlaybackSeekBar.setEnabled(false);
             mPlaybackSeekBar.updateSeekBarPosition();
             mPlaybackSeekBar.updateTextViewCompleteTime();
@@ -370,7 +369,7 @@ public class PlaybackFragment extends SherlockFragment {
     }
 
     /**
-     * Refresh the information in this activity to reflect that of the current play/pause-button
+     * Refresh the information in this fragment to reflect that of the current play/pause-button
      * state.
      */
     protected void refreshPlayPauseButtonState() {
@@ -387,7 +386,7 @@ public class PlaybackFragment extends SherlockFragment {
     }
 
     /**
-     * Refresh the information in this activity to reflect that of the current repeatButton state.
+     * Refresh the information in this fragment to reflect that of the current repeatButton state.
      */
     protected void refreshRepeatButtonState() {
         ImageButton imageButton = (ImageButton) mPlaybackActivity
@@ -405,7 +404,7 @@ public class PlaybackFragment extends SherlockFragment {
     }
 
     /**
-     * Refresh the information in this activity to reflect that of the current shuffleButton state.
+     * Refresh the information in this fragment to reflect that of the current shuffleButton state.
      */
     protected void refreshShuffleButtonState() {
         ImageButton imageButton = (ImageButton) mPlaybackActivity
