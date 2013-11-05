@@ -19,7 +19,7 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
-import org.tomahawk.tomahawk_android.activities.CollectionActivity;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 
@@ -48,7 +48,7 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
                 Bundle bundle = new Bundle();
                 bundle.putLong(TOMAHAWK_ARTIST_ID,
                         ((Artist) getListAdapter().getItem(idx)).getId());
-                if (mActivity instanceof CollectionActivity) {
+                if (mActivity instanceof TomahawkMainActivity) {
                     mActivity.getContentViewer()
                             .replace(mCorrespondingStackId, AlbumsFragment.class,
                                     ((Artist) getListAdapter().getItem(idx)).getId(),

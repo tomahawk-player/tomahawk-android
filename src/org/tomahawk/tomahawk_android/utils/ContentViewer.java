@@ -17,7 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
-import org.tomahawk.tomahawk_android.activities.CollectionActivity;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.activities.TomahawkTabsActivity;
 import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ContentViewer {
 
-    private CollectionActivity mCollectionActivity;
+    private TomahawkMainActivity mTomahawkMainActivity;
 
     private FragmentManager mFragmentManager;
 
@@ -94,9 +94,9 @@ public class ContentViewer {
     /**
      * Constructs a new ContentViewer
      */
-    public ContentViewer(CollectionActivity activity, FragmentManager fragmentManager,
+    public ContentViewer(TomahawkMainActivity activity, FragmentManager fragmentManager,
             int contentFrameId) {
-        mCollectionActivity = activity;
+        mTomahawkMainActivity = activity;
         mFragmentManager = fragmentManager;
         mContentFrameId = contentFrameId;
     }
@@ -168,12 +168,12 @@ public class ContentViewer {
             bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING,
                     fragmentStateHolder.queryString);
             ft.replace(mContentFrameId,
-                    Fragment.instantiate(mCollectionActivity, fragmentStateHolder.clss.getName(),
+                    Fragment.instantiate(mTomahawkMainActivity, fragmentStateHolder.clss.getName(),
                             bundle), fragmentStateHolder.fragmentTag);
             ft.commit();
         }
 
-        mCollectionActivity.onBackStackChanged();
+        mTomahawkMainActivity.onBackStackChanged();
     }
 
     /**
@@ -198,7 +198,7 @@ public class ContentViewer {
                     .get(fragmentsStack.size() - 2);
             // Restore the remembered fragment and remove it from back fragments.
             this.replace(stackId, previousFragmentStateHolder, true);
-            mCollectionActivity.onBackStackChanged();
+            mTomahawkMainActivity.onBackStackChanged();
             return true;
         }
         // Nothing to go back.
@@ -233,17 +233,17 @@ public class ContentViewer {
                         bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING,
                                 fpb.queryString);
                         ft.replace(mContentFrameId,
-                                Fragment.instantiate(mCollectionActivity, fpb.clss.getName(),
+                                Fragment.instantiate(mTomahawkMainActivity, fpb.clss.getName(),
                                         bundle), fpb.fragmentTag);
                     } else {
                         Bundle bundle = new Bundle();
                         bundle.putInt(TomahawkFragment.TOMAHAWK_TAB_ID, fpb.correspondingStackId);
                         ft.replace(mContentFrameId,
-                                Fragment.instantiate(mCollectionActivity, fpb.clss.getName(),
+                                Fragment.instantiate(mTomahawkMainActivity, fpb.clss.getName(),
                                         bundle), fpb.fragmentTag);
                     }
                     ft.commit();
-                    mCollectionActivity.onBackStackChanged();
+                    mTomahawkMainActivity.onBackStackChanged();
                 }
                 return fragmentsStack.get(fragmentsStack.size() - 1).fragmentTag
                         .equals(fragmentTag);
@@ -331,17 +331,17 @@ public class ContentViewer {
             bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING,
                     fragmentStateHolder.queryString);
             ft.replace(mContentFrameId,
-                    Fragment.instantiate(mCollectionActivity, fragmentStateHolder.clss.getName(),
+                    Fragment.instantiate(mTomahawkMainActivity, fragmentStateHolder.clss.getName(),
                             bundle), stack.get(stack.size() - 1).fragmentTag);
             ft.commit();
             if (fragmentStateHolder.correspondingStackId == TomahawkTabsActivity.TAB_ID_SEARCH
                     || fragmentStateHolder.correspondingStackId
                     == TomahawkTabsActivity.TAB_ID_SETTINGS) {
-                mCollectionActivity.showBreadcrumbs(false);
+                mTomahawkMainActivity.showBreadcrumbs(false);
             } else {
-                mCollectionActivity.showBreadcrumbs(true);
+                mTomahawkMainActivity.showBreadcrumbs(true);
             }
         }
-        mCollectionActivity.onBackStackChanged();
+        mTomahawkMainActivity.onBackStackChanged();
     }
 }

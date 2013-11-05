@@ -18,7 +18,7 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.activities.CollectionActivity;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.activities.TomahawkTabsActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 
@@ -33,7 +33,7 @@ import android.widget.AdapterView.OnItemClickListener;
  */
 public class LocalCollectionFragment extends TomahawkListFragment implements OnItemClickListener {
 
-    protected CollectionActivity mCollectionActivity;
+    protected TomahawkMainActivity mTomahawkMainActivity;
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -52,8 +52,8 @@ public class LocalCollectionFragment extends TomahawkListFragment implements OnI
      */
     @Override
     public void onAttach(Activity activity) {
-        if (activity instanceof CollectionActivity) {
-            mCollectionActivity = (CollectionActivity) activity;
+        if (activity instanceof TomahawkMainActivity) {
+            mTomahawkMainActivity = (TomahawkMainActivity) activity;
         }
         super.onAttach(activity);
     }
@@ -64,7 +64,7 @@ public class LocalCollectionFragment extends TomahawkListFragment implements OnI
      */
     @Override
     public void onDetach() {
-        mCollectionActivity = null;
+        mTomahawkMainActivity = null;
         super.onDetach();
     }
 
@@ -75,17 +75,17 @@ public class LocalCollectionFragment extends TomahawkListFragment implements OnI
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
         switch ((int) arg3) {
             case 0:
-                mCollectionActivity.getContentViewer()
+                mTomahawkMainActivity.getContentViewer()
                         .replace(TomahawkTabsActivity.TAB_ID_COLLECTION, TracksFragment.class, -1,
                                 null, false);
                 break;
             case 1:
-                mCollectionActivity.getContentViewer()
+                mTomahawkMainActivity.getContentViewer()
                         .replace(TomahawkTabsActivity.TAB_ID_COLLECTION, AlbumsFragment.class, -1,
                                 null, false);
                 break;
             case 2:
-                mCollectionActivity.getContentViewer()
+                mTomahawkMainActivity.getContentViewer()
                         .replace(TomahawkTabsActivity.TAB_ID_COLLECTION, ArtistsFragment.class, -1,
                                 null, false);
                 break;

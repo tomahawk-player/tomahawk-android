@@ -253,7 +253,7 @@ public class PlaybackActivity extends SherlockFragmentActivity
                                 getString(R.string.playbackactivity_save_playlist_dialog_title));
                 return true;
             } else if (item.getItemId() == android.R.id.home) {
-                Intent collectionIntent = TomahawkUtils.getIntent(this, CollectionActivity.class);
+                Intent collectionIntent = TomahawkUtils.getIntent(this, TomahawkMainActivity.class);
                 startActivity(collectionIntent);
                 return true;
             }

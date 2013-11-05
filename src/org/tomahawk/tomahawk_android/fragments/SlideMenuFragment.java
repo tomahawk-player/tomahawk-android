@@ -18,7 +18,7 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.activities.CollectionActivity;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.activities.TomahawkTabsActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 
@@ -36,7 +36,7 @@ import android.widget.AdapterView;
  */
 public class SlideMenuFragment extends ListFragment implements AdapterView.OnItemClickListener {
 
-    protected CollectionActivity mCollectionActivity;
+    protected TomahawkMainActivity mTomahawkMainActivity;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -66,8 +66,8 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
      */
     @Override
     public void onAttach(Activity activity) {
-        if (activity instanceof CollectionActivity) {
-            mCollectionActivity = (CollectionActivity) activity;
+        if (activity instanceof TomahawkMainActivity) {
+            mTomahawkMainActivity = (TomahawkMainActivity) activity;
         }
         super.onAttach(activity);
     }
@@ -78,7 +78,7 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
      */
     @Override
     public void onDetach() {
-        mCollectionActivity = null;
+        mTomahawkMainActivity = null;
         super.onDetach();
     }
 
@@ -90,42 +90,42 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
         Handler h = new Handler();
         switch ((int) arg3) {
             case TomahawkTabsActivity.TAB_ID_SEARCH:
-                mCollectionActivity.getContentViewer()
+                mTomahawkMainActivity.getContentViewer()
                         .setCurrentStackId(TomahawkTabsActivity.TAB_ID_SEARCH);
-                mCollectionActivity.showSearchEditText();
+                mTomahawkMainActivity.showSearchEditText();
                 h.postDelayed(new Runnable() {
                     public void run() {
-                        mCollectionActivity.showContent();
+                        mTomahawkMainActivity.showContent();
                     }
                 }, 50);
                 break;
             case TomahawkTabsActivity.TAB_ID_COLLECTION:
-                mCollectionActivity.getContentViewer()
+                mTomahawkMainActivity.getContentViewer()
                         .setCurrentStackId(TomahawkTabsActivity.TAB_ID_COLLECTION);
-                mCollectionActivity.hideSearchEditText();
+                mTomahawkMainActivity.hideSearchEditText();
                 h.postDelayed(new Runnable() {
                     public void run() {
-                        mCollectionActivity.showContent();
+                        mTomahawkMainActivity.showContent();
                     }
                 }, 50);
                 break;
             case TomahawkTabsActivity.TAB_ID_PLAYLISTS:
-                mCollectionActivity.getContentViewer()
+                mTomahawkMainActivity.getContentViewer()
                         .setCurrentStackId(TomahawkTabsActivity.TAB_ID_PLAYLISTS);
-                mCollectionActivity.hideSearchEditText();
+                mTomahawkMainActivity.hideSearchEditText();
                 h.postDelayed(new Runnable() {
                     public void run() {
-                        mCollectionActivity.showContent();
+                        mTomahawkMainActivity.showContent();
                     }
                 }, 50);
                 break;
             case TomahawkTabsActivity.TAB_ID_SETTINGS:
-                mCollectionActivity.getContentViewer()
+                mTomahawkMainActivity.getContentViewer()
                         .setCurrentStackId(TomahawkTabsActivity.TAB_ID_SETTINGS);
-                mCollectionActivity.hideSearchEditText();
+                mTomahawkMainActivity.hideSearchEditText();
                 h.postDelayed(new Runnable() {
                     public void run() {
-                        mCollectionActivity.showContent();
+                        mTomahawkMainActivity.showContent();
                     }
                 }, 50);
                 break;

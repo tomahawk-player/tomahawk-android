@@ -21,7 +21,7 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CustomPlaylist;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.activities.CollectionActivity;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.PlaylistDialog;
@@ -51,7 +51,7 @@ public class PlaylistsFragment extends TomahawkFragment implements OnItemClickLi
                 Bundle bundle = new Bundle();
                 bundle.putLong(TOMAHAWK_PLAYLIST_ID,
                         ((CustomPlaylist) getListAdapter().getItem(idx)).getId());
-                if (mActivity instanceof CollectionActivity) {
+                if (mActivity instanceof TomahawkMainActivity) {
                     mActivity.getContentViewer()
                             .replace(mCorrespondingStackId, TracksFragment.class,
                                     ((CustomPlaylist) getListAdapter().getItem(idx)).getId(),
