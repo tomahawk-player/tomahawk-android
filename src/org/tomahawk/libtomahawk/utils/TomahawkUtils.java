@@ -103,6 +103,9 @@ public class TomahawkUtils {
                 .format("%02.0f", (double) (duration / 1000) % 60);
     }
 
+    /**
+     * Parse a given String into a Date.
+     */
     public static Date stringToDate(String rawDate) {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         Date date = null;
