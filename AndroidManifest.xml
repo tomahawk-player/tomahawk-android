@@ -67,12 +67,6 @@
                 android:label="@string/playbackfragment_title_string">
         </activity>
 
-        <activity
-                android:name=".activities.CollectionActivity"
-                android:label="@string/mainactivity_title_string"
-                android:launchMode="singleTop">
-        </activity>
-
         <service
                 android:name=".services.PlaybackService"
                 android:label="@string/playbackservice_label_string"
