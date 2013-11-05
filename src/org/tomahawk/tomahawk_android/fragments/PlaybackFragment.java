@@ -52,6 +52,32 @@ public class PlaybackFragment extends SherlockFragment {
 
     private Toast mToast;
 
+    /**
+     * This listener handles our button clicks
+     */
+    private View.OnClickListener mButtonClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.imageButton_shuffle:
+                    onShuffleClicked();
+                    break;
+                case R.id.imageButton_previous:
+                    onPreviousClicked();
+                    break;
+                case R.id.imageButton_playpause:
+                    onPlayPauseClicked();
+                    break;
+                case R.id.imageButton_next:
+                    onNextClicked();
+                    break;
+                case R.id.imageButton_repeat:
+                    onRepeatClicked();
+                    break;
+            }
+        }
+    };
+
     /*
      * (non-Javadoc)
      * 
@@ -114,6 +140,13 @@ public class PlaybackFragment extends SherlockFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        //Set listeners on our buttons
+        view.findViewById(R.id.imageButton_shuffle).setOnClickListener(mButtonClickListener);
+        view.findViewById(R.id.imageButton_previous).setOnClickListener(mButtonClickListener);
+        view.findViewById(R.id.imageButton_playpause).setOnClickListener(mButtonClickListener);
+        view.findViewById(R.id.imageButton_next).setOnClickListener(mButtonClickListener);
+        view.findViewById(R.id.imageButton_repeat).setOnClickListener(mButtonClickListener);
     }
 
     public void init() {
