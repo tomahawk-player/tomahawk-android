@@ -159,16 +159,18 @@ public class PipeLine {
             mQids.put(q.getQid(), q);
             mQueryMap.put(q.getCacheKey(), q.getQid());
             for (Resolver resolver : mResolvers) {
-                if ((resolver instanceof SpotifyResolver && ((SpotifyResolver) resolver).isReady())
-                        || (onlyLocal && resolver instanceof DataBaseResolver) || !onlyLocal) {
+                if ((!onlyLocal && resolver instanceof SpotifyResolver
+                        && ((SpotifyResolver) resolver).isReady()) || (onlyLocal
+                        && resolver instanceof DataBaseResolver) || !onlyLocal) {
                     resolver.resolve(q);
                     q.incResolversTodoCount();
                 }
             }
         } else {
             for (Resolver resolver : mResolvers) {
-                if ((resolver instanceof SpotifyResolver && ((SpotifyResolver) resolver).isReady())
-                        || (onlyLocal && resolver instanceof DataBaseResolver) || !onlyLocal) {
+                if ((!onlyLocal && resolver instanceof SpotifyResolver
+                        && ((SpotifyResolver) resolver).isReady()) || (onlyLocal
+                        && resolver instanceof DataBaseResolver) || !onlyLocal) {
                     resolver.resolve(q);
                 }
             }
