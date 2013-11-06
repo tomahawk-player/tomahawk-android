@@ -17,10 +17,14 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+/**
+ * A {@link CollectionPlaylist} is a {@link Playlist} containing every from {@link Track} from an
+ * entire {@link Collection}
+ */
 public class CollectionPlaylist extends Playlist {
 
     /**
-     * Create a CollectionPlaylist from Collection.
+     * Create a {@link CollectionPlaylist} from {@link Collection}.
      */
     public static CollectionPlaylist fromCollection(Collection coll) {
         CollectionPlaylist pl = new CollectionPlaylist(coll.toString());
@@ -30,7 +34,8 @@ public class CollectionPlaylist extends Playlist {
     }
 
     /**
-     * Creates a CollectionPlaylist from Collection and sets the current Track to the Track at idx.
+     * Creates a {@link CollectionPlaylist} from {@link Collection} and sets the current {@link
+     * Track} to the {@link Track} at idx.
      */
     public static CollectionPlaylist fromCollection(Collection coll, Track currentTrack) {
         CollectionPlaylist pl = new CollectionPlaylist(coll.toString());
@@ -40,7 +45,7 @@ public class CollectionPlaylist extends Playlist {
     }
 
     /**
-     * Construct a new empty CollectionPlaylist.
+     * Construct a new empty {@link CollectionPlaylist}.
      */
     protected CollectionPlaylist(String name) {
         super(name);

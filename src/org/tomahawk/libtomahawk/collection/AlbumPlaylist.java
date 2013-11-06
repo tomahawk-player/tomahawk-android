@@ -18,12 +18,16 @@
 package org.tomahawk.libtomahawk.collection;
 
 /**
- * This class represents a Playlist including all the Tracks on an Album.
+ * This class represents a {@link Playlist} including all the {@link Track}s on an {@link Album}.
  */
 public class AlbumPlaylist extends Playlist {
 
     /**
-     * Create an AlbumPlaylist from Album.
+     * Create an {@link AlbumPlaylist} from an {@link Album} and set the current {@link Track} to
+     * the first {@link Track} of the given {@link Album}.
+     *
+     * @param album The {@link Album} to construct the {@link Playlist} from
+     * @return The constructed {@link AlbumPlaylist}
      */
     public static AlbumPlaylist fromAlbum(Album album) {
         AlbumPlaylist pl = new AlbumPlaylist(album.getName());
@@ -33,7 +37,12 @@ public class AlbumPlaylist extends Playlist {
     }
 
     /**
-     * Creates an AlbumPlaylist from Album and sets the current Track to the Track at idx.
+     * Creates an {@link AlbumPlaylist} from an {@link Album} and sets the current {@link Track} to
+     * the {@link Track} at idx.
+     *
+     * @param album        The {@link Album} to construct the {@link Playlist} from
+     * @param currentTrack The current {@link Track} to be set
+     * @return The constructed {@link AlbumPlaylist}
      */
     public static AlbumPlaylist fromAlbum(Album album, Track currentTrack) {
         AlbumPlaylist pl = new AlbumPlaylist(album.getName());
@@ -43,7 +52,9 @@ public class AlbumPlaylist extends Playlist {
     }
 
     /**
-     * Construct a new empty AlbumPlaylist.
+     * Construct a new empty {@link AlbumPlaylist}.
+     *
+     * @param name the name of the {@link AlbumPlaylist} to construct
      */
     protected AlbumPlaylist(String name) {
         super(name);

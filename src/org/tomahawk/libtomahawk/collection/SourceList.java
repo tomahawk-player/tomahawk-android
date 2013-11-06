@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class represents a collection of all Sources, local and remote.
+ * This class represents a collection of all {@link Source}s, local and remote.
  */
 public class SourceList {
 
@@ -37,7 +37,7 @@ public class SourceList {
     }
 
     /**
-     * Sets the local source.
+     * Sets the local {@link Source}.
      */
     public void setLocalSource(Source source) {
         mSources.remove(mLocalSource);
@@ -46,18 +46,21 @@ public class SourceList {
     }
 
     /**
-     * Returns the Source that represents this device.
+     * @return the {@link Source} that represents this device.
      */
     public Source getLocalSource() {
         return mLocalSource;
     }
 
+    /**
+     * @return all {@link Source}s
+     */
     public List<Source> getSources() {
         return mSources;
     }
 
     /**
-     * Returns the Collection with this id.
+     * @return the {@link Collection} with this id.
      */
     public Collection getCollectionFromId(int id) {
 

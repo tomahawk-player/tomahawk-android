@@ -18,12 +18,17 @@
 package org.tomahawk.libtomahawk.collection;
 
 /**
- * Class that represents a list of songs from a given Artist.
+ * This class represents a {@link Playlist} including all the {@link Track}s from an {@link
+ * Artist}.
  */
 public class ArtistPlaylist extends Playlist {
 
     /**
-     * Create an ArtistPlaylist from Artist.
+     * Create an {@link ArtistPlaylist} from an {@link Artist} and set the current {@link Track} to
+     * the first {@link Track} of the given {@link Artist}.
+     *
+     * @param artist The {@link Artist} to construct the {@link Playlist} from
+     * @return The constructed {@link ArtistPlaylist}
      */
     public static ArtistPlaylist fromArtist(Artist artist) {
         ArtistPlaylist pl = new ArtistPlaylist(artist.getName());
@@ -33,7 +38,12 @@ public class ArtistPlaylist extends Playlist {
     }
 
     /**
-     * Creates an ArtistPlaylist from Artist and sets the current Track to the Track at idx.
+     * Creates an {@link ArtistPlaylist} from an {@link Artist} and sets the current {@link Track}
+     * to the {@link Track} at idx.
+     *
+     * @param artist       The {@link Artist} to construct the {@link Playlist} from
+     * @param currentTrack The current {@link Track} to be set
+     * @return The constructed {@link ArtistPlaylist}
      */
     public static ArtistPlaylist fromArtist(Artist artist, Track currentTrack) {
         ArtistPlaylist pl = new ArtistPlaylist(artist.getName());
@@ -43,7 +53,9 @@ public class ArtistPlaylist extends Playlist {
     }
 
     /**
-     * Constructor.
+     * Construct a new empty {@link ArtistPlaylist}.
+     *
+     * @param name the name of the {@link ArtistPlaylist} to construct
      */
     protected ArtistPlaylist(String name) {
         super(name);

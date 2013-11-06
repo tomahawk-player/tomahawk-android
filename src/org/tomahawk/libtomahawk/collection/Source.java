@@ -17,6 +17,9 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+/**
+ * This class is a wrapper around a {@link Collection} with an id and a name
+ */
 public class Source {
 
     private int mId;
@@ -26,7 +29,7 @@ public class Source {
     private Collection mCollection;
 
     /**
-     * Constructs a new Source from the given id.
+     * Constructs a new {@link Source} from the given id.
      */
     public Source(Collection coll, int id, String name) {
         mId = id;
@@ -35,23 +38,29 @@ public class Source {
     }
 
     /**
-     * Returns whether this source is local.
+     * Returns whether or not this {@link Source} is local.
      */
     public boolean isLocal() {
         return mCollection.isLocal();
     }
 
     /**
-     * Returns the name of this source.
+     * Returns the name of this {@link Source}.
      */
     public String getName() {
         return mName;
     }
 
+    /**
+     * @return this {@link Source}'s id
+     */
     public int getId() {
         return mId;
     }
 
+    /**
+     * @return the {@link Collection} associated with this {@link Source}
+     */
     public Collection getCollection() {
         return mCollection;
     }

@@ -34,6 +34,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * This class represents a user's local {@link Collection} of all his {@link Track}s.
+ */
 public class UserCollection extends Collection {
 
     public static final String USERCOLLECTION_ARTISTCACHED
@@ -84,10 +87,6 @@ public class UserCollection extends Collection {
      * This class watches for changes in the Media db.
      */
     private final ContentObserver mLocalMediaObserver = new ContentObserver(null) {
-        /* 
-         * (non-Javadoc)
-         * @see android.database.ContentObserver#onChange(boolean)
-         */
         @Override
         public void onChange(boolean selfChange) {
             mCollectionUpdateHandlerThread.start();
@@ -96,7 +95,7 @@ public class UserCollection extends Collection {
     };
 
     /**
-     * Construct a new UserCollection and initialize.
+     * Construct a new {@link UserCollection} and initializes it.
      */
     public UserCollection(TomahawkApp tomahawkApp) {
         mUserPlaylistsDataSource = new UserPlaylistsDataSource(tomahawkApp,
@@ -114,9 +113,8 @@ public class UserCollection extends Collection {
         mHandler.postDelayed(mUpdateRunnable, 300);
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.Collection#getArtists()
+    /**
+     * @return A {@link List} of all {@link Artist}s in this {@link UserCollection}
      */
     @Override
     public List<Artist> getArtists() {
@@ -125,9 +123,8 @@ public class UserCollection extends Collection {
         return artists;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.Collection#getArtistById(java.lang.Long)
+    /**
+     * Get an {@link Artist} from this {@link UserCollection} by providing an id
      */
     @Override
     public Artist getArtistById(Long id) {
@@ -135,7 +132,7 @@ public class UserCollection extends Collection {
     }
 
     /**
-     * Caches an artist inside the playlist
+     * Caches an {@link Artist} in a private member variable
      */
     @Override
     public void setCachedArtist(Artist artist) {
@@ -143,16 +140,15 @@ public class UserCollection extends Collection {
     }
 
     /**
-     * @return the cached artist
+     * @return the cached {@link Artist}
      */
     @Override
     public Artist getCachedArtist() {
         return mCachedArtist;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.Collection#getAlbums()
+    /**
+     * @return A {@link List} of all {@link Album}s in this {@link UserCollection}
      */
     @Override
     public List<Album> getAlbums() {
@@ -161,9 +157,8 @@ public class UserCollection extends Collection {
         return albums;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.Collection#getAlbumById(java.lang.Long)
+    /**
+     * Get an {@link Album} from this {@link UserCollection} by providing an id
      */
     @Override
     public Album getAlbumById(Long id) {
@@ -171,7 +166,7 @@ public class UserCollection extends Collection {
     }
 
     /**
-     * Caches an album inside the playlist
+     * Caches an {@link Album} in a private member variable
      */
     @Override
     public void setCachedAlbum(Album album) {
@@ -179,25 +174,23 @@ public class UserCollection extends Collection {
     }
 
     /**
-     * @return the cached album
+     * @return the cached {@link Album}
      */
     @Override
     public Album getCachedAlbum() {
         return mCachedAlbum;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.Collection#getCustomPlaylists()
+    /**
+     * @return A {@link List} of all {@link CustomPlaylist}s in this {@link UserCollection}
      */
     @Override
     public List<CustomPlaylist> getCustomPlaylists() {
         return new ArrayList<CustomPlaylist>(mCustomPlaylists.values());
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.Collection#getCustomPlaylistById(java.lang.Long)
+    /**
+     * Get an {@link CustomPlaylist} from this {@link UserCollection} by providing an id
      */
     @Override
     public CustomPlaylist getCustomPlaylistById(Long id) {
@@ -205,7 +198,7 @@ public class UserCollection extends Collection {
     }
 
     /**
-     * Add a playlist to the collection
+     * Add a {@link CustomPlaylist} to this {@link UserCollection}
      */
     public void addCustomPlaylist(long playlistId, CustomPlaylist customPlaylist) {
         customPlaylist.setId(playlistId);
@@ -220,15 +213,14 @@ public class UserCollection extends Collection {
     }
 
     /**
-     * @return the previously cached customplaylist
+     * @return the previously cached {@link CustomPlaylist}
      */
     public CustomPlaylist getCachedCustomPlaylist() {
         return mCachedCustomPlaylist;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.Collection#getTrackResults()
+    /**
+     * @return A {@link List} of all {@link Track}s in this {@link UserCollection}
      */
     @Override
     public List<Track> getTracks() {
@@ -237,18 +229,16 @@ public class UserCollection extends Collection {
         return tracks;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.Collection#getTrackById(java.lang.Long)
+    /**
+     * Get an {@link Track} from this {@link UserCollection} by providing an id
      */
     @Override
     public Track getTrackById(Long id) {
         return mTracks.get(id);
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.Collection#isLocal()
+    /**
+     * @return always true
      */
     @Override
     public boolean isLocal() {
@@ -256,7 +246,8 @@ public class UserCollection extends Collection {
     }
 
     /**
-     * Initialize Tracks.
+     * Initialize this {@link UserCollection}. Pull all local tracks from the {@link MediaStore} and
+     * add them to our {@link UserCollection}
      */
     private void initializeCollection() {
         updateUserPlaylists();
@@ -275,6 +266,7 @@ public class UserCollection extends Collection {
                 .query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, selection, null,
                         null);
 
+        // Go through the complete set of data in the MediaStore
         while (cursor != null && cursor.moveToNext()) {
             Artist artist = mArtists.get(cursor.getLong(5));
             if (artist == null) {
@@ -340,6 +332,10 @@ public class UserCollection extends Collection {
         }
     }
 
+    /**
+     * Fetch all user {@link CustomPlaylist} from the app's database via our helper class {@link
+     * UserPlaylistsDataSource}
+     */
     public void updateUserPlaylists() {
         mUserPlaylistsDataSource.open();
         mCustomPlaylists.clear();
@@ -355,9 +351,8 @@ public class UserCollection extends Collection {
         TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.Collection#update()
+    /**
+     * Reinitalize this {@link UserCollection} and send a broadcast letting everybody know.
      */
     @Override
     public void update() {
@@ -366,9 +361,8 @@ public class UserCollection extends Collection {
         TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.Collection#getId()
+    /**
+     * @return this {@link UserCollection}'s id
      */
     @Override
     public int getId() {

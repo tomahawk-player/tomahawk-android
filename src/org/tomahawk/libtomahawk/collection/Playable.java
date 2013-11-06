@@ -20,57 +20,58 @@ package org.tomahawk.libtomahawk.collection;
 import java.util.Collection;
 
 /**
- * A simple interface to represent a collection of 0 or more Tracks.
+ * A simple interface to represent a collection of 0 or more {@link Track}s.
  */
 public interface Playable {
 
     /**
-     * Set the tracks for this PlayableInterface.
+     * Set the {@link Track}s for this {@link Playable}Interface.
      */
     public void setTracks(Collection<Track> tracks);
 
     /**
-     * Set the current Track to track. If Track cannot be found the current Track stays the same.
+     * Set the current {@link Track} to {@link Track}. If {@link Track} cannot be found the current
+     * {@link Track} stays the same.
      */
     public void setCurrentTrack(Track track);
 
     /**
-     * Return the current Track for this PlayableInterface.
+     * Return the current {@link Track} for this {@link Playable}Interface.
      */
     public Track getCurrentTrack();
 
     /**
-     * Return the next Track for this PlayableInterface.
+     * Return the next {@link Track} for this {@link Playable}Interface.
      */
     public Track getNextTrack();
 
     /**
-     * Return the previous Track for this PlayableInterface.
+     * Return the previous {@link Track} for this {@link Playable}Interface.
      */
     public Track getPreviousTrack();
 
     /**
-     * Return the Track at pos i.
+     * Return the {@link Track} at pos i.
      */
     public Track getTrackAtPos(int i);
 
     /**
-     * Return the first Track in this PlayableInterface.
+     * Return the first {@link Track} in this {@link Playable}Interface.
      */
     public Track getFirstTrack();
 
     /**
-     * Return the last Track in this PlayableInterface.
+     * Return the last {@link Track} in this {@link Playable}Interface.
      */
     public Track getLastTrack();
 
     /**
-     * Returns true if the PlayableInterface has a next Track.
+     * Returns true if the {@link Playable}Interface has a next {@link Track}.
      */
     public boolean hasNextTrack();
 
     /**
-     * Returns true if the PlayableInterface has a previous Track.
+     * Returns true if the {@link Playable}Interface has a previous {@link Track}.
      */
     public boolean hasPreviousTrack();
 }

@@ -20,25 +20,37 @@ package org.tomahawk.libtomahawk.collection;
 import java.util.Comparator;
 
 /**
- * This class is used to compare two Albums.
+ * This class is used to compare two {@link Album}s.
  */
 public class AlbumComparator implements Comparator<Album> {
 
+    //Modes which determine with which method are compared
     public static final int COMPARE_ALPHA = 1;
 
     public static final int COMPARE_SCORE = 2;
 
+    //Flag containing the current mode to be used
     private static int mFlag = COMPARE_ALPHA;
 
+    /**
+     * Construct this {@link AlbumComparator}
+     *
+     * @param flag The mode which determines with which method {@link Album}s are compared
+     */
     public AlbumComparator(int flag) {
         super();
         mFlag = flag;
     }
 
+    /**
+     * The actual comparison method
+     *
+     * @param a1 First {@link Album} object
+     * @param a2 Second {@link Album} Object
+     * @return int containing comparison score
+     */
     public int compare(Album a1, Album a2) {
-
         switch (mFlag) {
-
             case COMPARE_ALPHA:
                 return a1.getName().compareTo(a2.getName());
 
@@ -46,9 +58,7 @@ public class AlbumComparator implements Comparator<Album> {
                 Float score1 = a1.getScore();
                 Float score2 = a2.getScore();
                 return score2.compareTo(score1);
-
         }
-
         return 0;
     }
 }
