@@ -196,48 +196,6 @@ public class TomahawkApp extends Application {
         return sApplicationContext;
     }
 
-    /**
-     * This method is called when the Authenticator has finished. why d Ideally, we start the
-     * Tomahawk web service here.
-     */
-    //    @Override
-    //    public void run(AccountManagerFuture<Bundle> result) {
-    //
-    //        try {
-    //
-    //            String token = result.getResult().getString(AccountManager.KEY_AUTHTOKEN);
-    //            String username = result.getResult().getString(AccountManager.KEY_ACCOUNT_NAME);
-    //            if (token == null) {
-    //                Intent i = new Intent(getApplicationContext(),
-    //                        TomahawkAccountAuthenticatorActivity.class);
-    //                startActivity(i);
-    //            } else {
-    //                Log.d(TAG, "Starting Tomahawk Service: " + token);
-    //                Intent intent = new Intent(this, TomahawkService.class);
-    //                intent.putExtra(TomahawkService.HATCHET_ACCOUNT_NAME, username);
-    //                intent.putExtra(TomahawkService.AUTH_TOKEN_TYPE, token);
-    //                startService(intent);
-    //                bindService(intent, mTomahawkServiceConnection, Context.BIND_AUTO_CREATE);
-    //            }
-    //
-    //        } catch (OperationCanceledException e) {
-    //            e.printStackTrace();
-    //        } catch (AuthenticatorException e) {
-    //            e.printStackTrace();
-    //        } catch (IOException e) {
-    //            e.printStackTrace();
-    //        }
-    //    }
-    //    @Override
-    //    public void setTomahawkService(TomahawkService ps) {
-    //        mTomahawkService = ps;
-    //    }
-    //
-    //    @Override
-    //    public void onTomahawkServiceReady() {
-    //
-    //    }
-
     public long getUniqueTrackId() {
         return mTrackIdCounter++;
     }

@@ -29,6 +29,12 @@ public abstract class Collection {
             = "org.tomahawk.libtomahawk.Collection.COLLECTION_UPDATED";
 
     /**
+     * Default constructor.
+     */
+    public Collection() {
+    }
+
+    /**
      * Get all {@link Artist}'s associated with this {@link Collection}.
      */
     public abstract List<Artist> getArtists();
@@ -41,12 +47,12 @@ public abstract class Collection {
     public abstract Artist getArtistById(Long id);
 
     /**
-     * Caches an artist inside the playlist
+     * Caches an {@link Artist} inside the playlist
      */
     public abstract void setCachedArtist(Artist artist);
 
     /**
-     * @return the cached artist
+     * @return the cached {@link Artist}
      */
     public abstract Artist getCachedArtist();
 
@@ -63,12 +69,12 @@ public abstract class Collection {
     public abstract Album getAlbumById(Long id);
 
     /**
-     * Caches an album inside the playlist
+     * Caches an {@link Album} inside the {@link Playlist}
      */
     public abstract void setCachedAlbum(Album album);
 
     /**
-     * @return the cached album
+     * @return the cached {@link Album}
      */
     public abstract Album getCachedAlbum();
 
@@ -97,7 +103,7 @@ public abstract class Collection {
     public abstract CustomPlaylist getCustomPlaylistById(Long id);
 
     /**
-     * Add a playlist to the collection
+     * Add a {@link Playlist} to the {@link Collection}
      */
     public abstract void addCustomPlaylist(long playlistId, CustomPlaylist customPlaylist);
 
@@ -110,12 +116,6 @@ public abstract class Collection {
      * @return the ID of this {@link Collection} object
      */
     public abstract int getId();
-
-    /**
-     * Default constructor.
-     */
-    public Collection() {
-    }
 
     /**
      * Returns whether this {@link Collection} is a {@link UserCollection}.

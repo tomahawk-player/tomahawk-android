@@ -21,14 +21,17 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 
 import java.util.ArrayList;
 
+/**
+ * A {@link CustomPlaylist} is a {@link Playlist} created by the user and stored in the database
+ */
 public class CustomPlaylist extends Playlist implements TomahawkBaseAdapter.TomahawkListItem {
 
     private long mId;
 
     /**
-     * Create a CustomPlaylist from a list of tracks.
+     * Create a {@link CustomPlaylist} from a list of {@link Track}s.
      *
-     * @return a reference to the constructed CustomPlaylist
+     * @return a reference to the constructed {@link CustomPlaylist}
      */
     public static CustomPlaylist fromTrackList(ArrayList<Track> tracks) {
         if (tracks == null) {
@@ -43,9 +46,9 @@ public class CustomPlaylist extends Playlist implements TomahawkBaseAdapter.Toma
     }
 
     /**
-     * Create a CustomPlaylist from a list of tracks.
+     * Create a {@link CustomPlaylist} from a list of {@link Track}s.
      *
-     * @return a reference to the constructed CustomPlaylist
+     * @return a reference to the constructed {@link CustomPlaylist}
      */
     public static CustomPlaylist fromTrackList(String name, ArrayList<Track> tracks) {
         if (tracks == null) {
@@ -60,9 +63,10 @@ public class CustomPlaylist extends Playlist implements TomahawkBaseAdapter.Toma
     }
 
     /**
-     * Creates a CustomPlaylist from a list of tracks and sets the current Track to the given track
+     * Creates a {@link CustomPlaylist} from a list of {@link Track}s and sets the current {@link
+     * Track} to the given {@link Track}
      *
-     * @return a reference to the constructed CustomPlaylist
+     * @return a reference to the constructed {@link CustomPlaylist}
      */
     public static CustomPlaylist fromTrackList(String name, ArrayList<Track> tracks,
             Track currentTrack) {
@@ -76,10 +80,10 @@ public class CustomPlaylist extends Playlist implements TomahawkBaseAdapter.Toma
     }
 
     /**
-     * Creates a CustomPlaylist from a list of tracks and sets the current Track index to the given
-     * track index
+     * Creates a {@link CustomPlaylist} from a list of {@link Track}s and sets the current {@link
+     * Track} index to the given {@link Track} index
      *
-     * @return a reference to the constructed CustomPlaylist
+     * @return a reference to the constructed {@link CustomPlaylist}
      */
     public static CustomPlaylist fromTrackList(String name, ArrayList<Track> tracks,
             int currentTrackIndex) {
@@ -93,37 +97,56 @@ public class CustomPlaylist extends Playlist implements TomahawkBaseAdapter.Toma
     }
 
     /**
-     * Construct a new empty CustomPlaylist.
+     * Construct a new empty {@link CustomPlaylist}.
      */
     protected CustomPlaylist() {
         super();
     }
 
     /**
-     * Construct a new empty CustomPlaylist.
+     * Construct a new empty {@link CustomPlaylist}.
      */
     protected CustomPlaylist(String name) {
         super(name);
     }
 
+    /**
+     * Set the object's id.
+     *
+     * @param id long containing the id
+     */
     public void setId(long id) {
         this.mId = id;
     }
 
+    /**
+     * @return this object's id
+     */
     public long getId() {
         return mId;
     }
 
+    /**
+     * @return this object' name
+     */
     @Override
     public String getName() {
         return super.getName();
     }
 
+    /**
+     * @return always null. This method needed to comply to the {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
+     *         interface.
+     */
     @Override
     public Artist getArtist() {
         return null;
     }
 
+    /**
+     * @return always null. This method needed to comply to the {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
+     *         interface.
+     */
     @Override
     public Album getAlbum() {
         return null;

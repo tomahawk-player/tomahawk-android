@@ -20,42 +20,50 @@ package org.tomahawk.libtomahawk.collection;
 import java.util.Comparator;
 
 /**
- * This class is used to compare two Tracks.
+ * This class is used to compare two {@link Track}s.
  */
 public class TrackComparator implements Comparator<Track> {
 
+    //Modes which determine with which method are compared
     public static final int COMPARE_DISCNUM = 0;
 
     public static final int COMPARE_ALPHA = 1;
 
     public static final int COMPARE_SCORE = 2;
 
+    //Flag containing the current mode to be used
     private static int mFlag = COMPARE_DISCNUM;
 
+    /**
+     * Construct this {@link TrackComparator}
+     *
+     * @param flag The mode which determines with which method {@link Track}s are compared
+     */
     public TrackComparator(int flag) {
         super();
         mFlag = flag;
     }
 
+    /**
+     * The actual comparison method
+     *
+     * @param t1 First {@link Track} object
+     * @param t2 Second {@link Track} Object
+     * @return int containing comparison score
+     */
     public int compare(Track t1, Track t2) {
-
         switch (mFlag) {
-
             case COMPARE_DISCNUM:
                 Integer num1 = t1.getTrackNumber();
                 Integer num2 = t2.getTrackNumber();
                 return num1.compareTo(num2);
-
             case COMPARE_ALPHA:
                 return t1.getName().compareTo(t2.getName());
-
             case COMPARE_SCORE:
                 Float score1 = t1.getScore();
                 Float score2 = t2.getScore();
                 return score2.compareTo(score1);
-
         }
-
         return 0;
     }
 }

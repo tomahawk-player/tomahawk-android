@@ -36,7 +36,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 09.05.13
+ * Every {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}, which
+ * needs async {@link Bitmap} loading functionality (like e.g. AlbumArt) extends from this class
  */
 public class BitmapItem {
 
@@ -53,30 +54,46 @@ public class BitmapItem {
     private static AlbumArtCache sAlbumArtCache;
 
     /**
-     * Cache album cover art.
+     * Cache {@link Album} cover art.
      */
     private static class AlbumArtCache extends LruCache<String, Bitmap> {
 
+        /**
+         * Construct this {@link AlbumArtCache} with sCacheSize as the cache's size
+         */
         public AlbumArtCache() {
             super(sCacheSize);
         }
 
+        /**
+         * Returns the size of the entry for key and value in user-defined units.
+         */
         @Override
         protected int sizeOf(String key, Bitmap bitmap) {
             return bitmap.getByteCount() / 1024;
         }
 
+        /**
+         * Add the given {@link Bitmap} with the given key to this {@link AlbumArtCache}
+         */
         private void addAlbumArtToCache(String key, Bitmap bitmap) {
             if (getAlbumArtFromCache(key) == null) {
                 put(key, bitmap);
             }
         }
 
+        /**
+         * Return a cached {@link Bitmap} by providing its key
+         */
         private Bitmap getAlbumArtFromCache(String key) {
             return get(key);
         }
     }
 
+    /**
+     * An {@link AsyncDrawable}, which will show a default placeholder {@link Bitmap} until the
+     * content has been loaded.
+     */
     static class AsyncDrawable extends BitmapDrawable {
 
         private final WeakReference<BitmapWorkerTask> bitmapWorkerTaskReference;
@@ -91,6 +108,10 @@ public class BitmapItem {
         }
     }
 
+    /**
+     * An {@link AsyncBitmap}, which will contain a default placeholder {@link Bitmap} until the
+     * content has been loaded.
+     */
     public static class AsyncBitmap {
 
         public Bitmap bitmap;
@@ -111,20 +132,35 @@ public class BitmapItem {
         }
     }
 
+    /**
+     * This {@link AsyncTask} contains all the code, which will asynchronously fetch a {@link
+     * Bitmap}.
+     */
     public class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
 
+        //The Context is needed to send broadcasts
         private Context context;
 
+        //A WeakReference to the ImageView which this AsyncTask works on
         private WeakReference<ImageView> imageViewReference = null;
 
+        //The placeHolder bitmap to show up until the actual image has been loaded
         private Bitmap placeHolderBitmap;
 
         private AsyncBitmap bitMapToFill = null;
 
+        //The path to the image which should be loaded
         private String path;
 
         private BitmapFactory.Options opts = new BitmapFactory.Options();
 
+        /**
+         * Construct a new {@link BitmapWorkerTask}
+         *
+         * @param imageView         the {@link ImageView} to be asynchronously filled
+         * @param placeHolderBitmap the placeHolderBitmap which should be shown before the actual
+         *                          image has been loaded
+         */
         public BitmapWorkerTask(ImageView imageView, Bitmap placeHolderBitmap) {
             this.placeHolderBitmap = placeHolderBitmap;
             // Use a WeakReference to ensure the ImageView can be garbage collected
@@ -132,6 +168,15 @@ public class BitmapItem {
             opts.inPreferredConfig = Bitmap.Config.RGB_565;
         }
 
+        /**
+         * Construct a new {@link BitmapWorkerTask}
+         *
+         * @param context           The {@link Context}, which is needed to be able to send
+         *                          broadcasts
+         * @param asyncBitmap       the {@link AsyncBitmap} to be asynchronously filled
+         * @param placeHolderBitmap the placeHolderBitmap which should be shown before the actual
+         *                          image has been loaded
+         */
         public BitmapWorkerTask(Context context, AsyncBitmap asyncBitmap,
                 Bitmap placeHolderBitmap) {
             this.context = context;
@@ -140,17 +185,28 @@ public class BitmapItem {
             opts.inPreferredConfig = Bitmap.Config.RGB_565;
         }
 
-        // Decode image in background.
+        /**
+         * Decodes image in background
+         *
+         * @param params params should contain the path at params[0] to the image which should be
+         *               loaded
+         * @return The decoded {@link Bitmap}
+         */
         @Override
         protected Bitmap doInBackground(String... params) {
+            //Get the path to the image which should be loaded
             path = params[0];
             if (sAlbumArtCache == null) {
+                //If we don't yet have a working AlbumArtCache, construct a new one
                 sAlbumArtCache = new AlbumArtCache();
             }
+            // Try to get the image from our cache
             Bitmap cachedBitMap = sAlbumArtCache.getAlbumArtFromCache(path);
             if (cachedBitMap != null) {
+                // we found our image in the cache, so we can use it right away
                 return resizeBitmap(cachedBitMap);
             } else if (path.contains("http://")) {
+                //We need to resolve our bitmap with a HTTP request
                 try {
                     URL url = new URL(path);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -163,25 +219,34 @@ public class BitmapItem {
                     return null;
                 }
             } else {
+                //We simply decode the bitmap from a local file
                 return resizeBitmap(BitmapFactory.decodeFile(path, opts));
             }
         }
 
-        // Once complete, see if ImageView is still around and set bitmap.
+        /**
+         * Once complete, see if {@link ImageView} is still around and set {@link Bitmap}.
+         *
+         * @param bitmap {@link Bitmap} containing the decoded/loaded {@link Bitmap}
+         */
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             if (isCancelled()) {
+                //If we've cancelled our loading process in the meantime
                 bitmap = null;
             }
 
             if (sAlbumArtCache == null) {
+                //If we don't yet have a working AlbumArtCache, construct a new one
                 sAlbumArtCache = new AlbumArtCache();
             }
             if (path != null && bitmap != null) {
+                //Add the loaded/decoded bitmap to our AlbumArtCache
                 sAlbumArtCache.addAlbumArtToCache(path, bitmap);
             }
 
             if (imageViewReference != null) {
+                //Because the imageViewReference is set, we need to fill this one
                 final ImageView imageView = imageViewReference.get();
                 final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
                 if (this == bitmapWorkerTask && imageView != null) {
@@ -192,6 +257,7 @@ public class BitmapItem {
                     }
                 }
             } else if (bitMapToFill != null) {
+                //Because the bitMapToFill is set, we need to fill this one
                 final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(bitMapToFill);
                 if (this == bitmapWorkerTask && bitMapToFill != null) {
                     if (bitmap != null) {
@@ -200,12 +266,21 @@ public class BitmapItem {
                         bitMapToFill.bitmap = placeHolderBitmap;
                     }
                 }
+                //After we have finished we broadcast the bitmap's path, so anybody listening can
+                //associate the loaded bitmap to the broadcast
                 Intent intent = new Intent(BITMAPITEM_BITMAPLOADED);
                 intent.putExtra(BITMAPITEM_BITMAPLOADED_PATH, path);
                 context.sendBroadcast(intent);
             }
         }
 
+        /**
+         * Resize the given {@link Bitmap}, so that its ratio is conserved, but neither its width
+         * nor its height is greate than BITMAP_MAXSIZE
+         *
+         * @param bitmap the {@link Bitmap} to resize
+         * @return the resized {@link Bitmap}
+         */
         private Bitmap resizeBitmap(Bitmap bitmap) {
             int scaledHeight, scaledWidth;
             if (bitmap == null) {
@@ -228,34 +303,16 @@ public class BitmapItem {
     }
 
     /**
-     * Checks if another running task is already associated with the {@link ImageView}
+     * Checks if another running {@link BitmapWorkerTask} is already associated with the {@link
+     * ImageView}
+     *
+     * @param path             the path to the image to be loaded
+     * @param bitmapWorkerTask the {@link BitmapWorkerTask} to be cancelled
      */
-    public static boolean cancelPotentialWork(String data, ImageView imageView) {
-        final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
-
+    public static boolean cancelPotentialWork(String path, BitmapWorkerTask bitmapWorkerTask) {
         if (bitmapWorkerTask != null) {
             final String bitmapData = bitmapWorkerTask.path;
-            if (bitmapData != null && bitmapData.equals(data)) {
-                // Cancel previous task
-                bitmapWorkerTask.cancel(true);
-            } else {
-                // The same work is already in progress
-                return false;
-            }
-        }
-        // No task associated with the ImageView, or an existing task was cancelled
-        return true;
-    }
-
-    /**
-     * Checks if another running task is already associated with the {@link ImageView}
-     */
-    public static boolean cancelPotentialWork(String data, AsyncBitmap asyncBitmap) {
-        final BitmapWorkerTask bitmapWorkerTask = getBitmapWorkerTask(asyncBitmap);
-
-        if (bitmapWorkerTask != null) {
-            final String bitmapData = bitmapWorkerTask.path;
-            if (bitmapData != null && bitmapData.equals(data)) {
+            if (bitmapData != null && bitmapData.equals(path)) {
                 // Cancel previous task
                 bitmapWorkerTask.cancel(true);
             } else {
@@ -283,8 +340,8 @@ public class BitmapItem {
     }
 
     /**
-     * Used to get the {@link BitmapWorkerTask}, which is used to asynchronously load a {@link
-     * Bitmap} into to {@link ImageView}
+     * Used to get the {@link BitmapWorkerTask}, which is used to asynchronously fill a {@link
+     * Bitmap}
      */
     public static BitmapWorkerTask getBitmapWorkerTask(AsyncBitmap asyncBitmap) {
         if (asyncBitmap != null) {

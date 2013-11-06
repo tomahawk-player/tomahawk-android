@@ -31,7 +31,7 @@ import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Class which represents a Tomahawk Album.
+ * Class which represents a Tomahawk {@link Album}.
  */
 public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkListItem {
 
@@ -57,17 +57,29 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
 
     private float mScore;
 
+    /**
+     * Construct a new {@link Album}
+     */
     public Album() {
         mTracks = new ConcurrentHashMap<Long, Track>();
     }
 
+    /**
+     * Construct a new {@link Album} with the given id
+     *
+     * @param id the id used to construct the {@link Album}
+     */
     public Album(long id) {
         setId(id);
         mTracks = new ConcurrentHashMap<Long, Track>();
     }
 
     /**
-     * Construct a new Album from the id
+     * Returns the {@link Album} with the given id. If none exists in our static {@link
+     * ConcurrentHashMap} yet, construct and add it.
+     *
+     * @param id the id used to construct the {@link Album}
+     * @return {@link Album} with the given id
      */
     public static Album get(long id) {
 
@@ -78,36 +90,32 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
         return sAlbums.get(id);
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
+    /**
+     * @return the {@link Album}'s name
      */
     @Override
     public String toString() {
         return mName;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.TomahawkListItem#getName()
+    /**
+     * @return the {@link Album}'s name
      */
     @Override
     public String getName() {
         return mName;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.TomahawkListItem#getArtist()
+    /**
+     * @return the {@link Album}'s {@link Artist}
      */
     @Override
     public Artist getArtist() {
         return mArtist;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.TomahawkListItem#getAlbum()
+    /**
+     * @return this {@link Album}
      */
     @Override
     public Album getAlbum() {
@@ -115,14 +123,18 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
     }
 
     /**
-     * Add a Track to this Album.
+     * Add a {@link Track} to this {@link Album}.
+     *
+     * @param track the {@link Track} to be added
      */
     public void addTrack(Track track) {
         mTracks.put(track.getId(), track);
     }
 
     /**
-     * Get a list of all Tracks from this Album.
+     * Get a list of all {@link Track}s from this {@link Album}.
+     *
+     * @return list of all {@link Track}s from this {@link Album}.
      */
     public ArrayList<Track> getTracks() {
         ArrayList<Track> tracks = new ArrayList<Track>(mTracks.values());
@@ -131,27 +143,42 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
     }
 
     /**
-     * Return the Album id.
+     * @return the {@link Album}'s id.
      */
     public long getId() {
         return mId;
     }
 
     /**
-     * Set the Album id.
+     * Set the {@link Album}'s id.
+     *
+     * @param id long containing the id
      */
     public void setId(long id) {
         this.mId = id;
     }
 
+    /**
+     * Set this {@link Album}'s name
+     *
+     * @param name the name to be set
+     */
     public void setName(String name) {
         mName = name;
     }
 
+    /**
+     * @return the filePath/url to this {@link Album}'s albumArt
+     */
     public String getAlbumArtPath() {
         return mAlbumArtPath;
     }
 
+    /**
+     * Set filePath/url to albumArt of this {@link Album}
+     *
+     * @param albumArt filePath/url to albumArt of this {@link Album}
+     */
     public void setAlbumArtPath(String albumArt) {
         mAlbumArtPath = albumArt;
     }
@@ -173,7 +200,7 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
         placeHolderBitmap = sAlbumPlaceHolderBitmap;
         pathToBitmap = getAlbumArtPath();
         if (pathToBitmap != null) {
-            if (cancelPotentialWork(pathToBitmap, asyncBitmap)) {
+            if (cancelPotentialWork(pathToBitmap, getBitmapWorkerTask(asyncBitmap))) {
                 final BitmapWorkerTask task = new BitmapWorkerTask(context, asyncBitmap,
                         sAlbumPlaceHolderBitmap);
                 asyncBitmap.setBitmapWorkerTaskReference(new WeakReference<BitmapWorkerTask>(task));
@@ -201,7 +228,7 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
         placeHolderBitmap = sAlbumPlaceHolderBitmap;
         pathToBitmap = getAlbumArtPath();
         if (pathToBitmap != null) {
-            if (cancelPotentialWork(pathToBitmap, imageView)) {
+            if (cancelPotentialWork(pathToBitmap, getBitmapWorkerTask(imageView))) {
                 final BitmapWorkerTask task = new BitmapWorkerTask(imageView,
                         sAlbumPlaceHolderBitmap);
                 final AsyncDrawable asyncDrawable = new AsyncDrawable(context.getResources(),
@@ -214,30 +241,59 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
         }
     }
 
+    /**
+     * @return {@link String} containing the first year info
+     */
     public String getFirstYear() {
         return mFirstYear;
     }
 
+    /**
+     * Set the first year info
+     *
+     * @param firstYear {@link String} containing first year info
+     */
     public void setFirstYear(String firstYear) {
         mFirstYear = firstYear;
     }
 
+    /**
+     * @return {@link String} containing the last year info
+     */
     public String getLastYear() {
         return mLastYear;
     }
 
+    /**
+     * Set the last year info
+     *
+     * @param lastYear {@link String} containing last year info
+     */
     public void setLastYear(String lastYear) {
         mLastYear = lastYear;
     }
 
+    /**
+     * Set this {@link Album}'s artist
+     *
+     * @param artist{@link Artist} object to be set
+     */
     public void setArtist(Artist artist) {
         mArtist = artist;
     }
 
+    /**
+     * @return float containing the score
+     */
     public float getScore() {
         return mScore;
     }
 
+    /**
+     * Set this {@link Album}'s score
+     *
+     * @param score float containing score
+     */
     public void setScore(float score) {
         this.mScore = score;
     }

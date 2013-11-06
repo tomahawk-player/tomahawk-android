@@ -21,17 +21,17 @@ import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 
 /**
- * Represents a Loader for a Collection.
+ * Represents a {@link AsyncTaskLoader} for a {@link Collection}.
  *
- * This class aids in refreshing and keeping the Collection views in sync with their underlying
- * Collection.
+ * This class aids in refreshing and keeping the {@link Collection} views in sync with their
+ * underlying {@link Collection}.
  */
 public class CollectionLoader extends AsyncTaskLoader<Collection> {
 
     private Collection mCollection;
 
     /**
-     * Consutructs a new CollectionLoader.
+     * Constructs a new {@link CollectionLoader}.
      */
     public CollectionLoader(Context context, Collection coll) {
         super(context);
@@ -40,7 +40,7 @@ public class CollectionLoader extends AsyncTaskLoader<Collection> {
     }
 
     /**
-     * Load the Collection in the background.
+     * Load the {@link Collection} in the background.
      */
     @Override
     public Collection loadInBackground() {
@@ -48,7 +48,7 @@ public class CollectionLoader extends AsyncTaskLoader<Collection> {
     }
 
     /**
-     * Called when the results of this Loader need to be delivered.
+     * Called when the results of this {@link AsyncTaskLoader} need to be delivered.
      */
     @Override
     public void deliverResult(Collection coll) {
@@ -58,7 +58,7 @@ public class CollectionLoader extends AsyncTaskLoader<Collection> {
     }
 
     /**
-     * Called when this Loader needs to start loading.
+     * Called when this {@link AsyncTaskLoader} needs to start loading.
      */
     @Override
     protected void onStartLoading() {

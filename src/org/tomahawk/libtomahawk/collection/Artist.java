@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * This class represents an Artist.
+ * This class represents an {@link Artist}.
  */
 public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
 
@@ -40,9 +40,19 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
 
     private float mScore;
 
+    /**
+     * Default constructor
+     */
     public Artist() {
+        mAlbums = new ConcurrentHashMap<Long, Album>();
+        mTracks = new ConcurrentHashMap<Long, Track>();
     }
 
+    /**
+     * Construct a new {@link Artist} with the given id
+     *
+     * @param id long containing id of the to be constructed {@link Artist}
+     */
     public Artist(long id) {
         mId = id;
         mAlbums = new ConcurrentHashMap<Long, Album>();
@@ -50,7 +60,11 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
     }
 
     /**
-     * Construct a new Album from the id
+     * Returns the {@link Artist} with the given id. If none exists in our static {@link
+     * ConcurrentHashMap} yet, construct and add it.
+     *
+     * @param id the id used to construct the {@link Artist}
+     * @return {@link Artist} with the given id
      */
     public static Artist get(long id) {
 
@@ -61,83 +75,130 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
         return sArtists.get(id);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
+    /**
+     * @return this object's name
      */
     @Override
     public String toString() {
         return mName;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.TomahawkListItem#getName()
+    /**
+     * @return this object' name
      */
     @Override
     public String getName() {
         return mName;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.TomahawkListItem#getArtist()
+    /**
+     * @return this object
      */
     @Override
     public Artist getArtist() {
         return this;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.TomahawkListItem#getAlbum()
+    /**
+     * This method returns the first {@link Album} of this object. If none exists, returns null.
+     * It's needed to comply to the {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
+     * interface.
+     *
+     * @return First {@link Album} of this object. If none exists, returns null.
      */
     @Override
     public Album getAlbum() {
-        // TODO Auto-generated method stub
+        Album[] albums = mAlbums.values().toArray(new Album[0]);
+        if (albums[0] != null) {
+            return albums[0];
+        }
         return null;
     }
 
+    /**
+     * Add a {@link Track} to this object.
+     *
+     * @param track the {@link Track} to be added
+     */
     public void addTrack(Track track) {
         mTracks.put(track.getId(), track);
     }
 
+    /**
+     * Get a list of all {@link Track}s from this object.
+     *
+     * @return list of all {@link Track}s from this object.
+     */
     public ArrayList<Track> getTracks() {
         ArrayList<Track> list = new ArrayList<Track>(mTracks.values());
         Collections.sort(list, new TrackComparator(TrackComparator.COMPARE_DISCNUM));
         return list;
     }
 
+    /**
+     * Add an {@link Album} to this object
+     *
+     * @param album the {@link Album} to be added
+     */
     public void addAlbum(Album album) {
         mAlbums.put(album.getId(), album);
     }
 
+    /**
+     * Clear all {@link Album}s.
+     */
     public void clearAlbums() {
         mAlbums = new ConcurrentHashMap<Long, Album>();
     }
 
+    /**
+     * Get a list of all {@link Album}s from this object.
+     *
+     * @return list of all {@link Album}s from this object.
+     */
     public ArrayList<Album> getAlbums() {
         ArrayList<Album> albums = new ArrayList<Album>(mAlbums.values());
         Collections.sort(albums, new AlbumComparator(AlbumComparator.COMPARE_ALPHA));
         return albums;
     }
 
+    /**
+     * Set the name of this object
+     *
+     * @param name the name to be set
+     */
     public void setName(String name) {
         mName = name;
     }
 
+    /**
+     * Set the object's id.
+     *
+     * @param id long containing the id
+     */
     public void setId(long id) {
         mId = id;
     }
 
+    /**
+     * @return this object's id
+     */
     public long getId() {
         return mId;
     }
 
+    /**
+     * @return float containing the score
+     */
     public float getScore() {
         return mScore;
     }
 
+    /**
+     * Set this object's score
+     *
+     * @param score float containing score
+     */
     public void setScore(float score) {
         this.mScore = score;
     }

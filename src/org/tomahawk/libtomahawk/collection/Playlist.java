@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * This class represents an abstract Playlist.
+ * This class represents an abstract {@link Playlist}.
  */
 public abstract class Playlist implements Playable {
 
@@ -41,7 +41,7 @@ public abstract class Playlist implements Playable {
     private boolean mRepeating;
 
     /**
-     * Create a playlist with a list of empty tracks.
+     * Create a {@link Playlist} with a list of empty {@link Track}s.
      */
     protected Playlist() {
         mShuffled = false;
@@ -50,7 +50,9 @@ public abstract class Playlist implements Playable {
     }
 
     /**
-     * Create a playlist with a list of empty tracks.
+     * Create a {@link Playlist} with a list of empty {@link Track}s.
+     *
+     * @param name {@link String} containing the name of the to be created {@link Playlist}
      */
     protected Playlist(String name) {
         mName = name;
@@ -59,17 +61,24 @@ public abstract class Playlist implements Playable {
         setTracks(new ArrayList<Track>());
     }
 
+    /**
+     * @return this object' name
+     */
     public String getName() {
         return mName;
     }
 
+    /**
+     * Set the name of this object
+     *
+     * @param name the name to be set
+     */
     public void setName(String name) {
         this.mName = name;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.playlist.Playable#setTracks(java.util.Collection)
+    /**
+     * Set this {@link Playlist}'s {@link Track}s
      */
     @Override
     public void setTracks(Collection<Track> tracks) {
@@ -82,9 +91,8 @@ public abstract class Playlist implements Playable {
         }
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.playlist.Playable#setCurrentTrack(org.tomahawk.libtomahawk.Track)
+    /**
+     * Set the current {@link Track} of this {@link Playlist}
      */
     @Override
     public void setCurrentTrack(Track newtrack) {
@@ -100,13 +108,17 @@ public abstract class Playlist implements Playable {
         }
     }
 
+    /**
+     * Set the current {@link Track} index
+     *
+     * @param currentTrackIndex int containig the {@link Track}'s index
+     */
     public void setCurrentTrackIndex(int currentTrackIndex) {
         mCurrentTrackIndex = currentTrackIndex;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.playlist.Playable#getCurrentTrack()
+    /**
+     * @return the current {@link Track}
      */
     @Override
     public Track getCurrentTrack() {
@@ -117,13 +129,15 @@ public abstract class Playlist implements Playable {
         return null;
     }
 
+    /**
+     * @return the current {@link Track}'s index
+     */
     public int getCurrentTrackIndex() {
         return mCurrentTrackIndex;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.playlist.Playable#getNextTrack()
+    /**
+     * @return the next {@link Track}
      */
     @Override
     public Track getNextTrack() {
@@ -139,9 +153,8 @@ public abstract class Playlist implements Playable {
         return null;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.playlist.Playable#getPreviousTrack()
+    /**
+     * @return the previous {@link Track}
      */
     @Override
     public Track getPreviousTrack() {
@@ -157,9 +170,8 @@ public abstract class Playlist implements Playable {
         return null;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.playlist.Playable#getTrackAtPos(int)
+    /**
+     * Get the {@link Track} at the given position
      */
     @Override
     public Track getTrackAtPos(int i) {
@@ -170,9 +182,8 @@ public abstract class Playlist implements Playable {
         return null;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.playlist.Playable#getFirstTrack()
+    /**
+     * @return the first {@link Track} of this playlist
      */
     @Override
     public Track getFirstTrack() {
@@ -183,9 +194,8 @@ public abstract class Playlist implements Playable {
         return mShuffled ? mShuffledTracks.get(0) : mTracks.get(0);
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.playlist.Playable#getLastTrack()
+    /**
+     * @return the last {@link Track} of this playlist
      */
     @Override
     public Track getLastTrack() {
@@ -198,33 +208,31 @@ public abstract class Playlist implements Playable {
     }
 
     /**
-     * Return the name of this Playlist.
+     * @return this {@link Playlist}'s name
      */
     @Override
     public String toString() {
         return mName;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.playlist.Playable#hasNextTrack()
+    /**
+     * @return true, if the {@link Playlist} has a next {@link Track}, otherwise false
      */
     public boolean hasNextTrack() {
         return peekNextTrack() != null;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.libtomahawk.playlist.Playable#hasPreviousTrack()
+    /**
+     * @return true, if the {@link Playlist} has a previous {@link Track}, otherwise false
      */
     public boolean hasPreviousTrack() {
         return peekPreviousTrack() != null;
     }
 
     /**
-     * Returns the next Track but does not update the internal Track iterator.
+     * Returns the next {@link Track} but does not update the internal {@link Track} iterator.
      *
-     * @return Returns next Track. Returns null if there is none.
+     * @return Returns next {@link Track}. Returns null if there is none.
      */
     public Track peekNextTrack() {
         List<Track> tracks = mShuffled ? mShuffledTracks : mTracks;
@@ -237,9 +245,9 @@ public abstract class Playlist implements Playable {
     }
 
     /**
-     * Returns the previous Track but does not update the internal Track iterator.
+     * Returns the previous {@link Track} but does not update the internal {@link Track} iterator.
      *
-     * @return Returns previous Track. Returns null if there is none.
+     * @return Returns previous {@link Track}. Returns null if there is none.
      */
     public Track peekPreviousTrack() {
         if (mCurrentTrackIndex - 1 >= 0) {
@@ -252,9 +260,10 @@ public abstract class Playlist implements Playable {
     }
 
     /**
-     * Returns the Track at the given position but does not update the internal Track iterator.
+     * Returns the {@link Track} at the given position but does not update the internal {@link
+     * Track} iterator.
      *
-     * @return Returns the Track at the given position. Returns null if there is none.
+     * @return Returns the {@link Track} at the given position. Returns null if there is none.
      */
     public Track peekTrackAtPos(int i) {
         if (i >= 0 && i < (mShuffled ? mShuffledTracks.size() : mTracks.size())) {
@@ -264,7 +273,7 @@ public abstract class Playlist implements Playable {
     }
 
     /**
-     * Set this playlist to shuffle mode.
+     * Set this {@link Playlist} to shuffle mode.
      */
     @SuppressWarnings("unchecked")
     public void setShuffled(boolean shuffled) {
@@ -290,48 +299,57 @@ public abstract class Playlist implements Playable {
     }
 
     /**
-     * Set this playlist to repeat mode.
+     * Set this {@link Playlist} to repeat mode.
      */
     public void setRepeating(boolean repeating) {
         mRepeating = repeating;
     }
 
     /**
-     * Return whether this Playlist is currently shuffled.
+     * Return whether this {@link Playlist} is currently shuffled.
      */
     public boolean isShuffled() {
         return mShuffled;
     }
 
     /**
-     * Return whether this Playlist is currently repeating.
+     * Return whether this {@link Playlist} is currently repeating.
      */
     public boolean isRepeating() {
         return mRepeating;
     }
 
     /**
-     * Return the current count of tracks in the playlist
+     * Return the current count of tracks in the {@link Playlist}
      */
     public int getCount() {
         return mTracks.size();
     }
 
     /**
-     * Return all tracks in the playlist
+     * Return all tracks in the {@link Playlist}
      */
     public ArrayList<Track> getTracks() {
         return mShuffled ? mShuffledTracks : mTracks;
     }
 
+    /**
+     * Add an {@link ArrayList} of {@link Track}s at the given position
+     */
     public void addTracks(int position, ArrayList<Track> tracks) {
         (mShuffled ? mShuffledTracks : mTracks).addAll(position, tracks);
     }
 
+    /**
+     * Append an {@link ArrayList} of {@link Track}s at the end of this playlist
+     */
     public void addTracks(ArrayList<Track> tracks) {
         (mShuffled ? mShuffledTracks : mTracks).addAll(tracks);
     }
 
+    /**
+     * Remove the {@link Track} at the given position from this playlist
+     */
     public void deleteTrackAtPos(int position) {
         if (mShuffledTracks != null) {
             (!mShuffled ? mShuffledTracks : mTracks)
