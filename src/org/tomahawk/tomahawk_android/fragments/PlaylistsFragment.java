@@ -18,8 +18,8 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Collection;
-import org.tomahawk.libtomahawk.collection.CustomPlaylist;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
@@ -50,11 +50,11 @@ public class PlaylistsFragment extends TomahawkFragment implements OnItemClickLi
             if (getListAdapter().getItem(idx) instanceof Playlist) {
                 Bundle bundle = new Bundle();
                 bundle.putLong(TOMAHAWK_PLAYLIST_ID,
-                        ((CustomPlaylist) getListAdapter().getItem(idx)).getId());
+                        ((UserPlaylist) getListAdapter().getItem(idx)).getId());
                 if (mActivity instanceof TomahawkMainActivity) {
                     mActivity.getContentViewer()
                             .replace(mCorrespondingStackId, TracksFragment.class,
-                                    ((CustomPlaylist) getListAdapter().getItem(idx)).getId(),
+                                    ((UserPlaylist) getListAdapter().getItem(idx)).getId(),
                                     TOMAHAWK_PLAYLIST_ID, false);
                 }
             } else {

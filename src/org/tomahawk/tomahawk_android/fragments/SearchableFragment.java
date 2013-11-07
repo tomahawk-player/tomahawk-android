@@ -20,9 +20,9 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
-import org.tomahawk.libtomahawk.collection.CustomPlaylist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
@@ -170,7 +170,7 @@ public class SearchableFragment extends TomahawkFragment
         idx -= getListView().getHeaderViewsCount();
         if (idx >= 0) {
             if (getListAdapter().getItem(idx) instanceof Track) {
-                ((UserCollection) mActivity.getCollection()).setCachedPlaylist(CustomPlaylist
+                ((UserCollection) mActivity.getCollection()).setCachedPlaylist(UserPlaylist
                         .fromTrackList(mCurrentQueryString, mCurrentShownTracks,
                                 (Track) getListAdapter().getItem(idx)));
                 Bundle bundle = new Bundle();

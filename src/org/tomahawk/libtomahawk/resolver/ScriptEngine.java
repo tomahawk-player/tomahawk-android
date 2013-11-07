@@ -21,13 +21,13 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 18.01.13
+ * Basic WebViewClient, which is being used to determine, when our javascript file has been loaded
  */
-public class TomahawkWebViewClient extends WebViewClient {
+public class ScriptEngine extends WebViewClient {
 
     ScriptResolver mScriptResolver;
 
-    public TomahawkWebViewClient(ScriptResolver scriptResolver) {
+    public ScriptEngine(ScriptResolver scriptResolver) {
         mScriptResolver = scriptResolver;
     }
 

@@ -28,7 +28,8 @@ import android.graphics.drawable.Drawable;
 import java.util.ArrayList;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 18.06.13
+ * A {@link Resolver} which resolves {@link org.tomahawk.libtomahawk.collection.Track}s via
+ * libspotify
  */
 public class SpotifyResolver implements Resolver {
 
@@ -48,6 +49,13 @@ public class SpotifyResolver implements Resolver {
 
     private ArrayList<Result> mResults = new ArrayList<Result>();
 
+    /**
+     * Construct a new {@link SpotifyResolver}
+     *
+     * @param id          the id of this {@link Resolver}
+     * @param tomahawkApp reference needed to {@link TomahawkApp}, so that we have access to the
+     *                    {@link org.tomahawk.libtomahawk.resolver.PipeLine} to report our results
+     */
     public SpotifyResolver(int id, TomahawkApp tomahawkApp) {
         mTomahawkApp = tomahawkApp;
         mId = id;
@@ -65,11 +73,17 @@ public class SpotifyResolver implements Resolver {
         return mReady && !mStopped;
     }
 
+    /**
+     * @return this {@link Resolver}'s icon
+     */
     @Override
     public Drawable getIcon() {
         return mIcon;
     }
 
+    /**
+     * Resolve the given {@link Query}
+     */
     @Override
     public void resolve(Query query) {
         mStopped = false;
@@ -82,29 +96,49 @@ public class SpotifyResolver implements Resolver {
         }
     }
 
+    /**
+     * @return this {@link Resolver}'s id
+     */
     @Override
     public int getId() {
         return mId;
     }
 
+    /**
+     * @return this {@link Resolver}'s weight
+     */
     @Override
     public int getWeight() {
         return mWeight;
     }
 
+    /**
+     * Add the given {@link Result} to our {@link ArrayList} of {@link Result}s
+     */
     public void addResult(Result result) {
         mResults.add(result);
     }
 
+    /**
+     * Called by {@link LibSpotifyWrapper}, which has been called by libspotify. Signals that the
+     * {@link Query} with the given query id has been resolved.
+     */
     public void onResolved(String qid) {
         mStopped = true;
+        // report our results to the pipeline
         mTomahawkApp.getPipeLine().reportResults(qid, mResults);
     }
 
+    /**
+     * @return whether or not this {@link Resolver} is ready
+     */
     public boolean isReady() {
         return mReady;
     }
 
+    /**
+     * Set whether or not this {@link Resolver} is ready
+     */
     public void setReady(boolean ready) {
         mReady = ready;
     }

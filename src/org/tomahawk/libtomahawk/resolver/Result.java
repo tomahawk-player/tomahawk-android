@@ -22,12 +22,9 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 19.01.13 This class represents a result,
- * which will be returned by a resolver.
+ * This class represents a {@link Result}, which will be returned by a {@link Resolver}.
  */
 public class Result {
-
-    private String mRid;
 
     private Resolver mResolver;
 
@@ -37,52 +34,66 @@ public class Result {
 
     private Track mTrack;
 
-    private String mMimeType;
-
     private float mTrackScore;
 
     private float mAlbumScore;
 
     private float mArtistScore;
 
+    /**
+     * Default constructor
+     */
     public Result() {
     }
 
+    /**
+     * Construct a new {@link Result} with the given {@link Track}
+     */
     public Result(Track track) {
         mArtist = track.getArtist();
         mAlbum = track.getAlbum();
         mTrack = track;
     }
 
+    /**
+     * Construct a new {@link Result} with the given {@link Artist}
+     */
     public Result(Artist artist) {
         mArtist = artist;
         mAlbum = artist.getAlbum();
     }
 
+    /**
+     * Construct a new {@link Result} with the given {@link Album}
+     */
     public Result(Album album) {
         mAlbum = album;
     }
 
+    /**
+     * @return the {@link Track} associated with this {@link Result}
+     */
     public Track getTrack() {
         return mTrack;
     }
 
+    /**
+     * Set the given {@link Track} as this {@link Result}'s {@link Track}
+     */
     public void setTrack(Track mTrack) {
         this.mTrack = mTrack;
     }
 
-    public String getMimeType() {
-        return mMimeType;
-    }
-
-    public void setMimeType(String mMimeType) {
-        this.mMimeType = mMimeType;
-    }
-
+    /**
+     * @return the {@link Track}'s score associated with this {@link Result}
+     */
     public float getTrackScore() {
         return mTrackScore;
     }
 
+    /**
+     * Set the given {@link Track}'s score as this {@link Result}'s {@link Track}'s score
+     */
     public void setTrackScore(float score) {
         this.mTrackScore = score;
         if (getTrack() != null) {
@@ -90,10 +101,16 @@ public class Result {
         }
     }
 
+    /**
+     * @return the {@link Album}'s score associated with this {@link Result}
+     */
     public float getAlbumScore() {
         return mAlbumScore;
     }
 
+    /**
+     * Set the given {@link Album}'s score as this {@link Result}'s {@link Album}'s score
+     */
     public void setAlbumScore(float score) {
         this.mAlbumScore = score;
         if (getAlbum() != null) {
@@ -101,10 +118,16 @@ public class Result {
         }
     }
 
+    /**
+     * @return the {@link Artist}'s score associated with this {@link Result}
+     */
     public float getArtistScore() {
         return mArtistScore;
     }
 
+    /**
+     * Set the given {@link Artist}'s score as this {@link Result}'s {@link Artist}'s score
+     */
     public void setArtistScore(float score) {
         this.mArtistScore = score;
         if (getArtist() != null) {
@@ -112,35 +135,45 @@ public class Result {
         }
     }
 
+    /**
+     * @return the {@link Artist} associated with this {@link Result}
+     */
     public Artist getArtist() {
         return mArtist;
     }
 
+    /**
+     * Set the given {@link Artist} as this {@link Result}'s {@link Artist}
+     */
     public void setArtist(Artist mArtist) {
         this.mArtist = mArtist;
     }
 
+    /**
+     * @return the {@link Album} associated with this {@link Result}
+     */
     public Album getAlbum() {
         return mAlbum;
     }
 
+    /**
+     * Set the given {@link Album} as this {@link Result}'s {@link Album}
+     */
     public void setAlbum(Album mAlbum) {
         this.mAlbum = mAlbum;
     }
 
+    /**
+     * @return the {@link Resolver} associated with this {@link Result}
+     */
     public Resolver getResolver() {
         return mResolver;
     }
 
+    /**
+     * Set the given {@link Resolver} as this {@link Result}'s {@link Resolver}
+     */
     public void setResolver(Resolver resolver) {
         this.mResolver = resolver;
-    }
-
-    public String getRid() {
-        return mRid;
-    }
-
-    public void setRid(String mRid) {
-        this.mRid = mRid;
     }
 }

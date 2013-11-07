@@ -22,7 +22,7 @@ import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 17.01.13
+ * Used to provide output in the debug log. Especially in the case of an error.
  */
 public class TomahawkWebChromeClient extends WebChromeClient {
 

@@ -19,9 +19,9 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Collection;
-import org.tomahawk.libtomahawk.collection.CustomPlaylist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -97,7 +97,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                         .getAlbumById(getArguments().getLong(TOMAHAWK_ALBUM_ID));
             } else if (getArguments().containsKey(TOMAHAWK_PLAYLIST_ID)
                     && getArguments().getLong(TOMAHAWK_PLAYLIST_ID) >= 0) {
-                mCustomPlaylist = mActivity.getCollection()
+                mUserPlaylist = mActivity.getCollection()
                         .getCustomPlaylistById(getArguments().getLong(TOMAHAWK_PLAYLIST_ID));
             } else if (getArguments().containsKey(UserCollection.USERCOLLECTION_ALBUMCACHED)) {
                 mAlbum = mActivity.getCollection().getCachedAlbum();
@@ -154,12 +154,12 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                     tracks = mAlbum.getTracks();
                 } else if (mArtist != null) {
                     tracks = mArtist.getTracks();
-                } else if (mCustomPlaylist != null) {
-                    tracks = mCustomPlaylist.getTracks();
+                } else if (mUserPlaylist != null) {
+                    tracks = mUserPlaylist.getTracks();
                 } else {
                     tracks.addAll(mActivity.getCollection().getTracks());
                 }
-                CustomPlaylist playlist = CustomPlaylist.fromTrackList("Last used playlist", tracks,
+                UserPlaylist playlist = UserPlaylist.fromTrackList("Last used playlist", tracks,
                         (Track) getListAdapter().getItem(idx));
                 playlist.setCurrentTrackIndex(idx);
                 ((UserCollection) mActivity.getCollection()).setCachedPlaylist(playlist);
@@ -217,9 +217,9 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
             }
-        } else if (mCustomPlaylist != null) {
-            mCustomPlaylist = coll.getCustomPlaylistById(mCustomPlaylist.getId());
-            items.addAll(mCustomPlaylist.getTracks());
+        } else if (mUserPlaylist != null) {
+            mUserPlaylist = coll.getCustomPlaylistById(mUserPlaylist.getId());
+            items.addAll(mUserPlaylist.getTracks());
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(items);
@@ -227,7 +227,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true);
-                tomahawkListAdapter.setShowContentHeader(true, getListView(), mCustomPlaylist);
+                tomahawkListAdapter.setShowContentHeader(true, getListView(), mUserPlaylist);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);

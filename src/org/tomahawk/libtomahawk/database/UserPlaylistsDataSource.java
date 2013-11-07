@@ -19,9 +19,9 @@ package org.tomahawk.libtomahawk.database;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.CustomPlaylist;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.Track;
+import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 
 import android.content.ContentValues;
@@ -33,7 +33,8 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.ArrayList;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 06.02.13
+ * This class provides a way of storing user created {@link org.tomahawk.libtomahawk.collection.UserPlaylist}s
+ * in the database
  */
 public class UserPlaylistsDataSource {
 
@@ -74,19 +75,40 @@ public class UserPlaylistsDataSource {
         mPipeLine = pipeLine;
     }
 
+    /**
+     * Always try to close the {@link TomahawkSQLiteHelper}, in case it is still open for whatever
+     * reason. Then get a reference to our database.
+     */
     public void open() throws SQLException {
         mDbHelper.close();
         mDatabase = mDbHelper.getWritableDatabase();
     }
 
+    /**
+     * Close the {@link TomahawkSQLiteHelper}
+     */
     public void close() {
         mDbHelper.close();
     }
 
+    /**
+     * Store the given {@link Playlist} with CACHED_PLAYLIST_ID as its id, and CACHED_PLAYLIST_NAME
+     * as its name
+     *
+     * @param playlist the {@link Playlist} to be stored
+     */
     public long storeCachedUserPlaylist(Playlist playlist) {
         return storeUserPlaylist(CACHED_PLAYLIST_ID, CACHED_PLAYLIST_NAME, playlist);
     }
 
+    /**
+     * Store the given {@link Playlist}
+     *
+     * @param insertId     the id under which the given {@link Playlist} should be stored
+     * @param playlistName the name with which the given {@link Playlist} should be stored
+     * @param playlist     the given {@link Playlist}
+     * @return long containing the stored {@link Playlist}'s id
+     */
     public long storeUserPlaylist(long insertId, String playlistName, Playlist playlist) {
         ContentValues values = new ContentValues();
         values.put(TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_NAME, playlistName);
@@ -94,6 +116,7 @@ public class UserPlaylistsDataSource {
                 playlist.getCurrentTrackIndex());
         mDatabase.beginTransaction();
         if (insertId >= 0) {
+            //insertId is valid. so we use it
             if (mDatabase.update(TomahawkSQLiteHelper.TABLE_USERPLAYLISTS, values,
                     TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ID + " = " + insertId, null) == 0) {
                 values.put(TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ID, insertId);
@@ -114,8 +137,11 @@ public class UserPlaylistsDataSource {
             mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
                     TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS + " = " + insertId, null);
         } else {
+            //insertId was invalid, so we use the id the database generates for us
             insertId = mDatabase.insert(TomahawkSQLiteHelper.TABLE_USERPLAYLISTS, null, values);
         }
+        // Store every single Track in the database and store the relationship
+        // by storing the playlists's id with it
         for (Track track : playlist.getTracks()) {
             Album album = track.getAlbum();
             long albumInsertId = -1;
@@ -157,27 +183,40 @@ public class UserPlaylistsDataSource {
         return insertId;
     }
 
-    public CustomPlaylist getCachedUserPlaylist() {
+    /**
+     * @return the stored {@link org.tomahawk.libtomahawk.collection.UserPlaylist} with
+     *         CACHED_PLAYLIST_ID as its id
+     */
+    public UserPlaylist getCachedUserPlaylist() {
         return getUserPlaylist(CACHED_PLAYLIST_ID);
     }
 
-    public ArrayList<CustomPlaylist> getAllUserPlaylists() {
-        ArrayList<CustomPlaylist> playListList = new ArrayList<CustomPlaylist>();
+    /**
+     * @return every stored {@link org.tomahawk.libtomahawk.collection.UserPlaylist} in the
+     *         database
+     */
+    public ArrayList<UserPlaylist> getAllUserPlaylists() {
+        ArrayList<UserPlaylist> playListList = new ArrayList<UserPlaylist>();
         Cursor userplaylistsCursor = mDatabase
                 .query(TomahawkSQLiteHelper.TABLE_USERPLAYLISTS, mAllUserPlaylistsColumns, null,
                         null, null, null, null);
         userplaylistsCursor.moveToFirst();
         while (!userplaylistsCursor.isAfterLast()) {
-            CustomPlaylist customPlaylist = getUserPlaylist(userplaylistsCursor.getLong(0));
-            customPlaylist.setName(userplaylistsCursor.getString(1));
-            playListList.add(customPlaylist);
+            UserPlaylist userPlaylist = getUserPlaylist(userplaylistsCursor.getLong(0));
+            userPlaylist.setName(userplaylistsCursor.getString(1));
+            playListList.add(userPlaylist);
             userplaylistsCursor.moveToNext();
         }
         userplaylistsCursor.close();
         return playListList;
     }
 
-    public CustomPlaylist getUserPlaylist(long playlistId) {
+    /**
+     * @param playlistId the id by which to get the correct {@link org.tomahawk.libtomahawk.collection.UserPlaylist}
+     * @return the stored {@link org.tomahawk.libtomahawk.collection.UserPlaylist} with playlistId
+     *         as its id
+     */
+    public UserPlaylist getUserPlaylist(long playlistId) {
         ArrayList<Track> trackList;
         int currentTrackIndex;
         Cursor userplaylistsCursor = mDatabase
@@ -229,17 +268,23 @@ public class UserPlaylistsDataSource {
                 trackList.add(track);
                 tracksCursor.moveToNext();
             }
-            CustomPlaylist customPlaylist = CustomPlaylist
+            UserPlaylist userPlaylist = UserPlaylist
                     .fromTrackList(userplaylistsCursor.getString(1), trackList, currentTrackIndex);
-            customPlaylist.setId(userplaylistsCursor.getLong(0));
+            userPlaylist.setId(userplaylistsCursor.getLong(0));
             tracksCursor.close();
             userplaylistsCursor.close();
-            return customPlaylist;
+            return userPlaylist;
         }
         userplaylistsCursor.close();
         return null;
     }
 
+    /**
+     * Delete the {@link org.tomahawk.libtomahawk.collection.UserPlaylist} with the given id
+     *
+     * @param playlistId long containing the id of the {@link org.tomahawk.libtomahawk.collection.UserPlaylist}
+     *                   to be deleted
+     */
     public void deleteUserPlaylist(long playlistId) {
         Cursor tracksCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_TRACKS, mAllTracksColumns,
                 TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS + " = " + playlistId, null, null,
@@ -257,6 +302,10 @@ public class UserPlaylistsDataSource {
                 TomahawkSQLiteHelper.TRACKS_COLUMN_ID + " = " + playlistId, null);
     }
 
+    /**
+     * Delete the {@link Track} with the given trackid in the {@link org.tomahawk.libtomahawk.collection.UserPlaylist}
+     * with the given playlistId
+     */
     public void deleteTrackInUserPlaylist(long playlistId, long trackId) {
         Cursor tracksCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_TRACKS, mAllTracksColumns,
                 TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS + " = " + playlistId + " and " +
@@ -272,6 +321,10 @@ public class UserPlaylistsDataSource {
                         TomahawkSQLiteHelper.TRACKS_COLUMN_ID + " = " + trackId, null);
     }
 
+    /**
+     * Add the given {@link ArrayList} of {@link Track}s to the {@link
+     * org.tomahawk.libtomahawk.collection.UserPlaylist} with the given playlistId
+     */
     public void addTracksToUserPlaylist(long playlistId, ArrayList<Track> tracks) {
         ContentValues values = new ContentValues();
         Cursor userplaylistsCursor = mDatabase
