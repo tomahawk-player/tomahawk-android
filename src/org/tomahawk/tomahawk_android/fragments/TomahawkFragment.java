@@ -31,7 +31,7 @@ import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.PlaybackActivity;
-import org.tomahawk.tomahawk_android.activities.TomahawkTabsActivity;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.ChoosePlaylistDialog;
@@ -85,7 +85,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     private UserPlaylistsDataSource mUserPlaylistsDataSource;
 
-    protected TomahawkTabsActivity mActivity;
+    protected TomahawkMainActivity mActivity;
 
     protected int mCorrespondingStackId;
 
@@ -208,7 +208,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
      */
     @Override
     public void onAttach(Activity activity) {
-        mActivity = (TomahawkTabsActivity) activity;
+        mActivity = (TomahawkMainActivity) activity;
         super.onAttach(activity);
     }
 

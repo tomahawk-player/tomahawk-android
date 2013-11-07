@@ -19,7 +19,6 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.activities.TomahawkTabsActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 
 import android.app.Activity;
@@ -76,17 +75,17 @@ public class LocalCollectionFragment extends TomahawkListFragment implements OnI
         switch ((int) arg3) {
             case 0:
                 mTomahawkMainActivity.getContentViewer()
-                        .replace(TomahawkTabsActivity.TAB_ID_COLLECTION, TracksFragment.class, -1,
+                        .replace(TomahawkMainActivity.TAB_ID_COLLECTION, TracksFragment.class, -1,
                                 null, false);
                 break;
             case 1:
                 mTomahawkMainActivity.getContentViewer()
-                        .replace(TomahawkTabsActivity.TAB_ID_COLLECTION, AlbumsFragment.class, -1,
+                        .replace(TomahawkMainActivity.TAB_ID_COLLECTION, AlbumsFragment.class, -1,
                                 null, false);
                 break;
             case 2:
                 mTomahawkMainActivity.getContentViewer()
-                        .replace(TomahawkTabsActivity.TAB_ID_COLLECTION, ArtistsFragment.class, -1,
+                        .replace(TomahawkMainActivity.TAB_ID_COLLECTION, ArtistsFragment.class, -1,
                                 null, false);
                 break;
         }

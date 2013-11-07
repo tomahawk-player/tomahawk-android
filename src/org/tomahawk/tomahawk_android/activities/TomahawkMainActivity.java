@@ -21,6 +21,7 @@ package org.tomahawk.tomahawk_android.activities;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.MenuItem;
 import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
+import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
@@ -73,10 +74,24 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * The main Tomahawk activity
  */
-public class TomahawkMainActivity extends TomahawkTabsActivity
+public class TomahawkMainActivity extends SlidingFragmentActivity
         implements PlaybackServiceConnectionListener,
         TomahawkService.TomahawkServiceConnection.TomahawkServiceConnectionListener,
         LoaderManager.LoaderCallbacks<Collection> {
+
+    public static final int TAB_ID_HOME = 0;
+
+    public static final int TAB_ID_SEARCH = 1;
+
+    public static final int TAB_ID_COLLECTION = 2;
+
+    public static final int TAB_ID_PLAYLISTS = 3;
+
+    public static final int TAB_ID_STATIONS = 4;
+
+    public static final int TAB_ID_FRIENDS = 5;
+
+    public static final int TAB_ID_SETTINGS = 6;
 
     public static final String COLLECTION_ID_STOREDBACKSTACK = "collection_id_storedbackstack";
 
@@ -183,24 +198,20 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
 
         // if not set yet, set our current default stack position to TAB_ID_COLLECTION
         if (mCurrentStackPosition == -1) {
-            mCurrentStackPosition = TomahawkTabsActivity.TAB_ID_COLLECTION;
+            mCurrentStackPosition = TAB_ID_COLLECTION;
         }
 
         // initialize our ContentViewer, which will handle switching the fragments whenever an
         // entry in the slidingmenu is being clicked. Restore our saved state, if one exists.
         mContentViewer = new ContentViewer(this, getSupportFragmentManager(), R.id.content_frame);
         if (savedInstanceState == null) {
-            mContentViewer
-                    .addRootToTab(TomahawkTabsActivity.TAB_ID_SEARCH, SearchableFragment.class);
-            mContentViewer.addRootToTab(TomahawkTabsActivity.TAB_ID_COLLECTION,
-                    LocalCollectionFragment.class);
-            mContentViewer
-                    .addRootToTab(TomahawkTabsActivity.TAB_ID_PLAYLISTS, PlaylistsFragment.class);
-            mContentViewer.addRootToTab(TomahawkTabsActivity.TAB_ID_SETTINGS,
-                    FakePreferenceFragment.class);
+            mContentViewer.addRootToTab(TAB_ID_SEARCH, SearchableFragment.class);
+            mContentViewer.addRootToTab(TAB_ID_COLLECTION, LocalCollectionFragment.class);
+            mContentViewer.addRootToTab(TAB_ID_PLAYLISTS, PlaylistsFragment.class);
+            mContentViewer.addRootToTab(TAB_ID_SETTINGS, FakePreferenceFragment.class);
         } else {
             mCurrentStackPosition = savedInstanceState
-                    .getInt(COLLECTION_ID_STACKPOSITION, TomahawkTabsActivity.TAB_ID_COLLECTION);
+                    .getInt(COLLECTION_ID_STACKPOSITION, TAB_ID_COLLECTION);
             ConcurrentHashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>> storedBackStack
                     = new ConcurrentHashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>>();
             if (savedInstanceState
@@ -219,14 +230,10 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
             if (storedBackStack != null && storedBackStack.size() > 0) {
                 mContentViewer.setBackStack(storedBackStack);
             } else {
-                mContentViewer
-                        .addRootToTab(TomahawkTabsActivity.TAB_ID_SEARCH, SearchableFragment.class);
-                mContentViewer.addRootToTab(TomahawkTabsActivity.TAB_ID_COLLECTION,
-                        LocalCollectionFragment.class);
-                mContentViewer.addRootToTab(TomahawkTabsActivity.TAB_ID_PLAYLISTS,
-                        PlaylistsFragment.class);
-                mContentViewer.addRootToTab(TomahawkTabsActivity.TAB_ID_SETTINGS,
-                        FakePreferenceFragment.class);
+                mContentViewer.addRootToTab(TAB_ID_SEARCH, SearchableFragment.class);
+                mContentViewer.addRootToTab(TAB_ID_COLLECTION, LocalCollectionFragment.class);
+                mContentViewer.addRootToTab(TAB_ID_PLAYLISTS, PlaylistsFragment.class);
+                mContentViewer.addRootToTab(TAB_ID_SETTINGS, FakePreferenceFragment.class);
             }
         }
 
@@ -294,7 +301,7 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
         mContentViewer.setCurrentStackId(mCurrentStackPosition);
         // if we resume this activity with TAB_ID_SEARCH as the current stack position, make sure
         // that the searchEditText is being shown accordingly
-        if (mCurrentStackPosition == TomahawkTabsActivity.TAB_ID_SEARCH) {
+        if (mCurrentStackPosition == TAB_ID_SEARCH) {
             showSearchEditText();
         } else {
             hideSearchEditText();
@@ -364,11 +371,6 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
     }
 
     @Override
-    public PlaybackService getPlaybackService() {
-        return mPlaybackService;
-    }
-
-    @Override
     public void setTomahawkService(TomahawkService ps) {
         mTomahawkService = ps;
     }
@@ -396,13 +398,6 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
         }
     }
 
-    /**
-     * Called when a {@link Collection} has been updated.
-     */
-    protected void onCollectionUpdated() {
-        getSupportLoaderManager().restartLoader(0, null, this);
-    }
-
     @Override
     public Loader<Collection> onCreateLoader(int id, Bundle args) {
         return new CollectionLoader(this,
@@ -416,6 +411,17 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         mCollection = coll;
+    }
+
+    public PlaybackService getPlaybackService() {
+        return mPlaybackService;
+    }
+
+    /**
+     * Called when a {@link Collection} has been updated.
+     */
+    protected void onCollectionUpdated() {
+        getSupportLoaderManager().restartLoader(0, null, this);
     }
 
     /**
@@ -669,7 +675,6 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
      * Whenever the backstack changes, update the breadcrumb navigation, so that it can represent
      * the correct stack.
      */
-    @Override
     public void onBackStackChanged() {
         updateBreadCrumbNavigation();
     }
