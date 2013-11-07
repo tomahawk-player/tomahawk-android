@@ -17,10 +17,10 @@
  */
 package org.tomahawk.tomahawk_android.dialogs;
 
-import org.tomahawk.libtomahawk.collection.CustomPlaylist;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -121,7 +121,7 @@ public class PlaylistDialog extends DialogFragment {
             userPlaylistsDataSource.storeUserPlaylist(-1, playlistName, mPlaylist);
         } else {
             userPlaylistsDataSource.storeUserPlaylist(-1, playlistName,
-                    CustomPlaylist.fromTrackList(playlistName, new ArrayList<Track>(), -1));
+                    UserPlaylist.fromTrackList(playlistName, new ArrayList<Track>(), -1));
         }
         userPlaylistsDataSource.close();
         ((UserCollection) ((TomahawkApp) getActivity().getApplication()).getSourceList()

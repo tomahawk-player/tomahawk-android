@@ -66,10 +66,10 @@ public class UserCollection extends Collection {
 
     private ConcurrentHashMap<Long, Track> mTracks = new ConcurrentHashMap<Long, Track>();
 
-    private CustomPlaylist mCachedCustomPlaylist;
+    private UserPlaylist mCachedUserPlaylist;
 
-    private ConcurrentHashMap<Long, CustomPlaylist> mCustomPlaylists
-            = new ConcurrentHashMap<Long, CustomPlaylist>();
+    private ConcurrentHashMap<Long, UserPlaylist> mCustomPlaylists
+            = new ConcurrentHashMap<Long, UserPlaylist>();
 
     private Runnable mUpdateRunnable = new Runnable() {
         /* 
@@ -182,41 +182,41 @@ public class UserCollection extends Collection {
     }
 
     /**
-     * @return A {@link List} of all {@link CustomPlaylist}s in this {@link UserCollection}
+     * @return A {@link List} of all {@link UserPlaylist}s in this {@link UserCollection}
      */
     @Override
-    public List<CustomPlaylist> getCustomPlaylists() {
-        return new ArrayList<CustomPlaylist>(mCustomPlaylists.values());
+    public List<UserPlaylist> getCustomPlaylists() {
+        return new ArrayList<UserPlaylist>(mCustomPlaylists.values());
     }
 
     /**
-     * Get an {@link CustomPlaylist} from this {@link UserCollection} by providing an id
+     * Get an {@link UserPlaylist} from this {@link UserCollection} by providing an id
      */
     @Override
-    public CustomPlaylist getCustomPlaylistById(Long id) {
+    public UserPlaylist getCustomPlaylistById(Long id) {
         return mCustomPlaylists.get(id);
     }
 
     /**
-     * Add a {@link CustomPlaylist} to this {@link UserCollection}
+     * Add a {@link UserPlaylist} to this {@link UserCollection}
      */
-    public void addCustomPlaylist(long playlistId, CustomPlaylist customPlaylist) {
-        customPlaylist.setId(playlistId);
-        mCustomPlaylists.put(playlistId, customPlaylist);
+    public void addCustomPlaylist(long playlistId, UserPlaylist userPlaylist) {
+        userPlaylist.setId(playlistId);
+        mCustomPlaylists.put(playlistId, userPlaylist);
     }
 
     /**
      * Store the PlaybackService's currentPlaylist
      */
-    public void setCachedPlaylist(CustomPlaylist customPlaylist) {
-        mCachedCustomPlaylist = customPlaylist;
+    public void setCachedPlaylist(UserPlaylist userPlaylist) {
+        mCachedUserPlaylist = userPlaylist;
     }
 
     /**
-     * @return the previously cached {@link CustomPlaylist}
+     * @return the previously cached {@link UserPlaylist}
      */
-    public CustomPlaylist getCachedCustomPlaylist() {
-        return mCachedCustomPlaylist;
+    public UserPlaylist getCachedUserPlaylist() {
+        return mCachedUserPlaylist;
     }
 
     /**
@@ -333,19 +333,18 @@ public class UserCollection extends Collection {
     }
 
     /**
-     * Fetch all user {@link CustomPlaylist} from the app's database via our helper class {@link
+     * Fetch all user {@link UserPlaylist} from the app's database via our helper class {@link
      * UserPlaylistsDataSource}
      */
     public void updateUserPlaylists() {
         mUserPlaylistsDataSource.open();
         mCustomPlaylists.clear();
-        ArrayList<CustomPlaylist> customPlayListList = mUserPlaylistsDataSource
-                .getAllUserPlaylists();
-        for (CustomPlaylist customPlaylist : customPlayListList) {
-            if (customPlaylist.getId() == UserPlaylistsDataSource.CACHED_PLAYLIST_ID) {
-                setCachedPlaylist(customPlaylist);
+        ArrayList<UserPlaylist> userPlayListList = mUserPlaylistsDataSource.getAllUserPlaylists();
+        for (UserPlaylist userPlaylist : userPlayListList) {
+            if (userPlaylist.getId() == UserPlaylistsDataSource.CACHED_PLAYLIST_ID) {
+                setCachedPlaylist(userPlaylist);
             } else {
-                mCustomPlaylists.put(customPlaylist.getId(), customPlaylist);
+                mCustomPlaylists.put(userPlaylist.getId(), userPlaylist);
             }
         }
         TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));

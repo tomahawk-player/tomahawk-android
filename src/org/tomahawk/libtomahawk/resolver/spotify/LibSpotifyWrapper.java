@@ -40,6 +40,9 @@ import org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer;
 
 import android.util.Log;
 
+/**
+ * Wrapper class around libspotify. Provides functionality to talk to the c library.
+ */
 public class LibSpotifyWrapper {
 
     private final static String TAG = LibSpotifyWrapper.class.getName();
@@ -82,6 +85,12 @@ public class LibSpotifyWrapper {
 
     native public static void nativesetbitrate(int bitratemode);
 
+    /**
+     * Initialize libspotify
+     *
+     * @param loader      {@link ClassLoader} needed to initialize libspotify
+     * @param storagePath {@link String} containing the path to where libspotify stores its stuff
+     */
     public static void init(ClassLoader loader, String storagePath) {
         if (!mInitialized) {
             nativeinit(loader, storagePath);
@@ -89,6 +98,9 @@ public class LibSpotifyWrapper {
         }
     }
 
+    /**
+     * Destroy libspotify session
+     */
     public static void destroy() {
         if (mInitialized) {
             //nativedestroy();
@@ -96,73 +108,132 @@ public class LibSpotifyWrapper {
         }
     }
 
-    public static void login(String username, String password, String blob) {
+    /**
+     * Use loginUser(...) instead, if you want a proper callback. Login Spotify account. Does only
+     * need blob OR password. Not both
+     *
+     * @param username {@link String} containing the username
+     * @param password {@link String} containing the password
+     * @param blob     {@link String} containing the blob
+     */
+    private static void login(String username, String password, String blob) {
         if (mInitialized) {
             nativelogin(username, password, blob);
         }
     }
 
-    public static void relogin() {
+    /**
+     * Use reloginUser(...) instead, if you want a proper callback. Relogin, in case session
+     * expired
+     */
+    private static void relogin() {
         if (mInitialized) {
             nativerelogin();
         }
     }
 
-    public static void logout() {
+    /**
+     * Use logoutUser(...) instead, if you want a proper callback. Logout Spotify account
+     */
+    private static void logout() {
         if (mInitialized) {
             nativelogout();
         }
     }
 
+    /**
+     * Resolve a {@link org.tomahawk.libtomahawk.resolver.Query} via libspotify
+     *
+     * @param qid   {@link String} containg the query id
+     * @param query {@link org.tomahawk.libtomahawk.resolver.Query} to be resolved
+     */
     public static void resolve(String qid, String query) {
         if (mInitialized) {
             nativeresolve(qid, query);
         }
     }
 
+    /**
+     * Prepare a track via our native OpenSLES layer
+     *
+     * @param uri {@link String} containing the previously resolved Spotify URI
+     */
     public static void prepare(String uri) {
         if (mInitialized) {
             nativeprepare(uri);
         }
     }
 
-
+    /**
+     * Start playing the previously prepared track via our native OpenSLES layer
+     */
     public static void play() {
         if (mInitialized) {
             nativeplay();
         }
     }
 
+    /**
+     * Pause playing the previously prepared track via our native OpenSLES layer
+     */
     public static void pause() {
         if (mInitialized) {
             nativepause();
         }
     }
 
+    /**
+     * Seek to position (in ms) in the currently prepared track via our native OpenSLES layer
+     *
+     * @param position position to be seeked to (in ms)
+     */
     public static void seek(int position) {
         if (mInitialized) {
             nativeseek(position);
         }
     }
 
+    /**
+     * Star the current track within Spotify
+     */
     public static void star() {
         if (mInitialized) {
             nativestar();
         }
     }
 
+    /**
+     * Unstar the current track within Spotify
+     */
     public static void unstar() {
         if (mInitialized) {
             nativeunstar();
         }
     }
 
+    /**
+     * Set the preferred bitrate mode
+     *
+     * @param bitratemode int containing values '1'(96 kbit/s), '2'(160 kbit/s) or '3'(320 kbit/s)
+     */
     public static void setbitrate(int bitratemode) {
         if (mInitialized) {
             nativesetbitrate(bitratemode);
         }
     }
 
+    /**
+     * Login Spotify user. Does only need blob OR password. Not both.
+     *
+     * @param username                  {@link String} containing the username
+     * @param password                  {@link String} containing the password
+     * @param blob                      {@link String} containing the blob
+     * @param onLoginListener           {@link org.tomahawk.tomahawk_android.services.TomahawkService.OnLoginListener}
+     *                                  used to get a callback on login
+     * @param onCredBlobUpdatedListener {@link org.tomahawk.tomahawk_android.services.TomahawkService.OnCredBlobUpdatedListener}
+     *                                  used to get callback when the credential blob inside Spotify
+     *                                  has been updated
+     */
     public static void loginUser(String username, String password, String blob,
             TomahawkService.OnLoginListener onLoginListener,
             TomahawkService.OnCredBlobUpdatedListener onCredBlobUpdatedListener) {
@@ -171,25 +242,71 @@ public class LibSpotifyWrapper {
         login(username, password, blob);
     }
 
+    /**
+     * Relogin user
+     *
+     * @param onLoginListener {@link org.tomahawk.tomahawk_android.services.TomahawkService.OnLoginListener}
+     *                        used to get a callback on login
+     */
     public static void reloginUser(TomahawkService.OnLoginListener onLoginListener) {
         sOnLoginListener = onLoginListener;
         relogin();
     }
 
+    /**
+     * Logout user
+     *
+     * @param onLoginListener {@link org.tomahawk.tomahawk_android.services.TomahawkService.OnLoginListener}
+     *                        used to get a callback on login
+     */
     public static void logoutUser(TomahawkService.OnLoginListener onLoginListener) {
         sOnLoginListener = onLoginListener;
         logout();
     }
 
-    public static void onPrepared() {
-        sTomahawkMediaPlayer.onPrepared();
+    /**
+     * Resolve a {@link org.tomahawk.libtomahawk.resolver.Query} via Spotify
+     *
+     * @param qid             {@link String} containing the {@link org.tomahawk.libtomahawk.resolver.Query}'s
+     *                        id
+     * @param query           {@link org.tomahawk.libtomahawk.resolver.Query} to be resolved
+     * @param spotifyResolver reference to the {@link SpotifyResolver}
+     */
+    public static void resolve(String qid, String query, SpotifyResolver spotifyResolver) {
+        sSpotifyResolver = spotifyResolver;
+        resolve(qid, query);
     }
 
+    /**
+     * Prepare a track via our native OpenSLES layer
+     *
+     * @param uri                 {@link String} containing the previously resolved Spotify URI
+     * @param tomahawkMediaPlayer reference to {@link TomahawkMediaPlayer}, so that we are able to
+     *                            callback on certain events
+     */
     public static void prepare(String uri, TomahawkMediaPlayer tomahawkMediaPlayer) {
         sTomahawkMediaPlayer = tomahawkMediaPlayer;
         prepare(uri);
     }
 
+    /**
+     * Called by libspotify, when a track has been prepared
+     */
+    public static void onPrepared() {
+        sTomahawkMediaPlayer.onPrepared();
+    }
+
+    /**
+     * Called by libspotify, when a {@link org.tomahawk.libtomahawk.resolver.Query} has been
+     * resolved
+     *
+     * @param qid        {@link String} containing the {@link org.tomahawk.libtomahawk.resolver.Query}'s
+     *                   id
+     * @param success    boolean signaling whether or not the {@link org.tomahawk.libtomahawk.resolver.Query}
+     *                   has been successfully resolved
+     * @param message    {@link String} containing libspotify's message
+     * @param didYouMean {@link String} containing libspotify's "Did you mean?" suggestion
+     */
     public static void onResolved(final String qid, final boolean success, final String message,
             final String didYouMean) {
         if (success) {
@@ -199,6 +316,9 @@ public class LibSpotifyWrapper {
         }
     }
 
+    /**
+     * Called by libspotify. Add a result to the static {@link SpotifyResolver}
+     */
     public static void addResult(final String trackName, final int trackDuration,
             final int trackDiscnumber, final int trackIndex, final String trackUri,
             final String albumName, final int albumYear, final String artistName) {
@@ -225,11 +345,14 @@ public class LibSpotifyWrapper {
         sSpotifyResolver.addResult(result);
     }
 
-    public static void resolve(String qid, String query, SpotifyResolver spotifyResolver) {
-        sSpotifyResolver = spotifyResolver;
-        resolve(qid, query);
-    }
-
+    /**
+     * Called by libspotify on login
+     *
+     * @param success  boolean signaling whether or not the login process was successful
+     * @param message  {@link String} containing libspotify's message
+     * @param username {@link String} containing the username, which has been used to login to
+     *                 Spotify
+     */
     public static void onLogin(final boolean success, final String message, final String username) {
         if (success) {
             sOnLoginListener.onLogin(username);
@@ -238,34 +361,63 @@ public class LibSpotifyWrapper {
         }
     }
 
+    /**
+     * Called by libspotify on logout
+     */
     public static void onLogout() {
         sOnLoginListener.onLogout();
     }
 
+    /**
+     * Called by libspotify, when the credential blob has been updated
+     *
+     * @param blob {@link String} containing the blob
+     */
     public static void onCredentialsBlobUpdated(final String blob) {
         sOnCredBlobUpdatedListener.onCredBlobUpdated(blob);
     }
 
+    /**
+     * Called by libspotify, when the OpenSLES player has finished playing a track
+     */
     public static void onPlayerEndOfTrack() {
         sTomahawkMediaPlayer.onCompletion();
     }
 
+    /**
+     * Called by libspotify, when the OpenSLES player signals that the current position has changed
+     */
     public static void onPlayerPositionChanged(final int position) {
         mCurrentPosition = position;
     }
 
+    /**
+     * Called by libspotify, when the OpenSLES player has paused
+     */
     public static void onPlayerPause() {
     }
 
+    /**
+     * Called by libspotify, when the OpenSLES player has started playing
+     */
     public static void onPlayerPlay() {
     }
 
+    /**
+     * Called by libspotify, when a track has been starred
+     */
     public static void onTrackStarred() {
     }
 
+    /**
+     * Called by libspotify, when a track has been unstarred
+     */
     public static void onTrackUnStarred() {
     }
 
+    /**
+     * @return the current position of playback inside our OpenSLES player
+     */
     public static int getCurrentPosition() {
         return mCurrentPosition;
     }

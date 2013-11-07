@@ -17,9 +17,9 @@
  */
 package org.tomahawk.tomahawk_android.dialogs;
 
-import org.tomahawk.libtomahawk.collection.CustomPlaylist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -87,7 +87,7 @@ public class ChoosePlaylistDialog extends DialogFragment {
         linearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new PlaylistDialog(CustomPlaylist.fromTrackList(mTracks)).show(getFragmentManager(),
+                new PlaylistDialog(UserPlaylist.fromTrackList(mTracks)).show(getFragmentManager(),
                         getString(R.string.playbackactivity_create_playlist_dialog_title));
                 getDialog().dismiss();
             }

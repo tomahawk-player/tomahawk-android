@@ -91,21 +91,21 @@ public abstract class Collection {
     public abstract Track getTrackById(Long id);
 
     /**
-     * Return a list of all {@link CustomPlaylist}s.
+     * Return a list of all {@link UserPlaylist}s.
      */
-    public abstract List<CustomPlaylist> getCustomPlaylists();
+    public abstract List<UserPlaylist> getCustomPlaylists();
 
     /**
-     * Get the {@link CustomPlaylist} by giving the {@link CustomPlaylist}'s ID
+     * Get the {@link UserPlaylist} by giving the {@link UserPlaylist}'s ID
      *
-     * @return the {@link CustomPlaylist} object
+     * @return the {@link UserPlaylist} object
      */
-    public abstract CustomPlaylist getCustomPlaylistById(Long id);
+    public abstract UserPlaylist getCustomPlaylistById(Long id);
 
     /**
      * Add a {@link Playlist} to the {@link Collection}
      */
-    public abstract void addCustomPlaylist(long playlistId, CustomPlaylist customPlaylist);
+    public abstract void addCustomPlaylist(long playlistId, UserPlaylist userPlaylist);
 
     /**
      * Update this {@link Collection}'s content.

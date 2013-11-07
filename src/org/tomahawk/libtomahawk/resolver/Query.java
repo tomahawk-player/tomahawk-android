@@ -26,7 +26,6 @@ import org.tomahawk.libtomahawk.collection.TrackComparator;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;

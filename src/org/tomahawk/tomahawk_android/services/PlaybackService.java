@@ -19,10 +19,10 @@
 package org.tomahawk.tomahawk_android.services;
 
 import org.tomahawk.libtomahawk.collection.BitmapItem;
-import org.tomahawk.libtomahawk.collection.CustomPlaylist;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -46,9 +46,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.AudioFormat;
 import android.media.AudioManager;
-import android.media.AudioTrack;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -428,7 +426,7 @@ public class PlaybackService extends Service
         if (getCurrentPlaylist() != null) {
             UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication())
                     .getSourceList().getCollectionFromId(UserCollection.Id));
-            userCollection.setCachedPlaylist(CustomPlaylist
+            userCollection.setCachedPlaylist(UserPlaylist
                     .fromTrackList(UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
                             getCurrentPlaylist().getTracks()));
             long startTime = System.currentTimeMillis();
@@ -444,7 +442,7 @@ public class PlaybackService extends Service
         UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication())
                 .getSourceList().getCollectionFromId(UserCollection.Id));
         try {
-            setCurrentPlaylist(userCollection.getCachedCustomPlaylist());
+            setCurrentPlaylist(userCollection.getCachedUserPlaylist());
             if (getCurrentPlaylist() == null) {
                 long startTime = System.currentTimeMillis();
                 setCurrentPlaylist(mUserPlaylistsDataSource.getCachedUserPlaylist());
@@ -723,7 +721,7 @@ public class PlaybackService extends Service
 
     public void addTracksToCurrentPlaylist(ArrayList<Track> tracks) {
         if (mCurrentPlaylist == null) {
-            mCurrentPlaylist = CustomPlaylist.fromTrackList("Temp", new ArrayList<Track>());
+            mCurrentPlaylist = UserPlaylist.fromTrackList("Temp", new ArrayList<Track>());
         }
         boolean wasEmpty = mCurrentPlaylist.getCount() <= 0;
         mCurrentPlaylist.addTracks(tracks);
@@ -739,7 +737,7 @@ public class PlaybackService extends Service
 
     public void addTracksToCurrentPlaylist(int position, ArrayList<Track> tracks) {
         if (mCurrentPlaylist == null) {
-            mCurrentPlaylist = CustomPlaylist.fromTrackList("Temp", new ArrayList<Track>());
+            mCurrentPlaylist = UserPlaylist.fromTrackList("Temp", new ArrayList<Track>());
         }
         boolean wasEmpty = mCurrentPlaylist.getCount() <= 0;
         if (position < mCurrentPlaylist.getCount()) {

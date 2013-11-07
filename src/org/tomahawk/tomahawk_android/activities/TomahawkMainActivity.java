@@ -26,10 +26,10 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionLoader;
-import org.tomahawk.libtomahawk.collection.CustomPlaylist;
 import org.tomahawk.libtomahawk.collection.SourceList;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -591,7 +591,7 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
                     breadCrumbFrame.addView(breadcrumbItem);
                 } else if (fpb.clss == TracksFragment.class) {
                     Album correspondingAlbum = mCollection.getAlbumById(fpb.tomahawkListItemId);
-                    CustomPlaylist correspondingCustomPlaylist = mCollection
+                    UserPlaylist correspondingUserPlaylist = mCollection
                             .getCustomPlaylistById(fpb.tomahawkListItemId);
                     if (fpb.tomahawkListItemType != null && fpb.tomahawkListItemType
                             .equals(TomahawkFragment.TOMAHAWK_ALBUM_ID)
@@ -601,8 +601,8 @@ public class TomahawkMainActivity extends TomahawkTabsActivity
                                 .setVisibility(SquareHeightRelativeLayout.GONE);
                     } else if (fpb.tomahawkListItemType != null &&
                             fpb.tomahawkListItemType.equals(TomahawkFragment.TOMAHAWK_PLAYLIST_ID)
-                            && correspondingCustomPlaylist != null) {
-                        breadcrumbItemTextView.setText(correspondingCustomPlaylist.getName());
+                            && correspondingUserPlaylist != null) {
+                        breadcrumbItemTextView.setText(correspondingUserPlaylist.getName());
                         breadcrumbItemImageViewLayout
                                 .setVisibility(SquareHeightRelativeLayout.GONE);
                     } else if (fpb.tomahawkListItemType != null && fpb.tomahawkListItemType

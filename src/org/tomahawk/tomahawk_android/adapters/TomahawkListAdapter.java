@@ -21,8 +21,8 @@ import com.emilsjolander.components.stickylistheaders.StickyListHeadersAdapter;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.CustomPlaylist;
 import org.tomahawk.libtomahawk.collection.Track;
+import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 
@@ -152,8 +152,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
 
         if (item != null) {
             ViewHolder viewHolder;
-            if (((item instanceof Artist || item instanceof CustomPlaylist) && convertView == null)
-                    || ((item instanceof Artist || item instanceof CustomPlaylist)
+            if (((item instanceof Artist || item instanceof UserPlaylist) && convertView == null)
+                    || ((item instanceof Artist || item instanceof UserPlaylist)
                     && ((ViewHolder) convertView.getTag()).viewType
                     != R.id.tomahawklistadapter_viewtype_singlelinelistitem)) {
                 view = mLayoutInflater.inflate(mSingleLineListItemResourceHolder.resourceId, null);
@@ -216,8 +216,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
             if (viewHolder.viewType == R.id.tomahawklistadapter_viewtype_singlelinelistitem) {
                 if (item instanceof Artist) {
                     viewHolder.textFirstLine.setText(((Artist) item).getName());
-                } else if (item instanceof CustomPlaylist) {
-                    viewHolder.textFirstLine.setText(((CustomPlaylist) item).getName());
+                } else if (item instanceof UserPlaylist) {
+                    viewHolder.textFirstLine.setText(((UserPlaylist) item).getName());
                 }
             } else if (viewHolder.viewType
                     == R.id.tomahawklistadapter_viewtype_doublelinelistitem) {

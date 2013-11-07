@@ -23,7 +23,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 06.02.13
+ * This is a helper class to declare the different column names inside our database, and to create
+ * and call the proper SQL commands onCreate and onUpgrade
  */
 public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
@@ -85,7 +86,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
 
-    // Database creation sql statement
+    // Database creation sql statements
     private static final String CREATE_TABLE_USERPLAYLISTS = "CREATE TABLE `" + TABLE_USERPLAYLISTS
             + "` (  `" + USERPLAYLISTS_COLUMN_ID + "` INTEGER PRIMARY KEY AUTOINCREMENT ,  `"
             + USERPLAYLISTS_COLUMN_NAME + "` TEXT , `" + USERPLAYLISTS_COLUMN_CURRENTTRACKINDEX
@@ -114,6 +115,9 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
+    /**
+     * Creates the tables
+     */
     @Override
     public void onCreate(SQLiteDatabase database) {
         database.execSQL(CREATE_TABLE_USERPLAYLISTS);
@@ -121,6 +125,9 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
         database.execSQL(CREATE_TABLE_TRACKS);
     }
 
+    /**
+     * Drops all tables and creates them again
+     */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.d(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion

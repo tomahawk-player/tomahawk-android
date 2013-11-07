@@ -20,17 +20,32 @@ package org.tomahawk.libtomahawk.resolver;
 import android.graphics.drawable.Drawable;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 25.01.13
+ * The basic {@link Resolver} interface, which is implemented by every type of {@link Resolver}
  */
 public interface Resolver {
 
+    /**
+     * @return Whether or not this {@link Resolver} is currently resolving
+     */
     public boolean isResolving();
 
+    /**
+     * @return the icon of this {@link Resolver} as a {@link Drawable}
+     */
     public Drawable getIcon();
 
+    /**
+     * Resolve the given {@link Query}
+     */
     public void resolve(Query query);
 
+    /**
+     * @return this {@link Resolver}'s id
+     */
     public int getId();
 
+    /**
+     * @return this {@link Resolver}'s weight
+     */
     public int getWeight();
 }

@@ -27,7 +27,9 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 19.01.13
+ * The {@link PipeLine} is being used to provide all the resolving functionality. All {@link
+ * Resolver}s are stored and invoked here. Callbacks which report the found {@link Result}s are also
+ * included in this class.
  */
 public class PipeLine {
 
@@ -60,14 +62,14 @@ public class PipeLine {
     }
 
     /**
-     * Add a resolver to the internal list.
+     * Add a {@link Resolver} to the internal list.
      */
     public void addResolver(Resolver resolver) {
         mResolvers.add(resolver);
     }
 
     /**
-     * Get the resolver with the given id, null if not found
+     * Get the {@link Resolver} with the given id, null if not found
      */
     public Resolver getResolver(int id) {
         for (Resolver resolver : mResolvers) {
@@ -79,16 +81,16 @@ public class PipeLine {
     }
 
     /**
-     * This will invoke every resolver to resolve the given fullTextQuery. If there already is a
-     * Query with the same fullTextQuery, the old resultList will be reported.
+     * This will invoke every {@link Resolver} to resolve the given fullTextQuery. If there already
+     * is a {@link Query} with the same fullTextQuery, the old resultList will be reported.
      */
     public String resolve(String fullTextQuery) {
         return resolve(fullTextQuery, false);
     }
 
     /**
-     * This will invoke every resolver to resolve the given fullTextQuery. If there already is a
-     * Query with the same fullTextQuery, the old resultList will be reported.
+     * This will invoke every {@link Resolver} to resolve the given fullTextQuery. If there already
+     * is a {@link Query} with the same fullTextQuery, the old resultList will be reported.
      */
     public String resolve(String fullTextQuery, boolean onlyLocal) {
         Query q = null;
@@ -107,16 +109,22 @@ public class PipeLine {
     }
 
     /**
-     * This will invoke every resolver to resolve the given track/artist/album. If there already is
-     * a Query with the same track/artist/album, the old resultList will be reported.
+     * This will invoke every {@link Resolver} to resolve the given {@link
+     * org.tomahawk.libtomahawk.collection.Track}/{@link org.tomahawk.libtomahawk.collection.Artist}/{@link
+     * org.tomahawk.libtomahawk.collection.Album}. If there already is a {@link Query} with the same
+     * {@link org.tomahawk.libtomahawk.collection.Track}/{@link org.tomahawk.libtomahawk.collection.Artist}/{@link
+     * org.tomahawk.libtomahawk.collection.Album}, the old resultList will be reported.
      */
     public String resolve(String trackName, String albumName, String artistName) {
         return resolve(trackName, albumName, artistName, false);
     }
 
     /**
-     * This will invoke every resolver to resolve the given track/artist/album. If there already is
-     * a Query with the same track/artist/album, the old resultList will be reported.
+     * This will invoke every {@link Resolver} to resolve the given {@link
+     * org.tomahawk.libtomahawk.collection.Track}/{@link org.tomahawk.libtomahawk.collection.Artist}/{@link
+     * org.tomahawk.libtomahawk.collection.Album}. If there already is a {@link Query} with the same
+     * {@link org.tomahawk.libtomahawk.collection.Track}/{@link org.tomahawk.libtomahawk.collection.Artist}/{@link
+     * org.tomahawk.libtomahawk.collection.Album}, the old resultList will be reported.
      */
     public String resolve(String trackName, String albumName, String artistName,
             boolean onlyLocal) {
@@ -139,14 +147,14 @@ public class PipeLine {
     }
 
     /**
-     * This will invoke every resolver to resolve the given Query.
+     * This will invoke every {@link Resolver} to resolve the given {@link Query}.
      */
     public void resolve(Query q) {
         resolve(q, false);
     }
 
     /**
-     * This will invoke every resolver to resolve the given Query.
+     * This will invoke every {@link Resolver} to resolve the given {@link Query}.
      */
     public void resolve(Query q, boolean onlyLocal) {
         if (q.isSolved()) {
@@ -178,7 +186,7 @@ public class PipeLine {
     }
 
     /**
-     * Send a broadcast containing the id of the resolved query.
+     * Send a broadcast containing the id of the resolved {@link Query}.
      */
     private void sendReportFulltextQueryResultsBroadcast(String qid) {
         Intent reportIntent = new Intent(PIPELINE_RESULTSREPORTED_FULLTEXTQUERY);
@@ -187,7 +195,7 @@ public class PipeLine {
     }
 
     /**
-     * Send a broadcast containing the id of the resolved query.
+     * Send a broadcast containing the id of the resolved {@link Query}.
      */
     private void sendReportNonFulltextQueryResultsBroadcast(String qid) {
         Intent reportIntent = new Intent(PIPELINE_RESULTSREPORTED_NON_FULLTEXTQUERY);
@@ -196,12 +204,12 @@ public class PipeLine {
     }
 
     /**
-     * If the ScriptResolver has resolved the query, this method will be called. This method will
-     * then calculate a score and assign it to every result. If the score is higher than MINSCORE
-     * the result is added to the output resultList.
+     * If the {@link ScriptResolver} has resolved the {@link Query}, this method will be called.
+     * This method will then calculate a score and assign it to every {@link Result}. If the score
+     * is higher than MINSCORE the {@link Result} is added to the output resultList.
      *
-     * @param qid     the query id
-     * @param results the unfiltered ArrayList<Result>
+     * @param qid     the {@link Query} id
+     * @param results the unfiltered {@link ArrayList} of {@link Result}s
      */
     public void reportResults(String qid, ArrayList<Result> results) {
         ArrayList<Result> cleanTrackResults = new ArrayList<Result>();
@@ -238,7 +246,7 @@ public class PipeLine {
     }
 
     /**
-     * @return true if one or more ScriptResolvers are currently resolving. False otherwise
+     * @return true if one or more {@link ScriptResolver}s are currently resolving. False otherwise
      */
     public boolean isResolving() {
         for (Resolver resolver : mResolvers) {
@@ -250,7 +258,7 @@ public class PipeLine {
     }
 
     /**
-     * Get the query with the given id
+     * Get the {@link Query} with the given id
      */
     public Query getQuery(String qid) {
         return mQids.get(qid);

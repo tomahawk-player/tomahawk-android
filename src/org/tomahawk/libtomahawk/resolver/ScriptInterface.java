@@ -7,8 +7,8 @@ import org.tomahawk.tomahawk_android.R;
 import android.util.Log;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 17.01.13 This class contains all methods
- * that are being exposed to the javascript script inside a ScriptResolver object.
+ * This class contains all methods that are being exposed to the javascript script inside a {@link
+ * ScriptResolver} object.
  */
 public class ScriptInterface {
 
@@ -22,12 +22,12 @@ public class ScriptInterface {
 
     /**
      * This method should be called whenever a javascript function should call back to Java after it
-     * is finished. Returned results are also handed over to the ScriptResolver through this
-     * method.
+     * is finished. Returned {@link Result}s are also handed over to the {@link ScriptResolver}
+     * through this method.
      *
      * @param id                 used to identify who is calling back
-     * @param in                 the raw result String
-     * @param shouldReturnResult wether or not the javascript function will return a result
+     * @param in                 the raw result {@link String}
+     * @param shouldReturnResult whether or not the javascript function will return a result
      */
     public void callbackToJava(int id, String in, boolean shouldReturnResult) {
         Log.d(TAG, "callbackToJava: id='" + id + "', in='" + in + "'");
@@ -45,11 +45,10 @@ public class ScriptInterface {
     }
 
     /**
-     * This method is needed for TomahawkAndroid because the javascript script is expecting an
-     * exposed method which will return the scriptPath and config. This method is being called in
-     * tomahawk_android.js
+     * This method is needed because the javascript script is expecting an exposed method which will
+     * return the scriptPath and config. This method is being called in tomahawk_android.js
      *
-     * @return a JSONObject containing the scriptPath and config.
+     * @return a {@link JSONObject} containing the scriptPath and config.
      */
     public String resolverDataString() {
         JSONObject result = new JSONObject();
@@ -70,11 +69,11 @@ public class ScriptInterface {
     }
 
     /**
-     * This method is needed for TomahawkAndroid because the javascript script is expecting an
-     * exposed method which it can call to return the resolved results. This method is being called
-     * in tomahawk_android.js
+     * This method is needed because the javascript script is expecting an exposed method which it
+     * can call to return the resolved {@link Result}s. This method is being called in
+     * tomahawk_android.js
      *
-     * @param in the JSONObject string containing the resolved results
+     * @param in the JSONObject {@link String} containing the resolved {@link Result}s
      */
     public void addTrackResultsString(String in) {
         Log.d(TAG, "addTrackResultsString: in='" + in + "'");

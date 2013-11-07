@@ -22,22 +22,22 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import java.util.ArrayList;
 
 /**
- * A {@link CustomPlaylist} is a {@link Playlist} created by the user and stored in the database
+ * A {@link UserPlaylist} is a {@link Playlist} created by the user and stored in the database
  */
-public class CustomPlaylist extends Playlist implements TomahawkBaseAdapter.TomahawkListItem {
+public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.TomahawkListItem {
 
     private long mId;
 
     /**
-     * Create a {@link CustomPlaylist} from a list of {@link Track}s.
+     * Create a {@link UserPlaylist} from a list of {@link Track}s.
      *
-     * @return a reference to the constructed {@link CustomPlaylist}
+     * @return a reference to the constructed {@link UserPlaylist}
      */
-    public static CustomPlaylist fromTrackList(ArrayList<Track> tracks) {
+    public static UserPlaylist fromTrackList(ArrayList<Track> tracks) {
         if (tracks == null) {
             tracks = new ArrayList<Track>();
         }
-        CustomPlaylist pl = new CustomPlaylist();
+        UserPlaylist pl = new UserPlaylist();
         pl.setTracks(tracks);
         if (tracks.size() > 0) {
             pl.setCurrentTrack(tracks.get(0));
@@ -46,15 +46,15 @@ public class CustomPlaylist extends Playlist implements TomahawkBaseAdapter.Toma
     }
 
     /**
-     * Create a {@link CustomPlaylist} from a list of {@link Track}s.
+     * Create a {@link UserPlaylist} from a list of {@link Track}s.
      *
-     * @return a reference to the constructed {@link CustomPlaylist}
+     * @return a reference to the constructed {@link UserPlaylist}
      */
-    public static CustomPlaylist fromTrackList(String name, ArrayList<Track> tracks) {
+    public static UserPlaylist fromTrackList(String name, ArrayList<Track> tracks) {
         if (tracks == null) {
             tracks = new ArrayList<Track>();
         }
-        CustomPlaylist pl = new CustomPlaylist(name);
+        UserPlaylist pl = new UserPlaylist(name);
         pl.setTracks(tracks);
         if (tracks.size() > 0) {
             pl.setCurrentTrack(tracks.get(0));
@@ -63,50 +63,50 @@ public class CustomPlaylist extends Playlist implements TomahawkBaseAdapter.Toma
     }
 
     /**
-     * Creates a {@link CustomPlaylist} from a list of {@link Track}s and sets the current {@link
+     * Creates a {@link UserPlaylist} from a list of {@link Track}s and sets the current {@link
      * Track} to the given {@link Track}
      *
-     * @return a reference to the constructed {@link CustomPlaylist}
+     * @return a reference to the constructed {@link UserPlaylist}
      */
-    public static CustomPlaylist fromTrackList(String name, ArrayList<Track> tracks,
+    public static UserPlaylist fromTrackList(String name, ArrayList<Track> tracks,
             Track currentTrack) {
         if (tracks == null) {
             tracks = new ArrayList<Track>();
         }
-        CustomPlaylist pl = new CustomPlaylist(name);
+        UserPlaylist pl = new UserPlaylist(name);
         pl.setTracks(tracks);
         pl.setCurrentTrack(currentTrack);
         return pl;
     }
 
     /**
-     * Creates a {@link CustomPlaylist} from a list of {@link Track}s and sets the current {@link
+     * Creates a {@link UserPlaylist} from a list of {@link Track}s and sets the current {@link
      * Track} index to the given {@link Track} index
      *
-     * @return a reference to the constructed {@link CustomPlaylist}
+     * @return a reference to the constructed {@link UserPlaylist}
      */
-    public static CustomPlaylist fromTrackList(String name, ArrayList<Track> tracks,
+    public static UserPlaylist fromTrackList(String name, ArrayList<Track> tracks,
             int currentTrackIndex) {
         if (tracks == null) {
             tracks = new ArrayList<Track>();
         }
-        CustomPlaylist pl = new CustomPlaylist(name);
+        UserPlaylist pl = new UserPlaylist(name);
         pl.setTracks(tracks);
         pl.setCurrentTrackIndex(currentTrackIndex);
         return pl;
     }
 
     /**
-     * Construct a new empty {@link CustomPlaylist}.
+     * Construct a new empty {@link UserPlaylist}.
      */
-    protected CustomPlaylist() {
+    protected UserPlaylist() {
         super();
     }
 
     /**
-     * Construct a new empty {@link CustomPlaylist}.
+     * Construct a new empty {@link UserPlaylist}.
      */
-    protected CustomPlaylist(String name) {
+    protected UserPlaylist(String name) {
         super(name);
     }
 

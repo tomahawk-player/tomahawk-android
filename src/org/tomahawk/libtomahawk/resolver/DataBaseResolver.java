@@ -33,7 +33,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 25.01.13
+ * A {@link Resolver} which resolves {@link Track}s via our local database. Or in other words:
+ * Fetches {@link Track}s from the local {@link UserCollection}. Can also be used to resolve from
+ * remote {@link Collection}s.
  */
 public class DataBaseResolver implements Resolver {
 
@@ -57,6 +59,15 @@ public class DataBaseResolver implements Resolver {
 
     private boolean mStopped;
 
+    /**
+     * Construct this {@link DataBaseResolver}
+     *
+     * @param id          the id of this {@link Resolver}
+     * @param tomahawkApp reference needed to {@link TomahawkApp}, so that we have access to the
+     *                    {@link org.tomahawk.libtomahawk.resolver.PipeLine} to report our results
+     * @param collection  reference to the {@link Collection} which we want to resolve {@link
+     *                    Track}s from
+     */
     public DataBaseResolver(int id, TomahawkApp tomahawkApp, Collection collection) {
         mWeight = 1000;
         mReady = false;
@@ -75,23 +86,23 @@ public class DataBaseResolver implements Resolver {
     }
 
     /**
-     * @return wether or not this resolver is currently resolving
+     * @return whether or not this {@link Resolver} is currently resolving
      */
     public boolean isResolving() {
         return mReady && !mStopped;
     }
 
     /**
-     * @return the icon of this resolver as a drawable
+     * @return the icon of this {@link Resolver} as a {@link Drawable}
      */
     public Drawable getIcon() {
         return mIcon;
     }
 
     /**
-     * resolve the given Query.
+     * Resolve the given {@link Query}.
      *
-     * @param query the query which should be resolved
+     * @param query the {@link Query} which should be resolved
      */
     public void resolve(Query query) {
         mStopped = false;
@@ -103,6 +114,9 @@ public class DataBaseResolver implements Resolver {
         }
     }
 
+    /**
+     * We use a {@link Filter} to resolve our {@link Track}s from the {@link UserCollection}
+     */
     private class TomahawkListItemFilter extends Filter {
 
         private String mQid;
@@ -117,6 +131,14 @@ public class DataBaseResolver implements Resolver {
 
         private String mArtistName = "";
 
+        /**
+         * Construct this {@link TomahawkListItemFilter}, if you want to do a fullTextQuery search.
+         *
+         * @param qid           the id of the {@link Query} to be resolved
+         * @param resolver      the {@link Resolver} that we will associate with the resolved {@link
+         *                      Result}s
+         * @param fullTextQuery {@link String}  containing the fullTextQuery to be searched for
+         */
         public TomahawkListItemFilter(final String qid, final Resolver resolver,
                 final String fullTextQuery) {
             mQid = qid;
@@ -124,6 +146,18 @@ public class DataBaseResolver implements Resolver {
             mFullTextQuery = fullTextQuery.toLowerCase().trim();
         }
 
+        /**
+         * Construct this {@link TomahawkListItemFilter}, if you want to do a fullTextQuery search.
+         *
+         * @param qid        the id of the {@link Query} to be resolved
+         * @param resolver   the {@link Resolver} that we will associate with the resolved {@link
+         *                   Result}s
+         * @param trackName  {@link String}  containing the {@link Track}s name
+         * @param albumName  {@link String}  containing the {@link org.tomahawk.libtomahawk.collection.Album}s
+         *                   name
+         * @param artistName {@link String}  containing the {@link org.tomahawk.libtomahawk.collection.Artist}s
+         *                   name
+         */
         public TomahawkListItemFilter(final String qid, final Resolver resolver,
                 final String trackName, final String albumName, final String artistName) {
             mQid = qid;
@@ -133,6 +167,12 @@ public class DataBaseResolver implements Resolver {
             mArtistName = artistName.toLowerCase().trim();
         }
 
+        /**
+         * Called when this {@link TomahawkListItemFilter} is done with performFiltering(...)
+         *
+         * @param constraint can be ignored in our case
+         * @param results    all found {@link FilterResults}
+         */
         @SuppressWarnings("unchecked")
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
@@ -141,6 +181,13 @@ public class DataBaseResolver implements Resolver {
             mTomahawkApp.getPipeLine().reportResults(mQid, resultList);
         }
 
+        /**
+         * Perform the filtering process. Automatically called whenever this {@link
+         * TomahawkListItemFilter} is constructed
+         *
+         * @param constraint can be ignored in our case
+         * @return all found {@link FilterResults}
+         */
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
             ArrayList<Result> filteredResults = getFilteredResults();
@@ -153,6 +200,11 @@ public class DataBaseResolver implements Resolver {
             return results;
         }
 
+        /**
+         * The actual resolving process.
+         *
+         * @return an {@link ArrayList} of all found {@link Result}s
+         */
         protected ArrayList<Result> getFilteredResults() {
             ArrayList<Result> filteredResults = new ArrayList<Result>();
             if (TextUtils.isEmpty(mFullTextQuery) && TextUtils.isEmpty(mTrackName) && TextUtils
@@ -190,10 +242,16 @@ public class DataBaseResolver implements Resolver {
         }
     }
 
+    /**
+     * @return this {@link DataBaseResolver}'s id
+     */
     public int getId() {
         return mId;
     }
 
+    /**
+     * @return this {@link DataBaseResolver}'s weight
+     */
     public int getWeight() {
         return mWeight;
     }

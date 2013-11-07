@@ -38,8 +38,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 17.01.13
- *
  * This class represents a javascript resolver.
  */
 public class ScriptResolver implements Resolver {
@@ -62,6 +60,7 @@ public class ScriptResolver implements Resolver {
     private final static String BASEURL_JAMENDO = "http://api.jamendo.com";
 
     private final static String BASEURL_SOUNDCLOUD = "http://developer.echonest.com";
+    //TEMPORARY WORKAROUND END
 
     private TomahawkApp mTomahawkApp;
 
@@ -87,6 +86,14 @@ public class ScriptResolver implements Resolver {
 
     private Handler UiThreadHandler;
 
+    /**
+     * Construct a new {@link ScriptResolver}
+     *
+     * @param id          the id of this {@link ScriptResolver}
+     * @param tomahawkApp referenced {@link TomahawkApp}, needed to report our results in the {@link
+     *                    PipeLine}
+     * @param scriptPath  {@link String} containing the path to our javascript file
+     */
     public ScriptResolver(int id, TomahawkApp tomahawkApp, String scriptPath) {
         mReady = false;
         mStopped = true;
@@ -98,7 +105,7 @@ public class ScriptResolver implements Resolver {
         settings.setDatabaseEnabled(true);
         settings.setDomStorageEnabled(true);
         mScriptEngine.setWebChromeClient(new TomahawkWebChromeClient());
-        mScriptEngine.setWebViewClient(new TomahawkWebViewClient(this));
+        mScriptEngine.setWebViewClient(new ScriptEngine(this));
         final ScriptInterface scriptInterface = new ScriptInterface(this);
         mScriptEngine.addJavascriptInterface(scriptInterface, SCRIPT_INTERFACE_NAME);
         String[] tokens = scriptPath.split("/");
@@ -110,21 +117,21 @@ public class ScriptResolver implements Resolver {
     }
 
     /**
-     * @return whether or not this scriptresolver is currently resolving
+     * @return whether or not this {@link ScriptResolver} is currently resolving
      */
     public boolean isResolving() {
         return mReady && !mStopped;
     }
 
     /**
-     * Reinitialize this ScriptResolver
+     * Reinitialize this {@link ScriptResolver}
      */
     public void reload() {
         init();
     }
 
     /**
-     * Initialize this ScriptResolver. Loads the .js script from the given path and sets the
+     * Initialize this {@link ScriptResolver}. Loads the .js script from the given path and sets the
      * appropriate base URL.
      */
     private void init() {
@@ -148,8 +155,8 @@ public class ScriptResolver implements Resolver {
     }
 
     /**
-     * This method is being called, when the ScriptEngine has completely loaded the given .js
-     * script.
+     * This method is being called, when the {@link ScriptEngine} has completely loaded the given
+     * .js script.
      */
     public void onScriptEngineReady() {
         resolverInit();
@@ -174,7 +181,7 @@ public class ScriptResolver implements Resolver {
     }
 
     /**
-     * This method tries to get the resolver's settings.
+     * This method tries to get the {@link Resolver}'s settings.
      */
     private void resolverSettings() {
         UiThreadHandler = new Handler(Looper.getMainLooper()) {
@@ -191,7 +198,7 @@ public class ScriptResolver implements Resolver {
     }
 
     /**
-     * This method tries to get the resolver's UserConfig.
+     * This method tries to get the {@link Resolver}'s UserConfig.
      */
     private void resolverUserConfig() {
         UiThreadHandler = new Handler(Looper.getMainLooper()) {
@@ -209,11 +216,11 @@ public class ScriptResolver implements Resolver {
 
     /**
      * Every callback from a function inside the javascript should first call the method
-     * callbackToJava, which is exposed to javascript within the ScriptInterface. And after that
-     * this callback will be handled here.
+     * callbackToJava, which is exposed to javascript within the {@link ScriptInterface}. And after
+     * that this callback will be handled here.
      *
      * @param id  used to identify which function did the callback
-     * @param obj the JSONObject containing the result information. Can be null
+     * @param obj the {@link JSONObject} containing the {@link Result} information. Can be null
      */
     public void handleCallbackToJava(final int id, final JSONObject obj) {
         Runnable r = new Runnable() {
@@ -262,9 +269,9 @@ public class ScriptResolver implements Resolver {
     }
 
     /**
-     * Invoke the javascript to resolve the given Query.
+     * Invoke the javascript to resolve the given {@link Query}.
      *
-     * @param query the query which should be resolved
+     * @param query the {@link Query} which should be resolved
      */
 
     public void resolve(Query query) {
@@ -286,10 +293,10 @@ public class ScriptResolver implements Resolver {
     }
 
     /**
-     * Parses the given JSONArray into a ArrayList<Result>.
+     * Parses the given {@link JSONArray} into a {@link ArrayList} of {@link Result}s.
      *
-     * @param resList JSONArray containing the raw result information
-     * @return a ArrayList<Result> containing the parsed data
+     * @param resList {@link JSONArray} containing the raw result information
+     * @return a {@link ArrayList} of {@link Result}s containing the parsed data
      */
     private ArrayList<Result> parseResultList(final JSONArray resList) {
         ArrayList<Result> resultList = new ArrayList<Result>();
@@ -357,20 +364,23 @@ public class ScriptResolver implements Resolver {
 
     /**
      * Wraps the given js call into the necessary functions to make sure, that the javascript
-     * function will callback the exposed java method callbackToJava in the ScriptInterface
+     * function will callback the exposed java method callbackToJava in the {@link ScriptInterface}
      *
      * @param id                 used to later identify the callback
-     * @param string             the string which should be surrounded. Usually a simple js function
-     *                           call.
-     * @param shouldReturnResult whether or not this js function call will return with a JSONObject
-     *                           as a result
-     * @return the computed String
+     * @param string             the {@link String} which should be surrounded. Usually a simple js
+     *                           function call.
+     * @param shouldReturnResult whether or not this js function call will return with a {@link
+     *                           JSONObject} as a result
+     * @return the computed {@link String}
      */
     private String makeJSFunctionCallbackJava(int id, String string, boolean shouldReturnResult) {
         return SCRIPT_INTERFACE_NAME + ".callbackToJava(" + id + ",JSON.stringify(" + string + "),"
                 + shouldReturnResult + ");";
     }
 
+    /**
+     * @return this {@link ScriptResolver}'s id
+     */
     public int getId() {
         return mId;
     }
@@ -383,7 +393,7 @@ public class ScriptResolver implements Resolver {
     }
 
     /**
-     * @return the JSONObject containing the Config information, which was returned by the
+     * @return the {@link JSONObject} containing the Config information, which was returned by the
      *         corresponding script
      */
     public JSONObject getConfig() {
@@ -391,13 +401,16 @@ public class ScriptResolver implements Resolver {
     }
 
     /**
-     * @return the Drawable which has been created by loading the image the js function attribute
-     *         "icon" pointed at
+     * @return the {@link Drawable} which has been created by loading the image the js function
+     *         attribute "icon" pointed at
      */
     public Drawable getIcon() {
         return mIcon;
     }
 
+    /**
+     * @return this {@link ScriptResolver}'s weight
+     */
     public int getWeight() {
         return mWeight;
     }

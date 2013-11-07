@@ -31,10 +31,10 @@ import org.tomahawk.libtomahawk.collection.AlbumPlaylist;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.ArtistPlaylist;
 import org.tomahawk.libtomahawk.collection.CollectionPlaylist;
-import org.tomahawk.libtomahawk.collection.CustomPlaylist;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -344,8 +344,8 @@ public class PlaybackActivity extends SherlockFragmentActivity
                 ArrayList<Track> tracks = new ArrayList<Track>();
                 if (tomahawkListItem instanceof Track) {
                     tracks.add((Track) tomahawkListItem);
-                } else if (tomahawkListItem instanceof CustomPlaylist) {
-                    tracks = ((CustomPlaylist) tomahawkListItem).getTracks();
+                } else if (tomahawkListItem instanceof UserPlaylist) {
+                    tracks = ((UserPlaylist) tomahawkListItem).getTracks();
                 } else if (tomahawkListItem instanceof Album) {
                     tracks = ((Album) tomahawkListItem).getTracks();
                 } else if (tomahawkListItem instanceof Artist) {
@@ -485,7 +485,7 @@ public class PlaybackActivity extends SherlockFragmentActivity
                 }
             } else if (playlistBundle.containsKey(UserCollection.USERCOLLECTION_PLAYLISTCACHED)) {
                 playlist = ((UserCollection) app.getSourceList()
-                        .getCollectionFromId(UserCollection.Id)).getCachedCustomPlaylist();
+                        .getCollectionFromId(UserCollection.Id)).getCachedUserPlaylist();
             }
             if (playlist != null) {
                 try {
