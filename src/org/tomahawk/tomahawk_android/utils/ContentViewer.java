@@ -18,7 +18,6 @@
 package org.tomahawk.tomahawk_android.utils;
 
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.activities.TomahawkTabsActivity;
 import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 
@@ -334,9 +333,9 @@ public class ContentViewer {
                     Fragment.instantiate(mTomahawkMainActivity, fragmentStateHolder.clss.getName(),
                             bundle), stack.get(stack.size() - 1).fragmentTag);
             ft.commit();
-            if (fragmentStateHolder.correspondingStackId == TomahawkTabsActivity.TAB_ID_SEARCH
+            if (fragmentStateHolder.correspondingStackId == TomahawkMainActivity.TAB_ID_SEARCH
                     || fragmentStateHolder.correspondingStackId
-                    == TomahawkTabsActivity.TAB_ID_SETTINGS) {
+                    == TomahawkMainActivity.TAB_ID_SETTINGS) {
                 mTomahawkMainActivity.showBreadcrumbs(false);
             } else {
                 mTomahawkMainActivity.showBreadcrumbs(true);

@@ -19,7 +19,6 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.activities.TomahawkTabsActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 
 import android.app.Activity;
@@ -89,9 +88,9 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
     public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
         Handler h = new Handler();
         switch ((int) arg3) {
-            case TomahawkTabsActivity.TAB_ID_SEARCH:
+            case TomahawkMainActivity.TAB_ID_SEARCH:
                 mTomahawkMainActivity.getContentViewer()
-                        .setCurrentStackId(TomahawkTabsActivity.TAB_ID_SEARCH);
+                        .setCurrentStackId(TomahawkMainActivity.TAB_ID_SEARCH);
                 mTomahawkMainActivity.showSearchEditText();
                 h.postDelayed(new Runnable() {
                     public void run() {
@@ -99,9 +98,9 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
                     }
                 }, 50);
                 break;
-            case TomahawkTabsActivity.TAB_ID_COLLECTION:
+            case TomahawkMainActivity.TAB_ID_COLLECTION:
                 mTomahawkMainActivity.getContentViewer()
-                        .setCurrentStackId(TomahawkTabsActivity.TAB_ID_COLLECTION);
+                        .setCurrentStackId(TomahawkMainActivity.TAB_ID_COLLECTION);
                 mTomahawkMainActivity.hideSearchEditText();
                 h.postDelayed(new Runnable() {
                     public void run() {
@@ -109,9 +108,9 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
                     }
                 }, 50);
                 break;
-            case TomahawkTabsActivity.TAB_ID_PLAYLISTS:
+            case TomahawkMainActivity.TAB_ID_PLAYLISTS:
                 mTomahawkMainActivity.getContentViewer()
-                        .setCurrentStackId(TomahawkTabsActivity.TAB_ID_PLAYLISTS);
+                        .setCurrentStackId(TomahawkMainActivity.TAB_ID_PLAYLISTS);
                 mTomahawkMainActivity.hideSearchEditText();
                 h.postDelayed(new Runnable() {
                     public void run() {
@@ -119,9 +118,9 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
                     }
                 }, 50);
                 break;
-            case TomahawkTabsActivity.TAB_ID_SETTINGS:
+            case TomahawkMainActivity.TAB_ID_SETTINGS:
                 mTomahawkMainActivity.getContentViewer()
-                        .setCurrentStackId(TomahawkTabsActivity.TAB_ID_SETTINGS);
+                        .setCurrentStackId(TomahawkMainActivity.TAB_ID_SETTINGS);
                 mTomahawkMainActivity.hideSearchEditText();
                 h.postDelayed(new Runnable() {
                     public void run() {
