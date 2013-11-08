@@ -38,7 +38,7 @@ import android.widget.TextView;
 import java.util.List;
 
 /**
- * @author Enno Gottschalk <mrmaffen@googlemail.com>
+ * This class is used to populate a {@link org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}.
  */
 public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyListHeadersAdapter {
 
@@ -67,8 +67,11 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
     private boolean mShowAddButton = false;
 
     /**
-     * Constructs a new {@link TomahawkListAdapter} to display list items with a single line of text
-     * and categoryHeaders
+     * Constructs a new {@link TomahawkListAdapter}.
+     *
+     * @param activity  reference to whatever {@link Activity}
+     * @param listArray complete set of lists containing all content which the listview should be
+     *                  populated with
      */
     public TomahawkListAdapter(Activity activity, List<List<TomahawkListItem>> listArray) {
         mActivity = activity;
@@ -86,6 +89,10 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
         mDoubleLineListItemResourceHolder.textViewId3 = R.id.double_line_list_textview3;
     }
 
+    /**
+     * Set whether or not a header should be shown above each "category". Like "Albums", "Tracks"
+     * etc.
+     */
     public void setShowCategoryHeaders(boolean showCategoryHeaders) {
         mCategoryHeaderResourceHolder = new ResourceHolder();
         mCategoryHeaderResourceHolder.resourceId = R.layout.single_line_list_header;
@@ -94,12 +101,27 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
         mShowCategoryHeaders = showCategoryHeaders;
     }
 
+    /**
+     * Set whether or not a playlist header should be shown. Like the "^  Playlist  ^"-header in our
+     * {@link org.tomahawk.tomahawk_android.fragments.PlaybackFragment}.
+     */
     public void setShowPlaylistHeader(boolean showPlaylistHeader) {
         mCategoryHeaderResourceHolder = new ResourceHolder();
         mCategoryHeaderResourceHolder.resourceId = R.layout.show_playlist_header;
         mShowPlaylistHeader = showPlaylistHeader;
     }
 
+    /**
+     * Set whether or not a content header should be shown. A content header provides information
+     * about the current {@link TomahawkListItem} that the user has navigated to. Like an AlbumArt
+     * image with the {@link Album}s name, which is shown at the top of the listview, if the user
+     * browses to a particular {@link Album} in his {@link org.tomahawk.libtomahawk.collection.UserCollection}.
+     *
+     * @param showContentHeader             whether or not to show the content header
+     * @param list                          a reference to the list, so we can set its header view
+     * @param contentHeaderTomahawkListItem the {@link TomahawkListItem}'s information to show in
+     *                                      the header view
+     */
     public void setShowContentHeader(boolean showContentHeader, ListView list,
             TomahawkBaseAdapter.TomahawkListItem contentHeaderTomahawkListItem) {
         mContentHeaderTomahawkListItem = contentHeaderTomahawkListItem;
@@ -123,14 +145,30 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
         }
     }
 
+    /**
+     * Set whether or not to highlight the currently playing {@link TomahawkListItem} and show the
+     * play/pause state
+     */
     public void setShowHighlightingAndPlaystate(boolean showHighlightingAndPlaystate) {
         this.mShowHighlightingAndPlaystate = showHighlightingAndPlaystate;
     }
 
+    /**
+     * Set whether or not to show by which {@link org.tomahawk.libtomahawk.resolver.Resolver} the
+     * {@link TomahawkListItem} has been resolved
+     */
     public void setShowResolvedBy(boolean showResolvedBy) {
         this.mShowResolvedBy = showResolvedBy;
     }
 
+    /**
+     * Set whether or not to show an AddButton, so that the user can add {@link UserPlaylist}s to
+     * the database
+     *
+     * @param showAddButton whether or not to show an AddButton
+     * @param list          a reference to the list, so we can set its footer view
+     * @param buttonText    {@link String} containing the button's text to show
+     */
     public void setShowAddButton(boolean showAddButton, ListView list, String buttonText) {
         mShowAddButton = showAddButton;
         View addButtonFooterView = mLayoutInflater.inflate(R.layout.add_button_layout, null);
@@ -141,9 +179,13 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
+    /**
+     * Get the correct {@link View} for the given position.
+     *
+     * @param position    The position for which to get the correct {@link View}
+     * @param convertView The old {@link View}, which we might be able to recycle
+     * @param parent      parental {@link ViewGroup}
+     * @return the correct {@link View} for the given position.
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -152,6 +194,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
 
         if (item != null) {
             ViewHolder viewHolder;
+            // First we inflate the correct view and set the correct resource ids in the viewHolder.
+            // Also we check if we can re-use the old convertView
             if (((item instanceof Artist || item instanceof UserPlaylist) && convertView == null)
                     || ((item instanceof Artist || item instanceof UserPlaylist)
                     && ((ViewHolder) convertView.getTag()).viewType
@@ -213,6 +257,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                 viewHolder = (ViewHolder) view.getTag();
             }
 
+            // After we've setup the correct view and viewHolder, we now can fill the View's
+            // components with the correct data
             if (viewHolder.viewType == R.id.tomahawklistadapter_viewtype_singlelinelistitem) {
                 if (item instanceof Artist) {
                     viewHolder.textFirstLine.setText(((Artist) item).getName());
@@ -307,9 +353,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
         return view;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getCount()
+    /**
+     * @return the count of every item to display
      */
     @Override
     public int getCount() {
@@ -324,9 +369,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
         return displayedListArrayItemsCount + displayedContentHeaderCount;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getItem(int)
+    /**
+     * @return item for the given position
      */
     @Override
     public Object getItem(int position) {
@@ -343,15 +387,23 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
         return item;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getItemId(int)
+    /**
+     * Get the id of the item for the given position. (Id is equal to given position)
      */
     @Override
     public long getItemId(int position) {
         return position;
     }
 
+    /**
+     * This method is being called by the StickyListHeaders library. Get the correct header {@link
+     * View} for the given position.
+     *
+     * @param position    The position for which to get the correct {@link View}
+     * @param convertView The old {@link View}, which we might be able to recycle
+     * @param parent      parental {@link ViewGroup}
+     * @return the correct header {@link View} for the given position.
+     */
     @Override
     public View getHeaderView(int position, View convertView, ViewGroup parent) {
         if (mShowPlaylistHeader || mShowCategoryHeaders) {
@@ -386,7 +438,13 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
         }
     }
 
-    //remember that these have to be static, position=1 should always return the same Id that is.
+    /**
+     * This method is being called by the StickyListHeaders library. Returns the same value for each
+     * item that should be grouped under the same header.
+     *
+     * @param position the position of the item for which to get the header id
+     * @return the same value for each item that should be grouped under the same header.
+     */
     @Override
     public long getHeaderId(int position) {
         long result = 0;
@@ -405,6 +463,9 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
         return result;
     }
 
+    /**
+     * @return the {@link TomahawkListItem} shown in the content header
+     */
     public TomahawkListItem getContentHeaderTomahawkListItem() {
         return mContentHeaderTomahawkListItem;
     }

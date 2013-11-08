@@ -34,7 +34,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Enno Gottschalk <mrmaffen@googlemail.com>
+ * This class populates the listview inside the {@link org.tomahawk.tomahawk_android.fragments.SlideMenuFragment}
  */
 public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeadersAdapter {
 
@@ -46,6 +46,11 @@ public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeader
 
     /**
      * Constructs a new {@link TomahawkMenuAdapter}
+     *
+     * @param activity    reference to whatever {@link Activity}
+     * @param stringArray Array of {@link String}s containing every menu entry text
+     * @param iconArray   {@link TypedArray} containing an array of resource ids to be used to show
+     *                    an icon left to every menu entry text
      */
     public TomahawkMenuAdapter(Activity activity, String[] stringArray, TypedArray iconArray) {
         mActivity = activity;
@@ -55,36 +60,37 @@ public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeader
         }
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getCount()
+    /**
+     * @return the count of every item to display
      */
     @Override
     public int getCount() {
         return mStringArray.size();
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getItem(int)
+    /**
+     * @return item for the given position
      */
     @Override
     public Object getItem(int position) {
         return mStringArray.get(position);
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getItemId(int)
+    /**
+     * Get the id of the item for the given position. (Id is equal to given position)
      */
     @Override
     public long getItemId(int position) {
         return position;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
+    /**
+     * Get the correct {@link View} for the given position.
+     *
+     * @param position    The position for which to get the correct {@link View}
+     * @param convertView The old {@link View}, which we might be able to recycle
+     * @param parent      parental {@link ViewGroup}
+     * @return the correct {@link View} for the given position.
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -102,11 +108,27 @@ public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeader
         return view;
     }
 
+    /**
+     * This method is being called by the StickyListHeaders library. Get the correct header {@link
+     * View} for the given position.
+     *
+     * @param position    The position for which to get the correct {@link View}
+     * @param convertView The old {@link View}, which we might be able to recycle
+     * @param parent      parental {@link ViewGroup}
+     * @return the correct header {@link View} for the given position.
+     */
     @Override
     public View getHeaderView(int position, View convertView, ViewGroup parent) {
         return new View(mActivity);
     }
 
+    /**
+     * This method is being called by the StickyListHeaders library. Returns the same value for each
+     * item that should be grouped under the same header.
+     *
+     * @param position the position of the item for which to get the header id
+     * @return the same value for each item that should be grouped under the same header.
+     */
     @Override
     public long getHeaderId(int position) {
         return 0;

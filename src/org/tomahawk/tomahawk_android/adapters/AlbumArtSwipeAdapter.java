@@ -29,10 +29,12 @@ import android.view.View;
 import android.widget.ImageView;
 
 /**
- * @author Enno Gottschalk <mrmaffen@googlemail.com>
+ * {@link PagerAdapter} which provides functionality to swipe an AlbumArt image. Used in {@link
+ * org.tomahawk.tomahawk_android.fragments.PlaybackFragment}
  */
 public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPageChangeListener {
 
+    //Used to provide fake infinite swiping behaviour, if current Playlist is repeating
     private static final int FAKE_INFINITY_COUNT = 20000;
 
     private Context mContext;
@@ -43,6 +45,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
 
     private boolean mSwiped;
 
+    //The ViewPager used to display the AlbumArt images
     private ViewPager mViewPager;
 
     private PlaybackService mPlaybackService;
@@ -52,7 +55,11 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     private int mCurrentViewPage = 0;
 
     /**
-     * Constructs a new AlbumArtSwipeAdapter with the given list of AlbumArt images
+     * Constructs a new AlbumArtSwipeAdapter.
+     *
+     * @param context   the {@link Context} needed to call .loadBitmap in {@link
+     *                  org.tomahawk.libtomahawk.collection.Album}
+     * @param viewPager {@link ViewPager} used to display the AlbumArt images
      */
     public AlbumArtSwipeAdapter(Context context, ViewPager viewPager) {
         this.mContext = context;
@@ -63,12 +70,9 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         this.mViewPager.setOnPageChangeListener(this);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * android.support.v4.view.PagerAdapter#instantiateItem(android.view.View,
-     * int)
+    /**
+     * Instantiate an item in the {@link PagerAdapter}. Fill it async with the correct AlbumArt
+     * image.
      */
     @Override
     public Object instantiateItem(View collection, int position) {
@@ -93,10 +97,10 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         return albumArtImageView;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.support.v4.view.PagerAdapter#getCount()
+    /**
+     * @return If current {@link Playlist} is empty or null, return 1. If current {@link Playlist}
+     *         is repeating, return FAKE_INFINITY_COUNT. Else return the current {@link Playlist}'s
+     *         length.
      */
     @Override
     public int getCount() {
@@ -110,50 +114,41 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     }
 
     /**
-     * @return the offset by which the position should be shifted, when playlist is repeating
+     * @return the offset by which the position should be shifted, when {@link Playlist} is
+     *         repeating
      */
     public int getFakeInfinityOffset() {
         return mFakeInfinityOffset;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.support.v4.view.PagerAdapter#destroyItem(android.view.View,
-     * int, java.lang.Object)
+    /**
+     * Remove the given {@link View} from the {@link ViewPager}
      */
     @Override
     public void destroyItem(View arg0, int arg1, Object arg2) {
         ((ViewPager) arg0).removeView((View) arg2);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * android.support.v4.view.PagerAdapter#isViewFromObject(android.view.View,
-     * java.lang.Object)
+    /**
+     * @return true if view is equal to object
      */
     @Override
     public boolean isViewFromObject(View view, Object object) {
         return view == object;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.support.v4.view.PagerAdapter#saveState()
+    /**
+     * Dummy method
+     *
+     * @return always null
      */
     @Override
     public Parcelable saveState() {
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * android.support.v4.view.PagerAdapter#getItemPosition(java.lang.Object)
+    /**
+     * @return POSITION_NONE
      */
     @Override
     public int getItemPosition(Object object) {
@@ -161,8 +156,33 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     }
 
     /**
-     * @param position to set the current item to /** @param smoothScroll boolean to determine
-     *                 wether or not to show a scrolling animation
+     * Is being called, whenever a new Page in our {@link AlbumArtSwipeAdapter} has been selected/
+     * swiped to
+     */
+    @Override
+    public void onPageSelected(int arg0) {
+        if (mPlaybackService != null && isByUser()) {
+            setSwiped(true);
+            if (arg0 == mCurrentViewPage - 1) {
+                mPlaybackService.previous();
+            } else if (arg0 == mCurrentViewPage + 1) {
+                mPlaybackService.next();
+            }
+        }
+        mCurrentViewPage = arg0;
+    }
+
+    @Override
+    public void onPageScrolled(int arg0, float arg1, int arg2) {
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int arg0) {
+    }
+
+    /**
+     * @param position     to set the current item to
+     * @param smoothScroll boolean to determine whether or not to show a scrolling animation
      */
     public void setCurrentItem(int position, boolean smoothScroll) {
         if (position != mCurrentViewPage) {
@@ -186,21 +206,22 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     }
 
     /**
-     * @param smoothScroll boolean to determine wether or not to show a scrolling animation
+     * @param smoothScroll boolean to determine whether or not to show a scrolling animation
      */
     public void setCurrentToNextItem(boolean smoothScroll) {
         mViewPager.setCurrentItem(mCurrentViewPage + 1, smoothScroll);
     }
 
     /**
-     * @param smoothScroll boolean to determine wether or not to show a scrolling animation
+     * @param smoothScroll boolean to determine whether or not to show a scrolling animation
      */
     public void setCurrentToPreviousItem(boolean smoothScroll) {
         mViewPager.setCurrentItem(mCurrentViewPage - 1, smoothScroll);
     }
 
     /**
-     * update the playlist of the AlbumArtSwipeAdapter to the given Playlist
+     * update the {@link Playlist} of the {@link AlbumArtSwipeAdapter} to the given {@link
+     * Playlist}
      */
     public void updatePlaylist() {
         if (mPlaybackService != null) {
@@ -220,59 +241,42 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         }
     }
 
+    /**
+     * @return whether or not previous swipe was done by user
+     */
     public boolean isByUser() {
         return mByUser;
     }
 
+    /**
+     * Set whether or not previous swipe was done by user
+     */
     public void setByUser(boolean byUser) {
         this.mByUser = byUser;
     }
 
+    /**
+     * @return whether or not previous skipping to next/previous {@link org.tomahawk.libtomahawk.collection.Track}
+     *         was induced by swiping
+     */
     public boolean isSwiped() {
         return mSwiped;
     }
 
+    /**
+     * Set whether or not previous skipping to next/previous {@link org.tomahawk.libtomahawk.collection.Track}
+     * was induced by swiping
+     */
     public void setSwiped(boolean isSwiped) {
         this.mSwiped = isSwiped;
     }
 
-    public boolean isPlaylistNull() {
-        return mPlaylist == null;
-    }
-
+    /**
+     * Set this {@link AlbumArtSwipeAdapter}'s {@link PlaybackService} reference
+     */
     public void setPlaybackService(PlaybackService mPlaybackService) {
         this.mPlaybackService = mPlaybackService;
         updatePlaylist();
-    }
-
-    /* (non-Javadoc)
-     * @see android.support.v4.view.ViewPager.OnPageChangeListener#onPageSelected(int)
-     */
-    @Override
-    public void onPageSelected(int arg0) {
-        if (mPlaybackService != null && isByUser()) {
-            setSwiped(true);
-            if (arg0 == mCurrentViewPage - 1) {
-                mPlaybackService.previous();
-            } else if (arg0 == mCurrentViewPage + 1) {
-                mPlaybackService.next();
-            }
-        }
-        mCurrentViewPage = arg0;
-    }
-
-    /* (non-Javadoc)
-     * @see android.support.v4.view.ViewPager.OnPageChangeListener#onPageScrolled(int, float, int)
-     */
-    @Override
-    public void onPageScrolled(int arg0, float arg1, int arg2) {
-    }
-
-    /* (non-Javadoc)
-     * @see android.support.v4.view.ViewPager.OnPageChangeListener#onPageScrollStateChanged(int)
-     */
-    @Override
-    public void onPageScrollStateChanged(int arg0) {
     }
 
 }
