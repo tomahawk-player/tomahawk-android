@@ -30,8 +30,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Since we can't customize the appearance of the official context menu dialog, we have to {@link
- * org.tomahawk.tomahawk_android.dialogs.FakeContextMenuDialog} with this {@link
+ * Since we can't customize the appearance of the official context menu dialog, we have to create
+ * our own {@link org.tomahawk.tomahawk_android.dialogs.FakeContextMenuDialog} with this {@link
  * TomahawkContextMenuAdapter} to be used to populate it.
  */
 public class TomahawkContextMenuAdapter extends BaseAdapter {

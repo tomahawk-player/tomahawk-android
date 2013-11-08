@@ -31,9 +31,9 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 24.02.13
+ * A {@link DialogFragment} which emulates the appearance and behaviour of the standard context menu
+ * dialog, so that it is fully customizable.
  */
-
 public class FakeContextMenuDialog extends DialogFragment {
 
     private String[] mMenuItemTitles;
@@ -42,6 +42,15 @@ public class FakeContextMenuDialog extends DialogFragment {
 
     private FakeContextMenu mFakeContextMenu;
 
+    /**
+     * Construct a {@link FakeContextMenuDialog}
+     *
+     * @param menuItemTitles  array of {@link String} containing all menu entry texts
+     * @param position        position of the {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
+     *                        this {@link FakeContextMenuDialog} is associated with
+     * @param fakeContextMenu reference to the {@link FakeContextMenu}, so that we can access its
+     *                        implementation of onFakeContextItemSelected(...)
+     */
     public FakeContextMenuDialog(String[] menuItemTitles, int position,
             FakeContextMenu fakeContextMenu) {
         setRetainInstance(true);
@@ -50,6 +59,9 @@ public class FakeContextMenuDialog extends DialogFragment {
         mFakeContextMenu = fakeContextMenu;
     }
 
+    /**
+     * Called when this {@link DialogFragment} is being created
+     */
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();

@@ -43,31 +43,47 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.02.13
+ * A {@link DialogFragment} which is presented for the user so that he can choose a name for the
+ * {@link UserPlaylist} he intends to create
  */
-
-public class PlaylistDialog extends DialogFragment {
+public class CreateUserPlaylistDialog extends DialogFragment {
 
     Playlist mPlaylist;
 
-    public PlaylistDialog() {
+    /**
+     * Default constructor
+     */
+    public CreateUserPlaylistDialog() {
         setRetainInstance(true);
     }
 
-    public PlaylistDialog(Playlist playlist) {
+    /**
+     * Construct a {@link CreateUserPlaylistDialog} and provide a {@link Playlist} to be saved
+     *
+     * @param playlist {@link Playlist} to be saved
+     */
+    public CreateUserPlaylistDialog(Playlist playlist) {
         setRetainInstance(true);
         mPlaylist = playlist;
     }
 
+    /**
+     * Called when this {@link DialogFragment} is being created
+     */
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        //show soft keyboard
         InputMethodManager imm = (InputMethodManager) getActivity()
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 
+        //we can use the provided AlertDialog.Builder because we need a pretty basic Dialog,
+        //nothing fancy here so to speak
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.playlist_dialog, null);
+
+        //set the proper flags for our edittext
         EditText editText = (EditText) view.findViewById(R.id.playlist_dialog_name_textview);
         editText.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         editText.setSingleLine(true);
@@ -85,21 +101,24 @@ public class PlaylistDialog extends DialogFragment {
                 return false;
             }
         });
+
+        //Set the textview's text to the proper title, depending on whether we are saving or
+        //creating a playlist
         TextView textView = (TextView) view.findViewById(R.id.playlist_dialog_title_textview);
-        DialogInterface.OnClickListener onPositiveButtonClickedListener
-                = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                hideSoftKeyboard();
-                savePlaylist();
-            }
-        };
-        builder.setPositiveButton(R.string.ok, onPositiveButtonClickedListener);
         if (mPlaylist != null) {
             textView.setText(R.string.playbackactivity_save_playlist_dialog_title);
         } else {
             textView.setText(R.string.playbackactivity_create_playlist_dialog_title);
         }
+
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                hideSoftKeyboard();
+                savePlaylist();
+            }
+        });
+
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 hideSoftKeyboard();
@@ -110,6 +129,9 @@ public class PlaylistDialog extends DialogFragment {
         return builder.create();
     }
 
+    /**
+     * Persist a {@link Playlist} as a {@link UserPlaylist} in our database
+     */
     private void savePlaylist() {
         EditText editText = (EditText) getDialog().findViewById(R.id.playlist_dialog_name_textview);
         String playlistName = TextUtils.isEmpty(editText.getText().toString()) ? getString(
@@ -128,6 +150,9 @@ public class PlaylistDialog extends DialogFragment {
                 .getCollectionFromId(UserCollection.Id)).updateUserPlaylists();
     }
 
+    /**
+     * Hide the soft keyboard
+     */
     private void hideSoftKeyboard() {
         EditText editText = (EditText) getDialog().findViewById(R.id.playlist_dialog_name_textview);
         InputMethodManager imm = (InputMethodManager) getActivity()

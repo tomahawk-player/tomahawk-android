@@ -24,7 +24,7 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
-import org.tomahawk.tomahawk_android.dialogs.PlaylistDialog;
+import org.tomahawk.tomahawk_android.dialogs.CreateUserPlaylistDialog;
 
 import android.os.Bundle;
 import android.support.v4.content.Loader;
@@ -58,7 +58,7 @@ public class PlaylistsFragment extends TomahawkFragment implements OnItemClickLi
                                     TOMAHAWK_PLAYLIST_ID, false);
                 }
             } else {
-                new PlaylistDialog().show(getFragmentManager(),
+                new CreateUserPlaylistDialog().show(getFragmentManager(),
                         getString(R.string.playbackactivity_create_playlist_dialog_title));
             }
         }
