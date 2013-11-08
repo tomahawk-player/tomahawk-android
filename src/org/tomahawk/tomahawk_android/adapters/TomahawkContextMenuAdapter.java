@@ -30,7 +30,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Enno Gottschalk <mrmaffen@googlemail.com>
+ * Since we can't customize the appearance of the official context menu dialog, we have to {@link
+ * org.tomahawk.tomahawk_android.dialogs.FakeContextMenuDialog} with this {@link
+ * TomahawkContextMenuAdapter} to be used to populate it.
  */
 public class TomahawkContextMenuAdapter extends BaseAdapter {
 
@@ -40,42 +42,46 @@ public class TomahawkContextMenuAdapter extends BaseAdapter {
 
     /**
      * Constructs a new {@link TomahawkContextMenuAdapter}
+     *
+     * @param layoutInflater used to inflate the {@link View}s
+     * @param stringArray    the array of {@link String}s containing the context menu entry texts
      */
     public TomahawkContextMenuAdapter(LayoutInflater layoutInflater, String[] stringArray) {
         mLayoutInflater = layoutInflater;
         Collections.addAll(mStringArray, stringArray);
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getCount()
+    /**
+     * @return length of the array of {@link String}s containing the context menu entry texts
      */
     @Override
     public int getCount() {
         return mStringArray.size();
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getItem(int)
+    /**
+     * @return {@link String} for the given position
      */
     @Override
     public Object getItem(int position) {
         return mStringArray.get(position);
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getItemId(int)
+    /**
+     * Get the id of the item for the given position. (Id is equal to given position)
      */
     @Override
     public long getItemId(int position) {
         return position;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
+    /**
+     * Get the correct {@link View} for the given position.
+     *
+     * @param position    The position for which to get the correct {@link View}
+     * @param convertView The old {@link View}, which we might be able to recycle
+     * @param parent      parental {@link ViewGroup}
+     * @return the correct {@link View} for the given position.
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {

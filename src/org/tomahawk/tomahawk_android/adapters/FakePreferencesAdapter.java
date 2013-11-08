@@ -41,7 +41,10 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * @author Enno Gottschalk <mrmaffen@googlemail.com>
+ * Since {@link android.preference.PreferenceFragment} is not supported with the official support
+ * library, and also not within ActionBarSherlock, we have to create our own {@link
+ * org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment} with our own {@link
+ * FakePreferencesAdapter}
  */
 public class FakePreferencesAdapter extends BaseAdapter implements StickyListHeadersAdapter {
 
@@ -90,9 +93,9 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
         mFakePreferencesSpinnerResourceHolder.textViewId2 = R.id.fake_preferences_textview2;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getCount()
+    /**
+     * @return the total amount of all {@link FakePreferenceGroup}s this {@link
+     *         FakePreferencesAdapter} displays
      */
     @Override
     public int getCount() {
@@ -103,9 +106,9 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
         return countSum;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getItem(int)
+    /**
+     * Get the correct {@link org.tomahawk.tomahawk_android.utils.FakePreferenceGroup.FakePreference}
+     * for the given position
      */
     @Override
     public Object getItem(int position) {
@@ -121,18 +124,21 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
         return item;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getItemId(int)
+    /**
+     * Get the id of the item with the given position (the returned id is equal to the position)
      */
     @Override
     public long getItemId(int position) {
         return position;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
+    /**
+     * Get the correct {@link View} for the given position. Recycle a convertView, if possible.
+     *
+     * @param position    The position for which to get the correct {@link View}
+     * @param convertView The old {@link View}, which we might be able to recycle
+     * @param parent      parental {@link ViewGroup}
+     * @return the correct {@link View} for the given position.
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -141,10 +147,14 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
 
         if (item != null) {
             TomahawkBaseAdapter.ViewHolder viewHolder;
+            // First we inflate the correct view and set the correct resource ids in the viewHolder.
+            // Also we check if we can re-use the old convertView
             if (((FakePreferenceGroup.FakePreference) item).getType()
                     == FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN && ((convertView == null)
                     || ((TomahawkBaseAdapter.ViewHolder) convertView.getTag()).viewType
                     != R.id.fakepreferencesadapter_viewtype_plain)) {
+                // In case the View should be drawn as a "FAKEPREFERENCE_TYPE_PLAIN" and no
+                // convertView is given or the viewType has changed
                 view = mLayoutInflater
                         .inflate(mFakePreferencesPlainResourceHolder.resourceId, null);
                 viewHolder = new TomahawkBaseAdapter.ViewHolder();
@@ -158,6 +168,8 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                     == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX && ((convertView == null)
                     || ((TomahawkBaseAdapter.ViewHolder) convertView.getTag()).viewType
                     != R.id.fakepreferencesadapter_viewtype_checkbox)) {
+                // In case the View should be drawn as a "FAKEPREFERENCE_TYPE_CHECKBOX" and no
+                // convertView is given or the viewType has changed
                 view = mLayoutInflater
                         .inflate(mFakePreferencesCheckboxResourceHolder.resourceId, null);
                 viewHolder = new TomahawkBaseAdapter.ViewHolder();
@@ -173,6 +185,8 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                     == FakePreferenceGroup.FAKEPREFERENCE_TYPE_DIALOG && ((convertView == null)
                     || ((TomahawkBaseAdapter.ViewHolder) convertView.getTag()).viewType
                     != R.id.fakepreferencesadapter_viewtype_dialog)) {
+                // In case the View should be drawn as a "FAKEPREFERENCE_TYPE_DIALOG" and no
+                // convertView is given or the viewType has changed
                 view = mLayoutInflater
                         .inflate(mFakePreferencesCheckboxResourceHolder.resourceId, null);
                 viewHolder = new TomahawkBaseAdapter.ViewHolder();
@@ -190,6 +204,8 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                     == FakePreferenceGroup.FAKEPREFERENCE_TYPE_SPINNER && ((convertView == null)
                     || ((TomahawkBaseAdapter.ViewHolder) convertView.getTag()).viewType
                     != R.id.fakepreferencesadapter_viewtype_spinner)) {
+                // In case the View should be drawn as a "FAKEPREFERENCE_TYPE_SPINNER" and no
+                // convertView is given or the viewType has changed
                 view = mLayoutInflater
                         .inflate(mFakePreferencesSpinnerResourceHolder.resourceId, null);
                 viewHolder = new TomahawkBaseAdapter.ViewHolder();
@@ -202,9 +218,14 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                         .findViewById(mFakePreferencesSpinnerResourceHolder.spinnerId);
                 view.setTag(viewHolder);
             } else {
+                // Else we can simply re-use the old View referenced by convertView
                 view = convertView;
+                // set the viewHolder by getting the old viewHolder from the view's tag
                 viewHolder = (TomahawkBaseAdapter.ViewHolder) view.getTag();
             }
+
+            // After we've setup the correct view and viewHolder, we now can fill the View's
+            // components with the correct data
             if (viewHolder.viewType == R.id.fakepreferencesadapter_viewtype_plain) {
                 FakePreferenceGroup.FakePreference fakePreference
                         = (FakePreferenceGroup.FakePreference) item;
@@ -250,12 +271,26 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                 viewHolder.textSecondLine.setText(fakePreference.getSummary());
             }
         }
+
+        // Finally we can return the the correct view
         return view;
     }
 
+    /**
+     * This method is being called by the StickyListHeaders library. Get the correct header {@link
+     * View} for the given position.
+     *
+     * @param position    The position for which to get the correct {@link View}
+     * @param convertView The old {@link View}, which we might be able to recycle
+     * @param parent      parental {@link ViewGroup}
+     * @return the correct header {@link View} for the given position.
+     */
     @Override
     public View getHeaderView(int position, View convertView, ViewGroup parent) {
         TomahawkBaseAdapter.ViewHolder viewHolder;
+
+        // First we inflate the correct view and set the correct resource ids in the viewHolder.
+        // We don't do this if convertView already contains a properly setup View, that we can re-use.
         if (convertView == null || ((TomahawkBaseAdapter.ViewHolder) convertView.getTag()).viewType
                 != R.id.tomahawklistadapter_viewtype_header) {
             convertView = mLayoutInflater.inflate(mHeaderResourceHolder.resourceId, null);
@@ -265,6 +300,9 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                     .findViewById(mHeaderResourceHolder.textViewId1);
             convertView.setTag(viewHolder);
         }
+
+        // After we've setup the correct view and viewHolder, we now can set the text for
+        // the previously inflated header view
         viewHolder = (TomahawkBaseAdapter.ViewHolder) convertView.getTag();
         int sizeSum = 0;
         for (FakePreferenceGroup fakePreferenceGroup : mFakePreferenceGroups) {
@@ -274,10 +312,18 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                 break;
             }
         }
+
+        // Finally we can return the the correct view
         return convertView;
     }
 
-    //remember that these have to be static, position=1 should always return the same Id that is.
+    /**
+     * This method is being called by the StickyListHeaders library. Returns the same value for each
+     * item that should be grouped under the same header.
+     *
+     * @param position the position of the item for which to get the header id
+     * @return the same value for each item that should be grouped under the same header.
+     */
     @Override
     public long getHeaderId(int position) {
         long result = 0;

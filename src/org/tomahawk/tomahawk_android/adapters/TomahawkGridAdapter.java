@@ -30,7 +30,9 @@ import android.widget.TextView;
 import java.util.List;
 
 /**
- * @author Enno Gottschalk <mrmaffen@googlemail.com>
+ * This class is used to populate a {@link android.widget.GridView}. As in the {@link
+ * android.widget.GridView} used for displaying all {@link Album}s in the {@link
+ * org.tomahawk.libtomahawk.collection.UserCollection}.
  */
 public class TomahawkGridAdapter extends TomahawkBaseAdapter {
 
@@ -38,6 +40,10 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
 
     /**
      * Constructs a new {@link TomahawkGridAdapter}
+     *
+     * @param activity  reference to whatever {@link Activity}
+     * @param listArray complete set of lists containing all content which the listview should be
+     *                  populated with
      */
     public TomahawkGridAdapter(Activity activity, List<List<TomahawkListItem>> listArray) {
         mActivity = activity;
@@ -49,9 +55,13 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
         mListArray = listArray;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
+    /**
+     * Get the correct {@link View} for the given position.
+     *
+     * @param position    The position for which to get the correct {@link View}
+     * @param convertView The old {@link View}, which we might be able to recycle
+     * @param parent      parental {@link ViewGroup}
+     * @return the correct {@link View} for the given position.
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -92,9 +102,8 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
         return view;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getCount()
+    /**
+     * @return the count of every item to display
      */
     @Override
     public int getCount() {
@@ -108,9 +117,8 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
         return displayedListArrayItemsCount;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getItem(int)
+    /**
+     * @return item for the given position
      */
     @Override
     public Object getItem(int position) {
@@ -127,9 +135,8 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
         return item;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getItemId(int)
+    /**
+     * Get the id of the item for the given position. (Id is equal to given position)
      */
     @Override
     public long getItemId(int position) {

@@ -33,7 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Enno Gottschalk <mrmaffen@googlemail.com>
+ * This class implements the basic {@link BaseAdapter} functionality for our listview adapters. It
+ * is being extended by {@link TomahawkGridAdapter} and {@link TomahawkListAdapter}.
  */
 public abstract class TomahawkBaseAdapter extends BaseAdapter {
 
@@ -118,7 +119,7 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
     }
 
     /**
-     * Add a list to the {@link TomahawkGridAdapter}.
+     * Add a list to the {@link TomahawkBaseAdapter}.
      *
      * @param title the title of the list, which will be displayed as a header, if the list is not
      *              empty
@@ -146,6 +147,9 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
         return false;
     }
 
+    /**
+     * Set the list to "itemList" at position "index"
+     */
     public void setListWithIndex(int index, ArrayList<TomahawkListItem> itemList) {
         if (hasListWithIndex(index)) {
             mListArray.set(index, itemList);
@@ -153,6 +157,9 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    /**
+     * Set the complete list of lists
+     */
     public void setListArray(List<List<TomahawkListItem>> listArray) {
         mListArray = listArray;
         notifyDataSetChanged();
