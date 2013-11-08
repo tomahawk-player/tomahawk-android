@@ -34,7 +34,7 @@ import org.tomahawk.tomahawk_android.activities.PlaybackActivity;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
-import org.tomahawk.tomahawk_android.dialogs.ChoosePlaylistDialog;
+import org.tomahawk.tomahawk_android.dialogs.ChooseUserPlaylistDialog;
 import org.tomahawk.tomahawk_android.dialogs.FakeContextMenuDialog;
 import org.tomahawk.tomahawk_android.utils.FakeContextMenu;
 
@@ -368,8 +368,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             } else if (tomahawkListItem instanceof Artist) {
                 tracks = ((Artist) tomahawkListItem).getTracks();
             }
-            new ChoosePlaylistDialog(userCollection, tracks)
-                    .show(mActivity.getSupportFragmentManager(), "ChoosePlaylistDialog");
+            new ChooseUserPlaylistDialog(userCollection, tracks)
+                    .show(mActivity.getSupportFragmentManager(), "ChooseUserPlaylistDialog");
             userCollection.updateUserPlaylists();
         }
     }

@@ -41,9 +41,9 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
-import org.tomahawk.tomahawk_android.dialogs.ChoosePlaylistDialog;
+import org.tomahawk.tomahawk_android.dialogs.ChooseUserPlaylistDialog;
+import org.tomahawk.tomahawk_android.dialogs.CreateUserPlaylistDialog;
 import org.tomahawk.tomahawk_android.dialogs.FakeContextMenuDialog;
-import org.tomahawk.tomahawk_android.dialogs.PlaylistDialog;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection;
@@ -248,7 +248,7 @@ public class PlaybackActivity extends SherlockFragmentActivity
                 }
                 return true;
             } else if (item.getItemId() == R.id.action_saveplaylist_item) {
-                new PlaylistDialog(mPlaybackService.getCurrentPlaylist())
+                new CreateUserPlaylistDialog(mPlaybackService.getCurrentPlaylist())
                         .show(getSupportFragmentManager(),
                                 getString(R.string.playbackactivity_save_playlist_dialog_title));
                 return true;
@@ -351,8 +351,8 @@ public class PlaybackActivity extends SherlockFragmentActivity
                 } else if (tomahawkListItem instanceof Artist) {
                     tracks = ((Artist) tomahawkListItem).getTracks();
                 }
-                new ChoosePlaylistDialog(userCollection, tracks)
-                        .show(getSupportFragmentManager(), "ChoosePlaylistDialog");
+                new ChooseUserPlaylistDialog(userCollection, tracks)
+                        .show(getSupportFragmentManager(), "ChooseUserPlaylistDialog");
                 userCollection.updateUserPlaylists();
             }
         }

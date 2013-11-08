@@ -43,9 +43,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 14.06.13
+ * A {@link DialogFragment} which shows a textfield to enter a username and password, and provides
+ * button for cancel/logout and ok/login, depending on whether or not the user is logged in
  */
-
 public class LoginDialog extends DialogFragment {
 
     public final static String TAG = LoginDialog.class.getName();
@@ -68,6 +68,7 @@ public class LoginDialog extends DialogFragment {
 
     private ImageView mStatusImageView;
 
+    //Used to handle the animation of our progress animation, while we try to login
     private Handler mAnimationHandler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
@@ -89,6 +90,7 @@ public class LoginDialog extends DialogFragment {
 
     private static final int MSG_UPDATE_ANIMATION = 0x20;
 
+    //So that the user can login by pressing "Enter" or something similar on his keyboard
     private TextView.OnEditorActionListener mOnLoginActionListener
             = new TextView.OnEditorActionListener() {
         @Override
@@ -128,11 +130,20 @@ public class LoginDialog extends DialogFragment {
         }
     };
 
+    /**
+     * Construct a {@link LoginDialog}
+     *
+     * @param tomahawkService a reference to the {@link TomahawkService}, which handles the actual
+     *                        login/logout
+     */
     public LoginDialog(TomahawkService tomahawkService) {
         setRetainInstance(true);
         mTomahawkService = tomahawkService;
     }
 
+    /**
+     * Called when this {@link DialogFragment} is being created
+     */
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         InputMethodManager imm = (InputMethodManager) getActivity()
@@ -229,6 +240,9 @@ public class LoginDialog extends DialogFragment {
         }
     }
 
+    /**
+     * Hide the soft keyboard
+     */
     private void hideSoftKeyboard() {
         if (getActivity() != null) {
             InputMethodManager imm = (InputMethodManager) getActivity()
@@ -237,6 +251,9 @@ public class LoginDialog extends DialogFragment {
         }
     }
 
+    /**
+     * Update the texts of all buttons. Depends on whether or not the user is logged in.
+     */
     private void updateButtonTexts() {
         if (mTomahawkService.getSpotifyUserId() != null) {
             mPositiveButton.setText(R.string.ok);
@@ -247,10 +264,16 @@ public class LoginDialog extends DialogFragment {
         }
     }
 
+    /**
+     * Start the loading animation. Called when beginning login process.
+     */
     public void startLoadingAnimation() {
         mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
     }
 
+    /**
+     * Stop the loading animation. Called when login/logout process has finished.
+     */
     public void stopLoadingAnimation() {
         mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
         if (mTomahawkService.getSpotifyUserId() != null) {

@@ -38,10 +38,9 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 24.02.13
+ * A {@link DialogFragment} which shows a list of all {@link UserPlaylist}s to choose from.
  */
-
-public class ChoosePlaylistDialog extends DialogFragment {
+public class ChooseUserPlaylistDialog extends DialogFragment {
 
     UserCollection mUserCollection;
 
@@ -49,12 +48,23 @@ public class ChoosePlaylistDialog extends DialogFragment {
 
     int mCustomPlaylistCount;
 
-    public ChoosePlaylistDialog(UserCollection userCollection, ArrayList<Track> tracks) {
+    /**
+     * Construct a {@link ChooseUserPlaylistDialog}
+     *
+     * @param userCollection a reference to the {@link UserCollection}
+     * @param tracks         an {@link ArrayList} of {@link Track}s in case we want to add them to a
+     *                       {@link UserPlaylist}, which the user chooses through this {@link
+     *                       ChooseUserPlaylistDialog}
+     */
+    public ChooseUserPlaylistDialog(UserCollection userCollection, ArrayList<Track> tracks) {
         setRetainInstance(true);
         mUserCollection = userCollection;
         mTracks = tracks;
     }
 
+    /**
+     * Called when this {@link DialogFragment} is being created
+     */
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -87,7 +97,7 @@ public class ChoosePlaylistDialog extends DialogFragment {
         linearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new PlaylistDialog(UserPlaylist.fromTrackList(mTracks)).show(getFragmentManager(),
+                new CreateUserPlaylistDialog(UserPlaylist.fromTrackList(mTracks)).show(getFragmentManager(),
                         getString(R.string.playbackactivity_create_playlist_dialog_title));
                 getDialog().dismiss();
             }
