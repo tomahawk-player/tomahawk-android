@@ -22,7 +22,8 @@ import android.util.AttributeSet;
 import android.widget.RelativeLayout;
 
 /**
- * @author Enno Gottschalk <mrmaffen@googlemail.com>
+ * A relative layout which will always show as a scare {@link android.view.View}, because its height
+ * is also used as its width.
  */
 public class SquareHeightRelativeLayout extends RelativeLayout {
 
@@ -40,10 +41,6 @@ public class SquareHeightRelativeLayout extends RelativeLayout {
         super(context, attrs);
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see android.widget.RelativeLayout#onMeasure(int, int)
-     */
     @Override
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(heightMeasureSpec, heightMeasureSpec);

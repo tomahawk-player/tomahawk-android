@@ -68,6 +68,10 @@ public class TomahawkExceptionReporter implements ReportSender {
         initStrictMode();
     }
 
+    /**
+     * Pull information from the given {@link CrashReportData} and send it via HTTP to
+     * oops.tomahawk-player.org
+     */
     @Override
     public void send(CrashReportData data) throws ReportSenderException {
         HttpClient httpclient = new DefaultHttpClient();

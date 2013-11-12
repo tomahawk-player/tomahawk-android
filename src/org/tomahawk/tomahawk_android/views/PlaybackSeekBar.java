@@ -29,6 +29,9 @@ import android.util.AttributeSet;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+/**
+ * Customized {@link SeekBar} for the {@link org.tomahawk.tomahawk_android.fragments.PlaybackFragment}
+ */
 public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
 
     private boolean mIsSeeking;
@@ -45,15 +48,14 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
 
     private static final int MSG_UPDATE_PROGRESS = 0x1;
 
+    /**
+     * Construct a {@link PlaybackSeekBar}
+     */
     public PlaybackSeekBar(Context context, AttributeSet attrs) {
         super(context, attrs);
         mUiHandler = new Handler(this);
         OnSeekBarChangeListener onSeekBarChangeListener = new OnSeekBarChangeListener() {
-            /*
-             * (non-Javadoc)
-             * @see android .widget .SeekBar. OnSeekBarChangeListener # onProgressChanged (android .widget .SeekBar,
-             * int, boolean)
-             */
+
             @Override
             public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
                 if (isIsSeeking()) {
@@ -61,19 +63,11 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
                 }
             }
 
-            /*
-             * (non-Javadoc)
-             * @see android.widget.SeekBar.OnSeekBarChangeListener#onStartTrackingTouch (android .widget.SeekBar)
-             */
             @Override
             public void onStartTrackingTouch(SeekBar arg0) {
                 setIsSeeking(true);
             }
 
-            /*
-             * (non-Javadoc)
-             * @see android.widget.SeekBar.OnSeekBarChangeListener#onStopTrackingTouch (android .widget.SeekBar)
-             */
             @Override
             public void onStopTrackingTouch(SeekBar arg0) {
                 setIsSeeking(false);
@@ -85,9 +79,8 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
         setIsSeeking(false);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.os.Handler.Callback#handleMessage(android.os.Message)
+    /**
+     * If the message is MSG_UPDATE_PROGRESS, update the seekbar position
      */
     @Override
     public boolean handleMessage(Message msg) {
@@ -99,10 +92,16 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
         return true;
     }
 
+    /**
+     * Set max to current {@link org.tomahawk.libtomahawk.collection.Track}'s duration
+     */
     public void setMax() {
         setMax((int) mPlaybackService.getCurrentTrack().getDuration());
     }
 
+    /**
+     * Set the interval in which to update the seekbar position
+     */
     public void setUpdateInterval() {
         mUpdateInterval = (int) (mPlaybackService.getCurrentTrack().getDuration() / 300);
         mUpdateInterval = Math.min(mUpdateInterval, 250);
@@ -176,27 +175,6 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
      */
     public void setIsSeeking(boolean mIsSeeking) {
         this.mIsSeeking = mIsSeeking;
-    }
-
-    /**
-     * @return mUiHandler to handle the updating process of the PlaybackSeekBar
-     */
-    public Handler getUiHandler() {
-        return mUiHandler;
-    }
-
-    /**
-     * @param mUiHandler to handle the updating process of the PlaybackSeekBar
-     */
-    public void setUiHandler(Handler mUiHandler) {
-        this.mUiHandler = mUiHandler;
-    }
-
-    /**
-     * @return MSG_UPDATE_PROGRESS
-     */
-    public static int getMsgUpdateProgress() {
-        return MSG_UPDATE_PROGRESS;
     }
 
     public void setPlaybackService(PlaybackService mPlaybackService) {
