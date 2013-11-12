@@ -31,37 +31,16 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 06.04.13
+ * This {@link SlideMenuFragment} displays a simple list of menu entries. Used as the {@link
+ * ListFragment}, which is being shown as the Navigation Drawer, when the user swipes from left to
+ * right.
  */
 public class SlideMenuFragment extends ListFragment implements AdapterView.OnItemClickListener {
 
     protected TomahawkMainActivity mTomahawkMainActivity;
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.slide_menu_layout, null);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-     */
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        getListView().setOnItemClickListener(this);
-        TomahawkMenuAdapter slideMenuAdapter = new TomahawkMenuAdapter(getActivity(),
-                getResources().getStringArray(R.array.slide_menu_items),
-                getResources().obtainTypedArray(R.array.slide_menu_items_icons));
-        setListAdapter(slideMenuAdapter);
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see com.actionbarsherlock.app.SherlockListFragment#onAttach(android.app.Activity)
+    /**
+     * Store the reference to the {@link Activity}, in which this Fragment has been created
      */
     @Override
     public void onAttach(Activity activity) {
@@ -71,9 +50,26 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
         super.onAttach(activity);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.actionbarsherlock.app.SherlockListFragment#onDetach()
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.slide_menu_layout, null);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        getListView().setOnItemClickListener(this);
+        // Set up the TomahawkMenuAdapter. Give it its set of menu item texts and icons to display
+        TomahawkMenuAdapter slideMenuAdapter = new TomahawkMenuAdapter(getActivity(),
+                getResources().getStringArray(R.array.slide_menu_items),
+                getResources().obtainTypedArray(R.array.slide_menu_items_icons));
+        setListAdapter(slideMenuAdapter);
+    }
+
+    /**
+     * Null the reference to this Fragment's {@link Activity}
      */
     @Override
     public void onDetach() {
@@ -81,16 +77,23 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
         super.onDetach();
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
+    /**
+     * Called every time an item inside the {@link android.widget.ListView} is clicked
+     *
+     * @param parent   The AdapterView where the click happened.
+     * @param view     The view within the AdapterView that was clicked (this will be a view
+     *                 provided by the adapter)
+     * @param position The position of the view in the adapter.
+     * @param id       The row id of the item that was clicked.
      */
     @Override
-    public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Handler h = new Handler();
-        switch ((int) arg3) {
-            case TomahawkMainActivity.TAB_ID_SEARCH:
+        // Show the correct hub, and if needed, display the search editText inside the ActionBar
+        switch ((int) id) {
+            case TomahawkMainActivity.HUB_ID_SEARCH:
                 mTomahawkMainActivity.getContentViewer()
-                        .setCurrentStackId(TomahawkMainActivity.TAB_ID_SEARCH);
+                        .setCurrentStackId(TomahawkMainActivity.HUB_ID_SEARCH);
                 mTomahawkMainActivity.showSearchEditText();
                 h.postDelayed(new Runnable() {
                     public void run() {
@@ -98,9 +101,9 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
                     }
                 }, 50);
                 break;
-            case TomahawkMainActivity.TAB_ID_COLLECTION:
+            case TomahawkMainActivity.HUB_ID_COLLECTION:
                 mTomahawkMainActivity.getContentViewer()
-                        .setCurrentStackId(TomahawkMainActivity.TAB_ID_COLLECTION);
+                        .setCurrentStackId(TomahawkMainActivity.HUB_ID_COLLECTION);
                 mTomahawkMainActivity.hideSearchEditText();
                 h.postDelayed(new Runnable() {
                     public void run() {
@@ -108,9 +111,9 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
                     }
                 }, 50);
                 break;
-            case TomahawkMainActivity.TAB_ID_PLAYLISTS:
+            case TomahawkMainActivity.HUB_ID_PLAYLISTS:
                 mTomahawkMainActivity.getContentViewer()
-                        .setCurrentStackId(TomahawkMainActivity.TAB_ID_PLAYLISTS);
+                        .setCurrentStackId(TomahawkMainActivity.HUB_ID_PLAYLISTS);
                 mTomahawkMainActivity.hideSearchEditText();
                 h.postDelayed(new Runnable() {
                     public void run() {
@@ -118,9 +121,9 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
                     }
                 }, 50);
                 break;
-            case TomahawkMainActivity.TAB_ID_SETTINGS:
+            case TomahawkMainActivity.HUB_ID_SETTINGS:
                 mTomahawkMainActivity.getContentViewer()
-                        .setCurrentStackId(TomahawkMainActivity.TAB_ID_SETTINGS);
+                        .setCurrentStackId(TomahawkMainActivity.HUB_ID_SETTINGS);
                 mTomahawkMainActivity.hideSearchEditText();
                 h.postDelayed(new Runnable() {
                     public void run() {

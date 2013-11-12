@@ -28,12 +28,31 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
 /**
- * Fragment which represents the "UserCollection" tabview.
+ * {@link TomahawkListFragment} which shows a simple listview menu to the user, so that he can
+ * choose between a {@link TracksFragment}, an {@link AlbumsFragment} and an {@link
+ * ArtistsFragment}, which display the {@link org.tomahawk.libtomahawk.collection.UserCollection}'s
+ * content to the user.
  */
-public class LocalCollectionFragment extends TomahawkListFragment implements OnItemClickListener {
+public class UserCollectionFragment extends TomahawkListFragment implements OnItemClickListener {
 
     protected TomahawkMainActivity mTomahawkMainActivity;
 
+    /**
+     * Store the reference to the {@link Activity}, in which this {@link UserCollectionFragment} has
+     * been created
+     */
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        if (activity instanceof TomahawkMainActivity) {
+            mTomahawkMainActivity = (TomahawkMainActivity) activity;
+        }
+    }
+
+    /**
+     * Called, when this {@link UserCollectionFragment}'s {@link View} has been created
+     */
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -45,47 +64,42 @@ public class LocalCollectionFragment extends TomahawkListFragment implements OnI
         getListView().setOnItemClickListener(this);
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see com.actionbarsherlock.app.SherlockListFragment#onAttach(android.app.Activity)
-     */
-    @Override
-    public void onAttach(Activity activity) {
-        if (activity instanceof TomahawkMainActivity) {
-            mTomahawkMainActivity = (TomahawkMainActivity) activity;
-        }
-        super.onAttach(activity);
-    }
-
-    /* 
-     * (non-Javadoc)
-     * @see com.actionbarsherlock.app.SherlockListFragment#onDetach()
+    /**
+     * Null the reference to this {@link FakePreferenceFragment}'s {@link Activity}
      */
     @Override
     public void onDetach() {
-        mTomahawkMainActivity = null;
         super.onDetach();
+
+        mTomahawkMainActivity = null;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
+    /**
+     * Called every time an item inside the {@link org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}
+     * is clicked
+     *
+     * @param parent   The AdapterView where the click happened.
+     * @param view     The view within the AdapterView that was clicked (this will be a view
+     *                 provided by the adapter)
+     * @param position The position of the view in the adapter.
+     * @param id       The row id of the item that was clicked.
      */
     @Override
-    public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        switch ((int) arg3) {
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        switch ((int) id) {
             case 0:
                 mTomahawkMainActivity.getContentViewer()
-                        .replace(TomahawkMainActivity.TAB_ID_COLLECTION, TracksFragment.class, -1,
+                        .replace(TomahawkMainActivity.HUB_ID_COLLECTION, TracksFragment.class, -1,
                                 null, false);
                 break;
             case 1:
                 mTomahawkMainActivity.getContentViewer()
-                        .replace(TomahawkMainActivity.TAB_ID_COLLECTION, AlbumsFragment.class, -1,
+                        .replace(TomahawkMainActivity.HUB_ID_COLLECTION, AlbumsFragment.class, -1,
                                 null, false);
                 break;
             case 2:
                 mTomahawkMainActivity.getContentViewer()
-                        .replace(TomahawkMainActivity.TAB_ID_COLLECTION, ArtistsFragment.class, -1,
+                        .replace(TomahawkMainActivity.HUB_ID_COLLECTION, ArtistsFragment.class, -1,
                                 null, false);
                 break;
         }

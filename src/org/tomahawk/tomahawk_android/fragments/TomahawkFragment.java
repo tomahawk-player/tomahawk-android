@@ -57,7 +57,13 @@ import android.widget.AdapterView;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class TomahawkFragment extends TomahawkListFragment
+/**
+ * The base class for {@link AlbumsFragment}, {@link TracksFragment}, {@link ArtistsFragment},
+ * {@link UserPlaylistsFragment} and {@link SearchableFragment}. Provides all sorts of functionality
+ * to those classes, related to displaying {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}s
+ * in whichever needed way.
+ */
+public class TomahawkFragment extends TomahawkListFragment
         implements LoaderManager.LoaderCallbacks<Collection>, FakeContextMenu {
 
     public static final String TOMAHAWK_ALBUM_ID = "tomahawk_album_id";
@@ -68,7 +74,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     public static final String TOMAHAWK_PLAYLIST_ID = "tomahawk_playlist_id";
 
-    public static final String TOMAHAWK_TAB_ID = "tomahawk_tab_id";
+    public static final String TOMAHAWK_HUB_ID = "tomahawk_hub_id";
 
     protected TomahawkApp mTomahawkApp;
 
@@ -85,9 +91,9 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     private UserPlaylistsDataSource mUserPlaylistsDataSource;
 
-    protected TomahawkMainActivity mActivity;
+    protected TomahawkMainActivity mTomahawkMainActivity;
 
-    protected int mCorrespondingStackId;
+    protected int mCorrespondingHubId;
 
     protected Album mAlbum;
 
@@ -97,6 +103,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     private Drawable mProgressDrawable;
 
+    // Used to display an animated progress drawable, as long as the PipeLine is resolving something
     private Handler mAnimationHandler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
@@ -104,7 +111,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 case MSG_UPDATE_ANIMATION:
                     if (mPipeline.isResolving()) {
                         mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 500);
-                        mActivity.getSupportActionBar().setLogo(mProgressDrawable);
+                        mTomahawkMainActivity.getSupportActionBar().setLogo(mProgressDrawable);
                         mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
                         mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
                     } else {
@@ -123,13 +130,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
      */
     private class TomahawkFragmentReceiver extends BroadcastReceiver {
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * android.content.BroadcastReceiver#onReceive(android.content.Context,
-         * android.content.Intent)
-         */
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(Collection.COLLECTION_UPDATED)) {
@@ -138,57 +138,63 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
+    /**
+     * Store the reference to the {@link Activity}, in which this {@link UserCollectionFragment} has
+     * been created
+     */
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        if (activity instanceof TomahawkMainActivity) {
+            mTomahawkMainActivity = (TomahawkMainActivity) activity;
+        }
+    }
+
+    /**
+     * Basic initializations. Get corresponding hub id through getArguments(), if not null
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (getArguments() != null) {
-            if (getArguments().containsKey(TOMAHAWK_TAB_ID)
-                    && getArguments().getInt(TOMAHAWK_TAB_ID) > 0) {
-                mCorrespondingStackId = getArguments().getInt(TOMAHAWK_TAB_ID);
+            if (getArguments().containsKey(TOMAHAWK_HUB_ID)
+                    && getArguments().getInt(TOMAHAWK_HUB_ID) > 0) {
+                mCorrespondingHubId = getArguments().getInt(TOMAHAWK_HUB_ID);
             }
         }
-        mTomahawkApp = ((TomahawkApp) mActivity.getApplication());
+        mTomahawkApp = ((TomahawkApp) mTomahawkMainActivity.getApplication());
         mInfoSystem = mTomahawkApp.getInfoSystem();
         mPipeline = mTomahawkApp.getPipeLine();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.support.v4.app.Fragment#onResume()
-     */
     @Override
     public void onResume() {
         super.onResume();
 
         mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
 
+        // Adapt to current orientation. Show different count of columns in the GridView
         adaptColumnCount();
 
         getSherlockActivity().getSupportLoaderManager().destroyLoader(getId());
         getSherlockActivity().getSupportLoaderManager().initLoader(getId(), null, this);
 
+        // Initialize and register Receiver
         if (mTomahawkFragmentReceiver == null) {
             mTomahawkFragmentReceiver = new TomahawkFragmentReceiver();
             IntentFilter intentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
             getActivity().registerReceiver(mTomahawkFragmentReceiver, intentFilter);
         }
 
-        mUserPlaylistsDataSource = new UserPlaylistsDataSource(mActivity,
+        // Initialize UserPlaylistsDataSource, which makes it possible to retrieve persisted
+        // UserPlaylists
+        mUserPlaylistsDataSource = new UserPlaylistsDataSource(mTomahawkMainActivity,
                 mTomahawkApp.getPipeLine());
         mUserPlaylistsDataSource.open();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.support.v4.app.Fragment#onPause()
-     */
     @Override
     public void onPause() {
         super.onPause();
@@ -202,34 +208,24 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.actionbarsherlock.app.SherlockListFragment#onAttach(android.app.Activity)
-     */
-    @Override
-    public void onAttach(Activity activity) {
-        mActivity = (TomahawkMainActivity) activity;
-        super.onAttach(activity);
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see com.actionbarsherlock.app.SherlockListFragment#onDetach()
+    /**
+     * Null the reference to this {@link FakePreferenceFragment}'s {@link Activity}
      */
     @Override
     public void onDetach() {
         super.onDetach();
+
+        mTomahawkMainActivity = null;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see android.support.v4.app.Fragment#onConfigurationChanged(android.content.res.Configuration)
-     */
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         adaptColumnCount();
     }
 
+    /**
+     * Insert our FakeContextMenuDialog initialization here, don't call overriden super method
+     */
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
             ContextMenu.ContextMenuInfo menuInfo) {
@@ -259,6 +255,9 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 .show(getFragmentManager(), null);
     }
 
+    /**
+     * If the user clicks on a fakeContextItem, handle what should be done here
+     */
     @Override
     public void onFakeContextItemSelected(String menuItemTitle, int position) {
         UserCollection userCollection = ((UserCollection) mTomahawkApp.getSourceList()
@@ -338,12 +337,12 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             } else if (tomahawkListItem instanceof Artist) {
                 tracks = ((Artist) tomahawkListItem).getTracks();
             }
-            if (mActivity.getPlaybackService().getCurrentPlaylist() != null) {
-                mActivity.getPlaybackService().addTracksToCurrentPlaylist(
-                        mActivity.getPlaybackService().getCurrentPlaylist().getCurrentTrackIndex()
-                                + 1, tracks);
+            if (mTomahawkMainActivity.getPlaybackService().getCurrentPlaylist() != null) {
+                mTomahawkMainActivity.getPlaybackService().addTracksToCurrentPlaylist(
+                        mTomahawkMainActivity.getPlaybackService().getCurrentPlaylist()
+                                .getCurrentTrackIndex() + 1, tracks);
             } else {
-                mActivity.getPlaybackService().addTracksToCurrentPlaylist(tracks);
+                mTomahawkMainActivity.getPlaybackService().addTracksToCurrentPlaylist(tracks);
             }
         } else if (menuItemTitle.equals(getResources()
                 .getString(R.string.fake_context_menu_appendtoplaybacklist))) {
@@ -356,7 +355,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             } else if (tomahawkListItem instanceof Artist) {
                 tracks = ((Artist) tomahawkListItem).getTracks();
             }
-            mActivity.getPlaybackService().addTracksToCurrentPlaylist(tracks);
+            mTomahawkMainActivity.getPlaybackService().addTracksToCurrentPlaylist(tracks);
         } else if (menuItemTitle
                 .equals(getResources().getString(R.string.fake_context_menu_addtoplaylist))) {
             if (tomahawkListItem instanceof Track) {
@@ -369,7 +368,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 tracks = ((Artist) tomahawkListItem).getTracks();
             }
             new ChooseUserPlaylistDialog(userCollection, tracks)
-                    .show(mActivity.getSupportFragmentManager(), "ChooseUserPlaylistDialog");
+                    .show(mTomahawkMainActivity.getSupportFragmentManager(),
+                            "ChooseUserPlaylistDialog");
             userCollection.updateUserPlaylists();
         }
     }
@@ -395,36 +395,15 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         getSherlockActivity().getSupportLoaderManager().restartLoader(getId(), null, this);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * android.support.v4.app.LoaderManager.LoaderCallbacks#onCreateLoader(int,
-     * android.os.Bundle)
-     */
     @Override
     public Loader<Collection> onCreateLoader(int id, Bundle args) {
         return new CollectionLoader(getActivity(), getCurrentCollection());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoadFinished(android
-     * .support.v4.content.Loader, java.lang.Object)
-     */
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * android.support.v4.app.LoaderManager.LoaderCallbacks#onLoaderReset(android
-     * .support.v4.content.Loader)
-     */
     @Override
     public void onLoaderReset(Loader<Collection> loader) {
     }
@@ -433,18 +412,24 @@ public abstract class TomahawkFragment extends TomahawkListFragment
      * @return the current Collection
      */
     public Collection getCurrentCollection() {
-        if (mActivity != null) {
-            return mActivity.getCollection();
+        if (mTomahawkMainActivity != null) {
+            return mTomahawkMainActivity.getCollection();
         }
         return null;
     }
 
+    /**
+     * Start the loading animation. Called when beginning login process.
+     */
     public void startLoadingAnimation() {
         mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
     }
 
+    /**
+     * Stop the loading animation. Called when login/logout process has finished.
+     */
     public void stopLoadingAnimation() {
         mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
-        mActivity.getSupportActionBar().setLogo(R.drawable.ic_action_slidemenu);
+        mTomahawkMainActivity.getSupportActionBar().setLogo(R.drawable.ic_action_slidemenu);
     }
 }

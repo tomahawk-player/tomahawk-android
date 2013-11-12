@@ -32,7 +32,10 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 
-public abstract class TomahawkListFragment extends SherlockFragment {
+/**
+ * More customizable implementation of {@link android.app.ListFragment}
+ */
+public class TomahawkListFragment extends SherlockFragment {
 
     public static final String TOMAHAWK_LIST_SCROLL_POSITION = "tomahawk_list_scroll_position";
 
@@ -55,10 +58,8 @@ public abstract class TomahawkListFragment extends SherlockFragment {
         }
     };
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
+    /**
+     * Get a stored list scroll position, if present
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -71,20 +72,12 @@ public abstract class TomahawkListFragment extends SherlockFragment {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
-     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.tomahawklistfragment_layout, null, false);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.Fragment#onDestroyView()
-     */
     @Override
     public void onDestroyView() {
         mHandler.removeCallbacks(mRequestFocus);
@@ -94,7 +87,7 @@ public abstract class TomahawkListFragment extends SherlockFragment {
     }
 
     /**
-     * Get the activity's list view widget.
+     * Get this {@link TomahawkListFragment}'s {@link TomahawkStickyListHeadersListView}
      */
     public TomahawkStickyListHeadersListView getListView() {
         ensureList();
@@ -102,13 +95,16 @@ public abstract class TomahawkListFragment extends SherlockFragment {
     }
 
     /**
-     * Get the activity's list view widget.
+     * Get this {@link TomahawkListFragment}'s {@link GridView}
      */
     public GridView getGridView() {
         ensureList();
         return mGrid;
     }
 
+    /**
+     * Set mList/mGrid to the listview/gridview layout element and catch possible exceptions.
+     */
     private void ensureList() {
         if (((mShowGridView) ? mGrid : mList) != null) {
             return;
@@ -167,14 +163,14 @@ public abstract class TomahawkListFragment extends SherlockFragment {
     }
 
     /**
-     * Get the ListAdapter associated with this activity's ListView.
+     * Get the {@link BaseAdapter} associated with this activity's ListView.
      */
     public BaseAdapter getListAdapter() {
         return mBaseAdapter;
     }
 
     /**
-     * Provide the cursor for the list view.
+     * Set the {@link BaseAdapter} associated with this activity's ListView.
      */
     public void setListAdapter(BaseAdapter adapter) {
         mBaseAdapter = adapter;

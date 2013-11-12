@@ -33,34 +33,42 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Fragment which represents the "Artist" tabview.
+ * {@link TomahawkFragment} which shows a set of {@link Artist}s inside its {@link
+ * org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}
  */
 public class ArtistsFragment extends TomahawkFragment implements OnItemClickListener {
 
-    /* (non-Javadoc)
-     * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
+    /**
+     * Called every time an item inside the {@link org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}
+     * is clicked
+     *
+     * @param parent   The AdapterView where the click happened.
+     * @param view     The view within the AdapterView that was clicked (this will be a view
+     *                 provided by the adapter)
+     * @param position The position of the view in the adapter.
+     * @param id       The row id of the item that was clicked.
      */
     @Override
-    public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        idx -= getListView().getHeaderViewsCount();
-        if (idx >= 0) {
-            if (getListAdapter().getItem(idx) instanceof Artist) {
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        position -= getListView().getHeaderViewsCount();
+        if (position >= 0) {
+            if (getListAdapter().getItem(position) instanceof Artist) {
                 Bundle bundle = new Bundle();
                 bundle.putLong(TOMAHAWK_ARTIST_ID,
-                        ((Artist) getListAdapter().getItem(idx)).getId());
-                if (mActivity instanceof TomahawkMainActivity) {
-                    mActivity.getContentViewer()
-                            .replace(mCorrespondingStackId, AlbumsFragment.class,
-                                    ((Artist) getListAdapter().getItem(idx)).getId(),
+                        ((Artist) getListAdapter().getItem(position)).getId());
+                if (mTomahawkMainActivity instanceof TomahawkMainActivity) {
+                    mTomahawkMainActivity.getContentViewer()
+                            .replace(mCorrespondingHubId, AlbumsFragment.class,
+                                    ((Artist) getListAdapter().getItem(position)).getId(),
                                     TOMAHAWK_ARTIST_ID, false);
                 }
             }
         }
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.tomahawk_android.TomahawkListFragment#onLoadFinished(android.support.v4.content.Loader, org.tomahawk.libtomahawk.Collection)
+    /**
+     * Called whenever the {@link org.tomahawk.libtomahawk.collection.UserCollection} {@link Loader}
+     * has finished
      */
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {

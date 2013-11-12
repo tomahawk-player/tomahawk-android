@@ -36,25 +36,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Fragment which represents the "Playlist" tabview.
+ * {@link TomahawkFragment} which shows a set of {@link UserPlaylist}s inside its {@link
+ * org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}
  */
-public class PlaylistsFragment extends TomahawkFragment implements OnItemClickListener {
+public class UserPlaylistsFragment extends TomahawkFragment implements OnItemClickListener {
 
-    /* (non-Javadoc)
-     * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
+    /**
+     * Called every time an item inside the {@link org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}
+     * is clicked
+     *
+     * @param parent   The AdapterView where the click happened.
+     * @param view     The view within the AdapterView that was clicked (this will be a view
+     *                 provided by the adapter)
+     * @param position The position of the view in the adapter.
+     * @param id       The row id of the item that was clicked.
      */
     @Override
-    public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        idx -= getListView().getHeaderViewsCount();
-        if (idx >= 0) {
-            if (getListAdapter().getItem(idx) instanceof Playlist) {
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        position -= getListView().getHeaderViewsCount();
+        if (position >= 0) {
+            if (getListAdapter().getItem(position) instanceof Playlist) {
                 Bundle bundle = new Bundle();
                 bundle.putLong(TOMAHAWK_PLAYLIST_ID,
-                        ((UserPlaylist) getListAdapter().getItem(idx)).getId());
-                if (mActivity instanceof TomahawkMainActivity) {
-                    mActivity.getContentViewer()
-                            .replace(mCorrespondingStackId, TracksFragment.class,
-                                    ((UserPlaylist) getListAdapter().getItem(idx)).getId(),
+                        ((UserPlaylist) getListAdapter().getItem(position)).getId());
+                if (mTomahawkMainActivity instanceof TomahawkMainActivity) {
+                    mTomahawkMainActivity.getContentViewer()
+                            .replace(mCorrespondingHubId, TracksFragment.class,
+                                    ((UserPlaylist) getListAdapter().getItem(position)).getId(),
                                     TOMAHAWK_PLAYLIST_ID, false);
                 }
             } else {
@@ -64,9 +72,9 @@ public class PlaylistsFragment extends TomahawkFragment implements OnItemClickLi
         }
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see org.tomahawk.tomahawk_android.TomahawkListFragment#onLoadFinished(android.support.v4.content.Loader, org.tomahawk.libtomahawk.Collection)
+    /**
+     * Called whenever the {@link org.tomahawk.libtomahawk.collection.UserCollection} {@link Loader}
+     * has finished
      */
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {

@@ -43,24 +43,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Fragment which represents the "Album" tabview.
+ * {@link TomahawkFragment} which shows a set of {@link Album}s inside its {@link
+ * org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}
  */
 public class AlbumsFragment extends TomahawkFragment implements OnItemClickListener {
 
     private AlbumFragmentReceiver mAlbumFragmentReceiver;
 
     /**
-     * Handles incoming {@link Collection} updated broadcasts.
+     * Handles incoming broadcasts.
      */
     private class AlbumFragmentReceiver extends BroadcastReceiver {
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see
-         * android.content.BroadcastReceiver#onReceive(android.content.Context,
-         * android.content.Intent)
-         */
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(InfoSystem.INFOSYSTEM_RESULTSREPORTED)) {
@@ -96,6 +90,38 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
         }
     }
 
+    /**
+     * Pulls all the necessary information from the {@link Bundle}s that are being sent, when this
+     * {@link AlbumsFragment} is created. We can access the information through getArguments().
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut
+     *                           down then this {@link Bundle} contains the data it most recently
+     *                           supplied in onSaveInstanceState({@link Bundle}). Note: Otherwise it
+     *                           is null.
+     */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (mTomahawkMainActivity.getCollection() != null && getArguments() != null
+                && getArguments().containsKey(TOMAHAWK_ARTIST_ID)
+                && getArguments().getLong(TOMAHAWK_ARTIST_ID) > 0) {
+            mArtist = mTomahawkMainActivity.getCollection()
+                    .getArtistById(getArguments().getLong(TOMAHAWK_ARTIST_ID));
+        } else if (getArguments().containsKey(UserCollection.USERCOLLECTION_ARTISTCACHED)) {
+            mArtist = mTomahawkMainActivity.getCollection().getCachedArtist();
+            String requestId = mInfoSystem
+                    .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTALBUMS, true,
+                            mTomahawkMainActivity.getCollection().getCachedArtist().getName());
+            mCurrentRequestIds.add(requestId);
+            requestId = mInfoSystem.resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTINFO, true,
+                    mTomahawkMainActivity.getCollection().getCachedArtist().getName());
+            mCurrentRequestIds.add(requestId);
+        }
+    }
+
+    /**
+     * Initialize and register {@link AlbumFragmentReceiver}
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -109,10 +135,8 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.support.v4.app.Fragment#onPause()
+    /**
+     * Unregister {@link AlbumFragmentReceiver} and delete reference
      */
     @Override
     public void onPause() {
@@ -124,44 +148,32 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
         }
     }
 
-    @Override
-    public void onCreate(Bundle inState) {
-        super.onCreate(inState);
-        if (mActivity.getCollection() != null && getArguments() != null && getArguments()
-                .containsKey(TOMAHAWK_ARTIST_ID)
-                && getArguments().getLong(TOMAHAWK_ARTIST_ID) > 0) {
-            mArtist = mActivity.getCollection()
-                    .getArtistById(getArguments().getLong(TOMAHAWK_ARTIST_ID));
-        } else if (getArguments().containsKey(UserCollection.USERCOLLECTION_ARTISTCACHED)) {
-            mArtist = mActivity.getCollection().getCachedArtist();
-            String requestId = mInfoSystem
-                    .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTALBUMS, true,
-                            mActivity.getCollection().getCachedArtist().getName());
-            mCurrentRequestIds.add(requestId);
-            requestId = mInfoSystem.resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTINFO, true,
-                    mActivity.getCollection().getCachedArtist().getName());
-            mCurrentRequestIds.add(requestId);
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
+    /**
+     * Called every time an item inside the {@link org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}
+     * is clicked
+     *
+     * @param parent   The AdapterView where the click happened.
+     * @param view     The view within the AdapterView that was clicked (this will be a view
+     *                 provided by the adapter)
+     * @param position The position of the view in the adapter.
+     * @param id       The row id of the item that was clicked.
      */
     @Override
-    public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        idx -= getListView().getHeaderViewsCount();
-        if (idx >= 0) {
-            if (getListAdapter().getItem(idx) instanceof Album) {
-                mActivity.getCollection().setCachedAlbum((Album) getListAdapter().getItem(idx));
-                mActivity.getContentViewer().
-                        replace(mCorrespondingStackId, TracksFragment.class, -1,
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        position -= getListView().getHeaderViewsCount();
+        if (position >= 0) {
+            if (getListAdapter().getItem(position) instanceof Album) {
+                mTomahawkMainActivity.getCollection()
+                        .setCachedAlbum((Album) getListAdapter().getItem(position));
+                mTomahawkMainActivity.getContentViewer().
+                        replace(mCorrespondingHubId, TracksFragment.class, -1,
                                 UserCollection.USERCOLLECTION_ALBUMCACHED, false);
             }
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.tomahawk.tomahawk_android.TomahawkListFragment#onLoadFinished(android.support.v4.content.Loader, org.tomahawk.libtomahawk.Collection)
+    /**
+     * Called whenever the {@link UserCollection} {@link Loader} has finished
      */
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
@@ -169,6 +181,9 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
         updateAdapter();
     }
 
+    /**
+     * Update this {@link TomahawkFragment}'s {@link TomahawkBaseAdapter} content
+     */
     private void updateAdapter() {
         List<TomahawkBaseAdapter.TomahawkListItem> albums
                 = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
@@ -178,8 +193,8 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(albums);
             if (getListAdapter() == null) {
-                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(mActivity,
-                        listArray);
+                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(
+                        mTomahawkMainActivity, listArray);
                 tomahawkListAdapter.setShowCategoryHeaders(true);
                 tomahawkListAdapter.setShowContentHeader(true, getListView(), mArtist);
                 tomahawkListAdapter.setShowResolvedBy(true);
@@ -189,7 +204,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
             }
             getListView().setOnItemClickListener(this);
         } else {
-            albums.addAll(mActivity.getCollection().getAlbums());
+            albums.addAll(mTomahawkMainActivity.getCollection().getAlbums());
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(albums);
@@ -203,6 +218,9 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
         }
     }
 
+    /**
+     * @return the {@link Artist} corresponding to this instance of {@link AlbumsFragment}
+     */
     public Artist getArtist() {
         return mArtist;
     }

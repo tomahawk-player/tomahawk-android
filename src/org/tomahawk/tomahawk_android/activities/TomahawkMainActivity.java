@@ -37,12 +37,12 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
 import org.tomahawk.tomahawk_android.fragments.ArtistsFragment;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
-import org.tomahawk.tomahawk_android.fragments.LocalCollectionFragment;
-import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
 import org.tomahawk.tomahawk_android.fragments.SlideMenuFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.fragments.TracksFragment;
+import org.tomahawk.tomahawk_android.fragments.UserCollectionFragment;
+import org.tomahawk.tomahawk_android.fragments.UserPlaylistsFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
@@ -79,19 +79,19 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
         TomahawkService.TomahawkServiceConnection.TomahawkServiceConnectionListener,
         LoaderManager.LoaderCallbacks<Collection> {
 
-    public static final int TAB_ID_HOME = 0;
+    public static final int HUB_ID_HOME = 0;
 
-    public static final int TAB_ID_SEARCH = 1;
+    public static final int HUB_ID_SEARCH = 1;
 
-    public static final int TAB_ID_COLLECTION = 2;
+    public static final int HUB_ID_COLLECTION = 2;
 
-    public static final int TAB_ID_PLAYLISTS = 3;
+    public static final int HUB_ID_PLAYLISTS = 3;
 
-    public static final int TAB_ID_STATIONS = 4;
+    public static final int HUB_ID_STATIONS = 4;
 
-    public static final int TAB_ID_FRIENDS = 5;
+    public static final int HUB_ID_FRIENDS = 5;
 
-    public static final int TAB_ID_SETTINGS = 6;
+    public static final int HUB_ID_SETTINGS = 6;
 
     public static final String COLLECTION_ID_STOREDBACKSTACK = "collection_id_storedbackstack";
 
@@ -196,22 +196,22 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
         actionBar.setCustomView(searchView);
         actionBar.setDisplayShowCustomEnabled(true);
 
-        // if not set yet, set our current default stack position to TAB_ID_COLLECTION
+        // if not set yet, set our current default stack position to HUB_ID_COLLECTION
         if (mCurrentStackPosition == -1) {
-            mCurrentStackPosition = TAB_ID_COLLECTION;
+            mCurrentStackPosition = HUB_ID_COLLECTION;
         }
 
         // initialize our ContentViewer, which will handle switching the fragments whenever an
         // entry in the slidingmenu is being clicked. Restore our saved state, if one exists.
         mContentViewer = new ContentViewer(this, getSupportFragmentManager(), R.id.content_frame);
         if (savedInstanceState == null) {
-            mContentViewer.addRootToTab(TAB_ID_SEARCH, SearchableFragment.class);
-            mContentViewer.addRootToTab(TAB_ID_COLLECTION, LocalCollectionFragment.class);
-            mContentViewer.addRootToTab(TAB_ID_PLAYLISTS, PlaylistsFragment.class);
-            mContentViewer.addRootToTab(TAB_ID_SETTINGS, FakePreferenceFragment.class);
+            mContentViewer.addRootToTab(HUB_ID_SEARCH, SearchableFragment.class);
+            mContentViewer.addRootToTab(HUB_ID_COLLECTION, UserCollectionFragment.class);
+            mContentViewer.addRootToTab(HUB_ID_PLAYLISTS, UserPlaylistsFragment.class);
+            mContentViewer.addRootToTab(HUB_ID_SETTINGS, FakePreferenceFragment.class);
         } else {
             mCurrentStackPosition = savedInstanceState
-                    .getInt(COLLECTION_ID_STACKPOSITION, TAB_ID_COLLECTION);
+                    .getInt(COLLECTION_ID_STACKPOSITION, HUB_ID_COLLECTION);
             ConcurrentHashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>> storedBackStack
                     = new ConcurrentHashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>>();
             if (savedInstanceState
@@ -230,10 +230,10 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
             if (storedBackStack != null && storedBackStack.size() > 0) {
                 mContentViewer.setBackStack(storedBackStack);
             } else {
-                mContentViewer.addRootToTab(TAB_ID_SEARCH, SearchableFragment.class);
-                mContentViewer.addRootToTab(TAB_ID_COLLECTION, LocalCollectionFragment.class);
-                mContentViewer.addRootToTab(TAB_ID_PLAYLISTS, PlaylistsFragment.class);
-                mContentViewer.addRootToTab(TAB_ID_SETTINGS, FakePreferenceFragment.class);
+                mContentViewer.addRootToTab(HUB_ID_SEARCH, SearchableFragment.class);
+                mContentViewer.addRootToTab(HUB_ID_COLLECTION, UserCollectionFragment.class);
+                mContentViewer.addRootToTab(HUB_ID_PLAYLISTS, UserPlaylistsFragment.class);
+                mContentViewer.addRootToTab(HUB_ID_SETTINGS, FakePreferenceFragment.class);
             }
         }
 
@@ -299,9 +299,9 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
         }
 
         mContentViewer.setCurrentStackId(mCurrentStackPosition);
-        // if we resume this activity with TAB_ID_SEARCH as the current stack position, make sure
+        // if we resume this activity with HUB_ID_SEARCH as the current stack position, make sure
         // that the searchEditText is being shown accordingly
-        if (mCurrentStackPosition == TAB_ID_SEARCH) {
+        if (mCurrentStackPosition == HUB_ID_SEARCH) {
             showSearchEditText();
         } else {
             hideSearchEditText();
@@ -500,9 +500,10 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
             int validFragmentCount = 0;
             for (ContentViewer.FragmentStateHolder fpb : backStack) {
                 if (fpb.clss == AlbumsFragment.class || fpb.clss == ArtistsFragment.class
-                        || fpb.clss == TracksFragment.class || fpb.clss == PlaylistsFragment.class
+                        || fpb.clss == TracksFragment.class
+                        || fpb.clss == UserPlaylistsFragment.class
                         || fpb.clss == SearchableFragment.class
-                        || fpb.clss == LocalCollectionFragment.class) {
+                        || fpb.clss == UserCollectionFragment.class) {
                     validFragmentCount++;
                 }
             }
@@ -519,7 +520,7 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
                         .findViewById(R.id.fragmentLayout_icon_squareHeightRelativeLayout);
                 TextView breadcrumbItemTextView = (TextView) breadcrumbItem
                         .findViewById(R.id.fragmentLayout_text_textView);
-                if (fpb.clss == LocalCollectionFragment.class) {
+                if (fpb.clss == UserCollectionFragment.class) {
                     if (validFragmentCount == 1) {
                         breadcrumbItemTextView
                                 .setText(getString(R.string.localcollectionactivity_title_string));
@@ -533,7 +534,7 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
                     breadcrumbItem
                             .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
                     breadCrumbFrame.addView(breadcrumbItem);
-                } else if (fpb.clss == PlaylistsFragment.class) {
+                } else if (fpb.clss == UserPlaylistsFragment.class) {
                     if (validFragmentCount == 1) {
                         breadcrumbItemTextView
                                 .setText(getString(R.string.playlistsfragment_title_string));

@@ -25,6 +25,7 @@ import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.activities.PlaybackActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -43,7 +44,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Fragment which represents the "Tracks" tabview.
+ * {@link TomahawkFragment} which shows a set of {@link Track}s inside its {@link
+ * org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}
  */
 public class TracksFragment extends TomahawkFragment implements OnItemClickListener {
 
@@ -52,17 +54,10 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
     private TrackFragmentReceiver mTrackFragmentReceiver;
 
     /**
-     * Handles incoming {@link Collection} updated broadcasts.
+     * Handles incoming broadcasts.
      */
     private class TrackFragmentReceiver extends BroadcastReceiver {
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see
-         * android.content.BroadcastReceiver#onReceive(android.content.Context,
-         * android.content.Intent)
-         */
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(PipeLine.PIPELINE_RESULTSREPORTED_NON_FULLTEXTQUERY)) {
@@ -86,27 +81,40 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         }
     }
 
+    /**
+     * Pulls all the necessary information from the {@link Bundle}s that are being sent, when this
+     * {@link TracksFragment} is created. We can access the information through getArguments().
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut
+     *                           down then this {@link Bundle} contains the data it most recently
+     *                           supplied in onSaveInstanceState({@link Bundle}). Note: Otherwise it
+     *                           is null.
+     */
     @Override
-    public void onCreate(Bundle inState) {
-        super.onCreate(inState);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-        if (mActivity.getCollection() != null && getArguments() != null) {
+        if (mTomahawkMainActivity.getCollection() != null && getArguments() != null) {
             if (getArguments().containsKey(TOMAHAWK_ALBUM_ID)
                     && getArguments().getLong(TOMAHAWK_ALBUM_ID) >= 0) {
-                mAlbum = mActivity.getCollection()
+                mAlbum = mTomahawkMainActivity.getCollection()
                         .getAlbumById(getArguments().getLong(TOMAHAWK_ALBUM_ID));
             } else if (getArguments().containsKey(TOMAHAWK_PLAYLIST_ID)
                     && getArguments().getLong(TOMAHAWK_PLAYLIST_ID) >= 0) {
-                mUserPlaylist = mActivity.getCollection()
+                mUserPlaylist = mTomahawkMainActivity.getCollection()
                         .getCustomPlaylistById(getArguments().getLong(TOMAHAWK_PLAYLIST_ID));
             } else if (getArguments().containsKey(UserCollection.USERCOLLECTION_ALBUMCACHED)) {
-                mAlbum = mActivity.getCollection().getCachedAlbum();
+                // A cached album has been given. So we try to resolve it.
+                mAlbum = mTomahawkMainActivity.getCollection().getCachedAlbum();
                 resolveAlbum(mAlbum);
                 mShouldShowLoadingAnimation = true;
             }
         }
     }
 
+    /**
+     * Initialize and register {@link TrackFragmentReceiver}
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -125,10 +133,8 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.support.v4.app.Fragment#onPause()
+    /**
+     * Unregister {@link TrackFragmentReceiver} and delete reference
      */
     @Override
     public void onPause() {
@@ -140,15 +146,22 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         }
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
+    /**
+     * Called every time an item inside the {@link org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}
+     * is clicked
+     *
+     * @param parent   The AdapterView where the click happened.
+     * @param view     The view within the AdapterView that was clicked (this will be a view
+     *                 provided by the adapter)
+     * @param position The position of the view in the adapter.
+     * @param id       The row id of the item that was clicked.
      */
     @Override
-    public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        idx -= getListView().getHeaderViewsCount();
-        if (idx >= 0) {
-            if (getListAdapter().getItem(idx) instanceof Track && ((Track) getListAdapter()
-                    .getItem(idx)).isResolved()) {
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        position -= getListView().getHeaderViewsCount();
+        if (position >= 0) {
+            if (getListAdapter().getItem(position) instanceof Track && ((Track) getListAdapter()
+                    .getItem(position)).isResolved()) {
                 ArrayList<Track> tracks = new ArrayList<Track>();
                 if (mAlbum != null) {
                     tracks = mAlbum.getTracks();
@@ -157,26 +170,28 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 } else if (mUserPlaylist != null) {
                     tracks = mUserPlaylist.getTracks();
                 } else {
-                    tracks.addAll(mActivity.getCollection().getTracks());
+                    tracks.addAll(mTomahawkMainActivity.getCollection().getTracks());
                 }
                 UserPlaylist playlist = UserPlaylist.fromTrackList("Last used playlist", tracks,
-                        (Track) getListAdapter().getItem(idx));
-                playlist.setCurrentTrackIndex(idx);
-                ((UserCollection) mActivity.getCollection()).setCachedPlaylist(playlist);
+                        (Track) getListAdapter().getItem(position));
+                playlist.setCurrentTrackIndex(position);
+                ((UserCollection) mTomahawkMainActivity.getCollection())
+                        .setCachedPlaylist(playlist);
                 Bundle bundle = new Bundle();
                 bundle.putBoolean(UserCollection.USERCOLLECTION_PLAYLISTCACHED, true);
                 bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID,
-                        ((Track) getListAdapter().getItem(idx)).getId());
+                        ((Track) getListAdapter().getItem(position)).getId());
 
-                Intent playbackIntent = getIntent(mActivity, PlaybackActivity.class);
+                Intent playbackIntent = TomahawkUtils
+                        .getIntent(mTomahawkMainActivity, PlaybackActivity.class);
                 playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
                 startActivity(playbackIntent);
             }
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.tomahawk.tomahawk_android.TomahawkListFragment#onLoadFinished(android.support.v4.content.Loader, org.tomahawk.libtomahawk.Collection)
+    /**
+     * Called whenever the {@link UserCollection} {@link Loader} has finished
      */
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
@@ -184,18 +199,21 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         updateAdapter();
     }
 
+    /**
+     * Update this {@link TomahawkFragment}'s {@link TomahawkBaseAdapter} content
+     */
     public void updateAdapter() {
         List<TomahawkBaseAdapter.TomahawkListItem> items
                 = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
         TomahawkListAdapter tomahawkListAdapter;
-        Collection coll = mActivity.getCollection();
+        Collection coll = mTomahawkMainActivity.getCollection();
         if (mAlbum != null) {
             items.addAll(mAlbum.getTracks());
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(items);
             if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
+                tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true);
                 tomahawkListAdapter.setShowContentHeader(true, getListView(), mAlbum);
@@ -209,7 +227,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(items);
             if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
+                tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true);
                 tomahawkListAdapter.setShowContentHeader(true, getListView(), mArtist);
@@ -224,7 +242,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(items);
             if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
+                tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true);
                 tomahawkListAdapter.setShowContentHeader(true, getListView(), mUserPlaylist);
@@ -238,7 +256,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(items);
             if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
+                tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
                 getListView().setAreHeadersSticky(false);
                 setListAdapter(tomahawkListAdapter);
             } else {
@@ -249,23 +267,16 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         getListView().setOnItemClickListener(this);
     }
 
+    /**
+     * @return the {@link Album} associated with this {@link TracksFragment}
+     */
     public Album getAlbum() {
         return mAlbum;
     }
 
     /**
-     * Return the {@link Intent} defined by the given parameters
-     *
-     * @param context the context with which the intent will be created
-     * @param cls     the class which contains the activity to launch
-     * @return the created intent
+     * Resolve the given {@link Album}'s {@link Track}s
      */
-    private static Intent getIntent(Context context, Class<?> cls) {
-        Intent intent = new Intent(context, cls);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        return intent;
-    }
-
     private void resolveAlbum(Album album) {
         if (album != null && album.getTracks() != null) {
             for (Track track : album.getTracks()) {

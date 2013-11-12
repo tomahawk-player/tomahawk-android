@@ -44,7 +44,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Fragment which represents the "UserCollection" tabview.
+ * {@link TomahawkListFragment} which fakes the standard {@link android.preference.PreferenceFragment}
+ * behaviour. We need to fake it, because the official support library doesn't provide a {@link
+ * android.preference.PreferenceFragment} class
  */
 public class FakePreferenceFragment extends TomahawkListFragment
         implements OnItemClickListener, OnLoggedInOutListener,
@@ -68,6 +70,9 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
     private FakePreferenceBroadcastReceiver mFakePreferenceBroadcastReceiver;
 
+    /**
+     * Handles incoming broadcasts.
+     */
     private class FakePreferenceBroadcastReceiver extends BroadcastReceiver {
 
         @Override
@@ -77,10 +82,27 @@ public class FakePreferenceFragment extends TomahawkListFragment
         }
     }
 
+    /**
+     * Store the reference to the {@link Activity}, in which this {@link FakePreferenceFragment} has
+     * been created
+     */
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        if (activity instanceof TomahawkMainActivity) {
+            mTomahawkMainActivity = (TomahawkMainActivity) activity;
+        }
+    }
+
+    /**
+     * Called, when this {@link FakePreferenceFragment}'s {@link View} has been created
+     */
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Fetch our SharedPreferences from the PreferenceManager
         mSharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(TomahawkApp.getContext());
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
@@ -89,6 +111,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
             mTomahawkMainActivity.getTomahawkService().setOnLoggedInOutListener(this);
         }
 
+        // Set up the set of FakePreferences to be shown in this Fragment
         mFakePreferenceGroups = new ArrayList<FakePreferenceGroup>();
         FakePreferenceGroup prefGroup = new FakePreferenceGroup(
                 getString(R.string.fakepreference_accounts_header));
@@ -120,17 +143,26 @@ public class FakePreferenceFragment extends TomahawkListFragment
                 FAKEPREFERENCEFRAGMENT_KEY_APPVERSION,
                 getString(R.string.fakepreference_appversion_title_string), versionName);
         mFakePreferenceGroups.add(prefGroup);
+
+        // Now we can push the complete set of FakePreferences into our FakePreferencesAdapter,
+        // so that it can provide our ListView with the correct Views.
         FakePreferencesAdapter fakePreferencesAdapter = new FakePreferencesAdapter(
                 mTomahawkMainActivity.getLayoutInflater(), mFakePreferenceGroups);
         setListAdapter(fakePreferencesAdapter);
+
         getListView().setOnItemClickListener(this);
 
+        // Initialize the state of the "Spotify"-FakePreference's checkbox
         if (mTomahawkMainActivity.getTomahawkService() != null
                 && mTomahawkMainActivity.getTomahawkService().getSpotifyUserId() != null) {
+            // SpotifyUserId is set, so we know that is Spotify is logged in
             onLoggedInOut(TomahawkApp.RESOLVER_ID_SPOTIFY, true);
         }
     }
 
+    /**
+     * Initialize and register {@link FakePreferenceBroadcastReceiver}
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -140,6 +172,9 @@ public class FakePreferenceFragment extends TomahawkListFragment
                 new IntentFilter(TomahawkMainActivity.TOMAHAWKSERVICE_READY));
     }
 
+    /**
+     * Unregister {@link FakePreferenceBroadcastReceiver} and delete reference
+     */
     @Override
     public void onPause() {
         super.onPause();
@@ -148,48 +183,47 @@ public class FakePreferenceFragment extends TomahawkListFragment
         mFakePreferenceBroadcastReceiver = null;
     }
 
-    /* 
-     * (non-Javadoc)
-     * @see com.actionbarsherlock.app.SherlockListFragment#onAttach(android.app.Activity)
-     */
-    @Override
-    public void onAttach(Activity activity) {
-        if (activity instanceof TomahawkMainActivity) {
-            mTomahawkMainActivity = (TomahawkMainActivity) activity;
-        }
-        super.onAttach(activity);
-    }
-
-    /* 
-     * (non-Javadoc)
-     * @see com.actionbarsherlock.app.SherlockListFragment#onDetach()
+    /**
+     * Null the reference to this {@link FakePreferenceFragment}'s {@link Activity}
      */
     @Override
     public void onDetach() {
-        mTomahawkMainActivity = null;
         super.onDetach();
+
+        mTomahawkMainActivity = null;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
+    /**
+     * Called every time an item inside the {@link org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}
+     * is clicked
+     *
+     * @param parent   The AdapterView where the click happened.
+     * @param view     The view within the AdapterView that was clicked (this will be a view
+     *                 provided by the adapter)
+     * @param position The position of the view in the adapter.
+     * @param id       The row id of the item that was clicked.
      */
     @Override
-    public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        idx -= getListView().getHeaderViewsCount();
-        if (idx >= 0) {
-            if (((FakePreferenceGroup.FakePreference) getListAdapter().getItem(idx)).getType()
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        position -= getListView().getHeaderViewsCount();
+        if (position >= 0) {
+            if (((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position)).getType()
                     == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX) {
+                // if a FakePreference of type "FAKEPREFERENCE_TYPE_CHECKBOX" has been clicked,
+                // we edit the associated SharedPreference and toggle its boolean value
                 SharedPreferences.Editor editor = mSharedPreferences.edit();
                 boolean preferenceState = mSharedPreferences.getBoolean(
-                        ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(idx))
+                        ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position))
                                 .getKey(), false);
                 editor.putBoolean(
-                        ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(idx))
+                        ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position))
                                 .getKey(), !preferenceState);
                 editor.commit();
             } else if ((mTomahawkMainActivity.getTomahawkService() != null)
-                    && ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(idx)).
+                    && ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position)).
                     getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_DIALOG) {
+                // if a FakePreference of type "FAKEPREFERENCE_TYPE_DIALOG" has been clicked,
+                // we show a LoginDialog
                 new LoginDialog(mTomahawkMainActivity.getTomahawkService())
                         .show(getFragmentManager(), null);
             }
@@ -201,6 +235,14 @@ public class FakePreferenceFragment extends TomahawkListFragment
         getListAdapter().notifyDataSetChanged();
     }
 
+    /**
+     * Called everytime an account has been logged in or out, so that we can update the
+     * corresponding checkbox state
+     *
+     * @param resolverId the id of the {@link org.tomahawk.libtomahawk.resolver.Resolver}, which
+     *                   account has been logged in/out
+     * @param loggedIn   true, if logged in, otherwise false
+     */
     @Override
     public void onLoggedInOut(int resolverId, boolean loggedIn) {
         if (resolverId == TomahawkApp.RESOLVER_ID_SPOTIFY) {
