@@ -25,6 +25,7 @@ import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.PlaybackActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
@@ -56,7 +57,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Fragment which represents the "Tracks" tabview.
+ * {@link TomahawkFragment} which offers both local and non-local search functionality to the user.
  */
 public class SearchableFragment extends TomahawkFragment
         implements OnItemClickListener, CompoundButton.OnCheckedChangeListener,
@@ -81,26 +82,34 @@ public class SearchableFragment extends TomahawkFragment
 
     private EditText mSearchEditText = null;
 
+    /**
+     * Handles incoming broadcasts.
+     */
     private class SearchableBroadcastReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(PipeLine.PIPELINE_RESULTSREPORTED_FULLTEXTQUERY)) {
                 String queryId = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
-                mActivity.getContentViewer().getBackStackAtPosition(mCorrespondingStackId)
+                mTomahawkMainActivity.getContentViewer().getBackStackAtPosition(mCorrespondingHubId)
                         .get(0).queryString = mCurrentQueryString;
                 showQueryResults(queryId);
             }
         }
     }
 
+    /**
+     * Restore the {@link String} inside the search {@link TextView}. Either through the
+     * savedInstanceState {@link Bundle} or through the a {@link Bundle} provided in the Arguments.
+     */
     @Override
-    public void onCreate(Bundle inState) {
-        super.onCreate(inState);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-        if (inState != null && inState.containsKey(SEARCHABLEFRAGMENT_QUERY_STRING)
-                && inState.getString(SEARCHABLEFRAGMENT_QUERY_STRING) != null) {
-            mCurrentQueryString = inState.getString(SEARCHABLEFRAGMENT_QUERY_STRING);
+        if (savedInstanceState != null && savedInstanceState
+                .containsKey(SEARCHABLEFRAGMENT_QUERY_STRING)
+                && savedInstanceState.getString(SEARCHABLEFRAGMENT_QUERY_STRING) != null) {
+            mCurrentQueryString = savedInstanceState.getString(SEARCHABLEFRAGMENT_QUERY_STRING);
         }
         if (getArguments() != null && getArguments().containsKey(SEARCHABLEFRAGMENT_QUERY_STRING)
                 && getArguments().getString(SEARCHABLEFRAGMENT_QUERY_STRING) != null) {
@@ -112,25 +121,29 @@ public class SearchableFragment extends TomahawkFragment
     public void onResume() {
         super.onResume();
 
-        setSearchText((EditText) mActivity.getSupportActionBar().getCustomView()
+        setSearchText((EditText) mTomahawkMainActivity.getSupportActionBar().getCustomView()
                 .findViewById(R.id.search_edittext));
+        AutoCompleteTextView textView = (AutoCompleteTextView) mTomahawkMainActivity
+                .getSupportActionBar().getCustomView().findViewById(R.id.search_edittext);
         // Sets the background colour to grey so that the text is visible
-        AutoCompleteTextView textView = (AutoCompleteTextView) mActivity.getSupportActionBar()
-                .getCustomView().findViewById(R.id.search_edittext);
         textView.setDropDownBackgroundResource(R.drawable.menu_dropdown_panel_tomahawk);
         setupAutoComplete();
 
-        CheckBox onlineSourcesCheckBox = (CheckBox) mActivity
+        // Initialize our onlineSourcesCheckBox
+        CheckBox onlineSourcesCheckBox = (CheckBox) mTomahawkMainActivity
                 .findViewById(R.id.search_onlinesources_checkbox);
         onlineSourcesCheckBox.setOnCheckedChangeListener(this);
 
+        // Initialized and register this Fragment's BroadcastReceiver object
         if (mSearchableBroadcastReceiver == null) {
             mSearchableBroadcastReceiver = new SearchableBroadcastReceiver();
             IntentFilter intentFilter = new IntentFilter(
                     PipeLine.PIPELINE_RESULTSREPORTED_FULLTEXTQUERY);
-            mActivity.registerReceiver(mSearchableBroadcastReceiver, intentFilter);
+            mTomahawkMainActivity.registerReceiver(mSearchableBroadcastReceiver, intentFilter);
         }
 
+        // If we have restored a CurrentQueryString, start searching, so that we show the proper
+        // results again
         if (mCurrentQueryString != null) {
             resolveFullTextQuery(mCurrentQueryString);
             mSearchEditText.setText(mCurrentQueryString);
@@ -138,70 +151,82 @@ public class SearchableFragment extends TomahawkFragment
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.actionbarsherlock.app.SherlockFragmentActivity#onPause()
-     */
     @Override
     public void onPause() {
         super.onPause();
 
-        InputMethodManager imm = (InputMethodManager) mActivity
+        // Always hide the soft keyboard, if we pause this Fragment
+        InputMethodManager imm = (InputMethodManager) mTomahawkMainActivity
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);
 
+        // Unregister the Receiver and null the reference
         if (mSearchableBroadcastReceiver != null) {
-            mActivity.unregisterReceiver(mSearchableBroadcastReceiver);
+            mTomahawkMainActivity.unregisterReceiver(mSearchableBroadcastReceiver);
             mSearchableBroadcastReceiver = null;
         }
     }
 
+    /**
+     * Save the {@link String} inside the search {@link TextView}.
+     */
     @Override
     public void onSaveInstanceState(Bundle out) {
         out.putString(SEARCHABLEFRAGMENT_QUERY_STRING, mCurrentQueryString);
         super.onSaveInstanceState(out);
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
+    /**
+     * Called every time an item inside the {@link org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}
+     * is clicked
+     *
+     * @param parent   The AdapterView where the click happened.
+     * @param view     The view within the AdapterView that was clicked (this will be a view
+     *                 provided by the adapter)
+     * @param position The position of the view in the adapter.
+     * @param id       The row id of the item that was clicked.
      */
     @Override
-    public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
-        idx -= getListView().getHeaderViewsCount();
-        if (idx >= 0) {
-            if (getListAdapter().getItem(idx) instanceof Track) {
-                ((UserCollection) mActivity.getCollection()).setCachedPlaylist(UserPlaylist
-                        .fromTrackList(mCurrentQueryString, mCurrentShownTracks,
-                                (Track) getListAdapter().getItem(idx)));
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        position -= getListView().getHeaderViewsCount();
+        if (position >= 0) {
+            if (getListAdapter().getItem(position) instanceof Track) {
+                ((UserCollection) mTomahawkMainActivity.getCollection()).setCachedPlaylist(
+                        UserPlaylist.fromTrackList(mCurrentQueryString, mCurrentShownTracks,
+                                (Track) getListAdapter().getItem(position)));
                 Bundle bundle = new Bundle();
                 bundle.putBoolean(UserCollection.USERCOLLECTION_PLAYLISTCACHED, true);
                 bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID,
-                        ((Track) getListAdapter().getItem(idx)).getId());
+                        ((Track) getListAdapter().getItem(position)).getId());
 
-                Intent playbackIntent = getIntent(mActivity, PlaybackActivity.class);
+                Intent playbackIntent = TomahawkUtils
+                        .getIntent(mTomahawkMainActivity, PlaybackActivity.class);
                 playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
                 startActivity(playbackIntent);
-            } else if (getListAdapter().getItem(idx) instanceof Album) {
-                mCollection.setCachedAlbum((Album) getListAdapter().getItem(idx));
-                mActivity.getContentViewer().
-                        replace(mCorrespondingStackId, TracksFragment.class, -1,
+            } else if (getListAdapter().getItem(position) instanceof Album) {
+                mCollection.setCachedAlbum((Album) getListAdapter().getItem(position));
+                mTomahawkMainActivity.getContentViewer().
+                        replace(mCorrespondingHubId, TracksFragment.class, -1,
                                 UserCollection.USERCOLLECTION_ALBUMCACHED, false);
-            } else if (getListAdapter().getItem(idx) instanceof Artist) {
-                mCollection.setCachedArtist((Artist) getListAdapter().getItem(idx));
-                mActivity.getContentViewer().
-                        replace(mCorrespondingStackId, AlbumsFragment.class, -1,
+            } else if (getListAdapter().getItem(position) instanceof Artist) {
+                mCollection.setCachedArtist((Artist) getListAdapter().getItem(position));
+                mTomahawkMainActivity.getContentViewer().
+                        replace(mCorrespondingHubId, AlbumsFragment.class, -1,
                                 UserCollection.USERCOLLECTION_ARTISTCACHED, false);
             }
         }
     }
 
+    /**
+     * Called, when the checkbox' state has been changed,
+     */
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         resolveFullTextQuery(mCurrentQueryString);
     }
 
-    /* (non-Javadoc)
-     * @see org.tomahawk.tomahawk_android.TomahawkListFragment#onLoadFinished(android.support.v4.content.Loader, org.tomahawk.libtomahawk.Collection)
+    /**
+     * Called whenever the {@link UserCollection} {@link Loader} has finished
      */
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
@@ -210,23 +235,20 @@ public class SearchableFragment extends TomahawkFragment
         mCollection = coll;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * android.widget.TextView.OnEditorActionListener#onEditorAction(android
-     * .widget.TextView, int, android.view.KeyEvent)
+    /**
+     * Used to determine, if the user has pressed the confirmation button on his soft keyboard. (The
+     * button in the bottom right corner of the soft keyboard on most smartphones/tablets)
      */
     @Override
-    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+    public boolean onEditorAction(TextView textView, int actionId, KeyEvent event) {
         if (event == null || actionId == EditorInfo.IME_ACTION_SEARCH
                 || actionId == EditorInfo.IME_ACTION_DONE
                 || event.getAction() == KeyEvent.ACTION_DOWN
                 && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-            InputMethodManager imm = (InputMethodManager) mActivity
+            InputMethodManager imm = (InputMethodManager) mTomahawkMainActivity
                     .getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);
-            String searchText = v.getText().toString();
+            String searchText = textView.getText().toString();
             if (searchText != null && !TextUtils.isEmpty(searchText)) {
                 addToAutoCompleteArray(searchText);
                 setupAutoComplete();
@@ -237,6 +259,10 @@ public class SearchableFragment extends TomahawkFragment
         return false;
     }
 
+    /**
+     * Display all {@link org.tomahawk.libtomahawk.resolver.Result}s of the {@link Query} with the
+     * given id
+     */
     public void showQueryResults(String qid) {
         Query query = mPipeline.getQuery(qid);
         mCurrentQueryString = query.getFullTextQuery();
@@ -258,7 +284,8 @@ public class SearchableFragment extends TomahawkFragment
         albumResultList.addAll(mCurrentShownAlbums);
         listArray.add(albumResultList);
         if (getListAdapter() == null) {
-            TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(mActivity, listArray);
+            TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity,
+                    listArray);
             tomahawkListAdapter.setShowCategoryHeaders(true);
             tomahawkListAdapter.setShowResolvedBy(true);
             setListAdapter(tomahawkListAdapter);
@@ -269,24 +296,13 @@ public class SearchableFragment extends TomahawkFragment
     }
 
     /**
-     * Return the {@link Intent} defined by the given parameters
-     *
-     * @param context the context with which the intent will be created
-     * @param cls     the class which contains the activity to launch
-     * @return the created intent
+     * Setup this {@link SearchableFragment}s {@link AutoCompleteTextView}
      */
-    private static Intent getIntent(Context context, Class<?> cls) {
-        Intent intent = new Intent(context, cls);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        return intent;
-    }
-
     private void setupAutoComplete() {
-        // Autocomplete code
-        AutoCompleteTextView textView = (AutoCompleteTextView) mActivity.getSupportActionBar()
-                .getCustomView().findViewById(R.id.search_edittext);
+        AutoCompleteTextView textView = (AutoCompleteTextView) mTomahawkMainActivity
+                .getSupportActionBar().getCustomView().findViewById(R.id.search_edittext);
         ArrayList<String> autoCompleteSuggestions = getAutoCompleteArray();
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(mActivity,
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(mTomahawkMainActivity,
                 android.R.layout.simple_list_item_1, autoCompleteSuggestions);
         textView.setAdapter(adapter);
     }
@@ -306,10 +322,13 @@ public class SearchableFragment extends TomahawkFragment
         }
     }
 
+    /**
+     * Invoke the resolving process with the given fullTextQuery {@link String}
+     */
     public void resolveFullTextQuery(String fullTextQuery) {
-        mActivity.getContentViewer().backToRoot(mCorrespondingStackId, false);
+        mTomahawkMainActivity.getContentViewer().backToRoot(mCorrespondingHubId, false);
         mCurrentQueryString = fullTextQuery;
-        CheckBox onlineSourcesCheckBox = (CheckBox) mActivity
+        CheckBox onlineSourcesCheckBox = (CheckBox) mTomahawkMainActivity
                 .findViewById(R.id.search_onlinesources_checkbox);
         String queryId = mPipeline.resolve(fullTextQuery, !onlineSourcesCheckBox.isChecked());
         if (queryId != null) {
@@ -318,6 +337,10 @@ public class SearchableFragment extends TomahawkFragment
         }
     }
 
+    /**
+     * Add the given {@link String} to the {@link ArrayList}, which is being persisted as a {@link
+     * SharedPreferences}
+     */
     public void addToAutoCompleteArray(String newString) {
         ArrayList<String> myArrayList = getAutoCompleteArray();
         int highestIndex = myArrayList.size();
@@ -331,7 +354,7 @@ public class SearchableFragment extends TomahawkFragment
         myArrayList.add(newString);
 
         SharedPreferences sPrefs = PreferenceManager
-                .getDefaultSharedPreferences(mActivity.getBaseContext());
+                .getDefaultSharedPreferences(mTomahawkMainActivity.getBaseContext());
         SharedPreferences.Editor sEdit = sPrefs.edit();
 
         sEdit.putString("autocomplete_" + highestIndex, myArrayList.get(highestIndex));
@@ -339,9 +362,13 @@ public class SearchableFragment extends TomahawkFragment
         sEdit.commit();
     }
 
+    /**
+     * @return the {@link ArrayList} of {@link String}s containing every {@link String} in our
+     *         autocomplete array
+     */
     public ArrayList<String> getAutoCompleteArray() {
         SharedPreferences sPrefs = PreferenceManager
-                .getDefaultSharedPreferences(mActivity.getBaseContext());
+                .getDefaultSharedPreferences(mTomahawkMainActivity.getBaseContext());
         ArrayList<String> myAList = new ArrayList<String>();
         int size = sPrefs.getInt("autocomplete_size", 0);
 

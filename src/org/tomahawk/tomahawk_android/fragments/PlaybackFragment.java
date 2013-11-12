@@ -38,8 +38,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 /**
- * This fragment represents our Playback view in which the user can play/stop/pause. It is being
- * shown as the topmost fragment in the PlaybackActivity's listview.
+ * This {@link SherlockFragment} represents our Playback view in which the user can play/stop/pause.
+ * It is being shown as the topmost fragment in the {@link PlaybackActivity}'s {@link
+ * org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}.
  */
 public class PlaybackFragment extends SherlockFragment {
 
@@ -79,6 +80,9 @@ public class PlaybackFragment extends SherlockFragment {
         }
     };
 
+    /**
+     * Store the reference to the {@link Activity}, in which this Fragment has been created
+     */
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -114,6 +118,9 @@ public class PlaybackFragment extends SherlockFragment {
         init();
     }
 
+    /**
+     * Null the reference to this Fragment's {@link Activity}
+     */
     @Override
     public void onDetach() {
         super.onDetach();
