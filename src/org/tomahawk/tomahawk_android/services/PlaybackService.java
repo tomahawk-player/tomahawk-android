@@ -68,6 +68,9 @@ import android.widget.RemoteViews;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * This {@link Service} handles all playback related processes.
+ */
 public class PlaybackService extends Service
         implements OnCompletionListener, OnErrorListener, OnPreparedListener {
 
@@ -124,6 +127,11 @@ public class PlaybackService extends Service
 
     private BitmapItem.AsyncBitmap mNotificationAsyncBitmap = new BitmapItem.AsyncBitmap(null);
 
+    /**
+     * The static {@link ServiceConnection} which calls methods in {@link
+     * PlaybackServiceConnectionListener} to let every depending object know, if the {@link
+     * PlaybackService} connects or disconnects.
+     */
     public static class PlaybackServiceConnection implements ServiceConnection {
 
         private PlaybackServiceConnectionListener mPlaybackServiceConnectionListener;
@@ -162,9 +170,6 @@ public class PlaybackService extends Service
 
         private long mStartCallTime = 0L;
 
-        /* (non-Javadoc)
-         * @see android.telephony.PhoneStateListener#onCallStateChanged(int, java.lang.String)
-         */
         @Override
         public void onCallStateChanged(int state, String incomingNumber) {
             switch (state) {
@@ -207,16 +212,22 @@ public class PlaybackService extends Service
         }
     }
 
+    /**
+     * Handles incoming broadcasts
+     */
     private class ServiceBroadcastReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(intent.getAction())) {
+                // AudioManager tells us that the sound will be played through the speaker
                 if (isPlaying()) {
+                    // So we stop playback, if needed
                     pause();
                 }
-            } else if (intent.hasExtra("state") && intent.getIntExtra("state", 0) == 1) {
-
+            } else if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG) && intent
+                    .hasExtra("state") && intent.getIntExtra("state", 0) == 1) {
+                // Headset has been plugged in
                 SharedPreferences prefs = PreferenceManager
                         .getDefaultSharedPreferences(TomahawkApp.getContext());
                 boolean playbackOnHeadsetInsert = prefs
@@ -224,12 +235,15 @@ public class PlaybackService extends Service
                                 false);
 
                 if (!isPlaying() && playbackOnHeadsetInsert) {
+                    //resume playback, if user has set the "resume on headset plugin" preference
                     start();
                 }
             } else if (intent.getAction().equals(BitmapItem.BITMAPITEM_BITMAPLOADED)) {
+                // a bitmap has been loaded
                 if (mCurrentPlaylist.getCurrentTrack() != null && intent
                         .getStringExtra(BitmapItem.BITMAPITEM_BITMAPLOADED_PATH)
                         .equals(mCurrentPlaylist.getCurrentTrack().getAlbum().getAlbumArtPath())) {
+                    // the loaded bitmap is relevant to us, so we update the playing notification
                     updatePlayingNotification();
                 }
             }
@@ -243,9 +257,7 @@ public class PlaybackService extends Service
         }
     }
 
-    /**
-     * This Runnable is used to increase the volume gently.
-     */
+    // This Runnable is used to increase the volume gently.
     private Runnable mVolumeIncreaseFader = new Runnable() {
 
         private float mVolume = 0f;
@@ -264,6 +276,7 @@ public class PlaybackService extends Service
         }
     };
 
+    // Stops this service if it doesn't have any bound services
     private final Handler mKillTimerHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -277,23 +290,23 @@ public class PlaybackService extends Service
         }
     };
 
-    /* (non-Javadoc)
-     * @see android.app.Service#onCreate()
-     */
     @Override
     public void onCreate() {
 
         mHandler = new Handler();
 
+        // Initialize PhoneCallListener
         TelephonyManager telephonyManager = (TelephonyManager) getSystemService(
                 Context.TELEPHONY_SERVICE);
         telephonyManager.listen(new PhoneCallListener(), PhoneStateListener.LISTEN_CALL_STATE);
         telephonyManager
                 .listen(new PhoneCallListener(), PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
 
+        // Initialize WakeLock
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
 
+        // Initialize and register ServiceBroadcastReceiver
         mServiceBroadcastReceiver = new ServiceBroadcastReceiver();
         registerReceiver(mServiceBroadcastReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
         registerReceiver(mServiceBroadcastReceiver,
@@ -301,14 +314,17 @@ public class PlaybackService extends Service
         registerReceiver(mServiceBroadcastReceiver,
                 new IntentFilter(BitmapItem.BITMAPITEM_BITMAPLOADED));
 
+        // Initialize killtime handler (watchdog style)
         mKillTimerHandler.removeCallbacksAndMessages(null);
         Message msg = mKillTimerHandler.obtainMessage();
         mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
 
+        // Initialize UserPlaylistsDataSource, so we can access the persisted UserPlaylists
         mUserPlaylistsDataSource = new UserPlaylistsDataSource(this,
                 ((TomahawkApp) getApplication()).getPipeLine());
         mUserPlaylistsDataSource.open();
 
+        // Finally initialize the heart of this PlaybackService, the TomahawkMediaPlayer object
         initMediaPlayer();
         restoreState();
     }
@@ -330,9 +346,6 @@ public class PlaybackService extends Service
         return START_STICKY;
     }
 
-    /* (non-Javadoc)
-     * @see android.app.Service#onBind(android.content.Intent)
-     */
     @Override
     public IBinder onBind(Intent intent) {
         mHasBoundServices = true;
@@ -348,9 +361,6 @@ public class PlaybackService extends Service
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see android.app.Service#onDestroy()
-     */
     @Override
     public void onDestroy() {
         pause(true);
@@ -366,12 +376,18 @@ public class PlaybackService extends Service
         super.onDestroy();
     }
 
+    /**
+     * Called if given {@link TomahawkMediaPlayer} has been prepared for playback
+     */
     @Override
     public void onPrepared(TomahawkMediaPlayer mp) {
         Log.d(TAG, "Mediaplayer is prepared.");
         handlePlayState();
     }
 
+    /**
+     * Called if an error has occurred while trying to prepare {@link TomahawkMediaPlayer}
+     */
     @Override
     public boolean onError(TomahawkMediaPlayer tmp, int what, int extra) {
         String whatString = "CODE UNSPECIFIED";
@@ -390,6 +406,10 @@ public class PlaybackService extends Service
         return false;
     }
 
+    /**
+     * Called if given {@link TomahawkMediaPlayer} has finished playing a song. Prepare the next
+     * track if possible, otherwise stop.
+     */
     @Override
     public void onCompletion(TomahawkMediaPlayer mp) {
         if (mCurrentPlaylist == null) {
@@ -410,7 +430,7 @@ public class PlaybackService extends Service
     }
 
     /**
-     * Initializes the mediaplayer. Sets the listeners and AudioStreamType.
+     * Initializes the {@link TomahawkMediaPlayer}. Sets the listeners and AudioStreamType.
      */
     public void initMediaPlayer() {
         mTomahawkMediaPlayer = new TomahawkMediaPlayer();
@@ -436,7 +456,7 @@ public class PlaybackService extends Service
     }
 
     /**
-     * Restore the current playlist from the UserCollection
+     * Restore the current playlist from the {@link UserCollection}
      */
     private void restoreState() {
         UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication())
@@ -458,7 +478,7 @@ public class PlaybackService extends Service
     }
 
     /**
-     * Start or pause playback (doesn't dismiss notification on pause)
+     * Start or pause playback (Doesn't dismiss notification on pause)
      */
     public void playPause() {
         playPause(false);
@@ -466,6 +486,8 @@ public class PlaybackService extends Service
 
     /**
      * Start or pause playback.
+     *
+     * @param dismissNotificationOnPause if true, dismiss notification on pause, otherwise don't
      */
     public void playPause(boolean dismissNotificationOnPause) {
         if (mPlayState == PLAYBACKSERVICE_PLAYSTATE_PLAYING) {
@@ -505,7 +527,7 @@ public class PlaybackService extends Service
     }
 
     /**
-     * Pause playback.
+     * Pause playback. (Doesn't dismiss notification on pause)
      */
     public void pause() {
         pause(false);
@@ -513,6 +535,8 @@ public class PlaybackService extends Service
 
     /**
      * Pause playback.
+     *
+     * @param dismissNotificationOnPause if true, dismiss notification on pause, otherwise don't
      */
     public void pause(boolean dismissNotificationOnPause) {
         mPlayState = PLAYBACKSERVICE_PLAYSTATE_PAUSED;
@@ -602,7 +626,7 @@ public class PlaybackService extends Service
     }
 
     /**
-     * Set the current playlist to shuffle mode.
+     * Set whether or not to enable shuffle mode on the current playlist.
      */
     public void setShuffled(boolean shuffled) {
         mCurrentPlaylist.setShuffled(shuffled);
@@ -610,7 +634,7 @@ public class PlaybackService extends Service
     }
 
     /**
-     * Set the current playlist to repeat mode.
+     * Set whether or not to enable repeat mode on the current playlist.
      */
     public void setRepeating(boolean repeating) {
         mCurrentPlaylist.setRepeating(repeating);
@@ -693,6 +717,9 @@ public class PlaybackService extends Service
         }
     }
 
+    /**
+     * @return whether or not wi-fi is available
+     */
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(
                 Context.CONNECTIVITY_SERVICE);
@@ -719,6 +746,9 @@ public class PlaybackService extends Service
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
 
+    /**
+     * Add given {@link ArrayList} of {@link Track}s to the current {@link Playlist}
+     */
     public void addTracksToCurrentPlaylist(ArrayList<Track> tracks) {
         if (mCurrentPlaylist == null) {
             mCurrentPlaylist = UserPlaylist.fromTrackList("Temp", new ArrayList<Track>());
@@ -735,6 +765,10 @@ public class PlaybackService extends Service
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
 
+    /**
+     * Add given {@link ArrayList} of {@link Track}s to the current {@link Playlist} at the given
+     * position
+     */
     public void addTracksToCurrentPlaylist(int position, ArrayList<Track> tracks) {
         if (mCurrentPlaylist == null) {
             mCurrentPlaylist = UserPlaylist.fromTrackList("Temp", new ArrayList<Track>());
@@ -755,6 +789,9 @@ public class PlaybackService extends Service
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
 
+    /**
+     * Remove track at given position from current playlist
+     */
     public void deleteTrackAtPos(int position) {
         mCurrentPlaylist.deleteTrackAtPos(position);
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));

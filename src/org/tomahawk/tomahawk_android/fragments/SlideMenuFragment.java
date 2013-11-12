@@ -93,7 +93,7 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
         switch ((int) id) {
             case TomahawkMainActivity.HUB_ID_SEARCH:
                 mTomahawkMainActivity.getContentViewer()
-                        .setCurrentStackId(TomahawkMainActivity.HUB_ID_SEARCH);
+                        .setCurrentHubId(TomahawkMainActivity.HUB_ID_SEARCH);
                 mTomahawkMainActivity.showSearchEditText();
                 h.postDelayed(new Runnable() {
                     public void run() {
@@ -103,7 +103,7 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
                 break;
             case TomahawkMainActivity.HUB_ID_COLLECTION:
                 mTomahawkMainActivity.getContentViewer()
-                        .setCurrentStackId(TomahawkMainActivity.HUB_ID_COLLECTION);
+                        .setCurrentHubId(TomahawkMainActivity.HUB_ID_COLLECTION);
                 mTomahawkMainActivity.hideSearchEditText();
                 h.postDelayed(new Runnable() {
                     public void run() {
@@ -113,7 +113,7 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
                 break;
             case TomahawkMainActivity.HUB_ID_PLAYLISTS:
                 mTomahawkMainActivity.getContentViewer()
-                        .setCurrentStackId(TomahawkMainActivity.HUB_ID_PLAYLISTS);
+                        .setCurrentHubId(TomahawkMainActivity.HUB_ID_PLAYLISTS);
                 mTomahawkMainActivity.hideSearchEditText();
                 h.postDelayed(new Runnable() {
                     public void run() {
@@ -123,7 +123,7 @@ public class SlideMenuFragment extends ListFragment implements AdapterView.OnIte
                 break;
             case TomahawkMainActivity.HUB_ID_SETTINGS:
                 mTomahawkMainActivity.getContentViewer()
-                        .setCurrentStackId(TomahawkMainActivity.HUB_ID_SETTINGS);
+                        .setCurrentHubId(TomahawkMainActivity.HUB_ID_SETTINGS);
                 mTomahawkMainActivity.hideSearchEditText();
                 h.postDelayed(new Runnable() {
                     public void run() {

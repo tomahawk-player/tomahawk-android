@@ -26,7 +26,12 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 29.01.13
+ * A {@link StickyListHeadersListView} extended by a {@link GestureDetector}, so that we can use it
+ * inside our {@link org.tomahawk.tomahawk_android.activities.PlaybackActivity}'s {@link
+ * TomahawkStickyListHeadersListView}. The {@link GestureDetector} is being used, so that the user
+ * is able to swipe the AlbumArt horizontally inside {@link org.tomahawk.tomahawk_android.fragments.PlaybackFragment}
+ * and to scroll vertically through the {@link StickyListHeadersListView}. Without manually deciding
+ * which one to scroll/swipe, the two TouchEvents would conflict with each other.
  */
 public class TomahawkStickyListHeadersListView extends StickyListHeadersListView {
 
@@ -34,36 +39,55 @@ public class TomahawkStickyListHeadersListView extends StickyListHeadersListView
 
     private GestureDetector gestureDetector;
 
+    /**
+     * Construct a {@link TomahawkStickyListHeadersListView}
+     */
     public TomahawkStickyListHeadersListView(Context context) {
         super(context);
         gestureDetector = new GestureDetector(new YScrollDetector());
     }
 
+    /**
+     * Construct a {@link TomahawkStickyListHeadersListView}
+     */
     public TomahawkStickyListHeadersListView(Context context, AttributeSet attrs) {
         super(context, attrs);
         gestureDetector = new GestureDetector(new YScrollDetector());
     }
 
+    /**
+     * Construct a {@link TomahawkStickyListHeadersListView}
+     */
     public TomahawkStickyListHeadersListView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         gestureDetector = new GestureDetector(new YScrollDetector());
     }
 
+    /**
+     * Intercept the TouchEvent, so that we can manually solve swipe horizontally/ scroll vertically
+     * conflict.
+     */
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         boolean result = super.onInterceptTouchEvent(ev);
         return gestureDetector.onTouchEvent(ev) && result;
     }
 
+    /**
+     * Class to extend a {@link android.view.GestureDetector.SimpleOnGestureListener}, so that we
+     * can apply our logic to manually solve the TouchEvent conflict.
+     */
     class YScrollDetector extends GestureDetector.SimpleOnGestureListener {
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             try {
+                // User wants to scroll vertically
                 return Math.abs(distanceY) > Math.abs(distanceX);
             } catch (Exception e) {
                 Log.e(TAG, e.getLocalizedMessage());
             }
+            // User wants to swipe horizontally, prohibit scrolling
             return false;
         }
     }

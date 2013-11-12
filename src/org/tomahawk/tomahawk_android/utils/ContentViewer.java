@@ -30,6 +30,29 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * This class wraps all functionality that handles the switching of {@link Fragment}s, whenever the
+ * user navigates to a new {@link Fragment}. It also implements a custom back stack for every hub,
+ * so the user can always return to the previous {@link Fragment}s. There is one hub for every menu
+ * entry in the {@link org.tomahawk.tomahawk_android.fragments.SlideMenuFragment}.
+ *
+ *
+ * Example state of the {@link ContentViewer}:
+ *
+ * Home (Hub #1): HomeFragment (not yet implemented) -> END OF BACKSTACK
+ *
+ * Search (Hub #2): SearchableFragment -> END OF BACKSTACK
+ *
+ * Collection (Hub #3): UserCollectionFragment -> AlbumsFragment -> END OF BACKSTACK
+ *
+ * Playlists (Hub #4): UserPlaylistsFragment -> TracksFragment -> END OF BACKSTACK
+ *
+ * Stations (Hub #5): StationsFragment (not yet implemented) -> END OF BACKSTACK
+ *
+ * Friends (Hub #6): FriendsFragment (not yet implemented) -> END OF BACKSTACK
+ *
+ * Settings (Hub #7): FakePreferenceFragment -> END OF BACKSTACK
+ */
 public class ContentViewer {
 
     private TomahawkMainActivity mTomahawkMainActivity;
@@ -38,13 +61,14 @@ public class ContentViewer {
 
     private int mContentFrameId;
 
-    private int mCurrentlyShownStack;
+    private int mCurrentlyShownHub;
 
-    private ConcurrentHashMap<Integer, ArrayList<FragmentStateHolder>> mMapOfStacks
+    private ConcurrentHashMap<Integer, ArrayList<FragmentStateHolder>> mMapOfHubs
             = new ConcurrentHashMap<Integer, ArrayList<FragmentStateHolder>>();
 
     /**
-     * A FragmentStateHolder represents and stores all information needed to construct a Fragment.
+     * A {@link FragmentStateHolder} represents and stores all information needed to construct a
+     * {@link Fragment}.
      */
     public static final class FragmentStateHolder implements Serializable {
 
@@ -66,24 +90,32 @@ public class ContentViewer {
         //the listScrollPosition which is being stored and restored when the fragment is popped or stashed.
         public int listScrollPosition = 0;
 
-        public int correspondingStackId = -1;
+        public int correspondingHubId = -1;
 
         public ArrayList<String> correspondingQueryIds;
 
-        FragmentStateHolder(Class clss, String fragmentTag, int correspondingStackId,
+        /**
+         * Construct a {@link FragmentStateHolder} without providing a reference to a {@link
+         * org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
+         */
+        FragmentStateHolder(Class clss, String fragmentTag, int correspondingHubId,
                 ArrayList<String> correspondingQueryIds) {
             this.clss = clss;
             this.fragmentTag = fragmentTag;
-            this.correspondingStackId = correspondingStackId;
+            this.correspondingHubId = correspondingHubId;
             this.correspondingQueryIds = correspondingQueryIds;
         }
 
-        FragmentStateHolder(Class clss, String fragmentTag, int correspondingStackId,
+        /**
+         * Construct a {@link FragmentStateHolder} while also providing a reference to a {@link
+         * org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
+         */
+        FragmentStateHolder(Class clss, String fragmentTag, int correspondingHubId,
                 ArrayList<String> correspondingQueryIds, long tomahawkListItemId,
                 String tomahawkListItemType) {
             this.clss = clss;
             this.fragmentTag = fragmentTag;
-            this.correspondingStackId = correspondingStackId;
+            this.correspondingHubId = correspondingHubId;
             this.correspondingQueryIds = correspondingQueryIds;
             this.tomahawkListItemId = tomahawkListItemId;
             this.tomahawkListItemType = tomahawkListItemType;
@@ -91,7 +123,7 @@ public class ContentViewer {
     }
 
     /**
-     * Constructs a new ContentViewer
+     * Constructs a new {@link ContentViewer}
      */
     public ContentViewer(TomahawkMainActivity activity, FragmentManager fragmentManager,
             int contentFrameId) {
@@ -101,44 +133,53 @@ public class ContentViewer {
     }
 
     /**
-     * Add the root of the backStack to the tab. Set the resource id for the fragmentContainer for
-     * this tab.
+     * Add the root of the backStack to the hub with the given id. Set the resource id for the
+     * fragmentContainer for this hub.
      *
-     * @param clss the class of the rootFragment to add
+     * @param hubId the id of the hub
+     * @param clss  the class of the rootFragment to add
      */
-    public void addRootToTab(int stackId, Class clss) {
+    public void addRootToHub(int hubId, Class clss) {
         ArrayList<FragmentStateHolder> fragmentStateHolders = new ArrayList<FragmentStateHolder>();
         fragmentStateHolders
-                .add(new FragmentStateHolder(clss, getFragmentTag(mMapOfStacks.size(), 0), stackId,
+                .add(new FragmentStateHolder(clss, getFragmentTag(mMapOfHubs.size(), 0), hubId,
                         null));
-        mMapOfStacks.put(stackId, fragmentStateHolders);
+        mMapOfHubs.put(hubId, fragmentStateHolders);
     }
 
     /**
-     * Generate the fragmentTag to the given position and offset. Examples:    Position 0 for first
-     * tab and offset 0 for the current item in the stack. Position 1 for the second tab and offset
-     * -1 for the previous item in the stack.
+     * Generate a fragmentTag to the given hub id and offset.
      *
-     * @param stackId the position of the viewpager
-     * @param offset  offset which will be added to the position of the current top item in the
-     *                backstack
+     * Examples: Position 0 for first tab and offset 0 for the current item in the stack.
+     *
+     * Position 1 for the second tab and offset -1 for the previous item in the stack.
+     *
+     * @param hubId  the id of the hub for which to generate the fragmentTag
+     * @param offset offset which will be added to the position of the current top item in the
+     *               backstack
      * @return the generated fragmentTag String
      */
-    public String getFragmentTag(int stackId, int offset) {
-        if (mMapOfStacks.size() - 1 < stackId) {
-            return String.valueOf(offset + 1000 * stackId);
+    public String getFragmentTag(int hubId, int offset) {
+        if (mMapOfHubs.size() - 1 < hubId) {
+            return String.valueOf(offset + 1000 * hubId);
         }
-        ArrayList<FragmentStateHolder> fragmentsStack = mMapOfStacks.get(stackId);
-        return String.valueOf(fragmentsStack.size() - 1 + offset + 1000 * stackId);
+        ArrayList<FragmentStateHolder> fragmentsStack = mMapOfHubs.get(hubId);
+        return String.valueOf(fragmentsStack.size() - 1 + offset + 1000 * hubId);
     }
 
     /**
-     * Replaces the view pager fragment at specified position.
+     * Replaces the {@link Fragment} in the hub with the given hub id and adds it to the backstack,
+     * if isBackAction is false.
+     *
+     * @param hubId               the id of the hub
+     * @param fragmentStateHolder {@link FragmentStateHolder} contains all information of the to be
+     *                            replaced {@link Fragment}
+     * @param isBackAction        whether or not the replacement is part of an action going back in
+     *                            the backstack
      */
-    public void replace(int stackId, FragmentStateHolder fragmentStateHolder,
-            boolean isBackAction) {
+    public void replace(int hubId, FragmentStateHolder fragmentStateHolder, boolean isBackAction) {
         // Get fragmentsStack for the given (tabs)position
-        ArrayList<FragmentStateHolder> fragmentStateHolders = mMapOfStacks.get(stackId);
+        ArrayList<FragmentStateHolder> fragmentStateHolders = mMapOfHubs.get(hubId);
         FragmentStateHolder currentFragmentStateHolder = fragmentStateHolders
                 .get(fragmentStateHolders.size() - 1);
         if (currentFragmentStateHolder != null) {
@@ -162,8 +203,7 @@ public class ContentViewer {
                     fragmentStateHolder.tomahawkListItemId);
             bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION,
                     fragmentStateHolder.listScrollPosition);
-            bundle.putInt(TomahawkFragment.TOMAHAWK_HUB_ID,
-                    fragmentStateHolder.correspondingStackId);
+            bundle.putInt(TomahawkFragment.TOMAHAWK_HUB_ID, fragmentStateHolder.correspondingHubId);
             bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING,
                     fragmentStateHolder.queryString);
             ft.replace(mContentFrameId,
@@ -176,45 +216,57 @@ public class ContentViewer {
     }
 
     /**
-     * Replaces the fragment at the given position.
+     * Replaces the {@link Fragment} in the hub with the given hub id and adds it to the backstack,
+     * if isBackAction is false.
+     *
+     * @param hubId                the id of the hub
+     * @param clss                 The {@link Fragment}'s class to be used to construct a new {@link
+     *                             FragmentStateHolder}
+     * @param tomahawkListItemId   the id of the {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
+     *                             corresponding to the {@link Fragment}
+     * @param tomahawkListItemType {@link String} containing the {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}'s
+     *                             type
+     * @param isBackAction         whether or not the replacement is part of an action going back in
+     *                             the backstack
      */
-    public void replace(int stackId, Class clss, long tomahawkListItemId,
-            String tomahawkListItemType, boolean isBackAction) {
+    public void replace(int hubId, Class clss, long tomahawkListItemId, String tomahawkListItemType,
+            boolean isBackAction) {
         FragmentStateHolder fragmentStateHolder = new FragmentStateHolder(clss,
-                getFragmentTag(stackId, 1), stackId, null, tomahawkListItemId,
-                tomahawkListItemType);
-        replace(stackId, fragmentStateHolder, isBackAction);
+                getFragmentTag(hubId, 1), hubId, null, tomahawkListItemId, tomahawkListItemType);
+        replace(hubId, fragmentStateHolder, isBackAction);
     }
 
     /**
-     * Replaces the current fragment by the previous fragment stored in the backStack. Does nothing
-     * and returns false if no fragment is back-stacked.
+     * Replaces the current {@link Fragment} with the previous {@link Fragment} stored in the
+     * backStack. Does nothing and returns false if no previous {@link Fragment} exists.
+     *
+     * @param hubId the id of the hub in which to go back
      */
-    public boolean back(int stackId) {
-        ArrayList<FragmentStateHolder> fragmentsStack = mMapOfStacks.get(stackId);
+    public boolean back(int hubId) {
+        ArrayList<FragmentStateHolder> fragmentsStack = mMapOfHubs.get(hubId);
         if (fragmentsStack.size() > 1) {
             FragmentStateHolder previousFragmentStateHolder = fragmentsStack
                     .get(fragmentsStack.size() - 2);
             // Restore the remembered fragment and remove it from back fragments.
-            this.replace(stackId, previousFragmentStateHolder, true);
+            this.replace(hubId, previousFragmentStateHolder, true);
             mTomahawkMainActivity.onBackStackChanged();
             return true;
         }
-        // Nothing to go back.
+        // Nothing to go back to.
         return false;
     }
 
     /**
-     * Pop the backstack at the given position until the Fragment with the given fragmentTag is on
-     * top
+     * Pop the backstack of the hub with the given id until the {@link Fragment} with the given
+     * fragmentTag is on top
      *
-     * @param stackId     the position of the backstack which should be used
+     * @param hubId       the id of the hub
      * @param fragmentTag the fragmentTag which belongs to the Fragment that should be gone back to
      * @return true if the Fragment with the given fragmentTag is now on top. False if Fragment with
      *         given fragmentTag not found
      */
-    public boolean backToFragment(int stackId, String fragmentTag, boolean withBundle) {
-        ArrayList<FragmentStateHolder> fragmentsStack = mMapOfStacks.get(stackId);
+    public boolean backToFragment(int hubId, String fragmentTag, boolean withBundle) {
+        ArrayList<FragmentStateHolder> fragmentsStack = mMapOfHubs.get(hubId);
         for (FragmentStateHolder fpb : fragmentsStack) {
             if (fpb.fragmentTag != null && fpb.fragmentTag.equals(fragmentTag)) {
                 if (fragmentsStack.size() > 1) {
@@ -228,7 +280,7 @@ public class ContentViewer {
                         bundle.putLong(fpb.tomahawkListItemType, fpb.tomahawkListItemId);
                         bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION,
                                 fpb.listScrollPosition);
-                        bundle.putInt(TomahawkFragment.TOMAHAWK_HUB_ID, fpb.correspondingStackId);
+                        bundle.putInt(TomahawkFragment.TOMAHAWK_HUB_ID, fpb.correspondingHubId);
                         bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING,
                                 fpb.queryString);
                         ft.replace(mContentFrameId,
@@ -236,7 +288,7 @@ public class ContentViewer {
                                         bundle), fpb.fragmentTag);
                     } else {
                         Bundle bundle = new Bundle();
-                        bundle.putInt(TomahawkFragment.TOMAHAWK_HUB_ID, fpb.correspondingStackId);
+                        bundle.putInt(TomahawkFragment.TOMAHAWK_HUB_ID, fpb.correspondingHubId);
                         ft.replace(mContentFrameId,
                                 Fragment.instantiate(mTomahawkMainActivity, fpb.clss.getName(),
                                         bundle), fpb.fragmentTag);
@@ -252,32 +304,32 @@ public class ContentViewer {
     }
 
     /**
-     * Go back to the root of the backstack at the given position
+     * Go back to the root of the backstack in the hub with the given id
      *
-     * @param stackId the position of the backstack which should be used
+     * @param hubId the id of the hub
      * @return true if the rootFragment is now on top. False otherwise.
      */
-    public boolean backToRoot(int stackId, boolean withBundle) {
-        return backToFragment(stackId, mMapOfStacks.get(stackId).get(0).fragmentTag, withBundle);
+    public boolean backToRoot(int hubId, boolean withBundle) {
+        return backToFragment(hubId, mMapOfHubs.get(hubId).get(0).fragmentTag, withBundle);
     }
 
     /**
-     * Get the backstack at the given position
+     * Get the backstack of the hub with the given id
      *
-     * @param stackId the position of the backstack which should be used
-     * @return backstack at the given position
+     * @param hubId the id of the hub
+     * @return backstack backstack of the hub with the given id
      */
-    public ArrayList<FragmentStateHolder> getBackStackAtPosition(int stackId) {
-        return mMapOfStacks.get(stackId);
+    public ArrayList<FragmentStateHolder> getBackStackAtPosition(int hubId) {
+        return mMapOfHubs.get(hubId);
     }
 
     /**
      * Get the complete backstack
      *
-     * @return the complete backstack for every tab
+     * @return the complete backstack for every hub
      */
     public ConcurrentHashMap<Integer, ArrayList<FragmentStateHolder>> getBackStack() {
-        ArrayList<FragmentStateHolder> fragmentsStack = mMapOfStacks.get(mCurrentlyShownStack);
+        ArrayList<FragmentStateHolder> fragmentsStack = mMapOfHubs.get(mCurrentlyShownHub);
         FragmentStateHolder currentFragmentStateHolder = fragmentsStack
                 .get(fragmentsStack.size() - 1);
         Fragment currentFragment = mFragmentManager
@@ -287,37 +339,47 @@ public class ContentViewer {
                     .getListScrollPosition();
             fragmentsStack.set(fragmentsStack.size() - 1, currentFragmentStateHolder);
         }
-        return mMapOfStacks;
+        return mMapOfHubs;
     }
 
     /**
      * Set the complete backstack
      *
-     * @param fragmentStateHolders the new backstack
+     * @param fragmentStateHolders the new complete set of all hub's backstacks
      */
     public void setBackStack(
             ConcurrentHashMap<Integer, ArrayList<FragmentStateHolder>> fragmentStateHolders) {
-        mMapOfStacks = fragmentStateHolders;
+        mMapOfHubs = fragmentStateHolders;
     }
 
     /**
-     * Get the fragment which currently is on top in the given tab
+     * Get the fragment which currently is on top in the backstack of the hub with the given id
+     *
+     * @param hubId the id of the hub
      */
-    public Fragment getFragmentOnTop(int stackId) {
-        ArrayList<FragmentStateHolder> fragmentsStack = mMapOfStacks.get(stackId);
+    public Fragment getFragmentOnTop(int hubId) {
+        ArrayList<FragmentStateHolder> fragmentsStack = mMapOfHubs.get(hubId);
         FragmentStateHolder currentFragmentStateHolder = fragmentsStack
                 .get(fragmentsStack.size() - 1);
         return mFragmentManager.findFragmentByTag(currentFragmentStateHolder.fragmentTag);
     }
 
-    public int getCurrentStackId() {
-        return mCurrentlyShownStack;
+    /**
+     * @return the currently shown hub's id
+     */
+    public int getCurrentHubId() {
+        return mCurrentlyShownHub;
     }
 
-    public void setCurrentStackId(int stackToShow) {
-        if (mCurrentlyShownStack != stackToShow) {
-            mCurrentlyShownStack = stackToShow;
-            ArrayList<FragmentStateHolder> stack = mMapOfStacks.get(stackToShow);
+    /**
+     * Set the currently shown hub, by providing its id
+     *
+     * @param hubToShow the id of the hub which should be shown
+     */
+    public void setCurrentHubId(int hubToShow) {
+        if (mCurrentlyShownHub != hubToShow) {
+            mCurrentlyShownHub = hubToShow;
+            ArrayList<FragmentStateHolder> stack = mMapOfHubs.get(hubToShow);
             FragmentTransaction ft = mFragmentManager.beginTransaction();
             FragmentStateHolder fragmentStateHolder = stack.get(stack.size() - 1);
             Bundle bundle = new Bundle();
@@ -325,16 +387,15 @@ public class ContentViewer {
                     fragmentStateHolder.tomahawkListItemId);
             bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION,
                     fragmentStateHolder.listScrollPosition);
-            bundle.putInt(TomahawkFragment.TOMAHAWK_HUB_ID,
-                    fragmentStateHolder.correspondingStackId);
+            bundle.putInt(TomahawkFragment.TOMAHAWK_HUB_ID, fragmentStateHolder.correspondingHubId);
             bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING,
                     fragmentStateHolder.queryString);
             ft.replace(mContentFrameId,
                     Fragment.instantiate(mTomahawkMainActivity, fragmentStateHolder.clss.getName(),
                             bundle), stack.get(stack.size() - 1).fragmentTag);
             ft.commit();
-            if (fragmentStateHolder.correspondingStackId == TomahawkMainActivity.HUB_ID_SEARCH
-                    || fragmentStateHolder.correspondingStackId
+            if (fragmentStateHolder.correspondingHubId == TomahawkMainActivity.HUB_ID_SEARCH
+                    || fragmentStateHolder.correspondingHubId
                     == TomahawkMainActivity.HUB_ID_SETTINGS) {
                 mTomahawkMainActivity.showBreadcrumbs(false);
             } else {

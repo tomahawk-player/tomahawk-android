@@ -27,7 +27,8 @@ import android.media.MediaPlayer;
 import java.io.IOException;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 23.06.13
+ * This class wraps a standard {@link MediaPlayer} object together with all functionality to be able
+ * to directly playback spotify-resolved tracks with OpenSLES .
  */
 public class TomahawkMediaPlayer
         implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
@@ -35,6 +36,7 @@ public class TomahawkMediaPlayer
 
     private MediaPlayer mMediaPlayer;
 
+    // Whether to use the MediaPlayer or OpenSLES
     private boolean mUseMediaPlayer;
 
     private boolean mIsPreparing;
@@ -47,7 +49,9 @@ public class TomahawkMediaPlayer
 
     private OnCompletionListener mOnCompletionListener;
 
-
+    /**
+     * Construct a new {@link TomahawkMediaPlayer}
+     */
     public TomahawkMediaPlayer() {
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -92,7 +96,9 @@ public class TomahawkMediaPlayer
         mOnCompletionListener.onCompletion(this);
     }
 
-
+    /**
+     * @return the current track position
+     */
     public int getCurrentPosition() {
         if (mUseMediaPlayer) {
             return mMediaPlayer.getCurrentPosition();
@@ -125,6 +131,9 @@ public class TomahawkMediaPlayer
         return mIsPlaying;
     }
 
+    /**
+     * Start playing the previously prepared {@link Track}
+     */
     public void start() throws IllegalStateException {
         mIsPlaying = true;
         if (mUseMediaPlayer) {
@@ -138,6 +147,9 @@ public class TomahawkMediaPlayer
         }
     }
 
+    /**
+     * Pause playing the current {@link Track}
+     */
     public void pause() throws IllegalStateException {
         mIsPlaying = false;
         if (mUseMediaPlayer) {
@@ -151,6 +163,9 @@ public class TomahawkMediaPlayer
         }
     }
 
+    /**
+     * Stop playing the current {@link Track}
+     */
     public void stop() throws IllegalStateException {
         mIsPlaying = false;
         if (mUseMediaPlayer) {
@@ -164,6 +179,9 @@ public class TomahawkMediaPlayer
         }
     }
 
+    /**
+     * Seek to the given playback position (in ms)
+     */
     public void seekTo(int msec) throws IllegalStateException {
         if (mUseMediaPlayer) {
             try {
@@ -176,6 +194,9 @@ public class TomahawkMediaPlayer
         }
     }
 
+    /**
+     * Prepare the given {@link Track}
+     */
     public void prepare(Track track) throws IllegalStateException, IOException {
         mIsPreparing = true;
         try {

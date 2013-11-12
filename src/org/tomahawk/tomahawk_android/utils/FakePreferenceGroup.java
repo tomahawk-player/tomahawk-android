@@ -20,7 +20,7 @@ package org.tomahawk.tomahawk_android.utils;
 import java.util.ArrayList;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.05.13
+ * A group of several {@link FakePreference}s
  */
 public class FakePreferenceGroup {
 
@@ -36,18 +36,32 @@ public class FakePreferenceGroup {
 
     private String mHeader;
 
+    /**
+     * A {@link FakePreference} contains all information needed to provide the {@link
+     * org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter} with the necessary values to
+     * be displayed inside the {@link org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment}'s
+     * {@link android.widget.ListView}
+     */
     public static class FakePreference {
 
+        // this FakePreference's type (Dialog, Checkbox, Plain or Spinner)
         private int type;
 
+        // the key to identify this FakePreference
         private String key;
 
+        // if this FakePreference's type is FAKEPREFERENCE_TYPE_CHECKBOX,
+        // this contains the current state of the checkbox
         private boolean checkboxState;
 
         private String title;
 
+        // short summary text to describe this FakePreference to the user
         private String summary;
 
+        /**
+         * Construct a {@link FakePreference}
+         */
         private FakePreference(int type, String key, boolean checkboxState, String title,
                 String summary) {
             this.type = type;
@@ -82,18 +96,32 @@ public class FakePreferenceGroup {
         }
     }
 
+    /**
+     * Construct a {@link FakePreferenceGroup}
+     *
+     * @param header the header to be shown to the user
+     */
     public FakePreferenceGroup(String header) {
         mHeader = header;
     }
 
+    /**
+     * Add a {@link FakePreference} to this {@link FakePreferenceGroup}
+     */
     public void addFakePreference(int type, String key, String title, String summary) {
         mFakePreferences.add(new FakePreference(type, key, false, title, summary));
     }
 
+    /**
+     * @return an {@link ArrayList} of all {@link FakePreference}s
+     */
     public ArrayList<FakePreference> getFakePreferences() {
         return mFakePreferences;
     }
 
+    /**
+     * Get the {@link FakePreference} with the given key
+     */
     public FakePreference getFakePreferenceByKey(String key) {
         for (FakePreference fakePreference : mFakePreferences) {
             if (fakePreference.getKey() == key) {
@@ -103,6 +131,9 @@ public class FakePreferenceGroup {
         return null;
     }
 
+    /**
+     * @return the header to be shown to the user
+     */
     public String getHeader() {
         return mHeader;
     }

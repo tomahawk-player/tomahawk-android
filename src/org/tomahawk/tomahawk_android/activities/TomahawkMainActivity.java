@@ -146,7 +146,7 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
         @Override
         public void onClick(View view) {
             getContentViewer()
-                    .backToFragment(getContentViewer().getCurrentStackId(), mSavedFragmentTag,
+                    .backToFragment(getContentViewer().getCurrentHubId(), mSavedFragmentTag,
                             true);
         }
     }
@@ -205,10 +205,10 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
         // entry in the slidingmenu is being clicked. Restore our saved state, if one exists.
         mContentViewer = new ContentViewer(this, getSupportFragmentManager(), R.id.content_frame);
         if (savedInstanceState == null) {
-            mContentViewer.addRootToTab(HUB_ID_SEARCH, SearchableFragment.class);
-            mContentViewer.addRootToTab(HUB_ID_COLLECTION, UserCollectionFragment.class);
-            mContentViewer.addRootToTab(HUB_ID_PLAYLISTS, UserPlaylistsFragment.class);
-            mContentViewer.addRootToTab(HUB_ID_SETTINGS, FakePreferenceFragment.class);
+            mContentViewer.addRootToHub(HUB_ID_SEARCH, SearchableFragment.class);
+            mContentViewer.addRootToHub(HUB_ID_COLLECTION, UserCollectionFragment.class);
+            mContentViewer.addRootToHub(HUB_ID_PLAYLISTS, UserPlaylistsFragment.class);
+            mContentViewer.addRootToHub(HUB_ID_SETTINGS, FakePreferenceFragment.class);
         } else {
             mCurrentStackPosition = savedInstanceState
                     .getInt(COLLECTION_ID_STACKPOSITION, HUB_ID_COLLECTION);
@@ -230,10 +230,10 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
             if (storedBackStack != null && storedBackStack.size() > 0) {
                 mContentViewer.setBackStack(storedBackStack);
             } else {
-                mContentViewer.addRootToTab(HUB_ID_SEARCH, SearchableFragment.class);
-                mContentViewer.addRootToTab(HUB_ID_COLLECTION, UserCollectionFragment.class);
-                mContentViewer.addRootToTab(HUB_ID_PLAYLISTS, UserPlaylistsFragment.class);
-                mContentViewer.addRootToTab(HUB_ID_SETTINGS, FakePreferenceFragment.class);
+                mContentViewer.addRootToHub(HUB_ID_SEARCH, SearchableFragment.class);
+                mContentViewer.addRootToHub(HUB_ID_COLLECTION, UserCollectionFragment.class);
+                mContentViewer.addRootToHub(HUB_ID_PLAYLISTS, UserPlaylistsFragment.class);
+                mContentViewer.addRootToHub(HUB_ID_SETTINGS, FakePreferenceFragment.class);
             }
         }
 
@@ -298,7 +298,7 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
             registerReceiver(mCollectionUpdatedReceiver, intentFilter);
         }
 
-        mContentViewer.setCurrentStackId(mCurrentStackPosition);
+        mContentViewer.setCurrentHubId(mCurrentStackPosition);
         // if we resume this activity with HUB_ID_SEARCH as the current stack position, make sure
         // that the searchEditText is being shown accordingly
         if (mCurrentStackPosition == HUB_ID_SEARCH) {
@@ -312,7 +312,7 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
     public void onPause() {
         super.onPause();
 
-        mCurrentStackPosition = mContentViewer.getCurrentStackId();
+        mCurrentStackPosition = mContentViewer.getCurrentHubId();
 
         if (mCollectionUpdatedReceiver != null) {
             unregisterReceiver(mCollectionUpdatedReceiver);
@@ -335,7 +335,7 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
     @Override
     protected void onSaveInstanceState(Bundle bundle) {
         bundle.putSerializable(COLLECTION_ID_STOREDBACKSTACK, getContentViewer().getBackStack());
-        bundle.putInt(COLLECTION_ID_STACKPOSITION, getContentViewer().getCurrentStackId());
+        bundle.putInt(COLLECTION_ID_STACKPOSITION, getContentViewer().getCurrentHubId());
         super.onSaveInstanceState(bundle);
     }
 
@@ -393,7 +393,7 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
      */
     @Override
     public void onBackPressed() {
-        if (!mContentViewer.back(mContentViewer.getCurrentStackId())) {
+        if (!mContentViewer.back(mContentViewer.getCurrentHubId())) {
             super.onBackPressed();
         }
     }
@@ -493,7 +493,7 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
      */
     public void updateBreadCrumbNavigation() {
         ArrayList<ContentViewer.FragmentStateHolder> backStack = getContentViewer()
-                .getBackStackAtPosition(getContentViewer().getCurrentStackId());
+                .getBackStackAtPosition(getContentViewer().getCurrentHubId());
         LinearLayout breadCrumbFrame = (LinearLayout) findViewById(R.id.bread_crumb_frame);
         breadCrumbFrame.removeAllViews();
         if (breadCrumbFrame != null) {
