@@ -19,11 +19,6 @@
  */
 package org.tomahawk.tomahawk_android.activities;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.emilsjolander.components.stickylistheaders.StickyListHeadersListView;
 
 import org.tomahawk.libtomahawk.collection.Album;
@@ -61,7 +56,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
@@ -75,7 +75,7 @@ import java.util.List;
  * This activity represents our Playback view in which the user can play/stop/pause and show/edit
  * the current playlist.
  */
-public class PlaybackActivity extends SherlockFragmentActivity
+public class PlaybackActivity extends ActionBarActivity
         implements PlaybackServiceConnectionListener, Handler.Callback,
         AdapterView.OnItemClickListener, StickyListHeadersListView.OnHeaderClickListener,
         ViewTreeObserver.OnGlobalLayoutListener, FakeContextMenu {
@@ -230,7 +230,7 @@ public class PlaybackActivity extends SherlockFragmentActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.clear();
-        MenuInflater inflater = getSupportMenuInflater();
+        MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.playback_menu, menu);
         return true;
     }

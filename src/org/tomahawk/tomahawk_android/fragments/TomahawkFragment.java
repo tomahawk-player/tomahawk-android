@@ -178,8 +178,8 @@ public class TomahawkFragment extends TomahawkListFragment
         // Adapt to current orientation. Show different count of columns in the GridView
         adaptColumnCount();
 
-        getSherlockActivity().getSupportLoaderManager().destroyLoader(getId());
-        getSherlockActivity().getSupportLoaderManager().initLoader(getId(), null, this);
+        getActivity().getSupportLoaderManager().destroyLoader(getId());
+        getActivity().getSupportLoaderManager().initLoader(getId(), null, this);
 
         // Initialize and register Receiver
         if (mTomahawkFragmentReceiver == null) {
@@ -392,7 +392,7 @@ public class TomahawkFragment extends TomahawkListFragment
      * Called when a Collection has been updated.
      */
     protected void onCollectionUpdated() {
-        getSherlockActivity().getSupportLoaderManager().restartLoader(getId(), null, this);
+        getActivity().getSupportLoaderManager().restartLoader(getId(), null, this);
     }
 
     @Override
