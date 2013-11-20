@@ -18,14 +18,13 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import com.actionbarsherlock.app.SherlockFragment;
-
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
 import org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +34,7 @@ import android.widget.GridView;
 /**
  * More customizable implementation of {@link android.app.ListFragment}
  */
-public class TomahawkListFragment extends SherlockFragment {
+public class TomahawkListFragment extends Fragment {
 
     public static final String TOMAHAWK_LIST_SCROLL_POSITION = "tomahawk_list_scroll_position";
 

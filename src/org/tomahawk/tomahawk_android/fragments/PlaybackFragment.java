@@ -17,8 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import com.actionbarsherlock.app.SherlockFragment;
-
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.PlaybackActivity;
@@ -29,6 +27,7 @@ import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 import android.app.Activity;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,11 +37,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 /**
- * This {@link SherlockFragment} represents our Playback view in which the user can play/stop/pause.
- * It is being shown as the topmost fragment in the {@link PlaybackActivity}'s {@link
- * org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}.
+ * This {@link android.support.v4.app.Fragment} represents our Playback view in which the user can
+ * play/stop/pause. It is being shown as the topmost fragment in the {@link PlaybackActivity}'s
+ * {@link org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}.
  */
-public class PlaybackFragment extends SherlockFragment {
+public class PlaybackFragment extends Fragment {
 
     private PlaybackService mPlaybackService;
 
@@ -194,7 +193,7 @@ public class PlaybackFragment extends SherlockFragment {
             if (mToast != null) {
                 mToast.cancel();
             }
-            mToast = Toast.makeText(getSherlockActivity(), getString(
+            mToast = Toast.makeText(getActivity(), getString(
                     mPlaybackService.getCurrentPlaylist().isShuffled()
                             ? R.string.playbackactivity_toastshuffleon_string
                             : R.string.playbackactivity_toastshuffleoff_string),
@@ -213,7 +212,7 @@ public class PlaybackFragment extends SherlockFragment {
             if (mToast != null) {
                 mToast.cancel();
             }
-            mToast = Toast.makeText(getSherlockActivity(), getString(
+            mToast = Toast.makeText(getActivity(), getString(
                     mPlaybackService.getCurrentPlaylist().isRepeating()
                             ? R.string.playbackactivity_toastrepeaton_string
                             : R.string.playbackactivity_toastrepeatoff_string), Toast.LENGTH_SHORT);
