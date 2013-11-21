@@ -606,12 +606,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                 TextView breadcrumbItemTextView = (TextView) breadcrumbItem
                         .findViewById(R.id.fragmentLayout_text_textView);
                 if (fpb.clss == UserCollectionFragment.class) {
-                    if (validFragmentCount == 1) {
-                        breadcrumbItemTextView
-                                .setText(getString(R.string.usercollectionfragment_title_string));
-                    } else {
-                        breadcrumbItemTextView.setVisibility(TextView.GONE);
-                    }
+                    breadcrumbItemTextView.setVisibility(TextView.GONE);
                     breadcrumbItemImageView.setBackgroundDrawable(
                             getResources().getDrawable(R.drawable.ic_action_collection));
                     breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
@@ -620,12 +615,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                             .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
                     breadCrumbFrame.addView(breadcrumbItem);
                 } else if (fpb.clss == UserPlaylistsFragment.class) {
-                    if (validFragmentCount == 1) {
-                        breadcrumbItemTextView
-                                .setText(getString(R.string.userplaylistsfragment_title_string));
-                    } else {
-                        breadcrumbItemTextView.setVisibility(TextView.GONE);
-                    }
+                    breadcrumbItemTextView.setVisibility(TextView.GONE);
                     breadcrumbItemImageView.setBackgroundDrawable(
                             getResources().getDrawable(R.drawable.ic_action_playlist));
                     breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
@@ -634,12 +624,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                             .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
                     breadCrumbFrame.addView(breadcrumbItem);
                 } else if (fpb.clss == SearchableFragment.class) {
-                    if (validFragmentCount == 1) {
-                        breadcrumbItemTextView
-                                .setText(getString(R.string.searchfragment_title_string));
-                    } else {
-                        breadcrumbItemTextView.setVisibility(TextView.GONE);
-                    }
+                    breadcrumbItemTextView.setVisibility(TextView.GONE);
                     breadcrumbItemImageView.setBackgroundDrawable(
                             getResources().getDrawable(R.drawable.ic_action_search));
                     breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
