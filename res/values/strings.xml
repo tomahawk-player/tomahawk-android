@@ -27,15 +27,14 @@
     <string name="cancel">Cancel</string>
     <string name="login">Login</string>
     <string name="logout">Logout</string>
-    <string name="localcollectionactivity_title_string">"My Music"</string>
+    <string name="usercollectionfragment_title_string">"My Music"</string>
     <string name="tracksfragment_title_string">Tracks</string>
     <string name="albumsfragment_title_string">Albums</string>
     <string name="artistsfragment_title_string">Artists</string>
-    <string name="playlistsfragment_title_string">Playlists</string>
+    <string name="userplaylistsfragment_title_string">Playlists</string>
     <string name="searchfragment_title_string">Search</string>
-    <string name="searchactivity_title_string">Search</string>
-    <string name="searchactivity_searchforonlinesources">Also search online</string>
-    <string name="searchactivity_searchtype">Search for</string>
+    <string name="searchfragment_searchforonlinesources">Also search online</string>
+    <string name="searchfragment_searchtype">Search for</string>
     <string name="playbackfragment_title_string">Playback</string>
     <string name="playbackplaylistfragment_title_string">Playlist</string>
     <string name="playbackactivity_seekbar_completion_time_string">-:--</string>
@@ -63,7 +62,7 @@
     <string name="authenticationactivity_invalid_credentials_string">Username or password
         incorrect
     </string>
-    <string name="settingsactivity_title_string">Settings</string>
+    <string name="settingsfragment_title_string">Settings</string>
     <string name="fakepreference_accounts_header">SERVICES</string>
     <string name="fakepreference_spotifylogin_title_string">Spotify</string>
     <string name="fakepreference_spotifylogin_summary_string">Play your music from and sync your
@@ -94,14 +93,16 @@
     <string name="fake_context_menu_appendtoplaybacklist">Append to playback list</string>
     <string name="fake_context_menu_addtoplaylist">Add to playlist</string>
     <string name="fake_context_menu_delete">Delete</string>
-    <string name="slide_menu_home">Home</string>
-    <string name="slide_menu_search">Search</string>
-    <string name="slide_menu_collection">Collection</string>
-    <string name="slide_menu_playlists">Playlists</string>
-    <string name="slide_menu_stations">Stations</string>
-    <string name="slide_menu_friends">Friends</string>
-    <string name="slide_menu_settings">Settings</string>
+    <string name="hub_title_home">Home</string>
+    <string name="hub_title_search">Search</string>
+    <string name="hub_title_collection">Collection</string>
+    <string name="hub_title_playlists">Playlists</string>
+    <string name="hub_title_stations">Stations</string>
+    <string name="hub_title_friends">Friends</string>
+    <string name="hub_title_settings">Settings</string>
     <string name="fake_preferences_bitrate_low">Normal quality</string>
     <string name="fake_preferences_bitrate_medium">Good quality</string>
     <string name="fake_preferences_bitrate_high">Best quality</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
 </resources>

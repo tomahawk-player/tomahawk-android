@@ -34,7 +34,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * This class populates the listview inside the {@link org.tomahawk.tomahawk_android.fragments.SlideMenuFragment}
+ * This class populates the listview inside the navigation drawer
  */
 public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeadersAdapter {
 

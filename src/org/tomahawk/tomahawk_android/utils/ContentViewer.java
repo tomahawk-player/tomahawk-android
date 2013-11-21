@@ -17,6 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
+import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
@@ -34,7 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * This class wraps all functionality that handles the switching of {@link Fragment}s, whenever the
  * user navigates to a new {@link Fragment}. It also implements a custom back stack for every hub,
  * so the user can always return to the previous {@link Fragment}s. There is one hub for every menu
- * entry in the {@link org.tomahawk.tomahawk_android.fragments.SlideMenuFragment}.
+ * entry in the navigation drawer.
  *
  *
  * Example state of the {@link ContentViewer}:
@@ -263,7 +264,7 @@ public class ContentViewer {
      * @param hubId       the id of the hub
      * @param fragmentTag the fragmentTag which belongs to the Fragment that should be gone back to
      * @return true if the Fragment with the given fragmentTag is now on top. False if Fragment with
-     *         given fragmentTag not found
+     * given fragmentTag not found
      */
     public boolean backToFragment(int hubId, String fragmentTag, boolean withBundle) {
         ArrayList<FragmentStateHolder> fragmentsStack = mMapOfHubs.get(hubId);
@@ -369,6 +370,29 @@ public class ContentViewer {
      */
     public int getCurrentHubId() {
         return mCurrentlyShownHub;
+    }
+
+    /**
+     * @return the currently shown hub's title resource id, 0 if an error occurred
+     */
+    public int getCurrentHubTitleResId() {
+        switch (mCurrentlyShownHub) {
+            case TomahawkMainActivity.HUB_ID_HOME:
+                return R.string.hub_title_home;
+            case TomahawkMainActivity.HUB_ID_SEARCH:
+                return R.string.hub_title_search;
+            case TomahawkMainActivity.HUB_ID_COLLECTION:
+                return R.string.hub_title_collection;
+            case TomahawkMainActivity.HUB_ID_PLAYLISTS:
+                return R.string.hub_title_playlists;
+            case TomahawkMainActivity.HUB_ID_STATIONS:
+                return R.string.hub_title_stations;
+            case TomahawkMainActivity.HUB_ID_FRIENDS:
+                return R.string.hub_title_friends;
+            case TomahawkMainActivity.HUB_ID_SETTINGS:
+                return R.string.hub_title_settings;
+        }
+        return 0;
     }
 
     /**

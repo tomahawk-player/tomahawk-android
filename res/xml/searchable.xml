@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <searchable xmlns:android="http://schemas.android.com/apk/res/android"
-            android:hint="@string/searchactivity_title_string"
+            android:hint="@string/searchfragment_title_string"
             android:label="@string/appname_string"
             android:voiceSearchMode="showVoiceSearchButton|launchRecognizer">
 

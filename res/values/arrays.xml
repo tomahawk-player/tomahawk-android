@@ -49,13 +49,13 @@
         <item>@drawable/ic_action_artist</item>
     </array>
     <string-array name="slide_menu_items">
-        <item>@string/slide_menu_home</item>
-        <item>@string/slide_menu_search</item>
-        <item>@string/slide_menu_collection</item>
-        <item>@string/slide_menu_playlists</item>
-        <item>@string/slide_menu_stations</item>
-        <item>@string/slide_menu_friends</item>
-        <item>@string/slide_menu_settings</item>
+        <item>@string/hub_title_home</item>
+        <item>@string/hub_title_search</item>
+        <item>@string/hub_title_collection</item>
+        <item>@string/hub_title_playlists</item>
+        <item>@string/hub_title_stations</item>
+        <item>@string/hub_title_friends</item>
+        <item>@string/hub_title_settings</item>
     </string-array>
     <string-array name="fake_context_menu_items">
         <item>@string/fake_context_menu_play</item>
