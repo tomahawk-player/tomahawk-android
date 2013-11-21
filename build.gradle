@@ -1,0 +1,114 @@
+import java.util.regex.Pattern
+
+/*
+ * Gets the version name from the latest Git tag
+ */
+def getVersionName = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'describe', '--tags'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+task('setVersionName') << {
+    def manifestFile = file("AndroidManifest.xml")
+    def pattern = Pattern.compile("versionName=\"(\\d+)\"")
+    def manifestText = manifestFile.getText()
+    def matcher = pattern.matcher(manifestText)
+    matcher.find()
+    def versionCode = getVersionName()
+    def manifestContent = matcher.replaceAll("versionName=\"" + versionCode + "\"")
+    manifestFile.write(manifestContent)
+}
+
+tasks.withType(Compile) { compileTask -> compileTask.dependsOn setVersionName }
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.5.+'
+    }
+}
+apply plugin: 'android'
+
+dependencies {
+    compile fileTree(dir: 'libs', include: '*.jar')
+    compile "com.android.support:appcompat-v7:19.0.0"
+    compile "com.android.support:support-v4:19.0.0"
+}
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "19.0.0"
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+
+        // Move the tests to tests/java, tests/res, etc...
+        instrumentTest.setRoot('tests')
+
+        // Move the build types to build-types/<type>
+        // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
+        // This moves them out of them default location under src/<type>/... which would
+        // conflict with src/ being used by the main source set.
+        // Adding new build types or product flavors should be accompanied
+        // by a similar customization.
+        debug.setRoot('build-types/debug')
+        release.setRoot('build-types/release')
+    }
+
+    buildTypes {
+        release {
+            applicationVariants.all { variant ->
+                def file = variant.outputFile
+                variant.outputFile = new File(file.parent,
+                        file.name.replace(".apk", "-"+ getVersionName() + ".apk"))
+            }
+        }
+    }
+}
+
+////////////////////////////////////////////////////
+// NDK Support (by https://gist.github.com/pboos) //
+////////////////////////////////////////////////////
+// Make sure the environment variable $ANDROID_NDK_HOME is set:
+// example: ANDROID_NDK_HOME /home/maffen/SDKs/android-ndk-r8e
+task copyNativeLibs(type: Copy, dependsOn: 'buildNative') {
+    dependsOn 'buildNative'
+    from(new File('libs')) { include '**/*.so' }
+    into new File(buildDir, 'native-libs')
+}
+
+tasks.withType(Compile) { compileTask -> compileTask.dependsOn copyNativeLibs }
+
+clean.dependsOn 'cleanCopyNativeLibs'
+
+tasks.withType(com.android.build.gradle.tasks.PackageApplication) { pkgTask ->
+    pkgTask.jniDir new File(buildDir, 'native-libs')
+}
+
+task buildNative(type: Exec) {
+    if (System.env.ANDROID_NDK_HOME != null) {
+        def ndkBuild = new File(System.env.ANDROID_NDK_HOME, 'ndk-build')
+        commandLine ndkBuild
+    } else {
+        doLast {
+            println '##################'
+            println 'Skipping NDK build'
+            println 'Reason: ANDROID_NDK_HOME not set.'
+            println '##################'
+        }
+    }
+}
