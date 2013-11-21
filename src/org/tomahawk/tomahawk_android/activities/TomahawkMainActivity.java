@@ -82,19 +82,19 @@ public class TomahawkMainActivity extends ActionBarActivity
         TomahawkService.TomahawkServiceConnection.TomahawkServiceConnectionListener,
         LoaderManager.LoaderCallbacks<Collection> {
 
-    public static final int HUB_ID_HOME = 0;
+    public static final int HUB_ID_HOME = -1;
 
-    public static final int HUB_ID_SEARCH = 1;
+    public static final int HUB_ID_SEARCH = 0;
 
-    public static final int HUB_ID_COLLECTION = 2;
+    public static final int HUB_ID_COLLECTION = 1;
 
-    public static final int HUB_ID_PLAYLISTS = 3;
+    public static final int HUB_ID_PLAYLISTS = 2;
 
-    public static final int HUB_ID_STATIONS = 4;
+    public static final int HUB_ID_STATIONS = -2;
 
-    public static final int HUB_ID_FRIENDS = 5;
+    public static final int HUB_ID_FRIENDS = -3;
 
-    public static final int HUB_ID_SETTINGS = 6;
+    public static final int HUB_ID_SETTINGS = 3;
 
     public static final String COLLECTION_ID_STOREDBACKSTACK = "collection_id_storedbackstack";
 
