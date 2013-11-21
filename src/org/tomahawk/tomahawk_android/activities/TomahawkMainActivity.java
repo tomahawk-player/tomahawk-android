@@ -18,9 +18,6 @@
  */
 package org.tomahawk.tomahawk_android.activities;
 
-import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
-import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
-
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
@@ -32,11 +29,11 @@ import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
 import org.tomahawk.tomahawk_android.fragments.ArtistsFragment;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
-import org.tomahawk.tomahawk_android.fragments.SlideMenuFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.fragments.TracksFragment;
 import org.tomahawk.tomahawk_android.fragments.UserCollectionFragment;
@@ -55,17 +52,22 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -75,7 +77,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * The main Tomahawk activity
  */
-public class TomahawkMainActivity extends SlidingFragmentActivity
+public class TomahawkMainActivity extends ActionBarActivity
         implements PlaybackServiceConnectionListener,
         TomahawkService.TomahawkServiceConnection.TomahawkServiceConnectionListener,
         LoaderManager.LoaderCallbacks<Collection> {
@@ -100,6 +102,8 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
 
     public static final String TOMAHAWKSERVICE_READY = "tomahawkservice_ready";
 
+    private CharSequence mTitle;
+
     private PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(
             this);
 
@@ -109,6 +113,14 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
             = new TomahawkService.TomahawkServiceConnection(this);
 
     private TomahawkService mTomahawkService;
+
+    private DrawerLayout mDrawerLayout;
+
+    private ListView mDrawerList;
+
+    private ActionBarDrawerToggle mDrawerToggle;
+
+    private CharSequence mDrawerTitle;
 
     private ContentViewer mContentViewer;
 
@@ -152,50 +164,92 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
         }
     }
 
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+
+        /**
+         * Called every time an item inside the {@link android.widget.ListView} is clicked
+         *
+         * @param parent   The AdapterView where the click happened.
+         * @param view     The view within the AdapterView that was clicked (this will be a view
+         *                 provided by the adapter)
+         * @param position The position of the view in the adapter.
+         * @param id       The row id of the item that was clicked.
+         */
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            // Show the correct hub, and if needed, display the search editText inside the ActionBar
+            switch ((int) id) {
+                case TomahawkMainActivity.HUB_ID_SEARCH:
+                    mContentViewer
+                            .setCurrentHubId(TomahawkMainActivity.HUB_ID_SEARCH);
+                    setSearchEditTextVisibility(true);
+                    break;
+                case TomahawkMainActivity.HUB_ID_COLLECTION:
+                    mContentViewer
+                            .setCurrentHubId(TomahawkMainActivity.HUB_ID_COLLECTION);
+                    setSearchEditTextVisibility(false);
+                    break;
+                case TomahawkMainActivity.HUB_ID_PLAYLISTS:
+                    mContentViewer
+                            .setCurrentHubId(TomahawkMainActivity.HUB_ID_PLAYLISTS);
+                    setSearchEditTextVisibility(false);
+                    break;
+                case TomahawkMainActivity.HUB_ID_SETTINGS:
+                    mContentViewer
+                            .setCurrentHubId(TomahawkMainActivity.HUB_ID_SETTINGS);
+                    setSearchEditTextVisibility(false);
+                    break;
+            }
+            setTitle(getString(mContentViewer.getCurrentHubTitleResId()));
+            mDrawerLayout.closeDrawer(mDrawerList);
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.tomahawk_main_activity);
-        // check if the content frame contains the menu frame
-        if (findViewById(R.id.slide_menu_frame) == null) {
-            setBehindContentView(R.layout.slide_menu_layout);
-            getSlidingMenu().setSlidingEnabled(true);
-            getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
-            final ActionBar actionBar = getSupportActionBar();
-            actionBar.setHomeButtonEnabled(true);
-            actionBar.setLogo(R.drawable.ic_action_slidemenu);
-        } else {
-            View v = new View(this);
-            setBehindContentView(v);
-            getSlidingMenu().setSlidingEnabled(false);
-            getSlidingMenu().setTouchModeAbove(SlidingMenu.TOUCHMODE_NONE);
-            final ActionBar actionBar = getSupportActionBar();
-            actionBar.setHomeButtonEnabled(false);
-            actionBar.setLogo(R.drawable.ic_launcher);
-        }
 
-        // customize the SlidingMenu
-        SlidingMenu sm = getSlidingMenu();
-        sm.setFadeDegree(0.35f);
-        sm.setShadowWidthRes(R.dimen.shadow_width);
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            sm.setBehindOffsetRes(R.dimen.slidingmenu_offset_landscape);
-        } else {
-            sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);
-        }
+        mTitle = mDrawerTitle = getTitle();
 
-        // set the Behind View Fragment
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.slide_menu_frame, new SlideMenuFragment()).commit();
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer,
+                R.string.drawer_open, R.string.drawer_close) {
+
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                getSupportActionBar().setTitle(mTitle);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                getSupportActionBar().setTitle(mDrawerTitle);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+        // Set the drawer toggle as the DrawerListener
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+        // Set up the TomahawkMenuAdapter. Give it its set of menu item texts and icons to display
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        TomahawkMenuAdapter slideMenuAdapter = new TomahawkMenuAdapter(this,
+                getResources().getStringArray(R.array.slide_menu_items),
+                getResources().obtainTypedArray(R.array.slide_menu_items_icons));
+        mDrawerList.setAdapter(slideMenuAdapter);
+
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
         // set customization variables on the ActionBar
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowHomeEnabled(true);
-        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(true);
         View searchView = getLayoutInflater().inflate(R.layout.search_edittext, null);
         actionBar.setCustomView(searchView);
-        actionBar.setDisplayShowCustomEnabled(true);
+        actionBar.setDisplayShowCustomEnabled(false);
 
         // if not set yet, set our current default stack position to HUB_ID_COLLECTION
         if (mCurrentStackPosition == -1) {
@@ -204,7 +258,8 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
 
         // initialize our ContentViewer, which will handle switching the fragments whenever an
         // entry in the slidingmenu is being clicked. Restore our saved state, if one exists.
-        mContentViewer = new ContentViewer(this, getSupportFragmentManager(), R.id.content_frame);
+        mContentViewer = new ContentViewer(this, getSupportFragmentManager(),
+                R.id.content_viewer_frame);
         if (savedInstanceState == null) {
             mContentViewer.addRootToHub(HUB_ID_SEARCH, SearchableFragment.class);
             mContentViewer.addRootToHub(HUB_ID_COLLECTION, UserCollectionFragment.class);
@@ -268,6 +323,15 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
     }
 
     @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
+    }
+
+
+    @Override
     public void onStart() {
         super.onStart();
 
@@ -303,9 +367,9 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
         // if we resume this activity with HUB_ID_SEARCH as the current stack position, make sure
         // that the searchEditText is being shown accordingly
         if (mCurrentStackPosition == HUB_ID_SEARCH) {
-            showSearchEditText();
+            setSearchEditTextVisibility(true);
         } else {
-            hideSearchEditText();
+            setSearchEditTextVisibility(false);
         }
     }
 
@@ -341,21 +405,42 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
     }
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public void setTitle(CharSequence title) {
+        mTitle = title;
+        getSupportActionBar().setTitle(mTitle);
+    }
+
+    @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+
         setIntent(intent);
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        // If the nav drawer is open, hide action items related to the content view
+        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
+        setSearchEditTextVisibility(
+                !drawerOpen && mContentViewer.getCurrentHubId() == HUB_ID_SEARCH);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item != null) {
-            // if the user clicks on the app icon in the top left corner, toggle the SlidingMenu
-            if (item.getItemId() == android.R.id.home) {
-                toggle();
-                return true;
-            }
+        // Pass the event to ActionBarDrawerToggle, if it returns
+        // true, then it has handled the app icon touch event
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
         }
-        return false;
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -466,27 +551,26 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
     }
 
     /**
-     * Display the search editText in the top actionbar. Also display the soft keyboard.
+     * Set the search editText visibility in the top actionbar. If enabled is true, also display the
+     * soft keyboard.
      */
-    public void showSearchEditText() {
-        AutoCompleteTextView searchFrameTop = (AutoCompleteTextView) getSupportActionBar()
-                .getCustomView().findViewById(R.id.search_edittext);
-        searchFrameTop.setVisibility(AutoCompleteTextView.VISIBLE);
-        findViewById(R.id.search_panel).setVisibility(LinearLayout.VISIBLE);
+    public void setSearchEditTextVisibility(boolean enabled) {
+        if (enabled) {
+            AutoCompleteTextView searchFrameTop = (AutoCompleteTextView) getSupportActionBar()
+                    .getCustomView().findViewById(R.id.search_edittext);
+            searchFrameTop.requestFocus();
+            getSupportActionBar().setDisplayShowCustomEnabled(true);
+            findViewById(R.id.search_panel).setVisibility(LinearLayout.VISIBLE);
 
-        InputMethodManager imm = (InputMethodManager) getSystemService(
-                Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
-    }
-
-    /**
-     * Hide the search editText in the top actionbar.
-     */
-    public void hideSearchEditText() {
-        AutoCompleteTextView searchFrameTop = (AutoCompleteTextView) getSupportActionBar()
-                .getCustomView().findViewById(R.id.search_edittext);
-        searchFrameTop.setVisibility(AutoCompleteTextView.GONE);
-        findViewById(R.id.search_panel).setVisibility(LinearLayout.GONE);
+            InputMethodManager imm = (InputMethodManager) getSystemService(
+                    Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(searchFrameTop, 0);
+        } else {
+            AutoCompleteTextView searchFrameTop = (AutoCompleteTextView) getSupportActionBar()
+                    .getCustomView().findViewById(R.id.search_edittext);
+            getSupportActionBar().setDisplayShowCustomEnabled(false);
+            findViewById(R.id.search_panel).setVisibility(LinearLayout.GONE);
+        }
     }
 
     /**
@@ -524,7 +608,7 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
                 if (fpb.clss == UserCollectionFragment.class) {
                     if (validFragmentCount == 1) {
                         breadcrumbItemTextView
-                                .setText(getString(R.string.localcollectionactivity_title_string));
+                                .setText(getString(R.string.usercollectionfragment_title_string));
                     } else {
                         breadcrumbItemTextView.setVisibility(TextView.GONE);
                     }
@@ -538,7 +622,7 @@ public class TomahawkMainActivity extends SlidingFragmentActivity
                 } else if (fpb.clss == UserPlaylistsFragment.class) {
                     if (validFragmentCount == 1) {
                         breadcrumbItemTextView
-                                .setText(getString(R.string.playlistsfragment_title_string));
+                                .setText(getString(R.string.userplaylistsfragment_title_string));
                     } else {
                         breadcrumbItemTextView.setVisibility(TextView.GONE);
                     }

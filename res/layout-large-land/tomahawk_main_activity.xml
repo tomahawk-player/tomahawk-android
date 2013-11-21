@@ -25,16 +25,21 @@
               android:orientation="horizontal"
               android:background="@color/transparent_black">
 
-    <FrameLayout
-            android:id="@+id/slide_menu_frame"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"/>
+    <!-- The navigation drawer -->
+    <ListView android:id="@+id/left_drawer"
+              android:layout_width="240dp"
+              android:layout_height="match_parent"
+              android:choiceMode="singleChoice"
+              android:divider="@android:color/transparent"
+              android:dividerHeight="0dp"
+              android:background="#111"/>
 
+    <!-- The main content view -->
     <LinearLayout
+            android:id="@+id/content_frame"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="3"
+            android:layout_weight="1"
             android:orientation="vertical">
 
         <LinearLayout
@@ -48,7 +53,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:text="@string/searchactivity_searchforonlinesources"
+                    android:text="@string/searchfragment_searchforonlinesources"
                     android:textSize="@dimen/text_size_small"
                     android:textColor="@color/primary_textcolor"
                     android:padding="@dimen/padding_verysmall"/>
@@ -84,7 +89,7 @@
         </LinearLayout>
 
         <FrameLayout
-                android:id="@+id/content_frame"
+                android:id="@+id/content_viewer_frame"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"/>

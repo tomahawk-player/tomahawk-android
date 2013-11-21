@@ -430,6 +430,6 @@ public class TomahawkFragment extends TomahawkListFragment
      */
     public void stopLoadingAnimation() {
         mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
-        mTomahawkMainActivity.getSupportActionBar().setLogo(R.drawable.ic_action_slidemenu);
+        mTomahawkMainActivity.getSupportActionBar().setLogo(R.drawable.ic_launcher);
     }
 }

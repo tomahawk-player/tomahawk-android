@@ -19,76 +19,95 @@
  */
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="0dp"
-              android:layout_height="match_parent"
-              android:layout_weight="1"
-              android:orientation="vertical"
-              android:background="@color/transparent_black">
+<android.support.v4.widget.DrawerLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/drawer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/transparent_black">
 
+    <!-- The main content view -->
     <LinearLayout
-            android:id="@+id/search_panel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="center_horizontal">
-
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:text="@string/searchactivity_searchforonlinesources"
-                android:textSize="@dimen/text_size_small"
-                android:textColor="@color/primary_textcolor"
-                android:padding="@dimen/padding_verysmall"/>
-
-        <CheckBox
-                android:id="@+id/search_onlinesources_checkbox"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:checked="true"/>
-    </LinearLayout>
-
-    <LinearLayout
-            android:id="@+id/bread_crumb_container"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/row_height_large"
+            android:id="@+id/content_frame"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
             android:orientation="vertical">
 
         <LinearLayout
-                android:id="@+id/bread_crumb_frame"
+                android:id="@+id/search_panel"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_gravity="center_horizontal">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/searchfragment_searchforonlinesources"
+                    android:textSize="@dimen/text_size_small"
+                    android:textColor="@color/primary_textcolor"
+                    android:padding="@dimen/padding_verysmall"/>
+
+            <CheckBox
+                    android:id="@+id/search_onlinesources_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:checked="true"/>
+        </LinearLayout>
+
+        <LinearLayout
+                android:id="@+id/bread_crumb_container"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/row_height_large"
+                android:orientation="vertical">
+
+            <LinearLayout
+                    android:id="@+id/bread_crumb_frame"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+            </LinearLayout>
+
+            <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/divider_height_thin"
+                    android:background="@color/divider"/>
 
         </LinearLayout>
 
-        <View
+        <FrameLayout
+                android:id="@+id/content_viewer_frame"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/divider_height_thin"
-                android:background="@color/divider"/>
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
 
+        <FrameLayout
+                android:id="@+id/now_playing_frame_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent_black">
+
+            <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/divider_height_thin"
+                    android:background="@color/tomahawk_red"/>
+
+        </FrameLayout>
     </LinearLayout>
 
-    <FrameLayout
-            android:id="@+id/content_frame"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
+    <!-- The navigation drawer -->
+    <ListView android:id="@+id/left_drawer"
+              android:layout_width="240dp"
+              android:layout_height="match_parent"
+              android:layout_gravity="start"
+              android:choiceMode="singleChoice"
+              android:divider="@android:color/transparent"
+              android:dividerHeight="0dp"
+              android:background="#111"/>
 
-    <FrameLayout
-            android:id="@+id/now_playing_frame_bottom"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/transparent_black">
-
-        <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/divider_height_thin"
-                android:background="@color/tomahawk_red"/>
-
-    </FrameLayout>
-
-</LinearLayout>
+</android.support.v4.widget.DrawerLayout>
