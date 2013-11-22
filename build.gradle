@@ -3,7 +3,7 @@ import java.util.regex.Pattern
 /*
  * Gets the version name from the latest Git tag
  */
-def getVersionName = { ->
+def getNewVersionName = { ->
     def stdout = new ByteArrayOutputStream()
     exec {
         commandLine 'git', 'describe', '--tags'
@@ -12,25 +12,12 @@ def getVersionName = { ->
     return stdout.toString().trim()
 }
 
-task('setVersionName') << {
-    def manifestFile = file("AndroidManifest.xml")
-    def pattern = Pattern.compile("versionName=\"(\\d+)\"")
-    def manifestText = manifestFile.getText()
-    def matcher = pattern.matcher(manifestText)
-    matcher.find()
-    def versionCode = getVersionName()
-    def manifestContent = matcher.replaceAll("versionName=\"" + versionCode + "\"")
-    manifestFile.write(manifestContent)
-}
-
-tasks.withType(Compile) { compileTask -> compileTask.dependsOn setVersionName }
-
 buildscript {
     repositories {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.5.+'
+        classpath 'com.android.tools.build:gradle:0.6.+'
     }
 }
 apply plugin: 'android'
@@ -73,25 +60,43 @@ android {
         release {
             applicationVariants.all { variant ->
                 def file = variant.outputFile
-                variant.outputFile = new File(file.parent,
-                        file.name.replace(".apk", "-"+ getVersionName() + ".apk"))
+                variant.outputFile = new File((String)file.parent,
+                        file.name.replace(".apk", "-"+ getNewVersionName() + ".apk"))
             }
         }
     }
 }
+
+///////////////////////////////////////////////////////////////////////
+// Tasks related to setting the correct version number automatically //
+///////////////////////////////////////////////////////////////////////
+task('setVersionName') {
+    android.buildTypes
+    def manifestFile = file("AndroidManifest.xml")
+    def pattern = Pattern.compile("versionName=\".*\"")
+    def manifestText = manifestFile.getText()
+    def matcher = pattern.matcher(manifestText)
+    matcher.find()
+    def versionName = getNewVersionName()
+    println "VersionName: " + versionName
+    def manifestContent = matcher.replaceAll("versionName=\"" + versionName +"\"")
+    manifestFile.write(manifestContent)
+}
+
+tasks.withType(JavaCompile) { compileTask -> compileTask.dependsOn setVersionName }
 
 ////////////////////////////////////////////////////
 // NDK Support (by https://gist.github.com/pboos) //
 ////////////////////////////////////////////////////
 // Make sure the environment variable $ANDROID_NDK_HOME is set:
 // example: ANDROID_NDK_HOME /home/maffen/SDKs/android-ndk-r8e
-task copyNativeLibs(type: Copy, dependsOn: 'buildNative') {
-    dependsOn 'buildNative'
+task copyNativeLibs(type: Copy, dependsOn: 'ndkBuild') {
+    dependsOn 'ndkBuild'
     from(new File('libs')) { include '**/*.so' }
     into new File(buildDir, 'native-libs')
 }
 
-tasks.withType(Compile) { compileTask -> compileTask.dependsOn copyNativeLibs }
+tasks.withType(JavaCompile) { compileTask -> compileTask.dependsOn copyNativeLibs }
 
 clean.dependsOn 'cleanCopyNativeLibs'
 
@@ -99,16 +104,6 @@ tasks.withType(com.android.build.gradle.tasks.PackageApplication) { pkgTask ->
     pkgTask.jniDir new File(buildDir, 'native-libs')
 }
 
-task buildNative(type: Exec) {
-    if (System.env.ANDROID_NDK_HOME != null) {
-        def ndkBuild = new File(System.env.ANDROID_NDK_HOME, 'ndk-build')
-        commandLine ndkBuild
-    } else {
-        doLast {
-            println '##################'
-            println 'Skipping NDK build'
-            println 'Reason: ANDROID_NDK_HOME not set.'
-            println '##################'
-        }
-    }
+task ndkBuild(type: Exec) {
+    commandLine new File((String)System.env.ANDROID_NDK_HOME, 'ndk-build')
 }
