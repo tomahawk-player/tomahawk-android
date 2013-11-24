@@ -26,13 +26,15 @@ import org.tomahawk.libtomahawk.collection.SourceList;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.hatchet.InfoSystem;
+import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
 import org.tomahawk.tomahawk_android.fragments.ArtistsFragment;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
+import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.fragments.TracksFragment;
@@ -51,7 +53,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -96,11 +102,28 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public static final int HUB_ID_SETTINGS = 3;
 
-    public static final String COLLECTION_ID_STOREDBACKSTACK = "collection_id_storedbackstack";
+    public static final int HUB_ID_PLAYBACK = 4;
 
-    public static final String COLLECTION_ID_STACKPOSITION = "collection_id_stackposition";
+    public static final String COLLECTION_ID_STOREDBACKSTACK
+            = "org.tomahawk.tomahawk_android.collection_id_storedbackstack";
 
-    public static final String TOMAHAWKSERVICE_READY = "tomahawkservice_ready";
+    public static final String COLLECTION_ID_STACKPOSITION
+            = "org.tomahawk.tomahawk_android.collection_id_stackposition";
+
+    public static final String TOMAHAWKSERVICE_READY
+            = "org.tomahawk.tomahawk_android.tomahawkservice_ready";
+
+    public static final String PLAYBACKSERVICE_READY
+            = "org.tomahawk.tomahawk_android.playbackservice_ready";
+
+    public static final String SHOW_PLAYBACKFRAGMENT_ON_STARTUP
+            = "org.tomahawk.tomahawk_android.show_playbackfragment_on_startup";
+
+    private TomahawkApp mTomahawkApp;
+
+    private PipeLine mPipeLine;
+
+    private InfoSystem mInfoSystem;
 
     private CharSequence mTitle;
 
@@ -124,13 +147,38 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private ContentViewer mContentViewer;
 
-    private Collection mCollection;
+    private UserCollection mUserCollection;
 
     private CollectionUpdateReceiver mCollectionUpdatedReceiver;
 
     private View mNowPlayingView;
 
     private int mCurrentStackPosition = -1;
+
+    private Drawable mProgressDrawable;
+
+    private static final int MSG_UPDATE_ANIMATION = 0x20;
+
+    // Used to display an animated progress drawable, as long as the PipeLine is resolving something
+    private Handler mAnimationHandler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_UPDATE_ANIMATION:
+                    if ((mPipeLine != null && mPipeLine.isResolving()) ||
+                            (mPlaybackService != null && mPlaybackService.isPreparing())) {
+                        mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 500);
+                        getSupportActionBar().setLogo(mProgressDrawable);
+                        mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
+                        mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
+                    } else {
+                        stopLoadingAnimation();
+                    }
+                    break;
+            }
+            return true;
+        }
+    });
 
     /**
      * Handles incoming {@link Collection} updated broadcasts.
@@ -139,7 +187,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(Collection.COLLECTION_UPDATED)) {
+            if (Collection.COLLECTION_UPDATED.equals(intent.getAction())) {
                 onCollectionUpdated();
             }
         }
@@ -182,25 +230,20 @@ public class TomahawkMainActivity extends ActionBarActivity
                 case TomahawkMainActivity.HUB_ID_SEARCH:
                     mContentViewer
                             .setCurrentHubId(TomahawkMainActivity.HUB_ID_SEARCH);
-                    setSearchEditTextVisibility(true);
                     break;
                 case TomahawkMainActivity.HUB_ID_COLLECTION:
                     mContentViewer
                             .setCurrentHubId(TomahawkMainActivity.HUB_ID_COLLECTION);
-                    setSearchEditTextVisibility(false);
                     break;
                 case TomahawkMainActivity.HUB_ID_PLAYLISTS:
                     mContentViewer
                             .setCurrentHubId(TomahawkMainActivity.HUB_ID_PLAYLISTS);
-                    setSearchEditTextVisibility(false);
                     break;
                 case TomahawkMainActivity.HUB_ID_SETTINGS:
                     mContentViewer
                             .setCurrentHubId(TomahawkMainActivity.HUB_ID_SETTINGS);
-                    setSearchEditTextVisibility(false);
                     break;
             }
-            setTitle(getString(mContentViewer.getCurrentHubTitleResId()));
             mDrawerLayout.closeDrawer(mDrawerList);
         }
     }
@@ -210,6 +253,13 @@ public class TomahawkMainActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.tomahawk_main_activity);
+
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+        mTomahawkApp = ((TomahawkApp) getApplication());
+        mPipeLine = mTomahawkApp.getPipeLine();
+
+        mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
 
         mTitle = mDrawerTitle = getTitle();
 
@@ -251,8 +301,11 @@ public class TomahawkMainActivity extends ActionBarActivity
         actionBar.setCustomView(searchView);
         actionBar.setDisplayShowCustomEnabled(false);
 
-        // if not set yet, set our current default stack position to HUB_ID_COLLECTION
-        if (mCurrentStackPosition == -1) {
+        if (getIntent().hasExtra(SHOW_PLAYBACKFRAGMENT_ON_STARTUP)) {
+            // if this Activity is being shown after the user clicked the notification
+            mCurrentStackPosition = HUB_ID_PLAYBACK;
+        } else {
+            // if not set yet, set our current default stack position to HUB_ID_COLLECTION
             mCurrentStackPosition = HUB_ID_COLLECTION;
         }
 
@@ -265,10 +318,12 @@ public class TomahawkMainActivity extends ActionBarActivity
             mContentViewer.addRootToHub(HUB_ID_COLLECTION, UserCollectionFragment.class);
             mContentViewer.addRootToHub(HUB_ID_PLAYLISTS, UserPlaylistsFragment.class);
             mContentViewer.addRootToHub(HUB_ID_SETTINGS, FakePreferenceFragment.class);
+            mContentViewer.addRootToHub(HUB_ID_PLAYBACK, PlaybackFragment.class);
         } else {
             mCurrentStackPosition = savedInstanceState
                     .getInt(COLLECTION_ID_STACKPOSITION, HUB_ID_COLLECTION);
-            ConcurrentHashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>> storedBackStack
+            ConcurrentHashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>>
+                    storedBackStack
                     = new ConcurrentHashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>>();
             if (savedInstanceState
                     .getSerializable(COLLECTION_ID_STOREDBACKSTACK) instanceof HashMap) {
@@ -277,7 +332,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                         .getSerializable(COLLECTION_ID_STOREDBACKSTACK);
                 storedBackStack.putAll(temp);
             } else if (savedInstanceState
-                    .getSerializable(COLLECTION_ID_STOREDBACKSTACK) instanceof ConcurrentHashMap) {
+                    .getSerializable(
+                            COLLECTION_ID_STOREDBACKSTACK) instanceof ConcurrentHashMap) {
                 storedBackStack
                         = (ConcurrentHashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>>) savedInstanceState
                         .getSerializable(COLLECTION_ID_STOREDBACKSTACK);
@@ -290,6 +346,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                 mContentViewer.addRootToHub(HUB_ID_COLLECTION, UserCollectionFragment.class);
                 mContentViewer.addRootToHub(HUB_ID_PLAYLISTS, UserPlaylistsFragment.class);
                 mContentViewer.addRootToHub(HUB_ID_SETTINGS, FakePreferenceFragment.class);
+                mContentViewer.addRootToHub(HUB_ID_PLAYBACK, PlaybackFragment.class);
             }
         }
 
@@ -298,7 +355,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                 .findViewById(R.id.now_playing_frame_top);
         FrameLayout nowPlayingFrameBottom = (FrameLayout) findViewById(
                 R.id.now_playing_frame_bottom);
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        if (getResources().getConfiguration().orientation
+                == Configuration.ORIENTATION_LANDSCAPE) {
             mNowPlayingView = getLayoutInflater().inflate(R.layout.now_playing_top, null);
             nowPlayingFrameTop.addView(mNowPlayingView);
             nowPlayingFrameTop.setVisibility(FrameLayout.VISIBLE);
@@ -312,9 +370,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         mNowPlayingView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent playbackIntent = TomahawkUtils
-                        .getIntent(TomahawkMainActivity.this, PlaybackActivity.class);
-                TomahawkMainActivity.this.startActivity(playbackIntent);
+                mContentViewer.setCurrentHubId(HUB_ID_PLAYBACK);
             }
         });
         if (mPlaybackService != null) {
@@ -329,7 +385,6 @@ public class TomahawkMainActivity extends ActionBarActivity
         // Sync the toggle state after onRestoreInstanceState has occurred.
         mDrawerToggle.syncState();
     }
-
 
     @Override
     public void onStart() {
@@ -349,7 +404,8 @@ public class TomahawkMainActivity extends ActionBarActivity
         super.onResume();
 
         SourceList sl = ((TomahawkApp) getApplication()).getSourceList();
-        mCollection = sl.getCollectionFromId(sl.getLocalSource().getCollection().getId());
+        mUserCollection = (UserCollection) sl
+                .getCollectionFromId(sl.getLocalSource().getCollection().getId());
         if (mPlaybackService != null) {
             setNowPlayingInfo(mPlaybackService.getCurrentTrack());
         }
@@ -399,7 +455,8 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @Override
     protected void onSaveInstanceState(Bundle bundle) {
-        bundle.putSerializable(COLLECTION_ID_STOREDBACKSTACK, getContentViewer().getBackStack());
+        bundle.putSerializable(COLLECTION_ID_STOREDBACKSTACK,
+                getContentViewer().getBackStack());
         bundle.putInt(COLLECTION_ID_STACKPOSITION, getContentViewer().getCurrentHubId());
         super.onSaveInstanceState(bundle);
     }
@@ -449,6 +506,7 @@ public class TomahawkMainActivity extends ActionBarActivity
     @Override
     public void onPlaybackServiceReady() {
         setNowPlayingInfo(mPlaybackService.getCurrentTrack());
+        sendBroadcast(new Intent(PLAYBACKSERVICE_READY));
     }
 
     @Override
@@ -474,7 +532,7 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     /**
-     * Whenever the back-button is pressed, go back in the ContentViewer, until the root tab is
+     * Whenever the back-button is pressed, go back in the ContentViewer, until the root fragment is
      * reached. After that use the normal back-button functionality.
      */
     @Override
@@ -496,7 +554,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
-        mCollection = coll;
+        mUserCollection = (UserCollection) coll;
     }
 
     public PlaybackService getPlaybackService() {
@@ -518,7 +576,6 @@ public class TomahawkMainActivity extends ActionBarActivity
             supportInvalidateOptionsMenu();
         }
         if (mNowPlayingView != null) {
-            mNowPlayingView.setClickable(false);
             ImageView nowPlayingInfoAlbumArt = (ImageView) mNowPlayingView
                     .findViewById(R.id.now_playing_album_art);
             TextView nowPlayingInfoArtist = (TextView) mNowPlayingView
@@ -546,6 +603,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                 nowPlayingInfoAlbumArt.setVisibility(View.GONE);
                 nowPlayingInfoArtist.setVisibility(View.GONE);
                 nowPlayingInfoTitle.setVisibility(View.GONE);
+                mNowPlayingView.setClickable(false);
             }
         }
     }
@@ -633,8 +691,9 @@ public class TomahawkMainActivity extends ActionBarActivity
                             .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
                     breadCrumbFrame.addView(breadcrumbItem);
                 } else if (fpb.clss == AlbumsFragment.class) {
-                    Artist correspondingArtist = mCollection.getArtistById(fpb.tomahawkListItemId);
-                    if (mCollection.getArtistById(fpb.tomahawkListItemId) != null) {
+                    Artist correspondingArtist = mUserCollection
+                            .getArtistById(fpb.tomahawkListItemId);
+                    if (mUserCollection.getArtistById(fpb.tomahawkListItemId) != null) {
                         breadcrumbItemTextView.setText(correspondingArtist.getName());
                         breadcrumbItemImageViewLayout
                                 .setVisibility(SquareHeightRelativeLayout.GONE);
@@ -667,8 +726,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                             .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
                     breadCrumbFrame.addView(breadcrumbItem);
                 } else if (fpb.clss == TracksFragment.class) {
-                    Album correspondingAlbum = mCollection.getAlbumById(fpb.tomahawkListItemId);
-                    UserPlaylist correspondingUserPlaylist = mCollection
+                    Album correspondingAlbum = mUserCollection.getAlbumById(fpb.tomahawkListItemId);
+                    UserPlaylist correspondingUserPlaylist = mUserCollection
                             .getCustomPlaylistById(fpb.tomahawkListItemId);
                     if (fpb.tomahawkListItemType != null && fpb.tomahawkListItemType
                             .equals(TomahawkFragment.TOMAHAWK_ALBUM_ID)
@@ -684,12 +743,12 @@ public class TomahawkMainActivity extends ActionBarActivity
                                 .setVisibility(SquareHeightRelativeLayout.GONE);
                     } else if (fpb.tomahawkListItemType != null && fpb.tomahawkListItemType
                             .equals(UserCollection.USERCOLLECTION_ALBUMCACHED)) {
-                        breadcrumbItemTextView.setText(mCollection.getCachedAlbum().getName());
+                        breadcrumbItemTextView.setText(mUserCollection.getCachedAlbum().getName());
                         breadcrumbItemImageViewLayout
                                 .setVisibility(SquareHeightRelativeLayout.GONE);
                     } else if (fpb.tomahawkListItemType != null && fpb.tomahawkListItemType
                             .equals(UserCollection.USERCOLLECTION_ARTISTCACHED)) {
-                        breadcrumbItemTextView.setText(mCollection.getCachedArtist().getName());
+                        breadcrumbItemTextView.setText(mUserCollection.getCachedArtist().getName());
                         breadcrumbItemImageViewLayout
                                 .setVisibility(SquareHeightRelativeLayout.GONE);
                     } else {
@@ -727,12 +786,13 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     /**
-     * Returns this {@link Activity}s current {@link Collection}.
+     * Returns this {@link Activity}s current {@link org.tomahawk.libtomahawk.collection.UserCollection}.
      *
-     * @return the current {@link Collection} in this {@link Activity}.
+     * @return the current {@link org.tomahawk.libtomahawk.collection.UserCollection} in this {@link
+     * Activity}.
      */
-    public Collection getCollection() {
-        return mCollection;
+    public UserCollection getUserCollection() {
+        return mUserCollection;
     }
 
     /**
@@ -748,5 +808,20 @@ public class TomahawkMainActivity extends ActionBarActivity
      */
     public void onBackStackChanged() {
         updateBreadCrumbNavigation();
+    }
+
+    /**
+     * Start the loading animation. Called when beginning login process.
+     */
+    public void startLoadingAnimation() {
+        mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
+    }
+
+    /**
+     * Stop the loading animation. Called when login/logout process has finished.
+     */
+    public void stopLoadingAnimation() {
+        mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
+        getSupportActionBar().setLogo(R.drawable.ic_launcher);
     }
 }

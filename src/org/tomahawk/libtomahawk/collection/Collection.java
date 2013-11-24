@@ -26,7 +26,7 @@ import java.util.List;
 public abstract class Collection {
 
     public static final String COLLECTION_UPDATED
-            = "org.tomahawk.libtomahawk.Collection.COLLECTION_UPDATED";
+            = "org.tomahawk.tomahawk_android.COLLECTION_UPDATED";
 
     /**
      * Default constructor.

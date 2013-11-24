@@ -57,7 +57,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(InfoSystem.INFOSYSTEM_RESULTSREPORTED)) {
+            if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
                 String requestId = intent
                         .getStringExtra(InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
 
@@ -82,7 +82,8 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                             mArtist = new Artist();
                         }
                         mArtist = InfoRequestData
-                                .artistInfoToArtist((ArtistInfo) infoRequestData.mResult, mArtist);
+                                .artistInfoToArtist((ArtistInfo) infoRequestData.mResult,
+                                        mArtist);
                         updateAdapter();
                     }
                 }
@@ -102,19 +103,19 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (mTomahawkMainActivity.getCollection() != null && getArguments() != null
+        if (mTomahawkMainActivity.getUserCollection() != null && getArguments() != null
                 && getArguments().containsKey(TOMAHAWK_ARTIST_ID)
                 && getArguments().getLong(TOMAHAWK_ARTIST_ID) > 0) {
-            mArtist = mTomahawkMainActivity.getCollection()
+            mArtist = mTomahawkMainActivity.getUserCollection()
                     .getArtistById(getArguments().getLong(TOMAHAWK_ARTIST_ID));
         } else if (getArguments().containsKey(UserCollection.USERCOLLECTION_ARTISTCACHED)) {
-            mArtist = mTomahawkMainActivity.getCollection().getCachedArtist();
+            mArtist = mTomahawkMainActivity.getUserCollection().getCachedArtist();
             String requestId = mInfoSystem
                     .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTALBUMS, true,
-                            mTomahawkMainActivity.getCollection().getCachedArtist().getName());
+                            mTomahawkMainActivity.getUserCollection().getCachedArtist().getName());
             mCurrentRequestIds.add(requestId);
             requestId = mInfoSystem.resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTINFO, true,
-                    mTomahawkMainActivity.getCollection().getCachedArtist().getName());
+                    mTomahawkMainActivity.getUserCollection().getCachedArtist().getName());
             mCurrentRequestIds.add(requestId);
         }
     }
@@ -163,7 +164,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
         position -= getListView().getHeaderViewsCount();
         if (position >= 0) {
             if (getListAdapter().getItem(position) instanceof Album) {
-                mTomahawkMainActivity.getCollection()
+                mTomahawkMainActivity.getUserCollection()
                         .setCachedAlbum((Album) getListAdapter().getItem(position));
                 mTomahawkMainActivity.getContentViewer().
                         replace(mCorrespondingHubId, TracksFragment.class, -1,
@@ -204,7 +205,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
             }
             getListView().setOnItemClickListener(this);
         } else {
-            albums.addAll(mTomahawkMainActivity.getCollection().getAlbums());
+            albums.addAll(mTomahawkMainActivity.getUserCollection().getAlbums());
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(albums);

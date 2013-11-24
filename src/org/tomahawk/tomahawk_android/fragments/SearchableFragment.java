@@ -25,11 +25,11 @@ import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.activities.PlaybackActivity;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
+import org.tomahawk.tomahawk_android.services.PlaybackService;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -64,7 +64,7 @@ public class SearchableFragment extends TomahawkFragment
         TextView.OnEditorActionListener {
 
     public static final String SEARCHABLEFRAGMENT_QUERY_STRING
-            = "org.tomahawk.tomahawk_android.SEARCHABLEFRAGMENT_QUERRY_ID";
+            = "org.tomahawk.tomahawk_android.SEARCHABLEFRAGMENT_QUERY_ID";
 
     private SearchableFragment mSearchableFragment = this;
 
@@ -78,7 +78,7 @@ public class SearchableFragment extends TomahawkFragment
 
     private SearchableBroadcastReceiver mSearchableBroadcastReceiver;
 
-    private Collection mCollection;
+    private UserCollection mCollection;
 
     private EditText mSearchEditText = null;
 
@@ -89,9 +89,10 @@ public class SearchableFragment extends TomahawkFragment
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(PipeLine.PIPELINE_RESULTSREPORTED_FULLTEXTQUERY)) {
+            if (PipeLine.PIPELINE_RESULTSREPORTED_FULLTEXTQUERY.equals(intent.getAction())) {
                 String queryId = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
-                mTomahawkMainActivity.getContentViewer().getBackStackAtPosition(mCorrespondingHubId)
+                mTomahawkMainActivity.getContentViewer()
+                        .getBackStackAtPosition(mCorrespondingHubId)
                         .get(0).queryString = mCurrentQueryString;
                 showQueryResults(queryId);
             }
@@ -191,18 +192,16 @@ public class SearchableFragment extends TomahawkFragment
         position -= getListView().getHeaderViewsCount();
         if (position >= 0) {
             if (getListAdapter().getItem(position) instanceof Track) {
-                ((UserCollection) mTomahawkMainActivity.getCollection()).setCachedPlaylist(
-                        UserPlaylist.fromTrackList(mCurrentQueryString, mCurrentShownTracks,
-                                (Track) getListAdapter().getItem(position)));
-                Bundle bundle = new Bundle();
-                bundle.putBoolean(UserCollection.USERCOLLECTION_PLAYLISTCACHED, true);
-                bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID,
-                        ((Track) getListAdapter().getItem(position)).getId());
-
-                Intent playbackIntent = TomahawkUtils
-                        .getIntent(mTomahawkMainActivity, PlaybackActivity.class);
-                playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
-                startActivity(playbackIntent);
+                UserPlaylist playlist = UserPlaylist
+                        .fromTrackList(mCurrentQueryString, mCurrentShownTracks,
+                                (Track) getListAdapter().getItem(position));
+                PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
+                if (playbackService != null) {
+                    playbackService.setCurrentPlaylist(playlist);
+                    playbackService.start();
+                }
+                mTomahawkMainActivity.getContentViewer()
+                        .setCurrentHubId(TomahawkMainActivity.HUB_ID_PLAYBACK);
             } else if (getListAdapter().getItem(position) instanceof Album) {
                 mCollection.setCachedAlbum((Album) getListAdapter().getItem(position));
                 mTomahawkMainActivity.getContentViewer().
@@ -232,7 +231,9 @@ public class SearchableFragment extends TomahawkFragment
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
 
-        mCollection = coll;
+        if (coll instanceof UserCollection) {
+            mCollection = (UserCollection) coll;
+        }
     }
 
     /**
@@ -333,7 +334,7 @@ public class SearchableFragment extends TomahawkFragment
         String queryId = mPipeline.resolve(fullTextQuery, !onlineSourcesCheckBox.isChecked());
         if (queryId != null) {
             mCorrespondingQueryIds.put(queryId, new Track());
-            startLoadingAnimation();
+            mTomahawkMainActivity.startLoadingAnimation();
         }
     }
 
@@ -364,7 +365,7 @@ public class SearchableFragment extends TomahawkFragment
 
     /**
      * @return the {@link ArrayList} of {@link String}s containing every {@link String} in our
-     *         autocomplete array
+     * autocomplete array
      */
     public ArrayList<String> getAutoCompleteArray() {
         SharedPreferences sPrefs = PreferenceManager

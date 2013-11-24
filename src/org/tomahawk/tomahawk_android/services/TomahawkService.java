@@ -50,11 +50,14 @@ public class TomahawkService extends Service {
     private final static String TAG = TomahawkService.class.getName();
 
     // String tags used to store spotify credentials and preferred bitrate
-    public static final String SPOTIFY_CREDS_BLOB = "spotify_creds_blob";
+    public static final String SPOTIFY_CREDS_BLOB
+            = "org.tomahawk.tomahawk_android.spotify_creds_blob";
 
-    public static final String SPOTIFY_CREDS_EMAIL = "spotify_creds_email";
+    public static final String SPOTIFY_CREDS_EMAIL
+            = "org.tomahawk.tomahawk_android.spotify_creds_email";
 
-    public static final String SPOTIFY_PREF_BITRATE = "spotify_pref_bitrate";
+    public static final String SPOTIFY_PREF_BITRATE
+            = "org.tomahawk.tomahawk_android.spotify_pref_bitrate";
 
     public static final int SPOTIFY_PREF_BITRATE_MODE_LOW = 0;
 
@@ -69,7 +72,7 @@ public class TomahawkService extends Service {
 
     private final IBinder mBinder = new TomahawkServiceBinder();
 
-    private ServiceBroadcastReceiver mServiceBroadcastReceiver;
+    private TomahawkServiceBroadcastReceiver mTomahawkServiceBroadcastReceiver;
 
     private WifiManager.WifiLock mWifiLock;
 
@@ -202,7 +205,7 @@ public class TomahawkService extends Service {
         }
     };
 
-    private class ServiceBroadcastReceiver extends BroadcastReceiver {
+    private class TomahawkServiceBroadcastReceiver extends BroadcastReceiver {
 
         /**
          * Set the spotify preferred bitrate to high if we're connected to wifi, otherwise set
@@ -210,17 +213,19 @@ public class TomahawkService extends Service {
          */
         @Override
         public void onReceive(Context context, Intent intent) {
-            ConnectivityManager conMan = (ConnectivityManager) context
-                    .getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo netInfo = conMan.getActiveNetworkInfo();
-            if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-                Log.d("WifiReceiver", "Have Wifi Connection");
-                LibSpotifyWrapper.setbitrate(SPOTIFY_PREF_BITRATE_MODE_HIGH);
-            } else {
-                Log.d("WifiReceiver", "Don't have Wifi Connection");
-                int prefbitrate = mSharedPreferences
-                        .getInt(SPOTIFY_PREF_BITRATE, SPOTIFY_PREF_BITRATE_MODE_MEDIUM);
-                LibSpotifyWrapper.setbitrate(prefbitrate);
+            if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
+                ConnectivityManager conMan = (ConnectivityManager) context
+                        .getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo netInfo = conMan.getActiveNetworkInfo();
+                if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+                    Log.d("WifiReceiver", "Have Wifi Connection");
+                    LibSpotifyWrapper.setbitrate(SPOTIFY_PREF_BITRATE_MODE_HIGH);
+                } else {
+                    Log.d("WifiReceiver", "Don't have Wifi Connection");
+                    int prefbitrate = mSharedPreferences
+                            .getInt(SPOTIFY_PREF_BITRATE, SPOTIFY_PREF_BITRATE_MODE_MEDIUM);
+                    LibSpotifyWrapper.setbitrate(prefbitrate);
+                }
             }
         }
     }
@@ -252,8 +257,8 @@ public class TomahawkService extends Service {
         Message msg = mKillTimerHandler.obtainMessage();
         mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
 
-        mServiceBroadcastReceiver = new ServiceBroadcastReceiver();
-        registerReceiver(mServiceBroadcastReceiver,
+        mTomahawkServiceBroadcastReceiver = new TomahawkServiceBroadcastReceiver();
+        registerReceiver(mTomahawkServiceBroadcastReceiver,
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
@@ -283,7 +288,7 @@ public class TomahawkService extends Service {
 
         mWifiLock.release();
         LibSpotifyWrapper.destroy();
-        unregisterReceiver(mServiceBroadcastReceiver);
+        unregisterReceiver(mTomahawkServiceBroadcastReceiver);
     }
 
     /**

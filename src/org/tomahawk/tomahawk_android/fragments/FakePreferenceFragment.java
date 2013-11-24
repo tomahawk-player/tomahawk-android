@@ -54,13 +54,17 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
     private static final String TAG = FakePreferenceFragment.class.getName();
 
-    public static final String FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN = "spotifyloggedin";
+    public static final String FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN
+            = "org.tomahawk.tomahawk_android.spotifyloggedin";
 
-    public static final String FAKEPREFERENCEFRAGMENT_KEY_PREFBITRATE = "prefbitrate";
+    public static final String FAKEPREFERENCEFRAGMENT_KEY_PREFBITRATE
+            = "org.tomahawk.tomahawk_android.prefbitrate";
 
-    public static final String FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY = "plugintoplay";
+    public static final String FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY
+            = "org.tomahawk.tomahawk_android.plugintoplay";
 
-    public static final String FAKEPREFERENCEFRAGMENT_KEY_APPVERSION = "appversion";
+    public static final String FAKEPREFERENCEFRAGMENT_KEY_APPVERSION
+            = "org.tomahawk.tomahawk_android.appversion";
 
     protected TomahawkMainActivity mTomahawkMainActivity;
 
@@ -77,8 +81,10 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            mTomahawkMainActivity.getTomahawkService()
-                    .setOnLoggedInOutListener(FakePreferenceFragment.this);
+            if (TomahawkMainActivity.TOMAHAWKSERVICE_READY.equals(intent.getAction())) {
+                mTomahawkMainActivity.getTomahawkService()
+                        .setOnLoggedInOutListener(FakePreferenceFragment.this);
+            }
         }
     }
 

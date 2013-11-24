@@ -26,7 +26,7 @@ import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.activities.PlaybackActivity;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.utils.OnCompletionListener;
 import org.tomahawk.tomahawk_android.utils.OnErrorListener;
@@ -81,25 +81,25 @@ public class PlaybackService extends Service
     private boolean mHasBoundServices;
 
     public static final String BROADCAST_NEWTRACK
-            = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_NEWTRACK";
+            = "org.tomahawk.tomahawk_android..BROADCAST_NEWTRACK";
 
     public static final String BROADCAST_PLAYLISTCHANGED
-            = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_PLAYLISTCHANGED";
+            = "org.tomahawk.tomahawk_android.BROADCAST_PLAYLISTCHANGED";
 
     public static final String BROADCAST_PLAYSTATECHANGED
-            = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_PLAYSTATECHANGED";
+            = "org.tomahawk.tomahawk_android.BROADCAST_PLAYSTATECHANGED";
 
     public static final String BROADCAST_NOTIFICATIONINTENT_PREVIOUS
-            = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_NOTIFICATIONINTENT_PREVIOUS";
+            = "org.tomahawk.tomahawk_android.BROADCAST_NOTIFICATIONINTENT_PREVIOUS";
 
     public static final String BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE
-            = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE";
+            = "org.tomahawk.tomahawk_android.BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE";
 
     public static final String BROADCAST_NOTIFICATIONINTENT_NEXT
-            = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_NOTIFICATIONINTENT_NEXT";
+            = "org.tomahawk.tomahawk_android.BROADCAST_NOTIFICATIONINTENT_NEXT";
 
     public static final String BROADCAST_NOTIFICATIONINTENT_EXIT
-            = "org.tomahawk.libtomahawk.audio.PlaybackService.BROADCAST_NOTIFICATIONINTENT_EXIT";
+            = "org.tomahawk.tomahawk_android.BROADCAST_NOTIFICATIONINTENT_EXIT";
 
     private static final int PLAYBACKSERVICE_PLAYSTATE_PLAYING = 0;
 
@@ -119,7 +119,7 @@ public class PlaybackService extends Service
 
     private PowerManager.WakeLock mWakeLock;
 
-    private ServiceBroadcastReceiver mServiceBroadcastReceiver;
+    private PlaybackServiceBroadcastReceiver mPlaybackServiceBroadcastReceiver;
 
     private Handler mHandler;
 
@@ -198,15 +198,9 @@ public class PlaybackService extends Service
             super.onDataConnectionStateChanged(state);
             switch (state) {
                 case TelephonyManager.DATA_CONNECTED:
-                    try {
-                        if (mTomahawkMediaPlayer != null
-                                && mTomahawkMediaPlayer.getCurrentPosition() == 0) {
-                            setCurrentTrack(getCurrentTrack());
-                        }
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    } catch (IllegalStateException e2) {
-                        e2.printStackTrace();
+                    if (mTomahawkMediaPlayer != null
+                            && mTomahawkMediaPlayer.getCurrentPosition() == 0) {
+                        setCurrentTrack(getCurrentTrack());
                     }
             }
         }
@@ -215,7 +209,7 @@ public class PlaybackService extends Service
     /**
      * Handles incoming broadcasts
      */
-    private class ServiceBroadcastReceiver extends BroadcastReceiver {
+    private class PlaybackServiceBroadcastReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -225,7 +219,7 @@ public class PlaybackService extends Service
                     // So we stop playback, if needed
                     pause();
                 }
-            } else if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG) && intent
+            } else if (Intent.ACTION_HEADSET_PLUG.equals(intent.getAction()) && intent
                     .hasExtra("state") && intent.getIntExtra("state", 0) == 1) {
                 // Headset has been plugged in
                 SharedPreferences prefs = PreferenceManager
@@ -238,7 +232,7 @@ public class PlaybackService extends Service
                     //resume playback, if user has set the "resume on headset plugin" preference
                     start();
                 }
-            } else if (intent.getAction().equals(BitmapItem.BITMAPITEM_BITMAPLOADED)) {
+            } else if (BitmapItem.BITMAPITEM_BITMAPLOADED.equals(intent.getAction())) {
                 // a bitmap has been loaded
                 if (mCurrentPlaylist.getCurrentTrack() != null && intent
                         .getStringExtra(BitmapItem.BITMAPITEM_BITMAPLOADED_PATH)
@@ -306,12 +300,13 @@ public class PlaybackService extends Service
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
 
-        // Initialize and register ServiceBroadcastReceiver
-        mServiceBroadcastReceiver = new ServiceBroadcastReceiver();
-        registerReceiver(mServiceBroadcastReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
-        registerReceiver(mServiceBroadcastReceiver,
+        // Initialize and register PlaybackServiceBroadcastReceiver
+        mPlaybackServiceBroadcastReceiver = new PlaybackServiceBroadcastReceiver();
+        registerReceiver(mPlaybackServiceBroadcastReceiver,
+                new IntentFilter(Intent.ACTION_HEADSET_PLUG));
+        registerReceiver(mPlaybackServiceBroadcastReceiver,
                 new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
-        registerReceiver(mServiceBroadcastReceiver,
+        registerReceiver(mPlaybackServiceBroadcastReceiver,
                 new IntentFilter(BitmapItem.BITMAPITEM_BITMAPLOADED));
 
         // Initialize killtime handler (watchdog style)
@@ -366,7 +361,7 @@ public class PlaybackService extends Service
         pause(true);
         saveState();
         mUserPlaylistsDataSource.close();
-        unregisterReceiver(mServiceBroadcastReceiver);
+        unregisterReceiver(mPlaybackServiceBroadcastReceiver);
         mTomahawkMediaPlayer.release();
         mTomahawkMediaPlayer = null;
         if (mWakeLock.isHeld()) {
@@ -419,11 +414,7 @@ public class PlaybackService extends Service
 
         Track track = mCurrentPlaylist.getNextTrack();
         if (track != null) {
-            try {
-                setCurrentTrack(track);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            setCurrentTrack(track);
         } else {
             stop();
         }
@@ -461,16 +452,11 @@ public class PlaybackService extends Service
     private void restoreState() {
         UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication())
                 .getSourceList().getCollectionFromId(UserCollection.Id));
-        try {
-            setCurrentPlaylist(userCollection.getCachedUserPlaylist());
-            if (getCurrentPlaylist() == null) {
-                long startTime = System.currentTimeMillis();
-                setCurrentPlaylist(mUserPlaylistsDataSource.getCachedUserPlaylist());
-                Log.d(TAG, "Playlist loaded in " + (System.currentTimeMillis() - startTime) + "ms");
-            }
-        } catch (IOException e) {
-            Log.e(TAG, "restoreState(): " + IOException.class.getName() + ": " + e
-                    .getLocalizedMessage());
+        setCurrentPlaylist((Playlist) userCollection.getCachedUserPlaylist());
+        if (getCurrentPlaylist() == null) {
+            long startTime = System.currentTimeMillis();
+            setCurrentPlaylist((Playlist) mUserPlaylistsDataSource.getCachedUserPlaylist());
+            Log.d(TAG, "Playlist loaded in " + (System.currentTimeMillis() - startTime) + "ms");
         }
         if (getCurrentPlaylist() != null && isPlaying()) {
             pause(true);
@@ -596,12 +582,7 @@ public class PlaybackService extends Service
         if (mCurrentPlaylist != null) {
             Track track = mCurrentPlaylist.getNextTrack();
             if (track != null) {
-                try {
-                    setCurrentTrack(track);
-                } catch (IOException e) {
-                    Log.e(TAG, "next(): " + IOException.class.getName() + ": " + e
-                            .getLocalizedMessage());
-                }
+                setCurrentTrack(track);
             }
             updatePlayingNotification();
         }
@@ -614,12 +595,7 @@ public class PlaybackService extends Service
         if (mCurrentPlaylist != null) {
             Track track = mCurrentPlaylist.getPreviousTrack();
             if (track != null) {
-                try {
-                    setCurrentTrack(track);
-                } catch (IOException e) {
-                    Log.e(TAG, "previous(): " + IOException.class.getName() + ": " + e
-                            .getLocalizedMessage());
-                }
+                setCurrentTrack(track);
             }
             updatePlayingNotification();
         }
@@ -670,7 +646,7 @@ public class PlaybackService extends Service
     /**
      * This method sets the current track and prepares it for playback.
      */
-    public void setCurrentTrack(final Track track) throws IOException {
+    public void setCurrentTrack(final Track track) {
         mNotificationAsyncBitmap.bitmap = null;
         if (mTomahawkMediaPlayer != null && track != null) {
             if (track.isResolved()) {
@@ -738,7 +714,7 @@ public class PlaybackService extends Service
      * Set the current Playlist to playlist and set the current Track to the Playlist's current
      * Track.
      */
-    public void setCurrentPlaylist(Playlist playlist) throws IOException {
+    public void setCurrentPlaylist(Playlist playlist) {
         mCurrentPlaylist = playlist;
         if (playlist != null) {
             setCurrentTrack(mCurrentPlaylist.getCurrentTrack());
@@ -756,11 +732,7 @@ public class PlaybackService extends Service
         boolean wasEmpty = mCurrentPlaylist.getCount() <= 0;
         mCurrentPlaylist.addTracks(tracks);
         if (wasEmpty && mCurrentPlaylist.getCount() > 0) {
-            try {
-                setCurrentTrack(mCurrentPlaylist.getTrackAtPos(0));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            setCurrentTrack(mCurrentPlaylist.getTrackAtPos(0));
         }
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
@@ -780,11 +752,7 @@ public class PlaybackService extends Service
             mCurrentPlaylist.addTracks(tracks);
         }
         if (wasEmpty && mCurrentPlaylist.getCount() > 0) {
-            try {
-                setCurrentTrack(mCurrentPlaylist.getTrackAtPos(0));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            setCurrentTrack(mCurrentPlaylist.getTrackAtPos(0));
         }
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
@@ -907,8 +875,9 @@ public class PlaybackService extends Service
                 .setPriority(NotificationCompat.PRIORITY_MAX).setContent(smallNotificationView);
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addParentStack(PlaybackActivity.class);
-        Intent notificationIntent = getIntent(this, PlaybackActivity.class);
+        Intent notificationIntent = new Intent(this, TomahawkMainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        intent.putExtra(TomahawkMainActivity.SHOW_PLAYBACKFRAGMENT_ON_STARTUP, true);
         stackBuilder.addNextIntent(notificationIntent);
         PendingIntent resultPendingIntent = stackBuilder
                 .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -947,18 +916,5 @@ public class PlaybackService extends Service
             notification.bigContentView = largeNotificationView;
         }
         startForeground(PLAYBACKSERVICE_NOTIFICATION_ID, notification);
-    }
-
-    /**
-     * Return the {@link Intent} defined by the given parameters
-     *
-     * @param context the context with which the intent will be created
-     * @param cls     the class which contains the activity to launch
-     * @return the created intent
-     */
-    private static Intent getIntent(Context context, Class<?> cls) {
-        Intent intent = new Intent(context, cls);
-        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        return intent;
     }
 }

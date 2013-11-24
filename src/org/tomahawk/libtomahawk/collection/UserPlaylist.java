@@ -26,6 +26,8 @@ import java.util.ArrayList;
  */
 public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.TomahawkListItem {
 
+    public static final String LAST_USED_PLAYLIST_NAME = "Last used playlist";
+
     private long mId;
 
     /**
@@ -136,7 +138,7 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
 
     /**
      * @return always null. This method needed to comply to the {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
-     *         interface.
+     * interface.
      */
     @Override
     public Artist getArtist() {
@@ -145,7 +147,7 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
 
     /**
      * @return always null. This method needed to comply to the {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
-     *         interface.
+     * interface.
      */
     @Override
     public Album getAlbum() {

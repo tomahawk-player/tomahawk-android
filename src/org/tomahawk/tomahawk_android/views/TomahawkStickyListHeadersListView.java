@@ -27,9 +27,9 @@ import android.view.MotionEvent;
 
 /**
  * A {@link StickyListHeadersListView} extended by a {@link GestureDetector}, so that we can use it
- * inside our {@link org.tomahawk.tomahawk_android.activities.PlaybackActivity}'s {@link
+ * inside our {@link org.tomahawk.tomahawk_android.fragments.PlaybackFragment}'s {@link
  * TomahawkStickyListHeadersListView}. The {@link GestureDetector} is being used, so that the user
- * is able to swipe the AlbumArt horizontally inside {@link org.tomahawk.tomahawk_android.fragments.PlaybackFragment}
+ * is able to swipe the AlbumArt horizontally inside {@link org.tomahawk.tomahawk_android.fragments.PlaybackControlsFragment}
  * and to scroll vertically through the {@link StickyListHeadersListView}. Without manually deciding
  * which one to scroll/swipe, the two TouchEvents would conflict with each other.
  */
