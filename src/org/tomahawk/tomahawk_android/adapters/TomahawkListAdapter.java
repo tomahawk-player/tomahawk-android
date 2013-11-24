@@ -103,7 +103,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
 
     /**
      * Set whether or not a playlist header should be shown. Like the "^  Playlist  ^"-header in our
-     * {@link org.tomahawk.tomahawk_android.fragments.PlaybackFragment}.
+     * {@link org.tomahawk.tomahawk_android.fragments.PlaybackControlsFragment}.
      */
     public void setShowPlaylistHeader(boolean showPlaylistHeader) {
         mCategoryHeaderResourceHolder = new ResourceHolder();

@@ -40,12 +40,13 @@ public class PipeLine {
     public static final int PIPELINE_SEARCHTYPE_ALBUMS = 2;
 
     public static final String PIPELINE_RESULTSREPORTED_FULLTEXTQUERY
-            = "pipeline_resultsreported_fulltextquery";
+            = "org.tomahawk.tomahawk_android.pipeline_resultsreported_fulltextquery";
 
     public static final String PIPELINE_RESULTSREPORTED_NON_FULLTEXTQUERY
-            = "pipeline_resultsreported_non_fulltextquery";
+            = "org.tomahawk.tomahawk_android.pipeline_resultsreported_non_fulltextquery";
 
-    public static final String PIPELINE_RESULTSREPORTED_QID = "pipeline_resultsreported_qid";
+    public static final String PIPELINE_RESULTSREPORTED_QID
+            = "org.tomahawk.tomahawk_android.pipeline_resultsreported_qid";
 
     private static final float MINSCORE = 0.5F;
 

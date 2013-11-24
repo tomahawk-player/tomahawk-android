@@ -43,9 +43,11 @@ public class BitmapItem {
 
     private static final String TAG = BitmapItem.class.getName();
 
-    public static final String BITMAPITEM_BITMAPLOADED = "bitmapitem_bitmaploaded";
+    public static final String BITMAPITEM_BITMAPLOADED
+            = "org.tomahawk.tomahawk_android.bitmapitem_bitmaploaded";
 
-    public static final String BITMAPITEM_BITMAPLOADED_PATH = "bitmapitem_bitmaploaded_path";
+    public static final String BITMAPITEM_BITMAPLOADED_PATH
+            = "org.tomahawk.tomahawk_android.bitmapitem_bitmaploaded_path";
 
     public static final int BITMAP_MAXSIZE = 512;
 

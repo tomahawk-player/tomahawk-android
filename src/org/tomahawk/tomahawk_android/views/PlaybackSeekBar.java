@@ -30,7 +30,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 /**
- * Customized {@link SeekBar} for the {@link org.tomahawk.tomahawk_android.fragments.PlaybackFragment}
+ * Customized {@link SeekBar} for the {@link org.tomahawk.tomahawk_android.fragments.PlaybackControlsFragment}
  */
 public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
 

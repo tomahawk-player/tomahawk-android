@@ -30,7 +30,7 @@ import android.widget.ImageView;
 
 /**
  * {@link PagerAdapter} which provides functionality to swipe an AlbumArt image. Used in {@link
- * org.tomahawk.tomahawk_android.fragments.PlaybackFragment}
+ * org.tomahawk.tomahawk_android.fragments.PlaybackControlsFragment}
  */
 public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPageChangeListener {
 

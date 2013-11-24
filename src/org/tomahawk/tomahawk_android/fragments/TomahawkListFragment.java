@@ -36,7 +36,8 @@ import android.widget.GridView;
  */
 public class TomahawkListFragment extends Fragment {
 
-    public static final String TOMAHAWK_LIST_SCROLL_POSITION = "tomahawk_list_scroll_position";
+    public static final String TOMAHAWK_LIST_SCROLL_POSITION
+            = "org.tomahawk.tomahawk_android.tomahawk_list_scroll_position";
 
     private BaseAdapter mBaseAdapter;
 

@@ -25,12 +25,9 @@
         <item>@drawable/ic_settings_account</item>
     </array>
     <array name="slide_menu_items_icons">
-        <item>@drawable/ic_menu_useravatar</item>
         <item>@drawable/ic_action_search</item>
         <item>@drawable/ic_action_collection</item>
         <item>@drawable/ic_action_playlist</item>
-        <item>@drawable/ic_action_station</item>
-        <item>@drawable/ic_action_friends</item>
         <item>@drawable/ic_action_settings</item>
     </array>
 

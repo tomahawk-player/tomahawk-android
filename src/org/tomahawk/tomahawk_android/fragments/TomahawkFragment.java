@@ -30,12 +30,12 @@ import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.activities.PlaybackActivity;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.ChooseUserPlaylistDialog;
 import org.tomahawk.tomahawk_android.dialogs.FakeContextMenuDialog;
+import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FakeContextMenu;
 
 import android.app.Activity;
@@ -44,10 +44,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.ContextMenu;
@@ -66,15 +63,19 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TomahawkFragment extends TomahawkListFragment
         implements LoaderManager.LoaderCallbacks<Collection>, FakeContextMenu {
 
-    public static final String TOMAHAWK_ALBUM_ID = "tomahawk_album_id";
+    public static final String TOMAHAWK_ALBUM_ID
+            = "org.tomahawk.tomahawk_android.tomahawk_album_id";
 
-    public static final String TOMAHAWK_TRACK_ID = "tomahawk_track_id";
+    public static final String TOMAHAWK_TRACK_ID
+            = "org.tomahawk.tomahawk_android.tomahawk_track_id";
 
-    public static final String TOMAHAWK_ARTIST_ID = "tomahawk_artist_id";
+    public static final String TOMAHAWK_ARTIST_ID
+            = "org.tomahawk.tomahawk_android.tomahawk_artist_id";
 
-    public static final String TOMAHAWK_PLAYLIST_ID = "tomahawk_playlist_id";
+    public static final String TOMAHAWK_PLAYLIST_ID
+            = "org.tomahawk.tomahawk_android.tomahawk_playlist_id";
 
-    public static final String TOMAHAWK_HUB_ID = "tomahawk_hub_id";
+    public static final String TOMAHAWK_HUB_ID = "org.tomahawk.tomahawk_android.tomahawk_hub_id";
 
     protected TomahawkApp mTomahawkApp;
 
@@ -101,30 +102,6 @@ public class TomahawkFragment extends TomahawkListFragment
 
     protected UserPlaylist mUserPlaylist;
 
-    private Drawable mProgressDrawable;
-
-    // Used to display an animated progress drawable, as long as the PipeLine is resolving something
-    private Handler mAnimationHandler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_UPDATE_ANIMATION:
-                    if (mPipeline.isResolving()) {
-                        mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 500);
-                        mTomahawkMainActivity.getSupportActionBar().setLogo(mProgressDrawable);
-                        mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
-                        mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
-                    } else {
-                        stopLoadingAnimation();
-                    }
-                    break;
-            }
-            return true;
-        }
-    });
-
-    private static final int MSG_UPDATE_ANIMATION = 0x20;
-
     /**
      * Handles incoming {@link Collection} updated broadcasts.
      */
@@ -132,7 +109,7 @@ public class TomahawkFragment extends TomahawkListFragment
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(Collection.COLLECTION_UPDATED)) {
+            if (Collection.COLLECTION_UPDATED.equals(intent.getAction())) {
                 onCollectionUpdated();
             }
         }
@@ -172,8 +149,6 @@ public class TomahawkFragment extends TomahawkListFragment
     @Override
     public void onResume() {
         super.onResume();
-
-        mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
 
         // Adapt to current orientation. Show different count of columns in the GridView
         adaptColumnCount();
@@ -252,7 +227,7 @@ public class TomahawkFragment extends TomahawkListFragment
             menuItemTitles = getResources().getStringArray(R.array.fake_context_menu_items);
         }
         new FakeContextMenuDialog(menuItemTitles, info.position, this)
-                .show(getFragmentManager(), null);
+                .show(mTomahawkMainActivity.getSupportFragmentManager(), null);
     }
 
     /**
@@ -260,8 +235,7 @@ public class TomahawkFragment extends TomahawkListFragment
      */
     @Override
     public void onFakeContextItemSelected(String menuItemTitle, int position) {
-        UserCollection userCollection = ((UserCollection) mTomahawkApp.getSourceList()
-                .getCollectionFromId(UserCollection.Id));
+        UserCollection userCollection = mTomahawkMainActivity.getUserCollection();
         TomahawkBaseAdapter.TomahawkListItem tomahawkListItem;
         position -= getListView().getHeaderViewsCount();
         if (position >= 0) {
@@ -271,61 +245,102 @@ public class TomahawkFragment extends TomahawkListFragment
             tomahawkListItem = ((TomahawkListAdapter) getListAdapter())
                     .getContentHeaderTomahawkListItem();
         }
-        Bundle bundle = new Bundle();
         ArrayList<Track> tracks = new ArrayList<Track>();
+        PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
         if (menuItemTitle.equals(getResources().getString(R.string.fake_context_menu_delete))) {
             if (tomahawkListItem instanceof UserPlaylist) {
                 mUserPlaylistsDataSource
                         .deleteUserPlaylist(((UserPlaylist) tomahawkListItem).getId());
+                userCollection.updateUserPlaylists();
             } else if (tomahawkListItem instanceof Track && mUserPlaylist != null) {
                 mUserPlaylistsDataSource.deleteTrackInUserPlaylist(mUserPlaylist.getId(),
                         ((Track) tomahawkListItem).getId());
+                userCollection.updateUserPlaylists();
+            } else if (playbackService != null && this instanceof PlaybackFragment
+                    && tomahawkListItem instanceof Track) {
+                if (playbackService.getCurrentPlaylist().getCurrentTrackIndex() == position) {
+                    boolean wasPlaying = playbackService.isPlaying();
+                    if (wasPlaying) {
+                        playbackService.pause();
+                    }
+                    if (playbackService.getCurrentPlaylist().peekTrackAtPos(
+                            playbackService.getCurrentPlaylist().getCurrentTrackIndex()
+                                    + 1) != null) {
+                        playbackService.setCurrentTrack(
+                                playbackService.getCurrentPlaylist().getTrackAtPos(
+                                        playbackService.getCurrentPlaylist()
+                                                .getCurrentTrackIndex() + 1));
+                        if (wasPlaying) {
+                            playbackService.start();
+                        }
+                    } else if (playbackService.getCurrentPlaylist().peekTrackAtPos(
+                            playbackService.getCurrentPlaylist().getCurrentTrackIndex()
+                                    - 1) != null) {
+                        playbackService.setCurrentTrack(
+                                playbackService.getCurrentPlaylist().getTrackAtPos(
+                                        playbackService.getCurrentPlaylist()
+                                                .getCurrentTrackIndex() - 1));
+                        if (wasPlaying) {
+                            playbackService.start();
+                        }
+                    }
+                }
+                playbackService.deleteTrackAtPos(position);
             }
-            userCollection.updateUserPlaylists();
         } else if (menuItemTitle
                 .equals(getResources().getString(R.string.fake_context_menu_play))) {
-            if (tomahawkListItem instanceof Track) {
-                UserPlaylist playlist;
-                if (mAlbum != null) {
-                    tracks = mAlbum.getTracks();
-                    playlist = UserPlaylist
-                            .fromTrackList("Last used playlist", tracks, (Track) tomahawkListItem);
-                    playlist.setCurrentTrackIndex(position);
-                } else if (mArtist != null) {
-                    tracks = mArtist.getTracks();
-                    playlist = UserPlaylist
-                            .fromTrackList("Last used playlist", tracks, (Track) tomahawkListItem);
-                    playlist.setCurrentTrackIndex(position);
-                } else if (mUserPlaylist != null) {
-                    tracks = mUserPlaylist.getTracks();
-                    playlist = UserPlaylist
-                            .fromTrackList("Last used playlist", tracks, (Track) tomahawkListItem);
-                    playlist.setCurrentTrackIndex(position);
-                } else {
-                    tracks.add((Track) tomahawkListItem);
-                    playlist = UserPlaylist
-                            .fromTrackList("Last used playlist", tracks, (Track) tomahawkListItem);
-                    playlist.setCurrentTrackIndex(0);
+            if (this instanceof PlaybackFragment) {
+                if (playbackService != null && tomahawkListItem instanceof Track) {
+                    if (playbackService.getCurrentPlaylist().getCurrentTrackIndex() == position) {
+                        if (!playbackService.isPlaying()) {
+                            playbackService.start();
+                        }
+                    } else {
+                        playbackService.setCurrentTrack(
+                                playbackService.getCurrentPlaylist().peekTrackAtPos(position));
+                        playbackService.start();
+                    }
                 }
-                userCollection.setCachedPlaylist(playlist);
-                bundle.putBoolean(UserCollection.USERCOLLECTION_PLAYLISTCACHED, true);
-                bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID,
-                        ((Track) tomahawkListItem).getId());
-            } else if (tomahawkListItem instanceof UserPlaylist) {
-                bundle.putLong(PlaybackActivity.PLAYLIST_PLAYLIST_ID,
-                        ((UserPlaylist) tomahawkListItem).getId());
-            } else if (tomahawkListItem instanceof Album) {
-                bundle.putLong(PlaybackActivity.PLAYLIST_ALBUM_ID,
-                        ((Album) tomahawkListItem).getId());
-                bundle.putLong(PlaybackActivity.PLAYLIST_TRACK_ID,
-                        ((Album) tomahawkListItem).getTracks().get(0).getId());
-            } else if (tomahawkListItem instanceof Artist) {
-                bundle.putLong(PlaybackActivity.PLAYLIST_ARTIST_ID,
-                        ((Artist) tomahawkListItem).getId());
+            } else {
+                UserPlaylist playlist = null;
+                if (tomahawkListItem instanceof Track) {
+                    if (mAlbum != null) {
+                        tracks = mAlbum.getTracks();
+                        playlist = UserPlaylist
+                                .fromTrackList(UserPlaylist.LAST_USED_PLAYLIST_NAME, tracks,
+                                        (Track) tomahawkListItem);
+                    } else if (mArtist != null) {
+                        tracks = mArtist.getTracks();
+                        playlist = UserPlaylist
+                                .fromTrackList(UserPlaylist.LAST_USED_PLAYLIST_NAME, tracks,
+                                        (Track) tomahawkListItem);
+                    } else if (mUserPlaylist != null) {
+                        tracks = mUserPlaylist.getTracks();
+                        playlist = UserPlaylist
+                                .fromTrackList(UserPlaylist.LAST_USED_PLAYLIST_NAME, tracks,
+                                        (Track) tomahawkListItem);
+                    } else {
+                        tracks.add((Track) tomahawkListItem);
+                        playlist = UserPlaylist
+                                .fromTrackList(UserPlaylist.LAST_USED_PLAYLIST_NAME, tracks, 0);
+                    }
+                    userCollection.setCachedPlaylist(playlist);
+                } else if (tomahawkListItem instanceof UserPlaylist) {
+                    playlist = (UserPlaylist) tomahawkListItem;
+                } else if (tomahawkListItem instanceof Album) {
+                    playlist = UserPlaylist.fromTrackList(UserPlaylist.LAST_USED_PLAYLIST_NAME,
+                            ((Album) tomahawkListItem).getTracks(), 0);
+                } else if (tomahawkListItem instanceof Artist) {
+                    playlist = UserPlaylist.fromTrackList(UserPlaylist.LAST_USED_PLAYLIST_NAME,
+                            ((Artist) tomahawkListItem).getTracks(), 0);
+                }
+                if (playbackService != null) {
+                    playbackService.setCurrentPlaylist(playlist);
+                    playbackService.start();
+                }
+                mTomahawkMainActivity.getContentViewer()
+                        .setCurrentHubId(TomahawkMainActivity.HUB_ID_PLAYBACK);
             }
-            Intent playbackIntent = new Intent(getActivity(), PlaybackActivity.class);
-            playbackIntent.putExtra(PlaybackActivity.PLAYLIST_EXTRA, bundle);
-            startActivity(playbackIntent);
         } else if (menuItemTitle.equals(getResources()
                 .getString(R.string.fake_context_menu_playaftercurrenttrack))) {
             if (tomahawkListItem instanceof Track) {
@@ -337,12 +352,14 @@ public class TomahawkFragment extends TomahawkListFragment
             } else if (tomahawkListItem instanceof Artist) {
                 tracks = ((Artist) tomahawkListItem).getTracks();
             }
-            if (mTomahawkMainActivity.getPlaybackService().getCurrentPlaylist() != null) {
-                mTomahawkMainActivity.getPlaybackService().addTracksToCurrentPlaylist(
-                        mTomahawkMainActivity.getPlaybackService().getCurrentPlaylist()
-                                .getCurrentTrackIndex() + 1, tracks);
-            } else {
-                mTomahawkMainActivity.getPlaybackService().addTracksToCurrentPlaylist(tracks);
+            if (playbackService != null) {
+                if (playbackService.getCurrentPlaylist() != null) {
+                    playbackService.addTracksToCurrentPlaylist(
+                            playbackService.getCurrentPlaylist().getCurrentTrackIndex() + 1,
+                            tracks);
+                } else {
+                    playbackService.addTracksToCurrentPlaylist(tracks);
+                }
             }
         } else if (menuItemTitle.equals(getResources()
                 .getString(R.string.fake_context_menu_appendtoplaybacklist))) {
@@ -355,7 +372,9 @@ public class TomahawkFragment extends TomahawkListFragment
             } else if (tomahawkListItem instanceof Artist) {
                 tracks = ((Artist) tomahawkListItem).getTracks();
             }
-            mTomahawkMainActivity.getPlaybackService().addTracksToCurrentPlaylist(tracks);
+            if (playbackService != null) {
+                playbackService.addTracksToCurrentPlaylist(tracks);
+            }
         } else if (menuItemTitle
                 .equals(getResources().getString(R.string.fake_context_menu_addtoplaylist))) {
             if (tomahawkListItem instanceof Track) {
@@ -392,12 +411,12 @@ public class TomahawkFragment extends TomahawkListFragment
      * Called when a Collection has been updated.
      */
     protected void onCollectionUpdated() {
-        getActivity().getSupportLoaderManager().restartLoader(getId(), null, this);
+        mTomahawkMainActivity.getSupportLoaderManager().restartLoader(getId(), null, this);
     }
 
     @Override
     public Loader<Collection> onCreateLoader(int id, Bundle args) {
-        return new CollectionLoader(getActivity(), getCurrentCollection());
+        return new CollectionLoader(getActivity(), mTomahawkMainActivity.getUserCollection());
     }
 
     @Override
@@ -406,30 +425,5 @@ public class TomahawkFragment extends TomahawkListFragment
 
     @Override
     public void onLoaderReset(Loader<Collection> loader) {
-    }
-
-    /**
-     * @return the current Collection
-     */
-    public Collection getCurrentCollection() {
-        if (mTomahawkMainActivity != null) {
-            return mTomahawkMainActivity.getCollection();
-        }
-        return null;
-    }
-
-    /**
-     * Start the loading animation. Called when beginning login process.
-     */
-    public void startLoadingAnimation() {
-        mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
-    }
-
-    /**
-     * Stop the loading animation. Called when login/logout process has finished.
-     */
-    public void stopLoadingAnimation() {
-        mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
-        mTomahawkMainActivity.getSupportActionBar().setLogo(R.drawable.ic_launcher);
     }
 }

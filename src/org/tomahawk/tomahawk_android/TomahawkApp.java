@@ -104,7 +104,7 @@ public class TomahawkApp extends Application {
          */
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(Collection.COLLECTION_UPDATED)) {
+            if (Collection.COLLECTION_UPDATED.equals(intent.getAction())) {
                 onCollectionUpdated();
             }
         }

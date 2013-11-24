@@ -375,7 +375,7 @@ public class ContentViewer {
     /**
      * @return the currently shown hub's title resource id, 0 if an error occurred
      */
-    public int getCurrentHubTitleResId() {
+    private int getCurrentHubTitleResId() {
         switch (mCurrentlyShownHub) {
             case TomahawkMainActivity.HUB_ID_HOME:
                 return R.string.hub_title_home;
@@ -391,6 +391,8 @@ public class ContentViewer {
                 return R.string.hub_title_friends;
             case TomahawkMainActivity.HUB_ID_SETTINGS:
                 return R.string.hub_title_settings;
+            case TomahawkMainActivity.HUB_ID_PLAYBACK:
+                return R.string.hub_title_playback;
         }
         return 0;
     }
@@ -403,6 +405,8 @@ public class ContentViewer {
     public void setCurrentHubId(int hubToShow) {
         if (mCurrentlyShownHub != hubToShow) {
             mCurrentlyShownHub = hubToShow;
+            mTomahawkMainActivity
+                    .setTitle(mTomahawkMainActivity.getString(getCurrentHubTitleResId()));
             ArrayList<FragmentStateHolder> stack = mMapOfHubs.get(hubToShow);
             FragmentTransaction ft = mFragmentManager.beginTransaction();
             FragmentStateHolder fragmentStateHolder = stack.get(stack.size() - 1);
@@ -418,12 +422,21 @@ public class ContentViewer {
                     Fragment.instantiate(mTomahawkMainActivity, fragmentStateHolder.clss.getName(),
                             bundle), stack.get(stack.size() - 1).fragmentTag);
             ft.commit();
-            if (fragmentStateHolder.correspondingHubId == TomahawkMainActivity.HUB_ID_SEARCH
+            if (fragmentStateHolder.correspondingHubId
+                    == TomahawkMainActivity.HUB_ID_SEARCH
                     || fragmentStateHolder.correspondingHubId
-                    == TomahawkMainActivity.HUB_ID_SETTINGS) {
+                    == TomahawkMainActivity.HUB_ID_SETTINGS
+                    || fragmentStateHolder.correspondingHubId
+                    == TomahawkMainActivity.HUB_ID_PLAYBACK) {
                 mTomahawkMainActivity.showBreadcrumbs(false);
             } else {
                 mTomahawkMainActivity.showBreadcrumbs(true);
+            }
+            if (fragmentStateHolder.correspondingHubId
+                    == TomahawkMainActivity.HUB_ID_SEARCH) {
+                mTomahawkMainActivity.setSearchEditTextVisibility(true);
+            } else {
+                mTomahawkMainActivity.setSearchEditTextVisibility(false);
             }
         }
         mTomahawkMainActivity.onBackStackChanged();
