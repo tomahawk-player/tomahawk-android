@@ -22,8 +22,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:background="@color/transparent_black">
+              android:layout_height="wrap_content">
     <View
             android:layout_width="match_parent"
             android:layout_height="@dimen/divider_height_thin"
