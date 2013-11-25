@@ -153,6 +153,10 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private View mNowPlayingView;
 
+    private FrameLayout mNowPlayingFrameTop;
+
+    private FrameLayout mNowPlayingFrameBottom;
+
     private int mCurrentStackPosition = -1;
 
     private Drawable mProgressDrawable;
@@ -297,17 +301,13 @@ public class TomahawkMainActivity extends ActionBarActivity
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(true);
-        View searchView = getLayoutInflater().inflate(R.layout.search_edittext, null);
-        actionBar.setCustomView(searchView);
-        actionBar.setDisplayShowCustomEnabled(false);
+        View customView = getLayoutInflater()
+                .inflate(R.layout.tomahawk_main_actionbar_customview, null);
+        actionBar.setCustomView(customView);
+        actionBar.setDisplayShowCustomEnabled(true);
 
-        if (getIntent().hasExtra(SHOW_PLAYBACKFRAGMENT_ON_STARTUP)) {
-            // if this Activity is being shown after the user clicked the notification
-            mCurrentStackPosition = HUB_ID_PLAYBACK;
-        } else {
-            // if not set yet, set our current default stack position to HUB_ID_COLLECTION
-            mCurrentStackPosition = HUB_ID_COLLECTION;
-        }
+        // set our default stack position to HUB_ID_COLLECTION
+        mCurrentStackPosition = HUB_ID_COLLECTION;
 
         // initialize our ContentViewer, which will handle switching the fragments whenever an
         // entry in the slidingmenu is being clicked. Restore our saved state, if one exists.
@@ -349,33 +349,6 @@ public class TomahawkMainActivity extends ActionBarActivity
                 mContentViewer.addRootToHub(HUB_ID_PLAYBACK, PlaybackFragment.class);
             }
         }
-
-        //Setup our nowPlaying view at the top, if in landscape mode, otherwise at the bottom
-        FrameLayout nowPlayingFrameTop = (FrameLayout) getSupportActionBar().getCustomView()
-                .findViewById(R.id.now_playing_frame_top);
-        FrameLayout nowPlayingFrameBottom = (FrameLayout) findViewById(
-                R.id.now_playing_frame_bottom);
-        if (getResources().getConfiguration().orientation
-                == Configuration.ORIENTATION_LANDSCAPE) {
-            mNowPlayingView = getLayoutInflater().inflate(R.layout.now_playing_top, null);
-            nowPlayingFrameTop.addView(mNowPlayingView);
-            nowPlayingFrameTop.setVisibility(FrameLayout.VISIBLE);
-            nowPlayingFrameBottom.setVisibility(FrameLayout.GONE);
-        } else {
-            mNowPlayingView = getLayoutInflater().inflate(R.layout.now_playing_bottom, null);
-            nowPlayingFrameBottom.addView(mNowPlayingView);
-            nowPlayingFrameTop.setVisibility(FrameLayout.GONE);
-            nowPlayingFrameBottom.setVisibility(FrameLayout.VISIBLE);
-        }
-        mNowPlayingView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mContentViewer.setCurrentHubId(HUB_ID_PLAYBACK);
-            }
-        });
-        if (mPlaybackService != null) {
-            setNowPlayingInfo(mPlaybackService.getCurrentTrack());
-        }
     }
 
     @Override
@@ -400,8 +373,20 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        setIntent(intent);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
+
+        if (SHOW_PLAYBACKFRAGMENT_ON_STARTUP.equals(getIntent().getAction())) {
+            // if this Activity is being shown after the user clicked the notification
+            mCurrentStackPosition = HUB_ID_PLAYBACK;
+        }
 
         SourceList sl = ((TomahawkApp) getApplication()).getSourceList();
         mUserCollection = (UserCollection) sl
@@ -419,14 +404,32 @@ public class TomahawkMainActivity extends ActionBarActivity
             registerReceiver(mCollectionUpdatedReceiver, intentFilter);
         }
 
-        mContentViewer.setCurrentHubId(mCurrentStackPosition);
-        // if we resume this activity with HUB_ID_SEARCH as the current stack position, make sure
-        // that the searchEditText is being shown accordingly
-        if (mCurrentStackPosition == HUB_ID_SEARCH) {
-            setSearchEditTextVisibility(true);
+        //Setup our nowPlaying view at the top, if in landscape mode, otherwise at the bottom
+        mNowPlayingFrameTop = (FrameLayout) getSupportActionBar().getCustomView()
+                .findViewById(R.id.now_playing_frame_top);
+        mNowPlayingFrameBottom = (FrameLayout) findViewById(R.id.now_playing_frame_bottom);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            mNowPlayingView = getLayoutInflater().inflate(R.layout.now_playing_top, null);
+            mNowPlayingFrameTop.addView(mNowPlayingView);
+            mNowPlayingFrameTop.setVisibility(FrameLayout.VISIBLE);
+            mNowPlayingFrameBottom.setVisibility(FrameLayout.GONE);
         } else {
-            setSearchEditTextVisibility(false);
+            mNowPlayingView = getLayoutInflater().inflate(R.layout.now_playing_bottom, null);
+            mNowPlayingFrameBottom.addView(mNowPlayingView);
+            mNowPlayingFrameTop.setVisibility(FrameLayout.GONE);
+            mNowPlayingFrameBottom.setVisibility(FrameLayout.VISIBLE);
         }
+        mNowPlayingView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mContentViewer.setCurrentHubId(HUB_ID_PLAYBACK);
+            }
+        });
+        if (mPlaybackService != null) {
+            setNowPlayingInfo(mPlaybackService.getCurrentTrack());
+        }
+
+        mContentViewer.setCurrentHubId(mCurrentStackPosition);
     }
 
     @Override
@@ -472,13 +475,6 @@ public class TomahawkMainActivity extends ActionBarActivity
     public void setTitle(CharSequence title) {
         mTitle = title;
         getSupportActionBar().setTitle(mTitle);
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-
-        setIntent(intent);
     }
 
     @Override
@@ -594,17 +590,56 @@ public class TomahawkMainActivity extends ActionBarActivity
                     }
                     nowPlayingInfoArtist.setText(track.getArtist().toString());
                     nowPlayingInfoTitle.setText(track.getName());
-                    nowPlayingInfoAlbumArt.setVisibility(View.VISIBLE);
-                    nowPlayingInfoArtist.setVisibility(View.VISIBLE);
-                    nowPlayingInfoTitle.setVisibility(View.VISIBLE);
-                    mNowPlayingView.setClickable(true);
                 }
-            } else {
-                nowPlayingInfoAlbumArt.setVisibility(View.GONE);
-                nowPlayingInfoArtist.setVisibility(View.GONE);
-                nowPlayingInfoTitle.setVisibility(View.GONE);
-                mNowPlayingView.setClickable(false);
             }
+        }
+        updateViewVisibility();
+    }
+
+    public void updateViewVisibility() {
+        if (mCurrentStackPosition
+                == TomahawkMainActivity.HUB_ID_SEARCH
+                || mCurrentStackPosition
+                == TomahawkMainActivity.HUB_ID_SETTINGS
+                || mCurrentStackPosition
+                == TomahawkMainActivity.HUB_ID_PLAYBACK) {
+            setBreadcrumbsVisibility(false);
+        } else {
+            setBreadcrumbsVisibility(true);
+        }
+        if (mCurrentStackPosition == TomahawkMainActivity.HUB_ID_SEARCH) {
+            setSearchEditTextVisibility(true);
+            showSoftKeyboard();
+        } else {
+            setSearchEditTextVisibility(false);
+        }
+        if (mCurrentStackPosition == TomahawkMainActivity.HUB_ID_PLAYBACK
+                || (mPlaybackService != null && mPlaybackService.getCurrentTrack() == null)) {
+            setNowPlayingInfoVisibility(false);
+        } else {
+            setNowPlayingInfoVisibility(true);
+        }
+    }
+
+    public void showSoftKeyboard() {
+        AutoCompleteTextView searchFrameTop = (AutoCompleteTextView) getSupportActionBar()
+                .getCustomView().findViewById(R.id.search_edittext);
+        InputMethodManager imm = (InputMethodManager) getSystemService(
+                Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(searchFrameTop, 0);
+    }
+
+    public void setNowPlayingInfoVisibility(boolean enabled) {
+        if (enabled) {
+            mNowPlayingFrameBottom.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT));
+            mNowPlayingFrameBottom.setVisibility(View.VISIBLE);
+            mNowPlayingFrameTop.setVisibility(View.VISIBLE);
+        } else {
+            mNowPlayingFrameBottom.setLayoutParams(new LinearLayout.LayoutParams(0, 0));
+            mNowPlayingFrameBottom.setVisibility(View.GONE);
+            mNowPlayingFrameTop.setVisibility(View.GONE);
         }
     }
 
@@ -613,21 +648,30 @@ public class TomahawkMainActivity extends ActionBarActivity
      * soft keyboard.
      */
     public void setSearchEditTextVisibility(boolean enabled) {
+        FrameLayout searchFrameTop = (FrameLayout) getSupportActionBar()
+                .getCustomView().findViewById(R.id.search_frame_top);
         if (enabled) {
-            AutoCompleteTextView searchFrameTop = (AutoCompleteTextView) getSupportActionBar()
+            searchFrameTop.setVisibility(FrameLayout.VISIBLE);
+            AutoCompleteTextView searchEditText = (AutoCompleteTextView) getSupportActionBar()
                     .getCustomView().findViewById(R.id.search_edittext);
-            searchFrameTop.requestFocus();
-            getSupportActionBar().setDisplayShowCustomEnabled(true);
+            searchEditText.requestFocus();
             findViewById(R.id.search_panel).setVisibility(LinearLayout.VISIBLE);
-
-            InputMethodManager imm = (InputMethodManager) getSystemService(
-                    Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(searchFrameTop, 0);
         } else {
-            AutoCompleteTextView searchFrameTop = (AutoCompleteTextView) getSupportActionBar()
-                    .getCustomView().findViewById(R.id.search_edittext);
-            getSupportActionBar().setDisplayShowCustomEnabled(false);
+            searchFrameTop.setVisibility(FrameLayout.GONE);
             findViewById(R.id.search_panel).setVisibility(LinearLayout.GONE);
+        }
+    }
+
+    /**
+     * Set the visibilty of the breadcumb navigation view.
+     *
+     * @param enabled True, if breadcrumbs should be shown. False otherwise.
+     */
+    public void setBreadcrumbsVisibility(boolean enabled) {
+        if (enabled) {
+            findViewById(R.id.bread_crumb_container).setVisibility(FrameLayout.VISIBLE);
+        } else {
+            findViewById(R.id.bread_crumb_container).setVisibility(FrameLayout.GONE);
         }
     }
 
@@ -769,20 +813,6 @@ public class TomahawkMainActivity extends ActionBarActivity
                 }
             }
         }
-
-    }
-
-    /**
-     * Set the visibilty of the breadcumb navigation view.
-     *
-     * @param showBreadcrumbs True, if breadcrumbs should be shown. False otherwise.
-     */
-    public void showBreadcrumbs(boolean showBreadcrumbs) {
-        if (showBreadcrumbs) {
-            findViewById(R.id.bread_crumb_container).setVisibility(FrameLayout.VISIBLE);
-        } else {
-            findViewById(R.id.bread_crumb_container).setVisibility(FrameLayout.GONE);
-        }
     }
 
     /**
@@ -807,6 +837,7 @@ public class TomahawkMainActivity extends ActionBarActivity
      * the correct stack.
      */
     public void onBackStackChanged() {
+        mCurrentStackPosition = mContentViewer.getCurrentHubId();
         updateBreadCrumbNavigation();
     }
 
