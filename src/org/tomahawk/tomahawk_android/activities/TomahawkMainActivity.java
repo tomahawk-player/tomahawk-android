@@ -149,7 +149,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private UserCollection mUserCollection;
 
-    private CollectionUpdateReceiver mCollectionUpdatedReceiver;
+    private TomahawkMainReceiver mTomahawkMainReceiver;
 
     private View mNowPlayingView;
 
@@ -185,14 +185,19 @@ public class TomahawkMainActivity extends ActionBarActivity
     });
 
     /**
-     * Handles incoming {@link Collection} updated broadcasts.
+     * Handles incoming broadcasts.
      */
-    private class CollectionUpdateReceiver extends BroadcastReceiver {
+    private class TomahawkMainReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             if (Collection.COLLECTION_UPDATED.equals(intent.getAction())) {
                 onCollectionUpdated();
+            }
+            if (PlaybackService.BROADCAST_NEWTRACK.equals(intent.getAction())) {
+                if (mPlaybackService != null) {
+                    setNowPlayingInfo(mPlaybackService.getCurrentTrack());
+                }
             }
         }
     }
@@ -398,11 +403,14 @@ public class TomahawkMainActivity extends ActionBarActivity
         getSupportLoaderManager().destroyLoader(0);
         getSupportLoaderManager().initLoader(0, null, this);
 
-        IntentFilter intentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
-        if (mCollectionUpdatedReceiver == null) {
-            mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
-            registerReceiver(mCollectionUpdatedReceiver, intentFilter);
+        if (mTomahawkMainReceiver == null) {
+            mTomahawkMainReceiver = new TomahawkMainReceiver();
         }
+        // Register intents that the BroadcastReceiver should listen to
+        IntentFilter intentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
+        registerReceiver(mTomahawkMainReceiver, intentFilter);
+        intentFilter = new IntentFilter(PlaybackService.BROADCAST_NEWTRACK);
+        registerReceiver(mTomahawkMainReceiver, intentFilter);
 
         //Setup our nowPlaying view at the top, if in landscape mode, otherwise at the bottom
         mNowPlayingFrameTop = (FrameLayout) getSupportActionBar().getCustomView()
@@ -438,9 +446,9 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         mCurrentStackPosition = mContentViewer.getCurrentHubId();
 
-        if (mCollectionUpdatedReceiver != null) {
-            unregisterReceiver(mCollectionUpdatedReceiver);
-            mCollectionUpdatedReceiver = null;
+        if (mTomahawkMainReceiver != null) {
+            unregisterReceiver(mTomahawkMainReceiver);
+            mTomahawkMainReceiver = null;
         }
     }
 
@@ -593,7 +601,6 @@ public class TomahawkMainActivity extends ActionBarActivity
                 }
             }
         }
-        updateViewVisibility();
     }
 
     public void updateViewVisibility() {
@@ -636,6 +643,9 @@ public class TomahawkMainActivity extends ActionBarActivity
                     LinearLayout.LayoutParams.WRAP_CONTENT));
             mNowPlayingFrameBottom.setVisibility(View.VISIBLE);
             mNowPlayingFrameTop.setVisibility(View.VISIBLE);
+            if (mPlaybackService != null) {
+                setNowPlayingInfo(mPlaybackService.getCurrentTrack());
+            }
         } else {
             mNowPlayingFrameBottom.setLayoutParams(new LinearLayout.LayoutParams(0, 0));
             mNowPlayingFrameBottom.setVisibility(View.GONE);

@@ -685,6 +685,7 @@ public class PlaybackService extends Service
                 Message msg = mKillTimerHandler.obtainMessage();
                 mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
 
+                updatePlayingNotification();
                 sendBroadcast(new Intent(BROADCAST_NEWTRACK));
             } else {
                 next();
