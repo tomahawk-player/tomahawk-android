@@ -337,9 +337,6 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                         if (resolverIcon != null) {
                             viewHolder.imageViewRight
                                     .setImageDrawable(((Track) item).getResolver().getIcon());
-                        } else if (((Track) item).isLocal()) {
-                            viewHolder.imageViewRight
-                                    .setImageResource(R.drawable.ic_action_collection);
                         } else {
                             viewHolder.imageViewRight
                                     .setImageResource(R.drawable.ic_resolver_default);

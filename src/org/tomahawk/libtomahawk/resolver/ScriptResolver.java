@@ -309,7 +309,6 @@ public class ScriptResolver implements Resolver {
                 Track track = new Track(mTomahawkApp.getUniqueTrackId());
                 if (obj.has("url")) {
                     track.setPath(obj.get("url").toString());
-                    track.setLocal(false);
                     if (obj.has("artist")) {
                         artist.setName(obj.get("artist").toString());
                         track.setArtist(artist);

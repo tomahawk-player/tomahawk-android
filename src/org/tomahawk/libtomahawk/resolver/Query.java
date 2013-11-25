@@ -113,7 +113,6 @@ public class Query {
     public static Track trackResultToTrack(Track trackResult, Track track) {
         track.setPath(trackResult.getPath());
         track.setResolver(trackResult.getResolver());
-        track.setLocal(trackResult.isLocal());
         track.setDuration(trackResult.getDuration());
         track.setName(trackResult.getName());
         return track;
