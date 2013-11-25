@@ -205,7 +205,7 @@ public class TomahawkMediaPlayer
     public void prepare(Track track) throws IllegalStateException, IOException {
         mIsPreparing = true;
         try {
-            if (!track.isLocal() && track.getResolver() != null
+            if (track.getResolver() != null
                     && track.getResolver().getId() == TomahawkApp.RESOLVER_ID_SPOTIFY) {
                 mUseMediaPlayer = false;
                 if (mMediaPlayer.isPlaying()) {

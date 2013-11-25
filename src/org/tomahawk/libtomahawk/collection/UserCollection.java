@@ -19,6 +19,8 @@
 package org.tomahawk.libtomahawk.collection;
 
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
+import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
+import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.ContentResolver;
@@ -49,6 +51,8 @@ public class UserCollection extends Collection {
             = "org.tomahawk.tomahawk_android..USERCOLLECTION_PLAYLISTCACHED";
 
     public static final int Id = 0;
+
+    private TomahawkApp mTomahawkApp;
 
     private UserPlaylistsDataSource mUserPlaylistsDataSource;
 
@@ -98,8 +102,9 @@ public class UserCollection extends Collection {
      * Construct a new {@link UserCollection} and initializes it.
      */
     public UserCollection(TomahawkApp tomahawkApp) {
-        mUserPlaylistsDataSource = new UserPlaylistsDataSource(tomahawkApp,
-                tomahawkApp.getPipeLine());
+        mTomahawkApp = tomahawkApp;
+        mUserPlaylistsDataSource = new UserPlaylistsDataSource(mTomahawkApp,
+                mTomahawkApp.getPipeLine());
 
         TomahawkApp.getContext().getContentResolver()
                 .registerContentObserver(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false,
@@ -250,6 +255,9 @@ public class UserCollection extends Collection {
      * add them to our {@link UserCollection}
      */
     private void initializeCollection() {
+        Resolver userCollectionResolver = mTomahawkApp.getPipeLine().getResolver(
+                TomahawkApp.RESOLVER_ID_USERCOLLECTION);
+
         updateUserPlaylists();
 
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
@@ -312,7 +320,7 @@ public class UserCollection extends Collection {
                 track.setName(cursor.getString(2));
                 track.setDuration(cursor.getLong(3));
                 track.setTrackNumber(cursor.getInt(4));
-                track.setLocal(true);
+                track.setResolver(userCollectionResolver);
 
                 mTracks.put(track.getId(), track);
             }

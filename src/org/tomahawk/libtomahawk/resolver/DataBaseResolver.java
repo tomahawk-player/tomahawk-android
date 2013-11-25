@@ -65,24 +65,25 @@ public class DataBaseResolver implements Resolver {
      * @param id          the id of this {@link Resolver}
      * @param tomahawkApp reference needed to {@link TomahawkApp}, so that we have access to the
      *                    {@link org.tomahawk.libtomahawk.resolver.PipeLine} to report our results
-     * @param collection  reference to the {@link Collection} which we want to resolve {@link
-     *                    Track}s from
      */
-    public DataBaseResolver(int id, TomahawkApp tomahawkApp, Collection collection) {
+    public DataBaseResolver(int id, TomahawkApp tomahawkApp) {
         mWeight = 1000;
         mReady = false;
         mStopped = true;
         mTomahawkApp = tomahawkApp;
         mId = id;
-        mName = String.valueOf(collection.getId());
-        if (collection.getId() == UserCollection.Id) {
+        mName = String.valueOf(TomahawkApp.RESOLVER_ID_USERCOLLECTION);
+        if (id == TomahawkApp.RESOLVER_ID_USERCOLLECTION) {
             mIcon = mTomahawkApp.getResources().getDrawable(R.drawable.ic_action_collection);
         } else {
             mIcon = mTomahawkApp.getResources().getDrawable(R.drawable.ic_resolver_default);
         }
-        mCollection = collection;
 
         mReady = true;
+    }
+
+    public void setCollection(Collection collection) {
+        mCollection = collection;
     }
 
     /**
@@ -207,8 +208,9 @@ public class DataBaseResolver implements Resolver {
          */
         protected ArrayList<Result> getFilteredResults() {
             ArrayList<Result> filteredResults = new ArrayList<Result>();
-            if (TextUtils.isEmpty(mFullTextQuery) && TextUtils.isEmpty(mTrackName) && TextUtils
-                    .isEmpty(mAlbumName) && TextUtils.isEmpty(mArtistName)) {
+            if (mCollection == null || (TextUtils.isEmpty(mFullTextQuery) && TextUtils
+                    .isEmpty(mTrackName) && TextUtils
+                    .isEmpty(mAlbumName) && TextUtils.isEmpty(mArtistName))) {
                 return filteredResults;
             }
             List<TomahawkBaseAdapter.TomahawkListItem> inputList

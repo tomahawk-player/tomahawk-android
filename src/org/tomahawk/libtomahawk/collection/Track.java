@@ -37,8 +37,6 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
      */
     private String mPath;
 
-    private boolean mIsLocal = true;
-
     private String mName;
 
     private Album mAlbum;
@@ -166,20 +164,6 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
     }
 
     /**
-     * @return whether or not this {@link Track} is local
-     */
-    public boolean isLocal() {
-        return mIsLocal;
-    }
-
-    /**
-     * Set whether or not this {@link Track} is local
-     */
-    public void setLocal(boolean mIsLocal) {
-        this.mIsLocal = mIsLocal;
-    }
-
-    /**
      * Set this {@link Track}'s name
      */
     public void setName(String name) {
@@ -281,11 +265,6 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
      * Set this {@link Track}'s resolver
      */
     public void setResolver(Resolver resolver) {
-        if (!(resolver instanceof DataBaseResolver)) {
-            setLocal(false);
-        } else {
-            setLocal(true);
-        }
         this.mResolver = resolver;
     }
 

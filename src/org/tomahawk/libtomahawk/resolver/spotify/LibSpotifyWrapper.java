@@ -328,7 +328,6 @@ public class LibSpotifyWrapper {
         track.setDuration(trackDuration);
         track.setTrackNumber(trackIndex);
         track.setPath(trackUri);
-        track.setLocal(false);
         track.setResolver(sSpotifyResolver);
         Album album = new Album();
         album.setName(albumName);

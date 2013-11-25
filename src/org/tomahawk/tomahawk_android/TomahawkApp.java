@@ -123,6 +123,7 @@ public class TomahawkApp extends Application {
             mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
             registerReceiver(mCollectionUpdatedReceiver, sCollectionUpdateIntentFilter);
         }
+        mPipeLine.addResolver(new DataBaseResolver(RESOLVER_ID_USERCOLLECTION, this));
         ScriptResolver scriptResolver = new ScriptResolver(RESOLVER_ID_JAMENDO, this,
                 "js/jamendo/jamendo-resolver.js");
         mPipeLine.addResolver(scriptResolver);
@@ -144,8 +145,8 @@ public class TomahawkApp extends Application {
      * Called when a Collection has been updated.
      */
     protected void onCollectionUpdated() {
-        mPipeLine.addResolver(new DataBaseResolver(RESOLVER_ID_USERCOLLECTION, this,
-                mSourceList.getLocalSource().getCollection()));
+        ((DataBaseResolver) mPipeLine.getResolver(RESOLVER_ID_USERCOLLECTION))
+                .setCollection(mSourceList.getLocalSource().getCollection());
     }
 
     /**
