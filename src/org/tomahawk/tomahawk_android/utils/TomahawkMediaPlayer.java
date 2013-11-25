@@ -139,6 +139,11 @@ public class TomahawkMediaPlayer
         if (mUseMediaPlayer) {
             try {
                 mMediaPlayer.start();
+                // mMediaplayer.seekTo(0) should be called whenever a Track has just been prepared
+                // and is being started. This workaround is needed because of a bug in Android 4.4.
+                if (mMediaPlayer.getCurrentPosition() == 0) {
+                    mMediaPlayer.seekTo(0);
+                }
             } catch (IllegalStateException e) {
                 throw e;
             }
