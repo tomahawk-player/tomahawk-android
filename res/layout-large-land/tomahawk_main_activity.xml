@@ -94,10 +94,11 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"/>
 
-        <FrameLayout
-                android:id="@+id/now_playing_frame_bottom"
+        <LinearLayout
+                android:id="@+id/now_playing_frame"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="vertical"
                 android:background="@color/transparent_black">
 
             <View
@@ -105,7 +106,9 @@
                     android:layout_height="@dimen/divider_height_thin"
                     android:background="@color/tomahawk_red"/>
 
-        </FrameLayout>
+            <include layout="@layout/now_playing"></include>
+
+        </LinearLayout>
 
     </LinearLayout>
 
