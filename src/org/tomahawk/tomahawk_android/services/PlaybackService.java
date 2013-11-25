@@ -58,7 +58,6 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -452,10 +451,10 @@ public class PlaybackService extends Service
     private void restoreState() {
         UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication())
                 .getSourceList().getCollectionFromId(UserCollection.Id));
-        setCurrentPlaylist((Playlist) userCollection.getCachedUserPlaylist());
+        setCurrentPlaylist(userCollection.getCachedUserPlaylist());
         if (getCurrentPlaylist() == null) {
             long startTime = System.currentTimeMillis();
-            setCurrentPlaylist((Playlist) mUserPlaylistsDataSource.getCachedUserPlaylist());
+            setCurrentPlaylist(mUserPlaylistsDataSource.getCachedUserPlaylist());
             Log.d(TAG, "Playlist loaded in " + (System.currentTimeMillis() - startTime) + "ms");
         }
         if (getCurrentPlaylist() != null && isPlaying()) {
@@ -827,7 +826,6 @@ public class PlaybackService extends Service
                 PlaybackService.class);
         PendingIntent previousPendingIntent = PendingIntent
                 .getService(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-
         intent = new Intent(BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE, null, this,
                 PlaybackService.class);
         PendingIntent playPausePendingIntent = PendingIntent
@@ -874,13 +872,11 @@ public class PlaybackService extends Service
                 .setContentText(track.getName()).setLargeIcon(smallAlbumArt).setOngoing(true)
                 .setPriority(NotificationCompat.PRIORITY_MAX).setContent(smallNotificationView);
 
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         Intent notificationIntent = new Intent(this, TomahawkMainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        intent.putExtra(TomahawkMainActivity.SHOW_PLAYBACKFRAGMENT_ON_STARTUP, true);
-        stackBuilder.addNextIntent(notificationIntent);
-        PendingIntent resultPendingIntent = stackBuilder
-                .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        intent.setAction(TomahawkMainActivity.SHOW_PLAYBACKFRAGMENT_ON_STARTUP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent resultPendingIntent = PendingIntent
+                .getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(resultPendingIntent);
 
         Notification notification = builder.build();

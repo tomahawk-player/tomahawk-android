@@ -291,7 +291,7 @@ public class PlaybackControlsFragment extends Fragment {
      * @param track the track to which the track info view stuff should be updated to
      */
     protected void refreshTrackInfo(Track track) {
-        if (track != null) {
+        if (track != null && getView() != null) {
             /*
             This logic makes sure, that if a track is being skipped by the user, it doesn't do this
             for eternity. Because a press of the next button would cause the AlbumArtSwipeAdapter

@@ -241,7 +241,7 @@ public class PlaybackFragment extends TomahawkFragment
                     .convertDpToPixel(32f, mTomahawkMainActivity);
             mPlaybackControlsFragment = (PlaybackControlsFragment) mTomahawkMainActivity
                     .getSupportFragmentManager()
-                    .findFragmentById(R.id.playbackFragment);
+                    .findFragmentById(R.id.playbackControlsFragment);
             if (mPlaybackControlsFragment != null && mPlaybackControlsFragment.getView() != null) {
                 mPlaybackControlsFragment.getView().setLayoutParams(
                         new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
@@ -296,7 +296,7 @@ public class PlaybackFragment extends TomahawkFragment
             if (list.getHeaderViewsCount() == 0) {
                 mPlaybackControlsFragment = (PlaybackControlsFragment) mTomahawkMainActivity
                         .getSupportFragmentManager()
-                        .findFragmentById(R.id.playbackFragment);
+                        .findFragmentById(R.id.playbackControlsFragment);
                 View headerView;
                 if (mPlaybackControlsFragment == null
                         || mPlaybackControlsFragment.getView() == null) {
@@ -304,7 +304,7 @@ public class PlaybackFragment extends TomahawkFragment
                             .inflate(R.layout.fragment_container_list_item, null);
                     mPlaybackControlsFragment = (PlaybackControlsFragment) mTomahawkMainActivity
                             .getSupportFragmentManager()
-                            .findFragmentById(R.id.playbackFragment);
+                            .findFragmentById(R.id.playbackControlsFragment);
                 } else {
                     headerView = (View) mPlaybackControlsFragment.getView().getParent();
                 }

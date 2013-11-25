@@ -22,7 +22,7 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent">
     <fragment
-            android:id="@+id/playbackFragment"
+            android:id="@+id/playbackControlsFragment"
             android:name="org.tomahawk.tomahawk_android.fragments.PlaybackControlsFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>

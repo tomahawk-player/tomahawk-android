@@ -422,23 +422,8 @@ public class ContentViewer {
                     Fragment.instantiate(mTomahawkMainActivity, fragmentStateHolder.clss.getName(),
                             bundle), stack.get(stack.size() - 1).fragmentTag);
             ft.commit();
-            if (fragmentStateHolder.correspondingHubId
-                    == TomahawkMainActivity.HUB_ID_SEARCH
-                    || fragmentStateHolder.correspondingHubId
-                    == TomahawkMainActivity.HUB_ID_SETTINGS
-                    || fragmentStateHolder.correspondingHubId
-                    == TomahawkMainActivity.HUB_ID_PLAYBACK) {
-                mTomahawkMainActivity.showBreadcrumbs(false);
-            } else {
-                mTomahawkMainActivity.showBreadcrumbs(true);
-            }
-            if (fragmentStateHolder.correspondingHubId
-                    == TomahawkMainActivity.HUB_ID_SEARCH) {
-                mTomahawkMainActivity.setSearchEditTextVisibility(true);
-            } else {
-                mTomahawkMainActivity.setSearchEditTextVisibility(false);
-            }
+            mTomahawkMainActivity.onBackStackChanged();
+            mTomahawkMainActivity.updateViewVisibility();
         }
-        mTomahawkMainActivity.onBackStackChanged();
     }
 }
