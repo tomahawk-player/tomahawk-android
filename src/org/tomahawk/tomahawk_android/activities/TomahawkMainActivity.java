@@ -151,11 +151,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private TomahawkMainReceiver mTomahawkMainReceiver;
 
-    private View mNowPlayingView;
-
-    private FrameLayout mNowPlayingFrameTop;
-
-    private FrameLayout mNowPlayingFrameBottom;
+    private View mNowPlayingFrame;
 
     private int mCurrentStackPosition = -1;
 
@@ -307,9 +303,8 @@ public class TomahawkMainActivity extends ActionBarActivity
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(true);
         View customView = getLayoutInflater()
-                .inflate(R.layout.tomahawk_main_actionbar_customview, null);
+                .inflate(R.layout.search_custom_view, null);
         actionBar.setCustomView(customView);
-        actionBar.setDisplayShowCustomEnabled(true);
 
         // set our default stack position to HUB_ID_COLLECTION
         mCurrentStackPosition = HUB_ID_COLLECTION;
@@ -412,22 +407,8 @@ public class TomahawkMainActivity extends ActionBarActivity
         intentFilter = new IntentFilter(PlaybackService.BROADCAST_NEWTRACK);
         registerReceiver(mTomahawkMainReceiver, intentFilter);
 
-        //Setup our nowPlaying view at the top, if in landscape mode, otherwise at the bottom
-        mNowPlayingFrameTop = (FrameLayout) getSupportActionBar().getCustomView()
-                .findViewById(R.id.now_playing_frame_top);
-        mNowPlayingFrameBottom = (FrameLayout) findViewById(R.id.now_playing_frame_bottom);
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            mNowPlayingView = getLayoutInflater().inflate(R.layout.now_playing_top, null);
-            mNowPlayingFrameTop.addView(mNowPlayingView);
-            mNowPlayingFrameTop.setVisibility(FrameLayout.VISIBLE);
-            mNowPlayingFrameBottom.setVisibility(FrameLayout.GONE);
-        } else {
-            mNowPlayingView = getLayoutInflater().inflate(R.layout.now_playing_bottom, null);
-            mNowPlayingFrameBottom.addView(mNowPlayingView);
-            mNowPlayingFrameTop.setVisibility(FrameLayout.GONE);
-            mNowPlayingFrameBottom.setVisibility(FrameLayout.VISIBLE);
-        }
-        mNowPlayingView.setOnClickListener(new View.OnClickListener() {
+        mNowPlayingFrame = findViewById(R.id.now_playing_frame);
+        mNowPlayingFrame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mContentViewer.setCurrentHubId(HUB_ID_PLAYBACK);
@@ -489,8 +470,8 @@ public class TomahawkMainActivity extends ActionBarActivity
     public boolean onPrepareOptionsMenu(Menu menu) {
         // If the nav drawer is open, hide action items related to the content view
         boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
-        setSearchEditTextVisibility(
-                !drawerOpen && mContentViewer.getCurrentHubId() == HUB_ID_SEARCH);
+        getSupportActionBar()
+                .setDisplayShowCustomEnabled(!drawerOpen && mCurrentStackPosition == HUB_ID_SEARCH);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -576,15 +557,12 @@ public class TomahawkMainActivity extends ActionBarActivity
      * Sets the playback information
      */
     public void setNowPlayingInfo(Track track) {
-        if (mNowPlayingView == null) {
-            supportInvalidateOptionsMenu();
-        }
-        if (mNowPlayingView != null) {
-            ImageView nowPlayingInfoAlbumArt = (ImageView) mNowPlayingView
+        if (mNowPlayingFrame != null) {
+            ImageView nowPlayingInfoAlbumArt = (ImageView) mNowPlayingFrame
                     .findViewById(R.id.now_playing_album_art);
-            TextView nowPlayingInfoArtist = (TextView) mNowPlayingView
+            TextView nowPlayingInfoArtist = (TextView) mNowPlayingFrame
                     .findViewById(R.id.now_playing_artist);
-            TextView nowPlayingInfoTitle = (TextView) mNowPlayingView
+            TextView nowPlayingInfoTitle = (TextView) mNowPlayingFrame
                     .findViewById(R.id.now_playing_title);
 
             if (track != null) {
@@ -638,18 +616,16 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public void setNowPlayingInfoVisibility(boolean enabled) {
         if (enabled) {
-            mNowPlayingFrameBottom.setLayoutParams(new LinearLayout.LayoutParams(
+            mNowPlayingFrame.setLayoutParams(new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT));
-            mNowPlayingFrameBottom.setVisibility(View.VISIBLE);
-            mNowPlayingFrameTop.setVisibility(View.VISIBLE);
+            mNowPlayingFrame.setVisibility(View.VISIBLE);
             if (mPlaybackService != null) {
                 setNowPlayingInfo(mPlaybackService.getCurrentTrack());
             }
         } else {
-            mNowPlayingFrameBottom.setLayoutParams(new LinearLayout.LayoutParams(0, 0));
-            mNowPlayingFrameBottom.setVisibility(View.GONE);
-            mNowPlayingFrameTop.setVisibility(View.GONE);
+            mNowPlayingFrame.setLayoutParams(new LinearLayout.LayoutParams(0, 0));
+            mNowPlayingFrame.setVisibility(View.GONE);
         }
     }
 
@@ -658,16 +634,14 @@ public class TomahawkMainActivity extends ActionBarActivity
      * soft keyboard.
      */
     public void setSearchEditTextVisibility(boolean enabled) {
-        FrameLayout searchFrameTop = (FrameLayout) getSupportActionBar()
-                .getCustomView().findViewById(R.id.search_frame_top);
         if (enabled) {
-            searchFrameTop.setVisibility(FrameLayout.VISIBLE);
+            getSupportActionBar().setDisplayShowCustomEnabled(true);
             AutoCompleteTextView searchEditText = (AutoCompleteTextView) getSupportActionBar()
                     .getCustomView().findViewById(R.id.search_edittext);
             searchEditText.requestFocus();
             findViewById(R.id.search_panel).setVisibility(LinearLayout.VISIBLE);
         } else {
-            searchFrameTop.setVisibility(FrameLayout.GONE);
+            getSupportActionBar().setDisplayShowCustomEnabled(false);
             findViewById(R.id.search_panel).setVisibility(LinearLayout.GONE);
         }
     }

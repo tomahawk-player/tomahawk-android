@@ -22,10 +22,6 @@
     <dimen name="text_size_medium">18sp</dimen>
     <dimen name="text_size_large">22sp</dimen>
 
-    <dimen name="slidingmenu_offset">60dp</dimen>
-    <dimen name="slidingmenu_offset_landscape">300dp</dimen>
     <dimen name="list_padding">10dp</dimen>
-    <dimen name="shadow_width">15dp</dimen>
-    <integer name="num_cols">1</integer>
 
 </resources>
