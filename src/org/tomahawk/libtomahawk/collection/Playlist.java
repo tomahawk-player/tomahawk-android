@@ -28,6 +28,8 @@ import java.util.List;
  */
 public abstract class Playlist implements Playable {
 
+    private long mId;
+
     private String mName;
 
     private ArrayList<Track> mTracks;
@@ -43,7 +45,8 @@ public abstract class Playlist implements Playable {
     /**
      * Create a {@link Playlist} with a list of empty {@link Track}s.
      */
-    protected Playlist() {
+    protected Playlist(long id) {
+        mId = id;
         mShuffled = false;
         mRepeating = false;
         setTracks(new ArrayList<Track>());
@@ -54,11 +57,19 @@ public abstract class Playlist implements Playable {
      *
      * @param name {@link String} containing the name of the to be created {@link Playlist}
      */
-    protected Playlist(String name) {
+    protected Playlist(long id, String name) {
+        mId = id;
         mName = name;
         mShuffled = false;
         mRepeating = false;
         setTracks(new ArrayList<Track>());
+    }
+
+    /**
+     * @return this object's id
+     */
+    public long getId() {
+        return mId;
     }
 
     /**

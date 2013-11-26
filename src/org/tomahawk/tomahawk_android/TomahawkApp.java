@@ -80,15 +80,7 @@ public class TomahawkApp extends Application {
 
     private InfoSystem mInfoSystem;
 
-    private long mTrackIdCounter;
-
-    private long mAlbumIdCounter;
-
-    private long mArtistIdCounter;
-
-    private long mQueryIdCounter;
-
-    private long mInfoRequestIdCounter;
+    private static long mIdCounter;
 
     /**
      * Handles incoming {@link Collection} updated broadcasts.
@@ -196,23 +188,11 @@ public class TomahawkApp extends Application {
         return sApplicationContext;
     }
 
-    public long getUniqueTrackId() {
-        return mTrackIdCounter++;
+    public static long getUniqueId() {
+        return mIdCounter++;
     }
 
-    public long getUniqueAlbumId() {
-        return mAlbumIdCounter++;
-    }
-
-    public long getUniqueArtistId() {
-        return mArtistIdCounter++;
-    }
-
-    public String getUniqueQueryId() {
-        return String.valueOf(mQueryIdCounter++);
-    }
-
-    public String getUniqueInfoRequestId() {
-        return String.valueOf(mInfoRequestIdCounter++);
+    public static String getUniqueStringId() {
+        return String.valueOf(mIdCounter++);
     }
 }

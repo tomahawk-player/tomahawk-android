@@ -102,7 +102,7 @@ public class PipeLine {
                 q = mQids.get(mQueryMap.get(Query.constructCacheKey(fullTextQuery)));
             }
             if (q == null) {
-                q = new Query(mTomahawkApp.getUniqueQueryId(), fullTextQuery, onlyLocal);
+                q = new Query(TomahawkApp.getUniqueStringId(), fullTextQuery, onlyLocal);
             }
             resolve(q, onlyLocal);
         }
@@ -139,7 +139,7 @@ public class PipeLine {
                         .get(Query.constructCacheKey(trackName, albumName, artistName)));
             }
             if (q == null) {
-                q = new Query(mTomahawkApp.getUniqueQueryId(), trackName, albumName, artistName,
+                q = new Query(TomahawkApp.getUniqueStringId(), trackName, albumName, artistName,
                         onlyLocal);
             }
             resolve(q, onlyLocal);

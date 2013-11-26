@@ -35,6 +35,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.Result;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
 import org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer;
 
@@ -323,17 +324,17 @@ public class LibSpotifyWrapper {
             final int trackDiscnumber, final int trackIndex, final String trackUri,
             final String albumName, final int albumYear, final String artistName) {
         Result result = new Result();
-        Track track = new Track();
+        Track track = new Track(TomahawkApp.getUniqueId());
         track.setName(trackName);
         track.setDuration(trackDuration);
         track.setTrackNumber(trackIndex);
         track.setPath(trackUri);
         track.setResolver(sSpotifyResolver);
-        Album album = new Album();
+        Album album = new Album(TomahawkApp.getUniqueId());
         album.setName(albumName);
         album.setFirstYear("" + albumYear);
         album.setLastYear("" + albumYear);
-        Artist artist = new Artist();
+        Artist artist = new Artist(TomahawkApp.getUniqueId());
         artist.setName(artistName);
         track.setAlbum(album);
         track.setArtist(artist);

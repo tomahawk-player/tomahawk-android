@@ -437,7 +437,8 @@ public class PlaybackService extends Service
             UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication())
                     .getSourceList().getCollectionFromId(UserCollection.Id));
             userCollection.setCachedPlaylist(UserPlaylist
-                    .fromTrackList(UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
+                    .fromTrackList(TomahawkApp.getUniqueId(),
+                            UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
                             getCurrentPlaylist().getTracks()));
             long startTime = System.currentTimeMillis();
             mUserPlaylistsDataSource.storeCachedUserPlaylist(getCurrentPlaylist());
@@ -727,7 +728,8 @@ public class PlaybackService extends Service
      */
     public void addTracksToCurrentPlaylist(ArrayList<Track> tracks) {
         if (mCurrentPlaylist == null) {
-            mCurrentPlaylist = UserPlaylist.fromTrackList("Temp", new ArrayList<Track>());
+            mCurrentPlaylist = UserPlaylist
+                    .fromTrackList(TomahawkApp.getUniqueId(), "Temp", new ArrayList<Track>());
         }
         boolean wasEmpty = mCurrentPlaylist.getCount() <= 0;
         mCurrentPlaylist.addTracks(tracks);
@@ -743,7 +745,8 @@ public class PlaybackService extends Service
      */
     public void addTracksToCurrentPlaylist(int position, ArrayList<Track> tracks) {
         if (mCurrentPlaylist == null) {
-            mCurrentPlaylist = UserPlaylist.fromTrackList("Temp", new ArrayList<Track>());
+            mCurrentPlaylist = UserPlaylist
+                    .fromTrackList(TomahawkApp.getUniqueId(), "Temp", new ArrayList<Track>());
         }
         boolean wasEmpty = mCurrentPlaylist.getCount() <= 0;
         if (position < mCurrentPlaylist.getCount()) {

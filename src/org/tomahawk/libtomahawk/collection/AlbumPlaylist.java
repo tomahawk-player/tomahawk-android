@@ -26,11 +26,12 @@ public class AlbumPlaylist extends Playlist {
      * Create an {@link AlbumPlaylist} from an {@link Album} and set the current {@link Track} to
      * the first {@link Track} of the given {@link Album}.
      *
+     * @param id    the id of the {@link AlbumPlaylist} to construct
      * @param album The {@link Album} to construct the {@link Playlist} from
      * @return The constructed {@link AlbumPlaylist}
      */
-    public static AlbumPlaylist fromAlbum(Album album) {
-        AlbumPlaylist pl = new AlbumPlaylist(album.getName());
+    public static AlbumPlaylist fromAlbum(long id, Album album) {
+        AlbumPlaylist pl = new AlbumPlaylist(id, album.getName());
         pl.setTracks(album.getTracks());
         pl.setCurrentTrack(album.getTracks().get(0));
         return pl;
@@ -40,12 +41,13 @@ public class AlbumPlaylist extends Playlist {
      * Creates an {@link AlbumPlaylist} from an {@link Album} and sets the current {@link Track} to
      * the {@link Track} at idx.
      *
+     * @param id           the id of the {@link AlbumPlaylist} to construct
      * @param album        The {@link Album} to construct the {@link Playlist} from
      * @param currentTrack The current {@link Track} to be set
      * @return The constructed {@link AlbumPlaylist}
      */
-    public static AlbumPlaylist fromAlbum(Album album, Track currentTrack) {
-        AlbumPlaylist pl = new AlbumPlaylist(album.getName());
+    public static AlbumPlaylist fromAlbum(long id, Album album, Track currentTrack) {
+        AlbumPlaylist pl = new AlbumPlaylist(id, album.getName());
         pl.setTracks(album.getTracks());
         pl.setCurrentTrack(currentTrack);
         return pl;
@@ -54,9 +56,10 @@ public class AlbumPlaylist extends Playlist {
     /**
      * Construct a new empty {@link AlbumPlaylist}.
      *
+     * @param id   the id of the {@link AlbumPlaylist} to construct
      * @param name the name of the {@link AlbumPlaylist} to construct
      */
-    protected AlbumPlaylist(String name) {
-        super(name);
+    protected AlbumPlaylist(long id, String name) {
+        super(id, name);
     }
 }

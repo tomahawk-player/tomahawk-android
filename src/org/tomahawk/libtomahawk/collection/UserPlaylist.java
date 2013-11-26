@@ -17,6 +17,7 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 
 import java.util.ArrayList;
@@ -26,20 +27,16 @@ import java.util.ArrayList;
  */
 public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.TomahawkListItem {
 
-    public static final String LAST_USED_PLAYLIST_NAME = "Last used playlist";
-
-    private long mId;
-
     /**
      * Create a {@link UserPlaylist} from a list of {@link Track}s.
      *
      * @return a reference to the constructed {@link UserPlaylist}
      */
-    public static UserPlaylist fromTrackList(ArrayList<Track> tracks) {
+    public static UserPlaylist fromTrackList(long id, ArrayList<Track> tracks) {
         if (tracks == null) {
             tracks = new ArrayList<Track>();
         }
-        UserPlaylist pl = new UserPlaylist();
+        UserPlaylist pl = new UserPlaylist(id);
         pl.setTracks(tracks);
         if (tracks.size() > 0) {
             pl.setCurrentTrack(tracks.get(0));
@@ -52,11 +49,11 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
      *
      * @return a reference to the constructed {@link UserPlaylist}
      */
-    public static UserPlaylist fromTrackList(String name, ArrayList<Track> tracks) {
+    public static UserPlaylist fromTrackList(long id, String name, ArrayList<Track> tracks) {
         if (tracks == null) {
             tracks = new ArrayList<Track>();
         }
-        UserPlaylist pl = new UserPlaylist(name);
+        UserPlaylist pl = new UserPlaylist(id, name);
         pl.setTracks(tracks);
         if (tracks.size() > 0) {
             pl.setCurrentTrack(tracks.get(0));
@@ -70,12 +67,12 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
      *
      * @return a reference to the constructed {@link UserPlaylist}
      */
-    public static UserPlaylist fromTrackList(String name, ArrayList<Track> tracks,
+    public static UserPlaylist fromTrackList(long id, String name, ArrayList<Track> tracks,
             Track currentTrack) {
         if (tracks == null) {
             tracks = new ArrayList<Track>();
         }
-        UserPlaylist pl = new UserPlaylist(name);
+        UserPlaylist pl = new UserPlaylist(id, name);
         pl.setTracks(tracks);
         pl.setCurrentTrack(currentTrack);
         return pl;
@@ -87,12 +84,12 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
      *
      * @return a reference to the constructed {@link UserPlaylist}
      */
-    public static UserPlaylist fromTrackList(String name, ArrayList<Track> tracks,
+    public static UserPlaylist fromTrackList(long id, String name, ArrayList<Track> tracks,
             int currentTrackIndex) {
         if (tracks == null) {
             tracks = new ArrayList<Track>();
         }
-        UserPlaylist pl = new UserPlaylist(name);
+        UserPlaylist pl = new UserPlaylist(id, name);
         pl.setTracks(tracks);
         pl.setCurrentTrackIndex(currentTrackIndex);
         return pl;
@@ -101,31 +98,15 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
     /**
      * Construct a new empty {@link UserPlaylist}.
      */
-    protected UserPlaylist() {
-        super();
+    protected UserPlaylist(long id) {
+        super(id);
     }
 
     /**
      * Construct a new empty {@link UserPlaylist}.
      */
-    protected UserPlaylist(String name) {
-        super(name);
-    }
-
-    /**
-     * Set the object's id.
-     *
-     * @param id long containing the id
-     */
-    public void setId(long id) {
-        this.mId = id;
-    }
-
-    /**
-     * @return this object's id
-     */
-    public long getId() {
-        return mId;
+    protected UserPlaylist(long id, String name) {
+        super(id, name);
     }
 
     /**
