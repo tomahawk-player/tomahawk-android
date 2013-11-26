@@ -206,7 +206,6 @@ public class UserCollection extends Collection {
      * Add a {@link UserPlaylist} to this {@link UserCollection}
      */
     public void addCustomPlaylist(long playlistId, UserPlaylist userPlaylist) {
-        userPlaylist.setId(playlistId);
         mCustomPlaylists.put(playlistId, userPlaylist);
     }
 

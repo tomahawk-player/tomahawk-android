@@ -22,9 +22,11 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -176,7 +178,8 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                     tracks.addAll(mTomahawkMainActivity.getUserCollection().getTracks());
                 }
                 UserPlaylist playlist = UserPlaylist
-                        .fromTrackList(UserPlaylist.LAST_USED_PLAYLIST_NAME, tracks,
+                        .fromTrackList(TomahawkApp.getUniqueId(),
+                                UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, tracks,
                                 (Track) getListAdapter().getItem(position));
                 PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
                 if (playbackService != null) {

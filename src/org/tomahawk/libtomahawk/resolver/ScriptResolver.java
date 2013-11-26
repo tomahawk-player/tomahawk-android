@@ -304,9 +304,9 @@ public class ScriptResolver implements Resolver {
             try {
                 JSONObject obj = resList.getJSONObject(i);
                 Result result = new Result();
-                Artist artist = new Artist(mTomahawkApp.getUniqueArtistId());
-                Album album = new Album(mTomahawkApp.getUniqueAlbumId());
-                Track track = new Track(mTomahawkApp.getUniqueTrackId());
+                Artist artist = new Artist(TomahawkApp.getUniqueId());
+                Album album = new Album(TomahawkApp.getUniqueId());
+                Track track = new Track(TomahawkApp.getUniqueId());
                 if (obj.has("url")) {
                     track.setPath(obj.get("url").toString());
                     if (obj.has("artist")) {
@@ -393,7 +393,7 @@ public class ScriptResolver implements Resolver {
 
     /**
      * @return the {@link JSONObject} containing the Config information, which was returned by the
-     *         corresponding script
+     * corresponding script
      */
     public JSONObject getConfig() {
         return mConfig;
@@ -401,7 +401,7 @@ public class ScriptResolver implements Resolver {
 
     /**
      * @return the {@link Drawable} which has been created by loading the image the js function
-     *         attribute "icon" pointed at
+     * attribute "icon" pointed at
      */
     public Drawable getIcon() {
         return mIcon;

@@ -26,6 +26,7 @@ import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -193,8 +194,8 @@ public class SearchableFragment extends TomahawkFragment
         if (position >= 0) {
             if (getListAdapter().getItem(position) instanceof Track) {
                 UserPlaylist playlist = UserPlaylist
-                        .fromTrackList(mCurrentQueryString, mCurrentShownTracks,
-                                (Track) getListAdapter().getItem(position));
+                        .fromTrackList(TomahawkApp.getUniqueId(), mCurrentQueryString,
+                                mCurrentShownTracks, (Track) getListAdapter().getItem(position));
                 PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
                 if (playbackService != null) {
                     playbackService.setCurrentPlaylist(playlist);
@@ -333,7 +334,7 @@ public class SearchableFragment extends TomahawkFragment
                 .findViewById(R.id.search_onlinesources_checkbox);
         String queryId = mPipeline.resolve(fullTextQuery, !onlineSourcesCheckBox.isChecked());
         if (queryId != null) {
-            mCorrespondingQueryIds.put(queryId, new Track());
+            mCorrespondingQueryIds.put(queryId, new Track(TomahawkApp.getUniqueId()));
             mTomahawkMainActivity.startLoadingAnimation();
         }
     }

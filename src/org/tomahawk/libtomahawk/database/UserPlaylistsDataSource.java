@@ -23,6 +23,7 @@ import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -40,7 +41,7 @@ public class UserPlaylistsDataSource {
 
     public static final String CACHED_PLAYLIST_NAME = "Last used playlist";
 
-    public static final long CACHED_PLAYLIST_ID = 0;
+    public static final long CACHED_PLAYLIST_ID = -1;
 
     // Database fields
     private SQLiteDatabase mDatabase;
@@ -185,15 +186,14 @@ public class UserPlaylistsDataSource {
 
     /**
      * @return the stored {@link org.tomahawk.libtomahawk.collection.UserPlaylist} with
-     *         CACHED_PLAYLIST_ID as its id
+     * CACHED_PLAYLIST_ID as its id
      */
     public UserPlaylist getCachedUserPlaylist() {
         return getUserPlaylist(CACHED_PLAYLIST_ID);
     }
 
     /**
-     * @return every stored {@link org.tomahawk.libtomahawk.collection.UserPlaylist} in the
-     *         database
+     * @return every stored {@link org.tomahawk.libtomahawk.collection.UserPlaylist} in the database
      */
     public ArrayList<UserPlaylist> getAllUserPlaylists() {
         ArrayList<UserPlaylist> playListList = new ArrayList<UserPlaylist>();
@@ -214,7 +214,7 @@ public class UserPlaylistsDataSource {
     /**
      * @param playlistId the id by which to get the correct {@link org.tomahawk.libtomahawk.collection.UserPlaylist}
      * @return the stored {@link org.tomahawk.libtomahawk.collection.UserPlaylist} with playlistId
-     *         as its id
+     * as its id
      */
     public UserPlaylist getUserPlaylist(long playlistId) {
         ArrayList<Track> trackList;
@@ -233,8 +233,7 @@ public class UserPlaylistsDataSource {
             trackList = new ArrayList<Track>();
             tracksCursor.moveToFirst();
             while (!tracksCursor.isAfterLast()) {
-                Track track = new Track();
-                track.setId(tracksCursor.getLong(0));
+                Track track = new Track(tracksCursor.getLong(0));
                 track.setName(tracksCursor.getString(2));
 
                 Cursor albumsCursor = mDatabase
@@ -242,7 +241,7 @@ public class UserPlaylistsDataSource {
                                 TomahawkSQLiteHelper.ALBUMS_COLUMN_ID + " = " + tracksCursor
                                         .getString(3), null, null, null, null);
                 if (albumsCursor.moveToFirst()) {
-                    Album album = new Album();
+                    Album album = new Album(TomahawkApp.getUniqueId());
                     album.setName(albumsCursor.getString(1));
                     album.setAlbumArtPath(albumsCursor.getString(2));
                     album.setFirstYear(albumsCursor.getString(3));
@@ -251,7 +250,7 @@ public class UserPlaylistsDataSource {
                 }
                 albumsCursor.close();
 
-                Artist artist = new Artist();
+                Artist artist = new Artist(TomahawkApp.getUniqueId());
                 artist.setName(tracksCursor.getString(4));
                 track.setArtist(artist);
 
@@ -268,9 +267,15 @@ public class UserPlaylistsDataSource {
                 trackList.add(track);
                 tracksCursor.moveToNext();
             }
-            UserPlaylist userPlaylist = UserPlaylist
-                    .fromTrackList(userplaylistsCursor.getString(1), trackList, currentTrackIndex);
-            userPlaylist.setId(userplaylistsCursor.getLong(0));
+            long id;
+            if (userplaylistsCursor.getLong(0) == CACHED_PLAYLIST_ID) {
+                // restore the playlist's id, only if it is the cached playlist
+                id = CACHED_PLAYLIST_ID;
+            } else {
+                id = TomahawkApp.getUniqueId();
+            }
+            UserPlaylist userPlaylist = UserPlaylist.fromTrackList(id,
+                    userplaylistsCursor.getString(1), trackList, currentTrackIndex);
             tracksCursor.close();
             userplaylistsCursor.close();
             return userPlaylist;

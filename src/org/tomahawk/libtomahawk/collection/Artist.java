@@ -41,14 +41,6 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
     private float mScore;
 
     /**
-     * Default constructor
-     */
-    public Artist() {
-        mAlbums = new ConcurrentHashMap<Long, Album>();
-        mTracks = new ConcurrentHashMap<Long, Track>();
-    }
-
-    /**
      * Construct a new {@link Artist} with the given id
      *
      * @param id long containing id of the to be constructed {@link Artist}
@@ -169,15 +161,6 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
      */
     public void setName(String name) {
         mName = name;
-    }
-
-    /**
-     * Set the object's id.
-     *
-     * @param id long containing the id
-     */
-    public void setId(long id) {
-        mId = id;
     }
 
     /**

@@ -58,19 +58,12 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
     private float mScore;
 
     /**
-     * Construct a new {@link Album}
-     */
-    public Album() {
-        mTracks = new ConcurrentHashMap<Long, Track>();
-    }
-
-    /**
      * Construct a new {@link Album} with the given id
      *
      * @param id the id used to construct the {@link Album}
      */
     public Album(long id) {
-        setId(id);
+        this.mId = id;
         mTracks = new ConcurrentHashMap<Long, Track>();
     }
 
@@ -147,15 +140,6 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
      */
     public long getId() {
         return mId;
-    }
-
-    /**
-     * Set the {@link Album}'s id.
-     *
-     * @param id long containing the id
-     */
-    public void setId(long id) {
-        this.mId = id;
     }
 
     /**

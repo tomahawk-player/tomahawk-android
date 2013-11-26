@@ -26,8 +26,8 @@ public class CollectionPlaylist extends Playlist {
     /**
      * Create a {@link CollectionPlaylist} from {@link Collection}.
      */
-    public static CollectionPlaylist fromCollection(Collection coll) {
-        CollectionPlaylist pl = new CollectionPlaylist(coll.toString());
+    public static CollectionPlaylist fromCollection(long id, Collection coll) {
+        CollectionPlaylist pl = new CollectionPlaylist(id, coll.toString());
         pl.setTracks(coll.getTracks());
         pl.setCurrentTrack(coll.getTracks().get(0));
         return pl;
@@ -37,8 +37,8 @@ public class CollectionPlaylist extends Playlist {
      * Creates a {@link CollectionPlaylist} from {@link Collection} and sets the current {@link
      * Track} to the {@link Track} at idx.
      */
-    public static CollectionPlaylist fromCollection(Collection coll, Track currentTrack) {
-        CollectionPlaylist pl = new CollectionPlaylist(coll.toString());
+    public static CollectionPlaylist fromCollection(long id, Collection coll, Track currentTrack) {
+        CollectionPlaylist pl = new CollectionPlaylist(id, coll.toString());
         pl.setTracks(coll.getTracks());
         pl.setCurrentTrack(currentTrack);
         return pl;
@@ -46,8 +46,11 @@ public class CollectionPlaylist extends Playlist {
 
     /**
      * Construct a new empty {@link CollectionPlaylist}.
+     *
+     * @param id the id of the {@link CollectionPlaylist} to construct
+     * @param id the name of the {@link CollectionPlaylist} to construct
      */
-    protected CollectionPlaylist(String name) {
-        super(name);
+    protected CollectionPlaylist(long id, String name) {
+        super(id, name);
     }
 }

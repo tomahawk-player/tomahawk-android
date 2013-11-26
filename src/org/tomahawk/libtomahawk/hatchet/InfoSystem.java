@@ -107,7 +107,7 @@ public class InfoSystem {
     }
 
     public String resolve(int type, boolean useCache, String firstParam, String secondParam) {
-        String requestId = mTomahawkApp.getUniqueInfoRequestId();
+        String requestId = TomahawkApp.getUniqueStringId();
         InfoRequestData infoRequestData;
         if (firstParam == null && secondParam == null) {
             infoRequestData = new InfoRequestData(mTomahawkApp, requestId, type, useCache);

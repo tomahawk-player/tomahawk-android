@@ -128,11 +128,11 @@ public class InfoRequestData {
 
     public static Album albumInfoToAlbum(AlbumInfo albumInfo, Album album) {
         if (album == null) {
-            album = new Album();
+            album = new Album(TomahawkApp.getUniqueId());
         }
-        album.setId(mTomahawkApp.getUniqueAlbumId());
         if (albumInfo.getArtist() != null) {
-            album.setArtist(artistInfoToArtist(albumInfo.getArtist(), new Artist()));
+            album.setArtist(artistInfoToArtist(albumInfo.getArtist(),
+                    new Artist(TomahawkApp.getUniqueId())));
         }
         if (albumInfo.getId() != null) {
         }
@@ -172,11 +172,11 @@ public class InfoRequestData {
 
     public static Track trackInfoToTrack(TrackInfo trackInfo, Track track) {
         if (track == null) {
-            track = new Track();
+            track = new Track(TomahawkApp.getUniqueId());
         }
-        track.setId(mTomahawkApp.getUniqueTrackId());
         if (trackInfo.getArtist() != null) {
-            track.setArtist(artistInfoToArtist(trackInfo.getArtist(), new Artist()));
+            track.setArtist(artistInfoToArtist(trackInfo.getArtist(),
+                    new Artist(TomahawkApp.getUniqueId())));
         }
         if (trackInfo.getId() != null) {
         }
@@ -195,9 +195,8 @@ public class InfoRequestData {
 
     public static Artist artistInfoToArtist(ArtistInfo artistInfo, Artist artist) {
         if (artist == null) {
-            artist = new Artist();
+            artist = new Artist(TomahawkApp.getUniqueId());
         }
-        artist.setId(mTomahawkApp.getUniqueArtistId());
         if (artistInfo.getId() != null) {
         }
         if (artistInfo.getName() != null) {

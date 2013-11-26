@@ -25,6 +25,7 @@ import org.tomahawk.libtomahawk.hatchet.AlbumsInfo;
 import org.tomahawk.libtomahawk.hatchet.ArtistInfo;
 import org.tomahawk.libtomahawk.hatchet.InfoRequestData;
 import org.tomahawk.libtomahawk.hatchet.InfoSystem;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -67,7 +68,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                     if (infoRequestData.getType()
                             == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTALBUMS) {
                         if (mArtist == null) {
-                            mArtist = new Artist();
+                            mArtist = new Artist(TomahawkApp.getUniqueId());
                         }
                         ArrayList<Album> albums = InfoRequestData.albumInfoListToAlbumList(
                                 ((AlbumsInfo) infoRequestData.mResult).getAlbums());
@@ -79,7 +80,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                     } else if (infoRequestData.getType()
                             == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTINFO) {
                         if (mArtist == null) {
-                            mArtist = new Artist();
+                            mArtist = new Artist(TomahawkApp.getUniqueId());
                         }
                         mArtist = InfoRequestData
                                 .artistInfoToArtist((ArtistInfo) infoRequestData.mResult,

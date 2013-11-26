@@ -143,7 +143,8 @@ public class CreateUserPlaylistDialog extends DialogFragment {
             userPlaylistsDataSource.storeUserPlaylist(-1, playlistName, mPlaylist);
         } else {
             userPlaylistsDataSource.storeUserPlaylist(-1, playlistName,
-                    UserPlaylist.fromTrackList(playlistName, new ArrayList<Track>(), -1));
+                    UserPlaylist.fromTrackList(TomahawkApp.getUniqueId(), playlistName,
+                            new ArrayList<Track>(), -1));
         }
         userPlaylistsDataSource.close();
         ((UserCollection) ((TomahawkApp) getActivity().getApplication()).getSourceList()

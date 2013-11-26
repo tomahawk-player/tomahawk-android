@@ -27,11 +27,12 @@ public class ArtistPlaylist extends Playlist {
      * Create an {@link ArtistPlaylist} from an {@link Artist} and set the current {@link Track} to
      * the first {@link Track} of the given {@link Artist}.
      *
+     * @param id     the id of the {@link ArtistPlaylist} to construct
      * @param artist The {@link Artist} to construct the {@link Playlist} from
      * @return The constructed {@link ArtistPlaylist}
      */
-    public static ArtistPlaylist fromArtist(Artist artist) {
-        ArtistPlaylist pl = new ArtistPlaylist(artist.getName());
+    public static ArtistPlaylist fromArtist(long id, Artist artist) {
+        ArtistPlaylist pl = new ArtistPlaylist(id, artist.getName());
         pl.setTracks(artist.getTracks());
         pl.setCurrentTrack(artist.getTracks().get(0));
         return pl;
@@ -41,12 +42,13 @@ public class ArtistPlaylist extends Playlist {
      * Creates an {@link ArtistPlaylist} from an {@link Artist} and sets the current {@link Track}
      * to the {@link Track} at idx.
      *
+     * @param id           the id of the {@link ArtistPlaylist} to construct
      * @param artist       The {@link Artist} to construct the {@link Playlist} from
      * @param currentTrack The current {@link Track} to be set
      * @return The constructed {@link ArtistPlaylist}
      */
-    public static ArtistPlaylist fromArtist(Artist artist, Track currentTrack) {
-        ArtistPlaylist pl = new ArtistPlaylist(artist.getName());
+    public static ArtistPlaylist fromArtist(long id, Artist artist, Track currentTrack) {
+        ArtistPlaylist pl = new ArtistPlaylist(id, artist.getName());
         pl.setTracks(artist.getTracks());
         pl.setCurrentTrack(currentTrack);
         return pl;
@@ -55,10 +57,11 @@ public class ArtistPlaylist extends Playlist {
     /**
      * Construct a new empty {@link ArtistPlaylist}.
      *
+     * @param id   the id of the {@link ArtistPlaylist} to construct
      * @param name the name of the {@link ArtistPlaylist} to construct
      */
-    protected ArtistPlaylist(String name) {
-        super(name);
+    protected ArtistPlaylist(long id, String name) {
+        super(id, name);
     }
 
 }

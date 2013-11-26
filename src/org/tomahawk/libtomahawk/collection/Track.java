@@ -66,18 +66,12 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
     private boolean isResolved;
 
     /**
-     * Construct a new {@link Track}
-     */
-    public Track() {
-    }
-
-    /**
      * Construct a new {@link Track} with the given id
      *
      * @param id the id used to construct the {@link Track}
      */
     public Track(long id) {
-        setId(id);
+        this.mId = id;
     }
 
     /**
@@ -133,15 +127,6 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
      */
     public long getId() {
         return mId;
-    }
-
-    /**
-     * Set the {@link Track}'s id.
-     *
-     * @param id long containing the id
-     */
-    public void setId(long id) {
-        this.mId = id;
     }
 
     /**
