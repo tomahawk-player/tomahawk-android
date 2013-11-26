@@ -249,7 +249,9 @@ public class TomahawkMainActivity extends ActionBarActivity
                             .setCurrentHubId(TomahawkMainActivity.HUB_ID_SETTINGS);
                     break;
             }
-            mDrawerLayout.closeDrawer(mDrawerList);
+            if (mDrawerLayout != null) {
+                mDrawerLayout.closeDrawer(mDrawerList);
+            }
         }
     }
 
@@ -270,23 +272,25 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer,
-                R.string.drawer_open, R.string.drawer_close) {
+        if (mDrawerLayout != null) {
+            mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer,
+                    R.string.drawer_open, R.string.drawer_close) {
 
-            /** Called when a drawer has settled in a completely closed state. */
-            public void onDrawerClosed(View view) {
-                getSupportActionBar().setTitle(mTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
+                /** Called when a drawer has settled in a completely closed state. */
+                public void onDrawerClosed(View view) {
+                    getSupportActionBar().setTitle(mTitle);
+                    invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                }
 
-            /** Called when a drawer has settled in a completely open state. */
-            public void onDrawerOpened(View drawerView) {
-                getSupportActionBar().setTitle(mDrawerTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-        };
-        // Set the drawer toggle as the DrawerListener
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+                /** Called when a drawer has settled in a completely open state. */
+                public void onDrawerOpened(View drawerView) {
+                    getSupportActionBar().setTitle(mDrawerTitle);
+                    invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                }
+            };
+            // Set the drawer toggle as the DrawerListener
+            mDrawerLayout.setDrawerListener(mDrawerToggle);
+        }
 
         // Set up the TomahawkMenuAdapter. Give it its set of menu item texts and icons to display
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
@@ -356,7 +360,9 @@ public class TomahawkMainActivity extends ActionBarActivity
         super.onPostCreate(savedInstanceState);
 
         // Sync the toggle state after onRestoreInstanceState has occurred.
-        mDrawerToggle.syncState();
+        if (mDrawerToggle != null) {
+            mDrawerToggle.syncState();
+        }
     }
 
     @Override
@@ -457,7 +463,9 @@ public class TomahawkMainActivity extends ActionBarActivity
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        mDrawerToggle.onConfigurationChanged(newConfig);
+        if (mDrawerToggle != null) {
+            mDrawerToggle.onConfigurationChanged(newConfig);
+        }
     }
 
     @Override
@@ -469,9 +477,12 @@ public class TomahawkMainActivity extends ActionBarActivity
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         // If the nav drawer is open, hide action items related to the content view
-        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
-        getSupportActionBar()
-                .setDisplayShowCustomEnabled(!drawerOpen && mCurrentStackPosition == HUB_ID_SEARCH);
+        if (mDrawerLayout != null) {
+            boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
+            getSupportActionBar()
+                    .setDisplayShowCustomEnabled(
+                            !drawerOpen && mCurrentStackPosition == HUB_ID_SEARCH);
+        }
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -479,7 +490,7 @@ public class TomahawkMainActivity extends ActionBarActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         // Pass the event to ActionBarDrawerToggle, if it returns
         // true, then it has handled the app icon touch event
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
+        if (mDrawerToggle != null && mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
         return super.onOptionsItemSelected(item);
