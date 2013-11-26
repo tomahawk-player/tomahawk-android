@@ -48,8 +48,7 @@
                 android:gravity="center_vertical"
                 android:singleLine="true"
                 android:textColor="@color/primary_textcolor"
-                android:textSize="@dimen/text_size_medium"
-                android:text="Breaker"/>
+                android:textSize="@dimen/text_size_medium"/>
 
         <View
                 android:layout_width="@dimen/divider_height_thin"
@@ -66,8 +65,7 @@
                 android:gravity="center_vertical"
                 android:singleLine="true"
                 android:textColor="@color/secondary_textcolor"
-                android:textSize="@dimen/text_size_medium"
-                android:text="Clockwork"/>
+                android:textSize="@dimen/text_size_medium"/>
     </LinearLayout>
 
 </RelativeLayout>
