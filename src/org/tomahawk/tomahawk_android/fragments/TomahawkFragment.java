@@ -90,8 +90,6 @@ public class TomahawkFragment extends TomahawkListFragment
     protected ConcurrentHashMap<String, Track> mCorrespondingQueryIds
             = new ConcurrentHashMap<String, Track>();
 
-    private UserPlaylistsDataSource mUserPlaylistsDataSource;
-
     protected TomahawkMainActivity mTomahawkMainActivity;
 
     protected int mCorrespondingHubId;
@@ -162,12 +160,6 @@ public class TomahawkFragment extends TomahawkListFragment
             IntentFilter intentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
             getActivity().registerReceiver(mTomahawkFragmentReceiver, intentFilter);
         }
-
-        // Initialize UserPlaylistsDataSource, which makes it possible to retrieve persisted
-        // UserPlaylists
-        mUserPlaylistsDataSource = new UserPlaylistsDataSource(mTomahawkMainActivity,
-                mTomahawkApp.getPipeLine());
-        mUserPlaylistsDataSource.open();
     }
 
     @Override
@@ -177,9 +169,6 @@ public class TomahawkFragment extends TomahawkListFragment
         if (mTomahawkFragmentReceiver != null) {
             getActivity().unregisterReceiver(mTomahawkFragmentReceiver);
             mTomahawkFragmentReceiver = null;
-        }
-        if (mUserPlaylistsDataSource != null) {
-            mUserPlaylistsDataSource.close();
         }
     }
 
@@ -249,12 +238,12 @@ public class TomahawkFragment extends TomahawkListFragment
         PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
         if (menuItemTitle.equals(getResources().getString(R.string.fake_context_menu_delete))) {
             if (tomahawkListItem instanceof UserPlaylist) {
-                mUserPlaylistsDataSource
+                mTomahawkMainActivity.getUserPlaylistsDataSource()
                         .deleteUserPlaylist(((UserPlaylist) tomahawkListItem).getId());
                 userCollection.updateUserPlaylists();
             } else if (tomahawkListItem instanceof Track && mUserPlaylist != null) {
-                mUserPlaylistsDataSource.deleteTrackInUserPlaylist(mUserPlaylist.getId(),
-                        ((Track) tomahawkListItem).getId());
+                mTomahawkMainActivity.getUserPlaylistsDataSource().deleteTrackInUserPlaylist(
+                        mUserPlaylist.getId(), ((Track) tomahawkListItem).getId());
                 userCollection.updateUserPlaylists();
             } else if (playbackService != null && this instanceof PlaybackFragment
                     && tomahawkListItem instanceof Track) {
