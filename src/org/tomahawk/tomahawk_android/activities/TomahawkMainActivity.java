@@ -610,7 +610,8 @@ public class TomahawkMainActivity extends ActionBarActivity
             setSearchEditTextVisibility(false);
         }
         if (mCurrentStackPosition == TomahawkMainActivity.HUB_ID_PLAYBACK
-                || (mPlaybackService != null && mPlaybackService.getCurrentTrack() == null)) {
+                || mPlaybackService == null || (mPlaybackService != null
+                && mPlaybackService.getCurrentTrack() == null)) {
             setNowPlayingInfoVisibility(false);
         } else {
             setNowPlayingInfoVisibility(true);
