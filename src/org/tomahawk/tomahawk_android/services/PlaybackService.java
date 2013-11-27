@@ -430,32 +430,31 @@ public class PlaybackService extends Service
     }
 
     /**
-     * Save the current playlist in the UserCollection
+     * Save the current playlist in the UserPlaylists Database
      */
     private void saveState() {
         if (getCurrentPlaylist() != null) {
-            UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication())
-                    .getSourceList().getCollectionFromId(UserCollection.Id));
-            userCollection.setCachedPlaylist(UserPlaylist
-                    .fromTrackList(TomahawkApp.getUniqueId(),
-                            UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
-                            getCurrentPlaylist().getTracks()));
             long startTime = System.currentTimeMillis();
             mUserPlaylistsDataSource.storeCachedUserPlaylist(getCurrentPlaylist());
             Log.d(TAG, "Playlist stored in " + (System.currentTimeMillis() - startTime) + "ms");
+            UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication())
+                    .getSourceList().getCollectionFromId(UserCollection.Id));
+            userCollection.updateUserPlaylists();
         }
     }
 
     /**
-     * Restore the current playlist from the {@link UserCollection}
+     * Restore the current playlist from the UserPlaylists Database. Do this by storing it in the
+     * {@link org.tomahawk.libtomahawk.collection.UserCollection} first, and then retrieving the
+     * playlist from there.
      */
     private void restoreState() {
-        UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication())
-                .getSourceList().getCollectionFromId(UserCollection.Id));
-        setCurrentPlaylist(userCollection.getCachedUserPlaylist());
         if (getCurrentPlaylist() == null) {
             long startTime = System.currentTimeMillis();
-            setCurrentPlaylist(mUserPlaylistsDataSource.getCachedUserPlaylist());
+            UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication())
+                    .getSourceList().getCollectionFromId(UserCollection.Id));
+            userCollection.updateUserPlaylists();
+            setCurrentPlaylist(userCollection.getCachedUserPlaylist());
             Log.d(TAG, "Playlist loaded in " + (System.currentTimeMillis() - startTime) + "ms");
         }
         if (getCurrentPlaylist() != null && isPlaying()) {
@@ -727,7 +726,8 @@ public class PlaybackService extends Service
     public void addTracksToCurrentPlaylist(ArrayList<Track> tracks) {
         if (mCurrentPlaylist == null) {
             mCurrentPlaylist = UserPlaylist
-                    .fromTrackList(TomahawkApp.getUniqueId(), "Temp", new ArrayList<Track>());
+                    .fromTrackList(UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
+                            new ArrayList<Track>());
         }
         boolean wasEmpty = mCurrentPlaylist.getCount() <= 0;
         mCurrentPlaylist.addTracks(tracks);
@@ -744,7 +744,8 @@ public class PlaybackService extends Service
     public void addTracksToCurrentPlaylist(int position, ArrayList<Track> tracks) {
         if (mCurrentPlaylist == null) {
             mCurrentPlaylist = UserPlaylist
-                    .fromTrackList(TomahawkApp.getUniqueId(), "Temp", new ArrayList<Track>());
+                    .fromTrackList(UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
+                            new ArrayList<Track>());
         }
         boolean wasEmpty = mCurrentPlaylist.getCount() <= 0;
         if (position < mCurrentPlaylist.getCount()) {

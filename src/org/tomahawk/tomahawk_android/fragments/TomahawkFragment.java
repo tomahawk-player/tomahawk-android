@@ -308,38 +308,38 @@ public class TomahawkFragment extends TomahawkListFragment
                     if (mAlbum != null) {
                         tracks = mAlbum.getTracks();
                         playlist = UserPlaylist
-                                .fromTrackList(TomahawkApp.getUniqueId(),
+                                .fromTrackList(
                                         UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, tracks,
                                         (Track) tomahawkListItem);
                     } else if (mArtist != null) {
                         tracks = mArtist.getTracks();
                         playlist = UserPlaylist
-                                .fromTrackList(TomahawkApp.getUniqueId(),
+                                .fromTrackList(
                                         UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, tracks,
                                         (Track) tomahawkListItem);
                     } else if (mUserPlaylist != null) {
                         tracks = mUserPlaylist.getTracks();
                         playlist = UserPlaylist
-                                .fromTrackList(TomahawkApp.getUniqueId(),
+                                .fromTrackList(
                                         UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, tracks,
                                         (Track) tomahawkListItem);
                     } else {
                         tracks.add((Track) tomahawkListItem);
                         playlist = UserPlaylist
-                                .fromTrackList(TomahawkApp.getUniqueId(),
-                                        UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, tracks, 0);
+                                .fromTrackList(
+                                        UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, tracks);
                     }
                     userCollection.setCachedPlaylist(playlist);
                 } else if (tomahawkListItem instanceof UserPlaylist) {
                     playlist = (UserPlaylist) tomahawkListItem;
                 } else if (tomahawkListItem instanceof Album) {
-                    playlist = UserPlaylist.fromTrackList(TomahawkApp.getUniqueId(),
+                    playlist = UserPlaylist.fromTrackList(
                             UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
-                            ((Album) tomahawkListItem).getTracks(), 0);
+                            ((Album) tomahawkListItem).getTracks());
                 } else if (tomahawkListItem instanceof Artist) {
-                    playlist = UserPlaylist.fromTrackList(TomahawkApp.getUniqueId(),
+                    playlist = UserPlaylist.fromTrackList(
                             UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
-                            ((Artist) tomahawkListItem).getTracks(), 0);
+                            ((Artist) tomahawkListItem).getTracks());
                 }
                 if (playbackService != null) {
                     playbackService.setCurrentPlaylist(playlist);

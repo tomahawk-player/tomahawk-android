@@ -194,7 +194,7 @@ public class SearchableFragment extends TomahawkFragment
         if (position >= 0) {
             if (getListAdapter().getItem(position) instanceof Track) {
                 UserPlaylist playlist = UserPlaylist
-                        .fromTrackList(TomahawkApp.getUniqueId(), mCurrentQueryString,
+                        .fromTrackList(mCurrentQueryString,
                                 mCurrentShownTracks, (Track) getListAdapter().getItem(position));
                 PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
                 if (playbackService != null) {
