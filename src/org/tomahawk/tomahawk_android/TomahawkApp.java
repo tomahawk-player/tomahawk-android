@@ -80,7 +80,7 @@ public class TomahawkApp extends Application {
 
     private InfoSystem mInfoSystem;
 
-    private static long mIdCounter;
+    private static long mIdCounter = 1000000;
 
     /**
      * Handles incoming {@link Collection} updated broadcasts.

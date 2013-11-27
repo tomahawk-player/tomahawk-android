@@ -37,6 +37,7 @@ import org.tomahawk.tomahawk_android.dialogs.ChooseUserPlaylistDialog;
 import org.tomahawk.tomahawk_android.dialogs.FakeContextMenuDialog;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FakeContextMenu;
+import org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -50,6 +51,7 @@ import android.support.v4.content.Loader;
 import android.view.ContextMenu;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.GridView;
 
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
@@ -61,7 +63,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * in whichever needed way.
  */
 public class TomahawkFragment extends TomahawkListFragment
-        implements LoaderManager.LoaderCallbacks<Collection>, FakeContextMenu {
+        implements LoaderManager.LoaderCallbacks<Collection>, FakeContextMenu,
+        AdapterView.OnItemLongClickListener {
 
     public static final String TOMAHAWK_ALBUM_ID
             = "org.tomahawk.tomahawk_android.tomahawk_album_id";
@@ -160,6 +163,14 @@ public class TomahawkFragment extends TomahawkListFragment
             IntentFilter intentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
             getActivity().registerReceiver(mTomahawkFragmentReceiver, intentFilter);
         }
+        TomahawkStickyListHeadersListView list = getListView();
+        if (list != null) {
+            list.setOnItemLongClickListener(this);
+        }
+        GridView grid = getGridView();
+        if (grid != null) {
+            grid.setOnItemLongClickListener(this);
+        }
     }
 
     @Override
@@ -188,13 +199,10 @@ public class TomahawkFragment extends TomahawkListFragment
     }
 
     /**
-     * Insert our FakeContextMenuDialog initialization here, don't call overriden super method
+     * Insert our FakeContextMenuDialog initialization here
      */
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-            ContextMenu.ContextMenuInfo menuInfo) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-        int position = info.position;
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         String[] menuItemTitles;
         TomahawkBaseAdapter.TomahawkListItem tomahawkListItem;
         position -= getListView().getHeaderViewsCount();
@@ -215,39 +223,40 @@ public class TomahawkFragment extends TomahawkListFragment
         } else {
             menuItemTitles = getResources().getStringArray(R.array.fake_context_menu_items);
         }
-        new FakeContextMenuDialog(menuItemTitles, info.position, this)
+        new FakeContextMenuDialog(menuItemTitles, tomahawkListItem, this)
                 .show(mTomahawkMainActivity.getSupportFragmentManager(), null);
+        return true;
     }
 
     /**
      * If the user clicks on a fakeContextItem, handle what should be done here
+     *
+     * @param tomahawkMainActivity the {@link org.tomahawk.tomahawk_android.activities.TomahawkMainActivity}
+     *                             to get the {@link org.tomahawk.libtomahawk.collection.UserCollection}
+     *                             etc from
+     * @param menuItemTitle        the menu item title of the clicked item
+     * @param tomahawkListItem     the item that has been clicked
      */
     @Override
-    public void onFakeContextItemSelected(String menuItemTitle, int position) {
-        UserCollection userCollection = mTomahawkMainActivity.getUserCollection();
-        TomahawkBaseAdapter.TomahawkListItem tomahawkListItem;
-        position -= getListView().getHeaderViewsCount();
-        if (position >= 0) {
-            tomahawkListItem = ((TomahawkBaseAdapter.TomahawkListItem) getListAdapter()
-                    .getItem(position));
-        } else {
-            tomahawkListItem = ((TomahawkListAdapter) getListAdapter())
-                    .getContentHeaderTomahawkListItem();
-        }
+    public void onFakeContextItemSelected(TomahawkMainActivity tomahawkMainActivity,
+            String menuItemTitle, TomahawkBaseAdapter.TomahawkListItem tomahawkListItem) {
+        UserCollection userCollection = tomahawkMainActivity.getUserCollection();
         ArrayList<Track> tracks = new ArrayList<Track>();
-        PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
-        if (menuItemTitle.equals(getResources().getString(R.string.fake_context_menu_delete))) {
+        PlaybackService playbackService = tomahawkMainActivity.getPlaybackService();
+        if (menuItemTitle.equals(tomahawkMainActivity.getResources()
+                .getString(R.string.fake_context_menu_delete))) {
             if (tomahawkListItem instanceof UserPlaylist) {
-                mTomahawkMainActivity.getUserPlaylistsDataSource()
+                tomahawkMainActivity.getUserPlaylistsDataSource()
                         .deleteUserPlaylist(((UserPlaylist) tomahawkListItem).getId());
                 userCollection.updateUserPlaylists();
             } else if (tomahawkListItem instanceof Track && mUserPlaylist != null) {
-                mTomahawkMainActivity.getUserPlaylistsDataSource().deleteTrackInUserPlaylist(
+                tomahawkMainActivity.getUserPlaylistsDataSource().deleteTrackInUserPlaylist(
                         mUserPlaylist.getId(), ((Track) tomahawkListItem).getId());
                 userCollection.updateUserPlaylists();
             } else if (playbackService != null && this instanceof PlaybackFragment
                     && tomahawkListItem instanceof Track) {
-                if (playbackService.getCurrentPlaylist().getCurrentTrackIndex() == position) {
+                if (playbackService.getCurrentPlaylist().getCurrentTrack().getId()
+                        == ((Track) tomahawkListItem).getId()) {
                     boolean wasPlaying = playbackService.isPlaying();
                     if (wasPlaying) {
                         playbackService.pause();
@@ -274,19 +283,22 @@ public class TomahawkFragment extends TomahawkListFragment
                         }
                     }
                 }
-                playbackService.deleteTrackAtPos(position);
+                playbackService.deleteTrack((Track) tomahawkListItem);
             }
         } else if (menuItemTitle
-                .equals(getResources().getString(R.string.fake_context_menu_play))) {
+                .equals(tomahawkMainActivity.getResources()
+                        .getString(R.string.fake_context_menu_play))) {
             if (this instanceof PlaybackFragment) {
                 if (playbackService != null && tomahawkListItem instanceof Track) {
-                    if (playbackService.getCurrentPlaylist().getCurrentTrackIndex() == position) {
+                    if (playbackService.getCurrentPlaylist().getCurrentTrack().getId()
+                            == ((Track) tomahawkListItem).getId()) {
                         if (!playbackService.isPlaying()) {
                             playbackService.start();
                         }
                     } else {
-                        playbackService.setCurrentTrack(
-                                playbackService.getCurrentPlaylist().peekTrackAtPos(position));
+                        playbackService.setCurrentTrack((Track) tomahawkListItem);
+                        playbackService.getCurrentPlaylist()
+                                .setCurrentTrack((Track) tomahawkListItem);
                         playbackService.start();
                     }
                 }
@@ -333,10 +345,10 @@ public class TomahawkFragment extends TomahawkListFragment
                     playbackService.setCurrentPlaylist(playlist);
                     playbackService.start();
                 }
-                mTomahawkMainActivity.getContentViewer()
+                tomahawkMainActivity.getContentViewer()
                         .setCurrentHubId(TomahawkMainActivity.HUB_ID_PLAYBACK);
             }
-        } else if (menuItemTitle.equals(getResources()
+        } else if (menuItemTitle.equals(tomahawkMainActivity.getResources()
                 .getString(R.string.fake_context_menu_playaftercurrenttrack))) {
             if (tomahawkListItem instanceof Track) {
                 tracks.add((Track) tomahawkListItem);
@@ -356,7 +368,7 @@ public class TomahawkFragment extends TomahawkListFragment
                     playbackService.addTracksToCurrentPlaylist(tracks);
                 }
             }
-        } else if (menuItemTitle.equals(getResources()
+        } else if (menuItemTitle.equals(tomahawkMainActivity.getResources()
                 .getString(R.string.fake_context_menu_appendtoplaybacklist))) {
             if (tomahawkListItem instanceof Track) {
                 tracks.add((Track) tomahawkListItem);
@@ -371,7 +383,8 @@ public class TomahawkFragment extends TomahawkListFragment
                 playbackService.addTracksToCurrentPlaylist(tracks);
             }
         } else if (menuItemTitle
-                .equals(getResources().getString(R.string.fake_context_menu_addtoplaylist))) {
+                .equals(tomahawkMainActivity.getResources()
+                        .getString(R.string.fake_context_menu_addtoplaylist))) {
             if (tomahawkListItem instanceof Track) {
                 tracks.add((Track) tomahawkListItem);
             } else if (tomahawkListItem instanceof UserPlaylist) {
@@ -382,7 +395,7 @@ public class TomahawkFragment extends TomahawkListFragment
                 tracks = ((Artist) tomahawkListItem).getTracks();
             }
             new ChooseUserPlaylistDialog(userCollection, tracks)
-                    .show(mTomahawkMainActivity.getSupportFragmentManager(),
+                    .show(tomahawkMainActivity.getSupportFragmentManager(),
                             "ChooseUserPlaylistDialog");
             userCollection.updateUserPlaylists();
         }

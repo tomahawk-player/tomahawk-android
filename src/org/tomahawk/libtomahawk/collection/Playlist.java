@@ -363,11 +363,23 @@ public abstract class Playlist implements Playable {
      */
     public void deleteTrackAtPos(int position) {
         if (mShuffledTracks != null) {
-            (!mShuffled ? mShuffledTracks : mTracks)
-                    .remove((mShuffled ? mShuffledTracks : mTracks).get(position));
+            mShuffledTracks.remove((mShuffled ? mShuffledTracks : mTracks).get(position));
         }
         (mShuffled ? mShuffledTracks : mTracks).remove(position);
-        if (mCurrentTrackIndex > position) {
+        if (mCurrentTrackIndex > (mShuffled ? mShuffledTracks : mTracks).size()) {
+            mCurrentTrackIndex--;
+        }
+    }
+
+    /**
+     * Remove the given {@link Track} from this playlist
+     */
+    public void deleteTrack(Track track) {
+        if (mShuffledTracks != null) {
+            mShuffledTracks.remove(track);
+        }
+        (mShuffled ? mShuffledTracks : mTracks).remove(track);
+        if (mCurrentTrackIndex > (mShuffled ? mShuffledTracks : mTracks).size()) {
             mCurrentTrackIndex--;
         }
     }

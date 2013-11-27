@@ -18,9 +18,13 @@
 package org.tomahawk.tomahawk_android.dialogs;
 
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkContextMenuAdapter;
+import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.utils.FakeContextMenu;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
@@ -36,26 +40,52 @@ import android.widget.ListView;
  */
 public class FakeContextMenuDialog extends DialogFragment {
 
+    private TomahawkMainActivity mTomahawkMainActivity;
+
     private String[] mMenuItemTitles;
 
-    private int mPosition;
+    private TomahawkBaseAdapter.TomahawkListItem mTomahawkListItem;
 
     private FakeContextMenu mFakeContextMenu;
 
     /**
+     * Store the reference to the {@link android.app.Activity}, in which this fragment has been
+     * created
+     */
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        if (activity instanceof TomahawkMainActivity) {
+            mTomahawkMainActivity = (TomahawkMainActivity) activity;
+        }
+    }
+
+    /**
+     * Null the reference to this fragment's {@link Activity}
+     */
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        mTomahawkMainActivity = null;
+    }
+
+    /**
      * Construct a {@link FakeContextMenuDialog}
      *
-     * @param menuItemTitles  array of {@link String} containing all menu entry texts
-     * @param position        position of the {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
-     *                        this {@link FakeContextMenuDialog} is associated with
-     * @param fakeContextMenu reference to the {@link FakeContextMenu}, so that we can access its
-     *                        implementation of onFakeContextItemSelected(...)
+     * @param menuItemTitles   array of {@link String} containing all menu entry texts
+     * @param tomahawkListItem the {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
+     *                         this {@link FakeContextMenuDialog} is associated with
+     * @param fakeContextMenu  reference to the {@link FakeContextMenu}, so that we can access its
+     *                         implementation of onFakeContextItemSelected(...)
      */
-    public FakeContextMenuDialog(String[] menuItemTitles, int position,
+    public FakeContextMenuDialog(String[] menuItemTitles,
+            TomahawkBaseAdapter.TomahawkListItem tomahawkListItem,
             FakeContextMenu fakeContextMenu) {
         setRetainInstance(true);
         mMenuItemTitles = menuItemTitles;
-        mPosition = position;
+        mTomahawkListItem = tomahawkListItem;
         mFakeContextMenu = fakeContextMenu;
     }
 
@@ -71,7 +101,8 @@ public class FakeContextMenuDialog extends DialogFragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mFakeContextMenu.onFakeContextItemSelected(mMenuItemTitles[position], mPosition);
+                mFakeContextMenu.onFakeContextItemSelected(mTomahawkMainActivity,
+                        mMenuItemTitles[position], mTomahawkListItem);
                 dismiss();
             }
         });

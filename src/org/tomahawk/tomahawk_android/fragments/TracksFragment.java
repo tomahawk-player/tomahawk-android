@@ -238,7 +238,6 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
             }
         } else if (mUserPlaylist != null) {
-            mUserPlaylist = coll.getCustomPlaylistById(mUserPlaylist.getId());
             items.addAll(mUserPlaylist.getTracks());
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
