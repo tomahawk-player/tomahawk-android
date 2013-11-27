@@ -513,6 +513,7 @@ public class TomahawkMainActivity extends ActionBarActivity
      */
     @Override
     public void onPlaybackServiceReady() {
+        updateViewVisibility();
         setNowPlayingInfo(mPlaybackService.getCurrentTrack());
         sendBroadcast(new Intent(PLAYBACKSERVICE_READY));
     }
