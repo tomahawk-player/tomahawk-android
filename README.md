@@ -55,18 +55,17 @@ Setup
     If you have any further problems, feel free to join the #tomahawk.mobile irc channel on
     irc.freenode.org
 
-Ready to contribute?
-Here's the to-do list :)
+Ready to contribute?                  Here's the to-do list :)
 ================
 https://trello.com/board/tomahawk-android/500c1f61aa1ffaae1b027ba1
 
 Code Style Guidelines for Contributors
 ================
-In order to keep everything clean and cozy, please use the official Android code style format preset
+In order to keep everything clean and cozy, please use the official Android code style format preset:
     - https://github.com/android/platform_development/tree/master/ide
     (use the IntelliJ preset, if you're using Android Studio)
 
-For a larger overview you should read the official Android "Code Style Guidelines for Contributors"
+For a larger overview you should read the official Android "Code Style Guidelines for Contributors":
     - http://source.android.com/source/code-style.html
 
 Recommended reading
