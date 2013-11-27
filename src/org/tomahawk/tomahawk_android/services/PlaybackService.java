@@ -584,7 +584,6 @@ public class PlaybackService extends Service
             if (track != null) {
                 setCurrentTrack(track);
             }
-            updatePlayingNotification();
         }
     }
 
@@ -597,7 +596,6 @@ public class PlaybackService extends Service
             if (track != null) {
                 setCurrentTrack(track);
             }
-            updatePlayingNotification();
         }
     }
 
@@ -765,6 +763,14 @@ public class PlaybackService extends Service
      */
     public void deleteTrackAtPos(int position) {
         mCurrentPlaylist.deleteTrackAtPos(position);
+        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+    }
+
+    /**
+     * Remove track at given position from current playlist
+     */
+    public void deleteTrack(Track track) {
+        mCurrentPlaylist.deleteTrack(track);
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
 

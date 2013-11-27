@@ -130,7 +130,6 @@ public class TomahawkListFragment extends Fragment {
                             + "that is not a TomahawkStickyListHeadersListView class");
                 }
                 mList = (TomahawkStickyListHeadersListView) rawListView;
-                registerForContextMenu(mList);
             } else {
                 View rawListView = root.findViewById(R.id.gridview);
                 if (!(rawListView instanceof GridView)) {
@@ -143,7 +142,6 @@ public class TomahawkListFragment extends Fragment {
                             + "that is not a GridView class");
                 }
                 mGrid = (GridView) rawListView;
-                registerForContextMenu(mGrid);
             }
         }
         if (mBaseAdapter != null) {
