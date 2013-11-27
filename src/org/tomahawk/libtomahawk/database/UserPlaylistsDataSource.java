@@ -41,7 +41,7 @@ public class UserPlaylistsDataSource {
 
     public static final String CACHED_PLAYLIST_NAME = "Last used playlist";
 
-    public static final long CACHED_PLAYLIST_ID = -1;
+    public static final long CACHED_PLAYLIST_ID = 0;
 
     // Database fields
     private SQLiteDatabase mDatabase;
@@ -267,14 +267,7 @@ public class UserPlaylistsDataSource {
                 trackList.add(track);
                 tracksCursor.moveToNext();
             }
-            long id;
-            if (userplaylistsCursor.getLong(0) == CACHED_PLAYLIST_ID) {
-                // restore the playlist's id, only if it is the cached playlist
-                id = CACHED_PLAYLIST_ID;
-            } else {
-                id = TomahawkApp.getUniqueId();
-            }
-            UserPlaylist userPlaylist = UserPlaylist.fromTrackList(id,
+            UserPlaylist userPlaylist = UserPlaylist.fromTrackList(userplaylistsCursor.getLong(0),
                     userplaylistsCursor.getString(1), trackList, currentTrackIndex);
             tracksCursor.close();
             userplaylistsCursor.close();
