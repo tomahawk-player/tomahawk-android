@@ -177,10 +177,9 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 } else {
                     tracks.addAll(mTomahawkMainActivity.getUserCollection().getTracks());
                 }
-                UserPlaylist playlist = UserPlaylist
-                        .fromTrackList(TomahawkApp.getUniqueId(),
-                                UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, tracks,
-                                (Track) getListAdapter().getItem(position));
+                UserPlaylist playlist = UserPlaylist.fromTrackList(
+                        UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, tracks,
+                        (Track) getListAdapter().getItem(position));
                 PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
                 if (playbackService != null) {
                     playbackService.setCurrentPlaylist(playlist);

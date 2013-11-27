@@ -32,11 +32,11 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
      *
      * @return a reference to the constructed {@link UserPlaylist}
      */
-    public static UserPlaylist fromTrackList(long id, ArrayList<Track> tracks) {
+    public static UserPlaylist fromTrackList(ArrayList<Track> tracks) {
         if (tracks == null) {
             tracks = new ArrayList<Track>();
         }
-        UserPlaylist pl = new UserPlaylist(id);
+        UserPlaylist pl = new UserPlaylist(-1);
         pl.setTracks(tracks);
         if (tracks.size() > 0) {
             pl.setCurrentTrack(tracks.get(0));
@@ -49,11 +49,11 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
      *
      * @return a reference to the constructed {@link UserPlaylist}
      */
-    public static UserPlaylist fromTrackList(long id, String name, ArrayList<Track> tracks) {
+    public static UserPlaylist fromTrackList(String name, ArrayList<Track> tracks) {
         if (tracks == null) {
             tracks = new ArrayList<Track>();
         }
-        UserPlaylist pl = new UserPlaylist(id, name);
+        UserPlaylist pl = new UserPlaylist(-1, name);
         pl.setTracks(tracks);
         if (tracks.size() > 0) {
             pl.setCurrentTrack(tracks.get(0));
@@ -67,12 +67,12 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
      *
      * @return a reference to the constructed {@link UserPlaylist}
      */
-    public static UserPlaylist fromTrackList(long id, String name, ArrayList<Track> tracks,
+    public static UserPlaylist fromTrackList(String name, ArrayList<Track> tracks,
             Track currentTrack) {
         if (tracks == null) {
             tracks = new ArrayList<Track>();
         }
-        UserPlaylist pl = new UserPlaylist(id, name);
+        UserPlaylist pl = new UserPlaylist(-1, name);
         pl.setTracks(tracks);
         pl.setCurrentTrack(currentTrack);
         return pl;
@@ -84,7 +84,7 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
      *
      * @return a reference to the constructed {@link UserPlaylist}
      */
-    public static UserPlaylist fromTrackList(long id, String name, ArrayList<Track> tracks,
+    public static UserPlaylist fromTrackListWithId(long id, String name, ArrayList<Track> tracks,
             int currentTrackIndex) {
         if (tracks == null) {
             tracks = new ArrayList<Track>();

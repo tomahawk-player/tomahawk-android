@@ -97,9 +97,9 @@ public class ChooseUserPlaylistDialog extends DialogFragment {
         linearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new CreateUserPlaylistDialog(
-                        UserPlaylist.fromTrackList(-1, mTracks)).show(getFragmentManager(),
-                        getString(R.string.playbackactivity_create_playlist_dialog_title));
+                new CreateUserPlaylistDialog(UserPlaylist.fromTrackList(mTracks))
+                        .show(getFragmentManager(),
+                                getString(R.string.playbackactivity_create_playlist_dialog_title));
                 getDialog().dismiss();
             }
         });

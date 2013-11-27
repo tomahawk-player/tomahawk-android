@@ -103,6 +103,17 @@ public class UserPlaylistsDataSource {
     }
 
     /**
+     * Store the given {@link Playlist} with CACHED_PLAYLIST_ID as its id, and CACHED_PLAYLIST_NAME
+     * as its name
+     *
+     * @param playlistName the name of the playlist to store
+     * @param playlist     the {@link Playlist} to be stored
+     */
+    public long storeUserPlaylist(String playlistName, Playlist playlist) {
+        return storeUserPlaylist(-1, playlistName, playlist);
+    }
+
+    /**
      * Store the given {@link Playlist}
      *
      * @param insertId     the id under which the given {@link Playlist} should be stored
@@ -110,7 +121,7 @@ public class UserPlaylistsDataSource {
      * @param playlist     the given {@link Playlist}
      * @return long containing the stored {@link Playlist}'s id
      */
-    public long storeUserPlaylist(long insertId, String playlistName, Playlist playlist) {
+    private long storeUserPlaylist(long insertId, String playlistName, Playlist playlist) {
         ContentValues values = new ContentValues();
         values.put(TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_NAME, playlistName);
         values.put(TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_CURRENTTRACKINDEX,
@@ -267,8 +278,9 @@ public class UserPlaylistsDataSource {
                 trackList.add(track);
                 tracksCursor.moveToNext();
             }
-            UserPlaylist userPlaylist = UserPlaylist.fromTrackList(userplaylistsCursor.getLong(0),
-                    userplaylistsCursor.getString(1), trackList, currentTrackIndex);
+            UserPlaylist userPlaylist = UserPlaylist.fromTrackListWithId(
+                    userplaylistsCursor.getLong(0), userplaylistsCursor.getString(1), trackList,
+                    currentTrackIndex);
             tracksCursor.close();
             userplaylistsCursor.close();
             return userPlaylist;
