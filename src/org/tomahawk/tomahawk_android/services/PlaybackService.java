@@ -122,8 +122,6 @@ public class PlaybackService extends Service
 
     private Handler mHandler;
 
-    private UserPlaylistsDataSource mUserPlaylistsDataSource;
-
     private BitmapItem.AsyncBitmap mNotificationAsyncBitmap = new BitmapItem.AsyncBitmap(null);
 
     /**
@@ -313,11 +311,6 @@ public class PlaybackService extends Service
         Message msg = mKillTimerHandler.obtainMessage();
         mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
 
-        // Initialize UserPlaylistsDataSource, so we can access the persisted UserPlaylists
-        mUserPlaylistsDataSource = new UserPlaylistsDataSource(this,
-                ((TomahawkApp) getApplication()).getPipeLine());
-        mUserPlaylistsDataSource.open();
-
         // Finally initialize the heart of this PlaybackService, the TomahawkMediaPlayer object
         initMediaPlayer();
         restoreState();
@@ -359,7 +352,6 @@ public class PlaybackService extends Service
     public void onDestroy() {
         pause(true);
         saveState();
-        mUserPlaylistsDataSource.close();
         unregisterReceiver(mPlaybackServiceBroadcastReceiver);
         mTomahawkMediaPlayer.release();
         mTomahawkMediaPlayer = null;
@@ -435,7 +427,8 @@ public class PlaybackService extends Service
     private void saveState() {
         if (getCurrentPlaylist() != null) {
             long startTime = System.currentTimeMillis();
-            mUserPlaylistsDataSource.storeCachedUserPlaylist(getCurrentPlaylist());
+            ((TomahawkApp) getApplication()).getUserPlaylistsDataSource().storeCachedUserPlaylist(
+                    getCurrentPlaylist());
             Log.d(TAG, "Playlist stored in " + (System.currentTimeMillis() - startTime) + "ms");
             UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication())
                     .getSourceList().getCollectionFromId(UserCollection.Id));

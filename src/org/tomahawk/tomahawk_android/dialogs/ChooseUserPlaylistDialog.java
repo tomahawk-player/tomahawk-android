@@ -73,13 +73,11 @@ public class ChooseUserPlaylistDialog extends DialogFragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                UserPlaylistsDataSource userPlaylistsDataSource = new UserPlaylistsDataSource(
-                        getActivity(),
-                        ((TomahawkApp) getActivity().getApplication()).getPipeLine());
+                UserPlaylistsDataSource userPlaylistsDataSource = ((TomahawkApp) getActivity()
+                        .getApplication()).getUserPlaylistsDataSource();
                 userPlaylistsDataSource.open();
                 userPlaylistsDataSource.addTracksToUserPlaylist(
                         mUserCollection.getCustomPlaylists().get(position).getId(), mTracks);
-                userPlaylistsDataSource.close();
                 ((UserCollection) ((TomahawkApp) getActivity().getApplication()).getSourceList()
                         .getCollectionFromId(UserCollection.Id)).updateUserPlaylists();
                 getDialog().dismiss();

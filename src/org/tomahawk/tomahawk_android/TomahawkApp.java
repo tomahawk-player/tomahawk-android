@@ -24,6 +24,7 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.Source;
 import org.tomahawk.libtomahawk.collection.SourceList;
 import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
@@ -80,6 +81,8 @@ public class TomahawkApp extends Application {
 
     private InfoSystem mInfoSystem;
 
+    private UserPlaylistsDataSource mUserPlaylistsDataSource;
+
     private static long mIdCounter = 10000000;
 
     /**
@@ -130,6 +133,11 @@ public class TomahawkApp extends Application {
         SpotifyResolver spotifyResolver = new SpotifyResolver(RESOLVER_ID_SPOTIFY, this);
         mPipeLine.addResolver(spotifyResolver);
 
+        // Initialize UserPlaylistsDataSource, which makes it possible to retrieve persisted
+        // UserPlaylists
+        mUserPlaylistsDataSource = new UserPlaylistsDataSource(this, mPipeLine);
+        mUserPlaylistsDataSource.open();
+
         initialize();
     }
 
@@ -179,6 +187,10 @@ public class TomahawkApp extends Application {
 
     public InfoSystem getInfoSystem() {
         return mInfoSystem;
+    }
+
+    public UserPlaylistsDataSource getUserPlaylistsDataSource() {
+        return mUserPlaylistsDataSource;
     }
 
     /**

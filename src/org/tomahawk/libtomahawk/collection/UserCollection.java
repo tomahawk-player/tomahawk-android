@@ -54,8 +54,6 @@ public class UserCollection extends Collection {
 
     private TomahawkApp mTomahawkApp;
 
-    private UserPlaylistsDataSource mUserPlaylistsDataSource;
-
     private HandlerThread mCollectionUpdateHandlerThread;
 
     private Handler mHandler;
@@ -103,8 +101,6 @@ public class UserCollection extends Collection {
      */
     public UserCollection(TomahawkApp tomahawkApp) {
         mTomahawkApp = tomahawkApp;
-        mUserPlaylistsDataSource = new UserPlaylistsDataSource(mTomahawkApp,
-                mTomahawkApp.getPipeLine());
 
         TomahawkApp.getContext().getContentResolver()
                 .registerContentObserver(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false,
@@ -344,9 +340,9 @@ public class UserCollection extends Collection {
      * UserPlaylistsDataSource}
      */
     public void updateUserPlaylists() {
-        mUserPlaylistsDataSource.open();
         mCustomPlaylists.clear();
-        ArrayList<UserPlaylist> userPlayListList = mUserPlaylistsDataSource.getAllUserPlaylists();
+        ArrayList<UserPlaylist> userPlayListList = mTomahawkApp.getUserPlaylistsDataSource()
+                .getAllUserPlaylists();
         for (UserPlaylist userPlaylist : userPlayListList) {
             if (userPlaylist.getId() == UserPlaylistsDataSource.CACHED_PLAYLIST_ID) {
                 setCachedPlaylist(userPlaylist);
