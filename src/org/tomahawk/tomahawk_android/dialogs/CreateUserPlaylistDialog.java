@@ -136,8 +136,8 @@ public class CreateUserPlaylistDialog extends DialogFragment {
         EditText editText = (EditText) getDialog().findViewById(R.id.playlist_dialog_name_textview);
         String playlistName = TextUtils.isEmpty(editText.getText().toString()) ? getString(
                 R.string.playbackplaylistfragment_title_string) : editText.getText().toString();
-        UserPlaylistsDataSource userPlaylistsDataSource = new UserPlaylistsDataSource(getActivity(),
-                ((TomahawkApp) getActivity().getApplication()).getPipeLine());
+        UserPlaylistsDataSource userPlaylistsDataSource = ((TomahawkApp) getActivity()
+                .getApplication()).getUserPlaylistsDataSource();
         userPlaylistsDataSource.open();
         if (mPlaylist != null) {
             userPlaylistsDataSource.storeUserPlaylist(playlistName, mPlaylist);
@@ -145,7 +145,6 @@ public class CreateUserPlaylistDialog extends DialogFragment {
             userPlaylistsDataSource.storeUserPlaylist(playlistName,
                     UserPlaylist.fromTrackList(playlistName, new ArrayList<Track>()));
         }
-        userPlaylistsDataSource.close();
         ((UserCollection) ((TomahawkApp) getActivity().getApplication()).getSourceList()
                 .getCollectionFromId(UserCollection.Id)).updateUserPlaylists();
     }

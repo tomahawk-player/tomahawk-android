@@ -246,12 +246,13 @@ public class TomahawkFragment extends TomahawkListFragment
         if (menuItemTitle.equals(tomahawkMainActivity.getResources()
                 .getString(R.string.fake_context_menu_delete))) {
             if (tomahawkListItem instanceof UserPlaylist) {
-                tomahawkMainActivity.getUserPlaylistsDataSource()
+                ((TomahawkApp) tomahawkMainActivity.getApplication()).getUserPlaylistsDataSource()
                         .deleteUserPlaylist(((UserPlaylist) tomahawkListItem).getId());
                 userCollection.updateUserPlaylists();
             } else if (tomahawkListItem instanceof Track && mUserPlaylist != null) {
-                tomahawkMainActivity.getUserPlaylistsDataSource().deleteTrackInUserPlaylist(
-                        mUserPlaylist.getId(), ((Track) tomahawkListItem).getId());
+                ((TomahawkApp) tomahawkMainActivity.getApplication()).getUserPlaylistsDataSource()
+                        .deleteTrackInUserPlaylist(mUserPlaylist.getId(),
+                                ((Track) tomahawkListItem).getId());
                 userCollection.updateUserPlaylists();
             } else if (playbackService != null && this instanceof PlaybackFragment
                     && tomahawkListItem instanceof Track) {

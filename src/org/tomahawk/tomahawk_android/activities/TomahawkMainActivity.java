@@ -128,8 +128,6 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private CharSequence mTitle;
 
-    private UserPlaylistsDataSource mUserPlaylistsDataSource;
-
     private PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(
             this);
 
@@ -397,11 +395,6 @@ public class TomahawkMainActivity extends ActionBarActivity
             mCurrentStackPosition = HUB_ID_PLAYBACK;
         }
 
-        // Initialize UserPlaylistsDataSource, which makes it possible to retrieve persisted
-        // UserPlaylists
-        mUserPlaylistsDataSource = new UserPlaylistsDataSource(this, mTomahawkApp.getPipeLine());
-        mUserPlaylistsDataSource.open();
-
         SourceList sl = ((TomahawkApp) getApplication()).getSourceList();
         mUserCollection = (UserCollection) sl
                 .getCollectionFromId(sl.getLocalSource().getCollection().getId());
@@ -438,10 +431,6 @@ public class TomahawkMainActivity extends ActionBarActivity
     @Override
     public void onPause() {
         super.onPause();
-
-        if (mUserPlaylistsDataSource != null) {
-            mUserPlaylistsDataSource.close();
-        }
 
         mCurrentStackPosition = mContentViewer.getCurrentHubId();
 
@@ -839,13 +828,6 @@ public class TomahawkMainActivity extends ActionBarActivity
      */
     public ContentViewer getContentViewer() {
         return mContentViewer;
-    }
-
-    /**
-     * @return this Activity's {@link org.tomahawk.libtomahawk.database.UserPlaylistsDataSource}
-     */
-    public UserPlaylistsDataSource getUserPlaylistsDataSource() {
-        return mUserPlaylistsDataSource;
     }
 
     /**
