@@ -17,13 +17,13 @@
  */
 package org.tomahawk.tomahawk_android.views;
 
-import com.emilsjolander.components.stickylistheaders.StickyListHeadersListView;
-
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
  * A {@link StickyListHeadersListView} extended by a {@link GestureDetector}, so that we can use it

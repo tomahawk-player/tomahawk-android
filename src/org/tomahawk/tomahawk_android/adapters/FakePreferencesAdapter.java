@@ -17,8 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
-import com.emilsjolander.components.stickylistheaders.StickyListHeadersAdapter;
-
 import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -39,6 +37,8 @@ import android.widget.TextView;
 
 import java.util.HashMap;
 import java.util.List;
+
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
 /**
  * Since {@link android.preference.PreferenceFragment} is not supported with the official support

@@ -34,13 +34,14 @@ Setup
     - Make sure that the radio-button "Use default gradle wrapper (recommended)" is selected.
     - Click "next" and that's it :) tomahawk-android should compile right away
 
-    Setup using other IDEs without Gradle:
+    Setup using other IDEs without gradle:
     - Import tomahawk-android into the IDE of your choice
     - tomahawk-android depends on the following jar libraries:
         - acra-4.5.0.jar
-        - stickylistheaders-77cf3c.jar
         - android.support.v4.jar
-    - In addition tomahawk-android uses the library project "Android Support v7 appcompat library"
+    - In addition tomahawk-android uses these library projects:
+        - Android Support v7 appcompat library
+        - StickyListHeaders (https://github.com/emilsjolander/StickyListHeaders)
     - Make sure you setup the support libraries correctly
       (http://developer.android.com/tools/support-library/setup.html)
     - Add all dependencies to your tomahawk-android project
@@ -55,15 +56,15 @@ Setup
     If you have any further problems, feel free to join the #tomahawk.mobile irc channel on
     irc.freenode.org
 
-Ready to contribute?                  Here's the to-do list :)
+Ready to contribute?
 ================
-https://trello.com/board/tomahawk-android/500c1f61aa1ffaae1b027ba1
+Here's the to-do list :) https://trello.com/board/tomahawk-android/500c1f61aa1ffaae1b027ba1
 
 Code Style Guidelines for Contributors
 ================
 In order to keep everything clean and cozy, please use the official Android code style format preset:
     - https://github.com/android/platform_development/tree/master/ide
-    (use the IntelliJ preset, if you're using Android Studio)
+      (use the IntelliJ preset, if you're using Android Studio)
 
 For a larger overview you should read the official Android "Code Style Guidelines for Contributors":
     - http://source.android.com/source/code-style.html
@@ -80,4 +81,3 @@ http://developer.android.com/sdk/installing/studio.html
 
 Since there are some glitches/bugs and performance issues with Eclipse, the new Android Studio IDE
 (which is based on IntelliJ) is a great alternative.
-

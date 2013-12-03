@@ -210,10 +210,12 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(albums);
-            if (getListAdapter() == null) {
-                setListAdapter(new TomahawkGridAdapter(getActivity(), listArray));
+            if (getGridAdapter() == null) {
+                TomahawkGridAdapter tomahawkGridAdapter = new TomahawkGridAdapter(getActivity(),
+                        listArray);
+                setGridAdapter(tomahawkGridAdapter);
             } else {
-                ((TomahawkGridAdapter) getListAdapter()).setListArray(listArray);
+                getGridAdapter().setListArray(listArray);
             }
             getGridView().setOnItemClickListener(this);
             adaptColumnCount();

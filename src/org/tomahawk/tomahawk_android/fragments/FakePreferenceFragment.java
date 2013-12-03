@@ -238,7 +238,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        getListAdapter().notifyDataSetChanged();
+        ((FakePreferencesAdapter) getListAdapter()).notifyDataSetChanged();
     }
 
     /**
@@ -261,6 +261,6 @@ public class FakePreferenceFragment extends TomahawkListFragment
                 }
             }
         }
-        getListAdapter().notifyDataSetChanged();
+        ((FakePreferencesAdapter) getListAdapter()).notifyDataSetChanged();
     }
 }

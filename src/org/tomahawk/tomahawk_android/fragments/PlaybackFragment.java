@@ -19,8 +19,6 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import com.emilsjolander.components.stickylistheaders.StickyListHeadersListView;
-
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -48,6 +46,8 @@ import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
  * This activity represents our Playback view in which the user can play/stop/pause and show/edit

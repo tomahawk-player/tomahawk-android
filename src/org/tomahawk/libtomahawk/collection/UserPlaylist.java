@@ -17,7 +17,6 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 
 import java.util.ArrayList;

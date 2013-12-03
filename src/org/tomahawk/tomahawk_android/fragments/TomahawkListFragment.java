@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
+import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView;
 
 import android.os.Bundle;
@@ -28,8 +29,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
+
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
 /**
  * More customizable implementation of {@link android.app.ListFragment}
@@ -39,7 +41,9 @@ public class TomahawkListFragment extends Fragment {
     public static final String TOMAHAWK_LIST_SCROLL_POSITION
             = "org.tomahawk.tomahawk_android.tomahawk_list_scroll_position";
 
-    private BaseAdapter mBaseAdapter;
+    private StickyListHeadersAdapter mTomahawkListAdapter;
+
+    private TomahawkGridAdapter mTomahawkGridAdapter;
 
     private boolean mShowGridView;
 
@@ -53,8 +57,7 @@ public class TomahawkListFragment extends Fragment {
 
     final private Runnable mRequestFocus = new Runnable() {
         public void run() {
-            ((mBaseAdapter instanceof TomahawkGridAdapter) ? mGrid : mList).focusableViewAvailable(
-                    ((mBaseAdapter instanceof TomahawkGridAdapter) ? mGrid : mList));
+            (mShowGridView ? mGrid : mList).focusableViewAvailable((mShowGridView ? mGrid : mList));
         }
     };
 
@@ -130,6 +133,9 @@ public class TomahawkListFragment extends Fragment {
                             + "that is not a TomahawkStickyListHeadersListView class");
                 }
                 mList = (TomahawkStickyListHeadersListView) rawListView;
+                if (mTomahawkListAdapter != null) {
+                    setListAdapter(mTomahawkListAdapter);
+                }
             } else {
                 View rawListView = root.findViewById(R.id.gridview);
                 if (!(rawListView instanceof GridView)) {
@@ -142,10 +148,10 @@ public class TomahawkListFragment extends Fragment {
                             + "that is not a GridView class");
                 }
                 mGrid = (GridView) rawListView;
+                if (mTomahawkGridAdapter != null) {
+                    setGridAdapter(mTomahawkGridAdapter);
+                }
             }
-        }
-        if (mBaseAdapter != null) {
-            setListAdapter(mBaseAdapter);
         }
         mHandler.post(mRequestFocus);
     }
@@ -161,27 +167,42 @@ public class TomahawkListFragment extends Fragment {
     }
 
     /**
-     * Get the {@link BaseAdapter} associated with this activity's ListView.
+     * Get the {@link se.emilsjolander.stickylistheaders.StickyListHeadersAdapter} associated with
+     * this activity's ListView.
      */
-    public BaseAdapter getListAdapter() {
-        return mBaseAdapter;
+    public StickyListHeadersAdapter getListAdapter() {
+        return mTomahawkListAdapter;
     }
 
     /**
-     * Set the {@link BaseAdapter} associated with this activity's ListView.
+     * Get the {@link org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter} associated with
+     * this activity's GridView.
      */
-    public void setListAdapter(BaseAdapter adapter) {
-        mBaseAdapter = adapter;
-        if (mBaseAdapter instanceof TomahawkGridAdapter) {
-            mShowGridView = true;
-            GridView gridView = getGridView();
-            gridView.setAdapter(adapter);
-            gridView.setSelection(mListScrollPosition);
-        } else {
-            mShowGridView = false;
-            TomahawkStickyListHeadersListView listView = getListView();
-            listView.setAdapter(adapter);
-            listView.setSelection(mListScrollPosition);
-        }
+    public TomahawkGridAdapter getGridAdapter() {
+        return mTomahawkGridAdapter;
+    }
+
+    /**
+     * Set the {@link org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter} associated with
+     * this activity's ListView.
+     */
+    public void setListAdapter(StickyListHeadersAdapter adapter) {
+        mTomahawkListAdapter = adapter;
+        mShowGridView = false;
+        TomahawkStickyListHeadersListView listView = getListView();
+        listView.setAdapter(adapter);
+        listView.setSelection(mListScrollPosition);
+    }
+
+    /**
+     * Set the {@link org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter} associated with
+     * this activity's GridView.
+     */
+    public void setGridAdapter(TomahawkGridAdapter adapter) {
+        mTomahawkGridAdapter = adapter;
+        mShowGridView = true;
+        GridView gridView = getGridView();
+        gridView.setAdapter(adapter);
+        gridView.setSelection(mListScrollPosition);
     }
 }

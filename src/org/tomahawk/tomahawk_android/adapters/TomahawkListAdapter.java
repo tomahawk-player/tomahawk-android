@@ -17,14 +17,13 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
-import com.emilsjolander.components.stickylistheaders.StickyListHeadersAdapter;
-
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView;
 
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
@@ -32,10 +31,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.List;
+
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
 /**
  * This class is used to populate a {@link org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}.
@@ -122,7 +122,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
      * @param contentHeaderTomahawkListItem the {@link TomahawkListItem}'s information to show in
      *                                      the header view
      */
-    public void setShowContentHeader(boolean showContentHeader, ListView list,
+    public void setShowContentHeader(boolean showContentHeader,
+            TomahawkStickyListHeadersListView list,
             TomahawkBaseAdapter.TomahawkListItem contentHeaderTomahawkListItem) {
         mContentHeaderTomahawkListItem = contentHeaderTomahawkListItem;
         mShowContentHeader = showContentHeader;
@@ -169,7 +170,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
      * @param list          a reference to the list, so we can set its footer view
      * @param buttonText    {@link String} containing the button's text to show
      */
-    public void setShowAddButton(boolean showAddButton, ListView list, String buttonText) {
+    public void setShowAddButton(boolean showAddButton, TomahawkStickyListHeadersListView list,
+            String buttonText) {
         mShowAddButton = showAddButton;
         View addButtonFooterView = mLayoutInflater.inflate(R.layout.add_button_layout, null);
         if (addButtonFooterView != null && list.getFooterViewsCount() == 0) {
