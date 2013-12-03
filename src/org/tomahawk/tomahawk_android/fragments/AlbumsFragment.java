@@ -164,12 +164,16 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         position -= getListView().getHeaderViewsCount();
         if (position >= 0) {
-            if (getListAdapter().getItem(position) instanceof Album) {
-                mTomahawkMainActivity.getUserCollection()
-                        .setCachedAlbum((Album) getListAdapter().getItem(position));
-                mTomahawkMainActivity.getContentViewer().
-                        replace(mCorrespondingHubId, TracksFragment.class, -1,
-                                UserCollection.USERCOLLECTION_ALBUMCACHED, false);
+            Object item;
+            if (mArtist != null) {
+                item = getListAdapter().getItem(position);
+            } else {
+                item = getGridAdapter().getItem(position);
+            }
+            if (item instanceof Album) {
+                mTomahawkMainActivity.getUserCollection().setCachedAlbum((Album) item);
+                mTomahawkMainActivity.getContentViewer().replace(mCorrespondingHubId,
+                        TracksFragment.class, -1, UserCollection.USERCOLLECTION_ALBUMCACHED, false);
             }
         }
     }
