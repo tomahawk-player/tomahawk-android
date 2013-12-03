@@ -18,11 +18,13 @@
 package org.tomahawk.tomahawk_android.dialogs;
 
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Typeface;
@@ -30,6 +32,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
@@ -81,6 +84,7 @@ public class LoginDialog extends DialogFragment {
                         mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
                     } else {
                         stopLoadingAnimation();
+                        updateButtonTexts();
                     }
                     break;
             }
@@ -121,8 +125,15 @@ public class LoginDialog extends DialogFragment {
         @Override
         public void onClick(View v) {
             if (mTomahawkService.getSpotifyUserId() != null) {
-                mTomahawkService.logoutSpotify();
                 startLoadingAnimation();
+                mTomahawkService.logoutSpotify();
+
+                SharedPreferences sharedPreferences = PreferenceManager
+                        .getDefaultSharedPreferences(TomahawkApp.getContext());
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.remove(TomahawkService.SPOTIFY_CREDS_BLOB);
+                editor.remove(TomahawkService.SPOTIFY_CREDS_EMAIL);
+                editor.commit();
             } else {
                 hideSoftKeyboard();
                 getDialog().cancel();
@@ -281,6 +292,5 @@ public class LoginDialog extends DialogFragment {
         } else {
             mStatusImageView.setImageDrawable(mNotLoggedInDrawable);
         }
-        updateButtonTexts();
     }
 }

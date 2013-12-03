@@ -93,9 +93,14 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
         mFakePreferencesSpinnerResourceHolder.textViewId2 = R.id.fake_preferences_textview2;
     }
 
+    @Override
+    public void notifyDataSetChanged(){
+        super.notifyDataSetChanged();
+    }
+
     /**
      * @return the total amount of all {@link FakePreferenceGroup}s this {@link
-     *         FakePreferencesAdapter} displays
+     * FakePreferencesAdapter} displays
      */
     @Override
     public int getCount() {
@@ -226,29 +231,16 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
 
             // After we've setup the correct view and viewHolder, we now can fill the View's
             // components with the correct data
-            if (viewHolder.viewType == R.id.fakepreferencesadapter_viewtype_plain) {
-                FakePreferenceGroup.FakePreference fakePreference
-                        = (FakePreferenceGroup.FakePreference) item;
-                viewHolder.textFirstLine.setText(fakePreference.getTitle());
-                viewHolder.textSecondLine.setText(fakePreference.getSummary());
-            } else if (viewHolder.viewType == R.id.fakepreferencesadapter_viewtype_checkbox) {
-                FakePreferenceGroup.FakePreference fakePreference
-                        = (FakePreferenceGroup.FakePreference) item;
+            FakePreferenceGroup.FakePreference fakePreference
+                    = (FakePreferenceGroup.FakePreference) item;
+            if (viewHolder.viewType == R.id.fakepreferencesadapter_viewtype_checkbox) {
                 boolean preferenceState = mSharedPreferences
                         .getBoolean(fakePreference.getKey(), false);
                 viewHolder.checkBox.setChecked(preferenceState);
-                viewHolder.textFirstLine.setText(fakePreference.getTitle());
-                viewHolder.textSecondLine.setText(fakePreference.getSummary());
             } else if (viewHolder.viewType == R.id.fakepreferencesadapter_viewtype_dialog) {
-                FakePreferenceGroup.FakePreference fakePreference
-                        = (FakePreferenceGroup.FakePreference) item;
                 viewHolder.checkBox.setChecked(fakePreference.isCheckboxState());
-                viewHolder.textFirstLine.setText(fakePreference.getTitle());
-                viewHolder.textSecondLine.setText(fakePreference.getSummary());
                 mProgressDrawables.put(fakePreference.getKey(), viewHolder.imageViewRight);
             } else if (viewHolder.viewType == R.id.fakepreferencesadapter_viewtype_spinner) {
-                FakePreferenceGroup.FakePreference fakePreference
-                        = (FakePreferenceGroup.FakePreference) item;
                 final String key = fakePreference.getKey();
                 viewHolder.spinner.setSelection(mSharedPreferences
                         .getInt(key, TomahawkService.SPOTIFY_PREF_BITRATE_MODE_MEDIUM));
@@ -267,9 +259,9 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                             public void onNothingSelected(AdapterView<?> parent) {
                             }
                         });
-                viewHolder.textFirstLine.setText(fakePreference.getTitle());
-                viewHolder.textSecondLine.setText(fakePreference.getSummary());
             }
+            viewHolder.textFirstLine.setText(fakePreference.getTitle());
+            viewHolder.textSecondLine.setText(fakePreference.getSummary());
         }
 
         // Finally we can return the the correct view
@@ -287,23 +279,28 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
      */
     @Override
     public View getHeaderView(int position, View convertView, ViewGroup parent) {
+        View view;
         TomahawkBaseAdapter.ViewHolder viewHolder;
 
         // First we inflate the correct view and set the correct resource ids in the viewHolder.
         // We don't do this if convertView already contains a properly setup View, that we can re-use.
         if (convertView == null || ((TomahawkBaseAdapter.ViewHolder) convertView.getTag()).viewType
                 != R.id.tomahawklistadapter_viewtype_header) {
-            convertView = mLayoutInflater.inflate(mHeaderResourceHolder.resourceId, null);
+            view = mLayoutInflater.inflate(mHeaderResourceHolder.resourceId, null);
             viewHolder = new TomahawkBaseAdapter.ViewHolder();
             viewHolder.viewType = R.id.tomahawklistadapter_viewtype_header;
-            viewHolder.textFirstLine = (TextView) convertView
-                    .findViewById(mHeaderResourceHolder.textViewId1);
-            convertView.setTag(viewHolder);
+            viewHolder.textFirstLine = (TextView) view.findViewById(
+                    mHeaderResourceHolder.textViewId1);
+            view.setTag(viewHolder);
+        } else {
+            // Else we can simply re-use the old View referenced by convertView
+            view = convertView;
+            // set the viewHolder by getting the old viewHolder from the view's tag
+            viewHolder = (TomahawkBaseAdapter.ViewHolder) view.getTag();
         }
 
         // After we've setup the correct view and viewHolder, we now can set the text for
         // the previously inflated header view
-        viewHolder = (TomahawkBaseAdapter.ViewHolder) convertView.getTag();
         int sizeSum = 0;
         for (FakePreferenceGroup fakePreferenceGroup : mFakePreferenceGroups) {
             sizeSum += fakePreferenceGroup.getFakePreferences().size();
@@ -314,7 +311,7 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
         }
 
         // Finally we can return the the correct view
-        return convertView;
+        return view;
     }
 
     /**
