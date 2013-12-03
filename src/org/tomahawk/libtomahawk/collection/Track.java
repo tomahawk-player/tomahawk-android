@@ -17,7 +17,6 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
-import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 

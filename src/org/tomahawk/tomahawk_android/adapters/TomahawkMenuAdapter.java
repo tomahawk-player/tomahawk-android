@@ -17,8 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
-import com.emilsjolander.components.stickylistheaders.StickyListHeadersAdapter;
-
 import org.tomahawk.tomahawk_android.R;
 
 import android.app.Activity;
@@ -32,6 +30,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
 /**
  * This class populates the listview inside the navigation drawer
