@@ -84,6 +84,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
             if (TomahawkMainActivity.TOMAHAWKSERVICE_READY.equals(intent.getAction())) {
                 mTomahawkMainActivity.getTomahawkService()
                         .setOnLoggedInOutListener(FakePreferenceFragment.this);
+                updateLogInOutState();
             }
         }
     }
@@ -158,12 +159,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
         getListView().setOnItemClickListener(this);
 
-        // Initialize the state of the "Spotify"-FakePreference's checkbox
-        if (mTomahawkMainActivity.getTomahawkService() != null
-                && mTomahawkMainActivity.getTomahawkService().getSpotifyUserId() != null) {
-            // SpotifyUserId is set, so we know that is Spotify is logged in
-            onLoggedInOut(TomahawkApp.RESOLVER_ID_SPOTIFY, true);
-        }
+        updateLogInOutState();
     }
 
     /**
@@ -262,5 +258,16 @@ public class FakePreferenceFragment extends TomahawkListFragment
             }
         }
         ((FakePreferencesAdapter) getListAdapter()).notifyDataSetChanged();
+    }
+
+    public void updateLogInOutState() {
+        // Initialize the state of the "Spotify"-FakePreference's checkbox
+        if (mTomahawkMainActivity.getTomahawkService() != null
+                && mTomahawkMainActivity.getTomahawkService().getSpotifyUserId() != null) {
+            // SpotifyUserId is set, so we know that is Spotify is logged in
+            onLoggedInOut(TomahawkApp.RESOLVER_ID_SPOTIFY, true);
+        } else {
+            onLoggedInOut(TomahawkApp.RESOLVER_ID_SPOTIFY, false);
+        }
     }
 }

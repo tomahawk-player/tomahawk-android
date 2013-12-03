@@ -123,12 +123,6 @@ public class TomahawkService extends Service {
             if (mOnLoggedInOutListener != null) {
                 mOnLoggedInOutListener.onLoggedInOut(TomahawkApp.RESOLVER_ID_SPOTIFY, loggedIn);
             }
-            if (!loggedIn) {
-                SharedPreferences.Editor editor = mSharedPreferences.edit();
-                editor.remove(SPOTIFY_CREDS_BLOB);
-                editor.remove(SPOTIFY_CREDS_EMAIL);
-                editor.commit();
-            }
             SpotifyResolver spotifyResolver = (SpotifyResolver) ((TomahawkApp) getApplication())
                     .getPipeLine().getResolver(TomahawkApp.RESOLVER_ID_SPOTIFY);
             spotifyResolver.setReady(loggedIn);
