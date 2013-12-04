@@ -37,7 +37,7 @@ Setup
     Setup using other IDEs without gradle:
     - Import tomahawk-android into the IDE of your choice
     - tomahawk-android depends on the following jar libraries:
-        - acra-4.5.0.jar
+        - acra-4.5.0.jar (https://github.com/ACRA/acra)
         - android.support.v4.jar
     - In addition tomahawk-android uses these library projects:
         - Android Support v7 appcompat library
