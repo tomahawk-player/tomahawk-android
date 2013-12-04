@@ -27,10 +27,10 @@ repositories {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: '*.jar')
     compile "com.android.support:appcompat-v7:19.0.0"
     compile "com.android.support:support-v4:19.0.0"
     compile "se.emilsjolander:stickylistheaders:2.1.3"
+    compile "ch.acra:acra:4.5.0"
 }
 
 android {
