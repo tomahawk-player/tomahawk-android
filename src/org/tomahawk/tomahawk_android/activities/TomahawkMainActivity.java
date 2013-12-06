@@ -279,13 +279,13 @@ public class TomahawkMainActivity extends ActionBarActivity
                 /** Called when a drawer has settled in a completely closed state. */
                 public void onDrawerClosed(View view) {
                     getSupportActionBar().setTitle(mTitle);
-                    invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                    supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
                 }
 
                 /** Called when a drawer has settled in a completely open state. */
                 public void onDrawerOpened(View drawerView) {
                     getSupportActionBar().setTitle(mDrawerTitle);
-                    invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                    supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
                 }
             };
             // Set the drawer toggle as the DrawerListener
