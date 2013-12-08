@@ -26,10 +26,14 @@ public class ResultComparator implements Comparator<Result> {
 
     //Modes which determine with which method are compared
 
-    public static final int COMPARE_SCORE = 2;
+    public static final int COMPARE_TRACK_SCORE = 2;
+
+    public static final int COMPARE_ALBUM_SCORE = 3;
+
+    public static final int COMPARE_ARTIST_SCORE = 4;
 
     //Flag containing the current mode to be used
-    private static int mFlag = COMPARE_SCORE;
+    private static int mFlag = COMPARE_TRACK_SCORE;
 
     /**
      * Construct this {@link ResultComparator}
@@ -50,10 +54,20 @@ public class ResultComparator implements Comparator<Result> {
      * @return int containing comparison score
      */
     public int compare(Result r1, Result r2) {
+        Float score1;
+        Float score2;
         switch (mFlag) {
-            case COMPARE_SCORE:
-                Float score1 = r1.getScore();
-                Float score2 = r2.getScore();
+            case COMPARE_TRACK_SCORE:
+                score1 = r1.getTrackScore();
+                score2 = r2.getTrackScore();
+                return score2.compareTo(score1);
+            case COMPARE_ALBUM_SCORE:
+                score1 = r1.getAlbumScore();
+                score2 = r2.getAlbumScore();
+                return score2.compareTo(score1);
+            case COMPARE_ARTIST_SCORE:
+                score1 = r1.getArtistScore();
+                score2 = r2.getArtistScore();
                 return score2.compareTo(score1);
         }
         return 0;

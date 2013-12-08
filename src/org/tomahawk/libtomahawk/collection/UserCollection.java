@@ -44,15 +44,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class UserCollection extends Collection {
 
-    public static final String USERCOLLECTION_ARTISTCACHED
-            = "org.tomahawk.tomahawk_android.USERCOLLECTION_ARTISTCACHED";
-
-    public static final String USERCOLLECTION_ALBUMCACHED
-            = "org.tomahawk.tomahawk_android.USERCOLLECTION_ALBUMCACHED";
-
-    public static final String USERCOLLECTION_PLAYLISTCACHED
-            = "org.tomahawk.tomahawk_android.USERCOLLECTION_PLAYLISTCACHED";
-
     public static final int Id = 0;
 
     private TomahawkApp mTomahawkApp;

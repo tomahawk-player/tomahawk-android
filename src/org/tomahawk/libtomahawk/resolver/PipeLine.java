@@ -58,8 +58,6 @@ public class PipeLine {
 
     private ConcurrentHashMap<String, Query> mQids = new ConcurrentHashMap<String, Query>();
 
-    private ConcurrentHashMap<String, String> mQueryMap = new ConcurrentHashMap<String, String>();
-
     public PipeLine(TomahawkApp tomahawkApp) {
         mTomahawkApp = tomahawkApp;
     }
@@ -96,19 +94,12 @@ public class PipeLine {
      * is a {@link Query} with the same fullTextQuery, the old resultList will be reported.
      */
     public String resolve(String fullTextQuery, boolean onlyLocal) {
-        Query q = null;
         if (fullTextQuery != null && !TextUtils.isEmpty(fullTextQuery)) {
-            if (mQueryMap.containsKey(Query.constructCacheKey(fullTextQuery)) &&
-                    mQids.get(mQueryMap.get(Query.constructCacheKey(fullTextQuery))).isOnlyLocal()
-                            == onlyLocal) {
-                q = mQids.get(mQueryMap.get(Query.constructCacheKey(fullTextQuery)));
-            }
-            if (q == null) {
-                q = new Query(fullTextQuery, onlyLocal);
-            }
+            Query q = new Query(fullTextQuery, onlyLocal);
             resolve(q, onlyLocal);
+            return q.getQid();
         }
-        return q == null ? null : q.getQid();
+        return null;
     }
 
     /**
@@ -131,21 +122,12 @@ public class PipeLine {
      */
     public String resolve(String trackName, String albumName, String artistName,
             boolean onlyLocal) {
-        Query q = null;
         if (trackName != null && !TextUtils.isEmpty(trackName)) {
-            if (mQueryMap.contains(Query.constructCacheKey(trackName, albumName, artistName)) &&
-                    mQids.get(mQueryMap
-                            .get(Query.constructCacheKey(trackName, albumName, artistName)))
-                            .isOnlyLocal() == onlyLocal) {
-                q = mQids.get(mQueryMap
-                        .get(Query.constructCacheKey(trackName, albumName, artistName)));
-            }
-            if (q == null) {
-                q = new Query(trackName, albumName, artistName, onlyLocal);
-            }
+            Query q = new Query(trackName, albumName, artistName, onlyLocal);
             resolve(q, onlyLocal);
+            return q.getQid();
         }
-        return q == null ? null : q.getQid();
+        return null;
     }
 
     /**
@@ -165,17 +147,8 @@ public class PipeLine {
             } else {
                 sendReportNonFulltextQueryResultsBroadcast(q.getQid());
             }
-        } else if (!mQids.containsKey(q.getQid())) {
-            mQids.put(q.getQid(), q);
-            for (Resolver resolver : mResolvers) {
-                if ((!onlyLocal && resolver instanceof SpotifyResolver
-                        && ((SpotifyResolver) resolver).isReady()) || (onlyLocal
-                        && resolver instanceof DataBaseResolver) || !onlyLocal) {
-                    resolver.resolve(q);
-                    q.incResolversTodoCount();
-                }
-            }
         } else {
+            mQids.put(q.getQid(), q);
             for (Resolver resolver : mResolvers) {
                 if ((!onlyLocal && resolver instanceof SpotifyResolver
                         && ((SpotifyResolver) resolver).isReady()) || (onlyLocal
@@ -194,7 +167,7 @@ public class PipeLine {
         if (album != null && album.getQueries() != null) {
             for (Query query : album.getQueries()) {
                 if (!query.isSolved()) {
-                    String queryId = resolve(query.getName(), query.getAlbum().getName(),
+                    resolve(query.getName(), query.getAlbum().getName(),
                             query.getArtist().getName());
                 }
             }
@@ -250,9 +223,8 @@ public class PipeLine {
                 }
             }
             mQids.get(qid).addArtistResults(cleanArtistResults);
-            //            mQids.get(qid).addAlbumResults(cleanAlbumResults);
+            mQids.get(qid).addAlbumResults(cleanAlbumResults);
             mQids.get(qid).addTrackResults(cleanTrackResults);
-            mQids.get(qid).incResolversDoneCount();
             if (q.isFullTextQuery()) {
                 sendReportFulltextQueryResultsBroadcast(q.getQid());
             } else {

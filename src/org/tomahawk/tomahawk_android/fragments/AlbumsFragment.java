@@ -23,6 +23,7 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.hatchet.InfoRequestData;
 import org.tomahawk.libtomahawk.hatchet.InfoSystem;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -33,6 +34,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -103,18 +105,9 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
         super.onCreate(savedInstanceState);
         if (mTomahawkMainActivity.getUserCollection() != null && getArguments() != null
                 && getArguments().containsKey(TOMAHAWK_ARTIST_KEY)
-                && getArguments().getLong(TOMAHAWK_ARTIST_KEY) > 0) {
+                && !TextUtils.isEmpty(getArguments().getString(TOMAHAWK_ARTIST_KEY))) {
             mArtist = mTomahawkMainActivity.getUserCollection()
                     .getArtistByKey(getArguments().getString(TOMAHAWK_ARTIST_KEY));
-        } else if (getArguments().containsKey(UserCollection.USERCOLLECTION_ARTISTCACHED)) {
-            mArtist = mTomahawkMainActivity.getUserCollection().getCachedArtist();
-            String requestId = mInfoSystem
-                    .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTALBUMS, true,
-                            mTomahawkMainActivity.getUserCollection().getCachedArtist().getName());
-            mCurrentRequestIds.add(requestId);
-            requestId = mInfoSystem.resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTINFO, true,
-                    mTomahawkMainActivity.getUserCollection().getCachedArtist().getName());
-            mCurrentRequestIds.add(requestId);
         }
     }
 
@@ -168,9 +161,11 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                 item = getGridAdapter().getItem(position);
             }
             if (item instanceof Album) {
-                mTomahawkMainActivity.getUserCollection().setCachedAlbum((Album) item);
+                Bundle bundle = new Bundle();
+                String key = TomahawkUtils.getCacheKey((Album) item);
+                bundle.putString(TOMAHAWK_ALBUM_KEY, key);
                 mTomahawkMainActivity.getContentViewer().replace(mCorrespondingHubId,
-                        TracksFragment.class, "", UserCollection.USERCOLLECTION_ALBUMCACHED, false);
+                        TracksFragment.class, key, TOMAHAWK_ALBUM_KEY, false);
             }
         }
     }

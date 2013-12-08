@@ -18,9 +18,7 @@
 package org.tomahawk.libtomahawk.resolver;
 
 import org.tomahawk.libtomahawk.collection.Album;
-import org.tomahawk.libtomahawk.collection.AlbumComparator;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.ArtistComparator;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -30,7 +28,6 @@ import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 18.01.13
@@ -50,13 +47,11 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
 
     private Track mTrack;
 
+    private boolean mPlayable = false;
+
     private boolean mSolved = false;
 
     private int mTrackResultHint = 0;
-
-    private int mResolversTodoCount = 0;
-
-    private int mResolversDoneCount = 0;
 
     private String mQid;
 
@@ -103,20 +98,12 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
                 result.getTrack().getArtist().getName(), onlyLocal);
     }
 
-    public static String constructCacheKey(String fullTextQuery) {
-        return fullTextQuery;
-    }
-
-    public static String constructCacheKey(String trackName, String albumName, String artistName) {
-        return trackName + "+" + albumName + "+" + artistName;
-    }
-
     /**
      * @return An ArrayList<Result> which contains all tracks in the resultList, sorted by score.
      * Given as Results.
      */
     public ArrayList<Result> getTrackResults() {
-        Collections.sort(mTrackResults, new ResultComparator(ResultComparator.COMPARE_SCORE));
+        Collections.sort(mTrackResults, new ResultComparator(ResultComparator.COMPARE_TRACK_SCORE));
         return mTrackResults;
     }
 
@@ -127,9 +114,11 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
     public ArrayList<Query> getTrackQueries() {
         ArrayList<Query> queries = new ArrayList<Query>();
         for (Result result : mTrackResults) {
-            queries.add(new Query(result, isOnlyLocal()));
+            Query query = new Query(result, isOnlyLocal());
+            query.addTrackResult(result);
+            queries.add(query);
         }
-        Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_SCORE));
+        Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_TRACK_SCORE));
         return queries;
     }
 
@@ -149,7 +138,10 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
     }
 
     public void addTrackResult(Result result) {
-        mSolved = true;
+        mPlayable = true;
+        if (result.getTrackScore() == 1f) {
+            mSolved = true;
+        }
         mTrackResults.add(result);
     }
 
@@ -166,7 +158,7 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
      * @return A ArrayList<Album> which contains all albums in the resultList, sorted by score.
      */
     public ArrayList<Album> getAlbumResults() {
-        Collections.sort(mAlbumResults, new ResultComparator(ResultComparator.COMPARE_SCORE));
+        Collections.sort(mAlbumResults, new ResultComparator(ResultComparator.COMPARE_ALBUM_SCORE));
         ArrayList<Album> albums = new ArrayList<Album>();
         for (Result result : mAlbumResults) {
             albums.add(result.getAlbum());
@@ -183,7 +175,7 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
      */
     public void addAlbumResults(ArrayList<Result> results) {
         for (Result result : results) {
-            mAlbumResults.add(result);
+            addAlbumResult(result);
         }
     }
 
@@ -191,7 +183,8 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
      * @return the ArrayList containing all track results
      */
     public ArrayList<Artist> getArtistResults() {
-        Collections.sort(mArtistResults, new ResultComparator(ResultComparator.COMPARE_SCORE));
+        Collections
+                .sort(mArtistResults, new ResultComparator(ResultComparator.COMPARE_ARTIST_SCORE));
         ArrayList<Artist> artists = new ArrayList<Artist>();
         for (Result result : mArtistResults) {
             artists.add(result.getArtist());
@@ -209,7 +202,7 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
      */
     public void addArtistResults(ArrayList<Result> results) {
         for (Result result : results) {
-            mArtistResults.add(result);
+            addArtistResult(result);
         }
     }
 
@@ -223,6 +216,10 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
 
     public boolean isOnlyLocal() {
         return mIsOnlyLocal;
+    }
+
+    public boolean isPlayable() {
+        return mPlayable;
     }
 
     public boolean isSolved() {
@@ -240,6 +237,18 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
         String resultArtistName = "";
         String resultAlbumName = "";
         String resultTrackName = "";
+        String artistName;
+        String albumName;
+        String trackName;
+        if (isFullTextQuery()) {
+            artistName = cleanUpString(mFullTextQuery, true);
+            albumName = cleanUpString(mFullTextQuery, false);
+            trackName = albumName;
+        } else {
+            artistName = cleanUpString(mTrack.getArtist().getName(), false);
+            albumName = cleanUpString(mTrack.getAlbum().getName(), false);
+            trackName = cleanUpString(mTrack.getName(), false);
+        }
         if (r.getArtist().getName() != null) {
             resultArtistName = cleanUpString(r.getArtist().getName(), false);
         }
@@ -251,16 +260,16 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
         }
 
         int distanceArtist = TomahawkUtils
-                .getLevenshteinDistance(mTrack.getArtist().getName(), resultArtistName);
+                .getLevenshteinDistance(artistName, resultArtistName);
         int distanceAlbum = TomahawkUtils
-                .getLevenshteinDistance(mTrack.getAlbum().getName(), resultAlbumName);
-        int distanceTrack = TomahawkUtils.getLevenshteinDistance(mTrack.getName(), resultTrackName);
+                .getLevenshteinDistance(albumName, resultAlbumName);
+        int distanceTrack = TomahawkUtils.getLevenshteinDistance(trackName, resultTrackName);
 
         int maxLengthArtist = Math
-                .max(mTrack.getArtist().getName().length(), resultArtistName.length());
+                .max(artistName.length(), resultArtistName.length());
         int maxLengthAlbum = Math
-                .max(mTrack.getAlbum().getName().length(), resultAlbumName.length());
-        int maxLengthTrack = Math.max(mTrack.getName().length(), resultTrackName.length());
+                .max(albumName.length(), resultAlbumName.length());
+        int maxLengthTrack = Math.max(trackName.length(), resultTrackName.length());
 
         float distanceScoreArtist = (float) (maxLengthArtist - distanceArtist) / maxLengthArtist;
         float distanceScoreAlbum;
@@ -332,20 +341,6 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
             out = out.substring(4);
         }
         return out;
-    }
-
-    public void incResolversTodoCount() {
-        mResolversTodoCount++;
-        updateSolved();
-    }
-
-    public void incResolversDoneCount() {
-        mResolversDoneCount++;
-        updateSolved();
-    }
-
-    private void updateSolved() {
-        mSolved = mResolversDoneCount != 0 && mResolversTodoCount == mResolversDoneCount;
     }
 
     @Override

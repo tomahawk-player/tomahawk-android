@@ -77,7 +77,7 @@ public class TomahawkFragment extends TomahawkListFragment
     public static final String TOMAHAWK_ARTIST_KEY
             = "org.tomahawk.tomahawk_android.tomahawk_artist_id";
 
-    public static final String TOMAHAWK_PLAYLIST_ID
+    public static final String TOMAHAWK_PLAYLIST_KEY
             = "org.tomahawk.tomahawk_android.tomahawk_playlist_id";
 
     public static final String TOMAHAWK_HUB_ID = "org.tomahawk.tomahawk_android.tomahawk_hub_id";
