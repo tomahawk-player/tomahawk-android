@@ -21,18 +21,42 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
 
+import android.text.TextUtils;
+
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * This class represents a {@link Result}, which will be returned by a {@link Resolver}.
  */
 public class Result {
 
-    private Resolver mResolver;
+    private static ConcurrentHashMap<String, Result> mResults
+            = new ConcurrentHashMap<String, Result>();
 
     private Artist mArtist;
 
     private Album mAlbum;
 
     private Track mTrack;
+
+    /**
+     * Path of file or URL.
+     */
+    private String mPath;
+
+    private int mBitrate;
+
+    private int mSize;
+
+    private Resolver mResolvedBy;
+
+    private String mLinkUrl;
+
+    private String mPurchaseUrl;
+
+    private float mScore;
+
+    private boolean isResolved;
 
     private float mTrackScore;
 
@@ -41,15 +65,20 @@ public class Result {
     private float mArtistScore;
 
     /**
-     * Default constructor
+     * Construct a new {@link Result} with the given {@link Track}
      */
-    public Result() {
+    private Result(String url, Query query) {
+        setPath(url);
+        mArtist = query.getArtist();
+        mAlbum = query.getAlbum();
+        mTrack = query.getPreferredTrackResult().getTrack();
     }
 
     /**
      * Construct a new {@link Result} with the given {@link Track}
      */
-    public Result(Track track) {
+    private Result(String url, Track track) {
+        setPath(url);
         mArtist = track.getArtist();
         mAlbum = track.getAlbum();
         mTrack = track;
@@ -58,7 +87,8 @@ public class Result {
     /**
      * Construct a new {@link Result} with the given {@link Artist}
      */
-    public Result(Artist artist) {
+    private Result(String url, Artist artist) {
+        setPath(url);
         mArtist = artist;
         mAlbum = artist.getAlbum();
     }
@@ -66,8 +96,44 @@ public class Result {
     /**
      * Construct a new {@link Result} with the given {@link Album}
      */
-    public Result(Album album) {
+    private Result(Album album) {
         mAlbum = album;
+    }
+
+    public static Result get(String url, Query query) {
+        Result result = mResults.get(url);
+        if (result == null) {
+            result = new Result(url, query);
+            mResults.put(url, result);
+        }
+        return result;
+    }
+
+    public static Result get(String url, Track track) {
+        Result result = mResults.get(url);
+        if (result == null) {
+            result = new Result(url, track);
+            mResults.put(url, result);
+        }
+        return result;
+    }
+
+    public static Result get(String url, Album album) {
+        Result result = mResults.get(url);
+        if (result == null) {
+            result = new Result(album);
+            mResults.put(url, result);
+        }
+        return result;
+    }
+
+    public static Result get(String url, Artist artist) {
+        Result result = mResults.get(url);
+        if (result == null) {
+            result = new Result(url, artist);
+            mResults.put(url, result);
+        }
+        return result;
     }
 
     /**
@@ -96,9 +162,6 @@ public class Result {
      */
     public void setTrackScore(float score) {
         this.mTrackScore = score;
-        if (getTrack() != null) {
-            getTrack().setScore(score);
-        }
     }
 
     /**
@@ -113,9 +176,6 @@ public class Result {
      */
     public void setAlbumScore(float score) {
         this.mAlbumScore = score;
-        if (getAlbum() != null) {
-            getAlbum().setScore(score);
-        }
     }
 
     /**
@@ -130,9 +190,6 @@ public class Result {
      */
     public void setArtistScore(float score) {
         this.mArtistScore = score;
-        if (getArtist() != null) {
-            getArtist().setScore(score);
-        }
     }
 
     /**
@@ -166,14 +223,112 @@ public class Result {
     /**
      * @return the {@link Resolver} associated with this {@link Result}
      */
-    public Resolver getResolver() {
-        return mResolver;
+    public Resolver getResolvedBy() {
+        return mResolvedBy;
     }
 
     /**
      * Set the given {@link Resolver} as this {@link Result}'s {@link Resolver}
      */
-    public void setResolver(Resolver resolver) {
-        this.mResolver = resolver;
+    public void setResolvedBy(Resolver resolvedBy) {
+        this.mResolvedBy = resolvedBy;
+    }
+
+    /**
+     * @return the filePath/url to this {@link org.tomahawk.libtomahawk.resolver.Result}'s audio
+     * data
+     */
+    public String getPath() {
+        return mPath;
+    }
+
+    /**
+     * Set the filePath/url to this {@link org.tomahawk.libtomahawk.resolver.Result}'s audio data
+     *
+     * @param path the filePath/url to this {@link org.tomahawk.libtomahawk.resolver.Result}'s audio
+     *             data
+     */
+    public void setPath(String path) {
+        this.mPath = path;
+        if (path != null && !TextUtils.isEmpty(path)) {
+            isResolved = true;
+        }
+    }
+
+    /**
+     * @return this {@link Track}'s bitrate
+     */
+    public int getBitrate() {
+        return mBitrate;
+    }
+
+    /**
+     * Set this {@link Track}'s bitrate
+     */
+    public void setBitrate(int bitrate) {
+        this.mBitrate = bitrate;
+    }
+
+    /**
+     * @return this {@link Track}'s filesize
+     */
+    public int getSize() {
+        return mSize;
+    }
+
+    /**
+     * Set this {@link Track}'s filesize
+     */
+    public void setSize(int size) {
+        this.mSize = size;
+    }
+
+    /**
+     * @return this {@link Track}'s score
+     */
+    public float getScore() {
+        return mScore;
+    }
+
+    /**
+     * Set this {@link Track}'s score
+     */
+    public void setScore(float score) {
+        this.mScore = score;
+    }
+
+    /**
+     * @return this {@link Track}'s purchase url
+     */
+    public String getPurchaseUrl() {
+        return mPurchaseUrl;
+    }
+
+    /**
+     * Set this {@link Track}'s purchase url
+     */
+    public void setPurchaseUrl(String mPurchaseUrl) {
+        this.mPurchaseUrl = mPurchaseUrl;
+    }
+
+    /**
+     * @return this {@link Track}'s link url
+     */
+    public String getLinkUrl() {
+        return mLinkUrl;
+    }
+
+    /**
+     * Set this {@link Track}'s link url
+     */
+    public void setLinkUrl(String mLinkUrl) {
+        this.mLinkUrl = mLinkUrl;
+    }
+
+    /**
+     * @return whether or not this {@link Track} has been resolved
+     */
+    public boolean isResolved() {
+        return isResolved;
     }
 }

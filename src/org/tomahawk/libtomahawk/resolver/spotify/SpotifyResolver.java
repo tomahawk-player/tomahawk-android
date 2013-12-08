@@ -87,13 +87,7 @@ public class SpotifyResolver implements Resolver {
     @Override
     public void resolve(Query query) {
         mStopped = false;
-        if (!query.isFullTextQuery()) {
-            LibSpotifyWrapper.resolve(query.getQid(),
-                    query.getArtistName() + " " + query.getTrackName() + " " + query.getAlbumName(),
-                    this);
-        } else {
-            LibSpotifyWrapper.resolve(query.getQid(), query.getFullTextQuery(), this);
-        }
+        LibSpotifyWrapper.resolve(query.getQid(), query, this);
     }
 
     /**

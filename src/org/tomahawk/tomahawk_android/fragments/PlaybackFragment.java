@@ -175,7 +175,7 @@ public class PlaybackFragment extends TomahawkFragment
             if (item.getItemId() == R.id.action_clearplaylist_item) {
                 while (playbackService != null
                         && playbackService.getCurrentPlaylist().getCount() > 0) {
-                    playbackService.deleteTrackAtPos(0);
+                    playbackService.deleteQueryAtPos(0);
                 }
                 return true;
             } else if (item.getItemId() == R.id.action_saveplaylist_item) {
@@ -196,11 +196,11 @@ public class PlaybackFragment extends TomahawkFragment
             Object obj = tomahawkListAdapter.getItem(idx - 1);
             if (obj instanceof Track) {
                 // if the user clicked on an already playing track
-                if (playbackService.getCurrentPlaylist().getCurrentTrackIndex() == idx - 1) {
+                if (playbackService.getCurrentPlaylist().getCurrentQueryIndex() == idx - 1) {
                     playbackService.playPause();
                 } else {
-                    playbackService.setCurrentTrack(
-                            playbackService.getCurrentPlaylist().getTrackAtPos(idx - 1));
+                    playbackService.setCurrentQuery(
+                            playbackService.getCurrentPlaylist().getQueryAtPos(idx - 1));
                 }
             }
         }
@@ -278,7 +278,7 @@ public class PlaybackFragment extends TomahawkFragment
         if (playbackService != null && playbackService.getCurrentPlaylist() != null) {
             List<TomahawkBaseAdapter.TomahawkListItem> tracks
                     = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-            tracks.addAll(playbackService.getCurrentPlaylist().getTracks());
+            tracks.addAll(playbackService.getCurrentPlaylist().getQueries());
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(tracks);
@@ -288,7 +288,7 @@ public class PlaybackFragment extends TomahawkFragment
             tomahawkListAdapter.setShowResolvedBy(true);
             tomahawkListAdapter.setShowPlaylistHeader(true);
             tomahawkListAdapter.setHighlightedItem(
-                    playbackService.getCurrentPlaylist().getCurrentTrackIndex());
+                    playbackService.getCurrentPlaylist().getCurrentQueryIndex());
             tomahawkListAdapter.setHighlightedItemIsPlaying(playbackService.isPlaying());
             TomahawkStickyListHeadersListView list = getListView();
             list.setOnItemClickListener(this);
@@ -329,7 +329,7 @@ public class PlaybackFragment extends TomahawkFragment
         if (tomahawkListAdapter != null && playbackService != null
                 && playbackService.getCurrentPlaylist() != null) {
             tomahawkListAdapter.setHighlightedItem(
-                    playbackService.getCurrentPlaylist().getCurrentTrackIndex());
+                    playbackService.getCurrentPlaylist().getCurrentQueryIndex());
             tomahawkListAdapter.setHighlightedItemIsPlaying(playbackService.isPlaying());
             tomahawkListAdapter.notifyDataSetChanged();
         }
@@ -345,7 +345,7 @@ public class PlaybackFragment extends TomahawkFragment
         if (tomahawkListAdapter != null && playbackService != null
                 && playbackService.getCurrentPlaylist() != null) {
             tomahawkListAdapter.setHighlightedItem(
-                    playbackService.getCurrentPlaylist().getCurrentTrackIndex());
+                    playbackService.getCurrentPlaylist().getCurrentQueryIndex());
             tomahawkListAdapter.setHighlightedItemIsPlaying(playbackService.isPlaying());
             tomahawkListAdapter.notifyDataSetChanged();
         }
@@ -363,10 +363,10 @@ public class PlaybackFragment extends TomahawkFragment
                 && playbackService.getCurrentPlaylist().getCount() > 0) {
             ArrayList<TomahawkBaseAdapter.TomahawkListItem> tracks
                     = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-            tracks.addAll(playbackService.getCurrentPlaylist().getTracks());
+            tracks.addAll(playbackService.getCurrentPlaylist().getQueries());
             tomahawkListAdapter.setListWithIndex(0, tracks);
             tomahawkListAdapter.setHighlightedItem(
-                    playbackService.getCurrentPlaylist().getCurrentTrackIndex());
+                    playbackService.getCurrentPlaylist().getCurrentQueryIndex());
             tomahawkListAdapter.setHighlightedItemIsPlaying(playbackService.isPlaying());
             tomahawkListAdapter.notifyDataSetChanged();
         } else {

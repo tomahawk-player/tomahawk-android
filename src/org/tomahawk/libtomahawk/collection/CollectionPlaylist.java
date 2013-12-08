@@ -17,6 +17,10 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.tomahawk.libtomahawk.resolver.Query;
+
+import java.util.ArrayList;
+
 /**
  * A {@link CollectionPlaylist} is a {@link Playlist} containing every from {@link Track} from an
  * entire {@link Collection}
@@ -28,19 +32,19 @@ public class CollectionPlaylist extends Playlist {
      */
     public static CollectionPlaylist fromCollection(long id, Collection coll) {
         CollectionPlaylist pl = new CollectionPlaylist(id, coll.toString());
-        pl.setTracks(coll.getTracks());
-        pl.setCurrentTrack(coll.getTracks().get(0));
+        pl.setQueries(coll.getQueries());
+        pl.setCurrentQueryIndex(0);
         return pl;
     }
 
     /**
      * Creates a {@link CollectionPlaylist} from {@link Collection} and sets the current {@link
-     * Track} to the {@link Track} at idx.
+     * org.tomahawk.libtomahawk.resolver.Query} to the {@link org.tomahawk.libtomahawk.resolver.Query}
+     * at idx.
      */
-    public static CollectionPlaylist fromCollection(long id, Collection coll, Track currentTrack) {
-        CollectionPlaylist pl = new CollectionPlaylist(id, coll.toString());
-        pl.setTracks(coll.getTracks());
-        pl.setCurrentTrack(currentTrack);
+    public static CollectionPlaylist fromCollection(long id, Collection coll, Query currentQuery) {
+        CollectionPlaylist pl = CollectionPlaylist.fromCollection(id, coll);
+        pl.setCurrentQuery(currentQuery);
         return pl;
     }
 

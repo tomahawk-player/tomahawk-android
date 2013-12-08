@@ -45,7 +45,7 @@ public class AlbumTest extends AndroidTestCase {
         long tstId = 4574657L;
         Track tstTrack = new Track(tstId);
 
-        mTstAlbum.addTrack(tstTrack);
-        Assert.assertTrue(mTstAlbum.getTracks().contains(tstTrack));
+        mTstAlbum.addQuery(tstTrack);
+        Assert.assertTrue(mTstAlbum.getQueries().contains(tstTrack));
     }
 }

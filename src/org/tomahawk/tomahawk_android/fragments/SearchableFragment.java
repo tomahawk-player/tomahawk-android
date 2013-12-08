@@ -69,7 +69,7 @@ public class SearchableFragment extends TomahawkFragment
 
     private SearchableFragment mSearchableFragment = this;
 
-    private ArrayList<Track> mCurrentShownTracks;
+    private ArrayList<Query> mCurrentShownQueries;
 
     private ArrayList<Album> mCurrentShownAlbums;
 
@@ -194,8 +194,8 @@ public class SearchableFragment extends TomahawkFragment
         if (position >= 0) {
             if (getListAdapter().getItem(position) instanceof Track) {
                 UserPlaylist playlist = UserPlaylist
-                        .fromTrackList(mCurrentQueryString,
-                                mCurrentShownTracks, (Track) getListAdapter().getItem(position));
+                        .fromQueryList(TomahawkApp.getUniqueId(), mCurrentQueryString,
+                                mCurrentShownQueries, position);
                 PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
                 if (playbackService != null) {
                     playbackService.setCurrentPlaylist(playlist);
@@ -206,12 +206,12 @@ public class SearchableFragment extends TomahawkFragment
             } else if (getListAdapter().getItem(position) instanceof Album) {
                 mCollection.setCachedAlbum((Album) getListAdapter().getItem(position));
                 mTomahawkMainActivity.getContentViewer().
-                        replace(mCorrespondingHubId, TracksFragment.class, -1,
+                        replace(mCorrespondingHubId, TracksFragment.class, "",
                                 UserCollection.USERCOLLECTION_ALBUMCACHED, false);
             } else if (getListAdapter().getItem(position) instanceof Artist) {
                 mCollection.setCachedArtist((Artist) getListAdapter().getItem(position));
                 mTomahawkMainActivity.getContentViewer().
-                        replace(mCorrespondingHubId, AlbumsFragment.class, -1,
+                        replace(mCorrespondingHubId, AlbumsFragment.class, "",
                                 UserCollection.USERCOLLECTION_ARTISTCACHED, false);
             }
         }
@@ -272,8 +272,8 @@ public class SearchableFragment extends TomahawkFragment
                 = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
         ArrayList<TomahawkBaseAdapter.TomahawkListItem> trackResultList
                 = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-        mCurrentShownTracks = query.getTrackResults();
-        trackResultList.addAll(mCurrentShownTracks);
+        mCurrentShownQueries = query.getTrackQueries();
+        trackResultList.addAll(mCurrentShownQueries);
         listArray.add(trackResultList);
         ArrayList<TomahawkBaseAdapter.TomahawkListItem> artistResultList
                 = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
@@ -334,7 +334,7 @@ public class SearchableFragment extends TomahawkFragment
                 .findViewById(R.id.search_onlinesources_checkbox);
         String queryId = mPipeline.resolve(fullTextQuery, !onlineSourcesCheckBox.isChecked());
         if (queryId != null) {
-            mCorrespondingQueryIds.put(queryId, new Track(TomahawkApp.getUniqueId()));
+            mCorrespondingQueryIds.add(queryId);
             mTomahawkMainActivity.startLoadingAnimation();
         }
     }

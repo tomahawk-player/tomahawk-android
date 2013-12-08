@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2012, Christopher Reichert <creichert07@gmail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -15,27 +15,29 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomahawk.libtomahawk.collection;
+package org.tomahawk.libtomahawk.resolver;
 
 import java.util.Comparator;
 
 /**
- * This class is used to compare two {@link Artist}s.
+ * This class is used to compare two {@link org.tomahawk.libtomahawk.resolver.Result}s.
  */
-public class ArtistComparator implements Comparator<Artist> {
+public class ResultComparator implements Comparator<Result> {
 
-    //Modes which determine with which method albums are compared
-    public static final int COMPARE_ALPHA = 1;
+    //Modes which determine with which method are compared
+
+    public static final int COMPARE_SCORE = 2;
 
     //Flag containing the current mode to be used
-    private static int mFlag = COMPARE_ALPHA;
+    private static int mFlag = COMPARE_SCORE;
 
     /**
-     * Construct this {@link ArtistComparator}
+     * Construct this {@link ResultComparator}
      *
-     * @param flag The mode which determines with which method {@link Artist}s are compared
+     * @param flag The mode which determines with which method {@link org.tomahawk.libtomahawk.resolver.Result}s
+     *             are compared
      */
-    public ArtistComparator(int flag) {
+    public ResultComparator(int flag) {
         super();
         mFlag = flag;
     }
@@ -43,14 +45,16 @@ public class ArtistComparator implements Comparator<Artist> {
     /**
      * The actual comparison method
      *
-     * @param a1 First {@link Artist} object
-     * @param a2 Second {@link Artist} Object
+     * @param r1 First {@link org.tomahawk.libtomahawk.resolver.Result} object
+     * @param r2 Second {@link org.tomahawk.libtomahawk.resolver.Result} Object
      * @return int containing comparison score
      */
-    public int compare(Artist a1, Artist a2) {
+    public int compare(Result r1, Result r2) {
         switch (mFlag) {
-            case COMPARE_ALPHA:
-                return a1.getName().compareTo(a2.getName());
+            case COMPARE_SCORE:
+                Float score1 = r1.getScore();
+                Float score2 = r2.getScore();
+                return score2.compareTo(score1);
         }
         return 0;
     }

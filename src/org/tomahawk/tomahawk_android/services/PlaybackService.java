@@ -24,6 +24,7 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
+import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -197,7 +198,7 @@ public class PlaybackService extends Service
                 case TelephonyManager.DATA_CONNECTED:
                     if (mTomahawkMediaPlayer != null
                             && mTomahawkMediaPlayer.getCurrentPosition() == 0) {
-                        setCurrentTrack(getCurrentTrack());
+                        setCurrentQuery(getCurrentQuery());
                     }
             }
         }
@@ -231,9 +232,11 @@ public class PlaybackService extends Service
                 }
             } else if (BitmapItem.BITMAPITEM_BITMAPLOADED.equals(intent.getAction())) {
                 // a bitmap has been loaded
-                if (mCurrentPlaylist.getCurrentTrack() != null && intent
-                        .getStringExtra(BitmapItem.BITMAPITEM_BITMAPLOADED_PATH)
-                        .equals(mCurrentPlaylist.getCurrentTrack().getAlbum().getAlbumArtPath())) {
+                if (mCurrentPlaylist.getCurrentQuery() != null
+                        && !mCurrentPlaylist.getCurrentQuery().getAlbumResults().isEmpty()
+                        && intent.getStringExtra(BitmapItem.BITMAPITEM_BITMAPLOADED_PATH).equals(
+                        mCurrentPlaylist.getCurrentQuery().getAlbumResults().get(0)
+                                .getAlbumArtPath())) {
                     // the loaded bitmap is relevant to us, so we update the playing notification
                     updatePlayingNotification();
                 }
@@ -393,8 +396,8 @@ public class PlaybackService extends Service
     }
 
     /**
-     * Called if given {@link TomahawkMediaPlayer} has finished playing a song. Prepare the next
-     * track if possible, otherwise stop.
+     * Called if given {@link org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer} has finished
+     * playing a song. Prepare the next track if possible, otherwise stop.
      */
     @Override
     public void onCompletion(TomahawkMediaPlayer mp) {
@@ -403,9 +406,9 @@ public class PlaybackService extends Service
             return;
         }
 
-        Track track = mCurrentPlaylist.getNextTrack();
-        if (track != null) {
-            setCurrentTrack(track);
+        Query query = mCurrentPlaylist.getNextQuery();
+        if (query != null) {
+            setCurrentQuery(query);
         } else {
             stop();
         }
@@ -572,9 +575,9 @@ public class PlaybackService extends Service
      */
     public void next() {
         if (mCurrentPlaylist != null) {
-            Track track = mCurrentPlaylist.getNextTrack();
-            if (track != null) {
-                setCurrentTrack(track);
+            Query query = mCurrentPlaylist.getNextQuery();
+            if (query != null) {
+                setCurrentQuery(query);
             }
         }
     }
@@ -584,9 +587,9 @@ public class PlaybackService extends Service
      */
     public void previous() {
         if (mCurrentPlaylist != null) {
-            Track track = mCurrentPlaylist.getPreviousTrack();
-            if (track != null) {
-                setCurrentTrack(track);
+            Query query = mCurrentPlaylist.getPreviousQuery();
+            if (query != null) {
+                setCurrentQuery(query);
             }
         }
     }
@@ -622,24 +625,39 @@ public class PlaybackService extends Service
     }
 
     /**
-     * Get the current Track
+     * Get the current Query
      */
-    public Track getCurrentTrack() {
+    public Query getCurrentQuery() {
 
         if (mCurrentPlaylist == null) {
             return null;
         }
 
-        return mCurrentPlaylist.getCurrentTrack();
+        return mCurrentPlaylist.getCurrentQuery();
+    }
+
+    /**
+     * @return the currently playing Track item (contains all necessary meta-data)
+     */
+    public Track getCurrentTrack() {
+        Track track = null;
+        if (getCurrentQuery() != null) {
+            if (getCurrentQuery().getPreferredTrackResult() != null) {
+                track = getCurrentQuery().getPreferredTrackResult().getTrack();
+            } else {
+                track = getCurrentQuery().getPreferredTrack();
+            }
+        }
+        return track;
     }
 
     /**
      * This method sets the current track and prepares it for playback.
      */
-    public void setCurrentTrack(final Track track) {
+    public void setCurrentQuery(final Query query) {
         mNotificationAsyncBitmap.bitmap = null;
-        if (mTomahawkMediaPlayer != null && track != null) {
-            if (track.isResolved()) {
+        if (mTomahawkMediaPlayer != null && query != null) {
+            if (query.isSolved()) {
                 Runnable releaseRunnable = new Runnable() {
                     @Override
                     public void run() {
@@ -656,7 +674,12 @@ public class PlaybackService extends Service
                             Log.d(TAG, "MediaPlayer reinitialize in " + (endTime - startTime)
                                     + "ms, preparing=" + isPreparing());
                             try {
-                                mTomahawkMediaPlayer.prepare(track);
+                                boolean isSpotifyUrl =
+                                        query.getPreferredTrackResult().getResolvedBy().getId()
+                                                == TomahawkApp.RESOLVER_ID_SPOTIFY;
+                                mTomahawkMediaPlayer.prepare(
+                                        query.getPreferredTrackResult().getPath(),
+                                        isSpotifyUrl);
                             } catch (IllegalStateException e1) {
                                 Log.e(TAG, "setDataSource() IllegalStateException, msg:" + e1
                                         .getLocalizedMessage() + " , preparing=" + isPreparing());
@@ -708,24 +731,26 @@ public class PlaybackService extends Service
     public void setCurrentPlaylist(Playlist playlist) {
         mCurrentPlaylist = playlist;
         if (playlist != null) {
-            setCurrentTrack(mCurrentPlaylist.getCurrentTrack());
+            setCurrentQuery(mCurrentPlaylist.getCurrentQuery());
         }
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
 
     /**
-     * Add given {@link ArrayList} of {@link Track}s to the current {@link Playlist}
+     * Add given {@link ArrayList} of {@link org.tomahawk.libtomahawk.resolver.Query}s to the
+     * current {@link Playlist}
      */
-    public void addTracksToCurrentPlaylist(ArrayList<Track> tracks) {
+    public void addQueriesToCurrentPlaylist(ArrayList<Query> queries) {
         if (mCurrentPlaylist == null) {
             mCurrentPlaylist = UserPlaylist
-                    .fromTrackList(UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
-                            new ArrayList<Track>());
+                    .fromQueryList(UserPlaylistsDataSource.CACHED_PLAYLIST_ID,
+                            UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
+                            new ArrayList<Query>());
         }
         boolean wasEmpty = mCurrentPlaylist.getCount() <= 0;
-        mCurrentPlaylist.addTracks(tracks);
+        mCurrentPlaylist.addQueries(queries);
         if (wasEmpty && mCurrentPlaylist.getCount() > 0) {
-            setCurrentTrack(mCurrentPlaylist.getTrackAtPos(0));
+            setCurrentQuery(mCurrentPlaylist.getQueryAtPos(0));
         }
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
@@ -734,37 +759,38 @@ public class PlaybackService extends Service
      * Add given {@link ArrayList} of {@link Track}s to the current {@link Playlist} at the given
      * position
      */
-    public void addTracksToCurrentPlaylist(int position, ArrayList<Track> tracks) {
+    public void addTracksToCurrentPlaylist(int position, ArrayList<Query> queries) {
         if (mCurrentPlaylist == null) {
             mCurrentPlaylist = UserPlaylist
-                    .fromTrackList(UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
-                            new ArrayList<Track>());
+                    .fromQueryList(UserPlaylistsDataSource.CACHED_PLAYLIST_ID,
+                            UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
+                            new ArrayList<Query>());
         }
         boolean wasEmpty = mCurrentPlaylist.getCount() <= 0;
         if (position < mCurrentPlaylist.getCount()) {
-            mCurrentPlaylist.addTracks(position, tracks);
+            mCurrentPlaylist.addQueries(position, queries);
         } else {
-            mCurrentPlaylist.addTracks(tracks);
+            mCurrentPlaylist.addQueries(queries);
         }
         if (wasEmpty && mCurrentPlaylist.getCount() > 0) {
-            setCurrentTrack(mCurrentPlaylist.getTrackAtPos(0));
+            setCurrentQuery(mCurrentPlaylist.getQueryAtPos(0));
         }
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
 
     /**
-     * Remove track at given position from current playlist
+     * Remove query at given position from current playlist
      */
-    public void deleteTrackAtPos(int position) {
-        mCurrentPlaylist.deleteTrackAtPos(position);
+    public void deleteQueryAtPos(int position) {
+        mCurrentPlaylist.deleteQueryAtPos(position);
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
 
     /**
-     * Remove track at given position from current playlist
+     * Remove query at given position from current playlist
      */
-    public void deleteTrack(Track track) {
-        mCurrentPlaylist.deleteTrack(track);
+    public void deleteQuery(Query query) {
+        mCurrentPlaylist.deleteQuery(query);
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
 
@@ -793,7 +819,8 @@ public class PlaybackService extends Service
      */
     private void updatePlayingNotification() {
 
-        Track track = getCurrentTrack();
+        Query query = getCurrentQuery();
+        Track track = query.getTrackResults().get(0).getTrack();
         if (track == null) {
             return;
         }

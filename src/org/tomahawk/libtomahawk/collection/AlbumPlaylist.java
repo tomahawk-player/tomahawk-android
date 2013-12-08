@@ -17,14 +17,18 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.tomahawk.libtomahawk.resolver.Query;
+
+import java.util.ArrayList;
+
 /**
  * This class represents a {@link Playlist} including all the {@link Track}s on an {@link Album}.
  */
 public class AlbumPlaylist extends Playlist {
 
     /**
-     * Create an {@link AlbumPlaylist} from an {@link Album} and set the current {@link Track} to
-     * the first {@link Track} of the given {@link Album}.
+     * Create an {@link AlbumPlaylist} from an {@link Album} and set the current {@link Query} to
+     * the first {@link Query} of the given {@link Album}.
      *
      * @param id    the id of the {@link AlbumPlaylist} to construct
      * @param album The {@link Album} to construct the {@link Playlist} from
@@ -32,24 +36,23 @@ public class AlbumPlaylist extends Playlist {
      */
     public static AlbumPlaylist fromAlbum(long id, Album album) {
         AlbumPlaylist pl = new AlbumPlaylist(id, album.getName());
-        pl.setTracks(album.getTracks());
-        pl.setCurrentTrack(album.getTracks().get(0));
+        pl.setQueries(album.getQueries());
+        pl.setCurrentQueryIndex(0);
         return pl;
     }
 
     /**
-     * Creates an {@link AlbumPlaylist} from an {@link Album} and sets the current {@link Track} to
-     * the {@link Track} at idx.
+     * Creates an {@link AlbumPlaylist} from an {@link Album} and sets the current {@link Query} to
+     * the {@link Query} at idx.
      *
      * @param id           the id of the {@link AlbumPlaylist} to construct
      * @param album        The {@link Album} to construct the {@link Playlist} from
-     * @param currentTrack The current {@link Track} to be set
+     * @param currentQuery The current {@link Query} to be set
      * @return The constructed {@link AlbumPlaylist}
      */
-    public static AlbumPlaylist fromAlbum(long id, Album album, Track currentTrack) {
-        AlbumPlaylist pl = new AlbumPlaylist(id, album.getName());
-        pl.setTracks(album.getTracks());
-        pl.setCurrentTrack(currentTrack);
+    public static AlbumPlaylist fromAlbum(long id, Album album, Query currentQuery) {
+        AlbumPlaylist pl = AlbumPlaylist.fromAlbum(id, album);
+        pl.setCurrentQuery(currentQuery);
         return pl;
     }
 

@@ -79,13 +79,15 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         ImageView albumArtImageView = new ImageView(mContext);
         if (mPlaylist != null && mPlaylist.getCount() > 0) {
             if (mPlaylist.isRepeating()
-                    && mPlaylist.peekTrackAtPos((position) % mPlaylist.getCount()).getAlbum()
-                    != null) {
-                mPlaylist.peekTrackAtPos((position) % mPlaylist.getCount()).getAlbum()
+                    && mPlaylist.peekQueryAtPos((position) % mPlaylist.getCount())
+                    .getPreferredTrackResult().getAlbum() != null) {
+                mPlaylist.peekQueryAtPos((position) % mPlaylist.getCount())
+                        .getPreferredTrackResult().getAlbum()
                         .loadBitmap(mContext, albumArtImageView);
             } else if (!mPlaylist.isRepeating()
-                    && mPlaylist.peekTrackAtPos(position).getAlbum() != null) {
-                mPlaylist.peekTrackAtPos(position).getAlbum()
+                    && mPlaylist.peekQueryAtPos(position).getPreferredTrackResult().getAlbum()
+                    != null) {
+                mPlaylist.peekQueryAtPos(position).getPreferredTrackResult().getAlbum()
                         .loadBitmap(mContext, albumArtImageView);
             } else {
                 albumArtImageView.setImageResource(R.drawable.no_album_art_placeholder);
@@ -99,8 +101,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
 
     /**
      * @return If current {@link Playlist} is empty or null, return 1. If current {@link Playlist}
-     *         is repeating, return FAKE_INFINITY_COUNT. Else return the current {@link Playlist}'s
-     *         length.
+     * is repeating, return FAKE_INFINITY_COUNT. Else return the current {@link Playlist}'s length.
      */
     @Override
     public int getCount() {
@@ -115,7 +116,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
 
     /**
      * @return the offset by which the position should be shifted, when {@link Playlist} is
-     *         repeating
+     * repeating
      */
     public int getFakeInfinityOffset() {
         return mFakeInfinityOffset;
@@ -233,9 +234,9 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                     .getCount());
             setByUser(false);
             if (mPlaylist.isRepeating()) {
-                setCurrentItem(mPlaylist.getCurrentTrackIndex() + getFakeInfinityOffset(), false);
+                setCurrentItem(mPlaylist.getCurrentQueryIndex() + getFakeInfinityOffset(), false);
             } else {
-                setCurrentItem(mPlaylist.getCurrentTrackIndex(), false);
+                setCurrentItem(mPlaylist.getCurrentQueryIndex(), false);
             }
             setByUser(true);
         }
@@ -257,7 +258,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
 
     /**
      * @return whether or not previous skipping to next/previous {@link org.tomahawk.libtomahawk.collection.Track}
-     *         was induced by swiping
+     * was induced by swiping
      */
     public boolean isSwiped() {
         return mSwiped;

@@ -192,7 +192,7 @@ public class TomahawkMainActivity extends ActionBarActivity
             }
             if (PlaybackService.BROADCAST_NEWTRACK.equals(intent.getAction())) {
                 if (mPlaybackService != null) {
-                    setNowPlayingInfo(mPlaybackService.getCurrentTrack());
+                    setNowPlayingInfo();
                 }
             }
         }
@@ -398,7 +398,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         mUserCollection = (UserCollection) sl
                 .getCollectionFromId(sl.getLocalSource().getCollection().getId());
         if (mPlaybackService != null) {
-            setNowPlayingInfo(mPlaybackService.getCurrentTrack());
+            setNowPlayingInfo();
         }
 
         getSupportLoaderManager().destroyLoader(0);
@@ -421,7 +421,7 @@ public class TomahawkMainActivity extends ActionBarActivity
             }
         });
         if (mPlaybackService != null) {
-            setNowPlayingInfo(mPlaybackService.getCurrentTrack());
+            setNowPlayingInfo();
         }
 
         mContentViewer.setCurrentHubId(mCurrentStackPosition);
@@ -502,7 +502,7 @@ public class TomahawkMainActivity extends ActionBarActivity
     @Override
     public void onPlaybackServiceReady() {
         updateViewVisibility();
-        setNowPlayingInfo(mPlaybackService.getCurrentTrack());
+        setNowPlayingInfo();
         sendBroadcast(new Intent(PLAYBACKSERVICE_READY));
     }
 
@@ -568,7 +568,11 @@ public class TomahawkMainActivity extends ActionBarActivity
     /**
      * Sets the playback information
      */
-    public void setNowPlayingInfo(Track track) {
+    public void setNowPlayingInfo() {
+        Track track = null;
+        if (mPlaybackService != null) {
+            track = mPlaybackService.getCurrentTrack();
+        }
         if (mNowPlayingFrame != null) {
             ImageView nowPlayingInfoAlbumArt = (ImageView) mNowPlayingFrame
                     .findViewById(R.id.now_playing_album_art);
@@ -612,7 +616,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         }
         if (mCurrentStackPosition == TomahawkMainActivity.HUB_ID_PLAYBACK
                 || mPlaybackService == null || (mPlaybackService != null
-                && mPlaybackService.getCurrentTrack() == null)) {
+                && mPlaybackService.getCurrentQuery() == null)) {
             setNowPlayingInfoVisibility(false);
         } else {
             setNowPlayingInfoVisibility(true);
@@ -634,7 +638,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                     LinearLayout.LayoutParams.WRAP_CONTENT));
             mNowPlayingFrame.setVisibility(View.VISIBLE);
             if (mPlaybackService != null) {
-                setNowPlayingInfo(mPlaybackService.getCurrentTrack());
+                setNowPlayingInfo();
             }
         } else {
             mNowPlayingFrame.setLayoutParams(new LinearLayout.LayoutParams(0, 0));
@@ -733,8 +737,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                     breadCrumbFrame.addView(breadcrumbItem);
                 } else if (fpb.clss == AlbumsFragment.class) {
                     Artist correspondingArtist = mUserCollection
-                            .getArtistById(fpb.tomahawkListItemId);
-                    if (mUserCollection.getArtistById(fpb.tomahawkListItemId) != null) {
+                            .getArtistByKey(fpb.tomahawkListItemKey);
+                    if (mUserCollection.getArtistByKey(fpb.tomahawkListItemKey) != null) {
                         breadcrumbItemTextView.setText(correspondingArtist.getName());
                         breadcrumbItemImageViewLayout
                                 .setVisibility(SquareHeightRelativeLayout.GONE);
@@ -767,11 +771,12 @@ public class TomahawkMainActivity extends ActionBarActivity
                             .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
                     breadCrumbFrame.addView(breadcrumbItem);
                 } else if (fpb.clss == TracksFragment.class) {
-                    Album correspondingAlbum = mUserCollection.getAlbumById(fpb.tomahawkListItemId);
+                    Album correspondingAlbum = mUserCollection.getAlbumByKey(
+                            fpb.tomahawkListItemKey);
                     UserPlaylist correspondingUserPlaylist = mUserCollection
-                            .getCustomPlaylistById(fpb.tomahawkListItemId);
+                            .getCustomPlaylistByKey(fpb.tomahawkListItemKey);
                     if (fpb.tomahawkListItemType != null && fpb.tomahawkListItemType
-                            .equals(TomahawkFragment.TOMAHAWK_ALBUM_ID)
+                            .equals(TomahawkFragment.TOMAHAWK_ALBUM_KEY)
                             && correspondingAlbum != null) {
                         breadcrumbItemTextView.setText(correspondingAlbum.getName());
                         breadcrumbItemImageViewLayout

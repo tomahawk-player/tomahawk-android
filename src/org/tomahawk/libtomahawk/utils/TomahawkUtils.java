@@ -1,5 +1,11 @@
 package org.tomahawk.libtomahawk.utils;
 
+import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Track;
+import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -128,5 +134,25 @@ public class TomahawkUtils {
         Intent intent = new Intent(context, cls);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         return intent;
+    }
+
+    public static String getCacheKey(String... strings) {
+        String result = "";
+        for (String s : strings) {
+            result += "\t\t" + s.toLowerCase();
+        }
+        return result;
+    }
+
+    public static String getCacheKey(TomahawkBaseAdapter.TomahawkListItem tomahawkListItem) {
+        if (tomahawkListItem instanceof Artist) {
+            return getCacheKey(tomahawkListItem.getName());
+        } else if (tomahawkListItem instanceof Album) {
+            return getCacheKey(tomahawkListItem.getName(), tomahawkListItem.getArtist().getName());
+        } else if (tomahawkListItem instanceof Track || tomahawkListItem instanceof Query) {
+            return getCacheKey(tomahawkListItem.getName(), tomahawkListItem.getAlbum().getName(),
+                    tomahawkListItem.getArtist().getName());
+        }
+        return "";
     }
 }

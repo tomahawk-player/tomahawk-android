@@ -42,7 +42,7 @@ public class PlaybackServiceTest extends ServiceTestCase<PlaybackService> {
         setupService();
 
         Collection coll = new LocalCollection(getContext());
-        tstTrack = coll.getTracks().get(0);
+        tstTrack = coll.getQueries().get(0);
         Intent startIntent = new Intent(getContext(), PlaybackService.class);
 
         Assert.assertNotNull(tstTrack);
@@ -60,7 +60,7 @@ public class PlaybackServiceTest extends ServiceTestCase<PlaybackService> {
     }
 
     public void testGetTrack() {
-        Assert.assertEquals(tstTrack, getPlaybackService().getCurrentTrack());
+        Assert.assertEquals(tstTrack, getPlaybackService().getCurrentQuery());
     }
 
     public void testPlayPause() {

@@ -17,6 +17,9 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
+import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 
 import java.util.ArrayList;
@@ -27,78 +30,51 @@ import java.util.ArrayList;
 public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.TomahawkListItem {
 
     /**
-     * Create a {@link UserPlaylist} from a list of {@link Track}s.
+     * Create a {@link UserPlaylist} from a list of {@link org.tomahawk.libtomahawk.resolver.Query}s.
      *
      * @return a reference to the constructed {@link UserPlaylist}
      */
-    public static UserPlaylist fromTrackList(ArrayList<Track> tracks) {
-        if (tracks == null) {
-            tracks = new ArrayList<Track>();
-        }
-        UserPlaylist pl = new UserPlaylist(-1);
-        pl.setTracks(tracks);
-        if (tracks.size() > 0) {
-            pl.setCurrentTrack(tracks.get(0));
-        }
-        return pl;
-    }
-
-    /**
-     * Create a {@link UserPlaylist} from a list of {@link Track}s.
-     *
-     * @return a reference to the constructed {@link UserPlaylist}
-     */
-    public static UserPlaylist fromTrackList(String name, ArrayList<Track> tracks) {
-        if (tracks == null) {
-            tracks = new ArrayList<Track>();
-        }
-        UserPlaylist pl = new UserPlaylist(-1, name);
-        pl.setTracks(tracks);
-        if (tracks.size() > 0) {
-            pl.setCurrentTrack(tracks.get(0));
-        }
-        return pl;
-    }
-
-    /**
-     * Creates a {@link UserPlaylist} from a list of {@link Track}s and sets the current {@link
-     * Track} to the given {@link Track}
-     *
-     * @return a reference to the constructed {@link UserPlaylist}
-     */
-    public static UserPlaylist fromTrackList(String name, ArrayList<Track> tracks,
-            Track currentTrack) {
-        if (tracks == null) {
-            tracks = new ArrayList<Track>();
-        }
-        UserPlaylist pl = new UserPlaylist(-1, name);
-        pl.setTracks(tracks);
-        pl.setCurrentTrack(currentTrack);
-        return pl;
-    }
-
-    /**
-     * Creates a {@link UserPlaylist} from a list of {@link Track}s and sets the current {@link
-     * Track} index to the given {@link Track} index
-     *
-     * @return a reference to the constructed {@link UserPlaylist}
-     */
-    public static UserPlaylist fromTrackListWithId(long id, String name, ArrayList<Track> tracks,
-            int currentTrackIndex) {
-        if (tracks == null) {
-            tracks = new ArrayList<Track>();
-        }
+    public static UserPlaylist fromQueryList(long id, String name, ArrayList<Query> queries) {
         UserPlaylist pl = new UserPlaylist(id, name);
-        pl.setTracks(tracks);
-        pl.setCurrentTrackIndex(currentTrackIndex);
+        pl.setQueries(queries);
+        pl.setCurrentQueryIndex(0);
         return pl;
     }
 
     /**
-     * Construct a new empty {@link UserPlaylist}.
+     * Create a {@link UserPlaylist} from a list of {@link org.tomahawk.libtomahawk.resolver.Query}s.
+     *
+     * @return a reference to the constructed {@link UserPlaylist}
      */
-    protected UserPlaylist(long id) {
-        super(id);
+    public static UserPlaylist fromQueryList(String name, ArrayList<Query> queries) {
+        UserPlaylist pl = UserPlaylist.fromQueryList(TomahawkApp.getUniqueId(), name, queries);
+        return pl;
+    }
+
+    /**
+     * Creates a {@link UserPlaylist} from a list of {@link org.tomahawk.libtomahawk.resolver.Query}s
+     * and sets the current {@link org.tomahawk.libtomahawk.resolver.Query}
+     *
+     * @return a reference to the constructed {@link UserPlaylist}
+     */
+    public static UserPlaylist fromQueryList(long id, String name, ArrayList<Query> queries,
+            int currentQueryIndex) {
+        UserPlaylist pl = UserPlaylist.fromQueryList(id, name, queries);
+        pl.setCurrentQueryIndex(currentQueryIndex);
+        return pl;
+    }
+
+    /**
+     * Creates a {@link UserPlaylist} from a list of {@link org.tomahawk.libtomahawk.resolver.Query}s
+     * and sets the current {@link org.tomahawk.libtomahawk.resolver.Query}
+     *
+     * @return a reference to the constructed {@link UserPlaylist}
+     */
+    public static UserPlaylist fromQueryList(String name, ArrayList<Query> queries,
+            int currentQueryIndex) {
+        UserPlaylist pl = UserPlaylist
+                .fromQueryList(TomahawkApp.getUniqueId(), name, queries, currentQueryIndex);
+        return pl;
     }
 
     /**

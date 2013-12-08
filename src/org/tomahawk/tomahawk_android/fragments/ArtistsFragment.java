@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -54,14 +55,12 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
         if (position >= 0) {
             if (getListAdapter().getItem(position) instanceof Artist) {
                 Bundle bundle = new Bundle();
-                bundle.putLong(TOMAHAWK_ARTIST_ID,
-                        ((Artist) getListAdapter().getItem(position)).getId());
-                if (mTomahawkMainActivity instanceof TomahawkMainActivity) {
-                    mTomahawkMainActivity.getContentViewer()
-                            .replace(mCorrespondingHubId, AlbumsFragment.class,
-                                    ((Artist) getListAdapter().getItem(position)).getId(),
-                                    TOMAHAWK_ARTIST_ID, false);
-                }
+                String key = TomahawkUtils.getCacheKey(
+                        ((Artist) getListAdapter().getItem(position)).getName());
+                bundle.putString(TOMAHAWK_ARTIST_KEY, key);
+                mTomahawkMainActivity.getContentViewer()
+                        .replace(mCorrespondingHubId, AlbumsFragment.class, key,
+                                TOMAHAWK_ARTIST_KEY, false);
             }
         }
     }
