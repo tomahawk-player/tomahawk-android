@@ -15,31 +15,32 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomahawk.libtomahawk.collection;
+package org.tomahawk.libtomahawk.resolver;
 
 import java.util.Comparator;
 
 /**
- * This class is used to compare two {@link Track}s.
+ * This class is used to compare two {@link org.tomahawk.libtomahawk.resolver.Query}s.
  */
-public class TrackComparator implements Comparator<Track> {
+public class QueryComparator implements Comparator<Query> {
 
     //Modes which determine with which method are compared
-    public static final int COMPARE_DISCNUM = 0;
+    public static final int COMPARE_ALBUMPOS = 0;
 
     public static final int COMPARE_ALPHA = 1;
 
     public static final int COMPARE_SCORE = 2;
 
     //Flag containing the current mode to be used
-    private static int mFlag = COMPARE_DISCNUM;
+    private static int mFlag = COMPARE_ALBUMPOS;
 
     /**
-     * Construct this {@link TrackComparator}
+     * Construct this {@link QueryComparator}
      *
-     * @param flag The mode which determines with which method {@link Track}s are compared
+     * @param flag The mode which determines with which method {@link org.tomahawk.libtomahawk.resolver.Query}s
+     *             are compared
      */
-    public TrackComparator(int flag) {
+    public QueryComparator(int flag) {
         super();
         mFlag = flag;
     }
@@ -47,21 +48,21 @@ public class TrackComparator implements Comparator<Track> {
     /**
      * The actual comparison method
      *
-     * @param t1 First {@link Track} object
-     * @param t2 Second {@link Track} Object
+     * @param q1 First {@link org.tomahawk.libtomahawk.resolver.Query} object
+     * @param q2 Second {@link org.tomahawk.libtomahawk.resolver.Query} Object
      * @return int containing comparison score
      */
-    public int compare(Track t1, Track t2) {
+    public int compare(Query q1, Query q2) {
         switch (mFlag) {
-            case COMPARE_DISCNUM:
-                Integer num1 = t1.getTrackNumber();
-                Integer num2 = t2.getTrackNumber();
+            case COMPARE_ALBUMPOS:
+                Integer num1 = q1.getPreferredTrackResult().getTrack().getAlbumPos();
+                Integer num2 = q2.getPreferredTrackResult().getTrack().getAlbumPos();
                 return num1.compareTo(num2);
             case COMPARE_ALPHA:
-                return t1.getName().compareTo(t2.getName());
+                return q1.getName().compareTo(q2.getName());
             case COMPARE_SCORE:
-                Float score1 = t1.getScore();
-                Float score2 = t2.getScore();
+                Float score1 = q1.getPreferredTrackResult().getScore();
+                Float score2 = q2.getPreferredTrackResult().getScore();
                 return score2.compareTo(score1);
         }
         return 0;

@@ -22,8 +22,9 @@ import org.tomahawk.libtomahawk.collection.AlbumComparator;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.ArtistComparator;
 import org.tomahawk.libtomahawk.collection.Track;
-import org.tomahawk.libtomahawk.collection.TrackComparator;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 
 import android.text.TextUtils;
 
@@ -37,20 +38,21 @@ import java.util.concurrent.ConcurrentHashMap;
  * This class represents a query which is passed to a resolver. It contains all the information
  * needed to enable the Resolver to resolve the results.
  */
-public class Query {
+public class Query implements TomahawkBaseAdapter.TomahawkListItem {
 
     public static final String TAG = Query.class.getName();
 
-    private ConcurrentHashMap<String, ArrayList<Result>> mTrackResults
-            = new ConcurrentHashMap<String, ArrayList<Result>>();
+    private ArrayList<Result> mTrackResults = new ArrayList<Result>();
 
-    private ConcurrentHashMap<String, ArrayList<Result>> mAlbumResults
-            = new ConcurrentHashMap<String, ArrayList<Result>>();
+    private ArrayList<Result> mAlbumResults = new ArrayList<Result>();
 
-    private ConcurrentHashMap<String, ArrayList<Result>> mArtistResults
-            = new ConcurrentHashMap<String, ArrayList<Result>>();
+    private ArrayList<Result> mArtistResults = new ArrayList<Result>();
+
+    private Track mTrack;
 
     private boolean mSolved = false;
+
+    private int mTrackResultHint = 0;
 
     private int mResolversTodoCount = 0;
 
@@ -64,42 +66,41 @@ public class Query {
 
     private boolean mIsOnlyLocal;
 
-    private String mTrackName = "";
-
-    private String mAlbumName = "";
-
-    private String mArtistName = "";
-
-    private String mCacheKey;
-
     /**
      * Constructs a new Query with the given QueryID. ID should be generated in TomahawkApp.
      */
-    public Query(final String qid) {
-        mQid = qid;
+    public Query() {
+        mQid = TomahawkApp.getUniqueStringId();
     }
 
     /**
      * Constructs a new Query with the given QueryID and a fullTextQuery String. ID should be
      * generated in TomahawkApp.
      */
-    public Query(final String qid, final String fullTextQuery, final boolean onlyLocal) {
+    public Query(String fullTextQuery, boolean onlyLocal) {
+        this();
         mFullTextQuery = fullTextQuery.replace("'", "\\'");
         mIsFullTextQuery = true;
-        mCacheKey = constructCacheKey(mFullTextQuery);
         mIsOnlyLocal = onlyLocal;
-        mQid = qid;
     }
 
-    public Query(final String qid, final String trackName, final String albumName,
-            final String artistName, final boolean onlyLocal) {
-        mTrackName = trackName.replace("'", "\\'");
-        mAlbumName = albumName.replace("'", "\\'");
-        mArtistName = artistName.replace("'", "\\'");
-        mCacheKey = constructCacheKey(mTrackName, mAlbumName, mArtistName);
-        mQid = qid;
+    public Query(String trackName, String albumName,
+            String artistName, boolean onlyLocal) {
+        this();
+        Artist artist = Artist.get(artistName.replace("'", "\\'"));
+        Album album = Album.get(albumName.replace("'", "\\'"), artist);
+        mTrack = Track.get(trackName.replace("'", "\\'"), album, artist);
         mIsFullTextQuery = false;
         mIsOnlyLocal = onlyLocal;
+    }
+
+    public Query(Track track, boolean onlyLocal) {
+        this(track.getName(), track.getAlbum().getName(), track.getArtist().getName(), onlyLocal);
+    }
+
+    public Query(Result result, boolean onlyLocal) {
+        this(result.getTrack().getName(), result.getTrack().getAlbum().getName(),
+                result.getTrack().getArtist().getName(), onlyLocal);
     }
 
     public static String constructCacheKey(String fullTextQuery) {
@@ -110,67 +111,54 @@ public class Query {
         return trackName + "+" + albumName + "+" + artistName;
     }
 
-    public static Track trackResultToTrack(Track trackResult, Track track) {
-        track.setPath(trackResult.getPath());
-        track.setResolver(trackResult.getResolver());
-        track.setDuration(trackResult.getDuration());
-        track.setName(trackResult.getName());
-        return track;
+    /**
+     * @return An ArrayList<Result> which contains all tracks in the resultList, sorted by score.
+     * Given as Results.
+     */
+    public ArrayList<Result> getTrackResults() {
+        Collections.sort(mTrackResults, new ResultComparator(ResultComparator.COMPARE_SCORE));
+        return mTrackResults;
     }
 
     /**
-     * @return A ArrayList<Track> which contains all tracks in the resultList, sorted by score.
+     * @return An ArrayList<Query> which contains all tracks in the resultList, sorted by score.
+     * Given as queries.
      */
-    public ArrayList<Track> getTrackResults() {
-        ArrayList<Track> tracks = new ArrayList<Track>();
-        for (ArrayList<Result> resultList : mTrackResults.values()) {
-            if (!resultList.isEmpty()) {
-                Track track = resultList.get(0).getTrack();
-                tracks.add(track);
-            }
+    public ArrayList<Query> getTrackQueries() {
+        ArrayList<Query> queries = new ArrayList<Query>();
+        for (Result result : mTrackResults) {
+            queries.add(new Query(result, isOnlyLocal()));
         }
-        Collections.sort(tracks, new TrackComparator(TrackComparator.COMPARE_SCORE));
-        return tracks;
+        Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_SCORE));
+        return queries;
+    }
+
+    public Result getPreferredTrackResult() {
+        Result result = null;
+        if (mTrackResultHint >= 0 && mTrackResultHint < getTrackResults().size()) {
+            result = getTrackResults().get(mTrackResultHint);
+        }
+        return result;
+    }
+
+    public Track getPreferredTrack() {
+        if (getPreferredTrackResult() != null) {
+            return getPreferredTrackResult().getTrack();
+        }
+        return mTrack;
+    }
+
+    public void addTrackResult(Result result) {
+        mSolved = true;
+        mTrackResults.add(result);
     }
 
     /**
      * Append an ArrayList<Result> to the track result list
      */
     public void addTrackResults(ArrayList<Result> results) {
-        for (Result r : results) {
-            String trackName = "";
-            Track track = r.getTrack();
-            if (track != null && track.getName() != null) {
-                trackName = cleanUpString(track.getName(), false);
-            }
-            String artistName = "";
-            Artist artist = r.getArtist();
-            if (artist != null && artist.getName() != null) {
-                artistName = cleanUpString(artist.getName(), false);
-            }
-            String albumName = "";
-            Album album = r.getAlbum();
-            if (album != null && album.getName() != null) {
-                albumName = cleanUpString(album.getName(), false);
-            }
-            String key = trackName + "+" + artistName + "+" + albumName;
-            ArrayList<Result> value = mTrackResults.get(key);
-            if (value == null) {
-                value = new ArrayList<Result>();
-            }
-            for (int i = 0; i <= value.size(); i++) {
-                if (i == value.size()) {
-                    value.add(r);
-                    break;
-                } else {
-                    Result trackResult = value.get(i);
-                    if (r.getResolver().getWeight() > trackResult.getResolver().getWeight()) {
-                        value.add(i, r);
-                        break;
-                    }
-                }
-            }
-            mTrackResults.put(key, value);
+        for (Result result : results) {
+            addTrackResult(result);
         }
     }
 
@@ -178,48 +166,24 @@ public class Query {
      * @return A ArrayList<Album> which contains all albums in the resultList, sorted by score.
      */
     public ArrayList<Album> getAlbumResults() {
+        Collections.sort(mAlbumResults, new ResultComparator(ResultComparator.COMPARE_SCORE));
         ArrayList<Album> albums = new ArrayList<Album>();
-        for (ArrayList<Result> resultList : mAlbumResults.values()) {
-            if (!resultList.isEmpty()) {
-                albums.add(resultList.get(0).getAlbum());
-            }
+        for (Result result : mAlbumResults) {
+            albums.add(result.getAlbum());
         }
-        Collections.sort(albums, new AlbumComparator(AlbumComparator.COMPARE_SCORE));
         return albums;
+    }
+
+    public void addAlbumResult(Result result) {
+        mAlbumResults.add(result);
     }
 
     /**
      * Append an ArrayList<Result> to the track result list
      */
     public void addAlbumResults(ArrayList<Result> results) {
-        for (Result r : results) {
-            boolean isDuplicate = true;
-            String artistName = "";
-            Artist artist = r.getArtist();
-            if (artist != null && artist.getName() != null) {
-                artistName = cleanUpString(artist.getName(), false);
-            }
-            String albumName = "";
-            Album album = r.getAlbum();
-            if (album != null && album.getName() != null) {
-                albumName = cleanUpString(album.getName(), false);
-            }
-            String key = artistName + "+" + albumName;
-            ArrayList<Result> value = mAlbumResults.get(key);
-            if (value == null) {
-                isDuplicate = false;
-                value = new ArrayList<Result>();
-            }
-            value.add(r);
-            mAlbumResults.put(key, value);
-
-            key = artistName;
-            value = mArtistResults.get(key);
-            if (value != null && !isDuplicate) {
-                for (Result artistResult : value) {
-                    artistResult.getArtist().addAlbum(album);
-                }
-            }
+        for (Result result : results) {
+            mAlbumResults.add(result);
         }
     }
 
@@ -227,33 +191,25 @@ public class Query {
      * @return the ArrayList containing all track results
      */
     public ArrayList<Artist> getArtistResults() {
+        Collections.sort(mArtistResults, new ResultComparator(ResultComparator.COMPARE_SCORE));
         ArrayList<Artist> artists = new ArrayList<Artist>();
-        for (ArrayList<Result> resultList : mArtistResults.values()) {
-            if (!resultList.isEmpty()) {
-                artists.add(resultList.get(0).getArtist());
-            }
+        for (Result result : mArtistResults) {
+            artists.add(result.getArtist());
         }
-        Collections.sort(artists, new ArtistComparator(ArtistComparator.COMPARE_SCORE));
         return artists;
+    }
+
+
+    public void addArtistResult(Result result) {
+        mArtistResults.add(result);
     }
 
     /**
      * Append an ArrayList<Result> to the track result list
      */
     public void addArtistResults(ArrayList<Result> results) {
-        for (Result r : results) {
-            String artistName = "";
-            Artist artist = r.getArtist();
-            if (artist != null && artist.getName() != null) {
-                artistName = cleanUpString(artist.getName(), false);
-            }
-            String key = artistName;
-            ArrayList<Result> value = mArtistResults.get(key);
-            if (value == null) {
-                value = new ArrayList<Result>();
-            }
-            value.add(r);
-            mArtistResults.put(key, value);
+        for (Result result : results) {
+            mArtistResults.add(result);
         }
     }
 
@@ -294,13 +250,17 @@ public class Query {
             resultTrackName = cleanUpString(r.getTrack().getName(), false);
         }
 
-        int distanceArtist = TomahawkUtils.getLevenshteinDistance(mArtistName, resultArtistName);
-        int distanceAlbum = TomahawkUtils.getLevenshteinDistance(mAlbumName, resultAlbumName);
-        int distanceTrack = TomahawkUtils.getLevenshteinDistance(mTrackName, resultTrackName);
+        int distanceArtist = TomahawkUtils
+                .getLevenshteinDistance(mTrack.getArtist().getName(), resultArtistName);
+        int distanceAlbum = TomahawkUtils
+                .getLevenshteinDistance(mTrack.getAlbum().getName(), resultAlbumName);
+        int distanceTrack = TomahawkUtils.getLevenshteinDistance(mTrack.getName(), resultTrackName);
 
-        int maxLengthArtist = Math.max(mArtistName.length(), resultArtistName.length());
-        int maxLengthAlbum = Math.max(mAlbumName.length(), resultAlbumName.length());
-        int maxLengthTrack = Math.max(mTrackName.length(), resultTrackName.length());
+        int maxLengthArtist = Math
+                .max(mTrack.getArtist().getName().length(), resultArtistName.length());
+        int maxLengthAlbum = Math
+                .max(mTrack.getAlbum().getName().length(), resultAlbumName.length());
+        int maxLengthTrack = Math.max(mTrack.getName().length(), resultTrackName.length());
 
         float distanceScoreArtist = (float) (maxLengthArtist - distanceArtist) / maxLengthArtist;
         float distanceScoreAlbum;
@@ -352,7 +312,7 @@ public class Query {
             }
             return maxResult;
         } else {
-            if (TextUtils.isEmpty(mAlbumName)) {
+            if (TextUtils.isEmpty(mTrack.getAlbum().getName())) {
                 distanceScoreAlbum = 1F;
             }
 
@@ -374,18 +334,6 @@ public class Query {
         return out;
     }
 
-    public String getTrackName() {
-        return mTrackName;
-    }
-
-    public String getAlbumName() {
-        return mAlbumName;
-    }
-
-    public String getArtistName() {
-        return mArtistName;
-    }
-
     public void incResolversTodoCount() {
         mResolversTodoCount++;
         updateSolved();
@@ -400,7 +348,18 @@ public class Query {
         mSolved = mResolversDoneCount != 0 && mResolversTodoCount == mResolversDoneCount;
     }
 
-    public String getCacheKey() {
-        return mCacheKey;
+    @Override
+    public String getName() {
+        return getPreferredTrack().getName();
+    }
+
+    @Override
+    public Artist getArtist() {
+        return getPreferredTrack().getArtist();
+    }
+
+    @Override
+    public Album getAlbum() {
+        return getPreferredTrack().getAlbum();
     }
 }

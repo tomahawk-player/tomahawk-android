@@ -200,23 +200,26 @@ public class TomahawkMediaPlayer
     }
 
     /**
-     * Prepare the given {@link Track}
+     * Prepare the given url
+     *
+     * @param url          the url to prepare
+     * @param isSpotifyUrl whether or not the given url is a spotify url
      */
-    public void prepare(Track track) throws IllegalStateException, IOException {
+    public void prepare(String url, boolean isSpotifyUrl)
+            throws IllegalStateException, IOException {
         mIsPreparing = true;
         try {
-            if (track.getResolver() != null
-                    && track.getResolver().getId() == TomahawkApp.RESOLVER_ID_SPOTIFY) {
+            if (isSpotifyUrl) {
                 mUseMediaPlayer = false;
                 if (mMediaPlayer.isPlaying()) {
                     mMediaPlayer.stop();
                 }
                 mMediaPlayer.reset();
-                LibSpotifyWrapper.prepare(track.getPath(), this);
+                LibSpotifyWrapper.prepare(url, this);
             } else {
                 mUseMediaPlayer = true;
                 LibSpotifyWrapper.pause();
-                mMediaPlayer.setDataSource(track.getPath());
+                mMediaPlayer.setDataSource(url);
                 mMediaPlayer.prepare();
             }
         } catch (IllegalStateException e) {

@@ -110,8 +110,8 @@ public class DataBaseResolver implements Resolver {
         if (query.isFullTextQuery()) {
             new TomahawkListItemFilter(query.getQid(), this, query.getFullTextQuery()).filter(null);
         } else {
-            new TomahawkListItemFilter(query.getQid(), this, query.getTrackName(),
-                    query.getAlbumName(), query.getArtistName()).filter(null);
+            new TomahawkListItemFilter(query.getQid(), this, query.getName(),
+                    query.getAlbum().getName(), query.getArtist().getName()).filter(null);
         }
     }
 
@@ -213,30 +213,23 @@ public class DataBaseResolver implements Resolver {
                     .isEmpty(mAlbumName) && TextUtils.isEmpty(mArtistName))) {
                 return filteredResults;
             }
-            List<TomahawkBaseAdapter.TomahawkListItem> inputList
-                    = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-            inputList.addAll(mCollection.getTracks());
+            List<Query> inputList = new ArrayList<Query>();
+            inputList.addAll(mCollection.getQueries());
 
-            for (TomahawkBaseAdapter.TomahawkListItem item : inputList) {
+            for (Query query : inputList) {
                 if (!TextUtils.isEmpty(mFullTextQuery)) {
-                    if (item.getName().toLowerCase().contains(mFullTextQuery) || (
-                            item.getArtist() != null && item.getArtist().getName().toLowerCase()
-                                    .contains(mFullTextQuery)) || (item.getAlbum() != null && item
+                    if (query.getName().toLowerCase().contains(mFullTextQuery) || (
+                            query.getArtist() != null && query.getArtist().getName().toLowerCase()
+                                    .contains(mFullTextQuery)) || (query.getAlbum() != null && query
                             .getAlbum().getName().toLowerCase().contains(mFullTextQuery))) {
-                        Result r;
-                        r = new Result((Track) item);
-                        r.setResolver(mResolver);
-                        filteredResults.add(r);
+                        filteredResults.add(query.getPreferredTrackResult());
                     }
                 } else {
-                    if (item.getName().toLowerCase().contains(mTrackName) || (
-                            item.getArtist() != null && item.getArtist().getName().toLowerCase()
-                                    .contains(mArtistName)) || (item.getAlbum() != null && item
+                    if (query.getName().toLowerCase().contains(mTrackName) || (
+                            query.getArtist() != null && query.getArtist().getName().toLowerCase()
+                                    .contains(mArtistName)) || (query.getAlbum() != null && query
                             .getAlbum().getName().toLowerCase().contains(mAlbumName))) {
-                        Result r;
-                        r = new Result((Track) item);
-                        r.setResolver(mResolver);
-                        filteredResults.add(r);
+                        filteredResults.add(query.getPreferredTrackResult());
                     }
                 }
             }

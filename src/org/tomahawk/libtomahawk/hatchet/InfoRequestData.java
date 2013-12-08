@@ -114,6 +114,7 @@ public class InfoRequestData {
         return in.replace(" ", "%20");
     }
 
+    /*
     public static ArrayList<Album> albumInfoListToAlbumList(ArrayList<AlbumInfo> albumInfos) {
         ArrayList<Album> albums = new ArrayList<Album>();
         for (AlbumInfo albumInfo : albumInfos) {
@@ -127,12 +128,15 @@ public class InfoRequestData {
     }
 
     public static Album albumInfoToAlbum(AlbumInfo albumInfo, Album album) {
-        if (album == null) {
-            album = new Album(TomahawkApp.getUniqueId());
-        }
+        Artist artist;
         if (albumInfo.getArtist() != null) {
-            album.setArtist(artistInfoToArtist(albumInfo.getArtist(),
-                    new Artist(TomahawkApp.getUniqueId())));
+            artist = artistInfoToArtist(albumInfo.getArtist(),
+                    Artist.get());
+        } else {
+
+        }
+        if (album == null) {
+            album = Album.get(albumInfo.getName());
         }
         if (albumInfo.getId() != null) {
         }
@@ -151,8 +155,8 @@ public class InfoRequestData {
             for (TrackInfo trackInfo : albumInfo.getTracks()) {
                 Track track = trackInfoToTrack(trackInfo);
                 track.setAlbum(album);
-                track.setTrackNumber(trackNumCounter++);
-                album.addTrack(track);
+                track.setAlbumPos(trackNumCounter++);
+                //album.addQuery(track);
             }
         }
         return album;
@@ -203,7 +207,7 @@ public class InfoRequestData {
             artist.setName(artistInfo.getName());
         }
         return artist;
-    }
+    }*/
 
     private HttpGet buildRequestGet() {
         HttpGet httpGet = null;

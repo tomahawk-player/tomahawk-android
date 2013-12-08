@@ -135,7 +135,7 @@ public class TomahawkApp extends Application {
 
         // Initialize UserPlaylistsDataSource, which makes it possible to retrieve persisted
         // UserPlaylists
-        mUserPlaylistsDataSource = new UserPlaylistsDataSource(this, mPipeLine);
+        mUserPlaylistsDataSource = new UserPlaylistsDataSource(this);
         mUserPlaylistsDataSource.open();
 
         initialize();

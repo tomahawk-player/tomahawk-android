@@ -17,6 +17,8 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
+import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -102,7 +104,7 @@ public class PipeLine {
                 q = mQids.get(mQueryMap.get(Query.constructCacheKey(fullTextQuery)));
             }
             if (q == null) {
-                q = new Query(TomahawkApp.getUniqueStringId(), fullTextQuery, onlyLocal);
+                q = new Query(fullTextQuery, onlyLocal);
             }
             resolve(q, onlyLocal);
         }
@@ -139,8 +141,7 @@ public class PipeLine {
                         .get(Query.constructCacheKey(trackName, albumName, artistName)));
             }
             if (q == null) {
-                q = new Query(TomahawkApp.getUniqueStringId(), trackName, albumName, artistName,
-                        onlyLocal);
+                q = new Query(trackName, albumName, artistName, onlyLocal);
             }
             resolve(q, onlyLocal);
         }
@@ -166,7 +167,6 @@ public class PipeLine {
             }
         } else if (!mQids.containsKey(q.getQid())) {
             mQids.put(q.getQid(), q);
-            mQueryMap.put(q.getCacheKey(), q.getQid());
             for (Resolver resolver : mResolvers) {
                 if ((!onlyLocal && resolver instanceof SpotifyResolver
                         && ((SpotifyResolver) resolver).isReady()) || (onlyLocal
@@ -181,6 +181,21 @@ public class PipeLine {
                         && ((SpotifyResolver) resolver).isReady()) || (onlyLocal
                         && resolver instanceof DataBaseResolver) || !onlyLocal) {
                     resolver.resolve(q);
+                }
+            }
+        }
+    }
+
+    /**
+     * Resolve the given {@link org.tomahawk.libtomahawk.collection.Album}'s {@link
+     * org.tomahawk.libtomahawk.resolver.Query}s
+     */
+    public void resolve(Album album) {
+        if (album != null && album.getQueries() != null) {
+            for (Query query : album.getQueries()) {
+                if (!query.isSolved()) {
+                    String queryId = resolve(query.getName(), query.getAlbum().getName(),
+                            query.getArtist().getName());
                 }
             }
         }

@@ -63,15 +63,15 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         public void onReceive(Context context, Intent intent) {
             if (PipeLine.PIPELINE_RESULTSREPORTED_NON_FULLTEXTQUERY.equals(intent.getAction())) {
                 String queryId = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
-                if (mCorrespondingQueryIds.containsKey(queryId)) {
-                    ArrayList<Track> tracks = mPipeline.getQuery(queryId).getTrackResults();
+                if (mCorrespondingQueryIds.contains(queryId)) {
+                    /*ArrayList<Track> tracks = mPipeline.getQuery(queryId).getTrackResults();
                     if (tracks != null && tracks.size() > 0) {
                         Track track = mCorrespondingQueryIds.get(queryId);
                         if (track.getScore() < tracks.get(0).getScore()) {
                             Query.trackResultToTrack(tracks.get(0), track);
                             updateAdapter();
                         }
-                    }
+                    }*/
                 }
                 if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
                     String requestId = intent
@@ -97,18 +97,20 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         super.onCreate(savedInstanceState);
 
         if (mTomahawkMainActivity.getUserCollection() != null && getArguments() != null) {
-            if (getArguments().containsKey(TOMAHAWK_ALBUM_ID)
-                    && getArguments().getLong(TOMAHAWK_ALBUM_ID) >= 0) {
+            if (getArguments().containsKey(TOMAHAWK_ALBUM_KEY)
+                    && getArguments().getLong(TOMAHAWK_ALBUM_KEY) >= 0) {
                 mAlbum = mTomahawkMainActivity.getUserCollection()
-                        .getAlbumById(getArguments().getLong(TOMAHAWK_ALBUM_ID));
+                        .getAlbumByKey(getArguments().getString(TOMAHAWK_ALBUM_KEY));
             } else if (getArguments().containsKey(TOMAHAWK_PLAYLIST_ID)
                     && getArguments().getLong(TOMAHAWK_PLAYLIST_ID) >= 0) {
                 mUserPlaylist = mTomahawkMainActivity.getUserCollection()
-                        .getCustomPlaylistById(getArguments().getLong(TOMAHAWK_PLAYLIST_ID));
+                        .getCustomPlaylistByKey(
+                                String.valueOf(getArguments().getLong(TOMAHAWK_PLAYLIST_ID)));
             } else if (getArguments().containsKey(UserCollection.USERCOLLECTION_ALBUMCACHED)) {
                 // A cached album has been given. So we try to resolve it.
                 mAlbum = mTomahawkMainActivity.getUserCollection().getCachedAlbum();
-                resolveAlbum(mAlbum);
+                mPipeline.resolve(mAlbum);
+                mTomahawkMainActivity.startLoadingAnimation();
                 mShouldShowLoadingAnimation = true;
             }
         }
@@ -164,21 +166,20 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         position -= getListView().getHeaderViewsCount();
         if (position >= 0) {
-            if (getListAdapter().getItem(position) instanceof Track && ((Track) getListAdapter()
-                    .getItem(position)).isResolved()) {
-                ArrayList<Track> tracks = new ArrayList<Track>();
+            if (getListAdapter().getItem(position) instanceof Query) {
+                ArrayList<Query> queries = new ArrayList<Query>();
                 if (mAlbum != null) {
-                    tracks = mAlbum.getTracks();
+                    queries = mAlbum.getQueries();
                 } else if (mArtist != null) {
-                    tracks = mArtist.getTracks();
+                    queries = mArtist.getQueries();
                 } else if (mUserPlaylist != null) {
-                    tracks = mUserPlaylist.getTracks();
+                    queries = mUserPlaylist.getQueries();
                 } else {
-                    tracks.addAll(mTomahawkMainActivity.getUserCollection().getTracks());
+                    queries.addAll(mTomahawkMainActivity.getUserCollection().getQueries());
                 }
-                UserPlaylist playlist = UserPlaylist.fromTrackList(
-                        UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, tracks,
-                        (Track) getListAdapter().getItem(position));
+                UserPlaylist playlist = UserPlaylist.fromQueryList(
+                        UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, queries,
+                        position);
                 PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
                 if (playbackService != null) {
                     playbackService.setCurrentPlaylist(playlist);
@@ -208,7 +209,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         TomahawkListAdapter tomahawkListAdapter;
         Collection coll = mTomahawkMainActivity.getUserCollection();
         if (mAlbum != null) {
-            items.addAll(mAlbum.getTracks());
+            items.addAll(mAlbum.getQueries());
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(items);
@@ -222,7 +223,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
             }
         } else if (mArtist != null) {
-            items.addAll(mArtist.getTracks());
+            items.addAll(mArtist.getQueries());
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(items);
@@ -236,7 +237,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
             }
         } else if (mUserPlaylist != null) {
-            items.addAll(mUserPlaylist.getTracks());
+            items.addAll(mUserPlaylist.getQueries());
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(items);
@@ -250,7 +251,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
             }
         } else {
-            items.addAll(coll.getTracks());
+            items.addAll(coll.getQueries());
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(items);
@@ -271,24 +272,5 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
      */
     public Album getAlbum() {
         return mAlbum;
-    }
-
-    /**
-     * Resolve the given {@link Album}'s {@link Track}s
-     */
-    private void resolveAlbum(Album album) {
-        if (album != null && album.getTracks() != null) {
-            for (Track track : album.getTracks()) {
-                if (!track.isResolved()) {
-                    String queryId = mPipeline
-                            .resolve(track.getName(), track.getAlbum().getName(),
-                                    track.getArtist().getName());
-                    if (queryId != null) {
-                        mCorrespondingQueryIds.put(queryId, track);
-                        mTomahawkMainActivity.startLoadingAnimation();
-                    }
-                }
-            }
-        }
     }
 }

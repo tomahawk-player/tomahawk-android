@@ -21,6 +21,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView;
@@ -209,7 +210,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                         .findViewById(mSingleLineListItemResourceHolder.textViewId1);
                 view.setTag(viewHolder);
             } else if (!mShowHighlightingAndPlaystate && !mShowResolvedBy && (
-                    (item instanceof Track && convertView == null) || (item instanceof Track
+                    (item instanceof Query && convertView == null) || (item instanceof Query
                             && ((ViewHolder) convertView.getTag()).viewType
                             != R.id.tomahawklistadapter_viewtype_doublelinelistitem))) {
                 view = mLayoutInflater.inflate(mDoubleLineListItemResourceHolder.resourceId, null);
@@ -223,7 +224,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                         .findViewById(mDoubleLineListItemResourceHolder.textViewId3);
                 view.setTag(viewHolder);
             } else if ((mShowResolvedBy || mShowHighlightingAndPlaystate) && (
-                    (item instanceof Track && convertView == null) || (item instanceof Track
+                    (item instanceof Query && convertView == null) || (item instanceof Query
                             && ((ViewHolder) convertView.getTag()).viewType
                             != R.id.tomahawklistadapter_viewtype_doublelineplaystateimagelistitem))) {
                 view = mLayoutInflater.inflate(mDoubleLineListItemResourceHolder.resourceId, null);
@@ -269,12 +270,12 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                 }
             } else if (viewHolder.viewType
                     == R.id.tomahawklistadapter_viewtype_doublelinelistitem) {
-                if (item instanceof Track) {
-                    viewHolder.textFirstLine.setText(((Track) item).getName());
-                    viewHolder.textSecondLine.setText(((Track) item).getArtist().getName());
-                    if (((Track) item).getDuration() > 0) {
-                        viewHolder.textThirdLine.setText(
-                                TomahawkUtils.durationToString(((Track) item).getDuration()));
+                if (item instanceof Query) {
+                    viewHolder.textFirstLine.setText(((Query) item).getName());
+                    viewHolder.textSecondLine.setText(((Query) item).getArtist().getName());
+                    if (((Query) item).getPreferredTrackResult().getTrack().getDuration() > 0) {
+                        viewHolder.textThirdLine.setText(TomahawkUtils.durationToString(
+                                ((Query) item).getPreferredTrackResult().getTrack().getDuration()));
                     } else {
                         viewHolder.textThirdLine.setText(mActivity.getResources().getString(
                                 R.string.playbackactivity_seekbar_completion_time_string));
@@ -292,8 +293,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                 }
             } else if (viewHolder.viewType
                     == R.id.tomahawklistadapter_viewtype_doublelineplaystateimagelistitem) {
-                if (item instanceof Track) {
-                    if (!((Track) item).isResolved()) {
+                if (item instanceof Query) {
+                    if (!((Query) item).isSolved()) {
                         viewHolder.textFirstLine.setTextColor(
                                 mActivity.getResources().getColor(R.color.disabled_grey));
                         viewHolder.textSecondLine.setTextColor(
@@ -308,11 +309,11 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                         viewHolder.textThirdLine.setTextColor(
                                 mActivity.getResources().getColor(R.color.secondary_textcolor));
                     }
-                    viewHolder.textFirstLine.setText(((Track) item).getName());
-                    viewHolder.textSecondLine.setText(((Track) item).getArtist().getName());
-                    if (((Track) item).getDuration() > 0) {
-                        viewHolder.textThirdLine.setText(
-                                TomahawkUtils.durationToString(((Track) item).getDuration()));
+                    viewHolder.textFirstLine.setText(((Query) item).getName());
+                    viewHolder.textSecondLine.setText(((Query) item).getArtist().getName());
+                    if (((Query) item).getPreferredTrackResult().getTrack().getDuration() > 0) {
+                        viewHolder.textThirdLine.setText(TomahawkUtils.durationToString(
+                                ((Query) item).getPreferredTrackResult().getTrack().getDuration()));
                     } else {
                         viewHolder.textThirdLine.setText(mActivity.getResources().getString(
                                 R.string.playbackactivity_seekbar_completion_time_string));
@@ -330,15 +331,17 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                         viewHolder.imageViewLeft.setVisibility(ImageView.GONE);
                         view.setBackgroundResource(R.drawable.selectable_background_tomahawk);
                     }
-                    if (mShowResolvedBy && ((Track) item).isResolved()) {
+                    if (mShowResolvedBy && ((Query) item).getPreferredTrackResult().isResolved()) {
                         viewHolder.imageViewRight.setVisibility(ImageView.VISIBLE);
                         Drawable resolverIcon = null;
-                        if (((Track) item).getResolver() != null) {
-                            resolverIcon = ((Track) item).getResolver().getIcon();
+                        if (((Query) item).getPreferredTrackResult().getResolvedBy() != null) {
+                            resolverIcon = ((Query) item).getPreferredTrackResult().getResolvedBy()
+                                    .getIcon();
                         }
                         if (resolverIcon != null) {
-                            viewHolder.imageViewRight
-                                    .setImageDrawable(((Track) item).getResolver().getIcon());
+                            viewHolder.imageViewRight.setImageDrawable(
+                                    ((Query) item).getPreferredTrackResult().getResolvedBy()
+                                            .getIcon());
                         } else {
                             viewHolder.imageViewRight
                                     .setImageResource(R.drawable.ic_resolver_default);

@@ -18,6 +18,8 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.tomahawk.libtomahawk.resolver.Query;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,28 +34,28 @@ public abstract class Playlist implements Playable {
 
     private String mName;
 
-    private ArrayList<Track> mTracks;
+    private ArrayList<Query> mQueries;
 
-    private ArrayList<Track> mShuffledTracks;
+    private ArrayList<Query> mShuffledQueries;
 
-    private int mCurrentTrackIndex;
+    private int mCurrentQueryIndex;
 
     private boolean mShuffled;
 
     private boolean mRepeating;
 
     /**
-     * Create a {@link Playlist} with a list of empty {@link Track}s.
+     * Create a {@link Playlist} with a list of empty {@link Query}s.
      */
     protected Playlist(long id) {
         mId = id;
         mShuffled = false;
         mRepeating = false;
-        setTracks(new ArrayList<Track>());
+        setQueries(new ArrayList<Query>());
     }
 
     /**
-     * Create a {@link Playlist} with a list of empty {@link Track}s.
+     * Create a {@link Playlist} with a list of empty {@link Query}s.
      *
      * @param name {@link String} containing the name of the to be created {@link Playlist}
      */
@@ -62,7 +64,7 @@ public abstract class Playlist implements Playable {
         mName = name;
         mShuffled = false;
         mRepeating = false;
-        setTracks(new ArrayList<Track>());
+        setQueries(new ArrayList<Query>());
     }
 
     /**
@@ -89,30 +91,30 @@ public abstract class Playlist implements Playable {
     }
 
     /**
-     * Set this {@link Playlist}'s {@link Track}s
+     * Set this {@link Playlist}'s {@link Query}s
      */
     @Override
-    public void setTracks(Collection<Track> tracks) {
-        mTracks = (ArrayList<Track>) tracks;
+    public void setQueries(Collection<Query> queries) {
+        mQueries = (ArrayList<Query>) queries;
 
-        if (mTracks != null && !mTracks.isEmpty()) {
-            mCurrentTrackIndex = 0;
+        if (mQueries != null && !mQueries.isEmpty()) {
+            mCurrentQueryIndex = 0;
         } else {
-            mCurrentTrackIndex = -1;
+            mCurrentQueryIndex = -1;
         }
     }
 
     /**
-     * Set the current {@link Track} of this {@link Playlist}
+     * Set the current {@link Query} of this {@link Playlist}
      */
     @Override
-    public void setCurrentTrack(Track newtrack) {
-        List<Track> tracks = mShuffled ? mShuffledTracks : mTracks;
+    public void setCurrentQuery(Query newquery) {
+        List<Query> querys = mShuffled ? mShuffledQueries : mQueries;
         int i = 0;
-        while (i < tracks.size()) {
-            Track track = tracks.get(i);
-            if (newtrack.getId() == track.getId()) {
-                mCurrentTrackIndex = i;
+        while (i < querys.size()) {
+            Query query = querys.get(i);
+            if (newquery.getQid() == query.getQid()) {
+                mCurrentQueryIndex = i;
                 break;
             }
             i++;
@@ -120,102 +122,102 @@ public abstract class Playlist implements Playable {
     }
 
     /**
-     * Set the current {@link Track} index
+     * Set the current {@link Query} index
      *
-     * @param currentTrackIndex int containig the {@link Track}'s index
+     * @param currentQueryIndex int containig the {@link Query}'s index
      */
-    public void setCurrentTrackIndex(int currentTrackIndex) {
-        mCurrentTrackIndex = currentTrackIndex;
+    public void setCurrentQueryIndex(int currentQueryIndex) {
+        mCurrentQueryIndex = currentQueryIndex;
     }
 
     /**
-     * @return the current {@link Track}
+     * @return the current {@link Query}
      */
     @Override
-    public Track getCurrentTrack() {
-        List<Track> tracks = mShuffled ? mShuffledTracks : mTracks;
-        if (tracks != null && mCurrentTrackIndex >= 0 && mCurrentTrackIndex < tracks.size()) {
-            return tracks.get(mCurrentTrackIndex);
+    public Query getCurrentQuery() {
+        List<Query> querys = mShuffled ? mShuffledQueries : mQueries;
+        if (querys != null && mCurrentQueryIndex >= 0 && mCurrentQueryIndex < querys.size()) {
+            return querys.get(mCurrentQueryIndex);
         }
         return null;
     }
 
     /**
-     * @return the current {@link Track}'s index
+     * @return the current {@link Query}'s index
      */
-    public int getCurrentTrackIndex() {
-        return mCurrentTrackIndex;
+    public int getCurrentQueryIndex() {
+        return mCurrentQueryIndex;
     }
 
     /**
-     * @return the next {@link Track}
+     * @return the next {@link Query}
      */
     @Override
-    public Track getNextTrack() {
-        List<Track> tracks = mShuffled ? mShuffledTracks : mTracks;
-        if (mCurrentTrackIndex + 1 < tracks.size()) {
-            Track track = tracks.get(mCurrentTrackIndex + 1);
-            mCurrentTrackIndex = mCurrentTrackIndex + 1;
-            return track;
+    public Query getNextQuery() {
+        List<Query> querys = mShuffled ? mShuffledQueries : mQueries;
+        if (mCurrentQueryIndex + 1 < querys.size()) {
+            Query query = querys.get(mCurrentQueryIndex + 1);
+            mCurrentQueryIndex = mCurrentQueryIndex + 1;
+            return query;
         } else if (mRepeating) {
-            mCurrentTrackIndex = 0;
-            return getFirstTrack();
+            mCurrentQueryIndex = 0;
+            return getFirstQuery();
         }
         return null;
     }
 
     /**
-     * @return the previous {@link Track}
+     * @return the previous {@link Query}
      */
     @Override
-    public Track getPreviousTrack() {
-        List<Track> tracks = mShuffled ? mShuffledTracks : mTracks;
-        if (mCurrentTrackIndex - 1 >= 0) {
-            Track track = tracks.get(mCurrentTrackIndex - 1);
-            mCurrentTrackIndex = mCurrentTrackIndex - 1;
-            return track;
+    public Query getPreviousQuery() {
+        List<Query> querys = mShuffled ? mShuffledQueries : mQueries;
+        if (mCurrentQueryIndex - 1 >= 0) {
+            Query query = querys.get(mCurrentQueryIndex - 1);
+            mCurrentQueryIndex = mCurrentQueryIndex - 1;
+            return query;
         } else if (mRepeating) {
-            mCurrentTrackIndex = tracks.size() - 1;
-            return getLastTrack();
+            mCurrentQueryIndex = querys.size() - 1;
+            return getLastQuery();
         }
         return null;
     }
 
     /**
-     * Get the {@link Track} at the given position
+     * Get the {@link Query} at the given position
      */
     @Override
-    public Track getTrackAtPos(int i) {
-        if (i >= 0 && i < (mShuffled ? mShuffledTracks.size() : mTracks.size())) {
-            mCurrentTrackIndex = i;
-            return mShuffled ? mShuffledTracks.get(i) : mTracks.get(i);
+    public Query getQueryAtPos(int i) {
+        if (i >= 0 && i < (mShuffled ? mShuffledQueries.size() : mQueries.size())) {
+            mCurrentQueryIndex = i;
+            return mShuffled ? mShuffledQueries.get(i) : mQueries.get(i);
         }
         return null;
     }
 
     /**
-     * @return the first {@link Track} of this playlist
+     * @return the first {@link Query} of this playlist
      */
     @Override
-    public Track getFirstTrack() {
-        if (mShuffled ? mShuffledTracks.isEmpty() : mTracks.isEmpty()) {
+    public Query getFirstQuery() {
+        if (mShuffled ? mShuffledQueries.isEmpty() : mQueries.isEmpty()) {
             return null;
         }
 
-        return mShuffled ? mShuffledTracks.get(0) : mTracks.get(0);
+        return mShuffled ? mShuffledQueries.get(0) : mQueries.get(0);
     }
 
     /**
-     * @return the last {@link Track} of this playlist
+     * @return the last {@link Query} of this playlist
      */
     @Override
-    public Track getLastTrack() {
-        if (mShuffled ? mShuffledTracks.isEmpty() : mTracks.isEmpty()) {
+    public Query getLastQuery() {
+        if (mShuffled ? mShuffledQueries.isEmpty() : mQueries.isEmpty()) {
             return null;
         }
 
-        return mShuffled ? mShuffledTracks.get(mShuffledTracks.size() - 1)
-                : mTracks.get(mTracks.size() - 1);
+        return mShuffled ? mShuffledQueries.get(mShuffledQueries.size() - 1)
+                : mQueries.get(mQueries.size() - 1);
     }
 
     /**
@@ -227,58 +229,58 @@ public abstract class Playlist implements Playable {
     }
 
     /**
-     * @return true, if the {@link Playlist} has a next {@link Track}, otherwise false
+     * @return true, if the {@link Playlist} has a next {@link Query}, otherwise false
      */
-    public boolean hasNextTrack() {
-        return peekNextTrack() != null;
+    public boolean hasNextQuery() {
+        return peekNextQuery() != null;
     }
 
     /**
-     * @return true, if the {@link Playlist} has a previous {@link Track}, otherwise false
+     * @return true, if the {@link Playlist} has a previous {@link Query}, otherwise false
      */
-    public boolean hasPreviousTrack() {
-        return peekPreviousTrack() != null;
+    public boolean hasPreviousQuery() {
+        return peekPreviousQuery() != null;
     }
 
     /**
-     * Returns the next {@link Track} but does not update the internal {@link Track} iterator.
+     * Returns the next {@link Query} but does not update the internal {@link Query} iterator.
      *
-     * @return Returns next {@link Track}. Returns null if there is none.
+     * @return Returns next {@link Query}. Returns null if there is none.
      */
-    public Track peekNextTrack() {
-        List<Track> tracks = mShuffled ? mShuffledTracks : mTracks;
-        if (mCurrentTrackIndex + 1 < tracks.size()) {
-            return tracks.get(mCurrentTrackIndex + 1);
+    public Query peekNextQuery() {
+        List<Query> querys = mShuffled ? mShuffledQueries : mQueries;
+        if (mCurrentQueryIndex + 1 < querys.size()) {
+            return querys.get(mCurrentQueryIndex + 1);
         } else if (mRepeating) {
-            return getFirstTrack();
+            return getFirstQuery();
         }
         return null;
     }
 
     /**
-     * Returns the previous {@link Track} but does not update the internal {@link Track} iterator.
+     * Returns the previous {@link Query} but does not update the internal {@link Query} iterator.
      *
-     * @return Returns previous {@link Track}. Returns null if there is none.
+     * @return Returns previous {@link Query}. Returns null if there is none.
      */
-    public Track peekPreviousTrack() {
-        if (mCurrentTrackIndex - 1 >= 0) {
-            List<Track> tracks = mShuffled ? mShuffledTracks : mTracks;
-            return tracks.get(mCurrentTrackIndex - 1);
+    public Query peekPreviousQuery() {
+        if (mCurrentQueryIndex - 1 >= 0) {
+            List<Query> querys = mShuffled ? mShuffledQueries : mQueries;
+            return querys.get(mCurrentQueryIndex - 1);
         } else if (mRepeating) {
-            return getLastTrack();
+            return getLastQuery();
         }
         return null;
     }
 
     /**
-     * Returns the {@link Track} at the given position but does not update the internal {@link
-     * Track} iterator.
+     * Returns the {@link Query} at the given position but does not update the internal {@link
+     * Query} iterator.
      *
-     * @return Returns the {@link Track} at the given position. Returns null if there is none.
+     * @return Returns the {@link Query} at the given position. Returns null if there is none.
      */
-    public Track peekTrackAtPos(int i) {
-        if (i >= 0 && i < (mShuffled ? mShuffledTracks.size() : mTracks.size())) {
-            return mShuffled ? mShuffledTracks.get(i) : mTracks.get(i);
+    public Query peekQueryAtPos(int i) {
+        if (i >= 0 && i < (mShuffled ? mShuffledQueries.size() : mQueries.size())) {
+            return mShuffled ? mShuffledQueries.get(i) : mQueries.get(i);
         }
         return null;
     }
@@ -288,21 +290,21 @@ public abstract class Playlist implements Playable {
      */
     @SuppressWarnings("unchecked")
     public void setShuffled(boolean shuffled) {
-        Track oldCurrentTrack = getCurrentTrack();
+        Query oldCurrentQuery = getCurrentQuery();
         mShuffled = shuffled;
         int i = 0;
 
         if (shuffled) {
-            mShuffledTracks = (ArrayList<Track>) mTracks.clone();
-            Collections.shuffle(mShuffledTracks);
+            mShuffledQueries = (ArrayList<Query>) mQueries.clone();
+            Collections.shuffle(mShuffledQueries);
         } else {
-            mShuffledTracks = null;
+            mShuffledQueries = null;
         }
 
-        List<Track> tracks = mShuffled ? mShuffledTracks : mTracks;
-        while (i < tracks.size()) {
-            if (oldCurrentTrack == tracks.get(i)) {
-                mCurrentTrackIndex = i;
+        List<Query> querys = mShuffled ? mShuffledQueries : mQueries;
+        while (i < querys.size()) {
+            if (oldCurrentQuery == querys.get(i)) {
+                mCurrentQueryIndex = i;
                 break;
             }
             i++;
@@ -331,56 +333,56 @@ public abstract class Playlist implements Playable {
     }
 
     /**
-     * Return the current count of tracks in the {@link Playlist}
+     * Return the current count of querys in the {@link Playlist}
      */
     public int getCount() {
-        return mTracks.size();
+        return mQueries.size();
     }
 
     /**
-     * Return all tracks in the {@link Playlist}
+     * Return all querys in the {@link Playlist}
      */
-    public ArrayList<Track> getTracks() {
-        return mShuffled ? mShuffledTracks : mTracks;
+    public ArrayList<Query> getQueries() {
+        return mShuffled ? mShuffledQueries : mQueries;
     }
 
     /**
-     * Add an {@link ArrayList} of {@link Track}s at the given position
+     * Add an {@link ArrayList} of {@link Query}s at the given position
      */
-    public void addTracks(int position, ArrayList<Track> tracks) {
-        (mShuffled ? mShuffledTracks : mTracks).addAll(position, tracks);
+    public void addQueries(int position, ArrayList<Query> querys) {
+        (mShuffled ? mShuffledQueries : mQueries).addAll(position, querys);
     }
 
     /**
-     * Append an {@link ArrayList} of {@link Track}s at the end of this playlist
+     * Append an {@link ArrayList} of {@link Query}s at the end of this playlist
      */
-    public void addTracks(ArrayList<Track> tracks) {
-        (mShuffled ? mShuffledTracks : mTracks).addAll(tracks);
+    public void addQueries(ArrayList<Query> querys) {
+        (mShuffled ? mShuffledQueries : mQueries).addAll(querys);
     }
 
     /**
-     * Remove the {@link Track} at the given position from this playlist
+     * Remove the {@link Query} at the given position from this playlist
      */
-    public void deleteTrackAtPos(int position) {
-        if (mShuffledTracks != null) {
-            mShuffledTracks.remove((mShuffled ? mShuffledTracks : mTracks).get(position));
+    public void deleteQueryAtPos(int position) {
+        if (mShuffledQueries != null) {
+            mShuffledQueries.remove((mShuffled ? mShuffledQueries : mQueries).get(position));
         }
-        (mShuffled ? mShuffledTracks : mTracks).remove(position);
-        if (mCurrentTrackIndex > (mShuffled ? mShuffledTracks : mTracks).size()) {
-            mCurrentTrackIndex--;
+        (mShuffled ? mShuffledQueries : mQueries).remove(position);
+        if (mCurrentQueryIndex > (mShuffled ? mShuffledQueries : mQueries).size()) {
+            mCurrentQueryIndex--;
         }
     }
 
     /**
-     * Remove the given {@link Track} from this playlist
+     * Remove the given {@link Query} from this playlist
      */
-    public void deleteTrack(Track track) {
-        if (mShuffledTracks != null) {
-            mShuffledTracks.remove(track);
+    public void deleteQuery(Query query) {
+        if (mShuffledQueries != null) {
+            mShuffledQueries.remove(query);
         }
-        (mShuffled ? mShuffledTracks : mTracks).remove(track);
-        if (mCurrentTrackIndex > (mShuffled ? mShuffledTracks : mTracks).size()) {
-            mCurrentTrackIndex--;
+        (mShuffled ? mShuffledQueries : mQueries).remove(query);
+        if (mCurrentQueryIndex > (mShuffled ? mShuffledQueries : mQueries).size()) {
+            mCurrentQueryIndex--;
         }
     }
 }

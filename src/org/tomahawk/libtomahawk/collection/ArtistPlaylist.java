@@ -17,15 +17,19 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.tomahawk.libtomahawk.resolver.Query;
+
+import java.util.ArrayList;
+
 /**
- * This class represents a {@link Playlist} including all the {@link Track}s from an {@link
+ * This class represents a {@link Playlist} including all the {@link Query}s from an {@link
  * Artist}.
  */
 public class ArtistPlaylist extends Playlist {
 
     /**
-     * Create an {@link ArtistPlaylist} from an {@link Artist} and set the current {@link Track} to
-     * the first {@link Track} of the given {@link Artist}.
+     * Create an {@link ArtistPlaylist} from an {@link Artist} and set the current {@link Query} to
+     * the first {@link Query} of the given {@link Artist}.
      *
      * @param id     the id of the {@link ArtistPlaylist} to construct
      * @param artist The {@link Artist} to construct the {@link Playlist} from
@@ -33,24 +37,23 @@ public class ArtistPlaylist extends Playlist {
      */
     public static ArtistPlaylist fromArtist(long id, Artist artist) {
         ArtistPlaylist pl = new ArtistPlaylist(id, artist.getName());
-        pl.setTracks(artist.getTracks());
-        pl.setCurrentTrack(artist.getTracks().get(0));
+        pl.setQueries(artist.getQueries());
+        pl.setCurrentQueryIndex(0);
         return pl;
     }
 
     /**
-     * Creates an {@link ArtistPlaylist} from an {@link Artist} and sets the current {@link Track}
-     * to the {@link Track} at idx.
+     * Creates an {@link ArtistPlaylist} from an {@link Artist} and sets the current {@link Query}
+     * to the {@link Query} at idx.
      *
      * @param id           the id of the {@link ArtistPlaylist} to construct
      * @param artist       The {@link Artist} to construct the {@link Playlist} from
-     * @param currentTrack The current {@link Track} to be set
+     * @param currentQuery The current {@link Query} to be set
      * @return The constructed {@link ArtistPlaylist}
      */
-    public static ArtistPlaylist fromArtist(long id, Artist artist, Track currentTrack) {
-        ArtistPlaylist pl = new ArtistPlaylist(id, artist.getName());
-        pl.setTracks(artist.getTracks());
-        pl.setCurrentTrack(currentTrack);
+    public static ArtistPlaylist fromArtist(long id, Artist artist, Query currentQuery) {
+        ArtistPlaylist pl = ArtistPlaylist.fromArtist(id, artist);
+        pl.setCurrentQuery(currentQuery);
         return pl;
     }
 

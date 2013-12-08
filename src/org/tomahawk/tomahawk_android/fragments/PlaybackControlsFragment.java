@@ -276,8 +276,7 @@ public class PlaybackControlsFragment extends Fragment {
      */
     protected void refreshTrackInfo() {
         if (mTomahawkMainActivity != null) {
-            if (mPlaybackService != null && mPlaybackService.getCurrentTrack() != null
-                    && mAlbumArtSwipeAdapter != null && mPlaybackSeekBar != null) {
+            if (mPlaybackService != null) {
                 refreshTrackInfo(mPlaybackService.getCurrentTrack());
             } else {
                 refreshTrackInfo(null);
@@ -302,9 +301,9 @@ public class PlaybackControlsFragment extends Fragment {
             mAlbumArtSwipeAdapter.setPlaybackService(mPlaybackService);
             if (!mAlbumArtSwipeAdapter.isSwiped()) {
                 mAlbumArtSwipeAdapter.setByUser(false);
-                if (mPlaybackService.getCurrentPlaylist().getCurrentTrackIndex() >= 0) {
+                if (mPlaybackService.getCurrentPlaylist().getCurrentQueryIndex() >= 0) {
                     mAlbumArtSwipeAdapter.setCurrentItem(
-                            mPlaybackService.getCurrentPlaylist().getCurrentTrackIndex(), true);
+                            mPlaybackService.getCurrentPlaylist().getCurrentQueryIndex(), true);
                 }
                 mAlbumArtSwipeAdapter.setByUser(true);
             }

@@ -34,6 +34,7 @@ package org.tomahawk.libtomahawk.resolver.spotify;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
+import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
@@ -148,9 +149,15 @@ public class LibSpotifyWrapper {
      * @param qid   {@link String} containg the query id
      * @param query {@link org.tomahawk.libtomahawk.resolver.Query} to be resolved
      */
-    public static void resolve(String qid, String query) {
+    public static void resolve(String qid, Query query) {
         if (mInitialized) {
-            nativeresolve(qid, query);
+            String queryString;
+            if (query.isFullTextQuery()) {
+                queryString = query.getFullTextQuery();
+            } else {
+                queryString = query.getArtist() + " " + query.getName() + " " + query.getAlbum();
+            }
+            nativeresolve(qid, queryString);
         }
     }
 
@@ -273,7 +280,7 @@ public class LibSpotifyWrapper {
      * @param query           {@link org.tomahawk.libtomahawk.resolver.Query} to be resolved
      * @param spotifyResolver reference to the {@link SpotifyResolver}
      */
-    public static void resolve(String qid, String query, SpotifyResolver spotifyResolver) {
+    public static void resolve(String qid, Query query, SpotifyResolver spotifyResolver) {
         sSpotifyResolver = spotifyResolver;
         resolve(qid, query);
     }
@@ -323,25 +330,18 @@ public class LibSpotifyWrapper {
     public static void addResult(final String trackName, final int trackDuration,
             final int trackDiscnumber, final int trackIndex, final String trackUri,
             final String albumName, final int albumYear, final String artistName) {
-        Result result = new Result();
-        Track track = new Track(TomahawkApp.getUniqueId());
-        track.setName(trackName);
-        track.setDuration(trackDuration);
-        track.setTrackNumber(trackIndex);
-        track.setPath(trackUri);
-        track.setResolver(sSpotifyResolver);
-        Album album = new Album(TomahawkApp.getUniqueId());
-        album.setName(albumName);
+        Artist artist = Artist.get(artistName);
+        Album album = Album.get(albumName, artist);
         album.setFirstYear("" + albumYear);
         album.setLastYear("" + albumYear);
-        Artist artist = new Artist(TomahawkApp.getUniqueId());
-        artist.setName(artistName);
-        track.setAlbum(album);
-        track.setArtist(artist);
+        Track track = Track.get(trackName, album, artist);
+        track.setDuration(trackDuration);
+        track.setAlbumPos(trackIndex);
+        Result result = Result.get(trackUri, track);
         result.setTrack(track);
         result.setArtist(artist);
         result.setAlbum(album);
-        result.setResolver(sSpotifyResolver);
+        result.setResolvedBy(sSpotifyResolver);
         sSpotifyResolver.addResult(result);
     }
 

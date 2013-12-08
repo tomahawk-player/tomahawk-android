@@ -20,9 +20,9 @@ package org.tomahawk.libtomahawk.collection;
 import java.util.Comparator;
 
 /**
- * This class is used to compare two {@link Artist}s.
+ * This class is used to compare two {@link org.tomahawk.libtomahawk.collection.UserPlaylist}s.
  */
-public class ArtistComparator implements Comparator<Artist> {
+public class UserPlaylistComparator implements Comparator<UserPlaylist> {
 
     //Modes which determine with which method albums are compared
     public static final int COMPARE_ALPHA = 1;
@@ -31,11 +31,12 @@ public class ArtistComparator implements Comparator<Artist> {
     private static int mFlag = COMPARE_ALPHA;
 
     /**
-     * Construct this {@link ArtistComparator}
+     * Construct this {@link org.tomahawk.libtomahawk.collection.UserPlaylistComparator}
      *
-     * @param flag The mode which determines with which method {@link Artist}s are compared
+     * @param flag The mode which determines with which method {@link org.tomahawk.libtomahawk.collection.UserPlaylist}s
+     *             are compared
      */
-    public ArtistComparator(int flag) {
+    public UserPlaylistComparator(int flag) {
         super();
         mFlag = flag;
     }
@@ -43,14 +44,14 @@ public class ArtistComparator implements Comparator<Artist> {
     /**
      * The actual comparison method
      *
-     * @param a1 First {@link Artist} object
-     * @param a2 Second {@link Artist} Object
+     * @param u1 First {@link org.tomahawk.libtomahawk.collection.UserPlaylist} object
+     * @param u2 Second {@link org.tomahawk.libtomahawk.collection.UserPlaylist} Object
      * @return int containing comparison score
      */
-    public int compare(Artist a1, Artist a2) {
+    public int compare(UserPlaylist u1, UserPlaylist u2) {
         switch (mFlag) {
             case COMPARE_ALPHA:
-                return a1.getName().compareTo(a2.getName());
+                return u1.getName().compareTo(u2.getName());
         }
         return 0;
     }

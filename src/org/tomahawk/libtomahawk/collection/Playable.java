@@ -17,61 +17,63 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.tomahawk.libtomahawk.resolver.Query;
+
 import java.util.Collection;
 
 /**
- * A simple interface to represent a collection of 0 or more {@link Track}s.
+ * A simple interface to represent a collection of 0 or more {@link Query}s.
  */
 public interface Playable {
 
     /**
-     * Set the {@link Track}s for this {@link Playable}Interface.
+     * Set the {@link Query}s for this {@link Playable}Interface.
      */
-    public void setTracks(Collection<Track> tracks);
+    public void setQueries(Collection<Query> queries);
 
     /**
-     * Set the current {@link Track} to {@link Track}. If {@link Track} cannot be found the current
-     * {@link Track} stays the same.
+     * Set the current {@link Query} to {@link Query}. If {@link Query} cannot be found the current
+     * {@link Query} stays the same.
      */
-    public void setCurrentTrack(Track track);
+    public void setCurrentQuery(Query track);
 
     /**
-     * Return the current {@link Track} for this {@link Playable}Interface.
+     * Return the current {@link Query} for this {@link Playable}Interface.
      */
-    public Track getCurrentTrack();
+    public Query getCurrentQuery();
 
     /**
-     * Return the next {@link Track} for this {@link Playable}Interface.
+     * Return the next {@link Query} for this {@link Playable}Interface.
      */
-    public Track getNextTrack();
+    public Query getNextQuery();
 
     /**
-     * Return the previous {@link Track} for this {@link Playable}Interface.
+     * Return the previous {@link Query} for this {@link Playable}Interface.
      */
-    public Track getPreviousTrack();
+    public Query getPreviousQuery();
 
     /**
-     * Return the {@link Track} at pos i.
+     * Return the {@link Query} at pos i.
      */
-    public Track getTrackAtPos(int i);
+    public Query getQueryAtPos(int i);
 
     /**
-     * Return the first {@link Track} in this {@link Playable}Interface.
+     * Return the first {@link Query} in this {@link Playable}Interface.
      */
-    public Track getFirstTrack();
+    public Query getFirstQuery();
 
     /**
-     * Return the last {@link Track} in this {@link Playable}Interface.
+     * Return the last {@link Query} in this {@link Playable}Interface.
      */
-    public Track getLastTrack();
+    public Query getLastQuery();
 
     /**
-     * Returns true if the {@link Playable}Interface has a next {@link Track}.
+     * Returns true if the {@link Playable}Interface has a next {@link Query}.
      */
-    public boolean hasNextTrack();
+    public boolean hasNextQuery();
 
     /**
-     * Returns true if the {@link Playable}Interface has a previous {@link Track}.
+     * Returns true if the {@link Playable}Interface has a previous {@link Query}.
      */
-    public boolean hasPreviousTrack();
+    public boolean hasPreviousQuery();
 }

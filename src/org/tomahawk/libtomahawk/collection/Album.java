@@ -17,6 +17,9 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.resolver.QueryComparator;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 
@@ -35,15 +38,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkListItem {
 
-    private static final String TAG = Album.class.getName();
+    private static ConcurrentHashMap<String, Album> sAlbums
+            = new ConcurrentHashMap<String, Album>();
 
-    private static ConcurrentHashMap<Long, Album> sAlbums = new ConcurrentHashMap<Long, Album>();
-
-    private ConcurrentHashMap<Long, Track> mTracks;
-
-    private long mId;
+    private ConcurrentHashMap<String, Query> mQueries;
 
     private String mName;
+
+    private Artist mArtist;
 
     private String mAlbumArtPath;
 
@@ -53,34 +55,29 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
 
     private String mLastYear;
 
-    private Artist mArtist;
-
-    private float mScore;
-
     /**
-     * Construct a new {@link Album} with the given id
-     *
-     * @param id the id used to construct the {@link Album}
+     * Construct a new {@link Album}
      */
-    public Album(long id) {
-        this.mId = id;
-        mTracks = new ConcurrentHashMap<Long, Track>();
+    private Album(String albumName, Artist artist) {
+        mName = albumName;
+        mArtist = artist;
+        mQueries = new ConcurrentHashMap<String, Query>();
     }
 
     /**
-     * Returns the {@link Album} with the given id. If none exists in our static {@link
-     * ConcurrentHashMap} yet, construct and add it.
-     *
-     * @param id the id used to construct the {@link Album}
-     * @return {@link Album} with the given id
+     * Returns the {@link Album} with the given album name and {@link org.tomahawk.libtomahawk.collection.Artist}.
+     * If none exists in our static {@link ConcurrentHashMap} yet, construct and add it.
      */
-    public static Album get(long id) {
-
-        if (!sAlbums.containsKey(id)) {
-            sAlbums.put(id, new Album(id));
+    public static Album get(String albumName, Artist artist) {
+        if (artist == null) {
+            artist = Artist.get("");
         }
-
-        return sAlbums.get(id);
+        Album album = new Album(albumName, artist);
+        String key = TomahawkUtils.getCacheKey(album);
+        if (!sAlbums.containsKey(key)) {
+            sAlbums.put(key, album);
+        }
+        return sAlbums.get(key);
     }
 
     /**
@@ -118,10 +115,10 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
     /**
      * Add a {@link Track} to this {@link Album}.
      *
-     * @param track the {@link Track} to be added
+     * @param query the {@link Track} to be added
      */
-    public void addTrack(Track track) {
-        mTracks.put(track.getId(), track);
+    public void addQuery(Query query) {
+        mQueries.put(query.getQid(), query);
     }
 
     /**
@@ -129,26 +126,10 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
      *
      * @return list of all {@link Track}s from this {@link Album}.
      */
-    public ArrayList<Track> getTracks() {
-        ArrayList<Track> tracks = new ArrayList<Track>(mTracks.values());
-        Collections.sort(tracks, new TrackComparator(TrackComparator.COMPARE_DISCNUM));
-        return tracks;
-    }
-
-    /**
-     * @return the {@link Album}'s id.
-     */
-    public long getId() {
-        return mId;
-    }
-
-    /**
-     * Set this {@link Album}'s name
-     *
-     * @param name the name to be set
-     */
-    public void setName(String name) {
-        mName = name;
+    public ArrayList<Query> getQueries() {
+        ArrayList<Query> queries = new ArrayList<Query>(mQueries.values());
+        Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
+        return queries;
     }
 
     /**
@@ -255,31 +236,6 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
      */
     public void setLastYear(String lastYear) {
         mLastYear = lastYear;
-    }
-
-    /**
-     * Set this {@link Album}'s artist
-     *
-     * @param artist{@link Artist} object to be set
-     */
-    public void setArtist(Artist artist) {
-        mArtist = artist;
-    }
-
-    /**
-     * @return float containing the score
-     */
-    public float getScore() {
-        return mScore;
-    }
-
-    /**
-     * Set this {@link Album}'s score
-     *
-     * @param score float containing score
-     */
-    public void setScore(float score) {
-        this.mScore = score;
     }
 
 }

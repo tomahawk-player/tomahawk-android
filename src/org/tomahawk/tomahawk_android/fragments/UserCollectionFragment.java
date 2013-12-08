@@ -89,17 +89,17 @@ public class UserCollectionFragment extends TomahawkListFragment implements OnIt
         switch ((int) id) {
             case 0:
                 mTomahawkMainActivity.getContentViewer()
-                        .replace(TomahawkMainActivity.HUB_ID_COLLECTION, TracksFragment.class, -1,
+                        .replace(TomahawkMainActivity.HUB_ID_COLLECTION, TracksFragment.class, "",
                                 null, false);
                 break;
             case 1:
                 mTomahawkMainActivity.getContentViewer()
-                        .replace(TomahawkMainActivity.HUB_ID_COLLECTION, AlbumsFragment.class, -1,
+                        .replace(TomahawkMainActivity.HUB_ID_COLLECTION, AlbumsFragment.class, "",
                                 null, false);
                 break;
             case 2:
                 mTomahawkMainActivity.getContentViewer()
-                        .replace(TomahawkMainActivity.HUB_ID_COLLECTION, ArtistsFragment.class, -1,
+                        .replace(TomahawkMainActivity.HUB_ID_COLLECTION, ArtistsFragment.class, "",
                                 null, false);
                 break;
         }

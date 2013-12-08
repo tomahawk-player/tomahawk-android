@@ -17,6 +17,9 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.resolver.QueryComparator;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 
 import java.util.ArrayList;
@@ -28,43 +31,37 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
 
-    private static ConcurrentHashMap<Long, Artist> sArtists = new ConcurrentHashMap<Long, Artist>();
-
-    private long mId;
+    private static ConcurrentHashMap<String, Artist> sArtists
+            = new ConcurrentHashMap<String, Artist>();
 
     private String mName;
 
-    private ConcurrentHashMap<Long, Album> mAlbums;
+    private ArrayList<Album> mAlbums;
 
-    private ConcurrentHashMap<Long, Track> mTracks;
-
-    private float mScore;
+    private ArrayList<Query> mQueries;
 
     /**
-     * Construct a new {@link Artist} with the given id
-     *
-     * @param id long containing id of the to be constructed {@link Artist}
+     * Construct a new {@link Artist} with the given name
      */
-    public Artist(long id) {
-        mId = id;
-        mAlbums = new ConcurrentHashMap<Long, Album>();
-        mTracks = new ConcurrentHashMap<Long, Track>();
+    private Artist(String artistName) {
+        mName = artistName;
+        mAlbums = new ArrayList<Album>();
+        mQueries = new ArrayList<Query>();
     }
 
     /**
      * Returns the {@link Artist} with the given id. If none exists in our static {@link
      * ConcurrentHashMap} yet, construct and add it.
      *
-     * @param id the id used to construct the {@link Artist}
      * @return {@link Artist} with the given id
      */
-    public static Artist get(long id) {
-
-        if (!sArtists.containsKey(id)) {
-            sArtists.put(id, new Artist(id));
+    public static Artist get(String artistName) {
+        Artist artist = new Artist(artistName);
+        String key = TomahawkUtils.getCacheKey(artist);
+        if (!sArtists.containsKey(key)) {
+            sArtists.put(key, artist);
         }
-
-        return sArtists.get(id);
+        return sArtists.get(key);
     }
 
     /**
@@ -100,31 +97,25 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
      */
     @Override
     public Album getAlbum() {
-        Album[] albums = mAlbums.values().toArray(new Album[0]);
-        if (albums[0] != null) {
-            return albums[0];
+        if (!mAlbums.isEmpty()) {
+            return mAlbums.get(0);
         }
         return null;
     }
 
     /**
-     * Add a {@link Track} to this object.
-     *
-     * @param track the {@link Track} to be added
+     * @param query the {@link org.tomahawk.libtomahawk.resolver.Query} to be added
      */
-    public void addTrack(Track track) {
-        mTracks.put(track.getId(), track);
+    public void addQuery(Query query) {
+        mQueries.add(query);
     }
 
     /**
-     * Get a list of all {@link Track}s from this object.
-     *
-     * @return list of all {@link Track}s from this object.
+     * @return list of all {@link org.tomahawk.libtomahawk.resolver.Query}s from this object.
      */
-    public ArrayList<Track> getTracks() {
-        ArrayList<Track> list = new ArrayList<Track>(mTracks.values());
-        Collections.sort(list, new TrackComparator(TrackComparator.COMPARE_DISCNUM));
-        return list;
+    public ArrayList<Query> getQueries() {
+        Collections.sort(mQueries, new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
+        return mQueries;
     }
 
     /**
@@ -133,14 +124,14 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
      * @param album the {@link Album} to be added
      */
     public void addAlbum(Album album) {
-        mAlbums.put(album.getId(), album);
+        mAlbums.add(album);
     }
 
     /**
      * Clear all {@link Album}s.
      */
     public void clearAlbums() {
-        mAlbums = new ConcurrentHashMap<Long, Album>();
+        mAlbums = new ArrayList<Album>();
     }
 
     /**
@@ -149,40 +140,7 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
      * @return list of all {@link Album}s from this object.
      */
     public ArrayList<Album> getAlbums() {
-        ArrayList<Album> albums = new ArrayList<Album>(mAlbums.values());
-        Collections.sort(albums, new AlbumComparator(AlbumComparator.COMPARE_ALPHA));
-        return albums;
-    }
-
-    /**
-     * Set the name of this object
-     *
-     * @param name the name to be set
-     */
-    public void setName(String name) {
-        mName = name;
-    }
-
-    /**
-     * @return this object's id
-     */
-    public long getId() {
-        return mId;
-    }
-
-    /**
-     * @return float containing the score
-     */
-    public float getScore() {
-        return mScore;
-    }
-
-    /**
-     * Set this object's score
-     *
-     * @param score float containing score
-     */
-    public void setScore(float score) {
-        this.mScore = score;
+        Collections.sort(mAlbums, new AlbumComparator(AlbumComparator.COMPARE_ALPHA));
+        return mAlbums;
     }
 }

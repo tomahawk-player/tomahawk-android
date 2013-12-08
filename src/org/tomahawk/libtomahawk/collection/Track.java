@@ -18,6 +18,7 @@
 package org.tomahawk.libtomahawk.collection;
 
 import org.tomahawk.libtomahawk.resolver.Resolver;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 
 import android.text.TextUtils;
@@ -29,12 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Track implements TomahawkBaseAdapter.TomahawkListItem {
 
-    private static ConcurrentHashMap<Long, Track> sTracks = new ConcurrentHashMap<Long, Track>();
-
-    /**
-     * Path of file or URL.
-     */
-    private String mPath;
+    private static ConcurrentHashMap<String, Track> sTracks
+            = new ConcurrentHashMap<String, Track>();
 
     private String mName;
 
@@ -42,51 +39,42 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
 
     private Artist mArtist;
 
-    private int mBitrate;
-
-    private int mSize;
-
     private long mDuration;
-
-    private int mTrackNumber;
 
     private int mYear;
 
-    private long mId;
+    private int mAlbumPos;
 
-    private Resolver mResolver;
-
-    private String mLinkUrl;
-
-    private String mPurchaseUrl;
-
-    private float mScore;
-
-    private boolean isResolved;
+    private int mDiscNumber;
 
     /**
-     * Construct a new {@link Track} with the given id
-     *
-     * @param id the id used to construct the {@link Track}
+     * Construct a new {@link Track}
      */
-    public Track(long id) {
-        this.mId = id;
+    private Track(String trackName, Album album, Artist artist) {
+        mName = trackName;
+        mAlbum = album;
+        mArtist = artist;
     }
 
     /**
      * Returns the {@link Track} with the given id. If none exists in our static {@link
      * ConcurrentHashMap} yet, construct and add it.
      *
-     * @param id the id used to construct the {@link Track}
      * @return {@link Track} with the given id
      */
-    public static Track get(long id) {
-
-        if (!sTracks.containsKey(id)) {
-            sTracks.put(id, new Track(id));
+    public static Track get(String trackName, Album album, Artist artist) {
+        if (artist == null) {
+            artist = Artist.get("");
         }
-
-        return sTracks.get(id);
+        if (album == null) {
+            album = Album.get("", artist);
+        }
+        Track track = new Track(trackName, album, artist);
+        String key = TomahawkUtils.getCacheKey(track);
+        if (!sTracks.containsKey(key)) {
+            sTracks.put(key, track);
+        }
+        return sTracks.get(key);
     }
 
     /**
@@ -122,81 +110,6 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
     }
 
     /**
-     * @return the {@link Track}'s id.
-     */
-    public long getId() {
-        return mId;
-    }
-
-    /**
-     * @return the filePath/url to this {@link Track}'s audio data
-     */
-    public String getPath() {
-        return mPath;
-    }
-
-    /**
-     * Set the filePath/url to this {@link Track}'s audio data
-     *
-     * @param path the filePath/url to this {@link Track}'s audio data
-     */
-    public void setPath(String path) {
-        this.mPath = path;
-        if (path != null && !TextUtils.isEmpty(path)) {
-            isResolved = true;
-        }
-    }
-
-    /**
-     * Set this {@link Track}'s name
-     */
-    public void setName(String name) {
-        this.mName = name;
-    }
-
-    /**
-     * Set this {@link Track}'s {@link Album}
-     */
-    public void setAlbum(Album album) {
-        this.mAlbum = album;
-    }
-
-    /**
-     * Set this {@link Track}'s {@link Artist}
-     */
-    public void setArtist(Artist artist) {
-        this.mArtist = artist;
-    }
-
-    /**
-     * @return this {@link Track}'s bitrate
-     */
-    public int getBitrate() {
-        return mBitrate;
-    }
-
-    /**
-     * Set this {@link Track}'s bitrate
-     */
-    public void setBitrate(int bitrate) {
-        this.mBitrate = bitrate;
-    }
-
-    /**
-     * @return this {@link Track}'s filesize
-     */
-    public int getSize() {
-        return mSize;
-    }
-
-    /**
-     * Set this {@link Track}'s filesize
-     */
-    public void setSize(int size) {
-        this.mSize = size;
-    }
-
-    /**
      * @return this {@link Track}'s duration
      */
     public long getDuration() {
@@ -213,15 +126,15 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
     /**
      * @return this {@link Track}'s track number
      */
-    public int getTrackNumber() {
-        return mTrackNumber;
+    public int getAlbumPos() {
+        return mAlbumPos;
     }
 
     /**
      * Set this {@link Track}'s track number
      */
-    public void setTrackNumber(int trackNumber) {
-        this.mTrackNumber = trackNumber;
+    public void setAlbumPos(int albumPos) {
+        this.mAlbumPos = albumPos;
     }
 
     /**
@@ -239,66 +152,17 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
     }
 
     /**
-     * @return this {@link Track}'s resolver
+     * @return this {@link Track}'s disc number
      */
-    public Resolver getResolver() {
-        return mResolver;
+    public int getDiscNumber() {
+        return mDiscNumber;
     }
 
     /**
-     * Set this {@link Track}'s resolver
+     * Set this {@link Track}'s disc number
      */
-    public void setResolver(Resolver resolver) {
-        this.mResolver = resolver;
-    }
-
-    /**
-     * @return this {@link Track}'s score
-     */
-    public float getScore() {
-        return mScore;
-    }
-
-    /**
-     * Set this {@link Track}'s score
-     */
-    public void setScore(float score) {
-        this.mScore = score;
-    }
-
-    /**
-     * @return this {@link Track}'s purchase url
-     */
-    public String getPurchaseUrl() {
-        return mPurchaseUrl;
-    }
-
-    /**
-     * Set this {@link Track}'s purchase url
-     */
-    public void setPurchaseUrl(String mPurchaseUrl) {
-        this.mPurchaseUrl = mPurchaseUrl;
-    }
-
-    /**
-     * @return this {@link Track}'s link url
-     */
-    public String getLinkUrl() {
-        return mLinkUrl;
-    }
-
-    /**
-     * Set this {@link Track}'s link url
-     */
-    public void setLinkUrl(String mLinkUrl) {
-        this.mLinkUrl = mLinkUrl;
-    }
-
-    /**
-     * @return whether or not this {@link Track} has been resolved
-     */
-    public boolean isResolved() {
-        return isResolved;
+    public void setDiscNumber(int discNumber) {
+        mDiscNumber = discNumber;
     }
 
 }

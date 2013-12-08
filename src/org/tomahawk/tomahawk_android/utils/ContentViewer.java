@@ -79,9 +79,9 @@ public class ContentViewer {
         //The fragmentTag is unique inside the complete BackStack.
         public final String fragmentTag;
 
-        //tomahawkListItemId is the id of the corresponding TomahawkListItem which is being passed to the actual
+        //tomahawkListItemKey is the id of the corresponding TomahawkListItem which is being passed to the actual
         //fragment instance.
-        public long tomahawkListItemId = -1;
+        public String tomahawkListItemKey = "";
 
         //the type of the corresponding TomahawkListItem
         public String tomahawkListItemType = null;
@@ -112,13 +112,13 @@ public class ContentViewer {
          * org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
          */
         FragmentStateHolder(Class clss, String fragmentTag, int correspondingHubId,
-                ArrayList<String> correspondingQueryIds, long tomahawkListItemId,
+                ArrayList<String> correspondingQueryIds, String tomahawkListItemKey,
                 String tomahawkListItemType) {
             this.clss = clss;
             this.fragmentTag = fragmentTag;
             this.correspondingHubId = correspondingHubId;
             this.correspondingQueryIds = correspondingQueryIds;
-            this.tomahawkListItemId = tomahawkListItemId;
+            this.tomahawkListItemKey = tomahawkListItemKey;
             this.tomahawkListItemType = tomahawkListItemType;
         }
     }
@@ -200,8 +200,8 @@ public class ContentViewer {
                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             }
             Bundle bundle = new Bundle();
-            bundle.putLong(fragmentStateHolder.tomahawkListItemType,
-                    fragmentStateHolder.tomahawkListItemId);
+            bundle.putString(fragmentStateHolder.tomahawkListItemType,
+                    fragmentStateHolder.tomahawkListItemKey);
             bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION,
                     fragmentStateHolder.listScrollPosition);
             bundle.putInt(TomahawkFragment.TOMAHAWK_HUB_ID, fragmentStateHolder.correspondingHubId);
@@ -223,17 +223,18 @@ public class ContentViewer {
      * @param hubId                the id of the hub
      * @param clss                 The {@link Fragment}'s class to be used to construct a new {@link
      *                             FragmentStateHolder}
-     * @param tomahawkListItemId   the id of the {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
+     * @param tomahawkListItemKey  the key of the {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
      *                             corresponding to the {@link Fragment}
      * @param tomahawkListItemType {@link String} containing the {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}'s
      *                             type
      * @param isBackAction         whether or not the replacement is part of an action going back in
      *                             the backstack
      */
-    public void replace(int hubId, Class clss, long tomahawkListItemId, String tomahawkListItemType,
+    public void replace(int hubId, Class clss, String tomahawkListItemKey,
+            String tomahawkListItemType,
             boolean isBackAction) {
         FragmentStateHolder fragmentStateHolder = new FragmentStateHolder(clss,
-                getFragmentTag(hubId, 1), hubId, null, tomahawkListItemId, tomahawkListItemType);
+                getFragmentTag(hubId, 1), hubId, null, tomahawkListItemKey, tomahawkListItemType);
         replace(hubId, fragmentStateHolder, isBackAction);
     }
 
@@ -278,7 +279,7 @@ public class ContentViewer {
                     FragmentTransaction ft = mFragmentManager.beginTransaction();
                     if (withBundle) {
                         Bundle bundle = new Bundle();
-                        bundle.putLong(fpb.tomahawkListItemType, fpb.tomahawkListItemId);
+                        bundle.putString(fpb.tomahawkListItemType, fpb.tomahawkListItemKey);
                         bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION,
                                 fpb.listScrollPosition);
                         bundle.putInt(TomahawkFragment.TOMAHAWK_HUB_ID, fpb.correspondingHubId);
@@ -411,8 +412,8 @@ public class ContentViewer {
             FragmentTransaction ft = mFragmentManager.beginTransaction();
             FragmentStateHolder fragmentStateHolder = stack.get(stack.size() - 1);
             Bundle bundle = new Bundle();
-            bundle.putLong(fragmentStateHolder.tomahawkListItemType,
-                    fragmentStateHolder.tomahawkListItemId);
+            bundle.putString(fragmentStateHolder.tomahawkListItemType,
+                    fragmentStateHolder.tomahawkListItemKey);
             bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION,
                     fragmentStateHolder.listScrollPosition);
             bundle.putInt(TomahawkFragment.TOMAHAWK_HUB_ID, fragmentStateHolder.correspondingHubId);

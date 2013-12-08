@@ -149,15 +149,15 @@ public class LocalCollectionTest extends AndroidTestCase {
                 track.setPath(cursor.getString(1));
                 track.setTitle(cursor.getString(2));
                 track.setDuration(cursor.getLong(3));
-                track.setTrackNumber(cursor.getInt(4));
+                track.setAlbumPos(cursor.getInt(4));
 
                 testTracks.put(track.getId(), track);
             }
 
             artist.addAlbum(album);
-            artist.addTrack(track);
+            artist.addQuery(track);
 
-            album.addTrack(track);
+            album.addQuery(track);
             album.setArtist(artist);
 
             track.setAlbum(album);

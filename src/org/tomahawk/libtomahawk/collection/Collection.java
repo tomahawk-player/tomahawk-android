@@ -18,6 +18,9 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.tomahawk.libtomahawk.resolver.Query;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,14 +40,14 @@ public abstract class Collection {
     /**
      * Get all {@link Artist}'s associated with this {@link Collection}.
      */
-    public abstract List<Artist> getArtists();
+    public abstract ArrayList<Artist> getArtists();
 
     /**
      * Get the {@link Artist} by giving the {@link Artist}'s ID
      *
      * @return the {@link Artist} object
      */
-    public abstract Artist getArtistById(Long id);
+    public abstract Artist getArtistByKey(String key);
 
     /**
      * Caches an {@link Artist} inside the playlist
@@ -59,14 +62,14 @@ public abstract class Collection {
     /**
      * Get all {@link Album}s from this {@link Collection}.
      */
-    public abstract List<Album> getAlbums();
+    public abstract ArrayList<Album> getAlbums();
 
     /**
      * Get the {@link Album} by giving the {@link Album}'s ID
      *
      * @return the {@link Album} object
      */
-    public abstract Album getAlbumById(Long id);
+    public abstract Album getAlbumByKey(String key);
 
     /**
      * Caches an {@link Album} inside the {@link Playlist}
@@ -79,33 +82,21 @@ public abstract class Collection {
     public abstract Album getCachedAlbum();
 
     /**
-     * Return a list of all {@link Track}s.
+     * Return a list of all {@link org.tomahawk.libtomahawk.resolver.Query}s.
      */
-    public abstract List<Track> getTracks();
-
-    /**
-     * Get the {@link Track} by giving the {@link Track}'s ID
-     *
-     * @return the {@link Track} object
-     */
-    public abstract Track getTrackById(Long id);
+    public abstract ArrayList<Query> getQueries();
 
     /**
      * Return a list of all {@link UserPlaylist}s.
      */
-    public abstract List<UserPlaylist> getCustomPlaylists();
+    public abstract ArrayList<UserPlaylist> getUserPlaylists();
 
     /**
      * Get the {@link UserPlaylist} by giving the {@link UserPlaylist}'s ID
      *
      * @return the {@link UserPlaylist} object
      */
-    public abstract UserPlaylist getCustomPlaylistById(Long id);
-
-    /**
-     * Add a {@link Playlist} to the {@link Collection}
-     */
-    public abstract void addCustomPlaylist(long playlistId, UserPlaylist userPlaylist);
+    public abstract UserPlaylist getCustomPlaylistByKey(String key);
 
     /**
      * Update this {@link Collection}'s content.

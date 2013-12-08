@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
+import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -143,7 +144,8 @@ public class CreateUserPlaylistDialog extends DialogFragment {
             userPlaylistsDataSource.storeUserPlaylist(playlistName, mPlaylist);
         } else {
             userPlaylistsDataSource.storeUserPlaylist(playlistName,
-                    UserPlaylist.fromTrackList(playlistName, new ArrayList<Track>()));
+                    UserPlaylist.fromQueryList(TomahawkApp.getUniqueId(), playlistName,
+                            new ArrayList<Query>()));
         }
         ((UserCollection) ((TomahawkApp) getActivity().getApplication()).getSourceList()
                 .getCollectionFromId(UserCollection.Id)).updateUserPlaylists();

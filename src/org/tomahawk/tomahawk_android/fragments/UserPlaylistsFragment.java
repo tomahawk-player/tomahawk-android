@@ -62,7 +62,9 @@ public class UserPlaylistsFragment extends TomahawkFragment implements OnItemCli
                 if (mTomahawkMainActivity instanceof TomahawkMainActivity) {
                     mTomahawkMainActivity.getContentViewer()
                             .replace(mCorrespondingHubId, TracksFragment.class,
-                                    ((UserPlaylist) getListAdapter().getItem(position)).getId(),
+                                    String.valueOf(
+                                            ((UserPlaylist) getListAdapter().getItem(position))
+                                                    .getId()),
                                     TOMAHAWK_PLAYLIST_ID, false);
                 }
             } else {
@@ -82,7 +84,7 @@ public class UserPlaylistsFragment extends TomahawkFragment implements OnItemCli
 
         List<TomahawkBaseAdapter.TomahawkListItem> playlists
                 = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-        playlists.addAll(coll.getCustomPlaylists());
+        playlists.addAll(coll.getUserPlaylists());
         List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                 = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
         listArray.add(playlists);
