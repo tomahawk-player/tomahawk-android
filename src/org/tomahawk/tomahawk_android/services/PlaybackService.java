@@ -642,11 +642,7 @@ public class PlaybackService extends Service
     public Track getCurrentTrack() {
         Track track = null;
         if (getCurrentQuery() != null) {
-            if (getCurrentQuery().getPreferredTrackResult() != null) {
-                track = getCurrentQuery().getPreferredTrackResult().getTrack();
-            } else {
-                track = getCurrentQuery().getPreferredTrack();
-            }
+            track = getCurrentQuery().getPreferredTrack();
         }
         return track;
     }
@@ -657,7 +653,7 @@ public class PlaybackService extends Service
     public void setCurrentQuery(final Query query) {
         mNotificationAsyncBitmap.bitmap = null;
         if (mTomahawkMediaPlayer != null && query != null) {
-            if (query.isSolved()) {
+            if (query.isPlayable()) {
                 Runnable releaseRunnable = new Runnable() {
                     @Override
                     public void run() {

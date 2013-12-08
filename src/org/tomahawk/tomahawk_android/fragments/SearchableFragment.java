@@ -25,6 +25,7 @@ import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -192,7 +193,8 @@ public class SearchableFragment extends TomahawkFragment
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         position -= getListView().getHeaderViewsCount();
         if (position >= 0) {
-            if (getListAdapter().getItem(position) instanceof Track) {
+            Object item = getListAdapter().getItem(position);
+            if (item instanceof Track) {
                 UserPlaylist playlist = UserPlaylist
                         .fromQueryList(TomahawkApp.getUniqueId(), mCurrentQueryString,
                                 mCurrentShownQueries, position);
@@ -203,16 +205,18 @@ public class SearchableFragment extends TomahawkFragment
                 }
                 mTomahawkMainActivity.getContentViewer()
                         .setCurrentHubId(TomahawkMainActivity.HUB_ID_PLAYBACK);
-            } else if (getListAdapter().getItem(position) instanceof Album) {
-                mCollection.setCachedAlbum((Album) getListAdapter().getItem(position));
-                mTomahawkMainActivity.getContentViewer().
-                        replace(mCorrespondingHubId, TracksFragment.class, "",
-                                UserCollection.USERCOLLECTION_ALBUMCACHED, false);
-            } else if (getListAdapter().getItem(position) instanceof Artist) {
-                mCollection.setCachedArtist((Artist) getListAdapter().getItem(position));
-                mTomahawkMainActivity.getContentViewer().
-                        replace(mCorrespondingHubId, AlbumsFragment.class, "",
-                                UserCollection.USERCOLLECTION_ARTISTCACHED, false);
+            } else if (item instanceof Album) {
+                Bundle bundle = new Bundle();
+                String key = TomahawkUtils.getCacheKey((Album) item);
+                bundle.putString(TOMAHAWK_ALBUM_KEY, key);
+                mTomahawkMainActivity.getContentViewer().replace(mCorrespondingHubId,
+                        AlbumsFragment.class, key, TOMAHAWK_ALBUM_KEY, false);
+            } else if (item instanceof Artist) {
+                Bundle bundle = new Bundle();
+                String key = TomahawkUtils.getCacheKey((Artist) item);
+                bundle.putString(TOMAHAWK_ARTIST_KEY, key);
+                mTomahawkMainActivity.getContentViewer().replace(mCorrespondingHubId,
+                        AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, false);
             }
         }
     }

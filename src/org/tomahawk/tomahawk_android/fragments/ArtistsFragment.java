@@ -32,6 +32,7 @@ import android.widget.AdapterView.OnItemClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * {@link TomahawkFragment} which shows a set of {@link Artist}s inside its {@link
@@ -53,14 +54,13 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         position -= getListView().getHeaderViewsCount();
         if (position >= 0) {
+            Object item = getListAdapter().getItem(position);
             if (getListAdapter().getItem(position) instanceof Artist) {
                 Bundle bundle = new Bundle();
-                String key = TomahawkUtils.getCacheKey(
-                        ((Artist) getListAdapter().getItem(position)).getName());
+                String key = TomahawkUtils.getCacheKey((Artist) item);
                 bundle.putString(TOMAHAWK_ARTIST_KEY, key);
-                mTomahawkMainActivity.getContentViewer()
-                        .replace(mCorrespondingHubId, AlbumsFragment.class, key,
-                                TOMAHAWK_ARTIST_KEY, false);
+                mTomahawkMainActivity.getContentViewer().replace(mCorrespondingHubId,
+                        AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, false);
             }
         }
     }

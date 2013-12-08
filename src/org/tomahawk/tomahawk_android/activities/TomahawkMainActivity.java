@@ -782,19 +782,9 @@ public class TomahawkMainActivity extends ActionBarActivity
                         breadcrumbItemImageViewLayout
                                 .setVisibility(SquareHeightRelativeLayout.GONE);
                     } else if (fpb.tomahawkListItemType != null &&
-                            fpb.tomahawkListItemType.equals(TomahawkFragment.TOMAHAWK_PLAYLIST_ID)
+                            fpb.tomahawkListItemType.equals(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY)
                             && correspondingUserPlaylist != null) {
                         breadcrumbItemTextView.setText(correspondingUserPlaylist.getName());
-                        breadcrumbItemImageViewLayout
-                                .setVisibility(SquareHeightRelativeLayout.GONE);
-                    } else if (fpb.tomahawkListItemType != null && fpb.tomahawkListItemType
-                            .equals(UserCollection.USERCOLLECTION_ALBUMCACHED)) {
-                        breadcrumbItemTextView.setText(mUserCollection.getCachedAlbum().getName());
-                        breadcrumbItemImageViewLayout
-                                .setVisibility(SquareHeightRelativeLayout.GONE);
-                    } else if (fpb.tomahawkListItemType != null && fpb.tomahawkListItemType
-                            .equals(UserCollection.USERCOLLECTION_ARTISTCACHED)) {
-                        breadcrumbItemTextView.setText(mUserCollection.getCachedArtist().getName());
                         breadcrumbItemImageViewLayout
                                 .setVisibility(SquareHeightRelativeLayout.GONE);
                     } else {

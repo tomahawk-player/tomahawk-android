@@ -124,13 +124,6 @@ public class ScriptResolver implements Resolver {
     }
 
     /**
-     * Reinitialize this {@link ScriptResolver}
-     */
-    public void reload() {
-        init();
-    }
-
-    /**
      * Initialize this {@link ScriptResolver}. Loads the .js script from the given path and sets the
      * appropriate base URL.
      */

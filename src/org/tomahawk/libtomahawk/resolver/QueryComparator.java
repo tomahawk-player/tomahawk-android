@@ -29,7 +29,7 @@ public class QueryComparator implements Comparator<Query> {
 
     public static final int COMPARE_ALPHA = 1;
 
-    public static final int COMPARE_SCORE = 2;
+    public static final int COMPARE_TRACK_SCORE = 2;
 
     //Flag containing the current mode to be used
     private static int mFlag = COMPARE_ALBUMPOS;
@@ -55,14 +55,20 @@ public class QueryComparator implements Comparator<Query> {
     public int compare(Query q1, Query q2) {
         switch (mFlag) {
             case COMPARE_ALBUMPOS:
-                Integer num1 = q1.getPreferredTrackResult().getTrack().getAlbumPos();
-                Integer num2 = q2.getPreferredTrackResult().getTrack().getAlbumPos();
+                Integer num1 = q1.getPreferredTrack().getAlbumPos();
+                Integer num2 = q2.getPreferredTrack().getAlbumPos();
                 return num1.compareTo(num2);
             case COMPARE_ALPHA:
                 return q1.getName().compareTo(q2.getName());
-            case COMPARE_SCORE:
-                Float score1 = q1.getPreferredTrackResult().getScore();
-                Float score2 = q2.getPreferredTrackResult().getScore();
+            case COMPARE_TRACK_SCORE:
+                Float score1 = 0f;
+                if (q1.getPreferredTrackResult() != null) {
+                    q1.getPreferredTrackResult().getTrackScore();
+                }
+                Float score2 = 0f;
+                if (q2.getPreferredTrackResult() != null) {
+                    q2.getPreferredTrackResult().getTrackScore();
+                }
                 return score2.compareTo(score1);
         }
         return 0;

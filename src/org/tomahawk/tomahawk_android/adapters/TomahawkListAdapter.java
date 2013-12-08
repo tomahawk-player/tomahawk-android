@@ -273,9 +273,9 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                 if (item instanceof Query) {
                     viewHolder.textFirstLine.setText(((Query) item).getName());
                     viewHolder.textSecondLine.setText(((Query) item).getArtist().getName());
-                    if (((Query) item).getPreferredTrackResult().getTrack().getDuration() > 0) {
+                    if (((Query) item).getPreferredTrack().getDuration() > 0) {
                         viewHolder.textThirdLine.setText(TomahawkUtils.durationToString(
-                                ((Query) item).getPreferredTrackResult().getTrack().getDuration()));
+                                ((Query) item).getPreferredTrack().getDuration()));
                     } else {
                         viewHolder.textThirdLine.setText(mActivity.getResources().getString(
                                 R.string.playbackactivity_seekbar_completion_time_string));
@@ -294,7 +294,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
             } else if (viewHolder.viewType
                     == R.id.tomahawklistadapter_viewtype_doublelineplaystateimagelistitem) {
                 if (item instanceof Query) {
-                    if (!((Query) item).isSolved()) {
+                    if (!((Query) item).isPlayable()) {
                         viewHolder.textFirstLine.setTextColor(
                                 mActivity.getResources().getColor(R.color.disabled_grey));
                         viewHolder.textSecondLine.setTextColor(
@@ -311,9 +311,9 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                     }
                     viewHolder.textFirstLine.setText(((Query) item).getName());
                     viewHolder.textSecondLine.setText(((Query) item).getArtist().getName());
-                    if (((Query) item).getPreferredTrackResult().getTrack().getDuration() > 0) {
+                    if (((Query) item).getPreferredTrack().getDuration() > 0) {
                         viewHolder.textThirdLine.setText(TomahawkUtils.durationToString(
-                                ((Query) item).getPreferredTrackResult().getTrack().getDuration()));
+                                ((Query) item).getPreferredTrack().getDuration()));
                     } else {
                         viewHolder.textThirdLine.setText(mActivity.getResources().getString(
                                 R.string.playbackactivity_seekbar_completion_time_string));
@@ -331,7 +331,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                         viewHolder.imageViewLeft.setVisibility(ImageView.GONE);
                         view.setBackgroundResource(R.drawable.selectable_background_tomahawk);
                     }
-                    if (mShowResolvedBy && ((Query) item).getPreferredTrackResult().isResolved()) {
+                    if (mShowResolvedBy && ((Query) item).isPlayable()) {
                         viewHolder.imageViewRight.setVisibility(ImageView.VISIBLE);
                         Drawable resolverIcon = null;
                         if (((Query) item).getPreferredTrackResult().getResolvedBy() != null) {

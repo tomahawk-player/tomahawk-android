@@ -54,8 +54,6 @@ public class Result {
 
     private String mPurchaseUrl;
 
-    private float mScore;
-
     private boolean isResolved;
 
     private float mTrackScore;
@@ -71,7 +69,7 @@ public class Result {
         setPath(url);
         mArtist = query.getArtist();
         mAlbum = query.getAlbum();
-        mTrack = query.getPreferredTrackResult().getTrack();
+        mTrack = query.getPreferredTrack();
     }
 
     /**
@@ -281,20 +279,6 @@ public class Result {
      */
     public void setSize(int size) {
         this.mSize = size;
-    }
-
-    /**
-     * @return this {@link Track}'s score
-     */
-    public float getScore() {
-        return mScore;
-    }
-
-    /**
-     * Set this {@link Track}'s score
-     */
-    public void setScore(float score) {
-        this.mScore = score;
     }
 
     /**

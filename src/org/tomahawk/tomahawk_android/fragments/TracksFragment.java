@@ -37,6 +37,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -98,20 +99,14 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
 
         if (mTomahawkMainActivity.getUserCollection() != null && getArguments() != null) {
             if (getArguments().containsKey(TOMAHAWK_ALBUM_KEY)
-                    && getArguments().getLong(TOMAHAWK_ALBUM_KEY) >= 0) {
+                    && !TextUtils.isEmpty(getArguments().getString(TOMAHAWK_ALBUM_KEY))) {
                 mAlbum = mTomahawkMainActivity.getUserCollection()
                         .getAlbumByKey(getArguments().getString(TOMAHAWK_ALBUM_KEY));
-            } else if (getArguments().containsKey(TOMAHAWK_PLAYLIST_ID)
-                    && getArguments().getLong(TOMAHAWK_PLAYLIST_ID) >= 0) {
+            } else if (getArguments().containsKey(TOMAHAWK_PLAYLIST_KEY)
+                    && !TextUtils.isEmpty(getArguments().getString(TOMAHAWK_PLAYLIST_KEY))) {
                 mUserPlaylist = mTomahawkMainActivity.getUserCollection()
                         .getCustomPlaylistByKey(
-                                String.valueOf(getArguments().getLong(TOMAHAWK_PLAYLIST_ID)));
-            } else if (getArguments().containsKey(UserCollection.USERCOLLECTION_ALBUMCACHED)) {
-                // A cached album has been given. So we try to resolve it.
-                mAlbum = mTomahawkMainActivity.getUserCollection().getCachedAlbum();
-                mPipeline.resolve(mAlbum);
-                mTomahawkMainActivity.startLoadingAnimation();
-                mShouldShowLoadingAnimation = true;
+                                String.valueOf(getArguments().getLong(TOMAHAWK_PLAYLIST_KEY)));
             }
         }
     }
