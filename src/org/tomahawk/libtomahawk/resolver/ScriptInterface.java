@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import org.tomahawk.tomahawk_android.R;
 
 import android.util.Log;
+import android.webkit.JavascriptInterface;
 
 /**
  * This class contains all methods that are being exposed to the javascript script inside a {@link
@@ -29,6 +30,7 @@ public class ScriptInterface {
      * @param in                 the raw result {@link String}
      * @param shouldReturnResult whether or not the javascript function will return a result
      */
+    @JavascriptInterface
     public void callbackToJava(int id, String in, boolean shouldReturnResult) {
         Log.d(TAG, "callbackToJava: id='" + id + "', in='" + in + "'");
         if (shouldReturnResult) {
@@ -50,6 +52,7 @@ public class ScriptInterface {
      *
      * @return a {@link JSONObject} containing the scriptPath and config.
      */
+    @JavascriptInterface
     public String resolverDataString() {
         JSONObject result = new JSONObject();
         try {
@@ -64,6 +67,7 @@ public class ScriptInterface {
     /**
      * A straightforward log method to write something into the Debug log.
      */
+    @JavascriptInterface
     public void log(String message) {
         Log.d(TAG, "log: " + mScriptResolver.getScriptFilePath() + ":" + message);
     }
@@ -75,6 +79,7 @@ public class ScriptInterface {
      *
      * @param in the JSONObject {@link String} containing the resolved {@link Result}s
      */
+    @JavascriptInterface
     public void addTrackResultsString(String in) {
         Log.d(TAG, "addTrackResultsString: in='" + in + "'");
         try {
