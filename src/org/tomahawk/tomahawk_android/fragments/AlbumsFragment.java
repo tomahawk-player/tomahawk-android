@@ -21,16 +21,11 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.UserCollection;
-import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.Loader;
 import android.view.View;
@@ -45,76 +40,6 @@ import java.util.List;
  * org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}
  */
 public class AlbumsFragment extends TomahawkFragment implements OnItemClickListener {
-
-    private AlbumFragmentReceiver mAlbumFragmentReceiver;
-
-    /**
-     * Handles incoming broadcasts.
-     */
-    private class AlbumFragmentReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
-                String requestId = intent
-                        .getStringExtra(InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
-
-                /*if (mCurrentRequestIds.contains(requestId)) {
-                    mCurrentRequestIds.remove(requestId);
-                    InfoRequestData infoRequestData = mInfoSystem.getInfoRequestById(requestId);
-                    if (infoRequestData.getType()
-                            == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTALBUMS) {
-                        if (mArtist == null) {
-                            mArtist = new Artist(TomahawkApp.getUniqueId());
-                        }
-                        ArrayList<Album> albums = InfoRequestData.albumInfoListToAlbumList(
-                                ((AlbumsInfo) infoRequestData.mResult).getAlbums());
-                        mArtist.clearAlbums();
-                        for (Album album : albums) {
-                            mArtist.addAlbum(album);
-                        }
-                        updateAdapter();
-                    } else if (infoRequestData.getType()
-                            == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTINFO) {
-                        if (mArtist == null) {
-                            mArtist = new Artist(TomahawkApp.getUniqueId());
-                        }
-                        mArtist = InfoRequestData
-                                .artistInfoToArtist((ArtistInfo) infoRequestData.mResult,
-                                        mArtist);
-                        updateAdapter();
-                    }
-                }*/
-            }
-        }
-    }
-
-    /**
-     * Initialize and register {@link AlbumFragmentReceiver}
-     */
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        if (mAlbumFragmentReceiver == null) {
-            mAlbumFragmentReceiver = new AlbumFragmentReceiver();
-            IntentFilter intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
-            getActivity().registerReceiver(mAlbumFragmentReceiver, intentFilter);
-        }
-    }
-
-    /**
-     * Unregister {@link AlbumFragmentReceiver} and delete reference
-     */
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        if (mAlbumFragmentReceiver != null) {
-            getActivity().unregisterReceiver(mAlbumFragmentReceiver);
-            mAlbumFragmentReceiver = null;
-        }
-    }
 
     /**
      * Called every time an item inside the {@link org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}
@@ -207,5 +132,12 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
      */
     public Artist getArtist() {
         return mArtist;
+    }
+
+    @Override
+    protected void onInfoSystemResultsReported(String requestId) {
+        if (mCurrentRequestIds.contains(requestId)) {
+            updateAdapter();
+        }
     }
 }

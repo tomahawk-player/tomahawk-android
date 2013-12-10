@@ -22,7 +22,6 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionLoader;
-import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
@@ -86,7 +85,7 @@ public class TomahawkFragment extends TomahawkListFragment
 
     private TomahawkFragmentReceiver mTomahawkFragmentReceiver;
 
-    protected ArrayList<String> mCurrentRequestIds = new ArrayList<String>();
+    protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
 
     protected InfoSystem mInfoSystem;
 
@@ -113,6 +112,17 @@ public class TomahawkFragment extends TomahawkListFragment
         public void onReceive(Context context, Intent intent) {
             if (Collection.COLLECTION_UPDATED.equals(intent.getAction())) {
                 onCollectionUpdated();
+            } else if (PipeLine.PIPELINE_RESULTSREPORTED_FULLTEXTQUERY.equals(intent.getAction())) {
+                String qid = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
+                onPipeLineResultsReportedFullTextQuery(qid);
+            } else if (PipeLine.PIPELINE_RESULTSREPORTED_NON_FULLTEXTQUERY
+                    .equals(intent.getAction())) {
+                String qid = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
+                onPipeLineResultsReportedNonFullTextQuery(qid);
+            } else if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
+                String requestId = intent.getStringExtra(
+                        InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
+                onInfoSystemResultsReported(requestId);
             }
         }
     }
@@ -167,6 +177,12 @@ public class TomahawkFragment extends TomahawkListFragment
         if (mTomahawkFragmentReceiver == null) {
             mTomahawkFragmentReceiver = new TomahawkFragmentReceiver();
             IntentFilter intentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
+            getActivity().registerReceiver(mTomahawkFragmentReceiver, intentFilter);
+            intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED_FULLTEXTQUERY);
+            getActivity().registerReceiver(mTomahawkFragmentReceiver, intentFilter);
+            intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED_NON_FULLTEXTQUERY);
+            getActivity().registerReceiver(mTomahawkFragmentReceiver, intentFilter);
+            intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
             getActivity().registerReceiver(mTomahawkFragmentReceiver, intentFilter);
         }
         TomahawkStickyListHeadersListView list = getListView();
@@ -449,19 +465,22 @@ public class TomahawkFragment extends TomahawkListFragment
         }
     }
 
+    protected void onPipeLineResultsReportedFullTextQuery(String qId) {
+
+    }
+
+    protected void onPipeLineResultsReportedNonFullTextQuery(String qId) {
+
+    }
+
+    protected void onInfoSystemResultsReported(String requestId) {
+
+    }
+
     /**
      * Called when a Collection has been updated.
      */
     protected void onCollectionUpdated() {
-        if (isShowGridView()) {
-            if (getGridAdapter() != null) {
-                getGridAdapter().notifyDataSetChanged();
-            }
-        } else {
-            if (getListAdapter() != null) {
-                ((TomahawkListAdapter) getListAdapter()).notifyDataSetChanged();
-            }
-        }
         mTomahawkMainActivity.getSupportLoaderManager().restartLoader(getId(), null, this);
     }
 
