@@ -151,7 +151,8 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
      * @param query the {@link Track} to be added
      */
     public void addQuery(Query query) {
-        if (query.getPreferredTrackResult().getResolvedBy() instanceof DataBaseResolver) {
+        if (query.getPreferredTrackResult() != null && query.getPreferredTrackResult()
+                .getResolvedBy() instanceof DataBaseResolver) {
             mContainsLocalQueries = true;
         }
         mQueries.put(TomahawkUtils.getCacheKey(query), query);
@@ -178,7 +179,8 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
     public ArrayList<Query> getLocalQueries() {
         ArrayList<Query> queries = new ArrayList<Query>();
         for (Query query : mQueries.values()) {
-            if (query.getPreferredTrackResult().isLocal()) {
+            if (query.getPreferredTrackResult() != null && query.getPreferredTrackResult()
+                    .isLocal()) {
                 queries.add(query);
             }
         }

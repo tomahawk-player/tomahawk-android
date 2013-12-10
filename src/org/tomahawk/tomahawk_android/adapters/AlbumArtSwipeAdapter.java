@@ -18,6 +18,7 @@
 package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 
@@ -78,17 +79,12 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     public Object instantiateItem(View collection, int position) {
         ImageView albumArtImageView = new ImageView(mContext);
         if (mPlaylist != null && mPlaylist.getCount() > 0) {
-            if (mPlaylist.isRepeating()
-                    && mPlaylist.peekQueryAtPos((position) % mPlaylist.getCount())
-                    .getPreferredTrackResult().getAlbum() != null) {
-                mPlaylist.peekQueryAtPos((position) % mPlaylist.getCount())
-                        .getPreferredTrackResult().getAlbum()
-                        .loadBitmap(mContext, albumArtImageView);
-            } else if (!mPlaylist.isRepeating()
-                    && mPlaylist.peekQueryAtPos(position).getPreferredTrackResult().getAlbum()
-                    != null) {
-                mPlaylist.peekQueryAtPos(position).getPreferredTrackResult().getAlbum()
-                        .loadBitmap(mContext, albumArtImageView);
+            if (mPlaylist.isRepeating()) {
+                Query query = mPlaylist.peekQueryAtPos((position) % mPlaylist.getCount());
+                query.getPreferredTrack().getAlbum().loadBitmap(mContext, albumArtImageView);
+            } else if (!mPlaylist.isRepeating()) {
+                Query query = mPlaylist.peekQueryAtPos(position);
+                query.getPreferredTrack().getAlbum().loadBitmap(mContext, albumArtImageView);
             } else {
                 albumArtImageView.setImageResource(R.drawable.no_album_art_placeholder);
             }
