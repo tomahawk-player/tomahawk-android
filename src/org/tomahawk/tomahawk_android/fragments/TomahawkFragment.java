@@ -213,15 +213,15 @@ public class TomahawkFragment extends TomahawkListFragment
             tomahawkListItem = ((TomahawkListAdapter) adapter)
                     .getContentHeaderTomahawkListItem();
         }
-        if (!(tomahawkListItem instanceof UserPlaylist || (tomahawkListItem instanceof Track
-                && mUserPlaylist != null))) {
-            menuItemTitles = getResources()
-                    .getStringArray(R.array.fake_context_menu_items_without_delete);
-        } else if (tomahawkListItem instanceof UserPlaylist) {
+        if (tomahawkListItem instanceof UserPlaylist) {
             menuItemTitles = getResources()
                     .getStringArray(R.array.fake_context_menu_items_without_addplaylist);
-        } else {
+        } else if (tomahawkListItem instanceof Query && (this instanceof PlaybackFragment
+                || mUserPlaylist != null)) {
             menuItemTitles = getResources().getStringArray(R.array.fake_context_menu_items);
+        } else {
+            menuItemTitles = getResources().getStringArray(
+                    R.array.fake_context_menu_items_without_delete);
         }
         new FakeContextMenuDialog(menuItemTitles, tomahawkListItem, this)
                 .show(mTomahawkMainActivity.getSupportFragmentManager(), null);
