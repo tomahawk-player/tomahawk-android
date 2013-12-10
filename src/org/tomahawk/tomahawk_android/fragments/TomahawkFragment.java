@@ -303,10 +303,11 @@ public class TomahawkFragment extends TomahawkListFragment
                 .equals(tomahawkMainActivity.getResources()
                         .getString(R.string.fake_context_menu_play))) {
             if (this instanceof PlaybackFragment) {
-                if (playbackService != null && tomahawkListItem instanceof Query) {
-                    if (playbackService.getCurrentPlaylist().getCurrentQuery()
-                            .getPreferredTrackResult().getPath()
-                            == ((Query) tomahawkListItem).getPreferredTrackResult().getPath()) {
+                if (playbackService != null && tomahawkListItem instanceof Query
+                        && playbackService.getCurrentPlaylist().getCurrentQuery() != null) {
+                    if (TomahawkUtils
+                            .getCacheKey(playbackService.getCurrentPlaylist().getCurrentQuery())
+                            == TomahawkUtils.getCacheKey(tomahawkListItem)) {
                         if (!playbackService.isPlaying()) {
                             playbackService.start();
                         }

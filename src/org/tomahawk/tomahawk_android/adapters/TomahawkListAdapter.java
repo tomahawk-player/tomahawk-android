@@ -331,7 +331,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                         viewHolder.imageViewLeft.setVisibility(ImageView.GONE);
                         view.setBackgroundResource(R.drawable.selectable_background_tomahawk);
                     }
-                    if (mShowResolvedBy && ((Query) item).isPlayable()) {
+                    if (mShowResolvedBy && ((Query) item).getPreferredTrackResult() != null) {
                         viewHolder.imageViewRight.setVisibility(ImageView.VISIBLE);
                         Drawable resolverIcon = null;
                         if (((Query) item).getPreferredTrackResult().getResolvedBy() != null) {

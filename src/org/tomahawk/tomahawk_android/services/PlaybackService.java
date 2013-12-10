@@ -816,7 +816,7 @@ public class PlaybackService extends Service
     private void updatePlayingNotification() {
 
         Query query = getCurrentQuery();
-        Track track = query.getTrackResults().get(0).getTrack();
+        Track track = query.getPreferredTrack();
         if (track == null) {
             return;
         }
