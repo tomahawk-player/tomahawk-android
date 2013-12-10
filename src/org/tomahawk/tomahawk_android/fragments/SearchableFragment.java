@@ -79,8 +79,6 @@ public class SearchableFragment extends TomahawkFragment
 
     private SearchableBroadcastReceiver mSearchableBroadcastReceiver;
 
-    private UserCollection mCollection;
-
     private EditText mSearchEditText = null;
 
     /**
@@ -113,15 +111,15 @@ public class SearchableFragment extends TomahawkFragment
                 && savedInstanceState.getString(SEARCHABLEFRAGMENT_QUERY_STRING) != null) {
             mCurrentQueryString = savedInstanceState.getString(SEARCHABLEFRAGMENT_QUERY_STRING);
         }
-        if (getArguments() != null && getArguments().containsKey(SEARCHABLEFRAGMENT_QUERY_STRING)
-                && getArguments().getString(SEARCHABLEFRAGMENT_QUERY_STRING) != null) {
-            mCurrentQueryString = getArguments().getString(SEARCHABLEFRAGMENT_QUERY_STRING);
-        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        if (getArguments() != null && getArguments().containsKey(SEARCHABLEFRAGMENT_QUERY_STRING)
+                && getArguments().getString(SEARCHABLEFRAGMENT_QUERY_STRING) != null) {
+            mCurrentQueryString = getArguments().getString(SEARCHABLEFRAGMENT_QUERY_STRING);
+        }
 
         setSearchText((EditText) mTomahawkMainActivity.getSupportActionBar().getCustomView()
                 .findViewById(R.id.search_edittext));
@@ -226,18 +224,6 @@ public class SearchableFragment extends TomahawkFragment
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         resolveFullTextQuery(mCurrentQueryString);
-    }
-
-    /**
-     * Called whenever the {@link UserCollection} {@link Loader} has finished
-     */
-    @Override
-    public void onLoadFinished(Loader<Collection> loader, Collection coll) {
-        super.onLoadFinished(loader, coll);
-
-        if (coll instanceof UserCollection) {
-            mCollection = (UserCollection) coll;
-        }
     }
 
     /**

@@ -91,24 +91,6 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
     }
 
     /**
-     * Pulls all the necessary information from the {@link Bundle}s that are being sent, when this
-     * {@link AlbumsFragment} is created. We can access the information through getArguments().
-     *
-     * @param savedInstanceState If the activity is being re-initialized after previously being shut
-     *                           down then this {@link Bundle} contains the data it most recently
-     *                           supplied in onSaveInstanceState({@link Bundle}). Note: Otherwise it
-     *                           is null.
-     */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null && getArguments().containsKey(TOMAHAWK_ARTIST_KEY) && !TextUtils
-                .isEmpty(getArguments().getString(TOMAHAWK_ARTIST_KEY))) {
-            mArtist = Artist.getArtistByKey(getArguments().getString(TOMAHAWK_ARTIST_KEY));
-        }
-    }
-
-    /**
      * Initialize and register {@link AlbumFragmentReceiver}
      */
     @Override
@@ -117,9 +99,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
 
         if (mAlbumFragmentReceiver == null) {
             mAlbumFragmentReceiver = new AlbumFragmentReceiver();
-            IntentFilter intentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
-            getActivity().registerReceiver(mAlbumFragmentReceiver, intentFilter);
-            intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
+            IntentFilter intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
             getActivity().registerReceiver(mAlbumFragmentReceiver, intentFilter);
         }
     }

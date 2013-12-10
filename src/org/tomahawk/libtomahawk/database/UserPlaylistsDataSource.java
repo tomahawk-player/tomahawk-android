@@ -22,7 +22,6 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -31,6 +30,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class provides a way of storing user created {@link org.tomahawk.libtomahawk.collection.UserPlaylist}s
@@ -51,11 +51,14 @@ public class UserPlaylistsDataSource {
             TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_NAME,
             TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_CURRENTTRACKINDEX};
 
-    private String[] mAllTracksColumns = {TomahawkSQLiteHelper.TRACKS_COLUMN_KEY,
+    private String[] mAllTracksColumns = {TomahawkSQLiteHelper.TRACKS_COLUMN_ID,
             TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS,
             TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME,
             TomahawkSQLiteHelper.TRACKS_COLUMN_ARTISTNAME,
             TomahawkSQLiteHelper.TRACKS_COLUMN_ALBUMNAME,};
+
+    private ConcurrentHashMap<Long, ConcurrentHashMap<Query, Long>> mPlaylistQueryIdMap
+            = new ConcurrentHashMap<Long, ConcurrentHashMap<Query, Long>>();
 
     public UserPlaylistsDataSource(Context context) {
         mDbHelper = new TomahawkSQLiteHelper(context);
@@ -183,27 +186,29 @@ public class UserPlaylistsDataSource {
                         TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ID + " = " + playlistId, null,
                         null, null, null);
         if (userplaylistsCursor.moveToFirst()) {
+            if (mPlaylistQueryIdMap == null) {
+                mPlaylistQueryIdMap = new ConcurrentHashMap<Long, ConcurrentHashMap<Query, Long>>();
+            }
+            ConcurrentHashMap<Query, Long> queryIdMap = new ConcurrentHashMap<Query, Long>();
             currentTrackIndex = userplaylistsCursor.getInt(2);
-            long iduserplaylistcollection = userplaylistsCursor.getLong(0);
             Cursor tracksCursor = mDatabase
                     .query(TomahawkSQLiteHelper.TABLE_TRACKS, mAllTracksColumns,
                             TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS + " = "
-                                    + iduserplaylistcollection, null, null, null, null);
+                                    + playlistId, null, null, null, null);
             queries = new ArrayList<Query>();
             tracksCursor.moveToFirst();
             while (!tracksCursor.isAfterLast()) {
                 String trackName = tracksCursor.getString(2);
                 String artistName = tracksCursor.getString(3);
                 String albumName = tracksCursor.getString(4);
-                queries.add(new Query(trackName, albumName, artistName, false));
+                Query query = new Query(trackName, albumName, artistName, false);
+                queryIdMap.put(query, tracksCursor.getLong(0));
+                queries.add(query);
                 tracksCursor.moveToNext();
             }
-            long userPlaylistsId = userplaylistsCursor.getLong(0);
-            if (userplaylistsCursor.getLong(0) != CACHED_PLAYLIST_ID) {
-                userPlaylistsId = TomahawkApp.getUniqueId();
-            }
+            mPlaylistQueryIdMap.put(playlistId, queryIdMap);
             UserPlaylist userPlaylist = UserPlaylist.fromQueryList(
-                    userPlaylistsId, userplaylistsCursor.getString(1), queries,
+                    playlistId, userplaylistsCursor.getString(1), queries,
                     currentTrackIndex);
             tracksCursor.close();
             userplaylistsCursor.close();
@@ -224,7 +229,7 @@ public class UserPlaylistsDataSource {
         mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
                 TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS + " = " + playlistId, null);
         mDatabase.delete(TomahawkSQLiteHelper.TABLE_USERPLAYLISTS,
-                TomahawkSQLiteHelper.TRACKS_COLUMN_KEY + " = " + playlistId, null);
+                TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ID + " = " + playlistId, null);
         mDatabase.setTransactionSuccessful();
         mDatabase.endTransaction();
     }
@@ -233,11 +238,12 @@ public class UserPlaylistsDataSource {
      * Delete the {@link org.tomahawk.libtomahawk.resolver.Query} with the given key in the {@link
      * org.tomahawk.libtomahawk.collection.UserPlaylist} with the given playlistId
      */
-    public void deleteQueryInUserPlaylist(long playlistId, String key) {
+    public void deleteQueryInUserPlaylist(long playlistId, Query query) {
         mDatabase.beginTransaction();
+        Long id = mPlaylistQueryIdMap.get(playlistId).get(query);
         mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
                 TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS + " = " + playlistId + " and " +
-                        TomahawkSQLiteHelper.TRACKS_COLUMN_KEY + " = " + key, null);
+                        TomahawkSQLiteHelper.TRACKS_COLUMN_ID + " = " + id, null);
         mDatabase.setTransactionSuccessful();
         mDatabase.endTransaction();
     }
@@ -257,8 +263,6 @@ public class UserPlaylistsDataSource {
             // Store every single Track in the database and store the relationship
             // by storing the playlists's id with it
             for (Query query : queries) {
-                values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_KEY,
-                        TomahawkUtils.getCacheKey(query));
                 values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS, playlistId);
                 values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME,
                         query.getPreferredTrack().getName());

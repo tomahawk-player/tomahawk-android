@@ -50,6 +50,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
@@ -70,9 +71,6 @@ public class TomahawkFragment extends TomahawkListFragment
 
     public static final String TOMAHAWK_ALBUM_KEY
             = "org.tomahawk.tomahawk_android.tomahawk_album_id";
-
-    public static final String TOMAHAWK_TRACK_ID
-            = "org.tomahawk.tomahawk_android.tomahawk_track_id";
 
     public static final String TOMAHAWK_ARTIST_KEY
             = "org.tomahawk.tomahawk_android.tomahawk_artist_id";
@@ -96,8 +94,6 @@ public class TomahawkFragment extends TomahawkListFragment
     protected PipeLine mPipeline;
 
     protected HashSet<String> mCorrespondingQueryIds = new HashSet<String>();
-
-    protected TomahawkMainActivity mTomahawkMainActivity;
 
     protected int mCorrespondingHubId;
 
@@ -123,34 +119,12 @@ public class TomahawkFragment extends TomahawkListFragment
     }
 
     /**
-     * Store the reference to the {@link Activity}, in which this {@link UserCollectionFragment} has
-     * been created
-     */
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        if (activity instanceof TomahawkMainActivity) {
-            mTomahawkMainActivity = (TomahawkMainActivity) activity;
-        }
-    }
-
-    /**
      * Basic initializations. Get corresponding hub id through getArguments(), if not null
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments() != null) {
-            if (getArguments().containsKey(TOMAHAWK_HUB_ID)
-                    && getArguments().getInt(TOMAHAWK_HUB_ID) > 0) {
-                mCorrespondingHubId = getArguments().getInt(TOMAHAWK_HUB_ID);
-            }
-            if (getArguments().containsKey(TOMAHAWK_LIST_ITEM_IS_LOCAL)) {
-                mIsLocal = getArguments().getBoolean(TOMAHAWK_LIST_ITEM_IS_LOCAL);
-            }
-        }
         mTomahawkApp = ((TomahawkApp) mTomahawkMainActivity.getApplication());
         mInfoSystem = mTomahawkApp.getInfoSystem();
         mPipeline = mTomahawkApp.getPipeLine();
@@ -159,6 +133,30 @@ public class TomahawkFragment extends TomahawkListFragment
     @Override
     public void onResume() {
         super.onResume();
+
+        if (getArguments() != null) {
+            if (getArguments().containsKey(TOMAHAWK_ALBUM_KEY)
+                    && !TextUtils.isEmpty(getArguments().getString(TOMAHAWK_ALBUM_KEY))) {
+                mAlbum = Album.getAlbumByKey(getArguments().getString(TOMAHAWK_ALBUM_KEY));
+            }
+            if (getArguments().containsKey(TOMAHAWK_PLAYLIST_KEY) && !TextUtils.isEmpty(
+                    getArguments().getString(TOMAHAWK_PLAYLIST_KEY))) {
+                mUserPlaylist = mTomahawkMainActivity.getUserCollection()
+                        .getUserPlaylistById(Long.valueOf(getArguments().getString(
+                                TOMAHAWK_PLAYLIST_KEY)).longValue());
+            }
+            if (getArguments() != null && getArguments().containsKey(TOMAHAWK_ARTIST_KEY)
+                    && !TextUtils.isEmpty(getArguments().getString(TOMAHAWK_ARTIST_KEY))) {
+                mArtist = Artist.getArtistByKey(getArguments().getString(TOMAHAWK_ARTIST_KEY));
+            }
+            if (getArguments().containsKey(TOMAHAWK_HUB_ID)
+                    && getArguments().getInt(TOMAHAWK_HUB_ID) > 0) {
+                mCorrespondingHubId = getArguments().getInt(TOMAHAWK_HUB_ID);
+            }
+            if (getArguments().containsKey(TOMAHAWK_LIST_ITEM_IS_LOCAL)) {
+                mIsLocal = getArguments().getBoolean(TOMAHAWK_LIST_ITEM_IS_LOCAL);
+            }
+        }
 
         // Adapt to current orientation. Show different count of columns in the GridView
         adaptColumnCount();
@@ -190,16 +188,6 @@ public class TomahawkFragment extends TomahawkListFragment
             getActivity().unregisterReceiver(mTomahawkFragmentReceiver);
             mTomahawkFragmentReceiver = null;
         }
-    }
-
-    /**
-     * Null the reference to this {@link FakePreferenceFragment}'s {@link Activity}
-     */
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
-        mTomahawkMainActivity = null;
     }
 
     @Override
@@ -264,8 +252,7 @@ public class TomahawkFragment extends TomahawkListFragment
                 userCollection.updateUserPlaylists();
             } else if (tomahawkListItem instanceof Query && mUserPlaylist != null) {
                 ((TomahawkApp) tomahawkMainActivity.getApplication()).getUserPlaylistsDataSource()
-                        .deleteQueryInUserPlaylist(mUserPlaylist.getId(),
-                                TomahawkUtils.getCacheKey(tomahawkListItem));
+                        .deleteQueryInUserPlaylist(mUserPlaylist.getId(), (Query) tomahawkListItem);
                 userCollection.updateUserPlaylists();
             } else if (playbackService != null && this instanceof PlaybackFragment
                     && tomahawkListItem instanceof Query) {
@@ -467,6 +454,11 @@ public class TomahawkFragment extends TomahawkListFragment
      * Called when a Collection has been updated.
      */
     protected void onCollectionUpdated() {
+        if (isShowGridView()) {
+            getGridAdapter().notifyDataSetChanged();
+        } else {
+            ((TomahawkListAdapter) getListAdapter()).notifyDataSetChanged();
+        }
         mTomahawkMainActivity.getSupportLoaderManager().restartLoader(getId(), null, this);
     }
 

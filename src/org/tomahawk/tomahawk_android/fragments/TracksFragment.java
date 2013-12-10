@@ -18,6 +18,7 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
@@ -65,14 +66,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             if (PipeLine.PIPELINE_RESULTSREPORTED_NON_FULLTEXTQUERY.equals(intent.getAction())) {
                 String queryId = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
                 if (mCorrespondingQueryIds.contains(queryId)) {
-                    /*ArrayList<Track> tracks = mPipeline.getQuery(queryId).getTrackResults();
-                    if (tracks != null && tracks.size() > 0) {
-                        Track track = mCorrespondingQueryIds.get(queryId);
-                        if (track.getScore() < tracks.get(0).getScore()) {
-                            Query.trackResultToTrack(tracks.get(0), track);
-                            updateAdapter();
-                        }
-                    }*/
+
                 }
                 if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
                     String requestId = intent
@@ -80,33 +74,6 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                     if (mCurrentRequestIds.contains(requestId)) {
                     }
                 }
-            }
-        }
-    }
-
-    /**
-     * Pulls all the necessary information from the {@link Bundle}s that are being sent, when this
-     * {@link TracksFragment} is created. We can access the information through getArguments().
-     *
-     * @param savedInstanceState If the activity is being re-initialized after previously being shut
-     *                           down then this {@link Bundle} contains the data it most recently
-     *                           supplied in onSaveInstanceState({@link Bundle}). Note: Otherwise it
-     *                           is null.
-     */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        if (getArguments() != null) {
-            if (getArguments().containsKey(TOMAHAWK_ALBUM_KEY)
-                    && !TextUtils.isEmpty(getArguments().getString(TOMAHAWK_ALBUM_KEY))) {
-                mAlbum = Album.getAlbumByKey(getArguments().getString(TOMAHAWK_ALBUM_KEY));
-            }
-            if (getArguments().containsKey(TOMAHAWK_PLAYLIST_KEY) && !TextUtils.isEmpty(
-                    getArguments().getString(TOMAHAWK_PLAYLIST_KEY))) {
-                mUserPlaylist = mTomahawkMainActivity.getUserCollection()
-                        .getUserPlaylistById(Long.valueOf(getArguments().getString(
-                                TOMAHAWK_PLAYLIST_KEY)).longValue());
             }
         }
     }
@@ -120,9 +87,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
 
         if (mTracksFragmentReceiver == null) {
             mTracksFragmentReceiver = new TracksFragmentReceiver();
-            IntentFilter intentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
-            getActivity().registerReceiver(mTracksFragmentReceiver, intentFilter);
-            intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
+            IntentFilter intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
             getActivity().registerReceiver(mTracksFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(
                     PipeLine.PIPELINE_RESULTSREPORTED_NON_FULLTEXTQUERY);
