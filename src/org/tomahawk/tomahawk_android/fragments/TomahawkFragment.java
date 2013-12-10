@@ -51,12 +51,12 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The base class for {@link AlbumsFragment}, {@link TracksFragment}, {@link ArtistsFragment},
@@ -82,6 +82,9 @@ public class TomahawkFragment extends TomahawkListFragment
 
     public static final String TOMAHAWK_HUB_ID = "org.tomahawk.tomahawk_android.tomahawk_hub_id";
 
+    public static final String TOMAHAWK_LIST_ITEM_IS_LOCAL
+            = "org.tomahawk.tomahawk_list_item_is_local";
+
     protected TomahawkApp mTomahawkApp;
 
     private TomahawkFragmentReceiver mTomahawkFragmentReceiver;
@@ -103,6 +106,8 @@ public class TomahawkFragment extends TomahawkListFragment
     protected Artist mArtist;
 
     protected UserPlaylist mUserPlaylist;
+
+    protected boolean mIsLocal = false;
 
     /**
      * Handles incoming {@link Collection} updated broadcasts.
@@ -141,6 +146,9 @@ public class TomahawkFragment extends TomahawkListFragment
             if (getArguments().containsKey(TOMAHAWK_HUB_ID)
                     && getArguments().getInt(TOMAHAWK_HUB_ID) > 0) {
                 mCorrespondingHubId = getArguments().getInt(TOMAHAWK_HUB_ID);
+            }
+            if (getArguments().containsKey(TOMAHAWK_LIST_ITEM_IS_LOCAL)) {
+                mIsLocal = getArguments().getBoolean(TOMAHAWK_LIST_ITEM_IS_LOCAL);
             }
         }
         mTomahawkApp = ((TomahawkApp) mTomahawkMainActivity.getApplication());
@@ -207,11 +215,15 @@ public class TomahawkFragment extends TomahawkListFragment
         String[] menuItemTitles;
         TomahawkBaseAdapter.TomahawkListItem tomahawkListItem;
         position -= getListView().getHeaderViewsCount();
+        Adapter adapter = isShowGridView() ? getGridAdapter() : getListAdapter();
         if (position >= 0) {
-            tomahawkListItem = ((TomahawkBaseAdapter.TomahawkListItem) getListAdapter()
+            tomahawkListItem = ((TomahawkBaseAdapter.TomahawkListItem) adapter
                     .getItem(position));
         } else {
-            tomahawkListItem = ((TomahawkListAdapter) getListAdapter())
+            if (isShowGridView()) {
+                return false;
+            }
+            tomahawkListItem = ((TomahawkListAdapter) adapter)
                     .getContentHeaderTomahawkListItem();
         }
         if (!(tomahawkListItem instanceof UserPlaylist || (tomahawkListItem instanceof Track
@@ -332,7 +344,7 @@ public class TomahawkFragment extends TomahawkListFragment
                                 .fromQueryList(
                                         UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, queries);
                     }
-                    userCollection.setCachedPlaylist(playlist);
+                    userCollection.setCachedUserPlaylist(playlist);
                 } else if (tomahawkListItem instanceof UserPlaylist) {
                     playlist = (UserPlaylist) tomahawkListItem;
                 } else if (tomahawkListItem instanceof Album) {

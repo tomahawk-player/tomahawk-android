@@ -21,7 +21,6 @@ package org.tomahawk.libtomahawk.collection;
 import org.tomahawk.libtomahawk.resolver.Query;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This class represents a {@link Collection} of media.
@@ -38,18 +37,6 @@ public abstract class Collection {
     }
 
     /**
-     * Get all {@link Artist}'s associated with this {@link Collection}.
-     */
-    public abstract ArrayList<Artist> getArtists();
-
-    /**
-     * Get the {@link Artist} by giving the {@link Artist}'s ID
-     *
-     * @return the {@link Artist} object
-     */
-    public abstract Artist getArtistByKey(String key);
-
-    /**
      * Caches an {@link Artist} inside the playlist
      */
     public abstract void setCachedArtist(Artist artist);
@@ -58,18 +45,6 @@ public abstract class Collection {
      * @return the cached {@link Artist}
      */
     public abstract Artist getCachedArtist();
-
-    /**
-     * Get all {@link Album}s from this {@link Collection}.
-     */
-    public abstract ArrayList<Album> getAlbums();
-
-    /**
-     * Get the {@link Album} by giving the {@link Album}'s ID
-     *
-     * @return the {@link Album} object
-     */
-    public abstract Album getAlbumByKey(String key);
 
     /**
      * Caches an {@link Album} inside the {@link Playlist}
@@ -96,7 +71,7 @@ public abstract class Collection {
      *
      * @return the {@link UserPlaylist} object
      */
-    public abstract UserPlaylist getCustomPlaylistByKey(String key);
+    public abstract UserPlaylist getUserPlaylistById(long id);
 
     /**
      * Update this {@link Collection}'s content.

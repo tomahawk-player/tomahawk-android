@@ -21,7 +21,6 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.UserCollection;
-import org.tomahawk.libtomahawk.hatchet.InfoRequestData;
 import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
@@ -103,11 +102,9 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (mTomahawkMainActivity.getUserCollection() != null && getArguments() != null
-                && getArguments().containsKey(TOMAHAWK_ARTIST_KEY)
-                && !TextUtils.isEmpty(getArguments().getString(TOMAHAWK_ARTIST_KEY))) {
-            mArtist = mTomahawkMainActivity.getUserCollection()
-                    .getArtistByKey(getArguments().getString(TOMAHAWK_ARTIST_KEY));
+        if (getArguments() != null && getArguments().containsKey(TOMAHAWK_ARTIST_KEY) && !TextUtils
+                .isEmpty(getArguments().getString(TOMAHAWK_ARTIST_KEY))) {
+            mArtist = Artist.getArtistByKey(getArguments().getString(TOMAHAWK_ARTIST_KEY));
         }
     }
 
@@ -155,7 +152,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
         position -= getListView().getHeaderViewsCount();
         if (position >= 0) {
             Object item;
-            if (mArtist != null) {
+            if (!isShowGridView()) {
                 item = getListAdapter().getItem(position);
             } else {
                 item = getGridAdapter().getItem(position);
@@ -165,7 +162,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                 String key = TomahawkUtils.getCacheKey((Album) item);
                 bundle.putString(TOMAHAWK_ALBUM_KEY, key);
                 mTomahawkMainActivity.getContentViewer().replace(mCorrespondingHubId,
-                        TracksFragment.class, key, TOMAHAWK_ALBUM_KEY, false);
+                        TracksFragment.class, key, TOMAHAWK_ALBUM_KEY, mIsLocal, false);
             }
         }
     }
@@ -185,8 +182,16 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
     private void updateAdapter() {
         List<TomahawkBaseAdapter.TomahawkListItem> albums
                 = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-        if (mArtist != null) {
-            albums.addAll(mArtist.getAlbums());
+        if (!isShowGridView() && mArtist != null) {
+            if (mIsLocal) {
+                for (Album album : mArtist.getAlbums()) {
+                    if (album.containsLocalQueries()) {
+                        albums.add(album);
+                    }
+                }
+            } else {
+                albums.addAll(mArtist.getAlbums());
+            }
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(albums);
@@ -202,7 +207,15 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
             }
             getListView().setOnItemClickListener(this);
         } else {
-            albums.addAll(mTomahawkMainActivity.getUserCollection().getAlbums());
+            if (mIsLocal) {
+                for (Album album : Album.getAlbums()) {
+                    if (album.containsLocalQueries()) {
+                        albums.add(album);
+                    }
+                }
+            } else {
+                albums.addAll(Album.getAlbums());
+            }
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(albums);

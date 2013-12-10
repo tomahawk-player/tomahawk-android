@@ -17,11 +17,8 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
-import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
-
-import android.text.TextUtils;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -74,6 +71,13 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
         if (!sTracks.containsKey(key)) {
             sTracks.put(key, track);
         }
+        return sTracks.get(key);
+    }
+
+    /**
+     * Get the {@link org.tomahawk.libtomahawk.collection.Track} by providing its cache key
+     */
+    public static Track getTrackByKey(String key) {
         return sTracks.get(key);
     }
 

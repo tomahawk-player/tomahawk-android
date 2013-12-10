@@ -75,7 +75,6 @@ public class ChooseUserPlaylistDialog extends DialogFragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 UserPlaylistsDataSource userPlaylistsDataSource = ((TomahawkApp) getActivity()
                         .getApplication()).getUserPlaylistsDataSource();
-                userPlaylistsDataSource.open();
                 userPlaylistsDataSource.addQueriesToUserPlaylist(
                         mUserCollection.getUserPlaylists().get(position).getId(), mQueries);
                 ((UserCollection) ((TomahawkApp) getActivity().getApplication()).getSourceList()

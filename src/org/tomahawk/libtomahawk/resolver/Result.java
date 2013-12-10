@@ -30,6 +30,12 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Result {
 
+    public static int RESULT_TYPE_TRACK = 0;
+
+    public static int RESULT_TYPE_ALBUM = 1;
+
+    public static int RESULT_TYPE_ARTIST = 2;
+
     private static ConcurrentHashMap<String, Result> mResults
             = new ConcurrentHashMap<String, Result>();
 
@@ -62,6 +68,8 @@ public class Result {
 
     private float mArtistScore;
 
+    private int mType = RESULT_TYPE_TRACK;
+
     /**
      * Construct a new {@link Result} with the given {@link Track}
      */
@@ -85,8 +93,7 @@ public class Result {
     /**
      * Construct a new {@link Result} with the given {@link Artist}
      */
-    private Result(String url, Artist artist) {
-        setPath(url);
+    private Result(Artist artist) {
         mArtist = artist;
         mAlbum = artist.getAlbum();
     }
@@ -128,7 +135,7 @@ public class Result {
     public static Result get(String url, Artist artist) {
         Result result = mResults.get(url);
         if (result == null) {
-            result = new Result(url, artist);
+            result = new Result(artist);
             mResults.put(url, result);
         }
         return result;
@@ -314,5 +321,13 @@ public class Result {
      */
     public boolean isResolved() {
         return isResolved;
+    }
+
+    public int getType() {
+        return mType;
+    }
+
+    public void setType(int type) {
+        mType = type;
     }
 }

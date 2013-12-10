@@ -19,8 +19,6 @@ package org.tomahawk.libtomahawk.collection;
 
 import org.tomahawk.libtomahawk.resolver.Query;
 
-import java.util.ArrayList;
-
 /**
  * A {@link CollectionPlaylist} is a {@link Playlist} containing every from {@link Track} from an
  * entire {@link Collection}

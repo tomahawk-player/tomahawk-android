@@ -20,7 +20,6 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 
@@ -32,7 +31,6 @@ import android.widget.AdapterView.OnItemClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * {@link TomahawkFragment} which shows a set of {@link Artist}s inside its {@link
@@ -60,7 +58,7 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
                 String key = TomahawkUtils.getCacheKey((Artist) item);
                 bundle.putString(TOMAHAWK_ARTIST_KEY, key);
                 mTomahawkMainActivity.getContentViewer().replace(mCorrespondingHubId,
-                        AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, false);
+                        AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, mIsLocal, false);
             }
         }
     }
@@ -74,7 +72,16 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
         super.onLoadFinished(loader, coll);
 
         List<TomahawkBaseAdapter.TomahawkListItem> artists
-                = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>(coll.getArtists());
+                = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+        if (mIsLocal) {
+            for (Artist artist : Artist.getArtists()) {
+                if (artist.containsLocalQueries()) {
+                    artists.add(artist);
+                }
+            }
+        } else {
+            artists.addAll(Artist.getArtists());
+        }
         List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                 = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
         listArray.add(artists);

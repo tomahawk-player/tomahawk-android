@@ -19,7 +19,6 @@ package org.tomahawk.tomahawk_android.utils;
 
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;

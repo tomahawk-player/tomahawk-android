@@ -23,7 +23,6 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.ContentResolver;
@@ -52,11 +51,9 @@ public class UserCollection extends Collection {
 
     private Handler mHandler;
 
-    private ConcurrentHashMap<String, Artist> mArtists = new ConcurrentHashMap<String, Artist>();
-
     private Artist mCachedArtist;
 
-    private ConcurrentHashMap<String, Album> mAlbums = new ConcurrentHashMap<String, Album>();
+    private ConcurrentHashMap<Long, Album> mAlbums = new ConcurrentHashMap<Long, Album>();
 
     private Album mCachedAlbum;
 
@@ -109,24 +106,6 @@ public class UserCollection extends Collection {
     }
 
     /**
-     * @return A {@link List} of all {@link Artist}s in this {@link UserCollection}
-     */
-    @Override
-    public ArrayList<Artist> getArtists() {
-        ArrayList<Artist> artists = new ArrayList<Artist>(mArtists.values());
-        Collections.sort(artists, new ArtistComparator(ArtistComparator.COMPARE_ALPHA));
-        return artists;
-    }
-
-    /**
-     * Get an {@link Artist} from this {@link UserCollection} by providing an id
-     */
-    @Override
-    public Artist getArtistByKey(String key) {
-        return mArtists.get(key);
-    }
-
-    /**
      * Caches an {@link Artist} in a private member variable
      */
     @Override
@@ -141,25 +120,6 @@ public class UserCollection extends Collection {
     public Artist getCachedArtist() {
         return mCachedArtist;
     }
-
-    /**
-     * @return A {@link java.util.ArrayList} of all {@link Album}s in this {@link UserCollection}
-     */
-    @Override
-    public ArrayList<Album> getAlbums() {
-        ArrayList<Album> albums = new ArrayList<Album>(mAlbums.values());
-        Collections.sort(albums, new AlbumComparator(AlbumComparator.COMPARE_ALPHA));
-        return albums;
-    }
-
-    /**
-     * Get an {@link Album} from this {@link UserCollection} by providing an id
-     */
-    @Override
-    public Album getAlbumByKey(String key) {
-        return mAlbums.get(key);
-    }
-
 
     /**
      * Caches an {@link Album} in a private member variable
@@ -193,21 +153,21 @@ public class UserCollection extends Collection {
      * Get an {@link UserPlaylist} from this {@link UserCollection} by providing an id
      */
     @Override
-    public UserPlaylist getCustomPlaylistByKey(String key) {
-        return mUserPlaylists.get(key);
+    public UserPlaylist getUserPlaylistById(long id) {
+        return mUserPlaylists.get(id);
     }
 
     /**
      * Add a {@link UserPlaylist} to this {@link UserCollection}
      */
-    public void addCustomPlaylist(long playlistId, UserPlaylist userPlaylist) {
+    public void addUserPlaylist(long playlistId, UserPlaylist userPlaylist) {
         mUserPlaylists.put(playlistId, userPlaylist);
     }
 
     /**
      * Store the PlaybackService's currentPlaylist
      */
-    public void setCachedPlaylist(UserPlaylist userPlaylist) {
+    public void setCachedUserPlaylist(UserPlaylist userPlaylist) {
         mCachedUserPlaylist = userPlaylist;
     }
 
@@ -263,8 +223,6 @@ public class UserCollection extends Collection {
         // Go through the complete set of data in the MediaStore
         while (cursor != null && cursor.moveToNext()) {
             Artist artist = Artist.get(cursor.getString(6));
-            String key = TomahawkUtils.getCacheKey(artist);
-            mArtists.put(key, artist);
 
             Album album = Album.get(cursor.getString(8), artist);
             String albumsel = MediaStore.Audio.Albums._ID + " == " + Long.toString(
@@ -281,10 +239,11 @@ public class UserCollection extends Collection {
             if (albumcursor != null) {
                 albumcursor.close();
             }
-            key = TomahawkUtils.getCacheKey(album);
-            mAlbums.put(key, album);
-
-            artist.addAlbum(album);
+            if (!mAlbums.containsKey(cursor.getLong(7))) {
+                mAlbums.put(cursor.getLong(7), album);
+            } else {
+                album = mAlbums.get(cursor.getLong(7));
+            }
 
             Track track = Track.get(cursor.getString(2), album, artist);
             track.setDuration(cursor.getLong(3));
@@ -297,6 +256,7 @@ public class UserCollection extends Collection {
             mQueries.put(query.getQid(), query);
 
             artist.addQuery(query);
+            artist.addAlbum(album);
             album.addQuery(query);
         }
 
@@ -315,7 +275,7 @@ public class UserCollection extends Collection {
                 .getAllUserPlaylists();
         for (UserPlaylist userPlaylist : userPlayListList) {
             if (userPlaylist.getId() == UserPlaylistsDataSource.CACHED_PLAYLIST_ID) {
-                setCachedPlaylist(userPlaylist);
+                setCachedUserPlaylist(userPlaylist);
             } else {
                 mUserPlaylists.put(userPlaylist.getId(), userPlaylist);
             }

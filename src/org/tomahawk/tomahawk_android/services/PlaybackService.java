@@ -233,9 +233,9 @@ public class PlaybackService extends Service
             } else if (BitmapItem.BITMAPITEM_BITMAPLOADED.equals(intent.getAction())) {
                 // a bitmap has been loaded
                 if (mCurrentPlaylist.getCurrentQuery() != null
-                        && !mCurrentPlaylist.getCurrentQuery().getAlbumResults().isEmpty()
+                        && !mCurrentPlaylist.getCurrentQuery().getAlbums().isEmpty()
                         && intent.getStringExtra(BitmapItem.BITMAPITEM_BITMAPLOADED_PATH).equals(
-                        mCurrentPlaylist.getCurrentQuery().getAlbumResults().get(0)
+                        mCurrentPlaylist.getCurrentQuery().getAlbums().get(0)
                                 .getAlbumArtPath())) {
                     // the loaded bitmap is relevant to us, so we update the playing notification
                     updatePlayingNotification();

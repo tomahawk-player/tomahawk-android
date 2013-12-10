@@ -20,7 +20,6 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
-import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
@@ -194,7 +193,7 @@ public class SearchableFragment extends TomahawkFragment
         position -= getListView().getHeaderViewsCount();
         if (position >= 0) {
             Object item = getListAdapter().getItem(position);
-            if (item instanceof Track) {
+            if (item instanceof Query) {
                 UserPlaylist playlist = UserPlaylist
                         .fromQueryList(TomahawkApp.getUniqueId(), mCurrentQueryString,
                                 mCurrentShownQueries, position);
@@ -210,13 +209,13 @@ public class SearchableFragment extends TomahawkFragment
                 String key = TomahawkUtils.getCacheKey((Album) item);
                 bundle.putString(TOMAHAWK_ALBUM_KEY, key);
                 mTomahawkMainActivity.getContentViewer().replace(mCorrespondingHubId,
-                        AlbumsFragment.class, key, TOMAHAWK_ALBUM_KEY, false);
+                        TracksFragment.class, key, TOMAHAWK_ALBUM_KEY, false, false);
             } else if (item instanceof Artist) {
                 Bundle bundle = new Bundle();
                 String key = TomahawkUtils.getCacheKey((Artist) item);
                 bundle.putString(TOMAHAWK_ARTIST_KEY, key);
                 mTomahawkMainActivity.getContentViewer().replace(mCorrespondingHubId,
-                        AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, false);
+                        AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, false, false);
             }
         }
     }
@@ -281,12 +280,12 @@ public class SearchableFragment extends TomahawkFragment
         listArray.add(trackResultList);
         ArrayList<TomahawkBaseAdapter.TomahawkListItem> artistResultList
                 = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-        mCurrentShownArtists = query.getArtistResults();
+        mCurrentShownArtists = query.getArtists();
         artistResultList.addAll(mCurrentShownArtists);
         listArray.add(artistResultList);
         ArrayList<TomahawkBaseAdapter.TomahawkListItem> albumResultList
                 = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-        mCurrentShownAlbums = query.getAlbumResults();
+        mCurrentShownAlbums = query.getAlbums();
         albumResultList.addAll(mCurrentShownAlbums);
         listArray.add(albumResultList);
         if (getListAdapter() == null) {

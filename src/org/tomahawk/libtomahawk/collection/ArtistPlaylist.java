@@ -19,8 +19,6 @@ package org.tomahawk.libtomahawk.collection;
 
 import org.tomahawk.libtomahawk.resolver.Query;
 
-import java.util.ArrayList;
-
 /**
  * This class represents a {@link Playlist} including all the {@link Query}s from an {@link
  * Artist}.

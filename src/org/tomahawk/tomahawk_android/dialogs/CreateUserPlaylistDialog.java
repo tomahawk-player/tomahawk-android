@@ -18,7 +18,6 @@
 package org.tomahawk.tomahawk_android.dialogs;
 
 import org.tomahawk.libtomahawk.collection.Playlist;
-import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
@@ -139,7 +138,6 @@ public class CreateUserPlaylistDialog extends DialogFragment {
                 R.string.playbackplaylistfragment_title_string) : editText.getText().toString();
         UserPlaylistsDataSource userPlaylistsDataSource = ((TomahawkApp) getActivity()
                 .getApplication()).getUserPlaylistsDataSource();
-        userPlaylistsDataSource.open();
         if (mPlaylist != null) {
             userPlaylistsDataSource.storeUserPlaylist(playlistName, mPlaylist);
         } else {

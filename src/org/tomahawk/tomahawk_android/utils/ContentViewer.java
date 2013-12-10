@@ -86,6 +86,9 @@ public class ContentViewer {
         //the type of the corresponding TomahawkListItem
         public String tomahawkListItemType = null;
 
+        //whether or not the corresponding TomahawkListItem is local
+        public boolean tomahawkListItemIsLocal = false;
+
         public String queryString = null;
 
         //the listScrollPosition which is being stored and restored when the fragment is popped or stashed.
@@ -113,13 +116,14 @@ public class ContentViewer {
          */
         FragmentStateHolder(Class clss, String fragmentTag, int correspondingHubId,
                 ArrayList<String> correspondingQueryIds, String tomahawkListItemKey,
-                String tomahawkListItemType) {
+                String tomahawkListItemType, boolean tomahawkListItemIsLocal) {
             this.clss = clss;
             this.fragmentTag = fragmentTag;
             this.correspondingHubId = correspondingHubId;
             this.correspondingQueryIds = correspondingQueryIds;
             this.tomahawkListItemKey = tomahawkListItemKey;
             this.tomahawkListItemType = tomahawkListItemType;
+            this.tomahawkListItemIsLocal = tomahawkListItemIsLocal;
         }
     }
 
@@ -202,6 +206,8 @@ public class ContentViewer {
             Bundle bundle = new Bundle();
             bundle.putString(fragmentStateHolder.tomahawkListItemType,
                     fragmentStateHolder.tomahawkListItemKey);
+            bundle.putBoolean(TomahawkFragment.TOMAHAWK_LIST_ITEM_IS_LOCAL,
+                    fragmentStateHolder.tomahawkListItemIsLocal);
             bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION,
                     fragmentStateHolder.listScrollPosition);
             bundle.putInt(TomahawkFragment.TOMAHAWK_HUB_ID, fragmentStateHolder.correspondingHubId);
@@ -231,10 +237,11 @@ public class ContentViewer {
      *                             the backstack
      */
     public void replace(int hubId, Class clss, String tomahawkListItemKey,
-            String tomahawkListItemType,
+            String tomahawkListItemType, boolean tomahawkListItemIsLocal,
             boolean isBackAction) {
         FragmentStateHolder fragmentStateHolder = new FragmentStateHolder(clss,
-                getFragmentTag(hubId, 1), hubId, null, tomahawkListItemKey, tomahawkListItemType);
+                getFragmentTag(hubId, 1), hubId, null, tomahawkListItemKey, tomahawkListItemType,
+                tomahawkListItemIsLocal);
         replace(hubId, fragmentStateHolder, isBackAction);
     }
 

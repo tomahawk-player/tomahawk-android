@@ -736,9 +736,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                             .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
                     breadCrumbFrame.addView(breadcrumbItem);
                 } else if (fpb.clss == AlbumsFragment.class) {
-                    Artist correspondingArtist = mUserCollection
-                            .getArtistByKey(fpb.tomahawkListItemKey);
-                    if (mUserCollection.getArtistByKey(fpb.tomahawkListItemKey) != null) {
+                    Artist correspondingArtist = Artist.getArtistByKey(fpb.tomahawkListItemKey);
+                    if (Artist.getArtistByKey(fpb.tomahawkListItemKey) != null) {
                         breadcrumbItemTextView.setText(correspondingArtist.getName());
                         breadcrumbItemImageViewLayout
                                 .setVisibility(SquareHeightRelativeLayout.GONE);
@@ -771,19 +770,18 @@ public class TomahawkMainActivity extends ActionBarActivity
                             .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
                     breadCrumbFrame.addView(breadcrumbItem);
                 } else if (fpb.clss == TracksFragment.class) {
-                    Album correspondingAlbum = mUserCollection.getAlbumByKey(
-                            fpb.tomahawkListItemKey);
-                    UserPlaylist correspondingUserPlaylist = mUserCollection
-                            .getCustomPlaylistByKey(fpb.tomahawkListItemKey);
+                    Album correspondingAlbum = Album.getAlbumByKey(fpb.tomahawkListItemKey);
                     if (fpb.tomahawkListItemType != null && fpb.tomahawkListItemType
                             .equals(TomahawkFragment.TOMAHAWK_ALBUM_KEY)
                             && correspondingAlbum != null) {
                         breadcrumbItemTextView.setText(correspondingAlbum.getName());
                         breadcrumbItemImageViewLayout
                                 .setVisibility(SquareHeightRelativeLayout.GONE);
-                    } else if (fpb.tomahawkListItemType != null &&
-                            fpb.tomahawkListItemType.equals(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY)
-                            && correspondingUserPlaylist != null) {
+                    } else if (fpb.tomahawkListItemType != null && fpb.tomahawkListItemType
+                            .equals(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY)) {
+                        UserPlaylist correspondingUserPlaylist = mUserCollection
+                                .getUserPlaylistById(
+                                        Long.valueOf(fpb.tomahawkListItemKey).longValue());
                         breadcrumbItemTextView.setText(correspondingUserPlaylist.getName());
                         breadcrumbItemImageViewLayout
                                 .setVisibility(SquareHeightRelativeLayout.GONE);

@@ -18,7 +18,6 @@
 package org.tomahawk.libtomahawk.resolver;
 
 import org.tomahawk.libtomahawk.collection.Album;
-import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -209,15 +208,18 @@ public class PipeLine {
             for (Result r : results) {
                 if (r != null) {
                     r.setTrackScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_TRACKS));
-                    if (r.getTrackScore() >= MINSCORE) {
+                    if (r.getTrackScore() >= MINSCORE && !cleanTrackResults.contains(r)) {
+                        r.setType(Result.RESULT_TYPE_TRACK);
                         cleanTrackResults.add(r);
                     }
                     r.setAlbumScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_ALBUMS));
-                    if (r.getAlbumScore() >= MINSCORE) {
+                    if (r.getAlbumScore() >= MINSCORE && !cleanAlbumResults.contains(r)) {
+                        r.setType(Result.RESULT_TYPE_ALBUM);
                         cleanAlbumResults.add(r);
                     }
                     r.setArtistScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_ARTISTS));
-                    if (r.getArtistScore() >= MINSCORE) {
+                    if (r.getArtistScore() >= MINSCORE && !cleanArtistResults.contains(r)) {
+                        r.setType(Result.RESULT_TYPE_ARTIST);
                         cleanArtistResults.add(r);
                     }
                 }
