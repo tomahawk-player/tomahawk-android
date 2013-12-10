@@ -779,6 +779,9 @@ public class PlaybackService extends Service
      */
     public void deleteQueryAtPos(int position) {
         mCurrentPlaylist.deleteQueryAtPos(position);
+        if (mCurrentPlaylist.getCount() == 0) {
+            pause(true);
+        }
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
 
@@ -787,6 +790,9 @@ public class PlaybackService extends Service
      */
     public void deleteQuery(Query query) {
         mCurrentPlaylist.deleteQuery(query);
+        if (mCurrentPlaylist.getCount() == 0) {
+            pause(true);
+        }
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
 
@@ -816,6 +822,9 @@ public class PlaybackService extends Service
     private void updatePlayingNotification() {
 
         Query query = getCurrentQuery();
+        if (query == null) {
+            return;
+        }
         Track track = query.getPreferredTrack();
         if (track == null) {
             return;
