@@ -97,16 +97,16 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (mTomahawkMainActivity.getUserCollection() != null && getArguments() != null) {
+        if (getArguments() != null) {
             if (getArguments().containsKey(TOMAHAWK_ALBUM_KEY)
                     && !TextUtils.isEmpty(getArguments().getString(TOMAHAWK_ALBUM_KEY))) {
-                mAlbum = mTomahawkMainActivity.getUserCollection()
-                        .getAlbumByKey(getArguments().getString(TOMAHAWK_ALBUM_KEY));
-            } else if (getArguments().containsKey(TOMAHAWK_PLAYLIST_KEY)
-                    && !TextUtils.isEmpty(getArguments().getString(TOMAHAWK_PLAYLIST_KEY))) {
+                mAlbum = Album.getAlbumByKey(getArguments().getString(TOMAHAWK_ALBUM_KEY));
+            }
+            if (getArguments().containsKey(TOMAHAWK_PLAYLIST_KEY) && !TextUtils.isEmpty(
+                    getArguments().getString(TOMAHAWK_PLAYLIST_KEY))) {
                 mUserPlaylist = mTomahawkMainActivity.getUserCollection()
-                        .getCustomPlaylistByKey(
-                                String.valueOf(getArguments().getLong(TOMAHAWK_PLAYLIST_KEY)));
+                        .getUserPlaylistById(Long.valueOf(getArguments().getString(
+                                TOMAHAWK_PLAYLIST_KEY)).longValue());
             }
         }
     }

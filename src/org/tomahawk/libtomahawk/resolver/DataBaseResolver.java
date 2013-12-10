@@ -23,7 +23,6 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;

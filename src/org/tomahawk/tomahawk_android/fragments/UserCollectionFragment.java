@@ -90,17 +90,17 @@ public class UserCollectionFragment extends TomahawkListFragment implements OnIt
             case 0:
                 mTomahawkMainActivity.getContentViewer()
                         .replace(TomahawkMainActivity.HUB_ID_COLLECTION, TracksFragment.class, "",
-                                null, false);
+                                null, true, false);
                 break;
             case 1:
                 mTomahawkMainActivity.getContentViewer()
                         .replace(TomahawkMainActivity.HUB_ID_COLLECTION, AlbumsFragment.class, "",
-                                null, false);
+                                null, true, false);
                 break;
             case 2:
                 mTomahawkMainActivity.getContentViewer()
                         .replace(TomahawkMainActivity.HUB_ID_COLLECTION, ArtistsFragment.class, "",
-                                null, false);
+                                null, true, false);
                 break;
         }
     }

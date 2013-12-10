@@ -20,7 +20,6 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
-import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView;
 
 import android.os.Bundle;
@@ -204,5 +203,9 @@ public class TomahawkListFragment extends Fragment {
         GridView gridView = getGridView();
         gridView.setAdapter(adapter);
         gridView.setSelection(mListScrollPosition);
+    }
+
+    public boolean isShowGridView() {
+        return mShowGridView;
     }
 }

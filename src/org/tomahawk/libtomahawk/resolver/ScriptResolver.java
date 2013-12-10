@@ -322,12 +322,16 @@ public class ScriptResolver implements Resolver {
                         track.setAlbumPos(Integer.valueOf(obj.get("discnumber").toString()));
                     }
                     if (obj.has("year")) {
-                        track.setYear(Integer.valueOf(obj.get("year").toString()));
+                        String yearString = obj.get("year").toString();
+                        if (yearString.matches("-?\\d+")) {
+                            track.setYear(Integer.valueOf(yearString));
+                        }
                     }
                     if (obj.has("duration")) {
                         track.setDuration(
                                 Math.round(Float.valueOf(obj.get("duration").toString()) * 1000));
                     }
+                    artist.addAlbum(album);
                     Result result = Result.get(obj.get("url").toString(), track);
                     if (obj.has("bitrate")) {
                         result.setBitrate(Integer.valueOf(obj.get("bitrate").toString()));
@@ -348,6 +352,8 @@ public class ScriptResolver implements Resolver {
                     result.setArtist(artist);
                     result.setAlbum(album);
                     result.setTrack(track);
+                    album.addQuery(new Query(result, false));
+                    artist.addQuery(new Query(result, false));
                     resultList.add(result);
                 }
             } catch (JSONException e) {

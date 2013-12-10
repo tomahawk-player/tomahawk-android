@@ -17,6 +17,7 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
@@ -55,6 +56,8 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
 
     private String mLastYear;
 
+    private boolean mContainsLocalQueries = false;
+
     /**
      * Construct a new {@link Album}
      */
@@ -78,6 +81,22 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
             sAlbums.put(key, album);
         }
         return sAlbums.get(key);
+    }
+
+    /**
+     * Get the {@link org.tomahawk.libtomahawk.collection.Album} by providing its cache key
+     */
+    public static Album getAlbumByKey(String key) {
+        return sAlbums.get(key);
+    }
+
+    /**
+     * @return A {@link java.util.ArrayList} of all {@link Album}s
+     */
+    public static ArrayList<Album> getAlbums() {
+        ArrayList<Album> albums = new ArrayList<Album>(sAlbums.values());
+        Collections.sort(albums, new AlbumComparator(AlbumComparator.COMPARE_ALPHA));
+        return albums;
     }
 
     /**
@@ -118,7 +137,10 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
      * @param query the {@link Track} to be added
      */
     public void addQuery(Query query) {
-        mQueries.put(query.getQid(), query);
+        if (query.getPreferredTrackResult().getResolvedBy() instanceof DataBaseResolver) {
+            mContainsLocalQueries = true;
+        }
+        mQueries.put(TomahawkUtils.getCacheKey(query), query);
     }
 
     /**
@@ -236,6 +258,13 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
      */
     public void setLastYear(String lastYear) {
         mLastYear = lastYear;
+    }
+
+    /**
+     * @return whether or not this {@link Album} only contains non local queries
+     */
+    public boolean containsLocalQueries() {
+        return mContainsLocalQueries;
     }
 
 }

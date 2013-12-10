@@ -423,7 +423,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
             }
             viewHolder = (ViewHolder) convertView.getTag();
             if (mShowCategoryHeaders && getItem(position) != null) {
-                if (getItem(position) instanceof Track) {
+                if (getItem(position) instanceof Track || getItem(position) instanceof Query) {
                     viewHolder.imageViewLeft.setImageResource(R.drawable.ic_action_track);
                     viewHolder.textFirstLine.setText(R.string.tracksfragment_title_string);
                 } else if (getItem(position) instanceof Artist) {
