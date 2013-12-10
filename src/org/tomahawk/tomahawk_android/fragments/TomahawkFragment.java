@@ -41,7 +41,6 @@ import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FakeContextMenu;
 import org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
