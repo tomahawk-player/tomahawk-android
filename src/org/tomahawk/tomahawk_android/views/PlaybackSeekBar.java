@@ -114,6 +114,7 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
     public void updateSeekBarPosition() {
         if (!isIsSeeking()) {
             if (mPlaybackService.isPreparing()
+                    || mPlaybackService.getCurrentTrack() == null
                     || mPlaybackService.getCurrentTrack().getDuration() == 0) {
                 setEnabled(false);
             } else {
@@ -151,7 +152,8 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
      */
     public void updateTextViewCompleteTime() {
         if (mTextViewCompletionTime != null) {
-            if (mPlaybackService.getCurrentTrack().getDuration() > 0) {
+            if (mPlaybackService.getCurrentTrack() != null
+                    && mPlaybackService.getCurrentTrack().getDuration() > 0) {
                 mTextViewCompletionTime.setText(TomahawkUtils
                         .durationToString(mPlaybackService.getCurrentTrack().getDuration()));
             } else {

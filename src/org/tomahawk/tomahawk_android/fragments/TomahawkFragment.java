@@ -454,9 +454,13 @@ public class TomahawkFragment extends TomahawkListFragment
      */
     protected void onCollectionUpdated() {
         if (isShowGridView()) {
-            getGridAdapter().notifyDataSetChanged();
+            if (getGridAdapter() != null) {
+                getGridAdapter().notifyDataSetChanged();
+            }
         } else {
-            ((TomahawkListAdapter) getListAdapter()).notifyDataSetChanged();
+            if (getListAdapter() != null) {
+                ((TomahawkListAdapter) getListAdapter()).notifyDataSetChanged();
+            }
         }
         mTomahawkMainActivity.getSupportLoaderManager().restartLoader(getId(), null, this);
     }
