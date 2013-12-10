@@ -20,7 +20,6 @@ package org.tomahawk.libtomahawk.audio.test;
 import junit.framework.Assert;
 
 import org.tomahawk.libtomahawk.LocalCollection;
-import org.tomahawk.libtomahawk.collection.AlbumPlaylist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;

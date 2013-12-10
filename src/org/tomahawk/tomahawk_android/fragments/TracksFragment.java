@@ -164,9 +164,17 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             if (getListAdapter().getItem(position) instanceof Query) {
                 ArrayList<Query> queries = new ArrayList<Query>();
                 if (mAlbum != null) {
-                    queries = mAlbum.getQueries();
+                    if (mIsLocal) {
+                        queries = mAlbum.getLocalQueries();
+                    } else {
+                        queries = mAlbum.getQueries();
+                    }
                 } else if (mArtist != null) {
-                    queries = mArtist.getQueries();
+                    if (mIsLocal) {
+                        queries = mArtist.getLocalQueries();
+                    } else {
+                        queries = mArtist.getQueries();
+                    }
                 } else if (mUserPlaylist != null) {
                     queries = mUserPlaylist.getQueries();
                 } else {

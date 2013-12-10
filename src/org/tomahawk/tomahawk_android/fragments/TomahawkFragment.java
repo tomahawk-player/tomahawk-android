@@ -322,13 +322,21 @@ public class TomahawkFragment extends TomahawkListFragment
                 UserPlaylist playlist = null;
                 if (tomahawkListItem instanceof Query) {
                     if (mAlbum != null) {
-                        queries = mAlbum.getQueries();
+                        if (mIsLocal) {
+                            queries = mAlbum.getLocalQueries();
+                        } else {
+                            queries = mAlbum.getQueries();
+                        }
                         playlist = UserPlaylist
                                 .fromQueryList(
                                         UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, queries,
                                         queries.indexOf(tomahawkListItem));
                     } else if (mArtist != null) {
-                        queries = mArtist.getQueries();
+                        if (mIsLocal) {
+                            queries = mArtist.getLocalQueries();
+                        } else {
+                            queries = mArtist.getQueries();
+                        }
                         playlist = UserPlaylist
                                 .fromQueryList(
                                         UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, queries,
@@ -371,9 +379,17 @@ public class TomahawkFragment extends TomahawkListFragment
             } else if (tomahawkListItem instanceof UserPlaylist) {
                 queries = ((UserPlaylist) tomahawkListItem).getQueries();
             } else if (tomahawkListItem instanceof Album) {
-                queries = ((Album) tomahawkListItem).getQueries();
+                if (mIsLocal) {
+                    queries = ((Album) tomahawkListItem).getLocalQueries();
+                } else {
+                    queries = ((Album) tomahawkListItem).getQueries();
+                }
             } else if (tomahawkListItem instanceof Artist) {
-                queries = ((Artist) tomahawkListItem).getQueries();
+                if (mIsLocal) {
+                    queries = ((Artist) tomahawkListItem).getLocalQueries();
+                } else {
+                    queries = ((Artist) tomahawkListItem).getQueries();
+                }
             }
             if (playbackService != null) {
                 if (playbackService.getCurrentPlaylist() != null) {
@@ -391,9 +407,17 @@ public class TomahawkFragment extends TomahawkListFragment
             } else if (tomahawkListItem instanceof UserPlaylist) {
                 queries = ((UserPlaylist) tomahawkListItem).getQueries();
             } else if (tomahawkListItem instanceof Album) {
-                queries = ((Album) tomahawkListItem).getQueries();
+                if (mIsLocal) {
+                    queries = ((Album) tomahawkListItem).getLocalQueries();
+                } else {
+                    queries = ((Album) tomahawkListItem).getQueries();
+                }
             } else if (tomahawkListItem instanceof Artist) {
-                queries = ((Artist) tomahawkListItem).getQueries();
+                if (mIsLocal) {
+                    queries = ((Artist) tomahawkListItem).getLocalQueries();
+                } else {
+                    queries = ((Artist) tomahawkListItem).getQueries();
+                }
             }
             if (playbackService != null) {
                 playbackService.addQueriesToCurrentPlaylist(queries);
@@ -406,9 +430,17 @@ public class TomahawkFragment extends TomahawkListFragment
             } else if (tomahawkListItem instanceof UserPlaylist) {
                 queries = ((UserPlaylist) tomahawkListItem).getQueries();
             } else if (tomahawkListItem instanceof Album) {
-                queries = ((Album) tomahawkListItem).getQueries();
+                if (mIsLocal) {
+                    queries = ((Album) tomahawkListItem).getLocalQueries();
+                } else {
+                    queries = ((Album) tomahawkListItem).getQueries();
+                }
             } else if (tomahawkListItem instanceof Artist) {
-                queries = ((Artist) tomahawkListItem).getQueries();
+                if (mIsLocal) {
+                    queries = ((Artist) tomahawkListItem).getLocalQueries();
+                } else {
+                    queries = ((Artist) tomahawkListItem).getQueries();
+                }
             }
             new ChooseUserPlaylistDialog(userCollection, queries)
                     .show(tomahawkMainActivity.getSupportFragmentManager(),
