@@ -56,6 +56,8 @@ public class Result {
 
     private Resolver mResolvedBy;
 
+    private boolean mIsLocal = false;
+
     private String mLinkUrl;
 
     private String mPurchaseUrl;
@@ -236,7 +238,17 @@ public class Result {
      * Set the given {@link Resolver} as this {@link Result}'s {@link Resolver}
      */
     public void setResolvedBy(Resolver resolvedBy) {
+        if (resolvedBy instanceof DataBaseResolver) {
+            mIsLocal = true;
+        }
         this.mResolvedBy = resolvedBy;
+    }
+
+    /**
+     * @return Whether or not this Result has been resolved locally
+     */
+    public boolean isLocal() {
+        return mIsLocal;
     }
 
     /**
@@ -323,10 +335,18 @@ public class Result {
         return isResolved;
     }
 
+    /**
+     * @return The type of this result. Can be RESULT_TYPE_TRACK, RESULT_TYPE_ALBUM or
+     * RESULT_TYPE_ARTIST. This determines how we will display this result later on.
+     */
     public int getType() {
         return mType;
     }
 
+    /**
+     * Set the type of this result. Can be RESULT_TYPE_TRACK, RESULT_TYPE_ALBUM or
+     * RESULT_TYPE_ARTIST. This determines how we will display this result later on.
+     */
     public void setType(int type) {
         mType = type;
     }

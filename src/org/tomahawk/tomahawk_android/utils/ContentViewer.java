@@ -287,6 +287,8 @@ public class ContentViewer {
                     if (withBundle) {
                         Bundle bundle = new Bundle();
                         bundle.putString(fpb.tomahawkListItemType, fpb.tomahawkListItemKey);
+                        bundle.putBoolean(TomahawkFragment.TOMAHAWK_LIST_ITEM_IS_LOCAL,
+                                fpb.tomahawkListItemIsLocal);
                         bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION,
                                 fpb.listScrollPosition);
                         bundle.putInt(TomahawkFragment.TOMAHAWK_HUB_ID, fpb.correspondingHubId);
@@ -421,6 +423,8 @@ public class ContentViewer {
             Bundle bundle = new Bundle();
             bundle.putString(fragmentStateHolder.tomahawkListItemType,
                     fragmentStateHolder.tomahawkListItemKey);
+            bundle.putBoolean(TomahawkFragment.TOMAHAWK_LIST_ITEM_IS_LOCAL,
+                    fragmentStateHolder.tomahawkListItemIsLocal);
             bundle.putInt(TomahawkFragment.TOMAHAWK_LIST_SCROLL_POSITION,
                     fragmentStateHolder.listScrollPosition);
             bundle.putInt(TomahawkFragment.TOMAHAWK_HUB_ID, fragmentStateHolder.correspondingHubId);
