@@ -117,16 +117,6 @@ public class PlaybackControlsFragment extends Fragment {
     }
 
     /**
-     * Null the reference to this Fragment's {@link Activity}
-     */
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
-        mTomahawkMainActivity = null;
-    }
-
-    /**
      * All initializations are done here
      */
     public void init() {

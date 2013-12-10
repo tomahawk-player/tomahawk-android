@@ -61,16 +61,6 @@ public class FakeContextMenuDialog extends DialogFragment {
     }
 
     /**
-     * Null the reference to this fragment's {@link Activity}
-     */
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
-        mTomahawkMainActivity = null;
-    }
-
-    /**
      * Construct a {@link FakeContextMenuDialog}
      *
      * @param menuItemTitles   array of {@link String} containing all menu entry texts

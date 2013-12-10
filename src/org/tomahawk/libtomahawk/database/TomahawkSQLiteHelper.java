@@ -40,7 +40,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     public static final String TABLE_TRACKS = "tracks";
 
-    public static final String TRACKS_COLUMN_KEY = "id";
+    public static final String TRACKS_COLUMN_ID = "id";
 
     public static final String TRACKS_COLUMN_IDUSERPLAYLISTS = "id_userplaylists";
 
@@ -63,7 +63,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
             + "` INTEGER );";
 
     private static final String CREATE_TABLE_TRACKS = "CREATE TABLE `" + TABLE_TRACKS + "` (  `"
-            + TRACKS_COLUMN_KEY + "` INTEGER PRIMARY KEY AUTOINCREMENT , `"
+            + TRACKS_COLUMN_ID + "` INTEGER PRIMARY KEY AUTOINCREMENT , `"
             + TRACKS_COLUMN_IDUSERPLAYLISTS + "` INTEGER ,  `" + TRACKS_COLUMN_TRACKNAME
             + "` TEXT ,`" + TRACKS_COLUMN_ARTISTNAME + "` TEXT ,`" + TRACKS_COLUMN_ALBUMNAME
             + "` TEXT , FOREIGN KEY (`" + TRACKS_COLUMN_IDUSERPLAYLISTS + "`) REFERENCES `"

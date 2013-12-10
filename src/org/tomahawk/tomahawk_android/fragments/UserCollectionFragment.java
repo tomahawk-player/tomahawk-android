@@ -35,21 +35,6 @@ import android.widget.AdapterView.OnItemClickListener;
  */
 public class UserCollectionFragment extends TomahawkListFragment implements OnItemClickListener {
 
-    protected TomahawkMainActivity mTomahawkMainActivity;
-
-    /**
-     * Store the reference to the {@link Activity}, in which this {@link UserCollectionFragment} has
-     * been created
-     */
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        if (activity instanceof TomahawkMainActivity) {
-            mTomahawkMainActivity = (TomahawkMainActivity) activity;
-        }
-    }
-
     /**
      * Called, when this {@link UserCollectionFragment}'s {@link View} has been created
      */
@@ -62,16 +47,6 @@ public class UserCollectionFragment extends TomahawkListFragment implements OnIt
                 getResources().obtainTypedArray(R.array.local_collection_menu_items_icons));
         setListAdapter(tomahawkMenuAdapter);
         getListView().setOnItemClickListener(this);
-    }
-
-    /**
-     * Null the reference to this {@link FakePreferenceFragment}'s {@link Activity}
-     */
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
-        mTomahawkMainActivity = null;
     }
 
     /**

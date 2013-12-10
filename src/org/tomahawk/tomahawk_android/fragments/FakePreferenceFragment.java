@@ -66,8 +66,6 @@ public class FakePreferenceFragment extends TomahawkListFragment
     public static final String FAKEPREFERENCEFRAGMENT_KEY_APPVERSION
             = "org.tomahawk.tomahawk_android.appversion";
 
-    protected TomahawkMainActivity mTomahawkMainActivity;
-
     private SharedPreferences mSharedPreferences;
 
     private List<FakePreferenceGroup> mFakePreferenceGroups;
@@ -86,19 +84,6 @@ public class FakePreferenceFragment extends TomahawkListFragment
                         .setOnLoggedInOutListener(FakePreferenceFragment.this);
                 updateLogInOutState();
             }
-        }
-    }
-
-    /**
-     * Store the reference to the {@link Activity}, in which this {@link FakePreferenceFragment} has
-     * been created
-     */
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        if (activity instanceof TomahawkMainActivity) {
-            mTomahawkMainActivity = (TomahawkMainActivity) activity;
         }
     }
 
@@ -183,16 +168,6 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
         mTomahawkMainActivity.unregisterReceiver(mFakePreferenceBroadcastReceiver);
         mFakePreferenceBroadcastReceiver = null;
-    }
-
-    /**
-     * Null the reference to this {@link FakePreferenceFragment}'s {@link Activity}
-     */
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
-        mTomahawkMainActivity = null;
     }
 
     /**
