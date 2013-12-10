@@ -184,11 +184,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                 = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
         if (!isShowGridView() && mArtist != null) {
             if (mIsLocal) {
-                for (Album album : mArtist.getAlbums()) {
-                    if (album.containsLocalQueries()) {
-                        albums.add(album);
-                    }
-                }
+                albums.addAll(mArtist.getLocalAlbums());
             } else {
                 albums.addAll(mArtist.getAlbums());
             }
@@ -208,11 +204,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
             getListView().setOnItemClickListener(this);
         } else {
             if (mIsLocal) {
-                for (Album album : Album.getAlbums()) {
-                    if (album.containsLocalQueries()) {
-                        albums.add(album);
-                    }
-                }
+                albums.addAll(Album.getLocalAlbums());
             } else {
                 albums.addAll(Album.getAlbums());
             }

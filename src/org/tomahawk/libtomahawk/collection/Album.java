@@ -100,6 +100,20 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
     }
 
     /**
+     * @return A {@link java.util.ArrayList} of all local {@link Album}s
+     */
+    public static ArrayList<Album> getLocalAlbums() {
+        ArrayList<Album> albums = new ArrayList<Album>();
+        for (Album album : sAlbums.values()) {
+            if (album.containsLocalQueries()) {
+                albums.add(album);
+            }
+        }
+        Collections.sort(albums, new AlbumComparator(AlbumComparator.COMPARE_ALPHA));
+        return albums;
+    }
+
+    /**
      * @return the {@link Album}'s name
      */
     @Override
@@ -144,12 +158,30 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
     }
 
     /**
-     * Get a list of all {@link Track}s from this {@link Album}.
+     * Get a list of all {@link org.tomahawk.libtomahawk.resolver.Query}s from this {@link Album}.
      *
-     * @return list of all {@link Track}s from this {@link Album}.
+     * @return list of all {@link org.tomahawk.libtomahawk.resolver.Query}s from this {@link Album}.
      */
     public ArrayList<Query> getQueries() {
         ArrayList<Query> queries = new ArrayList<Query>(mQueries.values());
+        Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
+        return queries;
+    }
+
+    /**
+     * Get a list of all local {@link org.tomahawk.libtomahawk.resolver.Query}s from this {@link
+     * Album}.
+     *
+     * @return list of all local {@link org.tomahawk.libtomahawk.resolver.Query}s from this {@link
+     * Album}.
+     */
+    public ArrayList<Query> getLocalQueries() {
+        ArrayList<Query> queries = new ArrayList<Query>();
+        for (Query query : mQueries.values()) {
+            if (query.getPreferredTrackResult().isLocal()) {
+                queries.add(query);
+            }
+        }
         Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
         return queries;
     }

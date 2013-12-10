@@ -82,6 +82,20 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
     }
 
     /**
+     * @return A {@link java.util.List} of local all {@link Artist}s
+     */
+    public static ArrayList<Artist> getLocalArtists() {
+        ArrayList<Artist> artists = new ArrayList<Artist>();
+        for (Artist artist : sArtists.values()) {
+            if (artist.containsLocalQueries()) {
+                artists.add(artist);
+            }
+        }
+        Collections.sort(artists, new ArtistComparator(ArtistComparator.COMPARE_ALPHA));
+        return artists;
+    }
+
+    /**
      * @return this object's name
      */
     @Override
@@ -140,6 +154,21 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
     }
 
     /**
+     * Get a list of all local {@link org.tomahawk.libtomahawk.resolver.Query}s from this {@link
+     * org.tomahawk.libtomahawk.collection.Artist}.
+     */
+    public ArrayList<Query> getLocalQueries() {
+        ArrayList<Query> queries = new ArrayList<Query>();
+        for (Query query : mQueries.values()) {
+            if (query.getPreferredTrackResult().isLocal()) {
+                queries.add(query);
+            }
+        }
+        Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALPHA));
+        return queries;
+    }
+
+    /**
      * Add an {@link Album} to this object
      *
      * @param album the {@link Album} to be added
@@ -162,6 +191,22 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
      */
     public ArrayList<Album> getAlbums() {
         ArrayList<Album> albums = new ArrayList<Album>(mAlbums.values());
+        Collections.sort(albums, new AlbumComparator(AlbumComparator.COMPARE_ALPHA));
+        return albums;
+    }
+
+    /**
+     * Get a list of all local {@link Album}s from this object.
+     *
+     * @return list of all local {@link Album}s from this object.
+     */
+    public ArrayList<Album> getLocalAlbums() {
+        ArrayList<Album> albums = new ArrayList<Album>();
+        for (Album album : mAlbums.values()) {
+            if (album.containsLocalQueries()) {
+                albums.add(album);
+            }
+        }
         Collections.sort(albums, new AlbumComparator(AlbumComparator.COMPARE_ALPHA));
         return albums;
     }

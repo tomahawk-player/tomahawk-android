@@ -199,15 +199,19 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
      * Update this {@link TomahawkFragment}'s {@link TomahawkBaseAdapter} content
      */
     public void updateAdapter() {
-        List<TomahawkBaseAdapter.TomahawkListItem> items
+        List<TomahawkBaseAdapter.TomahawkListItem> queries
                 = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
         TomahawkListAdapter tomahawkListAdapter;
         Collection coll = mTomahawkMainActivity.getUserCollection();
         if (mAlbum != null) {
-            items.addAll(mAlbum.getQueries());
+            if (mIsLocal) {
+                queries.addAll(mAlbum.getLocalQueries());
+            } else {
+                queries.addAll(mAlbum.getQueries());
+            }
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
-            listArray.add(items);
+            listArray.add(queries);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
@@ -218,10 +222,14 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
             }
         } else if (mArtist != null) {
-            items.addAll(mArtist.getQueries());
+            if (mIsLocal) {
+                queries.addAll(mArtist.getLocalQueries());
+            } else {
+                queries.addAll(mArtist.getQueries());
+            }
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
-            listArray.add(items);
+            listArray.add(queries);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
@@ -232,10 +240,10 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
             }
         } else if (mUserPlaylist != null) {
-            items.addAll(mUserPlaylist.getQueries());
+            queries.addAll(mUserPlaylist.getQueries());
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
-            listArray.add(items);
+            listArray.add(queries);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
@@ -246,10 +254,10 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
             }
         } else {
-            items.addAll(coll.getQueries());
+            queries.addAll(coll.getQueries());
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
-            listArray.add(items);
+            listArray.add(queries);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
                 getListView().setAreHeadersSticky(false);

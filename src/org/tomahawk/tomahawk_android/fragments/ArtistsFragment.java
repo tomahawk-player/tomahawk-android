@@ -74,11 +74,7 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
         List<TomahawkBaseAdapter.TomahawkListItem> artists
                 = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
         if (mIsLocal) {
-            for (Artist artist : Artist.getArtists()) {
-                if (artist.containsLocalQueries()) {
-                    artists.add(artist);
-                }
-            }
+            artists.addAll(Artist.getLocalArtists());
         } else {
             artists.addAll(Artist.getArtists());
         }
