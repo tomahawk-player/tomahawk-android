@@ -23,18 +23,12 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
-import org.tomahawk.libtomahawk.hatchet.InfoSystem;
-import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.AdapterView;
@@ -51,61 +45,15 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
 
     boolean mShouldShowLoadingAnimation = false;
 
-    private TracksFragmentReceiver mTracksFragmentReceiver;
-
     /**
-     * Handles incoming broadcasts.
-     */
-    private class TracksFragmentReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (PipeLine.PIPELINE_RESULTSREPORTED_NON_FULLTEXTQUERY.equals(intent.getAction())) {
-                String queryId = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
-                if (mCorrespondingQueryIds.contains(queryId)) {
-
-                }
-                if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
-                    String requestId = intent
-                            .getStringExtra(InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
-                    if (mCurrentRequestIds.contains(requestId)) {
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Initialize and register {@link org.tomahawk.tomahawk_android.fragments.TracksFragment.TracksFragmentReceiver}
+     * Initialize
      */
     @Override
     public void onResume() {
         super.onResume();
 
-        if (mTracksFragmentReceiver == null) {
-            mTracksFragmentReceiver = new TracksFragmentReceiver();
-            IntentFilter intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
-            getActivity().registerReceiver(mTracksFragmentReceiver, intentFilter);
-            intentFilter = new IntentFilter(
-                    PipeLine.PIPELINE_RESULTSREPORTED_NON_FULLTEXTQUERY);
-            getActivity().registerReceiver(mTracksFragmentReceiver, intentFilter);
-        }
         if (mShouldShowLoadingAnimation) {
             mTomahawkMainActivity.startLoadingAnimation();
-        }
-    }
-
-    /**
-     * Unregister {@link org.tomahawk.tomahawk_android.fragments.TracksFragment.TracksFragmentReceiver}
-     * and delete reference
-     */
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        if (mTracksFragmentReceiver != null) {
-            getActivity().unregisterReceiver(mTracksFragmentReceiver);
-            mTracksFragmentReceiver = null;
         }
     }
 
@@ -245,5 +193,19 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
      */
     public Album getAlbum() {
         return mAlbum;
+    }
+
+    @Override
+    protected void onPipeLineResultsReportedNonFullTextQuery(String qId) {
+        if (mCorrespondingQueryIds.contains(qId)) {
+            updateAdapter();
+        }
+    }
+
+    @Override
+    protected void onInfoSystemResultsReported(String requestId) {
+        if (mCurrentRequestIds.contains(requestId)) {
+            updateAdapter();
+        }
     }
 }

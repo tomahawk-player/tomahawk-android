@@ -20,7 +20,6 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
-import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -30,10 +29,7 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -74,26 +70,7 @@ public class SearchableFragment extends TomahawkFragment
 
     private String mCurrentQueryString;
 
-    private SearchableBroadcastReceiver mSearchableBroadcastReceiver;
-
     private EditText mSearchEditText = null;
-
-    /**
-     * Handles incoming broadcasts.
-     */
-    private class SearchableBroadcastReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (PipeLine.PIPELINE_RESULTSREPORTED_FULLTEXTQUERY.equals(intent.getAction())) {
-                String queryId = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
-                mTomahawkMainActivity.getContentViewer()
-                        .getBackStackAtPosition(mCorrespondingHubId)
-                        .get(0).queryString = mCurrentQueryString;
-                showQueryResults(queryId);
-            }
-        }
-    }
 
     /**
      * Restore the {@link String} inside the search {@link TextView}. Either through the
@@ -131,14 +108,6 @@ public class SearchableFragment extends TomahawkFragment
                 .findViewById(R.id.search_onlinesources_checkbox);
         onlineSourcesCheckBox.setOnCheckedChangeListener(this);
 
-        // Initialized and register this Fragment's BroadcastReceiver object
-        if (mSearchableBroadcastReceiver == null) {
-            mSearchableBroadcastReceiver = new SearchableBroadcastReceiver();
-            IntentFilter intentFilter = new IntentFilter(
-                    PipeLine.PIPELINE_RESULTSREPORTED_FULLTEXTQUERY);
-            mTomahawkMainActivity.registerReceiver(mSearchableBroadcastReceiver, intentFilter);
-        }
-
         // If we have restored a CurrentQueryString, start searching, so that we show the proper
         // results again
         if (mCurrentQueryString != null) {
@@ -156,12 +125,6 @@ public class SearchableFragment extends TomahawkFragment
         InputMethodManager imm = (InputMethodManager) mTomahawkMainActivity
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);
-
-        // Unregister the Receiver and null the reference
-        if (mSearchableBroadcastReceiver != null) {
-            mTomahawkMainActivity.unregisterReceiver(mSearchableBroadcastReceiver);
-            mSearchableBroadcastReceiver = null;
-        }
     }
 
     /**
@@ -319,6 +282,7 @@ public class SearchableFragment extends TomahawkFragment
         CheckBox onlineSourcesCheckBox = (CheckBox) mTomahawkMainActivity
                 .findViewById(R.id.search_onlinesources_checkbox);
         String queryId = mPipeline.resolve(fullTextQuery, !onlineSourcesCheckBox.isChecked());
+        mCorrespondingQueryIds.clear();
         if (queryId != null) {
             mCorrespondingQueryIds.add(queryId);
             mTomahawkMainActivity.startLoadingAnimation();
@@ -364,5 +328,15 @@ public class SearchableFragment extends TomahawkFragment
             myAList.add(sPrefs.getString("autocomplete_" + j, null));
         }
         return myAList;
+    }
+
+    @Override
+    protected void onPipeLineResultsReportedFullTextQuery(String qId) {
+        if (mCorrespondingQueryIds.contains(qId)) {
+            mTomahawkMainActivity.getContentViewer()
+                    .getBackStackAtPosition(mCorrespondingHubId)
+                    .get(0).queryString = mCurrentQueryString;
+            showQueryResults(qId);
+        }
     }
 }

@@ -69,12 +69,12 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
     private List<FakePreferenceGroup> mFakePreferenceGroups;
 
-    private FakePreferenceBroadcastReceiver mFakePreferenceBroadcastReceiver;
+    private FakePreferenceFragmentReceiver mFakePreferenceFragmentReceiver;
 
     /**
      * Handles incoming broadcasts.
      */
-    private class FakePreferenceBroadcastReceiver extends BroadcastReceiver {
+    private class FakePreferenceFragmentReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -147,26 +147,27 @@ public class FakePreferenceFragment extends TomahawkListFragment
     }
 
     /**
-     * Initialize and register {@link FakePreferenceBroadcastReceiver}
+     * Initialize and register {@link org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment.FakePreferenceFragmentReceiver}
      */
     @Override
     public void onResume() {
         super.onResume();
 
-        mFakePreferenceBroadcastReceiver = new FakePreferenceBroadcastReceiver();
-        mTomahawkMainActivity.registerReceiver(mFakePreferenceBroadcastReceiver,
+        mFakePreferenceFragmentReceiver = new FakePreferenceFragmentReceiver();
+        mTomahawkMainActivity.registerReceiver(mFakePreferenceFragmentReceiver,
                 new IntentFilter(TomahawkMainActivity.TOMAHAWKSERVICE_READY));
     }
 
     /**
-     * Unregister {@link FakePreferenceBroadcastReceiver} and delete reference
+     * Unregister {@link org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment.FakePreferenceFragmentReceiver}
+     * and delete reference
      */
     @Override
     public void onPause() {
         super.onPause();
 
-        mTomahawkMainActivity.unregisterReceiver(mFakePreferenceBroadcastReceiver);
-        mFakePreferenceBroadcastReceiver = null;
+        mTomahawkMainActivity.unregisterReceiver(mFakePreferenceFragmentReceiver);
+        mFakePreferenceFragmentReceiver = null;
     }
 
     /**
