@@ -29,6 +29,13 @@ import java.util.ArrayList;
 public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.TomahawkListItem {
 
     /**
+     * Construct a new empty {@link UserPlaylist}.
+     */
+    private UserPlaylist(long id, String name) {
+        super(id, name);
+    }
+
+    /**
      * Create a {@link UserPlaylist} from a list of {@link org.tomahawk.libtomahawk.resolver.Query}s.
      *
      * @return a reference to the constructed {@link UserPlaylist}
@@ -46,8 +53,7 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
      * @return a reference to the constructed {@link UserPlaylist}
      */
     public static UserPlaylist fromQueryList(String name, ArrayList<Query> queries) {
-        UserPlaylist pl = UserPlaylist.fromQueryList(TomahawkApp.getUniqueId(), name, queries);
-        return pl;
+        return UserPlaylist.fromQueryList(TomahawkApp.getUniqueId(), name, queries);
     }
 
     /**
@@ -71,16 +77,8 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
      */
     public static UserPlaylist fromQueryList(String name, ArrayList<Query> queries,
             int currentQueryIndex) {
-        UserPlaylist pl = UserPlaylist
-                .fromQueryList(TomahawkApp.getUniqueId(), name, queries, currentQueryIndex);
-        return pl;
-    }
-
-    /**
-     * Construct a new empty {@link UserPlaylist}.
-     */
-    protected UserPlaylist(long id, String name) {
-        super(id, name);
+        return UserPlaylist.fromQueryList(TomahawkApp.getUniqueId(), name, queries,
+                currentQueryIndex);
     }
 
     /**

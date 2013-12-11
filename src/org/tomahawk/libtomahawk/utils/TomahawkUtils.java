@@ -137,7 +137,7 @@ public class TomahawkUtils {
         return intent;
     }
 
-    public static String getCacheKey(String... strings) {
+    private static String getCacheKey(String... strings) {
         String result = "";
         for (String s : strings) {
             result += "\t\t" + s.toLowerCase();

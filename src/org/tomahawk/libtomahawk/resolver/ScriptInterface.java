@@ -15,7 +15,7 @@ public class ScriptInterface {
 
     private final static String TAG = ScriptInterface.class.getName();
 
-    ScriptResolver mScriptResolver;
+    private ScriptResolver mScriptResolver;
 
     ScriptInterface(ScriptResolver scriptResolver) {
         mScriptResolver = scriptResolver;

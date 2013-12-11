@@ -265,8 +265,8 @@ public class TomahawkFragment extends TomahawkListFragment
                 userCollection.updateUserPlaylists();
             } else if (playbackService != null && this instanceof PlaybackFragment
                     && tomahawkListItem instanceof Query) {
-                if (TomahawkUtils.getCacheKey(playbackService.getCurrentTrack()) == TomahawkUtils
-                        .getCacheKey(tomahawkListItem)) {
+                if (TomahawkUtils.getCacheKey(playbackService.getCurrentTrack())
+                        .equals(TomahawkUtils.getCacheKey(tomahawkListItem))) {
                     boolean wasPlaying = playbackService.isPlaying();
                     if (wasPlaying) {
                         playbackService.pause();
@@ -301,9 +301,9 @@ public class TomahawkFragment extends TomahawkListFragment
             if (this instanceof PlaybackFragment) {
                 if (playbackService != null && tomahawkListItem instanceof Query
                         && playbackService.getCurrentPlaylist().getCurrentQuery() != null) {
-                    if (TomahawkUtils
-                            .getCacheKey(playbackService.getCurrentPlaylist().getCurrentQuery())
-                            == TomahawkUtils.getCacheKey(tomahawkListItem)) {
+                    if (TomahawkUtils.getCacheKey(
+                            playbackService.getCurrentPlaylist().getCurrentQuery())
+                            .equals(TomahawkUtils.getCacheKey(tomahawkListItem))) {
                         if (!playbackService.isPlaying()) {
                             playbackService.start();
                         }

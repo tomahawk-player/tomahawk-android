@@ -124,9 +124,11 @@ public class FakePreferenceFragment extends TomahawkListFragment
         prefGroup = new FakePreferenceGroup(getString(R.string.fakepreference_info_header));
         String versionName = "";
         try {
-            PackageInfo packageInfo = mTomahawkMainActivity.getPackageManager()
-                    .getPackageInfo(mTomahawkMainActivity.getPackageName(), 0);
-            versionName = packageInfo.versionName;
+            if (mTomahawkMainActivity.getPackageManager() != null) {
+                PackageInfo packageInfo = mTomahawkMainActivity.getPackageManager()
+                        .getPackageInfo(mTomahawkMainActivity.getPackageName(), 0);
+                versionName = packageInfo.versionName;
+            }
         } catch (PackageManager.NameNotFoundException e) {
             Log.e(TAG, "onViewCreated: " + e.getClass() + ": " + e.getLocalizedMessage());
         }

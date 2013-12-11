@@ -68,7 +68,7 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
     /**
      * Constructs a new Query with the given QueryID. ID should be generated in TomahawkApp.
      */
-    public Query() {
+    private Query() {
         mQid = TomahawkApp.getUniqueStringId();
     }
 
@@ -93,7 +93,7 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
         mIsOnlyLocal = onlyLocal;
     }
 
-    public Query(Track track, boolean onlyLocal) {
+    private Query(Track track, boolean onlyLocal) {
         this(track.getName(), track.getAlbum().getName(), track.getArtist().getName(), onlyLocal);
     }
 

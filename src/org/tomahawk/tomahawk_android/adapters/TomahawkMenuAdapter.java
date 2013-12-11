@@ -38,7 +38,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
  */
 public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeadersAdapter {
 
-    protected final Activity mActivity;
+    private final Activity mActivity;
 
     private List<String> mStringArray = new ArrayList<String>();
 

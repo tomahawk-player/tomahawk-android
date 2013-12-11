@@ -48,7 +48,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
  */
 public class FakePreferencesAdapter extends BaseAdapter implements StickyListHeadersAdapter {
 
-    protected final LayoutInflater mLayoutInflater;
+    private final LayoutInflater mLayoutInflater;
 
     private SharedPreferences mSharedPreferences;
 
@@ -61,8 +61,6 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
     private TomahawkBaseAdapter.ResourceHolder mFakePreferencesPlainResourceHolder;
 
     private TomahawkBaseAdapter.ResourceHolder mFakePreferencesSpinnerResourceHolder;
-
-    private HashMap<String, ImageView> mProgressDrawables = new HashMap<String, ImageView>();
 
     /**
      * Constructs a new {@link org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter}
@@ -239,7 +237,6 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                 viewHolder.checkBox.setChecked(preferenceState);
             } else if (viewHolder.viewType == R.id.fakepreferencesadapter_viewtype_dialog) {
                 viewHolder.checkBox.setChecked(fakePreference.isCheckboxState());
-                mProgressDrawables.put(fakePreference.getKey(), viewHolder.imageViewRight);
             } else if (viewHolder.viewType == R.id.fakepreferencesadapter_viewtype_spinner) {
                 final String key = fakePreference.getKey();
                 viewHolder.spinner.setSelection(mSharedPreferences

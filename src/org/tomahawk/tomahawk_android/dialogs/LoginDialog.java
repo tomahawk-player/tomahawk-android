@@ -53,13 +53,13 @@ public class LoginDialog extends DialogFragment {
 
     public final static String TAG = LoginDialog.class.getName();
 
-    EditText mUsernameEditText;
+    private EditText mUsernameEditText;
 
-    EditText mPasswordEditText;
+    private EditText mPasswordEditText;
 
-    TextView mPositiveButton;
+    private TextView mPositiveButton;
 
-    TextView mNegativeButton;
+    private TextView mNegativeButton;
 
     private TomahawkService mTomahawkService;
 
@@ -224,18 +224,14 @@ public class LoginDialog extends DialogFragment {
         // Check for a valid email address.
         if (TextUtils.isEmpty(mEmail)) {
             mUsernameEditText.setError(getString(R.string.error_field_required));
-            if (focusView == null) {
-                focusView = mUsernameEditText;
-            }
+            focusView = mUsernameEditText;
             cancel = true;
         }
 
         // Check for a valid password.
         if (TextUtils.isEmpty(mPassword)) {
             mPasswordEditText.setError(getString(R.string.error_field_required));
-            if (focusView == null) {
-                focusView = mPasswordEditText;
-            }
+            focusView = mPasswordEditText;
             cancel = true;
         }
 

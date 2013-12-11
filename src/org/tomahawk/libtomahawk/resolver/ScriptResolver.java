@@ -219,10 +219,6 @@ public class ScriptResolver implements Resolver {
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                String s = "null";
-                if (obj != null) {
-                    s = obj.toString();
-                }
                 //Log.d(TAG, "handleCallbackToJava: id='" + mTomahawkApp.getResources()
                 //        .getResourceEntryName(id) + "(" + id + ")" + "', result='" + s + "'");
                 try {

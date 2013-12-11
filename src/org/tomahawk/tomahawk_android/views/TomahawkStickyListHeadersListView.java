@@ -44,7 +44,7 @@ public class TomahawkStickyListHeadersListView extends StickyListHeadersListView
      */
     public TomahawkStickyListHeadersListView(Context context) {
         super(context);
-        gestureDetector = new GestureDetector(new YScrollDetector());
+        gestureDetector = new GestureDetector(context, new YScrollDetector());
     }
 
     /**
@@ -52,7 +52,7 @@ public class TomahawkStickyListHeadersListView extends StickyListHeadersListView
      */
     public TomahawkStickyListHeadersListView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        gestureDetector = new GestureDetector(new YScrollDetector());
+        gestureDetector = new GestureDetector(context, new YScrollDetector());
     }
 
     /**
@@ -60,7 +60,7 @@ public class TomahawkStickyListHeadersListView extends StickyListHeadersListView
      */
     public TomahawkStickyListHeadersListView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        gestureDetector = new GestureDetector(new YScrollDetector());
+        gestureDetector = new GestureDetector(context, new YScrollDetector());
     }
 
     /**
@@ -77,7 +77,7 @@ public class TomahawkStickyListHeadersListView extends StickyListHeadersListView
      * Class to extend a {@link android.view.GestureDetector.SimpleOnGestureListener}, so that we
      * can apply our logic to manually solve the TouchEvent conflict.
      */
-    class YScrollDetector extends GestureDetector.SimpleOnGestureListener {
+    private class YScrollDetector extends GestureDetector.SimpleOnGestureListener {
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {

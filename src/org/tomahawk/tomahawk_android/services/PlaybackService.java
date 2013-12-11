@@ -233,6 +233,7 @@ public class PlaybackService extends Service
             } else if (BitmapItem.BITMAPITEM_BITMAPLOADED.equals(intent.getAction())) {
                 // a bitmap has been loaded
                 if (mCurrentPlaylist.getCurrentQuery() != null
+                        && mCurrentPlaylist.getCurrentQuery().getAlbums() != null
                         && !mCurrentPlaylist.getCurrentQuery().getAlbums().isEmpty()
                         && intent.getStringExtra(BitmapItem.BITMAPITEM_BITMAPLOADED_PATH).equals(
                         mCurrentPlaylist.getCurrentQuery().getAlbums().get(0)

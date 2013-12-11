@@ -24,11 +24,11 @@
             android:id="@+id/action_saveplaylist_item"
             android:icon="@drawable/ic_action_saveplaylist"
             android:showAsAction="ifRoom"
-            android:title="Save playlist"/>
+            android:title="@string/menu_item_save_playlist"/>
     <item
             android:id="@+id/action_clearplaylist_item"
             android:icon="@drawable/ic_action_discard"
             android:showAsAction="ifRoom"
-            android:title="Clear playlist"/>
+            android:title="@string/menu_item_clear_playlist"/>
 
 </menu>

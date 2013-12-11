@@ -27,6 +27,7 @@ import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 /**
@@ -76,7 +77,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      * image.
      */
     @Override
-    public Object instantiateItem(View collection, int position) {
+    public Object instantiateItem(ViewGroup container, int position) {
         ImageView albumArtImageView = new ImageView(mContext);
         if (mPlaylist != null && mPlaylist.getCount() > 0) {
             if (mPlaylist.isRepeating()) {
@@ -91,7 +92,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         } else {
             albumArtImageView.setImageResource(R.drawable.no_album_art_placeholder);
         }
-        ((ViewPager) collection).addView(albumArtImageView);
+        container.addView(albumArtImageView);
         return albumArtImageView;
     }
 
@@ -122,8 +123,8 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      * Remove the given {@link View} from the {@link ViewPager}
      */
     @Override
-    public void destroyItem(View arg0, int arg1, Object arg2) {
-        ((ViewPager) arg0).removeView((View) arg2);
+    public void destroyItem(ViewGroup container, int position, Object object) {
+        container.removeView((View) object);
     }
 
     /**
