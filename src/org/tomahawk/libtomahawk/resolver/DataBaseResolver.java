@@ -176,9 +176,16 @@ public class DataBaseResolver implements Resolver {
         @SuppressWarnings("unchecked")
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            ArrayList<Result> resultList = (ArrayList<Result>) results.values;
+            final ArrayList<Result> resultList = (ArrayList<Result>) results.values;
             mStopped = true;
-            mTomahawkApp.getPipeLine().reportResults(mQid, resultList);
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    mTomahawkApp.getPipeLine().reportResults(mQid, resultList);
+                }
+            };
+            Thread t = new Thread(r);
+            t.start();
         }
 
         /**
