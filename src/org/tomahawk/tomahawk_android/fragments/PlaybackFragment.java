@@ -46,6 +46,7 @@ import android.widget.AdapterView;
 import android.widget.FrameLayout;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
@@ -133,7 +134,7 @@ public class PlaybackFragment extends TomahawkFragment
     public void onResume() {
         super.onResume();
 
-        initAdapter();
+        onPlaylistChanged();
 
         if (mPlaybackFragmentBroadcastReceiver == null) {
             mPlaybackFragmentBroadcastReceiver = new PlaybackFragmentBroadcastReceiver();
@@ -359,12 +360,24 @@ public class PlaybackFragment extends TomahawkFragment
     public void onPlaylistChanged() {
         PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
         TomahawkListAdapter tomahawkListAdapter = (TomahawkListAdapter) getListAdapter();
+
+        if (playbackService != null && playbackService.getCurrentPlaylist() != null) {
+            ArrayList<Query> qs = new ArrayList<Query>();
+            for (Query query : playbackService.getCurrentPlaylist().getQueries()) {
+                if (!query.isSolved() && !mPipeline.hasQuery(query.getQid())) {
+                    qs.add(query);
+                }
+            }
+            if (!qs.isEmpty()) {
+                HashSet<String> qids = mPipeline.resolve(qs);
+                mCorrespondingQueryIds.addAll(qids);
+                mTomahawkMainActivity.startLoadingAnimation();
+            }
+        }
+
         if (tomahawkListAdapter != null && playbackService != null
                 && playbackService.getCurrentPlaylist() != null
                 && playbackService.getCurrentPlaylist().getCount() > 0) {
-            for (Query query : playbackService.getCurrentPlaylist().getQueries()) {
-                mCorrespondingQueryIds.add(query.getQid());
-            }
             ArrayList<TomahawkBaseAdapter.TomahawkListItem> tracks
                     = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
             tracks.addAll(playbackService.getCurrentPlaylist().getQueries());
