@@ -35,6 +35,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -185,6 +186,19 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             }
         }
 
+        ArrayList<Query> qs = new ArrayList<Query>();
+        for (TomahawkBaseAdapter.TomahawkListItem query : queries) {
+            Query q = (Query) query;
+            if (!q.isSolved() && !mPipeline.hasQuery(q.getQid())) {
+                qs.add(q);
+            }
+        }
+        if (!qs.isEmpty()) {
+            HashSet<String> qids = mPipeline.resolve(qs);
+            mCorrespondingQueryIds.addAll(qids);
+            mTomahawkMainActivity.startLoadingAnimation();
+        }
+
         getListView().setOnItemClickListener(this);
     }
 
@@ -196,7 +210,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
     }
 
     @Override
-    protected void onPipeLineResultsReportedNonFullTextQuery(String qId) {
+    protected void onPipeLineResultsReported(String qId) {
         if (mCorrespondingQueryIds.contains(qId)) {
             updateAdapter();
         }

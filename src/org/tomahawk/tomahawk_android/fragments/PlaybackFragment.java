@@ -20,6 +20,7 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Track;
+import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -361,6 +362,9 @@ public class PlaybackFragment extends TomahawkFragment
         if (tomahawkListAdapter != null && playbackService != null
                 && playbackService.getCurrentPlaylist() != null
                 && playbackService.getCurrentPlaylist().getCount() > 0) {
+            for (Query query : playbackService.getCurrentPlaylist().getQueries()) {
+                mCorrespondingQueryIds.add(query.getQid());
+            }
             ArrayList<TomahawkBaseAdapter.TomahawkListItem> tracks
                     = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
             tracks.addAll(playbackService.getCurrentPlaylist().getQueries());
@@ -371,6 +375,13 @@ public class PlaybackFragment extends TomahawkFragment
             tomahawkListAdapter.notifyDataSetChanged();
         } else {
             initAdapter();
+        }
+    }
+
+    @Override
+    protected void onPipeLineResultsReported(String qId) {
+        if (mCorrespondingQueryIds.contains(qId)) {
+            onPlaylistChanged();
         }
     }
 }

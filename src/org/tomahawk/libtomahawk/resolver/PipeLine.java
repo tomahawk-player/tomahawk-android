@@ -17,7 +17,6 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
-import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -25,6 +24,7 @@ import android.content.Intent;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -40,11 +40,8 @@ public class PipeLine {
 
     public static final int PIPELINE_SEARCHTYPE_ALBUMS = 2;
 
-    public static final String PIPELINE_RESULTSREPORTED_FULLTEXTQUERY
-            = "org.tomahawk.tomahawk_android.pipeline_resultsreported_fulltextquery";
-
-    public static final String PIPELINE_RESULTSREPORTED_NON_FULLTEXTQUERY
-            = "org.tomahawk.tomahawk_android.pipeline_resultsreported_non_fulltextquery";
+    public static final String PIPELINE_RESULTSREPORTED
+            = "org.tomahawk.tomahawk_android.pipeline_resultsreported";
 
     public static final String PIPELINE_RESULTSREPORTED_QID
             = "org.tomahawk.tomahawk_android.pipeline_resultsreported_qid";
@@ -123,8 +120,7 @@ public class PipeLine {
             boolean onlyLocal) {
         if (trackName != null && !TextUtils.isEmpty(trackName)) {
             Query q = new Query(trackName, albumName, artistName, onlyLocal);
-            resolve(q, onlyLocal);
-            return q.getQid();
+            return resolve(q, onlyLocal);
         }
         return null;
     }
@@ -132,20 +128,16 @@ public class PipeLine {
     /**
      * This will invoke every {@link Resolver} to resolve the given {@link Query}.
      */
-    public void resolve(Query q) {
-        resolve(q, false);
+    public String resolve(Query q) {
+        return resolve(q, false);
     }
 
     /**
      * This will invoke every {@link Resolver} to resolve the given {@link Query}.
      */
-    public void resolve(Query q, boolean onlyLocal) {
+    public String resolve(Query q, boolean onlyLocal) {
         if (q.isSolved()) {
-            if (q.isFullTextQuery()) {
-                sendReportFulltextQueryResultsBroadcast(q.getQid());
-            } else {
-                sendReportNonFulltextQueryResultsBroadcast(q.getQid());
-            }
+            sendResultsReportBroadcast(q.getQid());
         } else {
             mQids.put(q.getQid(), q);
             for (Resolver resolver : mResolvers) {
@@ -156,37 +148,30 @@ public class PipeLine {
                 }
             }
         }
+        return q.getQid();
     }
 
     /**
-     * Resolve the given {@link org.tomahawk.libtomahawk.collection.Album}'s {@link
-     * org.tomahawk.libtomahawk.resolver.Query}s
+     * Resolve the given ArrayList of {@link org.tomahawk.libtomahawk.resolver.Query}s and return a
+     * HashSet containing all query ids
      */
-    public void resolve(Album album) {
-        if (album != null && album.getQueries() != null) {
-            for (Query query : album.getQueries()) {
+    public HashSet<String> resolve(ArrayList<Query> queries) {
+        HashSet<String> qids = new HashSet<String>();
+        if (queries != null) {
+            for (Query query : queries) {
                 if (!query.isSolved()) {
-                    resolve(query.getName(), query.getAlbum().getName(),
-                            query.getArtist().getName());
+                    qids.add(resolve(query));
                 }
             }
         }
+        return qids;
     }
 
     /**
      * Send a broadcast containing the id of the resolved {@link Query}.
      */
-    private void sendReportFulltextQueryResultsBroadcast(String qid) {
-        Intent reportIntent = new Intent(PIPELINE_RESULTSREPORTED_FULLTEXTQUERY);
-        reportIntent.putExtra(PIPELINE_RESULTSREPORTED_QID, qid);
-        mTomahawkApp.sendBroadcast(reportIntent);
-    }
-
-    /**
-     * Send a broadcast containing the id of the resolved {@link Query}.
-     */
-    private void sendReportNonFulltextQueryResultsBroadcast(String qid) {
-        Intent reportIntent = new Intent(PIPELINE_RESULTSREPORTED_NON_FULLTEXTQUERY);
+    private void sendResultsReportBroadcast(String qid) {
+        Intent reportIntent = new Intent(PIPELINE_RESULTSREPORTED);
         reportIntent.putExtra(PIPELINE_RESULTSREPORTED_QID, qid);
         mTomahawkApp.sendBroadcast(reportIntent);
     }
@@ -227,11 +212,7 @@ public class PipeLine {
             mQids.get(qid).addArtistResults(cleanArtistResults);
             mQids.get(qid).addAlbumResults(cleanAlbumResults);
             mQids.get(qid).addTrackResults(cleanTrackResults);
-            if (q.isFullTextQuery()) {
-                sendReportFulltextQueryResultsBroadcast(q.getQid());
-            } else {
-                sendReportNonFulltextQueryResultsBroadcast(q.getQid());
-            }
+            sendResultsReportBroadcast(q.getQid());
         }
     }
 
@@ -252,5 +233,14 @@ public class PipeLine {
      */
     public Query getQuery(String qid) {
         return mQids.get(qid);
+    }
+
+    /**
+     * @param qid the {@link Query}s id
+     * @return whether or not it is already contained in the {@link org.tomahawk.libtomahawk.resolver.PipeLine}s
+     * HashMap
+     */
+    public boolean hasQuery(String qid) {
+        return mQids.containsKey(qid);
     }
 }

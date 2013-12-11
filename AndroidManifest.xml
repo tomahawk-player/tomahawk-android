@@ -22,7 +22,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="org.tomahawk.tomahawk_android"
           android:versionCode="0240"
-          android:versionName="0.24-37-ge4606f0">
+          android:versionName="0.24-38-g52af091">
 
     <uses-sdk
             android:minSdkVersion="9"

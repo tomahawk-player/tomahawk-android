@@ -187,7 +187,7 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
 
     /**
      * @return the {@link Filter}, which allows to filter the items inside the custom {@link
-     *         ListView} fed by {@link TomahawkBaseAdapter}
+     * ListView} fed by {@link TomahawkBaseAdapter}
      */
     public Filter getFilter() {
         return new Filter() {

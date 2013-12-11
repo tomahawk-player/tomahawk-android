@@ -331,7 +331,7 @@ public class SearchableFragment extends TomahawkFragment
     }
 
     @Override
-    protected void onPipeLineResultsReportedFullTextQuery(String qId) {
+    protected void onPipeLineResultsReported(String qId) {
         if (mCorrespondingQueryIds.contains(qId)) {
             mTomahawkMainActivity.getContentViewer()
                     .getBackStackAtPosition(mCorrespondingHubId)
