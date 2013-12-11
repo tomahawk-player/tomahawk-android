@@ -32,7 +32,7 @@ public class ScriptInterface {
      */
     @JavascriptInterface
     public void callbackToJava(int id, String in, boolean shouldReturnResult) {
-        Log.d(TAG, "callbackToJava: id='" + id + "', in='" + in + "'");
+        //Log.d(TAG, "callbackToJava: id='" + id + "', in='" + in + "'");
         if (shouldReturnResult) {
             JSONObject out = new JSONObject();
             try {
@@ -81,7 +81,7 @@ public class ScriptInterface {
      */
     @JavascriptInterface
     public void addTrackResultsString(String in) {
-        Log.d(TAG, "addTrackResultsString: in='" + in + "'");
+        //Log.d(TAG, "addTrackResultsString: in='" + in + "'");
         try {
             JSONObject out = new JSONObject(in);
             mScriptResolver.handleCallbackToJava(R.id.scriptresolver_add_track_results_string, out);

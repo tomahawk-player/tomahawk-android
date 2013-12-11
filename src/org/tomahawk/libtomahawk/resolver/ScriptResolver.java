@@ -223,8 +223,8 @@ public class ScriptResolver implements Resolver {
                 if (obj != null) {
                     s = obj.toString();
                 }
-                Log.d(TAG, "handleCallbackToJava: id='" + mTomahawkApp.getResources()
-                        .getResourceEntryName(id) + "(" + id + ")" + "', result='" + s + "'");
+                //Log.d(TAG, "handleCallbackToJava: id='" + mTomahawkApp.getResources()
+                //        .getResourceEntryName(id) + "(" + id + ")" + "', result='" + s + "'");
                 try {
                     if (id == R.id.scriptresolver_resolver_settings && obj != null) {
                         mName = obj.getString("name");
