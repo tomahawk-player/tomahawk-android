@@ -195,7 +195,7 @@ public class PlaybackFragment extends TomahawkFragment
         TomahawkListAdapter tomahawkListAdapter = (TomahawkListAdapter) getListAdapter();
         if (playbackService != null && tomahawkListAdapter != null) {
             Object obj = tomahawkListAdapter.getItem(idx - 1);
-            if (obj instanceof Track) {
+            if (obj instanceof Query) {
                 // if the user clicked on an already playing track
                 if (playbackService.getCurrentPlaylist().getCurrentQueryIndex() == idx - 1) {
                     playbackService.playPause();
