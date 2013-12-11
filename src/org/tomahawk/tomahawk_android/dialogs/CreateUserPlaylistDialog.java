@@ -48,7 +48,7 @@ import java.util.ArrayList;
  */
 public class CreateUserPlaylistDialog extends DialogFragment {
 
-    Playlist mPlaylist;
+    private Playlist mPlaylist;
 
     /**
      * Default constructor

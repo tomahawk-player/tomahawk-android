@@ -113,7 +113,7 @@ public abstract class Playlist implements Playable {
         int i = 0;
         while (i < querys.size()) {
             Query query = querys.get(i);
-            if (newquery.getQid() == query.getQid()) {
+            if (newquery.getQid().equals(query.getQid())) {
                 mCurrentQueryIndex = i;
                 break;
             }

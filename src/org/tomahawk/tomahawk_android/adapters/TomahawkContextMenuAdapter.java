@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class TomahawkContextMenuAdapter extends BaseAdapter {
 
-    protected final LayoutInflater mLayoutInflater;
+    private final LayoutInflater mLayoutInflater;
 
     private List<String> mStringArray = new ArrayList<String>();
 

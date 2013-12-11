@@ -19,7 +19,6 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -175,8 +174,7 @@ public class PlaybackFragment extends TomahawkFragment
         PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
         if (playbackService != null && item != null) {
             if (item.getItemId() == R.id.action_clearplaylist_item) {
-                while (playbackService != null
-                        && playbackService.getCurrentPlaylist().getCount() > 0) {
+                while (playbackService.getCurrentPlaylist().getCount() > 0) {
                     playbackService.deleteQueryAtPos(0);
                 }
                 return true;

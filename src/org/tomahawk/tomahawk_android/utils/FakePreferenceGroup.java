@@ -124,7 +124,7 @@ public class FakePreferenceGroup {
      */
     public FakePreference getFakePreferenceByKey(String key) {
         for (FakePreference fakePreference : mFakePreferences) {
-            if (fakePreference.getKey() == key) {
+            if (fakePreference.getKey().equals(key)) {
                 return fakePreference;
             }
         }

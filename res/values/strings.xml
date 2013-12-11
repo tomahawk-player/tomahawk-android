@@ -93,6 +93,8 @@
     <string name="fake_context_menu_appendtoplaybacklist">Append to playback list</string>
     <string name="fake_context_menu_addtoplaylist">Add to playlist</string>
     <string name="fake_context_menu_delete">Delete</string>
+    <string name="menu_item_save_playlist">Save playlist</string>
+    <string name="menu_item_clear_playlist">Clear playlist</string>
     <string name="hub_title_home">Home</string>
     <string name="hub_title_search">Search</string>
     <string name="hub_title_collection">Collection</string>

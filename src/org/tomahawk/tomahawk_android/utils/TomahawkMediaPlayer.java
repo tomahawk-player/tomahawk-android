@@ -68,11 +68,7 @@ public class TomahawkMediaPlayer
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        if (mUseMediaPlayer) {
-            return onError(what, extra);
-        } else {
-            return false;
-        }
+        return mUseMediaPlayer && onError(what, extra);
     }
 
     @Override
@@ -136,15 +132,11 @@ public class TomahawkMediaPlayer
     public void start() throws IllegalStateException {
         mIsPlaying = true;
         if (mUseMediaPlayer) {
-            try {
-                mMediaPlayer.start();
-                // mMediaplayer.seekTo(0) should be called whenever a Track has just been prepared
-                // and is being started. This workaround is needed because of a bug in Android 4.4.
-                if (mMediaPlayer.getCurrentPosition() == 0) {
-                    mMediaPlayer.seekTo(0);
-                }
-            } catch (IllegalStateException e) {
-                throw e;
+            mMediaPlayer.start();
+            // mMediaplayer.seekTo(0) should be called whenever a Track has just been prepared
+            // and is being started. This workaround is needed because of a bug in Android 4.4.
+            if (mMediaPlayer.getCurrentPosition() == 0) {
+                mMediaPlayer.seekTo(0);
             }
         } else {
             LibSpotifyWrapper.play();
@@ -157,11 +149,7 @@ public class TomahawkMediaPlayer
     public void pause() throws IllegalStateException {
         mIsPlaying = false;
         if (mUseMediaPlayer) {
-            try {
-                mMediaPlayer.pause();
-            } catch (IllegalStateException e) {
-                throw e;
-            }
+            mMediaPlayer.pause();
         } else {
             LibSpotifyWrapper.pause();
         }
@@ -173,11 +161,7 @@ public class TomahawkMediaPlayer
     public void stop() throws IllegalStateException {
         mIsPlaying = false;
         if (mUseMediaPlayer) {
-            try {
-                mMediaPlayer.stop();
-            } catch (IllegalStateException e) {
-                throw e;
-            }
+            mMediaPlayer.stop();
         } else {
             LibSpotifyWrapper.pause();
         }
@@ -188,11 +172,7 @@ public class TomahawkMediaPlayer
      */
     public void seekTo(int msec) throws IllegalStateException {
         if (mUseMediaPlayer) {
-            try {
-                mMediaPlayer.seekTo(msec);
-            } catch (IllegalStateException e) {
-                throw e;
-            }
+            mMediaPlayer.seekTo(msec);
         } else {
             LibSpotifyWrapper.seek(msec);
         }
@@ -207,24 +187,18 @@ public class TomahawkMediaPlayer
     public void prepare(String url, boolean isSpotifyUrl)
             throws IllegalStateException, IOException {
         mIsPreparing = true;
-        try {
-            if (isSpotifyUrl) {
-                mUseMediaPlayer = false;
-                if (mMediaPlayer.isPlaying()) {
-                    mMediaPlayer.stop();
-                }
-                mMediaPlayer.reset();
-                LibSpotifyWrapper.prepare(url, this);
-            } else {
-                mUseMediaPlayer = true;
-                LibSpotifyWrapper.pause();
-                mMediaPlayer.setDataSource(url);
-                mMediaPlayer.prepare();
+        if (isSpotifyUrl) {
+            mUseMediaPlayer = false;
+            if (mMediaPlayer.isPlaying()) {
+                mMediaPlayer.stop();
             }
-        } catch (IllegalStateException e) {
-            throw e;
-        } catch (IOException e) {
-            throw e;
+            mMediaPlayer.reset();
+            LibSpotifyWrapper.prepare(url, this);
+        } else {
+            mUseMediaPlayer = true;
+            LibSpotifyWrapper.pause();
+            mMediaPlayer.setDataSource(url);
+            mMediaPlayer.prepare();
         }
     }
 

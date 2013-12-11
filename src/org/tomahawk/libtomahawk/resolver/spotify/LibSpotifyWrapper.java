@@ -148,7 +148,7 @@ public class LibSpotifyWrapper {
      * @param qid   {@link String} containg the query id
      * @param query {@link org.tomahawk.libtomahawk.resolver.Query} to be resolved
      */
-    public static void resolve(String qid, Query query) {
+    private static void resolve(String qid, Query query) {
         if (mInitialized) {
             String queryString;
             if (query.isFullTextQuery()) {
@@ -165,7 +165,7 @@ public class LibSpotifyWrapper {
      *
      * @param uri {@link String} containing the previously resolved Spotify URI
      */
-    public static void prepare(String uri) {
+    private static void prepare(String uri) {
         if (mInitialized) {
             nativeprepare(uri);
         }

@@ -44,7 +44,7 @@ import java.util.List;
  */
 public class TracksFragment extends TomahawkFragment implements OnItemClickListener {
 
-    boolean mShouldShowLoadingAnimation = false;
+    private boolean mShouldShowLoadingAnimation = false;
 
     /**
      * Initialize

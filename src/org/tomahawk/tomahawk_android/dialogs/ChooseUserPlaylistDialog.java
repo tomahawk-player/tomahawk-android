@@ -42,11 +42,11 @@ import java.util.ArrayList;
  */
 public class ChooseUserPlaylistDialog extends DialogFragment {
 
-    UserCollection mUserCollection;
+    private UserCollection mUserCollection;
 
-    ArrayList<Query> mQueries;
+    private ArrayList<Query> mQueries;
 
-    int mCustomPlaylistCount;
+    private int mCustomPlaylistCount;
 
     /**
      * Construct a {@link ChooseUserPlaylistDialog}

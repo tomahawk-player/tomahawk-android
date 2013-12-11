@@ -48,7 +48,7 @@ public class PipeLine {
 
     private static final float MINSCORE = 0.5F;
 
-    TomahawkApp mTomahawkApp;
+    private TomahawkApp mTomahawkApp;
 
     private ArrayList<Resolver> mResolvers = new ArrayList<Resolver>();
 

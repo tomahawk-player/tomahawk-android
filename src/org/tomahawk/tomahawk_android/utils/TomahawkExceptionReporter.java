@@ -53,7 +53,7 @@ public class TomahawkExceptionReporter implements ReportSender {
      *
      * Use init() to create a TomahawkExceptionReporter publicly.
      */
-    protected TomahawkExceptionReporter() {
+    private TomahawkExceptionReporter() {
     }
 
     /**

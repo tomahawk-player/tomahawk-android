@@ -129,7 +129,8 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
     @Override
     public Album getAlbum() {
         if (!mAlbums.isEmpty()) {
-            return mAlbums.get(0);
+            ArrayList<Album> albums = new ArrayList<Album>(mAlbums.values());
+            return albums.get(0);
         }
         return null;
     }

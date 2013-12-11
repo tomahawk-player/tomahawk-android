@@ -25,6 +25,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.v4.util.LruCache;
 import android.util.Log;
 import android.widget.ImageView;
@@ -49,7 +50,7 @@ public class BitmapItem {
     public static final String BITMAPITEM_BITMAPLOADED_PATH
             = "org.tomahawk.tomahawk_android.bitmapitem_bitmaploaded_path";
 
-    public static final int BITMAP_MAXSIZE = 512;
+    private static final int BITMAP_MAXSIZE = 512;
 
     private static final int sCacheSize = (int) (Runtime.getRuntime().maxMemory() / 1024) / 8;
 
@@ -72,6 +73,9 @@ public class BitmapItem {
          */
         @Override
         protected int sizeOf(String key, Bitmap bitmap) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB_MR1) {
+                return bitmap.getRowBytes() * bitmap.getHeight() / 1024;
+            }
             return bitmap.getByteCount() / 1024;
         }
 

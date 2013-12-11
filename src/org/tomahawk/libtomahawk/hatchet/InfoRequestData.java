@@ -55,7 +55,7 @@ public class InfoRequestData {
 
     public static final int INFOREQUESTDATA_TYPE_USERARTISTCHARTS = 23;
 
-    static TomahawkApp mTomahawkApp;
+    private static TomahawkApp mTomahawkApp;
 
     private String mRequestId;
 

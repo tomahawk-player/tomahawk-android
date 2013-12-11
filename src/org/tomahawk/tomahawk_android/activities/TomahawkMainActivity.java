@@ -490,10 +490,8 @@ public class TomahawkMainActivity extends ActionBarActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         // Pass the event to ActionBarDrawerToggle, if it returns
         // true, then it has handled the app icon touch event
-        if (mDrawerToggle != null && mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        return mDrawerToggle != null && mDrawerToggle.onOptionsItemSelected(item) ||
+                super.onOptionsItemSelected(item);
     }
 
     /**
@@ -615,8 +613,7 @@ public class TomahawkMainActivity extends ActionBarActivity
             setSearchEditTextVisibility(false);
         }
         if (mCurrentStackPosition == TomahawkMainActivity.HUB_ID_PLAYBACK
-                || mPlaybackService == null || (mPlaybackService != null
-                && mPlaybackService.getCurrentQuery() == null)) {
+                || mPlaybackService == null || mPlaybackService.getCurrentQuery() == null) {
             setNowPlayingInfoVisibility(false);
         } else {
             setNowPlayingInfoVisibility(true);

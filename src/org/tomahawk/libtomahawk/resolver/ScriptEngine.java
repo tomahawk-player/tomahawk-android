@@ -25,7 +25,7 @@ import android.webkit.WebViewClient;
  */
 public class ScriptEngine extends WebViewClient {
 
-    ScriptResolver mScriptResolver;
+    private ScriptResolver mScriptResolver;
 
     public ScriptEngine(ScriptResolver scriptResolver) {
         mScriptResolver = scriptResolver;

@@ -60,7 +60,7 @@ public class UserPlaylistsFragment extends TomahawkFragment implements OnItemCli
                 bundle.putString(TOMAHAWK_PLAYLIST_KEY, String.valueOf(
                         ((UserPlaylist) getListAdapter().getItem(position))
                                 .getId()));
-                if (mTomahawkMainActivity instanceof TomahawkMainActivity) {
+                if (mTomahawkMainActivity != null) {
                     mTomahawkMainActivity.getContentViewer()
                             .replace(mCorrespondingHubId, TracksFragment.class,
                                     String.valueOf(
