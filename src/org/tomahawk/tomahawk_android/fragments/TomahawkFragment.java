@@ -112,13 +112,9 @@ public class TomahawkFragment extends TomahawkListFragment
         public void onReceive(Context context, Intent intent) {
             if (Collection.COLLECTION_UPDATED.equals(intent.getAction())) {
                 onCollectionUpdated();
-            } else if (PipeLine.PIPELINE_RESULTSREPORTED_FULLTEXTQUERY.equals(intent.getAction())) {
+            } else if (PipeLine.PIPELINE_RESULTSREPORTED.equals(intent.getAction())) {
                 String qid = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
-                onPipeLineResultsReportedFullTextQuery(qid);
-            } else if (PipeLine.PIPELINE_RESULTSREPORTED_NON_FULLTEXTQUERY
-                    .equals(intent.getAction())) {
-                String qid = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
-                onPipeLineResultsReportedNonFullTextQuery(qid);
+                onPipeLineResultsReported(qid);
             } else if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
                 String requestId = intent.getStringExtra(
                         InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
@@ -178,9 +174,7 @@ public class TomahawkFragment extends TomahawkListFragment
             mTomahawkFragmentReceiver = new TomahawkFragmentReceiver();
             IntentFilter intentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
             getActivity().registerReceiver(mTomahawkFragmentReceiver, intentFilter);
-            intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED_FULLTEXTQUERY);
-            getActivity().registerReceiver(mTomahawkFragmentReceiver, intentFilter);
-            intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED_NON_FULLTEXTQUERY);
+            intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED);
             getActivity().registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
             getActivity().registerReceiver(mTomahawkFragmentReceiver, intentFilter);
@@ -465,11 +459,7 @@ public class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    protected void onPipeLineResultsReportedFullTextQuery(String qId) {
-
-    }
-
-    protected void onPipeLineResultsReportedNonFullTextQuery(String qId) {
+    protected void onPipeLineResultsReported(String qId) {
 
     }
 

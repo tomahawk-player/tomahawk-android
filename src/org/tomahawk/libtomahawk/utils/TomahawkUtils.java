@@ -27,7 +27,8 @@ public class TomahawkUtils {
      *
      * This method uses the LevenstheinDistance algorithm to compute the similarity of two strings.
      *
-     * @return a value between 0 and 1
+     * @return the minimum number of single-character edits required to change one of the given
+     * strings into the other
      */
     public static int getLevenshteinDistance(String s, String t) {
         if (s == null || t == null) {

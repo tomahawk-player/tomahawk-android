@@ -294,70 +294,73 @@ public class ScriptResolver implements Resolver {
     private ArrayList<Result> parseResultList(final JSONArray resList) {
         ArrayList<Result> resultList = new ArrayList<Result>();
         for (int i = 0; i < resList.length(); i++) {
-            try {
-                JSONObject obj = resList.getJSONObject(i);
-                if (obj.has("url")) {
-                    Artist artist;
-                    Album album;
-                    Track track;
-                    if (obj.has("artist")) {
-                        artist = Artist.get(obj.get("artist").toString());
-                    } else {
-                        artist = Artist.get("");
-                    }
-                    if (obj.has("album")) {
-                        album = Album.get(obj.get("album").toString(), artist);
-                    } else {
-                        album = Album.get("", artist);
-                    }
-                    if (obj.has("track")) {
-                        track = Track.get(obj.get("track").toString(), album, artist);
-                    } else {
-                        track = Track.get("", album, artist);
-                    }
-                    if (obj.has("albumpos")) {
-                        track.setAlbumPos(Integer.valueOf(obj.get("albumpos").toString()));
-                    }
-                    if (obj.has("discnumber")) {
-                        track.setAlbumPos(Integer.valueOf(obj.get("discnumber").toString()));
-                    }
-                    if (obj.has("year")) {
-                        String yearString = obj.get("year").toString();
-                        if (yearString.matches("-?\\d+")) {
-                            track.setYear(Integer.valueOf(yearString));
+            if (!resList.isNull(i)) {
+                try {
+                    JSONObject obj = resList.getJSONObject(i);
+                    if (obj.has("url")) {
+                        Artist artist;
+                        Album album;
+                        Track track;
+                        if (obj.has("artist")) {
+                            artist = Artist.get(obj.get("artist").toString());
+                        } else {
+                            artist = Artist.get("");
                         }
+                        if (obj.has("album")) {
+                            album = Album.get(obj.get("album").toString(), artist);
+                        } else {
+                            album = Album.get("", artist);
+                        }
+                        if (obj.has("track")) {
+                            track = Track.get(obj.get("track").toString(), album, artist);
+                        } else {
+                            track = Track.get("", album, artist);
+                        }
+                        if (obj.has("albumpos")) {
+                            track.setAlbumPos(Integer.valueOf(obj.get("albumpos").toString()));
+                        }
+                        if (obj.has("discnumber")) {
+                            track.setAlbumPos(Integer.valueOf(obj.get("discnumber").toString()));
+                        }
+                        if (obj.has("year")) {
+                            String yearString = obj.get("year").toString();
+                            if (yearString.matches("-?\\d+")) {
+                                track.setYear(Integer.valueOf(yearString));
+                            }
+                        }
+                        if (obj.has("duration")) {
+                            track.setDuration(
+                                    Math.round(
+                                            Float.valueOf(obj.get("duration").toString()) * 1000));
+                        }
+                        artist.addAlbum(album);
+                        Result result = Result.get(obj.get("url").toString(), track);
+                        if (obj.has("bitrate")) {
+                            result.setBitrate(Integer.valueOf(obj.get("bitrate").toString()));
+                        }
+                        if (obj.has("size")) {
+                            result.setSize(Integer.valueOf(obj.get("size").toString()));
+                        }
+                        if (obj.has("purchaseUrl")) {
+                            result.setPurchaseUrl(obj.get("purchaseUrl").toString());
+                        }
+                        if (obj.has("linkUrl")) {
+                            result.setLinkUrl(obj.get("linkUrl").toString());
+                        }
+                        if (obj.has("score")) {
+                            result.setTrackScore(Float.valueOf(obj.get("score").toString()));
+                        }
+                        result.setResolvedBy(this);
+                        result.setArtist(artist);
+                        result.setAlbum(album);
+                        result.setTrack(track);
+                        album.addQuery(new Query(result, false));
+                        artist.addQuery(new Query(result, false));
+                        resultList.add(result);
                     }
-                    if (obj.has("duration")) {
-                        track.setDuration(
-                                Math.round(Float.valueOf(obj.get("duration").toString()) * 1000));
-                    }
-                    artist.addAlbum(album);
-                    Result result = Result.get(obj.get("url").toString(), track);
-                    if (obj.has("bitrate")) {
-                        result.setBitrate(Integer.valueOf(obj.get("bitrate").toString()));
-                    }
-                    if (obj.has("size")) {
-                        result.setSize(Integer.valueOf(obj.get("size").toString()));
-                    }
-                    if (obj.has("purchaseUrl")) {
-                        result.setPurchaseUrl(obj.get("purchaseUrl").toString());
-                    }
-                    if (obj.has("linkUrl")) {
-                        result.setLinkUrl(obj.get("linkUrl").toString());
-                    }
-                    if (obj.has("score")) {
-                        result.setTrackScore(Float.valueOf(obj.get("score").toString()));
-                    }
-                    result.setResolvedBy(this);
-                    result.setArtist(artist);
-                    result.setAlbum(album);
-                    result.setTrack(track);
-                    album.addQuery(new Query(result, false));
-                    artist.addQuery(new Query(result, false));
-                    resultList.add(result);
+                } catch (JSONException e) {
+                    Log.e(TAG, "parseResultList: " + e.getClass() + ": " + e.getLocalizedMessage());
                 }
-            } catch (JSONException e) {
-                Log.e(TAG, "parseResultList: " + e.getClass() + ": " + e.getLocalizedMessage());
             }
         }
         return resultList;

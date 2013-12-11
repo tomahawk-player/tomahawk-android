@@ -217,17 +217,15 @@ public class DataBaseResolver implements Resolver {
 
             for (Query query : inputList) {
                 if (!TextUtils.isEmpty(mFullTextQuery)) {
-                    if (query.getName().toLowerCase().contains(mFullTextQuery) || (
-                            query.getArtist() != null && query.getArtist().getName().toLowerCase()
-                                    .contains(mFullTextQuery)) || (query.getAlbum() != null && query
-                            .getAlbum().getName().toLowerCase().contains(mFullTextQuery))) {
+                    if (query.getName().toLowerCase().contains(mFullTextQuery) ||
+                            query.getArtist().getName().toLowerCase().contains(mFullTextQuery) ||
+                            query.getAlbum().getName().toLowerCase().contains(mFullTextQuery)) {
                         filteredResults.add(query.getPreferredTrackResult());
                     }
                 } else {
-                    if (query.getName().toLowerCase().contains(mTrackName) || (
-                            query.getArtist() != null && query.getArtist().getName().toLowerCase()
-                                    .contains(mArtistName)) || (query.getAlbum() != null && query
-                            .getAlbum().getName().toLowerCase().contains(mAlbumName))) {
+                    if (query.getName().toLowerCase().contains(mTrackName) &&
+                            query.getArtist().getName().toLowerCase().contains(mArtistName) &&
+                            query.getAlbum().getName().toLowerCase().contains(mAlbumName)) {
                         filteredResults.add(query.getPreferredTrackResult());
                     }
                 }

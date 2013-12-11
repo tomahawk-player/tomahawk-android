@@ -142,7 +142,10 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
                 .getResolvedBy() instanceof DataBaseResolver) {
             mContainsLocalQueries = true;
         }
-        mQueries.put(TomahawkUtils.getCacheKey(query), query);
+        String key = TomahawkUtils.getCacheKey(query);
+        if (!mQueries.containsKey(key)) {
+            mQueries.put(key, query);
+        }
     }
 
     /**
@@ -176,7 +179,10 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
      * @param album the {@link Album} to be added
      */
     public void addAlbum(Album album) {
-        mAlbums.put(TomahawkUtils.getCacheKey(album), album);
+        String key = TomahawkUtils.getCacheKey(album);
+        if (!mAlbums.containsKey(key)) {
+            mAlbums.put(key, album);
+        }
     }
 
     /**

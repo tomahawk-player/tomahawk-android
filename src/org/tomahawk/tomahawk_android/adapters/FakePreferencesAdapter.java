@@ -94,7 +94,7 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
     }
 
     @Override
-    public void notifyDataSetChanged(){
+    public void notifyDataSetChanged() {
         super.notifyDataSetChanged();
     }
 

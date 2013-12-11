@@ -155,7 +155,10 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
                 .getResolvedBy() instanceof DataBaseResolver) {
             mContainsLocalQueries = true;
         }
-        mQueries.put(TomahawkUtils.getCacheKey(query), query);
+        String key = TomahawkUtils.getCacheKey(query);
+        if (!mQueries.containsKey(key)) {
+            mQueries.put(key, query);
+        }
     }
 
     /**

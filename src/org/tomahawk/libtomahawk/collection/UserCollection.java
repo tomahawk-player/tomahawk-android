@@ -252,6 +252,7 @@ public class UserCollection extends Collection {
             Query query = new Query(track.getName(), album.getName(), artist.getName(), true);
             Result result = Result.get(cursor.getString(1), track);
             result.setResolvedBy(userCollectionResolver);
+            result.setTrackScore(1f);
             query.addTrackResult(result);
             mQueries.put(query.getQid(), query);
 
