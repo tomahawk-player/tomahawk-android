@@ -60,7 +60,7 @@ public class SpotifyResolver implements Resolver {
         mTomahawkApp = tomahawkApp;
         mId = id;
         mIcon = mTomahawkApp.getResources().getDrawable(R.drawable.spotify_icon);
-        mWeight = 100;
+        mWeight = 90;
         mReady = false;
         mStopped = true;
     }
@@ -120,7 +120,7 @@ public class SpotifyResolver implements Resolver {
     public void onResolved(String qid) {
         mStopped = true;
         // report our results to the pipeline
-        mTomahawkApp.getPipeLine().reportResults(qid, mResults);
+        mTomahawkApp.getPipeLine().reportResults(qid, mResults, this);
     }
 
     /**

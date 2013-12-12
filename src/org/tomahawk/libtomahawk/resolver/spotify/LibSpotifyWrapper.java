@@ -316,11 +316,7 @@ public class LibSpotifyWrapper {
      */
     public static void onResolved(final String qid, final boolean success, final String message,
             final String didYouMean) {
-        if (success) {
-            sSpotifyResolver.onResolved(qid);
-        } else {
-            Log.d(TAG, "onResolved: ERROR: " + message);
-        }
+        sSpotifyResolver.onResolved(qid);
     }
 
     /**

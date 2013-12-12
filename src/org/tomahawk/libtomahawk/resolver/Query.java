@@ -55,7 +55,7 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
 
     private boolean mSolved = false;
 
-    private int mTrackResultHint = 0;
+    private String mTopTrackResultKey = "";
 
     private String mQid;
 
@@ -129,11 +129,7 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
     }
 
     public Result getPreferredTrackResult() {
-        Result result = null;
-        if (mTrackResultHint >= 0 && mTrackResultHint < getTrackResults().size()) {
-            result = getTrackResults().get(mTrackResultHint);
-        }
-        return result;
+        return mTrackResults.get(mTopTrackResultKey);
     }
 
     public Track getPreferredTrack() {
@@ -151,6 +147,13 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
         String key = TomahawkUtils.getCacheKey(result.getTrack());
         if (!mTrackResults.containsKey(key)) {
             mTrackResults.put(key, result);
+        }
+        if (getPreferredTrackResult() == null ||
+                (getPreferredTrackResult().getTrackScore() < result.getTrackScore() ||
+                        (getPreferredTrackResult().getTrackScore() == result.getTrackScore()
+                                && getPreferredTrackResult().getResolvedBy().getWeight()
+                                < result.getResolvedBy().getWeight()))) {
+            mTopTrackResultKey = key;
         }
     }
 

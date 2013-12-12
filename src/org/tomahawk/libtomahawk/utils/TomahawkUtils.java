@@ -4,6 +4,8 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.resolver.Resolution;
+import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 
 import android.content.Context;
@@ -155,5 +157,13 @@ public class TomahawkUtils {
                     tomahawkListItem.getArtist().getName());
         }
         return "";
+    }
+
+    public static String getCacheKey(String qid, Resolver resolver) {
+        return getCacheKey(qid, String.valueOf(resolver.getId()));
+    }
+
+    public static String getCacheKey(Resolution resolution) {
+        return getCacheKey(resolution.getQuery().getQid(), resolution.getResolver());
     }
 }
