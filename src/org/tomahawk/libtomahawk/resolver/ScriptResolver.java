@@ -119,6 +119,7 @@ public class ScriptResolver implements Resolver {
     /**
      * @return whether or not this {@link ScriptResolver} is currently resolving
      */
+    @Override
     public boolean isResolving() {
         return mReady && !mStopped;
     }
@@ -241,7 +242,8 @@ public class ScriptResolver implements Resolver {
                     } else if (id == R.id.scriptresolver_add_track_results_string && obj != null) {
                         String qid = obj.get("qid").toString();
                         JSONArray resultList = obj.getJSONArray("results");
-                        mTomahawkApp.getPipeLine().reportResults(qid, parseResultList(resultList));
+                        mTomahawkApp.getPipeLine().reportResults(qid, parseResultList(resultList),
+                                ScriptResolver.this);
                         mStopped = true;
                     }
                 } catch (JSONException e) {
@@ -262,23 +264,32 @@ public class ScriptResolver implements Resolver {
      *
      * @param query the {@link Query} which should be resolved
      */
-
-    public void resolve(Query query) {
+    @Override
+    public void resolve(final Query query) {
         mStopped = false;
-        if (!query.isFullTextQuery()) {
-            mScriptEngine.loadUrl(
-                    "javascript:" + RESOLVER_LEGACY_CODE2 + makeJSFunctionCallbackJava(
-                            R.id.scriptresolver_resolve,
-                            "resolver.resolve( '" + query.getQid() + "', '" + query.getArtist()
-                                    .getName() + "', '" + query.getAlbum().getName() + "', '"
-                                    + query.getName() + "' )", false));
-        } else {
-            mScriptEngine.loadUrl("javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
-                    R.id.scriptresolver_resolve,
-                    "(Tomahawk.resolver.instance !== undefined) ?resolver.search( '" + query
-                            .getQid() + "', '" + query.getFullTextQuery() + "' ):resolve( '" + query
-                            .getQid() + "', '', '', '" + query.getFullTextQuery() + "' )", false));
-        }
+        UiThreadHandler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message inputMessage) {
+                if (!query.isFullTextQuery()) {
+                    mScriptEngine.loadUrl(
+                            "javascript:" + RESOLVER_LEGACY_CODE2 + makeJSFunctionCallbackJava(
+                                    R.id.scriptresolver_resolve,
+                                    "resolver.resolve( '" + query.getQid() + "', '" + query
+                                            .getArtist().getName() + "', '" + query.getAlbum()
+                                            .getName() + "', '" + query.getName() + "' )", false));
+                } else {
+                    mScriptEngine.loadUrl(
+                            "javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
+                                    R.id.scriptresolver_resolve,
+                                    "(Tomahawk.resolver.instance !== undefined) ?resolver.search( '"
+                                            + query.getQid() + "', '" + query.getFullTextQuery()
+                                            + "' ):resolve( '" + query.getQid() + "', '', '', '"
+                                            + query.getFullTextQuery() + "' )", false));
+                }
+            }
+        };
+        Message message = UiThreadHandler.obtainMessage();
+        message.sendToTarget();
     }
 
     /**
@@ -381,6 +392,7 @@ public class ScriptResolver implements Resolver {
     /**
      * @return this {@link ScriptResolver}'s id
      */
+    @Override
     public int getId() {
         return mId;
     }
@@ -404,6 +416,7 @@ public class ScriptResolver implements Resolver {
      * @return the {@link Drawable} which has been created by loading the image the js function
      * attribute "icon" pointed at
      */
+    @Override
     public Drawable getIcon() {
         return mIcon;
     }
@@ -411,6 +424,7 @@ public class ScriptResolver implements Resolver {
     /**
      * @return this {@link ScriptResolver}'s weight
      */
+    @Override
     public int getWeight() {
         return mWeight;
     }

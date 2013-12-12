@@ -66,7 +66,7 @@ public class DataBaseResolver implements Resolver {
      *                    {@link org.tomahawk.libtomahawk.resolver.PipeLine} to report our results
      */
     public DataBaseResolver(int id, TomahawkApp tomahawkApp) {
-        mWeight = 1000;
+        mWeight = 100;
         mReady = false;
         mStopped = true;
         mTomahawkApp = tomahawkApp;
@@ -88,6 +88,7 @@ public class DataBaseResolver implements Resolver {
     /**
      * @return whether or not this {@link Resolver} is currently resolving
      */
+    @Override
     public boolean isResolving() {
         return mReady && !mStopped;
     }
@@ -95,6 +96,7 @@ public class DataBaseResolver implements Resolver {
     /**
      * @return the icon of this {@link Resolver} as a {@link Drawable}
      */
+    @Override
     public Drawable getIcon() {
         return mIcon;
     }
@@ -104,6 +106,7 @@ public class DataBaseResolver implements Resolver {
      *
      * @param query the {@link Query} which should be resolved
      */
+    @Override
     public void resolve(Query query) {
         mStopped = false;
         if (query.isFullTextQuery()) {
@@ -181,7 +184,8 @@ public class DataBaseResolver implements Resolver {
             Runnable r = new Runnable() {
                 @Override
                 public void run() {
-                    mTomahawkApp.getPipeLine().reportResults(mQid, resultList);
+                    mTomahawkApp.getPipeLine()
+                            .reportResults(mQid, resultList, DataBaseResolver.this);
                 }
             };
             Thread t = new Thread(r);
@@ -244,6 +248,7 @@ public class DataBaseResolver implements Resolver {
     /**
      * @return this {@link DataBaseResolver}'s id
      */
+    @Override
     public int getId() {
         return mId;
     }
@@ -251,6 +256,7 @@ public class DataBaseResolver implements Resolver {
     /**
      * @return this {@link DataBaseResolver}'s weight
      */
+    @Override
     public int getWeight() {
         return mWeight;
     }
