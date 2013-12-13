@@ -158,23 +158,20 @@ public class UserCollection extends Collection {
     }
 
     /**
-     * Add a {@link UserPlaylist} to this {@link UserCollection}
-     */
-    public void addUserPlaylist(long playlistId, UserPlaylist userPlaylist) {
-        mUserPlaylists.put(playlistId, userPlaylist);
-    }
-
-    /**
      * Store the PlaybackService's currentPlaylist
      */
     public void setCachedUserPlaylist(UserPlaylist userPlaylist) {
         mCachedUserPlaylist = userPlaylist;
+        mTomahawkApp.getUserPlaylistsDataSource().storeCachedUserPlaylist(mCachedUserPlaylist);
     }
 
     /**
      * @return the previously cached {@link UserPlaylist}
      */
     public UserPlaylist getCachedUserPlaylist() {
+        if (mCachedUserPlaylist == null) {
+            mCachedUserPlaylist = mTomahawkApp.getUserPlaylistsDataSource().getCachedUserPlaylist();
+        }
         return mCachedUserPlaylist;
     }
 
@@ -275,9 +272,7 @@ public class UserCollection extends Collection {
         ArrayList<UserPlaylist> userPlayListList = mTomahawkApp.getUserPlaylistsDataSource()
                 .getAllUserPlaylists();
         for (UserPlaylist userPlaylist : userPlayListList) {
-            if (userPlaylist.getId() == UserPlaylistsDataSource.CACHED_PLAYLIST_ID) {
-                setCachedUserPlaylist(userPlaylist);
-            } else {
+            if (userPlaylist.getId() != UserPlaylistsDataSource.CACHED_PLAYLIST_ID) {
                 mUserPlaylists.put(userPlaylist.getId(), userPlaylist);
             }
         }
