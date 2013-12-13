@@ -324,7 +324,7 @@ public class LibSpotifyWrapper {
     /**
      * Called by libspotify. Add a result to the static {@link SpotifyResolver}
      */
-    public static void addResult(final String trackName, final int trackDuration,
+    public static void addResult(final String qid, final String trackName, final int trackDuration,
             final int trackDiscnumber, final int trackIndex, final String trackUri,
             final String albumName, final int albumYear, final String artistName) {
         Artist artist = Artist.get(artistName);
@@ -339,7 +339,7 @@ public class LibSpotifyWrapper {
         result.setArtist(artist);
         result.setAlbum(album);
         result.setResolvedBy(sSpotifyResolver);
-        sSpotifyResolver.addResult(result);
+        sSpotifyResolver.addResult(qid, result);
     }
 
     /**
