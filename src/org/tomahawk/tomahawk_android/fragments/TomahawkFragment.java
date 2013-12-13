@@ -57,7 +57,6 @@ import android.widget.GridView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 /**
  * The base class for {@link AlbumsFragment}, {@link TracksFragment}, {@link ArtistsFragment},
@@ -501,15 +500,14 @@ public class TomahawkFragment extends TomahawkListFragment
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
             int totalItemCount) {
-        resolveVisibleQueries();
+        resolveQueriesFromTo(firstVisibleItem, firstVisibleItem + visibleItemCount + 2);
     }
 
-    protected void resolveVisibleQueries() {
+    protected void resolveQueriesFromTo(int start, int end) {
         ArrayList<Query> qs = new ArrayList<Query>();
-        for (int i = getListView().getFirstVisiblePosition();
-                i < getListView().getLastVisiblePosition() + 2; i++) {
+        for (int i = start; i < end; i++) {
             if (i >= 0 && i < mShownQueries.size()) {
-                Query q = (Query) mShownQueries.get(i);
+                Query q = mShownQueries.get(i);
                 if (!q.isSolved() && !mPipeline.hasQuery(q.getQid())) {
                     qs.add(q);
                 }
