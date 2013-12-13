@@ -45,7 +45,6 @@ import android.widget.AdapterView;
 import android.widget.FrameLayout;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
@@ -328,6 +327,9 @@ public class PlaybackFragment extends TomahawkFragment
         TomahawkListAdapter tomahawkListAdapter = (TomahawkListAdapter) getListAdapter();
         if (tomahawkListAdapter != null && playbackService != null
                 && playbackService.getCurrentPlaylist() != null) {
+            mShownQueries = playbackService.getCurrentPlaylist().getQueries();
+            resolveQueriesFromTo(playbackService.getCurrentPlaylist().getCurrentQueryIndex(),
+                    playbackService.getCurrentPlaylist().getCurrentQueryIndex() + 10);
             tomahawkListAdapter.setHighlightedItem(
                     playbackService.getCurrentPlaylist().getCurrentQueryIndex());
             tomahawkListAdapter.setHighlightedItemIsPlaying(playbackService.isPlaying());
@@ -359,9 +361,13 @@ public class PlaybackFragment extends TomahawkFragment
         PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
         TomahawkListAdapter tomahawkListAdapter = (TomahawkListAdapter) getListAdapter();
 
-        mShownQueries = playbackService.getCurrentPlaylist().getQueries();
-        resolveVisibleQueries();
-
+        if (playbackService != null
+                && playbackService.getCurrentPlaylist() != null
+                && playbackService.getCurrentPlaylist().getCount() > 0) {
+            mShownQueries = playbackService.getCurrentPlaylist().getQueries();
+            resolveQueriesFromTo(getListView().getFirstVisiblePosition(),
+                    getListView().getLastVisiblePosition() + 2);
+        }
         if (tomahawkListAdapter != null && playbackService != null
                 && playbackService.getCurrentPlaylist() != null
                 && playbackService.getCurrentPlaylist().getCount() > 0) {

@@ -18,21 +18,14 @@
 package org.tomahawk.libtomahawk.resolver;
 
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.Intent;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.PriorityQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.PriorityBlockingQueue;
 
 /**
  * The {@link PipeLine} is being used to provide all the resolving functionality. All {@link

@@ -23,8 +23,6 @@ import org.tomahawk.libtomahawk.collection.Track;
 
 import android.text.TextUtils;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
  * This class represents a {@link Result}, which will be returned by a {@link Resolver}.
  */

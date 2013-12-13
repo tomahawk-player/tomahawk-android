@@ -35,7 +35,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -190,7 +189,8 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         for (TomahawkBaseAdapter.TomahawkListItem item : queries) {
             mShownQueries.add((Query) item);
         }
-        resolveVisibleQueries();
+        resolveQueriesFromTo(getListView().getFirstVisiblePosition(),
+                getListView().getLastVisiblePosition() + 2);
 
         getListView().setOnItemClickListener(this);
     }
