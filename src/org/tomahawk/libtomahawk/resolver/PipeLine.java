@@ -274,8 +274,9 @@ public class PipeLine {
     private void overseeWorkers() {
         while (mOnGoingResolutionQueue.size() < NUMBER_OF_WORKERS && !mResolutionQueue.isEmpty()) {
             Resolution resolution = mResolutionQueue.poll();
-            resolution.getResolver().resolve(resolution.getQuery());
-            mOnGoingResolutionQueue.put(TomahawkUtils.getCacheKey(resolution), resolution);
+            if (resolution.getResolver().resolve(resolution.getQuery())) {
+                mOnGoingResolutionQueue.put(TomahawkUtils.getCacheKey(resolution), resolution);
+            }
         }
     }
 }
