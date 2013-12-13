@@ -334,7 +334,7 @@ public class LibSpotifyWrapper {
         Track track = Track.get(trackName, album, artist);
         track.setDuration(trackDuration);
         track.setAlbumPos(trackIndex);
-        Result result = Result.get(trackUri, track);
+        Result result = new Result(trackUri, track);
         result.setTrack(track);
         result.setArtist(artist);
         result.setAlbum(album);

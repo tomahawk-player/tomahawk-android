@@ -145,9 +145,7 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
             mSolved = true;
         }
         String key = TomahawkUtils.getCacheKey(result);
-        if (!mTrackResults.containsKey(key)) {
-            mTrackResults.put(key, result);
-        }
+        mTrackResults.put(key, result);
         if (getPreferredTrackResult() == null ||
                 (getPreferredTrackResult().getTrackScore() < result.getTrackScore() ||
                         (getPreferredTrackResult().getTrackScore() == result.getTrackScore()
@@ -190,9 +188,7 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
 
     public void addAlbumResult(Result result) {
         String key = TomahawkUtils.getCacheKey(result.getAlbum());
-        if (!mAlbumResults.containsKey(key)) {
-            mAlbumResults.put(key, result);
-        }
+        mAlbumResults.put(key, result);
     }
 
     /**
@@ -229,9 +225,7 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
 
     public void addArtistResult(Result result) {
         String key = TomahawkUtils.getCacheKey(result.getArtist());
-        if (!mArtistResults.containsKey(key)) {
-            mArtistResults.put(key, result);
-        }
+        mArtistResults.put(key, result);
     }
 
     /**

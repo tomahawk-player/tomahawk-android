@@ -250,7 +250,7 @@ public class UserCollection extends Collection {
             track.setAlbumPos(cursor.getInt(4));
 
             Query query = new Query(track.getName(), album.getName(), artist.getName(), true);
-            Result result = Result.get(cursor.getString(1), track);
+            Result result = new Result(cursor.getString(1), track);
             result.setResolvedBy(userCollectionResolver);
             result.setTrackScore(1f);
             query.addTrackResult(result);

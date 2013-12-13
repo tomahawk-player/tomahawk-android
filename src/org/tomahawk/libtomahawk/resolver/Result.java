@@ -36,9 +36,6 @@ public class Result {
 
     public static int RESULT_TYPE_ARTIST = 2;
 
-    private static ConcurrentHashMap<String, Result> mResults
-            = new ConcurrentHashMap<String, Result>();
-
     private Artist mArtist;
 
     private Album mAlbum;
@@ -75,7 +72,7 @@ public class Result {
     /**
      * Construct a new {@link Result} with the given {@link Track}
      */
-    private Result(String url, Query query) {
+    public Result(String url, Query query) {
         setPath(url);
         mArtist = query.getArtist();
         mAlbum = query.getAlbum();
@@ -85,7 +82,7 @@ public class Result {
     /**
      * Construct a new {@link Result} with the given {@link Track}
      */
-    private Result(String url, Track track) {
+    public Result(String url, Track track) {
         setPath(url);
         mArtist = track.getArtist();
         mAlbum = track.getAlbum();
@@ -95,7 +92,7 @@ public class Result {
     /**
      * Construct a new {@link Result} with the given {@link Artist}
      */
-    private Result(Artist artist) {
+    public Result(Artist artist) {
         mArtist = artist;
         mAlbum = artist.getAlbum();
     }
@@ -103,44 +100,8 @@ public class Result {
     /**
      * Construct a new {@link Result} with the given {@link Album}
      */
-    private Result(Album album) {
+    public Result(Album album) {
         mAlbum = album;
-    }
-
-    public static Result get(String url, Query query) {
-        Result result = mResults.get(url);
-        if (result == null) {
-            result = new Result(url, query);
-            mResults.put(url, result);
-        }
-        return result;
-    }
-
-    public static Result get(String url, Track track) {
-        Result result = mResults.get(url);
-        if (result == null) {
-            result = new Result(url, track);
-            mResults.put(url, result);
-        }
-        return result;
-    }
-
-    public static Result get(String url, Album album) {
-        Result result = mResults.get(url);
-        if (result == null) {
-            result = new Result(album);
-            mResults.put(url, result);
-        }
-        return result;
-    }
-
-    public static Result get(String url, Artist artist) {
-        Result result = mResults.get(url);
-        if (result == null) {
-            result = new Result(artist);
-            mResults.put(url, result);
-        }
-        return result;
     }
 
     /**
