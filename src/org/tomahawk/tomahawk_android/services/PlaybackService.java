@@ -431,12 +431,14 @@ public class PlaybackService extends Service
     private void saveState() {
         if (getCurrentPlaylist() != null) {
             long startTime = System.currentTimeMillis();
-            ((TomahawkApp) getApplication()).getUserPlaylistsDataSource().storeCachedUserPlaylist(
-                    getCurrentPlaylist());
+            UserCollection userCollection = (UserCollection) ((TomahawkApp) getApplication())
+                    .getSourceList().getCollectionFromId(UserCollection.Id);
+            userCollection.setCachedUserPlaylist(UserPlaylist
+                    .fromQueryList(UserPlaylistsDataSource.CACHED_PLAYLIST_ID,
+                            UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
+                            getCurrentPlaylist().getQueries(),
+                            getCurrentPlaylist().getCurrentQueryIndex()));
             Log.d(TAG, "Playlist stored in " + (System.currentTimeMillis() - startTime) + "ms");
-            UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication())
-                    .getSourceList().getCollectionFromId(UserCollection.Id));
-            userCollection.updateUserPlaylists();
         }
     }
 
@@ -448,9 +450,8 @@ public class PlaybackService extends Service
     private void restoreState() {
         if (getCurrentPlaylist() == null) {
             long startTime = System.currentTimeMillis();
-            UserCollection userCollection = ((UserCollection) ((TomahawkApp) getApplication())
-                    .getSourceList().getCollectionFromId(UserCollection.Id));
-            userCollection.updateUserPlaylists();
+            UserCollection userCollection = (UserCollection) ((TomahawkApp) getApplication())
+                    .getSourceList().getCollectionFromId(UserCollection.Id);
             setCurrentPlaylist(userCollection.getCachedUserPlaylist());
             Log.d(TAG, "Playlist loaded in " + (System.currentTimeMillis() - startTime) + "ms");
         }
