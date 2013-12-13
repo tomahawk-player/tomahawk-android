@@ -61,14 +61,6 @@ public class PipeLine {
 
     private ConcurrentHashMap<String, Query> mQids = new ConcurrentHashMap<String, Query>();
 
-    private ConcurrentHashMap<String, Resolution> mOnGoingResolutionQueue
-            = new ConcurrentHashMap<String, Resolution>();
-
-    private PriorityQueue<Resolution> mResolutionQueue = new PriorityQueue<Resolution>(10,
-            new ResolutionComparator(ResolutionComparator.COMPARE_WEIGHT));
-
-    private static final int NUMBER_OF_WORKERS = Runtime.getRuntime().availableProcessors() * 2;
-
     public PipeLine(TomahawkApp tomahawkApp) {
         mTomahawkApp = tomahawkApp;
     }
@@ -160,11 +152,7 @@ public class PipeLine {
                     if ((!onlyLocal && resolver instanceof SpotifyResolver
                             && ((SpotifyResolver) resolver).isReady()) || (onlyLocal
                             && resolver instanceof DataBaseResolver) || !onlyLocal) {
-                        Resolution resolution = new Resolution(q, resolver);
-                        if (!mResolutionQueue.contains(resolution)) {
-                            mResolutionQueue.add(resolution);
-                            overseeWorkers();
-                        }
+                        resolver.resolve(q);
                     }
                 }
             }
@@ -204,19 +192,8 @@ public class PipeLine {
      *
      * @param qid      the {@link Query} id
      * @param results  the unfiltered {@link ArrayList} of {@link Result}s
-     * @param resolver the {@link org.tomahawk.libtomahawk.resolver.Resolver} which wants to report
-     *                 the given results
      */
-    public void reportResults(String qid, ArrayList<Result> results, Resolver resolver) {
-        mOnGoingResolutionQueue.remove(TomahawkUtils.getCacheKey(qid, resolver));
-        Handler UiThreadHandler = new Handler(Looper.getMainLooper()) {
-            @Override
-            public void handleMessage(Message inputMessage) {
-                overseeWorkers();
-            }
-        };
-        Message message = UiThreadHandler.obtainMessage();
-        message.sendToTarget();
+    public void reportResults(String qid, ArrayList<Result> results) {
         ArrayList<Result> cleanTrackResults = new ArrayList<Result>();
         ArrayList<Result> cleanAlbumResults = new ArrayList<Result>();
         ArrayList<Result> cleanArtistResults = new ArrayList<Result>();
@@ -252,7 +229,12 @@ public class PipeLine {
      * @return true if one or more {@link ScriptResolver}s are currently resolving. False otherwise
      */
     public boolean isResolving() {
-        return !mOnGoingResolutionQueue.isEmpty();
+        for (Resolver resolver : mResolvers) {
+            if (resolver.isResolving()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -269,14 +251,5 @@ public class PipeLine {
      */
     public boolean hasQuery(String qid) {
         return mQids.containsKey(qid);
-    }
-
-    private void overseeWorkers() {
-        while (mOnGoingResolutionQueue.size() < NUMBER_OF_WORKERS && !mResolutionQueue.isEmpty()) {
-            Resolution resolution = mResolutionQueue.poll();
-            if (resolution.getResolver().resolve(resolution.getQuery())) {
-                mOnGoingResolutionQueue.put(TomahawkUtils.getCacheKey(resolution), resolution);
-            }
-        }
     }
 }
