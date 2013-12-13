@@ -26,6 +26,7 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import android.graphics.drawable.Drawable;
 
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A {@link Resolver} which resolves {@link org.tomahawk.libtomahawk.collection.Track}s via
@@ -47,7 +48,8 @@ public class SpotifyResolver implements Resolver {
 
     private boolean mStopped;
 
-    private ArrayList<Result> mResults = new ArrayList<Result>();
+    private ConcurrentHashMap<String, ArrayList<Result>> mResults
+            = new ConcurrentHashMap<String, ArrayList<Result>>();
 
     /**
      * Construct a new {@link SpotifyResolver}
@@ -90,6 +92,11 @@ public class SpotifyResolver implements Resolver {
     public boolean resolve(Query query) {
         mStopped = false;
         if (mReady) {
+            ArrayList<Result> results = mResults.get(query.getQid());
+            if (results == null) {
+                results = new ArrayList<Result>();
+                mResults.put(query.getQid(), results);
+            }
             LibSpotifyWrapper.resolve(query.getQid(), query, this);
         }
         return mReady;
@@ -114,8 +121,10 @@ public class SpotifyResolver implements Resolver {
     /**
      * Add the given {@link Result} to our {@link ArrayList} of {@link Result}s
      */
-    public void addResult(Result result) {
-        mResults.add(result);
+    public void addResult(String qid, Result result) {
+        ArrayList<Result> results = mResults.get(qid);
+        results.add(result);
+        mResults.put(qid, results);
     }
 
     /**
@@ -125,7 +134,7 @@ public class SpotifyResolver implements Resolver {
     public void onResolved(String qid) {
         mStopped = true;
         // report our results to the pipeline
-        mTomahawkApp.getPipeLine().reportResults(qid, mResults);
+        mTomahawkApp.getPipeLine().reportResults(qid, mResults.get(qid));
     }
 
     /**

@@ -85,6 +85,8 @@ void logout(list<int> int_params, list<string> string_params, sp_session *sessio
 static void SP_CALLCONV search_complete(sp_search *search, void *userdata) {
     JNIEnv *env;
     jclass classLibspotify = find_class_from_native_thread(&env);
+	string &qid = *static_cast<string*>(userdata);
+    jstring j_qid = env->NewStringUTF(qid.c_str());
 	bool success = (sp_search_error(search) == SP_ERROR_OK) ? true : false;
 	int count = sp_search_num_tracks(search);
     jstring j_trackname;
@@ -135,8 +137,8 @@ static void SP_CALLCONV search_complete(sp_search *search, void *userdata) {
                 }
             }
             jmethodID methodIdAddResult = env->GetStaticMethodID(classLibspotify, "addResult",
-                "(Ljava/lang/String;IIILjava/lang/String;Ljava/lang/String;ILjava/lang/String;)V");
-            env->CallStaticVoidMethod(classLibspotify, methodIdAddResult, j_trackname,
+                "(Ljava/lang/String;Ljava/lang/String;IIILjava/lang/String;Ljava/lang/String;ILjava/lang/String;)V");
+            env->CallStaticVoidMethod(classLibspotify, methodIdAddResult, j_qid, j_trackname,
                 trackDuration, trackDiscnumber, trackIndex, j_trackuri,
                 j_albumname, albumYear, j_artistname);
             if (env->ExceptionCheck()) {
@@ -153,10 +155,8 @@ static void SP_CALLCONV search_complete(sp_search *search, void *userdata) {
 	        j_albumname = NULL;
         }
 	}
-	string &qid = *static_cast<string*>(userdata);
     jmethodID methodIdOnResolved = env->GetStaticMethodID(classLibspotify, "onResolved",
 	    "(Ljava/lang/String;ZLjava/lang/String;Ljava/lang/String;)V");
-    jstring j_qid = env->NewStringUTF(qid.c_str());
     jstring j_error = env->NewStringUTF(sp_error_message(sp_search_error(search)));
     jstring j_didyoumean = env->NewStringUTF(sp_search_did_you_mean(search));
     env->CallStaticVoidMethod(classLibspotify, methodIdOnResolved, j_qid, success, j_error,
