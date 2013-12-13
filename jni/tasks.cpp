@@ -156,14 +156,19 @@ static void SP_CALLCONV search_complete(sp_search *search, void *userdata) {
 	string &qid = *static_cast<string*>(userdata);
     jmethodID methodIdOnResolved = env->GetStaticMethodID(classLibspotify, "onResolved",
 	    "(Ljava/lang/String;ZLjava/lang/String;Ljava/lang/String;)V");
-    env->CallStaticVoidMethod(classLibspotify, methodIdOnResolved, env->NewStringUTF(qid.c_str()), success,
-        env->NewStringUTF(sp_error_message(sp_search_error(search))),
-        env->NewStringUTF(sp_search_did_you_mean(search)));
+    jstring j_qid = env->NewStringUTF(qid.c_str());
+    jstring j_error = env->NewStringUTF(sp_error_message(sp_search_error(search)));
+    jstring j_didyoumean = env->NewStringUTF(sp_search_did_you_mean(search));
+    env->CallStaticVoidMethod(classLibspotify, methodIdOnResolved, j_qid, success, j_error,
+        j_didyoumean);
     if (env->ExceptionCheck()) {
         env->ExceptionDescribe();
         env->ExceptionClear();
     }
 	env->DeleteLocalRef(classLibspotify);
+	env->DeleteLocalRef(j_qid);
+	env->DeleteLocalRef(j_error);
+	env->DeleteLocalRef(j_didyoumean);
 
     log("Finished resolving query:'%s', success'%s', track count:'%d', qid:'%s'", sp_search_query(search),
         (success?"true":"false"), count, qid.c_str());
