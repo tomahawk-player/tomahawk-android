@@ -39,7 +39,6 @@ static string s_current_uri;
 static bool s_is_playing = false;
 static bool s_is_waiting_for_metadata = false;
 static bool s_play_after_loaded = false;
-static string qid;
 
 static void on_pause();
 static void on_play();
@@ -154,6 +153,7 @@ static void SP_CALLCONV search_complete(sp_search *search, void *userdata) {
 	        j_albumname = NULL;
         }
 	}
+	string &qid = *static_cast<string*>(userdata);
     jmethodID methodIdOnResolved = env->GetStaticMethodID(classLibspotify, "onResolved",
 	    "(Ljava/lang/String;ZLjava/lang/String;Ljava/lang/String;)V");
     env->CallStaticVoidMethod(classLibspotify, methodIdOnResolved, env->NewStringUTF(qid.c_str()), success,
@@ -165,19 +165,20 @@ static void SP_CALLCONV search_complete(sp_search *search, void *userdata) {
     }
 	env->DeleteLocalRef(classLibspotify);
 
-    log("Finished resolving query:'%s', success'%s'. track count:'%d'", sp_search_query(search),
-        (success?"true":"false"), count);
+    log("Finished resolving query:'%s', success'%s', track count:'%d', qid:'%s'", sp_search_query(search),
+        (success?"true":"false"), count, qid.c_str());
     sp_search_release(search);
+    delete &qid;
 }
 
 void resolve(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track) {
 	if (session == NULL)
 		exitl("Tried to resolve before session was initialized");
-	qid = string_params.front();
+    string *qid = new string(string_params.front());
 	string query = string_params.back();
-	log("resolve| session is %s, query:'%s' qid:'%s'", session==0?"null":"not null", query.c_str(), qid.c_str());
-    sp_search_create(session, query.c_str(), 0, 100, 0, 100, 0, 100, 0, 100, SP_SEARCH_STANDARD, &search_complete, NULL);
-    log("Beginning to resolve query:'%s', qid:'%s'", query.c_str(), qid.c_str());
+	log("resolve| session is %s, query:'%s' qid:'%s'", session==0?"null":"not null", query.c_str(), qid->c_str());
+    sp_search_create(session, query.c_str(), 0, 100, 0, 100, 0, 100, 0, 100, SP_SEARCH_STANDARD, &search_complete, qid);
+    log("Beginning to resolve query:'%s', qid:'%s'", query.c_str(), qid->c_str());
 }
 
 void setbitrate(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track) {

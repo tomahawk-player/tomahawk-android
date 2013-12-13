@@ -105,16 +105,21 @@ public class DataBaseResolver implements Resolver {
      * Resolve the given {@link Query}.
      *
      * @param query the {@link Query} which should be resolved
+     * @return whether or not the Resolver is ready to resolve
      */
     @Override
-    public void resolve(Query query) {
-        mStopped = false;
-        if (query.isFullTextQuery()) {
-            new TomahawkListItemFilter(query.getQid(), this, query.getFullTextQuery()).filter(null);
-        } else {
-            new TomahawkListItemFilter(query.getQid(), this, query.getName(),
-                    query.getAlbum().getName(), query.getArtist().getName()).filter(null);
+    public boolean resolve(Query query) {
+        if (mReady) {
+            mStopped = false;
+            if (query.isFullTextQuery()) {
+                new TomahawkListItemFilter(query.getQid(), this, query.getFullTextQuery())
+                        .filter(null);
+            } else {
+                new TomahawkListItemFilter(query.getQid(), this, query.getName(),
+                        query.getAlbum().getName(), query.getArtist().getName()).filter(null);
+            }
         }
+        return mReady;
     }
 
     /**

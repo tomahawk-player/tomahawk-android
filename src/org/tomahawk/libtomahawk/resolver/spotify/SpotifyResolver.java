@@ -83,11 +83,16 @@ public class SpotifyResolver implements Resolver {
 
     /**
      * Resolve the given {@link Query}
+     *
+     * @return whether or not the Resolver is ready to resolve
      */
     @Override
-    public void resolve(Query query) {
+    public boolean resolve(Query query) {
         mStopped = false;
-        LibSpotifyWrapper.resolve(query.getQid(), query, this);
+        if (mReady) {
+            LibSpotifyWrapper.resolve(query.getQid(), query, this);
+        }
+        return mReady;
     }
 
     /**

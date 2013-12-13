@@ -263,33 +263,38 @@ public class ScriptResolver implements Resolver {
      * Invoke the javascript to resolve the given {@link Query}.
      *
      * @param query the {@link Query} which should be resolved
+     * @return whether or not the Resolver is ready to resolve
      */
     @Override
-    public void resolve(final Query query) {
-        mStopped = false;
-        UiThreadHandler = new Handler(Looper.getMainLooper()) {
-            @Override
-            public void handleMessage(Message inputMessage) {
-                if (!query.isFullTextQuery()) {
-                    mScriptEngine.loadUrl(
-                            "javascript:" + RESOLVER_LEGACY_CODE2 + makeJSFunctionCallbackJava(
-                                    R.id.scriptresolver_resolve,
-                                    "resolver.resolve( '" + query.getQid() + "', '" + query
-                                            .getArtist().getName() + "', '" + query.getAlbum()
-                                            .getName() + "', '" + query.getName() + "' )", false));
-                } else {
-                    mScriptEngine.loadUrl(
-                            "javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
-                                    R.id.scriptresolver_resolve,
-                                    "(Tomahawk.resolver.instance !== undefined) ?resolver.search( '"
-                                            + query.getQid() + "', '" + query.getFullTextQuery()
-                                            + "' ):resolve( '" + query.getQid() + "', '', '', '"
-                                            + query.getFullTextQuery() + "' )", false));
+    public boolean resolve(final Query query) {
+        if (mReady) {
+            mStopped = false;
+            UiThreadHandler = new Handler(Looper.getMainLooper()) {
+                @Override
+                public void handleMessage(Message inputMessage) {
+                    if (!query.isFullTextQuery()) {
+                        mScriptEngine.loadUrl(
+                                "javascript:" + RESOLVER_LEGACY_CODE2 + makeJSFunctionCallbackJava(
+                                        R.id.scriptresolver_resolve,
+                                        "resolver.resolve( '" + query.getQid() + "', '" + query
+                                                .getArtist().getName() + "', '" + query.getAlbum()
+                                                .getName() + "', '" + query.getName() + "' )",
+                                        false));
+                    } else {
+                        mScriptEngine.loadUrl(
+                                "javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
+                                        R.id.scriptresolver_resolve,
+                                        "(Tomahawk.resolver.instance !== undefined) ?resolver.search( '"
+                                                + query.getQid() + "', '" + query.getFullTextQuery()
+                                                + "' ):resolve( '" + query.getQid() + "', '', '', '"
+                                                + query.getFullTextQuery() + "' )", false));
+                    }
                 }
-            }
-        };
-        Message message = UiThreadHandler.obtainMessage();
-        message.sendToTarget();
+            };
+            Message message = UiThreadHandler.obtainMessage();
+            message.sendToTarget();
+        }
+        return mReady;
     }
 
     /**

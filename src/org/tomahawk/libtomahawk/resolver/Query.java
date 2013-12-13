@@ -144,7 +144,7 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
         if (result.getTrackScore() == 1f) {
             mSolved = true;
         }
-        String key = TomahawkUtils.getCacheKey(result.getTrack());
+        String key = TomahawkUtils.getCacheKey(result);
         if (!mTrackResults.containsKey(key)) {
             mTrackResults.put(key, result);
         }
