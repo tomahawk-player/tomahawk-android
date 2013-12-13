@@ -189,8 +189,7 @@ public class DataBaseResolver implements Resolver {
             Runnable r = new Runnable() {
                 @Override
                 public void run() {
-                    mTomahawkApp.getPipeLine()
-                            .reportResults(mQid, resultList, DataBaseResolver.this);
+                    mTomahawkApp.getPipeLine().reportResults(mQid, resultList);
                 }
             };
             Thread t = new Thread(r);

@@ -242,8 +242,7 @@ public class ScriptResolver implements Resolver {
                     } else if (id == R.id.scriptresolver_add_track_results_string && obj != null) {
                         String qid = obj.get("qid").toString();
                         JSONArray resultList = obj.getJSONArray("results");
-                        mTomahawkApp.getPipeLine().reportResults(qid, parseResultList(resultList),
-                                ScriptResolver.this);
+                        mTomahawkApp.getPipeLine().reportResults(qid, parseResultList(resultList));
                         mStopped = true;
                     }
                 } catch (JSONException e) {
