@@ -118,7 +118,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
      * Update this {@link TomahawkFragment}'s {@link TomahawkBaseAdapter} content
      */
     public void updateAdapter() {
-        List<TomahawkBaseAdapter.TomahawkListItem> queries
+        ArrayList<TomahawkBaseAdapter.TomahawkListItem> queries
                 = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
         TomahawkListAdapter tomahawkListAdapter;
         Collection coll = mTomahawkMainActivity.getUserCollection();
@@ -186,18 +186,10 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             }
         }
 
-        ArrayList<Query> qs = new ArrayList<Query>();
-        for (TomahawkBaseAdapter.TomahawkListItem query : queries) {
-            Query q = (Query) query;
-            if (!q.isSolved() && !mPipeline.hasQuery(q.getQid())) {
-                qs.add(q);
-            }
+        for (TomahawkBaseAdapter.TomahawkListItem item : queries) {
+            mShownQueries.add((Query) item);
         }
-        if (!qs.isEmpty()) {
-            HashSet<String> qids = mPipeline.resolve(qs);
-            mCorrespondingQueryIds.addAll(qids);
-            mTomahawkMainActivity.startLoadingAnimation();
-        }
+        resolveVisibleQueries();
 
         getListView().setOnItemClickListener(this);
     }

@@ -359,19 +359,8 @@ public class PlaybackFragment extends TomahawkFragment
         PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
         TomahawkListAdapter tomahawkListAdapter = (TomahawkListAdapter) getListAdapter();
 
-        if (playbackService != null && playbackService.getCurrentPlaylist() != null) {
-            ArrayList<Query> qs = new ArrayList<Query>();
-            for (Query query : playbackService.getCurrentPlaylist().getQueries()) {
-                if (!query.isSolved() && !mPipeline.hasQuery(query.getQid())) {
-                    qs.add(query);
-                }
-            }
-            if (!qs.isEmpty()) {
-                HashSet<String> qids = mPipeline.resolve(qs);
-                mCorrespondingQueryIds.addAll(qids);
-                mTomahawkMainActivity.startLoadingAnimation();
-            }
-        }
+        mShownQueries = playbackService.getCurrentPlaylist().getQueries();
+        resolveVisibleQueries();
 
         if (tomahawkListAdapter != null && playbackService != null
                 && playbackService.getCurrentPlaylist() != null
