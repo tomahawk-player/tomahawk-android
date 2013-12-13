@@ -345,7 +345,7 @@ public class ScriptResolver implements Resolver {
                                             Float.valueOf(obj.get("duration").toString()) * 1000));
                         }
                         artist.addAlbum(album);
-                        Result result = Result.get(obj.get("url").toString(), track);
+                        Result result = new Result(obj.get("url").toString(), track);
                         if (obj.has("bitrate")) {
                             result.setBitrate(Integer.valueOf(obj.get("bitrate").toString()));
                         }

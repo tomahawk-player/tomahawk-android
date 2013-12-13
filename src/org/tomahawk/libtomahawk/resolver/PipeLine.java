@@ -190,8 +190,8 @@ public class PipeLine {
      * This method will then calculate a score and assign it to every {@link Result}. If the score
      * is higher than MINSCORE the {@link Result} is added to the output resultList.
      *
-     * @param qid      the {@link Query} id
-     * @param results  the unfiltered {@link ArrayList} of {@link Result}s
+     * @param qid     the {@link Query} id
+     * @param results the unfiltered {@link ArrayList} of {@link Result}s
      */
     public void reportResults(String qid, ArrayList<Result> results) {
         ArrayList<Result> cleanTrackResults = new ArrayList<Result>();
@@ -206,15 +206,17 @@ public class PipeLine {
                         r.setType(Result.RESULT_TYPE_TRACK);
                         cleanTrackResults.add(r);
                     }
-                    r.setAlbumScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_ALBUMS));
-                    if (r.getAlbumScore() >= MINSCORE && !cleanAlbumResults.contains(r)) {
-                        r.setType(Result.RESULT_TYPE_ALBUM);
-                        cleanAlbumResults.add(r);
-                    }
-                    r.setArtistScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_ARTISTS));
-                    if (r.getArtistScore() >= MINSCORE && !cleanArtistResults.contains(r)) {
-                        r.setType(Result.RESULT_TYPE_ARTIST);
-                        cleanArtistResults.add(r);
+                    if (q.isFullTextQuery()) {
+                        r.setAlbumScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_ALBUMS));
+                        if (r.getAlbumScore() >= MINSCORE && !cleanAlbumResults.contains(r)) {
+                            r.setType(Result.RESULT_TYPE_ALBUM);
+                            cleanAlbumResults.add(r);
+                        }
+                        r.setArtistScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_ARTISTS));
+                        if (r.getArtistScore() >= MINSCORE && !cleanArtistResults.contains(r)) {
+                            r.setType(Result.RESULT_TYPE_ARTIST);
+                            cleanArtistResults.add(r);
+                        }
                     }
                 }
             }

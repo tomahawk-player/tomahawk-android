@@ -186,6 +186,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             }
         }
 
+        mShownQueries.clear();
         for (TomahawkBaseAdapter.TomahawkListItem item : queries) {
             mShownQueries.add((Query) item);
         }
