@@ -50,12 +50,14 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * The base class for {@link AlbumsFragment}, {@link TracksFragment}, {@link ArtistsFragment},
@@ -65,7 +67,7 @@ import java.util.HashSet;
  */
 public class TomahawkFragment extends TomahawkListFragment
         implements LoaderManager.LoaderCallbacks<Collection>, FakeContextMenu,
-        AdapterView.OnItemLongClickListener {
+        AdapterView.OnItemLongClickListener, AbsListView.OnScrollListener {
 
     public static final String TOMAHAWK_ALBUM_KEY
             = "org.tomahawk.tomahawk_android.tomahawk_album_id";
@@ -92,6 +94,8 @@ public class TomahawkFragment extends TomahawkListFragment
     protected PipeLine mPipeline;
 
     protected HashSet<String> mCorrespondingQueryIds = new HashSet<String>();
+
+    protected ArrayList<Query> mShownQueries = new ArrayList<Query>();
 
     protected int mCorrespondingHubId;
 
@@ -182,10 +186,12 @@ public class TomahawkFragment extends TomahawkListFragment
         TomahawkStickyListHeadersListView list = getListView();
         if (list != null) {
             list.setOnItemLongClickListener(this);
+            list.setOnScrollListener(this);
         }
         GridView grid = getGridView();
         if (grid != null) {
             grid.setOnItemLongClickListener(this);
+            grid.setOnScrollListener(this);
         }
     }
 
@@ -485,5 +491,34 @@ public class TomahawkFragment extends TomahawkListFragment
 
     @Override
     public void onLoaderReset(Loader<Collection> loader) {
+    }
+
+    @Override
+    public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+    }
+
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
+            int totalItemCount) {
+        resolveVisibleQueries();
+    }
+
+    protected void resolveVisibleQueries() {
+        ArrayList<Query> qs = new ArrayList<Query>();
+        for (int i = getListView().getFirstVisiblePosition();
+                i < getListView().getLastVisiblePosition() + 2; i++) {
+            if (i >= 0 && i < mShownQueries.size()) {
+                Query q = (Query) mShownQueries.get(i);
+                if (!q.isSolved() && !mPipeline.hasQuery(q.getQid())) {
+                    qs.add(q);
+                }
+            }
+        }
+        if (!qs.isEmpty()) {
+            HashSet<String> qids = mPipeline.resolve(qs);
+            mCorrespondingQueryIds.addAll(qids);
+            mTomahawkMainActivity.startLoadingAnimation();
+        }
     }
 }
