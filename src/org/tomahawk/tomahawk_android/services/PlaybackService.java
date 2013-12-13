@@ -448,13 +448,11 @@ public class PlaybackService extends Service
      * playlist from there.
      */
     private void restoreState() {
-        if (getCurrentPlaylist() == null) {
-            long startTime = System.currentTimeMillis();
-            UserCollection userCollection = (UserCollection) ((TomahawkApp) getApplication())
-                    .getSourceList().getCollectionFromId(UserCollection.Id);
-            setCurrentPlaylist(userCollection.getCachedUserPlaylist());
-            Log.d(TAG, "Playlist loaded in " + (System.currentTimeMillis() - startTime) + "ms");
-        }
+        long startTime = System.currentTimeMillis();
+        UserCollection userCollection = (UserCollection) ((TomahawkApp) getApplication())
+                .getSourceList().getCollectionFromId(UserCollection.Id);
+        setCurrentPlaylist(userCollection.getCachedUserPlaylist());
+        Log.d(TAG, "Playlist loaded in " + (System.currentTimeMillis() - startTime) + "ms");
         if (getCurrentPlaylist() != null && isPlaying()) {
             pause(true);
         }
