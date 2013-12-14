@@ -45,8 +45,6 @@ public class PlaybackControlsFragment extends Fragment {
 
     private PlaybackService mPlaybackService;
 
-    private TomahawkMainActivity mTomahawkMainActivity;
-
     private AlbumArtSwipeAdapter mAlbumArtSwipeAdapter;
 
     private PlaybackSeekBar mPlaybackSeekBar;
@@ -79,18 +77,6 @@ public class PlaybackControlsFragment extends Fragment {
         }
     };
 
-    /**
-     * Store the reference to the {@link Activity}, in which this Fragment has been created
-     */
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        if (activity instanceof TomahawkMainActivity) {
-            mTomahawkMainActivity = (TomahawkMainActivity) activity;
-        }
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -122,14 +108,14 @@ public class PlaybackControlsFragment extends Fragment {
     public void init() {
         if (getView().getParent() != null) {
             ViewPager viewPager = (ViewPager) getView().findViewById(R.id.album_art_view_pager);
-            mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter(mTomahawkMainActivity, viewPager);
+            mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter(getActivity(), viewPager);
             mAlbumArtSwipeAdapter.setPlaybackService(mPlaybackService);
 
             mPlaybackSeekBar = (PlaybackSeekBar) getView().findViewById(R.id.seekBar_track);
-            mPlaybackSeekBar.setTextViewCurrentTime(
-                    (TextView) mTomahawkMainActivity.findViewById(R.id.textView_currentTime));
-            mPlaybackSeekBar.setTextViewCompletionTime(
-                    (TextView) mTomahawkMainActivity.findViewById(R.id.textView_completionTime));
+            mPlaybackSeekBar.setTextViewCurrentTime((TextView) getView().findViewById(
+                    R.id.textView_currentTime));
+            mPlaybackSeekBar.setTextViewCompletionTime((TextView) getView().findViewById(
+                    R.id.textView_completionTime));
             mPlaybackSeekBar.setPlaybackService(mPlaybackService);
 
             refreshTrackInfo();
@@ -214,9 +200,7 @@ public class PlaybackControlsFragment extends Fragment {
      * track has changed inside our PlaybackService
      */
     public void onTrackChanged() {
-        if (mTomahawkMainActivity != null) {
-            refreshTrackInfo();
-        }
+        refreshTrackInfo();
     }
 
     /**
@@ -224,13 +208,11 @@ public class PlaybackControlsFragment extends Fragment {
      * playlist has changed inside our PlaybackService
      */
     public void onPlaylistChanged() {
-        if (mTomahawkMainActivity != null) {
-            if (mAlbumArtSwipeAdapter != null) {
-                mAlbumArtSwipeAdapter.updatePlaylist();
-            }
-            refreshRepeatButtonState();
-            refreshShuffleButtonState();
+        if (mAlbumArtSwipeAdapter != null) {
+            mAlbumArtSwipeAdapter.updatePlaylist();
         }
+        refreshRepeatButtonState();
+        refreshShuffleButtonState();
     }
 
     /**
@@ -238,16 +220,14 @@ public class PlaybackControlsFragment extends Fragment {
      * indicating that the playState (playing or paused) has changed inside our PlaybackService
      */
     public void onPlaystateChanged() {
-        if (mTomahawkMainActivity != null) {
-            refreshPlayPauseButtonState();
-            if (mPlaybackSeekBar != null) {
-                mPlaybackSeekBar.updateSeekBarPosition();
-            }
+        refreshPlayPauseButtonState();
+        if (mPlaybackSeekBar != null) {
+            mPlaybackSeekBar.updateSeekBarPosition();
         }
     }
 
     public void setPlaybackService(PlaybackService ps) {
-        if (mTomahawkMainActivity != null && mPlaybackService != ps) {
+        if (mPlaybackService != ps) {
             mPlaybackService = ps;
             if (mAlbumArtSwipeAdapter != null && mPlaybackSeekBar != null) {
                 mAlbumArtSwipeAdapter.setPlaybackService(mPlaybackService);
@@ -265,12 +245,10 @@ public class PlaybackControlsFragment extends Fragment {
      * (meaning mPlaybackService is not null).
      */
     protected void refreshTrackInfo() {
-        if (mTomahawkMainActivity != null) {
-            if (mPlaybackService != null) {
-                refreshTrackInfo(mPlaybackService.getCurrentTrack());
-            } else {
-                refreshTrackInfo(null);
-            }
+        if (mPlaybackService != null) {
+            refreshTrackInfo(mPlaybackService.getCurrentTrack());
+        } else {
+            refreshTrackInfo(null);
         }
     }
 
@@ -280,85 +258,87 @@ public class PlaybackControlsFragment extends Fragment {
      * @param track the track to which the track info view stuff should be updated to
      */
     protected void refreshTrackInfo(Track track) {
-        if (track != null && getView() != null) {
-            /*
-            This logic makes sure, that if a track is being skipped by the user, it doesn't do this
-            for eternity. Because a press of the next button would cause the AlbumArtSwipeAdapter
-            to display a swipe to the next track, which would then cause another skipping to the
-            next track. That's why we have to make a difference between a swipe by the user, and a
-            programmatically called swipe.
-            */
-            mAlbumArtSwipeAdapter.setPlaybackService(mPlaybackService);
-            if (!mAlbumArtSwipeAdapter.isSwiped()) {
-                mAlbumArtSwipeAdapter.setByUser(false);
-                if (mPlaybackService.getCurrentPlaylist().getCurrentQueryIndex() >= 0) {
-                    mAlbumArtSwipeAdapter.setCurrentItem(
-                            mPlaybackService.getCurrentPlaylist().getCurrentQueryIndex(), true);
+        if (getView() != null) {
+            if (track != null) {
+                /*
+                This logic makes sure, that if a track is being skipped by the user, it doesn't do this
+                for eternity. Because a press of the next button would cause the AlbumArtSwipeAdapter
+                to display a swipe to the next track, which would then cause another skipping to the
+                next track. That's why we have to make a difference between a swipe by the user, and a
+                programmatically called swipe.
+                */
+                mAlbumArtSwipeAdapter.setPlaybackService(mPlaybackService);
+                if (!mAlbumArtSwipeAdapter.isSwiped()) {
+                    mAlbumArtSwipeAdapter.setByUser(false);
+                    if (mPlaybackService.getCurrentPlaylist().getCurrentQueryIndex() >= 0) {
+                        mAlbumArtSwipeAdapter.setCurrentItem(
+                                mPlaybackService.getCurrentPlaylist().getCurrentQueryIndex(), true);
+                    }
+                    mAlbumArtSwipeAdapter.setByUser(true);
                 }
-                mAlbumArtSwipeAdapter.setByUser(true);
-            }
-            mAlbumArtSwipeAdapter.setSwiped(false);
+                mAlbumArtSwipeAdapter.setSwiped(false);
 
-            // Update all relevant TextViews
-            final TextView artistTextView = (TextView) mTomahawkMainActivity
-                    .findViewById(R.id.textView_artist);
-            final TextView albumTextView = (TextView) mTomahawkMainActivity
-                    .findViewById(R.id.textView_album);
-            final TextView titleTextView = (TextView) mTomahawkMainActivity
-                    .findViewById(R.id.textView_title);
-            if (track.getArtist() != null && track.getArtist().getName() != null) {
-                artistTextView.setText(track.getArtist().toString());
+                // Update all relevant TextViews
+                final TextView artistTextView = (TextView) getView()
+                        .findViewById(R.id.textView_artist);
+                final TextView albumTextView = (TextView) getView()
+                        .findViewById(R.id.textView_album);
+                final TextView titleTextView = (TextView) getView()
+                        .findViewById(R.id.textView_title);
+                if (track.getArtist() != null && track.getArtist().getName() != null) {
+                    artistTextView.setText(track.getArtist().toString());
+                } else {
+                    artistTextView.setText(R.string.playbackactivity_unknown_string);
+                }
+                if (track.getAlbum() != null && track.getAlbum().getName() != null) {
+                    albumTextView.setText(track.getAlbum().toString());
+                } else {
+                    albumTextView.setText(R.string.playbackactivity_unknown_string);
+                }
+                if (track.getName() != null) {
+                    titleTextView.setText(track.getName());
+                } else {
+                    titleTextView.setText(R.string.playbackactivity_unknown_string);
+                }
+
+                // Make all buttons clickable
+                getView().findViewById(R.id.imageButton_playpause).setClickable(true);
+                getView().findViewById(R.id.imageButton_next).setClickable(true);
+                getView().findViewById(R.id.imageButton_previous).setClickable(true);
+                getView().findViewById(R.id.imageButton_shuffle).setClickable(true);
+                getView().findViewById(R.id.imageButton_repeat).setClickable(true);
+
+                // Update the PlaybackSeekBar
+                mPlaybackSeekBar.setPlaybackService(mPlaybackService);
+                mPlaybackSeekBar.setMax();
+                mPlaybackSeekBar.setUpdateInterval();
+                mPlaybackSeekBar.updateSeekBarPosition();
+                mPlaybackSeekBar.updateTextViewCompleteTime();
             } else {
-                artistTextView.setText(R.string.playbackactivity_unknown_string);
+                //No track has been given, so we update the view state accordingly
+                // Update all relevant TextViews
+                final TextView artistTextView = (TextView) getView()
+                        .findViewById(R.id.textView_artist);
+                final TextView albumTextView = (TextView) getView()
+                        .findViewById(R.id.textView_album);
+                final TextView titleTextView = (TextView) getView()
+                        .findViewById(R.id.textView_title);
+                artistTextView.setText("");
+                albumTextView.setText("");
+                titleTextView.setText(R.string.playbackactivity_no_track);
+
+                // Make all buttons not clickable
+                getView().findViewById(R.id.imageButton_playpause).setClickable(false);
+                getView().findViewById(R.id.imageButton_next).setClickable(false);
+                getView().findViewById(R.id.imageButton_previous).setClickable(false);
+                getView().findViewById(R.id.imageButton_shuffle).setClickable(false);
+                getView().findViewById(R.id.imageButton_repeat).setClickable(false);
+
+                // Update the PlaybackSeekBar
+                mPlaybackSeekBar.setEnabled(false);
+                mPlaybackSeekBar.updateSeekBarPosition();
+                mPlaybackSeekBar.updateTextViewCompleteTime();
             }
-            if (track.getAlbum() != null && track.getAlbum().getName() != null) {
-                albumTextView.setText(track.getAlbum().toString());
-            } else {
-                albumTextView.setText(R.string.playbackactivity_unknown_string);
-            }
-            if (track.getName() != null) {
-                titleTextView.setText(track.getName());
-            } else {
-                titleTextView.setText(R.string.playbackactivity_unknown_string);
-            }
-
-            // Make all buttons clickable
-            mTomahawkMainActivity.findViewById(R.id.imageButton_playpause).setClickable(true);
-            mTomahawkMainActivity.findViewById(R.id.imageButton_next).setClickable(true);
-            mTomahawkMainActivity.findViewById(R.id.imageButton_previous).setClickable(true);
-            mTomahawkMainActivity.findViewById(R.id.imageButton_shuffle).setClickable(true);
-            mTomahawkMainActivity.findViewById(R.id.imageButton_repeat).setClickable(true);
-
-            // Update the PlaybackSeekBar
-            mPlaybackSeekBar.setPlaybackService(mPlaybackService);
-            mPlaybackSeekBar.setMax();
-            mPlaybackSeekBar.setUpdateInterval();
-            mPlaybackSeekBar.updateSeekBarPosition();
-            mPlaybackSeekBar.updateTextViewCompleteTime();
-        } else {
-            //No track has been given, so we update the view state accordingly
-            // Update all relevant TextViews
-            final TextView artistTextView = (TextView) mTomahawkMainActivity
-                    .findViewById(R.id.textView_artist);
-            final TextView albumTextView = (TextView) mTomahawkMainActivity
-                    .findViewById(R.id.textView_album);
-            final TextView titleTextView = (TextView) mTomahawkMainActivity
-                    .findViewById(R.id.textView_title);
-            artistTextView.setText("");
-            albumTextView.setText("");
-            titleTextView.setText(R.string.playbackactivity_no_track);
-
-            // Make all buttons not clickable
-            mTomahawkMainActivity.findViewById(R.id.imageButton_playpause).setClickable(false);
-            mTomahawkMainActivity.findViewById(R.id.imageButton_next).setClickable(false);
-            mTomahawkMainActivity.findViewById(R.id.imageButton_previous).setClickable(false);
-            mTomahawkMainActivity.findViewById(R.id.imageButton_shuffle).setClickable(false);
-            mTomahawkMainActivity.findViewById(R.id.imageButton_repeat).setClickable(false);
-
-            // Update the PlaybackSeekBar
-            mPlaybackSeekBar.setEnabled(false);
-            mPlaybackSeekBar.updateSeekBarPosition();
-            mPlaybackSeekBar.updateTextViewCompleteTime();
         }
     }
 
@@ -367,14 +347,18 @@ public class PlaybackControlsFragment extends Fragment {
      * state.
      */
     protected void refreshPlayPauseButtonState() {
-        ImageButton imageButton = (ImageButton) mTomahawkMainActivity
-                .findViewById(R.id.imageButton_playpause);
-        if (imageButton != null) {
-            if (mPlaybackService != null && mPlaybackService.isPlaying()) {
-                imageButton
-                        .setImageDrawable(getResources().getDrawable(R.drawable.ic_player_pause));
-            } else {
-                imageButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_player_play));
+        if (getView() != null) {
+            ImageButton imageButton = (ImageButton) getView()
+                    .findViewById(R.id.imageButton_playpause);
+            if (imageButton != null) {
+                if (mPlaybackService != null && mPlaybackService.isPlaying()) {
+                    imageButton
+                            .setImageDrawable(
+                                    getResources().getDrawable(R.drawable.ic_player_pause));
+                } else {
+                    imageButton.setImageDrawable(
+                            getResources().getDrawable(R.drawable.ic_player_play));
+                }
             }
         }
     }
@@ -383,16 +367,17 @@ public class PlaybackControlsFragment extends Fragment {
      * Refresh the information in this fragment to reflect that of the current repeatButton state.
      */
     protected void refreshRepeatButtonState() {
-        ImageButton imageButton = (ImageButton) mTomahawkMainActivity
-                .findViewById(R.id.imageButton_repeat);
-        if (imageButton != null && imageButton.getDrawable() != null) {
-            if (mPlaybackService != null && mPlaybackService.getCurrentPlaylist() != null
-                    && mPlaybackService.getCurrentPlaylist().isRepeating()) {
-                imageButton.getDrawable()
-                        .setColorFilter(getResources().getColor(R.color.pressed_tomahawk),
-                                PorterDuff.Mode.MULTIPLY);
-            } else {
-                imageButton.getDrawable().clearColorFilter();
+        if (getView() != null) {
+            ImageButton imageButton = (ImageButton) getView().findViewById(R.id.imageButton_repeat);
+            if (imageButton != null && imageButton.getDrawable() != null) {
+                if (mPlaybackService != null && mPlaybackService.getCurrentPlaylist() != null
+                        && mPlaybackService.getCurrentPlaylist().isRepeating()) {
+                    imageButton.getDrawable()
+                            .setColorFilter(getResources().getColor(R.color.pressed_tomahawk),
+                                    PorterDuff.Mode.MULTIPLY);
+                } else {
+                    imageButton.getDrawable().clearColorFilter();
+                }
             }
         }
     }
@@ -401,16 +386,18 @@ public class PlaybackControlsFragment extends Fragment {
      * Refresh the information in this fragment to reflect that of the current shuffleButton state.
      */
     protected void refreshShuffleButtonState() {
-        ImageButton imageButton = (ImageButton) mTomahawkMainActivity
-                .findViewById(R.id.imageButton_shuffle);
-        if (imageButton != null && imageButton.getDrawable() != null) {
-            if (mPlaybackService != null && mPlaybackService.getCurrentPlaylist() != null
-                    && mPlaybackService.getCurrentPlaylist().isShuffled()) {
-                imageButton.getDrawable()
-                        .setColorFilter(getResources().getColor(R.color.pressed_tomahawk),
-                                PorterDuff.Mode.MULTIPLY);
-            } else {
-                imageButton.getDrawable().clearColorFilter();
+        if (getView() != null) {
+            ImageButton imageButton = (ImageButton) getView()
+                    .findViewById(R.id.imageButton_shuffle);
+            if (imageButton != null && imageButton.getDrawable() != null) {
+                if (mPlaybackService != null && mPlaybackService.getCurrentPlaylist() != null
+                        && mPlaybackService.getCurrentPlaylist().isShuffled()) {
+                    imageButton.getDrawable()
+                            .setColorFilter(getResources().getColor(R.color.pressed_tomahawk),
+                                    PorterDuff.Mode.MULTIPLY);
+                } else {
+                    imageButton.getDrawable().clearColorFilter();
+                }
             }
         }
     }
