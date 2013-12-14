@@ -92,9 +92,9 @@ public class PipeLine {
      * This will invoke every {@link Resolver} to resolve the given fullTextQuery. If there already
      * is a {@link Query} with the same fullTextQuery, the old resultList will be reported.
      */
-    public String resolve(String fullTextQuery, boolean onlyLocal) {
+    public String resolve(String fullTextQuery, boolean forceOnlyLocal) {
         if (fullTextQuery != null && !TextUtils.isEmpty(fullTextQuery)) {
-            Query q = new Query(fullTextQuery, onlyLocal);
+            Query q = new Query(fullTextQuery, forceOnlyLocal);
             resolve(q);
             return q.getQid();
         }
@@ -120,7 +120,14 @@ public class PipeLine {
      * This will invoke every {@link Resolver} to resolve the given {@link Query}.
      */
     public String resolve(Query q) {
-        if (q.isSolved()) {
+        return resolve(q, false);
+    }
+
+    /**
+     * This will invoke every {@link Resolver} to resolve the given {@link Query}.
+     */
+    public String resolve(Query q, boolean forceOnlyLocal) {
+        if (!forceOnlyLocal && q.isSolved()) {
             sendResultsReportBroadcast(q.getQid());
         } else {
             if (!isEveryResolverReady()) {
@@ -130,8 +137,10 @@ public class PipeLine {
             } else {
                 mQids.put(q.getQid(), q);
                 for (Resolver resolver : mResolvers) {
-                    if ((q.isOnlyLocal() && resolver instanceof DataBaseResolver) || !q
-                            .isOnlyLocal()) {
+                    if ((forceOnlyLocal && resolver instanceof DataBaseResolver)
+                            || (!forceOnlyLocal && q.isOnlyLocal()
+                            && resolver instanceof DataBaseResolver)
+                            || (!forceOnlyLocal && !q.isOnlyLocal())) {
                         resolver.resolve(q);
                     }
                 }
@@ -145,11 +154,19 @@ public class PipeLine {
      * HashSet containing all query ids
      */
     public HashSet<String> resolve(ArrayList<Query> queries) {
+        return resolve(queries, false);
+    }
+
+    /**
+     * Resolve the given ArrayList of {@link org.tomahawk.libtomahawk.resolver.Query}s and return a
+     * HashSet containing all query ids
+     */
+    public HashSet<String> resolve(ArrayList<Query> queries, boolean forceOnlyLocal) {
         HashSet<String> qids = new HashSet<String>();
         if (queries != null) {
             for (Query query : queries) {
-                if (!query.isSolved()) {
-                    qids.add(resolve(query));
+                if (forceOnlyLocal || !query.isSolved()) {
+                    qids.add(resolve(query, forceOnlyLocal));
                 }
             }
         }
@@ -255,5 +272,10 @@ public class PipeLine {
 
     public void setAllResolversAdded(boolean allResolversAdded) {
         mAllResolversAdded = allResolversAdded;
+    }
+
+    public void onCollectionUpdated() {
+        ArrayList<Query> queries = new ArrayList<Query>(mQids.values());
+        resolve(queries, true);
     }
 }
