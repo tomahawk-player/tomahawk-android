@@ -46,6 +46,8 @@ public class SpotifyResolver implements Resolver {
 
     private boolean mReady;
 
+    private boolean mAuthenticated;
+
     private boolean mStopped;
 
     private ConcurrentHashMap<String, ArrayList<Result>> mResults
@@ -63,7 +65,8 @@ public class SpotifyResolver implements Resolver {
         mId = id;
         mIcon = mTomahawkApp.getResources().getDrawable(R.drawable.spotify_icon);
         mWeight = 90;
-        mReady = false;
+        mReady = true;
+        mTomahawkApp.getPipeLine().onResolverReady();
         mStopped = true;
     }
 
@@ -72,7 +75,7 @@ public class SpotifyResolver implements Resolver {
      */
     @Override
     public boolean isResolving() {
-        return mReady && !mStopped;
+        return mReady && mAuthenticated && !mStopped;
     }
 
     /**
@@ -91,7 +94,7 @@ public class SpotifyResolver implements Resolver {
     @Override
     public boolean resolve(Query query) {
         mStopped = false;
-        if (mReady) {
+        if (mAuthenticated) {
             ArrayList<Result> results = mResults.get(query.getQid());
             if (results == null) {
                 results = new ArrayList<Result>();
@@ -99,7 +102,7 @@ public class SpotifyResolver implements Resolver {
             }
             LibSpotifyWrapper.resolve(query.getQid(), query, this);
         }
-        return mReady;
+        return mAuthenticated;
     }
 
     /**
@@ -140,14 +143,15 @@ public class SpotifyResolver implements Resolver {
     /**
      * @return whether or not this {@link Resolver} is ready
      */
+    @Override
     public boolean isReady() {
         return mReady;
     }
 
     /**
-     * Set whether or not this {@link Resolver} is ready
+     * Set whether or not this {@link Resolver} is authenticated
      */
-    public void setReady(boolean ready) {
-        mReady = ready;
+    public void setAuthenticated(boolean authenticated) {
+        mAuthenticated = authenticated;
     }
 }

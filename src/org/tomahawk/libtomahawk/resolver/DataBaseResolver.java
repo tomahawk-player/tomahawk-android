@@ -79,10 +79,20 @@ public class DataBaseResolver implements Resolver {
         }
 
         mReady = true;
+        mTomahawkApp.getPipeLine().onResolverReady();
     }
 
     public void setCollection(Collection collection) {
         mCollection = collection;
+    }
+
+
+    /**
+     * @return whether or not this {@link Resolver} is ready
+     */
+    @Override
+    public boolean isReady() {
+        return mReady;
     }
 
     /**

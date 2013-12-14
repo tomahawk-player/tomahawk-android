@@ -46,6 +46,9 @@ public class PipeLine {
     public static final String PIPELINE_RESULTSREPORTED_QID
             = "org.tomahawk.tomahawk_android.pipeline_resultsreported_qid";
 
+    public static final String PIPELINE_ALL_RESOLVERS_READY
+            = "org.tomahawk.tomahawk_android.pipeline_all_resolvers_ready";
+
     private static final float MINSCORE = 0.5F;
 
     private TomahawkApp mTomahawkApp;
@@ -53,6 +56,10 @@ public class PipeLine {
     private ArrayList<Resolver> mResolvers = new ArrayList<Resolver>();
 
     private ConcurrentHashMap<String, Query> mQids = new ConcurrentHashMap<String, Query>();
+
+    private ConcurrentHashMap<String, Query> mWaitingQids = new ConcurrentHashMap<String, Query>();
+
+    private boolean mAllResolversAdded;
 
     public PipeLine(TomahawkApp tomahawkApp) {
         mTomahawkApp = tomahawkApp;
@@ -92,7 +99,7 @@ public class PipeLine {
     public String resolve(String fullTextQuery, boolean onlyLocal) {
         if (fullTextQuery != null && !TextUtils.isEmpty(fullTextQuery)) {
             Query q = new Query(fullTextQuery, onlyLocal);
-            resolve(q, onlyLocal);
+            resolve(q);
             return q.getQid();
         }
         return null;
@@ -106,21 +113,9 @@ public class PipeLine {
      * org.tomahawk.libtomahawk.collection.Album}, the old resultList will be reported.
      */
     public String resolve(String trackName, String albumName, String artistName) {
-        return resolve(trackName, albumName, artistName, false);
-    }
-
-    /**
-     * This will invoke every {@link Resolver} to resolve the given {@link
-     * org.tomahawk.libtomahawk.collection.Track}/{@link org.tomahawk.libtomahawk.collection.Artist}/{@link
-     * org.tomahawk.libtomahawk.collection.Album}. If there already is a {@link Query} with the same
-     * {@link org.tomahawk.libtomahawk.collection.Track}/{@link org.tomahawk.libtomahawk.collection.Artist}/{@link
-     * org.tomahawk.libtomahawk.collection.Album}, the old resultList will be reported.
-     */
-    public String resolve(String trackName, String albumName, String artistName,
-            boolean onlyLocal) {
         if (trackName != null && !TextUtils.isEmpty(trackName)) {
-            Query q = new Query(trackName, albumName, artistName, onlyLocal);
-            return resolve(q, onlyLocal);
+            Query q = new Query(trackName, albumName, artistName, false);
+            return resolve(q);
         }
         return null;
     }
@@ -129,23 +124,21 @@ public class PipeLine {
      * This will invoke every {@link Resolver} to resolve the given {@link Query}.
      */
     public String resolve(Query q) {
-        return resolve(q, false);
-    }
-
-    /**
-     * This will invoke every {@link Resolver} to resolve the given {@link Query}.
-     */
-    public String resolve(Query q, boolean onlyLocal) {
         if (q.isSolved()) {
             sendResultsReportBroadcast(q.getQid());
         } else {
-            if (!mQids.containsKey(q.getQid())) {
-                mQids.put(q.getQid(), q);
-                for (Resolver resolver : mResolvers) {
-                    if ((!onlyLocal && resolver instanceof SpotifyResolver
-                            && ((SpotifyResolver) resolver).isReady()) || (onlyLocal
-                            && resolver instanceof DataBaseResolver) || !onlyLocal) {
-                        resolver.resolve(q);
+            if (!isEveryResolverReady()) {
+                if (!mWaitingQids.containsKey(q.getQid())) {
+                    mWaitingQids.put(q.getQid(), q);
+                }
+            } else {
+                if (!mQids.containsKey(q.getQid())) {
+                    mQids.put(q.getQid(), q);
+                    for (Resolver resolver : mResolvers) {
+                        if ((q.isOnlyLocal() && resolver instanceof DataBaseResolver) || !q
+                                .isOnlyLocal()) {
+                            resolver.resolve(q);
+                        }
                     }
                 }
             }
@@ -225,7 +218,7 @@ public class PipeLine {
      */
     public boolean isResolving() {
         for (Resolver resolver : mResolvers) {
-            if (resolver.isResolving()) {
+            if (resolver.isResolving() || !resolver.isReady()) {
                 return true;
             }
         }
@@ -240,11 +233,33 @@ public class PipeLine {
     }
 
     /**
-     * @param qid the {@link Query}s id
-     * @return whether or not it is already contained in the {@link org.tomahawk.libtomahawk.resolver.PipeLine}s
-     * HashMap
+     * @return whether or not every Resolver in this PipeLine is ready to resolve queries
      */
-    public boolean hasQuery(String qid) {
-        return mQids.containsKey(qid);
+    public boolean isEveryResolverReady() {
+        if (!mAllResolversAdded) {
+            return false;
+        }
+        for (Resolver r : mResolvers) {
+            if (!r.isReady()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Callback method, which is being called by Resolvers as soon as they are ready
+     */
+    public void onResolverReady() {
+        if (isEveryResolverReady()) {
+            for (Query query : mWaitingQids.values()) {
+                mWaitingQids.remove(query.getQid());
+                resolve(query);
+            }
+        }
+    }
+
+    public void setAllResolversAdded(boolean allResolversAdded) {
+        mAllResolversAdded = allResolversAdded;
     }
 }

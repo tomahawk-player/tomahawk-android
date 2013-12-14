@@ -25,6 +25,11 @@ import android.graphics.drawable.Drawable;
 public interface Resolver {
 
     /**
+     * @return Whether or not this {@link Resolver} is ready
+     */
+    public boolean isReady();
+
+    /**
      * @return Whether or not this {@link Resolver} is currently resolving
      */
     public boolean isResolving();

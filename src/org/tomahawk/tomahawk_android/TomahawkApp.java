@@ -132,6 +132,7 @@ public class TomahawkApp extends Application {
         mPipeLine.addResolver(scriptResolver);
         SpotifyResolver spotifyResolver = new SpotifyResolver(RESOLVER_ID_SPOTIFY, this);
         mPipeLine.addResolver(spotifyResolver);
+        mPipeLine.setAllResolversAdded(true);
 
         // Initialize UserPlaylistsDataSource, which makes it possible to retrieve persisted
         // UserPlaylists

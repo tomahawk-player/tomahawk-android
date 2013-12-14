@@ -24,6 +24,7 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
+import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -67,6 +68,7 @@ import android.widget.RemoteViews;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * This {@link Service} handles all playback related processes.
@@ -112,6 +114,10 @@ public class PlaybackService extends Service
     private static final int PLAYBACKSERVICE_NOTIFICATION_ID = 1;
 
     private static final int DELAY_TO_KILL = 300000;
+
+    private TomahawkApp mTomahawkApp;
+
+    private PipeLine mPipeLine;
 
     private Playlist mCurrentPlaylist;
 
@@ -241,6 +247,9 @@ public class PlaybackService extends Service
                     // the loaded bitmap is relevant to us, so we update the playing notification
                     updatePlayingNotification();
                 }
+            } else if (PipeLine.PIPELINE_RESULTSREPORTED.equals(intent.getAction())) {
+                String qid = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
+                onPipeLineResultsReported(qid);
             }
         }
     }
@@ -287,6 +296,8 @@ public class PlaybackService extends Service
 
     @Override
     public void onCreate() {
+        mTomahawkApp = (TomahawkApp) getApplication();
+        mPipeLine = mTomahawkApp.getPipeLine();
 
         mHandler = new Handler();
 
@@ -309,6 +320,8 @@ public class PlaybackService extends Service
                 new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
         registerReceiver(mPlaybackServiceBroadcastReceiver,
                 new IntentFilter(BitmapItem.BITMAPITEM_BITMAPLOADED));
+        registerReceiver(mPlaybackServiceBroadcastReceiver,
+                new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED));
 
         // Initialize killtime handler (watchdog style)
         mKillTimerHandler.removeCallbacksAndMessages(null);
@@ -653,6 +666,8 @@ public class PlaybackService extends Service
     public void setCurrentQuery(final Query query) {
         mNotificationAsyncBitmap.bitmap = null;
         if (mTomahawkMediaPlayer != null && query != null) {
+            resolveQueriesFromTo(getCurrentPlaylist().getCurrentQueryIndex(),
+                    getCurrentPlaylist().getCurrentQueryIndex() + 10);
             if (query.isPlayable()) {
                 Runnable releaseRunnable = new Runnable() {
                     @Override
@@ -697,7 +712,8 @@ public class PlaybackService extends Service
 
                 updatePlayingNotification();
                 sendBroadcast(new Intent(BROADCAST_NEWTRACK));
-            } else {
+            } else if (((TomahawkApp) getApplication()).getPipeLine() != null
+                    && !((TomahawkApp) getApplication()).getPipeLine().isResolving()) {
                 next();
             }
         }
@@ -948,5 +964,26 @@ public class PlaybackService extends Service
             notification.bigContentView = largeNotificationView;
         }
         startForeground(PLAYBACKSERVICE_NOTIFICATION_ID, notification);
+    }
+
+    private void resolveQueriesFromTo(int start, int end) {
+        ArrayList<Query> qs = new ArrayList<Query>();
+        for (int i = start; i < end; i++) {
+            if (i >= 0 && i < mCurrentPlaylist.getQueries().size()) {
+                Query q = mCurrentPlaylist.peekQueryAtPos(i);
+                if (!q.isSolved()) {
+                    qs.add(q);
+                }
+            }
+        }
+        if (!qs.isEmpty()) {
+            mPipeLine.resolve(qs);
+        }
+    }
+
+    private void onPipeLineResultsReported(String qId) {
+        if (mCurrentPlaylist != null && mCurrentPlaylist.getCurrentQuery().getQid().equals(qId)) {
+            setCurrentQuery(mCurrentPlaylist.getCurrentQuery());
+        }
     }
 }

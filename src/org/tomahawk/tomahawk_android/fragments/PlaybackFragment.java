@@ -327,9 +327,6 @@ public class PlaybackFragment extends TomahawkFragment
         TomahawkListAdapter tomahawkListAdapter = (TomahawkListAdapter) getListAdapter();
         if (tomahawkListAdapter != null && playbackService != null
                 && playbackService.getCurrentPlaylist() != null) {
-            mShownQueries = playbackService.getCurrentPlaylist().getQueries();
-            resolveQueriesFromTo(playbackService.getCurrentPlaylist().getCurrentQueryIndex(),
-                    playbackService.getCurrentPlaylist().getCurrentQueryIndex() + 10);
             tomahawkListAdapter.setHighlightedItem(
                     playbackService.getCurrentPlaylist().getCurrentQueryIndex());
             tomahawkListAdapter.setHighlightedItemIsPlaying(playbackService.isPlaying());
