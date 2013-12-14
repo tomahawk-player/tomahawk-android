@@ -17,7 +17,6 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
-import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.Intent;
@@ -45,9 +44,6 @@ public class PipeLine {
 
     public static final String PIPELINE_RESULTSREPORTED_QID
             = "org.tomahawk.tomahawk_android.pipeline_resultsreported_qid";
-
-    public static final String PIPELINE_ALL_RESOLVERS_READY
-            = "org.tomahawk.tomahawk_android.pipeline_all_resolvers_ready";
 
     private static final float MINSCORE = 0.5F;
 
@@ -132,13 +128,11 @@ public class PipeLine {
                     mWaitingQids.put(q.getQid(), q);
                 }
             } else {
-                if (!mQids.containsKey(q.getQid())) {
-                    mQids.put(q.getQid(), q);
-                    for (Resolver resolver : mResolvers) {
-                        if ((q.isOnlyLocal() && resolver instanceof DataBaseResolver) || !q
-                                .isOnlyLocal()) {
-                            resolver.resolve(q);
-                        }
+                mQids.put(q.getQid(), q);
+                for (Resolver resolver : mResolvers) {
+                    if ((q.isOnlyLocal() && resolver instanceof DataBaseResolver) || !q
+                            .isOnlyLocal()) {
+                        resolver.resolve(q);
                     }
                 }
             }
