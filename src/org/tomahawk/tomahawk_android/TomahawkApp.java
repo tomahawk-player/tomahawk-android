@@ -101,6 +101,7 @@ public class TomahawkApp extends Application {
         public void onReceive(Context context, Intent intent) {
             if (Collection.COLLECTION_UPDATED.equals(intent.getAction())) {
                 onCollectionUpdated();
+                mPipeLine.onCollectionUpdated();
             }
         }
     }
