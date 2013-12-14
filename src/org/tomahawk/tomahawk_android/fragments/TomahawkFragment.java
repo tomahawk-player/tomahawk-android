@@ -508,7 +508,7 @@ public class TomahawkFragment extends TomahawkListFragment
         for (int i = start; i < end; i++) {
             if (i >= 0 && i < mShownQueries.size()) {
                 Query q = mShownQueries.get(i);
-                if (!q.isSolved() && !mPipeline.hasQuery(q.getQid())) {
+                if (!q.isSolved() && !mCorrespondingQueryIds.contains(q.getQid())) {
                     qs.add(q);
                 }
             }

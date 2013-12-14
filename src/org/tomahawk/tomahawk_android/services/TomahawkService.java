@@ -125,7 +125,7 @@ public class TomahawkService extends Service {
             }
             SpotifyResolver spotifyResolver = (SpotifyResolver) ((TomahawkApp) getApplication())
                     .getPipeLine().getResolver(TomahawkApp.RESOLVER_ID_SPOTIFY);
-            spotifyResolver.setReady(loggedIn);
+            spotifyResolver.setAuthenticated(loggedIn);
         }
     };
 

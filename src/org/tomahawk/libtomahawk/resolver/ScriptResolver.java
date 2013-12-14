@@ -117,6 +117,14 @@ public class ScriptResolver implements Resolver {
     }
 
     /**
+     * @return whether or not this {@link Resolver} is ready
+     */
+    @Override
+    public boolean isReady() {
+        return mReady;
+    }
+
+    /**
      * @return whether or not this {@link ScriptResolver} is currently resolving
      */
     @Override
@@ -156,6 +164,7 @@ public class ScriptResolver implements Resolver {
         resolverInit();
         resolverUserConfig();
         mReady = true;
+        mTomahawkApp.getPipeLine().onResolverReady();
     }
 
     /**
