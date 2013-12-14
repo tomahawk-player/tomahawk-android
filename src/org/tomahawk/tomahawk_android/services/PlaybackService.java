@@ -119,6 +119,8 @@ public class PlaybackService extends Service
 
     private PipeLine mPipeLine;
 
+    protected HashSet<String> mCorrespondingQueryIds = new HashSet<String>();
+
     private Playlist mCurrentPlaylist;
 
     private TomahawkMediaPlayer mTomahawkMediaPlayer;
@@ -971,13 +973,14 @@ public class PlaybackService extends Service
         for (int i = start; i < end; i++) {
             if (i >= 0 && i < mCurrentPlaylist.getQueries().size()) {
                 Query q = mCurrentPlaylist.peekQueryAtPos(i);
-                if (!q.isSolved()) {
+                if (!q.isSolved() && !mCorrespondingQueryIds.contains(q.getQid())) {
                     qs.add(q);
                 }
             }
         }
         if (!qs.isEmpty()) {
-            mPipeLine.resolve(qs);
+            HashSet<String> qids = mPipeLine.resolve(qs);
+            mCorrespondingQueryIds.addAll(qids);
         }
     }
 
