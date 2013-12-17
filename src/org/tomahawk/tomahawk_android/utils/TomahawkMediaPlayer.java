@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.utils;
 
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
+import org.tomahawk.tomahawk_android.services.PlaybackService;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -33,6 +34,8 @@ public class TomahawkMediaPlayer
         implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         MediaPlayer.OnCompletionListener {
 
+    private PlaybackService mPlaybackService;
+
     private MediaPlayer mMediaPlayer;
 
     // Whether to use the MediaPlayer or OpenSLES
@@ -42,16 +45,11 @@ public class TomahawkMediaPlayer
 
     private boolean mIsPlaying;
 
-    private OnPreparedListener mOnPreparedListener;
-
-    private OnErrorListener mOnErrorListener;
-
-    private OnCompletionListener mOnCompletionListener;
-
     /**
      * Construct a new {@link TomahawkMediaPlayer}
      */
-    public TomahawkMediaPlayer() {
+    public TomahawkMediaPlayer(PlaybackService playbackService) {
+        mPlaybackService = playbackService;
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mMediaPlayer.setOnPreparedListener(this);
@@ -62,33 +60,21 @@ public class TomahawkMediaPlayer
     @Override
     public void onPrepared(MediaPlayer mp) {
         if (mUseMediaPlayer) {
-            onPrepared();
+            mIsPreparing = false;
+            mPlaybackService.onPrepared(this);
         }
     }
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        return mUseMediaPlayer && onError(what, extra);
+        return !mUseMediaPlayer || mPlaybackService.onError(this, what, extra);
     }
 
     @Override
     public void onCompletion(MediaPlayer mp) {
         if (mUseMediaPlayer) {
-            onCompletion();
+            mPlaybackService.onCompletion(this);
         }
-    }
-
-    public void onPrepared() {
-        mIsPreparing = false;
-        mOnPreparedListener.onPrepared(this);
-    }
-
-    public boolean onError(int what, int extra) {
-        return mOnErrorListener.onError(this, what, extra);
-    }
-
-    public void onCompletion() {
-        mOnCompletionListener.onCompletion(this);
     }
 
     /**
@@ -108,18 +94,6 @@ public class TomahawkMediaPlayer
 
     public void release() {
         mMediaPlayer.release();
-    }
-
-    public void setOnPreparedListener(OnPreparedListener listener) {
-        mOnPreparedListener = listener;
-    }
-
-    public void setOnErrorListener(OnErrorListener listener) {
-        mOnErrorListener = listener;
-    }
-
-    public void setOnCompletionListener(OnCompletionListener listener) {
-        mOnCompletionListener = listener;
     }
 
     public boolean isPlaying() {

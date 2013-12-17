@@ -17,13 +17,14 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticator;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter;
 import org.tomahawk.tomahawk_android.dialogs.LoginDialog;
+import org.tomahawk.tomahawk_android.services.TomahawkService;
 import org.tomahawk.tomahawk_android.utils.FakePreferenceGroup;
-import org.tomahawk.tomahawk_android.utils.OnLoggedInOutListener;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -48,7 +49,7 @@ import java.util.List;
  * android.preference.PreferenceFragment} class
  */
 public class FakePreferenceFragment extends TomahawkListFragment
-        implements OnItemClickListener, OnLoggedInOutListener,
+        implements OnItemClickListener, TomahawkService.OnLoggedInOutListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = FakePreferenceFragment.class.getName();
@@ -203,7 +204,8 @@ public class FakePreferenceFragment extends TomahawkListFragment
                     getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_DIALOG) {
                 // if a FakePreference of type "FAKEPREFERENCE_TYPE_DIALOG" has been clicked,
                 // we show a LoginDialog
-                new LoginDialog(mTomahawkMainActivity.getTomahawkService())
+                new LoginDialog(mTomahawkMainActivity.getTomahawkService(),
+                        TomahawkService.AUTHENTICATOR_ID_SPOTIFY)
                         .show(getFragmentManager(), null);
             }
         }
@@ -218,13 +220,13 @@ public class FakePreferenceFragment extends TomahawkListFragment
      * Called everytime an account has been logged in or out, so that we can update the
      * corresponding checkbox state
      *
-     * @param resolverId the id of the {@link org.tomahawk.libtomahawk.resolver.Resolver}, which
-     *                   account has been logged in/out
-     * @param loggedIn   true, if logged in, otherwise false
+     * @param authenticatorId the id of the {@link org.tomahawk.libtomahawk.resolver.Resolver},
+     *                        which account has been logged in/out
+     * @param loggedIn        true, if logged in, otherwise false
      */
     @Override
-    public void onLoggedInOut(int resolverId, boolean loggedIn) {
-        if (resolverId == TomahawkApp.RESOLVER_ID_SPOTIFY) {
+    public void onLoggedInOut(int authenticatorId, boolean loggedIn) {
+        if (authenticatorId == TomahawkService.AUTHENTICATOR_ID_SPOTIFY) {
             for (FakePreferenceGroup fakePreferenceGroup : mFakePreferenceGroups) {
                 FakePreferenceGroup.FakePreference fakePreference = fakePreferenceGroup
                         .getFakePreferenceByKey(FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN);
@@ -240,11 +242,12 @@ public class FakePreferenceFragment extends TomahawkListFragment
     public void updateLogInOutState() {
         // Initialize the state of the "Spotify"-FakePreference's checkbox
         if (mTomahawkMainActivity.getTomahawkService() != null
-                && mTomahawkMainActivity.getTomahawkService().getSpotifyUserId() != null) {
+                && mTomahawkMainActivity.getTomahawkService()
+                .getAuthenticator(TomahawkService.AUTHENTICATOR_ID_SPOTIFY).isLoggedIn()) {
             // SpotifyUserId is set, so we know that is Spotify is logged in
-            onLoggedInOut(TomahawkApp.RESOLVER_ID_SPOTIFY, true);
+            onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_SPOTIFY, true);
         } else {
-            onLoggedInOut(TomahawkApp.RESOLVER_ID_SPOTIFY, false);
+            onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_SPOTIFY, false);
         }
     }
 }

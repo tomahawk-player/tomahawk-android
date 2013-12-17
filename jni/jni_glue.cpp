@@ -67,6 +67,7 @@ JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotify
 	pthread_create(&tid, NULL, start_spotify, (void *) storage_path);
 
 	init_audio_player();
+	addTask(on_init, "on_init");
 }
 
 JNIEXPORT void JNICALL Java_org_tomahawk_libtomahawk_resolver_spotify_LibSpotifyWrapper_nativelogin(JNIEnv *je, jclass jc, jstring j_username, jstring j_password, jstring j_blob) {

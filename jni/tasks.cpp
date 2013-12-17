@@ -296,6 +296,10 @@ void seek(list<int> int_params, list<string> string_params, sp_session *session,
 	s_player_position = pos_ms;
 }
 
+void on_init(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track) {
+	call_static_void_method("onInit");
+}
+
 void on_player_position_changed(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track) {
 	s_player_position+=1000;
 

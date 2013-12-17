@@ -17,6 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
+import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticator;
 import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -239,7 +240,7 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
             } else if (viewHolder.viewType == R.id.fakepreferencesadapter_viewtype_spinner) {
                 final String key = fakePreference.getKey();
                 viewHolder.spinner.setSelection(mSharedPreferences
-                        .getInt(key, TomahawkService.SPOTIFY_PREF_BITRATE_MODE_MEDIUM));
+                        .getInt(key, SpotifyAuthenticator.SPOTIFY_PREF_BITRATE_MODE_MEDIUM));
                 viewHolder.spinner
                         .setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                             @Override

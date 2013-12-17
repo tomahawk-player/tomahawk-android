@@ -119,6 +119,9 @@ public class TomahawkMainActivity extends ActionBarActivity
     public static final String SHOW_PLAYBACKFRAGMENT_ON_STARTUP
             = "org.tomahawk.tomahawk_android.show_playbackfragment_on_startup";
 
+    public static final String CALLED_TO_ADD_ACCOUNT
+            = "org.tomahawk.tomahawk_android.called_to_add_account";
+
     private TomahawkApp mTomahawkApp;
 
     private PipeLine mPipeLine;
@@ -392,6 +395,9 @@ public class TomahawkMainActivity extends ActionBarActivity
         if (SHOW_PLAYBACKFRAGMENT_ON_STARTUP.equals(getIntent().getAction())) {
             // if this Activity is being shown after the user clicked the notification
             mCurrentStackPosition = HUB_ID_PLAYBACK;
+        }
+        if (CALLED_TO_ADD_ACCOUNT.equals(getIntent().getAction())){
+            mCurrentStackPosition = HUB_ID_SETTINGS;
         }
 
         SourceList sl = ((TomahawkApp) getApplication()).getSourceList();
