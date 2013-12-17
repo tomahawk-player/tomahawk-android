@@ -31,6 +31,7 @@
 
 package org.tomahawk.libtomahawk.resolver.spotify;
 
+import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticator;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
@@ -48,9 +49,7 @@ public class LibSpotifyWrapper {
 
     private final static String TAG = LibSpotifyWrapper.class.getName();
 
-    private static TomahawkService.OnLoginListener sOnLoginListener;
-
-    private static TomahawkService.OnCredBlobUpdatedListener sOnCredBlobUpdatedListener;
+    private static TomahawkService.AuthenticatorListener sAuthenticatorListener;
 
     private static SpotifyResolver sSpotifyResolver;
 
@@ -89,13 +88,18 @@ public class LibSpotifyWrapper {
     /**
      * Initialize libspotify
      *
-     * @param loader      {@link ClassLoader} needed to initialize libspotify
-     * @param storagePath {@link String} containing the path to where libspotify stores its stuff
+     * @param loader                {@link ClassLoader} needed to initialize libspotify
+     * @param storagePath           {@link String} containing the path to where libspotify stores
+     *                              its stuff
+     * @param authenticatorListener {@link org.tomahawk.tomahawk_android.services.TomahawkService.AuthenticatorListener}
+     *                              used to get a callback on login, and whenever the cred blob has
+     *                              been updated
      */
-    public static void init(ClassLoader loader, String storagePath) {
+    public static void init(ClassLoader loader, String storagePath,
+            TomahawkService.AuthenticatorListener authenticatorListener) {
+        sAuthenticatorListener = authenticatorListener;
         if (!mInitialized) {
             nativeinit(loader, storagePath);
-            mInitialized = true;
         }
     }
 
@@ -233,42 +237,25 @@ public class LibSpotifyWrapper {
     /**
      * Login Spotify user. Does only need blob OR password. Not both.
      *
-     * @param username                  {@link String} containing the username
-     * @param password                  {@link String} containing the password
-     * @param blob                      {@link String} containing the blob
-     * @param onLoginListener           {@link org.tomahawk.tomahawk_android.services.TomahawkService.OnLoginListener}
-     *                                  used to get a callback on login
-     * @param onCredBlobUpdatedListener {@link org.tomahawk.tomahawk_android.services.TomahawkService.OnCredBlobUpdatedListener}
-     *                                  used to get callback when the credential blob inside Spotify
-     *                                  has been updated
+     * @param username {@link String} containing the username
+     * @param password {@link String} containing the password
+     * @param blob     {@link String} containing the blob
      */
-    public static void loginUser(String username, String password, String blob,
-            TomahawkService.OnLoginListener onLoginListener,
-            TomahawkService.OnCredBlobUpdatedListener onCredBlobUpdatedListener) {
-        sOnLoginListener = onLoginListener;
-        sOnCredBlobUpdatedListener = onCredBlobUpdatedListener;
+    public static void loginUser(String username, String password, String blob) {
         login(username, password, blob);
     }
 
     /**
      * Relogin user
-     *
-     * @param onLoginListener {@link org.tomahawk.tomahawk_android.services.TomahawkService.OnLoginListener}
-     *                        used to get a callback on login
      */
-    public static void reloginUser(TomahawkService.OnLoginListener onLoginListener) {
-        sOnLoginListener = onLoginListener;
+    public static void reloginUser() {
         relogin();
     }
 
     /**
      * Logout user
-     *
-     * @param onLoginListener {@link org.tomahawk.tomahawk_android.services.TomahawkService.OnLoginListener}
-     *                        used to get a callback on login
      */
-    public static void logoutUser(TomahawkService.OnLoginListener onLoginListener) {
-        sOnLoginListener = onLoginListener;
+    public static void logoutUser() {
         logout();
     }
 
@@ -301,7 +288,7 @@ public class LibSpotifyWrapper {
      * Called by libspotify, when a track has been prepared
      */
     public static void onPrepared() {
-        sTomahawkMediaPlayer.onPrepared();
+        sTomahawkMediaPlayer.onPrepared(null);
     }
 
     /**
@@ -343,6 +330,14 @@ public class LibSpotifyWrapper {
     }
 
     /**
+     * Called by libspotify when initialized
+     */
+    public static void onInit() {
+        mInitialized = true;
+        sAuthenticatorListener.onInit();
+    }
+
+    /**
      * Called by libspotify on login
      *
      * @param success  boolean signaling whether or not the login process was successful
@@ -352,9 +347,9 @@ public class LibSpotifyWrapper {
      */
     public static void onLogin(final boolean success, final String message, final String username) {
         if (success) {
-            sOnLoginListener.onLogin(username);
+            sAuthenticatorListener.onLogin(username);
         } else {
-            sOnLoginListener.onLoginFailed(message);
+            sAuthenticatorListener.onLoginFailed(message);
         }
     }
 
@@ -362,7 +357,7 @@ public class LibSpotifyWrapper {
      * Called by libspotify on logout
      */
     public static void onLogout() {
-        sOnLoginListener.onLogout();
+        sAuthenticatorListener.onLogout();
     }
 
     /**
@@ -371,14 +366,14 @@ public class LibSpotifyWrapper {
      * @param blob {@link String} containing the blob
      */
     public static void onCredentialsBlobUpdated(final String blob) {
-        sOnCredBlobUpdatedListener.onCredBlobUpdated(blob);
+        sAuthenticatorListener.onCredBlobUpdated(blob);
     }
 
     /**
      * Called by libspotify, when the OpenSLES player has finished playing a track
      */
     public static void onPlayerEndOfTrack() {
-        sTomahawkMediaPlayer.onCompletion();
+        sTomahawkMediaPlayer.onCompletion(null);
     }
 
     /**

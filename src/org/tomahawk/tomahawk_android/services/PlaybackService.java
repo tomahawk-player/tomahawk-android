@@ -30,9 +30,6 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
-import org.tomahawk.tomahawk_android.utils.OnCompletionListener;
-import org.tomahawk.tomahawk_android.utils.OnErrorListener;
-import org.tomahawk.tomahawk_android.utils.OnPreparedListener;
 import org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer;
 
 import android.app.Notification;
@@ -73,8 +70,7 @@ import java.util.HashSet;
 /**
  * This {@link Service} handles all playback related processes.
  */
-public class PlaybackService extends Service
-        implements OnCompletionListener, OnErrorListener, OnPreparedListener {
+public class PlaybackService extends Service {
 
     private static String TAG = PlaybackService.class.getName();
 
@@ -384,8 +380,7 @@ public class PlaybackService extends Service
     /**
      * Called if given {@link TomahawkMediaPlayer} has been prepared for playback
      */
-    @Override
-    public void onPrepared(TomahawkMediaPlayer mp) {
+    public void onPrepared(TomahawkMediaPlayer tmp) {
         Log.d(TAG, "Mediaplayer is prepared.");
         handlePlayState();
     }
@@ -393,7 +388,6 @@ public class PlaybackService extends Service
     /**
      * Called if an error has occurred while trying to prepare {@link TomahawkMediaPlayer}
      */
-    @Override
     public boolean onError(TomahawkMediaPlayer tmp, int what, int extra) {
         String whatString = "CODE UNSPECIFIED";
         switch (what) {
@@ -415,8 +409,7 @@ public class PlaybackService extends Service
      * Called if given {@link org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer} has finished
      * playing a song. Prepare the next track if possible, otherwise stop.
      */
-    @Override
-    public void onCompletion(TomahawkMediaPlayer mp) {
+    public void onCompletion(TomahawkMediaPlayer tmp) {
         if (mCurrentPlaylist == null) {
             stop();
             return;
@@ -434,10 +427,7 @@ public class PlaybackService extends Service
      * Initializes the {@link TomahawkMediaPlayer}. Sets the listeners and AudioStreamType.
      */
     public void initMediaPlayer() {
-        mTomahawkMediaPlayer = new TomahawkMediaPlayer();
-        mTomahawkMediaPlayer.setOnCompletionListener(this);
-        mTomahawkMediaPlayer.setOnPreparedListener(this);
-        mTomahawkMediaPlayer.setOnErrorListener(this);
+        mTomahawkMediaPlayer = new TomahawkMediaPlayer(this);
     }
 
     /**

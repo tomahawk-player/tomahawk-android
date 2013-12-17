@@ -17,6 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.dialogs;
 
+import org.tomahawk.libtomahawk.authentication.Authenticator;
+import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticator;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
@@ -53,6 +55,8 @@ public class LoginDialog extends DialogFragment {
 
     public final static String TAG = LoginDialog.class.getName();
 
+    private Authenticator mAuthenticator;
+
     private EditText mUsernameEditText;
 
     private EditText mPasswordEditText;
@@ -77,7 +81,7 @@ public class LoginDialog extends DialogFragment {
         public boolean handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_UPDATE_ANIMATION:
-                    if (mTomahawkService.isAttemptingLogInOut()) {
+                    if (mTomahawkService.isAuthenticating()) {
                         mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 500);
                         mStatusImageView.setImageDrawable(mProgressDrawable);
                         mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
@@ -112,7 +116,7 @@ public class LoginDialog extends DialogFragment {
     private View.OnClickListener mPositiveButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (mTomahawkService.getSpotifyUserId() != null) {
+            if (mAuthenticator.isLoggedIn()) {
                 hideSoftKeyboard();
                 getDialog().dismiss();
             } else {
@@ -124,15 +128,15 @@ public class LoginDialog extends DialogFragment {
     private View.OnClickListener mNegativeButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (mTomahawkService.getSpotifyUserId() != null) {
+            if (mAuthenticator.isLoggedIn()) {
                 startLoadingAnimation();
-                mTomahawkService.logoutSpotify();
+                mAuthenticator.logout();
 
                 SharedPreferences sharedPreferences = PreferenceManager
                         .getDefaultSharedPreferences(TomahawkApp.getContext());
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.remove(TomahawkService.SPOTIFY_CREDS_BLOB);
-                editor.remove(TomahawkService.SPOTIFY_CREDS_EMAIL);
+                editor.remove(SpotifyAuthenticator.SPOTIFY_CREDS_BLOB);
+                editor.remove(SpotifyAuthenticator.SPOTIFY_CREDS_EMAIL);
                 editor.commit();
             } else {
                 hideSoftKeyboard();
@@ -147,9 +151,10 @@ public class LoginDialog extends DialogFragment {
      * @param tomahawkService a reference to the {@link TomahawkService}, which handles the actual
      *                        login/logout
      */
-    public LoginDialog(TomahawkService tomahawkService) {
+    public LoginDialog(TomahawkService tomahawkService, int authenticatorId) {
         setRetainInstance(true);
         mTomahawkService = tomahawkService;
+        mAuthenticator = mTomahawkService.getAuthenticator(authenticatorId);
     }
 
     /**
@@ -167,9 +172,7 @@ public class LoginDialog extends DialogFragment {
         mUsernameEditText.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         mUsernameEditText.setSingleLine(true);
         mUsernameEditText.setOnEditorActionListener(mOnLoginActionListener);
-        mUsernameEditText.setText(
-                mTomahawkService.getSpotifyUserId() != null ? mTomahawkService.getSpotifyUserId()
-                        : "");
+        mUsernameEditText.setText(mAuthenticator.isLoggedIn() ? mAuthenticator.getUserId() : "");
         mPasswordEditText = (EditText) view.findViewById(R.id.login_dialog_password_edittext);
         mPasswordEditText.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         mPasswordEditText.setSingleLine(true);
@@ -178,7 +181,7 @@ public class LoginDialog extends DialogFragment {
         mPasswordEditText.setOnEditorActionListener(mOnLoginActionListener);
 
         TextView textView = (TextView) view.findViewById(R.id.login_dialog_title_textview);
-        textView.setText(R.string.logindialog_spotify_dialog_title);
+        textView.setText(mAuthenticator.getTitleResourceId());
 
         mPositiveButton = (TextView) view.findViewById(R.id.login_dialog_ok_button);
         mPositiveButton.setOnClickListener(mPositiveButtonListener);
@@ -194,7 +197,7 @@ public class LoginDialog extends DialogFragment {
                 new PorterDuffColorFilter(getResources().getColor(R.color.tomahawk_red),
                         PorterDuff.Mode.MULTIPLY));
         mStatusImageView = (ImageView) view.findViewById(R.id.login_dialog_status_imageview);
-        if (mTomahawkService.getSpotifyUserId() != null) {
+        if (mAuthenticator.isLoggedIn()) {
             mStatusImageView.setImageDrawable(mLoggedInDrawable);
         }
         updateButtonTexts();
@@ -242,7 +245,7 @@ public class LoginDialog extends DialogFragment {
         } else {
             hideSoftKeyboard();
             // Tell the service to login Spotify
-            mTomahawkService.loginSpotify(mEmail, mPassword);
+            mAuthenticator.login(mEmail, mPassword);
             startLoadingAnimation();
         }
     }
@@ -262,7 +265,7 @@ public class LoginDialog extends DialogFragment {
      * Update the texts of all buttons. Depends on whether or not the user is logged in.
      */
     private void updateButtonTexts() {
-        if (mTomahawkService.getSpotifyUserId() != null) {
+        if (mAuthenticator.isLoggedIn()) {
             mPositiveButton.setText(R.string.ok);
             mNegativeButton.setText(R.string.logout);
         } else {
@@ -283,7 +286,7 @@ public class LoginDialog extends DialogFragment {
      */
     public void stopLoadingAnimation() {
         mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
-        if (mTomahawkService.getSpotifyUserId() != null) {
+        if (mAuthenticator.isLoggedIn()) {
             mStatusImageView.setImageDrawable(mLoggedInDrawable);
         } else {
             mStatusImageView.setImageDrawable(mNotLoggedInDrawable);

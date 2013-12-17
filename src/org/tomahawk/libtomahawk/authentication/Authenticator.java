@@ -15,9 +15,21 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomahawk.tomahawk_android.utils;
+package org.tomahawk.libtomahawk.authentication;
 
-public interface OnPreparedListener {
+public interface Authenticator {
 
-    public abstract void onPrepared(TomahawkMediaPlayer tmp);
+    public int getTitleResourceId();
+
+    public String login(String email, String password);
+
+    public void loginWithToken();
+
+    public void logout();
+
+    public String getUserId();
+
+    public boolean isLoggedIn();
+
+    public boolean isAuthenticating();
 }

@@ -53,7 +53,8 @@
     <string name="logindialog_username_label_string">E-Mail</string>
     <string name="logindialog_password_label_string">Password</string>
     <string name="accounttype_string">org.tomahawk</string>
-    <string name="logindialog_spotify_dialog_title">Spotify login</string>
+    <string name="authenticator_title_spotify">Spotify login</string>
+    <string name="authenticator_title_hatchet">Hatchet login</string>
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>

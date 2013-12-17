@@ -18,10 +18,10 @@
  */
 package org.tomahawk.tomahawk_android.services;
 
+import org.tomahawk.libtomahawk.authentication.Authenticator;
+import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticator;
 import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
-import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.utils.OnLoggedInOutListener;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -40,6 +40,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.util.SparseArray;
 
 /**
  * This service wraps all non-playback service functionality. Like auth stuff.
@@ -47,23 +48,11 @@ import android.util.Log;
 public class TomahawkService extends Service {
 
     // Used for debug logging
-    private final static String TAG = TomahawkService.class.getName();
+    private static final String TAG = TomahawkService.class.getName();
 
-    // String tags used to store spotify credentials and preferred bitrate
-    public static final String SPOTIFY_CREDS_BLOB
-            = "org.tomahawk.tomahawk_android.spotify_creds_blob";
+    public static final int AUTHENTICATOR_ID_SPOTIFY = 0;
 
-    public static final String SPOTIFY_CREDS_EMAIL
-            = "org.tomahawk.tomahawk_android.spotify_creds_email";
-
-    public static final String SPOTIFY_PREF_BITRATE
-            = "org.tomahawk.tomahawk_android.spotify_pref_bitrate";
-
-    public static final int SPOTIFY_PREF_BITRATE_MODE_LOW = 0;
-
-    public static final int SPOTIFY_PREF_BITRATE_MODE_MEDIUM = 1;
-
-    public static final int SPOTIFY_PREF_BITRATE_MODE_HIGH = 2;
+    public static final int AUTHENTICATOR_ID_HATCHET = 1;
 
     // After this time we will check if this service can be killed
     private static final int DELAY_TO_KILL = 300000;
@@ -78,13 +67,19 @@ public class TomahawkService extends Service {
 
     private SharedPreferences mSharedPreferences;
 
-    private String mSpotifyUserId;
-
-    private boolean mIsAttemptingLogInOut;
+    private SparseArray<Authenticator> mAuthenticators = new SparseArray<Authenticator>();
 
     private OnLoggedInOutListener mOnLoggedInOutListener;
 
-    public static interface OnLoginListener {
+    public interface OnLoggedInOutListener {
+
+        void onLoggedInOut(int authenticatorId, boolean loggedIn);
+
+    }
+
+    public interface AuthenticatorListener {
+
+        void onInit();
 
         void onLogin(String username);
 
@@ -92,65 +87,8 @@ public class TomahawkService extends Service {
 
         void onLogout();
 
-    }
-
-    // This listener handles every event regarding the login/logout methods
-    private OnLoginListener mOnLoginListener = new OnLoginListener() {
-        @Override
-        public void onLogin(String username) {
-            Log.d(TAG,
-                    "TomahawkService: spotify user '" + username + "' logged in successfully :)");
-            mSpotifyUserId = username;
-            logInOut(true);
-        }
-
-        @Override
-        public void onLoginFailed(String message) {
-            Log.d(TAG, "TomahawkService: spotify loginSpotify failed :( message: " + message);
-            mSpotifyUserId = null;
-            logInOut(false);
-        }
-
-        @Override
-        public void onLogout() {
-            Log.d(TAG, "TomahawkService: spotify user logged out");
-            mSpotifyUserId = null;
-            logInOut(false);
-        }
-
-        private void logInOut(boolean loggedIn) {
-            mIsAttemptingLogInOut = false;
-            if (mOnLoggedInOutListener != null) {
-                mOnLoggedInOutListener.onLoggedInOut(TomahawkApp.RESOLVER_ID_SPOTIFY, loggedIn);
-            }
-            SpotifyResolver spotifyResolver = (SpotifyResolver) ((TomahawkApp) getApplication())
-                    .getPipeLine().getResolver(TomahawkApp.RESOLVER_ID_SPOTIFY);
-            spotifyResolver.setAuthenticated(loggedIn);
-        }
-    };
-
-    public static interface OnCredBlobUpdatedListener {
-
         void onCredBlobUpdated(String blob);
     }
-
-    // This listener fires, if libspotify calls back with a blob
-    private OnCredBlobUpdatedListener mOnCredBlobUpdatedListener = new OnCredBlobUpdatedListener() {
-
-        /**
-         * Store the given blob-string, so we can relogin in a later session
-         * @param blob the given blob-string
-         */
-        @Override
-        public void onCredBlobUpdated(String blob) {
-            SharedPreferences.Editor editor = mSharedPreferences.edit();
-            editor.putString(SPOTIFY_CREDS_BLOB, blob);
-            if (mSpotifyUserId != null) {
-                editor.putString(SPOTIFY_CREDS_EMAIL, mSpotifyUserId);
-            }
-            editor.commit();
-        }
-    };
 
     public static class TomahawkServiceConnection implements ServiceConnection {
 
@@ -207,18 +145,22 @@ public class TomahawkService extends Service {
          */
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
+            if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())
+                    && mAuthenticators.get(AUTHENTICATOR_ID_SPOTIFY) != null) {
                 ConnectivityManager conMan = (ConnectivityManager) context
                         .getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo netInfo = conMan.getActiveNetworkInfo();
                 if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
                     Log.d("WifiReceiver", "Have Wifi Connection");
-                    LibSpotifyWrapper.setbitrate(SPOTIFY_PREF_BITRATE_MODE_HIGH);
+                    ((SpotifyAuthenticator) mAuthenticators.get(AUTHENTICATOR_ID_SPOTIFY))
+                            .setBitrate(SpotifyAuthenticator.SPOTIFY_PREF_BITRATE_MODE_HIGH);
                 } else {
                     Log.d("WifiReceiver", "Don't have Wifi Connection");
-                    int prefbitrate = mSharedPreferences
-                            .getInt(SPOTIFY_PREF_BITRATE, SPOTIFY_PREF_BITRATE_MODE_MEDIUM);
-                    LibSpotifyWrapper.setbitrate(prefbitrate);
+                    int prefbitrate = mSharedPreferences.getInt(
+                            SpotifyAuthenticator.SPOTIFY_PREF_BITRATE,
+                            SpotifyAuthenticator.SPOTIFY_PREF_BITRATE_MODE_MEDIUM);
+                    ((SpotifyAuthenticator) mAuthenticators.get(AUTHENTICATOR_ID_SPOTIFY))
+                            .setBitrate(prefbitrate);
                 }
             }
         }
@@ -231,20 +173,12 @@ public class TomahawkService extends Service {
         mSharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(TomahawkApp.getContext());
 
-        // Load our libspotify wrapper classes
-        System.loadLibrary("spotify");
-        System.loadLibrary("spotifywrapper");
-
-        // Initialize LibspotifyWrapper
-        LibSpotifyWrapper
-                .init(LibSpotifyWrapper.class.getClassLoader(), getFilesDir() + "/Spotify");
-
         mWifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
                 .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
         mWifiLock.acquire();
 
-        // Try to login spotify
-        loginSpotifyWithStoredCreds();
+        mAuthenticators.put(AUTHENTICATOR_ID_SPOTIFY,
+                new SpotifyAuthenticator((TomahawkApp) getApplication(), this));
 
         // Start our killtimer (watchdog-style)
         mKillTimerHandler.removeCallbacksAndMessages(null);
@@ -286,43 +220,25 @@ public class TomahawkService extends Service {
     }
 
     /**
-     * Try to login to spotify with stored credentials
+     * Authenticators should callback here, if they logged in or out
      */
-    public void loginSpotifyWithStoredCreds() {
-        mIsAttemptingLogInOut = true;
-        String email = mSharedPreferences.getString(SPOTIFY_CREDS_EMAIL, null);
-        String blob = mSharedPreferences.getString(SPOTIFY_CREDS_BLOB, null);
-        if (email != null && blob != null) {
-            LibSpotifyWrapper
-                    .loginUser(email, "", blob, mOnLoginListener, mOnCredBlobUpdatedListener);
+    public void onLoggedInOut(int authenticatorId, boolean loggedIn) {
+        if (mOnLoggedInOutListener != null) {
+            mOnLoggedInOutListener.onLoggedInOut(authenticatorId, loggedIn);
         }
     }
 
-    /**
-     * Try to login to spotify with given credentials
-     */
-    public void loginSpotify(String email, String password) {
-        mIsAttemptingLogInOut = true;
-        if (email != null && password != null) {
-            LibSpotifyWrapper
-                    .loginUser(email, password, "", mOnLoginListener, mOnCredBlobUpdatedListener);
+    public Authenticator getAuthenticator(int authenticatorId) {
+        return mAuthenticators.get(authenticatorId);
+    }
+
+    public boolean isAuthenticating() {
+        for (int i = 0; i < mAuthenticators.size(); i++) {
+            if (mAuthenticators.valueAt(i).isAuthenticating()) {
+                return true;
+            }
         }
-    }
-
-    /**
-     * Logout spotify
-     */
-    public void logoutSpotify() {
-        mIsAttemptingLogInOut = true;
-        LibSpotifyWrapper.logoutUser(mOnLoginListener);
-    }
-
-    public boolean isAttemptingLogInOut() {
-        return mIsAttemptingLogInOut;
-    }
-
-    public String getSpotifyUserId() {
-        return mSpotifyUserId;
+        return false;
     }
 
     public void setOnLoggedInOutListener(OnLoggedInOutListener onLoggedInOutListener) {
