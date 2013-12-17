@@ -109,6 +109,7 @@ public class SpotifyAuthenticator implements Authenticator {
             SpotifyResolver spotifyResolver = (SpotifyResolver) mTomahawkApp.getPipeLine()
                     .getResolver(TomahawkApp.RESOLVER_ID_SPOTIFY);
             spotifyResolver.setAuthenticated(loggedIn);
+            mIsAuthenticating = false;
         }
     };
 

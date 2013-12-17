@@ -34,6 +34,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Looper;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -42,6 +44,7 @@ import android.widget.AdapterView.OnItemClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Handler;
 
 /**
  * {@link TomahawkListFragment} which fakes the standard {@link android.preference.PreferenceFragment}
@@ -236,7 +239,12 @@ public class FakePreferenceFragment extends TomahawkListFragment
                 }
             }
         }
-        ((FakePreferencesAdapter) getListAdapter()).notifyDataSetChanged();
+        mTomahawkMainActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ((FakePreferencesAdapter) getListAdapter()).notifyDataSetChanged();
+            }
+        });
     }
 
     public void updateLogInOutState() {
