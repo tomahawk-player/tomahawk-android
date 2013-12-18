@@ -91,13 +91,13 @@ public class SpotifyAuthenticator implements Authenticator {
 
         /**
          * Store the given blob-string, so we can relogin in a later session
-         * @param blob the given blob-string
+         * @param authToken the given blob-string
          */
         @Override
-        public void onCredBlobUpdated(String blob) {
+        public void onAuthTokenProvided(String username, String authToken) {
             SharedPreferences.Editor editor = PreferenceManager
                     .getDefaultSharedPreferences(TomahawkApp.getContext()).edit();
-            editor.putString(SPOTIFY_CREDS_BLOB, blob);
+            editor.putString(SPOTIFY_CREDS_BLOB, authToken);
             if (mSpotifyUserId != null) {
                 editor.putString(SPOTIFY_CREDS_EMAIL, mSpotifyUserId);
             }
@@ -138,19 +138,23 @@ public class SpotifyAuthenticator implements Authenticator {
         return R.string.authenticator_title_spotify;
     }
 
+    @Override
+    public int getIconResourceId() {
+        return R.drawable.spotify_icon;
+    }
+
     /**
      * Try to login to spotify with given credentials
      *
      * @return null, because we can't generate the auth token synchronously. It'll be provided in
-     * the onCredBlobUpdated callback
+     * the onAuthTokenProvided callback
      */
     @Override
-    public String login(String email, String password) {
+    public void login(String email, String password) {
         mIsAuthenticating = true;
         if (email != null && password != null) {
             LibSpotifyWrapper.loginUser(email, password, "");
         }
-        return null;
     }
 
     /**
@@ -173,6 +177,11 @@ public class SpotifyAuthenticator implements Authenticator {
     public void logout() {
         mIsAuthenticating = true;
         LibSpotifyWrapper.logoutUser();
+
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.remove(SpotifyAuthenticator.SPOTIFY_CREDS_BLOB);
+        editor.remove(SpotifyAuthenticator.SPOTIFY_CREDS_EMAIL);
+        editor.commit();
     }
 
     @Override

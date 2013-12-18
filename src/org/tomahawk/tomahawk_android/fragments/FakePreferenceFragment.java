@@ -57,6 +57,9 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
     private static final String TAG = FakePreferenceFragment.class.getName();
 
+    public static final String FAKEPREFERENCEFRAGMENT_KEY_HATCHETLOGGEDIN
+            = "org.tomahawk.tomahawk_android.hatchetloggedin";
+
     public static final String FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN
             = "org.tomahawk.tomahawk_android.spotifyloggedin";
 
@@ -114,6 +117,10 @@ public class FakePreferenceFragment extends TomahawkListFragment
                 FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN,
                 getString(R.string.fakepreference_spotifylogin_title_string),
                 getString(R.string.fakepreference_spotifylogin_summary_string));
+        prefGroup.addFakePreference(FakePreferenceGroup.FAKEPREFERENCE_TYPE_DIALOG,
+                FAKEPREFERENCEFRAGMENT_KEY_HATCHETLOGGEDIN,
+                getString(R.string.fakepreference_hatchetlogin_title_string),
+                getString(R.string.fakepreference_hatchetlogin_summary_string));
         mFakePreferenceGroups.add(prefGroup);
         prefGroup = new FakePreferenceGroup(getString(R.string.fakepreference_playback_header));
         prefGroup.addFakePreference(FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX,
@@ -207,9 +214,17 @@ public class FakePreferenceFragment extends TomahawkListFragment
                     getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_DIALOG) {
                 // if a FakePreference of type "FAKEPREFERENCE_TYPE_DIALOG" has been clicked,
                 // we show a LoginDialog
-                new LoginDialog(mTomahawkMainActivity.getTomahawkService(),
-                        TomahawkService.AUTHENTICATOR_ID_SPOTIFY)
-                        .show(getFragmentManager(), null);
+                if (((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position))
+                        .getKey().equals(FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN)) {
+                    new LoginDialog(mTomahawkMainActivity.getTomahawkService(),
+                            TomahawkService.AUTHENTICATOR_ID_SPOTIFY)
+                            .show(getFragmentManager(), null);
+                } else if (((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position))
+                        .getKey().equals(FAKEPREFERENCEFRAGMENT_KEY_HATCHETLOGGEDIN)) {
+                    new LoginDialog(mTomahawkMainActivity.getTomahawkService(),
+                            TomahawkService.AUTHENTICATOR_ID_HATCHET)
+                            .show(getFragmentManager(), null);
+                }
             }
         }
     }
@@ -229,14 +244,18 @@ public class FakePreferenceFragment extends TomahawkListFragment
      */
     @Override
     public void onLoggedInOut(int authenticatorId, boolean loggedIn) {
-        if (authenticatorId == TomahawkService.AUTHENTICATOR_ID_SPOTIFY) {
-            for (FakePreferenceGroup fakePreferenceGroup : mFakePreferenceGroups) {
-                FakePreferenceGroup.FakePreference fakePreference = fakePreferenceGroup
-                        .getFakePreferenceByKey(FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN);
-                if (fakePreference != null) {
-                    fakePreference.setCheckboxState(loggedIn);
-                    break;
-                }
+        for (FakePreferenceGroup fakePreferenceGroup : mFakePreferenceGroups) {
+            FakePreferenceGroup.FakePreference fakePreference = null;
+            if (authenticatorId == TomahawkService.AUTHENTICATOR_ID_SPOTIFY) {
+                fakePreference = fakePreferenceGroup.getFakePreferenceByKey(
+                        FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN);
+            } else if (authenticatorId == TomahawkService.AUTHENTICATOR_ID_HATCHET) {
+                fakePreference = fakePreferenceGroup.getFakePreferenceByKey(
+                        FAKEPREFERENCEFRAGMENT_KEY_HATCHETLOGGEDIN);
+            }
+            if (fakePreference != null) {
+                fakePreference.setCheckboxState(loggedIn);
+                break;
             }
         }
         mTomahawkMainActivity.runOnUiThread(new Runnable() {
@@ -249,13 +268,21 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
     public void updateLogInOutState() {
         // Initialize the state of the "Spotify"-FakePreference's checkbox
-        if (mTomahawkMainActivity.getTomahawkService() != null
-                && mTomahawkMainActivity.getTomahawkService()
-                .getAuthenticator(TomahawkService.AUTHENTICATOR_ID_SPOTIFY).isLoggedIn()) {
-            // SpotifyUserId is set, so we know that is Spotify is logged in
-            onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_SPOTIFY, true);
-        } else {
-            onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_SPOTIFY, false);
+        if (mTomahawkMainActivity.getTomahawkService() != null) {
+            if (mTomahawkMainActivity.getTomahawkService()
+                    .getAuthenticator(TomahawkService.AUTHENTICATOR_ID_SPOTIFY).isLoggedIn()) {
+                // SpotifyUserId is set, so we know that is Spotify is logged in
+                onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_SPOTIFY, true);
+            } else {
+                onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_SPOTIFY, false);
+            }
+            if (mTomahawkMainActivity.getTomahawkService()
+                    .getAuthenticator(TomahawkService.AUTHENTICATOR_ID_HATCHET).isLoggedIn()) {
+                // SpotifyUserId is set, so we know that is Spotify is logged in
+                onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_HATCHET, true);
+            } else {
+                onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_HATCHET, false);
+            }
         }
     }
 }

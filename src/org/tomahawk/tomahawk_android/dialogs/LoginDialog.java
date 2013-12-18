@@ -131,13 +131,6 @@ public class LoginDialog extends DialogFragment {
             if (mAuthenticator.isLoggedIn()) {
                 startLoadingAnimation();
                 mAuthenticator.logout();
-
-                SharedPreferences sharedPreferences = PreferenceManager
-                        .getDefaultSharedPreferences(TomahawkApp.getContext());
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.remove(SpotifyAuthenticator.SPOTIFY_CREDS_BLOB);
-                editor.remove(SpotifyAuthenticator.SPOTIFY_CREDS_EMAIL);
-                editor.commit();
             } else {
                 hideSoftKeyboard();
                 getDialog().cancel();

@@ -21,7 +21,9 @@ public interface Authenticator {
 
     public int getTitleResourceId();
 
-    public String login(String email, String password);
+    public int getIconResourceId();
+
+    public void login(String email, String password);
 
     public void loginWithToken();
 
