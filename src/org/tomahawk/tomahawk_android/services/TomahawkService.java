@@ -19,6 +19,7 @@
 package org.tomahawk.tomahawk_android.services;
 
 import org.tomahawk.libtomahawk.authentication.Authenticator;
+import org.tomahawk.libtomahawk.authentication.HatchetAuthenticator;
 import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticator;
 import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -87,7 +88,7 @@ public class TomahawkService extends Service {
 
         void onLogout();
 
-        void onCredBlobUpdated(String blob);
+        void onAuthTokenProvided(String username, String authToken);
     }
 
     public static class TomahawkServiceConnection implements ServiceConnection {
@@ -179,6 +180,8 @@ public class TomahawkService extends Service {
 
         mAuthenticators.put(AUTHENTICATOR_ID_SPOTIFY,
                 new SpotifyAuthenticator((TomahawkApp) getApplication(), this));
+        mAuthenticators.put(AUTHENTICATOR_ID_HATCHET,
+                new HatchetAuthenticator((TomahawkApp) getApplication(), this));
 
         // Start our killtimer (watchdog-style)
         mKillTimerHandler.removeCallbacksAndMessages(null);

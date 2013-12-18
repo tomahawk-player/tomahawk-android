@@ -65,9 +65,13 @@
     </string>
     <string name="settingsfragment_title_string">Settings</string>
     <string name="fakepreference_accounts_header">SERVICES</string>
+    <string name="fakepreference_hatchetlogin_title_string">Hatchet</string>
+    <string name="fakepreference_hatchetlogin_summary_string">Authenticate with Hatchet, expect
+        blissful happiness.
+    </string>
     <string name="fakepreference_spotifylogin_title_string">Spotify</string>
-    <string name="fakepreference_spotifylogin_summary_string">Play your music from and sync your
-        playlists with Spotify. Requires a Premium account.
+    <string name="fakepreference_spotifylogin_summary_string">Play your music from Spotify. Requires
+        a Premium account.
     </string>
     <string name="fakepreference_playback_header">PLAYBACK</string>
     <string name="fakepreference_plugintoplay_title_string">Plug in to play</string>

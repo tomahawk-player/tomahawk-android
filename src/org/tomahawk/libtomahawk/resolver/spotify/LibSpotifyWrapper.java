@@ -31,7 +31,6 @@
 
 package org.tomahawk.libtomahawk.resolver.spotify;
 
-import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticator;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
@@ -366,7 +365,7 @@ public class LibSpotifyWrapper {
      * @param blob {@link String} containing the blob
      */
     public static void onCredentialsBlobUpdated(final String blob) {
-        sAuthenticatorListener.onCredBlobUpdated(blob);
+        sAuthenticatorListener.onAuthTokenProvided("", blob);
     }
 
     /**
