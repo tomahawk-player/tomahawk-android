@@ -34,6 +34,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -394,7 +395,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
     }
 
     private static String post(JSONObject params)
-            throws IOException, NoSuchAlgorithmException, KeyManagementException {
+            throws NoSuchAlgorithmException, KeyManagementException, IOException {
         String query = params.has(PARAMS_REFRESH_TOKEN) ? PATH_TOKENS : PATH_AUTH_CREDENTIALS;
         URL url = new URL(LOGIN_SERVER + query);
         String paramsString = params.toString();
@@ -416,14 +417,26 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
         OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
         out.write(paramsString);
         out.close();
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String inputLine;
-        StringBuilder response = new StringBuilder();
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
+        try {
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            return response.toString();
+        } catch (FileNotFoundException e) {
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(connection.getErrorStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            return response.toString();
         }
-        in.close();
-        return response.toString();
     }
 }
