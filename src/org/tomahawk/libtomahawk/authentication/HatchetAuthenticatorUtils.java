@@ -20,15 +20,6 @@ package org.tomahawk.libtomahawk.authentication;
 
 import com.codebutler.android_websockets.WebSocketClient;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.HttpParams;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,36 +29,23 @@ import org.tomahawk.tomahawk_android.services.TomahawkService;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.util.Log;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.security.KeyFactory;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -107,7 +85,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
 
     public static final String PARAMS_DESCRIPTION = "description";
 
-    private PublicKey mPublicKey;
+    //private PublicKey mPublicKey;
 
     private WebSocketClient mWebSocketClient;
 
@@ -168,7 +146,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
         new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
+                /*try {
                     InputStream in = TomahawkApp.getContext().getResources().openRawResource(
                             R.raw.mandella);
                     Scanner scanner = new Scanner(in).useDelimiter("\\A");
@@ -191,7 +169,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
                 } catch (IOException e) {
                     Log.e(TAG, "TomahawkAuthenticator(constructor): " + e.getClass() + ":" + e
                             .getLocalizedMessage());
-                }
+                }*/
 
                 AccountManager am = AccountManager.get(mTomahawkApp);
                 if (am != null) {
@@ -447,39 +425,5 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
         }
         in.close();
         return response.toString();
-        /*HttpParams httpParams = new BasicHttpParams();
-        httpParams.setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
-        TomahawkHttpClient httpClient = new TomahawkHttpClient(httpParams);
-
-        String query = params.has(PARAMS_REFRESH_TOKEN) ? PATH_TOKENS : PATH_AUTH_CREDENTIALS;
-        HttpPost httpPost = new HttpPost(LOGIN_SERVER + query);
-
-        httpPost.setEntity(new StringEntity(params.toString()));
-
-        httpPost.setHeader("Content-type", "application/json; charset=utf-8");
-        HttpResponse httpresponse = httpClient.execute(httpPost);
-
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(httpresponse.getEntity().getContent(), "UTF-8"));
-        return reader.readLine();*/
-    }
-
-    private static String getPostParamString(List<NameValuePair> params)
-            throws UnsupportedEncodingException {
-        StringBuilder result = new StringBuilder();
-        boolean first = true;
-
-        for (NameValuePair pair : params) {
-            if (first) {
-                first = false;
-            } else {
-                result.append("&");
-            }
-            result.append(URLEncoder.encode(pair.getName(), "UTF-8"));
-            result.append("=");
-            result.append(URLEncoder.encode(pair.getValue(), "UTF-8"));
-        }
-
-        return result.toString();
     }
 }

@@ -25,9 +25,7 @@ import org.tomahawk.tomahawk_android.services.TomahawkService;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
