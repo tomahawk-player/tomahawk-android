@@ -145,6 +145,7 @@ static void metadata_updated(sp_session *session) {
 
 static void credentials_blob_updated(sp_session *session, const char *blob) {
     list<string> string_params;
+    string_params.push_back(sp_session_user_name(session));
     string_params.push_back(blob);
 
     addTask(on_credentials_blob_updated, "on_credentials_blob_updated", string_params);

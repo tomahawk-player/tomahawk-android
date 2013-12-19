@@ -18,9 +18,9 @@
  */
 package org.tomahawk.tomahawk_android.services;
 
-import org.tomahawk.libtomahawk.authentication.Authenticator;
-import org.tomahawk.libtomahawk.authentication.HatchetAuthenticator;
-import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticator;
+import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
+import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
+import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticatorUtils;
 import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -51,6 +51,21 @@ public class TomahawkService extends Service {
     // Used for debug logging
     private static final String TAG = TomahawkService.class.getName();
 
+    public static final String AUTHENTICATOR_ID = "org.tomahawk.tomahawk_android.authenticator_id";
+
+    public static final String AUTHENTICATOR_NAME
+            = "org.tomahawk.tomahawk_android.authenticator_name";
+
+    public static final String AUTHENTICATOR_NAME_SPOTIFY
+            = "org.tomahawk.tomahawk_android.authenticator_name_spotify";
+
+    public static final String AUTHENTICATOR_NAME_HATCHET
+            = "org.tomahawk.tomahawk_android.authenticator_name_hatchet";
+
+    public static final String AUTH_TOKEN_TYPE_SPOTIFY = "org.tomahawk.spotify.authtoken";
+
+    public static final String AUTH_TOKEN_TYPE_HATCHET = "org.tomahawk.hatchet.authtoken";
+
     public static final int AUTHENTICATOR_ID_SPOTIFY = 0;
 
     public static final int AUTHENTICATOR_ID_HATCHET = 1;
@@ -68,27 +83,15 @@ public class TomahawkService extends Service {
 
     private SharedPreferences mSharedPreferences;
 
-    private SparseArray<Authenticator> mAuthenticators = new SparseArray<Authenticator>();
+    private SparseArray<AuthenticatorUtils> mAuthenticatorUtils
+            = new SparseArray<AuthenticatorUtils>();
 
-    private OnLoggedInOutListener mOnLoggedInOutListener;
+    private OnAuthenticatedListener mOnAuthenticatedListener;
 
-    public interface OnLoggedInOutListener {
+    public interface OnAuthenticatedListener {
 
         void onLoggedInOut(int authenticatorId, boolean loggedIn);
 
-    }
-
-    public interface AuthenticatorListener {
-
-        void onInit();
-
-        void onLogin(String username);
-
-        void onLoginFailed(String message);
-
-        void onLogout();
-
-        void onAuthTokenProvided(String username, String authToken);
     }
 
     public static class TomahawkServiceConnection implements ServiceConnection {
@@ -147,20 +150,20 @@ public class TomahawkService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())
-                    && mAuthenticators.get(AUTHENTICATOR_ID_SPOTIFY) != null) {
+                    && mAuthenticatorUtils.get(AUTHENTICATOR_ID_SPOTIFY) != null) {
                 ConnectivityManager conMan = (ConnectivityManager) context
                         .getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo netInfo = conMan.getActiveNetworkInfo();
                 if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
                     Log.d("WifiReceiver", "Have Wifi Connection");
-                    ((SpotifyAuthenticator) mAuthenticators.get(AUTHENTICATOR_ID_SPOTIFY))
-                            .setBitrate(SpotifyAuthenticator.SPOTIFY_PREF_BITRATE_MODE_HIGH);
+                    ((SpotifyAuthenticatorUtils) mAuthenticatorUtils.get(AUTHENTICATOR_ID_SPOTIFY))
+                            .setBitrate(SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE_MODE_HIGH);
                 } else {
                     Log.d("WifiReceiver", "Don't have Wifi Connection");
                     int prefbitrate = mSharedPreferences.getInt(
-                            SpotifyAuthenticator.SPOTIFY_PREF_BITRATE,
-                            SpotifyAuthenticator.SPOTIFY_PREF_BITRATE_MODE_MEDIUM);
-                    ((SpotifyAuthenticator) mAuthenticators.get(AUTHENTICATOR_ID_SPOTIFY))
+                            SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE,
+                            SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE_MODE_MEDIUM);
+                    ((SpotifyAuthenticatorUtils) mAuthenticatorUtils.get(AUTHENTICATOR_ID_SPOTIFY))
                             .setBitrate(prefbitrate);
                 }
             }
@@ -178,10 +181,10 @@ public class TomahawkService extends Service {
                 .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
         mWifiLock.acquire();
 
-        mAuthenticators.put(AUTHENTICATOR_ID_SPOTIFY,
-                new SpotifyAuthenticator((TomahawkApp) getApplication(), this));
-        mAuthenticators.put(AUTHENTICATOR_ID_HATCHET,
-                new HatchetAuthenticator((TomahawkApp) getApplication(), this));
+        mAuthenticatorUtils.put(AUTHENTICATOR_ID_SPOTIFY,
+                new SpotifyAuthenticatorUtils((TomahawkApp) getApplication(), this));
+        mAuthenticatorUtils.put(AUTHENTICATOR_ID_HATCHET,
+                new HatchetAuthenticatorUtils((TomahawkApp) getApplication(), this));
 
         // Start our killtimer (watchdog-style)
         mKillTimerHandler.removeCallbacksAndMessages(null);
@@ -226,26 +229,26 @@ public class TomahawkService extends Service {
      * Authenticators should callback here, if they logged in or out
      */
     public void onLoggedInOut(int authenticatorId, boolean loggedIn) {
-        if (mOnLoggedInOutListener != null) {
-            mOnLoggedInOutListener.onLoggedInOut(authenticatorId, loggedIn);
+        if (mOnAuthenticatedListener != null) {
+            mOnAuthenticatedListener.onLoggedInOut(authenticatorId, loggedIn);
         }
     }
 
-    public Authenticator getAuthenticator(int authenticatorId) {
-        return mAuthenticators.get(authenticatorId);
+    public AuthenticatorUtils getAuthenticatorUtils(int authenticatorId) {
+        return mAuthenticatorUtils.get(authenticatorId);
     }
 
     public boolean isAuthenticating() {
-        for (int i = 0; i < mAuthenticators.size(); i++) {
-            if (mAuthenticators.valueAt(i).isAuthenticating()) {
+        for (int i = 0; i < mAuthenticatorUtils.size(); i++) {
+            if (mAuthenticatorUtils.valueAt(i).isAuthenticating()) {
                 return true;
             }
         }
         return false;
     }
 
-    public void setOnLoggedInOutListener(OnLoggedInOutListener onLoggedInOutListener) {
-        mOnLoggedInOutListener = onLoggedInOutListener;
+    public void setOnAuthenticatedListener(OnAuthenticatedListener onAuthenticatedListener) {
+        mOnAuthenticatedListener = onAuthenticatedListener;
     }
 
 }

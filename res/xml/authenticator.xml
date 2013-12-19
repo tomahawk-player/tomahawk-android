@@ -19,9 +19,7 @@
  */
 -->
 <account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
-                       android:accountType="org.tomahawk.tomahawk_android"
+                       android:accountType="@string/accounttype_string"
                        android:icon="@drawable/ic_launcher"
                        android:smallIcon="@drawable/ic_launcher"
-                       android:label="@string/appname_string"
-                       android:accountPreferences="@xml/account_preferences"
-        />
+                       android:label="@string/appname_string"/>

@@ -29,6 +29,7 @@ import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
+import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.tomahawk_android.utils.TomahawkExceptionReporter;
 
@@ -110,6 +111,15 @@ public class TomahawkApp extends Application {
     public void onCreate() {
         TomahawkExceptionReporter.init(this);
         super.onCreate();
+
+        // Load the LibSpotifyWrapper libaries
+        System.loadLibrary("spotify");
+        System.loadLibrary("spotifywrapper");
+
+        // Initialize LibSpotifyWrapper
+        LibSpotifyWrapper
+                .init(LibSpotifyWrapper.class.getClassLoader(), getFilesDir() + "/Spotify");
+
         sApplicationContext = getApplicationContext();
 
         mSourceList = new SourceList();

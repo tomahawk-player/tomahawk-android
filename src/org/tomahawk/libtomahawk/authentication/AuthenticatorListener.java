@@ -17,21 +17,15 @@
  */
 package org.tomahawk.libtomahawk.authentication;
 
-public interface Authenticator {
+public interface AuthenticatorListener {
 
-    public int getTitleResourceId();
+    void onInit();
 
-    public int getIconResourceId();
+    void onLogin(String username);
 
-    public void login(String email, String password);
+    void onLoginFailed(String message);
 
-    public void loginWithToken();
+    void onLogout();
 
-    public void logout();
-
-    public String getUserId();
-
-    public boolean isLoggedIn();
-
-    public boolean isAuthenticating();
+    void onAuthTokenProvided(String username, String authToken);
 }

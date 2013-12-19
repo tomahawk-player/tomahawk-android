@@ -344,13 +344,16 @@ void on_logged_out(list<int> int_params, list<string> string_params, sp_session 
 }
 
 void on_credentials_blob_updated(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track){
-    string blob = string_params.front();
+    string username = string_params.front();
+    string blob = string_params.back();
 
 	JNIEnv *env;
 	jclass class_libspotify = find_class_from_native_thread(&env);
 
-	jmethodID methodId = env->GetStaticMethodID(class_libspotify, "onCredentialsBlobUpdated", "(Ljava/lang/String;)V");
-	env->CallStaticVoidMethod(class_libspotify, methodId, env->NewStringUTF(blob.c_str()));
+	jmethodID methodId = env->GetStaticMethodID(class_libspotify, "onCredentialsBlobUpdated",
+	    "(Ljava/lang/String;Ljava/lang/String;)V");
+	env->CallStaticVoidMethod(class_libspotify, methodId,
+	    env->NewStringUTF(username.c_str()), env->NewStringUTF(blob.c_str()));
     if (env->ExceptionCheck()) {
         env->ExceptionDescribe();
         env->ExceptionClear();

@@ -31,6 +31,7 @@
 
 package org.tomahawk.libtomahawk.resolver.spotify;
 
+import org.tomahawk.libtomahawk.authentication.AuthenticatorListener;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
@@ -48,7 +49,7 @@ public class LibSpotifyWrapper {
 
     private final static String TAG = LibSpotifyWrapper.class.getName();
 
-    private static TomahawkService.AuthenticatorListener sAuthenticatorListener;
+    private static AuthenticatorListener sAuthenticatorListener;
 
     private static SpotifyResolver sSpotifyResolver;
 
@@ -87,19 +88,21 @@ public class LibSpotifyWrapper {
     /**
      * Initialize libspotify
      *
-     * @param loader                {@link ClassLoader} needed to initialize libspotify
-     * @param storagePath           {@link String} containing the path to where libspotify stores
-     *                              its stuff
-     * @param authenticatorListener {@link org.tomahawk.tomahawk_android.services.TomahawkService.AuthenticatorListener}
-     *                              used to get a callback on login, and whenever the cred blob has
-     *                              been updated
+     * @param loader      {@link ClassLoader} needed to initialize libspotify
+     * @param storagePath {@link String} containing the path to where libspotify stores its stuff
      */
-    public static void init(ClassLoader loader, String storagePath,
-            TomahawkService.AuthenticatorListener authenticatorListener) {
-        sAuthenticatorListener = authenticatorListener;
+    public static void init(ClassLoader loader, String storagePath) {
         if (!mInitialized) {
             nativeinit(loader, storagePath);
         }
+    }
+
+    /**
+     * @param authenticatorListener {@link AuthenticatorListener}used to get a callback on login,
+     *                              and whenever the cred blob has been updated
+     */
+    public static void setsAuthenticatorListener(AuthenticatorListener authenticatorListener) {
+        LibSpotifyWrapper.sAuthenticatorListener = authenticatorListener;
     }
 
     /**
@@ -328,6 +331,10 @@ public class LibSpotifyWrapper {
         sSpotifyResolver.addResult(qid, result);
     }
 
+    public static boolean isInitialized() {
+        return mInitialized;
+    }
+
     /**
      * Called by libspotify when initialized
      */
@@ -362,10 +369,11 @@ public class LibSpotifyWrapper {
     /**
      * Called by libspotify, when the credential blob has been updated
      *
-     * @param blob {@link String} containing the blob
+     * @param username {@link String} containing the username
+     * @param blob     {@link String} containing the blob
      */
-    public static void onCredentialsBlobUpdated(final String blob) {
-        sAuthenticatorListener.onAuthTokenProvided("", blob);
+    public static void onCredentialsBlobUpdated(final String username, final String blob) {
+        sAuthenticatorListener.onAuthTokenProvided(username, blob);
     }
 
     /**
