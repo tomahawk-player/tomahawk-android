@@ -20,6 +20,8 @@ package org.tomahawk.libtomahawk.resolver;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -126,7 +128,7 @@ public class PipeLine {
     /**
      * This will invoke every {@link Resolver} to resolve the given {@link Query}.
      */
-    public String resolve(Query q, boolean forceOnlyLocal) {
+    public String resolve(final Query q, boolean forceOnlyLocal) {
         if (!forceOnlyLocal && q.isSolved()) {
             sendResultsReportBroadcast(q.getQid());
         } else {
@@ -136,12 +138,18 @@ public class PipeLine {
                 }
             } else {
                 mQids.put(q.getQid(), q);
-                for (Resolver resolver : mResolvers) {
+                for (final Resolver resolver : mResolvers) {
                     if ((forceOnlyLocal && resolver instanceof DataBaseResolver)
                             || (!forceOnlyLocal && q.isOnlyLocal()
                             && resolver instanceof DataBaseResolver)
                             || (!forceOnlyLocal && !q.isOnlyLocal())) {
-                        resolver.resolve(q);
+                        Handler handler = new Handler(Looper.getMainLooper());
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                resolver.resolve(q);
+                            }
+                        });
                     }
                 }
             }

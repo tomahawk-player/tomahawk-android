@@ -21,6 +21,7 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 
+import android.app.Activity;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 
@@ -59,22 +60,18 @@ public class TomahawkMediaPlayer
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-        if (mUseMediaPlayer) {
-            mIsPreparing = false;
-            mPlaybackService.onPrepared(this);
-        }
+        mIsPreparing = false;
+        mPlaybackService.onPrepared(this);
     }
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        return !mUseMediaPlayer || mPlaybackService.onError(this, what, extra);
+        return mPlaybackService.onError(this, what, extra);
     }
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        if (mUseMediaPlayer) {
-            mPlaybackService.onCompletion(this);
-        }
+        mPlaybackService.onCompletion(this);
     }
 
     /**
