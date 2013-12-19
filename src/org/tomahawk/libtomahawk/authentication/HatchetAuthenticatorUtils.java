@@ -172,7 +172,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
                             .getLocalizedMessage());
                 }*/
 
-                AccountManager am = AccountManager.get(mTomahawkApp);
+                /*AccountManager am = AccountManager.get(mTomahawkApp);
                 if (am != null) {
                     Account[] accounts = am
                             .getAccountsByType(mTomahawkApp.getString(R.string.accounttype_string));
@@ -198,7 +198,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
 
                 mWebSocketClient = new WebSocketClient(URI.create(ACCESS_TOKEN_SERVER),
                         HatchetAuthenticatorUtils.this, null);
-                mWebSocketClient.connect();
+                mWebSocketClient.connect();*/
             }
         }).start();
     }
