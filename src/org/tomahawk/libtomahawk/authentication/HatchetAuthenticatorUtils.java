@@ -22,8 +22,10 @@ import com.codebutler.android_websockets.WebSocketClient;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
@@ -43,21 +45,32 @@ import android.util.Base64;
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.security.KeyFactory;
+import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
 
 public class HatchetAuthenticatorUtils extends AuthenticatorUtils
         implements WebSocketClient.Listener {
@@ -305,6 +318,10 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
             Log.e(TAG, "requestAccessTokens: " + e.getClass() + ": " + e.getLocalizedMessage());
         } catch (IOException e) {
             Log.e(TAG, "requestAccessTokens: " + e.getClass() + ": " + e.getLocalizedMessage());
+        } catch (NoSuchAlgorithmException e) {
+            Log.e(TAG, "requestAccessTokens: " + e.getClass() + ": " + e.getLocalizedMessage());
+        } catch (KeyManagementException e) {
+            Log.e(TAG, "requestAccessTokens: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
         return null;
     }
@@ -329,6 +346,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
                 params.put(PARAMS_PASSWORD, password);
                 params.put(PARAMS_USERNAME, name);
                 params.put(PARAMS_CLIENT, "Tomahawk Android (" + android.os.Build.MODEL + ")");
+                params.put(PARAMS_NONCE, "");
                 /*byte[] uuid = UUID.randomUUID().toString().getBytes();
                 Cipher cipher = Cipher.getInstance("OAEP");
                 cipher.init(Cipher.ENCRYPT_MODE, mPublicKey);
@@ -336,10 +354,9 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
                 String encryptedUuid = Base64.encodeToString(
                         encryptedUuidBytes, Base64.DEFAULT);
                 params.put(PARAMS_NONCE, encryptedUuid);*/
-                params.put(PARAMS_NONCE, "");
                 try {
-                    String string = post(new JSONObject(params));
-                    JSONObject jsonObject = new JSONObject(string);
+                    String jsonString = post(new JSONObject(params));
+                    JSONObject jsonObject = new JSONObject(jsonString);
                     if (jsonObject.has(PARAMS_RESULT)) {
                         JSONObject result = jsonObject.getJSONObject(PARAMS_RESULT);
                         if (result.has(PARAMS_ERRORINFO)) {
@@ -362,6 +379,12 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
                     Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
                     mAuthenticatorListener.onLoginFailed(e.getMessage());
                 } catch (IOException e) {
+                    Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
+                    mAuthenticatorListener.onLoginFailed(e.getMessage());
+                } catch (NoSuchAlgorithmException e) {
+                    Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
+                    mAuthenticatorListener.onLoginFailed(e.getMessage());
+                } catch (KeyManagementException e) {
                     Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
                     mAuthenticatorListener.onLoginFailed(e.getMessage());
                 }
@@ -392,8 +415,39 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
         mAuthenticatorListener.onLogout();
     }
 
-    private static String post(JSONObject params) throws IOException {
-        HttpParams httpParams = new BasicHttpParams();
+    private static String post(JSONObject params)
+            throws IOException, NoSuchAlgorithmException, KeyManagementException {
+        String query = params.has(PARAMS_REFRESH_TOKEN) ? PATH_TOKENS : PATH_AUTH_CREDENTIALS;
+        URL url = new URL(LOGIN_SERVER + query);
+        String paramsString = params.toString();
+        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+
+        // Create the SSL connection
+        SSLContext sc;
+        sc = SSLContext.getInstance("TLS");
+        sc.init(null, null, new java.security.SecureRandom());
+        connection.setSSLSocketFactory(sc.getSocketFactory());
+
+        connection.setReadTimeout(15000);
+        connection.setConnectTimeout(15000);
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        connection.setFixedLengthStreamingMode(paramsString.getBytes().length);
+        connection.setRequestProperty("Accept", "application/json; charset=utf-8");
+        connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
+        OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
+        out.write(paramsString);
+        out.close();
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        String inputLine;
+        StringBuilder response = new StringBuilder();
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+        return response.toString();
+        /*HttpParams httpParams = new BasicHttpParams();
         httpParams.setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
         TomahawkHttpClient httpClient = new TomahawkHttpClient(httpParams);
 
@@ -407,6 +461,25 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
 
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(httpresponse.getEntity().getContent(), "UTF-8"));
-        return reader.readLine();
+        return reader.readLine();*/
+    }
+
+    private static String getPostParamString(List<NameValuePair> params)
+            throws UnsupportedEncodingException {
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+
+        for (NameValuePair pair : params) {
+            if (first) {
+                first = false;
+            } else {
+                result.append("&");
+            }
+            result.append(URLEncoder.encode(pair.getName(), "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(pair.getValue(), "UTF-8"));
+        }
+
+        return result.toString();
     }
 }
