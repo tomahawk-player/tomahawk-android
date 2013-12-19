@@ -17,7 +17,9 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticator;
+import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
+import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticatorUtils;
+import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -34,9 +36,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Looper;
-import android.os.Message;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -44,7 +45,6 @@ import android.widget.AdapterView.OnItemClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Handler;
 
 /**
  * {@link TomahawkListFragment} which fakes the standard {@link android.preference.PreferenceFragment}
@@ -52,7 +52,7 @@ import java.util.logging.Handler;
  * android.preference.PreferenceFragment} class
  */
 public class FakePreferenceFragment extends TomahawkListFragment
-        implements OnItemClickListener, TomahawkService.OnLoggedInOutListener,
+        implements OnItemClickListener, TomahawkService.OnAuthenticatedListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = FakePreferenceFragment.class.getName();
@@ -87,7 +87,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
         public void onReceive(Context context, Intent intent) {
             if (TomahawkMainActivity.TOMAHAWKSERVICE_READY.equals(intent.getAction())) {
                 mTomahawkMainActivity.getTomahawkService()
-                        .setOnLoggedInOutListener(FakePreferenceFragment.this);
+                        .setOnAuthenticatedListener(FakePreferenceFragment.this);
                 updateLogInOutState();
             }
         }
@@ -106,7 +106,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
         if (mTomahawkMainActivity.getTomahawkService() != null) {
-            mTomahawkMainActivity.getTomahawkService().setOnLoggedInOutListener(this);
+            mTomahawkMainActivity.getTomahawkService().setOnAuthenticatedListener(this);
         }
 
         // Set up the set of FakePreferences to be shown in this Fragment
@@ -165,6 +165,18 @@ public class FakePreferenceFragment extends TomahawkListFragment
     @Override
     public void onResume() {
         super.onResume();
+
+        if (getArguments() != null) {
+            if (getArguments().containsKey(TomahawkService.AUTHENTICATOR_ID)) {
+                int authenticatorId = Integer.valueOf(
+                        getArguments().getString(TomahawkService.AUTHENTICATOR_ID));
+                if (authenticatorId == TomahawkService.AUTHENTICATOR_ID_HATCHET
+                        || authenticatorId == TomahawkService.AUTHENTICATOR_ID_SPOTIFY) {
+                    new LoginDialog(mTomahawkMainActivity.getTomahawkService(), authenticatorId)
+                            .show(getFragmentManager(), null);
+                }
+            }
+        }
 
         mFakePreferenceFragmentReceiver = new FakePreferenceFragmentReceiver();
         mTomahawkMainActivity.registerReceiver(mFakePreferenceFragmentReceiver,
@@ -267,18 +279,18 @@ public class FakePreferenceFragment extends TomahawkListFragment
     }
 
     public void updateLogInOutState() {
-        // Initialize the state of the "Spotify"-FakePreference's checkbox
+        // Initialize the state of the FakePreference's checkboxes
         if (mTomahawkMainActivity.getTomahawkService() != null) {
-            if (mTomahawkMainActivity.getTomahawkService()
-                    .getAuthenticator(TomahawkService.AUTHENTICATOR_ID_SPOTIFY).isLoggedIn()) {
-                // SpotifyUserId is set, so we know that is Spotify is logged in
+            if (AuthenticatorUtils.isLoggedIn(mTomahawkMainActivity.getApplicationContext(),
+                    TomahawkService.AUTHENTICATOR_NAME_SPOTIFY,
+                    TomahawkService.AUTH_TOKEN_TYPE_SPOTIFY)) {
                 onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_SPOTIFY, true);
             } else {
                 onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_SPOTIFY, false);
             }
-            if (mTomahawkMainActivity.getTomahawkService()
-                    .getAuthenticator(TomahawkService.AUTHENTICATOR_ID_HATCHET).isLoggedIn()) {
-                // SpotifyUserId is set, so we know that is Spotify is logged in
+            if (AuthenticatorUtils.isLoggedIn(mTomahawkMainActivity.getApplicationContext(),
+                    TomahawkService.AUTHENTICATOR_NAME_HATCHET,
+                    TomahawkService.AUTH_TOKEN_TYPE_HATCHET)) {
                 onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_HATCHET, true);
             } else {
                 onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_HATCHET, false);

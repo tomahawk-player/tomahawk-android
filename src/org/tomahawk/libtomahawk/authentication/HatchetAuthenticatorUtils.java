@@ -32,19 +32,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
 
-import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
-import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
-import android.accounts.NetworkErrorException;
 import android.content.Context;
-import android.content.Intent;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 
@@ -53,9 +47,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.InetAddress;
 import java.net.URI;
-import java.net.UnknownHostException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -67,18 +59,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-public class HatchetAuthenticator extends AbstractAccountAuthenticator
-        implements Authenticator, WebSocketClient.Listener {
+public class HatchetAuthenticatorUtils extends AuthenticatorUtils
+        implements WebSocketClient.Listener {
 
-    private static final String TAG = HatchetAuthenticator.class.getName();
+    private static final String TAG = HatchetAuthenticatorUtils.class.getName();
 
     public static final String LOGIN_SERVER = "https://auth.hatchet.is/v1";
 
     public static final String ACCESS_TOKEN_SERVER = "https://auth.hatchet.is/v1";
-
-    public static final String ACCOUNT_TYPE = "org.tomahawk";
-
-    public static final String AUTH_TOKEN_TYPE = "org.tomahawk.authtoken";
 
     public static final String PATH_AUTH_CREDENTIALS = "/auth/credentials";
 
@@ -106,25 +94,12 @@ public class HatchetAuthenticator extends AbstractAccountAuthenticator
 
     public static final String PARAMS_DESCRIPTION = "description";
 
-    private TomahawkApp mTomahawkApp;
-
-    private TomahawkService mTomahawkService;
-
-    private List<AccessToken> mAccessTokens;
-
-    private String mUserId;
-
-    private String mAuthToken;
-
     private PublicKey mPublicKey;
-
-    private boolean mIsAuthenticating;
 
     private WebSocketClient mWebSocketClient;
 
     // This listener handles every event regarding the login/logout methods
-    private TomahawkService.AuthenticatorListener mAuthenticatorListener
-            = new TomahawkService.AuthenticatorListener() {
+    private AuthenticatorListener mAuthenticatorListener = new AuthenticatorListener() {
 
         @Override
         public void onInit() {
@@ -135,76 +110,46 @@ public class HatchetAuthenticator extends AbstractAccountAuthenticator
         public void onLogin(String username) {
             Log.d(TAG,
                     "TomahawkService: Hatchet user '" + username + "' logged in successfully :)");
-            mUserId = username;
-            logInOut(true);
         }
 
         @Override
         public void onLoginFailed(String message) {
             Log.d(TAG, "TomahawkService: Hatchet login failed :( message: " + message);
-            mUserId = null;
-            logInOut(false);
+            mIsAuthenticating = false;
+            mTomahawkService.onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_HATCHET, false);
         }
 
         @Override
         public void onLogout() {
             Log.d(TAG, "TomahawkService: Hatchet user logged out");
-            mUserId = null;
-            logInOut(false);
+            mIsAuthenticating = false;
+            mTomahawkService.onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_HATCHET, false);
         }
 
         @Override
         public void onAuthTokenProvided(String username, String authToken) {
-            Log.d(TAG, "TomahawkService: Hatchet auth token is served and yummy");
-            mUserId = username;
-            mAuthToken = authToken;
-        }
-
-        private void logInOut(boolean loggedIn) {
+            if (username != null && !TextUtils.isEmpty(username) && authToken != null && !TextUtils
+                    .isEmpty(authToken)) {
+                Log.d(TAG, "TomahawkService: Hatchet auth token is served and yummy");
+                Account account = new Account(username,
+                        mTomahawkApp.getString(R.string.accounttype_string));
+                AccountManager am = AccountManager.get(mTomahawkApp);
+                if (am != null) {
+                    am.addAccountExplicitly(account, null, new Bundle());
+                    am.setUserData(account, TomahawkService.AUTHENTICATOR_NAME, mName);
+                    am.setAuthToken(account, mAuthTokenType, authToken);
+                }
+            }
             mIsAuthenticating = false;
-            mTomahawkService.onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_HATCHET, loggedIn);
+            mTomahawkService.onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_HATCHET, true);
         }
     };
 
-    private static class AccessToken {
-
-        String token;
-
-        String remotehost;
-
-        String localhost;
-
-        String type;
-
-        int port;
-
-        int expiration;
-
-        AccessToken(String token, String remotehost, String type, int port, int expiration) {
-            this.token = token;
-            this.remotehost = remotehost;
-            this.type = type;
-            this.port = port;
-            this.expiration = expiration;
-
-            try {
-                localhost = InetAddress.getLocalHost().getHostName();
-            } catch (UnknownHostException e) {
-
-                WifiManager wifiMan = (WifiManager) TomahawkApp.getContext()
-                        .getSystemService(Context.WIFI_SERVICE);
-                WifiInfo wifiInf = wifiMan.getConnectionInfo();
-
-                localhost = Integer.toString(wifiInf.getIpAddress());
-            }
-        }
-    }
-
-    public HatchetAuthenticator(TomahawkApp tomahawkApp, TomahawkService tomahawkService) {
-        super(tomahawkApp);
-
+    public HatchetAuthenticatorUtils(TomahawkApp tomahawkApp, TomahawkService tomahawkService) {
         mTomahawkApp = tomahawkApp;
         mTomahawkService = tomahawkService;
+        mName = TomahawkService.AUTHENTICATOR_NAME_HATCHET;
+        mAuthTokenType = TomahawkService.AUTH_TOKEN_TYPE_HATCHET;
         mAuthenticatorListener.onInit();
 
         new Thread(new Runnable() {
@@ -225,27 +170,34 @@ public class HatchetAuthenticator extends AbstractAccountAuthenticator
                     KeyFactory keyFactory = KeyFactory.getInstance("RSA");
                     mPublicKey = keyFactory.generatePublic(spec);
                 } catch (InvalidKeySpecException e) {
-                    Log.e(TAG, "HatchetAuthenticator(constructor): " + e.getClass() + ":" + e
+                    Log.e(TAG, "TomahawkAuthenticator(constructor): " + e.getClass() + ":" + e
                             .getLocalizedMessage());
                 } catch (NoSuchAlgorithmException e) {
-                    Log.e(TAG, "HatchetAuthenticator(constructor): " + e.getClass() + ":" + e
+                    Log.e(TAG, "TomahawkAuthenticator(constructor): " + e.getClass() + ":" + e
                             .getLocalizedMessage());
                 } catch (IOException e) {
-                    Log.e(TAG, "HatchetAuthenticator(constructor): " + e.getClass() + ":" + e
+                    Log.e(TAG, "TomahawkAuthenticator(constructor): " + e.getClass() + ":" + e
                             .getLocalizedMessage());
                 }
 
                 AccountManager am = AccountManager.get(mTomahawkApp);
-                Account[] account = am.getAccountsByType(ACCOUNT_TYPE);
-                String userId = null;
-                String authToken = null;
-                if (account != null && account.length > 0) {
-                    userId = account[0].name;
-                    authToken = am.peekAuthToken(account[0], AUTH_TOKEN_TYPE);
-                }
-
-                if (userId != null && authToken != null) {
-                    mAccessTokens = requestAccessTokens(userId, authToken);
+                if (am != null) {
+                    Account[] accounts = am
+                            .getAccountsByType(mTomahawkApp.getString(R.string.accounttype_string));
+                    String userId = null;
+                    String authToken = null;
+                    if (accounts != null) {
+                        for (Account account : accounts) {
+                            if (mName.equals(am
+                                    .getUserData(account, TomahawkService.AUTHENTICATOR_NAME))) {
+                                userId = account.name;
+                                authToken = am.peekAuthToken(account, mAuthTokenType);
+                            }
+                        }
+                    }
+                    if (userId != null && authToken != null) {
+                        mAccessTokens = requestAccessTokens(userId, authToken);
+                    }
                 }
 
                 if (mAccessTokens == null) {
@@ -253,7 +205,7 @@ public class HatchetAuthenticator extends AbstractAccountAuthenticator
                 }
 
                 mWebSocketClient = new WebSocketClient(URI.create(ACCESS_TOKEN_SERVER),
-                        HatchetAuthenticator.this, null);
+                        HatchetAuthenticatorUtils.this, null);
                 mWebSocketClient.connect();
             }
         }).start();
@@ -275,7 +227,7 @@ public class HatchetAuthenticator extends AbstractAccountAuthenticator
             register.put("hostname", token.localhost);
             register.put("port", token.port);
             register.put("accesstoken", token.token);
-            register.put("username", mUserId);
+            //register.put("username", mUserId);
             register.put("dbid", "nil");
         } catch (JSONException e) {
             Log.e(TAG, "onConnect: " + e.getClass() + ":" + e.getLocalizedMessage());
@@ -318,107 +270,44 @@ public class HatchetAuthenticator extends AbstractAccountAuthenticator
     /**
      * Requests access tokens for the given user id and valid auth token.
      */
-    private List<AccessToken> requestAccessTokens(String userid, String authToken) {
+    public static List<AccessToken> requestAccessTokens(String userid, String authToken) {
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAMS_USERNAME, userid);
         params.put(PARAMS_TOKENS, authToken);
 
         try {
-            String json = post(new JSONObject(params));
-            new JSONObject(json);
-            List<AccessToken> accessTokens = new ArrayList<AccessToken>();
-            JSONArray tokens = new JSONArray(json);
-            for (int i = 0; i < tokens.length(); i++) {
-                JSONObject host = tokens.getJSONObject(i);
-                AccessToken token = new AccessToken(host.getString("token"), host.getString("host"),
-                        host.getString("type"), host.getInt("port"), host.getInt("expiration"));
+            String jsonString = post(new JSONObject(params));
+            JSONObject jsonObject = new JSONObject(jsonString);
+            if (jsonObject.has(PARAMS_RESULT)) {
+                JSONObject result = jsonObject.getJSONObject(PARAMS_RESULT);
+                if (result.has(PARAMS_TOKENS)) {
+                    List<AccessToken> accessTokens = new ArrayList<AccessToken>();
+                    JSONArray tokens = jsonObject.getJSONObject(PARAMS_RESULT).getJSONArray(
+                            PARAMS_TOKENS);
+                    for (int i = 0; i < tokens.length(); i++) {
+                        JSONObject host = tokens.getJSONObject(i);
+                        AccessToken token = new AccessToken(host.getString("token"),
+                                host.getString("host"),
+                                host.getString("type"), host.getInt("port"),
+                                host.getInt("expiration"));
 
-                accessTokens.add(token);
+                        accessTokens.add(token);
+                    }
+                    return accessTokens;
+                } else if (result.has(PARAMS_ERRORINFO)) {
+                    Log.e(TAG, "requestAccessTokens: " + result.getJSONObject(PARAMS_ERRORINFO)
+                            .getString(PARAMS_DESCRIPTION));
+                }
             }
-            return accessTokens;
         } catch (JSONException e) {
             Log.e(TAG, "requestAccessTokens: " + e.getClass() + ": " + e.getLocalizedMessage());
-            mAuthenticatorListener.onLoginFailed(e.getMessage());
         } catch (UnsupportedEncodingException e) {
             Log.e(TAG, "requestAccessTokens: " + e.getClass() + ": " + e.getLocalizedMessage());
-            mAuthenticatorListener.onLoginFailed(e.getMessage());
         } catch (IOException e) {
             Log.e(TAG, "requestAccessTokens: " + e.getClass() + ": " + e.getLocalizedMessage());
-            mAuthenticatorListener.onLoginFailed(e.getMessage());
         }
         return null;
     }
-
-    @Override
-    public Bundle editProperties(AccountAuthenticatorResponse response, String accountType) {
-        return null;
-    }
-
-    @Override
-    public Bundle addAccount(AccountAuthenticatorResponse response, String accountType,
-            String authTokenType, String[] requiredFeatures, Bundle options)
-            throws NetworkErrorException {
-        final Intent intent = new Intent(mTomahawkApp, TomahawkMainActivity.class);
-        intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
-        intent.setAction(TomahawkMainActivity.CALLED_TO_ADD_ACCOUNT);
-        final Bundle bundle = new Bundle();
-        bundle.putParcelable(AccountManager.KEY_INTENT, intent);
-        return bundle;
-    }
-
-    @Override
-    public Bundle confirmCredentials(AccountAuthenticatorResponse response, Account account,
-            Bundle options) throws NetworkErrorException {
-        return null;
-    }
-
-    @Override
-    public Bundle getAuthToken(AccountAuthenticatorResponse response, Account account,
-            String authTokenType, Bundle options) throws NetworkErrorException {
-        final AccountManager am = AccountManager.get(mTomahawkApp);
-        String authToken = am.peekAuthToken(account, authTokenType);
-        if (authToken != null && authToken.length() > 0) {
-            am.setAuthToken(account, authTokenType, authToken);
-
-            final Bundle result = new Bundle();
-            result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-            result.putString(AccountManager.KEY_ACCOUNT_TYPE, ACCOUNT_TYPE);
-            result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
-            return result;
-        }
-
-        final Intent intent = new Intent(mTomahawkApp, TomahawkMainActivity.class);
-        intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
-        intent.setAction(TomahawkMainActivity.CALLED_TO_ADD_ACCOUNT);
-        intent.putExtra(PARAMS_USERNAME, account.name);
-        intent.putExtra(PARAMS_TYPE, authTokenType);
-
-        final Bundle bundle = new Bundle();
-        bundle.putParcelable(AccountManager.KEY_INTENT, intent);
-        return bundle;
-    }
-
-    @Override
-    public String getAuthTokenLabel(String authTokenType) {
-        return null;
-    }
-
-    @Override
-    public Bundle updateCredentials(AccountAuthenticatorResponse response, Account account,
-            String authTokenType, Bundle options) throws NetworkErrorException {
-        return null;
-    }
-
-    @Override
-    public Bundle hasFeatures(AccountAuthenticatorResponse response, Account account,
-            String[] features) throws NetworkErrorException {
-        final Bundle result = new Bundle();
-        result.putBoolean(AccountManager.KEY_BOOLEAN_RESULT, false);
-        return result;
-    }
-
-    //The methods below implement the Authenticator interface
-
 
     @Override
     public int getTitleResourceId() {
@@ -454,10 +343,8 @@ public class HatchetAuthenticator extends AbstractAccountAuthenticator
                     if (jsonObject.has(PARAMS_RESULT)) {
                         JSONObject result = jsonObject.getJSONObject(PARAMS_RESULT);
                         if (result.has(PARAMS_ERRORINFO)) {
-                            mAuthenticatorListener.onLoginFailed(
-                                    jsonObject.getJSONObject(PARAMS_RESULT)
-                                            .getJSONObject(PARAMS_ERRORINFO)
-                                            .getString(PARAMS_DESCRIPTION));
+                            mAuthenticatorListener.onLoginFailed(result.getJSONObject(
+                                    PARAMS_ERRORINFO).getString(PARAMS_DESCRIPTION));
                         } else if (result.has(PARAMS_USERNAME) && result
                                 .has(PARAMS_REFRESH_TOKEN)) {
                             mAuthenticatorListener.onLogin(result.getString(PARAMS_USERNAME));
@@ -485,28 +372,24 @@ public class HatchetAuthenticator extends AbstractAccountAuthenticator
     @Override
     public void loginWithToken() {
         mIsAuthenticating = true;
-
     }
 
     @Override
     public void logout() {
         mIsAuthenticating = true;
-
-    }
-
-    @Override
-    public String getUserId() {
-        return mUserId;
-    }
-
-    @Override
-    public boolean isLoggedIn() {
-        return mUserId != null;
-    }
-
-    @Override
-    public boolean isAuthenticating() {
-        return mIsAuthenticating;
+        final AccountManager am = AccountManager.get(mTomahawkApp);
+        if (am != null) {
+            Account[] accounts = am
+                    .getAccountsByType(mTomahawkApp.getString(R.string.accounttype_string));
+            if (accounts != null) {
+                for (Account account : accounts) {
+                    if (mName.equals(am.getUserData(account, TomahawkService.AUTHENTICATOR_NAME))) {
+                        am.removeAccount(account, null, null);
+                    }
+                }
+            }
+        }
+        mAuthenticatorListener.onLogout();
     }
 
     private static String post(JSONObject params) throws IOException {
@@ -524,8 +407,6 @@ public class HatchetAuthenticator extends AbstractAccountAuthenticator
 
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(httpresponse.getEntity().getContent(), "UTF-8"));
-        String json = reader.readLine();
-        Log.d(TAG, "Tomahawk server response: " + json);
-        return json;
+        return reader.readLine();
     }
 }

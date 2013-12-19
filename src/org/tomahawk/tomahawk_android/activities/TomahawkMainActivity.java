@@ -47,6 +47,7 @@ import org.tomahawk.tomahawk_android.services.TomahawkService;
 import org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout;
 import org.tomahawk.tomahawk_android.utils.ContentViewer;
 
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -118,9 +119,6 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public static final String SHOW_PLAYBACKFRAGMENT_ON_STARTUP
             = "org.tomahawk.tomahawk_android.show_playbackfragment_on_startup";
-
-    public static final String CALLED_TO_ADD_ACCOUNT
-            = "org.tomahawk.tomahawk_android.called_to_add_account";
 
     private TomahawkApp mTomahawkApp;
 
@@ -396,8 +394,13 @@ public class TomahawkMainActivity extends ActionBarActivity
             // if this Activity is being shown after the user clicked the notification
             mCurrentStackPosition = HUB_ID_PLAYBACK;
         }
-        if (CALLED_TO_ADD_ACCOUNT.equals(getIntent().getAction())){
+        if (getIntent().hasExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)) {
             mCurrentStackPosition = HUB_ID_SETTINGS;
+            ContentViewer.FragmentStateHolder fragmentStateHolder =
+                    mContentViewer.getBackStackAtPosition(mCurrentStackPosition).get(0);
+            fragmentStateHolder.tomahawkListItemType = TomahawkService.AUTHENTICATOR_ID;
+            fragmentStateHolder.tomahawkListItemKey = String.valueOf(
+                    getIntent().getIntExtra(TomahawkService.AUTHENTICATOR_ID, -1));
         }
 
         SourceList sl = ((TomahawkApp) getApplication()).getSourceList();

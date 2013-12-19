@@ -17,16 +17,13 @@
  */
 package org.tomahawk.tomahawk_android.dialogs;
 
-import org.tomahawk.libtomahawk.authentication.Authenticator;
-import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticator;
+import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Typeface;
@@ -34,7 +31,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
@@ -55,7 +51,11 @@ public class LoginDialog extends DialogFragment {
 
     public final static String TAG = LoginDialog.class.getName();
 
-    private Authenticator mAuthenticator;
+    private AuthenticatorUtils mAuthenticatorUtils;
+
+    private String mAuthenticatorName;
+
+    private String mAuthenticatorAuthTokenType;
 
     private EditText mUsernameEditText;
 
@@ -116,7 +116,8 @@ public class LoginDialog extends DialogFragment {
     private View.OnClickListener mPositiveButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (mAuthenticator.isLoggedIn()) {
+            if (AuthenticatorUtils.isLoggedIn(getActivity().getApplicationContext(),
+                    mAuthenticatorName, mAuthenticatorAuthTokenType)) {
                 hideSoftKeyboard();
                 getDialog().dismiss();
             } else {
@@ -128,9 +129,10 @@ public class LoginDialog extends DialogFragment {
     private View.OnClickListener mNegativeButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (mAuthenticator.isLoggedIn()) {
+            if (AuthenticatorUtils.isLoggedIn(getActivity().getApplicationContext(),
+                    mAuthenticatorName, mAuthenticatorAuthTokenType)) {
                 startLoadingAnimation();
-                mAuthenticator.logout();
+                mAuthenticatorUtils.logout();
             } else {
                 hideSoftKeyboard();
                 getDialog().cancel();
@@ -147,7 +149,14 @@ public class LoginDialog extends DialogFragment {
     public LoginDialog(TomahawkService tomahawkService, int authenticatorId) {
         setRetainInstance(true);
         mTomahawkService = tomahawkService;
-        mAuthenticator = mTomahawkService.getAuthenticator(authenticatorId);
+        mAuthenticatorUtils = mTomahawkService.getAuthenticatorUtils(authenticatorId);
+        if (authenticatorId == TomahawkService.AUTHENTICATOR_ID_SPOTIFY) {
+            mAuthenticatorName = TomahawkService.AUTHENTICATOR_NAME_SPOTIFY;
+            mAuthenticatorAuthTokenType = TomahawkService.AUTH_TOKEN_TYPE_SPOTIFY;
+        } else if (authenticatorId == TomahawkService.AUTHENTICATOR_ID_HATCHET) {
+            mAuthenticatorName = TomahawkService.AUTHENTICATOR_NAME_HATCHET;
+            mAuthenticatorAuthTokenType = TomahawkService.AUTH_TOKEN_TYPE_HATCHET;
+        }
     }
 
     /**
@@ -165,7 +174,10 @@ public class LoginDialog extends DialogFragment {
         mUsernameEditText.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         mUsernameEditText.setSingleLine(true);
         mUsernameEditText.setOnEditorActionListener(mOnLoginActionListener);
-        mUsernameEditText.setText(mAuthenticator.isLoggedIn() ? mAuthenticator.getUserId() : "");
+        mUsernameEditText.setText(AuthenticatorUtils
+                .isLoggedIn(getActivity().getApplicationContext(), mAuthenticatorName,
+                        mAuthenticatorAuthTokenType) ? AuthenticatorUtils
+                .getUserId(getActivity().getApplicationContext(), mAuthenticatorName) : "");
         mPasswordEditText = (EditText) view.findViewById(R.id.login_dialog_password_edittext);
         mPasswordEditText.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         mPasswordEditText.setSingleLine(true);
@@ -174,7 +186,7 @@ public class LoginDialog extends DialogFragment {
         mPasswordEditText.setOnEditorActionListener(mOnLoginActionListener);
 
         TextView textView = (TextView) view.findViewById(R.id.login_dialog_title_textview);
-        textView.setText(mAuthenticator.getTitleResourceId());
+        textView.setText(mAuthenticatorUtils.getTitleResourceId());
 
         mPositiveButton = (TextView) view.findViewById(R.id.login_dialog_ok_button);
         mPositiveButton.setOnClickListener(mPositiveButtonListener);
@@ -190,7 +202,8 @@ public class LoginDialog extends DialogFragment {
                 new PorterDuffColorFilter(getResources().getColor(R.color.tomahawk_red),
                         PorterDuff.Mode.MULTIPLY));
         mStatusImageView = (ImageView) view.findViewById(R.id.login_dialog_status_imageview);
-        if (mAuthenticator.isLoggedIn()) {
+        if (AuthenticatorUtils.isLoggedIn(getActivity().getApplicationContext(), mAuthenticatorName,
+                mAuthenticatorAuthTokenType)) {
             mStatusImageView.setImageDrawable(mLoggedInDrawable);
         }
         updateButtonTexts();
@@ -238,7 +251,7 @@ public class LoginDialog extends DialogFragment {
         } else {
             hideSoftKeyboard();
             // Tell the service to login Spotify
-            mAuthenticator.login(mEmail, mPassword);
+            mAuthenticatorUtils.login(mEmail, mPassword);
             startLoadingAnimation();
         }
     }
@@ -258,7 +271,8 @@ public class LoginDialog extends DialogFragment {
      * Update the texts of all buttons. Depends on whether or not the user is logged in.
      */
     private void updateButtonTexts() {
-        if (mAuthenticator.isLoggedIn()) {
+        if (AuthenticatorUtils.isLoggedIn(getActivity().getApplicationContext(), mAuthenticatorName,
+                mAuthenticatorAuthTokenType)) {
             mPositiveButton.setText(R.string.ok);
             mNegativeButton.setText(R.string.logout);
         } else {
@@ -279,7 +293,8 @@ public class LoginDialog extends DialogFragment {
      */
     public void stopLoadingAnimation() {
         mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
-        if (mAuthenticator.isLoggedIn()) {
+        if (AuthenticatorUtils.isLoggedIn(getActivity().getApplicationContext(), mAuthenticatorName,
+                mAuthenticatorAuthTokenType)) {
             mStatusImageView.setImageDrawable(mLoggedInDrawable);
         } else {
             mStatusImageView.setImageDrawable(mNotLoggedInDrawable);
