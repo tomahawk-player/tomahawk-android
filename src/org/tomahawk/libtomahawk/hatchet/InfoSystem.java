@@ -166,9 +166,12 @@ public class InfoSystem {
                                         params)));
                                 ArrayList<PlaylistEntryInfo> playlistEntryInfos
                                         = new ArrayList<PlaylistEntryInfo>();
-                                ArrayList<ArtistInfo> artistInfos = new ArrayList<ArtistInfo>();
-                                ArrayList<AlbumInfo> albumInfos = new ArrayList<AlbumInfo>();
-                                ArrayList<TrackInfo> trackInfos = new ArrayList<TrackInfo>();
+                                HashMap<String, ArtistInfo> artistInfos
+                                        = new HashMap<String, ArtistInfo>();
+                                ArrayList<AlbumInfo> albumInfos
+                                        = new ArrayList<AlbumInfo>();
+                                HashMap<String, TrackInfo> trackInfos
+                                        = new HashMap<String, TrackInfo>();
                                 if (!rawInfo.isNull(HATCHET_KEY_PLAYLISTENTRIES)) {
                                     JSONArray array = rawInfo
                                             .getJSONArray(HATCHET_KEY_PLAYLISTENTRIES);
@@ -183,7 +186,7 @@ public class InfoSystem {
                                     for (int j = 0; j < array.length(); j++) {
                                         ArtistInfo artistInfo = new ArtistInfo(
                                                 array.getJSONObject(j));
-                                        artistInfos.add(artistInfo);
+                                        artistInfos.put(artistInfo.getId(), artistInfo);
                                     }
                                 }
                                 if (!rawInfo.isNull(HATCHET_KEY_TRACKS)) {
@@ -191,7 +194,7 @@ public class InfoSystem {
                                     for (int j = 0; j < array.length(); j++) {
                                         TrackInfo trackInfo = new TrackInfo(
                                                 array.getJSONObject(j));
-                                        trackInfos.add(trackInfo);
+                                        trackInfos.put(trackInfo.getId(), trackInfo);
                                     }
                                 }
                                 if (!rawInfo.isNull(HATCHET_KEY_ALBUMS)) {
@@ -348,12 +351,30 @@ public class InfoSystem {
     }
 
     private UserPlaylist playlistInfoToUserPlaylist(PlaylistInfo playlistInfo,
-            ArrayList<PlaylistEntryInfo> playlistEntryInfos, ArrayList<ArtistInfo> artistInfos,
-            ArrayList<TrackInfo> trackInfos, ArrayList<AlbumInfo> albumInfos) {
+            ArrayList<PlaylistEntryInfo> playlistEntryInfos,
+            HashMap<String, ArtistInfo> artistInfos,
+            HashMap<String, TrackInfo> trackInfos, ArrayList<AlbumInfo> albumInfos) {
         ArrayList<Query> queries = new ArrayList<Query>();
-        for (int i = 0; i < playlistEntryInfos.size(); i++) {
-            queries.add(new Query(trackInfos.get(i).getName(), albumInfos.get(i).getName(),
-                    artistInfos.get(i).getName(), false));
+        for (PlaylistEntryInfo playlistEntryInfo : playlistEntryInfos) {
+            TrackInfo trackInfo = trackInfos.get(playlistEntryInfo.getTrack());
+            ArtistInfo artistInfo = artistInfos.get(trackInfo.getArtist());
+            AlbumInfo albumInfo = null;
+            for (AlbumInfo info : albumInfos) {
+                for (String track : info.getTracks()) {
+                    if (track.equals(trackInfo.getId())) {
+                        albumInfo = info;
+                        break;
+                    }
+                }
+                if (albumInfo != null) {
+                    break;
+                }
+            }
+            String albumname = "";
+            if (albumInfo != null) {
+                albumname = albumInfo.getName();
+            }
+            queries.add(new Query(trackInfo.getName(), albumname, artistInfo.getName(), false));
         }
         return UserPlaylist.fromQueryList(TomahawkApp.getUniqueId(), playlistInfo.getTitle(),
                 queries);
