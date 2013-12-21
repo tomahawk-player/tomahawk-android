@@ -126,7 +126,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
                 }
             }
             ((UserCollection) mTomahawkApp.getSourceList().getLocalSource().getCollection())
-                    .updateHatchetUserPlaylists();
+                    .updateUserPlaylists();
             mIsAuthenticating = false;
             mTomahawkService.onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_HATCHET, true);
         }
@@ -263,7 +263,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
         params.put(PARAMS_TOKENS, authToken);
 
         try {
-            String jsonString = TomahawkUtils.httpsPost(PATH_TOKENS, new JSONObject(params));
+            String jsonString = TomahawkUtils
+                    .httpsPost(ACCESS_TOKEN_SERVER + PATH_TOKENS, new JSONObject(params));
             JSONObject jsonObject = new JSONObject(jsonString);
             if (jsonObject.has(PARAMS_RESULT)) {
                 JSONObject result = jsonObject.getJSONObject(PARAMS_RESULT);
@@ -329,8 +330,9 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
                         encryptedUuidBytes, Base64.DEFAULT);
                 params.put(PARAMS_NONCE, encryptedUuid);*/
                 try {
-                    String jsonString = TomahawkUtils.httpsPost(PATH_AUTH_CREDENTIALS,
-                            new JSONObject(params));
+                    String jsonString = TomahawkUtils
+                            .httpsPost(LOGIN_SERVER + PATH_AUTH_CREDENTIALS,
+                                    new JSONObject(params));
                     JSONObject jsonObject = new JSONObject(jsonString);
                     if (jsonObject.has(PARAMS_RESULT)) {
                         JSONObject result = jsonObject.getJSONObject(PARAMS_RESULT);
