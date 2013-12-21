@@ -18,15 +18,26 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
+import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
+import org.tomahawk.libtomahawk.hatchet.InfoRequestData;
+import org.tomahawk.libtomahawk.hatchet.InfoSystem;
+import org.tomahawk.libtomahawk.hatchet.PlaylistInfo;
+import org.tomahawk.libtomahawk.hatchet.UserInfo;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
+import org.tomahawk.tomahawk_android.services.TomahawkService;
 
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Handler;
@@ -35,6 +46,8 @@ import android.provider.MediaStore;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -87,11 +100,47 @@ public class UserCollection extends Collection {
         }
     };
 
+    protected HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
+
+    private UserCollectionReceiver mUserCollectionReceiver;
+
+    /**
+     * Handles incoming {@link Collection} updated broadcasts.
+     */
+    private class UserCollectionReceiver extends BroadcastReceiver {
+
+        /*
+         * (non-Javadoc)
+         *
+         * @see
+         * android.content.BroadcastReceiver#onReceive(android.content.Context,
+         * android.content.Intent)
+         */
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
+                String requestId = intent
+                        .getStringExtra(InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
+                if (mCorrespondingRequestIds.contains(requestId)) {
+                    for (TomahawkBaseAdapter.TomahawkListItem tomahawkListItem : mTomahawkApp
+                            .getInfoSystem().getInfoRequestById(requestId).getConvertedResults()) {
+                        UserPlaylist userPlaylist = (UserPlaylist) tomahawkListItem;
+                        addUserPlaylist(userPlaylist);
+                    }
+                    TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
+                }
+            }
+        }
+    }
+
     /**
      * Construct a new {@link UserCollection} and initializes it.
      */
     public UserCollection(TomahawkApp tomahawkApp) {
         mTomahawkApp = tomahawkApp;
+        mUserCollectionReceiver = new UserCollectionReceiver();
+        mTomahawkApp.registerReceiver(mUserCollectionReceiver,
+                new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
 
         TomahawkApp.getContext().getContentResolver()
                 .registerContentObserver(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false,
@@ -147,6 +196,10 @@ public class UserCollection extends Collection {
         Collections.sort(userPlaylists,
                 new UserPlaylistComparator(UserPlaylistComparator.COMPARE_ALPHA));
         return userPlaylists;
+    }
+
+    public void addUserPlaylist(UserPlaylist userPlaylist) {
+        mUserPlaylists.put(userPlaylist.getId(), userPlaylist);
     }
 
     /**
@@ -277,6 +330,18 @@ public class UserCollection extends Collection {
             }
         }
         TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
+        updateHatchetUserPlaylists();
+    }
+
+    public void updateHatchetUserPlaylists() {
+        String userId = AuthenticatorUtils
+                .getUserId(mTomahawkApp, TomahawkService.AUTHENTICATOR_NAME_HATCHET);
+        if (userId != null) {
+            HashMap<String, String> params = new HashMap<String, String>();
+            params.put(UserInfo.USERINFO_PARAM_NAME, userId);
+            mCorrespondingRequestIds.add(mTomahawkApp.getInfoSystem()
+                    .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ALL_PLAYLISTS_FROM_USER, params));
+        }
     }
 
     /**

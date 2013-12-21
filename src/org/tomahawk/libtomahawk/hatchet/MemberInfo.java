@@ -22,42 +22,47 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
-/**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.04.13
- */
-public class MembershipInfo implements Info {
+public class MemberInfo implements Info {
 
-    private final static String TAG = MembershipInfo.class.getName();
+    private final static String TAG = MemberInfo.class.getName();
 
-    public static final String MEMBERSHIPINFO_KEY_ARTIST = "Artist";
+    public static final String MEMBERSHIPINFO_KEY_ID = "id";
 
-    public static final String MEMBERSHIPINFO_KEY_TIMESPAN = "TimeSpan";
+    public static final String MEMBERSHIPINFO_KEY_N = "n";
 
-    private ArtistInfo mArtist;
+    public static final String MEMBERSHIPINFO_KEY_TIMESPAN = "timespan";
+
+    private String mId;
+
+    private String mN;
 
     private TimeSpanInfo mTimeSpan;
 
-    @Override
-    public void parseInfo(JSONObject rawInfo) {
+    public MemberInfo(JSONObject rawInfo) {
         try {
-            if (!rawInfo.isNull(MEMBERSHIPINFO_KEY_ARTIST)) {
-                mArtist = new ArtistInfo();
-                mArtist.parseInfo(rawInfo.getJSONObject(MEMBERSHIPINFO_KEY_ARTIST));
+            if (!rawInfo.isNull(MEMBERSHIPINFO_KEY_ID)) {
+                mId = rawInfo.getString(MEMBERSHIPINFO_KEY_ID);
+            }
+            if (!rawInfo.isNull(MEMBERSHIPINFO_KEY_N)) {
+                mN = rawInfo.getString(MEMBERSHIPINFO_KEY_N);
             }
             if (!rawInfo.isNull(MEMBERSHIPINFO_KEY_TIMESPAN)) {
-                mTimeSpan = new TimeSpanInfo();
-                mTimeSpan.parseInfo(rawInfo.getJSONObject(MEMBERSHIPINFO_KEY_TIMESPAN));
+                mTimeSpan = new TimeSpanInfo(rawInfo.getJSONObject(MEMBERSHIPINFO_KEY_TIMESPAN));
             }
         } catch (JSONException e) {
             Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
     }
 
-    public TimeSpanInfo getTimeSpan() {
-        return mTimeSpan;
+    public String getId() {
+        return mId;
     }
 
-    public ArtistInfo getArtist() {
-        return mArtist;
+    public String getN() {
+        return mN;
+    }
+
+    public TimeSpanInfo getTimeSpan() {
+        return mTimeSpan;
     }
 }

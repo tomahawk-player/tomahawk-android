@@ -25,38 +25,41 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
-/**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.04.13
- */
 public class ArtistInfo implements Info {
 
     private final static String TAG = ArtistInfo.class.getName();
 
-    public static final String ARTISTINFO_KEY_DISAMBIGUATION = "Disambiguation";
+    public static final String ARTISTINFO_KEY_ALBUMS = "albums";
 
-    public static final String ARTISTINFO_KEY_ID = "Id";
+    public static final String ARTISTINFO_KEY_DISAMBIGUATION = "disambiguation";
 
-    public static final String ARTISTINFO_KEY_IMAGES = "Images";
+    public static final String ARTISTINFO_KEY_ID = "id";
 
-    public static final String ARTISTINFO_KEY_MEMBERS = "Members";
+    public static final String ARTISTINFO_KEY_IMAGES = "images";
 
-    public static final String ARTISTINFO_KEY_NAME = "Name";
+    public static final String ARTISTINFO_KEY_LINKS = "links";
 
-    public static final String ARTISTINFO_KEY_NAMES = "Names";
+    public static final String ARTISTINFO_KEY_MEMBERS = "members";
 
-    public static final String ARTISTINFO_KEY_RESOURCES = "Resources";
+    public static final String ARTISTINFO_KEY_NAME = "name";
 
-    public static final String ARTISTINFO_KEY_URL = "Url";
+    public static final String ARTISTINFO_KEY_NAMES = "names";
 
-    public static final String ARTISTINFO_KEY_WIKIABSTRACT = "WikiAbstract";
+    public static final String ARTISTINFO_KEY_RESOURCES = "resources";
+
+    public static final String ARTISTINFO_KEY_URL = "url";
+
+    public static final String ARTISTINFO_KEY_WIKIABSTRACT = "wikiabstract";
+
+    private ArrayList<String> mAlbums;
 
     private String mDisambiguation;
 
     private String mId;
 
-    private ArrayList<ImageInfo> mImages;
+    private ArrayList<String> mImages;
 
-    private ArrayList<PersonInfo> mMembers;
+    private ArrayList<MemberInfo> mMembers;
 
     private String mName;
 
@@ -68,8 +71,15 @@ public class ArtistInfo implements Info {
 
     private String mWikiAbstract;
 
-    public void parseInfo(JSONObject rawInfo) {
+    public ArtistInfo(JSONObject rawInfo) {
         try {
+            if (!rawInfo.isNull(ARTISTINFO_KEY_ALBUMS)) {
+                JSONArray rawNameInfos = rawInfo.getJSONArray(ARTISTINFO_KEY_ALBUMS);
+                mAlbums = new ArrayList<String>();
+                for (int i = 0; i < rawNameInfos.length(); i++) {
+                    mAlbums.add(rawNameInfos.getString(i));
+                }
+            }
             if (!rawInfo.isNull(ARTISTINFO_KEY_DISAMBIGUATION)) {
                 mDisambiguation = rawInfo.getString(ARTISTINFO_KEY_DISAMBIGUATION);
             }
@@ -77,21 +87,17 @@ public class ArtistInfo implements Info {
                 mId = rawInfo.getString(ARTISTINFO_KEY_ID);
             }
             if (!rawInfo.isNull(ARTISTINFO_KEY_IMAGES)) {
-                JSONArray rawImageInfos = rawInfo.getJSONArray(ARTISTINFO_KEY_IMAGES);
-                mImages = new ArrayList<ImageInfo>();
-                for (int i = 0; i < rawImageInfos.length(); i++) {
-                    ImageInfo imageInfo = new ImageInfo();
-                    imageInfo.parseInfo(rawImageInfos.getJSONObject(i));
-                    mImages.add(imageInfo);
+                JSONArray rawNameInfos = rawInfo.getJSONArray(ARTISTINFO_KEY_IMAGES);
+                mImages = new ArrayList<String>();
+                for (int i = 0; i < rawNameInfos.length(); i++) {
+                    mImages.add(rawNameInfos.getString(i));
                 }
             }
             if (!rawInfo.isNull(ARTISTINFO_KEY_MEMBERS)) {
                 JSONArray rawResourceInfos = rawInfo.getJSONArray(ARTISTINFO_KEY_MEMBERS);
-                mMembers = new ArrayList<PersonInfo>();
+                mMembers = new ArrayList<MemberInfo>();
                 for (int i = 0; i < rawResourceInfos.length(); i++) {
-                    PersonInfo personInfo = new PersonInfo();
-                    personInfo.parseInfo(rawResourceInfos.getJSONObject(i));
-                    mMembers.add(personInfo);
+                    mMembers.add(new MemberInfo(rawResourceInfos.getJSONObject(i)));
                 }
             }
             if (!rawInfo.isNull(ARTISTINFO_KEY_NAME)) {
@@ -108,9 +114,7 @@ public class ArtistInfo implements Info {
                 JSONArray rawResourceInfos = rawInfo.getJSONArray(ARTISTINFO_KEY_RESOURCES);
                 mResources = new ArrayList<ResourceInfo>();
                 for (int i = 0; i < rawResourceInfos.length(); i++) {
-                    ResourceInfo resourceInfo = new ResourceInfo();
-                    resourceInfo.parseInfo(rawResourceInfos.getJSONObject(i));
-                    mResources.add(resourceInfo);
+                    mResources.add(new ResourceInfo(rawResourceInfos.getJSONObject(i)));
                 }
             }
             if (!rawInfo.isNull(ARTISTINFO_KEY_URL)) {
@@ -124,6 +128,10 @@ public class ArtistInfo implements Info {
         }
     }
 
+    public ArrayList<String> getAlbums() {
+        return mAlbums;
+    }
+
     public String getDisambiguation() {
         return mDisambiguation;
     }
@@ -132,11 +140,11 @@ public class ArtistInfo implements Info {
         return mId;
     }
 
-    public ArrayList<ImageInfo> getImages() {
+    public ArrayList<String> getImages() {
         return mImages;
     }
 
-    public ArrayList<PersonInfo> getMembers() {
+    public ArrayList<MemberInfo> getMembers() {
         return mMembers;
     }
 
@@ -159,4 +167,5 @@ public class ArtistInfo implements Info {
     public String getWikiAbstract() {
         return mWikiAbstract;
     }
+
 }

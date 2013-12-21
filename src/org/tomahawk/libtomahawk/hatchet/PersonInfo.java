@@ -58,7 +58,7 @@ public class PersonInfo implements Info {
 
     private TimeSpanInfo mTimeSpan;
 
-    private ArrayList<MembershipInfo> mMemberships;
+    private ArrayList<MemberInfo> mMemberships;
 
     private String mName;
 
@@ -66,7 +66,6 @@ public class PersonInfo implements Info {
 
     private String mUrl;
 
-    @Override
     public void parseInfo(JSONObject rawInfo) {
         try {
             if (!rawInfo.isNull(PERSONINFO_KEY_DISAMBIGUATION)) {
@@ -85,16 +84,14 @@ public class PersonInfo implements Info {
                 }
             }
             if (!rawInfo.isNull(PERSONINFO_KEY_LIFESPAN)) {
-                mTimeSpan = new TimeSpanInfo();
-                mTimeSpan.parseInfo(rawInfo.getJSONObject(PERSONINFO_KEY_LIFESPAN));
+                mTimeSpan = new TimeSpanInfo(rawInfo.getJSONObject(PERSONINFO_KEY_LIFESPAN));
             }
             if (!rawInfo.isNull(PERSONINFO_KEY_MEMBERSHIPS)) {
                 JSONArray rawMembershipInfos = rawInfo.getJSONArray(PERSONINFO_KEY_MEMBERSHIPS);
-                mMemberships = new ArrayList<MembershipInfo>();
+                mMemberships = new ArrayList<MemberInfo>();
                 for (int i = 0; i < rawMembershipInfos.length(); i++) {
-                    MembershipInfo membershipInfo = new MembershipInfo();
-                    membershipInfo.parseInfo(rawMembershipInfos.getJSONObject(i));
-                    mMemberships.add(membershipInfo);
+                    MemberInfo memberInfo = new MemberInfo(rawMembershipInfos.getJSONObject(i));
+                    mMemberships.add(memberInfo);
                 }
             }
             if (!rawInfo.isNull(PERSONINFO_KEY_NAME)) {
@@ -131,7 +128,7 @@ public class PersonInfo implements Info {
         return mTimeSpan;
     }
 
-    public ArrayList<MembershipInfo> getMemberships() {
+    public ArrayList<MemberInfo> getMemberships() {
         return mMemberships;
     }
 

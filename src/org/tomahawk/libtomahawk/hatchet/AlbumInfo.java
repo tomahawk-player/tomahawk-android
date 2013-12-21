@@ -27,44 +27,41 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Date;
 
-/**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.04.13
- */
 public class AlbumInfo implements Info {
 
     private final static String TAG = AlbumInfo.class.getName();
 
-    public static final String ALBUMINFO_KEY_ARTIST = "Artist";
+    public static final String ALBUMINFO_KEY_ARTIST = "artist";
 
-    public static final String ALBUMINFO_KEY_ID = "Id";
+    public static final String ALBUMINFO_KEY_ID = "id";
 
-    public static final String ALBUMINFO_KEY_IMAGES = "Images";
+    public static final String ALBUMINFO_KEY_IMAGES = "images";
 
-    public static final String ALBUMINFO_KEY_LABELS = "Labels";
+    public static final String ALBUMINFO_KEY_LABELS = "labels";
 
-    public static final String ALBUMINFO_KEY_LENGTH = "Length";
+    public static final String ALBUMINFO_KEY_LENGTH = "length";
 
-    public static final String ALBUMINFO_KEY_NAME = "Name";
+    public static final String ALBUMINFO_KEY_NAME = "name";
 
-    public static final String ALBUMINFO_KEY_NAMES = "Names";
+    public static final String ALBUMINFO_KEY_NAMES = "names";
 
-    public static final String ALBUMINFO_KEY_PRODUCERS = "Producers";
+    public static final String ALBUMINFO_KEY_PRODUCERS = "producers";
 
-    public static final String ALBUMINFO_KEY_RELEASEDATE = "ReleaseDate";
+    public static final String ALBUMINFO_KEY_RELEASEDATE = "releaseDate";
 
-    public static final String ALBUMINFO_KEY_TRACKS = "Tracks";
+    public static final String ALBUMINFO_KEY_TRACKS = "tracks";
 
-    public static final String ALBUMINFO_KEY_URL = "Url";
+    public static final String ALBUMINFO_KEY_URL = "url";
 
-    public static final String ALBUMINFO_KEY_WIKIABSTRACT = "WikiAbstract";
+    public static final String ALBUMINFO_KEY_WIKIABSTRACT = "wikiabstract";
 
-    private ArtistInfo mArtist;
+    private String mArtist;
 
     private String mId;
 
-    private ArrayList<ImageInfo> mImages;
+    private ArrayList<String> mImages;
 
-    private ArrayList<String> mLabels;
+    //private ArrayList<Label> mLabels;
 
     private int mLength;
 
@@ -72,42 +69,32 @@ public class AlbumInfo implements Info {
 
     private ArrayList<String> mNames;
 
-    private ArrayList<PersonInfo> mProducers;
+    //private ArrayList<Person> mProducers;
 
     private Date mReleaseDate;
 
-    private ArrayList<TrackInfo> mTracks;
+    private ArrayList<String> mTracks;
 
     private String mUrl;
 
     private String mWikiAbstract;
 
-    @Override
-    public void parseInfo(JSONObject rawInfo) {
+    public AlbumInfo(JSONObject rawInfo) {
         try {
             if (!rawInfo.isNull(ALBUMINFO_KEY_ARTIST)) {
-                JSONObject rawArtistInfo = rawInfo.getJSONObject(ALBUMINFO_KEY_ARTIST);
-                mArtist = new ArtistInfo();
-                mArtist.parseInfo(rawArtistInfo);
+                mArtist = rawInfo.getString(ALBUMINFO_KEY_ARTIST);
             }
             if (!rawInfo.isNull(ALBUMINFO_KEY_ID)) {
                 mId = rawInfo.getString(ALBUMINFO_KEY_ID);
             }
             if (!rawInfo.isNull(ALBUMINFO_KEY_IMAGES)) {
-                JSONArray rawImageInfos = rawInfo.getJSONArray(ALBUMINFO_KEY_IMAGES);
-                mImages = new ArrayList<ImageInfo>();
-                for (int i = 0; i < rawImageInfos.length(); i++) {
-                    ImageInfo imageInfo = new ImageInfo();
-                    imageInfo.parseInfo(rawImageInfos.getJSONObject(i));
-                    mImages.add(imageInfo);
+                JSONArray jsonArray = rawInfo.getJSONArray(ALBUMINFO_KEY_IMAGES);
+                mImages = new ArrayList<String>();
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    mImages.add(jsonArray.getString(i));
                 }
             }
             if (!rawInfo.isNull(ALBUMINFO_KEY_LABELS)) {
-                JSONArray rawImageInfos = rawInfo.getJSONArray(ALBUMINFO_KEY_LABELS);
-                mLabels = new ArrayList<String>();
-                for (int i = 0; i < rawImageInfos.length(); i++) {
-                    mLabels.add(rawImageInfos.getString(i));
-                }
             }
             if (!rawInfo.isNull(ALBUMINFO_KEY_LENGTH)) {
                 mLength = rawInfo.getInt(ALBUMINFO_KEY_LENGTH);
@@ -116,32 +103,23 @@ public class AlbumInfo implements Info {
                 mName = rawInfo.getString(ALBUMINFO_KEY_NAME);
             }
             if (!rawInfo.isNull(ALBUMINFO_KEY_NAMES)) {
-                JSONArray rawImageInfos = rawInfo.getJSONArray(ALBUMINFO_KEY_NAMES);
+                JSONArray jsonArray = rawInfo.getJSONArray(ALBUMINFO_KEY_NAMES);
                 mNames = new ArrayList<String>();
-                for (int i = 0; i < rawImageInfos.length(); i++) {
-                    mNames.add(rawImageInfos.getString(i));
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    mNames.add(jsonArray.getString(i));
                 }
             }
             if (!rawInfo.isNull(ALBUMINFO_KEY_PRODUCERS)) {
-                JSONArray rawProducerInfos = rawInfo.getJSONArray(ALBUMINFO_KEY_PRODUCERS);
-                mProducers = new ArrayList<PersonInfo>();
-                for (int i = 0; i < rawProducerInfos.length(); i++) {
-                    PersonInfo personInfo = new PersonInfo();
-                    personInfo.parseInfo(rawProducerInfos.getJSONObject(i));
-                    mProducers.add(personInfo);
-                }
             }
             if (!rawInfo.isNull(ALBUMINFO_KEY_RELEASEDATE)) {
                 mReleaseDate = TomahawkUtils
                         .stringToDate(rawInfo.getString(ALBUMINFO_KEY_RELEASEDATE));
             }
             if (!rawInfo.isNull(ALBUMINFO_KEY_TRACKS)) {
-                JSONArray rawTrackInfos = rawInfo.getJSONArray(ALBUMINFO_KEY_TRACKS);
-                mTracks = new ArrayList<TrackInfo>();
-                for (int i = 0; i < rawTrackInfos.length(); i++) {
-                    TrackInfo trackInfo = new TrackInfo();
-                    trackInfo.parseInfo(rawTrackInfos.getJSONObject(i));
-                    mTracks.add(trackInfo);
+                JSONArray jsonArray = rawInfo.getJSONArray(ALBUMINFO_KEY_TRACKS);
+                mTracks = new ArrayList<String>();
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    mTracks.add(jsonArray.getString(i));
                 }
             }
             if (!rawInfo.isNull(ALBUMINFO_KEY_URL)) {
@@ -155,7 +133,7 @@ public class AlbumInfo implements Info {
         }
     }
 
-    public ArtistInfo getArtist() {
+    public String getArtist() {
         return mArtist;
     }
 
@@ -163,12 +141,8 @@ public class AlbumInfo implements Info {
         return mId;
     }
 
-    public ArrayList<ImageInfo> getImages() {
+    public ArrayList<String> getImages() {
         return mImages;
-    }
-
-    public ArrayList<String> getLabels() {
-        return mLabels;
     }
 
     public int getLength() {
@@ -183,15 +157,11 @@ public class AlbumInfo implements Info {
         return mNames;
     }
 
-    public ArrayList<PersonInfo> getProducers() {
-        return mProducers;
-    }
-
     public Date getReleaseDate() {
         return mReleaseDate;
     }
 
-    public ArrayList<TrackInfo> getTracks() {
+    public ArrayList<String> getTracks() {
         return mTracks;
     }
 

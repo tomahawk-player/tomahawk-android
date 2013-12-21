@@ -17,31 +17,31 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Track;
+import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.04.13
- */
 public class InfoSystem {
 
     private final static String TAG = InfoSystem.class.getName();
@@ -51,7 +51,9 @@ public class InfoSystem {
     public static final String INFOSYSTEM_RESULTSREPORTED_REQUESTID
             = "infosystem_resultsreported_requestid";
 
-    public static final String HATCHET_BASE_URL = "http://api.hatchet.is";
+    public static final String HATCHET_BASE_URL = "https://api.hatchet.is";
+
+    public static final String HATCHET_VERSION = "v1";
 
     public static final String HATCHET_ARTIST_PATH = "artist";
 
@@ -65,7 +67,7 @@ public class InfoSystem {
 
     public static final String HATCHET_TRACKS_PATH = "tracks";
 
-    public static final String HATCHET_USER_PATH = "user";
+    public static final String HATCHET_USER_PATH = "users";
 
     public static final String HATCHET_PERSON_PATH = "person";
 
@@ -74,6 +76,8 @@ public class InfoSystem {
     public static final String HATCHET_PLAYLIST_PATH = "playlist";
 
     public static final String HATCHET_PLAYLISTS_PATH = "playlists";
+
+    public static final String HATCHET_PLAYLISTENTRY_PATH = "entries";
 
     public static final String HATCHET_PLAYBACKLOG_PATH = "playbacklog";
 
@@ -87,40 +91,39 @@ public class InfoSystem {
 
     public static final String HATCHET_NAME_PATH = "name";
 
+    public static final String HATCHET_KEY_USERS = "users";
+
+    public static final String HATCHET_KEY_PLAYLISTS = "playlists";
+
+    public static final String HATCHET_KEY_ALBUMS = "albums";
+
+    public static final String HATCHET_KEY_ARTISTS = "artists";
+
+    public static final String HATCHET_KEY_PLAYLISTENTRIES = "playlistEntries";
+
+    public static final String HATCHET_KEY_TRACKS = "tracks";
+
     TomahawkApp mTomahawkApp;
 
     private ConcurrentHashMap<String, InfoRequestData> mRequests
             = new ConcurrentHashMap<String, InfoRequestData>();
 
-    private ConcurrentHashMap<String, Info> mCachedInfos = new ConcurrentHashMap<String, Info>();
-
     public InfoSystem(TomahawkApp tomahawkApp) {
         mTomahawkApp = tomahawkApp;
     }
 
-    public String resolve(int type, boolean useCache) {
-        return resolve(type, useCache, null, null);
-    }
-
-    public String resolve(int type, boolean useCache, String firstParam) {
-        return resolve(type, useCache, firstParam, null);
-    }
-
-    public String resolve(int type, boolean useCache, String firstParam, String secondParam) {
-        String requestId = TomahawkApp.getUniqueStringId();
-        InfoRequestData infoRequestData;
-        if (firstParam == null && secondParam == null) {
-            infoRequestData = new InfoRequestData(mTomahawkApp, requestId, type, useCache);
-        } else if (firstParam != null && secondParam == null) {
-            infoRequestData = new InfoRequestData(mTomahawkApp, requestId, type, useCache,
-                    firstParam);
-        } else {
-            infoRequestData = new InfoRequestData(mTomahawkApp, requestId, type, useCache,
-                    secondParam);
+    public String resolve(int type, HashMap<String, String> params) {
+        try {
+            String requestId = TomahawkApp.getUniqueStringId();
+            String queryString = buildQuery(type, params);
+            InfoRequestData infoRequestData = new InfoRequestData(requestId, type, queryString);
+            resolve(infoRequestData);
+            return infoRequestData.getRequestId();
+        } catch (UnsupportedEncodingException e) {
+            Log.e(TAG, "InfoRequestData (constructor): " + e.getClass() + ": " + e
+                    .getLocalizedMessage());
         }
-        mRequests.put(infoRequestData.getRequestId(), infoRequestData);
-        new JSONResponseTask().execute(infoRequestData);
-        return infoRequestData.getRequestId();
+        return null;
     }
 
     public void resolve(InfoRequestData infoRequestData) {
@@ -132,145 +135,163 @@ public class InfoSystem {
         return mRequests.get(requestId);
     }
 
+    private boolean getAndParseInfo(InfoRequestData infoRequestData) {
+        try {
+            long start = System.currentTimeMillis();
+            JSONObject rawInfo = new JSONObject(
+                    TomahawkUtils.httpsGet(infoRequestData.getQueryString()));
+            HashMap<String, ArrayList<Info>> result
+                    = new HashMap<String, ArrayList<Info>>();
+            ArrayList<TomahawkBaseAdapter.TomahawkListItem> convertedResults
+                    = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+            switch (infoRequestData.getType()) {
+                case InfoRequestData.INFOREQUESTDATA_TYPE_ALL_PLAYLISTS_FROM_USER:
+                    if (!rawInfo.isNull(HATCHET_KEY_USERS)) {
+                        UserInfo userInfo = new UserInfo(
+                                rawInfo.getJSONArray(HATCHET_KEY_USERS).getJSONObject(0));
+                        HashMap<String, String> params = new HashMap<String, String>();
+                        params.put(UserInfo.USERINFO_KEY_ID, userInfo.getId());
+                        rawInfo = new JSONObject(TomahawkUtils.httpsGet(buildQuery(
+                                InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTSINFO,
+                                params)));
+                        if (!rawInfo.isNull(HATCHET_KEY_PLAYLISTS)) {
+                            JSONArray jsonArray = rawInfo.getJSONArray(HATCHET_KEY_PLAYLISTS);
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                PlaylistInfo playlistInfo = new PlaylistInfo(
+                                        jsonArray.getJSONObject(i));
+                                params.clear();
+                                params.put(PlaylistInfo.PLAYLISTINFO_KEY_ID, playlistInfo.getId());
+                                rawInfo = new JSONObject(TomahawkUtils.httpsGet(buildQuery(
+                                        InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTSENTRYINFO,
+                                        params)));
+                                ArrayList<PlaylistEntryInfo> playlistEntryInfos
+                                        = new ArrayList<PlaylistEntryInfo>();
+                                ArrayList<ArtistInfo> artistInfos = new ArrayList<ArtistInfo>();
+                                ArrayList<AlbumInfo> albumInfos = new ArrayList<AlbumInfo>();
+                                ArrayList<TrackInfo> trackInfos = new ArrayList<TrackInfo>();
+                                if (!rawInfo.isNull(HATCHET_KEY_PLAYLISTENTRIES)) {
+                                    JSONArray array = rawInfo
+                                            .getJSONArray(HATCHET_KEY_PLAYLISTENTRIES);
+                                    for (int j = 0; j < array.length(); j++) {
+                                        PlaylistEntryInfo playlistEntryInfo = new PlaylistEntryInfo(
+                                                array.getJSONObject(j));
+                                        playlistEntryInfos.add(playlistEntryInfo);
+                                    }
+                                }
+                                if (!rawInfo.isNull(HATCHET_KEY_ARTISTS)) {
+                                    JSONArray array = rawInfo.getJSONArray(HATCHET_KEY_ARTISTS);
+                                    for (int j = 0; j < array.length(); j++) {
+                                        ArtistInfo artistInfo = new ArtistInfo(
+                                                array.getJSONObject(j));
+                                        artistInfos.add(artistInfo);
+                                    }
+                                }
+                                if (!rawInfo.isNull(HATCHET_KEY_TRACKS)) {
+                                    JSONArray array = rawInfo.getJSONArray(HATCHET_KEY_TRACKS);
+                                    for (int j = 0; j < array.length(); j++) {
+                                        TrackInfo trackInfo = new TrackInfo(
+                                                array.getJSONObject(j));
+                                        trackInfos.add(trackInfo);
+                                    }
+                                }
+                                if (!rawInfo.isNull(HATCHET_KEY_ALBUMS)) {
+                                    JSONArray array = rawInfo.getJSONArray(HATCHET_KEY_ALBUMS);
+                                    for (int j = 0; j < array.length(); j++) {
+                                        AlbumInfo albumInfo = new AlbumInfo(
+                                                array.getJSONObject(j));
+                                        albumInfos.add(albumInfo);
+                                    }
+                                }
+                                convertedResults.add(playlistInfoToUserPlaylist(playlistInfo,
+                                        playlistEntryInfos, artistInfos, trackInfos, albumInfos));
+                            }
+                        }
+                    }
+                    infoRequestData.setConvertedResults(convertedResults);
+                    return true;
+                case InfoRequestData.INFOREQUESTDATA_TYPE_USERSINFO:
+                    if (!rawInfo.isNull(HATCHET_KEY_USERS)) {
+                        JSONArray jsonArray = rawInfo.getJSONArray(HATCHET_KEY_USERS);
+                        ArrayList<Info> infos = new ArrayList<Info>();
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            infos.add(new UserInfo(jsonArray.getJSONObject(i)));
+                        }
+                        result.put(HATCHET_KEY_USERS, infos);
+                    }
+                    infoRequestData.setInfoResults(result);
+                    return true;
+                case InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTSINFO:
+                    if (!rawInfo.isNull(HATCHET_KEY_PLAYLISTS)) {
+                        JSONArray jsonArray = rawInfo.getJSONArray(HATCHET_KEY_PLAYLISTS);
+                        ArrayList<Info> infos = new ArrayList<Info>();
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            infos.add(new PlaylistInfo(jsonArray.getJSONObject(i)));
+                        }
+                        result.put(HATCHET_KEY_PLAYLISTS, infos);
+                    }
+                    infoRequestData.setInfoResults(result);
+                    return true;
+                case InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTSENTRYINFO:
+                    if (!rawInfo.isNull(HATCHET_KEY_PLAYLISTENTRIES)) {
+                        JSONArray jsonArray = rawInfo.getJSONArray(HATCHET_KEY_PLAYLISTENTRIES);
+                        ArrayList<Info> infos = new ArrayList<Info>();
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            infos.add(new PlaylistEntryInfo(jsonArray.getJSONObject(i)));
+                        }
+                        result.put(HATCHET_KEY_PLAYLISTENTRIES, infos);
+                    }
+                    if (!rawInfo.isNull(HATCHET_KEY_TRACKS)) {
+                        JSONArray jsonArray = rawInfo.getJSONArray(HATCHET_KEY_TRACKS);
+                        ArrayList<Info> infos = new ArrayList<Info>();
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            infos.add(new TrackInfo(jsonArray.getJSONObject(i)));
+                        }
+                        result.put(HATCHET_KEY_TRACKS, infos);
+                    }
+                    if (!rawInfo.isNull(HATCHET_KEY_ARTISTS)) {
+                        JSONArray jsonArray = rawInfo.getJSONArray(HATCHET_KEY_ARTISTS);
+                        ArrayList<Info> infos = new ArrayList<Info>();
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            infos.add(new ArtistInfo(jsonArray.getJSONObject(i)));
+                        }
+                        result.put(HATCHET_KEY_ARTISTS, infos);
+                    }
+                    if (!rawInfo.isNull(HATCHET_KEY_ALBUMS)) {
+                        JSONArray jsonArray = rawInfo.getJSONArray(HATCHET_KEY_ALBUMS);
+                        ArrayList<Info> infos = new ArrayList<Info>();
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            infos.add(new AlbumInfo(jsonArray.getJSONObject(i)));
+                        }
+                        result.put(HATCHET_KEY_ALBUMS, infos);
+                    }
+                    infoRequestData.setInfoResults(result);
+                    return true;
+            }
+            Log.d(TAG, "doInBackground(...) took " + (System.currentTimeMillis() - start)
+                    + "ms to finish");
+        } catch (ClientProtocolException e) {
+            Log.e(TAG, "JSONResponseTask: " + e.getClass() + ": " + e.getLocalizedMessage());
+        } catch (IOException e) {
+            Log.e(TAG, "JSONResponseTask: " + e.getClass() + ": " + e.getLocalizedMessage());
+        } catch (JSONException e) {
+            Log.e(TAG, "JSONResponseTask: " + e.getClass() + ": " + e.getLocalizedMessage());
+        } catch (NoSuchAlgorithmException e) {
+            Log.e(TAG, "JSONResponseTask: " + e.getClass() + ": " + e.getLocalizedMessage());
+        } catch (KeyManagementException e) {
+            Log.e(TAG, "JSONResponseTask: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
+        return false;
+    }
+
     private class JSONResponseTask extends AsyncTask<InfoRequestData, Void, ArrayList<String>> {
 
         @Override
         protected ArrayList<String> doInBackground(InfoRequestData... infoRequestDatas) {
             ArrayList<String> doneRequestsIds = new ArrayList<String>();
-            HttpClient httpClient = new DefaultHttpClient();
-            StringBuilder builder = new StringBuilder();
-            try {
-                for (InfoRequestData infoRequestData : infoRequestDatas) {
-                    long start = System.currentTimeMillis();
-                    if (infoRequestData.isUseCache() && mCachedInfos
-                            .containsKey(infoRequestData.getCacheKey())) {
-                        infoRequestData.mResult = mCachedInfos.get(infoRequestData.getCacheKey());
-                        doneRequestsIds.add(infoRequestData.getRequestId());
-                    } else {
-                        HttpGet httpGet = infoRequestData.getRequestGet();
-                        HttpResponse httpResponse = httpClient.execute(httpGet);
-                        StatusLine statusLine = httpResponse.getStatusLine();
-                        if (statusLine.getStatusCode() == 200) {
-                            HttpEntity httpEntity = httpResponse.getEntity();
-                            InputStream content = httpEntity.getContent();
-                            BufferedReader bufferedReader = new BufferedReader(
-                                    new InputStreamReader(content));
-                            String line;
-                            while ((line = bufferedReader.readLine()) != null) {
-                                builder.append(line);
-                            }
-                            JSONObject rawInfo = new JSONObject(builder.toString());
-                            switch (infoRequestData.getType()) {
-                                case InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMINFO:
-                                    infoRequestData.mResult = new AlbumInfo();
-                                    infoRequestData.mResult.parseInfo(rawInfo);
-                                    mCachedInfos.put(infoRequestData.getCacheKey(),
-                                            infoRequestData.mResult);
-                                    doneRequestsIds.add(infoRequestData.getRequestId());
-                                    break;
-                                case InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTALBUMS:
-                                    infoRequestData.mResult = new AlbumsInfo();
-                                    infoRequestData.mResult.parseInfo(rawInfo);
-                                    mCachedInfos.put(infoRequestData.getCacheKey(),
-                                            infoRequestData.mResult);
-                                    doneRequestsIds.add(infoRequestData.getRequestId());
-                                    break;
-                                case InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTINFO:
-                                    infoRequestData.mResult = new ArtistInfo();
-                                    infoRequestData.mResult.parseInfo(rawInfo);
-                                    mCachedInfos.put(infoRequestData.getCacheKey(),
-                                            infoRequestData.mResult);
-                                    doneRequestsIds.add(infoRequestData.getRequestId());
-                                    break;
-                                case InfoRequestData.INFOREQUESTDATA_TYPE_USERINFO:
-                                    infoRequestData.mResult = new UserInfo();
-                                    infoRequestData.mResult.parseInfo(rawInfo);
-                                    mCachedInfos.put(infoRequestData.getCacheKey(),
-                                            infoRequestData.mResult);
-                                    doneRequestsIds.add(infoRequestData.getRequestId());
-                                    break;
-                                case InfoRequestData.INFOREQUESTDATA_TYPE_PERSONINFO:
-                                    infoRequestData.mResult = new PersonInfo();
-                                    infoRequestData.mResult.parseInfo(rawInfo);
-                                    mCachedInfos.put(infoRequestData.getCacheKey(),
-                                            infoRequestData.mResult);
-                                    doneRequestsIds.add(infoRequestData.getRequestId());
-                                    break;
-                                case InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTINFO:
-                                    infoRequestData.mResult = new PlaylistInfo();
-                                    infoRequestData.mResult.parseInfo(rawInfo);
-                                    mCachedInfos.put(infoRequestData.getCacheKey(),
-                                            infoRequestData.mResult);
-                                    doneRequestsIds.add(infoRequestData.getRequestId());
-                                    break;
-                                case InfoRequestData.INFOREQUESTDATA_TYPE_USERPLAYLISTS:
-                                    infoRequestData.mResult = new PlaylistsInfo();
-                                    infoRequestData.mResult.parseInfo(rawInfo);
-                                    mCachedInfos.put(infoRequestData.getCacheKey(),
-                                            infoRequestData.mResult);
-                                    doneRequestsIds.add(infoRequestData.getRequestId());
-                                    break;
-                                case InfoRequestData.INFOREQUESTDATA_TYPE_USERPLAYBACKLOG:
-                                    infoRequestData.mResult = new TrackActionItemsInfo();
-                                    infoRequestData.mResult.parseInfo(rawInfo);
-                                    mCachedInfos.put(infoRequestData.getCacheKey(),
-                                            infoRequestData.mResult);
-                                    doneRequestsIds.add(infoRequestData.getRequestId());
-                                    break;
-                                case InfoRequestData.INFOREQUESTDATA_TYPE_USERLOVED:
-                                    infoRequestData.mResult = new TrackActionItemsInfo();
-                                    infoRequestData.mResult.parseInfo(rawInfo);
-                                    mCachedInfos.put(infoRequestData.getCacheKey(),
-                                            infoRequestData.mResult);
-                                    doneRequestsIds.add(infoRequestData.getRequestId());
-                                    break;
-                                case InfoRequestData.INFOREQUESTDATA_TYPE_USERFEED:
-
-                                case InfoRequestData.INFOREQUESTDATA_TYPE_TRACKCHARTS:
-                                    infoRequestData.mResult = new TrackChartItemsInfo();
-                                    infoRequestData.mResult.parseInfo(rawInfo);
-                                    mCachedInfos.put(infoRequestData.getCacheKey(),
-                                            infoRequestData.mResult);
-                                    doneRequestsIds.add(infoRequestData.getRequestId());
-                                    break;
-                                case InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTCHARTS:
-                                    infoRequestData.mResult = new ArtistChartItemsInfo();
-                                    infoRequestData.mResult.parseInfo(rawInfo);
-                                    mCachedInfos.put(infoRequestData.getCacheKey(),
-                                            infoRequestData.mResult);
-                                    doneRequestsIds.add(infoRequestData.getRequestId());
-                                    break;
-                                case InfoRequestData.INFOREQUESTDATA_TYPE_USERTRACKCHARTS:
-                                    infoRequestData.mResult = new TrackChartItemsInfo();
-                                    infoRequestData.mResult.parseInfo(rawInfo);
-                                    mCachedInfos.put(infoRequestData.getCacheKey(),
-                                            infoRequestData.mResult);
-                                    doneRequestsIds.add(infoRequestData.getRequestId());
-                                    break;
-                                case InfoRequestData.INFOREQUESTDATA_TYPE_USERARTISTCHARTS:
-                                    infoRequestData.mResult = new ArtistChartItemsInfo();
-                                    infoRequestData.mResult.parseInfo(rawInfo);
-                                    mCachedInfos.put(infoRequestData.getCacheKey(),
-                                            infoRequestData.mResult);
-                                    doneRequestsIds.add(infoRequestData.getRequestId());
-                                    break;
-                            }
-                        } else {
-                            Log.e(TAG,
-                                    "JSONResponseTask Failed to download: StatusCode='" + statusLine
-                                            .getStatusCode() + "', URI='" + httpGet.getURI()
-                                            .toString() + "'");
-                        }
-                    }
-                    Log.d(TAG, "doInBackground(...) took " + (System.currentTimeMillis() - start)
-                            + "ms to finish, useCache = " + infoRequestData.isUseCache());
+            for (InfoRequestData infoRequestData : infoRequestDatas) {
+                if (getAndParseInfo(infoRequestData)) {
+                    doneRequestsIds.add(infoRequestData.getRequestId());
                 }
-            } catch (ClientProtocolException e) {
-                Log.e(TAG, "JSONResponseTask: " + e.getClass() + ": " + e.getLocalizedMessage());
-            } catch (IOException e) {
-                Log.e(TAG, "JSONResponseTask: " + e.getClass() + ": " + e.getLocalizedMessage());
-            } catch (JSONException e) {
-                Log.e(TAG, "JSONResponseTask: " + e.getClass() + ": " + e.getLocalizedMessage());
             }
             return doneRequestsIds;
         }
@@ -290,5 +311,51 @@ public class InfoSystem {
         Intent reportIntent = new Intent(INFOSYSTEM_RESULTSREPORTED);
         reportIntent.putExtra(INFOSYSTEM_RESULTSREPORTED_REQUESTID, requestId);
         mTomahawkApp.sendBroadcast(reportIntent);
+    }
+
+    private static String buildQuery(int type, HashMap<String, String> params)
+            throws UnsupportedEncodingException {
+        String queryString = null;
+        switch (type) {
+            case InfoRequestData.INFOREQUESTDATA_TYPE_USERSINFO:
+                queryString = InfoSystem.HATCHET_BASE_URL + "/"
+                        + InfoSystem.HATCHET_VERSION + "/"
+                        + InfoSystem.HATCHET_USER_PATH + "/";
+                break;
+            case InfoRequestData.INFOREQUESTDATA_TYPE_ALL_PLAYLISTS_FROM_USER:
+                queryString = InfoSystem.HATCHET_BASE_URL + "/"
+                        + InfoSystem.HATCHET_VERSION + "/"
+                        + InfoSystem.HATCHET_USER_PATH + "/";
+                break;
+            case InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTSINFO:
+                queryString = InfoSystem.HATCHET_BASE_URL + "/"
+                        + InfoSystem.HATCHET_VERSION + "/"
+                        + InfoSystem.HATCHET_USER_PATH + "/"
+                        + params.remove(UserInfo.USERINFO_KEY_ID) + "/"
+                        + HATCHET_PLAYLISTS_PATH;
+                break;
+            case InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTSENTRYINFO:
+                queryString = InfoSystem.HATCHET_BASE_URL + "/"
+                        + InfoSystem.HATCHET_VERSION + "/"
+                        + InfoSystem.HATCHET_PLAYLISTS_PATH + "/"
+                        + params.remove(PlaylistInfo.PLAYLISTINFO_KEY_ID) + "/"
+                        + HATCHET_PLAYLISTENTRY_PATH;
+                break;
+        }
+        // append every parameter we didn't use
+        queryString += TomahawkUtils.paramsListToString(params);
+        return queryString;
+    }
+
+    private UserPlaylist playlistInfoToUserPlaylist(PlaylistInfo playlistInfo,
+            ArrayList<PlaylistEntryInfo> playlistEntryInfos, ArrayList<ArtistInfo> artistInfos,
+            ArrayList<TrackInfo> trackInfos, ArrayList<AlbumInfo> albumInfos) {
+        ArrayList<Query> queries = new ArrayList<Query>();
+        for (int i = 0; i < playlistEntryInfos.size(); i++) {
+            queries.add(new Query(trackInfos.get(i).getName(), albumInfos.get(i).getName(),
+                    artistInfos.get(i).getName(), false));
+        }
+        return UserPlaylist.fromQueryList(TomahawkApp.getUniqueId(), playlistInfo.getTitle(),
+                queries);
     }
 }

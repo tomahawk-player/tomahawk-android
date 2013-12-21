@@ -24,6 +24,8 @@ import org.json.JSONObject;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 04.05.13
@@ -32,42 +34,41 @@ public class UserInfo implements Info {
 
     private final static String TAG = UserInfo.class.getName();
 
-    public static final String PERSONINFO_KEY_ID = "Id";
+    public static final String USERINFO_KEY_ID = "id";
 
-    public static final String PERSONINFO_KEY_NAME = "Name";
+    public static final String USERINFO_KEY_NAME = "name";
 
-    public static final String PERSONINFO_KEY_URL = "Url";
+    public static final String USERINFO_KEY_LINKS = "links";
 
-    public static final String PERSONINFO_KEY_FOLLOWS = "Follows";
+    public static final String USERINFO_PARAM_IDARRAY = "ids%5B%5D";
+
+    public static final String USERINFO_PARAM_NAME = "name";
+
+    public static final String USERINFO_PARAM_RANDOM = "random";
+
+    public static final String USERINFO_PARAM_COUNT = "count";
 
     private String mId;
 
     private String mName;
 
-    private String mUrl;
+    private HashMap<String, String> mLinks;
 
-    private ArrayList<UserInfo> mFollows;
-
-    @Override
-    public void parseInfo(JSONObject rawInfo) {
+    public UserInfo(JSONObject rawInfo) {
         try {
-            if (!rawInfo.isNull(PERSONINFO_KEY_ID)) {
-                mId = rawInfo.getString(PERSONINFO_KEY_ID);
+            if (!rawInfo.isNull(USERINFO_KEY_ID)) {
+                mId = rawInfo.getString(USERINFO_KEY_ID);
             }
-            if (!rawInfo.isNull(PERSONINFO_KEY_NAME)) {
-                mName = rawInfo.getString(PERSONINFO_KEY_NAME);
+            if (!rawInfo.isNull(USERINFO_KEY_NAME)) {
+                mName = rawInfo.getString(USERINFO_KEY_NAME);
             }
-            if (!rawInfo.isNull(PERSONINFO_KEY_URL)) {
-                mUrl = rawInfo.getString(PERSONINFO_KEY_URL);
-            }
-            if (!rawInfo.isNull(PERSONINFO_KEY_FOLLOWS)) {
-                JSONArray rawFollowsInfos = rawInfo
-                        .getJSONArray(PlaylistInfo.PLAYLISTINFO_KEY_ENTRIES);
-                mFollows = new ArrayList<UserInfo>();
-                for (int i = 0; i < rawFollowsInfos.length(); i++) {
-                    UserInfo userInfo = new UserInfo();
-                    userInfo.parseInfo(rawFollowsInfos.getJSONObject(i));
-                    mFollows.add(userInfo);
+            if (!rawInfo.isNull(USERINFO_KEY_LINKS)) {
+                JSONObject links = rawInfo.getJSONObject(USERINFO_KEY_LINKS);
+                Iterator<?> keys = links.keys();
+                mLinks = new HashMap<String, String>();
+                while (keys.hasNext()) {
+                    String key = (String) keys.next();
+                    mLinks.put(key, (String) links.get(key));
                 }
             }
         } catch (JSONException e) {
@@ -83,11 +84,7 @@ public class UserInfo implements Info {
         return mName;
     }
 
-    public String getUrl() {
-        return mUrl;
-    }
-
-    public ArrayList<UserInfo> getFollows() {
-        return mFollows;
+    public HashMap<String, String> getLinks() {
+        return mLinks;
     }
 }

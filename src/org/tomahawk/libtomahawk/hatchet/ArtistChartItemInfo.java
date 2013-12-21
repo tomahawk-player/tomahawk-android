@@ -44,8 +44,7 @@ public class ArtistChartItemInfo implements Info {
             }
             if (!rawInfo.isNull(ARTISTCHARTITEMINFO_KEY_ARTIST)) {
                 JSONObject rawArtistInfo = rawInfo.getJSONObject(ARTISTCHARTITEMINFO_KEY_ARTIST);
-                mArtist = new ArtistInfo();
-                mArtist.parseInfo(rawArtistInfo);
+                mArtist = new ArtistInfo(rawArtistInfo);
             }
         } catch (JSONException e) {
             Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());

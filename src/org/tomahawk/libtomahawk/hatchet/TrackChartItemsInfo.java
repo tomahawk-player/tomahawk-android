@@ -36,7 +36,6 @@ public class TrackChartItemsInfo implements Info {
 
     private ArrayList<TrackChartItemInfo> mTrackChartItems;
 
-    @Override
     public void parseInfo(JSONObject rawInfo) {
         try {
             if (!rawInfo.isNull(TRACKCHARTITEMINFO_KEY_TRACKCHARTITEMS)) {

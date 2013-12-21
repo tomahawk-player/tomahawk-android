@@ -44,7 +44,6 @@ public class TrackActionItemInfo implements Info {
 
     private TrackInfo mTrack;
 
-    @Override
     public void parseInfo(JSONObject rawInfo) {
         try {
             if (!rawInfo.isNull(TRACKACTIONITEMINFO_KEY_TIMESTAMP)) {
@@ -53,8 +52,7 @@ public class TrackActionItemInfo implements Info {
             }
             if (!rawInfo.isNull(TRACKACTIONITEMINFO_KEY_TRACK)) {
                 JSONObject rawTrackInfo = rawInfo.getJSONObject(TRACKACTIONITEMINFO_KEY_TRACK);
-                mTrack = new TrackInfo();
-                mTrack.parseInfo(rawTrackInfo);
+                mTrack = new TrackInfo(rawTrackInfo);
             }
         } catch (JSONException e) {
             Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());

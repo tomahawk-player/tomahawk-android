@@ -17,43 +17,47 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 
-/**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.04.13
- */
-public class PlaylistsInfo implements Info {
+public class PlaylistEntryInfo implements Info {
 
-    private final static String TAG = PlaylistsInfo.class.getName();
+    private final static String TAG = PlaylistEntryInfo.class.getName();
 
-    public static final String PLAYLISTINFO_KEY_PLAYLISTS = "Playlists";
+    public static final String PLAYLISTINFO_KEY_ID = "id";
 
-    private ArrayList<PlaylistInfo> mPlaylists;
+    public static final String PLAYLISTINFO_KEY_TRACK = "track";
 
-    @Override
-    public void parseInfo(JSONObject rawInfo) {
+    private String mId;
+
+    private String mTrack;
+
+    public PlaylistEntryInfo(JSONObject rawInfo) {
         try {
-            if (!rawInfo.isNull(PLAYLISTINFO_KEY_PLAYLISTS)) {
-                JSONArray rawRevisionInfos = rawInfo.getJSONArray(PLAYLISTINFO_KEY_PLAYLISTS);
-                mPlaylists = new ArrayList<PlaylistInfo>();
-                for (int i = 0; i < rawRevisionInfos.length(); i++) {
-                    PlaylistInfo playlistInfo = new PlaylistInfo();
-                    playlistInfo.parseInfo(rawRevisionInfos.getJSONObject(i));
-                    mPlaylists.add(playlistInfo);
-                }
+            if (!rawInfo.isNull(PLAYLISTINFO_KEY_ID)) {
+                mId = rawInfo.getString(PLAYLISTINFO_KEY_ID);
+            }
+            if (!rawInfo.isNull(PLAYLISTINFO_KEY_TRACK)) {
+                mTrack = rawInfo.getString(PLAYLISTINFO_KEY_TRACK);
             }
         } catch (JSONException e) {
             Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
     }
 
-    public ArrayList<PlaylistInfo> getPlaylists() {
-        return mPlaylists;
+    public String getId() {
+        return mId;
+    }
+
+    public String getTrack() {
+        return mTrack;
     }
 }

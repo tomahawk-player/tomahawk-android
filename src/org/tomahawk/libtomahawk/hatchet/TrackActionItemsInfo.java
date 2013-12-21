@@ -38,7 +38,6 @@ public class TrackActionItemsInfo implements Info {
 
     private ArrayList<TrackActionItemInfo> mTrackActionItems;
 
-    @Override
     public void parseInfo(JSONObject rawInfo) {
         try {
             JSONArray rawTrackActionItemInfos = null;
