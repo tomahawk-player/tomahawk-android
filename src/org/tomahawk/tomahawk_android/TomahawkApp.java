@@ -24,6 +24,7 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.Source;
 import org.tomahawk.libtomahawk.collection.SourceList;
 import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
@@ -31,6 +32,7 @@ import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
+import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.utils.TomahawkExceptionReporter;
 
 import android.accounts.AccountManager;
@@ -40,6 +42,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
+
+import java.util.HashSet;
 
 /**
  * This class contains represents the Application core.

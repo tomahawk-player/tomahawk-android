@@ -22,9 +22,6 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
-/**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.04.13
- */
 public class ResourceInfo implements Info {
 
     private final static String TAG = ResourceInfo.class.getName();
@@ -37,8 +34,7 @@ public class ResourceInfo implements Info {
 
     private String mUrl;
 
-    @Override
-    public void parseInfo(JSONObject rawInfo) {
+    public ResourceInfo(JSONObject rawInfo) {
         try {
             if (!rawInfo.isNull(RESOURCEINFO_KEY_TYPE)) {
                 mType = rawInfo.getString(RESOURCEINFO_KEY_TYPE);

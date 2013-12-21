@@ -17,47 +17,69 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Log;
 
-/**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.04.13
- */
+import java.util.ArrayList;
+
 public class TrackInfo implements Info {
 
     private final static String TAG = TrackInfo.class.getName();
 
-    public static final String TRACKINFO_KEY_ARTIST = "Artist";
+    public static final String TRACKINFO_KEY_ARTIST = "artist";
 
-    public static final String TRACKINFO_KEY_ID = "Id";
+    public static final String TRACKINFO_KEY_DURATION = "duration";
 
-    public static final String TRACKINFO_KEY_NAME = "Name";
+    public static final String TRACKINFO_KEY_ID = "id";
 
-    public static final String TRACKINFO_KEY_URL = "Url";
+    public static final String TRACKINFO_KEY_NAME = "name";
 
-    private ArtistInfo mArtist;
+    public static final String TRACKINFO_KEY_NAMES = "names";
+
+    public static final String TRACKINFO_KEY_PLAYS = "plays";
+
+    public static final String TRACKINFO_KEY_URL = "url";
+
+    private String mArtist;
+
+    private int mDuration;
 
     private String mId;
 
     private String mName;
 
+    private ArrayList<String> mNames;
+
+    private int mPlays;
+
     private String mUrl;
 
-    @Override
-    public void parseInfo(JSONObject rawInfo) {
+    public TrackInfo(JSONObject rawInfo) {
         try {
             if (!rawInfo.isNull(TRACKINFO_KEY_ARTIST)) {
-                JSONObject rawArtistInfo = rawInfo.getJSONObject(TRACKINFO_KEY_ARTIST);
-                mArtist = new ArtistInfo();
-                mArtist.parseInfo(rawArtistInfo);
+                mArtist = rawInfo.getString(TRACKINFO_KEY_ARTIST);
+            }
+            if (!rawInfo.isNull(TRACKINFO_KEY_DURATION)) {
+                mDuration = rawInfo.getInt(TRACKINFO_KEY_DURATION);
             }
             if (!rawInfo.isNull(TRACKINFO_KEY_ID)) {
                 mId = rawInfo.getString(TRACKINFO_KEY_ID);
             }
             if (!rawInfo.isNull(TRACKINFO_KEY_NAME)) {
                 mName = rawInfo.getString(TRACKINFO_KEY_NAME);
+            }
+            if (!rawInfo.isNull(TRACKINFO_KEY_NAMES)) {
+                JSONArray rawNameInfos = rawInfo.getJSONArray(TRACKINFO_KEY_NAMES);
+                mNames = new ArrayList<String>();
+                for (int i = 0; i < rawNameInfos.length(); i++) {
+                    mNames.add(rawNameInfos.getString(i));
+                }
+            }
+            if (!rawInfo.isNull(TRACKINFO_KEY_PLAYS)) {
+                mPlays = rawInfo.getInt(TRACKINFO_KEY_PLAYS);
             }
             if (!rawInfo.isNull(TRACKINFO_KEY_URL)) {
                 mUrl = rawInfo.getString(TRACKINFO_KEY_URL);
@@ -67,8 +89,12 @@ public class TrackInfo implements Info {
         }
     }
 
-    public ArtistInfo getArtist() {
+    public String getArtist() {
         return mArtist;
+    }
+
+    public int getDuration() {
+        return mDuration;
     }
 
     public String getId() {
@@ -77,6 +103,14 @@ public class TrackInfo implements Info {
 
     public String getName() {
         return mName;
+    }
+
+    public ArrayList<String> getNames() {
+        return mNames;
+    }
+
+    public int getPlays() {
+        return mPlays;
     }
 
     public String getUrl() {

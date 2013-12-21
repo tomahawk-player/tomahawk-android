@@ -40,8 +40,7 @@ public class TimeSpanInfo implements Info {
 
     private Date mEndsAt;
 
-    @Override
-    public void parseInfo(JSONObject rawInfo) {
+    public TimeSpanInfo(JSONObject rawInfo) {
         try {
             if (!rawInfo.isNull(TIMESPANINFO_KEY_STARTSAT)) {
                 mStartsAt = TomahawkUtils

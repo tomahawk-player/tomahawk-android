@@ -23,6 +23,8 @@ import com.codebutler.android_websockets.WebSocketClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
@@ -33,23 +35,14 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
 
 public class HatchetAuthenticatorUtils extends AuthenticatorUtils
         implements WebSocketClient.Listener {
@@ -132,6 +125,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
                     am.setAuthToken(account, mAuthTokenType, authToken);
                 }
             }
+            ((UserCollection) mTomahawkApp.getSourceList().getLocalSource().getCollection())
+                    .updateHatchetUserPlaylists();
             mIsAuthenticating = false;
             mTomahawkService.onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_HATCHET, true);
         }
@@ -268,7 +263,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
         params.put(PARAMS_TOKENS, authToken);
 
         try {
-            String jsonString = post(new JSONObject(params));
+            String jsonString = TomahawkUtils.httpsPost(PATH_TOKENS, new JSONObject(params));
             JSONObject jsonObject = new JSONObject(jsonString);
             if (jsonObject.has(PARAMS_RESULT)) {
                 JSONObject result = jsonObject.getJSONObject(PARAMS_RESULT);
@@ -334,7 +329,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
                         encryptedUuidBytes, Base64.DEFAULT);
                 params.put(PARAMS_NONCE, encryptedUuid);*/
                 try {
-                    String jsonString = post(new JSONObject(params));
+                    String jsonString = TomahawkUtils.httpsPost(PATH_AUTH_CREDENTIALS,
+                            new JSONObject(params));
                     JSONObject jsonObject = new JSONObject(jsonString);
                     if (jsonObject.has(PARAMS_RESULT)) {
                         JSONObject result = jsonObject.getJSONObject(PARAMS_RESULT);
@@ -392,51 +388,5 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
             }
         }
         mAuthenticatorListener.onLogout();
-    }
-
-    private static String post(JSONObject params)
-            throws NoSuchAlgorithmException, KeyManagementException, IOException {
-        String query = params.has(PARAMS_REFRESH_TOKEN) ? PATH_TOKENS : PATH_AUTH_CREDENTIALS;
-        URL url = new URL(LOGIN_SERVER + query);
-        String paramsString = params.toString();
-        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-
-        // Create the SSL connection
-        SSLContext sc;
-        sc = SSLContext.getInstance("TLS");
-        sc.init(null, null, new java.security.SecureRandom());
-        connection.setSSLSocketFactory(sc.getSocketFactory());
-
-        connection.setReadTimeout(15000);
-        connection.setConnectTimeout(15000);
-        connection.setRequestMethod("POST");
-        connection.setDoOutput(true);
-        connection.setFixedLengthStreamingMode(paramsString.getBytes().length);
-        connection.setRequestProperty("Accept", "application/json; charset=utf-8");
-        connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
-        OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
-        out.write(paramsString);
-        out.close();
-        try {
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream()));
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-            return response.toString();
-        } catch (FileNotFoundException e) {
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(connection.getErrorStream()));
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-            return response.toString();
-        }
     }
 }

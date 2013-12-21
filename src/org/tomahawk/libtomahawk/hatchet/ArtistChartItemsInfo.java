@@ -36,7 +36,6 @@ public class ArtistChartItemsInfo implements Info {
 
     private ArrayList<ArtistChartItemInfo> mArtistChartItems;
 
-    @Override
     public void parseInfo(JSONObject rawInfo) {
         try {
             if (!rawInfo.isNull(ARTISTCHARTITEMSINFO_KEY_ARTISTCHARTITEMS)) {

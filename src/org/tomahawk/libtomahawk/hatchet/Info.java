@@ -7,6 +7,4 @@ import org.json.JSONObject;
  */
 public interface Info {
 
-    public void parseInfo(JSONObject rawInfo);
-
 }

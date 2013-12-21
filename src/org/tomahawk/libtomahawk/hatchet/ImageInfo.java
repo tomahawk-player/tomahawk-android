@@ -41,7 +41,6 @@ public class ImageInfo implements Info {
 
     private String mUrl;
 
-    @Override
     public void parseInfo(JSONObject rawInfo) {
         try {
             if (!rawInfo.isNull(IMAGEINFO_KEY_WIDTH)) {

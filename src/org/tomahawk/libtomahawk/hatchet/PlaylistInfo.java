@@ -26,70 +26,74 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 
-/**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.04.13
- */
 public class PlaylistInfo implements Info {
 
     private final static String TAG = PlaylistInfo.class.getName();
 
-    public static final String PLAYLISTINFO_KEY_PLAYLISTS = "Playlists";
+    public static final String PLAYLISTINFO_KEY_ID = "id";
 
-    public static final String PLAYLISTINFO_KEY_CREATED = "Created";
+    public static final String PLAYLISTINFO_KEY_TITLE = "title";
 
-    public static final String PLAYLISTINFO_KEY_CURRENTREVISION = "CurrentRevision";
+    public static final String PLAYLISTINFO_KEY_CREATED = "created";
 
-    public static final String PLAYLISTINFO_KEY_ENTRIES = "Entries";
+    public static final String PLAYLISTINFO_KEY_CURRENTREVISION = "currentrevision";
 
-    public static final String PLAYLISTINFO_KEY_ID = "Id";
+    public static final String PLAYLISTINFO_KEY_USER = "user";
 
-    public static final String PLAYLISTINFO_KEY_REVISIONS = "Revisions";
+    public static final String PLAYLISTINFO_KEY_LINKS = "links";
 
-    public static final String PLAYLISTINFO_KEY_TITLE = "Title";
+    private String mId;
+
+    private String mTitle;
 
     private Date mCreated;
 
     private String mCurrentRevision;
 
-    private ArrayList<EntryInfo> mEntries;
+    private String mUser;
 
-    private String mId;
+    private HashMap<String, String> mLinks;
 
-    private ArrayList<String> mRevisions;
-
-    private String mTitle;
-
-    @Override
-    public void parseInfo(JSONObject rawInfo) {
+    public PlaylistInfo(JSONObject rawInfo) {
         try {
+            if (!rawInfo.isNull(PLAYLISTINFO_KEY_ID)) {
+                mId = rawInfo.getString(PLAYLISTINFO_KEY_ID);
+            }
+            if (!rawInfo.isNull(PLAYLISTINFO_KEY_TITLE)) {
+                mTitle = rawInfo.getString(PLAYLISTINFO_KEY_TITLE);
+            }
             if (!rawInfo.isNull(PLAYLISTINFO_KEY_CREATED)) {
                 mCreated = TomahawkUtils.stringToDate(rawInfo.getString(PLAYLISTINFO_KEY_CREATED));
             }
             if (!rawInfo.isNull(PLAYLISTINFO_KEY_CURRENTREVISION)) {
                 mCurrentRevision = rawInfo.getString(PLAYLISTINFO_KEY_CURRENTREVISION);
             }
-            if (!rawInfo.isNull(PLAYLISTINFO_KEY_ENTRIES)) {
-                JSONArray rawEntryInfos = rawInfo.getJSONArray(PLAYLISTINFO_KEY_ENTRIES);
-                mEntries = new ArrayList<EntryInfo>();
-                for (int i = 0; i < rawEntryInfos.length(); i++) {
-                    EntryInfo entryInfo = new EntryInfo();
-                    entryInfo.parseInfo(rawEntryInfos.getJSONObject(i));
-                    mEntries.add(entryInfo);
+            if (!rawInfo.isNull(PLAYLISTINFO_KEY_USER)) {
+                mUser = rawInfo.getString(PLAYLISTINFO_KEY_USER);
+            }
+            if (!rawInfo.isNull(PLAYLISTINFO_KEY_LINKS)) {
+                JSONObject links = rawInfo.getJSONObject(PLAYLISTINFO_KEY_LINKS);
+                Iterator<?> keys = links.keys();
+                mLinks = new HashMap<String, String>();
+                while (keys.hasNext()) {
+                    String key = (String) keys.next();
+                    mLinks.put(key, (String) links.get(key));
                 }
-            }
-            if (!rawInfo.isNull(PLAYLISTINFO_KEY_ID)) {
-                mId = rawInfo.getString(PLAYLISTINFO_KEY_ID);
-            }
-            if (!rawInfo.isNull(PLAYLISTINFO_KEY_REVISIONS)) {
-
-            }
-            if (!rawInfo.isNull(PLAYLISTINFO_KEY_TITLE)) {
-                mTitle = rawInfo.getString(PLAYLISTINFO_KEY_TITLE);
             }
         } catch (JSONException e) {
             Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
+    }
+
+    public String getId() {
+        return mId;
+    }
+
+    public String getTitle() {
+        return mTitle;
     }
 
     public Date getCreated() {
@@ -100,19 +104,11 @@ public class PlaylistInfo implements Info {
         return mCurrentRevision;
     }
 
-    public ArrayList<EntryInfo> getEntries() {
-        return mEntries;
+    public String getUser() {
+        return mUser;
     }
 
-    public String getId() {
-        return mId;
-    }
-
-    public ArrayList<String> getRevisions() {
-        return mRevisions;
-    }
-
-    public String getTitle() {
-        return mTitle;
+    public HashMap<String, String> getLinks() {
+        return mLinks;
     }
 }

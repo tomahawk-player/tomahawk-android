@@ -36,15 +36,13 @@ public class AlbumsInfo implements Info {
 
     private ArrayList<AlbumInfo> mAlbums;
 
-    @Override
     public void parseInfo(JSONObject rawInfo) {
         try {
             if (!rawInfo.isNull(ALBUMSINFO_KEY_ALBUMS)) {
                 JSONArray rawArtistChartItemInfos = rawInfo.getJSONArray(ALBUMSINFO_KEY_ALBUMS);
                 mAlbums = new ArrayList<AlbumInfo>();
                 for (int i = 0; i < rawArtistChartItemInfos.length(); i++) {
-                    AlbumInfo albumInfo = new AlbumInfo();
-                    albumInfo.parseInfo(rawArtistChartItemInfos.getJSONObject(i));
+                    AlbumInfo albumInfo = new AlbumInfo(rawArtistChartItemInfos.getJSONObject(i));
                     mAlbums.add(albumInfo);
                 }
             }

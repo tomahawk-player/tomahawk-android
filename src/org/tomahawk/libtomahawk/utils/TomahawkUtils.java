@@ -1,8 +1,11 @@
 package org.tomahawk.libtomahawk.utils;
 
+import org.json.JSONObject;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
+import org.tomahawk.libtomahawk.hatchet.InfoRequestData;
+import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
@@ -15,10 +18,25 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
 
 public class TomahawkUtils {
 
@@ -165,5 +183,94 @@ public class TomahawkUtils {
 
     public static String getCacheKey(Result result) {
         return getCacheKey(result.getPath());
+    }
+
+    public static String httpsPost(String urlString, JSONObject jsonToPost)
+            throws NoSuchAlgorithmException, KeyManagementException, IOException {
+        URL url = new URL(urlString);
+        String paramsString = jsonToPost.toString();
+        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+
+        // Create the SSL connection
+        SSLContext sc;
+        sc = SSLContext.getInstance("TLS");
+        sc.init(null, null, new java.security.SecureRandom());
+        connection.setSSLSocketFactory(sc.getSocketFactory());
+
+        connection.setReadTimeout(15000);
+        connection.setConnectTimeout(15000);
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        connection.setFixedLengthStreamingMode(paramsString.getBytes().length);
+        connection.setRequestProperty("Accept", "application/json; charset=utf-8");
+        connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
+        OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
+        out.write(paramsString);
+        out.close();
+        return inputStreamToString(connection);
+    }
+
+    public static String httpsGet(String urlString)
+            throws NoSuchAlgorithmException, KeyManagementException, IOException {
+        URL url = new URL(urlString);
+        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+
+        // Create the SSL connection
+        SSLContext sc;
+        sc = SSLContext.getInstance("TLS");
+        sc.init(null, null, new java.security.SecureRandom());
+        connection.setSSLSocketFactory(sc.getSocketFactory());
+
+        connection.setReadTimeout(15000);
+        connection.setConnectTimeout(15000);
+        connection.setRequestMethod("GET");
+        connection.setDoOutput(false);
+        connection.setRequestProperty("Accept", "application/json; charset=utf-8");
+        connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
+        return inputStreamToString(connection);
+    }
+
+    public static String paramsListToString(HashMap<String, String> params)
+            throws UnsupportedEncodingException {
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+
+        for (String key : params.keySet()) {
+            if (first) {
+                first = false;
+                result.append("?");
+            } else {
+                result.append("&");
+            }
+            result.append(URLEncoder.encode(key, "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(params.get(key), "UTF-8"));
+        }
+
+        return result.toString();
+    }
+
+    private static String inputStreamToString(HttpURLConnection connection) throws IOException {
+        try {
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            return response.toString();
+        } catch (FileNotFoundException e) {
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(connection.getErrorStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            return response.toString();
+        }
     }
 }
