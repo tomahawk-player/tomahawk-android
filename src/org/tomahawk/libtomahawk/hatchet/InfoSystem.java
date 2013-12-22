@@ -360,12 +360,14 @@ public class InfoSystem {
             ArtistInfo artistInfo = artistInfos.get(trackInfo.getArtist());
             AlbumInfo albumInfo = null;
             for (AlbumInfo info : albumInfos) {
-                for (String track : info.getTracks()) {
-                    if (track.equals(trackInfo.getId())) {
-                        albumInfo = info;
-                        break;
+				if (info.getTracks() != null){
+                    for (String track : info.getTracks()) {
+                        if (track.equals(trackInfo.getId())) {
+                            albumInfo = info;
+                            break;
+                        }
                     }
-                }
+				}
                 if (albumInfo != null) {
                     break;
                 }
