@@ -245,6 +245,9 @@ public class TomahawkFragment extends TomahawkListFragment
         if (tomahawkListItem instanceof UserPlaylist) {
             menuItemTitles = getResources()
                     .getStringArray(R.array.fake_context_menu_items_without_addplaylist);
+        } else if (tomahawkListItem instanceof HatchetUserPlaylist) {
+            menuItemTitles = getResources()
+                    .getStringArray(R.array.fake_context_menu_items_without_addplaylist_and_delete);
         } else if (tomahawkListItem instanceof Query && (this instanceof PlaybackFragment
                 || mUserPlaylist != null)) {
             menuItemTitles = getResources().getStringArray(R.array.fake_context_menu_items);
