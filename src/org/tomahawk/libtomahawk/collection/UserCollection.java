@@ -64,11 +64,7 @@ public class UserCollection extends Collection {
 
     private Handler mHandler;
 
-    private Artist mCachedArtist;
-
     private ConcurrentHashMap<Long, Album> mAlbums = new ConcurrentHashMap<Long, Album>();
-
-    private Album mCachedAlbum;
 
     private ConcurrentHashMap<String, Query> mQueries = new ConcurrentHashMap<String, Query>();
 
@@ -152,38 +148,6 @@ public class UserCollection extends Collection {
 
         mHandler = new Handler(mCollectionUpdateHandlerThread.getLooper());
         mHandler.postDelayed(mUpdateRunnable, 300);
-    }
-
-    /**
-     * Caches an {@link Artist} in a private member variable
-     */
-    @Override
-    public void setCachedArtist(Artist artist) {
-        mCachedArtist = artist;
-    }
-
-    /**
-     * @return the cached {@link Artist}
-     */
-    @Override
-    public Artist getCachedArtist() {
-        return mCachedArtist;
-    }
-
-    /**
-     * Caches an {@link Album} in a private member variable
-     */
-    @Override
-    public void setCachedAlbum(Album album) {
-        mCachedAlbum = album;
-    }
-
-    /**
-     * @return the cached {@link Album}
-     */
-    @Override
-    public Album getCachedAlbum() {
-        return mCachedAlbum;
     }
 
     /**
