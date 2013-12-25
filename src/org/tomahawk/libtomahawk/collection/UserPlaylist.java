@@ -28,11 +28,14 @@ import java.util.ArrayList;
  */
 public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.TomahawkListItem {
 
+    private long mId;
+
     /**
      * Construct a new empty {@link UserPlaylist}.
      */
     private UserPlaylist(long id, String name) {
-        super(id, name);
+        super(name);
+        mId = id;
     }
 
     /**
@@ -79,6 +82,10 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
             int currentQueryIndex) {
         return UserPlaylist.fromQueryList(TomahawkApp.getUniqueId(), name, queries,
                 currentQueryIndex);
+    }
+
+    public long getId() {
+        return mId;
     }
 
     /**

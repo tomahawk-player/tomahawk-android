@@ -30,8 +30,6 @@ import java.util.List;
  */
 public abstract class Playlist implements Playable {
 
-    private long mId;
-
     private String mName;
 
     private ArrayList<Query> mQueries;
@@ -47,8 +45,7 @@ public abstract class Playlist implements Playable {
     /**
      * Create a {@link Playlist} with a list of empty {@link Query}s.
      */
-    protected Playlist(long id) {
-        mId = id;
+    protected Playlist() {
         mShuffled = false;
         mRepeating = false;
         setQueries(new ArrayList<Query>());
@@ -59,19 +56,11 @@ public abstract class Playlist implements Playable {
      *
      * @param name {@link String} containing the name of the to be created {@link Playlist}
      */
-    protected Playlist(long id, String name) {
-        mId = id;
+    protected Playlist(String name) {
         mName = name;
         mShuffled = false;
         mRepeating = false;
         setQueries(new ArrayList<Query>());
-    }
-
-    /**
-     * @return this object's id
-     */
-    public long getId() {
-        return mId;
     }
 
     /**

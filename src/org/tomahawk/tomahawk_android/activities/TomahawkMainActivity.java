@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionLoader;
+import org.tomahawk.libtomahawk.collection.HatchetUserPlaylist;
 import org.tomahawk.libtomahawk.collection.SourceList;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
@@ -536,7 +537,8 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     /**
-     * Whenever the back-button is pressed, go back in the ContentViewer, until the root fragment is
+     * Whenever the back-button is pressed, go back in the ContentViewer, until the root fragment
+     * is
      * reached. After that use the normal back-button functionality.
      */
     @Override
@@ -653,7 +655,8 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     /**
-     * Set the search editText visibility in the top actionbar. If enabled is true, also display the
+     * Set the search editText visibility in the top actionbar. If enabled is true, also display
+     * the
      * soft keyboard.
      */
     public void setSearchEditTextVisibility(boolean enabled) {
@@ -784,10 +787,17 @@ public class TomahawkMainActivity extends ActionBarActivity
                         breadcrumbItemImageViewLayout
                                 .setVisibility(SquareHeightRelativeLayout.GONE);
                     } else if (fpb.tomahawkListItemType != null && fpb.tomahawkListItemType
-                            .equals(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY)) {
+                            .equals(TomahawkFragment.TOMAHAWK_USER_PLAYLIST_KEY)) {
                         UserPlaylist correspondingUserPlaylist = mUserCollection
                                 .getUserPlaylistById(
                                         Long.valueOf(fpb.tomahawkListItemKey).longValue());
+                        breadcrumbItemTextView.setText(correspondingUserPlaylist.getName());
+                        breadcrumbItemImageViewLayout
+                                .setVisibility(SquareHeightRelativeLayout.GONE);
+                    } else if (fpb.tomahawkListItemType != null && fpb.tomahawkListItemType
+                            .equals(TomahawkFragment.TOMAHAWK_HATCHET_USER_PLAYLIST_KEY)) {
+                        HatchetUserPlaylist correspondingUserPlaylist = mUserCollection
+                                .getHatchetUserPlaylistById(fpb.tomahawkListItemKey);
                         breadcrumbItemTextView.setText(correspondingUserPlaylist.getName());
                         breadcrumbItemImageViewLayout
                                 .setVisibility(SquareHeightRelativeLayout.GONE);

@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionLoader;
+import org.tomahawk.libtomahawk.collection.HatchetUserPlaylist;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
@@ -60,7 +61,8 @@ import java.util.HashSet;
 
 /**
  * The base class for {@link AlbumsFragment}, {@link TracksFragment}, {@link ArtistsFragment},
- * {@link UserPlaylistsFragment} and {@link SearchableFragment}. Provides all sorts of functionality
+ * {@link UserPlaylistsFragment} and {@link SearchableFragment}. Provides all sorts of
+ * functionality
  * to those classes, related to displaying {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}s
  * in whichever needed way.
  */
@@ -74,8 +76,11 @@ public class TomahawkFragment extends TomahawkListFragment
     public static final String TOMAHAWK_ARTIST_KEY
             = "org.tomahawk.tomahawk_android.tomahawk_artist_id";
 
-    public static final String TOMAHAWK_PLAYLIST_KEY
-            = "org.tomahawk.tomahawk_android.tomahawk_playlist_id";
+    public static final String TOMAHAWK_USER_PLAYLIST_KEY
+            = "org.tomahawk.tomahawk_android.tomahawk_user_playlist_id";
+
+    public static final String TOMAHAWK_HATCHET_USER_PLAYLIST_KEY
+            = "org.tomahawk.tomahawk_android.tomahawk_hatchet_user_playlist_id";
 
     public static final String TOMAHAWK_HUB_ID = "org.tomahawk.tomahawk_android.tomahawk_hub_id";
 
@@ -103,6 +108,8 @@ public class TomahawkFragment extends TomahawkListFragment
     protected Artist mArtist;
 
     protected UserPlaylist mUserPlaylist;
+
+    protected HatchetUserPlaylist mHatchetUserPlaylist;
 
     protected boolean mIsLocal = false;
 
@@ -147,11 +154,18 @@ public class TomahawkFragment extends TomahawkListFragment
                     && !TextUtils.isEmpty(getArguments().getString(TOMAHAWK_ALBUM_KEY))) {
                 mAlbum = Album.getAlbumByKey(getArguments().getString(TOMAHAWK_ALBUM_KEY));
             }
-            if (getArguments().containsKey(TOMAHAWK_PLAYLIST_KEY) && !TextUtils.isEmpty(
-                    getArguments().getString(TOMAHAWK_PLAYLIST_KEY))) {
+            if (getArguments().containsKey(TOMAHAWK_USER_PLAYLIST_KEY) && !TextUtils.isEmpty(
+                    getArguments().getString(TOMAHAWK_USER_PLAYLIST_KEY))) {
                 mUserPlaylist = mTomahawkMainActivity.getUserCollection()
                         .getUserPlaylistById(Long.valueOf(getArguments().getString(
-                                TOMAHAWK_PLAYLIST_KEY)).longValue());
+                                TOMAHAWK_USER_PLAYLIST_KEY)).longValue());
+            }
+            if (getArguments().containsKey(TOMAHAWK_HATCHET_USER_PLAYLIST_KEY) && !TextUtils
+                    .isEmpty(
+                            getArguments().getString(TOMAHAWK_HATCHET_USER_PLAYLIST_KEY))) {
+                mHatchetUserPlaylist = mTomahawkMainActivity.getUserCollection()
+                        .getHatchetUserPlaylistById(
+                                getArguments().getString(TOMAHAWK_HATCHET_USER_PLAYLIST_KEY));
             }
             if (getArguments() != null && getArguments().containsKey(TOMAHAWK_ARTIST_KEY)
                     && !TextUtils.isEmpty(getArguments().getString(TOMAHAWK_ARTIST_KEY))) {

@@ -87,6 +87,8 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                     }
                 } else if (mUserPlaylist != null) {
                     queries = mUserPlaylist.getQueries();
+                } else if (mHatchetUserPlaylist != null) {
+                    queries = mHatchetUserPlaylist.getQueries();
                 } else {
                     queries.addAll(mTomahawkMainActivity.getUserCollection().getQueries());
                 }
@@ -167,6 +169,20 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true);
                 tomahawkListAdapter.setShowContentHeader(true, getListView(), mUserPlaylist);
+                setListAdapter(tomahawkListAdapter);
+            } else {
+                ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
+            }
+        } else if (mHatchetUserPlaylist != null) {
+            queries.addAll(mHatchetUserPlaylist.getQueries());
+            List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
+                    = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+            listArray.add(queries);
+            if (getListAdapter() == null) {
+                tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
+                tomahawkListAdapter.setShowResolvedBy(true);
+                tomahawkListAdapter.setShowCategoryHeaders(true);
+                tomahawkListAdapter.setShowContentHeader(true, getListView(), mHatchetUserPlaylist);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
