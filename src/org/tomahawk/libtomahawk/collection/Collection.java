@@ -37,26 +37,6 @@ public abstract class Collection {
     }
 
     /**
-     * Caches an {@link Artist} inside the playlist
-     */
-    public abstract void setCachedArtist(Artist artist);
-
-    /**
-     * @return the cached {@link Artist}
-     */
-    public abstract Artist getCachedArtist();
-
-    /**
-     * Caches an {@link Album} inside the {@link Playlist}
-     */
-    public abstract void setCachedAlbum(Album album);
-
-    /**
-     * @return the cached {@link Album}
-     */
-    public abstract Album getCachedAlbum();
-
-    /**
      * Return a list of all {@link org.tomahawk.libtomahawk.resolver.Query}s.
      */
     public abstract ArrayList<Query> getQueries();
