@@ -32,6 +32,8 @@
     <string name="albumsfragment_title_string">Albums</string>
     <string name="artistsfragment_title_string">Artists</string>
     <string name="userplaylistsfragment_title_string">Playlists</string>
+    <string name="userplaylists_categoryheaders_string">local Playlists</string>
+    <string name="hatchet_userplaylists_categoryheaders_string">Hatchet Playlists</string>
     <string name="searchfragment_title_string">Search</string>
     <string name="searchfragment_searchforonlinesources">Also search online</string>
     <string name="searchfragment_searchtype">Search for</string>

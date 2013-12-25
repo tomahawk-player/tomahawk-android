@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2012, Christopher Reichert <creichert07@gmail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,25 +17,29 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
+
 import java.util.Comparator;
 
 /**
- * This class is used to compare two {@link Artist}s.
+ * This class is used to compare two {@link TomahawkBaseAdapter.TomahawkListItem}s.
  */
-public class ArtistComparator implements Comparator<Artist> {
+public class TomahawkListItemComparator
+        implements Comparator<TomahawkBaseAdapter.TomahawkListItem> {
 
-    //Modes which determine with which method albums are compared
+    //Modes which determine with which method are compared
     public static final int COMPARE_ALPHA = 1;
 
     //Flag containing the current mode to be used
     private static int mFlag = COMPARE_ALPHA;
 
     /**
-     * Construct this {@link ArtistComparator}
+     * Construct this {@link TomahawkListItemComparator}
      *
-     * @param flag The mode which determines with which method {@link Artist}s are compared
+     * @param flag The mode which determines with which method {@link TomahawkBaseAdapter.TomahawkListItem}s
+     *             are compared
      */
-    public ArtistComparator(int flag) {
+    public TomahawkListItemComparator(int flag) {
         super();
         mFlag = flag;
     }
@@ -43,11 +47,12 @@ public class ArtistComparator implements Comparator<Artist> {
     /**
      * The actual comparison method
      *
-     * @param a1 First {@link Artist} object
-     * @param a2 Second {@link Artist} Object
+     * @param a1 First {@link TomahawkBaseAdapter.TomahawkListItem} object
+     * @param a2 Second {@link TomahawkBaseAdapter.TomahawkListItem} Object
      * @return int containing comparison score
      */
-    public int compare(Artist a1, Artist a2) {
+    public int compare(TomahawkBaseAdapter.TomahawkListItem a1,
+            TomahawkBaseAdapter.TomahawkListItem a2) {
         switch (mFlag) {
             case COMPARE_ALPHA:
                 return a1.getName().compareTo(a2.getName());

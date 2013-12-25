@@ -95,7 +95,8 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
      */
     public static ArrayList<Album> getAlbums() {
         ArrayList<Album> albums = new ArrayList<Album>(sAlbums.values());
-        Collections.sort(albums, new AlbumComparator(AlbumComparator.COMPARE_ALPHA));
+        Collections.sort(albums,
+                new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
         return albums;
     }
 
@@ -109,7 +110,8 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
                 albums.add(album);
             }
         }
-        Collections.sort(albums, new AlbumComparator(AlbumComparator.COMPARE_ALPHA));
+        Collections.sort(albums,
+                new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
         return albums;
     }
 

@@ -77,7 +77,8 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
      */
     public static ArrayList<Artist> getArtists() {
         ArrayList<Artist> artists = new ArrayList<Artist>(sArtists.values());
-        Collections.sort(artists, new ArtistComparator(ArtistComparator.COMPARE_ALPHA));
+        Collections.sort(artists,
+                new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
         return artists;
     }
 
@@ -91,7 +92,8 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
                 artists.add(artist);
             }
         }
-        Collections.sort(artists, new ArtistComparator(ArtistComparator.COMPARE_ALPHA));
+        Collections.sort(artists,
+                new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
         return artists;
     }
 
@@ -200,7 +202,8 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
      */
     public ArrayList<Album> getAlbums() {
         ArrayList<Album> albums = new ArrayList<Album>(mAlbums.values());
-        Collections.sort(albums, new AlbumComparator(AlbumComparator.COMPARE_ALPHA));
+        Collections.sort(albums,
+                new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
         return albums;
     }
 
@@ -216,7 +219,8 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
                 albums.add(album);
             }
         }
-        Collections.sort(albums, new AlbumComparator(AlbumComparator.COMPARE_ALPHA));
+        Collections.sort(albums,
+                new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
         return albums;
     }
 

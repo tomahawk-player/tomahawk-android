@@ -19,11 +19,9 @@
 package org.tomahawk.libtomahawk.collection;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
-import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.hatchet.InfoRequestData;
 import org.tomahawk.libtomahawk.hatchet.InfoSystem;
-import org.tomahawk.libtomahawk.hatchet.PlaylistInfo;
 import org.tomahawk.libtomahawk.hatchet.UserInfo;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
@@ -73,6 +71,9 @@ public class UserCollection extends Collection {
     private ConcurrentHashMap<Long, UserPlaylist> mUserPlaylists
             = new ConcurrentHashMap<Long, UserPlaylist>();
 
+    private ConcurrentHashMap<String, HatchetUserPlaylist> mHatchetUserPlaylists
+            = new ConcurrentHashMap<String, HatchetUserPlaylist>();
+
     private Runnable mUpdateRunnable = new Runnable() {
         /* 
          * (non-Javadoc)
@@ -120,8 +121,9 @@ public class UserCollection extends Collection {
                 if (mCorrespondingRequestIds.contains(requestId)) {
                     for (TomahawkBaseAdapter.TomahawkListItem tomahawkListItem : mTomahawkApp
                             .getInfoSystem().getInfoRequestById(requestId).getConvertedResults()) {
-                        UserPlaylist userPlaylist = (UserPlaylist) tomahawkListItem;
-                        addUserPlaylist(userPlaylist);
+                        HatchetUserPlaylist hatchetUserPlaylist
+                                = (HatchetUserPlaylist) tomahawkListItem;
+                        addHatchetUserPlaylist(hatchetUserPlaylist);
                     }
                     TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
                 }
@@ -158,7 +160,7 @@ public class UserCollection extends Collection {
         ArrayList<UserPlaylist> userPlaylists = new ArrayList<UserPlaylist>(
                 mUserPlaylists.values());
         Collections.sort(userPlaylists,
-                new UserPlaylistComparator(UserPlaylistComparator.COMPARE_ALPHA));
+                new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
         return userPlaylists;
     }
 
@@ -172,6 +174,28 @@ public class UserCollection extends Collection {
     @Override
     public UserPlaylist getUserPlaylistById(long id) {
         return mUserPlaylists.get(id);
+    }
+
+    /**
+     * @return A {@link List} of all {@link UserPlaylist}s in this {@link UserCollection}
+     */
+    public ArrayList<HatchetUserPlaylist> getHatchetUserPlaylists() {
+        ArrayList<HatchetUserPlaylist> userPlaylists = new ArrayList<HatchetUserPlaylist>(
+                mHatchetUserPlaylists.values());
+        Collections.sort(userPlaylists,
+                new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
+        return userPlaylists;
+    }
+
+    public void addHatchetUserPlaylist(HatchetUserPlaylist userPlaylist) {
+        mHatchetUserPlaylists.put(userPlaylist.getId(), userPlaylist);
+    }
+
+    /**
+     * Get an {@link HatchetUserPlaylist} from this {@link UserCollection} by providing an id
+     */
+    public HatchetUserPlaylist getHatchetUserPlaylistById(String id) {
+        return mHatchetUserPlaylists.get(id);
     }
 
     /**
@@ -211,7 +235,8 @@ public class UserCollection extends Collection {
     }
 
     /**
-     * Initialize this {@link UserCollection}. Pull all local tracks from the {@link MediaStore} and
+     * Initialize this {@link UserCollection}. Pull all local tracks from the {@link MediaStore}
+     * and
      * add them to our {@link UserCollection}
      */
     private void initializeCollection() {
