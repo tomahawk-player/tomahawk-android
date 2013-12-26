@@ -51,7 +51,7 @@ public abstract class Collection {
      *
      * @return the {@link UserPlaylist} object
      */
-    public abstract UserPlaylist getUserPlaylistById(long id);
+    public abstract UserPlaylist getUserPlaylistById(String id);
 
     /**
      * Update this {@link Collection}'s content.

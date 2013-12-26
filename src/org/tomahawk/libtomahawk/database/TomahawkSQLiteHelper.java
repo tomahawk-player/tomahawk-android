@@ -34,9 +34,11 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     public static final String USERPLAYLISTS_COLUMN_ID = "id";
 
+    public static final String USERPLAYLISTS_COLUMN_ISHATCHETPLAYLIST = "ishatchetplaylist";
+
     public static final String USERPLAYLISTS_COLUMN_NAME = "name";
 
-    public static final String USERPLAYLISTS_COLUMN_CURRENTTRACKINDEX = "currenttrackindex";
+    public static final String USERPLAYLISTS_COLUMN_CURRENTREVISION = "currentrevision";
 
     public static final String TABLE_TRACKS = "tracks";
 
@@ -54,20 +56,26 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "userplaylists.db";
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     // Database creation sql statements
-    private static final String CREATE_TABLE_USERPLAYLISTS = "CREATE TABLE `" + TABLE_USERPLAYLISTS
-            + "` (  `" + USERPLAYLISTS_COLUMN_ID + "` INTEGER PRIMARY KEY AUTOINCREMENT ,  `"
-            + USERPLAYLISTS_COLUMN_NAME + "` TEXT , `" + USERPLAYLISTS_COLUMN_CURRENTTRACKINDEX
-            + "` INTEGER );";
+    private static final String CREATE_TABLE_USERPLAYLISTS =
+            "CREATE TABLE `" + TABLE_USERPLAYLISTS + "` (  `"
+                    + USERPLAYLISTS_COLUMN_ID + "` TEXT PRIMARY KEY ,  `"
+                    + USERPLAYLISTS_COLUMN_ISHATCHETPLAYLIST + "` INTEGER , `"
+                    + USERPLAYLISTS_COLUMN_NAME + "` TEXT , `"
+                    + USERPLAYLISTS_COLUMN_CURRENTREVISION + "` TEXT );";
 
-    private static final String CREATE_TABLE_TRACKS = "CREATE TABLE `" + TABLE_TRACKS + "` (  `"
-            + TRACKS_COLUMN_ID + "` INTEGER PRIMARY KEY AUTOINCREMENT , `"
-            + TRACKS_COLUMN_IDUSERPLAYLISTS + "` INTEGER ,  `" + TRACKS_COLUMN_TRACKNAME
-            + "` TEXT ,`" + TRACKS_COLUMN_ARTISTNAME + "` TEXT ,`" + TRACKS_COLUMN_ALBUMNAME
-            + "` TEXT , FOREIGN KEY (`" + TRACKS_COLUMN_IDUSERPLAYLISTS + "`) REFERENCES `"
-            + TABLE_USERPLAYLISTS + "` (`" + USERPLAYLISTS_COLUMN_ID + "`));";
+    private static final String CREATE_TABLE_TRACKS =
+            "CREATE TABLE `" + TABLE_TRACKS + "` (  `"
+                    + TRACKS_COLUMN_ID + "` INTEGER PRIMARY KEY AUTOINCREMENT, `"
+                    + TRACKS_COLUMN_IDUSERPLAYLISTS + "` TEXT ,  `"
+                    + TRACKS_COLUMN_TRACKNAME + "` TEXT ,`"
+                    + TRACKS_COLUMN_ARTISTNAME + "` TEXT ,`"
+                    + TRACKS_COLUMN_ALBUMNAME + "` TEXT ,"
+                    + " FOREIGN KEY (`" + TRACKS_COLUMN_IDUSERPLAYLISTS + "`)"
+                    + " REFERENCES `" + TABLE_USERPLAYLISTS + "` (`" + USERPLAYLISTS_COLUMN_ID
+                    + "`));";
 
     public TomahawkSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

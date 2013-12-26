@@ -95,7 +95,7 @@ public class ChooseUserPlaylistDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
                 new CreateUserPlaylistDialog(
-                        UserPlaylist.fromQueryList(TomahawkApp.getUniqueId(), "", mQueries))
+                        UserPlaylist.fromQueryList(TomahawkApp.getUniqueStringId(), "", mQueries))
                         .show(getFragmentManager(),
                                 getString(R.string.playbackactivity_create_playlist_dialog_title));
                 getDialog().dismiss();

@@ -153,8 +153,8 @@ public class SearchableFragment extends TomahawkFragment
             Object item = getListAdapter().getItem(position);
             if (item instanceof Query) {
                 UserPlaylist playlist = UserPlaylist
-                        .fromQueryList(TomahawkApp.getUniqueId(), mCurrentQueryString,
-                                mCurrentShownQueries, position);
+                        .fromQueryList(TomahawkApp.getUniqueStringId(), mCurrentQueryString,
+                                mCurrentShownQueries, mCurrentShownQueries.get(position));
                 PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
                 if (playbackService != null) {
                     playbackService.setCurrentPlaylist(playlist);
@@ -187,7 +187,8 @@ public class SearchableFragment extends TomahawkFragment
     }
 
     /**
-     * Used to determine, if the user has pressed the confirmation button on his soft keyboard. (The
+     * Used to determine, if the user has pressed the confirmation button on his soft keyboard.
+     * (The
      * button in the bottom right corner of the soft keyboard on most smartphones/tablets)
      */
     @Override

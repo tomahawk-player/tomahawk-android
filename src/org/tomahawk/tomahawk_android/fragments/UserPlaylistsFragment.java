@@ -18,9 +18,8 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Collection;
-import org.tomahawk.libtomahawk.collection.HatchetUserPlaylist;
-import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -68,14 +67,14 @@ public class UserPlaylistsFragment extends TomahawkFragment implements OnItemCli
                                                     .getId()),
                                     TOMAHAWK_USER_PLAYLIST_KEY, true, false);
                 }
-            } else if (getListAdapter().getItem(position) instanceof HatchetUserPlaylist) {
+            } else if (getListAdapter().getItem(position) instanceof UserPlaylist) {
                 Bundle bundle = new Bundle();
                 bundle.putString(TOMAHAWK_HATCHET_USER_PLAYLIST_KEY,
-                        ((HatchetUserPlaylist) getListAdapter().getItem(position)).getId());
+                        ((UserPlaylist) getListAdapter().getItem(position)).getId());
                 if (mTomahawkMainActivity != null) {
                     mTomahawkMainActivity.getContentViewer()
                             .replace(mCorrespondingHubId, TracksFragment.class,
-                                    ((HatchetUserPlaylist) getListAdapter().getItem(position))
+                                    ((UserPlaylist) getListAdapter().getItem(position))
                                             .getId(), TOMAHAWK_HATCHET_USER_PLAYLIST_KEY, true,
                                     false);
                 }

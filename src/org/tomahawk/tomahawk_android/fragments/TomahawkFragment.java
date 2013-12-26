@@ -22,7 +22,6 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionLoader;
-import org.tomahawk.libtomahawk.collection.HatchetUserPlaylist;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
@@ -109,8 +108,6 @@ public class TomahawkFragment extends TomahawkListFragment
 
     protected UserPlaylist mUserPlaylist;
 
-    protected HatchetUserPlaylist mHatchetUserPlaylist;
-
     protected boolean mIsLocal = false;
 
     /**
@@ -157,13 +154,11 @@ public class TomahawkFragment extends TomahawkListFragment
             if (getArguments().containsKey(TOMAHAWK_USER_PLAYLIST_KEY) && !TextUtils.isEmpty(
                     getArguments().getString(TOMAHAWK_USER_PLAYLIST_KEY))) {
                 mUserPlaylist = mTomahawkMainActivity.getUserCollection()
-                        .getUserPlaylistById(Long.valueOf(getArguments().getString(
-                                TOMAHAWK_USER_PLAYLIST_KEY)).longValue());
+                        .getUserPlaylistById(getArguments().getString(TOMAHAWK_USER_PLAYLIST_KEY));
             }
             if (getArguments().containsKey(TOMAHAWK_HATCHET_USER_PLAYLIST_KEY) && !TextUtils
-                    .isEmpty(
-                            getArguments().getString(TOMAHAWK_HATCHET_USER_PLAYLIST_KEY))) {
-                mHatchetUserPlaylist = mTomahawkMainActivity.getUserCollection()
+                    .isEmpty(getArguments().getString(TOMAHAWK_HATCHET_USER_PLAYLIST_KEY))) {
+                mUserPlaylist = mTomahawkMainActivity.getUserCollection()
                         .getHatchetUserPlaylistById(
                                 getArguments().getString(TOMAHAWK_HATCHET_USER_PLAYLIST_KEY));
             }
@@ -243,11 +238,13 @@ public class TomahawkFragment extends TomahawkListFragment
                     .getContentHeaderTomahawkListItem();
         }
         if (tomahawkListItem instanceof UserPlaylist) {
-            menuItemTitles = getResources()
-                    .getStringArray(R.array.fake_context_menu_items_without_addplaylist);
-        } else if (tomahawkListItem instanceof HatchetUserPlaylist) {
-            menuItemTitles = getResources()
-                    .getStringArray(R.array.fake_context_menu_items_without_addplaylist_and_delete);
+            if (((UserPlaylist) tomahawkListItem).isHatchetPlaylist()) {
+                menuItemTitles = getResources().getStringArray(
+                        R.array.fake_context_menu_items_without_addplaylist_and_delete);
+            } else {
+                menuItemTitles = getResources().getStringArray(
+                        R.array.fake_context_menu_items_without_addplaylist);
+            }
         } else if (tomahawkListItem instanceof Query && (this instanceof PlaybackFragment
                 || mUserPlaylist != null)) {
             menuItemTitles = getResources().getStringArray(R.array.fake_context_menu_items);
@@ -345,43 +342,33 @@ public class TomahawkFragment extends TomahawkListFragment
                         } else {
                             queries = mAlbum.getQueries();
                         }
-                        playlist = UserPlaylist
-                                .fromQueryList(
-                                        UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, queries,
-                                        queries.indexOf(tomahawkListItem));
                     } else if (mArtist != null) {
                         if (mIsLocal) {
                             queries = mArtist.getLocalQueries();
                         } else {
                             queries = mArtist.getQueries();
                         }
-                        playlist = UserPlaylist
-                                .fromQueryList(
-                                        UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, queries,
-                                        queries.indexOf(tomahawkListItem));
                     } else if (mUserPlaylist != null) {
                         queries = mUserPlaylist.getQueries();
-                        playlist = UserPlaylist
-                                .fromQueryList(
-                                        UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, queries,
-                                        queries.indexOf(tomahawkListItem));
                     } else {
                         queries.add((Query) tomahawkListItem);
-                        playlist = UserPlaylist
-                                .fromQueryList(
-                                        UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, queries);
                     }
-                    userCollection.setCachedUserPlaylist(playlist);
+                    playlist = UserPlaylist
+                            .fromQueryList(UserPlaylistsDataSource.CACHED_PLAYLIST_ID,
+                                    UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, queries,
+                                    (Query) tomahawkListItem);
                 } else if (tomahawkListItem instanceof UserPlaylist) {
                     playlist = (UserPlaylist) tomahawkListItem;
                 } else if (tomahawkListItem instanceof Album) {
-                    playlist = UserPlaylist.fromQueryList(
-                            UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
-                            ((Album) tomahawkListItem).getQueries());
+                    playlist = UserPlaylist
+                            .fromQueryList(UserPlaylistsDataSource.CACHED_PLAYLIST_ID,
+                                    UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
+                                    ((Album) tomahawkListItem).getQueries());
                 } else if (tomahawkListItem instanceof Artist) {
-                    playlist = UserPlaylist.fromQueryList(
-                            UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
-                            ((Artist) tomahawkListItem).getQueries());
+                    playlist = UserPlaylist
+                            .fromQueryList(UserPlaylistsDataSource.CACHED_PLAYLIST_ID,
+                                    UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
+                                    ((Artist) tomahawkListItem).getQueries());
                 }
                 if (playbackService != null) {
                     playbackService.setCurrentPlaylist(playlist);

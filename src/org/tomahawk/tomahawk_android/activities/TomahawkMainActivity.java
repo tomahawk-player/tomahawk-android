@@ -22,11 +22,10 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionLoader;
-import org.tomahawk.libtomahawk.collection.HatchetUserPlaylist;
+import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.collection.SourceList;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
-import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.tomahawk_android.R;
@@ -789,14 +788,13 @@ public class TomahawkMainActivity extends ActionBarActivity
                     } else if (fpb.tomahawkListItemType != null && fpb.tomahawkListItemType
                             .equals(TomahawkFragment.TOMAHAWK_USER_PLAYLIST_KEY)) {
                         UserPlaylist correspondingUserPlaylist = mUserCollection
-                                .getUserPlaylistById(
-                                        Long.valueOf(fpb.tomahawkListItemKey).longValue());
+                                .getUserPlaylistById(fpb.tomahawkListItemKey);
                         breadcrumbItemTextView.setText(correspondingUserPlaylist.getName());
                         breadcrumbItemImageViewLayout
                                 .setVisibility(SquareHeightRelativeLayout.GONE);
                     } else if (fpb.tomahawkListItemType != null && fpb.tomahawkListItemType
                             .equals(TomahawkFragment.TOMAHAWK_HATCHET_USER_PLAYLIST_KEY)) {
-                        HatchetUserPlaylist correspondingUserPlaylist = mUserCollection
+                        UserPlaylist correspondingUserPlaylist = mUserCollection
                                 .getHatchetUserPlaylistById(fpb.tomahawkListItemKey);
                         breadcrumbItemTextView.setText(correspondingUserPlaylist.getName());
                         breadcrumbItemImageViewLayout

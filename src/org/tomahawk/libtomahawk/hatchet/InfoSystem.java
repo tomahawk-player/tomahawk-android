@@ -21,10 +21,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.tomahawk.libtomahawk.collection.Album;
-import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.HatchetUserPlaylist;
-import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
@@ -351,7 +347,7 @@ public class InfoSystem {
         return queryString;
     }
 
-    private HatchetUserPlaylist playlistInfoToUserPlaylist(PlaylistInfo playlistInfo,
+    private UserPlaylist playlistInfoToUserPlaylist(PlaylistInfo playlistInfo,
             ArrayList<PlaylistEntryInfo> playlistEntryInfos,
             HashMap<String, ArtistInfo> artistInfos,
             HashMap<String, TrackInfo> trackInfos, ArrayList<AlbumInfo> albumInfos) {
@@ -379,7 +375,7 @@ public class InfoSystem {
             }
             queries.add(new Query(trackInfo.getName(), albumname, artistInfo.getName(), false));
         }
-        return HatchetUserPlaylist.fromQueryList(playlistInfo.getId(), playlistInfo.getTitle(),
-                queries);
+        return UserPlaylist.fromQueryList(playlistInfo.getId(), playlistInfo.getTitle(),
+                playlistInfo.getCurrentRevision(), queries);
     }
 }

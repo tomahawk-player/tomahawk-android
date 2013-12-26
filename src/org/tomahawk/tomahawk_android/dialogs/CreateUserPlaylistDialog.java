@@ -139,10 +139,13 @@ public class CreateUserPlaylistDialog extends DialogFragment {
         UserPlaylistsDataSource userPlaylistsDataSource = ((TomahawkApp) getActivity()
                 .getApplication()).getUserPlaylistsDataSource();
         if (mPlaylist != null) {
-            userPlaylistsDataSource.storeUserPlaylist(playlistName, mPlaylist);
+            userPlaylistsDataSource
+                    .storeUserPlaylist(UserPlaylist
+                            .fromQueryList(TomahawkApp.getUniqueStringId(), mPlaylist.getName(),
+                                    mPlaylist.getQueries()));
         } else {
-            userPlaylistsDataSource.storeUserPlaylist(playlistName,
-                    UserPlaylist.fromQueryList(TomahawkApp.getUniqueId(), playlistName,
+            userPlaylistsDataSource.storeUserPlaylist(
+                    UserPlaylist.fromQueryList(TomahawkApp.getUniqueStringId(), playlistName,
                             new ArrayList<Query>()));
         }
         ((UserCollection) ((TomahawkApp) getActivity().getApplication()).getSourceList()

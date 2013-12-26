@@ -19,7 +19,6 @@ package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.HatchetUserPlaylist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -201,8 +200,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
             ViewHolder viewHolder;
             // First we inflate the correct view and set the correct resource ids in the viewHolder.
             // Also we check if we can re-use the old convertView
-            if (((item instanceof Artist || item instanceof UserPlaylist
-                    || item instanceof HatchetUserPlaylist) && convertView == null)
+            if (((item instanceof Artist || item instanceof UserPlaylist) && convertView == null)
                     || ((item instanceof Artist || item instanceof UserPlaylist)
                     && ((ViewHolder) convertView.getTag()).viewType
                     != R.id.tomahawklistadapter_viewtype_singlelinelistitem)) {
@@ -270,8 +268,6 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                     viewHolder.textFirstLine.setText(((Artist) item).getName());
                 } else if (item instanceof UserPlaylist) {
                     viewHolder.textFirstLine.setText(((UserPlaylist) item).getName());
-                } else if (item instanceof HatchetUserPlaylist) {
-                    viewHolder.textFirstLine.setText(((HatchetUserPlaylist) item).getName());
                 }
             } else if (viewHolder.viewType
                     == R.id.tomahawklistadapter_viewtype_doublelinelistitem) {
@@ -439,11 +435,13 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                     viewHolder.textFirstLine.setText(R.string.albumsfragment_title_string);
                 } else if (getItem(position) instanceof UserPlaylist) {
                     viewHolder.imageViewLeft.setImageResource(R.drawable.ic_action_playlist);
-                    viewHolder.textFirstLine.setText(R.string.userplaylists_categoryheaders_string);
-                } else if (getItem(position) instanceof HatchetUserPlaylist) {
-                    viewHolder.imageViewLeft.setImageResource(R.drawable.ic_action_playlist);
-                    viewHolder.textFirstLine
-                            .setText(R.string.hatchet_userplaylists_categoryheaders_string);
+                    if (((UserPlaylist) getItem(position)).isHatchetPlaylist()) {
+                        viewHolder.textFirstLine
+                                .setText(R.string.hatchet_userplaylists_categoryheaders_string);
+                    } else {
+                        viewHolder.textFirstLine
+                                .setText(R.string.userplaylists_categoryheaders_string);
+                    }
                 }
             }
             return convertView;
