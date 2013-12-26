@@ -81,7 +81,7 @@ public class LoginDialog extends DialogFragment {
         public boolean handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_UPDATE_ANIMATION:
-                    if (mTomahawkService.isAuthenticating()) {
+                    if (mAuthenticatorUtils.isAuthenticating()) {
                         mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 500);
                         mStatusImageView.setImageDrawable(mProgressDrawable);
                         mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
@@ -150,6 +150,9 @@ public class LoginDialog extends DialogFragment {
         setRetainInstance(true);
         mTomahawkService = tomahawkService;
         mAuthenticatorUtils = mTomahawkService.getAuthenticatorUtils(authenticatorId);
+        if (mAuthenticatorUtils.isAuthenticating()) {
+            startLoadingAnimation();
+        }
         if (authenticatorId == TomahawkService.AUTHENTICATOR_ID_SPOTIFY) {
             mAuthenticatorName = TomahawkService.AUTHENTICATOR_NAME_SPOTIFY;
             mAuthenticatorAuthTokenType = TomahawkService.AUTH_TOKEN_TYPE_SPOTIFY;
@@ -210,6 +213,13 @@ public class LoginDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(view);
         return builder.create();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        
+        stopLoadingAnimation();
     }
 
     /**
