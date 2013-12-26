@@ -56,7 +56,6 @@
             android:layout_marginTop="@dimen/padding_medium"
             android:layout_marginLeft="@dimen/padding_verysmall"
             android:layout_marginRight="@dimen/padding_verysmall"
-            android:hint="@string/logindialog_username_label_string"
             android:inputType="textEmailAddress"/>
 
     <EditText

@@ -57,6 +57,8 @@ public class LoginDialog extends DialogFragment {
 
     private String mAuthenticatorAuthTokenType;
 
+    private int mEditTextHintResId;
+
     private EditText mUsernameEditText;
 
     private EditText mPasswordEditText;
@@ -156,9 +158,11 @@ public class LoginDialog extends DialogFragment {
         if (authenticatorId == TomahawkService.AUTHENTICATOR_ID_SPOTIFY) {
             mAuthenticatorName = TomahawkService.AUTHENTICATOR_NAME_SPOTIFY;
             mAuthenticatorAuthTokenType = TomahawkService.AUTH_TOKEN_TYPE_SPOTIFY;
+            mEditTextHintResId = R.string.logindialog_email_label_string;
         } else if (authenticatorId == TomahawkService.AUTHENTICATOR_ID_HATCHET) {
             mAuthenticatorName = TomahawkService.AUTHENTICATOR_NAME_HATCHET;
             mAuthenticatorAuthTokenType = TomahawkService.AUTH_TOKEN_TYPE_HATCHET;
+            mEditTextHintResId = R.string.logindialog_username_label_string;
         }
     }
 
@@ -174,6 +178,7 @@ public class LoginDialog extends DialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.login_dialog, null);
         mUsernameEditText = (EditText) view.findViewById(R.id.login_dialog_username_edittext);
+        mUsernameEditText.setHint(mEditTextHintResId);
         mUsernameEditText.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         mUsernameEditText.setSingleLine(true);
         mUsernameEditText.setOnEditorActionListener(mOnLoginActionListener);
