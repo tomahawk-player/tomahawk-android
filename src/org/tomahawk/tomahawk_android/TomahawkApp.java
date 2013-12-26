@@ -24,7 +24,6 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.Source;
 import org.tomahawk.libtomahawk.collection.SourceList;
 import org.tomahawk.libtomahawk.collection.UserCollection;
-import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
@@ -32,7 +31,6 @@ import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.utils.TomahawkExceptionReporter;
 
 import android.accounts.AccountManager;
@@ -41,9 +39,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
-
-import java.util.HashSet;
 
 /**
  * This class contains represents the Application core.
@@ -71,6 +69,8 @@ public class TomahawkApp extends Application {
 
     public static final int RESOLVER_ID_SPOTIFY = 200;
 
+    public static final String ID_COUNTER = "org.tomahawk.tomahawk_android.id_counter";
+
     private static IntentFilter sCollectionUpdateIntentFilter = new IntentFilter(
             Collection.COLLECTION_UPDATED);
 
@@ -87,8 +87,6 @@ public class TomahawkApp extends Application {
     private InfoSystem mInfoSystem;
 
     private UserPlaylistsDataSource mUserPlaylistsDataSource;
-
-    private static long mIdCounter = 10000000;
 
     /**
      * Handles incoming {@link Collection} updated broadcasts.
@@ -217,10 +215,14 @@ public class TomahawkApp extends Application {
     }
 
     public static long getUniqueId() {
-        return mIdCounter++;
+        SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(getContext());
+        long id = sharedPreferences.getLong(ID_COUNTER, 0);
+        sharedPreferences.edit().putLong(ID_COUNTER, id++).commit();
+        return id;
     }
 
     public static String getUniqueStringId() {
-        return String.valueOf(mIdCounter++);
+        return String.valueOf(getUniqueId());
     }
 }

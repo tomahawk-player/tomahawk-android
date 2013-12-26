@@ -85,12 +85,7 @@ public abstract class Playlist implements Playable {
     @Override
     public void setQueries(Collection<Query> queries) {
         mQueries = (ArrayList<Query>) queries;
-
-        if (mQueries != null && !mQueries.isEmpty()) {
-            mCurrentQueryIndex = 0;
-        } else {
-            mCurrentQueryIndex = -1;
-        }
+        mCurrentQueryIndex = 0;
     }
 
     /**

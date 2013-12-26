@@ -442,7 +442,7 @@ public class PlaybackService extends Service {
                     .fromQueryList(UserPlaylistsDataSource.CACHED_PLAYLIST_ID,
                             UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
                             getCurrentPlaylist().getQueries(),
-                            getCurrentPlaylist().getCurrentQueryIndex()));
+                            getCurrentPlaylist().getCurrentQuery()));
             Log.d(TAG, "Playlist stored in " + (System.currentTimeMillis() - startTime) + "ms");
         }
     }

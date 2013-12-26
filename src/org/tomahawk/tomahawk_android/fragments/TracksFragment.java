@@ -87,14 +87,15 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                     }
                 } else if (mUserPlaylist != null) {
                     queries = mUserPlaylist.getQueries();
-                } else if (mHatchetUserPlaylist != null) {
-                    queries = mHatchetUserPlaylist.getQueries();
+                } else if (mUserPlaylist != null) {
+                    queries = mUserPlaylist.getQueries();
                 } else {
                     queries.addAll(mTomahawkMainActivity.getUserCollection().getQueries());
                 }
-                UserPlaylist playlist = UserPlaylist.fromQueryList(
-                        UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, queries,
-                        position);
+                UserPlaylist playlist = UserPlaylist
+                        .fromQueryList(UserPlaylistsDataSource.CACHED_PLAYLIST_ID,
+                                UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, queries,
+                                queries.get(position));
                 PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
                 if (playbackService != null) {
                     playbackService.setCurrentPlaylist(playlist);
@@ -173,8 +174,8 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
             }
-        } else if (mHatchetUserPlaylist != null) {
-            queries.addAll(mHatchetUserPlaylist.getQueries());
+        } else if (mUserPlaylist != null) {
+            queries.addAll(mUserPlaylist.getQueries());
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
             listArray.add(queries);
@@ -182,7 +183,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true);
-                tomahawkListAdapter.setShowContentHeader(true, getListView(), mHatchetUserPlaylist);
+                tomahawkListAdapter.setShowContentHeader(true, getListView(), mUserPlaylist);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);

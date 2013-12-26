@@ -68,11 +68,11 @@ public class UserCollection extends Collection {
 
     private UserPlaylist mCachedUserPlaylist;
 
-    private ConcurrentHashMap<Long, UserPlaylist> mUserPlaylists
-            = new ConcurrentHashMap<Long, UserPlaylist>();
+    private ConcurrentHashMap<String, UserPlaylist> mUserPlaylists
+            = new ConcurrentHashMap<String, UserPlaylist>();
 
-    private ConcurrentHashMap<String, HatchetUserPlaylist> mHatchetUserPlaylists
-            = new ConcurrentHashMap<String, HatchetUserPlaylist>();
+    private ConcurrentHashMap<String, UserPlaylist> mHatchetUserPlaylists
+            = new ConcurrentHashMap<String, UserPlaylist>();
 
     private Runnable mUpdateRunnable = new Runnable() {
         /* 
@@ -116,16 +116,38 @@ public class UserCollection extends Collection {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
-                String requestId = intent
+                final String requestId = intent
                         .getStringExtra(InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
                 if (mCorrespondingRequestIds.contains(requestId)) {
-                    for (TomahawkBaseAdapter.TomahawkListItem tomahawkListItem : mTomahawkApp
-                            .getInfoSystem().getInfoRequestById(requestId).getConvertedResults()) {
-                        HatchetUserPlaylist hatchetUserPlaylist
-                                = (HatchetUserPlaylist) tomahawkListItem;
-                        addHatchetUserPlaylist(hatchetUserPlaylist);
-                    }
-                    TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ArrayList<String> ids = new ArrayList<String>();
+                            for (TomahawkBaseAdapter.TomahawkListItem tomahawkListItem : mTomahawkApp
+                                    .getInfoSystem().getInfoRequestById(requestId)
+                                    .getConvertedResults()) {
+                                UserPlaylist userPlaylist = (UserPlaylist) tomahawkListItem;
+                                ids.add(userPlaylist.getId());
+                                UserPlaylist storedUserPlaylist = mTomahawkApp
+                                        .getUserPlaylistsDataSource()
+                                        .getUserPlaylist(userPlaylist.getId());
+                                if (storedUserPlaylist == null || !storedUserPlaylist
+                                        .getCurrentRevision().equals(
+                                                userPlaylist.getCurrentRevision())) {
+                                    // Userplaylist is not already stored, or has different revision
+                                    // string, so we store it
+                                    mTomahawkApp.getUserPlaylistsDataSource()
+                                            .storeUserPlaylist(userPlaylist);
+                                }
+                            }
+                            // Delete every playlist that has not been fetched via Hatchet.
+                            // Meaning it is no longer valid.
+                            for (String id : ids) {
+                                mTomahawkApp.getUserPlaylistsDataSource().deleteUserPlaylist(id);
+                            }
+                            UserCollection.this.updateUserPlaylists();
+                        }
+                    }).start();
                 }
             }
         }
@@ -164,37 +186,29 @@ public class UserCollection extends Collection {
         return userPlaylists;
     }
 
-    public void addUserPlaylist(UserPlaylist userPlaylist) {
-        mUserPlaylists.put(userPlaylist.getId(), userPlaylist);
-    }
-
     /**
      * Get an {@link UserPlaylist} from this {@link UserCollection} by providing an id
      */
     @Override
-    public UserPlaylist getUserPlaylistById(long id) {
+    public UserPlaylist getUserPlaylistById(String id) {
         return mUserPlaylists.get(id);
     }
 
     /**
      * @return A {@link List} of all {@link UserPlaylist}s in this {@link UserCollection}
      */
-    public ArrayList<HatchetUserPlaylist> getHatchetUserPlaylists() {
-        ArrayList<HatchetUserPlaylist> userPlaylists = new ArrayList<HatchetUserPlaylist>(
+    public ArrayList<UserPlaylist> getHatchetUserPlaylists() {
+        ArrayList<UserPlaylist> userPlaylists = new ArrayList<UserPlaylist>(
                 mHatchetUserPlaylists.values());
         Collections.sort(userPlaylists,
                 new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
         return userPlaylists;
     }
 
-    public void addHatchetUserPlaylist(HatchetUserPlaylist userPlaylist) {
-        mHatchetUserPlaylists.put(userPlaylist.getId(), userPlaylist);
-    }
-
     /**
-     * Get an {@link HatchetUserPlaylist} from this {@link UserCollection} by providing an id
+     * Get an {@link UserPlaylist} from this {@link UserCollection} by providing an id
      */
-    public HatchetUserPlaylist getHatchetUserPlaylistById(String id) {
+    public UserPlaylist getHatchetUserPlaylistById(String id) {
         return mHatchetUserPlaylists.get(id);
     }
 
@@ -203,7 +217,7 @@ public class UserCollection extends Collection {
      */
     public void setCachedUserPlaylist(UserPlaylist userPlaylist) {
         mCachedUserPlaylist = userPlaylist;
-        mTomahawkApp.getUserPlaylistsDataSource().storeCachedUserPlaylist(mCachedUserPlaylist);
+        mTomahawkApp.getUserPlaylistsDataSource().storeUserPlaylist(mCachedUserPlaylist);
     }
 
     /**
@@ -244,6 +258,7 @@ public class UserCollection extends Collection {
                 TomahawkApp.RESOLVER_ID_USERCOLLECTION);
 
         updateUserPlaylists();
+        updateHatchetUserPlaylists();
 
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
 
@@ -311,15 +326,18 @@ public class UserCollection extends Collection {
      */
     public void updateUserPlaylists() {
         mUserPlaylists.clear();
+        mHatchetUserPlaylists.clear();
         ArrayList<UserPlaylist> userPlayListList = mTomahawkApp.getUserPlaylistsDataSource()
-                .getAllUserPlaylists();
+                .getLocalUserPlaylists();
         for (UserPlaylist userPlaylist : userPlayListList) {
-            if (userPlaylist.getId() != UserPlaylistsDataSource.CACHED_PLAYLIST_ID) {
-                mUserPlaylists.put(userPlaylist.getId(), userPlaylist);
-            }
+            mUserPlaylists.put(userPlaylist.getId(), userPlaylist);
+        }
+        userPlayListList = mTomahawkApp.getUserPlaylistsDataSource()
+                .getHatchetUserPlaylists();
+        for (UserPlaylist userPlaylist : userPlayListList) {
+            mHatchetUserPlaylists.put(userPlaylist.getId(), userPlaylist);
         }
         TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
-        updateHatchetUserPlaylists();
     }
 
     public void updateHatchetUserPlaylists() {
