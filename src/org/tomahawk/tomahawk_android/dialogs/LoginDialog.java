@@ -218,14 +218,14 @@ public class LoginDialog extends DialogFragment {
     @Override
     public void onPause() {
         super.onPause();
-        
+
         stopLoadingAnimation();
     }
 
     /**
-     * Attempts to sign in or register the account specified by the loginSpotify form. If there are
+     * Attempts to sign in or register the account specified by the login form. If there are
      * form errors (invalid email, missing fields, etc.), the errors are presented and no actual
-     * loginSpotify attempt is made.
+     * login attempt is made.
      */
     public void attemptLogin() {
 
@@ -233,7 +233,7 @@ public class LoginDialog extends DialogFragment {
         mUsernameEditText.setError(null);
         mPasswordEditText.setError(null);
 
-        // Store values at the time of the login Spotify attempt.
+        // Store values at the time of the login attempt.
         String mEmail = mUsernameEditText.getText().toString();
         String mPassword = mPasswordEditText.getText().toString();
 
@@ -255,12 +255,12 @@ public class LoginDialog extends DialogFragment {
         }
 
         if (cancel) {
-            // There was an error; don't attempt login Spotify and focus the first
+            // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
         } else {
             hideSoftKeyboard();
-            // Tell the service to login Spotify
+            // Tell the service to login
             mAuthenticatorUtils.login(mEmail, mPassword);
             startLoadingAnimation();
         }
