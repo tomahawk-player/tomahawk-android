@@ -52,7 +52,8 @@
     <string name="playbackactivity_create_playlist_dialog_title">"Create a new playlist"</string>
     <string name="playbackactivity_playlist_dialog_name_hint">"Name"</string>
     <string name="playbackservice_label_string">PlaybackService</string>
-    <string name="logindialog_username_label_string">E-Mail</string>
+    <string name="logindialog_email_label_string">E-Mail</string>
+    <string name="logindialog_username_label_string">Username</string>
     <string name="logindialog_password_label_string">Password</string>
     <string name="accounttype_string">org.tomahawk</string>
     <string name="authenticator_title_spotify">Spotify login</string>
