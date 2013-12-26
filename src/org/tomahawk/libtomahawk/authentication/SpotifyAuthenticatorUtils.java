@@ -136,8 +136,8 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
      */
     @Override
     public void login(String email, String password) {
-        mIsAuthenticating = true;
         if (email != null && password != null) {
+            mIsAuthenticating = true;
             LibSpotifyWrapper.loginUser(email, password, "");
         }
     }
@@ -147,7 +147,6 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
      */
     @Override
     public void loginWithToken() {
-        mIsAuthenticating = true;
         final AccountManager am = AccountManager.get(mTomahawkApp);
         if (am != null) {
             Account[] accounts = am
@@ -158,6 +157,7 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
                         String blob = am.peekAuthToken(account, mAuthTokenType);
                         String email = account.name;
                         if (email != null && blob != null) {
+                            mIsAuthenticating = true;
                             LibSpotifyWrapper.loginUser(email, "", blob);
                         }
                     }
