@@ -44,7 +44,7 @@ public abstract class Collection {
     /**
      * Return a list of all {@link UserPlaylist}s.
      */
-    public abstract ArrayList<UserPlaylist> getUserPlaylists();
+    public abstract ArrayList<UserPlaylist> getLocalUserPlaylists();
 
     /**
      * Get the {@link UserPlaylist} by giving the {@link UserPlaylist}'s ID

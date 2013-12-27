@@ -159,7 +159,7 @@ public class TomahawkFragment extends TomahawkListFragment
             if (getArguments().containsKey(TOMAHAWK_HATCHET_USER_PLAYLIST_KEY) && !TextUtils
                     .isEmpty(getArguments().getString(TOMAHAWK_HATCHET_USER_PLAYLIST_KEY))) {
                 mUserPlaylist = mTomahawkMainActivity.getUserCollection()
-                        .getHatchetUserPlaylistById(
+                        .getUserPlaylistById(
                                 getArguments().getString(TOMAHAWK_HATCHET_USER_PLAYLIST_KEY));
             }
             if (getArguments() != null && getArguments().containsKey(TOMAHAWK_ARTIST_KEY)

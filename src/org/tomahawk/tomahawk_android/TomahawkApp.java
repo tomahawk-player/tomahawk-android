@@ -88,6 +88,8 @@ public class TomahawkApp extends Application {
 
     private UserPlaylistsDataSource mUserPlaylistsDataSource;
 
+    private static long mSessionIdCounter = 0;
+
     /**
      * Handles incoming {@link Collection} updated broadcasts.
      */
@@ -214,15 +216,23 @@ public class TomahawkApp extends Application {
         return sApplicationContext;
     }
 
-    public static long getUniqueId() {
+    public static long getSessionUniqueId() {
+        return mSessionIdCounter++;
+    }
+
+    public static String getSessionUniqueStringId() {
+        return String.valueOf(getSessionUniqueId());
+    }
+
+    public static long getLifetimeUniqueId() {
         SharedPreferences sharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(getContext());
         long id = sharedPreferences.getLong(ID_COUNTER, 0);
-        sharedPreferences.edit().putLong(ID_COUNTER, id++).commit();
+        sharedPreferences.edit().putLong(ID_COUNTER, id + 1).commit();
         return id;
     }
 
-    public static String getUniqueStringId() {
-        return String.valueOf(getUniqueId());
+    public static String getLifetimeUniqueStringId() {
+        return String.valueOf(getLifetimeUniqueId());
     }
 }

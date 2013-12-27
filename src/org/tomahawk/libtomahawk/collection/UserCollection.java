@@ -71,9 +71,6 @@ public class UserCollection extends Collection {
     private ConcurrentHashMap<String, UserPlaylist> mUserPlaylists
             = new ConcurrentHashMap<String, UserPlaylist>();
 
-    private ConcurrentHashMap<String, UserPlaylist> mHatchetUserPlaylists
-            = new ConcurrentHashMap<String, UserPlaylist>();
-
     private Runnable mUpdateRunnable = new Runnable() {
         /* 
          * (non-Javadoc)
@@ -182,9 +179,13 @@ public class UserCollection extends Collection {
      * @return A {@link List} of all {@link UserPlaylist}s in this {@link UserCollection}
      */
     @Override
-    public ArrayList<UserPlaylist> getUserPlaylists() {
-        ArrayList<UserPlaylist> userPlaylists = new ArrayList<UserPlaylist>(
-                mUserPlaylists.values());
+    public ArrayList<UserPlaylist> getLocalUserPlaylists() {
+        ArrayList<UserPlaylist> userPlaylists = new ArrayList<UserPlaylist>();
+        for (UserPlaylist userPlaylist : mUserPlaylists.values()) {
+            if (!userPlaylist.isHatchetPlaylist()) {
+                userPlaylists.add(userPlaylist);
+            }
+        }
         Collections.sort(userPlaylists,
                 new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
         return userPlaylists;
@@ -202,18 +203,15 @@ public class UserCollection extends Collection {
      * @return A {@link List} of all {@link UserPlaylist}s in this {@link UserCollection}
      */
     public ArrayList<UserPlaylist> getHatchetUserPlaylists() {
-        ArrayList<UserPlaylist> userPlaylists = new ArrayList<UserPlaylist>(
-                mHatchetUserPlaylists.values());
+        ArrayList<UserPlaylist> userPlaylists = new ArrayList<UserPlaylist>();
+        for (UserPlaylist userPlaylist : mUserPlaylists.values()) {
+            if (userPlaylist.isHatchetPlaylist()) {
+                userPlaylists.add(userPlaylist);
+            }
+        }
         Collections.sort(userPlaylists,
                 new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
         return userPlaylists;
-    }
-
-    /**
-     * Get an {@link UserPlaylist} from this {@link UserCollection} by providing an id
-     */
-    public UserPlaylist getHatchetUserPlaylistById(String id) {
-        return mHatchetUserPlaylists.get(id);
     }
 
     /**
@@ -221,6 +219,7 @@ public class UserCollection extends Collection {
      */
     public void setCachedUserPlaylist(UserPlaylist userPlaylist) {
         mCachedUserPlaylist = userPlaylist;
+        mTomahawkApp.getUserPlaylistsDataSource().deleteUserPlaylist(mCachedUserPlaylist.getId());
         mTomahawkApp.getUserPlaylistsDataSource().storeUserPlaylist(mCachedUserPlaylist);
     }
 
@@ -329,9 +328,7 @@ public class UserCollection extends Collection {
      * UserPlaylistsDataSource}
      */
     public void updateUserPlaylists() {
-        mTomahawkApp.getUserPlaylistsDataSource().printAllUserPlaylists();
         mUserPlaylists.clear();
-        mHatchetUserPlaylists.clear();
         ArrayList<UserPlaylist> userPlayListList = mTomahawkApp.getUserPlaylistsDataSource()
                 .getLocalUserPlaylists();
         for (UserPlaylist userPlaylist : userPlayListList) {
@@ -340,7 +337,7 @@ public class UserCollection extends Collection {
         userPlayListList = mTomahawkApp.getUserPlaylistsDataSource()
                 .getHatchetUserPlaylists();
         for (UserPlaylist userPlaylist : userPlayListList) {
-            mHatchetUserPlaylists.put(userPlaylist.getId(), userPlaylist);
+            mUserPlaylists.put(userPlaylist.getId(), userPlaylist);
         }
         TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
     }

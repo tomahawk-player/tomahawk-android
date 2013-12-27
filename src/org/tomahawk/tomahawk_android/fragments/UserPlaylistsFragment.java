@@ -96,7 +96,7 @@ public class UserPlaylistsFragment extends TomahawkFragment implements OnItemCli
 
         List<TomahawkBaseAdapter.TomahawkListItem> userPlaylists
                 = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-        userPlaylists.addAll(coll.getUserPlaylists());
+        userPlaylists.addAll(coll.getLocalUserPlaylists());
         List<TomahawkBaseAdapter.TomahawkListItem> hatchetUserPlaylists
                 = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
         hatchetUserPlaylists.addAll(((UserCollection) coll).getHatchetUserPlaylists());

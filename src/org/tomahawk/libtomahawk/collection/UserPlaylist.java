@@ -52,7 +52,7 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
      *
      * @return a reference to the constructed {@link UserPlaylist}
      */
-    private static UserPlaylist fromQueryList(String id, String name, String currentRevision,
+    public static UserPlaylist fromQueryList(String id, String name, String currentRevision,
             ArrayList<Query> queries, Query currentQuery) {
         UserPlaylist pl = new UserPlaylist(id, name, currentRevision);
         pl.setQueries(queries);

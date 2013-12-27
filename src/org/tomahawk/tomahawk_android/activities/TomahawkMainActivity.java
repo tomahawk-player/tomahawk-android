@@ -795,7 +795,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                     } else if (fpb.tomahawkListItemType != null && fpb.tomahawkListItemType
                             .equals(TomahawkFragment.TOMAHAWK_HATCHET_USER_PLAYLIST_KEY)) {
                         UserPlaylist correspondingUserPlaylist = mUserCollection
-                                .getHatchetUserPlaylistById(fpb.tomahawkListItemKey);
+                                .getUserPlaylistById(fpb.tomahawkListItemKey);
                         breadcrumbItemTextView.setText(correspondingUserPlaylist.getName());
                         breadcrumbItemImageViewLayout
                                 .setVisibility(SquareHeightRelativeLayout.GONE);

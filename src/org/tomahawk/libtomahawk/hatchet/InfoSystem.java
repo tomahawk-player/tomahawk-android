@@ -111,7 +111,7 @@ public class InfoSystem {
 
     public String resolve(int type, HashMap<String, String> params) {
         try {
-            String requestId = TomahawkApp.getUniqueStringId();
+            String requestId = TomahawkApp.getSessionUniqueStringId();
             String queryString = buildQuery(type, params);
             InfoRequestData infoRequestData = new InfoRequestData(requestId, type, queryString);
             resolve(infoRequestData);
