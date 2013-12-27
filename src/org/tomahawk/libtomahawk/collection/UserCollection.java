@@ -142,8 +142,12 @@ public class UserCollection extends Collection {
                             }
                             // Delete every playlist that has not been fetched via Hatchet.
                             // Meaning it is no longer valid.
-                            for (String id : ids) {
-                                mTomahawkApp.getUserPlaylistsDataSource().deleteUserPlaylist(id);
+                            for (UserPlaylist userPlaylist : mTomahawkApp
+                                    .getUserPlaylistsDataSource().getHatchetUserPlaylists()) {
+                                if (!ids.contains(userPlaylist.getId())) {
+                                    mTomahawkApp.getUserPlaylistsDataSource()
+                                            .deleteUserPlaylist(userPlaylist.getId());
+                                }
                             }
                             UserCollection.this.updateUserPlaylists();
                         }
@@ -325,6 +329,7 @@ public class UserCollection extends Collection {
      * UserPlaylistsDataSource}
      */
     public void updateUserPlaylists() {
+        mTomahawkApp.getUserPlaylistsDataSource().printAllUserPlaylists();
         mUserPlaylists.clear();
         mHatchetUserPlaylists.clear();
         ArrayList<UserPlaylist> userPlayListList = mTomahawkApp.getUserPlaylistsDataSource()
