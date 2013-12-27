@@ -76,16 +76,16 @@ public class ChooseUserPlaylistDialog extends DialogFragment {
                 UserPlaylistsDataSource userPlaylistsDataSource = ((TomahawkApp) getActivity()
                         .getApplication()).getUserPlaylistsDataSource();
                 userPlaylistsDataSource.addQueriesToUserPlaylist(
-                        mUserCollection.getUserPlaylists().get(position).getId(), mQueries);
+                        mUserCollection.getLocalUserPlaylists().get(position).getId(), mQueries);
                 ((UserCollection) ((TomahawkApp) getActivity().getApplication()).getSourceList()
                         .getCollectionFromId(UserCollection.Id)).updateUserPlaylists();
                 getDialog().dismiss();
             }
         });
-        mCustomPlaylistCount = mUserCollection.getUserPlaylists().size();
+        mCustomPlaylistCount = mUserCollection.getLocalUserPlaylists().size();
         String[] playlistNames = new String[mCustomPlaylistCount];
         for (int i = 0; i < mCustomPlaylistCount; i++) {
-            playlistNames[i] = mUserCollection.getUserPlaylists().get(i).getName();
+            playlistNames[i] = mUserCollection.getLocalUserPlaylists().get(i).getName();
         }
         listView.setAdapter(
                 new TomahawkContextMenuAdapter(getActivity().getLayoutInflater(), playlistNames));
@@ -95,7 +95,8 @@ public class ChooseUserPlaylistDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
                 new CreateUserPlaylistDialog(
-                        UserPlaylist.fromQueryList(TomahawkApp.getUniqueStringId(), "", mQueries))
+                        UserPlaylist.fromQueryList(TomahawkApp.getLifetimeUniqueStringId(), "",
+                                mQueries))
                         .show(getFragmentManager(),
                                 getString(R.string.playbackactivity_create_playlist_dialog_title));
                 getDialog().dismiss();

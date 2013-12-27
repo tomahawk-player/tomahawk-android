@@ -162,7 +162,6 @@ public class LibSpotifyWrapper {
                 queryString = query.getArtist() + " " + query.getName();
             }
             nativeresolve(qid, queryString);
-            Log.d("test", "nativeresolve " + qid + ", " + queryString);
         }
     }
 
@@ -306,7 +305,6 @@ public class LibSpotifyWrapper {
     public static void onResolved(final String qid, final boolean success, final String message,
             final String didYouMean) {
         sSpotifyResolver.onResolved(qid);
-        Log.d("test", "onResolved " + qid);
     }
 
     /**

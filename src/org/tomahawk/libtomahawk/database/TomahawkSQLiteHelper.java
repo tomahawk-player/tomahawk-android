@@ -38,6 +38,8 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     public static final String USERPLAYLISTS_COLUMN_NAME = "name";
 
+    public static final String USERPLAYLISTS_COLUMN_CURRENTTRACKINDEX = "currenttrackindex";
+
     public static final String USERPLAYLISTS_COLUMN_CURRENTREVISION = "currentrevision";
 
     public static final String TABLE_TRACKS = "tracks";
@@ -64,6 +66,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
                     + USERPLAYLISTS_COLUMN_ID + "` TEXT PRIMARY KEY ,  `"
                     + USERPLAYLISTS_COLUMN_ISHATCHETPLAYLIST + "` INTEGER , `"
                     + USERPLAYLISTS_COLUMN_NAME + "` TEXT , `"
+                    + USERPLAYLISTS_COLUMN_CURRENTTRACKINDEX + "` INTEGER , `"
                     + USERPLAYLISTS_COLUMN_CURRENTREVISION + "` TEXT );";
 
     private static final String CREATE_TABLE_TRACKS =

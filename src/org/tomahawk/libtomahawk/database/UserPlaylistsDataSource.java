@@ -55,6 +55,7 @@ public class UserPlaylistsDataSource {
     private String[] mAllUserPlaylistsColumns = {TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ID,
             TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ISHATCHETPLAYLIST,
             TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_NAME,
+            TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_CURRENTTRACKINDEX,
             TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_CURRENTREVISION};
 
     private String[] mAllTracksColumns = {TomahawkSQLiteHelper.TRACKS_COLUMN_ID,
@@ -95,6 +96,8 @@ public class UserPlaylistsDataSource {
     public String storeUserPlaylist(UserPlaylist playlist) {
         ContentValues values = new ContentValues();
         values.put(TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_NAME, playlist.getName());
+        values.put(TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_CURRENTTRACKINDEX,
+                playlist.getCurrentQueryIndex());
         String insertId = playlist.getId();
         if (!playlist.isHatchetPlaylist()) {
             values.put(TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ISHATCHETPLAYLIST,
@@ -149,30 +152,6 @@ public class UserPlaylistsDataSource {
     /**
      * @return every stored {@link org.tomahawk.libtomahawk.collection.UserPlaylist} in the database
      */
-    public void printAllUserPlaylists() {
-        ArrayList<UserPlaylist> playListList = new ArrayList<UserPlaylist>();
-        Cursor userplaylistsCursor = mDatabase
-                .query(TomahawkSQLiteHelper.TABLE_USERPLAYLISTS, mAllUserPlaylistsColumns, null,
-                        null, null, null, null);
-        userplaylistsCursor.moveToFirst();
-        while (!userplaylistsCursor.isAfterLast()) {
-            UserPlaylist userPlaylist = getUserPlaylist(userplaylistsCursor.getString(0));
-            playListList.add(userPlaylist);
-            userplaylistsCursor.moveToNext();
-        }
-        userplaylistsCursor.close();
-        for (UserPlaylist userPlaylist : playListList) {
-            Log.d("test", "Userplaylist: name: " + userPlaylist.getName() + " id: " + userPlaylist
-                    .getId() + " ishatchetplaylist: " + userPlaylist.isHatchetPlaylist());
-            for (Query query : userPlaylist.getQueries()) {
-                Log.d("test", "Query: trackname: " + query.getName());
-            }
-        }
-    }
-
-    /**
-     * @return every stored {@link org.tomahawk.libtomahawk.collection.UserPlaylist} in the database
-     */
     private ArrayList<UserPlaylist> getUserPlaylists(boolean onlyLocalPlaylists) {
         ArrayList<UserPlaylist> playListList = new ArrayList<UserPlaylist>();
         Cursor userplaylistsCursor = mDatabase
@@ -222,9 +201,13 @@ public class UserPlaylistsDataSource {
                 tracksCursor.moveToNext();
             }
             mPlaylistQueryIdMap.put(playlistId, queryIdMap);
+            Query currentQuery = null;
+            if (queries.size() > userplaylistsCursor.getInt(3)) {
+                currentQuery = queries.get(userplaylistsCursor.getInt(3));
+            }
             UserPlaylist userPlaylist = UserPlaylist
                     .fromQueryList(playlistId, userplaylistsCursor.getString(2),
-                            userplaylistsCursor.getString(3), queries);
+                            userplaylistsCursor.getString(4), queries, currentQuery);
             tracksCursor.close();
             userplaylistsCursor.close();
             return userPlaylist;

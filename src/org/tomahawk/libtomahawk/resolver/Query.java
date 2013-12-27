@@ -69,7 +69,7 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
      * Constructs a new Query with the given QueryID. ID should be generated in TomahawkApp.
      */
     private Query() {
-        mQid = TomahawkApp.getUniqueStringId();
+        mQid = TomahawkApp.getSessionUniqueStringId();
     }
 
     /**
