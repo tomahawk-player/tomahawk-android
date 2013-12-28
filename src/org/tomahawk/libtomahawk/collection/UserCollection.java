@@ -128,11 +128,12 @@ public class UserCollection extends Collection {
                                 UserPlaylist storedUserPlaylist = mTomahawkApp
                                         .getUserPlaylistsDataSource()
                                         .getUserPlaylist(userPlaylist.getId());
-                                if (storedUserPlaylist == null || !storedUserPlaylist
-                                        .getCurrentRevision().equals(
-                                                userPlaylist.getCurrentRevision())) {
-                                    // Userplaylist is not already stored, or has different revision
-                                    // string, so we store it
+                                if (storedUserPlaylist == null
+                                        || storedUserPlaylist.getCurrentRevision() == null
+                                        || !storedUserPlaylist.getCurrentRevision().equals(
+                                        userPlaylist.getCurrentRevision())) {
+                                    // Userplaylist is not already stored, or has different or no
+                                    // revision string, so we store it
                                     mTomahawkApp.getUserPlaylistsDataSource()
                                             .storeUserPlaylist(userPlaylist);
                                 }
