@@ -207,7 +207,9 @@ public class UserPlaylistsDataSource {
             }
             UserPlaylist userPlaylist = UserPlaylist
                     .fromQueryList(playlistId, userplaylistsCursor.getString(2),
-                            userplaylistsCursor.getString(4), queries, currentQuery);
+                            userplaylistsCursor.getString(4),
+                            userplaylistsCursor.getInt(1) == ISHATCHETPLAYLIST_TRUE, queries,
+                            currentQuery);
             tracksCursor.close();
             userplaylistsCursor.close();
             return userPlaylist;

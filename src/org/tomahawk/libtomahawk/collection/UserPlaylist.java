@@ -37,13 +37,12 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
     /**
      * Construct a new empty {@link UserPlaylist}.
      */
-    private UserPlaylist(String id, String name, String currentRevision) {
+    private UserPlaylist(String id, String name, String currentRevision,
+            boolean isHatchetPlaylist) {
         super(name);
         mId = id;
-        if (currentRevision != null) {
-            mIsHatchetPlaylist = true;
-            mCurrentRevision = currentRevision;
-        }
+        mCurrentRevision = currentRevision;
+        mIsHatchetPlaylist = isHatchetPlaylist;
     }
 
     /**
@@ -53,8 +52,8 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
      * @return a reference to the constructed {@link UserPlaylist}
      */
     public static UserPlaylist fromQueryList(String id, String name, String currentRevision,
-            ArrayList<Query> queries, Query currentQuery) {
-        UserPlaylist pl = new UserPlaylist(id, name, currentRevision);
+            boolean isHatchetPlaylist, ArrayList<Query> queries, Query currentQuery) {
+        UserPlaylist pl = new UserPlaylist(id, name, currentRevision, isHatchetPlaylist);
         pl.setQueries(queries);
         if (currentQuery == null) {
             pl.setCurrentQueryIndex(0);
@@ -72,7 +71,7 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
      */
     public static UserPlaylist fromQueryList(String id, String name, String currentRevision,
             ArrayList<Query> queries) {
-        return UserPlaylist.fromQueryList(id, name, currentRevision, queries, null);
+        return UserPlaylist.fromQueryList(id, name, currentRevision, false, queries, null);
     }
 
     /**
@@ -83,7 +82,7 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
      */
     public static UserPlaylist fromQueryList(String id, String name, ArrayList<Query> queries,
             Query currentQuery) {
-        return UserPlaylist.fromQueryList(id, name, null, queries, currentQuery);
+        return UserPlaylist.fromQueryList(id, name, null, false, queries, currentQuery);
     }
 
     /**
@@ -93,7 +92,7 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
      * @return a reference to the constructed {@link UserPlaylist}
      */
     public static UserPlaylist fromQueryList(String id, String name, ArrayList<Query> queries) {
-        return UserPlaylist.fromQueryList(id, name, null, queries, null);
+        return UserPlaylist.fromQueryList(id, name, null, false, queries, null);
     }
 
     public String getId() {
