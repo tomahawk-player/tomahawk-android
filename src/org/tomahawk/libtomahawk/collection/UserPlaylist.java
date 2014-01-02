@@ -71,7 +71,7 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
      */
     public static UserPlaylist fromQueryList(String id, String name, String currentRevision,
             ArrayList<Query> queries) {
-        return UserPlaylist.fromQueryList(id, name, currentRevision, false, queries, null);
+        return UserPlaylist.fromQueryList(id, name, currentRevision, true, queries, null);
     }
 
     /**
