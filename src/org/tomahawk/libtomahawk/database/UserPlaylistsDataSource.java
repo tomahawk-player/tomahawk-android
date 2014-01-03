@@ -110,7 +110,8 @@ public class UserPlaylistsDataSource {
         }
         values.put(TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ID, insertId);
         mDatabase.beginTransaction();
-        mDatabase.insert(TomahawkSQLiteHelper.TABLE_USERPLAYLISTS, null, values);
+        mDatabase.insertWithOnConflict(TomahawkSQLiteHelper.TABLE_USERPLAYLISTS, null, values,
+                SQLiteDatabase.CONFLICT_REPLACE);
         // Delete every already associated Track entry
         mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
                 TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS + " = \"" + insertId + "\"",
@@ -174,8 +175,8 @@ public class UserPlaylistsDataSource {
 
     /**
      * @param playlistId the id by which to get the correct {@link org.tomahawk.libtomahawk.collection.Playlist}
-     * @return the stored {@link org.tomahawk.libtomahawk.collection.Playlist} with playlistId
-     * as its id
+     * @return the stored {@link org.tomahawk.libtomahawk.collection.Playlist} with playlistId as
+     * its id
      */
     public UserPlaylist getUserPlaylist(String playlistId) {
         ArrayList<Query> queries;
