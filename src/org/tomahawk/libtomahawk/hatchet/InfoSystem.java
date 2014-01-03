@@ -165,8 +165,8 @@ public class InfoSystem {
                                         = new ArrayList<PlaylistEntryInfo>();
                                 HashMap<String, ArtistInfo> artistInfos
                                         = new HashMap<String, ArtistInfo>();
-                                ArrayList<AlbumInfo> albumInfos
-                                        = new ArrayList<AlbumInfo>();
+                                HashMap<String, AlbumInfo> albumInfos
+                                        = new HashMap<String, AlbumInfo>();
                                 HashMap<String, TrackInfo> trackInfos
                                         = new HashMap<String, TrackInfo>();
                                 if (!rawInfo.isNull(HATCHET_KEY_PLAYLISTENTRIES)) {
@@ -199,7 +199,7 @@ public class InfoSystem {
                                     for (int j = 0; j < array.length(); j++) {
                                         AlbumInfo albumInfo = new AlbumInfo(
                                                 array.getJSONObject(j));
-                                        albumInfos.add(albumInfo);
+                                        albumInfos.put(albumInfo.getId(), albumInfo);
                                     }
                                 }
                                 convertedResults.add(playlistInfoToUserPlaylist(playlistInfo,
@@ -350,30 +350,25 @@ public class InfoSystem {
     private UserPlaylist playlistInfoToUserPlaylist(PlaylistInfo playlistInfo,
             ArrayList<PlaylistEntryInfo> playlistEntryInfos,
             HashMap<String, ArtistInfo> artistInfos,
-            HashMap<String, TrackInfo> trackInfos, ArrayList<AlbumInfo> albumInfos) {
+            HashMap<String, TrackInfo> trackInfos, HashMap<String, AlbumInfo> albumInfos) {
         ArrayList<Query> queries = new ArrayList<Query>();
         for (PlaylistEntryInfo playlistEntryInfo : playlistEntryInfos) {
+            String trackName;
+            String artistName = "";
+            String albumName = "";
             TrackInfo trackInfo = trackInfos.get(playlistEntryInfo.getTrack());
-            ArtistInfo artistInfo = artistInfos.get(trackInfo.getArtist());
-            AlbumInfo albumInfo = null;
-            for (AlbumInfo info : albumInfos) {
-                if (info.getTracks() != null) {
-                    for (String track : info.getTracks()) {
-                        if (track.equals(trackInfo.getId())) {
-                            albumInfo = info;
-                            break;
-                        }
-                    }
+            if (trackInfo != null) {
+                trackName = trackInfo.getName();
+                ArtistInfo artistInfo = artistInfos.get(trackInfo.getArtist());
+                if (artistInfo != null) {
+                    artistName = artistInfo.getName();
                 }
+                AlbumInfo albumInfo = albumInfos.get(playlistEntryInfo.getAlbum());
                 if (albumInfo != null) {
-                    break;
+                    albumName = albumInfo.getName();
                 }
+                queries.add(new Query(trackName, albumName, artistName, false));
             }
-            String albumname = "";
-            if (albumInfo != null) {
-                albumname = albumInfo.getName();
-            }
-            queries.add(new Query(trackInfo.getName(), albumname, artistInfo.getName(), false));
         }
         return UserPlaylist.fromQueryList(playlistInfo.getId(), playlistInfo.getTitle(),
                 playlistInfo.getCurrentRevision(), queries);

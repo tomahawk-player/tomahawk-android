@@ -36,9 +36,13 @@ public class PlaylistEntryInfo implements Info {
 
     public static final String PLAYLISTINFO_KEY_TRACK = "track";
 
+    public static final String PLAYLISTINFO_KEY_ALBUM = "album";
+
     private String mId;
 
     private String mTrack;
+
+    private String mAlbum;
 
     public PlaylistEntryInfo(JSONObject rawInfo) {
         try {
@@ -47,6 +51,9 @@ public class PlaylistEntryInfo implements Info {
             }
             if (!rawInfo.isNull(PLAYLISTINFO_KEY_TRACK)) {
                 mTrack = rawInfo.getString(PLAYLISTINFO_KEY_TRACK);
+            }
+            if (!rawInfo.isNull(PLAYLISTINFO_KEY_ALBUM)) {
+                mAlbum = rawInfo.getString(PLAYLISTINFO_KEY_ALBUM);
             }
         } catch (JSONException e) {
             Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
@@ -59,5 +66,9 @@ public class PlaylistEntryInfo implements Info {
 
     public String getTrack() {
         return mTrack;
+    }
+
+    public String getAlbum() {
+        return mAlbum;
     }
 }
