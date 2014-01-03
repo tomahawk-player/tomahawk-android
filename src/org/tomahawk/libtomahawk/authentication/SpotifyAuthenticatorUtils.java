@@ -78,9 +78,9 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
             SpotifyResolver spotifyResolver = (SpotifyResolver) mTomahawkApp.getPipeLine()
                     .getResolver(TomahawkApp.RESOLVER_ID_SPOTIFY);
             spotifyResolver.setAuthenticated(isAuthenticated);
-            mIsAuthenticating = isAuthenticated;
             mTomahawkService
                     .onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_SPOTIFY, isAuthenticated);
+            mIsAuthenticating = false;
         }
 
         /**
