@@ -45,6 +45,8 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
 
     public static final int SPOTIFY_PREF_BITRATE_MODE_HIGH = 2;
 
+    private static boolean mIsSpotifyLoggedIn = false;
+
     // This listener handles every event regarding the login/logout methods
     private AuthenticatorListener mAuthenticatorListener = new AuthenticatorListener() {
 
@@ -62,18 +64,23 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
         @Override
         public void onLoginFailed(String message) {
             Log.d(TAG, "TomahawkService: Spotify login failed :( message: " + message);
-            mIsAuthenticating = false;
-            mTomahawkService.onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_SPOTIFY, false);
+            setAuthenticated(false);
         }
 
         @Override
         public void onLogout() {
             Log.d(TAG, "TomahawkService: Spotify user logged out");
+            setAuthenticated(false);
+        }
+
+        private void setAuthenticated(boolean isAuthenticated) {
+            mIsSpotifyLoggedIn = isAuthenticated;
             SpotifyResolver spotifyResolver = (SpotifyResolver) mTomahawkApp.getPipeLine()
                     .getResolver(TomahawkApp.RESOLVER_ID_SPOTIFY);
-            spotifyResolver.setAuthenticated(false);
-            mIsAuthenticating = false;
-            mTomahawkService.onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_SPOTIFY, false);
+            spotifyResolver.setAuthenticated(isAuthenticated);
+            mIsAuthenticating = isAuthenticated;
+            mTomahawkService
+                    .onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_SPOTIFY, isAuthenticated);
         }
 
         /**
@@ -94,11 +101,7 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
                     am.setAuthToken(account, mAuthTokenType, authToken);
                 }
             }
-            SpotifyResolver spotifyResolver = (SpotifyResolver) mTomahawkApp.getPipeLine()
-                    .getResolver(TomahawkApp.RESOLVER_ID_SPOTIFY);
-            spotifyResolver.setAuthenticated(true);
-            mIsAuthenticating = false;
-            mTomahawkService.onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_SPOTIFY, true);
+            setAuthenticated(true);
         }
     };
 
@@ -185,5 +188,9 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
             }
         }
         LibSpotifyWrapper.logoutUser();
+    }
+
+    public static boolean isSpotifyLoggedIn() {
+        return mIsSpotifyLoggedIn;
     }
 }

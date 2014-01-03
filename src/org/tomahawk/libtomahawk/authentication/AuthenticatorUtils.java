@@ -70,15 +70,20 @@ public abstract class AuthenticatorUtils {
 
     public static boolean isLoggedIn(Context context, String authenticatorName,
             String authTokenType) {
-        final AccountManager am = AccountManager.get(context);
-        if (am != null) {
-            Account[] accounts = am
-                    .getAccountsByType(context.getString(R.string.accounttype_string));
-            if (accounts != null) {
-                for (Account account : accounts) {
-                    if (authenticatorName
-                            .equals(am.getUserData(account, TomahawkService.AUTHENTICATOR_NAME))) {
-                        return am.peekAuthToken(account, authTokenType) != null;
+        if (authenticatorName.equals(TomahawkService.AUTHENTICATOR_NAME_SPOTIFY)) {
+            return SpotifyAuthenticatorUtils.isSpotifyLoggedIn();
+        } else {
+            final AccountManager am = AccountManager.get(context);
+            if (am != null) {
+                Account[] accounts = am
+                        .getAccountsByType(context.getString(R.string.accounttype_string));
+                if (accounts != null) {
+                    for (Account account : accounts) {
+                        if (authenticatorName
+                                .equals(am.getUserData(account,
+                                        TomahawkService.AUTHENTICATOR_NAME))) {
+                            return am.peekAuthToken(account, authTokenType) != null;
+                        }
                     }
                 }
             }
