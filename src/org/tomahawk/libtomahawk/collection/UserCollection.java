@@ -220,7 +220,6 @@ public class UserCollection extends Collection {
      */
     public void setCachedUserPlaylist(UserPlaylist userPlaylist) {
         mCachedUserPlaylist = userPlaylist;
-        mTomahawkApp.getUserPlaylistsDataSource().deleteUserPlaylist(mCachedUserPlaylist.getId());
         mTomahawkApp.getUserPlaylistsDataSource().storeUserPlaylist(mCachedUserPlaylist);
     }
 
