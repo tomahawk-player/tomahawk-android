@@ -288,7 +288,9 @@ public class LibSpotifyWrapper {
      * Called by libspotify, when a track has been prepared
      */
     public static void onPrepared() {
-        sTomahawkMediaPlayer.onPrepared(null);
+        if (sTomahawkMediaPlayer != null) {
+            sTomahawkMediaPlayer.onPrepared(null);
+        }
     }
 
     /**
@@ -304,7 +306,9 @@ public class LibSpotifyWrapper {
      */
     public static void onResolved(final String qid, final boolean success, final String message,
             final String didYouMean) {
-        sSpotifyResolver.onResolved(qid);
+        if (sSpotifyResolver != null) {
+            sSpotifyResolver.onResolved(qid);
+        }
     }
 
     /**
@@ -313,19 +317,21 @@ public class LibSpotifyWrapper {
     public static void addResult(final String qid, final String trackName, final int trackDuration,
             final int trackDiscnumber, final int trackIndex, final String trackUri,
             final String albumName, final int albumYear, final String artistName) {
-        Artist artist = Artist.get(artistName);
-        Album album = Album.get(albumName, artist);
-        album.setFirstYear("" + albumYear);
-        album.setLastYear("" + albumYear);
-        Track track = Track.get(trackName, album, artist);
-        track.setDuration(trackDuration);
-        track.setAlbumPos(trackIndex);
-        Result result = new Result(trackUri, track);
-        result.setTrack(track);
-        result.setArtist(artist);
-        result.setAlbum(album);
-        result.setResolvedBy(sSpotifyResolver);
-        sSpotifyResolver.addResult(qid, result);
+        if (sSpotifyResolver != null) {
+            Artist artist = Artist.get(artistName);
+            Album album = Album.get(albumName, artist);
+            album.setFirstYear("" + albumYear);
+            album.setLastYear("" + albumYear);
+            Track track = Track.get(trackName, album, artist);
+            track.setDuration(trackDuration);
+            track.setAlbumPos(trackIndex);
+            Result result = new Result(trackUri, track);
+            result.setTrack(track);
+            result.setArtist(artist);
+            result.setAlbum(album);
+            result.setResolvedBy(sSpotifyResolver);
+            sSpotifyResolver.addResult(qid, result);
+        }
     }
 
     public static boolean isInitialized() {
@@ -337,7 +343,9 @@ public class LibSpotifyWrapper {
      */
     public static void onInit() {
         mInitialized = true;
-        sAuthenticatorListener.onInit();
+        if (sAuthenticatorListener != null) {
+            sAuthenticatorListener.onInit();
+        }
     }
 
     /**
@@ -349,10 +357,12 @@ public class LibSpotifyWrapper {
      *                 Spotify
      */
     public static void onLogin(final boolean success, final String message, final String username) {
-        if (success) {
-            sAuthenticatorListener.onLogin(username);
-        } else {
-            sAuthenticatorListener.onLoginFailed(message);
+        if (sAuthenticatorListener != null) {
+            if (success) {
+                sAuthenticatorListener.onLogin(username);
+            } else {
+                sAuthenticatorListener.onLoginFailed(message);
+            }
         }
     }
 
@@ -360,7 +370,9 @@ public class LibSpotifyWrapper {
      * Called by libspotify on logout
      */
     public static void onLogout() {
-        sAuthenticatorListener.onLogout();
+        if (sAuthenticatorListener != null) {
+            sAuthenticatorListener.onLogout();
+        }
     }
 
     /**
@@ -370,14 +382,18 @@ public class LibSpotifyWrapper {
      * @param blob     {@link String} containing the blob
      */
     public static void onCredentialsBlobUpdated(final String username, final String blob) {
-        sAuthenticatorListener.onAuthTokenProvided(username, blob);
+        if (sAuthenticatorListener != null) {
+            sAuthenticatorListener.onAuthTokenProvided(username, blob);
+        }
     }
 
     /**
      * Called by libspotify, when the OpenSLES player has finished playing a track
      */
     public static void onPlayerEndOfTrack() {
-        sTomahawkMediaPlayer.onCompletion(null);
+        if (sTomahawkMediaPlayer != null) {
+            sTomahawkMediaPlayer.onCompletion(null);
+        }
     }
 
     /**
