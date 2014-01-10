@@ -74,6 +74,9 @@ android {
                         file.name.replace(".apk", "-"+ getNewVersionName() + ".apk"))
             }
         }
+        debug {
+            zipAlign true
+        }
     }
 }
 
@@ -117,4 +120,30 @@ tasks.withType(com.android.build.gradle.tasks.PackageApplication) { pkgTask ->
 
 task ndkBuild(type: Exec) {
     commandLine new File((String)System.env.ANDROID_NDK_HOME, 'ndk-build')
+}
+
+/*
+ * Include the file "signingconfig.gradle" (which defines the signingConfig), if it exists
+ * Example of the contents of such "signingconfig.gradle":
+ *
+ * android {
+ *    signingConfigs {
+ *       release {
+ *           storeFile file("key.keystore")
+ *           storePassword "password"
+ *           keyAlias "alias"
+ *           keyPassword "password"
+ *       }
+ *    }
+ *
+ *    buildTypes {
+ *       release {
+ *           signingConfig signingConfigs.release
+ *       }
+ *    }
+ * }
+ *
+ */
+if (new File("signingconfig.gradle").exists()) {
+    apply from: "signingconfig.gradle";
 }
