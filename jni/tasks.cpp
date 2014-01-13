@@ -370,6 +370,11 @@ void on_player_end_of_track(list<int> int_params, list<string> string_params, sp
 }
 
 void destroy(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track) {
+    log("Releasing session, exiting main run loop");
+	if (is_attached()) {
+	    detach_current_thread();
+	}
+	pthread_exit(0);
 	sp_session_release(session);
 	destroy_audio_player();
 }

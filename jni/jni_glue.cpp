@@ -46,6 +46,11 @@ using namespace std;
 static JavaVM *s_java_vm;
 static jobject s_java_class_loader = NULL;
 
+void detach_current_thread() {
+    log("Detaching current thread");
+    s_java_vm->DetachCurrentThread();
+}
+
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
 	// Save a reference to the java virtual machine to be able to call java from native thread
 	s_java_vm = jvm;
@@ -176,6 +181,7 @@ jclass find_class_from_native_thread(JNIEnv **envSetter) {
 	if (status < 0) {
 		log("Failed to get JNI environment, assuming native thread");
 		status = s_java_vm->AttachCurrentThread(&env, NULL);
+		set_attached();
 		if (status < 0)
 			exitl("callback_handler: failed to attach current thread");
 	}

@@ -27,6 +27,7 @@
 
 #include <jni.h>
 
+void detach_current_thread();
 jclass find_class_from_native_thread(JNIEnv **envSetter);
 void call_static_void_method(const char *method_name);
 

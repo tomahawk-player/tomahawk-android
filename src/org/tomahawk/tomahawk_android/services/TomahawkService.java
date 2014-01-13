@@ -221,7 +221,6 @@ public class TomahawkService extends Service {
         super.onDestroy();
 
         mWifiLock.release();
-        LibSpotifyWrapper.destroy();
         unregisterReceiver(mTomahawkServiceBroadcastReceiver);
     }
 

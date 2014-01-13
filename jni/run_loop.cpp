@@ -49,6 +49,10 @@ int music_delivery(sp_session *sess, const sp_audioformat *format, const void *f
 // There is always only one track that can be played/paused
 static sp_track *s_track = NULL;
 
+sp_session *session;
+
+bool attached = false;
+
 // A task contains the function, parameters and a task name
 struct Task {
 	task_fptr fptr;
@@ -221,32 +225,41 @@ void* start_spotify(void *storage_path) {
     pthread_mutex_init(&s_notify_mutex, NULL);
     pthread_cond_init(&s_notify_cond, NULL);
 
-    sp_session *session;
-    sp_session_config config;
+    if (!session) {
+        sp_session_config config;
 
-    // Libspotify does not guarantee that the structures are freshly initialized
-    memset(&config, 0, sizeof(config));
+        // Libspotify does not guarantee that the structures are freshly initialized
+        memset(&config, 0, sizeof(config));
 
-    string cache_location = path + "/cache";
-    string settings_location = path = "/settings";
+        string cache_location = path + "/cache";
+        string settings_location = path = "/settings";
 
-    config.api_version = SPOTIFY_API_VERSION;
-    config.cache_location = cache_location.c_str();
-    config.settings_location = settings_location.c_str();
-    int plain_g_appkey_size;
-    unsigned char *plain_g_appkey = unbase64(g_appkey, g_appkey_size, &plain_g_appkey_size);
-    config.application_key = plain_g_appkey;
-    config.application_key_size = plain_g_appkey_size;
-    config.user_agent = "TomahawkAndroid";
-    config.callbacks = &callbacks;
-    config.tracefile = NULL;
+        config.api_version = SPOTIFY_API_VERSION;
+        config.cache_location = cache_location.c_str();
+        config.settings_location = settings_location.c_str();
+        int plain_g_appkey_size;
+        unsigned char *plain_g_appkey = unbase64(g_appkey, g_appkey_size, &plain_g_appkey_size);
+        config.application_key = plain_g_appkey;
+        config.application_key_size = plain_g_appkey_size;
+        config.user_agent = "TomahawkAndroid";
+        config.callbacks = &callbacks;
+        config.tracefile = NULL;
 
-    sp_error error = sp_session_create(&config, &session);
-    log("Libspotify was initiated");
+        sp_error error = sp_session_create(&config, &session);
+        log("Libspotify was initiated");
 
-    if (SP_ERROR_OK != error)
-        exitl("failed to create session: %s\n", sp_error_message(error));
+        if (SP_ERROR_OK != error)
+            exitl("failed to create session: %s\n", sp_error_message(error));
+    }
 
     // start the libspotify loop
     libspotify_loop(session);
+}
+
+void set_attached(){
+    attached = true;
+}
+
+bool is_attached(){
+    return attached;
 }
