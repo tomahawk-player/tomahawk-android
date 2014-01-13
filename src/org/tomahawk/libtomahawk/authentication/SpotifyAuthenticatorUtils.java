@@ -148,7 +148,6 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
     /**
      * Try to login to spotify with stored credentials
      */
-    @Override
     public void loginWithToken() {
         final AccountManager am = AccountManager.get(mTomahawkApp);
         if (am != null) {

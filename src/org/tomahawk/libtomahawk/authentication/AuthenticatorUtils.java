@@ -47,8 +47,6 @@ public abstract class AuthenticatorUtils {
 
     public abstract void login(String email, String password);
 
-    public abstract void loginWithToken();
-
     public abstract void logout();
 
     public static String getUserId(Context context, String authenticatorName) {

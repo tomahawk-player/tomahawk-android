@@ -18,9 +18,6 @@
  */
 package org.tomahawk.libtomahawk.authentication;
 
-import com.codebutler.android_websockets.WebSocketClient;
-
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.tomahawk.libtomahawk.collection.UserCollection;
@@ -39,49 +36,54 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class HatchetAuthenticatorUtils extends AuthenticatorUtils
-        implements WebSocketClient.Listener {
+public class HatchetAuthenticatorUtils extends AuthenticatorUtils{
 
     private static final String TAG = HatchetAuthenticatorUtils.class.getName();
 
-    public static final String LOGIN_SERVER = "https://auth.hatchet.is/v1";
+    public static final String AUTH_SERVER = "https://auth.hatchet.is/v1/authentication/password";
 
-    public static final String ACCESS_TOKEN_SERVER = "https://auth.hatchet.is/v1";
+    public static final String TOKEN_SERVER = "https://auth.hatchet.is/v1/tokens/fetch/bearer";
 
-    public static final String PATH_AUTH_CREDENTIALS = "/auth/credentials";
+    public static final String PARAMS_GRANT_TYPE = "grant_type";
 
-    public static final String PATH_TOKENS = "/tokens/";
+    public static final String PARAMS_GRANT_TYPE_PASSWORD = "password";
 
     public static final String PARAMS_USERNAME = "username";
 
     public static final String PARAMS_PASSWORD = "password";
 
-    public static final String PARAMS_CLIENT = "client";
+    public static final String RESPONSE_ACCESS_TOKEN = "access_token";
 
-    public static final String PARAMS_NONCE = "nonce";
+    public static final String RESPONSE_CANONICAL_USERNAME = "canonical_username";
 
-    public static final String PARAMS_TYPE = "type";
+    public static final String RESPONSE_EXPIRES_IN = "expires_in";
 
-    public static final String PARAMS_TOKENS = "tokens";
+    public static final String RESPONSE_REFRESH_TOKEN = "refresh_token";
 
-    public static final String PARAMS_REFRESH_TOKEN = "refresh_token";
+    public static final String RESPONSE_REFRESH_TOKEN_EXPIRES_IN = "refresh_token_expires_in";
 
-    public static final String PARAMS_EXPIRATION = "expiration";
+    public static final String RESPONSE_TOKEN_TYPE = "token_type";
 
-    public static final String PARAMS_RESULT = "result";
+    public static final String RESPONSE_ERROR = "error";
 
-    public static final String PARAMS_ERRORINFO = "errorinfo";
+    public static final String RESPONSE_ERROR_INVALID_REQUEST = "invalid_request";
 
-    public static final String PARAMS_DESCRIPTION = "description";
+    public static final String RESPONSE_ERROR_INVALID_CLIENT = "invalid_client";
 
-    //private PublicKey mPublicKey;
+    public static final String RESPONSE_ERROR_INVALID_GRANT = "invalid_grant";
 
-    private WebSocketClient mWebSocketClient;
+    public static final String RESPONSE_ERROR_UNAUTHORIZED_CLIENT = "unauthorized_client";
+
+    public static final String RESPONSE_ERROR_UNSUPPORTED_GRANT_TYPE = "unsupported_grant_type";
+
+    public static final String RESPONSE_ERROR_INVALID_SCOPE = "invalid_scope";
+
+    public static final String RESPONSE_ERROR_DESCRIPTION = "error_description";
+
+    public static final String RESPONSE_ERROR_URI = "error_uri";
 
     // This listener handles every event regarding the login/logout methods
     private AuthenticatorListener mAuthenticatorListener = new AuthenticatorListener() {
@@ -138,167 +140,6 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
         mName = TomahawkService.AUTHENTICATOR_NAME_HATCHET;
         mAuthTokenType = TomahawkService.AUTH_TOKEN_TYPE_HATCHET;
         mAuthenticatorListener.onInit();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                /*try {
-                    InputStream in = TomahawkApp.getContext().getResources().openRawResource(
-                            R.raw.mandella);
-                    Scanner scanner = new Scanner(in).useDelimiter("\\A");
-                    String rawString = scanner.hasNext() ? scanner.next() : "";
-                    in.close();
-
-                    String publicKeyPEM = rawString.replace("\n", "");
-                    publicKeyPEM = publicKeyPEM.replace("-----BEGIN PUBLIC KEY-----", "");
-                    publicKeyPEM = publicKeyPEM.replace("-----END PUBLIC KEY-----", "");
-                    byte[] decoded = Base64.decode(publicKeyPEM, Base64.DEFAULT);
-                    X509EncodedKeySpec spec = new X509EncodedKeySpec(decoded);
-                    KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-                    mPublicKey = keyFactory.generatePublic(spec);
-                } catch (InvalidKeySpecException e) {
-                    Log.e(TAG, "TomahawkAuthenticator(constructor): " + e.getClass() + ":" + e
-                            .getLocalizedMessage());
-                } catch (NoSuchAlgorithmException e) {
-                    Log.e(TAG, "TomahawkAuthenticator(constructor): " + e.getClass() + ":" + e
-                            .getLocalizedMessage());
-                } catch (IOException e) {
-                    Log.e(TAG, "TomahawkAuthenticator(constructor): " + e.getClass() + ":" + e
-                            .getLocalizedMessage());
-                }*/
-
-                /*AccountManager am = AccountManager.get(mTomahawkApp);
-                if (am != null) {
-                    Account[] accounts = am
-                            .getAccountsByType(mTomahawkApp.getString(R.string.accounttype_string));
-                    String userId = null;
-                    String authToken = null;
-                    if (accounts != null) {
-                        for (Account account : accounts) {
-                            if (mName.equals(am
-                                    .getUserData(account, TomahawkService.AUTHENTICATOR_NAME))) {
-                                userId = account.name;
-                                authToken = am.peekAuthToken(account, mAuthTokenType);
-                            }
-                        }
-                    }
-                    if (userId != null && authToken != null) {
-                        mAccessTokens = requestAccessTokens(userId, authToken);
-                    }
-                }
-
-                if (mAccessTokens == null) {
-                    return;
-                }
-
-                mWebSocketClient = new WebSocketClient(URI.create(ACCESS_TOKEN_SERVER),
-                        HatchetAuthenticatorUtils.this, null);
-                mWebSocketClient.connect();*/
-            }
-        }).start();
-    }
-
-    /**
-     * Called when the websocket client has connected.
-     */
-    @Override
-    public void onConnect() {
-        Log.d(TAG, "Tomahawk websocket connected.");
-
-        /** For testing we will attempt to register. */
-        AccessToken token = mAccessTokens.get(0);
-
-        JSONObject register = new JSONObject();
-        try {
-            register.put("command", "register");
-            register.put("hostname", token.localhost);
-            register.put("port", token.port);
-            register.put("accesstoken", token.token);
-            //register.put("username", mUserId);
-            register.put("dbid", "nil");
-        } catch (JSONException e) {
-            Log.e(TAG, "onConnect: " + e.getClass() + ":" + e.getLocalizedMessage());
-        }
-        mWebSocketClient.send(register.toString());
-    }
-
-    /**
-     * Called when the websocket client has received a message.
-     */
-    @Override
-    public void onMessage(String msg) {
-        Log.d(TAG, "Message from Tomahawk server: " + msg);
-    }
-
-    /**
-     * Called when the websocket client has received a binary message.
-     */
-    @Override
-    public void onMessage(byte[] data) {
-        Log.d(TAG, "Binary message from Tomahawk server.");
-    }
-
-    /**
-     * Called when the websocket client has been disconnected.
-     */
-    @Override
-    public void onDisconnect(int code, String reason) {
-        Log.d(TAG, "Tomahawk websocket disconnected.");
-    }
-
-    /**
-     * Called when an error has occurred with the websocket client.
-     */
-    @Override
-    public void onError(Exception error) {
-        throw new IllegalArgumentException(error.toString());
-    }
-
-    /**
-     * Requests access tokens for the given user id and valid auth token.
-     */
-    public static List<AccessToken> requestAccessTokens(String userid, String authToken) {
-        Map<String, String> params = new HashMap<String, String>();
-        params.put(PARAMS_USERNAME, userid);
-        params.put(PARAMS_TOKENS, authToken);
-
-        try {
-            String jsonString = TomahawkUtils
-                    .httpsPost(ACCESS_TOKEN_SERVER + PATH_TOKENS, new JSONObject(params));
-            JSONObject jsonObject = new JSONObject(jsonString);
-            if (jsonObject.has(PARAMS_RESULT)) {
-                JSONObject result = jsonObject.getJSONObject(PARAMS_RESULT);
-                if (result.has(PARAMS_TOKENS)) {
-                    List<AccessToken> accessTokens = new ArrayList<AccessToken>();
-                    JSONArray tokens = jsonObject.getJSONObject(PARAMS_RESULT).getJSONArray(
-                            PARAMS_TOKENS);
-                    for (int i = 0; i < tokens.length(); i++) {
-                        JSONObject host = tokens.getJSONObject(i);
-                        AccessToken token = new AccessToken(host.getString("token"),
-                                host.getString("host"),
-                                host.getString("type"), host.getInt("port"),
-                                host.getInt("expiration"));
-
-                        accessTokens.add(token);
-                    }
-                    return accessTokens;
-                } else if (result.has(PARAMS_ERRORINFO)) {
-                    Log.e(TAG, "requestAccessTokens: " + result.getJSONObject(PARAMS_ERRORINFO)
-                            .getString(PARAMS_DESCRIPTION));
-                }
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, "requestAccessTokens: " + e.getClass() + ": " + e.getLocalizedMessage());
-        } catch (UnsupportedEncodingException e) {
-            Log.e(TAG, "requestAccessTokens: " + e.getClass() + ": " + e.getLocalizedMessage());
-        } catch (IOException e) {
-            Log.e(TAG, "requestAccessTokens: " + e.getClass() + ": " + e.getLocalizedMessage());
-        } catch (NoSuchAlgorithmException e) {
-            Log.e(TAG, "requestAccessTokens: " + e.getClass() + ": " + e.getLocalizedMessage());
-        } catch (KeyManagementException e) {
-            Log.e(TAG, "requestAccessTokens: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
-        return null;
     }
 
     @Override
@@ -320,34 +161,31 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
                 Map<String, String> params = new HashMap<String, String>();
                 params.put(PARAMS_PASSWORD, password);
                 params.put(PARAMS_USERNAME, name);
-                params.put(PARAMS_CLIENT, "Tomahawk Android (" + android.os.Build.MODEL + ")");
-                params.put(PARAMS_NONCE, "");
-                /*byte[] uuid = UUID.randomUUID().toString().getBytes();
-                Cipher cipher = Cipher.getInstance("OAEP");
-                cipher.init(Cipher.ENCRYPT_MODE, mPublicKey);
-                byte[] encryptedUuidBytes = cipher.doFinal(uuid);
-                String encryptedUuid = Base64.encodeToString(
-                        encryptedUuidBytes, Base64.DEFAULT);
-                params.put(PARAMS_NONCE, encryptedUuid);*/
+                params.put(PARAMS_GRANT_TYPE, PARAMS_GRANT_TYPE_PASSWORD);
                 try {
-                    String jsonString = TomahawkUtils
-                            .httpsPost(LOGIN_SERVER + PATH_AUTH_CREDENTIALS,
-                                    new JSONObject(params));
+                    String jsonString = TomahawkUtils.httpsPost(AUTH_SERVER, params);
                     JSONObject jsonObject = new JSONObject(jsonString);
-                    if (jsonObject.has(PARAMS_RESULT)) {
-                        JSONObject result = jsonObject.getJSONObject(PARAMS_RESULT);
-                        if (result.has(PARAMS_ERRORINFO)) {
-                            mAuthenticatorListener.onLoginFailed(result.getJSONObject(
-                                    PARAMS_ERRORINFO).getString(PARAMS_DESCRIPTION));
-                        } else if (result.has(PARAMS_USERNAME) && result
-                                .has(PARAMS_REFRESH_TOKEN)) {
-                            mAuthenticatorListener.onLogin(result.getString(PARAMS_USERNAME));
-                            mAuthenticatorListener
-                                    .onAuthTokenProvided(result.getString(PARAMS_USERNAME),
-                                            result.getString(PARAMS_REFRESH_TOKEN));
-                        } else {
-                            mAuthenticatorListener.onLoginFailed("Unknown error");
+                    if (jsonObject.has(RESPONSE_ERROR)) {
+                        String errorString = "Error: " + jsonObject.getString(RESPONSE_ERROR);
+                        if (jsonObject.has(RESPONSE_ERROR_DESCRIPTION)) {
+                            errorString += ", Description: " + jsonObject.getString(
+                                    RESPONSE_ERROR_DESCRIPTION);
                         }
+                        if (jsonObject.has(RESPONSE_ERROR_URI)) {
+                            errorString += ", URI: " + jsonObject.getString(RESPONSE_ERROR_URI);
+                        }
+                        mAuthenticatorListener.onLoginFailed(errorString);
+                    } else if (jsonObject.has(RESPONSE_ACCESS_TOKEN) && jsonObject.has(
+                            RESPONSE_CANONICAL_USERNAME) && jsonObject.has(RESPONSE_EXPIRES_IN)
+                            && jsonObject.has(RESPONSE_REFRESH_TOKEN) && jsonObject.has(
+                            RESPONSE_REFRESH_TOKEN_EXPIRES_IN) && jsonObject.has(
+                            RESPONSE_TOKEN_TYPE)) {
+                        String username = jsonObject.getString(RESPONSE_CANONICAL_USERNAME);
+                        String refreshtoken = jsonObject.getString(RESPONSE_REFRESH_TOKEN);
+                        mAuthenticatorListener.onLogin(username);
+                        mAuthenticatorListener.onAuthTokenProvided(username, refreshtoken);
+                    } else {
+                        mAuthenticatorListener.onLoginFailed("Unknown error");
                     }
                 } catch (JSONException e) {
                     Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
@@ -367,11 +205,6 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils
                 }
             }
         }).start();
-    }
-
-    @Override
-    public void loginWithToken() {
-        mIsAuthenticating = true;
     }
 
     @Override
