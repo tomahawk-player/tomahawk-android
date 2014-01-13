@@ -34,6 +34,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -187,8 +188,18 @@ public class TomahawkUtils {
 
     public static String httpsPost(String urlString, JSONObject jsonToPost)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
+        return httpsPost(urlString, jsonToPost.toString(), true);
+    }
+
+    public static String httpsPost(String urlString, Map<String, String> params)
+            throws NoSuchAlgorithmException, KeyManagementException, IOException {
+        return httpsPost(urlString, paramsListToString(params), false);
+    }
+
+    private static String httpsPost(String urlString, String paramsString,
+            boolean contentTypeIsJson)
+            throws NoSuchAlgorithmException, KeyManagementException, IOException {
         URL url = new URL(urlString);
-        String paramsString = jsonToPost.toString();
         HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
 
         // Create the SSL connection
@@ -202,8 +213,12 @@ public class TomahawkUtils {
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
         connection.setFixedLengthStreamingMode(paramsString.getBytes().length);
+        if (contentTypeIsJson) {
+            connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
+        } else {
+            connection.setRequestProperty("Content-type", "application/x-www-form-urlencoded");
+        }
         connection.setRequestProperty("Accept", "application/json; charset=utf-8");
-        connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
         OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
         out.write(paramsString);
         out.close();
@@ -230,7 +245,7 @@ public class TomahawkUtils {
         return inputStreamToString(connection);
     }
 
-    public static String paramsListToString(HashMap<String, String> params)
+    public static String paramsListToString(Map<String, String> params)
             throws UnsupportedEncodingException {
         StringBuilder result = new StringBuilder();
         boolean first = true;
@@ -238,7 +253,7 @@ public class TomahawkUtils {
         for (String key : params.keySet()) {
             if (first) {
                 first = false;
-                result.append("?");
+
             } else {
                 result.append("&");
             }

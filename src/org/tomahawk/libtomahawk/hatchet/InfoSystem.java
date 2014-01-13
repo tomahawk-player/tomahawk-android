@@ -343,7 +343,7 @@ public class InfoSystem {
                 break;
         }
         // append every parameter we didn't use
-        queryString += TomahawkUtils.paramsListToString(params);
+        queryString += "?" + TomahawkUtils.paramsListToString(params);
         return queryString;
     }
 
