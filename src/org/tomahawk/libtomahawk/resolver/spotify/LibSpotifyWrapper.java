@@ -109,8 +109,8 @@ public class LibSpotifyWrapper {
      */
     public static void destroy() {
         if (mInitialized) {
-            //nativedestroy();
-            //mInitialized = false;
+            nativedestroy();
+            mInitialized = false;
         }
     }
 

@@ -45,4 +45,7 @@ void addTask(task_fptr fptr, string name);
 
 void* start_spotify(void *storage_location);
 
+void set_attached();
+bool is_attached();
+
 #endif

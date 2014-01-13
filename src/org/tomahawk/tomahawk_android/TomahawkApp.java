@@ -157,6 +157,12 @@ public class TomahawkApp extends Application {
         initialize();
     }
 
+    @Override
+    public void onLowMemory() {
+        LibSpotifyWrapper.pause();
+        LibSpotifyWrapper.destroy();
+    }
+
     /**
      * Called when a Collection has been updated.
      */
