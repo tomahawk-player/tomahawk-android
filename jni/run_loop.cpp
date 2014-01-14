@@ -234,6 +234,10 @@ void* start_spotify(void *storage_path) {
         string cache_location = path + "/cache";
         string settings_location = path = "/settings";
 
+        // Clear the cache
+        string execCommand = "exec rm -r " + cache_location + "/*";
+        system(execCommand.c_str());
+
         config.api_version = SPOTIFY_API_VERSION;
         config.cache_location = cache_location.c_str();
         config.settings_location = settings_location.c_str();
