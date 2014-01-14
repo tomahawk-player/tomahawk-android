@@ -375,7 +375,6 @@ void destroy(list<int> int_params, list<string> string_params, sp_session *sessi
 	    detach_current_thread();
 	}
 	pthread_exit(0);
-	sp_session_release(session);
 	destroy_audio_player();
 }
 
