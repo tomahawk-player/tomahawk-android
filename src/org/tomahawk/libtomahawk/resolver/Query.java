@@ -55,6 +55,9 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
 
     private boolean mSolved = false;
 
+    // If this query is currently being played, we don't update the preferred track result.
+    private boolean mCurrentlyPlaying = false;
+
     private String mTopTrackResultKey = "";
 
     private String mQid;
@@ -141,16 +144,16 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
 
     public void addTrackResult(Result result) {
         mPlayable = true;
-        if (result.getTrackScore() == 1f) {
+        if (!mCurrentlyPlaying && result.getTrackScore() == 1f) {
             mSolved = true;
         }
         String key = TomahawkUtils.getCacheKey(result);
         mTrackResults.put(key, result);
-        if (getPreferredTrackResult() == null ||
+        if (!mCurrentlyPlaying && (getPreferredTrackResult() == null ||
                 (getPreferredTrackResult().getTrackScore() < result.getTrackScore() ||
                         (getPreferredTrackResult().getTrackScore() == result.getTrackScore()
                                 && getPreferredTrackResult().getResolvedBy().getWeight()
-                                < result.getResolvedBy().getWeight()))) {
+                                < result.getResolvedBy().getWeight())))) {
             mTopTrackResultKey = key;
         }
     }
@@ -255,6 +258,14 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
 
     public boolean isSolved() {
         return mSolved;
+    }
+
+    public boolean isCurrentlyPlaying() {
+        return mCurrentlyPlaying;
+    }
+
+    public void setCurrentlyPlaying(boolean currentlyPlaying) {
+        mCurrentlyPlaying = currentlyPlaying;
     }
 
     public String getQid() {
