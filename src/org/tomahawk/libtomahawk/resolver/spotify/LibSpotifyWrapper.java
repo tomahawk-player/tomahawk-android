@@ -39,6 +39,10 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer;
 
+import android.os.Looper;
+
+import java.util.logging.Handler;
+
 /**
  * Wrapper class around libspotify. Provides functionality to talk to the c library.
  */
@@ -53,6 +57,8 @@ public class LibSpotifyWrapper {
     private static TomahawkMediaPlayer sTomahawkMediaPlayer;
 
     private static int mCurrentPosition;
+
+    private static boolean mIsSeeking;
 
     private static boolean mInitialized;
 
@@ -170,6 +176,7 @@ public class LibSpotifyWrapper {
      */
     private static void prepare(String uri) {
         if (mInitialized) {
+            mCurrentPosition = 0;
             nativeprepare(uri);
         }
     }
@@ -199,6 +206,15 @@ public class LibSpotifyWrapper {
      */
     public static void seek(int position) {
         if (mInitialized) {
+            mIsSeeking = true;
+            android.os.Handler handler = new android.os.Handler(Looper.getMainLooper());
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mIsSeeking = false;
+                }
+            }, 1000);
+            mCurrentPosition = position;
             nativeseek(position);
         }
     }
@@ -398,7 +414,9 @@ public class LibSpotifyWrapper {
      * Called by libspotify, when the OpenSLES player signals that the current position has changed
      */
     public static void onPlayerPositionChanged(final int position) {
-        mCurrentPosition = position;
+        if (!mIsSeeking) {
+            mCurrentPosition = position;
+        }
     }
 
     /**
