@@ -23,7 +23,7 @@ public interface AuthenticatorListener {
 
     void onLogin(String username);
 
-    void onLoginFailed(String message);
+    void onLoginFailed(final String error, final String errorDescription);
 
     void onLogout();
 
