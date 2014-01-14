@@ -26,8 +26,11 @@ import org.tomahawk.tomahawk_android.services.TomahawkService;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
 
@@ -62,9 +65,20 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
         }
 
         @Override
-        public void onLoginFailed(String message) {
-            Log.d(TAG, "TomahawkService: Spotify login failed :( message: " + message);
-            setAuthenticated(false);
+        public void onLoginFailed(final String error, final String errorDescription) {
+            Log.d(TAG,
+                    "TomahawkService: Spotify login failed :(, Error: " + error + ", Description: "
+                            + errorDescription);
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(mTomahawkApp,
+                            TextUtils.isEmpty(errorDescription) ? error : errorDescription,
+                            Toast.LENGTH_LONG).show();
+                }
+            });
+            mIsAuthenticating = false;
         }
 
         @Override

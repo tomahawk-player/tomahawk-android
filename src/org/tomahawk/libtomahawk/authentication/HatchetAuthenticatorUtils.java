@@ -29,8 +29,11 @@ import org.tomahawk.tomahawk_android.services.TomahawkService;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -39,7 +42,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HatchetAuthenticatorUtils extends AuthenticatorUtils{
+public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     private static final String TAG = HatchetAuthenticatorUtils.class.getName();
 
@@ -100,8 +103,19 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils{
         }
 
         @Override
-        public void onLoginFailed(String message) {
-            Log.d(TAG, "TomahawkService: Hatchet login failed :( message: " + message);
+        public void onLoginFailed(final String error, final String errorDescription) {
+            Log.d(TAG,
+                    "TomahawkService: Hatchet login failed :(, Error: " + error + ", Description: "
+                            + errorDescription);
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(mTomahawkApp,
+                            TextUtils.isEmpty(errorDescription) ? error : errorDescription,
+                            Toast.LENGTH_LONG).show();
+                }
+            });
             mIsAuthenticating = false;
             mTomahawkService.onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_HATCHET, false);
         }
@@ -166,15 +180,17 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils{
                     String jsonString = TomahawkUtils.httpsPost(AUTH_SERVER, params);
                     JSONObject jsonObject = new JSONObject(jsonString);
                     if (jsonObject.has(RESPONSE_ERROR)) {
-                        String errorString = "Error: " + jsonObject.getString(RESPONSE_ERROR);
+                        String error = jsonObject.getString(RESPONSE_ERROR);
+                        String errorDescription = "";
                         if (jsonObject.has(RESPONSE_ERROR_DESCRIPTION)) {
-                            errorString += ", Description: " + jsonObject.getString(
+                            errorDescription += jsonObject.getString(
                                     RESPONSE_ERROR_DESCRIPTION);
                         }
                         if (jsonObject.has(RESPONSE_ERROR_URI)) {
-                            errorString += ", URI: " + jsonObject.getString(RESPONSE_ERROR_URI);
+                            errorDescription += ", URI: " + jsonObject
+                                    .getString(RESPONSE_ERROR_URI);
                         }
-                        mAuthenticatorListener.onLoginFailed(errorString);
+                        mAuthenticatorListener.onLoginFailed(error, errorDescription);
                     } else if (jsonObject.has(RESPONSE_ACCESS_TOKEN) && jsonObject.has(
                             RESPONSE_CANONICAL_USERNAME) && jsonObject.has(RESPONSE_EXPIRES_IN)
                             && jsonObject.has(RESPONSE_REFRESH_TOKEN) && jsonObject.has(
@@ -185,23 +201,23 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils{
                         mAuthenticatorListener.onLogin(username);
                         mAuthenticatorListener.onAuthTokenProvided(username, refreshtoken);
                     } else {
-                        mAuthenticatorListener.onLoginFailed("Unknown error");
+                        mAuthenticatorListener.onLoginFailed("Unknown error", "");
                     }
                 } catch (JSONException e) {
                     Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
-                    mAuthenticatorListener.onLoginFailed(e.getMessage());
+                    mAuthenticatorListener.onLoginFailed(e.getMessage(), "");
                 } catch (UnsupportedEncodingException e) {
                     Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
-                    mAuthenticatorListener.onLoginFailed(e.getMessage());
+                    mAuthenticatorListener.onLoginFailed(e.getMessage(), "");
                 } catch (IOException e) {
                     Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
-                    mAuthenticatorListener.onLoginFailed(e.getMessage());
+                    mAuthenticatorListener.onLoginFailed(e.getMessage(), "");
                 } catch (NoSuchAlgorithmException e) {
                     Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
-                    mAuthenticatorListener.onLoginFailed(e.getMessage());
+                    mAuthenticatorListener.onLoginFailed(e.getMessage(), "");
                 } catch (KeyManagementException e) {
                     Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
-                    mAuthenticatorListener.onLoginFailed(e.getMessage());
+                    mAuthenticatorListener.onLoginFailed(e.getMessage(), "");
                 }
             }
         }).start();

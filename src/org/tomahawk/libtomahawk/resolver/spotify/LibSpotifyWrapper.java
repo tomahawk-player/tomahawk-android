@@ -39,8 +39,6 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer;
 
-import android.util.Log;
-
 /**
  * Wrapper class around libspotify. Provides functionality to talk to the c library.
  */
@@ -361,7 +359,7 @@ public class LibSpotifyWrapper {
             if (success) {
                 sAuthenticatorListener.onLogin(username);
             } else {
-                sAuthenticatorListener.onLoginFailed(message);
+                sAuthenticatorListener.onLoginFailed(message, "");
             }
         }
     }
