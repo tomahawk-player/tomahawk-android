@@ -86,9 +86,9 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
     public Query(String trackName, String albumName,
             String artistName, boolean onlyLocal) {
         this();
-        Artist artist = Artist.get(artistName.replace("'", "\\'"));
-        Album album = Album.get(albumName.replace("'", "\\'"), artist);
-        mTrack = Track.get(trackName.replace("'", "\\'"), album, artist);
+        Artist artist = Artist.get(artistName);
+        Album album = Album.get(albumName, artist);
+        mTrack = Track.get(trackName, album, artist);
         mIsFullTextQuery = false;
         mIsOnlyLocal = onlyLocal;
     }
