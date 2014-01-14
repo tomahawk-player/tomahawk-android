@@ -645,11 +645,10 @@ public class PlaybackService extends Service {
      * @return the currently playing Track item (contains all necessary meta-data)
      */
     public Track getCurrentTrack() {
-        Track track = null;
         if (getCurrentQuery() != null) {
-            track = getCurrentQuery().getPreferredTrack();
+            return getCurrentQuery().getPreferredTrack();
         }
-        return track;
+        return null;
     }
 
     /**
@@ -657,10 +656,14 @@ public class PlaybackService extends Service {
      */
     public void setCurrentQuery(final Query query) {
         mNotificationAsyncBitmap.bitmap = null;
+        if (getCurrentQuery() != null) {
+            getCurrentQuery().setCurrentlyPlaying(false);
+        }
         if (mTomahawkMediaPlayer != null && query != null) {
             resolveQueriesFromTo(getCurrentPlaylist().getCurrentQueryIndex(),
                     getCurrentPlaylist().getCurrentQueryIndex() + 10);
             if (query.isPlayable()) {
+                query.setCurrentlyPlaying(true);
                 Runnable releaseRunnable = new Runnable() {
                     @Override
                     public void run() {
