@@ -38,8 +38,6 @@ public class PersonInfo implements Info {
 
     public static final String PERSONINFO_KEY_IMAGES = "Images";
 
-    public static final String PERSONINFO_KEY_TIMESPAN = "TimeSpan";
-
     public static final String PERSONINFO_KEY_LIFESPAN = "LifeSpan";
 
     public static final String PERSONINFO_KEY_MEMBERSHIPS = "Memberships";
@@ -56,7 +54,7 @@ public class PersonInfo implements Info {
 
     private ArrayList<ImageInfo> mImages;
 
-    private TimeSpanInfo mTimeSpan;
+    private TimeSpanInfo mLifeSpan;
 
     private ArrayList<MemberInfo> mMemberships;
 
@@ -66,7 +64,7 @@ public class PersonInfo implements Info {
 
     private String mUrl;
 
-    public void parseInfo(JSONObject rawInfo) {
+    public PersonInfo(JSONObject rawInfo) {
         try {
             if (!rawInfo.isNull(PERSONINFO_KEY_DISAMBIGUATION)) {
                 mDisambiguation = rawInfo.getString(PERSONINFO_KEY_DISAMBIGUATION);
@@ -78,13 +76,12 @@ public class PersonInfo implements Info {
                 JSONArray rawImageInfos = rawInfo.getJSONArray(PERSONINFO_KEY_IMAGES);
                 mImages = new ArrayList<ImageInfo>();
                 for (int i = 0; i < rawImageInfos.length(); i++) {
-                    ImageInfo imageInfo = new ImageInfo();
-                    imageInfo.parseInfo(rawImageInfos.getJSONObject(i));
+                    ImageInfo imageInfo = new ImageInfo(rawImageInfos.getJSONObject(i));
                     mImages.add(imageInfo);
                 }
             }
             if (!rawInfo.isNull(PERSONINFO_KEY_LIFESPAN)) {
-                mTimeSpan = new TimeSpanInfo(rawInfo.getJSONObject(PERSONINFO_KEY_LIFESPAN));
+                mLifeSpan = new TimeSpanInfo(rawInfo.getJSONObject(PERSONINFO_KEY_LIFESPAN));
             }
             if (!rawInfo.isNull(PERSONINFO_KEY_MEMBERSHIPS)) {
                 JSONArray rawMembershipInfos = rawInfo.getJSONArray(PERSONINFO_KEY_MEMBERSHIPS);
@@ -124,8 +121,8 @@ public class PersonInfo implements Info {
         return mImages;
     }
 
-    public TimeSpanInfo getTimeSpan() {
-        return mTimeSpan;
+    public TimeSpanInfo getLifeSpan() {
+        return mLifeSpan;
     }
 
     public ArrayList<MemberInfo> getMemberships() {

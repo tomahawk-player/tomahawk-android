@@ -25,6 +25,8 @@ import org.tomahawk.libtomahawk.collection.CollectionLoader;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
+import org.tomahawk.libtomahawk.hatchet.ArtistInfo;
+import org.tomahawk.libtomahawk.hatchet.InfoRequestData;
 import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -56,12 +58,12 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 
 /**
  * The base class for {@link AlbumsFragment}, {@link TracksFragment}, {@link ArtistsFragment},
- * {@link UserPlaylistsFragment} and {@link SearchableFragment}. Provides all sorts of
- * functionality
+ * {@link UserPlaylistsFragment} and {@link SearchableFragment}. Provides all sorts of functionality
  * to those classes, related to displaying {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}s
  * in whichever needed way.
  */
@@ -165,6 +167,7 @@ public class TomahawkFragment extends TomahawkListFragment
             if (getArguments() != null && getArguments().containsKey(TOMAHAWK_ARTIST_KEY)
                     && !TextUtils.isEmpty(getArguments().getString(TOMAHAWK_ARTIST_KEY))) {
                 mArtist = Artist.getArtistByKey(getArguments().getString(TOMAHAWK_ARTIST_KEY));
+                mCurrentRequestIds.add(mInfoSystem.resolve(mArtist));
             }
             if (getArguments().containsKey(TOMAHAWK_HUB_ID)
                     && getArguments().getInt(TOMAHAWK_HUB_ID) > 0) {

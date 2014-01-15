@@ -211,7 +211,7 @@ public class BitmapItem {
             if (cachedBitMap != null) {
                 // we found our image in the cache, so we can use it right away
                 return resizeBitmap(cachedBitMap);
-            } else if (path.contains("http://")) {
+            } else if (path.contains("http://") || path.contains("https://")) {
                 //We need to resolve our bitmap with a HTTP request
                 try {
                     URL url = new URL(path);

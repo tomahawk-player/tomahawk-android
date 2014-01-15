@@ -21,6 +21,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
@@ -100,13 +101,26 @@ public class InfoSystem {
 
     public static final String HATCHET_KEY_TRACKS = "tracks";
 
+    public static final String HATCHET_KEY_IMAGES = "images";
+
     TomahawkApp mTomahawkApp;
 
     private ConcurrentHashMap<String, InfoRequestData> mRequests
             = new ConcurrentHashMap<String, InfoRequestData>();
 
+    private ConcurrentHashMap<String, TomahawkBaseAdapter.TomahawkListItem> mItemsToBeFilled
+            = new ConcurrentHashMap<String, TomahawkBaseAdapter.TomahawkListItem>();
+
     public InfoSystem(TomahawkApp tomahawkApp) {
         mTomahawkApp = tomahawkApp;
+    }
+
+    public String resolve(Artist artist) {
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put(ArtistInfo.ARTISTINFO_PARAM_NAME, artist.getName());
+        String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTINFO, params);
+        mItemsToBeFilled.put(requestId, artist);
+        return requestId;
     }
 
     public String resolve(int type, HashMap<String, String> params) {
@@ -266,6 +280,25 @@ public class InfoSystem {
                     }
                     infoRequestData.setInfoResults(result);
                     return true;
+                case InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTINFO:
+                    if (!rawInfo.isNull(HATCHET_KEY_ARTISTS)) {
+                        JSONArray jsonArray = rawInfo.getJSONArray(HATCHET_KEY_ARTISTS);
+                        ArrayList<Info> infos = new ArrayList<Info>();
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            infos.add(new ArtistInfo(jsonArray.getJSONObject(i)));
+                        }
+                        result.put(HATCHET_KEY_ARTISTS, infos);
+                    }
+                    if (!rawInfo.isNull(HATCHET_KEY_IMAGES)) {
+                        JSONArray jsonArray = rawInfo.getJSONArray(HATCHET_KEY_IMAGES);
+                        ArrayList<Info> infos = new ArrayList<Info>();
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            infos.add(new ImageInfo(jsonArray.getJSONObject(i)));
+                        }
+                        result.put(HATCHET_KEY_IMAGES, infos);
+                    }
+                    infoRequestData.setInfoResults(result);
+                    return true;
             }
             Log.d(TAG, "doInBackground(...) took " + (System.currentTimeMillis() - start)
                     + "ms to finish");
@@ -291,6 +324,25 @@ public class InfoSystem {
             for (InfoRequestData infoRequestData : infoRequestDatas) {
                 if (getAndParseInfo(infoRequestData)) {
                     doneRequestsIds.add(infoRequestData.getRequestId());
+                    if (mItemsToBeFilled.containsKey(infoRequestData.getRequestId())) {
+                        if (infoRequestData.getType()
+                                == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTINFO
+                                && infoRequestData.getInfoResults()
+                                .get(HATCHET_KEY_ARTISTS) != null
+                                && infoRequestData.getInfoResults()
+                                .get(HATCHET_KEY_ARTISTS).size() > 0
+                                && infoRequestData.getInfoResults()
+                                .get(HATCHET_KEY_IMAGES) != null
+                                && infoRequestData.getInfoResults()
+                                .get(HATCHET_KEY_IMAGES).size() > 0) {
+                            fillArtistWithArtistInfo(
+                                    (Artist) mItemsToBeFilled.get(infoRequestData.getRequestId()),
+                                    (ArtistInfo) infoRequestData.getInfoResults()
+                                            .get(HATCHET_KEY_ARTISTS).get(0),
+                                    (ImageInfo) infoRequestData.getInfoResults()
+                                            .get(HATCHET_KEY_IMAGES).get(0));
+                        }
+                    }
                 }
             }
             return doneRequestsIds;
@@ -341,6 +393,11 @@ public class InfoSystem {
                         + params.remove(PlaylistInfo.PLAYLISTINFO_KEY_ID) + "/"
                         + HATCHET_PLAYLISTENTRY_PATH;
                 break;
+            case InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTINFO:
+                queryString = InfoSystem.HATCHET_BASE_URL + "/"
+                        + InfoSystem.HATCHET_VERSION + "/"
+                        + InfoSystem.HATCHET_ARTISTS_PATH + "/";
+                break;
         }
         // append every parameter we didn't use
         queryString += "?" + TomahawkUtils.paramsListToString(params);
@@ -372,5 +429,13 @@ public class InfoSystem {
         }
         return UserPlaylist.fromQueryList(playlistInfo.getId(), playlistInfo.getTitle(),
                 playlistInfo.getCurrentRevision(), queries);
+    }
+
+    private Artist fillArtistWithArtistInfo(Artist artist, ArtistInfo artistInfo,
+            ImageInfo imageInfo) {
+        if (artist.getImage() == null) {
+            artist.setImage(imageInfo.getSquareUrl());
+        }
+        return artist;
     }
 }

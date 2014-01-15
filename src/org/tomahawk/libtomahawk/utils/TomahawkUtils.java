@@ -208,8 +208,6 @@ public class TomahawkUtils {
         sc.init(null, null, new java.security.SecureRandom());
         connection.setSSLSocketFactory(sc.getSocketFactory());
 
-        connection.setReadTimeout(15000);
-        connection.setConnectTimeout(15000);
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
         connection.setFixedLengthStreamingMode(paramsString.getBytes().length);
@@ -236,8 +234,6 @@ public class TomahawkUtils {
         sc.init(null, null, new java.security.SecureRandom());
         connection.setSSLSocketFactory(sc.getSocketFactory());
 
-        connection.setReadTimeout(15000);
-        connection.setConnectTimeout(15000);
         connection.setRequestMethod("GET");
         connection.setDoOutput(false);
         connection.setRequestProperty("Accept", "application/json; charset=utf-8");

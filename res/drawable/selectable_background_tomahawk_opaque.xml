@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-     File created by the Android Action Bar Style Generator
+<!-- File created by the Android Action Bar Style Generator
 
      Copyright (C) 2012 readyState Software Ltd
 
@@ -17,17 +16,10 @@
      limitations under the License.
 -->
 
-<resources>
-
-    <color name="tomahawk_red">#FFe23a2e</color>
-    <color name="pressed_tomahawk">#CCe23a2e</color>
-    <color name="divider">#3B3F45</color>
-    <color name="plain_black">#FF000000</color>
-    <color name="transparent_black">#99000000</color>
-    <color name="transparent_white">#99FFFFFF</color>
-    <color name="disabled_grey">#FF848484</color>
-    <color name="plain_white">#FFFFFFFF</color>
-    <color name="primary_textcolor">#FFF2F2F2</color>
-    <color name="secondary_textcolor">#FFBEBEBE</color>
-
-</resources>
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+          android:exitFadeDuration="@android:integer/config_mediumAnimTime">
+    <item android:state_pressed="false" android:state_focused="true"
+          android:drawable="@drawable/list_focused_tomahawk"/>
+    <item android:state_pressed="true" android:drawable="@drawable/pressed_background_tomahawk"/>
+    <item android:drawable="@color/plain_black"/>
+</selector>

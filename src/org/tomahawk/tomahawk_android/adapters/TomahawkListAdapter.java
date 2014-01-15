@@ -59,6 +59,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
 
     private boolean mShowContentHeader = false;
 
+    private View mContentHeaderView;
+
     private TomahawkBaseAdapter.TomahawkListItem mContentHeaderTomahawkListItem;
 
     private boolean mShowHighlightingAndPlaystate = false;
@@ -103,8 +105,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
     }
 
     /**
-     * Set whether or not a playlist header should be shown. Like the "^  Playlist  ^"-header in
-     * our
+     * Set whether or not a playlist header should be shown. Like the "^  Playlist  ^"-header in our
      * {@link org.tomahawk.tomahawk_android.fragments.PlaybackControlsFragment}.
      */
     public void setShowPlaylistHeader(boolean showPlaylistHeader) {
@@ -131,20 +132,24 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
         mShowContentHeader = showContentHeader;
         View contentHeaderView = mLayoutInflater.inflate(R.layout.content_header, null);
         if (contentHeaderView != null && list.getHeaderViewsCount() == 0) {
+            mContentHeaderView = contentHeaderView;
+            updateContentHeader(contentHeaderTomahawkListItem);
+            list.addHeaderView(mContentHeaderView);
+        }
+    }
+
+    public void updateContentHeader(
+            TomahawkBaseAdapter.TomahawkListItem contentHeaderTomahawkListItem) {
+        if (mContentHeaderView != null) {
+            ImageView imageView = (ImageView) mActivity.findViewById(R.id.content_header_image);
+            imageView.setVisibility(ImageView.VISIBLE);
             if (mContentHeaderTomahawkListItem instanceof Album) {
-                ((Album) mContentHeaderTomahawkListItem).loadBitmap(mActivity,
-                        (ImageView) contentHeaderView.findViewById(R.id.content_header_image));
+                ((Album) mContentHeaderTomahawkListItem).loadBitmap(mActivity, imageView);
             } else if (mContentHeaderTomahawkListItem instanceof Artist) {
-                //((Artist) mContentHeaderTomahawkListItem).loadBitmap(mContext, (ImageView) contentHeaderView.findViewById(R.id.content_header_image));
+                ((Artist) mContentHeaderTomahawkListItem).loadBitmap(mActivity, imageView);
             }
-            ((TextView) contentHeaderView.findViewById(R.id.content_header_textview))
+            ((TextView) mContentHeaderView.findViewById(R.id.content_header_textview))
                     .setText(contentHeaderTomahawkListItem.getName());
-            if (contentHeaderTomahawkListItem.getArtist() != null
-                    && contentHeaderTomahawkListItem instanceof Album) {
-                ((TextView) contentHeaderView.findViewById(R.id.content_header_textview2))
-                        .setText(contentHeaderTomahawkListItem.getArtist().getName());
-            }
-            list.addHeaderView(contentHeaderView);
         }
     }
 
@@ -330,7 +335,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                         }
                     } else {
                         viewHolder.imageViewLeft.setVisibility(ImageView.GONE);
-                        view.setBackgroundResource(R.drawable.selectable_background_tomahawk);
+                        view.setBackgroundResource(
+                                R.drawable.selectable_background_tomahawk_opaque);
                     }
                     if (mShowResolvedBy && ((Query) item).getPreferredTrackResult() != null) {
                         viewHolder.imageViewRight.setVisibility(ImageView.VISIBLE);
@@ -451,8 +457,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
     }
 
     /**
-     * This method is being called by the StickyListHeaders library. Returns the same value for
-     * each
+     * This method is being called by the StickyListHeaders library. Returns the same value for each
      * item that should be grouped under the same header.
      *
      * @param position the position of the item for which to get the header id
