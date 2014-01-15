@@ -10,7 +10,8 @@
     <dimen name="row_height_large">48dp</dimen>
     <dimen name="row_height_verylarge">64dp</dimen>
 
-    <dimen name="header_height_large">128dp</dimen>
+    <dimen name="header_clear_space">192dp</dimen>
+    <dimen name="header_height_large">256dp</dimen>
 
     <dimen name="divider_height_thin">1dp</dimen>
     <dimen name="divider_height_thick">2dp</dimen>

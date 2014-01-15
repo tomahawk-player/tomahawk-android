@@ -104,6 +104,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
+                ((TomahawkListAdapter) getListAdapter()).updateContentHeader(mArtist);
             }
             getListView().setOnItemClickListener(this);
         } else {

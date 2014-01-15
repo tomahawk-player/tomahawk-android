@@ -47,9 +47,13 @@ public class ArtistInfo implements Info {
 
     public static final String ARTISTINFO_KEY_RESOURCES = "resources";
 
+    public static final String ARTISTINFO_KEY_TOTALPLAYS = "totalPlays";
+
     public static final String ARTISTINFO_KEY_URL = "url";
 
     public static final String ARTISTINFO_KEY_WIKIABSTRACT = "wikiabstract";
+
+    public static final String ARTISTINFO_PARAM_NAME = "name";
 
     private ArrayList<String> mAlbums;
 
@@ -66,6 +70,8 @@ public class ArtistInfo implements Info {
     private ArrayList<String> mNames;
 
     private ArrayList<ResourceInfo> mResources;
+
+    private int mTotalPlays;
 
     private String mUrl;
 
@@ -117,6 +123,9 @@ public class ArtistInfo implements Info {
                     mResources.add(new ResourceInfo(rawResourceInfos.getJSONObject(i)));
                 }
             }
+            if (!rawInfo.isNull(ARTISTINFO_KEY_TOTALPLAYS)) {
+                mTotalPlays = rawInfo.getInt(ARTISTINFO_KEY_TOTALPLAYS);
+            }
             if (!rawInfo.isNull(ARTISTINFO_KEY_URL)) {
                 mUrl = rawInfo.getString(ARTISTINFO_KEY_URL);
             }
@@ -158,6 +167,10 @@ public class ArtistInfo implements Info {
 
     public ArrayList<ResourceInfo> getResources() {
         return mResources;
+    }
+
+    public int getTotalPlays() {
+        return mTotalPlays;
     }
 
     public String getUrl() {

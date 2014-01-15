@@ -17,42 +17,41 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Log;
 
-import java.util.ArrayList;
+public class MembershipInfo implements Info {
 
-/**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.04.13
- */
-public class AlbumsInfo implements Info {
+    private final static String TAG = MembershipInfo.class.getName();
 
-    private final static String TAG = AlbumsInfo.class.getName();
+    public static final String MEMBERSHIPINFO_KEY_ARTIST = "artist";
 
-    public static final String ALBUMSINFO_KEY_ALBUMS = "Albums";
+    public static final String MEMBERSHIPINFO_KEY_TIMESPAN = "timespan";
 
-    private ArrayList<AlbumInfo> mAlbums;
+    private ArtistInfo mArtist;
 
-    public void parseInfo(JSONObject rawInfo) {
+    private TimeSpanInfo mTimeSpan;
+
+    public MembershipInfo(JSONObject rawInfo) {
         try {
-            if (!rawInfo.isNull(ALBUMSINFO_KEY_ALBUMS)) {
-                JSONArray rawArtistChartItemInfos = rawInfo.getJSONArray(ALBUMSINFO_KEY_ALBUMS);
-                mAlbums = new ArrayList<AlbumInfo>();
-                for (int i = 0; i < rawArtistChartItemInfos.length(); i++) {
-                    AlbumInfo albumInfo = new AlbumInfo(rawArtistChartItemInfos.getJSONObject(i));
-                    mAlbums.add(albumInfo);
-                }
+            if (!rawInfo.isNull(MEMBERSHIPINFO_KEY_ARTIST)) {
+                mArtist = new ArtistInfo(rawInfo.getJSONObject(MEMBERSHIPINFO_KEY_ARTIST));
+            }
+            if (!rawInfo.isNull(MEMBERSHIPINFO_KEY_TIMESPAN)) {
+                mTimeSpan = new TimeSpanInfo(rawInfo.getJSONObject(MEMBERSHIPINFO_KEY_TIMESPAN));
             }
         } catch (JSONException e) {
             Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
     }
 
-    public ArrayList<AlbumInfo> getAlbums() {
-        return mAlbums;
+    public ArtistInfo getArtist() {
+        return mArtist;
     }
 
+    public TimeSpanInfo getTimeSpan() {
+        return mTimeSpan;
+    }
 }

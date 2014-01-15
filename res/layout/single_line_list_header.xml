@@ -23,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/row_height_medium"
         android:orientation="vertical"
-        android:background="@color/transparent_black">
+        android:background="@color/plain_black">
 
     <View
             android:layout_width="match_parent"

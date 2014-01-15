@@ -18,18 +18,25 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/fragment_layout"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              android:paddingLeft="@dimen/padding_medium"
-              android:paddingRight="@dimen/padding_medium">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/fragment_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+    <org.tomahawk.tomahawk_android.views.TopAlignedImageView
+            android:id="@+id/content_header_image"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:scaleType="matrix"
+            android:visibility="gone"
+            android:src="@drawable/no_album_art_placeholder"/>
 
     <FrameLayout
             android:id="@+id/fragmentLayout_listLayout_frameLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true">
 
         <org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView
                 android:id="@+id/listview"
@@ -44,7 +51,10 @@
             android:id="@+id/fragmentLayout_gridLayout_frameLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:paddingLeft="@dimen/padding_medium"
+            android:paddingRight="@dimen/padding_medium"
+            android:layout_alignParentStart="true">
 
         <GridView
                 android:id="@+id/gridview"
@@ -58,4 +68,4 @@
                 android:verticalSpacing="@dimen/divider_height_thick"/>
     </FrameLayout>
 
-</LinearLayout>
+</RelativeLayout>

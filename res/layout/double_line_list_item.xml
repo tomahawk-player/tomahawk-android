@@ -23,7 +23,7 @@
               android:layout_height="@dimen/row_height_verylarge"
               android:baselineAligned="false"
               android:orientation="horizontal"
-              android:background="@drawable/selectable_background_tomahawk"
+              android:background="@drawable/selectable_background_tomahawk_opaque"
               android:descendantFocusability="blocksDescendants">
 
     <ImageView
