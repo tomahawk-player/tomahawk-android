@@ -17,48 +17,12 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+public class TimeSpanInfo {
 
-import android.util.Log;
+    public String StartsAt;
 
-import java.util.Date;
+    public String EndsAt;
 
-/**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 20.04.13
- */
-public class TimeSpanInfo implements Info {
-
-    private final static String TAG = TimeSpanInfo.class.getName();
-
-    public static final String TIMESPANINFO_KEY_STARTSAT = "StartsAt";
-
-    public static final String TIMESPANINFO_KEY_ENDSAT = "EndsAt";
-
-    private Date mStartsAt;
-
-    private Date mEndsAt;
-
-    public TimeSpanInfo(JSONObject rawInfo) {
-        try {
-            if (!rawInfo.isNull(TIMESPANINFO_KEY_STARTSAT)) {
-                mStartsAt = TomahawkUtils
-                        .stringToDate(rawInfo.getString(TIMESPANINFO_KEY_STARTSAT));
-            }
-            if (!rawInfo.isNull(TIMESPANINFO_KEY_ENDSAT)) {
-                mEndsAt = TomahawkUtils.stringToDate(rawInfo.getString(TIMESPANINFO_KEY_ENDSAT));
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
-    }
-
-    public Date getStartsAt() {
-        return mStartsAt;
-    }
-
-    public Date getEndsAt() {
-        return mEndsAt;
+    public TimeSpanInfo() {
     }
 }

@@ -17,58 +17,14 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+public class PlaylistEntryInfo {
 
-import android.util.Log;
+    public String album;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
+    public String id;
 
-public class PlaylistEntryInfo implements Info {
+    public String track;
 
-    private final static String TAG = PlaylistEntryInfo.class.getName();
-
-    public static final String PLAYLISTINFO_KEY_ID = "id";
-
-    public static final String PLAYLISTINFO_KEY_TRACK = "track";
-
-    public static final String PLAYLISTINFO_KEY_ALBUM = "album";
-
-    private String mId;
-
-    private String mTrack;
-
-    private String mAlbum;
-
-    public PlaylistEntryInfo(JSONObject rawInfo) {
-        try {
-            if (!rawInfo.isNull(PLAYLISTINFO_KEY_ID)) {
-                mId = rawInfo.getString(PLAYLISTINFO_KEY_ID);
-            }
-            if (!rawInfo.isNull(PLAYLISTINFO_KEY_TRACK)) {
-                mTrack = rawInfo.getString(PLAYLISTINFO_KEY_TRACK);
-            }
-            if (!rawInfo.isNull(PLAYLISTINFO_KEY_ALBUM)) {
-                mAlbum = rawInfo.getString(PLAYLISTINFO_KEY_ALBUM);
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
-    }
-
-    public String getId() {
-        return mId;
-    }
-
-    public String getTrack() {
-        return mTrack;
-    }
-
-    public String getAlbum() {
-        return mAlbum;
+    public PlaylistEntryInfo() {
     }
 }

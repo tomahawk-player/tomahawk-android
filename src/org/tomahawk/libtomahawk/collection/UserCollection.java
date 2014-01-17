@@ -22,7 +22,8 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.hatchet.InfoRequestData;
 import org.tomahawk.libtomahawk.hatchet.InfoSystem;
-import org.tomahawk.libtomahawk.hatchet.UserInfo;
+import org.tomahawk.libtomahawk.hatchet.PlaylistEntries;
+import org.tomahawk.libtomahawk.hatchet.PlaylistInfo;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.resolver.Resolver;
@@ -47,6 +48,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -120,10 +122,15 @@ public class UserCollection extends Collection {
                         @Override
                         public void run() {
                             ArrayList<String> ids = new ArrayList<String>();
-                            for (TomahawkBaseAdapter.TomahawkListItem tomahawkListItem : mTomahawkApp
+                            Map<PlaylistInfo, PlaylistEntries> playlistInfoMap = mTomahawkApp
                                     .getInfoSystem().getInfoRequestById(requestId)
-                                    .getConvertedResults()) {
-                                UserPlaylist userPlaylist = (UserPlaylist) tomahawkListItem;
+                                    .getInfoResultMap();
+                            List<PlaylistInfo> playlistInfos = new ArrayList<PlaylistInfo>(
+                                    playlistInfoMap.keySet());
+                            for (PlaylistInfo playlistInfo : playlistInfos) {
+                                UserPlaylist userPlaylist = InfoSystem
+                                        .playlistInfoToUserPlaylist(playlistInfo,
+                                                playlistInfoMap.get(playlistInfo));
                                 ids.add(userPlaylist.getId());
                                 UserPlaylist storedUserPlaylist = mTomahawkApp
                                         .getUserPlaylistsDataSource()
@@ -252,8 +259,7 @@ public class UserCollection extends Collection {
     }
 
     /**
-     * Initialize this {@link UserCollection}. Pull all local tracks from the {@link MediaStore}
-     * and
+     * Initialize this {@link UserCollection}. Pull all local tracks from the {@link MediaStore} and
      * add them to our {@link UserCollection}
      */
     private void initializeCollection() {
@@ -347,9 +353,9 @@ public class UserCollection extends Collection {
                 .getUserId(mTomahawkApp, TomahawkService.AUTHENTICATOR_NAME_HATCHET);
         if (userId != null) {
             HashMap<String, String> params = new HashMap<String, String>();
-            params.put(UserInfo.USERINFO_PARAM_NAME, userId);
+            params.put(InfoSystem.HATCHET_PARAM_NAME, userId);
             mCorrespondingRequestIds.add(mTomahawkApp.getInfoSystem()
-                    .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ALL_PLAYLISTS_FROM_USER, params));
+                    .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS_ALL, params));
         }
     }
 

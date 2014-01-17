@@ -17,52 +17,14 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+public class MemberInfo {
 
-import android.util.Log;
+    public String id;
 
-public class MemberInfo implements Info {
+    public String n;
 
-    private final static String TAG = MemberInfo.class.getName();
+    public TimeSpanInfo timespan;
 
-    public static final String MEMBERSHIPINFO_KEY_ID = "id";
-
-    public static final String MEMBERSHIPINFO_KEY_N = "n";
-
-    public static final String MEMBERSHIPINFO_KEY_TIMESPAN = "timespan";
-
-    private String mId;
-
-    private String mN;
-
-    private TimeSpanInfo mTimeSpan;
-
-    public MemberInfo(JSONObject rawInfo) {
-        try {
-            if (!rawInfo.isNull(MEMBERSHIPINFO_KEY_ID)) {
-                mId = rawInfo.getString(MEMBERSHIPINFO_KEY_ID);
-            }
-            if (!rawInfo.isNull(MEMBERSHIPINFO_KEY_N)) {
-                mN = rawInfo.getString(MEMBERSHIPINFO_KEY_N);
-            }
-            if (!rawInfo.isNull(MEMBERSHIPINFO_KEY_TIMESPAN)) {
-                mTimeSpan = new TimeSpanInfo(rawInfo.getJSONObject(MEMBERSHIPINFO_KEY_TIMESPAN));
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
-    }
-
-    public String getId() {
-        return mId;
-    }
-
-    public String getN() {
-        return mN;
-    }
-
-    public TimeSpanInfo getTimeSpan() {
-        return mTimeSpan;
+    public MemberInfo() {
     }
 }
