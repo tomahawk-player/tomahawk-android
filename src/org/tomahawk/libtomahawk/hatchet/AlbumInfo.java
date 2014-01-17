@@ -17,160 +17,38 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import java.util.List;
+import java.util.Map;
 
-import android.util.Log;
+public class AlbumInfo {
 
-import java.util.ArrayList;
-import java.util.Date;
+    public String artist;
 
-public class AlbumInfo implements Info {
+    public String id;
 
-    private final static String TAG = AlbumInfo.class.getName();
+    public List<String> images;
 
-    public static final String ALBUMINFO_KEY_ARTIST = "artist";
+    public List<Label> labels;
 
-    public static final String ALBUMINFO_KEY_ID = "id";
+    public int length;
 
-    public static final String ALBUMINFO_KEY_IMAGES = "images";
+    public Map<String, String> links;
 
-    public static final String ALBUMINFO_KEY_LABELS = "labels";
+    public String name;
 
-    public static final String ALBUMINFO_KEY_LENGTH = "length";
+    public List<String> names;
 
-    public static final String ALBUMINFO_KEY_NAME = "name";
+    public List<PersonInfo> producers;
 
-    public static final String ALBUMINFO_KEY_NAMES = "names";
+    public String releasedate;
 
-    public static final String ALBUMINFO_KEY_PRODUCERS = "producers";
+    public List<String> tracks;
 
-    public static final String ALBUMINFO_KEY_RELEASEDATE = "releaseDate";
+    public String url;
 
-    public static final String ALBUMINFO_KEY_TRACKS = "tracks";
+    public String wikiabstract;
 
-    public static final String ALBUMINFO_KEY_URL = "url";
-
-    public static final String ALBUMINFO_KEY_WIKIABSTRACT = "wikiabstract";
-
-    private String mArtist;
-
-    private String mId;
-
-    private ArrayList<String> mImages;
-
-    //private ArrayList<Label> mLabels;
-
-    private int mLength;
-
-    private String mName;
-
-    private ArrayList<String> mNames;
-
-    //private ArrayList<Person> mProducers;
-
-    private Date mReleaseDate;
-
-    private ArrayList<String> mTracks;
-
-    private String mUrl;
-
-    private String mWikiAbstract;
-
-    public AlbumInfo(JSONObject rawInfo) {
-        try {
-            if (!rawInfo.isNull(ALBUMINFO_KEY_ARTIST)) {
-                mArtist = rawInfo.getString(ALBUMINFO_KEY_ARTIST);
-            }
-            if (!rawInfo.isNull(ALBUMINFO_KEY_ID)) {
-                mId = rawInfo.getString(ALBUMINFO_KEY_ID);
-            }
-            if (!rawInfo.isNull(ALBUMINFO_KEY_IMAGES)) {
-                JSONArray jsonArray = rawInfo.getJSONArray(ALBUMINFO_KEY_IMAGES);
-                mImages = new ArrayList<String>();
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    mImages.add(jsonArray.getString(i));
-                }
-            }
-            if (!rawInfo.isNull(ALBUMINFO_KEY_LABELS)) {
-            }
-            if (!rawInfo.isNull(ALBUMINFO_KEY_LENGTH)) {
-                mLength = rawInfo.getInt(ALBUMINFO_KEY_LENGTH);
-            }
-            if (!rawInfo.isNull(ALBUMINFO_KEY_NAME)) {
-                mName = rawInfo.getString(ALBUMINFO_KEY_NAME);
-            }
-            if (!rawInfo.isNull(ALBUMINFO_KEY_NAMES)) {
-                JSONArray jsonArray = rawInfo.getJSONArray(ALBUMINFO_KEY_NAMES);
-                mNames = new ArrayList<String>();
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    mNames.add(jsonArray.getString(i));
-                }
-            }
-            if (!rawInfo.isNull(ALBUMINFO_KEY_PRODUCERS)) {
-            }
-            if (!rawInfo.isNull(ALBUMINFO_KEY_RELEASEDATE)) {
-                mReleaseDate = TomahawkUtils
-                        .stringToDate(rawInfo.getString(ALBUMINFO_KEY_RELEASEDATE));
-            }
-            if (!rawInfo.isNull(ALBUMINFO_KEY_TRACKS)) {
-                JSONArray jsonArray = rawInfo.getJSONArray(ALBUMINFO_KEY_TRACKS);
-                mTracks = new ArrayList<String>();
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    mTracks.add(jsonArray.getString(i));
-                }
-            }
-            if (!rawInfo.isNull(ALBUMINFO_KEY_URL)) {
-                mUrl = rawInfo.getString(ALBUMINFO_KEY_URL);
-            }
-            if (!rawInfo.isNull(ALBUMINFO_KEY_WIKIABSTRACT)) {
-                mWikiAbstract = rawInfo.getString(ALBUMINFO_KEY_WIKIABSTRACT);
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
-    }
-
-    public String getArtist() {
-        return mArtist;
-    }
-
-    public String getId() {
-        return mId;
-    }
-
-    public ArrayList<String> getImages() {
-        return mImages;
-    }
-
-    public int getLength() {
-        return mLength;
-    }
-
-    public String getName() {
-        return mName;
-    }
-
-    public ArrayList<String> getNames() {
-        return mNames;
-    }
-
-    public Date getReleaseDate() {
-        return mReleaseDate;
-    }
-
-    public ArrayList<String> getTracks() {
-        return mTracks;
-    }
-
-    public String getUrl() {
-        return mUrl;
-    }
-
-    public String getWikiAbstract() {
-        return mWikiAbstract;
+    public AlbumInfo() {
     }
 
 }

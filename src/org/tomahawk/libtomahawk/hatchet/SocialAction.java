@@ -17,26 +17,22 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
-import java.util.List;
+public class SocialAction {
 
-public class PersonInfo {
+    public String action;
 
-    public String disambiguation;
+    public String date;
 
     public String id;
 
-    public List<Image> images;
+    public String target;
 
-    public TimeSpanInfo lifespan;
+    public String track;
 
-    public List<MemberInfo> memberships;
+    public String type;
 
-    public String name;
+    public String user;
 
-    public List<String> names;
-
-    public String url;
-
-    public PersonInfo() {
+    public SocialAction() {
     }
 }

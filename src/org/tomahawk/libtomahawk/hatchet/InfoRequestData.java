@@ -17,63 +17,34 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
-
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 
 public class InfoRequestData {
 
-    private final static String TAG = InfoRequestData.class.getName();
+    public static final int INFOREQUESTDATA_TYPE_ARTISTS = 600;
 
-    public static final int INFOREQUESTDATA_TYPE_ALBUMINFO = 0;
+    public static final int INFOREQUESTDATA_TYPE_USERS = 800;
 
-    public static final int INFOREQUESTDATA_TYPE_ARTISTALBUMS = 1;
+    public static final int INFOREQUESTDATA_TYPE_USERS_PLAYLISTS = 801;
 
-    public static final int INFOREQUESTDATA_TYPE_ARTISTINFO = 2;
+    public static final int INFOREQUESTDATA_TYPE_USERS_PLAYLISTS_ALL = 802;
 
-    public static final int INFOREQUESTDATA_TYPE_USERSINFO = 3;
-
-    public static final int INFOREQUESTDATA_TYPE_PERSONINFO = 4;
-
-    public static final int INFOREQUESTDATA_TYPE_USERPLAYLISTS = 5;
-
-    public static final int INFOREQUESTDATA_TYPE_PLAYLISTINFO = 10;
-
-    public static final int INFOREQUESTDATA_TYPE_PLAYLISTSENTRYINFO = 10;
-
-    public static final int INFOREQUESTDATA_TYPE_PLAYLISTSINFO = 11;
-
-    public static final int INFOREQUESTDATA_TYPE_USERPLAYBACKLOG = 12;
-
-    public static final int INFOREQUESTDATA_TYPE_USERLOVED = 13;
-
-    public static final int INFOREQUESTDATA_TYPE_USERFEED = 14;
-
-    public static final int INFOREQUESTDATA_TYPE_TRACKCHARTS = 20;
-
-    public static final int INFOREQUESTDATA_TYPE_ARTISTCHARTS = 21;
-
-    public static final int INFOREQUESTDATA_TYPE_USERTRACKCHARTS = 22;
-
-    public static final int INFOREQUESTDATA_TYPE_USERARTISTCHARTS = 23;
-
-    public static final int INFOREQUESTDATA_TYPE_ALL_PLAYLISTS_FROM_USER = 30;
+    public static final int INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES = 1000;
 
     private String mRequestId;
 
     private int mType;
 
-    private String mQueryString;
+    private Object mInfoResult;
 
-    private HashMap<String, ArrayList<Info>> mInfoResults;
+    private Map mInfoResultMap;
 
-    private ArrayList<TomahawkBaseAdapter.TomahawkListItem> mConvertedResults;
+    private Map<String, String> mParams;
 
-    public InfoRequestData(String requestId, int type, String queryString) {
+    public InfoRequestData(String requestId, int type, Map<String, String> params) {
         mRequestId = requestId;
         mType = type;
-        mQueryString = queryString;
+        mParams = params;
     }
 
     public String getRequestId() {
@@ -84,119 +55,23 @@ public class InfoRequestData {
         return mType;
     }
 
-    public String getQueryString() {
-        return mQueryString;
+    public Object getInfoResult() {
+        return mInfoResult;
     }
 
-    public HashMap<String, ArrayList<Info>> getInfoResults() {
-        return mInfoResults;
+    public void setInfoResult(Object infoResult) {
+        mInfoResult = infoResult;
     }
 
-    public void setInfoResults(HashMap<String, ArrayList<Info>> infoResults) {
-        mInfoResults = infoResults;
+    public Map getInfoResultMap() {
+        return mInfoResultMap;
     }
 
-    public ArrayList<TomahawkBaseAdapter.TomahawkListItem> getConvertedResults() {
-        return mConvertedResults;
+    public void setInfoResultMap(Map infoResultMap) {
+        mInfoResultMap = infoResultMap;
     }
 
-    public void setConvertedResults(
-            ArrayList<TomahawkBaseAdapter.TomahawkListItem> convertedResults) {
-        mConvertedResults = convertedResults;
+    public Map<String, String> getParams() {
+        return mParams;
     }
-
-    /*
-    public static ArrayList<Album> albumInfoListToAlbumList(ArrayList<AlbumInfo> albumInfos) {
-        ArrayList<Album> albums = new ArrayList<Album>();
-        for (AlbumInfo albumInfo : albumInfos) {
-            albums.add(albumInfoToAlbum(albumInfo));
-        }
-        return albums;
-    }
-
-    public static Album albumInfoToAlbum(AlbumInfo albumInfo) {
-        return albumInfoToAlbum(albumInfo, null);
-    }
-
-    public static Album albumInfoToAlbum(AlbumInfo albumInfo, Album album) {
-        Artist artist;
-        if (albumInfo.getArtist() != null) {
-            artist = artistInfoToArtist(albumInfo.getArtist(),
-                    Artist.get());
-        } else {
-
-        }
-        if (album == null) {
-            album = Album.get(albumInfo.getName());
-        }
-        if (albumInfo.getId() != null) {
-        }
-        if (albumInfo.getImages() != null && albumInfo.getImages().size() > 0) {
-            album.setAlbumArtPath(albumInfo.getImages().get(0).getUrl());
-        }
-        if (albumInfo.getName() != null) {
-            album.setName(albumInfo.getName());
-        }
-        if (albumInfo.getReleaseDate() != null) {
-            album.setFirstYear(String.valueOf(albumInfo.getReleaseDate().getYear()));
-            album.setLastYear(String.valueOf(albumInfo.getReleaseDate().getYear()));
-        }
-        if (albumInfo.getTracks() != null) {
-            int trackNumCounter = 0;
-            for (TrackInfo trackInfo : albumInfo.getTracks()) {
-                Track track = trackInfoToTrack(trackInfo);
-                track.setAlbum(album);
-                track.setAlbumPos(trackNumCounter++);
-                //album.addQuery(track);
-            }
-        }
-        return album;
-    }
-
-    public static ArrayList<Track> trackInfoListToTrackList(ArrayList<TrackInfo> trackInfos) {
-        ArrayList<Track> tracks = new ArrayList<Track>();
-        for (TrackInfo trackInfo : trackInfos) {
-            tracks.add(trackInfoToTrack(trackInfo));
-        }
-        return tracks;
-    }
-
-    public static Track trackInfoToTrack(TrackInfo trackInfo) {
-        return trackInfoToTrack(trackInfo, null);
-    }
-
-    public static Track trackInfoToTrack(TrackInfo trackInfo, Track track) {
-        if (track == null) {
-            track = new Track(TomahawkApp.getUniqueId());
-        }
-        if (trackInfo.getArtist() != null) {
-            track.setArtist(artistInfoToArtist(trackInfo.getArtist(),
-                    new Artist(TomahawkApp.getUniqueId())));
-        }
-        if (trackInfo.getId() != null) {
-        }
-        if (trackInfo.getName() != null) {
-            track.setName(trackInfo.getName());
-        }
-        if (trackInfo.getUrl() != null) {
-            track.setLinkUrl(trackInfo.getUrl());
-        }
-        return track;
-    }
-
-    public static Artist artistInfoToArtist(ArtistInfo artistInfo) {
-        return artistInfoToArtist(artistInfo, null);
-    }
-
-    public static Artist artistInfoToArtist(ArtistInfo artistInfo, Artist artist) {
-        if (artist == null) {
-            artist = new Artist(TomahawkApp.getUniqueId());
-        }
-        if (artistInfo.getId() != null) {
-        }
-        if (artistInfo.getName() != null) {
-            artist.setName(artistInfo.getName());
-        }
-        return artist;
-    }*/
 }

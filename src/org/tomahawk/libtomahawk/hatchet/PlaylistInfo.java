@@ -17,98 +17,27 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import java.util.List;
+import java.util.Map;
 
-import android.util.Log;
+public class PlaylistInfo {
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
+    public String created;
 
-public class PlaylistInfo implements Info {
+    public String currentrevision;
 
-    private final static String TAG = PlaylistInfo.class.getName();
+    public String id;
 
-    public static final String PLAYLISTINFO_KEY_ID = "id";
+    public List<String> playlistEntries;
 
-    public static final String PLAYLISTINFO_KEY_TITLE = "title";
+    public List<String> revisions;
 
-    public static final String PLAYLISTINFO_KEY_CREATED = "created";
+    public Map<String, String> links;
 
-    public static final String PLAYLISTINFO_KEY_CURRENTREVISION = "currentrevision";
+    public String title;
 
-    public static final String PLAYLISTINFO_KEY_USER = "user";
+    public String user;
 
-    public static final String PLAYLISTINFO_KEY_LINKS = "links";
-
-    private String mId;
-
-    private String mTitle;
-
-    private Date mCreated;
-
-    private String mCurrentRevision;
-
-    private String mUser;
-
-    private HashMap<String, String> mLinks;
-
-    public PlaylistInfo(JSONObject rawInfo) {
-        try {
-            if (!rawInfo.isNull(PLAYLISTINFO_KEY_ID)) {
-                mId = rawInfo.getString(PLAYLISTINFO_KEY_ID);
-            }
-            if (!rawInfo.isNull(PLAYLISTINFO_KEY_TITLE)) {
-                mTitle = rawInfo.getString(PLAYLISTINFO_KEY_TITLE);
-            }
-            if (!rawInfo.isNull(PLAYLISTINFO_KEY_CREATED)) {
-                mCreated = TomahawkUtils.stringToDate(rawInfo.getString(PLAYLISTINFO_KEY_CREATED));
-            }
-            if (!rawInfo.isNull(PLAYLISTINFO_KEY_CURRENTREVISION)) {
-                mCurrentRevision = rawInfo.getString(PLAYLISTINFO_KEY_CURRENTREVISION);
-            }
-            if (!rawInfo.isNull(PLAYLISTINFO_KEY_USER)) {
-                mUser = rawInfo.getString(PLAYLISTINFO_KEY_USER);
-            }
-            if (!rawInfo.isNull(PLAYLISTINFO_KEY_LINKS)) {
-                JSONObject links = rawInfo.getJSONObject(PLAYLISTINFO_KEY_LINKS);
-                Iterator<?> keys = links.keys();
-                mLinks = new HashMap<String, String>();
-                while (keys.hasNext()) {
-                    String key = (String) keys.next();
-                    mLinks.put(key, (String) links.get(key));
-                }
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
-    }
-
-    public String getId() {
-        return mId;
-    }
-
-    public String getTitle() {
-        return mTitle;
-    }
-
-    public Date getCreated() {
-        return mCreated;
-    }
-
-    public String getCurrentRevision() {
-        return mCurrentRevision;
-    }
-
-    public String getUser() {
-        return mUser;
-    }
-
-    public HashMap<String, String> getLinks() {
-        return mLinks;
+    public PlaylistInfo() {
     }
 }

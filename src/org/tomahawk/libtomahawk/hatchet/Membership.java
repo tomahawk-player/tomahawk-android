@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,26 +17,12 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
-import java.util.List;
+public class Membership {
 
-public class PersonInfo {
+    public ArtistInfo artist;
 
-    public String disambiguation;
+    public TimeSpanInfo timeSpan;
 
-    public String id;
-
-    public List<Image> images;
-
-    public TimeSpanInfo lifespan;
-
-    public List<MemberInfo> memberships;
-
-    public String name;
-
-    public List<String> names;
-
-    public String url;
-
-    public PersonInfo() {
+    public Membership() {
     }
 }

@@ -17,74 +17,33 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.List;
+import java.util.Map;
 
-import android.util.Log;
+public class UserInfo {
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
+    public String about;
 
-/**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 04.05.13
- */
-public class UserInfo implements Info {
+    public int followCount;
 
-    private final static String TAG = UserInfo.class.getName();
+    public int followersCount;
 
-    public static final String USERINFO_KEY_ID = "id";
+    public String id;
 
-    public static final String USERINFO_KEY_NAME = "name";
+    public List<String> images;
 
-    public static final String USERINFO_KEY_LINKS = "links";
+    public Map<String, String> links;
 
-    public static final String USERINFO_PARAM_IDARRAY = "ids%5B%5D";
+    public String name;
 
-    public static final String USERINFO_PARAM_NAME = "name";
+    public String nowplaying;
 
-    public static final String USERINFO_PARAM_RANDOM = "random";
+    public String nowplayingtimestamp;
 
-    public static final String USERINFO_PARAM_COUNT = "count";
+    public int totalPlays;
 
-    private String mId;
+    public String url;
 
-    private String mName;
-
-    private HashMap<String, String> mLinks;
-
-    public UserInfo(JSONObject rawInfo) {
-        try {
-            if (!rawInfo.isNull(USERINFO_KEY_ID)) {
-                mId = rawInfo.getString(USERINFO_KEY_ID);
-            }
-            if (!rawInfo.isNull(USERINFO_KEY_NAME)) {
-                mName = rawInfo.getString(USERINFO_KEY_NAME);
-            }
-            if (!rawInfo.isNull(USERINFO_KEY_LINKS)) {
-                JSONObject links = rawInfo.getJSONObject(USERINFO_KEY_LINKS);
-                Iterator<?> keys = links.keys();
-                mLinks = new HashMap<String, String>();
-                while (keys.hasNext()) {
-                    String key = (String) keys.next();
-                    mLinks.put(key, (String) links.get(key));
-                }
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
-    }
-
-    public String getId() {
-        return mId;
-    }
-
-    public String getName() {
-        return mName;
-    }
-
-    public HashMap<String, String> getLinks() {
-        return mLinks;
+    public UserInfo() {
     }
 }

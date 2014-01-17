@@ -17,26 +17,18 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
-import java.util.List;
+public class ChartItem {
 
-public class PersonInfo {
+    public String album;
 
-    public String disambiguation;
+    public String artist;
 
     public String id;
 
-    public List<Image> images;
+    public int plays;
 
-    public TimeSpanInfo lifespan;
+    public String track;
 
-    public List<MemberInfo> memberships;
-
-    public String name;
-
-    public List<String> names;
-
-    public String url;
-
-    public PersonInfo() {
+    public ChartItem() {
     }
 }

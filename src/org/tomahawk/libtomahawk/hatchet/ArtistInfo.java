@@ -17,168 +17,33 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.List;
+import java.util.Map;
 
-import android.util.Log;
+public class ArtistInfo {
 
-import java.util.ArrayList;
+    public String disambiguation;
 
-public class ArtistInfo implements Info {
+    public String id;
 
-    private final static String TAG = ArtistInfo.class.getName();
+    public List<String> images;
 
-    public static final String ARTISTINFO_KEY_ALBUMS = "albums";
+    public Map<String, String> links;
 
-    public static final String ARTISTINFO_KEY_DISAMBIGUATION = "disambiguation";
+    public int listeners;
 
-    public static final String ARTISTINFO_KEY_ID = "id";
+    public List<MemberInfo> members;
 
-    public static final String ARTISTINFO_KEY_IMAGES = "images";
+    public String name;
 
-    public static final String ARTISTINFO_KEY_LINKS = "links";
+    public List<String> names;
 
-    public static final String ARTISTINFO_KEY_MEMBERS = "members";
+    public List<ResourceInfo> resources;
 
-    public static final String ARTISTINFO_KEY_NAME = "name";
+    public int totalPlays;
 
-    public static final String ARTISTINFO_KEY_NAMES = "names";
+    public String url;
 
-    public static final String ARTISTINFO_KEY_RESOURCES = "resources";
-
-    public static final String ARTISTINFO_KEY_TOTALPLAYS = "totalPlays";
-
-    public static final String ARTISTINFO_KEY_URL = "url";
-
-    public static final String ARTISTINFO_KEY_WIKIABSTRACT = "wikiabstract";
-
-    public static final String ARTISTINFO_PARAM_NAME = "name";
-
-    private ArrayList<String> mAlbums;
-
-    private String mDisambiguation;
-
-    private String mId;
-
-    private ArrayList<String> mImages;
-
-    private ArrayList<MemberInfo> mMembers;
-
-    private String mName;
-
-    private ArrayList<String> mNames;
-
-    private ArrayList<ResourceInfo> mResources;
-
-    private int mTotalPlays;
-
-    private String mUrl;
-
-    private String mWikiAbstract;
-
-    public ArtistInfo(JSONObject rawInfo) {
-        try {
-            if (!rawInfo.isNull(ARTISTINFO_KEY_ALBUMS)) {
-                JSONArray rawNameInfos = rawInfo.getJSONArray(ARTISTINFO_KEY_ALBUMS);
-                mAlbums = new ArrayList<String>();
-                for (int i = 0; i < rawNameInfos.length(); i++) {
-                    mAlbums.add(rawNameInfos.getString(i));
-                }
-            }
-            if (!rawInfo.isNull(ARTISTINFO_KEY_DISAMBIGUATION)) {
-                mDisambiguation = rawInfo.getString(ARTISTINFO_KEY_DISAMBIGUATION);
-            }
-            if (!rawInfo.isNull(ARTISTINFO_KEY_ID)) {
-                mId = rawInfo.getString(ARTISTINFO_KEY_ID);
-            }
-            if (!rawInfo.isNull(ARTISTINFO_KEY_IMAGES)) {
-                JSONArray rawNameInfos = rawInfo.getJSONArray(ARTISTINFO_KEY_IMAGES);
-                mImages = new ArrayList<String>();
-                for (int i = 0; i < rawNameInfos.length(); i++) {
-                    mImages.add(rawNameInfos.getString(i));
-                }
-            }
-            if (!rawInfo.isNull(ARTISTINFO_KEY_MEMBERS)) {
-                JSONArray rawResourceInfos = rawInfo.getJSONArray(ARTISTINFO_KEY_MEMBERS);
-                mMembers = new ArrayList<MemberInfo>();
-                for (int i = 0; i < rawResourceInfos.length(); i++) {
-                    mMembers.add(new MemberInfo(rawResourceInfos.getJSONObject(i)));
-                }
-            }
-            if (!rawInfo.isNull(ARTISTINFO_KEY_NAME)) {
-                mName = rawInfo.getString(ARTISTINFO_KEY_NAME);
-            }
-            if (!rawInfo.isNull(ARTISTINFO_KEY_NAMES)) {
-                JSONArray rawNameInfos = rawInfo.getJSONArray(ARTISTINFO_KEY_NAMES);
-                mNames = new ArrayList<String>();
-                for (int i = 0; i < rawNameInfos.length(); i++) {
-                    mNames.add(rawNameInfos.getString(i));
-                }
-            }
-            if (!rawInfo.isNull(ARTISTINFO_KEY_RESOURCES)) {
-                JSONArray rawResourceInfos = rawInfo.getJSONArray(ARTISTINFO_KEY_RESOURCES);
-                mResources = new ArrayList<ResourceInfo>();
-                for (int i = 0; i < rawResourceInfos.length(); i++) {
-                    mResources.add(new ResourceInfo(rawResourceInfos.getJSONObject(i)));
-                }
-            }
-            if (!rawInfo.isNull(ARTISTINFO_KEY_TOTALPLAYS)) {
-                mTotalPlays = rawInfo.getInt(ARTISTINFO_KEY_TOTALPLAYS);
-            }
-            if (!rawInfo.isNull(ARTISTINFO_KEY_URL)) {
-                mUrl = rawInfo.getString(ARTISTINFO_KEY_URL);
-            }
-            if (!rawInfo.isNull(ARTISTINFO_KEY_WIKIABSTRACT)) {
-                mWikiAbstract = rawInfo.getString(ARTISTINFO_KEY_WIKIABSTRACT);
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, "parseInfo: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
-    }
-
-    public ArrayList<String> getAlbums() {
-        return mAlbums;
-    }
-
-    public String getDisambiguation() {
-        return mDisambiguation;
-    }
-
-    public String getId() {
-        return mId;
-    }
-
-    public ArrayList<String> getImages() {
-        return mImages;
-    }
-
-    public ArrayList<MemberInfo> getMembers() {
-        return mMembers;
-    }
-
-    public String getName() {
-        return mName;
-    }
-
-    public ArrayList<String> getNames() {
-        return mNames;
-    }
-
-    public ArrayList<ResourceInfo> getResources() {
-        return mResources;
-    }
-
-    public int getTotalPlays() {
-        return mTotalPlays;
-    }
-
-    public String getUrl() {
-        return mUrl;
-    }
-
-    public String getWikiAbstract() {
-        return mWikiAbstract;
-    }
+    public String wikiabstract;
 
 }
