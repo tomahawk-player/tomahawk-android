@@ -24,6 +24,7 @@ import org.tomahawk.libtomahawk.resolver.Query;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class InfoSystemUtils {
@@ -81,6 +82,14 @@ public class InfoSystemUtils {
         return artist;
     }
 
+    public static Artist artistInfoToArtist(ArtistInfo artistInfo, Image image) {
+        Artist artist = Artist.get(artistInfo.name);
+        if (artist.getImage() == null && image != null) {
+            artist.setImage(image.squareurl);
+        }
+        return artist;
+    }
+
     public static Album fillAlbumWithAlbumInfo(Album album, AlbumInfo albumInfo,
             Image image) {
         if (album.getAlbumArtPath() == null && image != null) {
@@ -91,17 +100,28 @@ public class InfoSystemUtils {
 
     public static Artist fillArtistWithCharts(Artist artist, Map<AlbumInfo, Tracks> tracksMap,
             Map<AlbumInfo, Image> imageMap) {
-        for (AlbumInfo albumInfo : tracksMap.keySet()) {
-            Album album = Album.get(albumInfo.name, artist);
-            Image image = imageMap.get(albumInfo);
-            if (album.getAlbumArtPath() == null && image != null) {
-                album.setAlbumArtPath(image.squareurl);
+        if (tracksMap != null) {
+            for (AlbumInfo albumInfo : tracksMap.keySet()) {
+                Image image = imageMap.get(albumInfo);
+                List<TrackInfo> trackInfos = tracksMap.get(albumInfo).tracks;
+                Album album = albumInfoToAlbum(albumInfo, artist.getName(), trackInfos, image);
+                artist.addAlbum(album);
             }
-            for (TrackInfo trackInfo : tracksMap.get(albumInfo).tracks) {
-                album.addQuery(new Query(trackInfo.name, album.getName(), artist.getName(), false));
-            }
-            artist.addAlbum(album);
         }
         return artist;
+    }
+
+    public static Album albumInfoToAlbum(AlbumInfo albumInfo, String artistName,
+            List<TrackInfo> trackInfos, Image image) {
+        Album album = Album.get(albumInfo.name, Artist.get(artistName));
+        if (album.getAlbumArtPath() == null && image != null) {
+            album.setAlbumArtPath(image.squareurl);
+        }
+        if (trackInfos != null) {
+            for (TrackInfo trackInfo : trackInfos) {
+                album.addQuery(new Query(trackInfo.name, album.getName(), artistName, false));
+            }
+        }
+        return album;
     }
 }
