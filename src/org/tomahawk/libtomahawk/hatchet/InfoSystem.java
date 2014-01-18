@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.hatchet;
 import org.apache.http.client.ClientProtocolException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
+import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -72,6 +73,8 @@ public class InfoSystem {
 
     public static final String HATCHET_PARAM_ID = "id";
 
+    public static final String HATCHET_PARAM_ARTIST_NAME = "artist_name";
+
     public static final String HATCHET_ACCOUNTDATA_USER_ID = "hatchet_preference_user_id";
 
     TomahawkApp mTomahawkApp;
@@ -95,6 +98,15 @@ public class InfoSystem {
         params.put(HATCHET_PARAM_NAME, artist.getName());
         String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params);
         mItemsToBeFilled.put(requestId, artist);
+        return requestId;
+    }
+
+    public String resolve(Album album) {
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put(HATCHET_PARAM_NAME, album.getName());
+        params.put(HATCHET_PARAM_ARTIST_NAME, album.getArtist().getName());
+        String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS, params);
+        mItemsToBeFilled.put(requestId, album);
         return requestId;
     }
 
@@ -144,6 +156,12 @@ public class InfoSystem {
                         buildQuery(infoRequestData.getType(), infoRequestData.getParams()));
                 infoRequestData.setInfoResult(
                         mObjectMapper.readValue(rawJsonString, Artists.class));
+                return true;
+            case InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS:
+                rawJsonString = TomahawkUtils.httpsGet(
+                        buildQuery(infoRequestData.getType(), infoRequestData.getParams()));
+                infoRequestData.setInfoResult(
+                        mObjectMapper.readValue(rawJsonString, Albums.class));
                 return true;
         }
         Log.d(TAG, "doInBackground(...) took " + (System.currentTimeMillis() - start)
@@ -218,6 +236,26 @@ public class InfoSystem {
                                                 artists.artists.get(0), image);
                                     }
                                     break;
+                                case InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS:
+                                    Albums albums = ((Albums) infoRequestData.getInfoResult());
+                                    if (albums.albums != null && albums.albums.size() > 0
+                                            && albums.images != null && albums.images.size() > 0
+                                            && albums.images != null
+                                            && albums.images.size() > 0) {
+                                        AlbumInfo albumInfo = albums.albums.get(0);
+                                        String imageId = albumInfo.images.get(0);
+                                        Image image = null;
+                                        for (Image img : albums.images) {
+                                            if (img.id.equals(imageId)) {
+                                                image = img;
+                                            }
+                                        }
+                                        InfoSystemUtils.fillAlbumWithAlbumInfo(
+                                                (Album) mItemsToBeFilled.get(
+                                                        infoRequestData.getRequestId()),
+                                                albums.albums.get(0), image);
+                                    }
+                                    break;
                             }
                         }
                     }
@@ -278,6 +316,11 @@ public class InfoSystem {
                 queryString = InfoSystem.HATCHET_BASE_URL + "/"
                         + InfoSystem.HATCHET_VERSION + "/"
                         + InfoSystem.HATCHET_ARTISTS + "/";
+                break;
+            case InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS:
+                queryString = InfoSystem.HATCHET_BASE_URL + "/"
+                        + InfoSystem.HATCHET_VERSION + "/"
+                        + InfoSystem.HATCHET_ALBUMS + "/";
                 break;
         }
         // append every parameter we didn't use

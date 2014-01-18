@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.hatchet.InfoRequestData;
 import org.tomahawk.libtomahawk.hatchet.InfoSystem;
+import org.tomahawk.libtomahawk.hatchet.InfoSystemUtils;
 import org.tomahawk.libtomahawk.hatchet.PlaylistEntries;
 import org.tomahawk.libtomahawk.hatchet.PlaylistInfo;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -42,6 +43,7 @@ import android.database.Cursor;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -128,7 +130,7 @@ public class UserCollection extends Collection {
                             List<PlaylistInfo> playlistInfos = new ArrayList<PlaylistInfo>(
                                     playlistInfoMap.keySet());
                             for (PlaylistInfo playlistInfo : playlistInfos) {
-                                UserPlaylist userPlaylist = InfoSystem
+                                UserPlaylist userPlaylist = InfoSystemUtils
                                         .playlistInfoToUserPlaylist(playlistInfo,
                                                 playlistInfoMap.get(playlistInfo));
                                 ids.add(userPlaylist.getId());

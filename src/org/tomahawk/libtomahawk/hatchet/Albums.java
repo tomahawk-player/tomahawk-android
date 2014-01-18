@@ -23,6 +23,8 @@ public class Albums {
 
     public List<AlbumInfo> albums;
 
+    public List<Image> images;
+
     public Albums() {
     }
 }

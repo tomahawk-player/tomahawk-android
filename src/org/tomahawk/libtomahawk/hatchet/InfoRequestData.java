@@ -23,6 +23,8 @@ public class InfoRequestData {
 
     public static final int INFOREQUESTDATA_TYPE_ARTISTS = 600;
 
+    public static final int INFOREQUESTDATA_TYPE_ALBUMS = 700;
+
     public static final int INFOREQUESTDATA_TYPE_USERS = 800;
 
     public static final int INFOREQUESTDATA_TYPE_USERS_PLAYLISTS = 801;
