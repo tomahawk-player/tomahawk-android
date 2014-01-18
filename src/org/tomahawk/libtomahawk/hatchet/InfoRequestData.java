@@ -17,11 +17,23 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
+import com.google.common.collect.Multimap;
+
+import org.tomahawk.libtomahawk.collection.Collection;
+
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class InfoRequestData {
 
+    public static final int INFOREQUESTDATA_TYPE_TRACKS = 400;
+
     public static final int INFOREQUESTDATA_TYPE_ARTISTS = 600;
+
+    public static final int INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS = 601;
+
+    public static final int INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS = 602;
 
     public static final int INFOREQUESTDATA_TYPE_ALBUMS = 700;
 
@@ -39,11 +51,11 @@ public class InfoRequestData {
 
     private Object mInfoResult;
 
-    private Map mInfoResultMap;
+    private Map<String, Map> mInfoResultMap;
 
-    private Map<String, String> mParams;
+    private Multimap<String, String> mParams;
 
-    public InfoRequestData(String requestId, int type, Map<String, String> params) {
+    public InfoRequestData(String requestId, int type, Multimap<String, String> params) {
         mRequestId = requestId;
         mType = type;
         mParams = params;
@@ -65,15 +77,15 @@ public class InfoRequestData {
         mInfoResult = infoResult;
     }
 
-    public Map getInfoResultMap() {
+    public Map<String, Map> getInfoResultMap() {
         return mInfoResultMap;
     }
 
-    public void setInfoResultMap(Map infoResultMap) {
+    public void setInfoResultMap(Map<String, Map> infoResultMap) {
         mInfoResultMap = infoResultMap;
     }
 
-    public Map<String, String> getParams() {
+    public Multimap<String, String> getParams() {
         return mParams;
     }
 }
