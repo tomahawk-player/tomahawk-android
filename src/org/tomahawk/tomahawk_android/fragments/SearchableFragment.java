@@ -236,12 +236,6 @@ public class SearchableFragment extends TomahawkFragment
     private void updateAdapter() {
         List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                 = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
-        if (mCurrentShownQueries != null) {
-            ArrayList<TomahawkBaseAdapter.TomahawkListItem> trackResultList
-                    = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-            trackResultList.addAll(mCurrentShownQueries);
-            listArray.add(trackResultList);
-        }
         if (mCurrentShownArtists != null) {
             ArrayList<TomahawkBaseAdapter.TomahawkListItem> artistResultList
                     = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
@@ -253,6 +247,12 @@ public class SearchableFragment extends TomahawkFragment
                     = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
             albumResultList.addAll(mCurrentShownAlbums);
             listArray.add(albumResultList);
+        }
+        if (mCurrentShownQueries != null) {
+            ArrayList<TomahawkBaseAdapter.TomahawkListItem> trackResultList
+                    = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+            trackResultList.addAll(mCurrentShownQueries);
+            listArray.add(trackResultList);
         }
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity,
