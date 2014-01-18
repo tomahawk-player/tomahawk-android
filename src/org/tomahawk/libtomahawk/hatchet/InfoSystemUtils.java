@@ -17,6 +17,7 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
+import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -78,5 +79,13 @@ public class InfoSystemUtils {
             artist.setImage(image.squareurl);
         }
         return artist;
+    }
+
+    public static Album fillAlbumWithAlbumInfo(Album album, AlbumInfo albumInfo,
+            Image image) {
+        if (album.getAlbumArtPath() == null && image != null) {
+            album.setAlbumArtPath(image.squareurl);
+        }
+        return album;
     }
 }

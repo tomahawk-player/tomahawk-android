@@ -141,6 +141,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
+                ((TomahawkListAdapter) getListAdapter()).updateContentHeader(mAlbum);
             }
         } else if (mArtist != null) {
             if (mIsLocal) {
