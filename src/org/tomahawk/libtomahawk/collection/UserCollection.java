@@ -18,6 +18,9 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.hatchet.InfoRequestData;
@@ -126,7 +129,7 @@ public class UserCollection extends Collection {
                             ArrayList<String> ids = new ArrayList<String>();
                             Map<PlaylistInfo, PlaylistEntries> playlistInfoMap = mTomahawkApp
                                     .getInfoSystem().getInfoRequestById(requestId)
-                                    .getInfoResultMap();
+                                    .getInfoResultMap().get(InfoSystem.HATCHET_PLAYLISTS_ENTRIES);
                             List<PlaylistInfo> playlistInfos = new ArrayList<PlaylistInfo>(
                                     playlistInfoMap.keySet());
                             for (PlaylistInfo playlistInfo : playlistInfos) {
@@ -354,7 +357,7 @@ public class UserCollection extends Collection {
         String userId = AuthenticatorUtils
                 .getUserId(mTomahawkApp, TomahawkService.AUTHENTICATOR_NAME_HATCHET);
         if (userId != null) {
-            HashMap<String, String> params = new HashMap<String, String>();
+            Multimap<String, String> params = HashMultimap.create(1, 1);
             params.put(InfoSystem.HATCHET_PARAM_NAME, userId);
             mCorrespondingRequestIds.add(mTomahawkApp.getInfoSystem()
                     .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS_ALL, params));

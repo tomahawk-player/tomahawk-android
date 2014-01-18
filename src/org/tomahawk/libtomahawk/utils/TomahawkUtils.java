@@ -1,5 +1,7 @@
 package org.tomahawk.libtomahawk.utils;
 
+import com.google.common.collect.Multimap;
+
 import org.json.JSONObject;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
@@ -32,8 +34,10 @@ import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -191,7 +195,7 @@ public class TomahawkUtils {
         return httpsPost(urlString, jsonToPost.toString(), true);
     }
 
-    public static String httpsPost(String urlString, Map<String, String> params)
+    public static String httpsPost(String urlString, Multimap<String, String> params)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         return httpsPost(urlString, paramsListToString(params), false);
     }
@@ -241,21 +245,23 @@ public class TomahawkUtils {
         return inputStreamToString(connection);
     }
 
-    public static String paramsListToString(Map<String, String> params)
+    public static String paramsListToString(Multimap<String, String> params)
             throws UnsupportedEncodingException {
         StringBuilder result = new StringBuilder();
         boolean first = true;
 
         for (String key : params.keySet()) {
-            if (first) {
-                first = false;
-
-            } else {
-                result.append("&");
+            Collection<String> values = params.get(key);
+            for (String value : values) {
+                if (first) {
+                    first = false;
+                } else {
+                    result.append("&");
+                }
+                result.append(URLEncoder.encode(key, "UTF-8"));
+                result.append("=");
+                result.append(URLEncoder.encode(value, "UTF-8"));
             }
-            result.append(URLEncoder.encode(key, "UTF-8"));
-            result.append("=");
-            result.append(URLEncoder.encode(params.get(key), "UTF-8"));
         }
 
         return result.toString();

@@ -17,11 +17,16 @@
  */
 package org.tomahawk.libtomahawk.hatchet;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+
 import org.apache.http.client.ClientProtocolException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Collection;
+import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -40,6 +45,8 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -63,6 +70,8 @@ public class InfoSystem {
 
     public static final String HATCHET_TRACKS = "tracks";
 
+    public static final String HATCHET_IMAGES = "images";
+
     public static final String HATCHET_USER = "users";
 
     public static final String HATCHET_PLAYLISTS = "playlists";
@@ -72,6 +81,8 @@ public class InfoSystem {
     public static final String HATCHET_PARAM_NAME = "name";
 
     public static final String HATCHET_PARAM_ID = "id";
+
+    public static final String HATCHET_PARAM_IDARRAY = "ids[]";
 
     public static final String HATCHET_PARAM_ARTIST_NAME = "artist_name";
 
@@ -94,15 +105,19 @@ public class InfoSystem {
     }
 
     public String resolve(Artist artist) {
-        HashMap<String, String> params = new HashMap<String, String>();
+        Multimap<String, String> params = HashMultimap.create(1, 1);
         params.put(HATCHET_PARAM_NAME, artist.getName());
         String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params);
+        mItemsToBeFilled.put(requestId, artist);
+        params.clear();
+        params.put(HATCHET_PARAM_NAME, artist.getName());
+        requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS, params);
         mItemsToBeFilled.put(requestId, artist);
         return requestId;
     }
 
     public String resolve(Album album) {
-        HashMap<String, String> params = new HashMap<String, String>();
+        Multimap<String, String> params = HashMultimap.create(2, 1);
         params.put(HATCHET_PARAM_NAME, album.getName());
         params.put(HATCHET_PARAM_ARTIST_NAME, album.getArtist().getName());
         String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS, params);
@@ -110,7 +125,7 @@ public class InfoSystem {
         return requestId;
     }
 
-    public String resolve(int type, HashMap<String, String> params) {
+    public String resolve(int type, Multimap<String, String> params) {
         String requestId = TomahawkApp.getSessionUniqueStringId();
         InfoRequestData infoRequestData = new InfoRequestData(requestId, type, params);
         resolve(infoRequestData);
@@ -129,11 +144,12 @@ public class InfoSystem {
     private boolean getAndParseInfo(InfoRequestData infoRequestData)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         long start = System.currentTimeMillis();
-        Map<String, String> params = new HashMap<String, String>(1);
+        Multimap<String, String> params = HashMultimap.create();
+        Map<String, Map> resultMapList = new HashMap<String, Map>();
         String rawJsonString;
         switch (infoRequestData.getType()) {
             case InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS_ALL:
-                Map<PlaylistInfo, PlaylistEntries> resultMap
+                Map<PlaylistInfo, PlaylistEntries> playlistEntriesMap
                         = new HashMap<PlaylistInfo, PlaylistEntries>();
                 params.put(HATCHET_PARAM_ID, mUserId);
                 rawJsonString = TomahawkUtils.httpsGet(
@@ -147,19 +163,58 @@ public class InfoSystem {
                                     params));
                     PlaylistEntries playlistEntries = mObjectMapper
                             .readValue(rawJsonString, PlaylistEntries.class);
-                    resultMap.put(playlistInfo, playlistEntries);
+                    playlistEntriesMap.put(playlistInfo, playlistEntries);
                 }
-                infoRequestData.setInfoResultMap(resultMap);
+                resultMapList.put(HATCHET_PLAYLISTS_ENTRIES, playlistEntriesMap);
+                infoRequestData.setInfoResultMap(resultMapList);
                 return true;
             case InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS:
+                params.putAll(infoRequestData.getParams());
                 rawJsonString = TomahawkUtils.httpsGet(
-                        buildQuery(infoRequestData.getType(), infoRequestData.getParams()));
+                        buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params));
                 infoRequestData.setInfoResult(
                         mObjectMapper.readValue(rawJsonString, Artists.class));
                 return true;
-            case InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS:
+            case InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS:
+                params.putAll(infoRequestData.getParams());
+                Map<AlbumInfo, Tracks> tracksMap = new HashMap<AlbumInfo, Tracks>();
+                Map<AlbumInfo, Image> imageMap = new HashMap<AlbumInfo, Image>();
                 rawJsonString = TomahawkUtils.httpsGet(
-                        buildQuery(infoRequestData.getType(), infoRequestData.getParams()));
+                        buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params));
+                Artists artists = mObjectMapper.readValue(rawJsonString, Artists.class);
+
+                if (artists.artists != null && artists.artists.size() > 0) {
+                    params.put(HATCHET_PARAM_ID, artists.artists.get(0).id);
+                    rawJsonString = TomahawkUtils.httpsGet(
+                            buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS,
+                                    params));
+                    Charts charts = mObjectMapper.readValue(rawJsonString, Charts.class);
+                    Map<String, Image> chartImageMap = new HashMap<String, Image>();
+                    for (Image image : charts.images) {
+                        chartImageMap.put(image.id, image);
+                    }
+                    for (AlbumInfo albumInfo : charts.albums) {
+                        if (albumInfo.images != null && albumInfo.images.size() > 0) {
+                            imageMap.put(albumInfo, chartImageMap.get(albumInfo.images.get(0)));
+                        }
+                        params.clear();
+                        for (String trackId : albumInfo.tracks) {
+                            params.put(HATCHET_PARAM_IDARRAY, trackId);
+                        }
+                        rawJsonString = TomahawkUtils.httpsGet(
+                                buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_TRACKS, params));
+                        Tracks tracks = mObjectMapper.readValue(rawJsonString, Tracks.class);
+                        tracksMap.put(albumInfo, tracks);
+                    }
+                    resultMapList.put(HATCHET_TRACKS, tracksMap);
+                    resultMapList.put(HATCHET_IMAGES, imageMap);
+                    infoRequestData.setInfoResultMap(resultMapList);
+                }
+                return true;
+            case InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS:
+                params.putAll(infoRequestData.getParams());
+                rawJsonString = TomahawkUtils.httpsGet(
+                        buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS, params));
                 infoRequestData.setInfoResult(
                         mObjectMapper.readValue(rawJsonString, Albums.class));
                 return true;
@@ -199,7 +254,7 @@ public class InfoSystem {
                 // If we couldn't fetch the user's id from the account's userData, get it from the
                 // API. Don't even bother to try if we don't have an account to store it with.
                 if (mUserId == null && account != null) {
-                    Map<String, String> params = new HashMap<String, String>();
+                    Multimap<String, String> params = HashMultimap.create(1, 1);
                     params.put(HATCHET_PARAM_NAME, AuthenticatorUtils.getUserId(mTomahawkApp,
                             TomahawkService.AUTHENTICATOR_NAME_HATCHET));
                     String query = buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS,
@@ -230,11 +285,18 @@ public class InfoSystem {
                                                 image = img;
                                             }
                                         }
-                                        InfoSystemUtils.fillArtistWithArtistInfo(
-                                                (Artist) mItemsToBeFilled
-                                                        .get(infoRequestData.getRequestId()),
+                                        Artist artist = (Artist) mItemsToBeFilled
+                                                .get(infoRequestData.getRequestId());
+                                        InfoSystemUtils.fillArtistWithArtistInfo(artist,
                                                 artists.artists.get(0), image);
                                     }
+                                    break;
+                                case InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS:
+                                    Artist artist = (Artist) mItemsToBeFilled
+                                            .get(infoRequestData.getRequestId());
+                                    InfoSystemUtils.fillArtistWithCharts(artist,
+                                            infoRequestData.getInfoResultMap().get(HATCHET_TRACKS),
+                                            infoRequestData.getInfoResultMap().get(HATCHET_IMAGES));
                                     break;
                                 case InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS:
                                     Albums albums = ((Albums) infoRequestData.getInfoResult());
@@ -289,38 +351,61 @@ public class InfoSystem {
         mTomahawkApp.sendBroadcast(reportIntent);
     }
 
-    private static String buildQuery(int type, Map<String, String> params)
+    private static String buildQuery(int type, Multimap<String, String> params)
             throws UnsupportedEncodingException {
         String queryString = null;
+        java.util.Collection<String> paramStrings;
+        Iterator<String> iterator;
         switch (type) {
             case InfoRequestData.INFOREQUESTDATA_TYPE_USERS:
-                queryString = InfoSystem.HATCHET_BASE_URL + "/"
-                        + InfoSystem.HATCHET_VERSION + "/"
-                        + InfoSystem.HATCHET_USER + "/";
+                queryString = HATCHET_BASE_URL + "/"
+                        + HATCHET_VERSION + "/"
+                        + HATCHET_USER + "/";
                 break;
             case InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS:
-                queryString = InfoSystem.HATCHET_BASE_URL + "/"
-                        + InfoSystem.HATCHET_VERSION + "/"
-                        + InfoSystem.HATCHET_USER + "/"
-                        + params.remove(HATCHET_PARAM_ID) + "/"
+                paramStrings = params.get(HATCHET_PARAM_ID);
+                iterator = paramStrings.iterator();
+                queryString = HATCHET_BASE_URL + "/"
+                        + HATCHET_VERSION + "/"
+                        + HATCHET_USER + "/"
+                        + iterator.next() + "/"
                         + HATCHET_PLAYLISTS;
+                params.removeAll(HATCHET_PARAM_ID);
                 break;
             case InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES:
-                queryString = InfoSystem.HATCHET_BASE_URL + "/"
-                        + InfoSystem.HATCHET_VERSION + "/"
-                        + InfoSystem.HATCHET_PLAYLISTS + "/"
-                        + params.remove(HATCHET_PARAM_ID) + "/"
+                paramStrings = params.get(HATCHET_PARAM_ID);
+                iterator = paramStrings.iterator();
+                queryString = HATCHET_BASE_URL + "/"
+                        + HATCHET_VERSION + "/"
+                        + HATCHET_PLAYLISTS + "/"
+                        + iterator.next() + "/"
                         + HATCHET_PLAYLISTS_ENTRIES;
+                params.removeAll(HATCHET_PARAM_ID);
                 break;
             case InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS:
-                queryString = InfoSystem.HATCHET_BASE_URL + "/"
-                        + InfoSystem.HATCHET_VERSION + "/"
-                        + InfoSystem.HATCHET_ARTISTS + "/";
+                queryString = HATCHET_BASE_URL + "/"
+                        + HATCHET_VERSION + "/"
+                        + HATCHET_ARTISTS + "/";
+                break;
+            case InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS:
+                paramStrings = params.get(HATCHET_PARAM_ID);
+                iterator = paramStrings.iterator();
+                queryString = HATCHET_BASE_URL + "/"
+                        + HATCHET_VERSION + "/"
+                        + HATCHET_ARTISTS + "/"
+                        + iterator.next() + "/"
+                        + HATCHET_ALBUMS + "/";
+                params.removeAll(HATCHET_PARAM_ID);
+                break;
+            case InfoRequestData.INFOREQUESTDATA_TYPE_TRACKS:
+                queryString = HATCHET_BASE_URL + "/"
+                        + HATCHET_VERSION + "/"
+                        + HATCHET_TRACKS + "/";
                 break;
             case InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS:
-                queryString = InfoSystem.HATCHET_BASE_URL + "/"
-                        + InfoSystem.HATCHET_VERSION + "/"
-                        + InfoSystem.HATCHET_ALBUMS + "/";
+                queryString = HATCHET_BASE_URL + "/"
+                        + HATCHET_VERSION + "/"
+                        + HATCHET_ALBUMS + "/";
                 break;
         }
         // append every parameter we didn't use

@@ -18,6 +18,9 @@
  */
 package org.tomahawk.libtomahawk.authentication;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.tomahawk.libtomahawk.collection.UserCollection;
@@ -172,7 +175,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Map<String, String> params = new HashMap<String, String>();
+                Multimap<String, String> params = HashMultimap.create(3, 1);
                 params.put(PARAMS_PASSWORD, password);
                 params.put(PARAMS_USERNAME, name);
                 params.put(PARAMS_GRANT_TYPE, PARAMS_GRANT_TYPE_PASSWORD);

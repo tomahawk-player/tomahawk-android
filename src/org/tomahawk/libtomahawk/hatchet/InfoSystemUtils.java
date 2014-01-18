@@ -88,4 +88,20 @@ public class InfoSystemUtils {
         }
         return album;
     }
+
+    public static Artist fillArtistWithCharts(Artist artist, Map<AlbumInfo, Tracks> tracksMap,
+            Map<AlbumInfo, Image> imageMap) {
+        for (AlbumInfo albumInfo : tracksMap.keySet()) {
+            Album album = Album.get(albumInfo.name, artist);
+            Image image = imageMap.get(albumInfo);
+            if (album.getAlbumArtPath() == null && image != null) {
+                album.setAlbumArtPath(image.squareurl);
+            }
+            for (TrackInfo trackInfo : tracksMap.get(albumInfo).tracks) {
+                album.addQuery(new Query(trackInfo.name, album.getName(), artist.getName(), false));
+            }
+            artist.addAlbum(album);
+        }
+        return artist;
+    }
 }
