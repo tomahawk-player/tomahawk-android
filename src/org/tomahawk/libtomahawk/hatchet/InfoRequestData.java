@@ -19,9 +19,6 @@ package org.tomahawk.libtomahawk.hatchet;
 
 import com.google.common.collect.Multimap;
 
-import org.tomahawk.libtomahawk.collection.Collection;
-
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +42,8 @@ public class InfoRequestData {
 
     public static final int INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES = 1000;
 
+    public static final int INFOREQUESTDATA_TYPE_SEARCHES = 1100;
+
     private String mRequestId;
 
     private int mType;
@@ -52,6 +51,8 @@ public class InfoRequestData {
     private Object mInfoResult;
 
     private Map<String, Map> mInfoResultMap;
+
+    private Map<String, List> mConvertedResultMap;
 
     private Multimap<String, String> mParams;
 
@@ -83,6 +84,14 @@ public class InfoRequestData {
 
     public void setInfoResultMap(Map<String, Map> infoResultMap) {
         mInfoResultMap = infoResultMap;
+    }
+
+    public Map<String, List> getConvertedResultMap() {
+        return mConvertedResultMap;
+    }
+
+    public void setConvertedResultMap(Map<String, List> convertedResultMap) {
+        mConvertedResultMap = convertedResultMap;
     }
 
     public Multimap<String, String> getParams() {

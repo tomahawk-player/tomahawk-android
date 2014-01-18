@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -49,6 +50,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@link TomahawkFragment} which offers both local and non-local search functionality to the user.
@@ -187,8 +189,7 @@ public class SearchableFragment extends TomahawkFragment
     }
 
     /**
-     * Used to determine, if the user has pressed the confirmation button on his soft keyboard.
-     * (The
+     * Used to determine, if the user has pressed the confirmation button on his soft keyboard. (The
      * button in the bottom right corner of the soft keyboard on most smartphones/tablets)
      */
     @Override
@@ -212,29 +213,47 @@ public class SearchableFragment extends TomahawkFragment
     }
 
     /**
-     * Display all {@link org.tomahawk.libtomahawk.resolver.Result}s of the {@link Query} with the
-     * given id
+     * Display all {@link org.tomahawk.libtomahawk.resolver.Result}s of the {@link
+     * org.tomahawk.libtomahawk.resolver.Query} with the given id
      */
     public void showQueryResults(String qid) {
         Query query = mPipeline.getQuery(qid);
         mCurrentQueryString = query.getFullTextQuery();
+        mCurrentShownQueries = query.getTrackQueries();
+        updateAdapter();
+    }
+
+    public void showInfoResults(String requestId) {
+        Map<String, List> convertedResultMap = mInfoSystem.getInfoRequestById(requestId)
+                .getConvertedResultMap();
+        mCurrentShownArtists = (ArrayList<Artist>) convertedResultMap
+                .get(InfoSystem.HATCHET_ARTISTS);
+        mCurrentShownAlbums = (ArrayList<Album>) convertedResultMap
+                .get(InfoSystem.HATCHET_ALBUMS);
+        updateAdapter();
+    }
+
+    private void updateAdapter() {
         List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                 = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
-        ArrayList<TomahawkBaseAdapter.TomahawkListItem> trackResultList
-                = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-        mCurrentShownQueries = query.getTrackQueries();
-        trackResultList.addAll(mCurrentShownQueries);
-        listArray.add(trackResultList);
-        ArrayList<TomahawkBaseAdapter.TomahawkListItem> artistResultList
-                = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-        mCurrentShownArtists = query.getArtists();
-        artistResultList.addAll(mCurrentShownArtists);
-        listArray.add(artistResultList);
-        ArrayList<TomahawkBaseAdapter.TomahawkListItem> albumResultList
-                = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-        mCurrentShownAlbums = query.getAlbums();
-        albumResultList.addAll(mCurrentShownAlbums);
-        listArray.add(albumResultList);
+        if (mCurrentShownQueries != null) {
+            ArrayList<TomahawkBaseAdapter.TomahawkListItem> trackResultList
+                    = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+            trackResultList.addAll(mCurrentShownQueries);
+            listArray.add(trackResultList);
+        }
+        if (mCurrentShownArtists != null) {
+            ArrayList<TomahawkBaseAdapter.TomahawkListItem> artistResultList
+                    = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+            artistResultList.addAll(mCurrentShownArtists);
+            listArray.add(artistResultList);
+        }
+        if (mCurrentShownAlbums != null) {
+            ArrayList<TomahawkBaseAdapter.TomahawkListItem> albumResultList
+                    = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+            albumResultList.addAll(mCurrentShownAlbums);
+            listArray.add(albumResultList);
+        }
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity,
                     listArray);
@@ -284,6 +303,11 @@ public class SearchableFragment extends TomahawkFragment
                 .findViewById(R.id.search_onlinesources_checkbox);
         String queryId = mPipeline.resolve(fullTextQuery, !onlineSourcesCheckBox.isChecked());
         mCorrespondingQueryIds.clear();
+        if (onlineSourcesCheckBox.isChecked()) {
+            mCurrentRequestIds.clear();
+            String requestId = mInfoSystem.search(fullTextQuery);
+            mCurrentRequestIds.add(requestId);
+        }
         if (queryId != null) {
             mCorrespondingQueryIds.add(queryId);
             mTomahawkMainActivity.startLoadingAnimation();
@@ -338,6 +362,13 @@ public class SearchableFragment extends TomahawkFragment
                     .getBackStackAtPosition(mCorrespondingHubId)
                     .get(0).queryString = mCurrentQueryString;
             showQueryResults(qId);
+        }
+    }
+
+    @Override
+    protected void onInfoSystemResultsReported(String requestId) {
+        if (mCurrentRequestIds.contains(requestId)) {
+            showInfoResults(requestId);
         }
     }
 }
