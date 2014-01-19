@@ -167,7 +167,8 @@ public class TomahawkMainActivity extends ActionBarActivity
             switch (msg.what) {
                 case MSG_UPDATE_ANIMATION:
                     if ((mPipeLine != null && mPipeLine.isResolving()) ||
-                            (mPlaybackService != null && mPlaybackService.isPreparing())) {
+                            (mPlaybackService != null && mPlaybackService.isPreparing()) ||
+                            (mInfoSystem != null && mInfoSystem.isResolving())) {
                         mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 500);
                         getSupportActionBar().setLogo(mProgressDrawable);
                         mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
@@ -266,6 +267,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         mTomahawkApp = ((TomahawkApp) getApplication());
         mPipeLine = mTomahawkApp.getPipeLine();
+        mInfoSystem = mTomahawkApp.getInfoSystem();
 
         mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
 
@@ -536,8 +538,7 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     /**
-     * Whenever the back-button is pressed, go back in the ContentViewer, until the root fragment
-     * is
+     * Whenever the back-button is pressed, go back in the ContentViewer, until the root fragment is
      * reached. After that use the normal back-button functionality.
      */
     @Override
@@ -654,8 +655,7 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     /**
-     * Set the search editText visibility in the top actionbar. If enabled is true, also display
-     * the
+     * Set the search editText visibility in the top actionbar. If enabled is true, also display the
      * soft keyboard.
      */
     public void setSearchEditTextVisibility(boolean enabled) {
