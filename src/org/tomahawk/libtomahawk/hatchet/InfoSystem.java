@@ -186,17 +186,19 @@ public class InfoSystem {
             rawJsonString = TomahawkUtils.httpsGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS, params));
             Playlists playlists = mObjectMapper.readValue(rawJsonString, Playlists.class);
-            for (PlaylistInfo playlistInfo : playlists.playlists) {
-                params.clear();
-                params.put(HATCHET_PARAM_ID, playlistInfo.id);
-                rawJsonString = TomahawkUtils.httpsGet(
-                        buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES,
-                                params));
-                PlaylistEntries playlistEntries = mObjectMapper
-                        .readValue(rawJsonString, PlaylistEntries.class);
-                playlistEntriesMap.put(playlistInfo, playlistEntries);
+            if (playlists.playlists != null) {
+                for (PlaylistInfo playlistInfo : playlists.playlists) {
+                    params.clear();
+                    params.put(HATCHET_PARAM_ID, playlistInfo.id);
+                    rawJsonString = TomahawkUtils.httpsGet(
+                            buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES,
+                                    params));
+                    PlaylistEntries playlistEntries = mObjectMapper
+                            .readValue(rawJsonString, PlaylistEntries.class);
+                    playlistEntriesMap.put(playlistInfo, playlistEntries);
+                }
+                resultMapList.put(HATCHET_PLAYLISTS_ENTRIES, playlistEntriesMap);
             }
-            resultMapList.put(HATCHET_PLAYLISTS_ENTRIES, playlistEntriesMap);
             infoRequestData.setInfoResultMap(resultMapList);
             return true;
         } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS) {
@@ -222,22 +224,27 @@ public class InfoSystem {
                                 params));
                 Charts charts = mObjectMapper.readValue(rawJsonString, Charts.class);
                 Map<String, Image> chartImageMap = new HashMap<String, Image>();
-                for (Image image : charts.images) {
-                    chartImageMap.put(image.id, image);
-                }
-                for (AlbumInfo albumInfo : charts.albums) {
-                    if (albumInfo.images != null && albumInfo.images.size() > 0) {
-                        imageMap.put(albumInfo, chartImageMap.get(albumInfo.images.get(0)));
+                if (charts.images != null) {
+                    for (Image image : charts.images) {
+                        chartImageMap.put(image.id, image);
                     }
-                    if (albumInfo.tracks != null && albumInfo.tracks.size() > 0) {
-                        params.clear();
-                        for (String trackId : albumInfo.tracks) {
-                            params.put(HATCHET_PARAM_IDARRAY, trackId);
+                }
+                if (charts.albums != null) {
+                    for (AlbumInfo albumInfo : charts.albums) {
+                        if (albumInfo.images != null && albumInfo.images.size() > 0) {
+                            imageMap.put(albumInfo, chartImageMap.get(albumInfo.images.get(0)));
                         }
-                        rawJsonString = TomahawkUtils.httpsGet(
-                                buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_TRACKS, params));
-                        Tracks tracks = mObjectMapper.readValue(rawJsonString, Tracks.class);
-                        tracksMap.put(albumInfo, tracks);
+                        if (albumInfo.tracks != null && albumInfo.tracks.size() > 0) {
+                            params.clear();
+                            for (String trackId : albumInfo.tracks) {
+                                params.put(HATCHET_PARAM_IDARRAY, trackId);
+                            }
+                            rawJsonString = TomahawkUtils.httpsGet(
+                                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_TRACKS,
+                                            params));
+                            Tracks tracks = mObjectMapper.readValue(rawJsonString, Tracks.class);
+                            tracksMap.put(albumInfo, tracks);
+                        }
                     }
                 }
                 resultMapList.put(HATCHET_TRACKS, tracksMap);
@@ -260,11 +267,15 @@ public class InfoSystem {
                                 params));
                 Charts charts = mObjectMapper.readValue(rawJsonString, Charts.class);
                 Map<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
-                for (TrackInfo trackInfo : charts.tracks) {
-                    trackInfoMap.put(trackInfo.id, trackInfo);
+                if (charts.tracks != null) {
+                    for (TrackInfo trackInfo : charts.tracks) {
+                        trackInfoMap.put(trackInfo.id, trackInfo);
+                    }
                 }
-                for (ChartItem chartItem : charts.chartItems) {
-                    tracksMap.put(chartItem, trackInfoMap.get(chartItem.track));
+                if (charts.chartItems != null) {
+                    for (ChartItem chartItem : charts.chartItems) {
+                        tracksMap.put(chartItem, trackInfoMap.get(chartItem.track));
+                    }
                 }
                 resultMapList.put(HATCHET_TRACKS, tracksMap);
             }
@@ -283,45 +294,53 @@ public class InfoSystem {
                             infoRequestData.getParams()));
             Search search = mObjectMapper.readValue(rawJsonString, Search.class);
             Map<String, AlbumInfo> albumInfoMap = new HashMap<String, AlbumInfo>();
-            for (AlbumInfo albumInfo : search.albums) {
-                albumInfoMap.put(albumInfo.id, albumInfo);
+            if (search.albums != null) {
+                for (AlbumInfo albumInfo : search.albums) {
+                    albumInfoMap.put(albumInfo.id, albumInfo);
+                }
             }
             Map<String, ArtistInfo> artistInfoMap = new HashMap<String, ArtistInfo>();
-            for (ArtistInfo artistInfo : search.artists) {
-                artistInfoMap.put(artistInfo.id, artistInfo);
+            if (search.artists != null) {
+                for (ArtistInfo artistInfo : search.artists) {
+                    artistInfoMap.put(artistInfo.id, artistInfo);
+                }
             }
             Map<String, Image> imageMap = new HashMap<String, Image>();
-            for (Image image : search.images) {
-                imageMap.put(image.id, image);
+            if (search.images != null) {
+                for (Image image : search.images) {
+                    imageMap.put(image.id, image);
+                }
             }
-            List<Album> albums = new ArrayList<Album>();
-            List<Artist> artists = new ArrayList<Artist>();
-            for (SearchItem searchItem : search.searchResults) {
-                if (searchItem.score > HATCHET_SEARCHITEM_MIN_SCORE) {
-                    if (HATCHET_SEARCHITEM_TYPE_ALBUM.equals(searchItem.type)) {
-                        AlbumInfo albumInfo = albumInfoMap.get(searchItem.album);
-                        if (albumInfo != null) {
-                            Image image = null;
-                            if (albumInfo.images != null && albumInfo.images.size() > 0) {
-                                image = imageMap.get(albumInfo.images.get(0));
+            if (search.searchResults != null) {
+                List<Album> albums = new ArrayList<Album>();
+                List<Artist> artists = new ArrayList<Artist>();
+                for (SearchItem searchItem : search.searchResults) {
+                    if (searchItem.score > HATCHET_SEARCHITEM_MIN_SCORE) {
+                        if (HATCHET_SEARCHITEM_TYPE_ALBUM.equals(searchItem.type)) {
+                            AlbumInfo albumInfo = albumInfoMap.get(searchItem.album);
+                            if (albumInfo != null) {
+                                Image image = null;
+                                if (albumInfo.images != null && albumInfo.images.size() > 0) {
+                                    image = imageMap.get(albumInfo.images.get(0));
+                                }
+                                albums.add(InfoSystemUtils.albumInfoToAlbum(albumInfo,
+                                        artistInfoMap.get(albumInfo.artist).name, null, image));
                             }
-                            albums.add(InfoSystemUtils.albumInfoToAlbum(albumInfo,
-                                    artistInfoMap.get(albumInfo.artist).name, null, image));
-                        }
-                    } else if (HATCHET_SEARCHITEM_TYPE_ARTIST.equals(searchItem.type)) {
-                        ArtistInfo artistInfo = artistInfoMap.get(searchItem.artist);
-                        if (artistInfo != null) {
-                            Image image = null;
-                            if (artistInfo.images != null && artistInfo.images.size() > 0) {
-                                image = imageMap.get(artistInfo.images.get(0));
+                        } else if (HATCHET_SEARCHITEM_TYPE_ARTIST.equals(searchItem.type)) {
+                            ArtistInfo artistInfo = artistInfoMap.get(searchItem.artist);
+                            if (artistInfo != null) {
+                                Image image = null;
+                                if (artistInfo.images != null && artistInfo.images.size() > 0) {
+                                    image = imageMap.get(artistInfo.images.get(0));
+                                }
+                                artists.add(InfoSystemUtils.artistInfoToArtist(artistInfo, image));
                             }
-                            artists.add(InfoSystemUtils.artistInfoToArtist(artistInfo, image));
                         }
                     }
                 }
+                convertedResultMap.put(HATCHET_ALBUMS, albums);
+                convertedResultMap.put(HATCHET_ARTISTS, artists);
             }
-            convertedResultMap.put(HATCHET_ALBUMS, albums);
-            convertedResultMap.put(HATCHET_ARTISTS, artists);
             infoRequestData.setConvertedResultMap(convertedResultMap);
             return true;
         }
