@@ -26,7 +26,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -47,6 +46,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,6 +66,10 @@ public class InfoSystem {
     public static final String HATCHET_VERSION = "v1";
 
     public static final String HATCHET_ARTISTS = "artists";
+
+    public static final String HATCHET_ARTISTS_TOPHITS = "topHits";
+
+    public static final String HATCHET_CHARTITEMS = "chartItems";
 
     public static final String HATCHET_ALBUMS = "albums";
 
@@ -130,6 +134,12 @@ public class InfoSystem {
         params.put(HATCHET_PARAM_NAME, artist.getName());
         requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS, params);
         mItemsToBeFilled.put(requestId, artist);
+        if (artist.getTopHits().size() == 0) {
+            params.clear();
+            params.put(HATCHET_PARAM_NAME, artist.getName());
+            requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS, params);
+            mItemsToBeFilled.put(requestId, artist);
+        }
         return requestId;
     }
 
@@ -228,6 +238,31 @@ public class InfoSystem {
                 }
                 resultMapList.put(HATCHET_TRACKS, tracksMap);
                 resultMapList.put(HATCHET_IMAGES, imageMap);
+            }
+            infoRequestData.setInfoResultMap(resultMapList);
+            return true;
+        } else if (infoRequestData.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
+            params.putAll(infoRequestData.getParams());
+            rawJsonString = TomahawkUtils.httpsGet(
+                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params));
+            Artists artists = mObjectMapper.readValue(rawJsonString, Artists.class);
+
+            if (artists.artists != null && artists.artists.size() > 0) {
+                Map<ChartItem, TrackInfo> tracksMap = new LinkedHashMap<ChartItem, TrackInfo>();
+                params.put(HATCHET_PARAM_ID, artists.artists.get(0).id);
+                rawJsonString = TomahawkUtils.httpsGet(
+                        buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS,
+                                params));
+                Charts charts = mObjectMapper.readValue(rawJsonString, Charts.class);
+                Map<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
+                for (TrackInfo trackInfo : charts.tracks) {
+                    trackInfoMap.put(trackInfo.id, trackInfo);
+                }
+                for (ChartItem chartItem : charts.chartItems) {
+                    tracksMap.put(chartItem, trackInfoMap.get(chartItem.track));
+                }
+                resultMapList.put(HATCHET_TRACKS, tracksMap);
             }
             infoRequestData.setInfoResultMap(resultMapList);
             return true;
@@ -337,54 +372,59 @@ public class InfoSystem {
                     if (getAndParseInfo(infoRequestData)) {
                         doneRequestsIds.add(infoRequestData.getRequestId());
                         if (mItemsToBeFilled.containsKey(infoRequestData.getRequestId())) {
-                            switch (infoRequestData.getType()) {
-                                case InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS:
-                                    Artists artists = ((Artists) infoRequestData.getInfoResult());
-                                    if (artists.artists != null && artists.artists.size() > 0
-                                            && artists.images != null && artists.images.size() > 0
-                                            && artists.images != null
-                                            && artists.images.size() > 0) {
-                                        ArtistInfo artistInfo = artists.artists.get(0);
-                                        String imageId = artistInfo.images.get(0);
-                                        Image image = null;
-                                        for (Image img : artists.images) {
-                                            if (img.id.equals(imageId)) {
-                                                image = img;
-                                            }
+                            if (infoRequestData.getType()
+                                    == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS) {
+                                Artists artists = ((Artists) infoRequestData.getInfoResult());
+                                if (artists.artists != null && artists.artists.size() > 0
+                                        && artists.images != null && artists.images.size() > 0
+                                        && artists.images != null
+                                        && artists.images.size() > 0) {
+                                    ArtistInfo artistInfo = artists.artists.get(0);
+                                    String imageId = artistInfo.images.get(0);
+                                    Image image = null;
+                                    for (Image img : artists.images) {
+                                        if (img.id.equals(imageId)) {
+                                            image = img;
                                         }
-                                        Artist artist = (Artist) mItemsToBeFilled
-                                                .get(infoRequestData.getRequestId());
-                                        InfoSystemUtils.fillArtistWithArtistInfo(artist,
-                                                artists.artists.get(0), image);
                                     }
-                                    break;
-                                case InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS:
                                     Artist artist = (Artist) mItemsToBeFilled
                                             .get(infoRequestData.getRequestId());
-                                    InfoSystemUtils.fillArtistWithCharts(artist,
-                                            infoRequestData.getInfoResultMap().get(HATCHET_TRACKS),
-                                            infoRequestData.getInfoResultMap().get(HATCHET_IMAGES));
-                                    break;
-                                case InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS:
-                                    Albums albums = ((Albums) infoRequestData.getInfoResult());
-                                    if (albums.albums != null && albums.albums.size() > 0
-                                            && albums.images != null && albums.images.size() > 0
-                                            && albums.images != null
-                                            && albums.images.size() > 0) {
-                                        AlbumInfo albumInfo = albums.albums.get(0);
-                                        String imageId = albumInfo.images.get(0);
-                                        Image image = null;
-                                        for (Image img : albums.images) {
-                                            if (img.id.equals(imageId)) {
-                                                image = img;
-                                            }
+                                    InfoSystemUtils.fillArtistWithArtistInfo(artist,
+                                            artists.artists.get(0), image);
+                                }
+                            } else if (infoRequestData.getType()
+                                    == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS) {
+                                Artist artist = (Artist) mItemsToBeFilled
+                                        .get(infoRequestData.getRequestId());
+                                InfoSystemUtils.fillArtistWithAlbums(artist,
+                                        infoRequestData.getInfoResultMap().get(HATCHET_TRACKS),
+                                        infoRequestData.getInfoResultMap().get(HATCHET_IMAGES));
+                            } else if (infoRequestData.getType()
+                                    == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
+                                Artist artist = (Artist) mItemsToBeFilled
+                                        .get(infoRequestData.getRequestId());
+                                InfoSystemUtils.fillArtistWithTopHits(artist,
+                                        infoRequestData.getInfoResultMap().get(HATCHET_TRACKS));
+                            } else if (infoRequestData.getType()
+                                    == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS) {
+                                Albums albums = ((Albums) infoRequestData.getInfoResult());
+                                if (albums.albums != null && albums.albums.size() > 0
+                                        && albums.images != null && albums.images.size() > 0
+                                        && albums.images != null
+                                        && albums.images.size() > 0) {
+                                    AlbumInfo albumInfo = albums.albums.get(0);
+                                    String imageId = albumInfo.images.get(0);
+                                    Image image = null;
+                                    for (Image img : albums.images) {
+                                        if (img.id.equals(imageId)) {
+                                            image = img;
                                         }
-                                        InfoSystemUtils.fillAlbumWithAlbumInfo(
-                                                (Album) mItemsToBeFilled.get(
-                                                        infoRequestData.getRequestId()),
-                                                albums.albums.get(0), image);
                                     }
-                                    break;
+                                    InfoSystemUtils.fillAlbumWithAlbumInfo(
+                                            (Album) mItemsToBeFilled.get(
+                                                    infoRequestData.getRequestId()),
+                                            albums.albums.get(0), image);
+                                }
                             }
                         }
                     }
@@ -462,6 +502,16 @@ public class InfoSystem {
                         + HATCHET_ARTISTS + "/"
                         + iterator.next() + "/"
                         + HATCHET_ALBUMS + "/";
+                params.removeAll(HATCHET_PARAM_ID);
+                break;
+            case InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS:
+                paramStrings = params.get(HATCHET_PARAM_ID);
+                iterator = paramStrings.iterator();
+                queryString = HATCHET_BASE_URL + "/"
+                        + HATCHET_VERSION + "/"
+                        + HATCHET_ARTISTS + "/"
+                        + iterator.next() + "/"
+                        + HATCHET_ARTISTS_TOPHITS + "/";
                 params.removeAll(HATCHET_PARAM_ID);
                 break;
             case InfoRequestData.INFOREQUESTDATA_TYPE_TRACKS:

@@ -48,7 +48,7 @@ public class Artist extends BitmapItem implements TomahawkBaseAdapter.TomahawkLi
 
     private ConcurrentHashMap<String, Query> mQueries = new ConcurrentHashMap<String, Query>();
 
-    private ConcurrentHashMap<String, Query> mTopHits = new ConcurrentHashMap<String, Query>();
+    private ArrayList<Query> mTopHits = new ArrayList<Query>();
 
     private boolean mContainsLocalQueries = false;
 
@@ -189,11 +189,11 @@ public class Artist extends BitmapItem implements TomahawkBaseAdapter.TomahawkLi
         return queries;
     }
 
-    public ConcurrentHashMap<String, Query> getTopHits() {
+    public ArrayList<Query> getTopHits() {
         return mTopHits;
     }
 
-    public void setTopHits(ConcurrentHashMap<String, Query> topHits) {
+    public void setTopHits(ArrayList<Query> topHits) {
         mTopHits = topHits;
     }
 

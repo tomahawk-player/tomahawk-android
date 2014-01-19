@@ -257,7 +257,7 @@ public class SearchableFragment extends TomahawkFragment
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity,
                     listArray);
-            tomahawkListAdapter.setShowCategoryHeaders(true);
+            tomahawkListAdapter.setShowCategoryHeaders(true, false);
             tomahawkListAdapter.setShowResolvedBy(true);
             setListAdapter(tomahawkListAdapter);
         } else {

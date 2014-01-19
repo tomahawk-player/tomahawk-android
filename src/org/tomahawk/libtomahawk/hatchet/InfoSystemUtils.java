@@ -98,7 +98,7 @@ public class InfoSystemUtils {
         return album;
     }
 
-    public static Artist fillArtistWithCharts(Artist artist, Map<AlbumInfo, Tracks> tracksMap,
+    public static Artist fillArtistWithAlbums(Artist artist, Map<AlbumInfo, Tracks> tracksMap,
             Map<AlbumInfo, Image> imageMap) {
         if (tracksMap != null) {
             for (AlbumInfo albumInfo : tracksMap.keySet()) {
@@ -107,6 +107,19 @@ public class InfoSystemUtils {
                 Album album = albumInfoToAlbum(albumInfo, artist.getName(), trackInfos, image);
                 artist.addAlbum(album);
             }
+        }
+        return artist;
+    }
+
+    public static Artist fillArtistWithTopHits(Artist artist, Map<ChartItem, TrackInfo> tracksMap) {
+        if (tracksMap != null && artist.getTopHits().size() == 0) {
+            ArrayList<Query> tophits = new ArrayList<Query>();
+            for (ChartItem chartItem : tracksMap.keySet()) {
+                TrackInfo trackInfos = tracksMap.get(chartItem);
+                Query query = new Query(trackInfos.name, "", artist.getName(), false);
+                tophits.add(query);
+            }
+            artist.setTopHits(tophits);
         }
         return artist;
     }
