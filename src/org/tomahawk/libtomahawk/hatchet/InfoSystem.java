@@ -133,12 +133,12 @@ public class InfoSystem {
         params.put(HATCHET_PARAM_NAME, artist.getName());
         String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params);
         mItemsToBeFilled.put(requestId, artist);
-        params.clear();
+        params = HashMultimap.create(1, 1);
         params.put(HATCHET_PARAM_NAME, artist.getName());
         requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS, params);
         mItemsToBeFilled.put(requestId, artist);
         if (artist.getTopHits().size() == 0) {
-            params.clear();
+            params = HashMultimap.create(1, 1);
             params.put(HATCHET_PARAM_NAME, artist.getName());
             requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS, params);
             mItemsToBeFilled.put(requestId, artist);
@@ -200,17 +200,17 @@ public class InfoSystem {
             infoRequestData.setInfoResultMap(resultMapList);
             return true;
         } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS) {
-            params.putAll(infoRequestData.getParams());
             rawJsonString = TomahawkUtils.httpsGet(
-                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params));
+                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS,
+                            infoRequestData.getParams()));
             infoRequestData.setInfoResult(
                     mObjectMapper.readValue(rawJsonString, Artists.class));
             return true;
         } else if (infoRequestData.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS) {
-            params.putAll(infoRequestData.getParams());
             rawJsonString = TomahawkUtils.httpsGet(
-                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params));
+                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS,
+                            infoRequestData.getParams()));
             Artists artists = mObjectMapper.readValue(rawJsonString, Artists.class);
 
             if (artists.artists != null && artists.artists.size() > 0) {
@@ -247,9 +247,9 @@ public class InfoSystem {
             return true;
         } else if (infoRequestData.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
-            params.putAll(infoRequestData.getParams());
             rawJsonString = TomahawkUtils.httpsGet(
-                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params));
+                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS,
+                            infoRequestData.getParams()));
             Artists artists = mObjectMapper.readValue(rawJsonString, Artists.class);
 
             if (artists.artists != null && artists.artists.size() > 0) {
@@ -271,16 +271,16 @@ public class InfoSystem {
             infoRequestData.setInfoResultMap(resultMapList);
             return true;
         } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS) {
-            params.putAll(infoRequestData.getParams());
             rawJsonString = TomahawkUtils.httpsGet(
-                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS, params));
+                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS,
+                            infoRequestData.getParams()));
             infoRequestData.setInfoResult(
                     mObjectMapper.readValue(rawJsonString, Albums.class));
             return true;
         } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES) {
-            params.putAll(infoRequestData.getParams());
             rawJsonString = TomahawkUtils.httpsGet(
-                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES, params));
+                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES,
+                            infoRequestData.getParams()));
             Search search = mObjectMapper.readValue(rawJsonString, Search.class);
             Map<String, AlbumInfo> albumInfoMap = new HashMap<String, AlbumInfo>();
             for (AlbumInfo albumInfo : search.albums) {
@@ -465,8 +465,9 @@ public class InfoSystem {
         mTomahawkApp.sendBroadcast(reportIntent);
     }
 
-    private static String buildQuery(int type, Multimap<String, String> params)
+    private static String buildQuery(int type, Multimap<String, String> paramsIn)
             throws UnsupportedEncodingException {
+        Multimap<String, String> params = HashMultimap.create(paramsIn);
         String queryString = null;
         java.util.Collection<String> paramStrings;
         Iterator<String> iterator;
