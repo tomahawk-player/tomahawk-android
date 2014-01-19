@@ -157,6 +157,13 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
     }
 
     @Override
+    protected void onPipeLineResultsReported(String qId) {
+        if (mCorrespondingQueryIds.contains(qId)) {
+            updateAdapter();
+        }
+    }
+
+    @Override
     protected void onInfoSystemResultsReported(String requestId) {
         if (mCurrentRequestIds.contains(requestId)) {
             updateAdapter();

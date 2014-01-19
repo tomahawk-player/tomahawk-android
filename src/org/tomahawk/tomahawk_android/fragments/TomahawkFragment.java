@@ -153,6 +153,7 @@ public class TomahawkFragment extends TomahawkListFragment
                     && !TextUtils.isEmpty(getArguments().getString(TOMAHAWK_ALBUM_KEY))) {
                 mAlbum = Album.getAlbumByKey(getArguments().getString(TOMAHAWK_ALBUM_KEY));
                 mCurrentRequestIds.add(mInfoSystem.resolve(mAlbum));
+                mTomahawkMainActivity.startLoadingAnimation();
             }
             if (getArguments().containsKey(TOMAHAWK_USER_PLAYLIST_KEY) && !TextUtils.isEmpty(
                     getArguments().getString(TOMAHAWK_USER_PLAYLIST_KEY))) {
@@ -169,6 +170,7 @@ public class TomahawkFragment extends TomahawkListFragment
                     && !TextUtils.isEmpty(getArguments().getString(TOMAHAWK_ARTIST_KEY))) {
                 mArtist = Artist.getArtistByKey(getArguments().getString(TOMAHAWK_ARTIST_KEY));
                 mCurrentRequestIds.add(mInfoSystem.resolve(mArtist));
+                mTomahawkMainActivity.startLoadingAnimation();
             }
             if (getArguments().containsKey(TOMAHAWK_HUB_ID)
                     && getArguments().getInt(TOMAHAWK_HUB_ID) > 0) {

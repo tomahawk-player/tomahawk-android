@@ -112,6 +112,9 @@ public class InfoSystem {
     private ConcurrentHashMap<String, InfoRequestData> mRequests
             = new ConcurrentHashMap<String, InfoRequestData>();
 
+    private ConcurrentHashMap<String, InfoRequestData> mResolvingRequests
+            = new ConcurrentHashMap<String, InfoRequestData>();
+
     private ConcurrentHashMap<String, TomahawkBaseAdapter.TomahawkListItem> mItemsToBeFilled
             = new ConcurrentHashMap<String, TomahawkBaseAdapter.TomahawkListItem>();
 
@@ -161,6 +164,7 @@ public class InfoSystem {
 
     public void resolve(InfoRequestData infoRequestData) {
         mRequests.put(infoRequestData.getRequestId(), infoRequestData);
+        mResolvingRequests.put(infoRequestData.getRequestId(), infoRequestData);
         new JSONResponseTask().execute(infoRequestData);
     }
 
@@ -370,7 +374,6 @@ public class InfoSystem {
                 }
                 for (InfoRequestData infoRequestData : infoRequestDatas) {
                     if (getAndParseInfo(infoRequestData)) {
-                        doneRequestsIds.add(infoRequestData.getRequestId());
                         if (mItemsToBeFilled.containsKey(infoRequestData.getRequestId())) {
                             if (infoRequestData.getType()
                                     == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS) {
@@ -438,12 +441,16 @@ public class InfoSystem {
             } catch (KeyManagementException e) {
                 Log.e(TAG, "JSONResponseTask: " + e.getClass() + ": " + e.getLocalizedMessage());
             }
+            for (InfoRequestData infoRequestData : infoRequestDatas) {
+                doneRequestsIds.add(infoRequestData.getRequestId());
+            }
             return doneRequestsIds;
         }
 
         @Override
         protected void onPostExecute(ArrayList<String> doneRequestsIds) {
             for (String doneRequestId : doneRequestsIds) {
+                mResolvingRequests.remove(doneRequestId);
                 sendReportResultsBroadcast(doneRequestId);
             }
         }
@@ -535,5 +542,9 @@ public class InfoSystem {
             queryString += "?" + TomahawkUtils.paramsListToString(params);
         }
         return queryString;
+    }
+
+    public boolean isResolving() {
+        return !mResolvingRequests.isEmpty();
     }
 }
