@@ -55,6 +55,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
 
     private boolean mShowCategoryHeaders = false;
 
+    private boolean mShowQueriesAsTopHits = false;
+
     private boolean mShowPlaylistHeader = false;
 
     private boolean mShowContentHeader = false;
@@ -96,12 +98,13 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
      * Set whether or not a header should be shown above each "category". Like "Albums", "Tracks"
      * etc.
      */
-    public void setShowCategoryHeaders(boolean showCategoryHeaders) {
+    public void setShowCategoryHeaders(boolean showCategoryHeaders, boolean showQueriesAsTopHits) {
         mCategoryHeaderResourceHolder = new ResourceHolder();
         mCategoryHeaderResourceHolder.resourceId = R.layout.single_line_list_header;
         mCategoryHeaderResourceHolder.imageViewId = R.id.single_line_list_header_icon_imageview;
         mCategoryHeaderResourceHolder.textViewId1 = R.id.single_line_list_header_textview;
         mShowCategoryHeaders = showCategoryHeaders;
+        mShowQueriesAsTopHits = showQueriesAsTopHits;
     }
 
     /**
@@ -431,8 +434,13 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
             viewHolder = (ViewHolder) convertView.getTag();
             if (mShowCategoryHeaders && getItem(position) != null) {
                 if (getItem(position) instanceof Track || getItem(position) instanceof Query) {
-                    viewHolder.imageViewLeft.setImageResource(R.drawable.ic_action_track);
-                    viewHolder.textFirstLine.setText(R.string.tracksfragment_title_string);
+                    if (mShowQueriesAsTopHits) {
+                        viewHolder.imageViewLeft.setImageResource(R.drawable.ic_action_tophits);
+                        viewHolder.textFirstLine.setText(R.string.tophits_categoryheaders_string);
+                    } else {
+                        viewHolder.imageViewLeft.setImageResource(R.drawable.ic_action_track);
+                        viewHolder.textFirstLine.setText(R.string.tracksfragment_title_string);
+                    }
                 } else if (getItem(position) instanceof Artist) {
                     viewHolder.imageViewLeft.setImageResource(R.drawable.ic_action_artist);
                     viewHolder.textFirstLine.setText(R.string.artistsfragment_title_string);
@@ -467,9 +475,6 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
     public long getHeaderId(int position) {
         long result = 0;
         int sizeSum = 0;
-        if (mShowContentHeader) {
-            sizeSum += 1;
-        }
         for (List<TomahawkListItem> list : mFiltered ? mFilteredListArray : mListArray) {
             sizeSum += list.size();
             if (position < sizeSum) {

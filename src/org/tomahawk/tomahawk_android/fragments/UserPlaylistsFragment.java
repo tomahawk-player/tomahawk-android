@@ -108,7 +108,7 @@ public class UserPlaylistsFragment extends TomahawkFragment implements OnItemCli
         tomahawkListAdapter.setShowAddButton(true, getListView(),
                 getResources().getString(R.string.playbackactivity_create_playlist_dialog_title));
         setListAdapter(tomahawkListAdapter);
-        tomahawkListAdapter.setShowCategoryHeaders(true);
+        tomahawkListAdapter.setShowCategoryHeaders(true, false);
 
         getListView().setOnItemClickListener(this);
         getListView().setAreHeadersSticky(false);

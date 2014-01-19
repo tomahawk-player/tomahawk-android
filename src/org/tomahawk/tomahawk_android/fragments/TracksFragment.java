@@ -136,7 +136,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
-                tomahawkListAdapter.setShowCategoryHeaders(true);
+                tomahawkListAdapter.setShowCategoryHeaders(true, false);
                 tomahawkListAdapter.setShowContentHeader(true, getListView(), mAlbum);
                 setListAdapter(tomahawkListAdapter);
             } else {
@@ -155,7 +155,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
-                tomahawkListAdapter.setShowCategoryHeaders(true);
+                tomahawkListAdapter.setShowCategoryHeaders(true, false);
                 tomahawkListAdapter.setShowContentHeader(true, getListView(), mArtist);
                 setListAdapter(tomahawkListAdapter);
             } else {
@@ -169,7 +169,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
-                tomahawkListAdapter.setShowCategoryHeaders(true);
+                tomahawkListAdapter.setShowCategoryHeaders(true, false);
                 tomahawkListAdapter.setShowContentHeader(true, getListView(), mUserPlaylist);
                 setListAdapter(tomahawkListAdapter);
             } else {
@@ -183,7 +183,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
-                tomahawkListAdapter.setShowCategoryHeaders(true);
+                tomahawkListAdapter.setShowCategoryHeaders(true, false);
                 tomahawkListAdapter.setShowContentHeader(true, getListView(), mUserPlaylist);
                 setListAdapter(tomahawkListAdapter);
             } else {
