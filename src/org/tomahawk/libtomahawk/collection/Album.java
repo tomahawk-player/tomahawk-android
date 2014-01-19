@@ -42,7 +42,7 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
     private static ConcurrentHashMap<String, Album> sAlbums
             = new ConcurrentHashMap<String, Album>();
 
-    private ConcurrentHashMap<String, Query> mQueries;
+    private ArrayList<Query> mQueries;
 
     private String mName;
 
@@ -58,13 +58,15 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
 
     private boolean mContainsLocalQueries = false;
 
+    private boolean mDontSortQueries = false;
+
     /**
      * Construct a new {@link Album}
      */
     private Album(String albumName, Artist artist) {
         mName = albumName;
         mArtist = artist;
-        mQueries = new ConcurrentHashMap<String, Query>();
+        mQueries = new ArrayList<Query>();
     }
 
     /**
@@ -157,9 +159,15 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
                 .getResolvedBy() instanceof DataBaseResolver) {
             mContainsLocalQueries = true;
         }
+        boolean containsQuery = false;
         String key = TomahawkUtils.getCacheKey(query);
-        if (!mQueries.containsKey(key)) {
-            mQueries.put(key, query);
+        for (Query q : mQueries) {
+            if (TomahawkUtils.getCacheKey(q).equals(key)) {
+                containsQuery = true;
+            }
+        }
+        if (!containsQuery) {
+            mQueries.add(query);
         }
     }
 
@@ -169,9 +177,10 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
      * @return list of all {@link org.tomahawk.libtomahawk.resolver.Query}s from this {@link Album}.
      */
     public ArrayList<Query> getQueries() {
-        ArrayList<Query> queries = new ArrayList<Query>(mQueries.values());
-        Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
-        return queries;
+        if (!isDontSortQueries()) {
+            Collections.sort(mQueries, new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
+        }
+        return mQueries;
     }
 
     /**
@@ -183,14 +192,20 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
      */
     public ArrayList<Query> getLocalQueries() {
         ArrayList<Query> queries = new ArrayList<Query>();
-        for (Query query : mQueries.values()) {
+        for (Query query : mQueries) {
             if (query.getPreferredTrackResult() != null && query.getPreferredTrackResult()
                     .isLocal()) {
                 queries.add(query);
             }
         }
-        Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
+        if (!isDontSortQueries()) {
+            Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
+        }
         return queries;
+    }
+
+    public void clearQueries() {
+        mQueries.clear();
     }
 
     /**
@@ -304,6 +319,14 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
      */
     public boolean containsLocalQueries() {
         return mContainsLocalQueries;
+    }
+
+    public boolean isDontSortQueries() {
+        return mDontSortQueries;
+    }
+
+    public void setDontSortQueries(boolean dontSortQueries) {
+        mDontSortQueries = dontSortQueries;
     }
 
 }
