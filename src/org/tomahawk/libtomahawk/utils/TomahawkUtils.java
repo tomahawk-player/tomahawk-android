@@ -2,6 +2,8 @@ package org.tomahawk.libtomahawk.utils;
 
 import com.google.common.collect.Multimap;
 
+import com.squareup.picasso.Picasso;
+
 import org.json.JSONObject;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
@@ -11,6 +13,7 @@ import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
+import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 
 import android.content.Context;
@@ -19,6 +22,7 @@ import android.content.res.Resources;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.widget.ImageView;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -289,5 +293,43 @@ public class TomahawkUtils {
             in.close();
             return response.toString();
         }
+    }
+
+    /**
+     * Load a {@link android.graphics.Bitmap} asynchronously
+     *
+     * @param context   the context needed for fetching resources
+     * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
+     *                  android.graphics.Bitmap}
+     * @param path      the path to load the image from
+     */
+    public static void loadImageIntoImageView(Context context, ImageView imageView, String path) {
+        if (!TextUtils.isEmpty(path)) {
+            Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(path))
+                    .placeholder(R.drawable.no_album_art_placeholder)
+                    .error(R.drawable.no_album_art_placeholder).into(imageView);
+        } else {
+            loadImageIntoImageView(context, imageView);
+        }
+    }
+
+    /**
+     * Load a {@link android.graphics.Bitmap} asynchronously
+     *
+     * @param context   the context needed for fetching resources
+     * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
+     *                  android.graphics.Bitmap}
+     */
+    public static void loadImageIntoImageView(Context context, ImageView imageView) {
+        Picasso.with(context).load(R.drawable.no_album_art_placeholder)
+                .placeholder(R.drawable.no_album_art_placeholder)
+                .error(R.drawable.no_album_art_placeholder).into(imageView);
+    }
+
+    public static String preparePathForPicasso(String path) {
+        if (TextUtils.isEmpty(path) || path.contains("https://") || path.contains("https://")) {
+            return path;
+        }
+        return "file:" + path;
     }
 }

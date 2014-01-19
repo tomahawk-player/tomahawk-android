@@ -18,7 +18,9 @@
  */
 package org.tomahawk.tomahawk_android.services;
 
-import org.tomahawk.libtomahawk.collection.BitmapItem;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
@@ -26,6 +28,7 @@ import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -42,13 +45,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
@@ -127,7 +131,24 @@ public class PlaybackService extends Service {
 
     private Handler mHandler;
 
-    private BitmapItem.AsyncBitmap mNotificationAsyncBitmap = new BitmapItem.AsyncBitmap(null);
+    private Bitmap mAlbumArtPlaceHolder;
+
+    private Target mTarget = new Target() {
+        @Override
+        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
+            updatePlayingNotification(bitmap);
+        }
+
+        @Override
+        public void onBitmapFailed(Drawable drawable) {
+
+        }
+
+        @Override
+        public void onPrepareLoad(Drawable drawable) {
+
+        }
+    };
 
     /**
      * The static {@link ServiceConnection} which calls methods in {@link
@@ -234,17 +255,6 @@ public class PlaybackService extends Service {
                     //resume playback, if user has set the "resume on headset plugin" preference
                     start();
                 }
-            } else if (BitmapItem.BITMAPITEM_BITMAPLOADED.equals(intent.getAction())) {
-                // a bitmap has been loaded
-                if (mCurrentPlaylist.getCurrentQuery() != null
-                        && mCurrentPlaylist.getCurrentQuery().getAlbums() != null
-                        && !mCurrentPlaylist.getCurrentQuery().getAlbums().isEmpty()
-                        && intent.getStringExtra(BitmapItem.BITMAPITEM_BITMAPLOADED_PATH).equals(
-                        mCurrentPlaylist.getCurrentQuery().getAlbums().get(0)
-                                .getAlbumArtPath())) {
-                    // the loaded bitmap is relevant to us, so we update the playing notification
-                    updatePlayingNotification();
-                }
             } else if (PipeLine.PIPELINE_RESULTSREPORTED.equals(intent.getAction())) {
                 String qid = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
                 onPipeLineResultsReported(qid);
@@ -316,8 +326,6 @@ public class PlaybackService extends Service {
                 new IntentFilter(Intent.ACTION_HEADSET_PLUG));
         registerReceiver(mPlaybackServiceBroadcastReceiver,
                 new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
-        registerReceiver(mPlaybackServiceBroadcastReceiver,
-                new IntentFilter(BitmapItem.BITMAPITEM_BITMAPLOADED));
         registerReceiver(mPlaybackServiceBroadcastReceiver,
                 new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED));
 
@@ -655,7 +663,6 @@ public class PlaybackService extends Service {
      * This method sets the current track and prepares it for playback.
      */
     public void setCurrentQuery(final Query query) {
-        mNotificationAsyncBitmap.bitmap = null;
         if (getCurrentQuery() != null) {
             getCurrentQuery().setCurrentlyPlaying(false);
         }
@@ -831,6 +838,33 @@ public class PlaybackService extends Service {
      * Create or update an ongoing notification
      */
     private void updatePlayingNotification() {
+        updatePlayingNotification(null);
+    }
+
+    /**
+     * Create or update an ongoing notification
+     */
+    private void updatePlayingNotification(Bitmap bitmap) {
+        if (mAlbumArtPlaceHolder == null) {
+            Bitmap b = BitmapFactory.decodeResource(getResources(),
+                    R.drawable.no_album_art_placeholder);
+            int width = b.getWidth();
+            int height = b.getHeight();
+            float goalHeight = getResources().getDimension(
+                    android.R.dimen.notification_large_icon_height);
+            float goalWidth = getResources()
+                    .getDimension(android.R.dimen.notification_large_icon_width);
+            float scaleHeight = (float) height / goalHeight;
+            float scaleWidth = (float) width / goalWidth;
+            float scale;
+            if (scaleWidth < scaleHeight) {
+                scale = scaleHeight;
+            } else {
+                scale = scaleWidth;
+            }
+            mAlbumArtPlaceHolder = Bitmap
+                    .createScaledBitmap(b, (int) (width / scale), (int) (height / scale), true);
+        }
 
         Query query = getCurrentQuery();
         if (query == null) {
@@ -841,33 +875,29 @@ public class PlaybackService extends Service {
             return;
         }
 
-        Resources resources = getResources();
-        Bitmap albumArtTemp;
         String albumName = "";
         String artistName = "";
-        if (track.getAlbum() != null) {
-            albumName = track.getAlbum().getName();
-        }
+        String albumArtPath = "";
         if (track.getArtist() != null) {
             artistName = track.getArtist().getName();
         }
         if (track.getAlbum() != null) {
-            if (mNotificationAsyncBitmap.bitmap != null) {
-                albumArtTemp = mNotificationAsyncBitmap.bitmap;
-            } else {
-                track.getAlbum().loadBitmap(this, mNotificationAsyncBitmap);
-                albumArtTemp = BitmapFactory
-                        .decodeResource(resources, R.drawable.no_album_art_placeholder);
+            albumName = track.getAlbum().getName();
+            if (!TextUtils.isEmpty(track.getAlbum().getAlbumArtPath())) {
+                albumArtPath = track.getAlbum().getAlbumArtPath();
             }
-        } else {
-            albumArtTemp = BitmapFactory
-                    .decodeResource(resources, R.drawable.no_album_art_placeholder);
         }
-        Bitmap largeAlbumArt = Bitmap.createScaledBitmap(albumArtTemp, 256, 256, false);
-        Bitmap smallAlbumArt = Bitmap.createScaledBitmap(albumArtTemp,
-                resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width),
-                resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_height),
-                false);
+        if (bitmap == null) {
+            if (!TextUtils.isEmpty(albumArtPath)) {
+                Picasso.with(this).load(TomahawkUtils.preparePathForPicasso(albumArtPath))
+                        .placeholder(R.drawable.no_album_art_placeholder).error(
+                        R.drawable.no_album_art_placeholder).into(mTarget);
+            } else {
+                Picasso.with(this).load(R.drawable.no_album_art_placeholder)
+                        .placeholder(R.drawable.no_album_art_placeholder).error(
+                        R.drawable.no_album_art_placeholder).into(mTarget);
+            }
+        }
 
         Intent intent = new Intent(BROADCAST_NOTIFICATIONINTENT_PREVIOUS, null, this,
                 PlaybackService.class);
@@ -887,8 +917,8 @@ public class PlaybackService extends Service {
         RemoteViews smallNotificationView;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             smallNotificationView = new RemoteViews(getPackageName(), R.layout.notification_small);
-            smallNotificationView
-                    .setImageViewBitmap(R.id.notification_small_imageview_albumart, smallAlbumArt);
+            smallNotificationView.setImageViewUri(R.id.notification_small_imageview_albumart,
+                    Uri.parse(albumArtPath));
         } else {
             smallNotificationView = new RemoteViews(getPackageName(),
                     R.layout.notification_small_compat);
@@ -916,8 +946,13 @@ public class PlaybackService extends Service {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_launcher).setContentTitle(artistName)
-                .setContentText(track.getName()).setLargeIcon(smallAlbumArt).setOngoing(true)
-                .setPriority(NotificationCompat.PRIORITY_MAX).setContent(smallNotificationView);
+                .setContentText(track.getName()).setOngoing(true).setPriority(
+                        NotificationCompat.PRIORITY_MAX).setContent(smallNotificationView);
+        if (bitmap != null) {
+            builder.setLargeIcon(bitmap);
+        } else {
+            builder.setLargeIcon(mAlbumArtPlaceHolder);
+        }
 
         Intent notificationIntent = new Intent(this, TomahawkMainActivity.class);
         intent.setAction(TomahawkMainActivity.SHOW_PLAYBACKFRAGMENT_ON_STARTUP);
@@ -931,10 +966,10 @@ public class PlaybackService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             RemoteViews largeNotificationView = new RemoteViews(getPackageName(),
                     R.layout.notification_large);
-            largeNotificationView
-                    .setImageViewBitmap(R.id.notification_large_imageview_albumart, largeAlbumArt);
-            largeNotificationView
-                    .setTextViewText(R.id.notification_large_textview, track.getName());
+            largeNotificationView.setImageViewUri(R.id.notification_large_imageview_albumart,
+                    Uri.parse(albumArtPath));
+            largeNotificationView.setTextViewText(R.id.notification_large_textview,
+                    track.getName());
             largeNotificationView.setTextViewText(R.id.notification_large_textview2, artistName);
             largeNotificationView.setTextViewText(R.id.notification_large_textview3, albumName);
             if (isPlaying()) {
