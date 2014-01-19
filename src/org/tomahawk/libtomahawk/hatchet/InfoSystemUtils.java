@@ -114,6 +114,8 @@ public class InfoSystemUtils {
     public static Album albumInfoToAlbum(AlbumInfo albumInfo, String artistName,
             List<TrackInfo> trackInfos, Image image) {
         Album album = Album.get(albumInfo.name, Artist.get(artistName));
+        album.setDontSortQueries(true);
+        album.clearQueries();
         if (album.getAlbumArtPath() == null && image != null) {
             album.setAlbumArtPath(image.squareurl);
         }

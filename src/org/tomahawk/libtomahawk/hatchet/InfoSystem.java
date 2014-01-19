@@ -18,6 +18,7 @@
 package org.tomahawk.libtomahawk.hatchet;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 
 import org.apache.http.client.ClientProtocolException;
@@ -160,7 +161,7 @@ public class InfoSystem {
     private boolean getAndParseInfo(InfoRequestData infoRequestData)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         long start = System.currentTimeMillis();
-        Multimap<String, String> params = HashMultimap.create();
+        Multimap<String, String> params = LinkedListMultimap.create();
         Map<String, Map> resultMapList = new HashMap<String, Map>();
         Map<String, List> convertedResultMap = new HashMap<String, List>();
         String rawJsonString;
