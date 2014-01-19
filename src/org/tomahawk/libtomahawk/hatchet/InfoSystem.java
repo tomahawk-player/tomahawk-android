@@ -194,13 +194,13 @@ public class InfoSystem {
         } else if (infoRequestData.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS) {
             params.putAll(infoRequestData.getParams());
-            Map<AlbumInfo, Tracks> tracksMap = new HashMap<AlbumInfo, Tracks>();
-            Map<AlbumInfo, Image> imageMap = new HashMap<AlbumInfo, Image>();
             rawJsonString = TomahawkUtils.httpsGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params));
             Artists artists = mObjectMapper.readValue(rawJsonString, Artists.class);
 
             if (artists.artists != null && artists.artists.size() > 0) {
+                Map<AlbumInfo, Tracks> tracksMap = new HashMap<AlbumInfo, Tracks>();
+                Map<AlbumInfo, Image> imageMap = new HashMap<AlbumInfo, Image>();
                 params.put(HATCHET_PARAM_ID, artists.artists.get(0).id);
                 rawJsonString = TomahawkUtils.httpsGet(
                         buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS,
@@ -214,19 +214,21 @@ public class InfoSystem {
                     if (albumInfo.images != null && albumInfo.images.size() > 0) {
                         imageMap.put(albumInfo, chartImageMap.get(albumInfo.images.get(0)));
                     }
-                    params.clear();
-                    for (String trackId : albumInfo.tracks) {
-                        params.put(HATCHET_PARAM_IDARRAY, trackId);
+                    if (albumInfo.tracks != null && albumInfo.tracks.size() > 0) {
+                        params.clear();
+                        for (String trackId : albumInfo.tracks) {
+                            params.put(HATCHET_PARAM_IDARRAY, trackId);
+                        }
+                        rawJsonString = TomahawkUtils.httpsGet(
+                                buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_TRACKS, params));
+                        Tracks tracks = mObjectMapper.readValue(rawJsonString, Tracks.class);
+                        tracksMap.put(albumInfo, tracks);
                     }
-                    rawJsonString = TomahawkUtils.httpsGet(
-                            buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_TRACKS, params));
-                    Tracks tracks = mObjectMapper.readValue(rawJsonString, Tracks.class);
-                    tracksMap.put(albumInfo, tracks);
                 }
                 resultMapList.put(HATCHET_TRACKS, tracksMap);
                 resultMapList.put(HATCHET_IMAGES, imageMap);
-                infoRequestData.setInfoResultMap(resultMapList);
             }
+            infoRequestData.setInfoResultMap(resultMapList);
             return true;
         } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS) {
             params.putAll(infoRequestData.getParams());
