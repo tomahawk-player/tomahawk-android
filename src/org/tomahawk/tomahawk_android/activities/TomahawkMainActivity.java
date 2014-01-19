@@ -28,6 +28,7 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
@@ -594,10 +595,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                 if (nowPlayingInfoAlbumArt != null && nowPlayingInfoArtist != null
                         && nowPlayingInfoTitle != null) {
                     if (track.getAlbum() != null) {
-                        track.getAlbum().loadBitmap(this, nowPlayingInfoAlbumArt);
-                    } else {
-                        nowPlayingInfoAlbumArt
-                                .setImageResource(R.drawable.no_album_art_placeholder);
+                        TomahawkUtils.loadImageIntoImageView(this, nowPlayingInfoAlbumArt,
+                                track.getAlbum().getAlbumArtPath());
                     }
                     nowPlayingInfoArtist.setText(track.getArtist().toString());
                     nowPlayingInfoTitle.setText(track.getName());

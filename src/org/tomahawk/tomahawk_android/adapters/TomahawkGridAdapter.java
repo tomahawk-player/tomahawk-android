@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 
 import android.app.Activity;
@@ -93,9 +94,11 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
                 viewHolder.textFirstLine.setText(((TomahawkListItem) item).getName());
                 viewHolder.textSecondLine.setText(((TomahawkListItem) item).getArtist().getName());
                 if (item instanceof Album) {
-                    ((Album) item).loadBitmap(mActivity, viewHolder.imageViewLeft);
+                    TomahawkUtils.loadImageIntoImageView(mActivity, viewHolder.imageViewLeft,
+                            ((Album) item).getAlbumArtPath());
                 } else if (item instanceof Artist) {
-                    //                    ((Artist) item).loadBitmap(mContext, viewHolder.imageViewLeft);
+                    TomahawkUtils.loadImageIntoImageView(mActivity, viewHolder.imageViewLeft,
+                            ((Artist) item).getImage());
                 }
             }
         }

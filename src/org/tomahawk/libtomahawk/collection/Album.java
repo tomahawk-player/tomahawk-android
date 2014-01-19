@@ -21,15 +21,10 @@ import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.widget.ImageView;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Class which represents a Tomahawk {@link Album}.
  */
-public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkListItem {
+public class Album implements TomahawkBaseAdapter.TomahawkListItem {
 
     private static ConcurrentHashMap<String, Album> sAlbums
             = new ConcurrentHashMap<String, Album>();
@@ -224,64 +219,6 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
      */
     public void setAlbumArtPath(String albumArt) {
         mAlbumArtPath = albumArt;
-    }
-
-    /**
-     * Load a {@link android.graphics.Bitmap} asynchronously
-     *
-     * @param context     the context needed for fetching resources
-     * @param asyncBitmap the {@link android.widget.ImageView}, which will be used to show the
-     *                    {@link android.graphics.Bitmap}
-     */
-    public void loadBitmap(Context context, AsyncBitmap asyncBitmap) {
-        Bitmap placeHolderBitmap;
-        String pathToBitmap;
-        if (sAlbumPlaceHolderBitmap == null) {
-            sAlbumPlaceHolderBitmap = BitmapFactory
-                    .decodeResource(context.getResources(), R.drawable.no_album_art_placeholder);
-        }
-        placeHolderBitmap = sAlbumPlaceHolderBitmap;
-        pathToBitmap = getAlbumArtPath();
-        if (pathToBitmap != null) {
-            if (cancelPotentialWork(pathToBitmap, getBitmapWorkerTask(asyncBitmap))) {
-                final BitmapWorkerTask task = new BitmapWorkerTask(context, asyncBitmap,
-                        sAlbumPlaceHolderBitmap);
-                asyncBitmap.setBitmapWorkerTaskReference(new WeakReference<BitmapWorkerTask>(task));
-                task.execute(getAlbumArtPath());
-            }
-        } else {
-            asyncBitmap.bitmap = placeHolderBitmap;
-        }
-    }
-
-    /**
-     * Load a {@link android.graphics.Bitmap} asynchronously
-     *
-     * @param context   the context needed for fetching resources
-     * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
-     *                  android.graphics.Bitmap}
-     */
-    public void loadBitmap(Context context, ImageView imageView) {
-        Bitmap placeHolderBitmap;
-        String pathToBitmap;
-        if (sAlbumPlaceHolderBitmap == null) {
-            sAlbumPlaceHolderBitmap = BitmapFactory
-                    .decodeResource(context.getResources(), R.drawable.no_album_art_placeholder);
-        }
-        placeHolderBitmap = sAlbumPlaceHolderBitmap;
-        pathToBitmap = getAlbumArtPath();
-        if (pathToBitmap != null) {
-            if (cancelPotentialWork(pathToBitmap, getBitmapWorkerTask(imageView))) {
-                final BitmapWorkerTask task = new BitmapWorkerTask(imageView,
-                        sAlbumPlaceHolderBitmap);
-                final AsyncDrawable asyncDrawable = new AsyncDrawable(context.getResources(),
-                        placeHolderBitmap, task);
-                imageView.setImageDrawable(asyncDrawable);
-                task.execute(getAlbumArtPath());
-            }
-        } else {
-            imageView.setImageBitmap(placeHolderBitmap);
-        }
     }
 
     /**
