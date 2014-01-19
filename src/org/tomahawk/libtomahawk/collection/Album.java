@@ -161,13 +161,15 @@ public class Album extends BitmapItem implements TomahawkBaseAdapter.TomahawkLis
         }
         boolean containsQuery = false;
         String key = TomahawkUtils.getCacheKey(query);
-        for (Query q : mQueries) {
-            if (TomahawkUtils.getCacheKey(q).equals(key)) {
-                containsQuery = true;
+        synchronized (this) {
+            for (Query q : mQueries) {
+                if (TomahawkUtils.getCacheKey(q).equals(key)) {
+                    containsQuery = true;
+                }
             }
-        }
-        if (!containsQuery) {
-            mQueries.add(query);
+            if (!containsQuery) {
+                mQueries.add(query);
+            }
         }
     }
 
