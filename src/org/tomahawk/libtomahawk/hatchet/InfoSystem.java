@@ -511,7 +511,7 @@ public class InfoSystem {
 
     private static String buildQuery(int type, Multimap<String, String> paramsIn)
             throws UnsupportedEncodingException {
-        Multimap<String, String> params = HashMultimap.create(paramsIn);
+        Multimap<String, String> params = LinkedListMultimap.create(paramsIn);
         String queryString = null;
         java.util.Collection<String> paramStrings;
         Iterator<String> iterator;
