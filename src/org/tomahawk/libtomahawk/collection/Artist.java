@@ -23,8 +23,6 @@ import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 
-import android.graphics.Bitmap;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,15 +39,18 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
 
     private ConcurrentHashMap<String, Album> mAlbums = new ConcurrentHashMap<String, Album>();
 
+    private ConcurrentHashMap<String, Album> mLocalAlbums = new ConcurrentHashMap<String, Album>();
+
+    private ConcurrentHashMap<String, Album> mAlbumsFetchedViaHatchet
+            = new ConcurrentHashMap<String, Album>();
+
     private ConcurrentHashMap<String, Query> mQueries = new ConcurrentHashMap<String, Query>();
+
+    private ConcurrentHashMap<String, Query> mLocalQueries = new ConcurrentHashMap<String, Query>();
 
     private ArrayList<Query> mTopHits = new ArrayList<Query>();
 
-    private boolean mContainsLocalQueries = false;
-
     private String mImage;
-
-    private static Bitmap sArtistPlaceHolderBitmap;
 
     /**
      * Construct a new {@link Artist} with the given name
@@ -96,7 +97,7 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
     public static ArrayList<Artist> getLocalArtists() {
         ArrayList<Artist> artists = new ArrayList<Artist>();
         for (Artist artist : sArtists.values()) {
-            if (artist.containsLocalQueries()) {
+            if (artist.hasLocalQueries()) {
                 artists.add(artist);
             }
         }
@@ -149,13 +150,17 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
      * @param query the {@link org.tomahawk.libtomahawk.resolver.Query} to be added
      */
     public void addQuery(Query query) {
-        if (query.getPreferredTrackResult() != null && query.getPreferredTrackResult()
-                .getResolvedBy() instanceof DataBaseResolver) {
-            mContainsLocalQueries = true;
-        }
         String key = TomahawkUtils.getCacheKey(query);
-        if (!mQueries.containsKey(key)) {
-            mQueries.put(key, query);
+        synchronized (this) {
+            if (!mQueries.containsKey(key)) {
+                mQueries.put(key, query);
+                boolean isLocalQuery = query.getPreferredTrackResult() != null
+                        && query.getPreferredTrackResult()
+                        .getResolvedBy() instanceof DataBaseResolver;
+                if (isLocalQuery) {
+                    mLocalQueries.put(key, query);
+                }
+            }
         }
     }
 
@@ -173,13 +178,7 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
      * org.tomahawk.libtomahawk.collection.Artist}.
      */
     public ArrayList<Query> getLocalQueries() {
-        ArrayList<Query> queries = new ArrayList<Query>();
-        for (Query query : mQueries.values()) {
-            if (query.getPreferredTrackResult() != null && query.getPreferredTrackResult()
-                    .isLocal()) {
-                queries.add(query);
-            }
-        }
+        ArrayList<Query> queries = new ArrayList<Query>(mLocalQueries.values());
         Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALPHA));
         return queries;
     }
@@ -202,13 +201,15 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
         if (!mAlbums.containsKey(key)) {
             mAlbums.put(key, album);
         }
-    }
-
-    /**
-     * Clear all {@link Album}s.
-     */
-    public void clearAlbums() {
-        mAlbums = new ConcurrentHashMap<String, Album>();
+        synchronized (this) {
+            if (!mAlbums.containsKey(key)) {
+                mAlbums.put(key, album);
+                boolean isLocalAlbum = album.hasLocalQueries();
+                if (isLocalAlbum) {
+                    mLocalAlbums.put(key, album);
+                }
+            }
+        }
     }
 
     /**
@@ -217,6 +218,9 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
      * @return list of all {@link Album}s from this object.
      */
     public ArrayList<Album> getAlbums() {
+        if (mAlbumsFetchedViaHatchet.size() > 0) {
+            return new ArrayList<Album>(mAlbumsFetchedViaHatchet.values());
+        }
         ArrayList<Album> albums = new ArrayList<Album>(mAlbums.values());
         Collections.sort(albums,
                 new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
@@ -229,22 +233,31 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
      * @return list of all local {@link Album}s from this object.
      */
     public ArrayList<Album> getLocalAlbums() {
-        ArrayList<Album> albums = new ArrayList<Album>();
-        for (Album album : mAlbums.values()) {
-            if (album.containsLocalQueries()) {
-                albums.add(album);
-            }
-        }
+        ArrayList<Album> albums = new ArrayList<Album>(mLocalAlbums.values());
         Collections.sort(albums,
                 new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
         return albums;
     }
 
+    public void setAlbumsFetchedViaHatchet(
+            ConcurrentHashMap<String, Album> albumsFetchedViaHatchet) {
+        mAlbumsFetchedViaHatchet = albumsFetchedViaHatchet;
+    }
+
     /**
-     * @return whether or not this {@link Album} only contains non local queries
+     * @return whether or not this {@link org.tomahawk.libtomahawk.collection.Artist} has local
+     * queries
      */
-    public boolean containsLocalQueries() {
-        return mContainsLocalQueries;
+    public boolean hasLocalQueries() {
+        return mLocalQueries.size() > 0;
+    }
+
+    /**
+     * @return whether or not this {@link org.tomahawk.libtomahawk.collection.Artist} has albums
+     * which have been fetched via Hatchet
+     */
+    public boolean hasAlbumsFetchedViaHatchet() {
+        return mAlbumsFetchedViaHatchet.size() > 0;
     }
 
     public String getImage() {

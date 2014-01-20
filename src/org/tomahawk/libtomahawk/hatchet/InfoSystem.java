@@ -26,7 +26,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -128,31 +127,40 @@ public class InfoSystem {
         return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES, params);
     }
 
-    public String resolve(Artist artist) {
+    public ArrayList<String> resolve(Artist artist) {
+        ArrayList<String> requestIds = new ArrayList<String>();
         Multimap<String, String> params = HashMultimap.create(1, 1);
         params.put(HATCHET_PARAM_NAME, artist.getName());
         String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params);
+        requestIds.add(requestId);
         mItemsToBeFilled.put(requestId, artist);
         if (artist.getTopHits().size() == 0) {
             params = HashMultimap.create(1, 1);
             params.put(HATCHET_PARAM_NAME, artist.getName());
             requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS, params);
+            requestIds.add(requestId);
             mItemsToBeFilled.put(requestId, artist);
         }
-        params = HashMultimap.create(1, 1);
-        params.put(HATCHET_PARAM_NAME, artist.getName());
-        requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS, params);
-        mItemsToBeFilled.put(requestId, artist);
-        return requestId;
+        if (!artist.hasAlbumsFetchedViaHatchet()) {
+            params = HashMultimap.create(1, 1);
+            params.put(HATCHET_PARAM_NAME, artist.getName());
+            requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS, params);
+            requestIds.add(requestId);
+            mItemsToBeFilled.put(requestId, artist);
+        }
+        return requestIds;
     }
 
     public String resolve(Album album) {
-        Multimap<String, String> params = HashMultimap.create(2, 1);
-        params.put(HATCHET_PARAM_NAME, album.getName());
-        params.put(HATCHET_PARAM_ARTIST_NAME, album.getArtist().getName());
-        String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS, params);
-        mItemsToBeFilled.put(requestId, album);
-        return requestId;
+        if (album.hasQueriesFetchedViaHatchet()) {
+            Multimap<String, String> params = HashMultimap.create(2, 1);
+            params.put(HATCHET_PARAM_NAME, album.getName());
+            params.put(HATCHET_PARAM_ARTIST_NAME, album.getArtist().getName());
+            String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS, params);
+            mItemsToBeFilled.put(requestId, album);
+            return requestId;
+        }
+        return null;
     }
 
     public String resolve(int type, Multimap<String, String> params) {

@@ -19,14 +19,15 @@ package org.tomahawk.libtomahawk.hatchet;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class InfoSystemUtils {
 
@@ -101,7 +102,6 @@ public class InfoSystemUtils {
 
     public static Album fillAlbumWithTracks(Album album, List<TrackInfo> trackInfos) {
         if (trackInfos != null) {
-            album.clearQueries();
             for (TrackInfo trackInfo : trackInfos) {
                 album.addQuery(
                         new Query(trackInfo.name, album.getName(), album.getArtist().getName(),
@@ -113,14 +113,18 @@ public class InfoSystemUtils {
 
     public static Artist fillArtistWithAlbums(Artist artist, Map<AlbumInfo, Tracks> tracksMap,
             Map<AlbumInfo, Image> imageMap) {
-        if (tracksMap != null) {
+        ConcurrentHashMap<String, Album> albumMap = new ConcurrentHashMap<String, Album>();
+        if (tracksMap != null && !artist.hasAlbumsFetchedViaHatchet()) {
             for (AlbumInfo albumInfo : tracksMap.keySet()) {
                 Image image = imageMap.get(albumInfo);
                 List<TrackInfo> trackInfos = tracksMap.get(albumInfo).tracks;
                 Album album = albumInfoToAlbum(albumInfo, artist.getName(), trackInfos, image);
+                String key = TomahawkUtils.getCacheKey(album);
+                albumMap.put(key, album);
                 artist.addAlbum(album);
             }
         }
+        artist.setAlbumsFetchedViaHatchet(albumMap);
         return artist;
     }
 
@@ -140,16 +144,18 @@ public class InfoSystemUtils {
     public static Album albumInfoToAlbum(AlbumInfo albumInfo, String artistName,
             List<TrackInfo> trackInfos, Image image) {
         Album album = Album.get(albumInfo.name, Artist.get(artistName));
-        album.setDontSortQueries(true);
-        album.clearQueries();
+        ArrayList<Query> queries = new ArrayList<Query>();
         if (album.getAlbumArtPath() == null && image != null) {
             album.setAlbumArtPath(image.squareurl);
         }
-        if (trackInfos != null) {
+        if (trackInfos != null && !album.hasQueriesFetchedViaHatchet()) {
             for (TrackInfo trackInfo : trackInfos) {
-                album.addQuery(new Query(trackInfo.name, album.getName(), artistName, false));
+                Query query = new Query(trackInfo.name, album.getName(), artistName, false);
+                queries.add(query);
+                album.addQuery(query);
             }
         }
+        album.setQueriesFetchedViaHatchet(queries);
         return album;
     }
 }
