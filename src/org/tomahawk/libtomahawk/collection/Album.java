@@ -23,8 +23,6 @@ import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 
-import android.graphics.Bitmap;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,21 +37,19 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
 
     private ArrayList<Query> mQueries;
 
+    private ArrayList<Query> mLocalQueries;
+
+    private ArrayList<Query> mQueriesFetchedViaHatchet;
+
     private String mName;
 
     private Artist mArtist;
 
     private String mAlbumArtPath;
 
-    private static Bitmap sAlbumPlaceHolderBitmap;
-
     private String mFirstYear;
 
     private String mLastYear;
-
-    private boolean mContainsLocalQueries = false;
-
-    private boolean mDontSortQueries = false;
 
     /**
      * Construct a new {@link Album}
@@ -62,6 +58,8 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
         mName = albumName;
         mArtist = artist;
         mQueries = new ArrayList<Query>();
+        mLocalQueries = new ArrayList<Query>();
+        mQueriesFetchedViaHatchet = new ArrayList<Query>();
     }
 
     /**
@@ -103,7 +101,7 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
     public static ArrayList<Album> getLocalAlbums() {
         ArrayList<Album> albums = new ArrayList<Album>();
         for (Album album : sAlbums.values()) {
-            if (album.containsLocalQueries()) {
+            if (album.hasLocalQueries()) {
                 albums.add(album);
             }
         }
@@ -150,10 +148,6 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
      * @param query the {@link Track} to be added
      */
     public void addQuery(Query query) {
-        if (query.getPreferredTrackResult() != null && query.getPreferredTrackResult()
-                .getResolvedBy() instanceof DataBaseResolver) {
-            mContainsLocalQueries = true;
-        }
         boolean containsQuery = false;
         String key = TomahawkUtils.getCacheKey(query);
         synchronized (this) {
@@ -164,6 +158,12 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
             }
             if (!containsQuery) {
                 mQueries.add(query);
+                boolean isLocalQuery = query.getPreferredTrackResult() != null
+                        && query.getPreferredTrackResult()
+                        .getResolvedBy() instanceof DataBaseResolver;
+                if (isLocalQuery) {
+                    mLocalQueries.add(query);
+                }
             }
         }
     }
@@ -174,10 +174,12 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
      * @return list of all {@link org.tomahawk.libtomahawk.resolver.Query}s from this {@link Album}.
      */
     public ArrayList<Query> getQueries() {
-        if (!isDontSortQueries()) {
+        if (mQueriesFetchedViaHatchet.size() > 0) {
+            return mQueriesFetchedViaHatchet;
+        } else {
             Collections.sort(mQueries, new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
+            return mQueries;
         }
-        return mQueries;
     }
 
     /**
@@ -195,14 +197,12 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
                 queries.add(query);
             }
         }
-        if (!isDontSortQueries()) {
-            Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
-        }
+        Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
         return queries;
     }
 
-    public void clearQueries() {
-        mQueries.clear();
+    public void setQueriesFetchedViaHatchet(ArrayList<Query> queriesFetchedViaHatchet) {
+        mQueriesFetchedViaHatchet = queriesFetchedViaHatchet;
     }
 
     /**
@@ -254,18 +254,18 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
     }
 
     /**
-     * @return whether or not this {@link Album} only contains non local queries
+     * @return whether or not this {@link Album} has local queries
      */
-    public boolean containsLocalQueries() {
-        return mContainsLocalQueries;
+    public boolean hasLocalQueries() {
+        return mLocalQueries.size() > 0;
     }
 
-    public boolean isDontSortQueries() {
-        return mDontSortQueries;
-    }
-
-    public void setDontSortQueries(boolean dontSortQueries) {
-        mDontSortQueries = dontSortQueries;
+    /**
+     * @return whether or not this {@link org.tomahawk.libtomahawk.collection.Album} has queries
+     * which have been fetched via Hatchet
+     */
+    public boolean hasQueriesFetchedViaHatchet() {
+        return mQueriesFetchedViaHatchet.size() > 0;
     }
 
 }

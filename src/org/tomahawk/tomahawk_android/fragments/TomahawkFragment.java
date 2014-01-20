@@ -169,7 +169,10 @@ public class TomahawkFragment extends TomahawkListFragment
             if (getArguments() != null && getArguments().containsKey(TOMAHAWK_ARTIST_KEY)
                     && !TextUtils.isEmpty(getArguments().getString(TOMAHAWK_ARTIST_KEY))) {
                 mArtist = Artist.getArtistByKey(getArguments().getString(TOMAHAWK_ARTIST_KEY));
-                mCurrentRequestIds.add(mInfoSystem.resolve(mArtist));
+                ArrayList<String> requestIds = mInfoSystem.resolve(mArtist);
+                for (String requestId : requestIds) {
+                    mCurrentRequestIds.add(requestId);
+                }
                 mTomahawkMainActivity.startLoadingAnimation();
             }
             if (getArguments().containsKey(TOMAHAWK_HUB_ID)
