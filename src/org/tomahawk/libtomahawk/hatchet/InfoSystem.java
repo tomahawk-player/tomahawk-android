@@ -133,16 +133,16 @@ public class InfoSystem {
         params.put(HATCHET_PARAM_NAME, artist.getName());
         String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params);
         mItemsToBeFilled.put(requestId, artist);
-        params = HashMultimap.create(1, 1);
-        params.put(HATCHET_PARAM_NAME, artist.getName());
-        requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS, params);
-        mItemsToBeFilled.put(requestId, artist);
         if (artist.getTopHits().size() == 0) {
             params = HashMultimap.create(1, 1);
             params.put(HATCHET_PARAM_NAME, artist.getName());
             requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS, params);
             mItemsToBeFilled.put(requestId, artist);
         }
+        params = HashMultimap.create(1, 1);
+        params.put(HATCHET_PARAM_NAME, artist.getName());
+        requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS, params);
+        mItemsToBeFilled.put(requestId, artist);
         return requestId;
     }
 
