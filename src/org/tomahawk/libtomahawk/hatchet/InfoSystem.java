@@ -423,6 +423,10 @@ public class InfoSystem {
                     }
                 }
                 for (InfoRequestData infoRequestData : infoRequestDatas) {
+                    if (infoRequestData.getType()
+                            == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
+                        Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+                    }
                     if (getAndParseInfo(infoRequestData)) {
                         if (mItemsToBeFilled.containsKey(infoRequestData.getRequestId())) {
                             if (infoRequestData.getType()
