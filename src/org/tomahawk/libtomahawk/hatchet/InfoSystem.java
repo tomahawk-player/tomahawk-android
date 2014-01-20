@@ -285,8 +285,31 @@ public class InfoSystem {
             rawJsonString = TomahawkUtils.httpsGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS,
                             infoRequestData.getParams()));
-            infoRequestData.setInfoResult(
-                    mObjectMapper.readValue(rawJsonString, Albums.class));
+            Albums albums = mObjectMapper.readValue(rawJsonString, Albums.class);
+            if (albums.albums != null && albums.albums.size() > 0) {
+                AlbumInfo albumInfo = albums.albums.get(0);
+                Map<String, Image> imageMap = new HashMap<String, Image>();
+                if (albums.images != null) {
+                    for (Image image : albums.images) {
+                        imageMap.put(image.id, image);
+                    }
+                }
+                Map<AlbumInfo, Tracks> tracksMap = new HashMap<AlbumInfo, Tracks>();
+                if (albumInfo.tracks != null && albumInfo.tracks.size() > 0) {
+                    params.clear();
+                    for (String trackId : albumInfo.tracks) {
+                        params.put(HATCHET_PARAM_IDARRAY, trackId);
+                    }
+                    rawJsonString = TomahawkUtils.httpsGet(
+                            buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_TRACKS, params));
+                    Tracks tracks = mObjectMapper.readValue(rawJsonString, Tracks.class);
+                    tracksMap.put(albumInfo, tracks);
+                }
+                infoRequestData.setInfoResult(albumInfo);
+                resultMapList.put(HATCHET_IMAGES, imageMap);
+                resultMapList.put(HATCHET_TRACKS, tracksMap);
+            }
+            infoRequestData.setInfoResultMap(resultMapList);
             return true;
         } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES) {
             rawJsonString = TomahawkUtils.httpsGet(
@@ -429,23 +452,25 @@ public class InfoSystem {
                                         infoRequestData.getInfoResultMap().get(HATCHET_TRACKS));
                             } else if (infoRequestData.getType()
                                     == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS) {
-                                Albums albums = ((Albums) infoRequestData.getInfoResult());
-                                if (albums.albums != null && albums.albums.size() > 0
-                                        && albums.images != null && albums.images.size() > 0
-                                        && albums.images != null
-                                        && albums.images.size() > 0) {
-                                    AlbumInfo albumInfo = albums.albums.get(0);
-                                    String imageId = albumInfo.images.get(0);
-                                    Image image = null;
-                                    for (Image img : albums.images) {
-                                        if (img.id.equals(imageId)) {
-                                            image = img;
-                                        }
+                                AlbumInfo albumInfo = ((AlbumInfo) infoRequestData.getInfoResult());
+                                Map<AlbumInfo, Image> imageMap
+                                        = ((Map<AlbumInfo, Image>) infoRequestData
+                                        .getInfoResultMap().get(HATCHET_IMAGES));
+                                Map<AlbumInfo, Tracks> tracksMap
+                                        = ((Map<AlbumInfo, Tracks>) infoRequestData
+                                        .getInfoResultMap().get(HATCHET_TRACKS));
+                                if (albumInfo != null && albumInfo.images != null
+                                        && albumInfo.images.size() > 0
+                                        && albumInfo.images != null
+                                        && albumInfo.images.size() > 0) {
+                                    Image image = imageMap.get(albumInfo);
+                                    Tracks tracks = tracksMap.get(albumInfo);
+                                    Album album = (Album) mItemsToBeFilled
+                                            .get(infoRequestData.getRequestId());
+                                    InfoSystemUtils.fillAlbumWithAlbumInfo(album, albumInfo, image);
+                                    if (tracks != null) {
+                                        InfoSystemUtils.fillAlbumWithTracks(album, tracks.tracks);
                                     }
-                                    InfoSystemUtils.fillAlbumWithAlbumInfo(
-                                            (Album) mItemsToBeFilled.get(
-                                                    infoRequestData.getRequestId()),
-                                            albums.albums.get(0), image);
                                 }
                             }
                         }
