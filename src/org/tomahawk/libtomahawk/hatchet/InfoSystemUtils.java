@@ -19,6 +19,7 @@ package org.tomahawk.libtomahawk.hatchet;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.Query;
 
@@ -94,6 +95,18 @@ public class InfoSystemUtils {
             Image image) {
         if (album.getAlbumArtPath() == null && image != null) {
             album.setAlbumArtPath(image.squareurl);
+        }
+        return album;
+    }
+
+    public static Album fillAlbumWithTracks(Album album, List<TrackInfo> trackInfos) {
+        if (trackInfos != null) {
+            album.clearQueries();
+            for (TrackInfo trackInfo : trackInfos) {
+                album.addQuery(
+                        new Query(trackInfo.name, album.getName(), album.getArtist().getName(),
+                                false));
+            }
         }
         return album;
     }
