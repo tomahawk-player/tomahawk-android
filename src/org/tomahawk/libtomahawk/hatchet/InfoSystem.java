@@ -129,30 +129,32 @@ public class InfoSystem {
 
     public ArrayList<String> resolve(Artist artist) {
         ArrayList<String> requestIds = new ArrayList<String>();
-        Multimap<String, String> params = HashMultimap.create(1, 1);
-        params.put(HATCHET_PARAM_NAME, artist.getName());
-        String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params);
-        requestIds.add(requestId);
-        mItemsToBeFilled.put(requestId, artist);
-        if (artist.getTopHits().size() == 0) {
-            params = HashMultimap.create(1, 1);
+        if (artist != null) {
+            Multimap<String, String> params = HashMultimap.create(1, 1);
             params.put(HATCHET_PARAM_NAME, artist.getName());
-            requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS, params);
+            String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params);
             requestIds.add(requestId);
             mItemsToBeFilled.put(requestId, artist);
-        }
-        if (!artist.hasAlbumsFetchedViaHatchet()) {
-            params = HashMultimap.create(1, 1);
-            params.put(HATCHET_PARAM_NAME, artist.getName());
-            requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS, params);
-            requestIds.add(requestId);
-            mItemsToBeFilled.put(requestId, artist);
+            if (artist.getTopHits().size() == 0) {
+                params = HashMultimap.create(1, 1);
+                params.put(HATCHET_PARAM_NAME, artist.getName());
+                requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS, params);
+                requestIds.add(requestId);
+                mItemsToBeFilled.put(requestId, artist);
+            }
+            if (!artist.hasAlbumsFetchedViaHatchet()) {
+                params = HashMultimap.create(1, 1);
+                params.put(HATCHET_PARAM_NAME, artist.getName());
+                requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS, params);
+                requestIds.add(requestId);
+                mItemsToBeFilled.put(requestId, artist);
+            }
         }
         return requestIds;
     }
 
     public String resolve(Album album) {
-        if (album.hasQueriesFetchedViaHatchet()) {
+        if (album != null && album.hasQueriesFetchedViaHatchet()) {
             Multimap<String, String> params = HashMultimap.create(2, 1);
             params.put(HATCHET_PARAM_NAME, album.getName());
             params.put(HATCHET_PARAM_ARTIST_NAME, album.getArtist().getName());
