@@ -325,7 +325,7 @@ public class UserCollection extends Collection {
             mQueries.put(query.getQid(), query);
 
             artist.addQuery(query);
-            artist.addAlbum(album);
+            artist.addAlbum(album, true);
             album.addQuery(query);
         }
 
