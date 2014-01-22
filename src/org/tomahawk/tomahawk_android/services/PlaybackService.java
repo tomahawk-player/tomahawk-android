@@ -45,6 +45,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
@@ -131,12 +132,15 @@ public class PlaybackService extends Service {
 
     private Handler mHandler;
 
-    private Bitmap mAlbumArtPlaceHolder;
+    private Bitmap mNotificationBitmap = null;
+
+    private String mNotificationBitmapPath = null;
 
     private Target mTarget = new Target() {
         @Override
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
-            updatePlayingNotification(bitmap);
+            mNotificationBitmap = resizeNotificationBitmap(getResources(), bitmap);
+            updatePlayingNotification();
         }
 
         @Override
@@ -837,35 +841,7 @@ public class PlaybackService extends Service {
     /**
      * Create or update an ongoing notification
      */
-    private void updatePlayingNotification() {
-        updatePlayingNotification(null);
-    }
-
-    /**
-     * Create or update an ongoing notification
-     */
-    private void updatePlayingNotification(Bitmap bitmap) {
-        if (mAlbumArtPlaceHolder == null) {
-            Bitmap b = BitmapFactory.decodeResource(getResources(),
-                    R.drawable.no_album_art_placeholder);
-            int width = b.getWidth();
-            int height = b.getHeight();
-            float goalHeight = getResources().getDimension(
-                    android.R.dimen.notification_large_icon_height);
-            float goalWidth = getResources()
-                    .getDimension(android.R.dimen.notification_large_icon_width);
-            float scaleHeight = (float) height / goalHeight;
-            float scaleWidth = (float) width / goalWidth;
-            float scale;
-            if (scaleWidth < scaleHeight) {
-                scale = scaleHeight;
-            } else {
-                scale = scaleWidth;
-            }
-            mAlbumArtPlaceHolder = Bitmap
-                    .createScaledBitmap(b, (int) (width / scale), (int) (height / scale), true);
-        }
-
+    public void updatePlayingNotification() {
         Query query = getCurrentQuery();
         if (query == null) {
             return;
@@ -877,25 +853,17 @@ public class PlaybackService extends Service {
 
         String albumName = "";
         String artistName = "";
-        String albumArtPath = "";
-        if (track.getArtist() != null) {
-            artistName = track.getArtist().getName();
-        }
+        String imagePath = "";
         if (track.getAlbum() != null) {
             albumName = track.getAlbum().getName();
             if (!TextUtils.isEmpty(track.getAlbum().getAlbumArtPath())) {
-                albumArtPath = track.getAlbum().getAlbumArtPath();
+                imagePath = track.getAlbum().getAlbumArtPath();
             }
         }
-        if (bitmap == null) {
-            if (!TextUtils.isEmpty(albumArtPath)) {
-                Picasso.with(this).load(TomahawkUtils.preparePathForPicasso(albumArtPath))
-                        .placeholder(R.drawable.no_album_art_placeholder).error(
-                        R.drawable.no_album_art_placeholder).into(mTarget);
-            } else {
-                Picasso.with(this).load(R.drawable.no_album_art_placeholder)
-                        .placeholder(R.drawable.no_album_art_placeholder).error(
-                        R.drawable.no_album_art_placeholder).into(mTarget);
+        if (track.getArtist() != null) {
+            artistName = track.getArtist().getName();
+            if (TextUtils.isEmpty(imagePath) && !TextUtils.isEmpty(track.getArtist().getImage())) {
+                imagePath = track.getArtist().getImage();
             }
         }
 
@@ -917,8 +885,10 @@ public class PlaybackService extends Service {
         RemoteViews smallNotificationView;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             smallNotificationView = new RemoteViews(getPackageName(), R.layout.notification_small);
-            smallNotificationView.setImageViewUri(R.id.notification_small_imageview_albumart,
-                    Uri.parse(albumArtPath));
+            if (mNotificationBitmap != null) {
+                smallNotificationView.setImageViewBitmap(R.id.notification_small_imageview_albumart,
+                        mNotificationBitmap);
+            }
         } else {
             smallNotificationView = new RemoteViews(getPackageName(),
                     R.layout.notification_small_compat);
@@ -948,10 +918,20 @@ public class PlaybackService extends Service {
                 .setSmallIcon(R.drawable.ic_launcher).setContentTitle(artistName)
                 .setContentText(track.getName()).setOngoing(true).setPriority(
                         NotificationCompat.PRIORITY_MAX).setContent(smallNotificationView);
-        if (bitmap != null) {
-            builder.setLargeIcon(bitmap);
-        } else {
-            builder.setLargeIcon(mAlbumArtPlaceHolder);
+        if (mNotificationBitmap != null) {
+            builder.setLargeIcon(mNotificationBitmap);
+        }
+        if (mNotificationBitmap == null || !imagePath.equals(mNotificationBitmapPath)) {
+            mNotificationBitmapPath = imagePath;
+            if (!TextUtils.isEmpty(imagePath)) {
+                Picasso.with(this).load(TomahawkUtils.preparePathForPicasso(imagePath))
+                        .placeholder(R.drawable.no_album_art_placeholder).error(
+                        R.drawable.no_album_art_placeholder).into(mTarget);
+            } else {
+                Picasso.with(this).load(R.drawable.no_album_art_placeholder)
+                        .placeholder(R.drawable.no_album_art_placeholder).error(
+                        R.drawable.no_album_art_placeholder).into(mTarget);
+            }
         }
 
         Intent notificationIntent = new Intent(this, TomahawkMainActivity.class);
@@ -966,8 +946,10 @@ public class PlaybackService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             RemoteViews largeNotificationView = new RemoteViews(getPackageName(),
                     R.layout.notification_large);
-            largeNotificationView.setImageViewUri(R.id.notification_large_imageview_albumart,
-                    Uri.parse(albumArtPath));
+            if (mNotificationBitmap != null) {
+                largeNotificationView.setImageViewBitmap(R.id.notification_large_imageview_albumart,
+                        mNotificationBitmap);
+            }
             largeNotificationView.setTextViewText(R.id.notification_large_textview,
                     track.getName());
             largeNotificationView.setTextViewText(R.id.notification_large_textview2, artistName);
@@ -994,6 +976,27 @@ public class PlaybackService extends Service {
             notification.bigContentView = largeNotificationView;
         }
         startForeground(PLAYBACKSERVICE_NOTIFICATION_ID, notification);
+    }
+
+    private static Bitmap resizeNotificationBitmap(Resources resources, Bitmap bitmap) {
+        if (resources != null && bitmap != null) {
+            int width = bitmap.getWidth();
+            int height = bitmap.getHeight();
+            float goalHeight = resources
+                    .getDimension(android.R.dimen.notification_large_icon_height);
+            float goalWidth = resources.getDimension(android.R.dimen.notification_large_icon_width);
+            float scaleHeight = (float) height / goalHeight;
+            float scaleWidth = (float) width / goalWidth;
+            float scale;
+            if (scaleWidth < scaleHeight) {
+                scale = scaleHeight;
+            } else {
+                scale = scaleWidth;
+            }
+            return Bitmap.createScaledBitmap(bitmap, (int) (width / scale), (int) (height / scale),
+                    true);
+        }
+        return null;
     }
 
     private void resolveQueriesFromTo(int start, int end) {
