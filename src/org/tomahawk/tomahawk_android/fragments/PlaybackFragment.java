@@ -405,6 +405,7 @@ public class PlaybackFragment extends TomahawkFragment
     protected void onInfoSystemResultsReported(String requestId) {
         if (mCurrentRequestIds.contains(requestId)) {
             mPlaybackControlsFragment.onPlaylistChanged();
+            mTomahawkMainActivity.getPlaybackService().updatePlayingNotification();
         }
     }
 }
