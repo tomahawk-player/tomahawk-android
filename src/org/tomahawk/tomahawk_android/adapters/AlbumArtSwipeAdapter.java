@@ -88,7 +88,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                 query = mPlaylist.peekQueryAtPos(position);
             }
             TomahawkUtils.loadImageIntoImageView(mContext, albumArtImageView,
-                    query.getPreferredTrack().getAlbum().getAlbumArtPath());
+                    query.getPreferredTrack().getAlbum());
         } else {
             TomahawkUtils.loadImageIntoImageView(mContext, albumArtImageView);
         }

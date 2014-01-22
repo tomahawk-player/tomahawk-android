@@ -301,6 +301,22 @@ public class TomahawkUtils {
      * @param context   the context needed for fetching resources
      * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
      *                  android.graphics.Bitmap}
+     * @param album     the album to get the path to load the image from
+     */
+    public static void loadImageIntoImageView(Context context, ImageView imageView, Album album) {
+        String path = album.getAlbumArtPath();
+        if (TextUtils.isEmpty(path) && album.getArtist() != null) {
+            path = album.getArtist().getImage();
+        }
+        loadImageIntoImageView(context, imageView, path);
+    }
+
+    /**
+     * Load a {@link android.graphics.Bitmap} asynchronously
+     *
+     * @param context   the context needed for fetching resources
+     * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
+     *                  android.graphics.Bitmap}
      * @param path      the path to load the image from
      */
     public static void loadImageIntoImageView(Context context, ImageView imageView, String path) {
