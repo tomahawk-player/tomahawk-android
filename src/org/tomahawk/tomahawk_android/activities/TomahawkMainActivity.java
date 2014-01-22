@@ -596,7 +596,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                         && nowPlayingInfoTitle != null) {
                     if (track.getAlbum() != null) {
                         TomahawkUtils.loadImageIntoImageView(this, nowPlayingInfoAlbumArt,
-                                track.getAlbum().getAlbumArtPath());
+                                track.getAlbum());
                     }
                     nowPlayingInfoArtist.setText(track.getArtist().toString());
                     nowPlayingInfoTitle.setText(track.getName());
