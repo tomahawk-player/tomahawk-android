@@ -19,6 +19,8 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.tomahawk.libtomahawk.collection.Track;
+import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -36,6 +38,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -326,11 +329,21 @@ public class PlaybackFragment extends TomahawkFragment
         PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
         TomahawkListAdapter tomahawkListAdapter = (TomahawkListAdapter) getListAdapter();
         if (tomahawkListAdapter != null && playbackService != null
-                && playbackService.getCurrentPlaylist() != null) {
+                && playbackService.getCurrentPlaylist() != null
+                && playbackService.getCurrentPlaylist().getCurrentQuery() != null) {
             tomahawkListAdapter.setHighlightedItem(
                     playbackService.getCurrentPlaylist().getCurrentQueryIndex());
             tomahawkListAdapter.setHighlightedItemIsPlaying(playbackService.isPlaying());
             tomahawkListAdapter.notifyDataSetChanged();
+            Track currentTrack = playbackService.getCurrentQuery().getPreferredTrack();
+            if (TextUtils.isEmpty(currentTrack.getAlbum().getAlbumArtPath())
+                    && TextUtils.isEmpty(currentTrack.getArtist().getImage())) {
+                ArrayList<String> requestIds = mInfoSystem.resolve(currentTrack.getArtist(), true);
+                for (String requestId : requestIds) {
+                    mCurrentRequestIds.add(requestId);
+                }
+                mCurrentRequestIds.add(mInfoSystem.resolve(currentTrack.getAlbum()));
+            }
         }
     }
 
@@ -385,6 +398,13 @@ public class PlaybackFragment extends TomahawkFragment
     protected void onPipeLineResultsReported(String qId) {
         if (mCorrespondingQueryIds.contains(qId)) {
             onPlaylistChanged();
+        }
+    }
+
+    @Override
+    protected void onInfoSystemResultsReported(String requestId) {
+        if (mCurrentRequestIds.contains(requestId)) {
+            mPlaybackControlsFragment.onPlaylistChanged();
         }
     }
 }

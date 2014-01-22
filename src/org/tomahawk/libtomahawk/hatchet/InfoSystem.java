@@ -127,7 +127,7 @@ public class InfoSystem {
         return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES, params);
     }
 
-    public ArrayList<String> resolve(Artist artist) {
+    public ArrayList<String> resolve(Artist artist, boolean justImage) {
         ArrayList<String> requestIds = new ArrayList<String>();
         if (artist != null) {
             Multimap<String, String> params = HashMultimap.create(1, 1);
@@ -135,14 +135,14 @@ public class InfoSystem {
             String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params);
             requestIds.add(requestId);
             mItemsToBeFilled.put(requestId, artist);
-            if (artist.getTopHits().size() == 0) {
+            if (artist.getTopHits().size() == 0 && !justImage) {
                 params = HashMultimap.create(1, 1);
                 params.put(HATCHET_PARAM_NAME, artist.getName());
                 requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS, params);
                 requestIds.add(requestId);
                 mItemsToBeFilled.put(requestId, artist);
             }
-            if (!artist.hasAlbumsFetchedViaHatchet()) {
+            if (!artist.hasAlbumsFetchedViaHatchet() && !justImage) {
                 params = HashMultimap.create(1, 1);
                 params.put(HATCHET_PARAM_NAME, artist.getName());
                 requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS, params);
