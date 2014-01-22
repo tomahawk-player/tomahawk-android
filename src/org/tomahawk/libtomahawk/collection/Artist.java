@@ -197,14 +197,19 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
      * @param album the {@link Album} to be added
      */
     public void addAlbum(Album album) {
+        addAlbum(album, false);
+    }
+
+    /**
+     * Add an {@link Album} to this object
+     *
+     * @param album the {@link Album} to be added
+     */
+    public void addAlbum(Album album, boolean isLocalAlbum) {
         String key = TomahawkUtils.getCacheKey(album);
-        if (!mAlbums.containsKey(key)) {
-            mAlbums.put(key, album);
-        }
         synchronized (this) {
             if (!mAlbums.containsKey(key)) {
                 mAlbums.put(key, album);
-                boolean isLocalAlbum = album.hasLocalQueries();
                 if (isLocalAlbum) {
                     mLocalAlbums.put(key, album);
                 }
