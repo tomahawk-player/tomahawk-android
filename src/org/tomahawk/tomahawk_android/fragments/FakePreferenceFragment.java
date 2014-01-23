@@ -163,6 +163,8 @@ public class FakePreferenceFragment extends TomahawkListFragment
     public void onResume() {
         super.onResume();
 
+        mTomahawkMainActivity.setTitle(getString(R.string.fakepreferencefragment_title_string));
+
         if (getArguments() != null) {
             if (getArguments().containsKey(TomahawkService.AUTHENTICATOR_ID)) {
                 int authenticatorId = Integer.valueOf(

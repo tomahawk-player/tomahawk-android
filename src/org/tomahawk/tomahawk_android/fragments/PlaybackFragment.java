@@ -20,7 +20,6 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Track;
-import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -72,26 +71,6 @@ public class PlaybackFragment extends TomahawkFragment
     private PlaybackFragmentBroadcastReceiver mPlaybackFragmentBroadcastReceiver;
 
     /**
-     * Identifier for passing a Track as an extra in an Intent.
-     */
-    public static final String PLAYLIST_EXTRA = "org.tomahawk.tomahawk_android.playlist_extra";
-
-    public static final String PLAYLIST_ALBUM_ID
-            = "org.tomahawk.tomahawk_android.playlist_album_id";
-
-    public static final String PLAYLIST_ARTIST_ID
-            = "org.tomahawk.tomahawk_android.playlist_artist_id";
-
-    public static final String PLAYLIST_TRACK_ID
-            = "org.tomahawk.tomahawk_android.playlist_track_id";
-
-    public static final String PLAYLIST_COLLECTION_ID
-            = "org.tomahawk.tomahawk_android.playlist_collection_id";
-
-    public static final String PLAYLIST_PLAYLIST_ID
-            = "org.tomahawk.tomahawk_android.playlist_playlist_id";
-
-    /**
      * Handles incoming broadcasts.
      */
     private class PlaybackFragmentBroadcastReceiver extends BroadcastReceiver {
@@ -121,6 +100,13 @@ public class PlaybackFragment extends TomahawkFragment
                 onPlaystateChanged();
             }
         }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -175,12 +161,7 @@ public class PlaybackFragment extends TomahawkFragment
     public boolean onOptionsItemSelected(MenuItem item) {
         PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
         if (playbackService != null && item != null) {
-            if (item.getItemId() == R.id.action_clearplaylist_item) {
-                while (playbackService.getCurrentPlaylist().getCount() > 0) {
-                    playbackService.deleteQueryAtPos(0);
-                }
-                return true;
-            } else if (item.getItemId() == R.id.action_saveplaylist_item) {
+            if (item.getItemId() == R.id.action_saveplaylist_item) {
                 new CreateUserPlaylistDialog(playbackService.getCurrentPlaylist())
                         .show(mTomahawkMainActivity.getSupportFragmentManager(),
                                 getString(R.string.playbackactivity_save_playlist_dialog_title));
@@ -276,6 +257,7 @@ public class PlaybackFragment extends TomahawkFragment
      * listview.
      */
     private void initAdapter() {
+        mTomahawkMainActivity.setTitle(getString(R.string.playbackfragment_title_string));
         PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
         if (playbackService != null && playbackService.getCurrentPlaylist() != null) {
             List<TomahawkBaseAdapter.TomahawkListItem> tracks

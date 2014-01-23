@@ -27,7 +27,7 @@
     <string name="cancel">Cancel</string>
     <string name="login">Login</string>
     <string name="logout">Logout</string>
-    <string name="usercollectionfragment_title_string">"My Music"</string>
+    <string name="usercollectionfragment_title_string">"Collection"</string>
     <string name="tracksfragment_title_string">Tracks</string>
     <string name="albumsfragment_title_string">Albums</string>
     <string name="artistsfragment_title_string">Artists</string>
@@ -67,7 +67,7 @@
     <string name="authenticationactivity_invalid_credentials_string">Username or password
         incorrect
     </string>
-    <string name="settingsfragment_title_string">Settings</string>
+    <string name="fakepreferencefragment_title_string">Settings</string>
     <string name="fakepreference_accounts_header">SERVICES</string>
     <string name="fakepreference_hatchetlogin_title_string">Hatchet</string>
     <string name="fakepreference_hatchetlogin_summary_string">Authenticate with Hatchet, expect

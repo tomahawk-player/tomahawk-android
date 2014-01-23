@@ -61,10 +61,8 @@ public class UserPlaylistsFragment extends TomahawkFragment implements OnItemCli
                                 .getId()));
                 if (mTomahawkMainActivity != null) {
                     mTomahawkMainActivity.getContentViewer()
-                            .replace(mCorrespondingHubId, TracksFragment.class,
-                                    String.valueOf(
-                                            ((UserPlaylist) getListAdapter().getItem(position))
-                                                    .getId()),
+                            .replace(TracksFragment.class, String.valueOf(
+                                    ((UserPlaylist) getListAdapter().getItem(position)).getId()),
                                     TOMAHAWK_USER_PLAYLIST_KEY, true, false);
                 }
             } else if (getListAdapter().getItem(position) instanceof UserPlaylist) {
@@ -73,10 +71,9 @@ public class UserPlaylistsFragment extends TomahawkFragment implements OnItemCli
                         ((UserPlaylist) getListAdapter().getItem(position)).getId());
                 if (mTomahawkMainActivity != null) {
                     mTomahawkMainActivity.getContentViewer()
-                            .replace(mCorrespondingHubId, TracksFragment.class,
-                                    ((UserPlaylist) getListAdapter().getItem(position))
-                                            .getId(), TOMAHAWK_HATCHET_USER_PLAYLIST_KEY, true,
-                                    false);
+                            .replace(TracksFragment.class,
+                                    ((UserPlaylist) getListAdapter().getItem(position)).getId(),
+                                    TOMAHAWK_HATCHET_USER_PLAYLIST_KEY, true, false);
                 }
             } else {
                 new CreateUserPlaylistDialog().show(getFragmentManager(),
@@ -86,13 +83,14 @@ public class UserPlaylistsFragment extends TomahawkFragment implements OnItemCli
     }
 
     /**
-     * Called whenever the {@link org.tomahawk.libtomahawk.collection.UserCollection} {@link
-     * Loader}
+     * Called whenever the {@link org.tomahawk.libtomahawk.collection.UserCollection} {@link Loader}
      * has finished
      */
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
+
+        mTomahawkMainActivity.setTitle(getString(R.string.userplaylistsfragment_title_string));
 
         List<TomahawkBaseAdapter.TomahawkListItem> userPlaylists
                 = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();

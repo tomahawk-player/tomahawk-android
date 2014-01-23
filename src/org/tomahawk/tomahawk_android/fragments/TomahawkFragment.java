@@ -25,8 +25,6 @@ import org.tomahawk.libtomahawk.collection.CollectionLoader;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
-import org.tomahawk.libtomahawk.hatchet.ArtistInfo;
-import org.tomahawk.libtomahawk.hatchet.InfoRequestData;
 import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -39,6 +37,7 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.ChooseUserPlaylistDialog;
 import org.tomahawk.tomahawk_android.dialogs.FakeContextMenuDialog;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
+import org.tomahawk.tomahawk_android.utils.ContentViewer;
 import org.tomahawk.tomahawk_android.utils.FakeContextMenu;
 import org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView;
 
@@ -58,7 +57,6 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 
 /**
@@ -383,8 +381,7 @@ public class TomahawkFragment extends TomahawkListFragment
                     playbackService.setCurrentPlaylist(playlist);
                     playbackService.start();
                 }
-                tomahawkMainActivity.getContentViewer()
-                        .setCurrentHubId(TomahawkMainActivity.HUB_ID_PLAYBACK);
+                tomahawkMainActivity.getContentViewer().showHub(ContentViewer.HUB_ID_PLAYBACK);
             }
         } else if (menuItemTitle.equals(tomahawkMainActivity.getResources()
                 .getString(R.string.fake_context_menu_playaftercurrenttrack))) {

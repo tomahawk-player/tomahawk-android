@@ -24,10 +24,12 @@ import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
+import org.tomahawk.tomahawk_android.utils.ContentViewer;
 
 import android.support.v4.content.Loader;
 import android.view.View;
@@ -87,8 +89,6 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                     }
                 } else if (mUserPlaylist != null) {
                     queries = mUserPlaylist.getQueries();
-                } else if (mUserPlaylist != null) {
-                    queries = mUserPlaylist.getQueries();
                 } else {
                     queries.addAll(mTomahawkMainActivity.getUserCollection().getQueries());
                 }
@@ -101,8 +101,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                     playbackService.setCurrentPlaylist(playlist);
                     playbackService.start();
                 }
-                mTomahawkMainActivity.getContentViewer()
-                        .setCurrentHubId(TomahawkMainActivity.HUB_ID_PLAYBACK);
+                mTomahawkMainActivity.getContentViewer().showHub(ContentViewer.HUB_ID_PLAYBACK);
             }
         }
     }
@@ -125,6 +124,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         TomahawkListAdapter tomahawkListAdapter;
         Collection coll = mTomahawkMainActivity.getUserCollection();
         if (mAlbum != null) {
+            mTomahawkMainActivity.setTitle(mAlbum.getName());
             if (mIsLocal) {
                 queries.addAll(mAlbum.getLocalQueries());
             } else {
@@ -144,6 +144,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 ((TomahawkListAdapter) getListAdapter()).updateContentHeader(mAlbum);
             }
         } else if (mArtist != null) {
+            mTomahawkMainActivity.setTitle(mArtist.getName());
             if (mIsLocal) {
                 queries.addAll(mArtist.getLocalQueries());
             } else {
@@ -162,20 +163,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
             }
         } else if (mUserPlaylist != null) {
-            queries.addAll(mUserPlaylist.getQueries());
-            List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
-                    = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
-            listArray.add(queries);
-            if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
-                tomahawkListAdapter.setShowResolvedBy(true);
-                tomahawkListAdapter.setShowCategoryHeaders(true, false);
-                tomahawkListAdapter.setShowContentHeader(true, getListView(), mUserPlaylist);
-                setListAdapter(tomahawkListAdapter);
-            } else {
-                ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
-            }
-        } else if (mUserPlaylist != null) {
+            mTomahawkMainActivity.setTitle(mUserPlaylist.getName());
             queries.addAll(mUserPlaylist.getQueries());
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
@@ -190,6 +178,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
             }
         } else {
+            mTomahawkMainActivity.setTitle(getString(R.string.tracksfragment_title_string));
             queries.addAll(coll.getQueries());
             List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
