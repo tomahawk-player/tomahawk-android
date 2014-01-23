@@ -20,21 +20,16 @@
 -->
 <resources>
 
-    <array name="settings_icons">
-        <item>@drawable/ic_settings_play</item>
-        <item>@drawable/ic_settings_account</item>
-    </array>
+    <string-array name="slide_menu_items">
+        <item>@string/hub_title_collection</item>
+        <item>@string/hub_title_playlists</item>
+        <item>@string/hub_title_settings</item>
+    </string-array>
     <array name="slide_menu_items_icons">
-        <item>@drawable/ic_action_search</item>
         <item>@drawable/ic_action_collection</item>
         <item>@drawable/ic_action_playlist</item>
         <item>@drawable/ic_action_settings</item>
     </array>
-
-    <string-array name="settings_menu_items">
-        <item>Playback Settings</item>
-        <item>Account Settings</item>
-    </string-array>
     <string-array name="local_collection_menu_items">
         <item>Tracks</item>
         <item>Albums</item>
@@ -45,12 +40,6 @@
         <item>@drawable/ic_action_album</item>
         <item>@drawable/ic_action_artist</item>
     </array>
-    <string-array name="slide_menu_items">
-        <item>@string/hub_title_search</item>
-        <item>@string/hub_title_collection</item>
-        <item>@string/hub_title_playlists</item>
-        <item>@string/hub_title_settings</item>
-    </string-array>
     <string-array name="fake_context_menu_items">
         <item>@string/fake_context_menu_play</item>
         <item>@string/fake_context_menu_playaftercurrenttrack</item>

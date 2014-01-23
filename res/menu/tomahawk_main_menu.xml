@@ -2,7 +2,7 @@
 <!--
 /*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2012, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,20 +18,15 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="fill_horizontal">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tomahawk="http://schemas.android.com/apk/res-auto">
 
-    <AutoCompleteTextView
-            android:id="@+id/search_edittext"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:hint="@string/searchfragment_title_string"
-            android:inputType="text"
-            android:completionThreshold="1">
-    </AutoCompleteTextView>
+    <item
+            android:id="@+id/action_search"
+            android:icon="@drawable/ic_action_search"
+            android:title="@string/searchfragment_title_string"
+            tomahawk:showAsAction="always|collapseActionView"
+            tomahawk:actionViewClass="android.support.v7.widget.SearchView"
+            tomahawk:queryHint="@string/searchfragment_title_string"/>
 
-</RelativeLayout>
+</menu>

@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 
@@ -57,8 +58,8 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
                 Bundle bundle = new Bundle();
                 String key = TomahawkUtils.getCacheKey((Artist) item);
                 bundle.putString(TOMAHAWK_ARTIST_KEY, key);
-                mTomahawkMainActivity.getContentViewer().replace(mCorrespondingHubId,
-                        AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, mIsLocal, false);
+                mTomahawkMainActivity.getContentViewer()
+                        .replace(AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, mIsLocal, false);
             }
         }
     }
@@ -71,6 +72,7 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
 
+        mTomahawkMainActivity.setTitle(getString(R.string.artistsfragment_title_string));
         List<TomahawkBaseAdapter.TomahawkListItem> artists
                 = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
         if (mIsLocal) {

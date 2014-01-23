@@ -54,24 +54,37 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.CursorAdapter;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -90,27 +103,8 @@ public class TomahawkMainActivity extends ActionBarActivity
         TomahawkService.TomahawkServiceConnection.TomahawkServiceConnectionListener,
         LoaderManager.LoaderCallbacks<Collection> {
 
-    public static final int HUB_ID_HOME = -1;
-
-    public static final int HUB_ID_SEARCH = 0;
-
-    public static final int HUB_ID_COLLECTION = 1;
-
-    public static final int HUB_ID_PLAYLISTS = 2;
-
-    public static final int HUB_ID_STATIONS = -2;
-
-    public static final int HUB_ID_FRIENDS = -3;
-
-    public static final int HUB_ID_SETTINGS = 3;
-
-    public static final int HUB_ID_PLAYBACK = 4;
-
     public static final String COLLECTION_ID_STOREDBACKSTACK
             = "org.tomahawk.tomahawk_android.collection_id_storedbackstack";
-
-    public static final String COLLECTION_ID_STACKPOSITION
-            = "org.tomahawk.tomahawk_android.collection_id_stackposition";
 
     public static final String TOMAHAWKSERVICE_READY
             = "org.tomahawk.tomahawk_android.tomahawkservice_ready";
@@ -154,8 +148,6 @@ public class TomahawkMainActivity extends ActionBarActivity
     private TomahawkMainReceiver mTomahawkMainReceiver;
 
     private View mNowPlayingFrame;
-
-    private int mCurrentStackPosition = -1;
 
     private Drawable mProgressDrawable;
 
@@ -201,25 +193,6 @@ public class TomahawkMainActivity extends ActionBarActivity
         }
     }
 
-    /**
-     * Used to handle clicks on one of the breadcrumb items
-     */
-    private class BreadCrumbOnClickListener implements View.OnClickListener {
-
-        String mSavedFragmentTag;
-
-        public BreadCrumbOnClickListener(String savedFragmentTag) {
-            mSavedFragmentTag = savedFragmentTag;
-        }
-
-        @Override
-        public void onClick(View view) {
-            getContentViewer()
-                    .backToFragment(getContentViewer().getCurrentHubId(), mSavedFragmentTag,
-                            true);
-        }
-    }
-
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
 
         /**
@@ -235,21 +208,14 @@ public class TomahawkMainActivity extends ActionBarActivity
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             // Show the correct hub, and if needed, display the search editText inside the ActionBar
             switch ((int) id) {
-                case TomahawkMainActivity.HUB_ID_SEARCH:
-                    mContentViewer
-                            .setCurrentHubId(TomahawkMainActivity.HUB_ID_SEARCH);
+                case ContentViewer.HUB_ID_COLLECTION:
+                    mContentViewer.showHub(ContentViewer.HUB_ID_COLLECTION);
                     break;
-                case TomahawkMainActivity.HUB_ID_COLLECTION:
-                    mContentViewer
-                            .setCurrentHubId(TomahawkMainActivity.HUB_ID_COLLECTION);
+                case ContentViewer.HUB_ID_PLAYLISTS:
+                    mContentViewer.showHub(ContentViewer.HUB_ID_PLAYLISTS);
                     break;
-                case TomahawkMainActivity.HUB_ID_PLAYLISTS:
-                    mContentViewer
-                            .setCurrentHubId(TomahawkMainActivity.HUB_ID_PLAYLISTS);
-                    break;
-                case TomahawkMainActivity.HUB_ID_SETTINGS:
-                    mContentViewer
-                            .setCurrentHubId(TomahawkMainActivity.HUB_ID_SETTINGS);
+                case ContentViewer.HUB_ID_SETTINGS:
+                    mContentViewer.showHub(ContentViewer.HUB_ID_SETTINGS);
                     break;
             }
             if (mDrawerLayout != null) {
@@ -275,6 +241,14 @@ public class TomahawkMainActivity extends ActionBarActivity
         mTitle = mDrawerTitle = getTitle();
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        mNowPlayingFrame = findViewById(R.id.now_playing_frame);
+        mNowPlayingFrame.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mContentViewer.showHub(ContentViewer.HUB_ID_PLAYBACK);
+            }
+        });
 
         if (mDrawerLayout != null) {
             mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer,
@@ -310,51 +284,27 @@ public class TomahawkMainActivity extends ActionBarActivity
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(true);
-        View customView = getLayoutInflater()
-                .inflate(R.layout.search_custom_view, null);
-        actionBar.setCustomView(customView);
-
-        // set our default stack position to HUB_ID_COLLECTION
-        mCurrentStackPosition = HUB_ID_COLLECTION;
+        actionBar.setDisplayShowCustomEnabled(true);
 
         // initialize our ContentViewer, which will handle switching the fragments whenever an
         // entry in the slidingmenu is being clicked. Restore our saved state, if one exists.
         mContentViewer = new ContentViewer(this, getSupportFragmentManager(),
                 R.id.content_viewer_frame);
         if (savedInstanceState == null) {
-            mContentViewer.addRootToHub(HUB_ID_SEARCH, SearchableFragment.class);
-            mContentViewer.addRootToHub(HUB_ID_COLLECTION, UserCollectionFragment.class);
-            mContentViewer.addRootToHub(HUB_ID_PLAYLISTS, UserPlaylistsFragment.class);
-            mContentViewer.addRootToHub(HUB_ID_SETTINGS, FakePreferenceFragment.class);
-            mContentViewer.addRootToHub(HUB_ID_PLAYBACK, PlaybackFragment.class);
+            mContentViewer.showHub(ContentViewer.HUB_ID_COLLECTION);
         } else {
-            mCurrentStackPosition = savedInstanceState
-                    .getInt(COLLECTION_ID_STACKPOSITION, HUB_ID_COLLECTION);
-            ConcurrentHashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>>
-                    storedBackStack
-                    = new ConcurrentHashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>>();
+            ArrayList<ContentViewer.FragmentStateHolder> storedBackStack
+                    = new ArrayList<ContentViewer.FragmentStateHolder>();
             if (savedInstanceState
-                    .getSerializable(COLLECTION_ID_STOREDBACKSTACK) instanceof HashMap) {
-                HashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>> temp
-                        = (HashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>>) savedInstanceState
-                        .getSerializable(COLLECTION_ID_STOREDBACKSTACK);
-                storedBackStack.putAll(temp);
-            } else if (savedInstanceState
-                    .getSerializable(
-                            COLLECTION_ID_STOREDBACKSTACK) instanceof ConcurrentHashMap) {
-                storedBackStack
-                        = (ConcurrentHashMap<Integer, ArrayList<ContentViewer.FragmentStateHolder>>) savedInstanceState
+                    .getSerializable(COLLECTION_ID_STOREDBACKSTACK) instanceof ArrayList) {
+                storedBackStack = (ArrayList<ContentViewer.FragmentStateHolder>) savedInstanceState
                         .getSerializable(COLLECTION_ID_STOREDBACKSTACK);
             }
 
             if (storedBackStack != null && storedBackStack.size() > 0) {
                 mContentViewer.setBackStack(storedBackStack);
             } else {
-                mContentViewer.addRootToHub(HUB_ID_SEARCH, SearchableFragment.class);
-                mContentViewer.addRootToHub(HUB_ID_COLLECTION, UserCollectionFragment.class);
-                mContentViewer.addRootToHub(HUB_ID_PLAYLISTS, UserPlaylistsFragment.class);
-                mContentViewer.addRootToHub(HUB_ID_SETTINGS, FakePreferenceFragment.class);
-                mContentViewer.addRootToHub(HUB_ID_PLAYBACK, PlaybackFragment.class);
+                mContentViewer.showHub(ContentViewer.HUB_ID_COLLECTION);
             }
         }
     }
@@ -395,12 +345,11 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         if (SHOW_PLAYBACKFRAGMENT_ON_STARTUP.equals(getIntent().getAction())) {
             // if this Activity is being shown after the user clicked the notification
-            mCurrentStackPosition = HUB_ID_PLAYBACK;
+            mContentViewer.showHub(ContentViewer.HUB_ID_PLAYBACK);
         }
         if (getIntent().hasExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)) {
-            mCurrentStackPosition = HUB_ID_SETTINGS;
-            ContentViewer.FragmentStateHolder fragmentStateHolder =
-                    mContentViewer.getBackStackAtPosition(mCurrentStackPosition).get(0);
+            ContentViewer.FragmentStateHolder fragmentStateHolder = mContentViewer.getBackStack()
+                    .get(0);
             fragmentStateHolder.tomahawkListItemType = TomahawkService.AUTHENTICATOR_ID;
             fragmentStateHolder.tomahawkListItemKey = String.valueOf(
                     getIntent().getIntExtra(TomahawkService.AUTHENTICATOR_ID, -1));
@@ -419,31 +368,17 @@ public class TomahawkMainActivity extends ActionBarActivity
         if (mTomahawkMainReceiver == null) {
             mTomahawkMainReceiver = new TomahawkMainReceiver();
         }
+
         // Register intents that the BroadcastReceiver should listen to
         IntentFilter intentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
         registerReceiver(mTomahawkMainReceiver, intentFilter);
         intentFilter = new IntentFilter(PlaybackService.BROADCAST_NEWTRACK);
         registerReceiver(mTomahawkMainReceiver, intentFilter);
-
-        mNowPlayingFrame = findViewById(R.id.now_playing_frame);
-        mNowPlayingFrame.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mContentViewer.setCurrentHubId(HUB_ID_PLAYBACK);
-            }
-        });
-        if (mPlaybackService != null) {
-            setNowPlayingInfo();
-        }
-
-        mContentViewer.setCurrentHubId(mCurrentStackPosition);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-
-        mCurrentStackPosition = mContentViewer.getCurrentHubId();
 
         if (mTomahawkMainReceiver != null) {
             unregisterReceiver(mTomahawkMainReceiver);
@@ -467,7 +402,6 @@ public class TomahawkMainActivity extends ActionBarActivity
     protected void onSaveInstanceState(Bundle bundle) {
         bundle.putSerializable(COLLECTION_ID_STOREDBACKSTACK,
                 getContentViewer().getBackStack());
-        bundle.putInt(COLLECTION_ID_STACKPOSITION, getContentViewer().getCurrentHubId());
         super.onSaveInstanceState(bundle);
     }
 
@@ -487,13 +421,59 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.clear();
+        getMenuInflater().inflate(R.menu.tomahawk_main_menu, menu);
+        // customize the searchView
+        final MenuItem searchItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        View searchEditText = searchView
+                .findViewById(android.support.v7.appcompat.R.id.search_plate);
+        searchEditText.setBackgroundResource(R.drawable.edit_text_holo_dark);
+        searchView.setQueryHint(getString(R.string.searchfragment_title_string));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                if (query != null && !TextUtils.isEmpty(query)) {
+                    ContentViewer.FragmentStateHolder fragmentStateHolder
+                            = new ContentViewer.FragmentStateHolder(SearchableFragment.class,
+                            null);
+                    fragmentStateHolder.queryString = query;
+                    mContentViewer.replace(fragmentStateHolder, false);
+                    if (searchItem != null) {
+                        MenuItemCompat.collapseActionView(searchItem);
+                    }
+                    searchView.clearFocus();
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+            @Override
+            public boolean onSuggestionSelect(int position) {
+                return false;
+            }
+
+            @Override
+            public boolean onSuggestionClick(int position) {
+                return false;
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         // If the nav drawer is open, hide action items related to the content view
         if (mDrawerLayout != null) {
             boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
-            getSupportActionBar()
-                    .setDisplayShowCustomEnabled(
-                            !drawerOpen && mCurrentStackPosition == HUB_ID_SEARCH);
+            getSupportActionBar().setDisplayShowCustomEnabled(!drawerOpen);
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -544,7 +524,7 @@ public class TomahawkMainActivity extends ActionBarActivity
      */
     @Override
     public void onBackPressed() {
-        if (!mContentViewer.back(mContentViewer.getCurrentHubId())) {
+        if (!mContentViewer.back()) {
             super.onBackPressed();
         }
     }
@@ -573,6 +553,58 @@ public class TomahawkMainActivity extends ActionBarActivity
      */
     protected void onCollectionUpdated() {
         getSupportLoaderManager().restartLoader(0, null, this);
+    }
+
+    /**
+     * Setup this {@link SearchableFragment}s {@link AutoCompleteTextView}
+     */
+    private void setupAutoComplete() {
+        /*AutoCompleteTextView textView = (AutoCompleteTextView) getSupportActionBar().getCustomView()
+                .findViewById(R.id.search_edittext);
+        textView.setDropDownBackgroundResource(R.drawable.menu_dropdown_panel_tomahawk);
+        ArrayList<String> autoCompleteSuggestions = getAutoCompleteArray();
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_1, autoCompleteSuggestions);
+        textView.setAdapter(adapter);*/
+    }
+
+    /**
+     * Add the given {@link String} to the {@link ArrayList}, which is being persisted as a {@link
+     * android.content.SharedPreferences}
+     */
+    public void addToAutoCompleteArray(String newString) {
+        ArrayList<String> myArrayList = getAutoCompleteArray();
+        int highestIndex = myArrayList.size();
+
+        for (String aMyArrayList : myArrayList) {
+            if (newString != null && newString.equals(aMyArrayList)) {
+                return;
+            }
+        }
+
+        myArrayList.add(newString);
+
+        SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        SharedPreferences.Editor sEdit = sPrefs.edit();
+
+        sEdit.putString("autocomplete_" + highestIndex, myArrayList.get(highestIndex));
+        sEdit.putInt("autocomplete_size", myArrayList.size());
+        sEdit.commit();
+    }
+
+    /**
+     * @return the {@link ArrayList} of {@link String}s containing every {@link String} in our
+     * autocomplete array
+     */
+    public ArrayList<String> getAutoCompleteArray() {
+        SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        ArrayList<String> myAList = new ArrayList<String>();
+        int size = sPrefs.getInt("autocomplete_size", 0);
+
+        for (int j = 0; j < size; j++) {
+            myAList.add(sPrefs.getString("autocomplete_" + j, null));
+        }
+        return myAList;
     }
 
     /**
@@ -606,36 +638,30 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     public void updateViewVisibility() {
-        if (mCurrentStackPosition
-                == TomahawkMainActivity.HUB_ID_SEARCH
-                || mCurrentStackPosition
-                == TomahawkMainActivity.HUB_ID_SETTINGS
-                || mCurrentStackPosition
-                == TomahawkMainActivity.HUB_ID_PLAYBACK) {
-            setBreadcrumbsVisibility(false);
-        } else {
-            setBreadcrumbsVisibility(true);
-        }
-        if (mCurrentStackPosition == TomahawkMainActivity.HUB_ID_SEARCH) {
-            setSearchEditTextVisibility(true);
-            showSoftKeyboard();
-        } else {
-            setSearchEditTextVisibility(false);
-        }
-        if (mCurrentStackPosition == TomahawkMainActivity.HUB_ID_PLAYBACK
+        ContentViewer.FragmentStateHolder currentFSH = mContentViewer
+                .getCurrentFragmentStateHolder();
+        if (currentFSH.clss == PlaybackFragment.class
                 || mPlaybackService == null || mPlaybackService.getCurrentQuery() == null) {
             setNowPlayingInfoVisibility(false);
         } else {
             setNowPlayingInfoVisibility(true);
         }
+        if (currentFSH.clss == SearchableFragment.class) {
+            setSearchPanelVisibility(true);
+        } else {
+            setSearchPanelVisibility(false);
+        }
     }
 
-    public void showSoftKeyboard() {
-        AutoCompleteTextView searchFrameTop = (AutoCompleteTextView) getSupportActionBar()
-                .getCustomView().findViewById(R.id.search_edittext);
-        InputMethodManager imm = (InputMethodManager) getSystemService(
-                Context.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(searchFrameTop, 0);
+    public void setSearchPanelVisibility(boolean enabled) {
+        View searchPanel = findViewById(R.id.search_panel);
+        if (searchPanel != null) {
+            if (enabled) {
+                searchPanel.setVisibility(View.VISIBLE);
+            } else {
+                searchPanel.setVisibility(View.GONE);
+            }
+        }
     }
 
     public void setNowPlayingInfoVisibility(boolean enabled) {
@@ -654,171 +680,6 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     /**
-     * Set the search editText visibility in the top actionbar. If enabled is true, also display the
-     * soft keyboard.
-     */
-    public void setSearchEditTextVisibility(boolean enabled) {
-        if (enabled) {
-            getSupportActionBar().setDisplayShowCustomEnabled(true);
-            AutoCompleteTextView searchEditText = (AutoCompleteTextView) getSupportActionBar()
-                    .getCustomView().findViewById(R.id.search_edittext);
-            searchEditText.requestFocus();
-            findViewById(R.id.search_panel).setVisibility(LinearLayout.VISIBLE);
-        } else {
-            getSupportActionBar().setDisplayShowCustomEnabled(false);
-            findViewById(R.id.search_panel).setVisibility(LinearLayout.GONE);
-        }
-    }
-
-    /**
-     * Set the visibilty of the breadcumb navigation view.
-     *
-     * @param enabled True, if breadcrumbs should be shown. False otherwise.
-     */
-    public void setBreadcrumbsVisibility(boolean enabled) {
-        if (enabled) {
-            findViewById(R.id.bread_crumb_container).setVisibility(FrameLayout.VISIBLE);
-        } else {
-            findViewById(R.id.bread_crumb_container).setVisibility(FrameLayout.GONE);
-        }
-    }
-
-    /**
-     * Build the breadcumb navigation from the stack at the current tab position.
-     */
-    public void updateBreadCrumbNavigation() {
-        ArrayList<ContentViewer.FragmentStateHolder> backStack = getContentViewer()
-                .getBackStackAtPosition(getContentViewer().getCurrentHubId());
-        LinearLayout breadCrumbFrame = (LinearLayout) findViewById(R.id.bread_crumb_frame);
-        breadCrumbFrame.removeAllViews();
-        if (breadCrumbFrame != null) {
-            int validFragmentCount = 0;
-            for (ContentViewer.FragmentStateHolder fpb : backStack) {
-                if (fpb.clss == AlbumsFragment.class || fpb.clss == ArtistsFragment.class
-                        || fpb.clss == TracksFragment.class
-                        || fpb.clss == UserPlaylistsFragment.class
-                        || fpb.clss == SearchableFragment.class
-                        || fpb.clss == UserCollectionFragment.class) {
-                    validFragmentCount++;
-                }
-            }
-            for (ContentViewer.FragmentStateHolder fpb : backStack) {
-                LinearLayout breadcrumbItem = (LinearLayout) getLayoutInflater()
-                        .inflate(R.layout.breadcrumb_item, null);
-                ImageView breadcrumbItemImageView = (ImageView) breadcrumbItem
-                        .findViewById(R.id.fragmentLayout_icon_imageButton);
-                SquareHeightRelativeLayout breadcrumbItemArrowLayout
-                        = (SquareHeightRelativeLayout) breadcrumbItem
-                        .findViewById(R.id.fragmentLayout_arrow_squareHeightRelativeLayout);
-                SquareHeightRelativeLayout breadcrumbItemImageViewLayout
-                        = (SquareHeightRelativeLayout) breadcrumbItem
-                        .findViewById(R.id.fragmentLayout_icon_squareHeightRelativeLayout);
-                TextView breadcrumbItemTextView = (TextView) breadcrumbItem
-                        .findViewById(R.id.fragmentLayout_text_textView);
-                if (fpb.clss == UserCollectionFragment.class) {
-                    breadcrumbItemTextView.setVisibility(TextView.GONE);
-                    breadcrumbItemImageView.setBackgroundDrawable(
-                            getResources().getDrawable(R.drawable.ic_action_collection));
-                    breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
-                    breadcrumbItemArrowLayout.setVisibility(SquareHeightRelativeLayout.GONE);
-                    breadcrumbItem
-                            .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
-                    breadCrumbFrame.addView(breadcrumbItem);
-                } else if (fpb.clss == UserPlaylistsFragment.class) {
-                    breadcrumbItemTextView.setVisibility(TextView.GONE);
-                    breadcrumbItemImageView.setBackgroundDrawable(
-                            getResources().getDrawable(R.drawable.ic_action_playlist));
-                    breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
-                    breadcrumbItemArrowLayout.setVisibility(SquareHeightRelativeLayout.GONE);
-                    breadcrumbItem
-                            .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
-                    breadCrumbFrame.addView(breadcrumbItem);
-                } else if (fpb.clss == SearchableFragment.class) {
-                    breadcrumbItemTextView.setVisibility(TextView.GONE);
-                    breadcrumbItemImageView.setBackgroundDrawable(
-                            getResources().getDrawable(R.drawable.ic_action_search));
-                    breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
-                    breadcrumbItemArrowLayout.setVisibility(SquareHeightRelativeLayout.GONE);
-                    breadcrumbItem
-                            .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
-                    breadCrumbFrame.addView(breadcrumbItem);
-                } else if (fpb.clss == AlbumsFragment.class) {
-                    Artist correspondingArtist = Artist.getArtistByKey(fpb.tomahawkListItemKey);
-                    if (Artist.getArtistByKey(fpb.tomahawkListItemKey) != null) {
-                        breadcrumbItemTextView.setText(correspondingArtist.getName());
-                        breadcrumbItemImageViewLayout
-                                .setVisibility(SquareHeightRelativeLayout.GONE);
-                    } else {
-                        if (validFragmentCount == 2) {
-                            breadcrumbItemTextView
-                                    .setText(getString(R.string.albumsfragment_title_string));
-                        } else {
-                            breadcrumbItemTextView.setVisibility(TextView.GONE);
-                        }
-                        breadcrumbItemImageView.setBackgroundDrawable(
-                                getResources().getDrawable(R.drawable.ic_action_album));
-                        breadcrumbItemImageViewLayout
-                                .setVisibility(SquareHeightRelativeLayout.VISIBLE);
-                    }
-                    breadcrumbItem
-                            .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
-                    breadCrumbFrame.addView(breadcrumbItem);
-                } else if (fpb.clss == ArtistsFragment.class) {
-                    if (validFragmentCount == 2) {
-                        breadcrumbItemTextView
-                                .setText(getString(R.string.artistsfragment_title_string));
-                    } else {
-                        breadcrumbItemTextView.setVisibility(TextView.GONE);
-                    }
-                    breadcrumbItemImageView.setBackgroundDrawable(
-                            getResources().getDrawable(R.drawable.ic_action_artist));
-                    breadcrumbItemImageViewLayout.setVisibility(SquareHeightRelativeLayout.VISIBLE);
-                    breadcrumbItem
-                            .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
-                    breadCrumbFrame.addView(breadcrumbItem);
-                } else if (fpb.clss == TracksFragment.class) {
-                    Album correspondingAlbum = Album.getAlbumByKey(fpb.tomahawkListItemKey);
-                    if (fpb.tomahawkListItemType != null && fpb.tomahawkListItemType
-                            .equals(TomahawkFragment.TOMAHAWK_ALBUM_KEY)
-                            && correspondingAlbum != null) {
-                        breadcrumbItemTextView.setText(correspondingAlbum.getName());
-                        breadcrumbItemImageViewLayout
-                                .setVisibility(SquareHeightRelativeLayout.GONE);
-                    } else if (fpb.tomahawkListItemType != null && fpb.tomahawkListItemType
-                            .equals(TomahawkFragment.TOMAHAWK_USER_PLAYLIST_KEY)) {
-                        UserPlaylist correspondingUserPlaylist = mUserCollection
-                                .getUserPlaylistById(fpb.tomahawkListItemKey);
-                        breadcrumbItemTextView.setText(correspondingUserPlaylist.getName());
-                        breadcrumbItemImageViewLayout
-                                .setVisibility(SquareHeightRelativeLayout.GONE);
-                    } else if (fpb.tomahawkListItemType != null && fpb.tomahawkListItemType
-                            .equals(TomahawkFragment.TOMAHAWK_HATCHET_USER_PLAYLIST_KEY)) {
-                        UserPlaylist correspondingUserPlaylist = mUserCollection
-                                .getUserPlaylistById(fpb.tomahawkListItemKey);
-                        breadcrumbItemTextView.setText(correspondingUserPlaylist.getName());
-                        breadcrumbItemImageViewLayout
-                                .setVisibility(SquareHeightRelativeLayout.GONE);
-                    } else {
-                        if (validFragmentCount == 2) {
-                            breadcrumbItemTextView
-                                    .setText(getString(R.string.tracksfragment_title_string));
-                        } else {
-                            breadcrumbItemTextView.setVisibility(TextView.GONE);
-                        }
-                        breadcrumbItemImageView.setBackgroundDrawable(
-                                getResources().getDrawable(R.drawable.ic_action_track));
-                        breadcrumbItemImageViewLayout
-                                .setVisibility(SquareHeightRelativeLayout.VISIBLE);
-                    }
-                    breadcrumbItem
-                            .setOnClickListener(new BreadCrumbOnClickListener(fpb.fragmentTag));
-                    breadCrumbFrame.addView(breadcrumbItem);
-                }
-            }
-        }
-    }
-
-    /**
      * Returns this {@link Activity}s current {@link org.tomahawk.libtomahawk.collection.UserCollection}.
      *
      * @return the current {@link org.tomahawk.libtomahawk.collection.UserCollection} in this {@link
@@ -833,15 +694,6 @@ public class TomahawkMainActivity extends ActionBarActivity
      */
     public ContentViewer getContentViewer() {
         return mContentViewer;
-    }
-
-    /**
-     * Whenever the backstack changes, update the breadcrumb navigation, so that it can represent
-     * the correct stack.
-     */
-    public void onBackStackChanged() {
-        mCurrentStackPosition = mContentViewer.getCurrentHubId();
-        updateBreadCrumbNavigation();
     }
 
     /**

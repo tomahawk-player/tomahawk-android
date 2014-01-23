@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
+import org.tomahawk.tomahawk_android.utils.ContentViewer;
 
 import android.os.Bundle;
 import android.view.View;
@@ -40,6 +41,8 @@ public class UserCollectionFragment extends TomahawkListFragment implements OnIt
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        mTomahawkMainActivity.setTitle(getString(R.string.usercollectionfragment_title_string));
 
         TomahawkMenuAdapter tomahawkMenuAdapter = new TomahawkMenuAdapter(getActivity(),
                 getResources().getStringArray(R.array.local_collection_menu_items),
@@ -63,18 +66,18 @@ public class UserCollectionFragment extends TomahawkListFragment implements OnIt
         switch ((int) id) {
             case 0:
                 mTomahawkMainActivity.getContentViewer()
-                        .replace(TomahawkMainActivity.HUB_ID_COLLECTION, TracksFragment.class, "",
-                                null, true, false);
+                        .replace(TracksFragment.class, "", null, true, false);
+                mTomahawkMainActivity.setTitle(getString(R.string.tracksfragment_title_string));
                 break;
             case 1:
                 mTomahawkMainActivity.getContentViewer()
-                        .replace(TomahawkMainActivity.HUB_ID_COLLECTION, AlbumsFragment.class, "",
-                                null, true, false);
+                        .replace(AlbumsFragment.class, "", null, true, false);
+                mTomahawkMainActivity.setTitle(getString(R.string.albumsfragment_title_string));
                 break;
             case 2:
                 mTomahawkMainActivity.getContentViewer()
-                        .replace(TomahawkMainActivity.HUB_ID_COLLECTION, ArtistsFragment.class, "",
-                                null, true, false);
+                        .replace(ArtistsFragment.class, "", null, true, false);
+                mTomahawkMainActivity.setTitle(getString(R.string.artistsfragment_title_string));
                 break;
         }
     }
