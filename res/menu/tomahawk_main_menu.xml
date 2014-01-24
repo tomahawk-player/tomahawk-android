@@ -29,4 +29,10 @@
             tomahawk:actionViewClass="android.support.v7.widget.SearchView"
             tomahawk:queryHint="@string/searchfragment_title_string"/>
 
+    <item
+            android:id="@+id/action_saveplaylist_item"
+            android:icon="@drawable/ic_action_saveplaylist"
+            tomahawk:showAsAction="ifRoom"
+            android:title="@string/menu_item_save_playlist"/>
+
 </menu>

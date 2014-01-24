@@ -64,6 +64,9 @@ public class UserPlaylistsDataSource {
             TomahawkSQLiteHelper.TRACKS_COLUMN_ARTISTNAME,
             TomahawkSQLiteHelper.TRACKS_COLUMN_ALBUMNAME,};
 
+    private String[] mAllSearchHistoryColumns = {TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ID,
+            TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ENTRY};
+
     private ConcurrentHashMap<String, ConcurrentHashMap<Query, Long>> mPlaylistQueryIdMap
             = new ConcurrentHashMap<String, ConcurrentHashMap<Query, Long>>();
 
@@ -278,5 +281,21 @@ public class UserPlaylistsDataSource {
             mDatabase.endTransaction();
         }
         userplaylistsCursor.close();
+    }
+
+    public Cursor getSearchHistoryCursor(String entry) {
+        return mDatabase.query(TomahawkSQLiteHelper.TABLE_SEARCHHISTORY, mAllSearchHistoryColumns,
+                TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ENTRY + " LIKE '" + entry + "%'",
+                null, null, null, TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ID + " DESC");
+
+    }
+
+    public void addEntryToSearchHistory(String entry) {
+        ContentValues values = new ContentValues();
+        mDatabase.beginTransaction();
+        values.put(TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ENTRY, entry);
+        mDatabase.insert(TomahawkSQLiteHelper.TABLE_SEARCHHISTORY, null, values);
+        mDatabase.setTransactionSuccessful();
+        mDatabase.endTransaction();
     }
 }
