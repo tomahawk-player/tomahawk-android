@@ -26,11 +26,13 @@ import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.collection.SourceList;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.database.TomahawkSQLiteHelper;
 import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
 import org.tomahawk.tomahawk_android.fragments.ArtistsFragment;
@@ -57,6 +59,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteCursor;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -424,9 +427,15 @@ public class TomahawkMainActivity extends ActionBarActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.clear();
         getMenuInflater().inflate(R.menu.tomahawk_main_menu, menu);
+        final MenuItem savePlaylistItem = menu.findItem(R.id.action_saveplaylist_item);
+        savePlaylistItem.setVisible(false);
         // customize the searchView
         final MenuItem searchItem = menu.findItem(R.id.action_search);
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        SearchView.SearchAutoComplete searchAutoComplete
+                = (SearchView.SearchAutoComplete) searchView
+                .findViewById(android.support.v7.appcompat.R.id.search_src_text);
+        searchAutoComplete.setDropDownBackgroundResource(R.drawable.menu_dropdown_panel_tomahawk);
         View searchEditText = searchView
                 .findViewById(android.support.v7.appcompat.R.id.search_plate);
         searchEditText.setBackgroundResource(R.drawable.edit_text_holo_dark);
@@ -435,6 +444,7 @@ public class TomahawkMainActivity extends ActionBarActivity
             @Override
             public boolean onQueryTextSubmit(String query) {
                 if (query != null && !TextUtils.isEmpty(query)) {
+                    mTomahawkApp.getUserPlaylistsDataSource().addEntryToSearchHistory(query);
                     ContentViewer.FragmentStateHolder fragmentStateHolder
                             = new ContentViewer.FragmentStateHolder(SearchableFragment.class,
                             null);
@@ -451,18 +461,47 @@ public class TomahawkMainActivity extends ActionBarActivity
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                return false;
+                Cursor cursor = mTomahawkApp.getUserPlaylistsDataSource().getSearchHistoryCursor(
+                        newText);
+                if (cursor.getCount() != 0) {
+                    String[] columns = new String[]{
+                            TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ENTRY};
+                    int[] columnTextId = new int[]{android.R.id.text1};
+
+                    SuggestionSimpleCursorAdapter simple = new SuggestionSimpleCursorAdapter(
+                            getBaseContext(), android.R.layout.simple_list_item_1, cursor, columns,
+                            columnTextId, 0);
+
+                    searchView.setSuggestionsAdapter(simple);
+                    return true;
+                } else {
+                    return false;
+                }
             }
         });
         searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
             @Override
             public boolean onSuggestionSelect(int position) {
-                return false;
+                SQLiteCursor cursor = (SQLiteCursor) searchView.getSuggestionsAdapter()
+                        .getItem(position);
+                int indexColumnSuggestion = cursor
+                        .getColumnIndex(TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ENTRY);
+
+                searchView.setQuery(cursor.getString(indexColumnSuggestion), false);
+
+                return true;
             }
 
             @Override
             public boolean onSuggestionClick(int position) {
-                return false;
+                SQLiteCursor cursor = (SQLiteCursor) searchView.getSuggestionsAdapter()
+                        .getItem(position);
+                int indexColumnSuggestion = cursor
+                        .getColumnIndex(TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ENTRY);
+
+                searchView.setQuery(cursor.getString(indexColumnSuggestion), false);
+
+                return true;
             }
         });
         return super.onCreateOptionsMenu(menu);
@@ -553,58 +592,6 @@ public class TomahawkMainActivity extends ActionBarActivity
      */
     protected void onCollectionUpdated() {
         getSupportLoaderManager().restartLoader(0, null, this);
-    }
-
-    /**
-     * Setup this {@link SearchableFragment}s {@link AutoCompleteTextView}
-     */
-    private void setupAutoComplete() {
-        /*AutoCompleteTextView textView = (AutoCompleteTextView) getSupportActionBar().getCustomView()
-                .findViewById(R.id.search_edittext);
-        textView.setDropDownBackgroundResource(R.drawable.menu_dropdown_panel_tomahawk);
-        ArrayList<String> autoCompleteSuggestions = getAutoCompleteArray();
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, autoCompleteSuggestions);
-        textView.setAdapter(adapter);*/
-    }
-
-    /**
-     * Add the given {@link String} to the {@link ArrayList}, which is being persisted as a {@link
-     * android.content.SharedPreferences}
-     */
-    public void addToAutoCompleteArray(String newString) {
-        ArrayList<String> myArrayList = getAutoCompleteArray();
-        int highestIndex = myArrayList.size();
-
-        for (String aMyArrayList : myArrayList) {
-            if (newString != null && newString.equals(aMyArrayList)) {
-                return;
-            }
-        }
-
-        myArrayList.add(newString);
-
-        SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        SharedPreferences.Editor sEdit = sPrefs.edit();
-
-        sEdit.putString("autocomplete_" + highestIndex, myArrayList.get(highestIndex));
-        sEdit.putInt("autocomplete_size", myArrayList.size());
-        sEdit.commit();
-    }
-
-    /**
-     * @return the {@link ArrayList} of {@link String}s containing every {@link String} in our
-     * autocomplete array
-     */
-    public ArrayList<String> getAutoCompleteArray() {
-        SharedPreferences sPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        ArrayList<String> myAList = new ArrayList<String>();
-        int size = sPrefs.getInt("autocomplete_size", 0);
-
-        for (int j = 0; j < size; j++) {
-            myAList.add(sPrefs.getString("autocomplete_" + j, null));
-        }
-        return myAList;
     }
 
     /**

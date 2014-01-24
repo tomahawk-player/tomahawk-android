@@ -123,6 +123,8 @@ public class PlaybackFragment extends TomahawkFragment
 
         onPlaylistChanged();
 
+        mTomahawkMainActivity.setTitle(getString(R.string.playbackfragment_title_string));
+
         if (mPlaybackFragmentBroadcastReceiver == null) {
             mPlaybackFragmentBroadcastReceiver = new PlaybackFragmentBroadcastReceiver();
         }
@@ -149,8 +151,8 @@ public class PlaybackFragment extends TomahawkFragment
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        menu.clear();
-        inflater.inflate(R.menu.playback_menu, menu);
+        menu.findItem(R.id.action_saveplaylist_item).setVisible(true);
+
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -257,7 +259,6 @@ public class PlaybackFragment extends TomahawkFragment
      * listview.
      */
     private void initAdapter() {
-        mTomahawkMainActivity.setTitle(getString(R.string.playbackfragment_title_string));
         PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
         if (playbackService != null && playbackService.getCurrentPlaylist() != null) {
             List<TomahawkBaseAdapter.TomahawkListItem> tracks

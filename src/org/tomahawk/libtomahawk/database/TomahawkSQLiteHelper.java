@@ -20,6 +20,8 @@ package org.tomahawk.libtomahawk.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.provider.BaseColumns;
+import android.util.Base64;
 import android.util.Log;
 
 /**
@@ -54,11 +56,17 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     public static final String TRACKS_COLUMN_ALBUMNAME = "albumname";
 
+    public static final String TABLE_SEARCHHISTORY = "searchhistory";
+
+    public static final String SEARCHHISTORY_COLUMN_ID = BaseColumns._ID;
+
+    public static final String SEARCHHISTORY_COLUMN_ENTRY = "entry";
+
     public static final String TABLE_ALBUMS = "albums";
 
     private static final String DATABASE_NAME = "userplaylists.db";
 
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 6;
 
     // Database creation sql statements
     private static final String CREATE_TABLE_USERPLAYLISTS =
@@ -80,6 +88,11 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
                     + " REFERENCES `" + TABLE_USERPLAYLISTS + "` (`" + USERPLAYLISTS_COLUMN_ID
                     + "`));";
 
+    private static final String CREATE_TABLE_SEARCHHISTORY =
+            "CREATE TABLE `" + TABLE_SEARCHHISTORY + "` (  `"
+                    + SEARCHHISTORY_COLUMN_ID + "` INTEGER PRIMARY KEY AUTOINCREMENT, `"
+                    + SEARCHHISTORY_COLUMN_ENTRY + "` TEXT UNIQUE ON CONFLICT REPLACE);";
+
     public TomahawkSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -91,6 +104,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase database) {
         database.execSQL(CREATE_TABLE_USERPLAYLISTS);
         database.execSQL(CREATE_TABLE_TRACKS);
+        database.execSQL(CREATE_TABLE_SEARCHHISTORY);
     }
 
     /**
@@ -103,6 +117,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
         db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ALBUMS + "`;");
         db.execSQL("DROP TABLE IF EXISTS `" + TABLE_USERPLAYLISTS + "`;");
+        db.execSQL("DROP TABLE IF EXISTS `" + TABLE_SEARCHHISTORY + "`;");
         onCreate(db);
     }
 
