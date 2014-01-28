@@ -21,7 +21,6 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
-import org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -30,9 +29,11 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.GridView;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
  * More customizable implementation of {@link android.app.ListFragment}
@@ -50,7 +51,7 @@ public class TomahawkListFragment extends Fragment {
 
     private boolean mShowGridView;
 
-    private TomahawkStickyListHeadersListView mList;
+    private StickyListHeadersListView mList;
 
     private GridView mGrid;
 
@@ -105,9 +106,9 @@ public class TomahawkListFragment extends Fragment {
     }
 
     /**
-     * Get this {@link TomahawkListFragment}'s {@link TomahawkStickyListHeadersListView}
+     * Get this {@link TomahawkListFragment}'s {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}
      */
-    public TomahawkStickyListHeadersListView getListView() {
+    public StickyListHeadersListView getListView() {
         ensureList();
         return mList;
     }
@@ -128,44 +129,30 @@ public class TomahawkListFragment extends Fragment {
             return;
         }
         View root = getView();
+        LayoutInflater layoutInflater = mTomahawkMainActivity.getLayoutInflater();
         if (root == null) {
             throw new IllegalStateException("Content view not yet created");
         }
-        if (root instanceof TomahawkStickyListHeadersListView) {
-            mList = (TomahawkStickyListHeadersListView) root;
-        } else if (root instanceof GridView) {
-            mGrid = (GridView) root;
+        if (!mShowGridView) {
+            mList = (StickyListHeadersListView) layoutInflater
+                    .inflate(R.layout.stickylistheaderslistview, null, false);
+            View listViewContainer = root
+                    .findViewById(R.id.fragmentLayout_listLayout_frameLayout);
+            if (listViewContainer instanceof FrameLayout) {
+                ((FrameLayout) listViewContainer).addView(mList);
+            }
+            if (mTomahawkListAdapter != null) {
+                setListAdapter(mTomahawkListAdapter);
+            }
         } else {
-            if (!mShowGridView) {
-                View rawListView = root.findViewById(R.id.listview);
-                if (!(rawListView instanceof TomahawkStickyListHeadersListView)) {
-                    if (rawListView == null) {
-                        throw new RuntimeException(
-                                "Your content must have a TomahawkStickyListHeadersListView whose id attribute is "
-                                        + "'R.id.listview'");
-                    }
-                    throw new RuntimeException("Content has view with id attribute 'R.id.listview' "
-                            + "that is not a TomahawkStickyListHeadersListView class");
-                }
-                mList = (TomahawkStickyListHeadersListView) rawListView;
-                if (mTomahawkListAdapter != null) {
-                    setListAdapter(mTomahawkListAdapter);
-                }
-            } else {
-                View rawListView = root.findViewById(R.id.gridview);
-                if (!(rawListView instanceof GridView)) {
-                    if (rawListView == null) {
-                        throw new RuntimeException(
-                                "Your content must have a GridView whose id attribute is "
-                                        + "'R.id.gridview'");
-                    }
-                    throw new RuntimeException("Content has view with id attribute 'R.id.gridview' "
-                            + "that is not a GridView class");
-                }
-                mGrid = (GridView) rawListView;
-                if (mTomahawkGridAdapter != null) {
-                    setGridAdapter(mTomahawkGridAdapter);
-                }
+            mGrid = (GridView) layoutInflater.inflate(R.layout.gridview, null, false);
+            View listViewContainer = root
+                    .findViewById(R.id.fragmentLayout_gridLayout_frameLayout);
+            if (listViewContainer instanceof FrameLayout) {
+                ((FrameLayout) listViewContainer).addView(mGrid);
+            }
+            if (mTomahawkGridAdapter != null) {
+                setGridAdapter(mTomahawkGridAdapter);
             }
         }
         mHandler.post(mRequestFocus);
@@ -204,7 +191,7 @@ public class TomahawkListFragment extends Fragment {
     public void setListAdapter(StickyListHeadersAdapter adapter) {
         mTomahawkListAdapter = adapter;
         mShowGridView = false;
-        TomahawkStickyListHeadersListView listView = getListView();
+        StickyListHeadersListView listView = getListView();
         listView.setAdapter(adapter);
         listView.setSelection(mListScrollPosition);
     }

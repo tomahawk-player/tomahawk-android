@@ -18,9 +18,7 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
-import org.tomahawk.tomahawk_android.utils.ContentViewer;
 
 import android.os.Bundle;
 import android.view.View;
@@ -52,7 +50,7 @@ public class UserCollectionFragment extends TomahawkListFragment implements OnIt
     }
 
     /**
-     * Called every time an item inside the {@link org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}
+     * Called every time an item inside the {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}
      * is clicked
      *
      * @param parent   The AdapterView where the click happened.

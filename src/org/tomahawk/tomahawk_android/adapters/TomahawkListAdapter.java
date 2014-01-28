@@ -24,7 +24,6 @@ import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView;
 
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
@@ -37,9 +36,10 @@ import android.widget.TextView;
 import java.util.List;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
- * This class is used to populate a {@link org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}.
+ * This class is used to populate a {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}.
  */
 public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyListHeadersAdapter {
 
@@ -109,7 +109,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
 
     /**
      * Set whether or not a playlist header should be shown. Like the "^  Playlist  ^"-header in our
-     * {@link org.tomahawk.tomahawk_android.fragments.PlaybackControlsFragment}.
+     * {@link org.tomahawk.tomahawk_android.fragments.PlaybackFragment}.
      */
     public void setShowPlaylistHeader(boolean showPlaylistHeader) {
         mCategoryHeaderResourceHolder = new ResourceHolder();
@@ -129,7 +129,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
      *                                      the header view
      */
     public void setShowContentHeader(boolean showContentHeader,
-            TomahawkStickyListHeadersListView list,
+            StickyListHeadersListView list,
             TomahawkBaseAdapter.TomahawkListItem contentHeaderTomahawkListItem) {
         mContentHeaderTomahawkListItem = contentHeaderTomahawkListItem;
         mShowContentHeader = showContentHeader;
@@ -182,7 +182,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
      * @param list          a reference to the list, so we can set its footer view
      * @param buttonText    {@link String} containing the button's text to show
      */
-    public void setShowAddButton(boolean showAddButton, TomahawkStickyListHeadersListView list,
+    public void setShowAddButton(boolean showAddButton, StickyListHeadersListView list,
             String buttonText) {
         mShowAddButton = showAddButton;
         View addButtonFooterView = mLayoutInflater.inflate(R.layout.add_button_layout, null);
