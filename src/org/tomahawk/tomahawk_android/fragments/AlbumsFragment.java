@@ -26,7 +26,6 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -44,12 +43,12 @@ import java.util.List;
 
 /**
  * {@link TomahawkFragment} which shows a set of {@link Album}s inside its {@link
- * org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}
+ * se.emilsjolander.stickylistheaders.StickyListHeadersListView}
  */
 public class AlbumsFragment extends TomahawkFragment implements OnItemClickListener {
 
     /**
-     * Called every time an item inside the {@link org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}
+     * Called every time an item inside the {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}
      * is clicked
      *
      * @param parent   The AdapterView where the click happened.

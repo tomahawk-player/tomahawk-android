@@ -195,7 +195,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
     }
 
     /**
-     * Called every time an item inside the {@link org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}
+     * Called every time an item inside the {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}
      * is clicked
      *
      * @param parent   The AdapterView where the click happened.

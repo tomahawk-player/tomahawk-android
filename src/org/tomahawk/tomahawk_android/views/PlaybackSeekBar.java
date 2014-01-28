@@ -30,7 +30,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 /**
- * Customized {@link SeekBar} for the {@link org.tomahawk.tomahawk_android.fragments.PlaybackControlsFragment}
+ * Customized {@link SeekBar} for the {@link org.tomahawk.tomahawk_android.fragments.PlaybackFragment}
  */
 public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
 
@@ -58,7 +58,7 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
 
             @Override
             public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
-                if (isIsSeeking()) {
+                if (isIsSeeking() && mPlaybackService != null) {
                     updateTextViewCurrentTime(mPlaybackService.getPosition());
                 }
             }
@@ -71,7 +71,9 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
             @Override
             public void onStopTrackingTouch(SeekBar arg0) {
                 setIsSeeking(false);
-                mPlaybackService.seekTo(getProgress());
+                if (mPlaybackService != null) {
+                    mPlaybackService.seekTo(getProgress());
+                }
                 updateSeekBarPosition();
             }
         };
@@ -96,16 +98,20 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
      * Set max to current {@link org.tomahawk.libtomahawk.collection.Track}'s duration
      */
     public void setMax() {
-        setMax((int) mPlaybackService.getCurrentTrack().getDuration());
+        if (mPlaybackService != null) {
+            setMax((int) mPlaybackService.getCurrentTrack().getDuration());
+        }
     }
 
     /**
      * Set the interval in which to update the seekbar position
      */
     public void setUpdateInterval() {
-        mUpdateInterval = (int) (mPlaybackService.getCurrentTrack().getDuration() / 300);
-        mUpdateInterval = Math.min(mUpdateInterval, 250);
-        mUpdateInterval = Math.max(mUpdateInterval, 20);
+        if (mPlaybackService != null) {
+            mUpdateInterval = (int) (mPlaybackService.getCurrentTrack().getDuration() / 300);
+            mUpdateInterval = Math.min(mUpdateInterval, 250);
+            mUpdateInterval = Math.max(mUpdateInterval, 20);
+        }
     }
 
     /**
@@ -113,14 +119,14 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
      */
     public void updateSeekBarPosition() {
         if (!isIsSeeking()) {
-            if (mPlaybackService.isPreparing()
+            if (mPlaybackService != null && (mPlaybackService.isPreparing()
                     || mPlaybackService.getCurrentTrack() == null
-                    || mPlaybackService.getCurrentTrack().getDuration() == 0) {
+                    || mPlaybackService.getCurrentTrack().getDuration() == 0)) {
                 setEnabled(false);
             } else {
                 setEnabled(true);
             }
-            if (!mPlaybackService.isPreparing()) {
+            if (mPlaybackService != null && !mPlaybackService.isPreparing()) {
                 setProgress(mPlaybackService.getPosition());
                 updateTextViewCurrentTime(mPlaybackService.getPosition());
             } else {
@@ -137,9 +143,11 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
      */
     public void updateTextViewCurrentTime(int position) {
         if (mTextViewCurrentTime != null) {
-            if (!isIsSeeking() && mPlaybackService.getCurrentPlaylist().getCount() > 0) {
+            if (mPlaybackService != null && !isIsSeeking()
+                    && mPlaybackService.getCurrentPlaylist().getCount() > 0) {
                 mTextViewCurrentTime.setText(TomahawkUtils.durationToString(position));
-            } else if (mPlaybackService.getCurrentPlaylist().getCount() > 0) {
+            } else if (mPlaybackService != null
+                    && mPlaybackService.getCurrentPlaylist().getCount() > 0) {
                 mTextViewCurrentTime.setText(TomahawkUtils.durationToString(getProgress()));
             } else {
                 mTextViewCurrentTime.setText(TomahawkUtils.durationToString(0));
@@ -152,7 +160,7 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
      */
     public void updateTextViewCompleteTime() {
         if (mTextViewCompletionTime != null) {
-            if (mPlaybackService.getCurrentTrack() != null
+            if (mPlaybackService != null && mPlaybackService.getCurrentTrack() != null
                     && mPlaybackService.getCurrentTrack().getDuration() > 0) {
                 mTextViewCompletionTime.setText(TomahawkUtils
                         .durationToString(mPlaybackService.getCurrentTrack().getDuration()));

@@ -25,7 +25,6 @@ import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
@@ -41,7 +40,7 @@ import java.util.List;
 
 /**
  * {@link TomahawkFragment} which shows a set of {@link Track}s inside its {@link
- * org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}
+ * se.emilsjolander.stickylistheaders.StickyListHeadersListView}
  */
 public class TracksFragment extends TomahawkFragment implements OnItemClickListener {
 
@@ -60,7 +59,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
     }
 
     /**
-     * Called every time an item inside the {@link org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}
+     * Called every time an item inside the {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}
      * is clicked
      *
      * @param parent   The AdapterView where the click happened.

@@ -39,7 +39,6 @@ import org.tomahawk.tomahawk_android.dialogs.FakeContextMenuDialog;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.ContentViewer;
 import org.tomahawk.tomahawk_android.utils.FakeContextMenu;
-import org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -58,6 +57,8 @@ import android.widget.GridView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
  * The base class for {@link AlbumsFragment}, {@link TracksFragment}, {@link ArtistsFragment},
@@ -88,7 +89,7 @@ public class TomahawkFragment extends TomahawkListFragment
 
     protected TomahawkApp mTomahawkApp;
 
-    private TomahawkFragmentReceiver mTomahawkFragmentReceiver;
+    private TomahawkBaseFragmentReceiver mTomahawkBaseFragmentReceiver;
 
     protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
 
@@ -113,7 +114,7 @@ public class TomahawkFragment extends TomahawkListFragment
     /**
      * Handles incoming {@link Collection} updated broadcasts.
      */
-    private class TomahawkFragmentReceiver extends BroadcastReceiver {
+    private class TomahawkBaseFragmentReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -126,6 +127,15 @@ public class TomahawkFragment extends TomahawkListFragment
                 String requestId = intent.getStringExtra(
                         InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
                 onInfoSystemResultsReported(requestId);
+            } else if (TomahawkMainActivity.PLAYBACKSERVICE_READY.equals(intent.getAction())) {
+                onPlaybackServiceReady();
+            } else if (PlaybackService.BROADCAST_NEWTRACK.equals(intent.getAction())) {
+                onTrackChanged();
+                mTomahawkMainActivity.startLoadingAnimation();
+            } else if (PlaybackService.BROADCAST_PLAYLISTCHANGED.equals(intent.getAction())) {
+                onPlaylistChanged();
+            } else if (PlaybackService.BROADCAST_PLAYSTATECHANGED.equals(intent.getAction())) {
+                onPlaystateChanged();
             }
         }
     }
@@ -185,20 +195,28 @@ public class TomahawkFragment extends TomahawkListFragment
         // Adapt to current orientation. Show different count of columns in the GridView
         adaptColumnCount();
 
-        getActivity().getSupportLoaderManager().destroyLoader(getId());
-        getActivity().getSupportLoaderManager().initLoader(getId(), null, this);
+        mTomahawkMainActivity.getSupportLoaderManager().destroyLoader(getId());
+        mTomahawkMainActivity.getSupportLoaderManager().initLoader(getId(), null, this);
 
         // Initialize and register Receiver
-        if (mTomahawkFragmentReceiver == null) {
-            mTomahawkFragmentReceiver = new TomahawkFragmentReceiver();
+        if (mTomahawkBaseFragmentReceiver == null) {
+            mTomahawkBaseFragmentReceiver = new TomahawkBaseFragmentReceiver();
             IntentFilter intentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
-            getActivity().registerReceiver(mTomahawkFragmentReceiver, intentFilter);
+            mTomahawkMainActivity.registerReceiver(mTomahawkBaseFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED);
-            getActivity().registerReceiver(mTomahawkFragmentReceiver, intentFilter);
+            mTomahawkMainActivity.registerReceiver(mTomahawkBaseFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
-            getActivity().registerReceiver(mTomahawkFragmentReceiver, intentFilter);
+            mTomahawkMainActivity.registerReceiver(mTomahawkBaseFragmentReceiver, intentFilter);
+            intentFilter = new IntentFilter(PlaybackService.BROADCAST_NEWTRACK);
+            mTomahawkMainActivity.registerReceiver(mTomahawkBaseFragmentReceiver, intentFilter);
+            intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYLISTCHANGED);
+            mTomahawkMainActivity.registerReceiver(mTomahawkBaseFragmentReceiver, intentFilter);
+            intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYSTATECHANGED);
+            mTomahawkMainActivity.registerReceiver(mTomahawkBaseFragmentReceiver, intentFilter);
+            intentFilter = new IntentFilter(TomahawkMainActivity.PLAYBACKSERVICE_READY);
+            mTomahawkMainActivity.registerReceiver(mTomahawkBaseFragmentReceiver, intentFilter);
         }
-        TomahawkStickyListHeadersListView list = getListView();
+        StickyListHeadersListView list = getListView();
         if (list != null) {
             list.setOnItemLongClickListener(this);
             list.setOnScrollListener(this);
@@ -214,9 +232,9 @@ public class TomahawkFragment extends TomahawkListFragment
     public void onPause() {
         super.onPause();
 
-        if (mTomahawkFragmentReceiver != null) {
-            getActivity().unregisterReceiver(mTomahawkFragmentReceiver);
-            mTomahawkFragmentReceiver = null;
+        if (mTomahawkBaseFragmentReceiver != null) {
+            mTomahawkMainActivity.unregisterReceiver(mTomahawkBaseFragmentReceiver);
+            mTomahawkBaseFragmentReceiver = null;
         }
     }
 
@@ -474,12 +492,37 @@ public class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    protected void onPipeLineResultsReported(String qId) {
+    /**
+     * If the PlaybackService signals, that it is ready, this method is being called
+     */
+    protected void onPlaybackServiceReady() {
+    }
 
+    protected void onPipeLineResultsReported(String qId) {
     }
 
     protected void onInfoSystemResultsReported(String requestId) {
+    }
 
+    /**
+     * Called when the PlaybackServiceBroadcastReceiver received a Broadcast indicating that the
+     * playlist has changed inside our PlaybackService
+     */
+    protected void onPlaylistChanged() {
+    }
+
+    /**
+     * Called when the PlaybackServiceBroadcastReceiver in PlaybackFragment received a Broadcast
+     * indicating that the playState (playing or paused) has changed inside our PlaybackService
+     */
+    protected void onPlaystateChanged() {
+    }
+
+    /**
+     * Called when the PlaybackServiceBroadcastReceiver received a Broadcast indicating that the
+     * track has changed inside our PlaybackService
+     */
+    protected void onTrackChanged() {
     }
 
     /**

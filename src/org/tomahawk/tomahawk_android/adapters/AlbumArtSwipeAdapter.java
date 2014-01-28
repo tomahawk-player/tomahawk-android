@@ -18,6 +18,7 @@
 package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -27,20 +28,22 @@ import android.content.Context;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 /**
  * {@link PagerAdapter} which provides functionality to swipe an AlbumArt image. Used in {@link
- * org.tomahawk.tomahawk_android.fragments.PlaybackControlsFragment}
+ * org.tomahawk.tomahawk_android.fragments.PlaybackFragment}
  */
 public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPageChangeListener {
 
     //Used to provide fake infinite swiping behaviour, if current Playlist is repeating
     private static final int FAKE_INFINITY_COUNT = 20000;
 
-    private Context mContext;
+    private ActionBarActivity mActivity;
 
     private int mFakeInfinityOffset;
 
@@ -48,7 +51,6 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
 
     private boolean mSwiped;
 
-    //The ViewPager used to display the AlbumArt images
     private ViewPager mViewPager;
 
     private PlaybackService mPlaybackService;
@@ -60,17 +62,15 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     /**
      * Constructs a new AlbumArtSwipeAdapter.
      *
-     * @param context   the {@link Context} needed to call .loadBitmap in {@link
+     * @param activity  the {@link Context} needed to call .loadBitmap in {@link
      *                  org.tomahawk.libtomahawk.collection.Album}
-     * @param viewPager {@link ViewPager} used to display the AlbumArt images
+     * @param viewPager ViewPager which this adapter has been connected with
      */
-    public AlbumArtSwipeAdapter(Context context, ViewPager viewPager) {
-        this.mContext = context;
-        this.mByUser = true;
-        this.mSwiped = false;
-        this.mViewPager = viewPager;
-        this.mViewPager.setAdapter(this);
-        this.mViewPager.setOnPageChangeListener(this);
+    public AlbumArtSwipeAdapter(ActionBarActivity activity, ViewPager viewPager) {
+        mActivity = activity;
+        mViewPager = viewPager;
+        mByUser = true;
+        mSwiped = false;
     }
 
     /**
@@ -79,7 +79,8 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      */
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        ImageView albumArtImageView = new ImageView(mContext);
+        View view = mActivity.getLayoutInflater().inflate(
+                org.tomahawk.tomahawk_android.R.layout.albumart_fragment, container, false);
         if (mPlaylist != null && mPlaylist.getCount() > 0) {
             Query query;
             if (mPlaylist.isRepeating()) {
@@ -87,13 +88,12 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
             } else {
                 query = mPlaylist.peekQueryAtPos(position);
             }
-            TomahawkUtils.loadImageIntoImageView(mContext, albumArtImageView,
-                    query.getPreferredTrack().getAlbum());
+            refreshTrackInfo(view, query.getPreferredTrack());
         } else {
-            TomahawkUtils.loadImageIntoImageView(mContext, albumArtImageView);
+            refreshTrackInfo(view, null);
         }
-        container.addView(albumArtImageView);
-        return albumArtImageView;
+        container.addView(view);
+        return view;
     }
 
     /**
@@ -145,9 +145,6 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         return null;
     }
 
-    /**
-     * @return POSITION_NONE
-     */
     @Override
     public int getItemPosition(Object object) {
         return POSITION_NONE;
@@ -275,6 +272,53 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     public void setPlaybackService(PlaybackService mPlaybackService) {
         this.mPlaybackService = mPlaybackService;
         updatePlaylist();
+    }
+
+    private void refreshTrackInfo(View view, Track track) {
+        if (track != null) {
+            ImageView imageView = (ImageView) view.findViewById(
+                    R.id.album_art_image);
+            TomahawkUtils.loadImageIntoImageView(mActivity, imageView, track.getAlbum());
+
+            // Update all relevant TextViews
+            final TextView artistTextView = (TextView) view.findViewById(
+                    R.id.textView_artist);
+            final TextView albumTextView = (TextView) view.findViewById(
+                    R.id.textView_album);
+            final TextView titleTextView = (TextView) view.findViewById(
+                    R.id.textView_title);
+            if (track.getArtist() != null && track.getArtist().getName() != null) {
+                artistTextView.setText(track.getArtist().toString());
+            } else {
+                artistTextView.setText(
+                        R.string.playbackactivity_unknown_string);
+            }
+            if (track.getAlbum() != null && track.getAlbum().getName() != null) {
+                albumTextView.setText(track.getAlbum().toString());
+            } else {
+                albumTextView.setText(
+                        R.string.playbackactivity_unknown_string);
+            }
+            if (track.getName() != null) {
+                titleTextView.setText(track.getName());
+            } else {
+                titleTextView.setText(
+                        R.string.playbackactivity_unknown_string);
+            }
+
+        } else {
+            //No track has been given, so we update the view state accordingly
+            // Update all relevant TextViews
+            final TextView artistTextView = (TextView) view.findViewById(
+                    R.id.textView_artist);
+            final TextView albumTextView = (TextView) view.findViewById(
+                    R.id.textView_album);
+            final TextView titleTextView = (TextView) view.findViewById(
+                    R.id.textView_title);
+            artistTextView.setText("");
+            albumTextView.setText("");
+            titleTextView.setText(R.string.playbackactivity_no_track);
+        }
     }
 
 }

@@ -35,12 +35,12 @@ import java.util.List;
 
 /**
  * {@link TomahawkFragment} which shows a set of {@link Artist}s inside its {@link
- * org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}
+ * se.emilsjolander.stickylistheaders.StickyListHeadersListView}
  */
 public class ArtistsFragment extends TomahawkFragment implements OnItemClickListener {
 
     /**
-     * Called every time an item inside the {@link org.tomahawk.tomahawk_android.views.TomahawkStickyListHeadersListView}
+     * Called every time an item inside the {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}
      * is clicked
      *
      * @param parent   The AdapterView where the click happened.
