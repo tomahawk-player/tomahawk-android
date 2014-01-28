@@ -30,6 +30,12 @@
             tomahawk:queryHint="@string/searchfragment_title_string"/>
 
     <item
+            android:id="@+id/action_show_playlist_item"
+            android:icon="@drawable/ic_action_collections_view_as_list"
+            tomahawk:showAsAction="ifRoom"
+            android:title="@string/menu_item_show_playlist"/>
+
+    <item
             android:id="@+id/action_saveplaylist_item"
             android:icon="@drawable/ic_action_saveplaylist"
             tomahawk:showAsAction="ifRoom"

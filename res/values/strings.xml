@@ -103,6 +103,8 @@
     <string name="fake_context_menu_addtoplaylist">Add to playlist</string>
     <string name="fake_context_menu_delete">Delete</string>
     <string name="menu_item_save_playlist">Save playlist</string>
+    <string name="menu_item_show_album_cover">Show album cover</string>
+    <string name="menu_item_show_playlist">Show playlist</string>
     <string name="menu_item_clear_playlist">Clear playlist</string>
     <string name="hub_title_home">Home</string>
     <string name="hub_title_search">Search</string>

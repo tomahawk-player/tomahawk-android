@@ -32,6 +32,7 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.ContentViewer;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.content.Loader;
 import android.view.View;
@@ -121,12 +122,18 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(
                         mTomahawkMainActivity, listArray);
                 tomahawkListAdapter.setShowCategoryHeaders(true, true);
-                tomahawkListAdapter.setShowContentHeader(true, getListView(), mArtist);
+                if (getResources().getConfiguration().orientation
+                        == Configuration.ORIENTATION_PORTRAIT) {
+                    tomahawkListAdapter.setShowContentHeader(true, getListView(), mArtist);
+                }
                 tomahawkListAdapter.setShowResolvedBy(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
-                ((TomahawkListAdapter) getListAdapter()).updateContentHeader(mArtist);
+                if (getResources().getConfiguration().orientation
+                        == Configuration.ORIENTATION_PORTRAIT) {
+                    ((TomahawkListAdapter) getListAdapter()).updateContentHeader(mArtist);
+                }
             }
             getListView().setOnItemClickListener(this);
         } else {

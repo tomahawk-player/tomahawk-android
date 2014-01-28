@@ -80,7 +80,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         View view = mActivity.getLayoutInflater().inflate(
-                org.tomahawk.tomahawk_android.R.layout.albumart_fragment, container, false);
+                org.tomahawk.tomahawk_android.R.layout.album_art_view_pager_item, container, false);
         if (mPlaylist != null && mPlaylist.getCount() > 0) {
             Query query;
             if (mPlaylist.isRepeating()) {
@@ -275,49 +275,49 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     }
 
     private void refreshTrackInfo(View view, Track track) {
+        TextView artistTextView = (TextView) view.findViewById(R.id.textView_artist);
+        TextView albumTextView = (TextView) view.findViewById(R.id.textView_album);
+        TextView titleTextView = (TextView) view.findViewById(R.id.textView_title);
         if (track != null) {
-            ImageView imageView = (ImageView) view.findViewById(
-                    R.id.album_art_image);
+            ImageView imageView = (ImageView) view.findViewById(R.id.album_art_image);
             TomahawkUtils.loadImageIntoImageView(mActivity, imageView, track.getAlbum());
 
             // Update all relevant TextViews
-            final TextView artistTextView = (TextView) view.findViewById(
-                    R.id.textView_artist);
-            final TextView albumTextView = (TextView) view.findViewById(
-                    R.id.textView_album);
-            final TextView titleTextView = (TextView) view.findViewById(
-                    R.id.textView_title);
-            if (track.getArtist() != null && track.getArtist().getName() != null) {
-                artistTextView.setText(track.getArtist().toString());
-            } else {
-                artistTextView.setText(
-                        R.string.playbackactivity_unknown_string);
+            if (artistTextView != null) {
+                if (track.getArtist() != null && track.getArtist().getName() != null) {
+                    artistTextView.setText(track.getArtist().toString());
+                } else {
+                    artistTextView.setText(R.string.playbackactivity_unknown_string);
+                }
             }
-            if (track.getAlbum() != null && track.getAlbum().getName() != null) {
-                albumTextView.setText(track.getAlbum().toString());
-            } else {
-                albumTextView.setText(
-                        R.string.playbackactivity_unknown_string);
+            if (albumTextView != null) {
+                if (track.getAlbum() != null && track.getAlbum().getName() != null) {
+                    albumTextView.setText(track.getAlbum().toString());
+                } else {
+                    albumTextView.setText(R.string.playbackactivity_unknown_string);
+                }
             }
-            if (track.getName() != null) {
-                titleTextView.setText(track.getName());
-            } else {
-                titleTextView.setText(
-                        R.string.playbackactivity_unknown_string);
+            if (titleTextView != null) {
+                if (track.getName() != null) {
+                    titleTextView.setText(track.getName());
+                } else {
+                    titleTextView.setText(R.string.playbackactivity_unknown_string);
+                }
             }
 
         } else {
             //No track has been given, so we update the view state accordingly
             // Update all relevant TextViews
-            final TextView artistTextView = (TextView) view.findViewById(
-                    R.id.textView_artist);
-            final TextView albumTextView = (TextView) view.findViewById(
-                    R.id.textView_album);
-            final TextView titleTextView = (TextView) view.findViewById(
-                    R.id.textView_title);
-            artistTextView.setText("");
-            albumTextView.setText("");
-            titleTextView.setText(R.string.playbackactivity_no_track);
+
+            if (artistTextView != null) {
+                artistTextView.setText("");
+            }
+            if (albumTextView != null) {
+                albumTextView.setText("");
+            }
+            if (titleTextView != null) {
+                titleTextView.setText(R.string.playbackactivity_no_track);
+            }
         }
     }
 
