@@ -114,7 +114,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
      * @param contentHeaderTomahawkListItem the {@link TomahawkListItem}'s information to show in
      *                                      the header view
      */
-    public void setShowContentHeader(boolean showContentHeader,
+    public void setShowContentHeader(boolean showContentHeader, boolean landscapeMode,
             StickyListHeadersListView list,
             TomahawkBaseAdapter.TomahawkListItem contentHeaderTomahawkListItem) {
         mContentHeaderTomahawkListItem = contentHeaderTomahawkListItem;
@@ -123,7 +123,9 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
         if (contentHeaderView != null && list.getHeaderViewsCount() == 0) {
             mContentHeaderView = contentHeaderView;
             updateContentHeader(contentHeaderTomahawkListItem);
-            list.addHeaderView(mContentHeaderView);
+            if (!landscapeMode) {
+                list.addHeaderView(mContentHeaderView);
+            }
         }
     }
 
