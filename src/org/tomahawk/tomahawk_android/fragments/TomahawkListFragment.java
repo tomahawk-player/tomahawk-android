@@ -57,6 +57,8 @@ public class TomahawkListFragment extends Fragment {
 
     private int mListScrollPosition = 0;
 
+    private boolean restoreScrollPosition = true;
+
     final private Handler mHandler = new Handler();
 
     final private Runnable mRequestFocus = new Runnable() {
@@ -193,7 +195,9 @@ public class TomahawkListFragment extends Fragment {
         mShowGridView = false;
         StickyListHeadersListView listView = getListView();
         listView.setAdapter(adapter);
-        listView.setSelection(mListScrollPosition);
+        if (restoreScrollPosition) {
+            listView.setSelection(mListScrollPosition);
+        }
     }
 
     /**
@@ -205,10 +209,16 @@ public class TomahawkListFragment extends Fragment {
         mShowGridView = true;
         GridView gridView = getGridView();
         gridView.setAdapter(adapter);
-        gridView.setSelection(mListScrollPosition);
+        if (restoreScrollPosition) {
+            gridView.setSelection(mListScrollPosition);
+        }
     }
 
     public boolean isShowGridView() {
         return mShowGridView;
+    }
+
+    public void setRestoreScrollPosition(boolean restoreScrollPosition) {
+        this.restoreScrollPosition = restoreScrollPosition;
     }
 }

@@ -31,7 +31,6 @@ import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 import org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager;
 
 import android.graphics.PorterDuff;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
@@ -58,17 +57,35 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
  * {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}.
  */
 public class PlaybackFragment extends TomahawkFragment
-        implements AdapterView.OnItemClickListener,
-        se.emilsjolander.stickylistheaders.StickyListHeadersListView.OnHeaderClickListener,
-        FakeContextMenu {
+        implements AdapterView.OnItemClickListener, FakeContextMenu {
 
     private AlbumArtSwipeAdapter mAlbumArtSwipeAdapter;
 
     private PlaybackPagerAdapter mPlaybackPagerAdapter;
 
+    private TomahawkVerticalViewPager mTomahawkVerticalViewPager;
+
+    private Menu mMenu;
+
     private PlaybackSeekBar mPlaybackSeekBar;
 
     private Toast mToast;
+
+    private ViewPager.OnPageChangeListener mOnPageChangeListener
+            = new ViewPager.OnPageChangeListener() {
+        @Override
+        public void onPageScrolled(int i, float v, int i2) {
+        }
+
+        @Override
+        public void onPageSelected(int i) {
+            handlePageSelect();
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int i) {
+        }
+    };
 
     /**
      * This listener handles our button clicks
@@ -101,6 +118,7 @@ public class PlaybackFragment extends TomahawkFragment
         super.onCreate(savedInstanceState);
 
         setHasOptionsMenu(true);
+        setRestoreScrollPosition(false);
     }
 
     @Override
@@ -138,11 +156,15 @@ public class PlaybackFragment extends TomahawkFragment
         viewPager.setAdapter(mAlbumArtSwipeAdapter);
         viewPager.setOnPageChangeListener(mAlbumArtSwipeAdapter);
 
-        TomahawkVerticalViewPager verticalViewPager = (TomahawkVerticalViewPager) getView()
+        mTomahawkVerticalViewPager = (TomahawkVerticalViewPager) getView()
                 .findViewById(R.id.playback_view_pager);
         mPlaybackPagerAdapter = new PlaybackPagerAdapter(viewPager, getListView());
-        verticalViewPager.setAdapter(mPlaybackPagerAdapter);
-        verticalViewPager.setStickyListHeadersListView(getListView());
+        mTomahawkVerticalViewPager.setAdapter(mPlaybackPagerAdapter);
+        mTomahawkVerticalViewPager.setStickyListHeadersListView(getListView());
+        mTomahawkVerticalViewPager.setOnPageChangeListener(mOnPageChangeListener);
+        if (mMenu != null) {
+            handlePageSelect();
+        }
 
         mPlaybackSeekBar = (PlaybackSeekBar) getView().findViewById(R.id.seekBar_track);
         mPlaybackSeekBar.setTextViewCurrentTime((TextView) getView().findViewById(
@@ -159,7 +181,12 @@ public class PlaybackFragment extends TomahawkFragment
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        menu.findItem(R.id.action_saveplaylist_item).setVisible(true);
+        mMenu = menu;
+
+        mMenu.findItem(R.id.action_show_playlist_item).setVisible(true);
+        mMenu.findItem(R.id.action_saveplaylist_item).setVisible(true);
+
+        handlePageSelect();
 
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -175,6 +202,13 @@ public class PlaybackFragment extends TomahawkFragment
                 new CreateUserPlaylistDialog(playbackService.getCurrentPlaylist())
                         .show(mTomahawkMainActivity.getSupportFragmentManager(),
                                 getString(R.string.playbackactivity_save_playlist_dialog_title));
+                return true;
+            } else if (item.getItemId() == R.id.action_show_playlist_item) {
+                if (mTomahawkVerticalViewPager.getCurrentItem() == 0) {
+                    mTomahawkVerticalViewPager.setCurrentItem(1, true);
+                } else {
+                    mTomahawkVerticalViewPager.setCurrentItem(0, true);
+                }
                 return true;
             }
         }
@@ -196,30 +230,6 @@ public class PlaybackFragment extends TomahawkFragment
                             playbackService.getCurrentPlaylist().getQueryAtPos(idx));
                 }
             }
-        }
-    }
-
-    /**
-     * If the listview header is clicked, scroll back to the top. Uses different ways of achieving
-     * this depending on api level.
-     */
-    @Override
-    public void onHeaderClick(se.emilsjolander.stickylistheaders.StickyListHeadersListView list,
-            View header, int itemPosition,
-            long headerId, boolean currentlySticky) {
-        list = getListView();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            list.smoothScrollToPositionFromTop(0, 0, 200);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-            int firstVisible = list.getFirstVisiblePosition();
-            int lastVisible = list.getLastVisiblePosition();
-            if (0 < firstVisible) {
-                list.smoothScrollToPosition(0);
-            } else {
-                list.smoothScrollToPosition(lastVisible - firstVisible - 2);
-            }
-        } else {
-            list.setSelectionFromTop(0, 0);
         }
     }
 
@@ -253,6 +263,9 @@ public class PlaybackFragment extends TomahawkFragment
         if (tomahawkListAdapter != null && playbackService != null
                 && playbackService.getCurrentPlaylist() != null
                 && playbackService.getCurrentPlaylist().getCurrentQuery() != null) {
+            if (mMenu != null) {
+                handlePageSelect();
+            }
             tomahawkListAdapter.setHighlightedItem(
                     playbackService.getCurrentPlaylist().getCurrentQueryIndex());
             tomahawkListAdapter.setHighlightedItemIsPlaying(playbackService.isPlaying());
@@ -361,14 +374,35 @@ public class PlaybackFragment extends TomahawkFragment
                     listArray);
             tomahawkListAdapter.setShowHighlightingAndPlaystate(true);
             tomahawkListAdapter.setShowResolvedBy(true);
-            tomahawkListAdapter.setShowPlaylistHeader(true);
             tomahawkListAdapter.setHighlightedItem(
                     playbackService.getCurrentPlaylist().getCurrentQueryIndex());
             tomahawkListAdapter.setHighlightedItemIsPlaying(playbackService.isPlaying());
             StickyListHeadersListView list = getListView();
             list.setOnItemClickListener(this);
-            list.setOnHeaderClickListener(this);
             setListAdapter(tomahawkListAdapter);
+        }
+    }
+
+    private void handlePageSelect() {
+        MenuItem item = mMenu.findItem(R.id.action_show_playlist_item);
+        if (mTomahawkVerticalViewPager.getCurrentItem() == 0) {
+            item.setIcon(R.drawable.ic_action_collections_view_as_list);
+            item.setTitle(R.string.menu_item_show_playlist);
+            final PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
+            if (playbackService != null && playbackService.getCurrentPlaylist() != null) {
+                getListView().clearFocus();
+                getListView().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        getListView().setSelection(
+                                playbackService.getCurrentPlaylist().getCurrentQueryIndex());
+                        getListView().requestFocus();
+                    }
+                });
+            }
+        } else {
+            item.setIcon(R.drawable.ic_action_up);
+            item.setTitle(R.string.menu_item_show_album_cover);
         }
     }
 
@@ -467,6 +501,9 @@ public class PlaybackFragment extends TomahawkFragment
      */
     protected void refreshTrackInfo(Track track) {
         if (getView() != null) {
+            TextView artistTextView = (TextView) getView().findViewById(R.id.textView_artist);
+            TextView albumTextView = (TextView) getView().findViewById(R.id.textView_album);
+            TextView titleTextView = (TextView) getView().findViewById(R.id.textView_title);
             PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
             if (track != null && playbackService != null) {
                 /*
@@ -487,6 +524,29 @@ public class PlaybackFragment extends TomahawkFragment
                 }
                 mAlbumArtSwipeAdapter.setSwiped(false);
 
+                // Update the textViews, if available (in other words, if in landscape mode)
+                if (artistTextView != null) {
+                    if (track.getArtist() != null && track.getArtist().getName() != null) {
+                        artistTextView.setText(track.getArtist().toString());
+                    } else {
+                        artistTextView.setText(R.string.playbackactivity_unknown_string);
+                    }
+                }
+                if (albumTextView != null) {
+                    if (track.getAlbum() != null && track.getAlbum().getName() != null) {
+                        albumTextView.setText(track.getAlbum().toString());
+                    } else {
+                        albumTextView.setText(R.string.playbackactivity_unknown_string);
+                    }
+                }
+                if (titleTextView != null) {
+                    if (track.getName() != null) {
+                        titleTextView.setText(track.getName());
+                    } else {
+                        titleTextView.setText(R.string.playbackactivity_unknown_string);
+                    }
+                }
+
                 // Make all buttons clickable
                 getView().findViewById(R.id.imageButton_playpause).setClickable(true);
                 getView().findViewById(R.id.imageButton_next).setClickable(true);
@@ -502,6 +562,16 @@ public class PlaybackFragment extends TomahawkFragment
                 mPlaybackSeekBar.updateTextViewCompleteTime();
             } else {
                 //No track has been given, so we update the view state accordingly
+
+                if (artistTextView != null) {
+                    artistTextView.setText("");
+                }
+                if (albumTextView != null) {
+                    albumTextView.setText("");
+                }
+                if (titleTextView != null) {
+                    titleTextView.setText(R.string.playbackactivity_no_track);
+                }
 
                 // Make all buttons not clickable
                 getView().findViewById(R.id.imageButton_playpause).setClickable(false);

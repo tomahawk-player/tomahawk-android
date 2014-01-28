@@ -2,7 +2,7 @@
 <!--
 /*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2012, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,18 +20,12 @@
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
-              android:layout_height="@dimen/row_height_large"
+              android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <TextView
-            android:id="@+id/content_header_textview"
+    <ImageView
+            android:id="@+id/album_art_image"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center|left"
-            android:ellipsize="marquee"
-            android:singleLine="true"
-            android:textColor="@color/primary_textcolor"
-            android:textSize="@dimen/text_size_medium"
-            android:padding="@dimen/padding_small"/>
+            android:layout_height="match_parent"/>
 
 </LinearLayout>

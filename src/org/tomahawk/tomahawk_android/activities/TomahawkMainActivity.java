@@ -404,6 +404,8 @@ public class TomahawkMainActivity extends ActionBarActivity
         getMenuInflater().inflate(R.menu.tomahawk_main_menu, menu);
         final MenuItem savePlaylistItem = menu.findItem(R.id.action_saveplaylist_item);
         savePlaylistItem.setVisible(false);
+        final MenuItem showPlaylistItem = menu.findItem(R.id.action_show_playlist_item);
+        showPlaylistItem.setVisible(false);
         // customize the searchView
         final MenuItem searchItem = menu.findItem(R.id.action_search);
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);

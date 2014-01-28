@@ -51,13 +51,9 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
 
     private ResourceHolder mCategoryHeaderResourceHolder;
 
-    private ResourceHolder mAddButtonResourceHolder;
-
     private boolean mShowCategoryHeaders = false;
 
     private boolean mShowQueriesAsTopHits = false;
-
-    private boolean mShowPlaylistHeader = false;
 
     private boolean mShowContentHeader = false;
 
@@ -105,16 +101,6 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
         mCategoryHeaderResourceHolder.textViewId1 = R.id.single_line_list_header_textview;
         mShowCategoryHeaders = showCategoryHeaders;
         mShowQueriesAsTopHits = showQueriesAsTopHits;
-    }
-
-    /**
-     * Set whether or not a playlist header should be shown. Like the "^  Playlist  ^"-header in our
-     * {@link org.tomahawk.tomahawk_android.fragments.PlaybackFragment}.
-     */
-    public void setShowPlaylistHeader(boolean showPlaylistHeader) {
-        mCategoryHeaderResourceHolder = new ResourceHolder();
-        mCategoryHeaderResourceHolder.resourceId = R.layout.show_playlist_header;
-        mShowPlaylistHeader = showPlaylistHeader;
     }
 
     /**
@@ -421,7 +407,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
      */
     @Override
     public View getHeaderView(int position, View convertView, ViewGroup parent) {
-        if (mShowPlaylistHeader || mShowCategoryHeaders) {
+        if (mShowCategoryHeaders) {
             ViewHolder viewHolder;
             if (convertView == null) {
                 convertView = mLayoutInflater
@@ -435,7 +421,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                 convertView.setTag(viewHolder);
             }
             viewHolder = (ViewHolder) convertView.getTag();
-            if (mShowCategoryHeaders && getItem(position) != null) {
+            if (getItem(position) != null) {
                 if (getItem(position) instanceof Track || getItem(position) instanceof Query) {
                     if (mShowQueriesAsTopHits) {
                         viewHolder.imageViewLeft.setImageResource(R.drawable.ic_action_tophits);
