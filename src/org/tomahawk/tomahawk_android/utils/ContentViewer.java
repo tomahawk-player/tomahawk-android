@@ -73,6 +73,8 @@ public class ContentViewer {
 
     public static final int HUB_ID_PLAYBACK = 100;
 
+    public static final String FRAGMENT_TAG = "the_ultimate_tag";
+
     private TomahawkMainActivity mTomahawkMainActivity;
 
     private FragmentManager mFragmentManager;
@@ -161,7 +163,7 @@ public class ContentViewer {
         } else {
             Fragment currentFragment = null;
             if (mFragmentManager != null && mFragmentManager.getFragments() != null) {
-                currentFragment = mFragmentManager.getFragments().get(0);
+                currentFragment = mFragmentManager.findFragmentByTag(FRAGMENT_TAG);
             }
             if (currentFragmentStateHolder != null && currentFragment != null
                     && currentFragment instanceof TomahawkFragment) {
@@ -182,7 +184,7 @@ public class ContentViewer {
                 fragmentStateHolder.queryString);
         ft.replace(mContentFrameId,
                 Fragment.instantiate(mTomahawkMainActivity, fragmentStateHolder.clss.getName(),
-                        bundle));
+                        bundle), FRAGMENT_TAG);
         ft.commit();
         mTomahawkMainActivity.updateViewVisibility();
     }
