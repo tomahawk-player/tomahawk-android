@@ -358,6 +358,7 @@ public class PlaybackFragment extends TomahawkFragment
     protected void onInfoSystemResultsReported(String requestId) {
         if (mCurrentRequestIds.contains(requestId)) {
             mTomahawkMainActivity.getPlaybackService().updatePlayingNotification();
+            mAlbumArtSwipeAdapter.notifyDataSetChanged();
         }
     }
 
