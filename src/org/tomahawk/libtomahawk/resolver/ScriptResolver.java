@@ -284,18 +284,29 @@ public class ScriptResolver implements Resolver {
                         mScriptEngine.loadUrl(
                                 "javascript:" + RESOLVER_LEGACY_CODE2 + makeJSFunctionCallbackJava(
                                         R.id.scriptresolver_resolve,
-                                        "resolver.resolve( '" + query.getQid() + "', '" + query
-                                                .getArtist().getName() + "', '" + query.getAlbum()
-                                                .getName() + "', '" + query.getName() + "' )",
+                                        "resolver.resolve( '"
+                                                + query.getQid().replace("'", "\\'")
+                                                + "', '"
+                                                + query.getArtist().getName().replace("'", "\\'")
+                                                + "', '"
+                                                + query.getAlbum().getName().replace("'", "\\'")
+                                                + "', '"
+                                                + query.getName().replace("'", "\\'")
+                                                + "' )",
                                         false));
                     } else {
                         mScriptEngine.loadUrl(
                                 "javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
                                         R.id.scriptresolver_resolve,
                                         "(Tomahawk.resolver.instance !== undefined) ?resolver.search( '"
-                                                + query.getQid() + "', '" + query.getFullTextQuery()
-                                                + "' ):resolve( '" + query.getQid() + "', '', '', '"
-                                                + query.getFullTextQuery() + "' )", false));
+                                                + query.getQid().replace("'", "\\'")
+                                                + "', '"
+                                                + query.getFullTextQuery().replace("'", "\\'")
+                                                + "' ):resolve( '"
+                                                + query.getQid().replace("'", "\\'")
+                                                + "', '', '', '"
+                                                + query.getFullTextQuery().replace("'", "\\'")
+                                                + "' )", false));
                     }
                 }
             };
