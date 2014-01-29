@@ -369,9 +369,6 @@ public class PlaybackService extends Service {
     @Override
     public boolean onUnbind(Intent intent) {
         mHasBoundServices = false;
-        if (!isPlaying()) {
-            stopSelf();
-        }
         return false;
     }
 
