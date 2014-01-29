@@ -206,6 +206,14 @@ public class TomahawkMainActivity extends ActionBarActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //Setup our services
+        Intent intent = new Intent(this, PlaybackService.class);
+        startService(intent);
+        bindService(intent, mPlaybackServiceConnection, Context.BIND_AUTO_CREATE);
+        intent = new Intent(this, TomahawkService.class);
+        startService(intent);
+        bindService(intent, mTomahawkServiceConnection, Context.BIND_AUTO_CREATE);
+
         setContentView(R.layout.tomahawk_main_activity);
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -298,19 +306,6 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-
-        //Setup our services
-        Intent intent = new Intent(this, PlaybackService.class);
-        startService(intent);
-        bindService(intent, mPlaybackServiceConnection, Context.BIND_AUTO_CREATE);
-        intent = new Intent(this, TomahawkService.class);
-        startService(intent);
-        bindService(intent, mTomahawkServiceConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
@@ -365,15 +360,15 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-
+    public void onDestroy() {
         if (mPlaybackService != null) {
             unbindService(mPlaybackServiceConnection);
         }
         if (mTomahawkService != null) {
             unbindService(mTomahawkServiceConnection);
         }
+
+        super.onDestroy();
     }
 
     @Override
