@@ -44,6 +44,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -117,6 +118,14 @@ public class InfoSystem {
     private ConcurrentHashMap<String, TomahawkBaseAdapter.TomahawkListItem> mItemsToBeFilled
             = new ConcurrentHashMap<String, TomahawkBaseAdapter.TomahawkListItem>();
 
+    private HashSet<Artist> mArtistHashSet = new HashSet<Artist>();
+
+    private HashSet<Artist> mArtistTopHitsHashSet = new HashSet<Artist>();
+
+    private HashSet<Artist> mArtistAlbumsHashSet = new HashSet<Artist>();
+
+    private HashSet<Album> mAlbumHashSet = new HashSet<Album>();
+
     public InfoSystem(TomahawkApp tomahawkApp) {
         mTomahawkApp = tomahawkApp;
     }
@@ -130,22 +139,29 @@ public class InfoSystem {
     public ArrayList<String> resolve(Artist artist, boolean justImage) {
         ArrayList<String> requestIds = new ArrayList<String>();
         if (artist != null) {
-            Multimap<String, String> params = HashMultimap.create(1, 1);
-            params.put(HATCHET_PARAM_NAME, artist.getName());
-            String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params);
-            requestIds.add(requestId);
-            mItemsToBeFilled.put(requestId, artist);
-            if (artist.getTopHits().size() == 0 && !justImage) {
-                params = HashMultimap.create(1, 1);
+            if (!mArtistHashSet.contains(artist)) {
+                mArtistHashSet.add(artist);
+                Multimap<String, String> params = HashMultimap.create(1, 1);
                 params.put(HATCHET_PARAM_NAME, artist.getName());
-                requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS, params);
+                String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params);
                 requestIds.add(requestId);
                 mItemsToBeFilled.put(requestId, artist);
             }
-            if (!artist.hasAlbumsFetchedViaHatchet() && !justImage) {
-                params = HashMultimap.create(1, 1);
+            if (!mArtistTopHitsHashSet.contains(artist) && !justImage) {
+                mArtistTopHitsHashSet.add(artist);
+                Multimap<String, String> params = HashMultimap.create(1, 1);
                 params.put(HATCHET_PARAM_NAME, artist.getName());
-                requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS, params);
+                String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS,
+                        params);
+                requestIds.add(requestId);
+                mItemsToBeFilled.put(requestId, artist);
+            }
+            if (!mArtistAlbumsHashSet.contains(artist) && !justImage) {
+                mArtistAlbumsHashSet.add(artist);
+                Multimap<String, String> params = HashMultimap.create(1, 1);
+                params.put(HATCHET_PARAM_NAME, artist.getName());
+                String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS,
+                        params);
                 requestIds.add(requestId);
                 mItemsToBeFilled.put(requestId, artist);
             }
@@ -154,7 +170,8 @@ public class InfoSystem {
     }
 
     public String resolve(Album album) {
-        if (album != null && album.hasQueriesFetchedViaHatchet()) {
+        if (album != null && !mAlbumHashSet.contains(album)) {
+            mAlbumHashSet.add(album);
             Multimap<String, String> params = HashMultimap.create(2, 1);
             params.put(HATCHET_PARAM_NAME, album.getName());
             params.put(HATCHET_PARAM_ARTIST_NAME, album.getArtist().getName());

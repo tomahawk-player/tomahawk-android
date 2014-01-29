@@ -273,11 +273,16 @@ public class PlaybackFragment extends TomahawkFragment
             Track currentTrack = playbackService.getCurrentQuery().getPreferredTrack();
             if (TextUtils.isEmpty(currentTrack.getAlbum().getAlbumArtPath())
                     && TextUtils.isEmpty(currentTrack.getArtist().getImage())) {
-                ArrayList<String> requestIds = mInfoSystem.resolve(currentTrack.getArtist(), true);
-                for (String requestId : requestIds) {
-                    mCurrentRequestIds.add(requestId);
+                if (!currentTrack.getArtist().isResolvedByInfoSystem()) {
+                    ArrayList<String> requestIds = mInfoSystem
+                            .resolve(currentTrack.getArtist(), true);
+                    for (String requestId : requestIds) {
+                        mCurrentRequestIds.add(requestId);
+                    }
                 }
-                mCurrentRequestIds.add(mInfoSystem.resolve(currentTrack.getAlbum()));
+                if (!currentTrack.getAlbum().isResolvedByInfoSystem()) {
+                    mCurrentRequestIds.add(mInfoSystem.resolve(currentTrack.getAlbum()));
+                }
             }
         }
         refreshTrackInfo();
