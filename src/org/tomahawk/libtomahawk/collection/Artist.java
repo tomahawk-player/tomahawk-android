@@ -52,6 +52,8 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
 
     private String mImage;
 
+    private boolean mResolvedByInfoSystem;
+
     /**
      * Construct a new {@link Artist} with the given name
      */
@@ -271,5 +273,13 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
 
     public void setImage(String image) {
         mImage = image;
+    }
+
+    public boolean isResolvedByInfoSystem() {
+        return mResolvedByInfoSystem;
+    }
+
+    public void setResolvedByInfoSystem(boolean resolvedByInfoSystem) {
+        mResolvedByInfoSystem = resolvedByInfoSystem;
     }
 }

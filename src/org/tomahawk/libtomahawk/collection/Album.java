@@ -51,6 +51,8 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
 
     private String mLastYear;
 
+    private boolean mResolvedByInfoSystem;
+
     /**
      * Construct a new {@link Album}
      */
@@ -266,6 +268,14 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
      */
     public boolean hasQueriesFetchedViaHatchet() {
         return mQueriesFetchedViaHatchet.size() > 0;
+    }
+
+    public boolean isResolvedByInfoSystem() {
+        return mResolvedByInfoSystem;
+    }
+
+    public void setResolvedByInfoSystem(boolean resolvedByInfoSystem) {
+        mResolvedByInfoSystem = resolvedByInfoSystem;
     }
 
 }
