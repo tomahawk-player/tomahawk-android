@@ -390,7 +390,8 @@ public class PlaybackFragment extends TomahawkFragment
 
     private void handlePageSelect() {
         MenuItem item = mMenu.findItem(R.id.action_show_playlist_item);
-        if (mTomahawkVerticalViewPager.getCurrentItem() == 0) {
+        if (mTomahawkVerticalViewPager != null
+                && mTomahawkVerticalViewPager.getCurrentItem() == 0) {
             item.setIcon(R.drawable.ic_action_collections_view_as_list);
             item.setTitle(R.string.menu_item_show_playlist);
             final PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
