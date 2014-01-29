@@ -40,6 +40,8 @@ public class TrackInfo {
 
     public String url;
 
+    public boolean isFull;
+
     public TrackInfo() {
     }
 }

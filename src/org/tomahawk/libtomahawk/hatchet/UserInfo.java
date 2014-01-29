@@ -44,6 +44,8 @@ public class UserInfo {
 
     public String url;
 
+    public boolean isFull;
+
     public UserInfo() {
     }
 }
