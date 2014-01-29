@@ -71,8 +71,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-
 /**
  * The main Tomahawk activity
  */
@@ -276,23 +274,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         // entry in the slidingmenu is being clicked. Restore our saved state, if one exists.
         mContentViewer = new ContentViewer(this, getSupportFragmentManager(),
                 R.id.content_viewer_frame);
-        if (savedInstanceState == null) {
-            mContentViewer.showHub(ContentViewer.HUB_ID_COLLECTION);
-        } else {
-            ArrayList<ContentViewer.FragmentStateHolder> storedBackStack
-                    = new ArrayList<ContentViewer.FragmentStateHolder>();
-            if (savedInstanceState
-                    .getSerializable(COLLECTION_ID_STOREDBACKSTACK) instanceof ArrayList) {
-                storedBackStack = (ArrayList<ContentViewer.FragmentStateHolder>) savedInstanceState
-                        .getSerializable(COLLECTION_ID_STOREDBACKSTACK);
-            }
-
-            if (storedBackStack != null && storedBackStack.size() > 0) {
-                mContentViewer.setBackStack(storedBackStack);
-            } else {
-                mContentViewer.showHub(ContentViewer.HUB_ID_COLLECTION);
-            }
-        }
+        mContentViewer.showHub(ContentViewer.HUB_ID_COLLECTION);
     }
 
     @Override
@@ -369,13 +351,6 @@ public class TomahawkMainActivity extends ActionBarActivity
         }
 
         super.onDestroy();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle bundle) {
-        bundle.putSerializable(COLLECTION_ID_STOREDBACKSTACK,
-                getContentViewer().getBackStack());
-        super.onSaveInstanceState(bundle);
     }
 
     @Override
