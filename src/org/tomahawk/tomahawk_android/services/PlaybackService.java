@@ -47,13 +47,11 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
@@ -125,6 +123,8 @@ public class PlaybackService extends Service {
     private Playlist mCurrentPlaylist;
 
     private TomahawkMediaPlayer mTomahawkMediaPlayer;
+
+    private String mLastPreparedPath = "";
 
     private PowerManager.WakeLock mWakeLock;
 
@@ -674,50 +674,57 @@ public class PlaybackService extends Service {
             resolveQueriesFromTo(getCurrentPlaylist().getCurrentQueryIndex(),
                     getCurrentPlaylist().getCurrentQueryIndex() + 10);
             if (query.isPlayable()) {
-                query.setCurrentlyPlaying(true);
-                Runnable releaseRunnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        int loopCounter = 0;
-                        while (true) {
-                            if (loopCounter++ > 10) {
-                                Log.e(TAG, "MediaPlayer was unable to prepare the track");
+                if (!mLastPreparedPath
+                        .equals(query.getPreferredTrackResult().getPath())) {
+                    query.setCurrentlyPlaying(true);
+                    Runnable releaseRunnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            int loopCounter = 0;
+                            while (true) {
+                                if (loopCounter++ > 10) {
+                                    Log.e(TAG, "MediaPlayer was unable to prepare the track");
+                                    mLastPreparedPath = "";
+                                    break;
+                                }
+                                long startTime = System.currentTimeMillis();
+                                mTomahawkMediaPlayer.release();
+                                initMediaPlayer();
+                                long endTime = System.currentTimeMillis();
+                                Log.d(TAG, "MediaPlayer reinitialize in " + (endTime - startTime)
+                                        + "ms, preparing=" + isPreparing());
+                                try {
+                                    boolean isSpotifyUrl =
+                                            query.getPreferredTrackResult().getResolvedBy().getId()
+                                                    == TomahawkApp.RESOLVER_ID_SPOTIFY;
+                                    mTomahawkMediaPlayer.prepare(
+                                            query.getPreferredTrackResult().getPath(),
+                                            isSpotifyUrl);
+                                } catch (IllegalStateException e1) {
+                                    Log.e(TAG, "setDataSource() IllegalStateException, msg:" + e1
+                                            .getLocalizedMessage() + " , preparing="
+                                            + isPreparing());
+                                    continue;
+                                } catch (IOException e2) {
+                                    Log.e(TAG, "setDataSource() IOException, msg:" + e2
+                                            .getLocalizedMessage() + " , preparing="
+                                            + isPreparing());
+                                    continue;
+                                }
+                                mLastPreparedPath = query.getPreferredTrackResult().getPath();
                                 break;
                             }
-                            long startTime = System.currentTimeMillis();
-                            mTomahawkMediaPlayer.release();
-                            initMediaPlayer();
-                            long endTime = System.currentTimeMillis();
-                            Log.d(TAG, "MediaPlayer reinitialize in " + (endTime - startTime)
-                                    + "ms, preparing=" + isPreparing());
-                            try {
-                                boolean isSpotifyUrl =
-                                        query.getPreferredTrackResult().getResolvedBy().getId()
-                                                == TomahawkApp.RESOLVER_ID_SPOTIFY;
-                                mTomahawkMediaPlayer.prepare(
-                                        query.getPreferredTrackResult().getPath(),
-                                        isSpotifyUrl);
-                            } catch (IllegalStateException e1) {
-                                Log.e(TAG, "setDataSource() IllegalStateException, msg:" + e1
-                                        .getLocalizedMessage() + " , preparing=" + isPreparing());
-                                continue;
-                            } catch (IOException e2) {
-                                Log.e(TAG, "setDataSource() IOException, msg:" + e2
-                                        .getLocalizedMessage() + " , preparing=" + isPreparing());
-                                continue;
-                            }
-                            break;
                         }
-                    }
-                };
-                new Thread(releaseRunnable).start();
+                    };
+                    new Thread(releaseRunnable).start();
 
-                mKillTimerHandler.removeCallbacksAndMessages(null);
-                Message msg = mKillTimerHandler.obtainMessage();
-                mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
+                    mKillTimerHandler.removeCallbacksAndMessages(null);
+                    Message msg = mKillTimerHandler.obtainMessage();
+                    mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
 
-                updatePlayingNotification();
-                sendBroadcast(new Intent(BROADCAST_NEWTRACK));
+                    updatePlayingNotification();
+                    sendBroadcast(new Intent(BROADCAST_NEWTRACK));
+                }
             } else if (((TomahawkApp) getApplication()).getPipeLine() != null
                     && !((TomahawkApp) getApplication()).getPipeLine().isResolving()) {
                 next();
