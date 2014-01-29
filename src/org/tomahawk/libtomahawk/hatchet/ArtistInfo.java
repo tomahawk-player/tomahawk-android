@@ -46,4 +46,6 @@ public class ArtistInfo {
 
     public String wikiabstract;
 
+    public boolean isFull;
+
 }

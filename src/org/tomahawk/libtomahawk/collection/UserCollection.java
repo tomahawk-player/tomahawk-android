@@ -33,7 +33,6 @@ import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
 
 import android.content.BroadcastReceiver;
@@ -46,11 +45,9 @@ import android.database.Cursor;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -127,39 +124,43 @@ public class UserCollection extends Collection {
                         @Override
                         public void run() {
                             ArrayList<String> ids = new ArrayList<String>();
-                            Map<PlaylistInfo, PlaylistEntries> playlistInfoMap = mTomahawkApp
-                                    .getInfoSystem().getInfoRequestById(requestId)
-                                    .getInfoResultMap().get(InfoSystem.HATCHET_PLAYLISTS_ENTRIES);
-                            List<PlaylistInfo> playlistInfos = new ArrayList<PlaylistInfo>(
-                                    playlistInfoMap.keySet());
-                            for (PlaylistInfo playlistInfo : playlistInfos) {
-                                UserPlaylist userPlaylist = InfoSystemUtils
-                                        .playlistInfoToUserPlaylist(playlistInfo,
-                                                playlistInfoMap.get(playlistInfo));
-                                ids.add(userPlaylist.getId());
-                                UserPlaylist storedUserPlaylist = mTomahawkApp
-                                        .getUserPlaylistsDataSource()
-                                        .getUserPlaylist(userPlaylist.getId());
-                                if (storedUserPlaylist == null
-                                        || storedUserPlaylist.getCurrentRevision() == null
-                                        || !storedUserPlaylist.getCurrentRevision().equals(
-                                        userPlaylist.getCurrentRevision())) {
-                                    // Userplaylist is not already stored, or has different or no
-                                    // revision string, so we store it
-                                    mTomahawkApp.getUserPlaylistsDataSource()
-                                            .storeUserPlaylist(userPlaylist);
+                            if (mTomahawkApp.getInfoSystem().getInfoRequestById(requestId)
+                                    .getInfoResultMap() != null) {
+                                Map<PlaylistInfo, PlaylistEntries> playlistInfoMap = mTomahawkApp
+                                        .getInfoSystem().getInfoRequestById(requestId)
+                                        .getInfoResultMap()
+                                        .get(InfoSystem.HATCHET_PLAYLISTS_ENTRIES);
+                                List<PlaylistInfo> playlistInfos = new ArrayList<PlaylistInfo>(
+                                        playlistInfoMap.keySet());
+                                for (PlaylistInfo playlistInfo : playlistInfos) {
+                                    UserPlaylist userPlaylist = InfoSystemUtils
+                                            .playlistInfoToUserPlaylist(playlistInfo,
+                                                    playlistInfoMap.get(playlistInfo));
+                                    ids.add(userPlaylist.getId());
+                                    UserPlaylist storedUserPlaylist = mTomahawkApp
+                                            .getUserPlaylistsDataSource()
+                                            .getUserPlaylist(userPlaylist.getId());
+                                    if (storedUserPlaylist == null
+                                            || storedUserPlaylist.getCurrentRevision() == null
+                                            || !storedUserPlaylist.getCurrentRevision().equals(
+                                            userPlaylist.getCurrentRevision())) {
+                                        // Userplaylist is not already stored, or has different or no
+                                        // revision string, so we store it
+                                        mTomahawkApp.getUserPlaylistsDataSource()
+                                                .storeUserPlaylist(userPlaylist);
+                                    }
                                 }
-                            }
-                            // Delete every playlist that has not been fetched via Hatchet.
-                            // Meaning it is no longer valid.
-                            for (UserPlaylist userPlaylist : mTomahawkApp
-                                    .getUserPlaylistsDataSource().getHatchetUserPlaylists()) {
-                                if (!ids.contains(userPlaylist.getId())) {
-                                    mTomahawkApp.getUserPlaylistsDataSource()
-                                            .deleteUserPlaylist(userPlaylist.getId());
+                                // Delete every playlist that has not been fetched via Hatchet.
+                                // Meaning it is no longer valid.
+                                for (UserPlaylist userPlaylist : mTomahawkApp
+                                        .getUserPlaylistsDataSource().getHatchetUserPlaylists()) {
+                                    if (!ids.contains(userPlaylist.getId())) {
+                                        mTomahawkApp.getUserPlaylistsDataSource()
+                                                .deleteUserPlaylist(userPlaylist.getId());
+                                    }
                                 }
+                                UserCollection.this.updateUserPlaylists();
                             }
-                            UserCollection.this.updateUserPlaylists();
                         }
                     }).start();
                 }
