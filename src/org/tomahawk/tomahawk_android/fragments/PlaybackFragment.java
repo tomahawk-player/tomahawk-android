@@ -258,6 +258,8 @@ public class PlaybackFragment extends TomahawkFragment
      */
     @Override
     public void onTrackChanged() {
+        super.onTrackChanged();
+
         PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
         TomahawkListAdapter tomahawkListAdapter = (TomahawkListAdapter) getListAdapter();
         if (tomahawkListAdapter != null && playbackService != null
@@ -266,10 +268,6 @@ public class PlaybackFragment extends TomahawkFragment
             if (mMenu != null) {
                 handlePageSelect();
             }
-            tomahawkListAdapter.setHighlightedItem(
-                    playbackService.getCurrentPlaylist().getCurrentQueryIndex());
-            tomahawkListAdapter.setHighlightedItemIsPlaying(playbackService.isPlaying());
-            tomahawkListAdapter.notifyDataSetChanged();
             Track currentTrack = playbackService.getCurrentQuery().getPreferredTrack();
             if (TextUtils.isEmpty(currentTrack.getAlbum().getAlbumArtPath())
                     && TextUtils.isEmpty(currentTrack.getArtist().getImage())) {
@@ -294,6 +292,8 @@ public class PlaybackFragment extends TomahawkFragment
      */
     @Override
     public void onPlaylistChanged() {
+        super.onPlaylistChanged();
+
         PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
         TomahawkListAdapter tomahawkListAdapter = (TomahawkListAdapter) getListAdapter();
 
@@ -311,9 +311,6 @@ public class PlaybackFragment extends TomahawkFragment
                         = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
                 tracks.addAll(playbackService.getCurrentPlaylist().getQueries());
                 tomahawkListAdapter.setListWithIndex(0, tracks);
-                tomahawkListAdapter.setHighlightedItem(
-                        playbackService.getCurrentPlaylist().getCurrentQueryIndex());
-                tomahawkListAdapter.setHighlightedItemIsPlaying(playbackService.isPlaying());
                 tomahawkListAdapter.notifyDataSetChanged();
             }
         } else {
@@ -332,15 +329,8 @@ public class PlaybackFragment extends TomahawkFragment
      */
     @Override
     public void onPlaystateChanged() {
-        PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
-        TomahawkListAdapter tomahawkListAdapter = (TomahawkListAdapter) getListAdapter();
-        if (tomahawkListAdapter != null && playbackService != null
-                && playbackService.getCurrentPlaylist() != null) {
-            tomahawkListAdapter.setHighlightedItem(
-                    playbackService.getCurrentPlaylist().getCurrentQueryIndex());
-            tomahawkListAdapter.setHighlightedItemIsPlaying(playbackService.isPlaying());
-            tomahawkListAdapter.notifyDataSetChanged();
-        }
+        super.onPlaystateChanged();
+
         refreshPlayPauseButtonState();
         if (mPlaybackSeekBar != null) {
             mPlaybackSeekBar.updateSeekBarPosition();
@@ -378,7 +368,7 @@ public class PlaybackFragment extends TomahawkFragment
             listArray.add(tracks);
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity,
                     listArray);
-            tomahawkListAdapter.setShowHighlightingAndPlaystate(true);
+            tomahawkListAdapter.setShowPlaystate(true);
             tomahawkListAdapter.setShowResolvedBy(true);
             tomahawkListAdapter.setHighlightedItem(
                     playbackService.getCurrentPlaylist().getCurrentQueryIndex());

@@ -28,7 +28,6 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
-import org.tomahawk.tomahawk_android.utils.ContentViewer;
 
 import android.content.res.Configuration;
 import android.support.v4.content.Loader;
@@ -92,16 +91,21 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 } else {
                     queries.addAll(mTomahawkMainActivity.getUserCollection().getQueries());
                 }
-                UserPlaylist playlist = UserPlaylist
-                        .fromQueryList(UserPlaylistsDataSource.CACHED_PLAYLIST_ID,
-                                UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, queries,
-                                queries.get(position));
                 PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
-                if (playbackService != null) {
-                    playbackService.setCurrentPlaylist(playlist);
-                    playbackService.start();
+                if (playbackService != null && shouldShowPlaystate()
+                        && playbackService.getCurrentPlaylist().getCurrentQueryIndex()
+                        == mShownAlbums.size() + mShownArtists.size() + position) {
+                    playbackService.playPause();
+                } else {
+                    UserPlaylist playlist = UserPlaylist
+                            .fromQueryList(UserPlaylistsDataSource.CACHED_PLAYLIST_ID,
+                                    UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, queries,
+                                    queries.get(position));
+                    if (playbackService != null) {
+                        playbackService.setCurrentPlaylist(playlist);
+                        playbackService.start();
+                    }
                 }
-                mTomahawkMainActivity.getContentViewer().showHub(ContentViewer.HUB_ID_PLAYBACK);
             }
         }
     }

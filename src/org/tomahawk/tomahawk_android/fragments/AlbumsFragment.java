@@ -30,7 +30,6 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
-import org.tomahawk.tomahawk_android.utils.ContentViewer;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -69,15 +68,20 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                 item = getGridAdapter().getItem(position);
             }
             if (item instanceof Query) {
-                UserPlaylist playlist = UserPlaylist
-                        .fromQueryList(TomahawkApp.getLifetimeUniqueStringId(), "",
-                                mShownQueries, mShownQueries.get(position));
                 PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
-                if (playbackService != null) {
-                    playbackService.setCurrentPlaylist(playlist);
-                    playbackService.start();
+                if (playbackService != null && shouldShowPlaystate()
+                        && playbackService.getCurrentPlaylist().getCurrentQueryIndex()
+                        == mShownAlbums.size() + mShownArtists.size() + position) {
+                    playbackService.playPause();
+                } else {
+                    UserPlaylist playlist = UserPlaylist
+                            .fromQueryList(TomahawkApp.getLifetimeUniqueStringId(), "",
+                                    mShownQueries, mShownQueries.get(position));
+                    if (playbackService != null) {
+                        playbackService.setCurrentPlaylist(playlist);
+                        playbackService.start();
+                    }
                 }
-                mTomahawkMainActivity.getContentViewer().showHub(ContentViewer.HUB_ID_PLAYBACK);
             } else if (item instanceof Album) {
                 Bundle bundle = new Bundle();
                 String key = TomahawkUtils.getCacheKey((Album) item);
