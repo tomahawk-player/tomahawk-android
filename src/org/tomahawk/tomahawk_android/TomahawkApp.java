@@ -31,6 +31,7 @@ import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
+import org.tomahawk.tomahawk_android.utils.ContentViewer;
 import org.tomahawk.tomahawk_android.utils.TomahawkExceptionReporter;
 
 import android.accounts.AccountManager;
@@ -87,6 +88,8 @@ public class TomahawkApp extends Application {
     private InfoSystem mInfoSystem;
 
     private UserPlaylistsDataSource mUserPlaylistsDataSource;
+
+    private ContentViewer mContentViewer;
 
     private static long mSessionIdCounter = 0;
 
@@ -213,6 +216,14 @@ public class TomahawkApp extends Application {
 
     public UserPlaylistsDataSource getUserPlaylistsDataSource() {
         return mUserPlaylistsDataSource;
+    }
+
+    public ContentViewer getContentViewer() {
+        return mContentViewer;
+    }
+
+    public void setContentViewer(ContentViewer contentViewer) {
+        mContentViewer = contentViewer;
     }
 
     /**

@@ -19,6 +19,7 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
 
@@ -42,6 +43,8 @@ public class TomahawkListFragment extends Fragment {
 
     public static final String TOMAHAWK_LIST_SCROLL_POSITION
             = "org.tomahawk.tomahawk_android.tomahawk_list_scroll_position";
+
+    protected TomahawkApp mTomahawkApp;
 
     protected TomahawkMainActivity mTomahawkMainActivity;
 
@@ -85,6 +88,8 @@ public class TomahawkListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mTomahawkApp = ((TomahawkApp) mTomahawkMainActivity.getApplication());
         if (getArguments() != null) {
             if (getArguments().containsKey(TOMAHAWK_LIST_SCROLL_POSITION)
                     && getArguments().getInt(TOMAHAWK_LIST_SCROLL_POSITION) > 0) {
