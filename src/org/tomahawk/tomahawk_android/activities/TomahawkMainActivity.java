@@ -66,6 +66,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -158,11 +159,12 @@ public class TomahawkMainActivity extends ActionBarActivity
         public void onReceive(Context context, Intent intent) {
             if (Collection.COLLECTION_UPDATED.equals(intent.getAction())) {
                 onCollectionUpdated();
-            }
-            if (PlaybackService.BROADCAST_NEWTRACK.equals(intent.getAction())) {
+            } else if (PlaybackService.BROADCAST_NEWTRACK.equals(intent.getAction())) {
                 if (mPlaybackService != null) {
                     setNowPlayingInfo();
                 }
+            } else if (PlaybackService.BROADCAST_PLAYSTATECHANGED.equals(intent.getAction())) {
+                updateNowPlayingButtons();
             }
         }
     }
@@ -229,6 +231,36 @@ public class TomahawkMainActivity extends ActionBarActivity
             @Override
             public void onClick(View v) {
                 mTomahawkApp.getContentViewer().showHub(ContentViewer.HUB_ID_PLAYBACK);
+            }
+        });
+        ImageButton previousButton = (ImageButton) mNowPlayingFrame
+                .findViewById(R.id.now_playing_button_previous);
+        previousButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mPlaybackService != null) {
+                    mPlaybackService.previous();
+                }
+            }
+        });
+        ImageButton playPauseButton = (ImageButton) mNowPlayingFrame
+                .findViewById(R.id.now_playing_button_playpause);
+        playPauseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mPlaybackService != null) {
+                    mPlaybackService.playPause(true);
+                }
+            }
+        });
+        ImageButton nextButton = (ImageButton) mNowPlayingFrame
+                .findViewById(R.id.now_playing_button_next);
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mPlaybackService != null) {
+                    mPlaybackService.next();
+                }
             }
         });
 
@@ -331,6 +363,8 @@ public class TomahawkMainActivity extends ActionBarActivity
         IntentFilter intentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
         registerReceiver(mTomahawkMainReceiver, intentFilter);
         intentFilter = new IntentFilter(PlaybackService.BROADCAST_NEWTRACK);
+        registerReceiver(mTomahawkMainReceiver, intentFilter);
+        intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYSTATECHANGED);
         registerReceiver(mTomahawkMainReceiver, intentFilter);
     }
 
@@ -570,6 +604,19 @@ public class TomahawkMainActivity extends ActionBarActivity
                     nowPlayingInfoArtist.setText(track.getArtist().toString());
                     nowPlayingInfoTitle.setText(track.getName());
                 }
+            }
+            updateNowPlayingButtons();
+        }
+    }
+
+    public void updateNowPlayingButtons() {
+        ImageButton playPauseButton = (ImageButton) mNowPlayingFrame
+                .findViewById(R.id.now_playing_button_playpause);
+        if (mPlaybackService != null) {
+            if (mPlaybackService.isPlaying()) {
+                playPauseButton.setImageResource(R.drawable.ic_player_pause);
+            } else {
+                playPauseButton.setImageResource(R.drawable.ic_player_play);
             }
         }
     }
