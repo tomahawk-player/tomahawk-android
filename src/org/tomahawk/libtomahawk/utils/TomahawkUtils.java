@@ -8,8 +8,6 @@ import org.json.JSONObject;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
-import org.tomahawk.libtomahawk.hatchet.InfoRequestData;
-import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
@@ -31,6 +29,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.KeyManagementException;
@@ -40,9 +40,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -228,7 +225,9 @@ public class TomahawkUtils {
         OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
         out.write(paramsString);
         out.close();
-        return inputStreamToString(connection);
+        String output = inputStreamToString(connection);
+        connection.disconnect();
+        return output;
     }
 
     public static String httpsGet(String urlString)
@@ -246,7 +245,28 @@ public class TomahawkUtils {
         connection.setDoOutput(false);
         connection.setRequestProperty("Accept", "application/json; charset=utf-8");
         connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
-        return inputStreamToString(connection);
+        String output = inputStreamToString(connection);
+        connection.disconnect();
+        return output;
+    }
+
+    public static boolean httpHeaderRequest(String urlString) {
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+            connection.setRequestMethod("HEAD");
+            int responseCode = connection.getResponseCode();
+            connection.disconnect();
+            return responseCode == HttpURLConnection.HTTP_OK;
+        } catch (MalformedURLException e) {
+            Log.e(TAG, "httpHeaderRequest: " + e.getClass() + ": " + e.getLocalizedMessage());
+        } catch (ProtocolException e) {
+            Log.e(TAG, "httpHeaderRequest: " + e.getClass() + ": " + e.getLocalizedMessage());
+        } catch (IOException e) {
+            Log.e(TAG, "httpHeaderRequest: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
+        return false;
     }
 
     public static String paramsListToString(Multimap<String, String> params)
