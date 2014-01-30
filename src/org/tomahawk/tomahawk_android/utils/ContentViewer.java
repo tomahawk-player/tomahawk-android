@@ -143,6 +143,14 @@ public class ContentViewer {
         mContentFrameId = contentFrameId;
     }
 
+    public void setTomahawkMainActivity(TomahawkMainActivity tomahawkMainActivity) {
+        mTomahawkMainActivity = tomahawkMainActivity;
+    }
+
+    public void setFragmentManager(FragmentManager fragmentManager) {
+        mFragmentManager = fragmentManager;
+    }
+
     /**
      * Replaces the {@link Fragment} in the hub with the given hub id and adds it to the backstack,
      * if isBackAction is false.

@@ -88,8 +88,6 @@ public class TomahawkFragment extends TomahawkListFragment
     public static final String TOMAHAWK_LIST_ITEM_IS_LOCAL
             = "org.tomahawk.tomahawk_list_item_is_local";
 
-    protected TomahawkApp mTomahawkApp;
-
     private TomahawkBaseFragmentReceiver mTomahawkBaseFragmentReceiver;
 
     protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
@@ -152,7 +150,6 @@ public class TomahawkFragment extends TomahawkListFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mTomahawkApp = ((TomahawkApp) mTomahawkMainActivity.getApplication());
         mInfoSystem = mTomahawkApp.getInfoSystem();
         mPipeline = mTomahawkApp.getPipeLine();
     }
@@ -410,7 +407,7 @@ public class TomahawkFragment extends TomahawkListFragment
                     playbackService.setCurrentPlaylist(playlist);
                     playbackService.start();
                 }
-                tomahawkMainActivity.getContentViewer().showHub(ContentViewer.HUB_ID_PLAYBACK);
+                mTomahawkApp.getContentViewer().showHub(ContentViewer.HUB_ID_PLAYBACK);
             }
         } else if (menuItemTitle.equals(tomahawkMainActivity.getResources()
                 .getString(R.string.fake_context_menu_playaftercurrenttrack))) {

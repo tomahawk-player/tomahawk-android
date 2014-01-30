@@ -117,8 +117,6 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private CharSequence mDrawerTitle;
 
-    private ContentViewer mContentViewer;
-
     private UserCollection mUserCollection;
 
     private TomahawkMainReceiver mTomahawkMainReceiver;
@@ -185,13 +183,13 @@ public class TomahawkMainActivity extends ActionBarActivity
             // Show the correct hub, and if needed, display the search editText inside the ActionBar
             switch ((int) id) {
                 case ContentViewer.HUB_ID_COLLECTION:
-                    mContentViewer.showHub(ContentViewer.HUB_ID_COLLECTION);
+                    mTomahawkApp.getContentViewer().showHub(ContentViewer.HUB_ID_COLLECTION);
                     break;
                 case ContentViewer.HUB_ID_PLAYLISTS:
-                    mContentViewer.showHub(ContentViewer.HUB_ID_PLAYLISTS);
+                    mTomahawkApp.getContentViewer().showHub(ContentViewer.HUB_ID_PLAYLISTS);
                     break;
                 case ContentViewer.HUB_ID_SETTINGS:
-                    mContentViewer.showHub(ContentViewer.HUB_ID_SETTINGS);
+                    mTomahawkApp.getContentViewer().showHub(ContentViewer.HUB_ID_SETTINGS);
                     break;
             }
             if (mDrawerLayout != null) {
@@ -230,7 +228,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         mNowPlayingFrame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mContentViewer.showHub(ContentViewer.HUB_ID_PLAYBACK);
+                mTomahawkApp.getContentViewer().showHub(ContentViewer.HUB_ID_PLAYBACK);
             }
         });
 
@@ -272,9 +270,14 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         // initialize our ContentViewer, which will handle switching the fragments whenever an
         // entry in the slidingmenu is being clicked. Restore our saved state, if one exists.
-        mContentViewer = new ContentViewer(this, getSupportFragmentManager(),
-                R.id.content_viewer_frame);
-        mContentViewer.showHub(ContentViewer.HUB_ID_COLLECTION);
+        if (mTomahawkApp.getContentViewer() == null) {
+            mTomahawkApp.setContentViewer(new ContentViewer(this, getSupportFragmentManager(),
+                    R.id.content_viewer_frame));
+            mTomahawkApp.getContentViewer().showHub(ContentViewer.HUB_ID_COLLECTION);
+        } else {
+            mTomahawkApp.getContentViewer().setTomahawkMainActivity(this);
+            mTomahawkApp.getContentViewer().setFragmentManager(getSupportFragmentManager());
+        }
     }
 
     @Override
@@ -300,11 +303,11 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         if (SHOW_PLAYBACKFRAGMENT_ON_STARTUP.equals(getIntent().getAction())) {
             // if this Activity is being shown after the user clicked the notification
-            mContentViewer.showHub(ContentViewer.HUB_ID_PLAYBACK);
+            mTomahawkApp.getContentViewer().showHub(ContentViewer.HUB_ID_PLAYBACK);
         }
         if (getIntent().hasExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)) {
-            ContentViewer.FragmentStateHolder fragmentStateHolder = mContentViewer.getBackStack()
-                    .get(0);
+            ContentViewer.FragmentStateHolder fragmentStateHolder = mTomahawkApp.getContentViewer()
+                    .getBackStack().get(0);
             fragmentStateHolder.tomahawkListItemType = TomahawkService.AUTHENTICATOR_ID;
             fragmentStateHolder.tomahawkListItemKey = String.valueOf(
                     getIntent().getIntExtra(TomahawkService.AUTHENTICATOR_ID, -1));
@@ -396,7 +399,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                             = new ContentViewer.FragmentStateHolder(SearchableFragment.class,
                             null);
                     fragmentStateHolder.queryString = query;
-                    mContentViewer.replace(fragmentStateHolder, false);
+                    mTomahawkApp.getContentViewer().replace(fragmentStateHolder, false);
                     if (searchItem != null) {
                         MenuItemCompat.collapseActionView(searchItem);
                     }
@@ -510,7 +513,7 @@ public class TomahawkMainActivity extends ActionBarActivity
      */
     @Override
     public void onBackPressed() {
-        if (!mContentViewer.back()) {
+        if (!mTomahawkApp.getContentViewer().back()) {
             super.onBackPressed();
         }
     }
@@ -572,7 +575,7 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     public void updateViewVisibility() {
-        ContentViewer.FragmentStateHolder currentFSH = mContentViewer
+        ContentViewer.FragmentStateHolder currentFSH = mTomahawkApp.getContentViewer()
                 .getCurrentFragmentStateHolder();
         if (currentFSH.clss == PlaybackFragment.class
                 || mPlaybackService == null || mPlaybackService.getCurrentQuery() == null) {
@@ -621,13 +624,6 @@ public class TomahawkMainActivity extends ActionBarActivity
      */
     public UserCollection getUserCollection() {
         return mUserCollection;
-    }
-
-    /**
-     * @return the mContentViewer
-     */
-    public ContentViewer getContentViewer() {
-        return mContentViewer;
     }
 
     /**

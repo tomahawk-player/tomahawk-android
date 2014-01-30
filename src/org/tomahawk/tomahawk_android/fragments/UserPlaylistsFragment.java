@@ -59,21 +59,19 @@ public class UserPlaylistsFragment extends TomahawkFragment implements OnItemCli
                 bundle.putString(TOMAHAWK_USER_PLAYLIST_KEY, String.valueOf(
                         ((UserPlaylist) getListAdapter().getItem(position))
                                 .getId()));
-                if (mTomahawkMainActivity != null) {
-                    mTomahawkMainActivity.getContentViewer()
-                            .replace(TracksFragment.class, String.valueOf(
-                                    ((UserPlaylist) getListAdapter().getItem(position)).getId()),
-                                    TOMAHAWK_USER_PLAYLIST_KEY, true, false);
+                if (mTomahawkApp != null) {
+                    mTomahawkApp.getContentViewer().replace(TracksFragment.class, String.valueOf(
+                            ((UserPlaylist) getListAdapter().getItem(position)).getId()),
+                            TOMAHAWK_USER_PLAYLIST_KEY, true, false);
                 }
             } else if (getListAdapter().getItem(position) instanceof UserPlaylist) {
                 Bundle bundle = new Bundle();
                 bundle.putString(TOMAHAWK_HATCHET_USER_PLAYLIST_KEY,
                         ((UserPlaylist) getListAdapter().getItem(position)).getId());
-                if (mTomahawkMainActivity != null) {
-                    mTomahawkMainActivity.getContentViewer()
-                            .replace(TracksFragment.class,
-                                    ((UserPlaylist) getListAdapter().getItem(position)).getId(),
-                                    TOMAHAWK_HATCHET_USER_PLAYLIST_KEY, true, false);
+                if (mTomahawkApp != null) {
+                    mTomahawkApp.getContentViewer().replace(TracksFragment.class,
+                            ((UserPlaylist) getListAdapter().getItem(position)).getId(),
+                            TOMAHAWK_HATCHET_USER_PLAYLIST_KEY, true, false);
                 }
             } else {
                 new CreateUserPlaylistDialog().show(getFragmentManager(),

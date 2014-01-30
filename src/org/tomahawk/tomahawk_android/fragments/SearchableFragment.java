@@ -131,13 +131,13 @@ public class SearchableFragment extends TomahawkFragment
                 Bundle bundle = new Bundle();
                 String key = TomahawkUtils.getCacheKey((Album) item);
                 bundle.putString(TOMAHAWK_ALBUM_KEY, key);
-                mTomahawkMainActivity.getContentViewer()
+                mTomahawkApp.getContentViewer()
                         .replace(TracksFragment.class, key, TOMAHAWK_ALBUM_KEY, false, false);
             } else if (item instanceof Artist) {
                 Bundle bundle = new Bundle();
                 String key = TomahawkUtils.getCacheKey((Artist) item);
                 bundle.putString(TOMAHAWK_ARTIST_KEY, key);
-                mTomahawkMainActivity.getContentViewer()
+                mTomahawkApp.getContentViewer()
                         .replace(AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, false, false);
             }
         }
