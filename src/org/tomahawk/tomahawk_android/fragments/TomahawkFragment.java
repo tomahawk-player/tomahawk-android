@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionLoader;
+import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
@@ -101,6 +102,10 @@ public class TomahawkFragment extends TomahawkListFragment
 
     protected ArrayList<Query> mShownQueries = new ArrayList<Query>();
 
+    protected ArrayList<Album> mShownAlbums = new ArrayList<Album>();
+
+    protected ArrayList<Artist> mShownArtists = new ArrayList<Artist>();
+
     protected int mCorrespondingHubId;
 
     protected Album mAlbum;
@@ -176,8 +181,8 @@ public class TomahawkFragment extends TomahawkListFragment
                         .getUserPlaylistById(
                                 getArguments().getString(TOMAHAWK_HATCHET_USER_PLAYLIST_KEY));
             }
-            if (getArguments() != null && getArguments().containsKey(TOMAHAWK_ARTIST_KEY)
-                    && !TextUtils.isEmpty(getArguments().getString(TOMAHAWK_ARTIST_KEY))) {
+            if (getArguments().containsKey(TOMAHAWK_ARTIST_KEY) && !TextUtils
+                    .isEmpty(getArguments().getString(TOMAHAWK_ARTIST_KEY))) {
                 mArtist = Artist.getArtistByKey(getArguments().getString(TOMAHAWK_ARTIST_KEY));
                 if (!mArtist.isResolvedByInfoSystem()) {
                     ArrayList<String> requestIds = mInfoSystem.resolve(mArtist, false);
@@ -230,6 +235,8 @@ public class TomahawkFragment extends TomahawkListFragment
             grid.setOnItemLongClickListener(this);
             grid.setOnScrollListener(this);
         }
+
+        onPlaylistChanged();
     }
 
     @Override
@@ -513,6 +520,7 @@ public class TomahawkFragment extends TomahawkListFragment
      * playlist has changed inside our PlaybackService
      */
     protected void onPlaylistChanged() {
+        updateShowPlaystate();
     }
 
     /**
@@ -520,6 +528,7 @@ public class TomahawkFragment extends TomahawkListFragment
      * indicating that the playState (playing or paused) has changed inside our PlaybackService
      */
     protected void onPlaystateChanged() {
+        updateShowPlaystate();
     }
 
     /**
@@ -527,6 +536,41 @@ public class TomahawkFragment extends TomahawkListFragment
      * track has changed inside our PlaybackService
      */
     protected void onTrackChanged() {
+        updateShowPlaystate();
+    }
+
+    public boolean shouldShowPlaystate() {
+        PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
+        if (playbackService != null) {
+            Playlist playlist = playbackService.getCurrentPlaylist();
+            if (playlist != null && playlist.getCount() == mShownQueries.size()) {
+                for (int i = 0; i < playlist.getCount(); i++) {
+                    if (!playlist.peekQueryAtPos(i).getQid()
+                            .equals(mShownQueries.get(i).getQid())) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected void updateShowPlaystate() {
+        PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
+        if (getListAdapter() instanceof TomahawkListAdapter) {
+            TomahawkListAdapter tomahawkListAdapter = (TomahawkListAdapter) getListAdapter();
+            if (shouldShowPlaystate() && playbackService != null) {
+                tomahawkListAdapter.setShowPlaystate(true);
+                tomahawkListAdapter.setHighlightedItem(
+                        playbackService.getCurrentPlaylist().getCurrentQueryIndex()
+                                + mShownAlbums.size() + mShownArtists.size());
+                tomahawkListAdapter.setHighlightedItemIsPlaying(playbackService.isPlaying());
+            } else {
+                tomahawkListAdapter.setShowPlaystate(false);
+            }
+            tomahawkListAdapter.notifyDataSetChanged();
+        }
     }
 
     /**
@@ -557,7 +601,9 @@ public class TomahawkFragment extends TomahawkListFragment
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
             int totalItemCount) {
-        resolveQueriesFromTo(firstVisibleItem, firstVisibleItem + visibleItemCount + 2);
+        if (!(this instanceof SearchableFragment)) {
+            resolveQueriesFromTo(firstVisibleItem, firstVisibleItem + visibleItemCount + 2);
+        }
     }
 
     protected void resolveQueriesFromTo(int start, int end) {

@@ -28,7 +28,6 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
-import org.tomahawk.tomahawk_android.utils.ContentViewer;
 
 import android.os.Bundle;
 import android.view.View;
@@ -50,14 +49,6 @@ public class SearchableFragment extends TomahawkFragment
 
     public static final String SEARCHABLEFRAGMENT_QUERY_STRING
             = "org.tomahawk.tomahawk_android.SEARCHABLEFRAGMENT_QUERY_ID";
-
-    private SearchableFragment mSearchableFragment = this;
-
-    private ArrayList<Query> mCurrentShownQueries;
-
-    private ArrayList<Album> mCurrentShownAlbums;
-
-    private ArrayList<Artist> mCurrentShownArtists;
 
     private String mCurrentQueryString;
 
@@ -122,15 +113,20 @@ public class SearchableFragment extends TomahawkFragment
         if (position >= 0) {
             Object item = getListAdapter().getItem(position);
             if (item instanceof Query) {
-                UserPlaylist playlist = UserPlaylist.fromQueryList(
-                        TomahawkApp.getLifetimeUniqueStringId(), mCurrentQueryString,
-                        mCurrentShownQueries, ((Query) item));
                 PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
-                if (playbackService != null) {
-                    playbackService.setCurrentPlaylist(playlist);
-                    playbackService.start();
+                if (playbackService != null && shouldShowPlaystate()
+                        && playbackService.getCurrentPlaylist().getCurrentQueryIndex()
+                        == position - mShownAlbums.size() - mShownArtists.size()) {
+                    playbackService.playPause();
+                } else {
+                    UserPlaylist playlist = UserPlaylist.fromQueryList(
+                            TomahawkApp.getLifetimeUniqueStringId(), mCurrentQueryString,
+                            mShownQueries, ((Query) item));
+                    if (playbackService != null) {
+                        playbackService.setCurrentPlaylist(playlist);
+                        playbackService.start();
+                    }
                 }
-                mTomahawkMainActivity.getContentViewer().showHub(ContentViewer.HUB_ID_PLAYBACK);
             } else if (item instanceof Album) {
                 Bundle bundle = new Bundle();
                 String key = TomahawkUtils.getCacheKey((Album) item);
@@ -162,16 +158,16 @@ public class SearchableFragment extends TomahawkFragment
     public void showQueryResults(String qid) {
         Query query = mPipeline.getQuery(qid);
         mCurrentQueryString = query.getFullTextQuery();
-        mCurrentShownQueries = query.getTrackQueries();
+        mShownQueries = query.getTrackQueries();
         updateAdapter();
     }
 
     public void showInfoResults(String requestId) {
         Map<String, List> convertedResultMap = mInfoSystem.getInfoRequestById(requestId)
                 .getConvertedResultMap();
-        mCurrentShownArtists = (ArrayList<Artist>) convertedResultMap
+        mShownArtists = (ArrayList<Artist>) convertedResultMap
                 .get(InfoSystem.HATCHET_ARTISTS);
-        mCurrentShownAlbums = (ArrayList<Album>) convertedResultMap
+        mShownAlbums = (ArrayList<Album>) convertedResultMap
                 .get(InfoSystem.HATCHET_ALBUMS);
         updateAdapter();
     }
@@ -179,22 +175,22 @@ public class SearchableFragment extends TomahawkFragment
     private void updateAdapter() {
         List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                 = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
-        if (mCurrentShownArtists != null) {
+        if (mShownArtists != null) {
             ArrayList<TomahawkBaseAdapter.TomahawkListItem> artistResultList
                     = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-            artistResultList.addAll(mCurrentShownArtists);
+            artistResultList.addAll(mShownArtists);
             listArray.add(artistResultList);
         }
-        if (mCurrentShownAlbums != null) {
+        if (mShownAlbums != null) {
             ArrayList<TomahawkBaseAdapter.TomahawkListItem> albumResultList
                     = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-            albumResultList.addAll(mCurrentShownAlbums);
+            albumResultList.addAll(mShownAlbums);
             listArray.add(albumResultList);
         }
-        if (mCurrentShownQueries != null) {
+        if (mShownQueries != null) {
             ArrayList<TomahawkBaseAdapter.TomahawkListItem> trackResultList
                     = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-            trackResultList.addAll(mCurrentShownQueries);
+            trackResultList.addAll(mShownQueries);
             listArray.add(trackResultList);
         }
         if (getListAdapter() == null) {
@@ -206,14 +202,14 @@ public class SearchableFragment extends TomahawkFragment
         } else {
             ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
         }
-        getListView().setOnItemClickListener(mSearchableFragment);
+        getListView().setOnItemClickListener(this);
+        updateShowPlaystate();
     }
 
     /**
      * Invoke the resolving process with the given fullTextQuery {@link String}
      */
     public void resolveFullTextQuery(String fullTextQuery) {
-        //mTomahawkMainActivity.getContentViewer().backToRoot(mCorrespondingHubId, false);
         mCurrentQueryString = fullTextQuery;
         CheckBox onlineSourcesCheckBox = (CheckBox) mTomahawkMainActivity
                 .findViewById(R.id.search_onlinesources_checkbox);
@@ -233,9 +229,6 @@ public class SearchableFragment extends TomahawkFragment
     @Override
     protected void onPipeLineResultsReported(String qId) {
         if (mCorrespondingQueryIds.contains(qId)) {
-            //mTomahawkMainActivity.getContentViewer()
-            //       .getBackStackAtPosition(mCorrespondingHubId)
-            //      .get(0).queryString = mCurrentQueryString;
             showQueryResults(qId);
         }
     }

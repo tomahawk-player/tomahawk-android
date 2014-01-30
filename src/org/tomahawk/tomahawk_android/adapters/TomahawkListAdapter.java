@@ -61,7 +61,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
 
     private TomahawkBaseAdapter.TomahawkListItem mContentHeaderTomahawkListItem;
 
-    private boolean mShowHighlightingAndPlaystate = false;
+    private boolean mShowPlaystate = false;
 
     private boolean mShowResolvedBy = false;
 
@@ -150,8 +150,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
      * Set whether or not to highlight the currently playing {@link TomahawkListItem} and show the
      * play/pause state
      */
-    public void setShowHighlightingAndPlaystate(boolean showHighlightingAndPlaystate) {
-        this.mShowHighlightingAndPlaystate = showHighlightingAndPlaystate;
+    public void setShowPlaystate(boolean showPlaystate) {
+        this.mShowPlaystate = showPlaystate;
     }
 
     /**
@@ -208,7 +208,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                 viewHolder.textFirstLine = (TextView) view
                         .findViewById(mSingleLineListItemResourceHolder.textViewId1);
                 view.setTag(viewHolder);
-            } else if (!mShowHighlightingAndPlaystate && !mShowResolvedBy && (
+            } else if (!mShowPlaystate && !mShowResolvedBy && (
                     (item instanceof Query && convertView == null) || (item instanceof Query
                             && ((ViewHolder) convertView.getTag()).viewType
                             != R.id.tomahawklistadapter_viewtype_doublelinelistitem))) {
@@ -222,7 +222,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                 viewHolder.textThirdLine = (TextView) view
                         .findViewById(mDoubleLineListItemResourceHolder.textViewId3);
                 view.setTag(viewHolder);
-            } else if ((mShowResolvedBy || mShowHighlightingAndPlaystate) && (
+            } else if ((mShowResolvedBy || mShowPlaystate) && (
                     (item instanceof Query && convertView == null) || (item instanceof Query
                             && ((ViewHolder) convertView.getTag()).viewType
                             != R.id.tomahawklistadapter_viewtype_doublelineplaystateimagelistitem))) {
@@ -318,7 +318,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                         viewHolder.textThirdLine.setText(mActivity.getResources().getString(
                                 R.string.playbackactivity_seekbar_completion_time_string));
                     }
-                    if (mShowHighlightingAndPlaystate && position == mHighlightedItemPosition) {
+                    if (mShowPlaystate && position == mHighlightedItemPosition) {
                         view.setBackgroundResource(R.color.pressed_tomahawk);
                         if (mHighlightedItemIsPlaying) {
                             viewHolder.imageViewLeft.setVisibility(ImageView.VISIBLE);
