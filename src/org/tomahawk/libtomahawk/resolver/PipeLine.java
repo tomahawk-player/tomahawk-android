@@ -17,6 +17,7 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.Intent;
@@ -208,8 +209,11 @@ public class PipeLine {
                 if (r != null) {
                     r.setTrackScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_TRACKS));
                     if (r.getTrackScore() >= MINSCORE && !cleanTrackResults.contains(r)) {
-                        r.setType(Result.RESULT_TYPE_TRACK);
-                        cleanTrackResults.add(r);
+                        if (r.getResolvedBy().getId() != TomahawkApp.RESOLVER_ID_EXFM
+                                || TomahawkUtils.httpHeaderRequest(r.getPath())) {
+                            r.setType(Result.RESULT_TYPE_TRACK);
+                            cleanTrackResults.add(r);
+                        }
                     }
                     if (q.isFullTextQuery()) {
                         r.setAlbumScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_ALBUMS));
