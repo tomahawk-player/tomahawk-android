@@ -165,11 +165,13 @@ public class SearchableFragment extends TomahawkFragment
     public void showInfoResults(String requestId) {
         Map<String, List> convertedResultMap = mInfoSystem.getInfoRequestById(requestId)
                 .getConvertedResultMap();
-        mShownArtists = (ArrayList<Artist>) convertedResultMap
-                .get(InfoSystem.HATCHET_ARTISTS);
-        mShownAlbums = (ArrayList<Album>) convertedResultMap
-                .get(InfoSystem.HATCHET_ALBUMS);
-        updateAdapter();
+        if (convertedResultMap != null) {
+            mShownArtists = (ArrayList<Artist>) convertedResultMap
+                    .get(InfoSystem.HATCHET_ARTISTS);
+            mShownAlbums = (ArrayList<Album>) convertedResultMap
+                    .get(InfoSystem.HATCHET_ALBUMS);
+            updateAdapter();
+        }
     }
 
     private void updateAdapter() {

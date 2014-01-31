@@ -472,9 +472,11 @@ public class InfoSystem {
                                     == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS) {
                                 Artist artist = (Artist) mItemsToBeFilled
                                         .get(infoRequestData.getRequestId());
-                                InfoSystemUtils.fillArtistWithAlbums(artist,
-                                        infoRequestData.getInfoResultMap().get(HATCHET_TRACKS),
-                                        infoRequestData.getInfoResultMap().get(HATCHET_IMAGES));
+                                if (infoRequestData.getInfoResultMap() != null) {
+                                    InfoSystemUtils.fillArtistWithAlbums(artist,
+                                            infoRequestData.getInfoResultMap().get(HATCHET_TRACKS),
+                                            infoRequestData.getInfoResultMap().get(HATCHET_IMAGES));
+                                }
                             } else if (infoRequestData.getType()
                                     == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
                                 Artist artist = (Artist) mItemsToBeFilled
@@ -483,24 +485,29 @@ public class InfoSystem {
                                         infoRequestData.getInfoResultMap().get(HATCHET_TRACKS));
                             } else if (infoRequestData.getType()
                                     == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS) {
-                                AlbumInfo albumInfo = ((AlbumInfo) infoRequestData.getInfoResult());
-                                Map<AlbumInfo, Image> imageMap
-                                        = ((Map<AlbumInfo, Image>) infoRequestData
-                                        .getInfoResultMap().get(HATCHET_IMAGES));
-                                Map<AlbumInfo, Tracks> tracksMap
-                                        = ((Map<AlbumInfo, Tracks>) infoRequestData
-                                        .getInfoResultMap().get(HATCHET_TRACKS));
-                                if (albumInfo != null && albumInfo.images != null
-                                        && albumInfo.images.size() > 0
-                                        && albumInfo.images != null
-                                        && albumInfo.images.size() > 0) {
-                                    Image image = imageMap.get(albumInfo);
-                                    Tracks tracks = tracksMap.get(albumInfo);
-                                    Album album = (Album) mItemsToBeFilled
-                                            .get(infoRequestData.getRequestId());
-                                    InfoSystemUtils.fillAlbumWithAlbumInfo(album, albumInfo, image);
-                                    if (tracks != null) {
-                                        InfoSystemUtils.fillAlbumWithTracks(album, tracks.tracks);
+                                if (infoRequestData.getInfoResultMap() != null) {
+                                    AlbumInfo albumInfo = ((AlbumInfo) infoRequestData
+                                            .getInfoResult());
+                                    Map<AlbumInfo, Image> imageMap
+                                            = ((Map<AlbumInfo, Image>) infoRequestData
+                                            .getInfoResultMap().get(HATCHET_IMAGES));
+                                    Map<AlbumInfo, Tracks> tracksMap
+                                            = ((Map<AlbumInfo, Tracks>) infoRequestData
+                                            .getInfoResultMap().get(HATCHET_TRACKS));
+                                    if (albumInfo != null && albumInfo.images != null
+                                            && albumInfo.images.size() > 0
+                                            && albumInfo.images != null
+                                            && albumInfo.images.size() > 0) {
+                                        Image image = imageMap.get(albumInfo);
+                                        Tracks tracks = tracksMap.get(albumInfo);
+                                        Album album = (Album) mItemsToBeFilled
+                                                .get(infoRequestData.getRequestId());
+                                        InfoSystemUtils
+                                                .fillAlbumWithAlbumInfo(album, albumInfo, image);
+                                        if (tracks != null) {
+                                            InfoSystemUtils
+                                                    .fillAlbumWithTracks(album, tracks.tracks);
+                                        }
                                     }
                                 }
                             }
