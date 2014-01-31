@@ -33,47 +33,50 @@ public class InfoSystemUtils {
 
     public static UserPlaylist playlistInfoToUserPlaylist(PlaylistInfo playlistInfo,
             PlaylistEntries playlistEntries) {
-        ArrayList<Query> queries = new ArrayList<Query>();
-        // Convert our Lists to Maps containing the id as the key, so we can efficiently build the
-        // list of Queries afterwards
-        Map<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
-        if (playlistEntries.tracks != null) {
-            for (TrackInfo trackInfo : playlistEntries.tracks) {
-                trackInfoMap.put(trackInfo.id, trackInfo);
-            }
-        }
-        Map<String, ArtistInfo> artistInfoMap = new HashMap<String, ArtistInfo>();
-        if (playlistEntries.artists != null) {
-            for (ArtistInfo artistInfo : playlistEntries.artists) {
-                artistInfoMap.put(artistInfo.id, artistInfo);
-            }
-        }
-        Map<String, AlbumInfo> albumInfoMap = new HashMap<String, AlbumInfo>();
-        if (playlistEntries.albums != null) {
-            for (AlbumInfo albumInfo : playlistEntries.albums) {
-                albumInfoMap.put(albumInfo.id, albumInfo);
-            }
-        }
-        for (PlaylistEntryInfo playlistEntryInfo : playlistEntries.playlistEntries) {
-            String trackName;
-            String artistName = "";
-            String albumName = "";
-            TrackInfo trackInfo = trackInfoMap.get(playlistEntryInfo.track);
-            if (trackInfo != null) {
-                trackName = trackInfo.name;
-                ArtistInfo artistInfo = artistInfoMap.get(trackInfo.artist);
-                if (artistInfo != null) {
-                    artistName = artistInfo.name;
+        if (playlistInfo != null && playlistEntries != null) {
+            ArrayList<Query> queries = new ArrayList<Query>();
+            // Convert our Lists to Maps containing the id as the key, so we can efficiently build the
+            // list of Queries afterwards
+            Map<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
+            if (playlistEntries.tracks != null) {
+                for (TrackInfo trackInfo : playlistEntries.tracks) {
+                    trackInfoMap.put(trackInfo.id, trackInfo);
                 }
-                AlbumInfo albumInfo = albumInfoMap.get(playlistEntryInfo.album);
-                if (albumInfo != null) {
-                    albumName = albumInfo.name;
-                }
-                queries.add(new Query(trackName, albumName, artistName, false));
             }
+            Map<String, ArtistInfo> artistInfoMap = new HashMap<String, ArtistInfo>();
+            if (playlistEntries.artists != null) {
+                for (ArtistInfo artistInfo : playlistEntries.artists) {
+                    artistInfoMap.put(artistInfo.id, artistInfo);
+                }
+            }
+            Map<String, AlbumInfo> albumInfoMap = new HashMap<String, AlbumInfo>();
+            if (playlistEntries.albums != null) {
+                for (AlbumInfo albumInfo : playlistEntries.albums) {
+                    albumInfoMap.put(albumInfo.id, albumInfo);
+                }
+            }
+            for (PlaylistEntryInfo playlistEntryInfo : playlistEntries.playlistEntries) {
+                String trackName;
+                String artistName = "";
+                String albumName = "";
+                TrackInfo trackInfo = trackInfoMap.get(playlistEntryInfo.track);
+                if (trackInfo != null) {
+                    trackName = trackInfo.name;
+                    ArtistInfo artistInfo = artistInfoMap.get(trackInfo.artist);
+                    if (artistInfo != null) {
+                        artistName = artistInfo.name;
+                    }
+                    AlbumInfo albumInfo = albumInfoMap.get(playlistEntryInfo.album);
+                    if (albumInfo != null) {
+                        albumName = albumInfo.name;
+                    }
+                    queries.add(new Query(trackName, albumName, artistName, false));
+                }
+            }
+            return UserPlaylist.fromQueryList(playlistInfo.id, playlistInfo.title,
+                    playlistInfo.currentrevision, queries);
         }
-        return UserPlaylist.fromQueryList(playlistInfo.id, playlistInfo.title,
-                playlistInfo.currentrevision, queries);
+        return null;
     }
 
     public static Artist fillArtistWithArtistInfo(Artist artist, ArtistInfo artistInfo,
@@ -114,7 +117,7 @@ public class InfoSystemUtils {
     public static Artist fillArtistWithAlbums(Artist artist, Map<AlbumInfo, Tracks> tracksMap,
             Map<AlbumInfo, Image> imageMap) {
         ConcurrentHashMap<String, Album> albumMap = new ConcurrentHashMap<String, Album>();
-        if (tracksMap != null && !artist.hasAlbumsFetchedViaHatchet()) {
+        if (tracksMap != null && imageMap != null && !artist.hasAlbumsFetchedViaHatchet()) {
             for (AlbumInfo albumInfo : tracksMap.keySet()) {
                 Image image = imageMap.get(albumInfo);
                 List<TrackInfo> trackInfos = tracksMap.get(albumInfo).tracks;

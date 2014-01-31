@@ -136,18 +136,20 @@ public class UserCollection extends Collection {
                                     UserPlaylist userPlaylist = InfoSystemUtils
                                             .playlistInfoToUserPlaylist(playlistInfo,
                                                     playlistInfoMap.get(playlistInfo));
-                                    ids.add(userPlaylist.getId());
-                                    UserPlaylist storedUserPlaylist = mTomahawkApp
-                                            .getUserPlaylistsDataSource()
-                                            .getUserPlaylist(userPlaylist.getId());
-                                    if (storedUserPlaylist == null
-                                            || storedUserPlaylist.getCurrentRevision() == null
-                                            || !storedUserPlaylist.getCurrentRevision().equals(
-                                            userPlaylist.getCurrentRevision())) {
-                                        // Userplaylist is not already stored, or has different or no
-                                        // revision string, so we store it
-                                        mTomahawkApp.getUserPlaylistsDataSource()
-                                                .storeUserPlaylist(userPlaylist);
+                                    if (userPlaylist != null) {
+                                        ids.add(userPlaylist.getId());
+                                        UserPlaylist storedUserPlaylist = mTomahawkApp
+                                                .getUserPlaylistsDataSource()
+                                                .getUserPlaylist(userPlaylist.getId());
+                                        if (storedUserPlaylist == null
+                                                || storedUserPlaylist.getCurrentRevision() == null
+                                                || !storedUserPlaylist.getCurrentRevision().equals(
+                                                userPlaylist.getCurrentRevision())) {
+                                            // Userplaylist is not already stored, or has different or no
+                                            // revision string, so we store it
+                                            mTomahawkApp.getUserPlaylistsDataSource()
+                                                    .storeUserPlaylist(userPlaylist);
+                                        }
                                     }
                                 }
                                 // Delete every playlist that has not been fetched via Hatchet.
