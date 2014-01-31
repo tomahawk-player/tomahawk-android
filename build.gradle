@@ -1,6 +1,14 @@
 import java.util.regex.Pattern
 
 /*
+ * Hack that copies our AndroidManifest.xml so we don't touch the original file, when setting the
+ * versionName
+ */
+File srcFile = new File(projectDir, "AndroidManifest.xml")
+File destFile = new File(buildDir, "AndroidManifest.xml")
+getAnt().copy(file: srcFile.getCanonicalPath(), tofile: destFile.getCanonicalPath())
+
+/*
  * Gets the version name from the latest Git tag
  */
 def getNewVersionName = { ->
@@ -56,7 +64,8 @@ android {
 
     sourceSets {
         main {
-            manifest.srcFile 'AndroidManifest.xml'
+            // We are using a copy of AndroidManifest.xml, so we don't modify the original file
+            manifest.srcFile 'build/AndroidManifest.xml'
             java.srcDirs = ['src']
             resources.srcDirs = ['src']
             aidl.srcDirs = ['src']
@@ -84,8 +93,8 @@ android {
             proguardFile 'proguard-android.txt'
             applicationVariants.all { variant ->
                 def file = variant.outputFile
-                variant.outputFile = new File((String)file.parent,
-                        file.name.replace(".apk", "-"+ getNewVersionName() + ".apk"))
+                variant.outputFile = new File((String) file.parent,
+                        file.name.replace(".apk", "-" + getNewVersionName() + ".apk"))
             }
         }
         debug {
@@ -97,16 +106,15 @@ android {
 ///////////////////////////////////////////////////////////////////////
 // Tasks related to setting the correct version number automatically //
 ///////////////////////////////////////////////////////////////////////
-task('setVersionName') {
-    android.buildTypes
-    def manifestFile = file("AndroidManifest.xml")
+task setVersionName {
+    def manifestFile = file("build/AndroidManifest.xml")
     def pattern = Pattern.compile("versionName=\".*\"")
     def manifestText = manifestFile.getText()
     def matcher = pattern.matcher(manifestText)
     matcher.find()
     def versionName = getNewVersionName()
     println "VersionName: " + versionName
-    def manifestContent = matcher.replaceAll("versionName=\"" + versionName +"\"")
+    def manifestContent = matcher.replaceAll("versionName=\"" + versionName + "\"")
     manifestFile.write(manifestContent)
 }
 
@@ -133,7 +141,7 @@ tasks.withType(com.android.build.gradle.tasks.PackageApplication) { pkgTask ->
 }
 
 task ndkBuild(type: Exec) {
-    commandLine new File((String)System.env.ANDROID_NDK_HOME, 'ndk-build')
+    commandLine new File((String) System.env.ANDROID_NDK_HOME, 'ndk-build')
 }
 
 /*
