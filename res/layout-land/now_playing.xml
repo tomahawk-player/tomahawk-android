@@ -20,47 +20,53 @@
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
-              android:layout_height="match_parent"
+              android:layout_height="@dimen/row_height_medium"
               android:background="@drawable/selectable_background_tomahawk"
               android:clickable="false">
 
     <ImageView
             android:id="@+id/now_playing_album_art"
-            android:layout_width="@dimen/row_height_verylarge"
-            android:layout_height="@dimen/row_height_verylarge"
-            android:layout_gravity="center"
+            android:layout_width="@dimen/row_height_medium"
+            android:layout_height="match_parent"
             android:padding="@dimen/padding_verysmall"
             android:scaleType="centerCrop"/>
 
     <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/row_height_verylarge"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:layout_gravity="center_vertical"
-            android:padding="@dimen/padding_small"
-            android:orientation="vertical">
+            android:padding="@dimen/padding_verysmall"
+            android:layout_toRightOf="@id/now_playing_album_art"
+            android:orientation="horizontal">
 
         <TextView
                 android:id="@+id/now_playing_title"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/row_height_verylarge"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:paddingRight="@dimen/padding_small"
                 android:ellipsize="marquee"
                 android:gravity="center_vertical"
                 android:singleLine="true"
                 android:textColor="@color/primary_textcolor"
                 android:textSize="@dimen/text_size_medium"/>
 
+        <View
+                android:layout_width="@dimen/divider_height_thin"
+                android:layout_height="match_parent"
+                android:background="@color/tomahawk_red"/>
+
         <TextView
                 android:id="@+id/now_playing_artist"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/row_height_verylarge"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:paddingLeft="@dimen/padding_small"
                 android:ellipsize="marquee"
                 android:gravity="center_vertical"
                 android:singleLine="true"
                 android:textColor="@color/secondary_textcolor"
-                android:textSize="@dimen/text_size_small"/>
+                android:textSize="@dimen/text_size_medium"/>
     </LinearLayout>
 
     <ImageButton
@@ -81,7 +87,7 @@
             android:layout_width="@dimen/row_height_large"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:padding="8dp"
+            android:padding="2dp"
             android:background="@drawable/selectable_background_playback_small_tomahawk"
             android:src="@drawable/ic_player_play"
             android:scaleType="fitCenter"/>
