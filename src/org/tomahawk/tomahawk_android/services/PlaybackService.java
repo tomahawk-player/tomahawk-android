@@ -670,9 +670,8 @@ public class PlaybackService extends Service {
         if (mTomahawkMediaPlayer != null && query != null) {
             resolveQueriesFromTo(getCurrentPlaylist().getCurrentQueryIndex(),
                     getCurrentPlaylist().getCurrentQueryIndex() + 10);
-            if (query.isPlayable()) {
-                if (!mLastPreparedPath
-                        .equals(query.getPreferredTrackResult().getPath())) {
+            if (query.isPlayable() && query.getPreferredTrackResult() != null) {
+                if (!mLastPreparedPath.equals(query.getPreferredTrackResult().getPath())) {
                     query.setCurrentlyPlaying(true);
                     Runnable releaseRunnable = new Runnable() {
                         @Override
