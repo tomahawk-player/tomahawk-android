@@ -491,11 +491,23 @@ public class TomahawkFragment extends TomahawkListFragment
      */
     public void adaptColumnCount() {
         if (getGridView() != null) {
+            int screenLayout = getResources().getConfiguration().screenLayout;
+            screenLayout &= Configuration.SCREENLAYOUT_SIZE_MASK;
             if (getResources().getConfiguration().orientation
                     == Configuration.ORIENTATION_LANDSCAPE) {
-                getGridView().setNumColumns(4);
+                if (screenLayout == Configuration.SCREENLAYOUT_SIZE_LARGE
+                        || screenLayout == 4) {
+                    getGridView().setNumColumns(4);
+                } else {
+                    getGridView().setNumColumns(3);
+                }
             } else {
-                getGridView().setNumColumns(2);
+                if (screenLayout == Configuration.SCREENLAYOUT_SIZE_LARGE
+                        || screenLayout == 4) {
+                    getGridView().setNumColumns(3);
+                } else {
+                    getGridView().setNumColumns(2);
+                }
             }
         }
     }
