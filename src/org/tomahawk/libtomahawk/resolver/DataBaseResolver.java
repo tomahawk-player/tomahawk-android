@@ -73,7 +73,8 @@ public class DataBaseResolver implements Resolver {
         mId = id;
         mName = String.valueOf(TomahawkApp.RESOLVER_ID_USERCOLLECTION);
         if (id == TomahawkApp.RESOLVER_ID_USERCOLLECTION) {
-            mIcon = mTomahawkApp.getResources().getDrawable(R.drawable.ic_action_collection);
+            mIcon = mTomahawkApp.getResources()
+                    .getDrawable(R.drawable.ic_action_device_access_sd_storage);
         } else {
             mIcon = mTomahawkApp.getResources().getDrawable(R.drawable.ic_resolver_default);
         }

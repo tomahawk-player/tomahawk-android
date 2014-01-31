@@ -55,7 +55,7 @@ public class ScriptResolver implements Resolver {
     //TEMPORARY WORKAROUND
     private final static String BASEURL_OFFICIALFM = "http://api.official.fm";
 
-    private final static String BASEURL_EXFM = "http://ex.fm";
+    private final static String BASEURL_EXFM = "https://ex.fm";
 
     private final static String BASEURL_JAMENDO = "http://api.jamendo.com";
 

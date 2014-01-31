@@ -32,7 +32,7 @@ public class ScriptInterface {
      */
     @JavascriptInterface
     public void callbackToJava(int id, String in, boolean shouldReturnResult) {
-        //Log.d(TAG, "callbackToJava: id='" + id + "', in='" + in + "'");
+        Log.d(TAG, "callbackToJava: id='" + id + "', in='" + in + "'");
         if (shouldReturnResult) {
             JSONObject out = new JSONObject();
             try {
@@ -89,4 +89,15 @@ public class ScriptInterface {
             Log.e(TAG, "addTrackResultsString: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
     }
+
+    /**
+     * This method is needed because the javascript script is expecting an exposed method which it
+     * can call to report its capabilities. This method is being called in tomahawk_android.js
+     *
+     * @param in the int pointing to the script's capabilities
+     */
+    @JavascriptInterface
+    public void reportCapabilities(int in) {
+    }
+
 }

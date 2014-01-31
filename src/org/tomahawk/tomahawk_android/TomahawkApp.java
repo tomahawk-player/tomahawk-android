@@ -138,15 +138,16 @@ public class TomahawkApp extends Application {
         }
         mPipeLine.addResolver(new DataBaseResolver(RESOLVER_ID_USERCOLLECTION, this));
         ScriptResolver scriptResolver = new ScriptResolver(RESOLVER_ID_JAMENDO, this,
-                "js/jamendo/jamendo-resolver.js");
+                "js/jamendo/content/contents/code/jamendo.js");
         mPipeLine.addResolver(scriptResolver);
         scriptResolver = new ScriptResolver(RESOLVER_ID_OFFICIALFM, this,
-                "js/official.fm/officialfm.js");
+                "js/official.fm/content/contents/code/officialfm.js");
         mPipeLine.addResolver(scriptResolver);
-        scriptResolver = new ScriptResolver(RESOLVER_ID_EXFM, this, "js/exfm/exfm.js");
+        scriptResolver = new ScriptResolver(RESOLVER_ID_EXFM, this,
+                "js/exfm/content/contents/code/exfm.js");
         mPipeLine.addResolver(scriptResolver);
         scriptResolver = new ScriptResolver(RESOLVER_ID_SOUNDCLOUD, this,
-                "js/soundcloud/soundcloud.js");
+                "js/soundcloud/content/contents/code/soundcloud.js");
         mPipeLine.addResolver(scriptResolver);
         SpotifyResolver spotifyResolver = new SpotifyResolver(RESOLVER_ID_SPOTIFY, this);
         mPipeLine.addResolver(spotifyResolver);
