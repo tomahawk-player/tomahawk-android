@@ -28,6 +28,7 @@ import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -39,6 +40,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Query implements TomahawkBaseAdapter.TomahawkListItem {
 
     public static final String TAG = Query.class.getName();
+
+    private static HashSet<String> sBlacklistedResults = new HashSet<String>();
 
     private ConcurrentHashMap<String, Result> mTrackResults
             = new ConcurrentHashMap<String, Result>();
@@ -106,6 +109,10 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
         addTrackResult(result);
     }
 
+    public static HashSet<String> getBlacklistedResults() {
+        return sBlacklistedResults;
+    }
+
     /**
      * @return An ArrayList<Result> which contains all tracks in the resultList, sorted by score.
      * Given as Results.
@@ -143,18 +150,31 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
     }
 
     public void addTrackResult(Result result) {
-        mPlayable = true;
-        if (!mCurrentlyPlaying && result.getTrackScore() == 1f) {
-            mSolved = true;
-        }
         String key = TomahawkUtils.getCacheKey(result);
-        mTrackResults.put(key, result);
-        if (!mCurrentlyPlaying && (getPreferredTrackResult() == null ||
-                (getPreferredTrackResult().getTrackScore() < result.getTrackScore() ||
-                        (getPreferredTrackResult().getTrackScore() == result.getTrackScore()
-                                && getPreferredTrackResult().getResolvedBy().getWeight()
-                                < result.getResolvedBy().getWeight())))) {
-            mTopTrackResultKey = key;
+        if (!sBlacklistedResults.contains(key)) {
+            mPlayable = true;
+            if (!mCurrentlyPlaying && result.getTrackScore() == 1f) {
+                mSolved = true;
+            }
+            mTrackResults.put(key, result);
+            if (!mCurrentlyPlaying && (getPreferredTrackResult() == null ||
+                    (getPreferredTrackResult().getTrackScore() < result.getTrackScore() ||
+                            (getPreferredTrackResult().getTrackScore() == result.getTrackScore()
+                                    && getPreferredTrackResult().getResolvedBy().getWeight()
+                                    < result.getResolvedBy().getWeight())))) {
+                mTopTrackResultKey = key;
+            }
+        }
+    }
+
+    public void blacklistTrackResult(Result result) {
+        String key = TomahawkUtils.getCacheKey(result);
+        sBlacklistedResults.add(key);
+        for (Result r : getTrackResults()) {
+            String newKey = TomahawkUtils.getCacheKey(r);
+            if (!key.equals(newKey) && !sBlacklistedResults.contains(newKey)) {
+                mTopTrackResultKey = newKey;
+            }
         }
     }
 

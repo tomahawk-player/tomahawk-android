@@ -63,13 +63,25 @@ public class QueryComparator implements Comparator<Query> {
             case COMPARE_TRACK_SCORE:
                 Float score1 = 0f;
                 if (q1.getPreferredTrackResult() != null) {
-                    q1.getPreferredTrackResult().getTrackScore();
+                    score1 = q1.getPreferredTrackResult().getTrackScore();
                 }
                 Float score2 = 0f;
                 if (q2.getPreferredTrackResult() != null) {
-                    q2.getPreferredTrackResult().getTrackScore();
+                    score2 = q2.getPreferredTrackResult().getTrackScore();
                 }
-                return score2.compareTo(score1);
+                int result = score2.compareTo(score1);
+                if (result == 0) {
+                    Integer weight1 = 0;
+                    if (q1.getPreferredTrackResult() != null) {
+                        weight1 = q1.getPreferredTrackResult().getResolvedBy().getWeight();
+                    }
+                    Integer weight2 = 0;
+                    if (q1.getPreferredTrackResult() != null) {
+                        weight2 = q2.getPreferredTrackResult().getResolvedBy().getWeight();
+                    }
+                    result = weight1.compareTo(weight2);
+                }
+                return result;
         }
         return 0;
     }

@@ -679,9 +679,16 @@ public class PlaybackService extends Service {
                             int loopCounter = 0;
                             while (true) {
                                 if (loopCounter++ > 10) {
-                                    Log.e(TAG, "MediaPlayer was unable to prepare the track");
-                                    mLastPreparedPath = "";
-                                    break;
+                                    query.blacklistTrackResult(query.getPreferredTrackResult());
+                                    String key = TomahawkUtils
+                                            .getCacheKey(query.getPreferredTrackResult());
+                                    if (Query.getBlacklistedResults().contains(key)) {
+                                        Log.e(TAG, "MediaPlayer was unable to prepare the track");
+                                        mLastPreparedPath = "";
+                                        break;
+                                    } else {
+                                        loopCounter = 0;
+                                    }
                                 }
                                 long startTime = System.currentTimeMillis();
                                 mTomahawkMediaPlayer.release();
