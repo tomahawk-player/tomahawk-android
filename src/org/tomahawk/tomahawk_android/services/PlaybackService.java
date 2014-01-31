@@ -678,7 +678,7 @@ public class PlaybackService extends Service {
                         public void run() {
                             int loopCounter = 0;
                             while (true) {
-                                if (loopCounter++ > 10) {
+                                if (loopCounter++ > 3) {
                                     query.blacklistTrackResult(query.getPreferredTrackResult());
                                     String key = TomahawkUtils
                                             .getCacheKey(query.getPreferredTrackResult());
