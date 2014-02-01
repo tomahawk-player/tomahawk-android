@@ -256,6 +256,8 @@ public class TomahawkUtils {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
             connection.setRequestMethod("HEAD");
+            connection.setInstanceFollowRedirects(false);
+            connection.setRequestProperty("Accept-Encoding", "");
             int responseCode = connection.getResponseCode();
             connection.disconnect();
             return responseCode == HttpURLConnection.HTTP_OK;
