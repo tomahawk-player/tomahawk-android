@@ -690,11 +690,14 @@ public class PlaybackService extends Service {
                             while (true) {
                                 if (loopCounter++ > 3) {
                                     query.blacklistTrackResult(query.getPreferredTrackResult());
-                                    String key = TomahawkUtils
-                                            .getCacheKey(query.getPreferredTrackResult());
-                                    if (Query.getBlacklistedResults().contains(key)) {
+                                    if (query.getPreferredTrackResult() == null) {
                                         Log.e(TAG, "MediaPlayer was unable to prepare the track");
                                         mLastPreparedPath = "";
+                                        if (((TomahawkApp) getApplication()).getPipeLine() != null
+                                                && !((TomahawkApp) getApplication()).getPipeLine()
+                                                .isResolving()) {
+                                            next();
+                                        }
                                         break;
                                     } else {
                                         loopCounter = 0;

@@ -187,6 +187,10 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
             String newKey = TomahawkUtils.getCacheKey(r);
             if (!key.equals(newKey) && !sBlacklistedResults.contains(newKey)) {
                 mTopTrackResultKey = newKey;
+            } else {
+                mTopTrackResultKey = "";
+                mPlayable = false;
+                mSolved = false;
             }
         }
     }
