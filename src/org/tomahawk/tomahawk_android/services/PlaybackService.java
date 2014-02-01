@@ -495,6 +495,7 @@ public class PlaybackService extends Service {
         } else if (mPlayState == PLAYBACKSERVICE_PLAYSTATE_PAUSED
                 || mPlayState == PLAYBACKSERVICE_PLAYSTATE_STOPPED) {
             mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
+            setCurrentQuery(getCurrentQuery());
             updatePlayingNotification();
         }
         sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
@@ -506,6 +507,7 @@ public class PlaybackService extends Service {
      */
     public void start() {
         mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
+        setCurrentQuery(getCurrentQuery());
         sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
         handlePlayState();
         updatePlayingNotification();
@@ -671,7 +673,15 @@ public class PlaybackService extends Service {
             resolveQueriesFromTo(getCurrentPlaylist().getCurrentQueryIndex(),
                     getCurrentPlaylist().getCurrentQueryIndex() + 10);
             if (query.isPlayable() && query.getPreferredTrackResult() != null) {
-                if (!mLastPreparedPath.equals(query.getPreferredTrackResult().getPath())) {
+                mKillTimerHandler.removeCallbacksAndMessages(null);
+                Message msg = mKillTimerHandler.obtainMessage();
+                mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
+
+                updatePlayingNotification();
+                sendBroadcast(new Intent(BROADCAST_NEWTRACK));
+
+                if (isPlaying()
+                        && !mLastPreparedPath.equals(query.getPreferredTrackResult().getPath())) {
                     query.setCurrentlyPlaying(true);
                     Runnable releaseRunnable = new Runnable() {
                         @Override
@@ -720,13 +730,6 @@ public class PlaybackService extends Service {
                         }
                     };
                     new Thread(releaseRunnable).start();
-
-                    mKillTimerHandler.removeCallbacksAndMessages(null);
-                    Message msg = mKillTimerHandler.obtainMessage();
-                    mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
-
-                    updatePlayingNotification();
-                    sendBroadcast(new Intent(BROADCAST_NEWTRACK));
                 }
             } else if (((TomahawkApp) getApplication()).getPipeLine() != null
                     && !((TomahawkApp) getApplication()).getPipeLine().isResolving()) {
@@ -833,10 +836,13 @@ public class PlaybackService extends Service {
      */
     public int getPosition() {
         int position = 0;
-        try {
-            position = mTomahawkMediaPlayer.getCurrentPosition();
-        } catch (IllegalStateException e) {
-            Log.e(TAG, "getPosition: " + e.getClass() + ": " + e.getLocalizedMessage());
+        if (getCurrentQuery().getPreferredTrackResult() != null && mLastPreparedPath
+                .equals(getCurrentQuery().getPreferredTrackResult().getPath())) {
+            try {
+                position = mTomahawkMediaPlayer.getCurrentPosition();
+            } catch (IllegalStateException e) {
+                Log.e(TAG, "getPosition: " + e.getClass() + ": " + e.getLocalizedMessage());
+            }
         }
         return position;
     }
