@@ -71,6 +71,8 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
 
     private boolean mIsOnlyLocal;
 
+    private boolean mIsFetchedViaHatchet;
+
     /**
      * Constructs a new Query with the given QueryID. ID should be generated in TomahawkApp.
      */
@@ -97,6 +99,17 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
         mTrack = Track.get(trackName, album, artist);
         mIsFullTextQuery = false;
         mIsOnlyLocal = onlyLocal;
+    }
+
+    public Query(String trackName, String albumName,
+            String artistName, boolean onlyLocal, boolean isFetchedViaHatchet) {
+        this();
+        Artist artist = Artist.get(artistName);
+        Album album = Album.get(albumName, artist);
+        mTrack = Track.get(trackName, album, artist);
+        mIsFullTextQuery = false;
+        mIsOnlyLocal = onlyLocal;
+        mIsFetchedViaHatchet = isFetchedViaHatchet;
     }
 
     private Query(Track track, boolean onlyLocal) {
@@ -417,6 +430,9 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
 
     @Override
     public Album getAlbum() {
+        if (mIsFetchedViaHatchet) {
+            return mTrack.getAlbum();
+        }
         return getPreferredTrack().getAlbum();
     }
 }
