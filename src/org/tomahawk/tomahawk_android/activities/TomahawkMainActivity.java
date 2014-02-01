@@ -21,11 +21,11 @@ package org.tomahawk.tomahawk_android.activities;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionLoader;
 import org.tomahawk.libtomahawk.collection.SourceList;
-import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.TomahawkSQLiteHelper;
 import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
+import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -582,9 +582,9 @@ public class TomahawkMainActivity extends ActionBarActivity
      * Sets the playback information
      */
     public void setNowPlayingInfo() {
-        Track track = null;
+        Query query = null;
         if (mPlaybackService != null) {
-            track = mPlaybackService.getCurrentTrack();
+            query = mPlaybackService.getCurrentQuery();
         }
         if (mNowPlayingFrame != null) {
             ImageView nowPlayingInfoAlbumArt = (ImageView) mNowPlayingFrame
@@ -594,15 +594,15 @@ public class TomahawkMainActivity extends ActionBarActivity
             TextView nowPlayingInfoTitle = (TextView) mNowPlayingFrame
                     .findViewById(R.id.now_playing_title);
 
-            if (track != null) {
+            if (query != null) {
                 if (nowPlayingInfoAlbumArt != null && nowPlayingInfoArtist != null
                         && nowPlayingInfoTitle != null) {
-                    if (track.getAlbum() != null) {
+                    if (query.getAlbum() != null) {
                         TomahawkUtils.loadImageIntoImageView(this, nowPlayingInfoAlbumArt,
-                                track.getAlbum());
+                                query.getAlbum());
                     }
-                    nowPlayingInfoArtist.setText(track.getArtist().toString());
-                    nowPlayingInfoTitle.setText(track.getName());
+                    nowPlayingInfoArtist.setText(query.getArtist().toString());
+                    nowPlayingInfoTitle.setText(query.getName());
                 }
             }
             updateNowPlayingButtons();

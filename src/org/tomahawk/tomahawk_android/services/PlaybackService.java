@@ -862,24 +862,20 @@ public class PlaybackService extends Service {
         if (query == null) {
             return;
         }
-        Track track = query.getPreferredTrack();
-        if (track == null) {
-            return;
-        }
 
         String albumName = "";
         String artistName = "";
         String imagePath = "";
-        if (track.getAlbum() != null) {
-            albumName = track.getAlbum().getName();
-            if (!TextUtils.isEmpty(track.getAlbum().getAlbumArtPath())) {
-                imagePath = track.getAlbum().getAlbumArtPath();
+        if (query.getAlbum() != null) {
+            albumName = query.getAlbum().getName();
+            if (!TextUtils.isEmpty(query.getAlbum().getAlbumArtPath())) {
+                imagePath = query.getAlbum().getAlbumArtPath();
             }
         }
-        if (track.getArtist() != null) {
-            artistName = track.getArtist().getName();
-            if (TextUtils.isEmpty(imagePath) && !TextUtils.isEmpty(track.getArtist().getImage())) {
-                imagePath = track.getArtist().getImage();
+        if (query.getArtist() != null) {
+            artistName = query.getArtist().getName();
+            if (TextUtils.isEmpty(imagePath) && !TextUtils.isEmpty(query.getArtist().getImage())) {
+                imagePath = query.getArtist().getImage();
             }
         }
 
@@ -909,7 +905,7 @@ public class PlaybackService extends Service {
             smallNotificationView = new RemoteViews(getPackageName(),
                     R.layout.notification_small_compat);
         }
-        smallNotificationView.setTextViewText(R.id.notification_small_textview, track.getName());
+        smallNotificationView.setTextViewText(R.id.notification_small_textview, query.getName());
         if (TextUtils.isEmpty(albumName)) {
             smallNotificationView.setTextViewText(R.id.notification_small_textview2, artistName);
         } else {
@@ -932,7 +928,7 @@ public class PlaybackService extends Service {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_launcher).setContentTitle(artistName)
-                .setContentText(track.getName()).setOngoing(true).setPriority(
+                .setContentText(query.getName()).setOngoing(true).setPriority(
                         NotificationCompat.PRIORITY_MAX).setContent(smallNotificationView);
         if (mNotificationBitmap != null) {
             builder.setLargeIcon(mNotificationBitmap);
@@ -967,7 +963,7 @@ public class PlaybackService extends Service {
                         mNotificationBitmap);
             }
             largeNotificationView.setTextViewText(R.id.notification_large_textview,
-                    track.getName());
+                    query.getName());
             largeNotificationView.setTextViewText(R.id.notification_large_textview2, artistName);
             largeNotificationView.setTextViewText(R.id.notification_large_textview3, albumName);
             if (isPlaying()) {

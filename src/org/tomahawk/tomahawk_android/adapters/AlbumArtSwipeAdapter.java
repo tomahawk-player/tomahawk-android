@@ -18,7 +18,6 @@
 package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.libtomahawk.collection.Playlist;
-import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -88,7 +87,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
             } else {
                 query = mPlaylist.peekQueryAtPos(position);
             }
-            refreshTrackInfo(view, query.getPreferredTrack());
+            refreshTrackInfo(view, query);
         } else {
             refreshTrackInfo(view, null);
         }
@@ -274,32 +273,32 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         updatePlaylist();
     }
 
-    private void refreshTrackInfo(View view, Track track) {
+    private void refreshTrackInfo(View view, Query query) {
         TextView artistTextView = (TextView) view.findViewById(R.id.textView_artist);
         TextView albumTextView = (TextView) view.findViewById(R.id.textView_album);
         TextView titleTextView = (TextView) view.findViewById(R.id.textView_title);
-        if (track != null) {
+        if (query != null) {
             ImageView imageView = (ImageView) view.findViewById(R.id.album_art_image);
-            TomahawkUtils.loadImageIntoImageView(mActivity, imageView, track.getAlbum());
+            TomahawkUtils.loadImageIntoImageView(mActivity, imageView, query.getAlbum());
 
             // Update all relevant TextViews
             if (artistTextView != null) {
-                if (track.getArtist() != null && track.getArtist().getName() != null) {
-                    artistTextView.setText(track.getArtist().toString());
+                if (query.getArtist() != null && query.getArtist().getName() != null) {
+                    artistTextView.setText(query.getArtist().toString());
                 } else {
                     artistTextView.setText(R.string.playbackactivity_unknown_string);
                 }
             }
             if (albumTextView != null) {
-                if (track.getAlbum() != null && track.getAlbum().getName() != null) {
-                    albumTextView.setText(track.getAlbum().toString());
+                if (query.getAlbum() != null && query.getAlbum().getName() != null) {
+                    albumTextView.setText(query.getAlbum().toString());
                 } else {
                     albumTextView.setText(R.string.playbackactivity_unknown_string);
                 }
             }
             if (titleTextView != null) {
-                if (track.getName() != null) {
-                    titleTextView.setText(track.getName());
+                if (query.getName() != null) {
+                    titleTextView.setText(query.getName());
                 } else {
                     titleTextView.setText(R.string.playbackactivity_unknown_string);
                 }
