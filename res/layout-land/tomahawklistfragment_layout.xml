@@ -24,16 +24,21 @@
               android:layout_height="match_parent"
               android:orientation="horizontal">
 
-    <ImageView
-            android:id="@+id/content_header_image"
-            android:layout_width="match_parent"
+    <org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout
+            android:id="@+id/content_header_image_frame"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1.5"
-            android:scaleType="fitCenter"
-            android:visibility="gone"
-            android:src="@drawable/no_album_art_placeholder"/>
+            android:visibility="gone">
 
-    <RelativeLayout android:layout_width="match_parent"
+        <ImageView
+                android:id="@+id/content_header_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/no_album_art_placeholder"/>
+
+    </org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout>
+
+    <RelativeLayout android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1">
 

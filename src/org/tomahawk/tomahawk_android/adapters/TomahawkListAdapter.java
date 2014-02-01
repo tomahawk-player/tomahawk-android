@@ -24,6 +24,7 @@ import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout;
 
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
@@ -132,6 +133,11 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
     public void updateContentHeader(
             TomahawkBaseAdapter.TomahawkListItem contentHeaderTomahawkListItem) {
         if (mContentHeaderView != null) {
+            SquareHeightRelativeLayout frame = (SquareHeightRelativeLayout)
+                    mActivity.findViewById(R.id.content_header_image_frame);
+            if (frame != null) {
+                frame.setVisibility(SquareHeightRelativeLayout.VISIBLE);
+            }
             ImageView imageView = (ImageView) mActivity.findViewById(R.id.content_header_image);
             imageView.setVisibility(ImageView.VISIBLE);
             if (mContentHeaderTomahawkListItem instanceof Album) {
