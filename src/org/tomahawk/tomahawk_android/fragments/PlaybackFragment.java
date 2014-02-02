@@ -407,7 +407,8 @@ public class PlaybackFragment extends TomahawkFragment
             item.setIcon(R.drawable.ic_action_collections_view_as_list);
             item.setTitle(R.string.menu_item_show_playlist);
             final PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
-            if (playbackService != null && playbackService.getCurrentPlaylist() != null) {
+            if (playbackService != null && playbackService.getCurrentPlaylist() != null
+                    && getListView() != null) {
                 getListView().clearFocus();
                 getListView().post(new Runnable() {
                     @Override
