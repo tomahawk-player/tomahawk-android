@@ -21,14 +21,12 @@ import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,9 +41,9 @@ public class UserPlaylistsDataSource {
 
     public static final String CACHED_PLAYLIST_ID = "cached_playlist_id";
 
-    public static final int ISHATCHETPLAYLIST_FALSE = 0;
+    public static final int FALSE = 0;
 
-    public static final int ISHATCHETPLAYLIST_TRUE = 1;
+    public static final int TRUE = 1;
 
     // Database fields
     private SQLiteDatabase mDatabase;
@@ -62,7 +60,9 @@ public class UserPlaylistsDataSource {
             TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS,
             TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME,
             TomahawkSQLiteHelper.TRACKS_COLUMN_ARTISTNAME,
-            TomahawkSQLiteHelper.TRACKS_COLUMN_ALBUMNAME,};
+            TomahawkSQLiteHelper.TRACKS_COLUMN_ALBUMNAME,
+            TomahawkSQLiteHelper.TRACKS_COLUMN_RESULTHINT,
+            TomahawkSQLiteHelper.TRACKS_COLUMN_ISFETCHEDVIAHATCHET};
 
     private String[] mAllSearchHistoryColumns = {TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ID,
             TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ENTRY};
@@ -103,13 +103,11 @@ public class UserPlaylistsDataSource {
                 playlist.getCurrentQueryIndex());
         String insertId = playlist.getId();
         if (!playlist.isHatchetPlaylist()) {
-            values.put(TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ISHATCHETPLAYLIST,
-                    ISHATCHETPLAYLIST_FALSE);
+            values.put(TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ISHATCHETPLAYLIST, FALSE);
         } else {
             values.put(TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_CURRENTREVISION,
                     playlist.getCurrentRevision());
-            values.put(TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ISHATCHETPLAYLIST,
-                    ISHATCHETPLAYLIST_TRUE);
+            values.put(TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ISHATCHETPLAYLIST, TRUE);
         }
         values.put(TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ID, insertId);
         mDatabase.beginTransaction();
@@ -125,11 +123,16 @@ public class UserPlaylistsDataSource {
             values.clear();
             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS, insertId);
             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME,
-                    query.getPreferredTrack().getName());
+                    query.getName());
             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ARTISTNAME,
-                    query.getPreferredTrack().getArtist().getName());
+                    query.getArtist().getName());
             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ALBUMNAME,
-                    query.getPreferredTrack().getAlbum().getName());
+                    query.getAlbum().getName());
+            if (query.isFetchedViaHatchet()) {
+                values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ISFETCHEDVIAHATCHET, TRUE);
+            } else {
+                values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ISFETCHEDVIAHATCHET, FALSE);
+            }
             mDatabase.insert(TomahawkSQLiteHelper.TABLE_TRACKS, null, values);
         }
         mDatabase.setTransactionSuccessful();
@@ -161,8 +164,8 @@ public class UserPlaylistsDataSource {
         Cursor userplaylistsCursor = mDatabase
                 .query(TomahawkSQLiteHelper.TABLE_USERPLAYLISTS, mAllUserPlaylistsColumns,
                         TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ISHATCHETPLAYLIST + " = "
-                                + (onlyLocalPlaylists ? ISHATCHETPLAYLIST_FALSE
-                                : ISHATCHETPLAYLIST_TRUE),
+                                + (onlyLocalPlaylists ? FALSE
+                                : TRUE),
                         null, null, null, null);
         userplaylistsCursor.moveToFirst();
         while (!userplaylistsCursor.isAfterLast()) {
@@ -199,7 +202,8 @@ public class UserPlaylistsDataSource {
                 String trackName = tracksCursor.getString(2);
                 String artistName = tracksCursor.getString(3);
                 String albumName = tracksCursor.getString(4);
-                Query query = new Query(trackName, albumName, artistName, false);
+                Query query = new Query(trackName, albumName, artistName, false,
+                        tracksCursor.getInt(6) == TRUE);
                 queryIdMap.put(query, tracksCursor.getLong(0));
                 queries.add(query);
                 tracksCursor.moveToNext();
@@ -212,7 +216,7 @@ public class UserPlaylistsDataSource {
             UserPlaylist userPlaylist = UserPlaylist
                     .fromQueryList(playlistId, userplaylistsCursor.getString(2),
                             userplaylistsCursor.getString(4),
-                            userplaylistsCursor.getInt(1) == ISHATCHETPLAYLIST_TRUE, queries,
+                            userplaylistsCursor.getInt(1) == TRUE, queries,
                             currentQuery);
             tracksCursor.close();
             userplaylistsCursor.close();

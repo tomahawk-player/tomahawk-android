@@ -309,6 +309,10 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
         return mQid;
     }
 
+    public boolean isFetchedViaHatchet() {
+        return mIsFetchedViaHatchet;
+    }
+
     /**
      * This method determines how similar the given result is to the search string.
      */
