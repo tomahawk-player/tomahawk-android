@@ -161,7 +161,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                 onCollectionUpdated();
             } else if (PlaybackService.BROADCAST_NEWTRACK.equals(intent.getAction())) {
                 if (mPlaybackService != null) {
-                    setNowPlayingInfoVisibility(true);
+                    updateViewVisibility();
                 }
             } else if (PlaybackService.BROADCAST_PLAYSTATECHANGED.equals(intent.getAction())) {
                 updateNowPlayingButtons();
