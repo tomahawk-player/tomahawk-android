@@ -138,7 +138,7 @@ public class TomahawkListFragment extends Fragment {
         View root = getView();
         LayoutInflater layoutInflater = mTomahawkMainActivity.getLayoutInflater();
         if (root == null) {
-            throw new IllegalStateException("Content view not yet created");
+            return;
         }
         if (!mShowGridView) {
             mList = (StickyListHeadersListView) layoutInflater
