@@ -179,7 +179,9 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
         if (mQueriesFetchedViaHatchet.size() > 0) {
             return mQueriesFetchedViaHatchet;
         } else {
-            Collections.sort(mQueries, new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
+            synchronized (this) {
+                Collections.sort(mQueries, new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
+            }
             return mQueries;
         }
     }
@@ -193,10 +195,12 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
      */
     public ArrayList<Query> getLocalQueries() {
         ArrayList<Query> queries = new ArrayList<Query>();
-        for (Query query : mQueries) {
-            if (query.getPreferredTrackResult() != null && query.getPreferredTrackResult()
-                    .isLocal()) {
-                queries.add(query);
+        synchronized (this) {
+            for (Query query : mQueries) {
+                if (query.getPreferredTrackResult() != null && query.getPreferredTrackResult()
+                        .isLocal()) {
+                    queries.add(query);
+                }
             }
         }
         Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
