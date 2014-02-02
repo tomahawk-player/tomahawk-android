@@ -21,7 +21,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
-import android.util.Base64;
 import android.util.Log;
 
 /**
@@ -56,6 +55,10 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     public static final String TRACKS_COLUMN_ALBUMNAME = "albumname";
 
+    public static final String TRACKS_COLUMN_RESULTHINT = "resulthint";
+
+    public static final String TRACKS_COLUMN_ISFETCHEDVIAHATCHET = "isfetchedviahatchet";
+
     public static final String TABLE_SEARCHHISTORY = "searchhistory";
 
     public static final String SEARCHHISTORY_COLUMN_ID = BaseColumns._ID;
@@ -66,7 +69,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "userplaylists.db";
 
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
     // Database creation sql statements
     private static final String CREATE_TABLE_USERPLAYLISTS =
@@ -83,7 +86,9 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
                     + TRACKS_COLUMN_IDUSERPLAYLISTS + "` TEXT ,  `"
                     + TRACKS_COLUMN_TRACKNAME + "` TEXT ,`"
                     + TRACKS_COLUMN_ARTISTNAME + "` TEXT ,`"
-                    + TRACKS_COLUMN_ALBUMNAME + "` TEXT ,"
+                    + TRACKS_COLUMN_ALBUMNAME + "` TEXT ,`"
+                    + TRACKS_COLUMN_RESULTHINT + "` TEXT ,`"
+                    + TRACKS_COLUMN_ISFETCHEDVIAHATCHET + "` INTEGER ,"
                     + " FOREIGN KEY (`" + TRACKS_COLUMN_IDUSERPLAYLISTS + "`)"
                     + " REFERENCES `" + TABLE_USERPLAYLISTS + "` (`" + USERPLAYLISTS_COLUMN_ID
                     + "`));";

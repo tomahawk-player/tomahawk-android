@@ -495,10 +495,8 @@ public class InfoSystem {
                                             = ((Map<AlbumInfo, Tracks>) infoRequestData
                                             .getInfoResultMap().get(HATCHET_TRACKS));
                                     if (albumInfo != null && albumInfo.images != null
-                                            && albumInfo.images.size() > 0
-                                            && albumInfo.images != null
                                             && albumInfo.images.size() > 0) {
-                                        Image image = imageMap.get(albumInfo);
+                                        Image image = imageMap.get(albumInfo.images.get(0));
                                         Tracks tracks = tracksMap.get(albumInfo);
                                         Album album = (Album) mItemsToBeFilled
                                                 .get(infoRequestData.getRequestId());

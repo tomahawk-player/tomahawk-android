@@ -17,7 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -289,18 +288,18 @@ public class PlaybackFragment extends TomahawkFragment
             if (mMenu != null) {
                 handlePageSelect();
             }
-            Track currentTrack = playbackService.getCurrentQuery().getPreferredTrack();
-            if (TextUtils.isEmpty(currentTrack.getAlbum().getAlbumArtPath())
-                    && TextUtils.isEmpty(currentTrack.getArtist().getImage())) {
-                if (!currentTrack.getArtist().isResolvedByInfoSystem()) {
+            Query currentQuery = playbackService.getCurrentQuery();
+            if (TextUtils.isEmpty(currentQuery.getAlbum().getAlbumArtPath())
+                    && TextUtils.isEmpty(currentQuery.getArtist().getImage())) {
+                if (!currentQuery.getArtist().isResolvedByInfoSystem()) {
                     ArrayList<String> requestIds = mInfoSystem
-                            .resolve(currentTrack.getArtist(), true);
+                            .resolve(currentQuery.getArtist(), true);
                     for (String requestId : requestIds) {
                         mCurrentRequestIds.add(requestId);
                     }
                 }
-                if (!currentTrack.getAlbum().isResolvedByInfoSystem()) {
-                    mCurrentRequestIds.add(mInfoSystem.resolve(currentTrack.getAlbum()));
+                if (!currentQuery.getAlbum().isResolvedByInfoSystem()) {
+                    mCurrentRequestIds.add(mInfoSystem.resolve(currentQuery.getAlbum()));
                 }
             }
         }
@@ -507,7 +506,7 @@ public class PlaybackFragment extends TomahawkFragment
     protected void refreshTrackInfo() {
         PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
         if (playbackService != null) {
-            refreshTrackInfo(playbackService.getCurrentTrack());
+            refreshTrackInfo(playbackService.getCurrentQuery());
         } else {
             refreshTrackInfo(null);
         }
@@ -516,15 +515,15 @@ public class PlaybackFragment extends TomahawkFragment
     /**
      * Refresh the information in this fragment to reflect that of the given Track.
      *
-     * @param track the track to which the track info view stuff should be updated to
+     * @param query the query to which the track info view stuff should be updated to
      */
-    protected void refreshTrackInfo(Track track) {
+    protected void refreshTrackInfo(Query query) {
         if (getView() != null) {
             TextView artistTextView = (TextView) getView().findViewById(R.id.textView_artist);
             TextView albumTextView = (TextView) getView().findViewById(R.id.textView_album);
             TextView titleTextView = (TextView) getView().findViewById(R.id.textView_title);
             PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
-            if (track != null && playbackService != null) {
+            if (query != null && playbackService != null) {
                 /*
                 This logic makes sure, that if a track is being skipped by the user, it doesn't do this
                 for eternity. Because a press of the next button would cause the AlbumArtSwipeAdapter
@@ -545,22 +544,22 @@ public class PlaybackFragment extends TomahawkFragment
 
                 // Update the textViews, if available (in other words, if in landscape mode)
                 if (artistTextView != null) {
-                    if (track.getArtist() != null && track.getArtist().getName() != null) {
-                        artistTextView.setText(track.getArtist().toString());
+                    if (query.getArtist() != null && query.getArtist().getName() != null) {
+                        artistTextView.setText(query.getArtist().toString());
                     } else {
                         artistTextView.setText(R.string.playbackactivity_unknown_string);
                     }
                 }
                 if (albumTextView != null) {
-                    if (track.getAlbum() != null && track.getAlbum().getName() != null) {
-                        albumTextView.setText(track.getAlbum().toString());
+                    if (query.getAlbum() != null && query.getAlbum().getName() != null) {
+                        albumTextView.setText(query.getAlbum().toString());
                     } else {
                         albumTextView.setText(R.string.playbackactivity_unknown_string);
                     }
                 }
                 if (titleTextView != null) {
-                    if (track.getName() != null) {
-                        titleTextView.setText(track.getName());
+                    if (query.getName() != null) {
+                        titleTextView.setText(query.getName());
                     } else {
                         titleTextView.setText(R.string.playbackactivity_unknown_string);
                     }
