@@ -413,6 +413,10 @@ public class TomahawkMainActivity extends ActionBarActivity
         savePlaylistItem.setVisible(false);
         final MenuItem showPlaylistItem = menu.findItem(R.id.action_show_playlist_item);
         showPlaylistItem.setVisible(false);
+        final MenuItem goToArtistItem = menu.findItem(R.id.action_gotoartist_item);
+        goToArtistItem.setVisible(false);
+        final MenuItem goToAlbumItem = menu.findItem(R.id.action_gotoalbum_item);
+        goToAlbumItem.setVisible(false);
         // customize the searchView
         final MenuItem searchItem = menu.findItem(R.id.action_search);
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);

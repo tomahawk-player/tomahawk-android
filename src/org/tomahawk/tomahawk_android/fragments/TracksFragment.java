@@ -24,13 +24,18 @@ import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 
 import android.content.res.Configuration;
+import android.os.Bundle;
 import android.support.v4.content.Loader;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -46,6 +51,13 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
 
     private boolean mShouldShowLoadingAnimation = false;
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setHasOptionsMenu(true);
+    }
+
     /**
      * Initialize
      */
@@ -56,6 +68,32 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         if (mShouldShowLoadingAnimation) {
             mTomahawkMainActivity.startLoadingAnimation();
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if (mAlbum != null) {
+            menu.findItem(R.id.action_gotoartist_item).setVisible(true);
+        }
+
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    /**
+     * If the user clicks on a menuItem, handle what should be done here
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item != null) {
+            if (item.getItemId() == R.id.action_gotoartist_item) {
+                Bundle bundle = new Bundle();
+                String key = TomahawkUtils.getCacheKey(mAlbum.getArtist());
+                bundle.putString(TOMAHAWK_ARTIST_KEY, key);
+                mTomahawkApp.getContentViewer()
+                        .replace(AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, false, false);
+            }
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**
