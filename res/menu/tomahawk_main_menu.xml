@@ -41,4 +41,16 @@
             tomahawk:showAsAction="ifRoom"
             android:title="@string/menu_item_save_playlist"/>
 
+    <item
+            android:id="@+id/action_gotoartist_item"
+            android:icon="@drawable/ic_action_artist"
+            tomahawk:showAsAction="ifRoom"
+            android:title="@string/menu_item_go_to_artist"/>
+
+    <item
+            android:id="@+id/action_gotoalbum_item"
+            android:icon="@drawable/ic_action_album"
+            tomahawk:showAsAction="ifRoom"
+            android:title="@string/menu_item_go_to_album"/>
+
 </menu>

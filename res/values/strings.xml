@@ -106,6 +106,8 @@
     <string name="menu_item_show_album_cover">Show album cover</string>
     <string name="menu_item_show_playlist">Show playlist</string>
     <string name="menu_item_clear_playlist">Clear playlist</string>
+    <string name="menu_item_go_to_artist">Go to artist</string>
+    <string name="menu_item_go_to_album">Go to album</string>
     <string name="hub_title_home">Home</string>
     <string name="hub_title_search">Search</string>
     <string name="hub_title_collection">Collection</string>

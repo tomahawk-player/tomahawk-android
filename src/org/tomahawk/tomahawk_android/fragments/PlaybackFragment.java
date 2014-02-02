@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.AlbumArtSwipeAdapter;
 import org.tomahawk.tomahawk_android.adapters.PlaybackPagerAdapter;
@@ -185,6 +186,8 @@ public class PlaybackFragment extends TomahawkFragment
 
         mMenu.findItem(R.id.action_show_playlist_item).setVisible(true);
         mMenu.findItem(R.id.action_saveplaylist_item).setVisible(true);
+        mMenu.findItem(R.id.action_gotoartist_item).setVisible(true);
+        mMenu.findItem(R.id.action_gotoalbum_item).setVisible(true);
 
         handlePageSelect();
 
@@ -210,6 +213,24 @@ public class PlaybackFragment extends TomahawkFragment
                     mTomahawkVerticalViewPager.setCurrentItem(0, true);
                 }
                 return true;
+            } else if (item.getItemId() == R.id.action_gotoartist_item) {
+                if (playbackService.getCurrentQuery() != null) {
+                    Bundle bundle = new Bundle();
+                    String key = TomahawkUtils
+                            .getCacheKey(playbackService.getCurrentQuery().getArtist());
+                    bundle.putString(TOMAHAWK_ARTIST_KEY, key);
+                    mTomahawkApp.getContentViewer()
+                            .replace(AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, false, false);
+                }
+            } else if (item.getItemId() == R.id.action_gotoalbum_item) {
+                if (playbackService.getCurrentQuery() != null) {
+                    Bundle bundle = new Bundle();
+                    String key = TomahawkUtils
+                            .getCacheKey(playbackService.getCurrentQuery().getAlbum());
+                    bundle.putString(TOMAHAWK_ALBUM_KEY, key);
+                    mTomahawkApp.getContentViewer()
+                            .replace(TracksFragment.class, key, TOMAHAWK_ALBUM_KEY, false, false);
+                }
             }
         }
         return super.onOptionsItemSelected(item);
