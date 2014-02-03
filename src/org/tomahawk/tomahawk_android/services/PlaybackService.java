@@ -27,6 +27,7 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
+import org.tomahawk.libtomahawk.hatchet.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
@@ -70,6 +71,7 @@ import android.widget.RemoteViews;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This {@link Service} handles all playback related processes.
@@ -120,6 +122,9 @@ public class PlaybackService extends Service {
     private PipeLine mPipeLine;
 
     protected HashSet<String> mCorrespondingQueryIds = new HashSet<String>();
+
+    protected ConcurrentHashMap<String, String> mCurrentRequestIds
+            = new ConcurrentHashMap<String, String>();
 
     private Playlist mCurrentPlaylist;
 
@@ -263,6 +268,10 @@ public class PlaybackService extends Service {
             } else if (PipeLine.PIPELINE_RESULTSREPORTED.equals(intent.getAction())) {
                 String qid = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
                 onPipeLineResultsReported(qid);
+            } else if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
+                String requestId = intent
+                        .getStringExtra(InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
+                onInfoSystemResultsReported(requestId);
             }
         }
     }
@@ -333,6 +342,8 @@ public class PlaybackService extends Service {
                 new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
         registerReceiver(mPlaybackServiceBroadcastReceiver,
                 new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED));
+        registerReceiver(mPlaybackServiceBroadcastReceiver,
+                new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
 
         // Initialize killtime handler (watchdog style)
         mKillTimerHandler.removeCallbacksAndMessages(null);
@@ -681,6 +692,22 @@ public class PlaybackService extends Service {
                 updatePlayingNotification();
                 sendBroadcast(new Intent(BROADCAST_NEWTRACK));
 
+                if (query.getAlbum().getImage() == null && query.getArtist().getImage() == null) {
+                    if (!query.getArtist().isResolvedByInfoSystem()) {
+                        ArrayList<String> requestIds = mTomahawkApp.getInfoSystem().resolve(
+                                query.getArtist(), true);
+                        for (String requestId : requestIds) {
+                            mCurrentRequestIds.put(requestId, query.getQid());
+                        }
+                    }
+                    if (!query.getAlbum().isResolvedByInfoSystem()) {
+                        String requestId = mTomahawkApp.getInfoSystem().resolve(query.getAlbum());
+                        if (requestId != null) {
+                            mCurrentRequestIds.put(requestId, query.getQid());
+                        }
+                    }
+                }
+
                 if (isPlaying()
                         && !mLastPreparedPath.equals(query.getPreferredTrackResult().getPath())) {
                     query.setCurrentlyPlaying(true);
@@ -1024,6 +1051,13 @@ public class PlaybackService extends Service {
     private void onPipeLineResultsReported(String qId) {
         if (mCurrentPlaylist != null && mCurrentPlaylist.getCurrentQuery().getQid().equals(qId)) {
             setCurrentQuery(mCurrentPlaylist.getCurrentQuery());
+        }
+    }
+
+    private void onInfoSystemResultsReported(String requestId) {
+        if (getCurrentQuery().getQid().equals(mCurrentRequestIds.get(requestId))) {
+            updatePlayingNotification();
+            sendBroadcast(new Intent(BROADCAST_NEWTRACK));
         }
     }
 }

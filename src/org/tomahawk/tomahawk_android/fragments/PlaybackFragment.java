@@ -287,20 +287,6 @@ public class PlaybackFragment extends TomahawkFragment
             if (mMenu != null) {
                 handlePageSelect();
             }
-            Query currentQuery = playbackService.getCurrentQuery();
-            if (currentQuery.getAlbum().getImage() == null
-                    && currentQuery.getArtist().getImage() == null) {
-                if (!currentQuery.getArtist().isResolvedByInfoSystem()) {
-                    ArrayList<String> requestIds = mInfoSystem
-                            .resolve(currentQuery.getArtist(), true);
-                    for (String requestId : requestIds) {
-                        mCurrentRequestIds.add(requestId);
-                    }
-                }
-                if (!currentQuery.getAlbum().isResolvedByInfoSystem()) {
-                    mCurrentRequestIds.add(mInfoSystem.resolve(currentQuery.getAlbum()));
-                }
-            }
         }
         refreshTrackInfo();
     }
@@ -360,14 +346,6 @@ public class PlaybackFragment extends TomahawkFragment
     protected void onPipeLineResultsReported(String qId) {
         if (mCorrespondingQueryIds.contains(qId)) {
             onPlaylistChanged();
-        }
-    }
-
-    @Override
-    protected void onInfoSystemResultsReported(String requestId) {
-        if (mCurrentRequestIds.contains(requestId)) {
-            mTomahawkMainActivity.getPlaybackService().updatePlayingNotification();
-            mAlbumArtSwipeAdapter.notifyDataSetChanged();
         }
     }
 
