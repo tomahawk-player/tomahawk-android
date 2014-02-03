@@ -325,12 +325,17 @@ public class TomahawkUtils {
      * @param context   the context needed for fetching resources
      * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
      *                  android.graphics.Bitmap}
-     * @param album     the album to get the path to load the image from
+     * @param query     the query to get the albumart/artist image's path to load the image from
      */
-    public static void loadImageIntoImageView(Context context, ImageView imageView, Album album) {
-        Image image = album.getImage();
-        if (image == null && album.getArtist() != null) {
-            image = album.getArtist().getImage();
+    public static void loadImageIntoImageView(Context context, ImageView imageView, Query query) {
+        Image image = null;
+        if (query != null) {
+            if (query.getArtist() != null) {
+                image = query.getAlbum().getImage();
+            }
+            if (image == null && query.getArtist() != null) {
+                image = query.getArtist().getImage();
+            }
         }
         loadImageIntoImageView(context, imageView, image);
     }
