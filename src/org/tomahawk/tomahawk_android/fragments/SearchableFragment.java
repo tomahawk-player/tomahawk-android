@@ -153,10 +153,10 @@ public class SearchableFragment extends TomahawkFragment
 
     /**
      * Display all {@link org.tomahawk.libtomahawk.resolver.Result}s of the {@link
-     * org.tomahawk.libtomahawk.resolver.Query} with the given id
+     * org.tomahawk.libtomahawk.resolver.Query} with the given key
      */
-    public void showQueryResults(String qid) {
-        Query query = mPipeline.getQuery(qid);
+    public void showQueryResults(String queryKey) {
+        Query query = mPipeline.getQuery(queryKey);
         mCurrentQueryString = query.getFullTextQuery();
         mShownQueries = query.getTrackQueries();
         updateAdapter();
@@ -229,9 +229,9 @@ public class SearchableFragment extends TomahawkFragment
     }
 
     @Override
-    protected void onPipeLineResultsReported(String qId) {
-        if (mCorrespondingQueryIds.contains(qId)) {
-            showQueryResults(qId);
+    protected void onPipeLineResultsReported(String queryKey) {
+        if (mCorrespondingQueryIds.contains(queryKey)) {
+            showQueryResults(queryKey);
         }
     }
 

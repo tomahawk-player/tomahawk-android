@@ -128,6 +128,7 @@ public class UserPlaylistsDataSource {
                     query.getArtist().getName());
             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ALBUMNAME,
                     query.getAlbum().getName());
+            values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_RESULTHINT, query.updateResultHint());
             if (query.isFetchedViaHatchet()) {
                 values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ISFETCHEDVIAHATCHET, TRUE);
             } else {
@@ -202,7 +203,8 @@ public class UserPlaylistsDataSource {
                 String trackName = tracksCursor.getString(2);
                 String artistName = tracksCursor.getString(3);
                 String albumName = tracksCursor.getString(4);
-                Query query = new Query(trackName, albumName, artistName, false,
+                String resultHint = tracksCursor.getString(5);
+                Query query = Query.get(trackName, albumName, artistName, resultHint, false,
                         tracksCursor.getInt(6) == TRUE);
                 queryIdMap.put(query, tracksCursor.getLong(0));
                 queries.add(query);

@@ -178,9 +178,18 @@ public class TomahawkUtils {
             return getCacheKey(tomahawkListItem.getName());
         } else if (tomahawkListItem instanceof Album) {
             return getCacheKey(tomahawkListItem.getName(), tomahawkListItem.getArtist().getName());
-        } else if (tomahawkListItem instanceof Track || tomahawkListItem instanceof Query) {
+        } else if (tomahawkListItem instanceof Track) {
             return getCacheKey(tomahawkListItem.getName(), tomahawkListItem.getAlbum().getName(),
                     tomahawkListItem.getArtist().getName());
+        } else if (tomahawkListItem instanceof Query) {
+            Query query = ((Query) tomahawkListItem);
+            boolean isFullTextQuery = query.isFullTextQuery();
+            if (isFullTextQuery) {
+                return getCacheKey(query.getFullTextQuery());
+            } else {
+                return getCacheKey(query.getName(), query.getAlbum().getName(),
+                        query.getArtist().getName(), query.getResultHint());
+            }
         }
         return "";
     }

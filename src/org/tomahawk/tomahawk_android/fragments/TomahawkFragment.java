@@ -124,7 +124,7 @@ public class TomahawkFragment extends TomahawkListFragment
             if (Collection.COLLECTION_UPDATED.equals(intent.getAction())) {
                 onCollectionUpdated();
             } else if (PipeLine.PIPELINE_RESULTSREPORTED.equals(intent.getAction())) {
-                String qid = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
+                String qid = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QUERYKEY);
                 onPipeLineResultsReported(qid);
             } else if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
                 String requestId = intent.getStringExtra(
@@ -554,8 +554,8 @@ public class TomahawkFragment extends TomahawkListFragment
             Playlist playlist = playbackService.getCurrentPlaylist();
             if (playlist != null && playlist.getCount() == mShownQueries.size()) {
                 for (int i = 0; i < playlist.getCount(); i++) {
-                    if (!playlist.peekQueryAtPos(i).getQid()
-                            .equals(mShownQueries.get(i).getQid())) {
+                    if (!TomahawkUtils.getCacheKey(playlist.peekQueryAtPos(i))
+                            .equals(TomahawkUtils.getCacheKey(mShownQueries.get(i)))) {
                         return false;
                     }
                 }
@@ -620,7 +620,8 @@ public class TomahawkFragment extends TomahawkListFragment
         for (int i = start; i < end; i++) {
             if (i >= 0 && i < mShownQueries.size()) {
                 Query q = mShownQueries.get(i);
-                if (!q.isSolved() && !mCorrespondingQueryIds.contains(q.getQid())) {
+                if (!q.isSolved() && !mCorrespondingQueryIds
+                        .contains(TomahawkUtils.getCacheKey(q))) {
                     qs.add(q);
                 }
             }

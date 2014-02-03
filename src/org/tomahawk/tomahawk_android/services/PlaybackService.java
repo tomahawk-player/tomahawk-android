@@ -266,7 +266,7 @@ public class PlaybackService extends Service {
                     start();
                 }
             } else if (PipeLine.PIPELINE_RESULTSREPORTED.equals(intent.getAction())) {
-                String qid = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QID);
+                String qid = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QUERYKEY);
                 onPipeLineResultsReported(qid);
             } else if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
                 String requestId = intent
@@ -697,13 +697,13 @@ public class PlaybackService extends Service {
                         ArrayList<String> requestIds = mTomahawkApp.getInfoSystem().resolve(
                                 query.getArtist(), true);
                         for (String requestId : requestIds) {
-                            mCurrentRequestIds.put(requestId, query.getQid());
+                            mCurrentRequestIds.put(requestId, TomahawkUtils.getCacheKey(query));
                         }
                     }
                     if (!query.getAlbum().isResolvedByInfoSystem()) {
                         String requestId = mTomahawkApp.getInfoSystem().resolve(query.getAlbum());
                         if (requestId != null) {
-                            mCurrentRequestIds.put(requestId, query.getQid());
+                            mCurrentRequestIds.put(requestId, TomahawkUtils.getCacheKey(query));
                         }
                     }
                 }
@@ -1037,7 +1037,8 @@ public class PlaybackService extends Service {
         for (int i = start; i < end; i++) {
             if (i >= 0 && i < mCurrentPlaylist.getQueries().size()) {
                 Query q = mCurrentPlaylist.peekQueryAtPos(i);
-                if (!q.isSolved() && !mCorrespondingQueryIds.contains(q.getQid())) {
+                if (!q.isSolved() && !mCorrespondingQueryIds
+                        .contains(TomahawkUtils.getCacheKey(q))) {
                     qs.add(q);
                 }
             }
@@ -1049,13 +1050,13 @@ public class PlaybackService extends Service {
     }
 
     private void onPipeLineResultsReported(String qId) {
-        if (mCurrentPlaylist != null && getCurrentQuery().getQid().equals(qId)) {
+        if (mCurrentPlaylist != null && TomahawkUtils.getCacheKey(getCurrentQuery()).equals(qId)) {
             setCurrentQuery(mCurrentPlaylist.getCurrentQuery());
         }
     }
 
     private void onInfoSystemResultsReported(String requestId) {
-        if (mCurrentPlaylist != null && getCurrentQuery().getQid()
+        if (mCurrentPlaylist != null && TomahawkUtils.getCacheKey(getCurrentQuery())
                 .equals(mCurrentRequestIds.get(requestId))) {
             updatePlayingNotification();
             sendBroadcast(new Intent(BROADCAST_NEWTRACK));
