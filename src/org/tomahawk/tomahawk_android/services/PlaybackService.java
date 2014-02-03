@@ -1049,13 +1049,14 @@ public class PlaybackService extends Service {
     }
 
     private void onPipeLineResultsReported(String qId) {
-        if (mCurrentPlaylist != null && mCurrentPlaylist.getCurrentQuery().getQid().equals(qId)) {
+        if (mCurrentPlaylist != null && getCurrentQuery().getQid().equals(qId)) {
             setCurrentQuery(mCurrentPlaylist.getCurrentQuery());
         }
     }
 
     private void onInfoSystemResultsReported(String requestId) {
-        if (getCurrentQuery().getQid().equals(mCurrentRequestIds.get(requestId))) {
+        if (mCurrentPlaylist != null && getCurrentQuery().getQid()
+                .equals(mCurrentRequestIds.get(requestId))) {
             updatePlayingNotification();
             sendBroadcast(new Intent(BROADCAST_NEWTRACK));
         }
