@@ -21,13 +21,13 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 
 import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -40,6 +40,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Query implements TomahawkBaseAdapter.TomahawkListItem {
 
     public static final String TAG = Query.class.getName();
+
+    private static ConcurrentHashMap<String, Query> sQueries
+            = new ConcurrentHashMap<String, Query>();
 
     private static HashSet<String> sBlacklistedResults = new HashSet<String>();
 
@@ -63,7 +66,7 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
 
     private String mTopTrackResultKey = "";
 
-    private String mQid;
+    private String mResultHint = "";
 
     private String mFullTextQuery;
 
@@ -74,52 +77,117 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
     private boolean mIsFetchedViaHatchet;
 
     /**
-     * Constructs a new Query with the given QueryID. ID should be generated in TomahawkApp.
+     * Constructs a new Query. ID should be generated in TomahawkApp.
+     *
+     * @param fullTextQuery fulltext-query String to construct this Query with
+     * @param onlyLocal     whether or not this query should be resolved locally
      */
-    private Query() {
-        mQid = TomahawkApp.getSessionUniqueStringId();
-    }
-
-    /**
-     * Constructs a new Query with the given QueryID and a fullTextQuery String. ID should be
-     * generated in TomahawkApp.
-     */
-    public Query(String fullTextQuery, boolean onlyLocal) {
-        this();
-        mFullTextQuery = fullTextQuery.replace("'", "\\'");
+    private Query(String fullTextQuery, boolean onlyLocal) {
+        mFullTextQuery = fullTextQuery;
         mIsFullTextQuery = true;
         mIsOnlyLocal = onlyLocal;
     }
 
-    public Query(String trackName, String albumName,
-            String artistName, boolean onlyLocal) {
-        this();
+    /**
+     * Constructs a new Query. ID should be generated in TomahawkApp.
+     *
+     * @param trackName           track's name String
+     * @param artistName          artist's name String
+     * @param albumName           album's name String
+     * @param resultHint          resultHint's name String
+     * @param onlyLocal           whether or not this query should be resolved locally
+     * @param isFetchedViaHatchet whether or not this query has been fetched via the Hatchet API
+     */
+    private Query(String trackName, String albumName, String artistName, String resultHint,
+            boolean onlyLocal, boolean isFetchedViaHatchet) {
         Artist artist = Artist.get(artistName);
         Album album = Album.get(albumName, artist);
         mTrack = Track.get(trackName, album, artist);
-        mIsFullTextQuery = false;
-        mIsOnlyLocal = onlyLocal;
-    }
-
-    public Query(String trackName, String albumName,
-            String artistName, boolean onlyLocal, boolean isFetchedViaHatchet) {
-        this();
-        Artist artist = Artist.get(artistName);
-        Album album = Album.get(albumName, artist);
-        mTrack = Track.get(trackName, album, artist);
+        if (resultHint != null) {
+            mResultHint = resultHint;
+        }
         mIsFullTextQuery = false;
         mIsOnlyLocal = onlyLocal;
         mIsFetchedViaHatchet = isFetchedViaHatchet;
     }
 
-    private Query(Track track, boolean onlyLocal) {
-        this(track.getName(), track.getAlbum().getName(), track.getArtist().getName(), onlyLocal);
+    /**
+     * Static builder method which constructs a query or fetches it from the cache, resulting in
+     * Queries being unique by trackname/artistname/albumname/resulthint
+     */
+    public static Query get(String fullTextQuery, boolean onlyLocal) {
+        Query query = new Query(fullTextQuery, onlyLocal);
+        return ensureCache(query);
     }
 
-    public Query(Result result, boolean onlyLocal) {
-        this(result.getTrack().getName(), result.getTrack().getAlbum().getName(),
-                result.getTrack().getArtist().getName(), onlyLocal);
-        addTrackResult(result);
+    /**
+     * Static builder method which constructs a query or fetches it from the cache, resulting in
+     * Queries being unique by trackname/artistname/albumname/resulthint
+     */
+    public static Query get(String trackName, String albumName, String artistName,
+            boolean onlyLocal) {
+        Query query = new Query(trackName, albumName, artistName, null, onlyLocal, false);
+        return ensureCache(query);
+    }
+
+    /**
+     * Static builder method which constructs a query or fetches it from the cache, resulting in
+     * Queries being unique by trackname/artistname/albumname/resulthint
+     */
+    public static Query get(String trackName, String albumName, String artistName,
+            boolean onlyLocal, boolean isFetchedViaHatchet) {
+        Query query = new Query(trackName, albumName, artistName, null, onlyLocal,
+                isFetchedViaHatchet);
+        return ensureCache(query);
+    }
+
+    /**
+     * Static builder method which constructs a query or fetches it from the cache, resulting in
+     * Queries being unique by trackname/artistname/albumname/resulthint
+     */
+    public static Query get(String trackName, String albumName, String artistName,
+            String resultHint, boolean onlyLocal, boolean isFetchedViaHatchet) {
+        Query query = new Query(trackName, albumName, artistName, resultHint, onlyLocal,
+                isFetchedViaHatchet);
+        return ensureCache(query);
+    }
+
+    /**
+     * Static builder method which constructs a query or fetches it from the cache, resulting in
+     * Queries being unique by trackname/artistname/albumname/resulthint
+     */
+    public static Query get(Track track, boolean onlyLocal) {
+        Query query = new Query(track.getName(), track.getAlbum().getName(),
+                track.getArtist().getName(), null, onlyLocal, false);
+        return ensureCache(query);
+    }
+
+    /**
+     * Static builder method which constructs a query or fetches it from the cache, resulting in
+     * Queries being unique by trackname/artistname/albumname/resulthint
+     */
+    public static Query get(Result result, boolean onlyLocal) {
+        Query query = new Query(result.getTrack().getName(), result.getTrack().getAlbum().getName(),
+                result.getTrack().getArtist().getName(), null, onlyLocal, false);
+        return ensureCache(query);
+    }
+
+    /**
+     * If Query is already in our cache, return that. Otherwise add it to the cache.
+     */
+    private static Query ensureCache(Query query) {
+        String key = TomahawkUtils.getCacheKey(query);
+        if (!sQueries.containsKey(key)) {
+            sQueries.put(key, query);
+        }
+        return sQueries.get(key);
+    }
+
+    /**
+     * Get the {@link Query} by providing its cache key
+     */
+    public static Query getQueryByKey(String key) {
+        return sQueries.get(key);
     }
 
     public static HashSet<String> getBlacklistedResults() {
@@ -141,12 +209,13 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
      * Given as queries.
      */
     public ArrayList<Query> getTrackQueries() {
-        ArrayList<Query> queries = new ArrayList<Query>();
+        HashMap<String, Query> queryMap = new HashMap<String, Query>();
         for (Result result : getTrackResults()) {
-            Query query = new Query(result, isOnlyLocal());
+            Query query = Query.get(result, isOnlyLocal());
             query.addTrackResult(result);
-            queries.add(query);
+            queryMap.put(TomahawkUtils.getCacheKey(query), query);
         }
+        ArrayList<Query> queries = new ArrayList<Query>(queryMap.values());
         Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_TRACK_SCORE));
         return queries;
     }
@@ -170,11 +239,12 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
                 mSolved = true;
             }
             mTrackResults.put(key, result);
-            if (!mCurrentlyPlaying && (getPreferredTrackResult() == null ||
-                    (getPreferredTrackResult().getTrackScore() < result.getTrackScore() ||
-                            (getPreferredTrackResult().getTrackScore() == result.getTrackScore()
-                                    && getPreferredTrackResult().getResolvedBy().getWeight()
-                                    < result.getResolvedBy().getWeight())))) {
+            if (!mCurrentlyPlaying && (getPreferredTrackResult() == null
+                    || mResultHint.equals(key)
+                    || getPreferredTrackResult().getTrackScore() < result.getTrackScore()
+                    || (getPreferredTrackResult().getTrackScore() == result.getTrackScore()
+                    && getPreferredTrackResult().getResolvedBy().getWeight()
+                    < result.getResolvedBy().getWeight()))) {
                 mTopTrackResultKey = key;
             }
         }
@@ -277,6 +347,15 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
         }
     }
 
+    public String getResultHint() {
+        return mResultHint;
+    }
+
+    public String updateResultHint() {
+        mResultHint = mTopTrackResultKey;
+        return mResultHint;
+    }
+
     public String getFullTextQuery() {
         return mFullTextQuery;
     }
@@ -303,10 +382,6 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
 
     public void setCurrentlyPlaying(boolean currentlyPlaying) {
         mCurrentlyPlaying = currentlyPlaying;
-    }
-
-    public String getQid() {
-        return mQid;
     }
 
     public boolean isFetchedViaHatchet() {

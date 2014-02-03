@@ -45,8 +45,8 @@ public class PipeLine {
     public static final String PIPELINE_RESULTSREPORTED
             = "org.tomahawk.tomahawk_android.pipeline_resultsreported";
 
-    public static final String PIPELINE_RESULTSREPORTED_QID
-            = "org.tomahawk.tomahawk_android.pipeline_resultsreported_qid";
+    public static final String PIPELINE_RESULTSREPORTED_QUERYKEY
+            = "org.tomahawk.tomahawk_android.pipeline_resultsreported_querykey";
 
     private static final float MINSCORE = 0.5F;
 
@@ -54,9 +54,10 @@ public class PipeLine {
 
     private ArrayList<Resolver> mResolvers = new ArrayList<Resolver>();
 
-    private ConcurrentHashMap<String, Query> mQids = new ConcurrentHashMap<String, Query>();
+    private ConcurrentHashMap<String, Query> mQueries = new ConcurrentHashMap<String, Query>();
 
-    private ConcurrentHashMap<String, Query> mWaitingQids = new ConcurrentHashMap<String, Query>();
+    private ConcurrentHashMap<String, Query> mWaitingQueries
+            = new ConcurrentHashMap<String, Query>();
 
     private boolean mAllResolversAdded;
 
@@ -97,9 +98,9 @@ public class PipeLine {
      */
     public String resolve(String fullTextQuery, boolean forceOnlyLocal) {
         if (fullTextQuery != null && !TextUtils.isEmpty(fullTextQuery)) {
-            Query q = new Query(fullTextQuery, forceOnlyLocal);
+            Query q = Query.get(fullTextQuery, forceOnlyLocal);
             resolve(q);
-            return q.getQid();
+            return TomahawkUtils.getCacheKey(q);
         }
         return null;
     }
@@ -113,7 +114,7 @@ public class PipeLine {
      */
     public String resolve(String trackName, String albumName, String artistName) {
         if (trackName != null && !TextUtils.isEmpty(trackName)) {
-            Query q = new Query(trackName, albumName, artistName, false);
+            Query q = Query.get(trackName, albumName, artistName, false);
             return resolve(q);
         }
         return null;
@@ -131,14 +132,14 @@ public class PipeLine {
      */
     public String resolve(final Query q, boolean forceOnlyLocal) {
         if (!forceOnlyLocal && q.isSolved()) {
-            sendResultsReportBroadcast(q.getQid());
+            sendResultsReportBroadcast(TomahawkUtils.getCacheKey(q));
         } else {
             if (!isEveryResolverReady()) {
-                if (!mWaitingQids.containsKey(q.getQid())) {
-                    mWaitingQids.put(q.getQid(), q);
+                if (!mWaitingQueries.containsKey(TomahawkUtils.getCacheKey(q))) {
+                    mWaitingQueries.put(TomahawkUtils.getCacheKey(q), q);
                 }
             } else {
-                mQids.put(q.getQid(), q);
+                mQueries.put(TomahawkUtils.getCacheKey(q), q);
                 for (final Resolver resolver : mResolvers) {
                     if ((forceOnlyLocal && resolver instanceof DataBaseResolver)
                             || (!forceOnlyLocal && q.isOnlyLocal()
@@ -155,7 +156,7 @@ public class PipeLine {
                 }
             }
         }
-        return q.getQid();
+        return TomahawkUtils.getCacheKey(q);
     }
 
     /**
@@ -168,26 +169,26 @@ public class PipeLine {
 
     /**
      * Resolve the given ArrayList of {@link org.tomahawk.libtomahawk.resolver.Query}s and return a
-     * HashSet containing all query ids
+     * HashSet containing all query keys
      */
     public HashSet<String> resolve(ArrayList<Query> queries, boolean forceOnlyLocal) {
-        HashSet<String> qids = new HashSet<String>();
+        HashSet<String> queryKeys = new HashSet<String>();
         if (queries != null) {
             for (Query query : queries) {
                 if (forceOnlyLocal || !query.isSolved()) {
-                    qids.add(resolve(query, forceOnlyLocal));
+                    queryKeys.add(resolve(query, forceOnlyLocal));
                 }
             }
         }
-        return qids;
+        return queryKeys;
     }
 
     /**
-     * Send a broadcast containing the id of the resolved {@link Query}.
+     * Send a broadcast containing the key of the resolved {@link Query}.
      */
-    private void sendResultsReportBroadcast(String qid) {
+    private void sendResultsReportBroadcast(String queryKey) {
         Intent reportIntent = new Intent(PIPELINE_RESULTSREPORTED);
-        reportIntent.putExtra(PIPELINE_RESULTSREPORTED_QID, qid);
+        reportIntent.putExtra(PIPELINE_RESULTSREPORTED_QUERYKEY, queryKey);
         mTomahawkApp.sendBroadcast(reportIntent);
     }
 
@@ -196,14 +197,14 @@ public class PipeLine {
      * This method will then calculate a score and assign it to every {@link Result}. If the score
      * is higher than MINSCORE the {@link Result} is added to the output resultList.
      *
-     * @param qid     the {@link Query} id
-     * @param results the unfiltered {@link ArrayList} of {@link Result}s
+     * @param queryKey the {@link Query}'s key
+     * @param results  the unfiltered {@link ArrayList} of {@link Result}s
      */
-    public void reportResults(String qid, ArrayList<Result> results) {
+    public void reportResults(String queryKey, ArrayList<Result> results) {
         ArrayList<Result> cleanTrackResults = new ArrayList<Result>();
         ArrayList<Result> cleanAlbumResults = new ArrayList<Result>();
         ArrayList<Result> cleanArtistResults = new ArrayList<Result>();
-        Query q = getQuery(qid);
+        Query q = getQuery(queryKey);
         if (q != null && results != null) {
             for (Result r : results) {
                 if (r != null) {
@@ -229,10 +230,10 @@ public class PipeLine {
                     }
                 }
             }
-            mQids.get(qid).addArtistResults(cleanArtistResults);
-            mQids.get(qid).addAlbumResults(cleanAlbumResults);
-            mQids.get(qid).addTrackResults(cleanTrackResults);
-            sendResultsReportBroadcast(q.getQid());
+            mQueries.get(queryKey).addArtistResults(cleanArtistResults);
+            mQueries.get(queryKey).addAlbumResults(cleanAlbumResults);
+            mQueries.get(queryKey).addTrackResults(cleanTrackResults);
+            sendResultsReportBroadcast(TomahawkUtils.getCacheKey(q));
         }
     }
 
@@ -251,8 +252,8 @@ public class PipeLine {
     /**
      * Get the {@link Query} with the given id
      */
-    public Query getQuery(String qid) {
-        return mQids.get(qid);
+    public Query getQuery(String queryKey) {
+        return mQueries.get(queryKey);
     }
 
     /**
@@ -275,8 +276,8 @@ public class PipeLine {
      */
     public void onResolverReady() {
         if (isEveryResolverReady()) {
-            for (Query query : mWaitingQids.values()) {
-                mWaitingQids.remove(query.getQid());
+            for (Query query : mWaitingQueries.values()) {
+                mWaitingQueries.remove(TomahawkUtils.getCacheKey(query));
                 resolve(query);
             }
         }
@@ -287,7 +288,7 @@ public class PipeLine {
     }
 
     public void onCollectionUpdated() {
-        ArrayList<Query> queries = new ArrayList<Query>(mQids.values());
+        ArrayList<Query> queries = new ArrayList<Query>(mQueries.values());
         resolve(queries, true);
     }
 }

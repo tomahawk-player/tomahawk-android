@@ -72,7 +72,7 @@ public class InfoSystemUtils {
                     if (albumInfo != null) {
                         albumName = albumInfo.name;
                     }
-                    queries.add(new Query(trackName, albumName, artistName, false, true));
+                    queries.add(Query.get(trackName, albumName, artistName, false, true));
                 }
             }
             return UserPlaylist.fromQueryList(playlistInfo.id, playlistInfo.title,
@@ -111,9 +111,8 @@ public class InfoSystemUtils {
     public static Album fillAlbumWithTracks(Album album, List<TrackInfo> trackInfos) {
         if (trackInfos != null) {
             for (TrackInfo trackInfo : trackInfos) {
-                album.addQuery(
-                        new Query(trackInfo.name, album.getName(), album.getArtist().getName(),
-                                false, true));
+                album.addQuery(Query.get(trackInfo.name, album.getName(),
+                        album.getArtist().getName(), false, true));
             }
         }
         return album;
@@ -141,7 +140,7 @@ public class InfoSystemUtils {
             ArrayList<Query> tophits = new ArrayList<Query>();
             for (ChartItem chartItem : tracksMap.keySet()) {
                 TrackInfo trackInfos = tracksMap.get(chartItem);
-                Query query = new Query(trackInfos.name, "", artist.getName(), false, true);
+                Query query = Query.get(trackInfos.name, "", artist.getName(), false, true);
                 tophits.add(query);
             }
             artist.setTopHits(tophits);
@@ -159,7 +158,7 @@ public class InfoSystemUtils {
         }
         if (trackInfos != null && !album.hasQueriesFetchedViaHatchet()) {
             for (TrackInfo trackInfo : trackInfos) {
-                Query query = new Query(trackInfo.name, album.getName(), artistName, false, true);
+                Query query = Query.get(trackInfo.name, album.getName(), artistName, false, true);
                 queries.add(query);
                 album.addQuery(query);
             }

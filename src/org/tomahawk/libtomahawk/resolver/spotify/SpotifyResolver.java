@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.resolver.spotify;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -95,12 +96,12 @@ public class SpotifyResolver implements Resolver {
     public boolean resolve(Query query) {
         mStopped = false;
         if (mAuthenticated) {
-            ArrayList<Result> results = mResults.get(query.getQid());
+            ArrayList<Result> results = mResults.get(TomahawkUtils.getCacheKey(query));
             if (results == null) {
                 results = new ArrayList<Result>();
-                mResults.put(query.getQid(), results);
+                mResults.put(TomahawkUtils.getCacheKey(query), results);
             }
-            LibSpotifyWrapper.resolve(query.getQid(), query, this);
+            LibSpotifyWrapper.resolve(TomahawkUtils.getCacheKey(query), query, this);
         }
         return mAuthenticated;
     }

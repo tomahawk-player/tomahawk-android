@@ -23,6 +23,7 @@ import org.json.JSONObject;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -36,6 +37,7 @@ import android.webkit.WebView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class represents a javascript resolver.
@@ -61,6 +63,11 @@ public class ScriptResolver implements Resolver {
 
     private final static String BASEURL_SOUNDCLOUD = "http://developer.echonest.com";
     //TEMPORARY WORKAROUND END
+
+    // We have to map the original cache keys to an id string, because a string containing "\t\t"
+    // delimiters does come out without the delimiters, after it has been processed in the js
+    // resolver script
+    private ConcurrentHashMap<String, String> mQueryKeys = new ConcurrentHashMap<String, String>();
 
     private TomahawkApp mTomahawkApp;
 
@@ -251,7 +258,8 @@ public class ScriptResolver implements Resolver {
                     } else if (id == R.id.scriptresolver_add_track_results_string && obj != null) {
                         String qid = obj.get("qid").toString();
                         JSONArray resultList = obj.getJSONArray("results");
-                        mTomahawkApp.getPipeLine().reportResults(qid, parseResultList(resultList));
+                        mTomahawkApp.getPipeLine()
+                                .reportResults(mQueryKeys.get(qid), parseResultList(resultList));
                         mStopped = true;
                     }
                 } catch (JSONException e) {
@@ -280,12 +288,14 @@ public class ScriptResolver implements Resolver {
             UiThreadHandler = new Handler(Looper.getMainLooper()) {
                 @Override
                 public void handleMessage(Message inputMessage) {
+                    String qid = TomahawkApp.getSessionUniqueStringId();
+                    mQueryKeys.put(qid, TomahawkUtils.getCacheKey(query));
                     if (!query.isFullTextQuery()) {
                         mScriptEngine.loadUrl(
                                 "javascript:" + RESOLVER_LEGACY_CODE2 + makeJSFunctionCallbackJava(
                                         R.id.scriptresolver_resolve,
                                         "resolver.resolve( '"
-                                                + query.getQid().replace("'", "\\'")
+                                                + qid.replace("'", "\\'")
                                                 + "', '"
                                                 + query.getArtist().getName().replace("'", "\\'")
                                                 + "', '"
@@ -299,11 +309,11 @@ public class ScriptResolver implements Resolver {
                                 "javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
                                         R.id.scriptresolver_resolve,
                                         "(Tomahawk.resolver.instance !== undefined) ?resolver.search( '"
-                                                + query.getQid().replace("'", "\\'")
+                                                + qid.replace("'", "\\'")
                                                 + "', '"
                                                 + query.getFullTextQuery().replace("'", "\\'")
                                                 + "' ):resolve( '"
-                                                + query.getQid().replace("'", "\\'")
+                                                + qid.replace("'", "\\'")
                                                 + "', '', '', '"
                                                 + query.getFullTextQuery().replace("'", "\\'")
                                                 + "' )", false));
@@ -385,8 +395,8 @@ public class ScriptResolver implements Resolver {
                         result.setArtist(artist);
                         result.setAlbum(album);
                         result.setTrack(track);
-                        album.addQuery(new Query(result, false));
-                        artist.addQuery(new Query(result, false));
+                        album.addQuery(Query.get(result, false));
+                        artist.addQuery(Query.get(result, false));
                         resultList.add(result);
                     }
                 } catch (JSONException e) {

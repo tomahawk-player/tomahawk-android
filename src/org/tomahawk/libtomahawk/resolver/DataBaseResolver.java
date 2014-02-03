@@ -21,6 +21,7 @@ import org.json.JSONObject;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -123,10 +124,10 @@ public class DataBaseResolver implements Resolver {
         if (mReady) {
             mStopped = false;
             if (query.isFullTextQuery()) {
-                new TomahawkListItemFilter(query.getQid(), this, query.getFullTextQuery())
-                        .filter(null);
+                new TomahawkListItemFilter(TomahawkUtils.getCacheKey(query), this,
+                        query.getFullTextQuery()).filter(null);
             } else {
-                new TomahawkListItemFilter(query.getQid(), this, query.getName(),
+                new TomahawkListItemFilter(TomahawkUtils.getCacheKey(query), this, query.getName(),
                         query.getAlbum().getName(), query.getArtist().getName()).filter(null);
             }
         }

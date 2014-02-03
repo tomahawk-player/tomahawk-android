@@ -32,6 +32,7 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
 
@@ -323,12 +324,12 @@ public class UserCollection extends Collection {
             track.setDuration(cursor.getLong(3));
             track.setAlbumPos(cursor.getInt(4));
 
-            Query query = new Query(track.getName(), album.getName(), artist.getName(), true);
+            Query query = Query.get(track.getName(), album.getName(), artist.getName(), true);
             Result result = new Result(cursor.getString(1), track);
             result.setResolvedBy(userCollectionResolver);
             result.setTrackScore(1f);
             query.addTrackResult(result);
-            mQueries.put(query.getQid(), query);
+            mQueries.put(TomahawkUtils.getCacheKey(query), query);
 
             artist.addQuery(query);
             artist.addAlbum(album, true);
