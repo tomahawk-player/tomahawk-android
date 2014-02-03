@@ -23,6 +23,8 @@ import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 
+import android.text.TextUtils;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -81,24 +83,27 @@ public class InfoSystemUtils {
 
     public static Artist fillArtistWithArtistInfo(Artist artist, ArtistInfo artistInfo,
             Image image) {
-        if (artist.getImage() == null && image != null) {
-            artist.setImage(image.squareurl);
+        if (artist.getImage() == null && image != null && !TextUtils.isEmpty(image.squareurl)) {
+            artist.setImage(org.tomahawk.libtomahawk.collection.Image.get(image.squareurl, true,
+                    image.width, image.height));
         }
         return artist;
     }
 
     public static Artist artistInfoToArtist(ArtistInfo artistInfo, Image image) {
         Artist artist = Artist.get(artistInfo.name);
-        if (artist.getImage() == null && image != null) {
-            artist.setImage(image.squareurl);
+        if (artist.getImage() == null && image != null && !TextUtils.isEmpty(image.squareurl)) {
+            artist.setImage(org.tomahawk.libtomahawk.collection.Image.get(image.squareurl, true,
+                    image.width, image.height));
         }
         return artist;
     }
 
     public static Album fillAlbumWithAlbumInfo(Album album, AlbumInfo albumInfo,
             Image image) {
-        if (album.getAlbumArtPath() == null && image != null) {
-            album.setAlbumArtPath(image.squareurl);
+        if (album.getImage() == null && image != null && !TextUtils.isEmpty(image.squareurl)) {
+            album.setImage(org.tomahawk.libtomahawk.collection.Image.get(image.squareurl, true,
+                    image.width, image.height));
         }
         return album;
     }
@@ -148,8 +153,9 @@ public class InfoSystemUtils {
             List<TrackInfo> trackInfos, Image image) {
         Album album = Album.get(albumInfo.name, Artist.get(artistName));
         ArrayList<Query> queries = new ArrayList<Query>();
-        if (album.getAlbumArtPath() == null && image != null) {
-            album.setAlbumArtPath(image.squareurl);
+        if (album.getImage() == null && image != null && !TextUtils.isEmpty(image.squareurl)) {
+            album.setImage(org.tomahawk.libtomahawk.collection.Image.get(image.squareurl, true,
+                    image.width, image.height));
         }
         if (trackInfos != null && !album.hasQueriesFetchedViaHatchet()) {
             for (TrackInfo trackInfo : trackInfos) {

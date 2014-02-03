@@ -21,6 +21,7 @@ package org.tomahawk.tomahawk_android.services;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
@@ -134,7 +135,7 @@ public class PlaybackService extends Service {
 
     private Bitmap mNotificationBitmap = null;
 
-    private String mNotificationBitmapPath = null;
+    private Image mNotificationBitmapImage = null;
 
     private Target mTarget = new Target() {
         @Override
@@ -868,17 +869,15 @@ public class PlaybackService extends Service {
 
         String albumName = "";
         String artistName = "";
-        String imagePath = "";
+        Image image = null;
         if (query.getAlbum() != null) {
             albumName = query.getAlbum().getName();
-            if (!TextUtils.isEmpty(query.getAlbum().getAlbumArtPath())) {
-                imagePath = query.getAlbum().getAlbumArtPath();
-            }
+            image = query.getAlbum().getImage();
         }
         if (query.getArtist() != null) {
             artistName = query.getArtist().getName();
-            if (TextUtils.isEmpty(imagePath) && !TextUtils.isEmpty(query.getArtist().getImage())) {
-                imagePath = query.getArtist().getImage();
+            if (image == null) {
+                image = query.getArtist().getImage();
             }
         }
 
@@ -936,17 +935,9 @@ public class PlaybackService extends Service {
         if (mNotificationBitmap != null) {
             builder.setLargeIcon(mNotificationBitmap);
         }
-        if (mNotificationBitmap == null || !imagePath.equals(mNotificationBitmapPath)) {
-            mNotificationBitmapPath = imagePath;
-            if (!TextUtils.isEmpty(imagePath)) {
-                Picasso.with(this).load(TomahawkUtils.preparePathForPicasso(imagePath))
-                        .placeholder(R.drawable.no_album_art_placeholder).error(
-                        R.drawable.no_album_art_placeholder).into(mTarget);
-            } else {
-                Picasso.with(this).load(R.drawable.no_album_art_placeholder)
-                        .placeholder(R.drawable.no_album_art_placeholder).error(
-                        R.drawable.no_album_art_placeholder).into(mTarget);
-            }
+        if (mNotificationBitmap == null || image != mNotificationBitmapImage) {
+            mNotificationBitmapImage = image;
+            TomahawkUtils.loadImageIntoBitmap(this, image, mTarget);
         }
 
         Intent notificationIntent = new Intent(this, TomahawkMainActivity.class);

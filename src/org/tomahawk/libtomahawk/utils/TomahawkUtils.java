@@ -3,13 +3,14 @@ package org.tomahawk.libtomahawk.utils;
 import com.google.common.collect.Multimap;
 
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import org.json.JSONObject;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
@@ -17,6 +18,7 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.net.ConnectivityManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -183,8 +185,8 @@ public class TomahawkUtils {
         return "";
     }
 
-    public static String getCacheKey(String qid, Resolver resolver) {
-        return getCacheKey(qid, String.valueOf(resolver.getId()));
+    public static String getCacheKey(Image image) {
+        return getCacheKey(image.getImagePath());
     }
 
     public static String getCacheKey(Result result) {
@@ -326,11 +328,11 @@ public class TomahawkUtils {
      * @param album     the album to get the path to load the image from
      */
     public static void loadImageIntoImageView(Context context, ImageView imageView, Album album) {
-        String path = album.getAlbumArtPath();
-        if (TextUtils.isEmpty(path) && album.getArtist() != null) {
-            path = album.getArtist().getImage();
+        Image image = album.getImage();
+        if (image == null && album.getArtist() != null) {
+            image = album.getArtist().getImage();
         }
-        loadImageIntoImageView(context, imageView, path);
+        loadImageIntoImageView(context, imageView, image);
     }
 
     /**
@@ -339,35 +341,61 @@ public class TomahawkUtils {
      * @param context   the context needed for fetching resources
      * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
      *                  android.graphics.Bitmap}
-     * @param path      the path to load the image from
+     * @param image     the path to load the image from
      */
-    public static void loadImageIntoImageView(Context context, ImageView imageView, String path) {
-        if (!TextUtils.isEmpty(path)) {
-            Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(path))
+    public static void loadImageIntoImageView(Context context, ImageView imageView, Image image) {
+        if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
+            String imagePath = buildImagePath(context, image);
+            Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
                     .placeholder(R.drawable.no_album_art_placeholder)
                     .error(R.drawable.no_album_art_placeholder).into(imageView);
         } else {
-            loadImageIntoImageView(context, imageView);
+            Picasso.with(context).load(R.drawable.no_album_art_placeholder)
+                    .placeholder(R.drawable.no_album_art_placeholder)
+                    .error(R.drawable.no_album_art_placeholder).into(imageView);
         }
     }
 
     /**
      * Load a {@link android.graphics.Bitmap} asynchronously
      *
-     * @param context   the context needed for fetching resources
-     * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
-     *                  android.graphics.Bitmap}
+     * @param context the context needed for fetching resources
+     * @param image   the path to load the image from
+     * @param target  the Target which the loaded image will be pushed to
      */
-    public static void loadImageIntoImageView(Context context, ImageView imageView) {
-        Picasso.with(context).load(R.drawable.no_album_art_placeholder)
-                .placeholder(R.drawable.no_album_art_placeholder)
-                .error(R.drawable.no_album_art_placeholder).into(imageView);
+    public static void loadImageIntoBitmap(Context context, Image image, Target target) {
+        if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
+            String imagePath = buildImagePath(context, image);
+            Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
+                    .placeholder(R.drawable.no_album_art_placeholder)
+                    .error(R.drawable.no_album_art_placeholder).into(target);
+        } else {
+            Picasso.with(context).load(R.drawable.no_album_art_placeholder)
+                    .placeholder(R.drawable.no_album_art_placeholder)
+                    .error(R.drawable.no_album_art_placeholder).into(target);
+        }
     }
 
     public static String preparePathForPicasso(String path) {
-        if (TextUtils.isEmpty(path) || path.contains("https://") || path.contains("https://")) {
+        if (TextUtils.isEmpty(path) || path.contains("https://") || path.contains("http://")) {
             return path;
         }
         return "file:" + path;
+    }
+
+    private static String buildImagePath(Context context, Image image) {
+        ConnectivityManager connMgr = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (image.isHatchetImage()) {
+            int squareImageWidth = Math.min(image.getHeight(), image.getWidth());
+            if (connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI) != null
+                    && !connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected()
+                    && squareImageWidth > Image.SIZE_TO_SCALE_DOWN_TO_MOBILE) {
+                return image.getImagePath() + "?width=" + Image.SIZE_TO_SCALE_DOWN_TO_MOBILE;
+            } else if (squareImageWidth > Image.SIZE_TO_SCALE_DOWN_TO_WIFI) {
+                return image.getImagePath() + "?width=" + Image.SIZE_TO_SCALE_DOWN_TO_WIFI;
+            }
+        }
+        return image.getImagePath();
     }
 }

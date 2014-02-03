@@ -50,7 +50,7 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
 
     private ArrayList<Query> mTopHits = new ArrayList<Query>();
 
-    private String mImage;
+    private Image mImage;
 
     private boolean mResolvedByInfoSystem;
 
@@ -267,11 +267,11 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
         return mAlbumsFetchedViaHatchet.size() > 0;
     }
 
-    public String getImage() {
+    public Image getImage() {
         return mImage;
     }
 
-    public void setImage(String image) {
+    public void setImage(Image image) {
         mImage = image;
     }
 

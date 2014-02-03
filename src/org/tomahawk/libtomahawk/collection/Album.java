@@ -45,7 +45,7 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
 
     private Artist mArtist;
 
-    private String mAlbumArtPath;
+    private Image mImage;
 
     private String mFirstYear;
 
@@ -214,17 +214,17 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
     /**
      * @return the filePath/url to this {@link Album}'s albumArt
      */
-    public String getAlbumArtPath() {
-        return mAlbumArtPath;
+    public Image getImage() {
+        return mImage;
     }
 
     /**
      * Set filePath/url to albumArt of this {@link Album}
      *
-     * @param albumArt filePath/url to albumArt of this {@link Album}
+     * @param image filePath/url to albumArt of this {@link Album}
      */
-    public void setAlbumArtPath(String albumArt) {
-        mAlbumArtPath = albumArt;
+    public void setImage(Image image) {
+        mImage = image;
     }
 
     /**
