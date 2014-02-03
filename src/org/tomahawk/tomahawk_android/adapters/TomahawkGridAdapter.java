@@ -95,7 +95,7 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
                 viewHolder.textSecondLine.setText(((TomahawkListItem) item).getArtist().getName());
                 if (item instanceof Album) {
                     TomahawkUtils.loadImageIntoImageView(mActivity, viewHolder.imageViewLeft,
-                            ((Album) item).getAlbumArtPath());
+                            ((Album) item).getImage());
                 } else if (item instanceof Artist) {
                     TomahawkUtils.loadImageIntoImageView(mActivity, viewHolder.imageViewLeft,
                             ((Artist) item).getImage());

@@ -34,7 +34,6 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -289,8 +288,8 @@ public class PlaybackFragment extends TomahawkFragment
                 handlePageSelect();
             }
             Query currentQuery = playbackService.getCurrentQuery();
-            if (TextUtils.isEmpty(currentQuery.getAlbum().getAlbumArtPath())
-                    && TextUtils.isEmpty(currentQuery.getArtist().getImage())) {
+            if (currentQuery.getAlbum().getImage() == null
+                    && currentQuery.getArtist().getImage() == null) {
                 if (!currentQuery.getArtist().isResolvedByInfoSystem()) {
                     ArrayList<String> requestIds = mInfoSystem
                             .resolve(currentQuery.getArtist(), true);

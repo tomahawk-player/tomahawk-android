@@ -45,6 +45,7 @@ import android.database.Cursor;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -303,7 +304,9 @@ public class UserCollection extends Collection {
             Cursor albumcursor = resolver.query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
                     albumproj, albumsel, null, null);
             if (albumcursor != null && albumcursor.moveToNext()) {
-                album.setAlbumArtPath(albumcursor.getString(0));
+                if (!TextUtils.isEmpty(albumcursor.getString(0))) {
+                    album.setImage(Image.get(albumcursor.getString(0), false));
+                }
                 album.setFirstYear(albumcursor.getString(1));
                 album.setLastYear(albumcursor.getString(2));
             }
