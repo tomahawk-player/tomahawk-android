@@ -26,9 +26,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Image {
 
-    public static final int SIZE_TO_SCALE_DOWN_TO_MOBILE = 512;
+    public static final int IMAGE_SIZE_SMALL = 128;
 
-    public static final int SIZE_TO_SCALE_DOWN_TO_WIFI = 1024;
+    public static final int IMAGE_SIZE_LARGE = 360;
 
     private static ConcurrentHashMap<String, Image> sImages
             = new ConcurrentHashMap<String, Image>();

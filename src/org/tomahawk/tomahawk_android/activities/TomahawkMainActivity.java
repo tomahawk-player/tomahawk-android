@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.activities;
 
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionLoader;
+import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.SourceList;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.TomahawkSQLiteHelper;
@@ -602,7 +603,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                 if (nowPlayingInfoAlbumArt != null && nowPlayingInfoArtist != null
                         && nowPlayingInfoTitle != null) {
                     if (query.getAlbum() != null) {
-                        TomahawkUtils.loadImageIntoImageView(this, nowPlayingInfoAlbumArt, query);
+                        TomahawkUtils.loadImageIntoImageView(this, nowPlayingInfoAlbumArt, query,
+                                Image.IMAGE_SIZE_SMALL);
                     }
                     nowPlayingInfoArtist.setText(query.getArtist().toString());
                     nowPlayingInfoTitle.setText(query.getName());

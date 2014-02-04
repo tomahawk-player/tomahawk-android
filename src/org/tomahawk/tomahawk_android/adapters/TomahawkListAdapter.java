@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -142,10 +143,12 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
             imageView.setVisibility(ImageView.VISIBLE);
             if (mContentHeaderTomahawkListItem instanceof Album) {
                 TomahawkUtils.loadImageIntoImageView(mActivity, imageView,
-                        ((Album) mContentHeaderTomahawkListItem).getImage());
+                        ((Album) mContentHeaderTomahawkListItem).getImage(),
+                        Image.IMAGE_SIZE_LARGE);
             } else if (mContentHeaderTomahawkListItem instanceof Artist) {
                 TomahawkUtils.loadImageIntoImageView(mActivity, imageView,
-                        ((Artist) mContentHeaderTomahawkListItem).getImage());
+                        ((Artist) mContentHeaderTomahawkListItem).getImage(),
+                        Image.IMAGE_SIZE_LARGE);
             }
             ((TextView) mContentHeaderView.findViewById(R.id.content_header_textview))
                     .setText(contentHeaderTomahawkListItem.getName());
@@ -295,7 +298,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                     }
                     viewHolder.imageViewLeft.setVisibility(ImageView.VISIBLE);
                     TomahawkUtils.loadImageIntoImageView(mActivity, viewHolder.imageViewLeft,
-                            ((Album) item).getImage());
+                            ((Album) item).getImage(), Image.IMAGE_SIZE_SMALL);
                 }
             } else if (viewHolder.viewType
                     == R.id.tomahawklistadapter_viewtype_doublelineplaystateimagelistitem) {

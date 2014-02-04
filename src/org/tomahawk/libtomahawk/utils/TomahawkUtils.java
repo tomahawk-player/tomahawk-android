@@ -121,10 +121,10 @@ public class TomahawkUtils {
      * @param context Context to get resources and device specific display metrics
      * @return A float value to represent Pixels equivalent to dp according to device
      */
-    public static float convertDpToPixel(float dp, Context context) {
+    public static int convertDpToPixel(int dp, Context context) {
         Resources resources = context.getResources();
         DisplayMetrics metrics = resources.getDisplayMetrics();
-        return dp * (metrics.densityDpi / 160f);
+        return (int) (dp * (metrics.densityDpi / 160f));
     }
 
     /**
@@ -335,8 +335,10 @@ public class TomahawkUtils {
      * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
      *                  android.graphics.Bitmap}
      * @param query     the query to get the albumart/artist image's path to load the image from
+     * @param width     the width in density independent pixels to scale the image down to
      */
-    public static void loadImageIntoImageView(Context context, ImageView imageView, Query query) {
+    public static void loadImageIntoImageView(Context context, ImageView imageView, Query query,
+            int width) {
         Image image = null;
         if (query != null) {
             if (query.getArtist() != null) {
@@ -346,7 +348,7 @@ public class TomahawkUtils {
                 image = query.getArtist().getImage();
             }
         }
-        loadImageIntoImageView(context, imageView, image);
+        loadImageIntoImageView(context, imageView, image, width);
     }
 
     /**
@@ -356,10 +358,12 @@ public class TomahawkUtils {
      * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
      *                  android.graphics.Bitmap}
      * @param image     the path to load the image from
+     * @param width     the width in density independent pixels to scale the image down to
      */
-    public static void loadImageIntoImageView(Context context, ImageView imageView, Image image) {
+    public static void loadImageIntoImageView(Context context, ImageView imageView, Image image,
+            int width) {
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
-            String imagePath = buildImagePath(context, image);
+            String imagePath = buildImagePath(context, image, width);
             Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
                     .placeholder(R.drawable.no_album_art_placeholder)
                     .error(R.drawable.no_album_art_placeholder).into(imageView);
@@ -376,10 +380,11 @@ public class TomahawkUtils {
      * @param context the context needed for fetching resources
      * @param image   the path to load the image from
      * @param target  the Target which the loaded image will be pushed to
+     * @param width   the width in density independent pixels to scale the image down to
      */
-    public static void loadImageIntoBitmap(Context context, Image image, Target target) {
+    public static void loadImageIntoBitmap(Context context, Image image, Target target, int width) {
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
-            String imagePath = buildImagePath(context, image);
+            String imagePath = buildImagePath(context, image, width);
             Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
                     .placeholder(R.drawable.no_album_art_placeholder)
                     .error(R.drawable.no_album_art_placeholder).into(target);
@@ -397,17 +402,19 @@ public class TomahawkUtils {
         return "file:" + path;
     }
 
-    private static String buildImagePath(Context context, Image image) {
+    private static String buildImagePath(Context context, Image image, int width) {
         ConnectivityManager connMgr = (ConnectivityManager) context
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         if (image.isHatchetImage()) {
             int squareImageWidth = Math.min(image.getHeight(), image.getWidth());
+            width = convertDpToPixel(width, context);
             if (connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI) != null
-                    && !connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected()
-                    && squareImageWidth > Image.SIZE_TO_SCALE_DOWN_TO_MOBILE) {
-                return image.getImagePath() + "?width=" + Image.SIZE_TO_SCALE_DOWN_TO_MOBILE;
-            } else if (squareImageWidth > Image.SIZE_TO_SCALE_DOWN_TO_WIFI) {
-                return image.getImagePath() + "?width=" + Image.SIZE_TO_SCALE_DOWN_TO_WIFI;
+                    && connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected()) {
+                if (squareImageWidth > width) {
+                    return image.getImagePath() + "?width=" + width;
+                }
+            } else if (squareImageWidth > width / 2) {
+                return image.getImagePath() + "?width=" + width / 2;
             }
         }
         return image.getImagePath();
