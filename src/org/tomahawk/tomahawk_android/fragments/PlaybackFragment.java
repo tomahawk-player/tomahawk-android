@@ -343,9 +343,12 @@ public class PlaybackFragment extends TomahawkFragment
     }
 
     @Override
-    protected void onPipeLineResultsReported(String qId) {
-        if (mCorrespondingQueryIds.contains(qId)) {
-            onPlaylistChanged();
+    protected void onPipeLineResultsReported(ArrayList<String> queryKeys) {
+        for (String key : queryKeys) {
+            if (mCorrespondingQueryIds.contains(key)) {
+                onPlaylistChanged();
+                break;
+            }
         }
     }
 
