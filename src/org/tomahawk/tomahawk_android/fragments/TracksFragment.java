@@ -259,9 +259,12 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
     }
 
     @Override
-    protected void onPipeLineResultsReported(String qId) {
-        if (mCorrespondingQueryIds.contains(qId)) {
-            updateAdapter();
+    protected void onPipeLineResultsReported(ArrayList<String> queryKeys) {
+        for (String key : queryKeys) {
+            if (mCorrespondingQueryIds.contains(key)) {
+                updateAdapter();
+                break;
+            }
         }
     }
 

@@ -47,6 +47,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
@@ -88,6 +90,10 @@ public class TomahawkFragment extends TomahawkListFragment
     public static final String TOMAHAWK_LIST_ITEM_IS_LOCAL
             = "org.tomahawk.tomahawk_list_item_is_local";
 
+    private static final int PIPELINE_RESULT_REPORTER_MSG = 1337;
+
+    private static final long PIPELINE_RESULT_REPORTER_DELAY = 500;
+
     private TomahawkBaseFragmentReceiver mTomahawkBaseFragmentReceiver;
 
     protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
@@ -114,6 +120,22 @@ public class TomahawkFragment extends TomahawkListFragment
 
     protected boolean mIsLocal = false;
 
+    private ArrayList<String> mQueryKeysToReport = new ArrayList<String>();
+
+    // Handler which reports the PipeLine's results
+    private final Handler mPipeLineResultReporter = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            removeMessages(msg.what);
+            ArrayList<String> queryKeys;
+            synchronized (TomahawkFragment.this) {
+                queryKeys = new ArrayList<String>(mQueryKeysToReport);
+                mQueryKeysToReport.clear();
+            }
+            onPipeLineResultsReported(queryKeys);
+        }
+    };
+
     /**
      * Handles incoming {@link Collection} updated broadcasts.
      */
@@ -124,8 +146,14 @@ public class TomahawkFragment extends TomahawkListFragment
             if (Collection.COLLECTION_UPDATED.equals(intent.getAction())) {
                 onCollectionUpdated();
             } else if (PipeLine.PIPELINE_RESULTSREPORTED.equals(intent.getAction())) {
-                String qid = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QUERYKEY);
-                onPipeLineResultsReported(qid);
+                String queryKey = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QUERYKEY);
+                synchronized (TomahawkFragment.this) {
+                    mQueryKeysToReport.add(queryKey);
+                }
+                if (!mPipeLineResultReporter.hasMessages(PIPELINE_RESULT_REPORTER_MSG)) {
+                    mPipeLineResultReporter.sendEmptyMessageDelayed(PIPELINE_RESULT_REPORTER_MSG,
+                            PIPELINE_RESULT_REPORTER_DELAY);
+                }
             } else if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
                 String requestId = intent.getStringExtra(
                         InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
@@ -239,6 +267,8 @@ public class TomahawkFragment extends TomahawkListFragment
     @Override
     public void onPause() {
         super.onPause();
+
+        mPipeLineResultReporter.removeCallbacksAndMessages(null);
 
         if (mTomahawkBaseFragmentReceiver != null) {
             mTomahawkMainActivity.unregisterReceiver(mTomahawkBaseFragmentReceiver);
@@ -518,7 +548,7 @@ public class TomahawkFragment extends TomahawkListFragment
     protected void onPlaybackServiceReady() {
     }
 
-    protected void onPipeLineResultsReported(String qId) {
+    protected void onPipeLineResultsReported(ArrayList<String> queryKeys) {
     }
 
     protected void onInfoSystemResultsReported(String requestId) {

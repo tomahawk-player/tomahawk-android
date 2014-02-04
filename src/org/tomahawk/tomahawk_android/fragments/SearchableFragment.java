@@ -159,7 +159,6 @@ public class SearchableFragment extends TomahawkFragment
         Query query = mPipeline.getQuery(queryKey);
         mCurrentQueryString = query.getFullTextQuery();
         mShownQueries = query.getTrackQueries();
-        updateAdapter();
     }
 
     public void showInfoResults(String requestId) {
@@ -229,10 +228,13 @@ public class SearchableFragment extends TomahawkFragment
     }
 
     @Override
-    protected void onPipeLineResultsReported(String queryKey) {
-        if (mCorrespondingQueryIds.contains(queryKey)) {
-            showQueryResults(queryKey);
+    protected void onPipeLineResultsReported(ArrayList<String> queryKeys) {
+        for (String key : queryKeys) {
+            if (mCorrespondingQueryIds.contains(key)) {
+                showQueryResults(key);
+            }
         }
+        updateAdapter();
     }
 
     @Override
