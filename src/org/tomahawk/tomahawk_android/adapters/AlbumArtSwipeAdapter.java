@@ -17,6 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
+import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
@@ -279,7 +280,8 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         TextView titleTextView = (TextView) view.findViewById(R.id.textView_title);
         if (query != null) {
             ImageView imageView = (ImageView) view.findViewById(R.id.album_art_image);
-            TomahawkUtils.loadImageIntoImageView(mActivity, imageView, query);
+            TomahawkUtils
+                    .loadImageIntoImageView(mActivity, imageView, query, Image.IMAGE_SIZE_LARGE);
 
             // Update all relevant TextViews
             if (artistTextView != null) {
