@@ -23,8 +23,8 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import java.util.ArrayList;
 
 /**
- * A {@link UserPlaylist} is a {@link
- * org.tomahawk.libtomahawk.collection.Playlist} created by the user and stored in the database
+ * A {@link UserPlaylist} is a {@link org.tomahawk.libtomahawk.collection.Playlist} created by the
+ * user and stored in the database
  */
 public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.TomahawkListItem {
 
@@ -33,6 +33,8 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
     private String mCurrentRevision;
 
     private boolean mIsHatchetPlaylist;
+
+    private ArrayList<Artist> mContentHeaderArtists = new ArrayList<Artist>();
 
     /**
      * Construct a new empty {@link UserPlaylist}.
@@ -46,8 +48,7 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
     }
 
     /**
-     * Create a {@link UserPlaylist} from a list of
-     * {@link org.tomahawk.libtomahawk.resolver.Query}s.
+     * Create a {@link UserPlaylist} from a list of {@link org.tomahawk.libtomahawk.resolver.Query}s.
      *
      * @return a reference to the constructed {@link UserPlaylist}
      */
@@ -64,8 +65,7 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
     }
 
     /**
-     * Create a {@link UserPlaylist} from a list of
-     * {@link org.tomahawk.libtomahawk.resolver.Query}s.
+     * Create a {@link UserPlaylist} from a list of {@link org.tomahawk.libtomahawk.resolver.Query}s.
      *
      * @return a reference to the constructed {@link UserPlaylist}
      */
@@ -75,8 +75,7 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
     }
 
     /**
-     * Create a {@link UserPlaylist} from a list of
-     * {@link org.tomahawk.libtomahawk.resolver.Query}s.
+     * Create a {@link UserPlaylist} from a list of {@link org.tomahawk.libtomahawk.resolver.Query}s.
      *
      * @return a reference to the constructed {@link UserPlaylist}
      */
@@ -86,8 +85,7 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
     }
 
     /**
-     * Create a {@link UserPlaylist} from a list of
-     * {@link org.tomahawk.libtomahawk.resolver.Query}s.
+     * Create a {@link UserPlaylist} from a list of {@link org.tomahawk.libtomahawk.resolver.Query}s.
      *
      * @return a reference to the constructed {@link UserPlaylist}
      */
@@ -107,6 +105,14 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
         return mIsHatchetPlaylist;
     }
 
+    public ArrayList<Artist> getContentHeaderArtists() {
+        return mContentHeaderArtists;
+    }
+
+    public void addContentHeaderArtists(Artist artist) {
+        mContentHeaderArtists.add(artist);
+    }
+
     /**
      * @return this object' name
      */
@@ -116,8 +122,7 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
     }
 
     /**
-     * @return always null. This method needed to comply to the
-     * {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
+     * @return always null. This method needed to comply to the {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
      * interface.
      */
     @Override

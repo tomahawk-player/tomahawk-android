@@ -30,11 +30,54 @@
             android:layout_height="match_parent"
             android:visibility="gone">
 
-        <ImageView
-                android:id="@+id/content_header_image"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@drawable/no_album_art_placeholder"/>
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="match_parent"
+                      android:orientation="vertical">
+
+            <LinearLayout android:layout_width="match_parent"
+                          android:layout_height="match_parent"
+                          android:layout_weight="1">
+
+                <ImageView
+                        android:id="@+id/content_header_image"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:src="@drawable/no_album_art_placeholder"/>
+                <ImageView
+                        android:id="@+id/content_header_image2"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:visibility="gone"
+                        android:src="@drawable/no_album_art_placeholder"/>
+
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/content_header_image_frame2"
+                          android:layout_width="match_parent"
+                          android:layout_height="match_parent"
+                          android:layout_weight="1"
+                          android:visibility="gone">
+
+                <ImageView
+                        android:id="@+id/content_header_image3"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:visibility="gone"
+                        android:src="@drawable/no_album_art_placeholder"/>
+                <ImageView
+                        android:id="@+id/content_header_image4"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:visibility="gone"
+                        android:src="@drawable/no_album_art_placeholder"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
 
     </org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout>
 

@@ -35,6 +35,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
@@ -149,6 +150,35 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                 TomahawkUtils.loadImageIntoImageView(mActivity, imageView,
                         ((Artist) mContentHeaderTomahawkListItem).getImage(),
                         Image.IMAGE_SIZE_LARGE);
+            } else if (mContentHeaderTomahawkListItem instanceof UserPlaylist) {
+                ArrayList<Artist> artists = ((UserPlaylist) mContentHeaderTomahawkListItem)
+                        .getContentHeaderArtists();
+                ArrayList<Artist> artistsWithImage = new ArrayList<Artist>();
+                for (Artist artist : artists) {
+                    if (artist.getImage() != null) {
+                        artistsWithImage.add(artist);
+                    }
+                }
+                if (artistsWithImage.size() > 0) {
+                    TomahawkUtils.loadImageIntoImageView(mActivity, imageView,
+                            artistsWithImage.get(0).getImage(), Image.IMAGE_SIZE_LARGE);
+                }
+                if (artistsWithImage.size() > 3) {
+                    mActivity.findViewById(R.id.content_header_image_frame2)
+                            .setVisibility(View.VISIBLE);
+                    imageView = (ImageView) mActivity.findViewById(R.id.content_header_image2);
+                    imageView.setVisibility(ImageView.VISIBLE);
+                    TomahawkUtils.loadImageIntoImageView(mActivity, imageView,
+                            artistsWithImage.get(1).getImage(), Image.IMAGE_SIZE_LARGE);
+                    imageView = (ImageView) mActivity.findViewById(R.id.content_header_image3);
+                    imageView.setVisibility(ImageView.VISIBLE);
+                    TomahawkUtils.loadImageIntoImageView(mActivity, imageView,
+                            artistsWithImage.get(2).getImage(), Image.IMAGE_SIZE_LARGE);
+                    imageView = (ImageView) mActivity.findViewById(R.id.content_header_image4);
+                    imageView.setVisibility(ImageView.VISIBLE);
+                    TomahawkUtils.loadImageIntoImageView(mActivity, imageView,
+                            artistsWithImage.get(3).getImage(), Image.IMAGE_SIZE_LARGE);
+                }
             }
             ((TextView) mContentHeaderView.findViewById(R.id.content_header_textview))
                     .setText(contentHeaderTomahawkListItem.getName());
