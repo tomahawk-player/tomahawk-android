@@ -225,6 +225,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
+                ((TomahawkListAdapter) getListAdapter()).updateContentHeader(mUserPlaylist);
             }
         } else {
             mTomahawkMainActivity.setTitle(getString(R.string.tracksfragment_title_string));

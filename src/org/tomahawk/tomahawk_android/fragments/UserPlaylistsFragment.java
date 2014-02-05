@@ -18,8 +18,8 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Collection;
-import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -56,22 +56,12 @@ public class UserPlaylistsFragment extends TomahawkFragment implements OnItemCli
         if (position >= 0) {
             if (getListAdapter().getItem(position) instanceof UserPlaylist) {
                 Bundle bundle = new Bundle();
-                bundle.putString(TOMAHAWK_USER_PLAYLIST_KEY, String.valueOf(
-                        ((UserPlaylist) getListAdapter().getItem(position))
-                                .getId()));
-                if (mTomahawkApp != null) {
-                    mTomahawkApp.getContentViewer().replace(TracksFragment.class, String.valueOf(
-                            ((UserPlaylist) getListAdapter().getItem(position)).getId()),
-                            TOMAHAWK_USER_PLAYLIST_KEY, true, false);
-                }
-            } else if (getListAdapter().getItem(position) instanceof UserPlaylist) {
-                Bundle bundle = new Bundle();
-                bundle.putString(TOMAHAWK_HATCHET_USER_PLAYLIST_KEY,
+                bundle.putString(TOMAHAWK_USER_PLAYLIST_KEY,
                         ((UserPlaylist) getListAdapter().getItem(position)).getId());
                 if (mTomahawkApp != null) {
                     mTomahawkApp.getContentViewer().replace(TracksFragment.class,
                             ((UserPlaylist) getListAdapter().getItem(position)).getId(),
-                            TOMAHAWK_HATCHET_USER_PLAYLIST_KEY, true, false);
+                            TOMAHAWK_USER_PLAYLIST_KEY, true, false);
                 }
             } else {
                 new CreateUserPlaylistDialog().show(getFragmentManager(),
