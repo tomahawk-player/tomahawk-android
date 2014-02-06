@@ -335,7 +335,7 @@ public class TomahawkFragment extends TomahawkListFragment
                         R.array.fake_context_menu_items_without_addplaylist);
             }
         } else if (tomahawkListItem instanceof Query && (this instanceof PlaybackFragment
-                || mUserPlaylist != null)) {
+                || (mUserPlaylist != null && !mUserPlaylist.isHatchetPlaylist()))) {
             menuItemTitles = getResources().getStringArray(R.array.fake_context_menu_items);
         } else {
             menuItemTitles = getResources().getStringArray(
@@ -371,6 +371,8 @@ public class TomahawkFragment extends TomahawkListFragment
                 ((TomahawkApp) tomahawkMainActivity.getApplication()).getUserPlaylistsDataSource()
                         .deleteQueryInUserPlaylist(mUserPlaylist.getId(), (Query) tomahawkListItem);
                 userCollection.updateUserPlaylists();
+                mUserPlaylist = userCollection.getUserPlaylistById(mUserPlaylist.getId());
+                updateAdapter();
             } else if (playbackService != null && this instanceof PlaybackFragment
                     && tomahawkListItem instanceof Query) {
                 if (TomahawkUtils.getCacheKey(playbackService.getCurrentTrack())
@@ -566,6 +568,12 @@ public class TomahawkFragment extends TomahawkListFragment
                 }
             }
         }
+    }
+
+    /**
+     * Update this {@link TomahawkFragment}'s {@link TomahawkBaseAdapter} content
+     */
+    protected void updateAdapter() {
     }
 
     /**
