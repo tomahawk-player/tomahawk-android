@@ -104,7 +104,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
     /**
      * Update this {@link TomahawkFragment}'s {@link TomahawkBaseAdapter} content
      */
-    private void updateAdapter() {
+    protected void updateAdapter() {
         List<TomahawkBaseAdapter.TomahawkListItem> albums
                 = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
         List<TomahawkBaseAdapter.TomahawkListItem> topHits

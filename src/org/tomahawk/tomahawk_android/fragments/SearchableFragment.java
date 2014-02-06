@@ -173,7 +173,7 @@ public class SearchableFragment extends TomahawkFragment
         }
     }
 
-    private void updateAdapter() {
+    protected void updateAdapter() {
         List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
                 = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
         if (mShownArtists != null) {
