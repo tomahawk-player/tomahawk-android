@@ -53,6 +53,8 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
 
     private ViewPager mViewPager;
 
+    private View.OnLongClickListener mOnLongClickListener;
+
     private PlaybackService mPlaybackService;
 
     private Playlist mPlaylist;
@@ -66,9 +68,11 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      *                  org.tomahawk.libtomahawk.collection.Album}
      * @param viewPager ViewPager which this adapter has been connected with
      */
-    public AlbumArtSwipeAdapter(ActionBarActivity activity, ViewPager viewPager) {
+    public AlbumArtSwipeAdapter(ActionBarActivity activity, ViewPager viewPager,
+            View.OnLongClickListener onLongClickListener) {
         mActivity = activity;
         mViewPager = viewPager;
+        mOnLongClickListener = onLongClickListener;
         mByUser = true;
         mSwiped = false;
     }
@@ -92,7 +96,10 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         } else {
             refreshTrackInfo(view, null);
         }
-        container.addView(view);
+        if (view != null) {
+            view.setOnLongClickListener(mOnLongClickListener);
+            container.addView(view);
+        }
         return view;
     }
 
