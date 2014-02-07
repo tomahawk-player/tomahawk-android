@@ -150,7 +150,7 @@ public class PlaybackFragment extends TomahawkFragment
         ViewPager viewPager = (ViewPager) mTomahawkMainActivity.getLayoutInflater()
                 .inflate(R.layout.album_art_view_pager, null, false);
         mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter((ActionBarActivity) getActivity(),
-                viewPager);
+                viewPager, this);
         mAlbumArtSwipeAdapter.setPlaybackService(playbackService);
         viewPager.setAdapter(mAlbumArtSwipeAdapter);
         viewPager.setOnPageChangeListener(mAlbumArtSwipeAdapter);
