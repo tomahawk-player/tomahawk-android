@@ -96,7 +96,7 @@ public class TomahawkFragment extends TomahawkListFragment
 
     private static final long PIPELINE_RESULT_REPORTER_DELAY = 500;
 
-    private TomahawkBaseFragmentReceiver mTomahawkBaseFragmentReceiver;
+    private TomahawkFragmentReceiver mTomahawkFragmentReceiver;
 
     protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
 
@@ -139,9 +139,9 @@ public class TomahawkFragment extends TomahawkListFragment
     };
 
     /**
-     * Handles incoming {@link Collection} updated broadcasts.
+     * Handles incoming broadcasts.
      */
-    private class TomahawkBaseFragmentReceiver extends BroadcastReceiver {
+    private class TomahawkFragmentReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -261,22 +261,22 @@ public class TomahawkFragment extends TomahawkListFragment
         mTomahawkMainActivity.getSupportLoaderManager().initLoader(getId(), null, this);
 
         // Initialize and register Receiver
-        if (mTomahawkBaseFragmentReceiver == null) {
-            mTomahawkBaseFragmentReceiver = new TomahawkBaseFragmentReceiver();
+        if (mTomahawkFragmentReceiver == null) {
+            mTomahawkFragmentReceiver = new TomahawkFragmentReceiver();
             IntentFilter intentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
-            mTomahawkMainActivity.registerReceiver(mTomahawkBaseFragmentReceiver, intentFilter);
+            mTomahawkMainActivity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED);
-            mTomahawkMainActivity.registerReceiver(mTomahawkBaseFragmentReceiver, intentFilter);
+            mTomahawkMainActivity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
-            mTomahawkMainActivity.registerReceiver(mTomahawkBaseFragmentReceiver, intentFilter);
+            mTomahawkMainActivity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(PlaybackService.BROADCAST_NEWTRACK);
-            mTomahawkMainActivity.registerReceiver(mTomahawkBaseFragmentReceiver, intentFilter);
+            mTomahawkMainActivity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYLISTCHANGED);
-            mTomahawkMainActivity.registerReceiver(mTomahawkBaseFragmentReceiver, intentFilter);
+            mTomahawkMainActivity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYSTATECHANGED);
-            mTomahawkMainActivity.registerReceiver(mTomahawkBaseFragmentReceiver, intentFilter);
+            mTomahawkMainActivity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(TomahawkMainActivity.PLAYBACKSERVICE_READY);
-            mTomahawkMainActivity.registerReceiver(mTomahawkBaseFragmentReceiver, intentFilter);
+            mTomahawkMainActivity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
         }
         StickyListHeadersListView list = getListView();
         if (list != null) {
@@ -302,9 +302,9 @@ public class TomahawkFragment extends TomahawkListFragment
 
         mPipeLineResultReporter.removeCallbacksAndMessages(null);
 
-        if (mTomahawkBaseFragmentReceiver != null) {
-            mTomahawkMainActivity.unregisterReceiver(mTomahawkBaseFragmentReceiver);
-            mTomahawkBaseFragmentReceiver = null;
+        if (mTomahawkFragmentReceiver != null) {
+            mTomahawkMainActivity.unregisterReceiver(mTomahawkFragmentReceiver);
+            mTomahawkFragmentReceiver = null;
         }
     }
 

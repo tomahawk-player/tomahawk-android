@@ -261,15 +261,6 @@ public class ContentViewer {
     }
 
     /**
-     * Set the complete backstack
-     *
-     * @param backStack the new complete backstack
-     */
-    public void setBackStack(ArrayList<FragmentStateHolder> backStack) {
-        mBackstack = backStack;
-    }
-
-    /**
      * Set the currently shown hub, by providing its id
      *
      * @param hubToShow the id of the hub which should be shown

@@ -81,9 +81,6 @@ public class TomahawkMainActivity extends ActionBarActivity
         TomahawkService.TomahawkServiceConnection.TomahawkServiceConnectionListener,
         LoaderManager.LoaderCallbacks<Collection> {
 
-    public static final String COLLECTION_ID_STOREDBACKSTACK
-            = "org.tomahawk.tomahawk_android.collection_id_storedbackstack";
-
     public static final String TOMAHAWKSERVICE_READY
             = "org.tomahawk.tomahawk_android.tomahawkservice_ready";
 
