@@ -34,7 +34,6 @@ import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.tomahawk_android.utils.ContentViewer;
 import org.tomahawk.tomahawk_android.utils.TomahawkExceptionReporter;
 
-import android.accounts.AccountManager;
 import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -78,8 +77,6 @@ public class TomahawkApp extends Application {
     private CollectionUpdateReceiver mCollectionUpdatedReceiver;
 
     private static Context sApplicationContext;
-
-    private AccountManager mAccountManager = null;
 
     private SourceList mSourceList;
 
@@ -189,13 +186,6 @@ public class TomahawkApp extends Application {
         Log.d(TAG, "Initializing Local Collection.");
         Source src = new Source(new UserCollection(this), 0, "My Collection");
         mSourceList.setLocalSource(src);
-    }
-
-    /**
-     * Returns the Tomahawk AccountManager;
-     */
-    public AccountManager getAccountManager() {
-        return mAccountManager;
     }
 
     /**

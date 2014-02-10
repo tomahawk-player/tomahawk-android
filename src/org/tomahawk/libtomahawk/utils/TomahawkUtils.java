@@ -5,7 +5,6 @@ import com.google.common.collect.Multimap;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
-import org.json.JSONObject;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
@@ -16,7 +15,6 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.text.TextUtils;
@@ -152,19 +150,6 @@ public class TomahawkUtils {
         return date;
     }
 
-    /**
-     * Return the {@link android.content.Intent} defined by the given parameters
-     *
-     * @param context the context with which the intent will be created
-     * @param cls     the class which contains the activity to launch
-     * @return the created intent
-     */
-    public static Intent getIntent(Context context, Class<?> cls) {
-        Intent intent = new Intent(context, cls);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        return intent;
-    }
-
     private static String getCacheKey(String... strings) {
         String result = "";
         for (String s : strings) {
@@ -200,11 +185,6 @@ public class TomahawkUtils {
 
     public static String getCacheKey(Result result) {
         return getCacheKey(result.getPath());
-    }
-
-    public static String httpsPost(String urlString, JSONObject jsonToPost)
-            throws NoSuchAlgorithmException, KeyManagementException, IOException {
-        return httpsPost(urlString, jsonToPost.toString(), true);
     }
 
     public static String httpsPost(String urlString, Multimap<String, String> params)
