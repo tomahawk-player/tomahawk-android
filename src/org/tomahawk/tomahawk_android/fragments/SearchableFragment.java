@@ -20,7 +20,7 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
-import org.tomahawk.libtomahawk.hatchet.InfoSystem;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -166,9 +166,9 @@ public class SearchableFragment extends TomahawkFragment
                 .getConvertedResultMap();
         if (convertedResultMap != null) {
             mShownArtists = (ArrayList<Artist>) convertedResultMap
-                    .get(InfoSystem.HATCHET_ARTISTS);
+                    .get(HatchetInfoPlugin.HATCHET_ARTISTS);
             mShownAlbums = (ArrayList<Album>) convertedResultMap
-                    .get(InfoSystem.HATCHET_ALBUMS);
+                    .get(HatchetInfoPlugin.HATCHET_ALBUMS);
             updateAdapter();
         }
     }
@@ -218,7 +218,7 @@ public class SearchableFragment extends TomahawkFragment
         mCorrespondingQueryIds.clear();
         if (onlineSourcesCheckBox.isChecked()) {
             mCurrentRequestIds.clear();
-            String requestId = mInfoSystem.search(fullTextQuery);
+            String requestId = mInfoSystem.resolve(fullTextQuery);
             mCurrentRequestIds.add(requestId);
         }
         if (queryId != null) {
