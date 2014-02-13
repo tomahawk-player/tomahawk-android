@@ -25,7 +25,8 @@ import org.tomahawk.libtomahawk.collection.Source;
 import org.tomahawk.libtomahawk.collection.SourceList;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
-import org.tomahawk.libtomahawk.hatchet.InfoSystem;
+import org.tomahawk.libtomahawk.infosystem.InfoSystem;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
@@ -128,7 +129,6 @@ public class TomahawkApp extends Application {
 
         mSourceList = new SourceList();
         mPipeLine = new PipeLine(this);
-        mInfoSystem = new InfoSystem(this);
         if (mCollectionUpdatedReceiver == null) {
             mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
             registerReceiver(mCollectionUpdatedReceiver, sCollectionUpdateIntentFilter);
@@ -149,6 +149,8 @@ public class TomahawkApp extends Application {
         SpotifyResolver spotifyResolver = new SpotifyResolver(RESOLVER_ID_SPOTIFY, this);
         mPipeLine.addResolver(spotifyResolver);
         mPipeLine.setAllResolversAdded(true);
+        mInfoSystem = new InfoSystem(this);
+        mInfoSystem.addInfoPlugin(new HatchetInfoPlugin(this));
 
         // Initialize UserPlaylistsDataSource, which makes it possible to retrieve persisted
         // UserPlaylists

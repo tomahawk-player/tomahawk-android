@@ -23,11 +23,12 @@ import com.google.common.collect.Multimap;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
-import org.tomahawk.libtomahawk.hatchet.InfoRequestData;
-import org.tomahawk.libtomahawk.hatchet.InfoSystem;
-import org.tomahawk.libtomahawk.hatchet.InfoSystemUtils;
-import org.tomahawk.libtomahawk.hatchet.PlaylistEntries;
-import org.tomahawk.libtomahawk.hatchet.PlaylistInfo;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
+import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
+import org.tomahawk.libtomahawk.infosystem.InfoSystem;
+import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
+import org.tomahawk.libtomahawk.infosystem.hatchet.PlaylistEntries;
+import org.tomahawk.libtomahawk.infosystem.hatchet.PlaylistInfo;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.resolver.Resolver;
@@ -131,7 +132,7 @@ public class UserCollection extends Collection {
                                 Map<PlaylistInfo, PlaylistEntries> playlistInfoMap = mTomahawkApp
                                         .getInfoSystem().getInfoRequestById(requestId)
                                         .getInfoResultMap()
-                                        .get(InfoSystem.HATCHET_PLAYLISTS_ENTRIES);
+                                        .get(HatchetInfoPlugin.HATCHET_PLAYLISTS_ENTRIES);
                                 List<PlaylistInfo> playlistInfos = new ArrayList<PlaylistInfo>(
                                         playlistInfoMap.keySet());
                                 for (PlaylistInfo playlistInfo : playlistInfos) {
@@ -365,7 +366,7 @@ public class UserCollection extends Collection {
                 .getUserId(mTomahawkApp, TomahawkService.AUTHENTICATOR_NAME_HATCHET);
         if (userId != null) {
             Multimap<String, String> params = HashMultimap.create(1, 1);
-            params.put(InfoSystem.HATCHET_PARAM_NAME, userId);
+            params.put(InfoSystem.PARAM_NAME, userId);
             mCorrespondingRequestIds.add(mTomahawkApp.getInfoSystem()
                     .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS_ALL, params));
         }
