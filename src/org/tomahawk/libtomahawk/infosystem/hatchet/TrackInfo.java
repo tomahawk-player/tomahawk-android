@@ -32,6 +32,8 @@ public class TrackInfo {
 
     public int listeners;
 
+    public int loveCount;
+
     public String name;
 
     public List<String> names;

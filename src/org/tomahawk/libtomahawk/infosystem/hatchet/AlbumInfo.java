@@ -34,6 +34,8 @@ public class AlbumInfo {
 
     public Map<String, String> links;
 
+    public int loveCount;
+
     public String name;
 
     public List<String> names;
