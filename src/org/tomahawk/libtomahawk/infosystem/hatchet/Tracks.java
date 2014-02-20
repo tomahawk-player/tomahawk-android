@@ -17,8 +17,11 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Tracks {
 
     public List<TrackInfo> tracks;
