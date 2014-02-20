@@ -22,6 +22,7 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 
 import org.apache.http.client.ClientProtocolException;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
@@ -56,6 +57,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Implementation to enable the InfoSystem to retrieve data from the Hatchet API. Documentation of
  * the API can be found here https://api.hatchet.is/apidocs/
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class HatchetInfoPlugin extends InfoPlugin {
 
     private final static String TAG = HatchetInfoPlugin.class.getName();

@@ -17,6 +17,9 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MemberInfo {
 
     public String id;
