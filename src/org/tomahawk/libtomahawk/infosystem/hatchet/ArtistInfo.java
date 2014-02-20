@@ -32,6 +32,8 @@ public class ArtistInfo {
 
     public int listeners;
 
+    public int loveCount;
+
     public List<MemberInfo> members;
 
     public String name;
