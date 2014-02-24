@@ -30,6 +30,7 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -105,10 +106,10 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
      * Update this {@link TomahawkFragment}'s {@link TomahawkBaseAdapter} content
      */
     protected void updateAdapter() {
-        List<TomahawkBaseAdapter.TomahawkListItem> albums
-                = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
-        List<TomahawkBaseAdapter.TomahawkListItem> topHits
-                = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+        List<TomahawkListItem> albums
+                = new ArrayList<TomahawkListItem>();
+        List<TomahawkListItem> topHits
+                = new ArrayList<TomahawkListItem>();
         if (!isShowGridView() && mArtist != null) {
             mTomahawkMainActivity.setTitle(mArtist.getName());
             if (mIsLocal) {
@@ -118,8 +119,8 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                 topHits.addAll(mArtist.getTopHits());
                 mShownQueries = mArtist.getTopHits();
             }
-            List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
-                    = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+            List<List<TomahawkListItem>> listArray
+                    = new ArrayList<List<TomahawkListItem>>();
             listArray.add(topHits);
             listArray.add(albums);
             if (getListAdapter() == null) {
@@ -143,8 +144,8 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
             } else {
                 albums.addAll(Album.getAlbums());
             }
-            List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
-                    = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+            List<List<TomahawkListItem>> listArray
+                    = new ArrayList<List<TomahawkListItem>>();
             listArray.add(albums);
             if (getGridAdapter() == null) {
                 TomahawkGridAdapter tomahawkGridAdapter = new TomahawkGridAdapter(getActivity(),

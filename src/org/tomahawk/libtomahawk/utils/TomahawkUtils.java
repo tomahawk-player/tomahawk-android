@@ -12,7 +12,7 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -158,7 +158,7 @@ public class TomahawkUtils {
         return result;
     }
 
-    public static String getCacheKey(TomahawkBaseAdapter.TomahawkListItem tomahawkListItem) {
+    public static String getCacheKey(TomahawkListItem tomahawkListItem) {
         if (tomahawkListItem instanceof Artist) {
             return getCacheKey(tomahawkListItem.getName());
         } else if (tomahawkListItem instanceof Album) {

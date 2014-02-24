@@ -21,7 +21,7 @@ import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Class which represents a Tomahawk {@link Album}.
  */
-public class Album implements TomahawkBaseAdapter.TomahawkListItem {
+public class Album implements TomahawkListItem {
 
     private static ConcurrentHashMap<String, Album> sAlbums
             = new ConcurrentHashMap<String, Album>();
@@ -175,36 +175,32 @@ public class Album implements TomahawkBaseAdapter.TomahawkListItem {
      *
      * @return list of all {@link org.tomahawk.libtomahawk.resolver.Query}s from this {@link Album}.
      */
-    public ArrayList<Query> getQueries() {
-        if (mQueriesFetchedViaHatchet.size() > 0) {
-            return mQueriesFetchedViaHatchet;
-        } else {
-            synchronized (this) {
-                Collections.sort(mQueries, new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
-            }
-            return mQueries;
-        }
-    }
-
-    /**
-     * Get a list of all local {@link org.tomahawk.libtomahawk.resolver.Query}s from this {@link
-     * Album}.
-     *
-     * @return list of all local {@link org.tomahawk.libtomahawk.resolver.Query}s from this {@link
-     * Album}.
-     */
-    public ArrayList<Query> getLocalQueries() {
+    @Override
+    public ArrayList<Query> getQueries(boolean onlyLocal) {
         ArrayList<Query> queries = new ArrayList<Query>();
-        synchronized (this) {
-            for (Query query : mQueries) {
-                if (query.getPreferredTrackResult() != null && query.getPreferredTrackResult()
-                        .isLocal()) {
-                    queries.add(query);
+        if (onlyLocal) {
+            synchronized (this) {
+                for (Query query : mQueries) {
+                    if (query.getPreferredTrackResult() != null && query.getPreferredTrackResult()
+                            .isLocal()) {
+                        queries.add(query);
+                    }
                 }
             }
+        } else if (mQueriesFetchedViaHatchet.size() > 0) {
+            queries = mQueriesFetchedViaHatchet;
+        } else {
+            queries = mQueries;
         }
-        Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
+        synchronized (this) {
+            Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
+        }
         return queries;
+    }
+
+    @Override
+    public ArrayList<Query> getQueries() {
+        return getQueries(false);
     }
 
     public void setQueriesFetchedViaHatchet(ArrayList<Query> queriesFetchedViaHatchet) {

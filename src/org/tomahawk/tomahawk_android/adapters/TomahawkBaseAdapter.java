@@ -17,8 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
-import org.tomahawk.libtomahawk.collection.Album;
-import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.app.Activity;
 import android.widget.BaseAdapter;
@@ -51,28 +50,6 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
     protected List<List<TomahawkListItem>> mListArray;
 
     protected List<List<TomahawkListItem>> mFilteredListArray;
-
-    /**
-     * This interface represents an item displayed in our {@link org.tomahawk.libtomahawk.collection.Collection}
-     * list.
-     */
-    public interface TomahawkListItem {
-
-        /**
-         * @return the corresponding name/title
-         */
-        public String getName();
-
-        /**
-         * @return the corresponding {@link org.tomahawk.libtomahawk.collection.Artist}
-         */
-        public Artist getArtist();
-
-        /**
-         * @return the corresponding {@link org.tomahawk.libtomahawk.collection.Album}
-         */
-        public Album getAlbum();
-    }
 
     /**
      * This {@link ResourceHolder} holds the resources to an entry in the grid/listView

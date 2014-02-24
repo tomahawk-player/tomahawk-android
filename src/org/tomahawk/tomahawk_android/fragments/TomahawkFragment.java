@@ -40,6 +40,7 @@ import org.tomahawk.tomahawk_android.dialogs.FakeContextMenuDialog;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.ContentViewer;
 import org.tomahawk.tomahawk_android.utils.FakeContextMenu;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -70,8 +71,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 /**
  * The base class for {@link AlbumsFragment}, {@link TracksFragment}, {@link ArtistsFragment},
  * {@link UserPlaylistsFragment} and {@link SearchableFragment}. Provides all sorts of functionality
- * to those classes, related to displaying {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}s
- * in whichever needed way.
+ * to those classes, related to displaying {@link TomahawkListItem}s in whichever needed way.
  */
 public class TomahawkFragment extends TomahawkListFragment
         implements LoaderManager.LoaderCallbacks<Collection>, FakeContextMenu,
@@ -322,7 +322,7 @@ public class TomahawkFragment extends TomahawkListFragment
             menuItemTitles[0] = getResources().getString(R.string.fake_context_menu_addtoplaylist);
             menuItemTitles[1] = getResources().getString(R.string.menu_item_go_to_artist);
             menuItemTitles[2] = getResources().getString(R.string.menu_item_go_to_album);
-            TomahawkBaseAdapter.TomahawkListItem tomahawkListItem = mTomahawkMainActivity
+            TomahawkListItem tomahawkListItem = mTomahawkMainActivity
                     .getPlaybackService().getCurrentQuery();
             new FakeContextMenuDialog(menuItemTitles, tomahawkListItem, this)
                     .show(mTomahawkMainActivity.getSupportFragmentManager(), null);
@@ -345,11 +345,11 @@ public class TomahawkFragment extends TomahawkListFragment
         menuItemTitles.add(getResources().getString(R.string.menu_item_go_to_artist));
         menuItemTitles.add(getResources().getString(R.string.menu_item_go_to_album));
         menuItemTitles.add(getResources().getString(R.string.fake_context_menu_delete));
-        TomahawkBaseAdapter.TomahawkListItem tomahawkListItem;
+        TomahawkListItem tomahawkListItem;
         position -= getListView().getHeaderViewsCount();
         Adapter adapter = isShowGridView() ? getGridAdapter() : getListAdapter();
         if (position >= 0) {
-            tomahawkListItem = ((TomahawkBaseAdapter.TomahawkListItem) adapter.getItem(position));
+            tomahawkListItem = ((TomahawkListItem) adapter.getItem(position));
         } else {
             if (isShowGridView()) {
                 return false;
@@ -392,7 +392,7 @@ public class TomahawkFragment extends TomahawkListFragment
      */
     @Override
     public void onFakeContextItemSelected(TomahawkMainActivity tomahawkMainActivity,
-            String menuItemTitle, TomahawkBaseAdapter.TomahawkListItem tomahawkListItem) {
+            String menuItemTitle, TomahawkListItem tomahawkListItem) {
         UserCollection userCollection = tomahawkMainActivity.getUserCollection();
         ArrayList<Query> queries = new ArrayList<Query>();
         PlaybackService playbackService = tomahawkMainActivity.getPlaybackService();
@@ -440,9 +440,8 @@ public class TomahawkFragment extends TomahawkListFragment
                 }
                 playbackService.deleteQuery((Query) tomahawkListItem);
             }
-        } else if (menuItemTitle
-                .equals(tomahawkMainActivity.getResources()
-                        .getString(R.string.fake_context_menu_play))) {
+        } else if (menuItemTitle.equals(
+                tomahawkMainActivity.getResources().getString(R.string.fake_context_menu_play))) {
             if (this instanceof PlaybackFragment) {
                 if (playbackService != null && tomahawkListItem instanceof Query
                         && playbackService.getCurrentPlaylist().getCurrentQuery() != null) {
@@ -460,20 +459,12 @@ public class TomahawkFragment extends TomahawkListFragment
                     }
                 }
             } else {
-                UserPlaylist playlist = null;
+                UserPlaylist playlist;
                 if (tomahawkListItem instanceof Query) {
                     if (mAlbum != null) {
-                        if (mIsLocal) {
-                            queries = mAlbum.getLocalQueries();
-                        } else {
-                            queries = mAlbum.getQueries();
-                        }
+                        queries = mAlbum.getQueries(mIsLocal);
                     } else if (mArtist != null) {
-                        if (mIsLocal) {
-                            queries = mArtist.getLocalQueries();
-                        } else {
-                            queries = mArtist.getQueries();
-                        }
+                        queries = mArtist.getQueries(mIsLocal);
                     } else if (mUserPlaylist != null) {
                         queries = mUserPlaylist.getQueries();
                     } else {
@@ -485,16 +476,11 @@ public class TomahawkFragment extends TomahawkListFragment
                                     (Query) tomahawkListItem);
                 } else if (tomahawkListItem instanceof UserPlaylist) {
                     playlist = (UserPlaylist) tomahawkListItem;
-                } else if (tomahawkListItem instanceof Album) {
+                } else {
                     playlist = UserPlaylist
                             .fromQueryList(UserPlaylistsDataSource.CACHED_PLAYLIST_ID,
                                     UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
-                                    ((Album) tomahawkListItem).getQueries());
-                } else if (tomahawkListItem instanceof Artist) {
-                    playlist = UserPlaylist
-                            .fromQueryList(UserPlaylistsDataSource.CACHED_PLAYLIST_ID,
-                                    UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
-                                    ((Artist) tomahawkListItem).getQueries());
+                                    tomahawkListItem.getQueries());
                 }
                 if (playbackService != null) {
                     playbackService.setCurrentPlaylist(playlist);
@@ -504,23 +490,7 @@ public class TomahawkFragment extends TomahawkListFragment
             }
         } else if (menuItemTitle.equals(tomahawkMainActivity.getResources()
                 .getString(R.string.fake_context_menu_playaftercurrenttrack))) {
-            if (tomahawkListItem instanceof Query) {
-                queries.add((Query) tomahawkListItem);
-            } else if (tomahawkListItem instanceof UserPlaylist) {
-                queries = ((UserPlaylist) tomahawkListItem).getQueries();
-            } else if (tomahawkListItem instanceof Album) {
-                if (mIsLocal) {
-                    queries = ((Album) tomahawkListItem).getLocalQueries();
-                } else {
-                    queries = ((Album) tomahawkListItem).getQueries();
-                }
-            } else if (tomahawkListItem instanceof Artist) {
-                if (mIsLocal) {
-                    queries = ((Artist) tomahawkListItem).getLocalQueries();
-                } else {
-                    queries = ((Artist) tomahawkListItem).getQueries();
-                }
-            }
+            queries = tomahawkListItem.getQueries(mIsLocal);
             if (playbackService != null) {
                 if (playbackService.getCurrentPlaylist() != null) {
                     playbackService.addTracksToCurrentPlaylist(
@@ -532,46 +502,14 @@ public class TomahawkFragment extends TomahawkListFragment
             }
         } else if (menuItemTitle.equals(tomahawkMainActivity.getResources()
                 .getString(R.string.fake_context_menu_appendtoplaybacklist))) {
-            if (tomahawkListItem instanceof Query) {
-                queries.add((Query) tomahawkListItem);
-            } else if (tomahawkListItem instanceof UserPlaylist) {
-                queries = ((UserPlaylist) tomahawkListItem).getQueries();
-            } else if (tomahawkListItem instanceof Album) {
-                if (mIsLocal) {
-                    queries = ((Album) tomahawkListItem).getLocalQueries();
-                } else {
-                    queries = ((Album) tomahawkListItem).getQueries();
-                }
-            } else if (tomahawkListItem instanceof Artist) {
-                if (mIsLocal) {
-                    queries = ((Artist) tomahawkListItem).getLocalQueries();
-                } else {
-                    queries = ((Artist) tomahawkListItem).getQueries();
-                }
-            }
+            queries = tomahawkListItem.getQueries(mIsLocal);
             if (playbackService != null) {
                 playbackService.addQueriesToCurrentPlaylist(queries);
             }
         } else if (menuItemTitle
                 .equals(tomahawkMainActivity.getResources()
                         .getString(R.string.fake_context_menu_addtoplaylist))) {
-            if (tomahawkListItem instanceof Query) {
-                queries.add((Query) tomahawkListItem);
-            } else if (tomahawkListItem instanceof UserPlaylist) {
-                queries = ((UserPlaylist) tomahawkListItem).getQueries();
-            } else if (tomahawkListItem instanceof Album) {
-                if (mIsLocal) {
-                    queries = ((Album) tomahawkListItem).getLocalQueries();
-                } else {
-                    queries = ((Album) tomahawkListItem).getQueries();
-                }
-            } else if (tomahawkListItem instanceof Artist) {
-                if (mIsLocal) {
-                    queries = ((Artist) tomahawkListItem).getLocalQueries();
-                } else {
-                    queries = ((Artist) tomahawkListItem).getQueries();
-                }
-            }
+            queries = tomahawkListItem.getQueries(mIsLocal);
             new ChooseUserPlaylistDialog(userCollection, queries)
                     .show(tomahawkMainActivity.getSupportFragmentManager(),
                             "ChooseUserPlaylistDialog");

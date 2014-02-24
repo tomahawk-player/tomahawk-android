@@ -23,7 +23,7 @@ import com.google.common.collect.Multimap;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.Intent;
 
@@ -166,7 +166,7 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolve(int type, Multimap<String, String> params,
-            TomahawkBaseAdapter.TomahawkListItem itemToBeFilled) {
+            TomahawkListItem itemToBeFilled) {
         String requestId = TomahawkApp.getSessionUniqueStringId();
         InfoRequestData infoRequestData = new InfoRequestData(requestId, type, params);
         resolve(infoRequestData, itemToBeFilled);
@@ -195,7 +195,7 @@ public class InfoSystem {
      *                        results from its source
      */
     public void resolve(InfoRequestData infoRequestData,
-            TomahawkBaseAdapter.TomahawkListItem itemToBeFilled) {
+            TomahawkListItem itemToBeFilled) {
         mRequests.put(infoRequestData.getRequestId(), infoRequestData);
         mResolvingRequests.put(infoRequestData.getRequestId(), infoRequestData);
         for (InfoPlugin infoPlugin : mInfoPlugins) {

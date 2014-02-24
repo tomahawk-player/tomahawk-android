@@ -21,9 +21,9 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.CreateUserPlaylistDialog;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.os.Bundle;
 import android.support.v4.content.Loader;
@@ -80,14 +80,14 @@ public class UserPlaylistsFragment extends TomahawkFragment implements OnItemCli
 
         mTomahawkMainActivity.setTitle(getString(R.string.userplaylistsfragment_title_string));
 
-        List<TomahawkBaseAdapter.TomahawkListItem> userPlaylists
-                = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+        List<TomahawkListItem> userPlaylists
+                = new ArrayList<TomahawkListItem>();
         userPlaylists.addAll(coll.getLocalUserPlaylists());
-        List<TomahawkBaseAdapter.TomahawkListItem> hatchetUserPlaylists
-                = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+        List<TomahawkListItem> hatchetUserPlaylists
+                = new ArrayList<TomahawkListItem>();
         hatchetUserPlaylists.addAll(((UserCollection) coll).getHatchetUserPlaylists());
-        List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
-                = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+        List<List<TomahawkListItem>> listArray
+                = new ArrayList<List<TomahawkListItem>>();
         listArray.add(userPlaylists);
         listArray.add(hatchetUserPlaylists);
         TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(getActivity(), listArray);
