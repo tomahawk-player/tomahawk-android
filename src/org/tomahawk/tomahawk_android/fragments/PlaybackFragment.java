@@ -22,11 +22,11 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.AlbumArtSwipeAdapter;
 import org.tomahawk.tomahawk_android.adapters.PlaybackPagerAdapter;
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.CreateUserPlaylistDialog;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FakeContextMenu;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 import org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager;
 
@@ -312,8 +312,8 @@ public class PlaybackFragment extends TomahawkFragment
         if (tomahawkListAdapter != null) {
             if (playbackService != null && playbackService.getCurrentPlaylist() != null
                     && playbackService.getCurrentPlaylist().getCount() > 0) {
-                ArrayList<TomahawkBaseAdapter.TomahawkListItem> tracks
-                        = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+                ArrayList<TomahawkListItem> tracks
+                        = new ArrayList<TomahawkListItem>();
                 tracks.addAll(playbackService.getCurrentPlaylist().getQueries());
                 tomahawkListAdapter.setListWithIndex(0, tracks);
                 tomahawkListAdapter.notifyDataSetChanged();
@@ -360,11 +360,11 @@ public class PlaybackFragment extends TomahawkFragment
     private void initAdapter() {
         PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
         if (playbackService != null && playbackService.getCurrentPlaylist() != null) {
-            List<TomahawkBaseAdapter.TomahawkListItem> tracks
-                    = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+            List<TomahawkListItem> tracks
+                    = new ArrayList<TomahawkListItem>();
             tracks.addAll(playbackService.getCurrentPlaylist().getQueries());
-            List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
-                    = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+            List<List<TomahawkListItem>> listArray
+                    = new ArrayList<List<TomahawkListItem>>();
             listArray.add(tracks);
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity,
                     listArray);

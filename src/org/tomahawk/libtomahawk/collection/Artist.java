@@ -21,7 +21,7 @@ import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * This class represents an {@link Artist}.
  */
-public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
+public class Artist implements TomahawkListItem {
 
     private static ConcurrentHashMap<String, Artist> sArtists
             = new ConcurrentHashMap<String, Artist>();
@@ -134,8 +134,7 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
 
     /**
      * This method returns the first {@link Album} of this object. If none exists, returns null.
-     * It's needed to comply to the {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
-     * interface.
+     * It's needed to comply to the {@link TomahawkListItem} interface.
      *
      * @return First {@link Album} of this object. If none exists, returns null.
      */
@@ -169,20 +168,21 @@ public class Artist implements TomahawkBaseAdapter.TomahawkListItem {
     /**
      * @return list of all {@link org.tomahawk.libtomahawk.resolver.Query}s from this object.
      */
-    public ArrayList<Query> getQueries() {
-        ArrayList<Query> queries = new ArrayList<Query>(mQueries.values());
+    @Override
+    public ArrayList<Query> getQueries(boolean onlyLocal) {
+        ArrayList<Query> queries;
+        if (onlyLocal) {
+            queries = new ArrayList<Query>(mLocalQueries.values());
+        } else {
+            queries = new ArrayList<Query>(mQueries.values());
+        }
         Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALPHA));
         return queries;
     }
 
-    /**
-     * Get a list of all local {@link org.tomahawk.libtomahawk.resolver.Query}s from this {@link
-     * org.tomahawk.libtomahawk.collection.Artist}.
-     */
-    public ArrayList<Query> getLocalQueries() {
-        ArrayList<Query> queries = new ArrayList<Query>(mLocalQueries.values());
-        Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALPHA));
-        return queries;
+    @Override
+    public ArrayList<Query> getQueries() {
+        return getQueries(false);
     }
 
     public ArrayList<Query> getTopHits() {

@@ -17,15 +17,15 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import java.util.Comparator;
 
 /**
- * This class is used to compare two {@link TomahawkBaseAdapter.TomahawkListItem}s.
+ * This class is used to compare two {@link TomahawkListItem}s.
  */
 public class TomahawkListItemComparator
-        implements Comparator<TomahawkBaseAdapter.TomahawkListItem> {
+        implements Comparator<TomahawkListItem> {
 
     //Modes which determine with which method are compared
     public static final int COMPARE_ALPHA = 1;
@@ -36,8 +36,8 @@ public class TomahawkListItemComparator
     /**
      * Construct this {@link TomahawkListItemComparator}
      *
-     * @param flag The mode which determines with which method {@link TomahawkBaseAdapter.TomahawkListItem}s
-     *             are compared
+     * @param flag The mode which determines with which method {@link TomahawkListItem}s are
+     *             compared
      */
     public TomahawkListItemComparator(int flag) {
         super();
@@ -47,12 +47,12 @@ public class TomahawkListItemComparator
     /**
      * The actual comparison method
      *
-     * @param a1 First {@link TomahawkBaseAdapter.TomahawkListItem} object
-     * @param a2 Second {@link TomahawkBaseAdapter.TomahawkListItem} Object
+     * @param a1 First {@link TomahawkListItem} object
+     * @param a2 Second {@link TomahawkListItem} Object
      * @return int containing comparison score
      */
-    public int compare(TomahawkBaseAdapter.TomahawkListItem a1,
-            TomahawkBaseAdapter.TomahawkListItem a2) {
+    public int compare(TomahawkListItem a1,
+            TomahawkListItem a2) {
         switch (mFlag) {
             case COMPARE_ALPHA:
                 return a1.getName().compareTo(a2.getName());

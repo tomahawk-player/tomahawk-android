@@ -18,7 +18,7 @@
 package org.tomahawk.libtomahawk.collection;
 
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import java.util.ArrayList;
 
@@ -26,7 +26,7 @@ import java.util.ArrayList;
  * A {@link UserPlaylist} is a {@link org.tomahawk.libtomahawk.collection.Playlist} created by the
  * user and stored in the database
  */
-public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.TomahawkListItem {
+public class UserPlaylist extends Playlist implements TomahawkListItem {
 
     private String mId;
 
@@ -122,8 +122,7 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
     }
 
     /**
-     * @return always null. This method needed to comply to the {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
-     * interface.
+     * @return always null. This method needed to comply to the {@link TomahawkListItem} interface.
      */
     @Override
     public Artist getArtist() {
@@ -131,11 +130,15 @@ public class UserPlaylist extends Playlist implements TomahawkBaseAdapter.Tomaha
     }
 
     /**
-     * @return always null. This method needed to comply to the {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
-     * interface.
+     * @return always null. This method needed to comply to the {@link TomahawkListItem} interface.
      */
     @Override
     public Album getAlbum() {
         return null;
+    }
+
+    @Override
+    public ArrayList<Query> getQueries(boolean onlyLocal) {
+        return getQueries();
     }
 }

@@ -33,8 +33,8 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -110,8 +110,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
     private static String mUserId = null;
 
-    private ConcurrentHashMap<String, TomahawkBaseAdapter.TomahawkListItem> mItemsToBeFilled
-            = new ConcurrentHashMap<String, TomahawkBaseAdapter.TomahawkListItem>();
+    private ConcurrentHashMap<String, TomahawkListItem> mItemsToBeFilled
+            = new ConcurrentHashMap<String, TomahawkListItem>();
 
     public HatchetInfoPlugin(TomahawkApp tomahawkApp) {
         mTomahawkApp = tomahawkApp;
@@ -133,7 +133,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
      */
     @Override
     public void resolve(InfoRequestData infoRequestData,
-            TomahawkBaseAdapter.TomahawkListItem itemToBeFilled) {
+            TomahawkListItem itemToBeFilled) {
         mItemsToBeFilled.put(infoRequestData.getRequestId(), itemToBeFilled);
         new JSONResponseTask().execute(infoRequestData);
 

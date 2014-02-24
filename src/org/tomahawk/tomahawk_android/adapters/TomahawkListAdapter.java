@@ -26,6 +26,7 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
@@ -62,7 +63,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
 
     private View mContentHeaderView;
 
-    private TomahawkBaseAdapter.TomahawkListItem mContentHeaderTomahawkListItem;
+    private TomahawkListItem mContentHeaderTomahawkListItem;
 
     private boolean mShowPlaystate = false;
 
@@ -119,7 +120,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
      */
     public void setShowContentHeader(boolean showContentHeader, boolean landscapeMode,
             StickyListHeadersListView list,
-            TomahawkBaseAdapter.TomahawkListItem contentHeaderTomahawkListItem) {
+            TomahawkListItem contentHeaderTomahawkListItem) {
         mContentHeaderTomahawkListItem = contentHeaderTomahawkListItem;
         mShowContentHeader = showContentHeader;
         View contentHeaderView = mLayoutInflater.inflate(R.layout.content_header, null);
@@ -133,7 +134,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
     }
 
     public void updateContentHeader(
-            TomahawkBaseAdapter.TomahawkListItem contentHeaderTomahawkListItem) {
+            TomahawkListItem contentHeaderTomahawkListItem) {
         if (mContentHeaderView != null) {
             SquareHeightRelativeLayout frame = (SquareHeightRelativeLayout)
                     mActivity.findViewById(R.id.content_header_image_frame);
@@ -231,7 +232,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = null;
-        Object item = getItem(position);
+        TomahawkListItem item = (TomahawkListItem) getItem(position);
 
         if (item != null) {
             ViewHolder viewHolder;
@@ -301,16 +302,12 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
             // After we've setup the correct view and viewHolder, we now can fill the View's
             // components with the correct data
             if (viewHolder.viewType == R.id.tomahawklistadapter_viewtype_singlelinelistitem) {
-                if (item instanceof Artist) {
-                    viewHolder.textFirstLine.setText(((Artist) item).getName());
-                } else if (item instanceof UserPlaylist) {
-                    viewHolder.textFirstLine.setText(((UserPlaylist) item).getName());
-                }
+                viewHolder.textFirstLine.setText(item.getName());
             } else if (viewHolder.viewType
                     == R.id.tomahawklistadapter_viewtype_doublelinelistitem) {
                 if (item instanceof Query) {
-                    viewHolder.textFirstLine.setText(((Query) item).getName());
-                    viewHolder.textSecondLine.setText(((Query) item).getArtist().getName());
+                    viewHolder.textFirstLine.setText(item.getName());
+                    viewHolder.textSecondLine.setText(item.getArtist().getName());
                     if (((Query) item).getPreferredTrack().getDuration() > 0) {
                         viewHolder.textThirdLine.setText(TomahawkUtils.durationToString(
                                 ((Query) item).getPreferredTrack().getDuration()));
@@ -322,9 +319,9 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
             } else if (viewHolder.viewType
                     == R.id.tomahawklistadapter_viewtype_doublelineimagelistitem) {
                 if (item instanceof Album) {
-                    viewHolder.textFirstLine.setText(((Album) item).getName());
-                    if (((Album) item).getArtist() != null) {
-                        viewHolder.textSecondLine.setText(((Album) item).getArtist().getName());
+                    viewHolder.textFirstLine.setText(item.getName());
+                    if (item.getArtist() != null) {
+                        viewHolder.textSecondLine.setText(item.getArtist().getName());
                     }
                     viewHolder.imageViewLeft.setVisibility(ImageView.VISIBLE);
                     TomahawkUtils.loadImageIntoImageView(mActivity, viewHolder.imageViewLeft,
@@ -348,8 +345,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                         viewHolder.textThirdLine.setTextColor(
                                 mActivity.getResources().getColor(R.color.secondary_textcolor));
                     }
-                    viewHolder.textFirstLine.setText(((Query) item).getName());
-                    viewHolder.textSecondLine.setText(((Query) item).getArtist().getName());
+                    viewHolder.textFirstLine.setText(item.getName());
+                    viewHolder.textSecondLine.setText(item.getArtist().getName());
                     if (((Query) item).getPreferredTrack().getDuration() > 0) {
                         viewHolder.textThirdLine.setText(TomahawkUtils.durationToString(
                                 ((Query) item).getPreferredTrack().getDuration()));

@@ -21,8 +21,8 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.os.Bundle;
 import android.support.v4.content.Loader;
@@ -73,15 +73,13 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
         super.onLoadFinished(loader, coll);
 
         mTomahawkMainActivity.setTitle(getString(R.string.artistsfragment_title_string));
-        List<TomahawkBaseAdapter.TomahawkListItem> artists
-                = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+        List<TomahawkListItem> artists = new ArrayList<TomahawkListItem>();
         if (mIsLocal) {
             artists.addAll(Artist.getLocalArtists());
         } else {
             artists.addAll(Artist.getArtists());
         }
-        List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
-                = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+        List<List<TomahawkListItem>> listArray = new ArrayList<List<TomahawkListItem>>();
         listArray.add(artists);
         setListAdapter(new TomahawkListAdapter(getActivity(), listArray));
 

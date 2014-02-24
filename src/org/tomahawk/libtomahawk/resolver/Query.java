@@ -21,7 +21,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.text.TextUtils;
 
@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * This class represents a query which is passed to a resolver. It contains all the information
  * needed to enable the Resolver to resolve the results.
  */
-public class Query implements TomahawkBaseAdapter.TomahawkListItem {
+public class Query implements TomahawkListItem {
 
     public static final String TAG = Query.class.getName();
 
@@ -517,5 +517,19 @@ public class Query implements TomahawkBaseAdapter.TomahawkListItem {
             return mTrack.getAlbum();
         }
         return getPreferredTrack().getAlbum();
+    }
+
+    @Override
+    public ArrayList<Query> getQueries(boolean onlyLocal) {
+        ArrayList<Query> queries = new ArrayList<Query>();
+        if (!onlyLocal || mIsOnlyLocal) {
+            queries.add(this);
+        }
+        return queries;
+    }
+
+    @Override
+    public ArrayList<Query> getQueries() {
+        return getQueries(false);
     }
 }

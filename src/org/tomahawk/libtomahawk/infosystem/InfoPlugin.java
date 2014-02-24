@@ -17,13 +17,12 @@
  */
 package org.tomahawk.libtomahawk.infosystem;
 
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 public abstract class InfoPlugin {
 
     public abstract void resolve(InfoRequestData infoRequestData);
 
-    public abstract void resolve(InfoRequestData infoRequestData,
-            TomahawkBaseAdapter.TomahawkListItem itemToBeFilled);
+    public abstract void resolve(InfoRequestData infoRequestData, TomahawkListItem itemToBeFilled);
 
 }

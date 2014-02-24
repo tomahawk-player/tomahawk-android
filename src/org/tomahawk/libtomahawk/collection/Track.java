@@ -17,15 +17,17 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class represents a {@link Track}.
  */
-public class Track implements TomahawkBaseAdapter.TomahawkListItem {
+public class Track implements TomahawkListItem {
 
     private static ConcurrentHashMap<String, Track> sTracks
             = new ConcurrentHashMap<String, Track>();
@@ -111,6 +113,16 @@ public class Track implements TomahawkBaseAdapter.TomahawkListItem {
     @Override
     public Album getAlbum() {
         return mAlbum;
+    }
+
+    @Override
+    public ArrayList<Query> getQueries(boolean onlyLocal) {
+        return null;
+    }
+
+    @Override
+    public ArrayList<Query> getQueries() {
+        return null;
     }
 
     /**

@@ -19,9 +19,9 @@ package org.tomahawk.tomahawk_android.dialogs;
 
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkContextMenuAdapter;
 import org.tomahawk.tomahawk_android.utils.FakeContextMenu;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -43,7 +43,7 @@ public class FakeContextMenuDialog extends DialogFragment {
 
     private String[] mMenuItemTitles;
 
-    private TomahawkBaseAdapter.TomahawkListItem mTomahawkListItem;
+    private TomahawkListItem mTomahawkListItem;
 
     private FakeContextMenu mFakeContextMenu;
 
@@ -64,13 +64,13 @@ public class FakeContextMenuDialog extends DialogFragment {
      * Construct a {@link FakeContextMenuDialog}
      *
      * @param menuItemTitles   array of {@link String} containing all menu entry texts
-     * @param tomahawkListItem the {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
-     *                         this {@link FakeContextMenuDialog} is associated with
+     * @param tomahawkListItem the {@link TomahawkListItem} this {@link FakeContextMenuDialog} is
+     *                         associated with
      * @param fakeContextMenu  reference to the {@link FakeContextMenu}, so that we can access its
      *                         implementation of onFakeContextItemSelected(...)
      */
     public FakeContextMenuDialog(String[] menuItemTitles,
-            TomahawkBaseAdapter.TomahawkListItem tomahawkListItem,
+            TomahawkListItem tomahawkListItem,
             FakeContextMenu fakeContextMenu) {
         setRetainInstance(true);
         mMenuItemTitles = menuItemTitles;

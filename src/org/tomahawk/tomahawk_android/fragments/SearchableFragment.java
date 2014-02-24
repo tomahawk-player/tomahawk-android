@@ -25,9 +25,9 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.os.Bundle;
 import android.view.View;
@@ -174,23 +174,23 @@ public class SearchableFragment extends TomahawkFragment
     }
 
     protected void updateAdapter() {
-        List<List<TomahawkBaseAdapter.TomahawkListItem>> listArray
-                = new ArrayList<List<TomahawkBaseAdapter.TomahawkListItem>>();
+        List<List<TomahawkListItem>> listArray
+                = new ArrayList<List<TomahawkListItem>>();
         if (mShownArtists != null) {
-            ArrayList<TomahawkBaseAdapter.TomahawkListItem> artistResultList
-                    = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+            ArrayList<TomahawkListItem> artistResultList
+                    = new ArrayList<TomahawkListItem>();
             artistResultList.addAll(mShownArtists);
             listArray.add(artistResultList);
         }
         if (mShownAlbums != null) {
-            ArrayList<TomahawkBaseAdapter.TomahawkListItem> albumResultList
-                    = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+            ArrayList<TomahawkListItem> albumResultList
+                    = new ArrayList<TomahawkListItem>();
             albumResultList.addAll(mShownAlbums);
             listArray.add(albumResultList);
         }
         if (mShownQueries != null) {
-            ArrayList<TomahawkBaseAdapter.TomahawkListItem> trackResultList
-                    = new ArrayList<TomahawkBaseAdapter.TomahawkListItem>();
+            ArrayList<TomahawkListItem> trackResultList
+                    = new ArrayList<TomahawkListItem>();
             trackResultList.addAll(mShownQueries);
             listArray.add(trackResultList);
         }
