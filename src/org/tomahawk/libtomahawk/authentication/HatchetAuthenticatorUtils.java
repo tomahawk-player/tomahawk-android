@@ -56,7 +56,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     public static final String PARAMS_GRANT_TYPE_PASSWORD = "password";
 
-    public static final String PARAMS_AUTHORIZATION = "Authorization";
+    public static final String PARAMS_AUTHORIZATION = "authorization";
 
     public static final String PARAMS_TOKEN_TYPE_BEARER_PREFIX = "Bearer";
 

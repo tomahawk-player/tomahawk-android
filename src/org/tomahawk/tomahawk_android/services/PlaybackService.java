@@ -403,6 +403,9 @@ public class PlaybackService extends Service {
      */
     public void onPrepared(TomahawkMediaPlayer tmp) {
         Log.d(TAG, "Mediaplayer is prepared.");
+        if (isPlaying()) {
+            mTomahawkApp.getInfoSystem().sendNowPlayingPostStruct(getCurrentQuery());
+        }
         handlePlayState();
     }
 
@@ -436,9 +439,8 @@ public class PlaybackService extends Service {
             return;
         }
 
-        Query query = mCurrentPlaylist.getNextQuery();
-        if (query != null) {
-            setCurrentQuery(query);
+        if (mCurrentPlaylist.peekNextQuery() != null) {
+            next();
         } else {
             stop();
         }
@@ -575,6 +577,7 @@ public class PlaybackService extends Service {
                         break;
                     case PLAYBACKSERVICE_PLAYSTATE_PAUSED:
                         if (mTomahawkMediaPlayer.isPlaying()) {
+                            mTomahawkApp.getInfoSystem().sendPlaybackEntryPostStruct();
                             mTomahawkMediaPlayer.pause();
                         }
                         if (mWakeLock.isHeld()) {

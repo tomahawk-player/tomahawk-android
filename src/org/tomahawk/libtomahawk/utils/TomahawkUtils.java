@@ -193,16 +193,36 @@ public class TomahawkUtils {
     }
 
     public static String httpsPost(String urlString, Multimap<String, String> params,
+            String jsonString)
+            throws NoSuchAlgorithmException, KeyManagementException, IOException {
+        URL url = new URL(urlString);
+        HttpsURLConnection connection = setSSLSocketFactory(
+                (HttpsURLConnection) url.openConnection());
+
+        connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
+        for (String key : params.keySet()) {
+            for (String value : params.get(key)) {
+                connection.setRequestProperty(key, value);
+            }
+        }
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        connection.setFixedLengthStreamingMode(jsonString.getBytes().length);
+        OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
+        out.write(jsonString);
+        out.close();
+
+        String output = inputStreamToString(connection);
+        connection.disconnect();
+        return output;
+    }
+
+    public static String httpsPost(String urlString, Multimap<String, String> params,
             boolean contentTypeIsJson, boolean paramsInHeader)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         URL url = new URL(urlString);
-        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-
-        // Create the SSL connection
-        SSLContext sc;
-        sc = SSLContext.getInstance("TLS");
-        sc.init(null, null, new java.security.SecureRandom());
-        connection.setSSLSocketFactory(sc.getSocketFactory());
+        HttpsURLConnection connection = setSSLSocketFactory(
+                (HttpsURLConnection) url.openConnection());
 
         if (contentTypeIsJson) {
             connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
@@ -233,13 +253,8 @@ public class TomahawkUtils {
     public static String httpsGet(String urlString)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         URL url = new URL(urlString);
-        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-
-        // Create the SSL connection
-        SSLContext sc;
-        sc = SSLContext.getInstance("TLS");
-        sc.init(null, null, new java.security.SecureRandom());
-        connection.setSSLSocketFactory(sc.getSocketFactory());
+        HttpsURLConnection connection = setSSLSocketFactory(
+                (HttpsURLConnection) url.openConnection());
 
         connection.setRequestMethod("GET");
         connection.setDoOutput(false);
@@ -269,6 +284,15 @@ public class TomahawkUtils {
             Log.e(TAG, "httpHeaderRequest: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
         return false;
+    }
+
+    private static HttpsURLConnection setSSLSocketFactory(HttpsURLConnection connection)
+            throws KeyManagementException, NoSuchAlgorithmException {
+        SSLContext sc;
+        sc = SSLContext.getInstance("TLS");
+        sc.init(null, null, new java.security.SecureRandom());
+        connection.setSSLSocketFactory(sc.getSocketFactory());
+        return connection;
     }
 
     public static String paramsListToString(Multimap<String, String> params)
