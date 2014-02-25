@@ -99,12 +99,12 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
 
         /**
          * Store the given blob-string, so we can relogin in a later session
-         * @param authToken the given blob-string
          */
         @Override
-        public void onAuthTokenProvided(String username, String authToken) {
-            if (username != null && !TextUtils.isEmpty(username) && authToken != null && !TextUtils
-                    .isEmpty(authToken)) {
+        public void onAuthTokenProvided(String username, String refreshToken,
+                int refreshTokenExpiresIn, String accessToken, int accessTokenExpiresIn) {
+            if (username != null && !TextUtils.isEmpty(username) && refreshToken != null
+                    && !TextUtils.isEmpty(refreshToken)) {
                 Log.d(TAG, "TomahawkService: Spotify blob is served and yummy");
                 Account account = new Account(username,
                         mTomahawkApp.getString(R.string.accounttype_string));
@@ -112,7 +112,7 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
                 if (am != null) {
                     am.addAccountExplicitly(account, null, new Bundle());
                     am.setUserData(account, TomahawkService.AUTHENTICATOR_NAME, mName);
-                    am.setAuthToken(account, mAuthTokenType, authToken);
+                    am.setAuthToken(account, TomahawkService.AUTH_TOKEN_TYPE_SPOTIFY, refreshToken);
                 }
             }
             setAuthenticated(true);
@@ -123,7 +123,6 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
         mTomahawkApp = tomahawkApp;
         mTomahawkService = tomahawkService;
         mName = TomahawkService.AUTHENTICATOR_NAME_SPOTIFY;
-        mAuthTokenType = TomahawkService.AUTH_TOKEN_TYPE_SPOTIFY;
 
         LibSpotifyWrapper.setsAuthenticatorListener(mAuthenticatorListener);
         if (LibSpotifyWrapper.isInitialized()) {
@@ -170,7 +169,8 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
             if (accounts != null) {
                 for (Account account : accounts) {
                     if (mName.equals(am.getUserData(account, TomahawkService.AUTHENTICATOR_NAME))) {
-                        String blob = am.peekAuthToken(account, mAuthTokenType);
+                        String blob = am
+                                .peekAuthToken(account, TomahawkService.AUTH_TOKEN_TYPE_SPOTIFY);
                         String email = account.name;
                         if (email != null && blob != null) {
                             mIsAuthenticating = true;
