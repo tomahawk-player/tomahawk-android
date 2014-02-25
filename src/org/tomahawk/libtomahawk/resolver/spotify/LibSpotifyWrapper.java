@@ -41,8 +41,6 @@ import org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer;
 
 import android.os.Looper;
 
-import java.util.logging.Handler;
-
 /**
  * Wrapper class around libspotify. Provides functionality to talk to the c library.
  */
@@ -397,7 +395,7 @@ public class LibSpotifyWrapper {
      */
     public static void onCredentialsBlobUpdated(final String username, final String blob) {
         if (sAuthenticatorListener != null) {
-            sAuthenticatorListener.onAuthTokenProvided(username, blob);
+            sAuthenticatorListener.onAuthTokenProvided(username, blob, -1, null, -1);
         }
     }
 

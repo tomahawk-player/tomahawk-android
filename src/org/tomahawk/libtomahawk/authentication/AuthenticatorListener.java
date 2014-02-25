@@ -27,5 +27,6 @@ public interface AuthenticatorListener {
 
     void onLogout();
 
-    void onAuthTokenProvided(String username, String authToken);
+    void onAuthTokenProvided(String username, String refreshToken, int refreshTokenExpiresIn,
+            String accessToken, int accessTokenExpiresIn);
 }

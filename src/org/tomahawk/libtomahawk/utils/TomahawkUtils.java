@@ -189,11 +189,11 @@ public class TomahawkUtils {
 
     public static String httpsPost(String urlString, Multimap<String, String> params)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
-        return httpsPost(urlString, paramsListToString(params), false);
+        return httpsPost(urlString, params, false, false);
     }
 
-    private static String httpsPost(String urlString, String paramsString,
-            boolean contentTypeIsJson)
+    public static String httpsPost(String urlString, Multimap<String, String> params,
+            boolean contentTypeIsJson, boolean paramsInHeader)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         URL url = new URL(urlString);
         HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
@@ -204,18 +204,27 @@ public class TomahawkUtils {
         sc.init(null, null, new java.security.SecureRandom());
         connection.setSSLSocketFactory(sc.getSocketFactory());
 
-        connection.setRequestMethod("POST");
-        connection.setDoOutput(true);
-        connection.setFixedLengthStreamingMode(paramsString.getBytes().length);
         if (contentTypeIsJson) {
             connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
-        } else {
+        } else if (!paramsInHeader) {
             connection.setRequestProperty("Content-type", "application/x-www-form-urlencoded");
+            connection.setRequestProperty("Accept", "application/json; charset=utf-8");
+            connection.setDoOutput(true);
         }
-        connection.setRequestProperty("Accept", "application/json; charset=utf-8");
-        OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
-        out.write(paramsString);
-        out.close();
+        if (paramsInHeader) {
+            for (String key : params.keySet()) {
+                for (String value : params.get(key)) {
+                    connection.setRequestProperty(key, value);
+                }
+            }
+        } else {
+            connection.setRequestMethod("POST");
+            String paramsString = paramsListToString(params);
+            connection.setFixedLengthStreamingMode(paramsString.getBytes().length);
+            OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
+            out.write(paramsString);
+            out.close();
+        }
         String output = inputStreamToString(connection);
         connection.disconnect();
         return output;

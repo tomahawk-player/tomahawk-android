@@ -21,7 +21,6 @@ package org.tomahawk.tomahawk_android.services;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticatorUtils;
-import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.app.Service;
@@ -65,6 +64,21 @@ public class TomahawkService extends Service {
     public static final String AUTH_TOKEN_TYPE_SPOTIFY = "org.tomahawk.spotify.authtoken";
 
     public static final String AUTH_TOKEN_TYPE_HATCHET = "org.tomahawk.hatchet.authtoken";
+
+    public static final String AUTH_TOKEN_EXPIRES_IN_HATCHET
+            = "org.tomahawk.hatchet.authtokenexpiresin";
+
+    public static final String MANDELA_ACCESS_TOKEN_HATCHET
+            = "org.tomahawk.hatchet.mandellaaccesstoken";
+
+    public static final String MANDELA_ACCESS_TOKEN_EXPIRES_IN_HATCHET
+            = "org.tomahawk.hatchet.mandellaaccesstokenexpiresin";
+
+    public static final String CALUMET_ACCESS_TOKEN_HATCHET
+            = "org.tomahawk.hatchet.calumetaccesstoken";
+
+    public static final String CALUMET_ACCESS_TOKEN_EXPIRES_IN_HATCHET
+            = "org.tomahawk.hatchet.calumetaccesstokenexpiresin";
 
     public static final int AUTHENTICATOR_ID_SPOTIFY = 0;
 

@@ -25,7 +25,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 
-import java.util.List;
+import java.util.Map;
 
 public abstract class AuthenticatorUtils {
 
@@ -33,11 +33,9 @@ public abstract class AuthenticatorUtils {
 
     protected TomahawkService mTomahawkService;
 
-    protected List<AccessToken> mAccessTokens;
+    protected Map<String, AccessToken> mAccessTokens;
 
     protected String mName;
-
-    protected String mAuthTokenType;
 
     protected boolean mIsAuthenticating;
 
