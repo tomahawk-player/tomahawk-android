@@ -22,6 +22,11 @@ import com.google.common.collect.Multimap;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.infosystem.hatchet.NowPlaying;
+import org.tomahawk.libtomahawk.infosystem.hatchet.NowPlayingPostStruct;
+import org.tomahawk.libtomahawk.infosystem.hatchet.PlaybackLogEntry;
+import org.tomahawk.libtomahawk.infosystem.hatchet.PlaybackLogPostStruct;
+import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
@@ -67,6 +72,10 @@ public class InfoSystem {
     private HashSet<Artist> mArtistAlbumsHashSet = new HashSet<Artist>();
 
     private HashSet<Album> mAlbumHashSet = new HashSet<Album>();
+
+    private Query mLastPlaybackLogEntry = null;
+
+    private Query mNowPlaying = null;
 
     public InfoSystem(TomahawkApp tomahawkApp) {
         mTomahawkApp = tomahawkApp;
@@ -200,6 +209,56 @@ public class InfoSystem {
         mResolvingRequests.put(infoRequestData.getRequestId(), infoRequestData);
         for (InfoPlugin infoPlugin : mInfoPlugins) {
             infoPlugin.resolve(infoRequestData, itemToBeFilled);
+        }
+    }
+
+    public void sendPlaybackEntryPostStruct() {
+        if (mNowPlaying != null && mNowPlaying != mLastPlaybackLogEntry) {
+            mLastPlaybackLogEntry = mNowPlaying;
+            PlaybackLogEntry playbackLogEntry = new PlaybackLogEntry();
+            playbackLogEntry.albumString = mLastPlaybackLogEntry.getAlbum().getName();
+            playbackLogEntry.artistString = mLastPlaybackLogEntry.getArtist().getName();
+            playbackLogEntry.trackString = mLastPlaybackLogEntry.getName();
+            PlaybackLogPostStruct playbackLogPostStruct = new PlaybackLogPostStruct();
+            playbackLogPostStruct.playbackLogEntry = playbackLogEntry;
+
+            String requestId = TomahawkApp.getSessionUniqueStringId();
+            InfoRequestData infoRequestData = new InfoRequestData(requestId,
+                    InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES,
+                    playbackLogPostStruct);
+            send(infoRequestData);
+        }
+    }
+
+    public void sendNowPlayingPostStruct(Query query) {
+        if (mNowPlaying != query) {
+            sendPlaybackEntryPostStruct();
+            mNowPlaying = query;
+            NowPlaying nowPlaying = new NowPlaying();
+            nowPlaying.album = query.getAlbum().getName();
+            nowPlaying.artist = query.getArtist().getName();
+            nowPlaying.track = query.getName();
+            NowPlayingPostStruct nowPlayingPostStruct = new NowPlayingPostStruct();
+            nowPlayingPostStruct.nowPlaying = nowPlaying;
+
+            String requestId = TomahawkApp.getSessionUniqueStringId();
+            InfoRequestData infoRequestData = new InfoRequestData(requestId,
+                    InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES_NOWPLAYING,
+                    nowPlayingPostStruct);
+            send(infoRequestData);
+        }
+    }
+
+    /**
+     * Send the given InfoRequestData's data out to every service that can handle it
+     *
+     * @param infoRequestData the InfoRequestData object to fetch results for
+     */
+    public void send(InfoRequestData infoRequestData) {
+        mRequests.put(infoRequestData.getRequestId(), infoRequestData);
+        mResolvingRequests.put(infoRequestData.getRequestId(), infoRequestData);
+        for (InfoPlugin infoPlugin : mInfoPlugins) {
+            infoPlugin.send(infoRequestData);
         }
     }
 

@@ -48,11 +48,17 @@ public class InfoRequestData {
 
     public static final int INFOREQUESTDATA_TYPE_SEARCHES = 1100;
 
+    public static final int INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES = 1200;
+
+    public static final int INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES_NOWPLAYING = 1201;
+
     private String mRequestId;
 
     private int mType;
 
     private Multimap<String, String> mParams;
+
+    private Object mObjectToSend;
 
     /**
      * Storage member-variable. Used if a single Info object is the result.
@@ -74,6 +80,12 @@ public class InfoRequestData {
         mRequestId = requestId;
         mType = type;
         mParams = params;
+    }
+
+    public InfoRequestData(String requestId, int type, Object objectToSend) {
+        mRequestId = requestId;
+        mType = type;
+        mObjectToSend = objectToSend;
     }
 
     public String getRequestId() {
@@ -110,5 +122,9 @@ public class InfoRequestData {
 
     public Multimap<String, String> getParams() {
         return mParams;
+    }
+
+    public Object getObjectToSend() {
+        return mObjectToSend;
     }
 }

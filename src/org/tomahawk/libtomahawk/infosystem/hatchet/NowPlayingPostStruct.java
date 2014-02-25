@@ -15,16 +15,15 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomahawk.libtomahawk.infosystem;
+package org.tomahawk.libtomahawk.infosystem.hatchet;
 
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
-public abstract class InfoPlugin {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class NowPlayingPostStruct {
 
-    public abstract void send(InfoRequestData infoRequestData);
+    public NowPlaying nowPlaying;
 
-    public abstract void resolve(InfoRequestData infoRequestData);
-
-    public abstract void resolve(InfoRequestData infoRequestData, TomahawkListItem itemToBeFilled);
-
+    public NowPlayingPostStruct() {
+    }
 }

@@ -416,23 +416,13 @@ public class TomahawkFragment extends TomahawkListFragment
                     if (wasPlaying) {
                         playbackService.pause();
                     }
-                    if (playbackService.getCurrentPlaylist().peekQueryAtPos(
-                            playbackService.getCurrentPlaylist().getCurrentQueryIndex()
-                                    + 1) != null) {
-                        playbackService.setCurrentQuery(
-                                playbackService.getCurrentPlaylist().getQueryAtPos(
-                                        playbackService.getCurrentPlaylist()
-                                                .getCurrentQueryIndex() + 1));
+                    if (playbackService.getCurrentPlaylist().peekNextQuery() != null) {
+                        playbackService.next();
                         if (wasPlaying) {
                             playbackService.start();
                         }
-                    } else if (playbackService.getCurrentPlaylist().peekQueryAtPos(
-                            playbackService.getCurrentPlaylist().getCurrentQueryIndex()
-                                    - 1) != null) {
-                        playbackService.setCurrentQuery(
-                                playbackService.getCurrentPlaylist().getQueryAtPos(
-                                        playbackService.getCurrentPlaylist()
-                                                .getCurrentQueryIndex() - 1));
+                    } else if (playbackService.getCurrentPlaylist().peekPreviousQuery() != null) {
+                        playbackService.previous();
                         if (wasPlaying) {
                             playbackService.start();
                         }

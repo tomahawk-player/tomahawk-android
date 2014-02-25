@@ -90,6 +90,10 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
     public static final String HATCHET_SEARCHITEM_TYPE_ARTIST = "artist";
 
+    public static final String HATCHET_PLAYBACKLOGENTRIES = "playbackLogEntries";
+
+    public static final String HATCHET_PLAYBACKLOGENTRIES_NOWPLAYING = "nowplaying";
+
     public static final double HATCHET_SEARCHITEM_MIN_SCORE = 5.0;
 
     public static final String HATCHET_PARAM_NAME = "name";
@@ -101,6 +105,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
     public static final String HATCHET_PARAM_ARTIST_NAME = "artist_name";
 
     public static final String HATCHET_PARAM_TERM = "term";
+
+    public static final String HATCHET_PARAMS_AUTHORIZATION = "authorization";
 
     public static final String HATCHET_ACCOUNTDATA_USER_ID = "hatchet_preference_user_id";
 
@@ -115,6 +121,14 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
     public HatchetInfoPlugin(TomahawkApp tomahawkApp) {
         mTomahawkApp = tomahawkApp;
+    }
+
+    /**
+     * Start the JSONSendTask to send the given InfoRequestData's json string
+     */
+    @Override
+    public void send(InfoRequestData infoRequestData) {
+        new JSONSendTask().execute(infoRequestData);
     }
 
     /**
@@ -346,6 +360,68 @@ public class HatchetInfoPlugin extends InfoPlugin {
         return false;
     }
 
+    private class JSONSendTask extends AsyncTask<InfoRequestData, Void, ArrayList<String>> {
+
+        @Override
+        protected ArrayList<String> doInBackground(InfoRequestData... infoRequestDatas) {
+            ArrayList<String> doneRequestsIds = new ArrayList<String>();
+            if (mObjectMapper == null) {
+                mObjectMapper = new ObjectMapper();
+            }
+            try {
+                String accessToken = null;
+                // Before we do anything, fetch the accesstoken
+                AccountManager am = AccountManager.get(mTomahawkApp.getApplicationContext());
+                if (am != null) {
+                    Account[] accounts = am
+                            .getAccountsByType(mTomahawkApp.getString(R.string.accounttype_string));
+                    if (accounts != null) {
+                        for (Account acc : accounts) {
+                            if (TomahawkService.AUTHENTICATOR_NAME_HATCHET.equals(
+                                    am.getUserData(acc, TomahawkService.AUTHENTICATOR_NAME))) {
+                                accessToken = am.getUserData(acc,
+                                        TomahawkService.CALUMET_ACCESS_TOKEN_HATCHET);
+                            }
+                        }
+                    }
+                }
+                if (accessToken != null) {
+                    for (InfoRequestData infoRequestData : infoRequestDatas) {
+                        if (infoRequestData.getType()
+                                == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES) {
+                            String jsonString = mObjectMapper
+                                    .writeValueAsString(infoRequestData.getObjectToSend());
+                            Multimap<String, String> params = HashMultimap.create(1, 1);
+                            params.put(HATCHET_PARAMS_AUTHORIZATION, accessToken);
+                            TomahawkUtils.httpsPost(buildQuery(infoRequestData.getType(), null),
+                                    params, jsonString);
+                        } else if (infoRequestData.getType()
+                                == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES_NOWPLAYING) {
+                            String jsonString = mObjectMapper
+                                    .writeValueAsString(infoRequestData.getObjectToSend());
+                            Multimap<String, String> params = HashMultimap.create(1, 1);
+                            params.put(HATCHET_PARAMS_AUTHORIZATION, accessToken);
+                            TomahawkUtils.httpsPost(buildQuery(infoRequestData.getType(), null),
+                                    params, jsonString);
+                        }
+                    }
+                }
+            } catch (UnsupportedEncodingException e) {
+                Log.e(TAG, "JSONSendTask: " + e.getClass() + ": " + e.getLocalizedMessage());
+            } catch (IOException e) {
+                Log.e(TAG, "JSONSendTask: " + e.getClass() + ": " + e.getLocalizedMessage());
+            } catch (NoSuchAlgorithmException e) {
+                Log.e(TAG, "JSONSendTask: " + e.getClass() + ": " + e.getLocalizedMessage());
+            } catch (KeyManagementException e) {
+                Log.e(TAG, "JSONSendTask: " + e.getClass() + ": " + e.getLocalizedMessage());
+            }
+            for (InfoRequestData infoRequestData : infoRequestDatas) {
+                doneRequestsIds.add(infoRequestData.getRequestId());
+            }
+            return doneRequestsIds;
+        }
+    }
+
     private class JSONResponseTask extends AsyncTask<InfoRequestData, Void, ArrayList<String>> {
 
         @Override
@@ -488,7 +564,10 @@ public class HatchetInfoPlugin extends InfoPlugin {
      */
     private static String buildQuery(int type, Multimap<String, String> paramsIn)
             throws UnsupportedEncodingException {
-        Multimap<String, String> params = LinkedListMultimap.create(paramsIn);
+        Multimap<String, String> params = null;
+        if (paramsIn != null) {
+            params = LinkedListMultimap.create(paramsIn);
+        }
         String queryString = null;
         java.util.Collection<String> paramStrings;
         Iterator<String> iterator;
@@ -557,6 +636,17 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 queryString = HATCHET_BASE_URL + "/"
                         + HATCHET_VERSION + "/"
                         + HATCHET_SEARCHES + "/";
+                break;
+            case InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES:
+                queryString = HATCHET_BASE_URL + "/"
+                        + HATCHET_VERSION + "/"
+                        + HATCHET_PLAYBACKLOGENTRIES + "/";
+                break;
+            case InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES_NOWPLAYING:
+                queryString = HATCHET_BASE_URL + "/"
+                        + HATCHET_VERSION + "/"
+                        + HATCHET_PLAYBACKLOGENTRIES + "/"
+                        + HATCHET_PLAYBACKLOGENTRIES_NOWPLAYING + "/";
                 break;
         }
         // append every parameter we didn't use
