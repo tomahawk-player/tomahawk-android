@@ -34,7 +34,6 @@ import android.accounts.AccountManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -43,6 +42,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
@@ -50,19 +51,24 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     public static final String AUTH_SERVER = "https://auth.hatchet.is/v1/authentication/password";
 
-    public static final String TOKEN_SERVER = "https://auth.hatchet.is/v1/tokens/fetch/calumet";
+    public static final String REFRESH_TOKEN_SERVER
+            = "https://auth.hatchet.is/v1/tokens/refresh/bearer";
+
+    public static final String TOKEN_SERVER = "https://auth.hatchet.is/v1/tokens/fetch/";
 
     public static final String PARAMS_GRANT_TYPE = "grant_type";
 
     public static final String PARAMS_GRANT_TYPE_PASSWORD = "password";
 
-    public static final String PARAMS_AUTHORIZATION = "authorization";
+    public static final String PARAMS_GRANT_TYPE_REFRESHTOKEN = "refresh_token";
 
-    public static final String PARAMS_TOKEN_TYPE_BEARER_PREFIX = "Bearer";
+    public static final String PARAMS_AUTHORIZATION = "authorization";
 
     public static final String PARAMS_USERNAME = "username";
 
     public static final String PARAMS_PASSWORD = "password";
+
+    public static final String PARAMS_REFRESHTOKEN = "refresh_token";
 
     public static final String RESPONSE_ACCESS_TOKEN = "access_token";
 
@@ -75,6 +81,10 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     public static final String RESPONSE_REFRESH_TOKEN_EXPIRES_IN = "refresh_token_expires_in";
 
     public static final String RESPONSE_TOKEN_TYPE = "token_type";
+
+    public static final String RESPONSE_TOKEN_TYPE_BEARER = "Bearer";
+
+    public static final String RESPONSE_TOKEN_TYPE_CALUMET = "calumet";
 
     public static final String RESPONSE_ERROR = "error";
 
@@ -96,21 +106,11 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     private static final int EXPIRING_LIMIT = 300;
 
-    // Requests a new calumet access token when the old is one is expired
-    private final Handler mRefreshCalumetTokenHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            refreshCalumetAccessToken();
-        }
-    };
-
     // This listener handles every event regarding the login/logout methods
     private AuthenticatorListener mAuthenticatorListener = new AuthenticatorListener() {
 
         @Override
         public void onInit() {
-            //first off we want to check if we need to refresh dat calumet tokens
-            refreshCalumetAccessToken();
         }
 
         @Override
@@ -159,11 +159,12 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                     am.setAuthToken(account, TomahawkService.AUTH_TOKEN_TYPE_HATCHET, refreshToken);
                     am.setUserData(account, TomahawkService.AUTH_TOKEN_EXPIRES_IN_HATCHET,
                             String.valueOf(refreshTokenExpiresIn));
-                    am.setUserData(account, TomahawkService.MANDELA_ACCESS_TOKEN_HATCHET,
+                    am.setUserData(account, TomahawkService.MANDELLA_ACCESS_TOKEN_HATCHET,
                             accessToken);
-                    am.setUserData(account, TomahawkService.MANDELA_ACCESS_TOKEN_EXPIRES_IN_HATCHET,
+                    am.setUserData(account,
+                            TomahawkService.MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
                             String.valueOf(accessTokenExpiresIn));
-                    fetchCalumetAccessTokens(accessToken);
+                    ensureAccessTokens();
                 }
             }
             ((UserCollection) mTomahawkApp.getSourceList().getLocalSource().getCollection())
@@ -256,115 +257,129 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     public void logout() {
         mIsAuthenticating = true;
         final AccountManager am = AccountManager.get(mTomahawkApp);
-        if (am != null) {
-            Account[] accounts = am
-                    .getAccountsByType(mTomahawkApp.getString(R.string.accounttype_string));
-            if (accounts != null) {
-                for (Account account : accounts) {
-                    if (mName.equals(am.getUserData(account, TomahawkService.AUTHENTICATOR_NAME))) {
-                        am.removeAccount(account, null, null);
-                    }
-                }
-            }
+        Account account = TomahawkUtils.getAccountByName(mTomahawkApp, mName);
+        if (am != null && account != null) {
+            am.removeAccount(account, null, null);
         }
         mAuthenticatorListener.onLogout();
     }
 
-    public void fetchCalumetAccessTokens(final String authToken) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Multimap<String, String> params = HashMultimap.create(1, 1);
-                params.put(PARAMS_AUTHORIZATION, PARAMS_TOKEN_TYPE_BEARER_PREFIX + " " + authToken);
-                try {
-                    String jsonString = TomahawkUtils.httpsPost(TOKEN_SERVER, params, false, true);
-                    JSONObject jsonObject = new JSONObject(jsonString);
-                    if (jsonObject.has(RESPONSE_ERROR)) {
-                        String error = jsonObject.getString(RESPONSE_ERROR);
-                        String errorDescription = "Please reenter your Hatchet credentials";
-                        logout();
-                        mAuthenticatorListener.onLoginFailed(error, errorDescription);
-                    } else if (jsonObject.has(RESPONSE_ACCESS_TOKEN) && jsonObject
-                            .has(RESPONSE_EXPIRES_IN) && jsonObject.has(RESPONSE_TOKEN_TYPE)) {
-                        String calumetAccessToken = jsonObject.getString(RESPONSE_ACCESS_TOKEN);
-                        int expiresIn = jsonObject.getInt(RESPONSE_EXPIRES_IN);
-                        String tokenType = jsonObject.getString(RESPONSE_TOKEN_TYPE);
-                        final AccountManager am = AccountManager.get(mTomahawkApp);
-                        if (am != null) {
-                            Account[] accounts = am.getAccountsByType(
-                                    mTomahawkApp.getString(R.string.accounttype_string));
-                            if (accounts != null) {
-                                for (Account account : accounts) {
-                                    if (mName.equals(am.getUserData(account,
-                                            TomahawkService.AUTHENTICATOR_NAME))) {
-                                        am.setUserData(account,
-                                                TomahawkService.CALUMET_ACCESS_TOKEN_HATCHET,
-                                                calumetAccessToken);
-                                        am.setUserData(account,
-                                                TomahawkService.CALUMET_ACCESS_TOKEN_EXPIRES_IN_HATCHET,
-                                                String.valueOf(
-                                                        System.currentTimeMillis() / 1000
-                                                                + expiresIn));
-                                        mRefreshCalumetTokenHandler
-                                                .removeCallbacksAndMessages(null);
-                                        Message msg = mRefreshCalumetTokenHandler.obtainMessage();
-                                        mRefreshCalumetTokenHandler.sendMessageDelayed(msg,
-                                                (expiresIn - EXPIRING_LIMIT) * 1000);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } catch (JSONException e) {
-                    Log.e(TAG, "fetchCalumetAccessTokens: " + e.getClass() + ": " + e
-                            .getLocalizedMessage());
-                } catch (UnsupportedEncodingException e) {
-                    Log.e(TAG, "fetchCalumetAccessTokens: " + e.getClass() + ": " + e
-                            .getLocalizedMessage());
-                } catch (IOException e) {
-                    Log.e(TAG, "fetchCalumetAccessTokens: " + e.getClass() + ": " + e
-                            .getLocalizedMessage());
-                } catch (NoSuchAlgorithmException e) {
-                    Log.e(TAG, "fetchCalumetAccessTokens: " + e.getClass() + ": " + e
-                            .getLocalizedMessage());
-                } catch (KeyManagementException e) {
-                    Log.e(TAG, "fetchCalumetAccessTokens: " + e.getClass() + ": " + e
-                            .getLocalizedMessage());
-                }
-            }
-        }).start();
+    /**
+     * Ensure that the calumet access token is available and valid. Get it from the cache if it
+     * hasn't yet expired. Otherwise refetch and cache it again. Also refetches the mandella access
+     * token if necessary.
+     *
+     * @return the calumet access token
+     */
+    public String ensureAccessTokens() {
+        Map<String, String> userData = new HashMap<String, String>();
+        userData.put(TomahawkService.MANDELLA_ACCESS_TOKEN_HATCHET, null);
+        userData.put(TomahawkService.MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET, null);
+        userData.put(TomahawkService.CALUMET_ACCESS_TOKEN_HATCHET, null);
+        userData.put(TomahawkService.CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET, null);
+        userData = TomahawkUtils.getUserDataForAccount(mTomahawkApp, userData, mName);
+        String mandellaAccessToken = userData.get(TomahawkService.MANDELLA_ACCESS_TOKEN_HATCHET);
+        int mandellaExpirationTime = -1;
+        String mandellaExpirationTimeString =
+                userData.get(TomahawkService.MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET);
+        if (mandellaExpirationTimeString != null) {
+            mandellaExpirationTime = Integer.valueOf(mandellaExpirationTimeString);
+        }
+        String calumetAccessToken = userData.get(TomahawkService.CALUMET_ACCESS_TOKEN_HATCHET);
+        int calumetExpirationTime = -1;
+        String calumetExpirationTimeString =
+                userData.get(TomahawkService.CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET);
+        if (calumetExpirationTimeString != null) {
+            calumetExpirationTime = Integer.valueOf(mandellaExpirationTimeString);
+        }
+        int currentTime = (int) System.currentTimeMillis() / 1000;
+        String refreshToken = TomahawkUtils.peekAuthTokenForAccount(mTomahawkApp, mName);
+        if (refreshToken != null && (mandellaAccessToken == null
+                || currentTime > mandellaExpirationTime - EXPIRING_LIMIT)) {
+            Log.d(TAG, "Mandella access token has expired, refreshing ...");
+            mandellaAccessToken = fetchAccessToken(RESPONSE_TOKEN_TYPE_BEARER, refreshToken);
+        }
+        if (mandellaAccessToken != null && (calumetAccessToken == null
+                || currentTime > calumetExpirationTime - EXPIRING_LIMIT)) {
+            Log.d(TAG, "Calumet access token has expired, refreshing ...");
+            calumetAccessToken = fetchAccessToken(RESPONSE_TOKEN_TYPE_CALUMET, mandellaAccessToken);
+        }
+        if (calumetAccessToken == null) {
+            Log.d(TAG, "Calumet access token couldn't be fetched. "
+                    + "Most probably because no Hatchet account is logged in.");
+        }
+        return calumetAccessToken;
     }
 
-    public void refreshCalumetAccessToken() {
-        final AccountManager am = AccountManager.get(mTomahawkApp);
-        if (am != null) {
-            Account[] accounts = am
-                    .getAccountsByType(mTomahawkApp.getString(R.string.accounttype_string));
-            if (accounts != null) {
-                for (Account account : accounts) {
-                    if (TomahawkService.AUTHENTICATOR_NAME_HATCHET
-                            .equals(am.getUserData(account,
-                                    TomahawkService.AUTHENTICATOR_NAME))) {
-                        String mandelaAccessToken = am.getUserData(account,
-                                TomahawkService.MANDELA_ACCESS_TOKEN_HATCHET);
-                        String calumetAccessToken = am.getUserData(account,
-                                TomahawkService.CALUMET_ACCESS_TOKEN_HATCHET);
-                        String calumetExpiresInString = am.getUserData(account,
-                                TomahawkService.CALUMET_ACCESS_TOKEN_EXPIRES_IN_HATCHET);
-                        int calumetExpiresIn = -1;
-                        if (calumetExpiresInString != null) {
-                            calumetExpiresIn = Integer.valueOf(calumetExpiresInString);
-                        }
-                        int currentTime = (int) System.currentTimeMillis() / 1000;
-                        if (mandelaAccessToken != null && (calumetAccessToken == null
-                                || calumetExpiresIn > currentTime - EXPIRING_LIMIT)) {
-                            Log.d(TAG, "Calumet access token has expired, refreshing ...");
-                            fetchCalumetAccessTokens(mandelaAccessToken);
-                        }
-                    }
-                }
+    /**
+     * Fetch the accessToken of the given tokenType by providing an existent token. The token is
+     * cached and then returned.
+     *
+     * @param tokenType The token type ("Bearer"(aka mandella) or "calumet")
+     * @param token     In the case of fetching the bearer token, this token should be the bearer
+     *                  refresh token provided by the initial auth process. If the calumet access
+     *                  token should be fetched, then the given token should be the bearer access
+     *                  token.
+     * @return the fetched access token
+     */
+    public String fetchAccessToken(String tokenType, String token) {
+        String accessToken = null;
+        try {
+            String jsonString;
+            if (tokenType.equals(RESPONSE_TOKEN_TYPE_BEARER)) {
+                Multimap<String, String> params = HashMultimap.create(2, 1);
+                params.put(PARAMS_REFRESHTOKEN, token);
+                params.put(PARAMS_GRANT_TYPE, PARAMS_GRANT_TYPE_REFRESHTOKEN);
+                jsonString = TomahawkUtils.httpsPost(REFRESH_TOKEN_SERVER, params, false, false);
+            } else {
+                Multimap<String, String> params = HashMultimap.create(1, 1);
+                params.put(PARAMS_AUTHORIZATION, RESPONSE_TOKEN_TYPE_BEARER + " " + token);
+                jsonString = TomahawkUtils.httpsPost(
+                        TOKEN_SERVER + RESPONSE_TOKEN_TYPE_CALUMET, params, false, true);
             }
+            JSONObject jsonObject = new JSONObject(jsonString);
+            if (jsonObject.has(RESPONSE_ERROR)
+                    || !tokenType.equals(jsonObject.getString(RESPONSE_TOKEN_TYPE))) {
+                String error = jsonObject.getString(RESPONSE_ERROR);
+                String errorDescription = "Please reenter your Hatchet credentials";
+                logout();
+                mAuthenticatorListener.onLoginFailed(error, errorDescription);
+            } else if (jsonObject.has(RESPONSE_ACCESS_TOKEN)
+                    && jsonObject.has(RESPONSE_EXPIRES_IN)) {
+                Map<String, String> data = new HashMap<String, String>();
+                accessToken = jsonObject.getString(RESPONSE_ACCESS_TOKEN);
+                int expiresIn = jsonObject.getInt(RESPONSE_EXPIRES_IN);
+                int currentTime = (int) System.currentTimeMillis() / 1000;
+                int expirationTime = currentTime + expiresIn;
+                Log.d(TAG, "current: " + currentTime + " expirationTime:" + expirationTime);
+                if (tokenType.equals(RESPONSE_TOKEN_TYPE_BEARER)) {
+                    data.put(TomahawkService.MANDELLA_ACCESS_TOKEN_HATCHET, accessToken);
+                    data.put(TomahawkService.MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
+                            String.valueOf(expirationTime));
+                } else {
+                    data.put(TomahawkService.CALUMET_ACCESS_TOKEN_HATCHET, accessToken);
+                    data.put(TomahawkService.CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
+                            String.valueOf(expirationTime));
+                }
+                TomahawkUtils.setUserDataForAccount(mTomahawkApp, data, mName);
+            }
+        } catch (JSONException e) {
+            Log.e(TAG,
+                    "fetchAccessToken: " + e.getClass() + ": " + e.getLocalizedMessage());
+        } catch (UnsupportedEncodingException e) {
+            Log.e(TAG,
+                    "fetchAccessToken: " + e.getClass() + ": " + e.getLocalizedMessage());
+        } catch (IOException e) {
+            Log.e(TAG,
+                    "fetchAccessToken: " + e.getClass() + ": " + e.getLocalizedMessage());
+        } catch (NoSuchAlgorithmException e) {
+            Log.e(TAG,
+                    "fetchAccessToken: " + e.getClass() + ": " + e.getLocalizedMessage());
+        } catch (KeyManagementException e) {
+            Log.e(TAG,
+                    "fetchAccessToken: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
+        return accessToken;
     }
 }
 

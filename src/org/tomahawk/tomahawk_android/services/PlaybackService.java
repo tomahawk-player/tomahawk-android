@@ -404,7 +404,9 @@ public class PlaybackService extends Service {
     public void onPrepared(TomahawkMediaPlayer tmp) {
         Log.d(TAG, "Mediaplayer is prepared.");
         if (isPlaying()) {
-            mTomahawkApp.getInfoSystem().sendNowPlayingPostStruct(getCurrentQuery());
+            mTomahawkApp.getInfoSystem().sendNowPlayingPostStruct(getCurrentQuery(),
+                    mTomahawkApp.getTomahawkService()
+                            .getAuthenticatorUtils(TomahawkService.AUTHENTICATOR_ID_HATCHET));
         }
         handlePlayState();
     }
@@ -577,7 +579,9 @@ public class PlaybackService extends Service {
                         break;
                     case PLAYBACKSERVICE_PLAYSTATE_PAUSED:
                         if (mTomahawkMediaPlayer.isPlaying()) {
-                            mTomahawkApp.getInfoSystem().sendPlaybackEntryPostStruct();
+                            mTomahawkApp.getInfoSystem().sendPlaybackEntryPostStruct(
+                                    mTomahawkApp.getTomahawkService().getAuthenticatorUtils(
+                                            TomahawkService.AUTHENTICATOR_ID_HATCHET));
                             mTomahawkMediaPlayer.pause();
                         }
                         if (mWakeLock.isHeld()) {

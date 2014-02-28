@@ -25,19 +25,17 @@ import org.apache.http.client.ClientProtocolException;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
+import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.infosystem.InfoPlugin;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -110,7 +108,9 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
     public static final String HATCHET_ACCOUNTDATA_USER_ID = "hatchet_preference_user_id";
 
-    TomahawkApp mTomahawkApp;
+    private TomahawkApp mTomahawkApp;
+
+    private HatchetAuthenticatorUtils mHatchetAuthenticatorUtils;
 
     private ObjectMapper mObjectMapper;
 
@@ -127,7 +127,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
      * Start the JSONSendTask to send the given InfoRequestData's json string
      */
     @Override
-    public void send(InfoRequestData infoRequestData) {
+    public void send(InfoRequestData infoRequestData, AuthenticatorUtils authenticatorUtils) {
+        mHatchetAuthenticatorUtils = (HatchetAuthenticatorUtils) authenticatorUtils;
         new JSONSendTask().execute(infoRequestData);
     }
 
@@ -369,22 +370,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 mObjectMapper = new ObjectMapper();
             }
             try {
-                String accessToken = null;
-                // Before we do anything, fetch the accesstoken
-                AccountManager am = AccountManager.get(mTomahawkApp.getApplicationContext());
-                if (am != null) {
-                    Account[] accounts = am
-                            .getAccountsByType(mTomahawkApp.getString(R.string.accounttype_string));
-                    if (accounts != null) {
-                        for (Account acc : accounts) {
-                            if (TomahawkService.AUTHENTICATOR_NAME_HATCHET.equals(
-                                    am.getUserData(acc, TomahawkService.AUTHENTICATOR_NAME))) {
-                                accessToken = am.getUserData(acc,
-                                        TomahawkService.CALUMET_ACCESS_TOKEN_HATCHET);
-                            }
-                        }
-                    }
-                }
+                // Before we do anything, get the accesstoken
+                String accessToken = mHatchetAuthenticatorUtils.ensureAccessTokens();
                 if (accessToken != null) {
                     for (InfoRequestData infoRequestData : infoRequestDatas) {
                         if (infoRequestData.getType()
@@ -433,35 +420,28 @@ public class HatchetInfoPlugin extends InfoPlugin {
             try {
                 // Before we do anything, fetch the mUserId corresponding to the currently logged in
                 // user's username
-                Account account = null;
-                AccountManager am = AccountManager.get(mTomahawkApp.getApplicationContext());
-                // If mUserId isn't set yet, try to fetch it from the hatchet account's userData
-                if (mUserId == null && am != null) {
-                    Account[] accounts = am
-                            .getAccountsByType(mTomahawkApp.getString(R.string.accounttype_string));
-                    if (accounts != null) {
-                        for (Account acc : accounts) {
-                            if (TomahawkService.AUTHENTICATOR_NAME_HATCHET.equals(
-                                    am.getUserData(acc, TomahawkService.AUTHENTICATOR_NAME))) {
-                                mUserId = am.getUserData(acc, HATCHET_ACCOUNTDATA_USER_ID);
-                                account = acc;
-                            }
-                        }
-                    }
-                }
+                Map<String, String> data = new HashMap<String, String>();
+                data.put(HATCHET_ACCOUNTDATA_USER_ID, null);
+                TomahawkUtils.getUserDataForAccount(mTomahawkApp, data,
+                        TomahawkService.AUTHENTICATOR_NAME_HATCHET);
+                mUserId = data.get(HATCHET_ACCOUNTDATA_USER_ID);
                 // If we couldn't fetch the user's id from the account's userData, get it from the
-                // API. Don't even bother to try if we don't have an account to store it with.
-                if (mUserId == null && account != null) {
+                // API.
+                String userName = AuthenticatorUtils.getUserName(mTomahawkApp,
+                        TomahawkService.AUTHENTICATOR_NAME_HATCHET);
+                if (mUserId == null && userName != null) {
                     Multimap<String, String> params = HashMultimap.create(1, 1);
-                    params.put(HATCHET_PARAM_NAME, AuthenticatorUtils.getUserId(mTomahawkApp,
-                            TomahawkService.AUTHENTICATOR_NAME_HATCHET));
+                    params.put(HATCHET_PARAM_NAME, userName);
                     String query = buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS,
                             params);
                     String rawJsonString = TomahawkUtils.httpsGet(query);
                     Users users = mObjectMapper.readValue(rawJsonString, Users.class);
                     if (users.users != null && users.users.size() > 0) {
                         mUserId = users.users.get(0).id;
-                        am.setUserData(account, HATCHET_ACCOUNTDATA_USER_ID, mUserId);
+                        data = new HashMap<String, String>();
+                        data.put(HATCHET_ACCOUNTDATA_USER_ID, mUserId);
+                        TomahawkUtils.setUserDataForAccount(mTomahawkApp, data,
+                                TomahawkService.AUTHENTICATOR_NAME_HATCHET);
                     }
                 }
                 for (InfoRequestData infoRequestData : infoRequestDatas) {

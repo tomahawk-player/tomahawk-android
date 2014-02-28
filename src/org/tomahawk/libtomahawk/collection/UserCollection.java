@@ -363,7 +363,7 @@ public class UserCollection extends Collection {
 
     public void updateHatchetUserPlaylists() {
         String userId = AuthenticatorUtils
-                .getUserId(mTomahawkApp, TomahawkService.AUTHENTICATOR_NAME_HATCHET);
+                .getUserName(mTomahawkApp, TomahawkService.AUTHENTICATOR_NAME_HATCHET);
         if (userId != null) {
             Multimap<String, String> params = HashMultimap.create(1, 1);
             params.put(InfoSystem.PARAM_NAME, userId);

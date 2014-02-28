@@ -12,8 +12,11 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.services.TomahawkService;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
@@ -40,6 +43,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -431,5 +435,93 @@ public class TomahawkUtils {
             }
         }
         return image.getImagePath();
+    }
+
+    /**
+     * Set the given map of string data as the userdata of the account with the given accountname.
+     *
+     * @param context     Context needed to get the AccountManager
+     * @param data        A Map<String, String> which contains all key value pairs to store
+     * @param accountName String containing the name of the account with which to store the given
+     *                    data
+     * @return true if successful, otherwise false
+     */
+    public static boolean setUserDataForAccount(Context context, Map<String, String> data,
+            String accountName) {
+        final AccountManager am = AccountManager.get(context);
+        Account account = getAccountByName(context, accountName);
+        if (am != null && account != null) {
+            for (String key : data.keySet()) {
+                am.setUserData(account, key, data.get(key));
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Fill the given Map with the userdata stored with the account, which is identified by the
+     * given accountname. The keys of the Map should match the keys that have been used to store the
+     * userdata with the account.
+     *
+     * @param context     Context needed to get the AccountManager
+     * @param data        A Map<String, String> which contains all keys for which to get the
+     *                    userdata
+     * @param accountName String containing the name of the account from which to get the userdata
+     * @return the filled map
+     */
+    public static Map<String, String> getUserDataForAccount(Context context,
+            Map<String, String> data, String accountName) {
+        final AccountManager am = AccountManager.get(context);
+        Account account = getAccountByName(context, accountName);
+        if (am != null && account != null) {
+            for (String key : data.keySet()) {
+                data.put(key, am.getUserData(account, key));
+            }
+        }
+        return data;
+    }
+
+    /**
+     * Get the stored auth token for the account with the given accountName from the cache. Doesn't
+     * refetch the authtoken if it has expired or isn't cached.
+     *
+     * @param context     Context needed to get the AccountManager
+     * @param accountName String containing the name of the account from which to get the auth
+     *                    token
+     * @return the auth token if available, otherwise null
+     */
+    public static String peekAuthTokenForAccount(Context context, String accountName) {
+        final AccountManager am = AccountManager.get(context);
+        Account account = getAccountByName(context, accountName);
+        if (am != null && account != null) {
+            return am.peekAuthToken(account, TomahawkService.AUTH_TOKEN_TYPE_HATCHET);
+        }
+        return null;
+    }
+
+    /**
+     * Get the Account from the AccountManager that has the given account name.
+     *
+     * @param context     Context needed to get the AccountManager
+     * @param accountName String containing the name of the account from which to get the auth
+     *                    token
+     * @return the account object or null if none with the given name could be found
+     */
+    public static Account getAccountByName(Context context, String accountName) {
+        final AccountManager am = AccountManager.get(context);
+        if (am != null) {
+            Account[] accounts = am
+                    .getAccountsByType(context.getString(R.string.accounttype_string));
+            if (accounts != null) {
+                for (Account account : accounts) {
+                    if (accountName.equals(am.getUserData(account,
+                            TomahawkService.AUTHENTICATOR_NAME))) {
+                        return account;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

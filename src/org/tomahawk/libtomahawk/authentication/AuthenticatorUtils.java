@@ -17,23 +17,18 @@
  */
 package org.tomahawk.libtomahawk.authentication;
 
-import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
 
 import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.content.Context;
-
-import java.util.Map;
 
 public abstract class AuthenticatorUtils {
 
     protected TomahawkApp mTomahawkApp;
 
     protected TomahawkService mTomahawkService;
-
-    protected Map<String, AccessToken> mAccessTokens;
 
     protected String mName;
 
@@ -47,19 +42,10 @@ public abstract class AuthenticatorUtils {
 
     public abstract void logout();
 
-    public static String getUserId(Context context, String authenticatorName) {
-        final AccountManager am = AccountManager.get(context);
-        if (am != null) {
-            Account[] accounts = am
-                    .getAccountsByType(context.getString(R.string.accounttype_string));
-            if (accounts != null) {
-                for (Account account : accounts) {
-                    if (authenticatorName
-                            .equals(am.getUserData(account, TomahawkService.AUTHENTICATOR_NAME))) {
-                        return account.name;
-                    }
-                }
-            }
+    public static String getUserName(Context context, String authenticatorName) {
+        Account account = TomahawkUtils.getAccountByName(context, authenticatorName);
+        if (account != null) {
+            return account.name;
         }
         return null;
     }
@@ -69,22 +55,8 @@ public abstract class AuthenticatorUtils {
         if (authenticatorName.equals(TomahawkService.AUTHENTICATOR_NAME_SPOTIFY)) {
             return SpotifyAuthenticatorUtils.isSpotifyLoggedIn();
         } else {
-            final AccountManager am = AccountManager.get(context);
-            if (am != null) {
-                Account[] accounts = am
-                        .getAccountsByType(context.getString(R.string.accounttype_string));
-                if (accounts != null) {
-                    for (Account account : accounts) {
-                        if (authenticatorName
-                                .equals(am.getUserData(account,
-                                        TomahawkService.AUTHENTICATOR_NAME))) {
-                            return am.peekAuthToken(account, authTokenType) != null;
-                        }
-                    }
-                }
-            }
+            return TomahawkUtils.peekAuthTokenForAccount(context, authenticatorName) != null;
         }
-        return false;
     }
 
     public boolean isAuthenticating() {

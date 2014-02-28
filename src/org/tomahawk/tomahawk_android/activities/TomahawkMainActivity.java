@@ -78,11 +78,7 @@ import android.widget.TextView;
  */
 public class TomahawkMainActivity extends ActionBarActivity
         implements PlaybackServiceConnectionListener,
-        TomahawkService.TomahawkServiceConnection.TomahawkServiceConnectionListener,
         LoaderManager.LoaderCallbacks<Collection> {
-
-    public static final String TOMAHAWKSERVICE_READY
-            = "org.tomahawk.tomahawk_android.tomahawkservice_ready";
 
     public static final String PLAYBACKSERVICE_READY
             = "org.tomahawk.tomahawk_android.playbackservice_ready";
@@ -102,11 +98,6 @@ public class TomahawkMainActivity extends ActionBarActivity
             this);
 
     private PlaybackService mPlaybackService;
-
-    private TomahawkService.TomahawkServiceConnection mTomahawkServiceConnection
-            = new TomahawkService.TomahawkServiceConnection(this);
-
-    private TomahawkService mTomahawkService;
 
     private DrawerLayout mDrawerLayout;
 
@@ -206,9 +197,6 @@ public class TomahawkMainActivity extends ActionBarActivity
         Intent intent = new Intent(this, PlaybackService.class);
         startService(intent);
         bindService(intent, mPlaybackServiceConnection, Context.BIND_AUTO_CREATE);
-        intent = new Intent(this, TomahawkService.class);
-        startService(intent);
-        bindService(intent, mTomahawkServiceConnection, Context.BIND_AUTO_CREATE);
 
         setContentView(R.layout.tomahawk_main_activity);
 
@@ -381,9 +369,6 @@ public class TomahawkMainActivity extends ActionBarActivity
         if (mPlaybackService != null) {
             unbindService(mPlaybackServiceConnection);
         }
-        if (mTomahawkService != null) {
-            unbindService(mTomahawkServiceConnection);
-        }
 
         super.onDestroy();
     }
@@ -526,21 +511,8 @@ public class TomahawkMainActivity extends ActionBarActivity
         mPlaybackService = ps;
     }
 
-    @Override
-    public void setTomahawkService(TomahawkService ps) {
-        mTomahawkService = ps;
-    }
-
-    /**
-     * If the TomahawkService signals, that it is ready, this method is being called
-     */
-    @Override
-    public void onTomahawkServiceReady() {
-        sendBroadcast(new Intent(TOMAHAWKSERVICE_READY));
-    }
-
-    public TomahawkService getTomahawkService() {
-        return mTomahawkService;
+    public PlaybackService getPlaybackService() {
+        return mPlaybackService;
     }
 
     /**
@@ -567,10 +539,6 @@ public class TomahawkMainActivity extends ActionBarActivity
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         mUserCollection = (UserCollection) coll;
-    }
-
-    public PlaybackService getPlaybackService() {
-        return mPlaybackService;
     }
 
     /**
