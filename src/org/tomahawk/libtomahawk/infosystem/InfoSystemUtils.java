@@ -111,44 +111,6 @@ public class InfoSystemUtils {
     }
 
     /**
-     * Convert the given artistInfo into an Artist object
-     */
-    public static Artist artistInfoToArtist(ArtistInfo artistInfo, Image image) {
-        Artist artist = Artist.get(artistInfo.name);
-        if (artist.getImage() == null && image != null && !TextUtils.isEmpty(image.squareurl)) {
-            artist.setImage(org.tomahawk.libtomahawk.collection.Image.get(image.squareurl, true,
-                    image.width, image.height));
-        }
-        return artist;
-    }
-
-    /**
-     * Fill the given album with the given albuminfo, without overriding any values that have
-     * already been set
-     */
-    public static Album fillAlbumWithAlbumInfo(Album album, AlbumInfo albumInfo,
-            Image image) {
-        if (album.getImage() == null && image != null && !TextUtils.isEmpty(image.squareurl)) {
-            album.setImage(org.tomahawk.libtomahawk.collection.Image.get(image.squareurl, true,
-                    image.width, image.height));
-        }
-        return album;
-    }
-
-    /**
-     * Fill the given album's tracks with the given list of trackinfos
-     */
-    public static Album fillAlbumWithTracks(Album album, List<TrackInfo> trackInfos) {
-        if (trackInfos != null) {
-            for (TrackInfo trackInfo : trackInfos) {
-                album.addQuery(Query.get(trackInfo.name, album.getName(),
-                        album.getArtist().getName(), false, true));
-            }
-        }
-        return album;
-    }
-
-    /**
      * Fill the given artist's albums with the given list of albums
      */
     public static Artist fillArtistWithAlbums(Artist artist, Map<AlbumInfo, Tracks> tracksMap,
@@ -185,24 +147,52 @@ public class InfoSystemUtils {
     }
 
     /**
+     * Convert the given artistInfo into an Artist object
+     */
+    public static Artist artistInfoToArtist(ArtistInfo artistInfo, Image image) {
+        Artist artist = Artist.get(artistInfo.name);
+        fillArtistWithArtistInfo(artist, artistInfo, image);
+        return artist;
+    }
+
+    /**
+     * Fill the given album with the given albuminfo, without overriding any values that have
+     * already been set
+     */
+    public static Album fillAlbumWithAlbumInfo(Album album, AlbumInfo albumInfo,
+            Image image) {
+        if (album.getImage() == null && image != null && !TextUtils.isEmpty(image.squareurl)) {
+            album.setImage(org.tomahawk.libtomahawk.collection.Image.get(image.squareurl, true,
+                    image.width, image.height));
+        }
+        return album;
+    }
+
+    /**
+     * Fill the given album's tracks with the given list of trackinfos
+     */
+    public static Album fillAlbumWithTracks(Album album, List<TrackInfo> trackInfos) {
+        ArrayList<Query> queries = new ArrayList<Query>();
+        if (trackInfos != null && !album.hasQueriesFetchedViaHatchet()) {
+            for (TrackInfo trackInfo : trackInfos) {
+                Query query = Query.get(trackInfo.name, album.getName(),
+                        album.getArtist().getName(), false, true);
+                album.addQuery(query);
+                queries.add(query);
+            }
+            album.setQueriesFetchedViaHatchet(queries);
+        }
+        return album;
+    }
+
+    /**
      * Convert the given albuminfo to an album
      */
     public static Album albumInfoToAlbum(AlbumInfo albumInfo, String artistName,
             List<TrackInfo> trackInfos, Image image) {
         Album album = Album.get(albumInfo.name, Artist.get(artistName));
-        ArrayList<Query> queries = new ArrayList<Query>();
-        if (album.getImage() == null && image != null && !TextUtils.isEmpty(image.squareurl)) {
-            album.setImage(org.tomahawk.libtomahawk.collection.Image.get(image.squareurl, true,
-                    image.width, image.height));
-        }
-        if (trackInfos != null && !album.hasQueriesFetchedViaHatchet()) {
-            for (TrackInfo trackInfo : trackInfos) {
-                Query query = Query.get(trackInfo.name, album.getName(), artistName, false, true);
-                queries.add(query);
-                album.addQuery(query);
-            }
-        }
-        album.setQueriesFetchedViaHatchet(queries);
+        fillAlbumWithAlbumInfo(album, albumInfo, image);
+        fillAlbumWithTracks(album, trackInfos);
         return album;
     }
 }
