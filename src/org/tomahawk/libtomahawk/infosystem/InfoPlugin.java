@@ -17,11 +17,12 @@
  */
 package org.tomahawk.libtomahawk.infosystem;
 
+import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 public abstract class InfoPlugin {
 
-    public abstract void send(InfoRequestData infoRequestData);
+    public abstract void send(InfoRequestData infoRequestData, AuthenticatorUtils authenticatorUtils);
 
     public abstract void resolve(InfoRequestData infoRequestData);
 

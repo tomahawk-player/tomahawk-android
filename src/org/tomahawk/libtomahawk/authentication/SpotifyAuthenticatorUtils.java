@@ -19,6 +19,7 @@ package org.tomahawk.libtomahawk.authentication;
 
 import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
@@ -162,22 +163,13 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
      * Try to login to spotify with stored credentials
      */
     public void loginWithToken() {
-        final AccountManager am = AccountManager.get(mTomahawkApp);
-        if (am != null) {
-            Account[] accounts = am
-                    .getAccountsByType(mTomahawkApp.getString(R.string.accounttype_string));
-            if (accounts != null) {
-                for (Account account : accounts) {
-                    if (mName.equals(am.getUserData(account, TomahawkService.AUTHENTICATOR_NAME))) {
-                        String blob = am
-                                .peekAuthToken(account, TomahawkService.AUTH_TOKEN_TYPE_SPOTIFY);
-                        String email = account.name;
-                        if (email != null && blob != null) {
-                            mIsAuthenticating = true;
-                            LibSpotifyWrapper.loginUser(email, "", blob);
-                        }
-                    }
-                }
+        Account account = TomahawkUtils.getAccountByName(mTomahawkApp, mName);
+        if (account != null) {
+            String blob = TomahawkUtils.peekAuthTokenForAccount(mTomahawkApp, mName);
+            String email = account.name;
+            if (email != null && blob != null) {
+                mIsAuthenticating = true;
+                LibSpotifyWrapper.loginUser(email, "", blob);
             }
         }
     }
@@ -189,16 +181,9 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
     public void logout() {
         mIsAuthenticating = true;
         final AccountManager am = AccountManager.get(mTomahawkApp);
-        if (am != null) {
-            Account[] accounts = am
-                    .getAccountsByType(mTomahawkApp.getString(R.string.accounttype_string));
-            if (accounts != null) {
-                for (Account account : accounts) {
-                    if (mName.equals(am.getUserData(account, TomahawkService.AUTHENTICATOR_NAME))) {
-                        am.removeAccount(account, null, null);
-                    }
-                }
-            }
+        Account account = TomahawkUtils.getAccountByName(mTomahawkApp, mName);
+        if (am != null && account != null) {
+            am.removeAccount(TomahawkUtils.getAccountByName(mTomahawkApp, mName), null, null);
         }
         LibSpotifyWrapper.logoutUser();
     }

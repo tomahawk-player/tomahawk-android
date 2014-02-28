@@ -185,7 +185,7 @@ public class LoginDialog extends DialogFragment {
         mUsernameEditText.setText(AuthenticatorUtils
                 .isLoggedIn(getActivity().getApplicationContext(), mAuthenticatorName,
                         mAuthenticatorAuthTokenType) ? AuthenticatorUtils
-                .getUserId(getActivity().getApplicationContext(), mAuthenticatorName) : "");
+                .getUserName(getActivity().getApplicationContext(), mAuthenticatorName) : "");
         mPasswordEditText = (EditText) view.findViewById(R.id.login_dialog_password_edittext);
         mPasswordEditText.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         mPasswordEditText.setSingleLine(true);

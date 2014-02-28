@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.infosystem;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
+import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.infosystem.hatchet.NowPlaying;
@@ -212,7 +213,7 @@ public class InfoSystem {
         }
     }
 
-    public void sendPlaybackEntryPostStruct() {
+    public void sendPlaybackEntryPostStruct(AuthenticatorUtils authenticatorUtils) {
         if (mNowPlaying != null && mNowPlaying != mLastPlaybackLogEntry) {
             mLastPlaybackLogEntry = mNowPlaying;
             PlaybackLogEntry playbackLogEntry = new PlaybackLogEntry();
@@ -226,13 +227,13 @@ public class InfoSystem {
             InfoRequestData infoRequestData = new InfoRequestData(requestId,
                     InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES,
                     playbackLogPostStruct);
-            send(infoRequestData);
+            send(infoRequestData, authenticatorUtils);
         }
     }
 
-    public void sendNowPlayingPostStruct(Query query) {
+    public void sendNowPlayingPostStruct(Query query, AuthenticatorUtils authenticatorUtils) {
         if (mNowPlaying != query) {
-            sendPlaybackEntryPostStruct();
+            sendPlaybackEntryPostStruct(authenticatorUtils);
             mNowPlaying = query;
             NowPlaying nowPlaying = new NowPlaying();
             nowPlaying.album = query.getAlbum().getName();
@@ -245,20 +246,22 @@ public class InfoSystem {
             InfoRequestData infoRequestData = new InfoRequestData(requestId,
                     InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES_NOWPLAYING,
                     nowPlayingPostStruct);
-            send(infoRequestData);
+            send(infoRequestData, authenticatorUtils);
         }
     }
 
     /**
      * Send the given InfoRequestData's data out to every service that can handle it
      *
-     * @param infoRequestData the InfoRequestData object to fetch results for
+     * @param infoRequestData    the InfoRequestData object to fetch results for
+     * @param authenticatorUtils the AuthenticatorUtils object to fetch the appropriate access
+     *                           tokens
      */
-    public void send(InfoRequestData infoRequestData) {
+    public void send(InfoRequestData infoRequestData, AuthenticatorUtils authenticatorUtils) {
         mRequests.put(infoRequestData.getRequestId(), infoRequestData);
         mResolvingRequests.put(infoRequestData.getRequestId(), infoRequestData);
         for (InfoPlugin infoPlugin : mInfoPlugins) {
-            infoPlugin.send(infoRequestData);
+            infoPlugin.send(infoRequestData, authenticatorUtils);
         }
     }
 

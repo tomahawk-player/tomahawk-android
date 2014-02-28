@@ -20,7 +20,6 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter;
 import org.tomahawk.tomahawk_android.dialogs.LoginDialog;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
@@ -82,8 +81,8 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (TomahawkMainActivity.TOMAHAWKSERVICE_READY.equals(intent.getAction())) {
-                mTomahawkMainActivity.getTomahawkService()
+            if (TomahawkApp.TOMAHAWKSERVICE_READY.equals(intent.getAction())) {
+                mTomahawkApp.getTomahawkService()
                         .setOnAuthenticatedListener(FakePreferenceFragment.this);
                 updateLogInOutState();
             }
@@ -102,8 +101,8 @@ public class FakePreferenceFragment extends TomahawkListFragment
                 .getDefaultSharedPreferences(TomahawkApp.getContext());
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
-        if (mTomahawkMainActivity.getTomahawkService() != null) {
-            mTomahawkMainActivity.getTomahawkService().setOnAuthenticatedListener(this);
+        if (mTomahawkApp.getTomahawkService() != null) {
+            mTomahawkApp.getTomahawkService().setOnAuthenticatedListener(this);
         }
 
         // Set up the set of FakePreferences to be shown in this Fragment
@@ -171,7 +170,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
                         getArguments().getString(TomahawkService.AUTHENTICATOR_ID));
                 if (authenticatorId == TomahawkService.AUTHENTICATOR_ID_HATCHET
                         || authenticatorId == TomahawkService.AUTHENTICATOR_ID_SPOTIFY) {
-                    new LoginDialog(mTomahawkMainActivity.getTomahawkService(), authenticatorId)
+                    new LoginDialog(mTomahawkApp.getTomahawkService(), authenticatorId)
                             .show(getFragmentManager(), null);
                 }
             }
@@ -179,7 +178,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
         mFakePreferenceFragmentReceiver = new FakePreferenceFragmentReceiver();
         mTomahawkMainActivity.registerReceiver(mFakePreferenceFragmentReceiver,
-                new IntentFilter(TomahawkMainActivity.TOMAHAWKSERVICE_READY));
+                new IntentFilter(TomahawkApp.TOMAHAWKSERVICE_READY));
     }
 
     /**
@@ -220,19 +219,19 @@ public class FakePreferenceFragment extends TomahawkListFragment
                         ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position))
                                 .getKey(), !preferenceState);
                 editor.commit();
-            } else if ((mTomahawkMainActivity.getTomahawkService() != null)
+            } else if ((mTomahawkApp.getTomahawkService() != null)
                     && ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position)).
                     getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_DIALOG) {
                 // if a FakePreference of type "FAKEPREFERENCE_TYPE_DIALOG" has been clicked,
                 // we show a LoginDialog
                 if (((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position))
                         .getKey().equals(FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN)) {
-                    new LoginDialog(mTomahawkMainActivity.getTomahawkService(),
+                    new LoginDialog(mTomahawkApp.getTomahawkService(),
                             TomahawkService.AUTHENTICATOR_ID_SPOTIFY)
                             .show(getFragmentManager(), null);
                 } else if (((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position))
                         .getKey().equals(FAKEPREFERENCEFRAGMENT_KEY_HATCHETLOGGEDIN)) {
-                    new LoginDialog(mTomahawkMainActivity.getTomahawkService(),
+                    new LoginDialog(mTomahawkApp.getTomahawkService(),
                             TomahawkService.AUTHENTICATOR_ID_HATCHET)
                             .show(getFragmentManager(), null);
                 }
@@ -279,7 +278,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
     public void updateLogInOutState() {
         // Initialize the state of the FakePreference's checkboxes
-        if (mTomahawkMainActivity.getTomahawkService() != null) {
+        if (mTomahawkApp.getTomahawkService() != null) {
             if (AuthenticatorUtils.isLoggedIn(mTomahawkMainActivity.getApplicationContext(),
                     TomahawkService.AUTHENTICATOR_NAME_SPOTIFY,
                     TomahawkService.AUTH_TOKEN_TYPE_SPOTIFY)) {

@@ -32,6 +32,7 @@ import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
+import org.tomahawk.tomahawk_android.services.TomahawkService;
 import org.tomahawk.tomahawk_android.utils.ContentViewer;
 import org.tomahawk.tomahawk_android.utils.TomahawkExceptionReporter;
 
@@ -54,9 +55,13 @@ import android.util.Log;
         resDialogTitle = R.string.crash_dialog_title,
         resDialogCommentPrompt = R.string.crash_dialog_comment_prompt,
         resDialogOkToast = R.string.crash_dialog_ok_toast)
-public class TomahawkApp extends Application {
+public class TomahawkApp extends Application implements
+        TomahawkService.TomahawkServiceConnection.TomahawkServiceConnectionListener {
 
     private static final String TAG = TomahawkApp.class.getName();
+
+    public static final String TOMAHAWKSERVICE_READY
+            = "org.tomahawk.tomahawk_android.tomahawkservice_ready";
 
     public static final int RESOLVER_ID_USERCOLLECTION = 0;
 
@@ -88,6 +93,11 @@ public class TomahawkApp extends Application {
     private UserPlaylistsDataSource mUserPlaylistsDataSource;
 
     private ContentViewer mContentViewer;
+
+    private TomahawkService.TomahawkServiceConnection mTomahawkServiceConnection
+            = new TomahawkService.TomahawkServiceConnection(this);
+
+    private TomahawkService mTomahawkService;
 
     private static long mSessionIdCounter = 0;
 
@@ -151,6 +161,9 @@ public class TomahawkApp extends Application {
         mPipeLine.setAllResolversAdded(true);
         mInfoSystem = new InfoSystem(this);
         mInfoSystem.addInfoPlugin(new HatchetInfoPlugin(this));
+        Intent intent = new Intent(this, TomahawkService.class);
+        startService(intent);
+        bindService(intent, mTomahawkServiceConnection, Context.BIND_AUTO_CREATE);
 
         // Initialize UserPlaylistsDataSource, which makes it possible to retrieve persisted
         // UserPlaylists
@@ -224,6 +237,23 @@ public class TomahawkApp extends Application {
      */
     public static Context getContext() {
         return sApplicationContext;
+    }
+
+    @Override
+    public void setTomahawkService(TomahawkService ps) {
+        mTomahawkService = ps;
+    }
+
+    /**
+     * If the TomahawkService signals, that it is ready, this method is being called
+     */
+    @Override
+    public void onTomahawkServiceReady() {
+        sendBroadcast(new Intent(TOMAHAWKSERVICE_READY));
+    }
+
+    public TomahawkService getTomahawkService() {
+        return mTomahawkService;
     }
 
     public static long getSessionUniqueId() {

@@ -68,16 +68,16 @@ public class TomahawkService extends Service {
     public static final String AUTH_TOKEN_EXPIRES_IN_HATCHET
             = "org.tomahawk.hatchet.authtokenexpiresin";
 
-    public static final String MANDELA_ACCESS_TOKEN_HATCHET
+    public static final String MANDELLA_ACCESS_TOKEN_HATCHET
             = "org.tomahawk.hatchet.mandellaaccesstoken";
 
-    public static final String MANDELA_ACCESS_TOKEN_EXPIRES_IN_HATCHET
+    public static final String MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET
             = "org.tomahawk.hatchet.mandellaaccesstokenexpiresin";
 
     public static final String CALUMET_ACCESS_TOKEN_HATCHET
             = "org.tomahawk.hatchet.calumetaccesstoken";
 
-    public static final String CALUMET_ACCESS_TOKEN_EXPIRES_IN_HATCHET
+    public static final String CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET
             = "org.tomahawk.hatchet.calumetaccesstokenexpiresin";
 
     public static final int AUTHENTICATOR_ID_SPOTIFY = 0;
