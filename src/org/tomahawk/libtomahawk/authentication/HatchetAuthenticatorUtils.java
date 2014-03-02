@@ -292,7 +292,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
         if (calumetExpirationTimeString != null) {
             calumetExpirationTime = Integer.valueOf(mandellaExpirationTimeString);
         }
-        int currentTime = (int) System.currentTimeMillis() / 1000;
+        int currentTime = (int) (System.currentTimeMillis() / 1000);
         String refreshToken = TomahawkUtils.peekAuthTokenForAccount(mTomahawkApp, mName);
         if (refreshToken != null && (mandellaAccessToken == null
                 || currentTime > mandellaExpirationTime - EXPIRING_LIMIT)) {
@@ -349,9 +349,10 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 Map<String, String> data = new HashMap<String, String>();
                 accessToken = jsonObject.getString(RESPONSE_ACCESS_TOKEN);
                 int expiresIn = jsonObject.getInt(RESPONSE_EXPIRES_IN);
-                int currentTime = (int) System.currentTimeMillis() / 1000;
+                int currentTime = (int) (System.currentTimeMillis() / 1000);
                 int expirationTime = currentTime + expiresIn;
-                Log.d(TAG, "current: " + currentTime + " expirationTime:" + expirationTime);
+                Log.d(TAG, "Access token fetched, current time: '" + currentTime +
+                        "', expiration time: '" + expirationTime + "'");
                 if (tokenType.equals(RESPONSE_TOKEN_TYPE_BEARER)) {
                     data.put(TomahawkService.MANDELLA_ACCESS_TOKEN_HATCHET, accessToken);
                     data.put(TomahawkService.MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
