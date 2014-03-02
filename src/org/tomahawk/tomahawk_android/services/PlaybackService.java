@@ -874,7 +874,8 @@ public class PlaybackService extends Service {
      */
     public int getPosition() {
         int position = 0;
-        if (getCurrentQuery().getPreferredTrackResult() != null && mLastPreparedPath
+        if (getCurrentQuery() != null && getCurrentQuery().getPreferredTrackResult() != null
+                && mLastPreparedPath
                 .equals(getCurrentQuery().getPreferredTrackResult().getPath())) {
             try {
                 position = mTomahawkMediaPlayer.getCurrentPosition();
