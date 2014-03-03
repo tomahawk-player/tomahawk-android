@@ -496,8 +496,7 @@ public class TomahawkFragment extends TomahawkListFragment
             if (playbackService != null) {
                 playbackService.addQueriesToCurrentPlaylist(queries);
             }
-        } else if (menuItemTitle
-                .equals(tomahawkMainActivity.getResources()
+        } else if (menuItemTitle.equals(tomahawkMainActivity.getResources()
                         .getString(R.string.fake_context_menu_addtoplaylist))) {
             queries = tomahawkListItem.getQueries(mIsLocal);
             new ChooseUserPlaylistDialog(userCollection, queries)
@@ -506,22 +505,18 @@ public class TomahawkFragment extends TomahawkListFragment
             userCollection.updateUserPlaylists();
         } else if (menuItemTitle.equals(tomahawkMainActivity.getResources()
                 .getString(R.string.menu_item_go_to_album))) {
-            if (playbackService.getCurrentQuery() != null) {
-                Bundle bundle = new Bundle();
-                String key = TomahawkUtils.getCacheKey(tomahawkListItem.getAlbum());
-                bundle.putString(TOMAHAWK_ALBUM_KEY, key);
-                mTomahawkApp.getContentViewer()
-                        .replace(TracksFragment.class, key, TOMAHAWK_ALBUM_KEY, false, false);
-            }
+            Bundle bundle = new Bundle();
+            String key = TomahawkUtils.getCacheKey(tomahawkListItem.getAlbum());
+            bundle.putString(TOMAHAWK_ALBUM_KEY, key);
+            mTomahawkApp.getContentViewer()
+                    .replace(TracksFragment.class, key, TOMAHAWK_ALBUM_KEY, false, false);
         } else if (menuItemTitle.equals(tomahawkMainActivity.getResources()
                 .getString(R.string.menu_item_go_to_artist))) {
-            if (playbackService.getCurrentQuery() != null) {
-                Bundle bundle = new Bundle();
-                String key = TomahawkUtils.getCacheKey(tomahawkListItem.getArtist());
-                bundle.putString(TOMAHAWK_ARTIST_KEY, key);
-                mTomahawkApp.getContentViewer()
-                        .replace(AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, false, false);
-            }
+            Bundle bundle = new Bundle();
+            String key = TomahawkUtils.getCacheKey(tomahawkListItem.getArtist());
+            bundle.putString(TOMAHAWK_ARTIST_KEY, key);
+            mTomahawkApp.getContentViewer()
+                    .replace(AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, false, false);
         }
     }
 
