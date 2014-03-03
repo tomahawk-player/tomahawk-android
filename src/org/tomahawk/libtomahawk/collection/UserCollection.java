@@ -18,24 +18,15 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-
-import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
-import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
-import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
-import org.tomahawk.libtomahawk.infosystem.hatchet.PlaylistEntries;
-import org.tomahawk.libtomahawk.infosystem.hatchet.PlaylistInfo;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.services.TomahawkService;
 
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -53,7 +44,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -123,51 +113,7 @@ public class UserCollection extends Collection {
                 final String requestId = intent
                         .getStringExtra(InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
                 if (mCorrespondingRequestIds.contains(requestId)) {
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            ArrayList<String> ids = new ArrayList<String>();
-                            if (mTomahawkApp.getInfoSystem().getInfoRequestById(requestId)
-                                    .getInfoResultMap() != null) {
-                                Map<PlaylistInfo, PlaylistEntries> playlistInfoMap = mTomahawkApp
-                                        .getInfoSystem().getInfoRequestById(requestId)
-                                        .getInfoResultMap()
-                                        .get(HatchetInfoPlugin.HATCHET_PLAYLISTS_ENTRIES);
-                                List<PlaylistInfo> playlistInfos = new ArrayList<PlaylistInfo>(
-                                        playlistInfoMap.keySet());
-                                for (PlaylistInfo playlistInfo : playlistInfos) {
-                                    UserPlaylist userPlaylist = InfoSystemUtils
-                                            .playlistInfoToUserPlaylist(playlistInfo,
-                                                    playlistInfoMap.get(playlistInfo));
-                                    if (userPlaylist != null) {
-                                        ids.add(userPlaylist.getId());
-                                        UserPlaylist storedUserPlaylist = mTomahawkApp
-                                                .getUserPlaylistsDataSource()
-                                                .getUserPlaylist(userPlaylist.getId());
-                                        if (storedUserPlaylist == null
-                                                || storedUserPlaylist.getCurrentRevision() == null
-                                                || !storedUserPlaylist.getCurrentRevision().equals(
-                                                userPlaylist.getCurrentRevision())) {
-                                            // Userplaylist is not already stored, or has different or no
-                                            // revision string, so we store it
-                                            mTomahawkApp.getUserPlaylistsDataSource()
-                                                    .storeUserPlaylist(userPlaylist);
-                                        }
-                                    }
-                                }
-                                // Delete every playlist that has not been fetched via Hatchet.
-                                // Meaning it is no longer valid.
-                                for (UserPlaylist userPlaylist : mTomahawkApp
-                                        .getUserPlaylistsDataSource().getHatchetUserPlaylists()) {
-                                    if (!ids.contains(userPlaylist.getId())) {
-                                        mTomahawkApp.getUserPlaylistsDataSource()
-                                                .deleteUserPlaylist(userPlaylist.getId());
-                                    }
-                                }
-                                UserCollection.this.updateUserPlaylists();
-                            }
-                        }
-                    }).start();
+                    UserCollection.this.updateUserPlaylists();
                 }
             }
         }
@@ -362,14 +308,8 @@ public class UserCollection extends Collection {
     }
 
     public void updateHatchetUserPlaylists() {
-        String userId = AuthenticatorUtils
-                .getUserName(mTomahawkApp, TomahawkService.AUTHENTICATOR_NAME_HATCHET);
-        if (userId != null) {
-            Multimap<String, String> params = HashMultimap.create(1, 1);
-            params.put(InfoSystem.PARAM_NAME, userId);
-            mCorrespondingRequestIds.add(mTomahawkApp.getInfoSystem()
-                    .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS_ALL, params));
-        }
+        mCorrespondingRequestIds.add(mTomahawkApp.getInfoSystem()
+                .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS_ALL, null));
     }
 
     /**
