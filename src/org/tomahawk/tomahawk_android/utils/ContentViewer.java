@@ -17,11 +17,13 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
+import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
+import org.tomahawk.tomahawk_android.fragments.TracksFragment;
 import org.tomahawk.tomahawk_android.fragments.UserCollectionFragment;
 import org.tomahawk.tomahawk_android.fragments.UserPlaylistsFragment;
 
@@ -63,13 +65,15 @@ public class ContentViewer {
 
     public static final int HUB_ID_COLLECTION = 0;
 
-    public static final int HUB_ID_PLAYLISTS = 1;
+    public static final int HUB_ID_LOVEDTRACKS = 1;
+
+    public static final int HUB_ID_PLAYLISTS = 2;
 
     public static final int HUB_ID_STATIONS = -2;
 
     public static final int HUB_ID_FRIENDS = -3;
 
-    public static final int HUB_ID_SETTINGS = 2;
+    public static final int HUB_ID_SETTINGS = 3;
 
     public static final int HUB_ID_PLAYBACK = 100;
 
@@ -111,7 +115,7 @@ public class ContentViewer {
 
         /**
          * Construct a {@link FragmentStateHolder} without providing a reference to a {@link
-         * org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
+         * TomahawkListItem}
          */
         public FragmentStateHolder(Class clss, ArrayList<String> correspondingQueryIds) {
             this.clss = clss;
@@ -120,7 +124,7 @@ public class ContentViewer {
 
         /**
          * Construct a {@link FragmentStateHolder} while also providing a reference to a {@link
-         * org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
+         * TomahawkListItem}
          */
         public FragmentStateHolder(Class clss, ArrayList<String> correspondingQueryIds,
                 String tomahawkListItemKey, String tomahawkListItemType,
@@ -203,10 +207,9 @@ public class ContentViewer {
      *
      * @param clss                 The {@link Fragment}'s class to be used to construct a new {@link
      *                             FragmentStateHolder}
-     * @param tomahawkListItemKey  the key of the {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}
-     *                             corresponding to the {@link Fragment}
-     * @param tomahawkListItemType {@link String} containing the {@link org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter.TomahawkListItem}'s
-     *                             type
+     * @param tomahawkListItemKey  the key of the {@link TomahawkListItem} corresponding to the
+     *                             {@link Fragment}
+     * @param tomahawkListItemType {@link String} containing the {@link TomahawkListItem}'s type
      * @param isBackAction         whether or not the replacement is part of an action going back in
      *                             the backstack
      */
@@ -266,31 +269,39 @@ public class ContentViewer {
      * @param hubToShow the id of the hub which should be shown
      */
     public void showHub(int hubToShow) {
-        Class clss = null;
+        FragmentStateHolder newFragmentStateHolder = null;
         switch (hubToShow) {
             case HUB_ID_HOME:
             case HUB_ID_COLLECTION:
-                clss = UserCollectionFragment.class;
+                newFragmentStateHolder = new FragmentStateHolder(UserCollectionFragment.class,
+                        null);
+                break;
+            case HUB_ID_LOVEDTRACKS:
+                newFragmentStateHolder = new FragmentStateHolder(TracksFragment.class, null,
+                        UserPlaylistsDataSource.LOVEDITEMS_PLAYLIST_ID,
+                        UserPlaylistsFragment.TOMAHAWK_USER_PLAYLIST_KEY, false);
                 break;
             case HUB_ID_PLAYLISTS:
-                clss = UserPlaylistsFragment.class;
+                newFragmentStateHolder = new FragmentStateHolder(UserPlaylistsFragment.class,
+                        null);
                 break;
             case HUB_ID_STATIONS:
             case HUB_ID_FRIENDS:
             case HUB_ID_SETTINGS:
-                clss = FakePreferenceFragment.class;
+                newFragmentStateHolder = new FragmentStateHolder(FakePreferenceFragment.class,
+                        null);
                 break;
             case HUB_ID_PLAYBACK:
-                clss = PlaybackFragment.class;
+                newFragmentStateHolder = new FragmentStateHolder(PlaybackFragment.class,
+                        null);
                 break;
         }
         FragmentStateHolder currentFragmentStateHolder = getCurrentFragmentStateHolder();
-        if (clss != null
+        if (newFragmentStateHolder != null
                 || currentFragmentStateHolder == null
                 || currentFragmentStateHolder.clss != null
                 || !TextUtils.isEmpty(currentFragmentStateHolder.tomahawkListItemKey)
                 || currentFragmentStateHolder.tomahawkListItemType != null) {
-            FragmentStateHolder newFragmentStateHolder = new FragmentStateHolder(clss, null);
             replace(newFragmentStateHolder, false);
         }
     }

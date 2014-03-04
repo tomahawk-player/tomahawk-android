@@ -172,17 +172,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             // Show the correct hub, and if needed, display the search editText inside the ActionBar
-            switch ((int) id) {
-                case ContentViewer.HUB_ID_COLLECTION:
-                    mTomahawkApp.getContentViewer().showHub(ContentViewer.HUB_ID_COLLECTION);
-                    break;
-                case ContentViewer.HUB_ID_PLAYLISTS:
-                    mTomahawkApp.getContentViewer().showHub(ContentViewer.HUB_ID_PLAYLISTS);
-                    break;
-                case ContentViewer.HUB_ID_SETTINGS:
-                    mTomahawkApp.getContentViewer().showHub(ContentViewer.HUB_ID_SETTINGS);
-                    break;
-            }
+            mTomahawkApp.getContentViewer().showHub((int) id);
             if (mDrawerLayout != null) {
                 mDrawerLayout.closeDrawer(mDrawerList);
             }
@@ -400,6 +390,8 @@ public class TomahawkMainActivity extends ActionBarActivity
         goToArtistItem.setVisible(false);
         final MenuItem goToAlbumItem = menu.findItem(R.id.action_gotoalbum_item);
         goToAlbumItem.setVisible(false);
+        final MenuItem loveItem = menu.findItem(R.id.action_love_item);
+        loveItem.setVisible(false);
         // customize the searchView
         final MenuItem searchItem = menu.findItem(R.id.action_search);
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);

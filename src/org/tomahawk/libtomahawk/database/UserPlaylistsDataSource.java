@@ -41,6 +41,10 @@ public class UserPlaylistsDataSource {
 
     public static final String CACHED_PLAYLIST_ID = "cached_playlist_id";
 
+    public static final String LOVEDITEMS_PLAYLIST_NAME = "My loved tracks";
+
+    public static final String LOVEDITEMS_PLAYLIST_ID = "loveditems_playlist_id";
+
     public static final int FALSE = 0;
 
     public static final int TRUE = 1;
@@ -149,6 +153,14 @@ public class UserPlaylistsDataSource {
         return getUserPlaylist(CACHED_PLAYLIST_ID);
     }
 
+    /**
+     * @return the stored {@link org.tomahawk.libtomahawk.collection.UserPlaylist} with
+     * LOVEDITEMS_PLAYLIST_ID as its id
+     */
+    public UserPlaylist getLovedItemsUserPlaylist() {
+        return getUserPlaylist(LOVEDITEMS_PLAYLIST_ID);
+    }
+
     public ArrayList<UserPlaylist> getLocalUserPlaylists() {
         return getUserPlaylists(true);
     }
@@ -165,15 +177,15 @@ public class UserPlaylistsDataSource {
         Cursor userplaylistsCursor = mDatabase
                 .query(TomahawkSQLiteHelper.TABLE_USERPLAYLISTS, mAllUserPlaylistsColumns,
                         TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ISHATCHETPLAYLIST + " = "
-                                + (onlyLocalPlaylists ? FALSE
-                                : TRUE),
-                        null, null, null, null);
+                                + (onlyLocalPlaylists ? FALSE : TRUE)
+                                + " AND " + TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ID + " != \""
+                                + CACHED_PLAYLIST_ID + "\""
+                                + " AND " + TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ID + " != \""
+                                + LOVEDITEMS_PLAYLIST_ID + "\"", null, null, null, null);
         userplaylistsCursor.moveToFirst();
         while (!userplaylistsCursor.isAfterLast()) {
-            if (!userplaylistsCursor.getString(0).equals(CACHED_PLAYLIST_ID)) {
-                UserPlaylist userPlaylist = getUserPlaylist(userplaylistsCursor.getString(0));
-                playListList.add(userPlaylist);
-            }
+            UserPlaylist userPlaylist = getUserPlaylist(userplaylistsCursor.getString(0));
+            playListList.add(userPlaylist);
             userplaylistsCursor.moveToNext();
         }
         userplaylistsCursor.close();
@@ -287,6 +299,66 @@ public class UserPlaylistsDataSource {
             mDatabase.endTransaction();
         }
         userplaylistsCursor.close();
+    }
+
+    /**
+     * Checks if a query with the same album/track/artistName as the given query is included in the
+     * lovedItems UserPlaylist
+     *
+     * @return whether or not the given query is loved
+     */
+    public boolean isItemLoved(Query query) {
+        Cursor userplaylistsCursor = mDatabase
+                .query(TomahawkSQLiteHelper.TABLE_USERPLAYLISTS, mAllUserPlaylistsColumns,
+                        TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ID + " = \""
+                                + LOVEDITEMS_PLAYLIST_ID + "\"", null, null, null, null);
+        if (userplaylistsCursor.moveToFirst()) {
+            Cursor tracksCursor = mDatabase
+                    .query(TomahawkSQLiteHelper.TABLE_TRACKS, mAllTracksColumns,
+                            TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS + " = \""
+                                    + LOVEDITEMS_PLAYLIST_ID + "\"", null, null, null, null);
+            tracksCursor.moveToFirst();
+            while (!tracksCursor.isAfterLast()) {
+                String trackName = tracksCursor.getString(2);
+                String artistName = tracksCursor.getString(3);
+                String albumName = tracksCursor.getString(4);
+                if (query.getName().equals(trackName) && query.getArtist().getName()
+                        .equals(artistName) && query.getAlbum().getName().equals(albumName)) {
+                    tracksCursor.close();
+                    userplaylistsCursor.close();
+                    return true;
+                }
+                tracksCursor.moveToNext();
+            }
+            tracksCursor.close();
+            userplaylistsCursor.close();
+        }
+        return false;
+    }
+
+    /**
+     * Store the given query as a lovedItem, if isLoved is true. Otherwise remove(unlove) the
+     * query.
+     */
+    public void setLovedItem(Query query, boolean isLoved) {
+        if (isLoved) {
+            ArrayList<Query> queries = new ArrayList<Query>();
+            queries.add(query);
+            addQueriesToUserPlaylist(UserPlaylistsDataSource.LOVEDITEMS_PLAYLIST_ID, queries);
+        } else {
+            mDatabase.beginTransaction();
+            mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
+                    TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS
+                            + " = \"" + LOVEDITEMS_PLAYLIST_ID + "\""
+                            + " AND " + TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME
+                            + " = \"" + query.getName() + "\""
+                            + " AND " + TomahawkSQLiteHelper.TRACKS_COLUMN_ARTISTNAME
+                            + " = \"" + query.getArtist().getName() + "\""
+                            + " AND " + TomahawkSQLiteHelper.TRACKS_COLUMN_ALBUMNAME
+                            + " = \"" + query.getAlbum().getName() + "\"", null);
+            mDatabase.setTransactionSuccessful();
+            mDatabase.endTransaction();
+        }
     }
 
     public Cursor getSearchHistoryCursor(String entry) {

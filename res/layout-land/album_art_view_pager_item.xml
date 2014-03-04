@@ -18,14 +18,23 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
     <ImageView
             android:id="@+id/album_art_image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
+    <ImageButton
+            android:id="@+id/love_button"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:padding="@dimen/padding_verysmall"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_action_loved_colored"/>
 
-</LinearLayout>
+</RelativeLayout>
