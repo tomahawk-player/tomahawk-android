@@ -33,7 +33,6 @@ import org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -149,8 +148,7 @@ public class PlaybackFragment extends TomahawkFragment
         PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
         ViewPager viewPager = (ViewPager) mTomahawkMainActivity.getLayoutInflater()
                 .inflate(R.layout.album_art_view_pager, null, false);
-        mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter((ActionBarActivity) getActivity(),
-                viewPager, this);
+        mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter(mTomahawkMainActivity, viewPager, this);
         mAlbumArtSwipeAdapter.setPlaybackService(playbackService);
         viewPager.setAdapter(mAlbumArtSwipeAdapter);
         viewPager.setOnPageChangeListener(mAlbumArtSwipeAdapter);
@@ -186,8 +184,9 @@ public class PlaybackFragment extends TomahawkFragment
         mMenu.findItem(R.id.action_saveplaylist_item).setVisible(true);
         mMenu.findItem(R.id.action_gotoartist_item).setVisible(true);
         mMenu.findItem(R.id.action_gotoalbum_item).setVisible(true);
+        mMenu.findItem(R.id.action_love_item).setVisible(true);
 
-        handlePageSelect();
+        onTrackChanged();
 
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -228,6 +227,10 @@ public class PlaybackFragment extends TomahawkFragment
                     bundle.putString(TOMAHAWK_ALBUM_KEY, key);
                     mTomahawkApp.getContentViewer()
                             .replace(TracksFragment.class, key, TOMAHAWK_ALBUM_KEY, false, false);
+                }
+            } else if (item.getItemId() == R.id.action_love_item) {
+                if (playbackService.getCurrentQuery() != null) {
+                    toggleLovedItem(playbackService.getCurrentQuery());
                 }
             }
         }
@@ -558,6 +561,20 @@ public class PlaybackFragment extends TomahawkFragment
                 mPlaybackSeekBar.setUpdateInterval();
                 mPlaybackSeekBar.updateSeekBarPosition();
                 mPlaybackSeekBar.updateTextViewCompleteTime();
+
+                // Update the love menu action item
+                if (mMenu != null) {
+                    MenuItem lovedItem = mMenu.findItem(R.id.action_love_item);
+                    if (lovedItem != null) {
+                        if (mTomahawkMainActivity.getUserCollection().isQueryLoved(query)) {
+                            lovedItem.setTitle(R.string.fake_context_menu_unlove_track);
+                            lovedItem.setIcon(R.drawable.ic_action_loved);
+                        } else {
+                            lovedItem.setTitle(R.string.fake_context_menu_love_track);
+                            lovedItem.setIcon(R.drawable.ic_action_notloved);
+                        }
+                    }
+                }
             } else {
                 //No track has been given, so we update the view state accordingly
 

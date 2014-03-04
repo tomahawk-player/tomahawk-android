@@ -63,8 +63,6 @@ public class UserCollection extends Collection {
 
     private ConcurrentHashMap<String, Query> mQueries = new ConcurrentHashMap<String, Query>();
 
-    private UserPlaylist mCachedUserPlaylist;
-
     private ConcurrentHashMap<String, UserPlaylist> mUserPlaylists
             = new ConcurrentHashMap<String, UserPlaylist>();
 
@@ -161,6 +159,11 @@ public class UserCollection extends Collection {
      */
     @Override
     public UserPlaylist getUserPlaylistById(String id) {
+        if (UserPlaylistsDataSource.LOVEDITEMS_PLAYLIST_ID.equals(id)) {
+            return getLovedItemsUserPlaylist();
+        } else if (UserPlaylistsDataSource.CACHED_PLAYLIST_ID.equals(id)) {
+            return getCachedUserPlaylist();
+        }
         return mUserPlaylists.get(id);
     }
 
@@ -183,18 +186,49 @@ public class UserCollection extends Collection {
      * Store the PlaybackService's currentPlaylist
      */
     public void setCachedUserPlaylist(UserPlaylist userPlaylist) {
-        mCachedUserPlaylist = userPlaylist;
-        mTomahawkApp.getUserPlaylistsDataSource().storeUserPlaylist(mCachedUserPlaylist);
+        mTomahawkApp.getUserPlaylistsDataSource().storeUserPlaylist(userPlaylist);
     }
 
     /**
      * @return the previously cached {@link UserPlaylist}
      */
     public UserPlaylist getCachedUserPlaylist() {
-        if (mCachedUserPlaylist == null) {
-            mCachedUserPlaylist = mTomahawkApp.getUserPlaylistsDataSource().getCachedUserPlaylist();
+        return mTomahawkApp.getUserPlaylistsDataSource().getCachedUserPlaylist();
+    }
+
+    public boolean isQueryLoved(Query query) {
+        return mTomahawkApp.getUserPlaylistsDataSource().isItemLoved(query);
+    }
+
+    /**
+     * Remove or add a lovedItem-query from the LovedItems-UserPlaylist, depending on whether or not
+     * it is already a lovedItem
+     */
+    public void toggleLovedItem(Query query) {
+        mTomahawkApp.getUserPlaylistsDataSource().setLovedItem(query, !isQueryLoved(query));
+    }
+
+    /**
+     * @return the previously stored {@link UserPlaylist} which stores all of the user's loved items
+     */
+    public UserPlaylist getLovedItemsUserPlaylist() {
+        return mTomahawkApp.getUserPlaylistsDataSource().getLovedItemsUserPlaylist();
+    }
+
+    /**
+     * Update the loved items user-playlist and the contained queries.
+     */
+    private void updateLovedItemsUserPlaylist() {
+        UserPlaylist lovedItemsPlayList = mTomahawkApp.getUserPlaylistsDataSource()
+                .getLovedItemsUserPlaylist();
+        if (lovedItemsPlayList == null) {
+            // If we don't yet have a UserPlaylist to store loved items, we create and store an
+            // empty UserPlaylist here
+            mTomahawkApp.getUserPlaylistsDataSource().storeUserPlaylist(
+                    UserPlaylist.fromQueryList(UserPlaylistsDataSource.LOVEDITEMS_PLAYLIST_ID,
+                            UserPlaylistsDataSource.LOVEDITEMS_PLAYLIST_NAME,
+                            new ArrayList<Query>()));
         }
-        return mCachedUserPlaylist;
     }
 
     /**
@@ -223,8 +257,9 @@ public class UserCollection extends Collection {
         Resolver userCollectionResolver = mTomahawkApp.getPipeLine().getResolver(
                 TomahawkApp.RESOLVER_ID_USERCOLLECTION);
 
+        updateLovedItemsUserPlaylist();
         updateUserPlaylists();
-        updateHatchetUserPlaylists();
+        fetchHatchetUserPlaylists();
 
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
 
@@ -307,7 +342,10 @@ public class UserCollection extends Collection {
         TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
     }
 
-    public void updateHatchetUserPlaylists() {
+    /**
+     * Fetch the UserPlaylists from the Hatchet API and store it in the local db.
+     */
+    public void fetchHatchetUserPlaylists() {
         mCorrespondingRequestIds.add(mTomahawkApp.getInfoSystem()
                 .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS_ALL, null));
     }

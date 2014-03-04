@@ -22,15 +22,16 @@ import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 
 import android.content.Context;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -43,7 +44,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     //Used to provide fake infinite swiping behaviour, if current Playlist is repeating
     private static final int FAKE_INFINITY_COUNT = 20000;
 
-    private ActionBarActivity mActivity;
+    private TomahawkMainActivity mTomahawkMainActivity;
 
     private int mFakeInfinityOffset;
 
@@ -64,13 +65,13 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     /**
      * Constructs a new AlbumArtSwipeAdapter.
      *
-     * @param activity  the {@link Context} needed to call .loadBitmap in {@link
-     *                  org.tomahawk.libtomahawk.collection.Album}
-     * @param viewPager ViewPager which this adapter has been connected with
+     * @param tomahawkMainActivity the {@link Context} needed to call .loadBitmap in {@link
+     *                             org.tomahawk.libtomahawk.collection.Album}
+     * @param viewPager            ViewPager which this adapter has been connected with
      */
-    public AlbumArtSwipeAdapter(ActionBarActivity activity, ViewPager viewPager,
+    public AlbumArtSwipeAdapter(TomahawkMainActivity tomahawkMainActivity, ViewPager viewPager,
             View.OnLongClickListener onLongClickListener) {
-        mActivity = activity;
+        mTomahawkMainActivity = tomahawkMainActivity;
         mViewPager = viewPager;
         mOnLongClickListener = onLongClickListener;
         mByUser = true;
@@ -83,7 +84,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      */
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        View view = mActivity.getLayoutInflater().inflate(
+        View view = mTomahawkMainActivity.getLayoutInflater().inflate(
                 org.tomahawk.tomahawk_android.R.layout.album_art_view_pager_item, container, false);
         if (mPlaylist != null && mPlaylist.getCount() > 0) {
             Query query;
@@ -285,10 +286,12 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         TextView artistTextView = (TextView) view.findViewById(R.id.textView_artist);
         TextView albumTextView = (TextView) view.findViewById(R.id.textView_album);
         TextView titleTextView = (TextView) view.findViewById(R.id.textView_title);
+        ImageButton loveButton = (ImageButton) view.findViewById(R.id.love_button);
         if (query != null) {
             ImageView imageView = (ImageView) view.findViewById(R.id.album_art_image);
             TomahawkUtils
-                    .loadImageIntoImageView(mActivity, imageView, query, Image.IMAGE_SIZE_LARGE);
+                    .loadImageIntoImageView(mTomahawkMainActivity, imageView, query,
+                            Image.IMAGE_SIZE_LARGE);
 
             // Update all relevant TextViews
             if (artistTextView != null) {
@@ -312,7 +315,11 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                     titleTextView.setText(R.string.playbackactivity_unknown_string);
                 }
             }
-
+            if (mTomahawkMainActivity.getUserCollection().isQueryLoved(query)) {
+                loveButton.setVisibility(ImageButton.VISIBLE);
+            } else {
+                loveButton.setVisibility(ImageButton.GONE);
+            }
         } else {
             //No track has been given, so we update the view state accordingly
             // Update all relevant TextViews
