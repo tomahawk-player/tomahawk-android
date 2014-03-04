@@ -93,6 +93,10 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
     public static final String HATCHET_PLAYBACKLOGENTRIES_NOWPLAYING = "nowplaying";
 
+    public static final String HATCHET_SOCIALACTIONS = "socialActions";
+
+    public static final String HATCHET_SOCIALACTION_TYPE_LOVE = "love";
+
     public static final double HATCHET_SEARCHITEM_MIN_SCORE = 5.0;
 
     public static final String HATCHET_PARAM_NAME = "name";
@@ -500,15 +504,11 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 if (accessToken != null) {
                     for (InfoRequestData infoRequestData : infoRequestDatas) {
                         if (infoRequestData.getType()
-                                == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES) {
-                            String jsonString = mObjectMapper
-                                    .writeValueAsString(infoRequestData.getObjectToSend());
-                            Multimap<String, String> params = HashMultimap.create(1, 1);
-                            params.put(HATCHET_PARAMS_AUTHORIZATION, accessToken);
-                            TomahawkUtils.httpsPost(buildQuery(infoRequestData.getType(), null),
-                                    params, jsonString);
-                        } else if (infoRequestData.getType()
-                                == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES_NOWPLAYING) {
+                                == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES
+                                || infoRequestData.getType()
+                                == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES_NOWPLAYING
+                                || infoRequestData.getType()
+                                == InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS) {
                             String jsonString = mObjectMapper
                                     .writeValueAsString(infoRequestData.getObjectToSend());
                             Multimap<String, String> params = HashMultimap.create(1, 1);
@@ -670,6 +670,11 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         + HATCHET_VERSION + "/"
                         + HATCHET_PLAYBACKLOGENTRIES + "/"
                         + HATCHET_PLAYBACKLOGENTRIES_NOWPLAYING + "/";
+                break;
+            case InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS:
+                queryString = HATCHET_BASE_URL + "/"
+                        + HATCHET_VERSION + "/"
+                        + HATCHET_SOCIALACTIONS + "/";
                 break;
         }
         // append every parameter we didn't use

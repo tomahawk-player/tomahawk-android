@@ -52,6 +52,8 @@ public class InfoRequestData {
 
     public static final int INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES_NOWPLAYING = 1201;
 
+    public static final int INFOREQUESTDATA_TYPE_SOCIALACTIONS = 1300;
+
     private String mRequestId;
 
     private int mType;

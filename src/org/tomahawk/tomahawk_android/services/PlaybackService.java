@@ -404,9 +404,9 @@ public class PlaybackService extends Service {
     public void onPrepared(TomahawkMediaPlayer tmp) {
         Log.d(TAG, "Mediaplayer is prepared.");
         if (isPlaying()) {
-            mTomahawkApp.getInfoSystem().sendNowPlayingPostStruct(getCurrentQuery(),
-                    mTomahawkApp.getTomahawkService()
-                            .getAuthenticatorUtils(TomahawkService.AUTHENTICATOR_ID_HATCHET));
+            mTomahawkApp.getInfoSystem().sendNowPlayingPostStruct(mTomahawkApp.getTomahawkService()
+                    .getAuthenticatorUtils(TomahawkService.AUTHENTICATOR_ID_HATCHET),
+                    getCurrentQuery());
         }
         handlePlayState();
     }

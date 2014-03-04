@@ -18,15 +18,18 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.services.TomahawkService;
 
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -205,7 +208,12 @@ public class UserCollection extends Collection {
      * it is already a lovedItem
      */
     public void toggleLovedItem(Query query) {
-        mTomahawkApp.getUserPlaylistsDataSource().setLovedItem(query, !isQueryLoved(query));
+        boolean doSweetSweetLovin = !isQueryLoved(query);
+        mTomahawkApp.getUserPlaylistsDataSource().setLovedItem(query, doSweetSweetLovin);
+        AuthenticatorUtils hatchetAuthUtils = mTomahawkApp.getTomahawkService()
+                .getAuthenticatorUtils(TomahawkService.AUTHENTICATOR_ID_HATCHET);
+        mTomahawkApp.getInfoSystem().sendSocialActionPostStruct(hatchetAuthUtils, query,
+                HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE, doSweetSweetLovin);
     }
 
     /**
