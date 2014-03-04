@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -20,34 +20,10 @@ package org.tomahawk.libtomahawk.infosystem.hatchet;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SocialAction {
+public class SocialActionPostStruct {
 
-    public String action;
+    public SocialAction socialAction;
 
-    public String album;
-
-    public String albumString;
-
-    public String artist;
-
-    public String artistString;
-
-    public String date;
-
-    public String id;
-
-    public String playlist;
-
-    public String target;
-
-    public String track;
-
-    public String trackString;
-
-    public String type;
-
-    public String user;
-
-    public SocialAction() {
+    public SocialActionPostStruct() {
     }
 }

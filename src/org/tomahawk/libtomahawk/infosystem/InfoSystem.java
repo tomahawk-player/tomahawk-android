@@ -27,6 +27,8 @@ import org.tomahawk.libtomahawk.infosystem.hatchet.NowPlaying;
 import org.tomahawk.libtomahawk.infosystem.hatchet.NowPlayingPostStruct;
 import org.tomahawk.libtomahawk.infosystem.hatchet.PlaybackLogEntry;
 import org.tomahawk.libtomahawk.infosystem.hatchet.PlaybackLogPostStruct;
+import org.tomahawk.libtomahawk.infosystem.hatchet.SocialAction;
+import org.tomahawk.libtomahawk.infosystem.hatchet.SocialActionPostStruct;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
@@ -231,7 +233,7 @@ public class InfoSystem {
         }
     }
 
-    public void sendNowPlayingPostStruct(Query query, AuthenticatorUtils authenticatorUtils) {
+    public void sendNowPlayingPostStruct(AuthenticatorUtils authenticatorUtils, Query query) {
         if (mNowPlaying != query) {
             sendPlaybackEntryPostStruct(authenticatorUtils);
             mNowPlaying = query;
@@ -248,6 +250,22 @@ public class InfoSystem {
                     nowPlayingPostStruct);
             send(infoRequestData, authenticatorUtils);
         }
+    }
+
+    public void sendSocialActionPostStruct(AuthenticatorUtils authenticatorUtils, Query query,
+            String type, boolean action) {
+        SocialAction socialAction = new SocialAction();
+        socialAction.type = type;
+        socialAction.action = String.valueOf(action);
+        socialAction.trackString = query.getName();
+        socialAction.artistString = query.getArtist().getName();
+        SocialActionPostStruct socialActionPostStruct = new SocialActionPostStruct();
+        socialActionPostStruct.socialAction = socialAction;
+
+        String requestId = TomahawkApp.getSessionUniqueStringId();
+        InfoRequestData infoRequestData = new InfoRequestData(requestId,
+                InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS, socialActionPostStruct);
+        send(infoRequestData, authenticatorUtils);
     }
 
     /**
