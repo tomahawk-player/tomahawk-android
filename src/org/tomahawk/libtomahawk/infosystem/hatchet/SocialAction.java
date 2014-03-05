@@ -18,8 +18,12 @@
 package org.tomahawk.libtomahawk.infosystem.hatchet;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
+import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class SocialAction {
 
     public String action;
@@ -32,7 +36,9 @@ public class SocialAction {
 
     public String artistString;
 
-    public String date;
+    public Date date;
+
+    public Date timestamp;
 
     public String id;
 

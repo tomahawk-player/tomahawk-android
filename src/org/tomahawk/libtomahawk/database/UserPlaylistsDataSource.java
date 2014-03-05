@@ -20,7 +20,9 @@ package org.tomahawk.libtomahawk.database;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -29,6 +31,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -70,6 +73,11 @@ public class UserPlaylistsDataSource {
 
     private String[] mAllSearchHistoryColumns = {TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ID,
             TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ENTRY};
+
+    private String[] mAllInfoSystemOpLogColumns = {TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_ID,
+            TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TYPE,
+            TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_JSONSTRING,
+            TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TIMESTAMP};
 
     private ConcurrentHashMap<String, ConcurrentHashMap<Query, Long>> mPlaylistQueryIdMap
             = new ConcurrentHashMap<String, ConcurrentHashMap<Query, Long>>();
@@ -365,7 +373,6 @@ public class UserPlaylistsDataSource {
         return mDatabase.query(TomahawkSQLiteHelper.TABLE_SEARCHHISTORY, mAllSearchHistoryColumns,
                 TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ENTRY + " LIKE '" + entry + "%'",
                 null, null, null, TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ID + " DESC");
-
     }
 
     public void addEntryToSearchHistory(String entry) {
@@ -375,5 +382,59 @@ public class UserPlaylistsDataSource {
         mDatabase.insert(TomahawkSQLiteHelper.TABLE_SEARCHHISTORY, null, values);
         mDatabase.setTransactionSuccessful();
         mDatabase.endTransaction();
+    }
+
+    /**
+     * Add an operation to the log. This operation log is being used to store pending operations, so
+     * that this operation can be executed, if we have the opportunity to do so.
+     *
+     * @param opToLog   InfoRequestData object containing the type of the operation, which
+     *                  determines where and how to send the data to the API. Contains also the
+     *                  JSON-String which contains the data to send.
+     * @param timeStamp a timestamp indicating when this operation has been added to the oplog
+     */
+    public void addOpToInfoSystemOpLog(InfoRequestData opToLog, int timeStamp) {
+        ContentValues values = new ContentValues();
+        mDatabase.beginTransaction();
+        values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TYPE, opToLog.getType());
+        values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_JSONSTRING,
+                opToLog.getJsonStringToSend());
+        values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TIMESTAMP, timeStamp);
+        mDatabase.insert(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG, null, values);
+        mDatabase.setTransactionSuccessful();
+        mDatabase.endTransaction();
+    }
+
+    /**
+     * Remove the operation with the given id from the InfoSystem-OpLog table
+     *
+     * @param opLogId the id of the operation to remove from the InfoSystem-OpLog table
+     */
+    public void removeOpFromInfoSystemOpLog(int opLogId) {
+        mDatabase.beginTransaction();
+        mDatabase.delete(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG,
+                TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_ID + " = " + opLogId, null);
+        mDatabase.setTransactionSuccessful();
+        mDatabase.endTransaction();
+    }
+
+    /**
+     * @return an InfoRequestData object that contains all data that should be delivered to the API
+     */
+    public List<InfoRequestData> getLoggedOps() {
+        List<InfoRequestData> loggedOps = new ArrayList<InfoRequestData>();
+        Cursor opLogCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG,
+                mAllInfoSystemOpLogColumns, null, null, null, null,
+                TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TIMESTAMP + " DESC");
+        opLogCursor.moveToFirst();
+        while (!opLogCursor.isAfterLast()) {
+            String requestId = TomahawkApp.getSessionUniqueStringId();
+            InfoRequestData infoRequestData = new InfoRequestData(requestId, opLogCursor.getInt(0),
+                    opLogCursor.getInt(1), opLogCursor.getString(2));
+            loggedOps.add(infoRequestData);
+            opLogCursor.moveToNext();
+        }
+        opLogCursor.close();
+        return loggedOps;
     }
 }

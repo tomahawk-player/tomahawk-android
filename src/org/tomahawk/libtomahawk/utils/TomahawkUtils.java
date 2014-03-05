@@ -216,6 +216,11 @@ public class TomahawkUtils {
         out.write(jsonString);
         out.close();
 
+        if (connection.getResponseCode() / 100 != 2) {
+            throw new IOException("HttpsURLConnection (url:'" + urlString
+                    + "') didn't return with status code 2xx, instead it returned " + connection
+                    .getResponseCode());
+        }
         String output = inputStreamToString(connection);
         connection.disconnect();
         return output;
@@ -249,6 +254,12 @@ public class TomahawkUtils {
             out.write(paramsString);
             out.close();
         }
+
+        if (connection.getResponseCode() / 100 != 2) {
+            throw new IOException("HttpsURLConnection (url:'" + urlString
+                    + "') didn't return with status code 2xx, instead it returned " + connection
+                    .getResponseCode());
+        }
         String output = inputStreamToString(connection);
         connection.disconnect();
         return output;
@@ -264,6 +275,12 @@ public class TomahawkUtils {
         connection.setDoOutput(false);
         connection.setRequestProperty("Accept", "application/json; charset=utf-8");
         connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
+
+        if (connection.getResponseCode() / 100 != 2) {
+            throw new IOException("HttpsURLConnection (url:'" + urlString
+                    + "') didn't return with status code 2xx, instead it returned " + connection
+                    .getResponseCode());
+        }
         String output = inputStreamToString(connection);
         connection.disconnect();
         return output;

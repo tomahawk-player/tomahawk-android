@@ -29,6 +29,7 @@ import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.infosystem.InfoPlugin;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
@@ -96,6 +97,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
     public static final String HATCHET_SOCIALACTIONS = "socialActions";
 
     public static final String HATCHET_SOCIALACTION_TYPE_LOVE = "love";
+
+    public static final String HATCHET_LOVEDITEMS = "lovedItems";
 
     public static final double HATCHET_SEARCHITEM_MIN_SCORE = 5.0;
 
@@ -192,6 +195,19 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 }
                 resultMapList.put(HATCHET_PLAYLISTS_ENTRIES, playlistEntriesMap);
             }
+            infoRequestData.setInfoResultMap(resultMapList);
+            return true;
+        } else if (infoRequestData.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
+            Map<PlaylistInfo, PlaylistEntries> playlistEntriesMap
+                    = new HashMap<PlaylistInfo, PlaylistEntries>();
+            params.put(HATCHET_PARAM_ID, mUserId);
+            rawJsonString = TomahawkUtils.httpsGet(
+                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS, params));
+            PlaylistEntries playlistEntries = mObjectMapper
+                    .readValue(rawJsonString, PlaylistEntries.class);
+            playlistEntriesMap.put(playlistEntries.playlist, playlistEntries);
+            resultMapList.put(HATCHET_PLAYLISTS_ENTRIES, playlistEntriesMap);
             infoRequestData.setInfoResultMap(resultMapList);
             return true;
         } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS) {
@@ -403,6 +419,21 @@ public class HatchetInfoPlugin extends InfoPlugin {
                             userPlaylist.getId());
                 }
             }
+        } else if (infoRequestData.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
+            Map<PlaylistInfo, PlaylistEntries> playlistInfoMap = infoRequestData.getInfoResultMap()
+                    .get(HatchetInfoPlugin.HATCHET_PLAYLISTS_ENTRIES);
+            List<PlaylistInfo> playlistInfos = new ArrayList<PlaylistInfo>(
+                    playlistInfoMap.keySet());
+            if (playlistInfos.size() > 0) {
+                PlaylistInfo playlistInfo = playlistInfos.get(0);
+                playlistInfo.id = UserPlaylistsDataSource.LOVEDITEMS_PLAYLIST_ID;
+                UserPlaylist userPlaylist = InfoSystemUtils.playlistInfoToUserPlaylist(playlistInfo,
+                        playlistInfoMap.get(playlistInfo));
+                if (userPlaylist != null) {
+                    mTomahawkApp.getUserPlaylistsDataSource().storeUserPlaylist(userPlaylist);
+                }
+            }
         }
         if (mItemsToBeFilled.containsKey(infoRequestData.getRequestId())) {
             // We have an item that wants to be filled/enriched with data from Hatchet
@@ -460,6 +491,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
     /**
      * Get the user id of the currently logged in Hatchet user
      */
+
     private void getUserid() throws IOException, NoSuchAlgorithmException, KeyManagementException {
         Map<String, String> data = new HashMap<String, String>();
         data.put(HATCHET_ACCOUNTDATA_USER_ID, null);
@@ -496,7 +528,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
         protected ArrayList<String> doInBackground(InfoRequestData... infoRequestDatas) {
             ArrayList<String> doneRequestsIds = new ArrayList<String>();
             if (mObjectMapper == null) {
-                mObjectMapper = new ObjectMapper();
+                mObjectMapper = InfoSystemUtils.constructObjectMapper();
             }
             try {
                 // Before we do anything, get the accesstoken
@@ -509,12 +541,12 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                 == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES_NOWPLAYING
                                 || infoRequestData.getType()
                                 == InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS) {
-                            String jsonString = mObjectMapper
-                                    .writeValueAsString(infoRequestData.getObjectToSend());
+                            String jsonString = infoRequestData.getJsonStringToSend();
                             Multimap<String, String> params = HashMultimap.create(1, 1);
                             params.put(HATCHET_PARAMS_AUTHORIZATION, accessToken);
                             TomahawkUtils.httpsPost(buildQuery(infoRequestData.getType(), null),
                                     params, jsonString);
+                            doneRequestsIds.add(infoRequestData.getRequestId());
                         }
                     }
                 }
@@ -527,10 +559,12 @@ public class HatchetInfoPlugin extends InfoPlugin {
             } catch (KeyManagementException e) {
                 Log.e(TAG, "JSONSendTask: " + e.getClass() + ": " + e.getLocalizedMessage());
             }
-            for (InfoRequestData infoRequestData : infoRequestDatas) {
-                doneRequestsIds.add(infoRequestData.getRequestId());
-            }
             return doneRequestsIds;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<String> doneRequestsIds) {
+            mTomahawkApp.getInfoSystem().reportResults(doneRequestsIds);
         }
     }
 
@@ -543,7 +577,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
         protected ArrayList<String> doInBackground(InfoRequestData... infoRequestDatas) {
             ArrayList<String> doneRequestsIds = new ArrayList<String>();
             if (mObjectMapper == null) {
-                mObjectMapper = new ObjectMapper();
+                mObjectMapper = InfoSystemUtils.constructObjectMapper();
             }
             try {
                 // Before we do anything, fetch the mUserId corresponding to the currently logged in
@@ -608,6 +642,16 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         + HATCHET_USER + "/"
                         + iterator.next() + "/"
                         + HATCHET_PLAYLISTS;
+                params.removeAll(HATCHET_PARAM_ID);
+                break;
+            case InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS:
+                paramStrings = params.get(HATCHET_PARAM_ID);
+                iterator = paramStrings.iterator();
+                queryString = HATCHET_BASE_URL + "/"
+                        + HATCHET_VERSION + "/"
+                        + HATCHET_USER + "/"
+                        + iterator.next() + "/"
+                        + HATCHET_LOVEDITEMS;
                 params.removeAll(HATCHET_PARAM_ID);
                 break;
             case InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES:

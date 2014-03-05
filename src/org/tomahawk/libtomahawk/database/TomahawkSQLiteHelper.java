@@ -65,11 +65,21 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     public static final String SEARCHHISTORY_COLUMN_ENTRY = "entry";
 
+    public static final String TABLE_INFOSYSTEMOPLOG = "infosystemoplog";
+
+    public static final String INFOSYSTEMOPLOG_COLUMN_ID = "id";
+
+    public static final String INFOSYSTEMOPLOG_COLUMN_TYPE = "type";
+
+    public static final String INFOSYSTEMOPLOG_COLUMN_JSONSTRING = "jsonstring";
+
+    public static final String INFOSYSTEMOPLOG_COLUMN_TIMESTAMP = "timestamp";
+
     public static final String TABLE_ALBUMS = "albums";
 
     private static final String DATABASE_NAME = "userplaylists.db";
 
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
 
     // Database creation sql statements
     private static final String CREATE_TABLE_USERPLAYLISTS =
@@ -98,6 +108,13 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
                     + SEARCHHISTORY_COLUMN_ID + "` INTEGER PRIMARY KEY AUTOINCREMENT, `"
                     + SEARCHHISTORY_COLUMN_ENTRY + "` TEXT UNIQUE ON CONFLICT REPLACE);";
 
+    private static final String CREATE_TABLE_INFOSYSTEMOPLOG =
+            "CREATE TABLE `" + TABLE_INFOSYSTEMOPLOG + "` (  `"
+                    + INFOSYSTEMOPLOG_COLUMN_ID + "` INTEGER PRIMARY KEY AUTOINCREMENT, `"
+                    + INFOSYSTEMOPLOG_COLUMN_TYPE + "` INTEGER, `"
+                    + INFOSYSTEMOPLOG_COLUMN_JSONSTRING + "` TEXT, `"
+                    + INFOSYSTEMOPLOG_COLUMN_TIMESTAMP + "` INTEGER);";
+
     public TomahawkSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -110,6 +127,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
         database.execSQL(CREATE_TABLE_USERPLAYLISTS);
         database.execSQL(CREATE_TABLE_TRACKS);
         database.execSQL(CREATE_TABLE_SEARCHHISTORY);
+        database.execSQL(CREATE_TABLE_INFOSYSTEMOPLOG);
     }
 
     /**
@@ -123,6 +141,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ALBUMS + "`;");
         db.execSQL("DROP TABLE IF EXISTS `" + TABLE_USERPLAYLISTS + "`;");
         db.execSQL("DROP TABLE IF EXISTS `" + TABLE_SEARCHHISTORY + "`;");
+        db.execSQL("DROP TABLE IF EXISTS `" + TABLE_INFOSYSTEMOPLOG + "`;");
         onCreate(db);
     }
 

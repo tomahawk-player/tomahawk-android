@@ -17,6 +17,9 @@
  */
 package org.tomahawk.libtomahawk.infosystem;
 
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
+import org.codehaus.jackson.map.util.ISO8601DateFormat;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
@@ -194,5 +197,13 @@ public class InfoSystemUtils {
         fillAlbumWithAlbumInfo(album, albumInfo, image);
         fillAlbumWithTracks(album, trackInfos);
         return album;
+    }
+
+    public static ObjectMapper constructObjectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS, false);
+        objectMapper.setDateFormat(new ISO8601DateFormat());
+        //objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'ZZZZZ"));
+        return objectMapper;
     }
 }

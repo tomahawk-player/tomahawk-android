@@ -30,6 +30,8 @@ public class PlaylistEntries {
 
     public List<PlaylistEntryInfo> playlistEntries;
 
+    public PlaylistInfo playlist;
+
     public List<PlaylistInfo> playlists;
 
     public List<TrackInfo> tracks;

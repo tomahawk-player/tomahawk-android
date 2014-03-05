@@ -19,6 +19,9 @@ package org.tomahawk.libtomahawk.infosystem;
 
 import com.google.common.collect.Multimap;
 
+import android.util.Log;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +30,8 @@ import java.util.Map;
  * on store results.
  */
 public class InfoRequestData {
+
+    private final static String TAG = InfoRequestData.class.getName();
 
     public static final int INFOREQUESTDATA_TYPE_TRACKS = 400;
 
@@ -44,6 +49,8 @@ public class InfoRequestData {
 
     public static final int INFOREQUESTDATA_TYPE_USERS_PLAYLISTS_ALL = 802;
 
+    public static final int INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS = 803;
+
     public static final int INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES = 1000;
 
     public static final int INFOREQUESTDATA_TYPE_SEARCHES = 1100;
@@ -60,7 +67,9 @@ public class InfoRequestData {
 
     private Multimap<String, String> mParams;
 
-    private Object mObjectToSend;
+    private String mJsonStringToSend;
+
+    private int mOpLogId;
 
     /**
      * Storage member-variable. Used if a single Info object is the result.
@@ -84,10 +93,24 @@ public class InfoRequestData {
         mParams = params;
     }
 
-    public InfoRequestData(String requestId, int type, Object objectToSend) {
+    public InfoRequestData(String requestId, int hatchetSpecificType, Object objectToSend) {
         mRequestId = requestId;
-        mType = type;
-        mObjectToSend = objectToSend;
+        mType = hatchetSpecificType;
+        try {
+            mJsonStringToSend = InfoSystemUtils.constructObjectMapper()
+                    .writeValueAsString(objectToSend);
+        } catch (IOException e) {
+            Log.e(TAG, "InfoRequestData<constructor>: " + e.getClass() + ": " + e
+                    .getLocalizedMessage());
+        }
+    }
+
+    public InfoRequestData(String requestId, int opLogId, int hatchetSpecificType,
+            String jsonStringToSend) {
+        mRequestId = requestId;
+        mOpLogId = opLogId;
+        mType = hatchetSpecificType;
+        mJsonStringToSend = jsonStringToSend;
     }
 
     public String getRequestId() {
@@ -126,7 +149,11 @@ public class InfoRequestData {
         return mParams;
     }
 
-    public Object getObjectToSend() {
-        return mObjectToSend;
+    public String getJsonStringToSend() {
+        return mJsonStringToSend;
+    }
+
+    public int getOpLogId() {
+        return mOpLogId;
     }
 }

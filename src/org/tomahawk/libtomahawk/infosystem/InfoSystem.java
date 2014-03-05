@@ -36,7 +36,9 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import android.content.Intent;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -45,6 +47,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class InfoSystem {
 
     public static final String INFOSYSTEM_RESULTSREPORTED = "infosystem_resultsreported";
+
+    public static final String INFOSYSTEM_OPLOGISEMPTIED = "infosystem_oplogisempty";
 
     public static final String INFOSYSTEM_RESULTSREPORTED_REQUESTID
             = "infosystem_resultsreported_requestid";
@@ -63,6 +67,9 @@ public class InfoSystem {
             = new ConcurrentHashMap<String, InfoRequestData>();
 
     private ConcurrentHashMap<String, InfoRequestData> mResolvingRequests
+            = new ConcurrentHashMap<String, InfoRequestData>();
+
+    private ConcurrentHashMap<String, InfoRequestData> mSentLoggedOps
             = new ConcurrentHashMap<String, InfoRequestData>();
 
     /**
@@ -218,10 +225,12 @@ public class InfoSystem {
     public void sendPlaybackEntryPostStruct(AuthenticatorUtils authenticatorUtils) {
         if (mNowPlaying != null && mNowPlaying != mLastPlaybackLogEntry) {
             mLastPlaybackLogEntry = mNowPlaying;
+            long timeStamp = System.currentTimeMillis();
             PlaybackLogEntry playbackLogEntry = new PlaybackLogEntry();
             playbackLogEntry.albumString = mLastPlaybackLogEntry.getAlbum().getName();
             playbackLogEntry.artistString = mLastPlaybackLogEntry.getArtist().getName();
             playbackLogEntry.trackString = mLastPlaybackLogEntry.getName();
+            playbackLogEntry.timestamp = new Date(timeStamp);
             PlaybackLogPostStruct playbackLogPostStruct = new PlaybackLogPostStruct();
             playbackLogPostStruct.playbackLogEntry = playbackLogEntry;
 
@@ -229,7 +238,9 @@ public class InfoSystem {
             InfoRequestData infoRequestData = new InfoRequestData(requestId,
                     InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES,
                     playbackLogPostStruct);
-            send(infoRequestData, authenticatorUtils);
+            mTomahawkApp.getUserPlaylistsDataSource()
+                    .addOpToInfoSystemOpLog(infoRequestData, (int) (timeStamp / 1000));
+            sendLoggedOps(authenticatorUtils);
         }
     }
 
@@ -254,18 +265,33 @@ public class InfoSystem {
 
     public void sendSocialActionPostStruct(AuthenticatorUtils authenticatorUtils, Query query,
             String type, boolean action) {
+        long timeStamp = System.currentTimeMillis();
         SocialAction socialAction = new SocialAction();
         socialAction.type = type;
         socialAction.action = String.valueOf(action);
         socialAction.trackString = query.getName();
         socialAction.artistString = query.getArtist().getName();
+        socialAction.timestamp = new Date(timeStamp);
         SocialActionPostStruct socialActionPostStruct = new SocialActionPostStruct();
         socialActionPostStruct.socialAction = socialAction;
 
         String requestId = TomahawkApp.getSessionUniqueStringId();
         InfoRequestData infoRequestData = new InfoRequestData(requestId,
                 InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS, socialActionPostStruct);
-        send(infoRequestData, authenticatorUtils);
+        mTomahawkApp.getUserPlaylistsDataSource()
+                .addOpToInfoSystemOpLog(infoRequestData, (int) (timeStamp / 1000));
+        sendLoggedOps(authenticatorUtils);
+    }
+
+    public List<String> sendLoggedOps(AuthenticatorUtils authenticatorUtils) {
+        List<String> requestIds = new ArrayList<String>();
+        List<InfoRequestData> loggedOps = mTomahawkApp.getUserPlaylistsDataSource().getLoggedOps();
+        for (InfoRequestData loggedOp : loggedOps) {
+            requestIds.add(loggedOp.getRequestId());
+            mSentLoggedOps.put(loggedOp.getRequestId(), loggedOp);
+            send(loggedOp, authenticatorUtils);
+        }
+        return requestIds;
     }
 
     /**
@@ -275,7 +301,7 @@ public class InfoSystem {
      * @param authenticatorUtils the AuthenticatorUtils object to fetch the appropriate access
      *                           tokens
      */
-    public void send(InfoRequestData infoRequestData, AuthenticatorUtils authenticatorUtils) {
+    private void send(InfoRequestData infoRequestData, AuthenticatorUtils authenticatorUtils) {
         mRequests.put(infoRequestData.getRequestId(), infoRequestData);
         mResolvingRequests.put(infoRequestData.getRequestId(), infoRequestData);
         for (InfoPlugin infoPlugin : mInfoPlugins) {
@@ -297,6 +323,14 @@ public class InfoSystem {
     public void reportResults(ArrayList<String> doneRequestsIds) {
         for (String doneRequestId : doneRequestsIds) {
             mResolvingRequests.remove(doneRequestId);
+            if (mSentLoggedOps.containsKey(doneRequestId)) {
+                InfoRequestData loggedOp = mSentLoggedOps.get(doneRequestId);
+                mTomahawkApp.getUserPlaylistsDataSource()
+                        .removeOpFromInfoSystemOpLog(loggedOp.getOpLogId());
+                if (mTomahawkApp.getUserPlaylistsDataSource().getLoggedOps().isEmpty()) {
+                    sendOpLogIsEmptiedBroadcast();
+                }
+            }
             sendReportResultsBroadcast(doneRequestId);
         }
     }
@@ -307,6 +341,14 @@ public class InfoSystem {
     private void sendReportResultsBroadcast(String requestId) {
         Intent reportIntent = new Intent(INFOSYSTEM_RESULTSREPORTED);
         reportIntent.putExtra(INFOSYSTEM_RESULTSREPORTED_REQUESTID, requestId);
+        mTomahawkApp.sendBroadcast(reportIntent);
+    }
+
+    /**
+     * Send a broadcast indicating that the operation log has been emptied
+     */
+    private void sendOpLogIsEmptiedBroadcast() {
+        Intent reportIntent = new Intent(INFOSYSTEM_OPLOGISEMPTIED);
         mTomahawkApp.sendBroadcast(reportIntent);
     }
 

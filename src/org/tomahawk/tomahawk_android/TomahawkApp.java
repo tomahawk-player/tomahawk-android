@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android;
 
 import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
+import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.Source;
 import org.tomahawk.libtomahawk.collection.SourceList;
@@ -42,6 +43,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -77,10 +79,7 @@ public class TomahawkApp extends Application implements
 
     public static final String ID_COUNTER = "org.tomahawk.tomahawk_android.id_counter";
 
-    private static IntentFilter sCollectionUpdateIntentFilter = new IntentFilter(
-            Collection.COLLECTION_UPDATED);
-
-    private CollectionUpdateReceiver mCollectionUpdatedReceiver;
+    private TomahawkAppReceiver mTomahawkAppReceiver;
 
     private static Context sApplicationContext;
 
@@ -104,7 +103,7 @@ public class TomahawkApp extends Application implements
     /**
      * Handles incoming {@link Collection} updated broadcasts.
      */
-    private class CollectionUpdateReceiver extends BroadcastReceiver {
+    private class TomahawkAppReceiver extends BroadcastReceiver {
 
         /*
          * (non-Javadoc)
@@ -118,6 +117,14 @@ public class TomahawkApp extends Application implements
             if (Collection.COLLECTION_UPDATED.equals(intent.getAction())) {
                 onCollectionUpdated();
                 mPipeLine.onCollectionUpdated();
+            } else if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
+                boolean noConnectivity =
+                        intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
+                if (!noConnectivity && mInfoSystem != null && mTomahawkService != null) {
+                    AuthenticatorUtils hatchetAuthUtils = mTomahawkService
+                            .getAuthenticatorUtils(TomahawkService.AUTHENTICATOR_ID_HATCHET);
+                    mInfoSystem.sendLoggedOps(hatchetAuthUtils);
+                }
             }
         }
     }
@@ -139,9 +146,13 @@ public class TomahawkApp extends Application implements
 
         mSourceList = new SourceList();
         mPipeLine = new PipeLine(this);
-        if (mCollectionUpdatedReceiver == null) {
-            mCollectionUpdatedReceiver = new CollectionUpdateReceiver();
-            registerReceiver(mCollectionUpdatedReceiver, sCollectionUpdateIntentFilter);
+        // Initialize and register Receiver
+        if (mTomahawkAppReceiver == null) {
+            mTomahawkAppReceiver = new TomahawkAppReceiver();
+            registerReceiver(mTomahawkAppReceiver,
+                    new IntentFilter(Collection.COLLECTION_UPDATED));
+            registerReceiver(mTomahawkAppReceiver,
+                    new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         }
         mPipeLine.addResolver(new DataBaseResolver(RESOLVER_ID_USERCOLLECTION, this));
         ScriptResolver scriptResolver = new ScriptResolver(RESOLVER_ID_JAMENDO, this,
@@ -250,6 +261,8 @@ public class TomahawkApp extends Application implements
     @Override
     public void onTomahawkServiceReady() {
         sendBroadcast(new Intent(TOMAHAWKSERVICE_READY));
+        ((UserCollection) mSourceList.getLocalSource().getCollection())
+                .fetchLovedItemsUserPlaylists();
     }
 
     public TomahawkService getTomahawkService() {
