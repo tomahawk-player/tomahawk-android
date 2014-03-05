@@ -167,8 +167,10 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                     ensureAccessTokens();
                 }
             }
-            ((UserCollection) mTomahawkApp.getSourceList().getLocalSource().getCollection())
-                    .fetchHatchetUserPlaylists();
+            UserCollection userCollection = ((UserCollection) mTomahawkApp.getSourceList()
+                    .getLocalSource().getCollection());
+            userCollection.fetchHatchetUserPlaylists();
+            userCollection.fetchLovedItemsUserPlaylists();
             mIsAuthenticating = false;
             mTomahawkService.onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_HATCHET, true);
         }

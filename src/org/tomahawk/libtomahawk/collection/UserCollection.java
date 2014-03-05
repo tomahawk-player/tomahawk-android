@@ -116,6 +116,8 @@ public class UserCollection extends Collection {
                 if (mCorrespondingRequestIds.contains(requestId)) {
                     UserCollection.this.updateUserPlaylists();
                 }
+            } else if (InfoSystem.INFOSYSTEM_OPLOGISEMPTIED.equals(intent.getAction())) {
+                UserCollection.this.fetchLovedItemsUserPlaylists();
             }
         }
     }
@@ -128,6 +130,8 @@ public class UserCollection extends Collection {
         mUserCollectionReceiver = new UserCollectionReceiver();
         mTomahawkApp.registerReceiver(mUserCollectionReceiver,
                 new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
+        mTomahawkApp.registerReceiver(mUserCollectionReceiver,
+                new IntentFilter(InfoSystem.INFOSYSTEM_OPLOGISEMPTIED));
 
         TomahawkApp.getContext().getContentResolver()
                 .registerContentObserver(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false,
@@ -236,6 +240,22 @@ public class UserCollection extends Collection {
                     UserPlaylist.fromQueryList(UserPlaylistsDataSource.LOVEDITEMS_PLAYLIST_ID,
                             UserPlaylistsDataSource.LOVEDITEMS_PLAYLIST_NAME,
                             new ArrayList<Query>()));
+        }
+    }
+
+    /**
+     * Fetch the lovedItems UserPlaylist from the Hatchet API and store it in the local db, if the
+     * log of pending operations is empty. Meaning if every love/unlove has already been delivered
+     * to the API.
+     */
+    public void fetchLovedItemsUserPlaylists() {
+        if (mTomahawkApp.getUserPlaylistsDataSource().getLoggedOps().isEmpty()) {
+            mCorrespondingRequestIds.add(mTomahawkApp.getInfoSystem()
+                    .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS, null));
+        } else if (mTomahawkApp.getTomahawkService() != null) {
+            AuthenticatorUtils hatchetAuthUtils = mTomahawkApp.getTomahawkService()
+                    .getAuthenticatorUtils(TomahawkService.AUTHENTICATOR_ID_HATCHET);
+            mTomahawkApp.getInfoSystem().sendLoggedOps(hatchetAuthUtils);
         }
     }
 

@@ -18,8 +18,10 @@
 package org.tomahawk.libtomahawk.infosystem.hatchet;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class NowPlaying {
 
     public String artist;
