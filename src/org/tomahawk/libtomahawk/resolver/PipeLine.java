@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -48,6 +49,8 @@ public class PipeLine {
     public static final String PIPELINE_RESULTSREPORTED_QUERYKEY
             = "org.tomahawk.tomahawk_android.pipeline_resultsreported_querykey";
 
+    public static final int PIPELINE_WORKER_COUNT = 100;
+
     private static final float MINSCORE = 0.5F;
 
     private TomahawkApp mTomahawkApp;
@@ -57,6 +60,9 @@ public class PipeLine {
     private ConcurrentHashMap<String, Query> mQueries = new ConcurrentHashMap<String, Query>();
 
     private ConcurrentHashMap<String, Query> mWaitingQueries
+            = new ConcurrentHashMap<String, Query>();
+
+    private ConcurrentHashMap<String, Query> mResolvingQueries
             = new ConcurrentHashMap<String, Query>();
 
     private boolean mAllResolversAdded;
@@ -131,15 +137,18 @@ public class PipeLine {
      * This will invoke every {@link Resolver} to resolve the given {@link Query}.
      */
     public String resolve(final Query q, boolean forceOnlyLocal) {
+        Log.d("test", "mResolvingQueries.size(): " + mResolvingQueries.size()
+                + ", mWaitingQueries.size(): " + mWaitingQueries.size());
         if (!forceOnlyLocal && q.isSolved()) {
             sendResultsReportBroadcast(TomahawkUtils.getCacheKey(q));
         } else {
-            if (!isEveryResolverReady()) {
+            if (!isEveryResolverReady() || mResolvingQueries.size() >= PIPELINE_WORKER_COUNT) {
                 if (!mWaitingQueries.containsKey(TomahawkUtils.getCacheKey(q))) {
                     mWaitingQueries.put(TomahawkUtils.getCacheKey(q), q);
                 }
             } else {
                 mQueries.put(TomahawkUtils.getCacheKey(q), q);
+                mResolvingQueries.put(TomahawkUtils.getCacheKey(q), q);
                 for (final Resolver resolver : mResolvers) {
                     if ((forceOnlyLocal && resolver instanceof DataBaseResolver)
                             || (!forceOnlyLocal && q.isOnlyLocal()
@@ -204,7 +213,7 @@ public class PipeLine {
         ArrayList<Result> cleanTrackResults = new ArrayList<Result>();
         ArrayList<Result> cleanAlbumResults = new ArrayList<Result>();
         ArrayList<Result> cleanArtistResults = new ArrayList<Result>();
-        Query q = getQuery(queryKey);
+        Query q = Query.getQueryByKey(queryKey);
         if (q != null && results != null) {
             for (Result r : results) {
                 if (r != null) {
@@ -230,9 +239,11 @@ public class PipeLine {
                     }
                 }
             }
-            mQueries.get(queryKey).addArtistResults(cleanArtistResults);
-            mQueries.get(queryKey).addAlbumResults(cleanAlbumResults);
-            mQueries.get(queryKey).addTrackResults(cleanTrackResults);
+            q.addArtistResults(cleanArtistResults);
+            q.addAlbumResults(cleanAlbumResults);
+            q.addTrackResults(cleanTrackResults);
+            mResolvingQueries.remove(queryKey);
+            fillWorkerQueue();
             sendResultsReportBroadcast(TomahawkUtils.getCacheKey(q));
         }
     }
@@ -247,13 +258,6 @@ public class PipeLine {
             }
         }
         return false;
-    }
-
-    /**
-     * Get the {@link Query} with the given id
-     */
-    public Query getQuery(String queryKey) {
-        return mQueries.get(queryKey);
     }
 
     /**
@@ -276,8 +280,15 @@ public class PipeLine {
      */
     public void onResolverReady() {
         if (isEveryResolverReady()) {
-            for (Query query : mWaitingQueries.values()) {
-                mWaitingQueries.remove(TomahawkUtils.getCacheKey(query));
+            fillWorkerQueue();
+        }
+    }
+
+    private void fillWorkerQueue() {
+        while (mResolvingQueries.size() < PIPELINE_WORKER_COUNT && mWaitingQueries.size() > 0) {
+            String queryKey = mWaitingQueries.keySet().iterator().next();
+            Query query = mWaitingQueries.remove(queryKey);
+            if (query != null) {
                 resolve(query);
             }
         }
