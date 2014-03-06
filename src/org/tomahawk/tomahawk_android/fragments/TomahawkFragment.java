@@ -47,6 +47,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -169,6 +170,14 @@ public class TomahawkFragment extends TomahawkListFragment
                 onPlaylistChanged();
             } else if (PlaybackService.BROADCAST_PLAYSTATECHANGED.equals(intent.getAction())) {
                 onPlaystateChanged();
+            } else if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
+                boolean noConnectivity =
+                        intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
+                if (!noConnectivity) {
+                    mCorrespondingQueryIds.clear();
+                    resolveQueriesFromTo(getListView().getFirstVisiblePosition(),
+                            getListView().getLastVisiblePosition() + 2);
+                }
             }
         }
     }
@@ -276,6 +285,8 @@ public class TomahawkFragment extends TomahawkListFragment
             intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYSTATECHANGED);
             mTomahawkMainActivity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(TomahawkMainActivity.PLAYBACKSERVICE_READY);
+            mTomahawkMainActivity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
+            intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
             mTomahawkMainActivity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
         }
         StickyListHeadersListView list = getListView();
