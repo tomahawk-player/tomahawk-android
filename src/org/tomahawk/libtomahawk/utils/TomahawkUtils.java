@@ -409,6 +409,19 @@ public class TomahawkUtils {
     }
 
     /**
+     * Load a {@link android.graphics.drawable.Drawable} asynchronously
+     *
+     * @param context       the context needed for fetching resources
+     * @param imageView     the {@link android.widget.ImageView}, which will be used to show the
+     *                      {@link android.graphics.drawable.Drawable}
+     * @param drawableResId the resource id of the drawable to load into the imageview
+     */
+    public static void loadDrawableIntoImageView(Context context, ImageView imageView,
+            int drawableResId) {
+        Picasso.with(context).load(drawableResId).error(R.drawable.ic_action_error).into(imageView);
+    }
+
+    /**
      * Load a {@link android.graphics.Bitmap} asynchronously
      *
      * @param context the context needed for fetching resources

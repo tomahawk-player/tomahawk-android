@@ -576,9 +576,11 @@ public class TomahawkMainActivity extends ActionBarActivity
                 .findViewById(R.id.now_playing_button_playpause);
         if (mPlaybackService != null) {
             if (mPlaybackService.isPlaying()) {
-                playPauseButton.setImageResource(R.drawable.ic_player_pause);
+                TomahawkUtils.loadDrawableIntoImageView(this, playPauseButton,
+                        R.drawable.ic_player_pause);
             } else {
-                playPauseButton.setImageResource(R.drawable.ic_player_play);
+                TomahawkUtils.loadDrawableIntoImageView(this, playPauseButton,
+                        R.drawable.ic_player_play);
             }
         }
     }
