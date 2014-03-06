@@ -156,7 +156,7 @@ public class SearchableFragment extends TomahawkFragment
      * org.tomahawk.libtomahawk.resolver.Query} with the given key
      */
     public void showQueryResults(String queryKey) {
-        Query query = mPipeline.getQuery(queryKey);
+        Query query = Query.getQueryByKey(queryKey);
         mCurrentQueryString = query.getFullTextQuery();
         mShownQueries = query.getTrackQueries();
     }

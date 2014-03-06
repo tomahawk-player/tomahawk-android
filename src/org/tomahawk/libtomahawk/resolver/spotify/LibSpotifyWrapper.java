@@ -37,6 +37,7 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer;
 
 import android.os.Looper;
@@ -152,10 +153,9 @@ public class LibSpotifyWrapper {
     /**
      * Resolve a {@link org.tomahawk.libtomahawk.resolver.Query} via libspotify
      *
-     * @param qid   {@link String} containg the query id
      * @param query {@link org.tomahawk.libtomahawk.resolver.Query} to be resolved
      */
-    private static void resolve(String qid, Query query) {
+    private static void resolve(Query query) {
         if (mInitialized) {
             String queryString;
             if (query.isFullTextQuery()) {
@@ -163,7 +163,7 @@ public class LibSpotifyWrapper {
             } else {
                 queryString = query.getArtist() + " " + query.getName();
             }
-            nativeresolve(qid, queryString);
+            nativeresolve(TomahawkUtils.getCacheKey(query), queryString);
         }
     }
 
@@ -274,14 +274,12 @@ public class LibSpotifyWrapper {
     /**
      * Resolve a {@link org.tomahawk.libtomahawk.resolver.Query} via Spotify
      *
-     * @param qid             {@link String} containing the {@link org.tomahawk.libtomahawk.resolver.Query}'s
-     *                        id
      * @param query           {@link org.tomahawk.libtomahawk.resolver.Query} to be resolved
      * @param spotifyResolver reference to the {@link SpotifyResolver}
      */
-    public static void resolve(String qid, Query query, SpotifyResolver spotifyResolver) {
+    public static void resolve(Query query, SpotifyResolver spotifyResolver) {
         sSpotifyResolver = spotifyResolver;
-        resolve(qid, query);
+        resolve(query);
     }
 
     /**
