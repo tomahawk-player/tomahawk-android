@@ -614,12 +614,11 @@ public class PlaybackFragment extends TomahawkFragment
             if (imageButton != null) {
                 PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
                 if (playbackService != null && playbackService.isPlaying()) {
-                    imageButton
-                            .setImageDrawable(
-                                    getResources().getDrawable(R.drawable.ic_player_pause));
+                    TomahawkUtils.loadDrawableIntoImageView(mTomahawkMainActivity, imageButton,
+                            R.drawable.ic_player_pause);
                 } else {
-                    imageButton.setImageDrawable(
-                            getResources().getDrawable(R.drawable.ic_player_play));
+                    TomahawkUtils.loadDrawableIntoImageView(mTomahawkMainActivity, imageButton,
+                            R.drawable.ic_player_play);
                 }
             }
         }
