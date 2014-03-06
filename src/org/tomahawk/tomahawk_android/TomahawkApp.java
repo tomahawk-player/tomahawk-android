@@ -124,6 +124,8 @@ public class TomahawkApp extends Application implements
                     AuthenticatorUtils hatchetAuthUtils = mTomahawkService
                             .getAuthenticatorUtils(TomahawkService.AUTHENTICATOR_ID_HATCHET);
                     mInfoSystem.sendLoggedOps(hatchetAuthUtils);
+                    ((UserCollection) getSourceList().getLocalSource().getCollection())
+                            .fetchHatchetUserPlaylists();
                 }
             }
         }
