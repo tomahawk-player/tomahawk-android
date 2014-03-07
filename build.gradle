@@ -67,7 +67,6 @@ android {
             // We are using a copy of AndroidManifest.xml, so we don't modify the original file
             manifest.srcFile 'build/AndroidManifest.xml'
             java.srcDirs = ['src']
-            resources.srcDirs = ['src']
             aidl.srcDirs = ['src']
             renderscript.srcDirs = ['src']
             res.srcDirs = ['res']
