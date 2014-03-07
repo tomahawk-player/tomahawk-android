@@ -91,8 +91,6 @@ public class ScriptResolver implements Resolver {
 
     private boolean mStopped;
 
-    private Handler UiThreadHandler;
-
     /**
      * Construct a new {@link ScriptResolver}
      *
@@ -178,7 +176,7 @@ public class ScriptResolver implements Resolver {
      * This method calls the js function resolver.init().
      */
     private void resolverInit() {
-        UiThreadHandler = new Handler(Looper.getMainLooper()) {
+        Handler handler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message inputMessage) {
                 mScriptEngine.loadUrl(
@@ -186,7 +184,7 @@ public class ScriptResolver implements Resolver {
                                 R.id.scriptresolver_resolver_init, "resolver.init()", false));
             }
         };
-        Message message = UiThreadHandler.obtainMessage();
+        Message message = handler.obtainMessage();
         message.sendToTarget();
     }
 
@@ -194,7 +192,7 @@ public class ScriptResolver implements Resolver {
      * This method tries to get the {@link Resolver}'s settings.
      */
     private void resolverSettings() {
-        UiThreadHandler = new Handler(Looper.getMainLooper()) {
+        Handler handler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message inputMessage) {
                 mScriptEngine.loadUrl(
@@ -203,7 +201,7 @@ public class ScriptResolver implements Resolver {
                                 "resolver.settings ? resolver.settings : getSettings() ", true));
             }
         };
-        Message message = UiThreadHandler.obtainMessage();
+        Message message = handler.obtainMessage();
         message.sendToTarget();
     }
 
@@ -211,7 +209,7 @@ public class ScriptResolver implements Resolver {
      * This method tries to get the {@link Resolver}'s UserConfig.
      */
     private void resolverUserConfig() {
-        UiThreadHandler = new Handler(Looper.getMainLooper()) {
+        Handler handler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message inputMessage) {
                 mScriptEngine.loadUrl(
@@ -220,7 +218,7 @@ public class ScriptResolver implements Resolver {
                                 true));
             }
         };
-        Message message = UiThreadHandler.obtainMessage();
+        Message message = handler.obtainMessage();
         message.sendToTarget();
     }
 
@@ -285,7 +283,7 @@ public class ScriptResolver implements Resolver {
     public boolean resolve(final Query query) {
         if (mReady) {
             mStopped = false;
-            UiThreadHandler = new Handler(Looper.getMainLooper()) {
+            Handler handler = new Handler(Looper.getMainLooper()) {
                 @Override
                 public void handleMessage(Message inputMessage) {
                     String qid = TomahawkApp.getSessionUniqueStringId();
@@ -320,7 +318,7 @@ public class ScriptResolver implements Resolver {
                     }
                 }
             };
-            Message message = UiThreadHandler.obtainMessage();
+            Message message = handler.obtainMessage();
             message.sendToTarget();
         }
         return mReady;
