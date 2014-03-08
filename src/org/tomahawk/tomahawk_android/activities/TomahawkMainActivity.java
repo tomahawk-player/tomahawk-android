@@ -21,7 +21,6 @@ package org.tomahawk.tomahawk_android.activities;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionLoader;
 import org.tomahawk.libtomahawk.collection.Image;
-import org.tomahawk.libtomahawk.collection.SourceList;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.TomahawkSQLiteHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
@@ -146,7 +145,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         public void onReceive(Context context, Intent intent) {
             if (Collection.COLLECTION_UPDATED.equals(intent.getAction())) {
                 onCollectionUpdated();
-            } else if (PlaybackService.BROADCAST_NEWTRACK.equals(intent.getAction())) {
+            } else if (PlaybackService.BROADCAST_CURRENTTRACKCHANGED.equals(intent.getAction())) {
                 if (mPlaybackService != null) {
                     updateViewVisibility();
                 }
@@ -193,6 +192,8 @@ public class TomahawkMainActivity extends ActionBarActivity
         mTomahawkApp = ((TomahawkApp) getApplication());
         mPipeLine = mTomahawkApp.getPipeLine();
         mInfoSystem = mTomahawkApp.getInfoSystem();
+        mUserCollection = (UserCollection) mTomahawkApp.getSourceList().getLocalSource()
+                .getCollection();
 
         mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
 
@@ -319,9 +320,6 @@ public class TomahawkMainActivity extends ActionBarActivity
                     getIntent().getIntExtra(TomahawkService.AUTHENTICATOR_ID, -1));
         }
 
-        SourceList sl = ((TomahawkApp) getApplication()).getSourceList();
-        mUserCollection = (UserCollection) sl
-                .getCollectionFromId(sl.getLocalSource().getCollection().getId());
         if (mPlaybackService != null) {
             setNowPlayingInfo();
         }
@@ -336,7 +334,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         // Register intents that the BroadcastReceiver should listen to
         IntentFilter intentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
         registerReceiver(mTomahawkMainReceiver, intentFilter);
-        intentFilter = new IntentFilter(PlaybackService.BROADCAST_NEWTRACK);
+        intentFilter = new IntentFilter(PlaybackService.BROADCAST_CURRENTTRACKCHANGED);
         registerReceiver(mTomahawkMainReceiver, intentFilter);
         intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYSTATECHANGED);
         registerReceiver(mTomahawkMainReceiver, intentFilter);

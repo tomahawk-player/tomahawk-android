@@ -18,12 +18,12 @@
 package org.tomahawk.tomahawk_android.dialogs;
 
 import org.tomahawk.libtomahawk.collection.Playlist;
-import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -46,29 +46,12 @@ import java.util.ArrayList;
  * A {@link DialogFragment} which is presented for the user so that he can choose a name for the
  * {@link UserPlaylist} he intends to create
  */
-public class CreateUserPlaylistDialog extends DialogFragment {
+public class CreateUserPlaylistDialog extends TomahawkDialogFragment {
 
     private Playlist mPlaylist;
 
     /**
-     * Default constructor
-     */
-    public CreateUserPlaylistDialog() {
-        setRetainInstance(true);
-    }
-
-    /**
-     * Construct a {@link CreateUserPlaylistDialog} and provide a {@link Playlist} to be saved
-     *
-     * @param playlist {@link Playlist} to be saved
-     */
-    public CreateUserPlaylistDialog(Playlist playlist) {
-        setRetainInstance(true);
-        mPlaylist = playlist;
-    }
-
-    /**
-     * Called when this {@link DialogFragment} is being created
+     * Called when this {@link android.support.v4.app.DialogFragment} is being created
      */
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -83,10 +66,15 @@ public class CreateUserPlaylistDialog extends DialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.playlist_dialog, null);
 
+        // Check if there is a playlist key in the provided arguments
+        if (getArguments() != null && getArguments()
+                .containsKey(TomahawkFragment.TOMAHAWK_USERPLAYLIST_KEY)) {
+            mPlaylist = UserPlaylist.getUserPlaylistById(
+                    getArguments().getString(TomahawkFragment.TOMAHAWK_USERPLAYLIST_KEY));
+        }
+
         //set the proper flags for our edittext
         EditText editText = (EditText) view.findViewById(R.id.playlist_dialog_name_textview);
-        editText.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-        editText.setSingleLine(true);
         editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -130,7 +118,8 @@ public class CreateUserPlaylistDialog extends DialogFragment {
     }
 
     /**
-     * Persist a {@link Playlist} as a {@link UserPlaylist} in our database
+     * Persist a {@link org.tomahawk.libtomahawk.collection.Playlist} as a {@link
+     * org.tomahawk.libtomahawk.collection.UserPlaylist} in our database
      */
     private void savePlaylist() {
         EditText editText = (EditText) getDialog().findViewById(R.id.playlist_dialog_name_textview);
@@ -139,18 +128,14 @@ public class CreateUserPlaylistDialog extends DialogFragment {
         UserPlaylistsDataSource userPlaylistsDataSource = ((TomahawkApp) getActivity()
                 .getApplication()).getUserPlaylistsDataSource();
         if (mPlaylist != null) {
-            userPlaylistsDataSource
-                    .storeUserPlaylist(UserPlaylist
-                            .fromQueryList(TomahawkApp.getLifetimeUniqueStringId(),
-                                    playlistName, mPlaylist.getQueries()));
+            userPlaylistsDataSource.storeUserPlaylist(UserPlaylist
+                    .fromQueryList(TomahawkApp.getLifetimeUniqueStringId(), playlistName,
+                            mPlaylist.getQueries()));
         } else {
-            userPlaylistsDataSource.storeUserPlaylist(
-                    UserPlaylist
-                            .fromQueryList(TomahawkApp.getLifetimeUniqueStringId(), playlistName,
-                                    new ArrayList<Query>()));
+            userPlaylistsDataSource.storeUserPlaylist(UserPlaylist.fromQueryList(
+                    TomahawkApp.getLifetimeUniqueStringId(), playlistName, new ArrayList<Query>()));
         }
-        ((UserCollection) ((TomahawkApp) getActivity().getApplication()).getSourceList()
-                .getCollectionFromId(UserCollection.Id)).updateUserPlaylists();
+        mUserCollection.updateUserPlaylists();
     }
 
     /**

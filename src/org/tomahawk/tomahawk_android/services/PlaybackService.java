@@ -84,8 +84,8 @@ public class PlaybackService extends Service {
 
     private boolean mHasBoundServices;
 
-    public static final String BROADCAST_NEWTRACK
-            = "org.tomahawk.tomahawk_android..BROADCAST_NEWTRACK";
+    public static final String BROADCAST_CURRENTTRACKCHANGED
+            = "org.tomahawk.tomahawk_android.BROADCAST_CURRENTTRACKCHANGED";
 
     public static final String BROADCAST_PLAYLISTCHANGED
             = "org.tomahawk.tomahawk_android.BROADCAST_PLAYLISTCHANGED";
@@ -697,7 +697,7 @@ public class PlaybackService extends Service {
                 mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
 
                 updatePlayingNotification();
-                sendBroadcast(new Intent(BROADCAST_NEWTRACK));
+                sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
 
                 if (query.getAlbum().getImage() == null && query.getArtist().getImage() == null) {
                     if (!query.getArtist().isResolvedByInfoSystem()) {
@@ -1067,7 +1067,7 @@ public class PlaybackService extends Service {
         if (mCurrentPlaylist != null && TomahawkUtils.getCacheKey(getCurrentQuery())
                 .equals(mCurrentRequestIds.get(requestId))) {
             updatePlayingNotification();
-            sendBroadcast(new Intent(BROADCAST_NEWTRACK));
+            sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
         }
     }
 }
