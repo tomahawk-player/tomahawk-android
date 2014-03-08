@@ -279,7 +279,7 @@ public class ContentViewer {
             case HUB_ID_LOVEDTRACKS:
                 newFragmentStateHolder = new FragmentStateHolder(TracksFragment.class, null,
                         UserPlaylistsDataSource.LOVEDITEMS_PLAYLIST_ID,
-                        UserPlaylistsFragment.TOMAHAWK_USER_PLAYLIST_KEY, false);
+                        UserPlaylistsFragment.TOMAHAWK_USERPLAYLIST_KEY, false);
                 break;
             case HUB_ID_PLAYLISTS:
                 newFragmentStateHolder = new FragmentStateHolder(UserPlaylistsFragment.class,

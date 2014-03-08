@@ -214,6 +214,7 @@ public class UserCollection extends Collection {
     public void toggleLovedItem(Query query) {
         boolean doSweetSweetLovin = !isQueryLoved(query);
         mTomahawkApp.getUserPlaylistsDataSource().setLovedItem(query, doSweetSweetLovin);
+        TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
         AuthenticatorUtils hatchetAuthUtils = mTomahawkApp.getTomahawkService()
                 .getAuthenticatorUtils(TomahawkService.AUTHENTICATOR_ID_HATCHET);
         mTomahawkApp.getInfoSystem().sendSocialActionPostStruct(hatchetAuthUtils, query,
@@ -239,7 +240,8 @@ public class UserCollection extends Collection {
             mTomahawkApp.getUserPlaylistsDataSource().storeUserPlaylist(
                     UserPlaylist.fromQueryList(UserPlaylistsDataSource.LOVEDITEMS_PLAYLIST_ID,
                             UserPlaylistsDataSource.LOVEDITEMS_PLAYLIST_NAME,
-                            new ArrayList<Query>()));
+                            new ArrayList<Query>())
+            );
         }
     }
 

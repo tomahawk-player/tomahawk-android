@@ -194,6 +194,21 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     }
 
     @Override
+    public String getAuthenticatorUtilsName() {
+        return TomahawkService.AUTHENTICATOR_NAME_HATCHET;
+    }
+
+    @Override
+    public String getAuthenticatorUtilsTokenType() {
+        return TomahawkService.AUTH_TOKEN_TYPE_HATCHET;
+    }
+
+    @Override
+    public int getUserIdEditTextHintResId() {
+        return R.string.logindialog_username_label_string;
+    }
+
+    @Override
     public void login(final String name, final String password) {
         mIsAuthenticating = true;
         new Thread(new Runnable() {

@@ -17,21 +17,23 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.AlbumArtSwipeAdapter;
 import org.tomahawk.tomahawk_android.adapters.PlaybackPagerAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.CreateUserPlaylistDialog;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
-import org.tomahawk.tomahawk_android.utils.FakeContextMenu;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 import org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager;
 
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -55,7 +57,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
  * {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}.
  */
 public class PlaybackFragment extends TomahawkFragment
-        implements AdapterView.OnItemClickListener, FakeContextMenu {
+        implements AdapterView.OnItemClickListener {
 
     private AlbumArtSwipeAdapter mAlbumArtSwipeAdapter;
 
@@ -199,9 +201,14 @@ public class PlaybackFragment extends TomahawkFragment
         PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
         if (playbackService != null && item != null) {
             if (item.getItemId() == R.id.action_saveplaylist_item) {
-                new CreateUserPlaylistDialog(playbackService.getCurrentPlaylist())
-                        .show(mTomahawkMainActivity.getSupportFragmentManager(),
-                                getString(R.string.playbackactivity_save_playlist_dialog_title));
+                UserPlaylist userPlaylist = UserPlaylist
+                        .fromQueryList(TomahawkApp.getLifetimeUniqueStringId(), "",
+                                playbackService.getCurrentPlaylist().getQueries());
+                CreateUserPlaylistDialog dialog = new CreateUserPlaylistDialog();
+                Bundle args = new Bundle();
+                args.putString(TomahawkFragment.TOMAHAWK_USERPLAYLIST_KEY, userPlaylist.getId());
+                dialog.setArguments(args);
+                dialog.show(getFragmentManager(), null);
                 return true;
             } else if (item.getItemId() == R.id.action_show_playlist_item) {
                 if (mTomahawkVerticalViewPager.getCurrentItem() == 0) {
@@ -455,10 +462,12 @@ public class PlaybackFragment extends TomahawkFragment
                 mToast.cancel();
             }
             mToast = Toast.makeText(getActivity(), getString(
-                    playbackService.getCurrentPlaylist().isShuffled()
-                            ? R.string.playbackactivity_toastshuffleon_string
-                            : R.string.playbackactivity_toastshuffleoff_string),
-                    Toast.LENGTH_SHORT);
+                            playbackService.getCurrentPlaylist().isShuffled()
+                                    ? R.string.playbackactivity_toastshuffleon_string
+                                    : R.string.playbackactivity_toastshuffleoff_string
+                    ),
+                    Toast.LENGTH_SHORT
+            );
             mToast.show();
         }
     }
@@ -477,7 +486,8 @@ public class PlaybackFragment extends TomahawkFragment
             mToast = Toast.makeText(getActivity(), getString(
                     playbackService.getCurrentPlaylist().isRepeating()
                             ? R.string.playbackactivity_toastrepeaton_string
-                            : R.string.playbackactivity_toastrepeatoff_string), Toast.LENGTH_SHORT);
+                            : R.string.playbackactivity_toastrepeatoff_string
+            ), Toast.LENGTH_SHORT);
             mToast.show();
         }
     }

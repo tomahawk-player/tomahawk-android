@@ -19,7 +19,7 @@ package org.tomahawk.tomahawk_android.dialogs;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.services.TomahawkService;
+import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -47,17 +47,11 @@ import android.widget.TextView;
  * A {@link DialogFragment} which shows a textfield to enter a username and password, and provides
  * button for cancel/logout and ok/login, depending on whether or not the user is logged in
  */
-public class LoginDialog extends DialogFragment {
+public class LoginDialog extends TomahawkDialogFragment {
 
     public final static String TAG = LoginDialog.class.getName();
 
     private AuthenticatorUtils mAuthenticatorUtils;
-
-    private String mAuthenticatorName;
-
-    private String mAuthenticatorAuthTokenType;
-
-    private int mEditTextHintResId;
 
     private EditText mUsernameEditText;
 
@@ -66,8 +60,6 @@ public class LoginDialog extends DialogFragment {
     private TextView mPositiveButton;
 
     private TextView mNegativeButton;
-
-    private TomahawkService mTomahawkService;
 
     private Drawable mProgressDrawable;
 
@@ -119,7 +111,8 @@ public class LoginDialog extends DialogFragment {
         @Override
         public void onClick(View v) {
             if (AuthenticatorUtils.isLoggedIn(getActivity().getApplicationContext(),
-                    mAuthenticatorName, mAuthenticatorAuthTokenType)) {
+                    mAuthenticatorUtils.getAuthenticatorUtilsName(),
+                    mAuthenticatorUtils.getAuthenticatorUtilsTokenType())) {
                 hideSoftKeyboard();
                 getDialog().dismiss();
             } else {
@@ -132,7 +125,8 @@ public class LoginDialog extends DialogFragment {
         @Override
         public void onClick(View v) {
             if (AuthenticatorUtils.isLoggedIn(getActivity().getApplicationContext(),
-                    mAuthenticatorName, mAuthenticatorAuthTokenType)) {
+                    mAuthenticatorUtils.getAuthenticatorUtilsName(),
+                    mAuthenticatorUtils.getAuthenticatorUtilsTokenType())) {
                 startLoadingAnimation();
                 mAuthenticatorUtils.logout();
             } else {
@@ -143,52 +137,37 @@ public class LoginDialog extends DialogFragment {
     };
 
     /**
-     * Construct a {@link LoginDialog}
-     *
-     * @param tomahawkService a reference to the {@link TomahawkService}, which handles the actual
-     *                        login/logout
-     */
-    public LoginDialog(TomahawkService tomahawkService, int authenticatorId) {
-        setRetainInstance(true);
-        mTomahawkService = tomahawkService;
-        mAuthenticatorUtils = mTomahawkService.getAuthenticatorUtils(authenticatorId);
-        if (mAuthenticatorUtils.isAuthenticating()) {
-            startLoadingAnimation();
-        }
-        if (authenticatorId == TomahawkService.AUTHENTICATOR_ID_SPOTIFY) {
-            mAuthenticatorName = TomahawkService.AUTHENTICATOR_NAME_SPOTIFY;
-            mAuthenticatorAuthTokenType = TomahawkService.AUTH_TOKEN_TYPE_SPOTIFY;
-            mEditTextHintResId = R.string.logindialog_email_label_string;
-        } else if (authenticatorId == TomahawkService.AUTHENTICATOR_ID_HATCHET) {
-            mAuthenticatorName = TomahawkService.AUTHENTICATOR_NAME_HATCHET;
-            mAuthenticatorAuthTokenType = TomahawkService.AUTH_TOKEN_TYPE_HATCHET;
-            mEditTextHintResId = R.string.logindialog_username_label_string;
-        }
-    }
-
-    /**
      * Called when this {@link DialogFragment} is being created
      */
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        if (getArguments() != null && getArguments()
+                .containsKey(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY)) {
+            int authenticatorId = getArguments().getInt(
+                    TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY);
+            mAuthenticatorUtils = mTomahawkApp.getTomahawkService().getAuthenticatorUtils(
+                    authenticatorId);
+            if (mAuthenticatorUtils.isAuthenticating()) {
+                startLoadingAnimation();
+            }
+        }
+
         InputMethodManager imm = (InputMethodManager) getActivity()
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.login_dialog, null);
+        boolean isLoggedIn = AuthenticatorUtils.isLoggedIn(getActivity().getApplicationContext(),
+                mAuthenticatorUtils.getAuthenticatorUtilsName(),
+                mAuthenticatorUtils.getAuthenticatorUtilsTokenType());
         mUsernameEditText = (EditText) view.findViewById(R.id.login_dialog_username_edittext);
-        mUsernameEditText.setHint(mEditTextHintResId);
-        mUsernameEditText.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-        mUsernameEditText.setSingleLine(true);
+        mUsernameEditText.setHint(mAuthenticatorUtils.getUserIdEditTextHintResId());
         mUsernameEditText.setOnEditorActionListener(mOnLoginActionListener);
-        mUsernameEditText.setText(AuthenticatorUtils
-                .isLoggedIn(getActivity().getApplicationContext(), mAuthenticatorName,
-                        mAuthenticatorAuthTokenType) ? AuthenticatorUtils
-                .getUserName(getActivity().getApplicationContext(), mAuthenticatorName) : "");
+        mUsernameEditText.setText(isLoggedIn
+                ? AuthenticatorUtils.getUserName(getActivity().getApplicationContext(),
+                mAuthenticatorUtils.getAuthenticatorUtilsName()) : "");
         mPasswordEditText = (EditText) view.findViewById(R.id.login_dialog_password_edittext);
-        mPasswordEditText.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-        mPasswordEditText.setSingleLine(true);
         mPasswordEditText.setTypeface(Typeface.DEFAULT);
         mPasswordEditText.setTransformationMethod(new PasswordTransformationMethod());
         mPasswordEditText.setOnEditorActionListener(mOnLoginActionListener);
@@ -204,14 +183,15 @@ public class LoginDialog extends DialogFragment {
         mLoggedInDrawable = getResources().getDrawable(R.drawable.ic_action_checked);
         mLoggedInDrawable.setColorFilter(
                 new PorterDuffColorFilter(getResources().getColor(R.color.tomahawk_red),
-                        PorterDuff.Mode.MULTIPLY));
+                        PorterDuff.Mode.MULTIPLY)
+        );
         mNotLoggedInDrawable = getResources().getDrawable(R.drawable.ic_action_error);
         mNotLoggedInDrawable.setColorFilter(
                 new PorterDuffColorFilter(getResources().getColor(R.color.tomahawk_red),
-                        PorterDuff.Mode.MULTIPLY));
+                        PorterDuff.Mode.MULTIPLY)
+        );
         mStatusImageView = (ImageView) view.findViewById(R.id.login_dialog_status_imageview);
-        if (AuthenticatorUtils.isLoggedIn(getActivity().getApplicationContext(), mAuthenticatorName,
-                mAuthenticatorAuthTokenType)) {
+        if (isLoggedIn) {
             mStatusImageView.setImageDrawable(mLoggedInDrawable);
         }
         updateButtonTexts();
@@ -286,8 +266,10 @@ public class LoginDialog extends DialogFragment {
      * Update the texts of all buttons. Depends on whether or not the user is logged in.
      */
     private void updateButtonTexts() {
-        if (AuthenticatorUtils.isLoggedIn(getActivity().getApplicationContext(), mAuthenticatorName,
-                mAuthenticatorAuthTokenType)) {
+        boolean isLoggedIn = AuthenticatorUtils.isLoggedIn(getActivity().getApplicationContext(),
+                mAuthenticatorUtils.getAuthenticatorUtilsName(),
+                mAuthenticatorUtils.getAuthenticatorUtilsTokenType());
+        if (isLoggedIn) {
             mPositiveButton.setText(R.string.ok);
             mNegativeButton.setText(R.string.logout);
         } else {
@@ -308,8 +290,10 @@ public class LoginDialog extends DialogFragment {
      */
     public void stopLoadingAnimation() {
         mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
-        if (AuthenticatorUtils.isLoggedIn(getActivity().getApplicationContext(), mAuthenticatorName,
-                mAuthenticatorAuthTokenType)) {
+        boolean isLoggedIn = AuthenticatorUtils.isLoggedIn(getActivity().getApplicationContext(),
+                mAuthenticatorUtils.getAuthenticatorUtilsName(),
+                mAuthenticatorUtils.getAuthenticatorUtilsTokenType());
+        if (isLoggedIn) {
             mStatusImageView.setImageDrawable(mLoggedInDrawable);
         } else {
             mStatusImageView.setImageDrawable(mNotLoggedInDrawable);

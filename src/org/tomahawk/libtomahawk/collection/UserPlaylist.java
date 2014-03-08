@@ -21,12 +21,16 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A {@link UserPlaylist} is a {@link org.tomahawk.libtomahawk.collection.Playlist} created by the
  * user and stored in the database
  */
 public class UserPlaylist extends Playlist implements TomahawkListItem {
+
+    private static ConcurrentHashMap<String, UserPlaylist> sUserPlaylists
+            = new ConcurrentHashMap<String, UserPlaylist>();
 
     private String mId;
 
@@ -48,6 +52,13 @@ public class UserPlaylist extends Playlist implements TomahawkListItem {
     }
 
     /**
+     * Get the {@link org.tomahawk.libtomahawk.collection.Artist} by providing its cache key
+     */
+    public static UserPlaylist getUserPlaylistById(String key) {
+        return sUserPlaylists.get(key);
+    }
+
+    /**
      * Create a {@link UserPlaylist} from a list of {@link org.tomahawk.libtomahawk.resolver.Query}s.
      *
      * @return a reference to the constructed {@link UserPlaylist}
@@ -60,6 +71,9 @@ public class UserPlaylist extends Playlist implements TomahawkListItem {
             pl.setCurrentQueryIndex(0);
         } else {
             pl.setCurrentQuery(currentQuery);
+        }
+        if (!sUserPlaylists.containsKey(id)) {
+            sUserPlaylists.put(id, pl);
         }
         return pl;
     }

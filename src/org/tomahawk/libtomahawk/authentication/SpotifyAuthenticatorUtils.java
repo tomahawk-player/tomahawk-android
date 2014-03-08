@@ -69,7 +69,8 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
         public void onLoginFailed(final String error, final String errorDescription) {
             Log.d(TAG,
                     "TomahawkService: Spotify login failed :(, Error: " + error + ", Description: "
-                            + errorDescription);
+                            + errorDescription
+            );
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(new Runnable() {
                 @Override
@@ -143,6 +144,21 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
     @Override
     public int getIconResourceId() {
         return R.drawable.spotify_icon;
+    }
+
+    @Override
+    public String getAuthenticatorUtilsName() {
+        return TomahawkService.AUTHENTICATOR_NAME_SPOTIFY;
+    }
+
+    @Override
+    public String getAuthenticatorUtilsTokenType() {
+        return TomahawkService.AUTH_TOKEN_TYPE_SPOTIFY;
+    }
+
+    @Override
+    public int getUserIdEditTextHintResId() {
+        return R.string.logindialog_email_label_string;
     }
 
     /**

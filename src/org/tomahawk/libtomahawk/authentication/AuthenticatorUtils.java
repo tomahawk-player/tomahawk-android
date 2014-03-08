@@ -38,6 +38,12 @@ public abstract class AuthenticatorUtils {
 
     public abstract int getIconResourceId();
 
+    public abstract String getAuthenticatorUtilsName();
+
+    public abstract String getAuthenticatorUtilsTokenType();
+
+    public abstract int getUserIdEditTextHintResId();
+
     public abstract void login(String email, String password);
 
     public abstract void logout();
