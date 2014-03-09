@@ -266,8 +266,17 @@ public class UserCollection extends Collection {
      */
     @Override
     public ArrayList<Query> getQueries() {
+        return getQueries(true);
+    }
+
+    /**
+     * @return A {@link List} of all {@link Track}s in this {@link UserCollection}
+     */
+    public ArrayList<Query> getQueries(boolean sorted) {
         ArrayList<Query> queries = new ArrayList<Query>(mQueries.values());
-        Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALPHA));
+        if (sorted) {
+            Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALPHA));
+        }
         return queries;
     }
 

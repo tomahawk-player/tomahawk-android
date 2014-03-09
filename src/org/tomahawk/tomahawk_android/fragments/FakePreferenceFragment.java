@@ -33,6 +33,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
@@ -279,7 +281,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
                 break;
             }
         }
-        mTomahawkMainActivity.runOnUiThread(new Runnable() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 ((FakePreferencesAdapter) getListAdapter()).notifyDataSetChanged();

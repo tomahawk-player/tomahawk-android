@@ -27,7 +27,6 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
-import android.widget.Filter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,8 +41,6 @@ public class DataBaseResolver implements Resolver {
     private TomahawkApp mTomahawkApp;
 
     private int mId;
-
-    private Collection mCollection;
 
     private String mName;
 
@@ -84,11 +81,6 @@ public class DataBaseResolver implements Resolver {
         mTomahawkApp.getPipeLine().onResolverReady();
     }
 
-    public void setCollection(Collection collection) {
-        mCollection = collection;
-    }
-
-
     /**
      * @return whether or not this {@link Resolver} is ready
      */
@@ -120,145 +112,42 @@ public class DataBaseResolver implements Resolver {
      * @return whether or not the Resolver is ready to resolve
      */
     @Override
-    public boolean resolve(Query query) {
+    public boolean resolve(final Query query) {
         if (mReady) {
             mStopped = false;
-            if (query.isFullTextQuery()) {
-                new TomahawkListItemFilter(TomahawkUtils.getCacheKey(query), this,
-                        query.getFullTextQuery()).filter(null);
-            } else {
-                new TomahawkListItemFilter(TomahawkUtils.getCacheKey(query), this, query.getName(),
-                        query.getAlbum().getName(), query.getArtist().getName()).filter(null);
+            ArrayList<Result> results = new ArrayList<Result>();
+            UserCollection userCollection = (UserCollection) mTomahawkApp.getSourceList()
+                    .getLocalSource().getCollection();
+            if (userCollection == null || (TextUtils.isEmpty(query.getFullTextQuery()) && TextUtils
+                    .isEmpty(query.getName()) && TextUtils
+                    .isEmpty(query.getAlbum().getName()) && TextUtils
+                    .isEmpty(query.getArtist().getName()))) {
+                return false;
             }
-        }
-        return mReady;
-    }
+            List<Query> inputList = userCollection.getQueries(false);
 
-    /**
-     * We use a {@link Filter} to resolve our {@link Track}s from the {@link UserCollection}
-     */
-    private class TomahawkListItemFilter extends Filter {
-
-        private String mQid;
-
-        private Resolver mResolver;
-
-        private String mFullTextQuery = "";
-
-        private String mTrackName = "";
-
-        private String mAlbumName = "";
-
-        private String mArtistName = "";
-
-        /**
-         * Construct this {@link TomahawkListItemFilter}, if you want to do a fullTextQuery search.
-         *
-         * @param qid           the id of the {@link Query} to be resolved
-         * @param resolver      the {@link Resolver} that we will associate with the resolved {@link
-         *                      Result}s
-         * @param fullTextQuery {@link String}  containing the fullTextQuery to be searched for
-         */
-        public TomahawkListItemFilter(final String qid, final Resolver resolver,
-                final String fullTextQuery) {
-            mQid = qid;
-            mResolver = resolver;
-            mFullTextQuery = fullTextQuery.toLowerCase().trim();
-        }
-
-        /**
-         * Construct this {@link TomahawkListItemFilter}, if you want to do a fullTextQuery search.
-         *
-         * @param qid        the id of the {@link Query} to be resolved
-         * @param resolver   the {@link Resolver} that we will associate with the resolved {@link
-         *                   Result}s
-         * @param trackName  {@link String}  containing the {@link Track}s name
-         * @param albumName  {@link String}  containing the {@link org.tomahawk.libtomahawk.collection.Album}s
-         *                   name
-         * @param artistName {@link String}  containing the {@link org.tomahawk.libtomahawk.collection.Artist}s
-         *                   name
-         */
-        public TomahawkListItemFilter(final String qid, final Resolver resolver,
-                final String trackName, final String albumName, final String artistName) {
-            mQid = qid;
-            mResolver = resolver;
-            mTrackName = trackName.toLowerCase().trim();
-            mAlbumName = albumName.toLowerCase().trim();
-            mArtistName = artistName.toLowerCase().trim();
-        }
-
-        /**
-         * Called when this {@link TomahawkListItemFilter} is done with performFiltering(...)
-         *
-         * @param constraint can be ignored in our case
-         * @param results    all found {@link FilterResults}
-         */
-        @SuppressWarnings("unchecked")
-        @Override
-        protected void publishResults(CharSequence constraint, FilterResults results) {
-            final ArrayList<Result> resultList = (ArrayList<Result>) results.values;
-            mStopped = true;
-            Runnable r = new Runnable() {
-                @Override
-                public void run() {
-                    mTomahawkApp.getPipeLine().reportResults(mQid, resultList);
-                }
-            };
-            Thread t = new Thread(r);
-            t.start();
-        }
-
-        /**
-         * Perform the filtering process. Automatically called whenever this {@link
-         * TomahawkListItemFilter} is constructed
-         *
-         * @param constraint can be ignored in our case
-         * @return all found {@link FilterResults}
-         */
-        @Override
-        protected FilterResults performFiltering(CharSequence constraint) {
-            ArrayList<Result> filteredResults = getFilteredResults();
-
-            FilterResults results = new FilterResults();
-            synchronized (this) {
-                results.values = filteredResults;
-            }
-
-            return results;
-        }
-
-        /**
-         * The actual resolving process.
-         *
-         * @return an {@link ArrayList} of all found {@link Result}s
-         */
-        protected ArrayList<Result> getFilteredResults() {
-            ArrayList<Result> filteredResults = new ArrayList<Result>();
-            if (mCollection == null || (TextUtils.isEmpty(mFullTextQuery) && TextUtils
-                    .isEmpty(mTrackName) && TextUtils
-                    .isEmpty(mAlbumName) && TextUtils.isEmpty(mArtistName))) {
-                return filteredResults;
-            }
-            List<Query> inputList = new ArrayList<Query>();
-            inputList.addAll(mCollection.getQueries());
-
-            for (Query query : inputList) {
-                if (!TextUtils.isEmpty(mFullTextQuery)) {
-                    if (query.getName().toLowerCase().contains(mFullTextQuery) ||
-                            query.getArtist().getName().toLowerCase().contains(mFullTextQuery) ||
-                            query.getAlbum().getName().toLowerCase().contains(mFullTextQuery)) {
-                        filteredResults.add(query.getPreferredTrackResult());
+            for (Query q : inputList) {
+                if (!TextUtils.isEmpty(q.getFullTextQuery())) {
+                    if (q.getName().toLowerCase().contains(q.getFullTextQuery())
+                            || q.getArtist().getName().toLowerCase().contains(q.getFullTextQuery())
+                            || q.getAlbum().getName().toLowerCase()
+                            .contains(q.getFullTextQuery())) {
+                        results.add(q.getPreferredTrackResult());
                     }
                 } else {
-                    if (query.getName().toLowerCase().contains(mTrackName) &&
-                            query.getArtist().getName().toLowerCase().contains(mArtistName) &&
-                            query.getAlbum().getName().toLowerCase().contains(mAlbumName)) {
-                        filteredResults.add(query.getPreferredTrackResult());
+                    if (q.getName().toLowerCase().contains(q.getName())
+                            && q.getArtist().getName().toLowerCase()
+                            .contains(q.getArtist().getName())
+                            && q.getAlbum().getName().toLowerCase()
+                            .contains(q.getAlbum().getName())) {
+                        results.add(q.getPreferredTrackResult());
                     }
                 }
             }
-            return filteredResults;
+            mTomahawkApp.getPipeLine()
+                    .reportResults(TomahawkUtils.getCacheKey(query), results);
         }
+        return mReady;
     }
 
     /**
