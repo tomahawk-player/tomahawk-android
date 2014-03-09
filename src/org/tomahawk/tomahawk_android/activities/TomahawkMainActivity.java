@@ -29,6 +29,7 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
@@ -45,6 +46,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
@@ -420,7 +422,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                /*Cursor cursor = mTomahawkApp.getUserPlaylistsDataSource().getSearchHistoryCursor(
+                Cursor cursor = mTomahawkApp.getUserPlaylistsDataSource().getSearchHistoryCursor(
                         newText);
                 if (cursor.getCount() != 0) {
                     String[] columns = new String[]{
@@ -435,8 +437,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                     return true;
                 } else {
                     return false;
-                }*/
-                return false;
+                }
             }
         });
         searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
