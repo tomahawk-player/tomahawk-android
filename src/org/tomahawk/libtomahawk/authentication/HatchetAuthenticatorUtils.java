@@ -123,9 +123,9 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
         public void onLoginFailed(final String error, final String errorDescription) {
             Log.d(TAG,
                     "TomahawkService: Hatchet login failed :(, Error: " + error + ", Description: "
-                            + errorDescription);
-            Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(new Runnable() {
+                            + errorDescription
+            );
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
                     Toast.makeText(mTomahawkApp,
@@ -155,7 +155,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 AccountManager am = AccountManager.get(mTomahawkApp);
                 if (am != null) {
                     am.addAccountExplicitly(account, null, new Bundle());
-                    am.setUserData(account, TomahawkService.AUTHENTICATOR_NAME, mName);
+                    am.setUserData(account, TomahawkService.AUTHENTICATOR_NAME,
+                            getAuthenticatorUtilsName());
                     am.setAuthToken(account, TomahawkService.AUTH_TOKEN_TYPE_HATCHET, refreshToken);
                     am.setUserData(account, TomahawkService.AUTH_TOKEN_EXPIRES_IN_HATCHET,
                             String.valueOf(refreshTokenExpiresIn));
@@ -179,7 +180,6 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     public HatchetAuthenticatorUtils(TomahawkApp tomahawkApp, TomahawkService tomahawkService) {
         mTomahawkApp = tomahawkApp;
         mTomahawkService = tomahawkService;
-        mName = TomahawkService.AUTHENTICATOR_NAME_HATCHET;
         mAuthenticatorListener.onInit();
     }
 
@@ -211,7 +211,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     @Override
     public void login(final String name, final String password) {
         mIsAuthenticating = true;
-        new Thread(new Runnable() {
+        mTomahawkApp.getThreadManager().execute(new Runnable() {
             @Override
             public void run() {
                 Multimap<String, String> params = HashMultimap.create(3, 1);
@@ -267,14 +267,14 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                     mAuthenticatorListener.onLoginFailed(e.getMessage(), "");
                 }
             }
-        }).start();
+        });
     }
 
     @Override
     public void logout() {
         mIsAuthenticating = true;
         final AccountManager am = AccountManager.get(mTomahawkApp);
-        Account account = TomahawkUtils.getAccountByName(mTomahawkApp, mName);
+        Account account = TomahawkUtils.getAccountByName(mTomahawkApp, getAuthenticatorUtilsName());
         if (am != null && account != null) {
             am.removeAccount(account, null, null);
         }
@@ -294,7 +294,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
         userData.put(TomahawkService.MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET, null);
         userData.put(TomahawkService.CALUMET_ACCESS_TOKEN_HATCHET, null);
         userData.put(TomahawkService.CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET, null);
-        userData = TomahawkUtils.getUserDataForAccount(mTomahawkApp, userData, mName);
+        userData = TomahawkUtils
+                .getUserDataForAccount(mTomahawkApp, userData, getAuthenticatorUtilsName());
         String mandellaAccessToken = userData.get(TomahawkService.MANDELLA_ACCESS_TOKEN_HATCHET);
         int mandellaExpirationTime = -1;
         String mandellaExpirationTimeString =
@@ -310,7 +311,9 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
             calumetExpirationTime = Integer.valueOf(mandellaExpirationTimeString);
         }
         int currentTime = (int) (System.currentTimeMillis() / 1000);
-        String refreshToken = TomahawkUtils.peekAuthTokenForAccount(mTomahawkApp, mName);
+        String refreshToken = TomahawkUtils
+                .peekAuthTokenForAccount(mTomahawkApp, getAuthenticatorUtilsName(),
+                        getAuthenticatorUtilsTokenType());
         if (refreshToken != null && (mandellaAccessToken == null
                 || currentTime > mandellaExpirationTime - EXPIRING_LIMIT)) {
             Log.d(TAG, "Mandella access token has expired, refreshing ...");
@@ -379,7 +382,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                     data.put(TomahawkService.CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
                             String.valueOf(expirationTime));
                 }
-                TomahawkUtils.setUserDataForAccount(mTomahawkApp, data, mName);
+                TomahawkUtils
+                        .setUserDataForAccount(mTomahawkApp, data, getAuthenticatorUtilsName());
             }
         } catch (JSONException e) {
             Log.e(TAG,

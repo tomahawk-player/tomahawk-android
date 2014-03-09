@@ -30,8 +30,6 @@ public abstract class AuthenticatorUtils {
 
     protected TomahawkService mTomahawkService;
 
-    protected String mName;
-
     protected boolean mIsAuthenticating;
 
     public abstract int getTitleResourceId();
@@ -61,7 +59,8 @@ public abstract class AuthenticatorUtils {
         if (authenticatorName.equals(TomahawkService.AUTHENTICATOR_NAME_SPOTIFY)) {
             return SpotifyAuthenticatorUtils.isSpotifyLoggedIn();
         } else {
-            return TomahawkUtils.peekAuthTokenForAccount(context, authenticatorName) != null;
+            return TomahawkUtils.peekAuthTokenForAccount(context, authenticatorName, authTokenType)
+                    != null;
         }
     }
 
