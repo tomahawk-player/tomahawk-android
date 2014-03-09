@@ -170,7 +170,8 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 tomahawkListAdapter.setShowCategoryHeaders(true, false);
                 tomahawkListAdapter.setShowContentHeader(true,
                         getResources().getConfiguration().orientation
-                                == Configuration.ORIENTATION_LANDSCAPE, getListView(), mAlbum);
+                                == Configuration.ORIENTATION_LANDSCAPE, getListView(), mAlbum
+                );
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
@@ -205,8 +206,9 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 tomahawkListAdapter.setShowCategoryHeaders(true, false);
                 tomahawkListAdapter
                         .setShowContentHeader(true, getResources().getConfiguration().orientation
-                                == Configuration.ORIENTATION_LANDSCAPE, getListView(),
-                                mUserPlaylist);
+                                        == Configuration.ORIENTATION_LANDSCAPE, getListView(),
+                                mUserPlaylist
+                        );
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);

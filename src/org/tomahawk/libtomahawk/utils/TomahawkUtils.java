@@ -516,16 +516,18 @@ public class TomahawkUtils {
      * Get the stored auth token for the account with the given accountName from the cache. Doesn't
      * refetch the authtoken if it has expired or isn't cached.
      *
-     * @param context     Context needed to get the AccountManager
-     * @param accountName String containing the name of the account from which to get the auth
-     *                    token
+     * @param context       Context needed to get the AccountManager
+     * @param accountName   String containing the name of the account from which to get the auth
+     *                      token
+     * @param authTokenType String containing the type of the auth token to fetch
      * @return the auth token if available, otherwise null
      */
-    public static String peekAuthTokenForAccount(Context context, String accountName) {
+    public static String peekAuthTokenForAccount(Context context, String accountName,
+            String authTokenType) {
         final AccountManager am = AccountManager.get(context);
         Account account = getAccountByName(context, accountName);
         if (am != null && account != null) {
-            return am.peekAuthToken(account, TomahawkService.AUTH_TOKEN_TYPE_HATCHET);
+            return am.peekAuthToken(account, authTokenType);
         }
         return null;
     }

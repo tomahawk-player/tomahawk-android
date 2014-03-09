@@ -34,13 +34,7 @@ public class ScriptInterface {
     public void callbackToJava(int id, String in, boolean shouldReturnResult) {
         Log.d(TAG, "callbackToJava: id='" + id + "', in='" + in + "'");
         if (shouldReturnResult) {
-            JSONObject out = new JSONObject();
-            try {
-                out = new JSONObject(in);
-            } catch (JSONException e) {
-                Log.e(TAG, "callbackToJava: " + e.getClass() + ": " + e.getLocalizedMessage());
-            }
-            mScriptResolver.handleCallbackToJava(id, out);
+            mScriptResolver.handleCallbackToJava(id, in);
         } else {
             mScriptResolver.handleCallbackToJava(id, null);
         }
@@ -81,13 +75,7 @@ public class ScriptInterface {
      */
     @JavascriptInterface
     public void addTrackResultsString(String in) {
-        //Log.d(TAG, "addTrackResultsString: in='" + in + "'");
-        try {
-            JSONObject out = new JSONObject(in);
-            mScriptResolver.handleCallbackToJava(R.id.scriptresolver_add_track_results_string, out);
-        } catch (JSONException e) {
-            Log.e(TAG, "addTrackResultsString: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
+        mScriptResolver.handleCallbackToJava(R.id.scriptresolver_add_track_results_string, in);
     }
 
     /**

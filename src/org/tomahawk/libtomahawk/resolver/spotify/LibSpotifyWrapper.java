@@ -40,6 +40,7 @@ import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer;
 
+import android.os.Handler;
 import android.os.Looper;
 
 /**
@@ -205,8 +206,7 @@ public class LibSpotifyWrapper {
     public static void seek(int position) {
         if (mInitialized) {
             mIsSeeking = true;
-            android.os.Handler handler = new android.os.Handler(Looper.getMainLooper());
-            handler.postDelayed(new Runnable() {
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     mIsSeeking = false;

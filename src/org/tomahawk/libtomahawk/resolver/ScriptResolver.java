@@ -17,12 +17,13 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
+import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -30,7 +31,7 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
+import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -91,6 +92,8 @@ public class ScriptResolver implements Resolver {
 
     private boolean mStopped;
 
+    private ObjectMapper mObjectMapper;
+
     /**
      * Construct a new {@link ScriptResolver}
      *
@@ -142,29 +145,37 @@ public class ScriptResolver implements Resolver {
      * appropriate base URL.
      */
     private void init() {
-        String baseurl = "http://fake.bla.blu";
-        if (getScriptFilePath().contains("officialfm.js")) {
-            baseurl = BASEURL_OFFICIALFM;
-        } else if (getScriptFilePath().contains("exfm.js")) {
-            baseurl = BASEURL_EXFM;
-        } else if (getScriptFilePath().contains("jamendo-resolver.js")) {
-            baseurl = BASEURL_JAMENDO;
-        } else if (getScriptFilePath().contains("soundcloud.js")) {
-            baseurl = BASEURL_SOUNDCLOUD;
-        }
-
-        mScriptEngine.loadDataWithBaseURL(baseurl, "<!DOCTYPE html>" + "<html>" + "<body>"
-                + "<script src=\"file:///android_asset/js/tomahawk_android.js\" type=\"text/javascript\"></script>"
-                + "<script src=\"file:///android_asset/js/tomahawk.js        \" type=\"text/javascript\"></script>"
-                + "<script src=\"file:///android_asset/" + mScriptFilePath
-                + "\" type=\"text/javascript\"></script>" + "</body>" + "</html>", "text/html",
-                null, null);
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                String baseurl = "http://fake.bla.blu";
+                if (mScriptFilePath.contains("officialfm.js")) {
+                    baseurl = BASEURL_OFFICIALFM;
+                } else if (mScriptFilePath.contains("exfm.js")) {
+                    baseurl = BASEURL_EXFM;
+                } else if (mScriptFilePath.contains("jamendo-resolver.js")) {
+                    baseurl = BASEURL_JAMENDO;
+                } else if (mScriptFilePath.contains("soundcloud.js")) {
+                    baseurl = BASEURL_SOUNDCLOUD;
+                }
+                mScriptEngine.loadDataWithBaseURL(baseurl, "<!DOCTYPE html>"
+                        + "<html><body>"
+                        + "<script src=\"file:///android_asset/js/tomahawk_android.js"
+                        + "\" type=\"text/javascript\"></script>"
+                        + "<script src=\"file:///android_asset/js/tomahawk.js"
+                        + "\" type=\"text/javascript\"></script>"
+                        + "<script src=\"file:///android_asset/" + mScriptFilePath
+                        + "\" type=\"text/javascript\"></script>"
+                        + "</body></html>", "text/html", null, null);
+            }
+        });
     }
 
     /**
      * This method is being called, when the {@link ScriptEngine} has completely loaded the given
      * .js script.
      */
+
     public void onScriptEngineReady() {
         resolverInit();
         resolverUserConfig();
@@ -176,50 +187,47 @@ public class ScriptResolver implements Resolver {
      * This method calls the js function resolver.init().
      */
     private void resolverInit() {
-        Handler handler = new Handler(Looper.getMainLooper()) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
-            public void handleMessage(Message inputMessage) {
+            public void run() {
                 mScriptEngine.loadUrl(
                         "javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
-                                R.id.scriptresolver_resolver_init, "resolver.init()", false));
+                                R.id.scriptresolver_resolver_init, "resolver.init()", false)
+                );
             }
-        };
-        Message message = handler.obtainMessage();
-        message.sendToTarget();
+        });
     }
 
     /**
      * This method tries to get the {@link Resolver}'s settings.
      */
     private void resolverSettings() {
-        Handler handler = new Handler(Looper.getMainLooper()) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
-            public void handleMessage(Message inputMessage) {
+            public void run() {
                 mScriptEngine.loadUrl(
                         "javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
                                 R.id.scriptresolver_resolver_settings,
-                                "resolver.settings ? resolver.settings : getSettings() ", true));
+                                "resolver.settings ? resolver.settings : getSettings() ", true)
+                );
             }
-        };
-        Message message = handler.obtainMessage();
-        message.sendToTarget();
+        });
     }
 
     /**
      * This method tries to get the {@link Resolver}'s UserConfig.
      */
     private void resolverUserConfig() {
-        Handler handler = new Handler(Looper.getMainLooper()) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
-            public void handleMessage(Message inputMessage) {
+            public void run() {
                 mScriptEngine.loadUrl(
                         "javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
                                 R.id.scriptresolver_resolver_userconfig, "resolver.getUserConfig()",
-                                true));
+                                true)
+                );
             }
-        };
-        Message message = handler.obtainMessage();
-        message.sendToTarget();
+        });
     }
 
     /**
@@ -227,50 +235,57 @@ public class ScriptResolver implements Resolver {
      * callbackToJava, which is exposed to javascript within the {@link ScriptInterface}. And after
      * that this callback will be handled here.
      *
-     * @param id  used to identify which function did the callback
-     * @param obj the {@link JSONObject} containing the {@link Result} information. Can be null
+     * @param id         used to identify which function did the callback
+     * @param jsonString the json-string containing the {@link Result} information. Can be null
      */
-    public void handleCallbackToJava(final int id, final JSONObject obj) {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                //Log.d(TAG, "handleCallbackToJava: id='" + mTomahawkApp.getResources()
-                //        .getResourceEntryName(id) + "(" + id + ")" + "', result='" + s + "'");
-                try {
-                    if (id == R.id.scriptresolver_resolver_settings && obj != null) {
-                        mName = obj.getString("name");
-                        mWeight = obj.getInt("weight");
-                        mTimeout = obj.getInt("timeout") * 1000;
-                        String[] tokens = getScriptFilePath().split("/");
-                        String basepath = "";
-                        for (int i = 0; i < tokens.length - 1; i++) {
-                            basepath += tokens[i];
-                            basepath += "/";
-                        }
-                        mIcon = Drawable.createFromStream(
-                                mTomahawkApp.getAssets().open(basepath + obj.getString("icon")),
+    public void handleCallbackToJava(final int id, final String jsonString) {
+        if (mObjectMapper == null) {
+            mObjectMapper = InfoSystemUtils.constructObjectMapper();
+        }
+        try {
+            if (id == R.id.scriptresolver_resolver_settings && jsonString != null) {
+                ScriptResolverSettings settings = mObjectMapper
+                        .readValue(jsonString, ScriptResolverSettings.class);
+                mName = settings.name;
+                mWeight = settings.weight;
+                mTimeout = settings.timeout * 1000;
+                String[] tokens = mScriptFilePath.split("/");
+                String basepath = "";
+                for (int i = 0; i < tokens.length - 1; i++) {
+                    basepath += tokens[i];
+                    basepath += "/";
+                }
+                mIcon = Drawable
+                        .createFromStream(mTomahawkApp.getAssets().open(basepath + settings.icon),
                                 null);
-                    } else if (id == R.id.scriptresolver_resolver_userconfig) {
-                    } else if (id == R.id.scriptresolver_resolver_init) {
-                        resolverSettings();
-                    } else if (id == R.id.scriptresolver_add_track_results_string && obj != null) {
-                        String qid = obj.get("qid").toString();
-                        JSONArray resultList = obj.getJSONArray("results");
-                        mTomahawkApp.getPipeLine()
-                                .reportResults(mQueryKeys.get(qid), parseResultList(resultList));
+            } else if (id == R.id.scriptresolver_resolver_userconfig) {
+            } else if (id == R.id.scriptresolver_resolver_init) {
+                resolverSettings();
+            } else if (id == R.id.scriptresolver_add_track_results_string && jsonString != null) {
+                mTomahawkApp.getThreadManager().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        ScriptResolverResult result = null;
+                        try {
+                            result = mObjectMapper
+                                    .readValue(jsonString, ScriptResolverResult.class);
+                        } catch (IOException e) {
+                            Log.e(TAG, "handleCallbackToJava: " + e.getClass() + ": " + e
+                                    .getLocalizedMessage());
+                        }
+                        if (result != null) {
+                            ArrayList<Result> parsedResults = parseResultList(result.results);
+                            mTomahawkApp.getPipeLine()
+                                    .reportResults(mQueryKeys.get(result.qid), parsedResults);
+                        }
                         mStopped = true;
                     }
-                } catch (JSONException e) {
-                    Log.e(TAG, "handleCallbackToJava: " + e.getClass() + ": " + e
-                            .getLocalizedMessage());
-                } catch (IOException e) {
-                    Log.e(TAG, "handleCallbackToJava: " + e.getClass() + ": " + e
-                            .getLocalizedMessage());
-                }
+                });
             }
-        };
-        Thread t = new Thread(r);
-        t.start();
+        } catch (IOException e) {
+            Log.e(TAG, "handleCallbackToJava: " + e.getClass() + ": " + e
+                    .getLocalizedMessage());
+        }
     }
 
     /**
@@ -283,9 +298,9 @@ public class ScriptResolver implements Resolver {
     public boolean resolve(final Query query) {
         if (mReady) {
             mStopped = false;
-            Handler handler = new Handler(Looper.getMainLooper()) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
-                public void handleMessage(Message inputMessage) {
+                public void run() {
                     String qid = TomahawkApp.getSessionUniqueStringId();
                     mQueryKeys.put(qid, TomahawkUtils.getCacheKey(query));
                     if (!query.isFullTextQuery()) {
@@ -301,7 +316,9 @@ public class ScriptResolver implements Resolver {
                                                 + "', '"
                                                 + query.getName().replace("'", "\\'")
                                                 + "' )",
-                                        false));
+                                        false
+                                )
+                        );
                     } else {
                         mScriptEngine.loadUrl(
                                 "javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
@@ -314,12 +331,12 @@ public class ScriptResolver implements Resolver {
                                                 + qid.replace("'", "\\'")
                                                 + "', '', '', '"
                                                 + query.getFullTextQuery().replace("'", "\\'")
-                                                + "' )", false));
+                                                + "' )", false
+                                )
+                        );
                     }
                 }
-            };
-            Message message = handler.obtainMessage();
-            message.sendToTarget();
+            });
         }
         return mReady;
     }
@@ -327,79 +344,51 @@ public class ScriptResolver implements Resolver {
     /**
      * Parses the given {@link JSONArray} into a {@link ArrayList} of {@link Result}s.
      *
-     * @param resList {@link JSONArray} containing the raw result information
+     * @param resultEntries ArrayList of ScriptResolverResultEntries containing the raw result
+     *                      information
      * @return a {@link ArrayList} of {@link Result}s containing the parsed data
      */
-    private ArrayList<Result> parseResultList(final JSONArray resList) {
+    private ArrayList<Result> parseResultList(ArrayList<ScriptResolverResultEntry> resultEntries) {
         ArrayList<Result> resultList = new ArrayList<Result>();
-        for (int i = 0; i < resList.length(); i++) {
-            if (!resList.isNull(i)) {
-                try {
-                    JSONObject obj = resList.getJSONObject(i);
-                    if (obj.has("url")) {
-                        Artist artist;
-                        Album album;
-                        Track track;
-                        if (obj.has("artist")) {
-                            artist = Artist.get(obj.get("artist").toString());
-                        } else {
-                            artist = Artist.get("");
-                        }
-                        if (obj.has("album")) {
-                            album = Album.get(obj.get("album").toString(), artist);
-                        } else {
-                            album = Album.get("", artist);
-                        }
-                        if (obj.has("track")) {
-                            track = Track.get(obj.get("track").toString(), album, artist);
-                        } else {
-                            track = Track.get("", album, artist);
-                        }
-                        if (obj.has("albumpos")) {
-                            track.setAlbumPos(Integer.valueOf(obj.get("albumpos").toString()));
-                        }
-                        if (obj.has("discnumber")) {
-                            track.setAlbumPos(Integer.valueOf(obj.get("discnumber").toString()));
-                        }
-                        if (obj.has("year")) {
-                            String yearString = obj.get("year").toString();
-                            if (yearString.matches("-?\\d+")) {
-                                track.setYear(Integer.valueOf(yearString));
-                            }
-                        }
-                        if (obj.has("duration")) {
-                            track.setDuration(
-                                    Math.round(
-                                            Float.valueOf(obj.get("duration").toString()) * 1000));
-                        }
-                        artist.addAlbum(album);
-                        Result result = new Result(obj.get("url").toString(), track);
-                        if (obj.has("bitrate")) {
-                            result.setBitrate(Integer.valueOf(obj.get("bitrate").toString()));
-                        }
-                        if (obj.has("size")) {
-                            result.setSize(Integer.valueOf(obj.get("size").toString()));
-                        }
-                        if (obj.has("purchaseUrl")) {
-                            result.setPurchaseUrl(obj.get("purchaseUrl").toString());
-                        }
-                        if (obj.has("linkUrl")) {
-                            result.setLinkUrl(obj.get("linkUrl").toString());
-                        }
-                        if (obj.has("score")) {
-                            result.setTrackScore(Float.valueOf(obj.get("score").toString()));
-                        }
-                        result.setResolvedBy(this);
-                        result.setArtist(artist);
-                        result.setAlbum(album);
-                        result.setTrack(track);
-                        album.addQuery(Query.get(result, false));
-                        artist.addQuery(Query.get(result, false));
-                        resultList.add(result);
-                    }
-                } catch (JSONException e) {
-                    Log.e(TAG, "parseResultList: " + e.getClass() + ": " + e.getLocalizedMessage());
+        for (ScriptResolverResultEntry resultEntry : resultEntries) {
+            if (resultEntry != null && !TextUtils.isEmpty(resultEntry.url)
+                    && !TextUtils.isEmpty(resultEntry.track)) {
+                Artist artist;
+                if (resultEntry.artist != null) {
+                    artist = Artist.get(resultEntry.artist);
+                } else {
+                    artist = Artist.get("");
                 }
+
+                Album album;
+                if (resultEntry.album != null) {
+                    album = Album.get(resultEntry.album, artist);
+                } else {
+                    album = Album.get("", artist);
+                }
+                artist.addAlbum(album);
+
+                Track track = Track.get(resultEntry.track, album, artist);
+                track.setAlbumPos(resultEntry.albumpos);
+                track.setDiscNumber(resultEntry.discnumber);
+                if (resultEntry.year != null && resultEntry.year.matches("-?\\d+")) {
+                    track.setYear(Integer.valueOf(resultEntry.year));
+                }
+                track.setDuration(resultEntry.duration * 1000);
+
+                Result result = new Result(resultEntry.url, track);
+                result.setBitrate(resultEntry.bitrate);
+                result.setSize(resultEntry.size);
+                result.setPurchaseUrl(resultEntry.purchaseUrl);
+                result.setLinkUrl(resultEntry.linkUrl);
+                result.setResolvedBy(this);
+                result.setArtist(artist);
+                result.setAlbum(album);
+                result.setTrack(track);
+
+                album.addQuery(Query.get(result, false));
+                artist.addQuery(Query.get(result, false));
+                resultList.add(result);
             }
         }
         return resultList;

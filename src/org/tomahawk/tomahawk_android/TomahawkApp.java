@@ -35,6 +35,7 @@ import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
 import org.tomahawk.tomahawk_android.utils.ContentViewer;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkExceptionReporter;
 
 import android.app.Application;
@@ -98,6 +99,8 @@ public class TomahawkApp extends Application implements
 
     private TomahawkService mTomahawkService;
 
+    private ThreadManager mThreadManager;
+
     private static long mSessionIdCounter = 0;
 
     /**
@@ -115,7 +118,6 @@ public class TomahawkApp extends Application implements
         @Override
         public void onReceive(Context context, Intent intent) {
             if (Collection.COLLECTION_UPDATED.equals(intent.getAction())) {
-                onCollectionUpdated();
                 mPipeLine.onCollectionUpdated();
             } else if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
                 boolean noConnectivity =
@@ -136,6 +138,8 @@ public class TomahawkApp extends Application implements
         TomahawkExceptionReporter.init(this);
         super.onCreate();
 
+        mThreadManager = new ThreadManager();
+
         // Load the LibSpotifyWrapper libaries
         System.loadLibrary("spotify");
         System.loadLibrary("spotifywrapper");
@@ -145,7 +149,6 @@ public class TomahawkApp extends Application implements
                 .init(LibSpotifyWrapper.class.getClassLoader(), getFilesDir() + "/Spotify");
 
         sApplicationContext = getApplicationContext();
-
         mSourceList = new SourceList();
         mPipeLine = new PipeLine(this);
         // Initialize and register Receiver
@@ -193,14 +196,6 @@ public class TomahawkApp extends Application implements
     }
 
     /**
-     * Called when a Collection has been updated.
-     */
-    protected void onCollectionUpdated() {
-        ((DataBaseResolver) mPipeLine.getResolver(RESOLVER_ID_USERCOLLECTION))
-                .setCollection(mSourceList.getLocalSource().getCollection());
-    }
-
-    /**
      * Initialize the Tomahawk app.
      */
     public void initialize() {
@@ -214,6 +209,10 @@ public class TomahawkApp extends Application implements
         Log.d(TAG, "Initializing Local Collection.");
         Source src = new Source(new UserCollection(this), 0, "My Collection");
         mSourceList.setLocalSource(src);
+    }
+
+    public ThreadManager getThreadManager() {
+        return mThreadManager;
     }
 
     /**
