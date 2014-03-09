@@ -97,7 +97,7 @@ public class PipeLine {
     public String resolve(String fullTextQuery, boolean forceOnlyLocal) {
         if (fullTextQuery != null && !TextUtils.isEmpty(fullTextQuery)) {
             Query q = Query.get(fullTextQuery, forceOnlyLocal);
-            resolve(q);
+            resolve(q, forceOnlyLocal);
             return TomahawkUtils.getCacheKey(q);
         }
         return null;
