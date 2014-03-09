@@ -189,7 +189,7 @@ public class TomahawkFragment extends TomahawkListFragment
             } else if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
                 boolean noConnectivity =
                         intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
-                if (!noConnectivity) {
+                if (!noConnectivity && !(TomahawkFragment.this instanceof SearchableFragment)) {
                     mCorrespondingQueryIds.clear();
                     resolveQueriesFromTo(getListView().getFirstVisiblePosition(),
                             getListView().getLastVisiblePosition() + 2);

@@ -159,6 +159,7 @@ public class SearchableFragment extends TomahawkFragment
         Query query = Query.getQueryByKey(queryKey);
         mCurrentQueryString = query.getFullTextQuery();
         mShownQueries = query.getTrackQueries();
+        updateAdapter();
     }
 
     public void showInfoResults(String requestId) {
@@ -215,13 +216,17 @@ public class SearchableFragment extends TomahawkFragment
         CheckBox onlineSourcesCheckBox = (CheckBox) mTomahawkMainActivity
                 .findViewById(R.id.search_onlinesources_checkbox);
         String queryId = mPipeline.resolve(fullTextQuery, !onlineSourcesCheckBox.isChecked());
-        mCorrespondingQueryIds.clear();
         if (onlineSourcesCheckBox.isChecked()) {
             mCurrentRequestIds.clear();
             String requestId = mInfoSystem.resolve(fullTextQuery);
             mCurrentRequestIds.add(requestId);
+        } else {
+            mShownArtists = null;
+            mShownAlbums = null;
+            updateAdapter();
         }
         if (queryId != null) {
+            mCorrespondingQueryIds.clear();
             mCorrespondingQueryIds.add(queryId);
             mTomahawkMainActivity.startLoadingAnimation();
         }
@@ -234,7 +239,6 @@ public class SearchableFragment extends TomahawkFragment
                 showQueryResults(key);
             }
         }
-        updateAdapter();
     }
 
     @Override

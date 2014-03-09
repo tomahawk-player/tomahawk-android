@@ -174,7 +174,7 @@ public class TomahawkUtils {
             Query query = ((Query) tomahawkListItem);
             boolean isFullTextQuery = query.isFullTextQuery();
             if (isFullTextQuery) {
-                return getCacheKey(query.getFullTextQuery());
+                return getCacheKey(query.getFullTextQuery(), String.valueOf(query.isOnlyLocal()));
             } else {
                 return getCacheKey(query.getName(), query.getAlbum().getName(),
                         query.getArtist().getName(), query.getResultHint());

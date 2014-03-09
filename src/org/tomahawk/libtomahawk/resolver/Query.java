@@ -211,9 +211,11 @@ public class Query implements TomahawkListItem {
     public ArrayList<Query> getTrackQueries() {
         HashMap<String, Query> queryMap = new HashMap<String, Query>();
         for (Result result : getTrackResults()) {
-            Query query = Query.get(result, isOnlyLocal());
-            query.addTrackResult(result);
-            queryMap.put(TomahawkUtils.getCacheKey(query), query);
+            if (!isOnlyLocal() || result.isLocal()) {
+                Query query = Query.get(result, isOnlyLocal());
+                query.addTrackResult(result);
+                queryMap.put(TomahawkUtils.getCacheKey(query), query);
+            }
         }
         ArrayList<Query> queries = new ArrayList<Query>(queryMap.values());
         Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_TRACK_SCORE));
