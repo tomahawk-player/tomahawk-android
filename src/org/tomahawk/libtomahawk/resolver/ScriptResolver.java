@@ -31,6 +31,7 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.WebSettings;
@@ -93,6 +94,18 @@ public class ScriptResolver implements Resolver {
     private boolean mStopped;
 
     private ObjectMapper mObjectMapper;
+
+    private static final int TIMEOUT_HANDLER_MSG = 1337;
+
+    // Handler which sets the mStopped bool to true after the timeout has occured.
+    // Meaning this resolver is no longer being shown as resolving.
+    private final Handler mTimeOutHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            removeMessages(msg.what);
+            mStopped = true;
+        }
+    };
 
     /**
      * Construct a new {@link ScriptResolver}
@@ -278,6 +291,7 @@ public class ScriptResolver implements Resolver {
                             mTomahawkApp.getPipeLine()
                                     .reportResults(mQueryKeys.get(result.qid), parsedResults);
                         }
+                        mTimeOutHandler.removeCallbacksAndMessages(null);
                         mStopped = true;
                     }
                 });
@@ -298,6 +312,8 @@ public class ScriptResolver implements Resolver {
     public boolean resolve(final Query query) {
         if (mReady) {
             mStopped = false;
+            mTimeOutHandler.removeCallbacksAndMessages(null);
+            mTimeOutHandler.sendEmptyMessageDelayed(TIMEOUT_HANDLER_MSG, mTimeout);
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
