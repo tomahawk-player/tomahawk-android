@@ -108,44 +108,58 @@ public class DataBaseResolver implements Resolver {
     /**
      * Resolve the given {@link Query}.
      *
-     * @param query the {@link Query} which should be resolved
+     * @param queryToSearchFor the {@link Query} which should be resolved
      * @return whether or not the Resolver is ready to resolve
      */
     @Override
-    public boolean resolve(final Query query) {
+    public boolean resolve(final Query queryToSearchFor) {
         if (mReady) {
             mStopped = false;
             ArrayList<Result> results = new ArrayList<Result>();
             UserCollection userCollection = (UserCollection) mTomahawkApp.getSourceList()
                     .getLocalSource().getCollection();
-            if (userCollection == null || (TextUtils.isEmpty(query.getFullTextQuery()) && TextUtils
-                    .isEmpty(query.getName()) && TextUtils
-                    .isEmpty(query.getAlbum().getName()) && TextUtils
-                    .isEmpty(query.getArtist().getName()))) {
+            if (userCollection == null) {
+                mStopped = true;
                 return false;
             }
             List<Query> inputList = userCollection.getQueries(false);
 
-            for (Query q : inputList) {
-                if (!TextUtils.isEmpty(q.getFullTextQuery())) {
-                    if (q.getName().toLowerCase().contains(q.getFullTextQuery())
-                            || q.getArtist().getName().toLowerCase().contains(q.getFullTextQuery())
-                            || q.getAlbum().getName().toLowerCase()
-                            .contains(q.getFullTextQuery())) {
-                        results.add(q.getPreferredTrackResult());
+            for (Query existingQuery : inputList) {
+                String existingTrackName = existingQuery.getName().toLowerCase();
+                String existingArtistName = existingQuery.getArtist().getName().toLowerCase();
+                String existingAlbumName = existingQuery.getAlbum().getName().toLowerCase();
+                if (queryToSearchFor.isFullTextQuery()) {
+                    if (!TextUtils.isEmpty(queryToSearchFor.getFullTextQuery())) {
+                        String toSearchForFullText = queryToSearchFor.getFullTextQuery()
+                                .toLowerCase();
+                        if (existingTrackName.contains(toSearchForFullText)
+                                || existingArtistName.contains(toSearchForFullText)
+                                || existingAlbumName.contains(toSearchForFullText)
+                                || toSearchForFullText.contains(existingTrackName)
+                                || toSearchForFullText.contains(existingArtistName)
+                                || toSearchForFullText.contains(existingAlbumName)) {
+                            results.add(existingQuery.getPreferredTrackResult());
+                        }
+
                     }
                 } else {
-                    if (q.getName().toLowerCase().contains(q.getName())
-                            && q.getArtist().getName().toLowerCase()
-                            .contains(q.getArtist().getName())
-                            && q.getAlbum().getName().toLowerCase()
-                            .contains(q.getAlbum().getName())) {
-                        results.add(q.getPreferredTrackResult());
+                    if (!TextUtils.isEmpty(queryToSearchFor.getName()) &&
+                            !TextUtils.isEmpty(queryToSearchFor.getArtist().getName())) {
+                        String toSearchTrackName = queryToSearchFor.getName().toLowerCase();
+                        String toSearchArtistName = queryToSearchFor.getArtist().getName()
+                                .toLowerCase();
+                        if ((existingTrackName.contains(toSearchTrackName)
+                                || toSearchTrackName.contains(existingTrackName))
+                                && (existingArtistName.contains(toSearchArtistName)
+                                || toSearchArtistName.contains(existingArtistName))) {
+                            results.add(existingQuery.getPreferredTrackResult());
+                        }
                     }
                 }
             }
             mTomahawkApp.getPipeLine()
-                    .reportResults(TomahawkUtils.getCacheKey(query), results);
+                    .reportResults(TomahawkUtils.getCacheKey(queryToSearchFor), results);
+            mStopped = true;
         }
         return mReady;
     }
