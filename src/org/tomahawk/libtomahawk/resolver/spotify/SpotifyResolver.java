@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.resolver.spotify;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -50,8 +51,8 @@ public class SpotifyResolver implements Resolver {
 
     private boolean mStopped;
 
-    private ConcurrentHashMap<Query, ArrayList<Result>> mResults
-            = new ConcurrentHashMap<Query, ArrayList<Result>>();
+    private ConcurrentHashMap<String, ArrayList<Result>> mResults
+            = new ConcurrentHashMap<String, ArrayList<Result>>();
 
     /**
      * Construct a new {@link SpotifyResolver}
@@ -95,10 +96,10 @@ public class SpotifyResolver implements Resolver {
     public boolean resolve(Query query) {
         mStopped = false;
         if (mAuthenticated) {
-            ArrayList<Result> results = mResults.get(query);
+            ArrayList<Result> results = mResults.get(TomahawkUtils.getCacheKey(query));
             if (results == null) {
                 results = new ArrayList<Result>();
-                mResults.put(query, results);
+                mResults.put(TomahawkUtils.getCacheKey(query), results);
             }
             LibSpotifyWrapper.resolve(query, this);
         }
@@ -127,12 +128,12 @@ public class SpotifyResolver implements Resolver {
     public void addResult(String queryKey, Result result) {
         ArrayList<Result> results = mResults.get(queryKey);
         results.add(result);
-        mResults.put(Query.getQueryByKey(queryKey), results);
+        mResults.put(queryKey, results);
     }
 
     /**
      * Called by {@link LibSpotifyWrapper}, which has been called by libspotify. Signals that the
-     * {@link Query} with the given queryKey has been resolved.
+     * {@link Query} with the given query key has been resolved.
      */
     public void onResolved(String queryKey) {
         mStopped = true;
