@@ -26,7 +26,7 @@ public class ThreadManager {
      * Gets the number of available cores
      * (not always the same as the maximum number of cores)
      */
-    private static int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors() * 4;
+    private static int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
 
     // Sets the amount of time an idle thread waits before terminating
     private static final int KEEP_ALIVE_TIME = 1;
