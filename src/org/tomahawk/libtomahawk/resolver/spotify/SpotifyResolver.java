@@ -126,10 +126,12 @@ public class SpotifyResolver implements Resolver {
      * Add the given {@link Result} to our {@link ArrayList} of {@link Result}s
      */
     public void addResult(String queryKey, Result result) {
-        ArrayList<Result> results = mResults.get(queryKey);
-        if (results != null) {
-            results.add(result);
-            mResults.put(queryKey, results);
+        synchronized (this) {
+            ArrayList<Result> results = mResults.get(queryKey);
+            if (results != null) {
+                results.add(result);
+                mResults.put(queryKey, results);
+            }
         }
     }
 
@@ -140,8 +142,13 @@ public class SpotifyResolver implements Resolver {
     public void onResolved(String queryKey) {
         mStopped = true;
         // report our results to the pipeline
-        ArrayList<Result> results = mResults.remove(queryKey);
-        mTomahawkApp.getPipeLine().reportResults(queryKey, results);
+        ArrayList<Result> results;
+        synchronized (this) {
+            results = mResults.remove(queryKey);
+        }
+        if (results != null) {
+            mTomahawkApp.getPipeLine().reportResults(queryKey, results);
+        }
     }
 
     /**
