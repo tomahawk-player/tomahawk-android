@@ -83,31 +83,37 @@ void logout(list<int> int_params, list<string> string_params, sp_session *sessio
 }
 
 static void SP_CALLCONV search_complete(sp_search *search, void *userdata) {
+    // Let's get the data first
+    int count = sp_search_num_tracks(search);
     JNIEnv *env;
-    jclass classLibspotify = find_class_from_native_thread(&env);
-	string &qid = *static_cast<string*>(userdata);
-    jstring j_qid = env->NewStringUTF(qid.c_str());
-	bool success = (sp_search_error(search) == SP_ERROR_OK) ? true : false;
-	int count = sp_search_num_tracks(search);
-    jstring j_trackname;
-    jstring j_trackuri;
-    jstring j_albumname;
-    jstring j_artistname;
-	sp_track *track;
-	for (int i=0;i< count;i++){
-	    track = sp_search_track(search, i);
+    jclass j_stringclass = find_string_class_from_native_thread(&env);
+    jobjectArray j_tracknames = (jobjectArray)env->NewObjectArray(count, j_stringclass, NULL);
+    jobjectArray j_trackuris = (jobjectArray)env->NewObjectArray(count, j_stringclass, NULL);
+    jobjectArray j_albumnames = (jobjectArray)env->NewObjectArray(count, j_stringclass, NULL);
+    jobjectArray j_artistnames = (jobjectArray)env->NewObjectArray(count, j_stringclass, NULL);
+    env->DeleteLocalRef(j_stringclass);
+    jint trackdurations[count];
+    jint trackdiscnumbers[count];
+    jint trackindexes[count];
+    jint albumyears[count];
+    for (int i=0;i< count;i++){
+        // For every track result, we are storing the data in the previously declared variables
+        sp_track *track = sp_search_track(search, i);
         if (track != 0 && sp_track_error(track) == SP_ERROR_OK){
+            jstring j_tempstring;
             const char *temp = sp_track_name(track);
             if (temp != 0 && strlen(temp) != 0){
-                j_trackname = env->NewStringUTF(temp);
+                j_tempstring = env->NewStringUTF(temp);
+                env->SetObjectArrayElement( j_tracknames, i, j_tempstring);
+                env->DeleteLocalRef(j_tempstring);
             }
-            int trackDuration = sp_track_duration(track);
+            trackdurations[i] = (jint)sp_track_duration(track);
             if (sp_track_error(track) != SP_ERROR_OK)
                 log("sp_track_error: %s",sp_error_message(sp_track_error(track)));
-            int trackDiscnumber = sp_track_disc(track);
+            trackdiscnumbers[i] = (jint)sp_track_disc(track);
             if (sp_track_error(track) != SP_ERROR_OK)
                 log("sp_track_error: %s",sp_error_message(sp_track_error(track)));
-            int trackIndex = sp_track_index(track);
+            trackindexes[i] = (jint)sp_track_index(track);
             if (sp_track_error(track) != SP_ERROR_OK)
                 log("sp_track_error: %s",sp_error_message(sp_track_error(track)));
             char buffer [64];
@@ -115,16 +121,19 @@ static void SP_CALLCONV search_complete(sp_search *search, void *userdata) {
             if (link != 0){
                 sp_link_as_string(link, buffer, 64);
             }
-            j_trackuri = env->NewStringUTF(buffer);
+            j_tempstring = env->NewStringUTF(buffer);
+            env->SetObjectArrayElement( j_trackuris, i, j_tempstring);
+            env->DeleteLocalRef(j_tempstring);
             sp_album *album = sp_track_album(track);
             if (sp_track_error(track) != SP_ERROR_OK)
                 log("sp_track_error: %s",sp_error_message(sp_track_error(track)));
-            int albumYear = 0;
             if (album != 0){
+                albumyears[i] = (jint)sp_album_year(album);
                 temp = sp_album_name(album);
-                albumYear = sp_album_year(album);
                 if (temp != 0 && strlen(temp) != 0){
-                    j_albumname = env->NewStringUTF(temp);
+                    j_tempstring = env->NewStringUTF(temp);
+                    env->SetObjectArrayElement( j_albumnames, i, j_tempstring);
+                    env->DeleteLocalRef(j_tempstring);
                 }
             }
             sp_artist *artist = sp_track_artist(track,0);
@@ -133,42 +142,50 @@ static void SP_CALLCONV search_complete(sp_search *search, void *userdata) {
             if (artist != 0){
                 temp = sp_artist_name(artist);
                 if (temp != 0 && strlen(temp) != 0){
-                    j_artistname = env->NewStringUTF(temp);
+                    j_tempstring = env->NewStringUTF(temp);
+                    env->SetObjectArrayElement( j_artistnames, i, j_tempstring);
+                    env->DeleteLocalRef(j_tempstring);
                 }
             }
-            jmethodID methodIdAddResult = env->GetStaticMethodID(classLibspotify, "addResult",
-                "(Ljava/lang/String;Ljava/lang/String;IIILjava/lang/String;Ljava/lang/String;ILjava/lang/String;)V");
-            env->CallStaticVoidMethod(classLibspotify, methodIdAddResult, j_qid, j_trackname,
-                trackDuration, trackDiscnumber, trackIndex, j_trackuri,
-                j_albumname, albumYear, j_artistname);
-            if (env->ExceptionCheck()) {
-                env->ExceptionDescribe();
-                env->ExceptionClear();
-            }
-            env->DeleteLocalRef(j_trackname);
-            env->DeleteLocalRef(j_trackuri);
-            env->DeleteLocalRef(j_artistname);
-            env->DeleteLocalRef(j_albumname);
-	        j_trackname = NULL;
-	        j_trackuri = NULL;
-	        j_artistname = NULL;
-	        j_albumname = NULL;
         }
-	}
-    jmethodID methodIdOnResolved = env->GetStaticMethodID(classLibspotify, "onResolved",
-	    "(Ljava/lang/String;ZLjava/lang/String;Ljava/lang/String;)V");
+    }
+    bool success = (sp_search_error(search) == SP_ERROR_OK) ? true : false;
+    string &qid = *static_cast<string*>(userdata);
+
+    // We've got all the data, let's give it back to Java now
+    jstring j_qid = env->NewStringUTF(qid.c_str());
     jstring j_error = env->NewStringUTF(sp_error_message(sp_search_error(search)));
     jstring j_didyoumean = env->NewStringUTF(sp_search_did_you_mean(search));
-    env->CallStaticVoidMethod(classLibspotify, methodIdOnResolved, j_qid, success, j_error,
-        j_didyoumean);
+    jintArray j_trackdurations = env->NewIntArray(count);
+    env->SetIntArrayRegion(j_trackdurations, 0, count, trackdurations);
+    jintArray j_trackdiscnumbers = env->NewIntArray(count);
+    env->SetIntArrayRegion(j_trackdiscnumbers, 0, count, trackdiscnumbers);
+    jintArray j_trackindexes = env->NewIntArray(count);
+    env->SetIntArrayRegion(j_trackindexes, 0, count, trackindexes);
+    jintArray j_albumyears = env->NewIntArray(count);
+    env->SetIntArrayRegion(j_albumyears, 0, count, albumyears);
+    jclass classLibspotify = find_class_from_native_thread(&env);
+    jmethodID methodId = env->GetStaticMethodID(classLibspotify, "onResolved",
+        "(Ljava/lang/String;ZLjava/lang/String;Ljava/lang/String;I[I[I[I[I[Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;)V");
+    env->CallStaticVoidMethod(classLibspotify, methodId, j_qid, success, j_error, j_didyoumean,
+        count, j_trackdurations, j_trackdiscnumbers, j_trackindexes, j_albumyears, j_tracknames,
+        j_trackuris, j_albumnames, j_artistnames);
     if (env->ExceptionCheck()) {
         env->ExceptionDescribe();
         env->ExceptionClear();
     }
-	env->DeleteLocalRef(classLibspotify);
-	env->DeleteLocalRef(j_qid);
-	env->DeleteLocalRef(j_error);
-	env->DeleteLocalRef(j_didyoumean);
+    env->DeleteLocalRef(classLibspotify);
+    env->DeleteLocalRef(j_qid);
+    env->DeleteLocalRef(j_error);
+    env->DeleteLocalRef(j_didyoumean);
+    env->DeleteLocalRef(j_tracknames);
+    env->DeleteLocalRef(j_trackuris);
+    env->DeleteLocalRef(j_albumnames);
+    env->DeleteLocalRef(j_artistnames);
+    env->DeleteLocalRef(j_trackdurations);
+    env->DeleteLocalRef(j_trackdiscnumbers);
+    env->DeleteLocalRef(j_trackindexes);
+    env->DeleteLocalRef(j_albumyears);
 
     log("Finished resolving query:'%s', success'%s', track count:'%d', qid:'%s'", sp_search_query(search),
         (success?"true":"false"), count, qid.c_str());
@@ -181,7 +198,6 @@ void resolve(list<int> int_params, list<string> string_params, sp_session *sessi
 		exitl("Tried to resolve before session was initialized");
     string *qid = new string(string_params.front());
 	string query = string_params.back();
-	log("resolve| session is %s, query:'%s' qid:'%s'", session==0?"null":"not null", query.c_str(), qid->c_str());
     sp_search_create(session, query.c_str(), 0, 100, 0, 100, 0, 100, 0, 100, SP_SEARCH_STANDARD, &search_complete, qid);
     log("Beginning to resolve query:'%s', qid:'%s'", query.c_str(), qid->c_str());
 }
@@ -330,13 +346,16 @@ void on_logged_in(list<int> int_params, list<string> string_params, sp_session *
 	log("on_logged_in: success:%s, error %s, sp_error_message(error) %s, session %s, sp_session_user_name(session) %s",
 	    success?"true":"false", error==0?"null":"not null", sp_error_message(error)==0?"null":"not null",
 	    session==0?"null":"not null", sp_session_user_name(session)==0?"null":"not null");
-	env->CallStaticVoidMethod(class_libspotify, methodId, success, env->NewStringUTF(sp_error_message(error)),
-	    env->NewStringUTF(sp_session_user_name(session)));
+	jstring j_message = env->NewStringUTF(sp_error_message(error));
+	jstring j_username = env->NewStringUTF(sp_session_user_name(session));
+	env->CallStaticVoidMethod(class_libspotify, methodId, success, j_message, j_username);
     if (env->ExceptionCheck()) {
         env->ExceptionDescribe();
         env->ExceptionClear();
     }
 	env->DeleteLocalRef(class_libspotify);
+	env->DeleteLocalRef(j_message);
+	env->DeleteLocalRef(j_username);
 }
 
 void on_logged_out(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track) {
@@ -352,13 +371,16 @@ void on_credentials_blob_updated(list<int> int_params, list<string> string_param
 
 	jmethodID methodId = env->GetStaticMethodID(class_libspotify, "onCredentialsBlobUpdated",
 	    "(Ljava/lang/String;Ljava/lang/String;)V");
-	env->CallStaticVoidMethod(class_libspotify, methodId,
-	    env->NewStringUTF(username.c_str()), env->NewStringUTF(blob.c_str()));
+	jstring j_username = env->NewStringUTF(username.c_str());
+	jstring j_blob = env->NewStringUTF(blob.c_str());
+	env->CallStaticVoidMethod(class_libspotify, methodId, j_username, j_blob);
     if (env->ExceptionCheck()) {
         env->ExceptionDescribe();
         env->ExceptionClear();
     }
 	env->DeleteLocalRef(class_libspotify);
+	env->DeleteLocalRef(j_username);
+	env->DeleteLocalRef(j_blob);
 }
 
 void on_player_pause(list<int> int_params, list<string> string_params, sp_session *session, sp_track *track) {

@@ -44,6 +44,8 @@ import org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer;
 import android.os.Handler;
 import android.os.Looper;
 
+import java.util.ArrayList;
+
 /**
  * Wrapper class around libspotify. Provides functionality to talk to the c library.
  */
@@ -322,40 +324,35 @@ public class LibSpotifyWrapper {
      * @param didYouMean {@link String} containing libspotify's "Did you mean?" suggestion
      */
     public static void onResolved(final String qid, final boolean success, final String message,
-            final String didYouMean) {
+            final String didYouMean, final int count, final int[] trackDurations,
+            final int[] trackDiscnumbers, final int[] trackIndexes, final int[] albumYears,
+            final String[] trackNames, final String[] trackUris, final String[] albumNames,
+            final String[] artistNames) {
         sTomahawkApp.getThreadManager().execute(new Runnable() {
             @Override
             public void run() {
-                if (sSpotifyResolver != null) {
-                    sSpotifyResolver.onResolved(qid);
+                if (!success) {
+                    sSpotifyResolver.onError(message);
                 }
-            }
-        });
-    }
-
-    /**
-     * Called by libspotify. Add a result to the static {@link SpotifyResolver}
-     */
-    public static void addResult(final String qid, final String trackName, final int trackDuration,
-            final int trackDiscnumber, final int trackIndex, final String trackUri,
-            final String albumName, final int albumYear, final String artistName) {
-        sTomahawkApp.getThreadManager().execute(new Runnable() {
-            @Override
-            public void run() {
                 if (sSpotifyResolver != null) {
-                    Artist artist = Artist.get(artistName);
-                    Album album = Album.get(albumName, artist);
-                    album.setFirstYear("" + albumYear);
-                    album.setLastYear("" + albumYear);
-                    Track track = Track.get(trackName, album, artist);
-                    track.setDuration(trackDuration);
-                    track.setAlbumPos(trackIndex);
-                    Result result = new Result(trackUri, track);
-                    result.setTrack(track);
-                    result.setArtist(artist);
-                    result.setAlbum(album);
-                    result.setResolvedBy(sSpotifyResolver);
-                    sSpotifyResolver.addResult(qid, result);
+                    ArrayList<Result> results = new ArrayList<Result>();
+                    for (int i = 0; i < count; i++) {
+                        Artist artist = Artist.get(artistNames[i]);
+                        Album album = Album.get(albumNames[i], artist);
+                        album.setFirstYear("" + albumYears[i]);
+                        album.setLastYear("" + albumYears[i]);
+                        Track track = Track.get(trackNames[i], album, artist);
+                        track.setDiscNumber(trackDiscnumbers[i]);
+                        track.setDuration(trackDurations[i]);
+                        track.setAlbumPos(trackIndexes[i]);
+                        Result result = new Result(trackUris[i], track);
+                        result.setTrack(track);
+                        result.setArtist(artist);
+                        result.setAlbum(album);
+                        result.setResolvedBy(sSpotifyResolver);
+                        results.add(result);
+                    }
+                    sSpotifyResolver.onResolved(qid, results);
                 }
             }
         });

@@ -29,6 +29,7 @@
 
 void detach_current_thread();
 jclass find_class_from_native_thread(JNIEnv **envSetter);
+jclass find_string_class_from_native_thread(JNIEnv **envSetter);
 void call_static_void_method(const char *method_name);
 
 extern "C" {
