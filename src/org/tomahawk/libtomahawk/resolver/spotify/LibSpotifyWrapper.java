@@ -37,7 +37,6 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer;
 
@@ -159,9 +158,10 @@ public class LibSpotifyWrapper {
     /**
      * Resolve a {@link org.tomahawk.libtomahawk.resolver.Query} via libspotify
      *
-     * @param query {@link org.tomahawk.libtomahawk.resolver.Query} to be resolved
+     * @param queryKey the key of the given query
+     * @param query    {@link org.tomahawk.libtomahawk.resolver.Query} to be resolved
      */
-    private static void resolve(Query query) {
+    private static void resolve(String queryKey, Query query) {
         if (mInitialized) {
             String queryString;
             if (query.isFullTextQuery()) {
@@ -169,7 +169,7 @@ public class LibSpotifyWrapper {
             } else {
                 queryString = query.getArtist() + " " + query.getName();
             }
-            nativeresolve(TomahawkUtils.getCacheKey(query), queryString);
+            nativeresolve(queryKey, queryString);
         }
     }
 
@@ -279,16 +279,17 @@ public class LibSpotifyWrapper {
     /**
      * Resolve a {@link org.tomahawk.libtomahawk.resolver.Query} via Spotify
      *
+     * @param queryKey        the key of the given query
      * @param query           {@link org.tomahawk.libtomahawk.resolver.Query} to be resolved
      * @param spotifyResolver reference to the {@link SpotifyResolver}
      * @param tomahawkApp     reference to the TomahawkApp to enable this wrapper to execute a
      *                        thread on the threadmanager
      */
-    public static void resolve(Query query, SpotifyResolver spotifyResolver,
+    public static void resolve(String queryKey, Query query, SpotifyResolver spotifyResolver,
             TomahawkApp tomahawkApp) {
         sSpotifyResolver = spotifyResolver;
         sTomahawkApp = tomahawkApp;
-        resolve(query);
+        resolve(queryKey, query);
     }
 
     /**
