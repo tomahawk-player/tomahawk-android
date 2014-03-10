@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.resolver.spotify;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -27,6 +28,7 @@ import android.graphics.drawable.Drawable;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A {@link Resolver} which resolves {@link org.tomahawk.libtomahawk.collection.Track}s via
@@ -49,6 +51,11 @@ public class SpotifyResolver implements Resolver {
     private boolean mAuthenticated;
 
     private boolean mStopped;
+
+    private ConcurrentHashMap<String, Query> mWaitingQueries
+            = new ConcurrentHashMap<String, Query>();
+
+    private static int SPOTIFY_RESOLVER_WORKER_COUNT = 10;
 
     /**
      * Construct a new {@link SpotifyResolver}
@@ -92,7 +99,12 @@ public class SpotifyResolver implements Resolver {
     public boolean resolve(Query query) {
         mStopped = false;
         if (mAuthenticated) {
-            LibSpotifyWrapper.resolve(query, this, mTomahawkApp);
+            String queryKey = TomahawkUtils.getCacheKey(query);
+            if (mWaitingQueries.size() >= SPOTIFY_RESOLVER_WORKER_COUNT) {
+                mWaitingQueries.put(queryKey, query);
+            } else {
+                LibSpotifyWrapper.resolve(queryKey, query, this, mTomahawkApp);
+            }
         }
         return mAuthenticated;
     }
@@ -119,6 +131,7 @@ public class SpotifyResolver implements Resolver {
      */
     public void onResolved(String queryKey, ArrayList<Result> results) {
         mStopped = true;
+        mWaitingQueries.remove(queryKey);
         // report our results to the pipeline
         if (results != null && !results.isEmpty()) {
             mTomahawkApp.getPipeLine().reportResults(queryKey, results);
