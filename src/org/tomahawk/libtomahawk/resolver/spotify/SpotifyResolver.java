@@ -20,14 +20,13 @@ package org.tomahawk.libtomahawk.resolver.spotify;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A {@link Resolver} which resolves {@link org.tomahawk.libtomahawk.collection.Track}s via
@@ -50,9 +49,6 @@ public class SpotifyResolver implements Resolver {
     private boolean mAuthenticated;
 
     private boolean mStopped;
-
-    private ConcurrentHashMap<String, ArrayList<Result>> mResults
-            = new ConcurrentHashMap<String, ArrayList<Result>>();
 
     /**
      * Construct a new {@link SpotifyResolver}
@@ -96,11 +92,6 @@ public class SpotifyResolver implements Resolver {
     public boolean resolve(Query query) {
         mStopped = false;
         if (mAuthenticated) {
-            ArrayList<Result> results = mResults.get(TomahawkUtils.getCacheKey(query));
-            if (results == null) {
-                results = new ArrayList<Result>();
-                mResults.put(TomahawkUtils.getCacheKey(query), results);
-            }
             LibSpotifyWrapper.resolve(query, this, mTomahawkApp);
         }
         return mAuthenticated;
@@ -123,32 +114,19 @@ public class SpotifyResolver implements Resolver {
     }
 
     /**
-     * Add the given {@link Result} to our {@link ArrayList} of {@link Result}s
+     * Called by {@link LibSpotifyWrapper}, which has been called by libspotify. Signals that the
+     * {@link org.tomahawk.libtomahawk.resolver.Query} with the given query key has been resolved.
      */
-    public void addResult(String queryKey, Result result) {
-        synchronized (this) {
-            ArrayList<Result> results = mResults.get(queryKey);
-            if (results != null) {
-                results.add(result);
-                mResults.put(queryKey, results);
-            }
+    public void onResolved(String queryKey, ArrayList<Result> results) {
+        mStopped = true;
+        // report our results to the pipeline
+        if (results != null && !results.isEmpty()) {
+            mTomahawkApp.getPipeLine().reportResults(queryKey, results);
         }
     }
 
-    /**
-     * Called by {@link LibSpotifyWrapper}, which has been called by libspotify. Signals that the
-     * {@link Query} with the given query key has been resolved.
-     */
-    public void onResolved(String queryKey) {
-        mStopped = true;
-        // report our results to the pipeline
-        ArrayList<Result> results;
-        synchronized (this) {
-            results = mResults.remove(queryKey);
-        }
-        if (results != null) {
-            mTomahawkApp.getPipeLine().reportResults(queryKey, results);
-        }
+    public void onError(String message) {
+        Log.d(TAG, "Spotify encountered an error during the resolving process: '" + message + "'");
     }
 
     /**

@@ -208,3 +208,38 @@ jclass find_class_from_native_thread(JNIEnv **envSetter) {
 	return result;
 }
 
+// Makes it possible to do callbacks from native threads
+jclass find_string_class_from_native_thread(JNIEnv **envSetter) {
+	JNIEnv * env;
+	int status = s_java_vm->GetEnv((void **) &env, JNI_VERSION_1_6);
+
+	if (status < 0) {
+		log("Failed to get JNI environment, assuming native thread");
+		status = s_java_vm->AttachCurrentThread(&env, NULL);
+		set_attached();
+		if (status < 0)
+			exitl("callback_handler: failed to attach current thread");
+	}
+	*envSetter = env;
+
+	if (s_java_class_loader == NULL)
+		exitl("Could not find classloader");
+
+	jclass cls = env->FindClass("java/lang/ClassLoader");
+	jmethodID methodLoadClass = env->GetMethodID(cls, "loadClass", "(Ljava/lang/String;)Ljava/lang/Class;");
+
+	jstring className = env->NewStringUTF("java/lang/String");
+	jclass result = (jclass) env->CallObjectMethod(s_java_class_loader, methodLoadClass, className);
+	if (!result) {
+		exitl("Cant find the java/lang/String class");
+	}
+	if (env->ExceptionCheck()) {
+        env->ExceptionDescribe();
+        env->ExceptionClear();
+    }
+
+	env->DeleteLocalRef(className);
+	env->DeleteLocalRef(cls);
+	return result;
+}
+

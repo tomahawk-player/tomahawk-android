@@ -37,6 +37,7 @@
 
 #include <list>
 #include <string>
+#include <sstream>
 
 #include <api.h>
 

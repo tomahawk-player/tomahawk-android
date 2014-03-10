@@ -32,7 +32,6 @@ public class ScriptInterface {
      */
     @JavascriptInterface
     public void callbackToJava(int id, String in, boolean shouldReturnResult) {
-        Log.d(TAG, "callbackToJava: id='" + id + "', in='" + in + "'");
         if (shouldReturnResult) {
             mScriptResolver.handleCallbackToJava(id, in);
         } else {
@@ -63,7 +62,7 @@ public class ScriptInterface {
      */
     @JavascriptInterface
     public void log(String message) {
-        Log.d(TAG, "log: " + mScriptResolver.getScriptFilePath() + ":" + message);
+        //Log.d(TAG, "log: " + mScriptResolver.getScriptFilePath() + ":" + message);
     }
 
     /**
