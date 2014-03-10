@@ -101,7 +101,7 @@ public class SpotifyResolver implements Resolver {
                 results = new ArrayList<Result>();
                 mResults.put(TomahawkUtils.getCacheKey(query), results);
             }
-            LibSpotifyWrapper.resolve(query, this);
+            LibSpotifyWrapper.resolve(query, this, mTomahawkApp);
         }
         return mAuthenticated;
     }
