@@ -111,7 +111,7 @@ public class TomahawkFragment extends TomahawkListFragment
 
     private static final int PIPELINE_RESULT_REPORTER_MSG = 1337;
 
-    private static final long PIPELINE_RESULT_REPORTER_DELAY = 500;
+    private static final long PIPELINE_RESULT_REPORTER_DELAY = 1000;
 
     private TomahawkFragmentReceiver mTomahawkFragmentReceiver;
 
@@ -618,22 +618,27 @@ public class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    protected void resolveQueriesFromTo(int start, int end) {
-        ArrayList<Query> qs = new ArrayList<Query>();
-        for (int i = start; i < end; i++) {
-            if (i >= 0 && i < mShownQueries.size()) {
-                Query q = mShownQueries.get(i);
-                if (!q.isSolved() && !mCorrespondingQueryIds
-                        .contains(TomahawkUtils.getCacheKey(q))) {
-                    qs.add(q);
+    protected void resolveQueriesFromTo(final int start, final int end) {
+        mTomahawkApp.getThreadManager().execute(new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<Query> qs = new ArrayList<Query>();
+                for (int i = start; i < end; i++) {
+                    if (i >= 0 && i < mShownQueries.size()) {
+                        Query q = mShownQueries.get(i);
+                        if (!q.isSolved() && !mCorrespondingQueryIds
+                                .contains(TomahawkUtils.getCacheKey(q))) {
+                            qs.add(q);
+                        }
+                    }
+                }
+                if (!qs.isEmpty()) {
+                    HashSet<String> qids = mPipeline.resolve(qs);
+                    mCorrespondingQueryIds.addAll(qids);
+                    mTomahawkMainActivity.startLoadingAnimation();
                 }
             }
-        }
-        if (!qs.isEmpty()) {
-            HashSet<String> qids = mPipeline.resolve(qs);
-            mCorrespondingQueryIds.addAll(qids);
-            mTomahawkMainActivity.startLoadingAnimation();
-        }
+        });
     }
 
     /**
