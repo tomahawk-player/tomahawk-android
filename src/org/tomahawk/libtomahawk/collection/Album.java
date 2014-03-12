@@ -57,7 +57,11 @@ public class Album implements TomahawkListItem {
      * Construct a new {@link Album}
      */
     private Album(String albumName, Artist artist) {
-        mName = albumName;
+        if (albumName == null) {
+            mName = "";
+        } else {
+            mName = albumName;
+        }
         mArtist = artist;
         mQueries = new ArrayList<Query>();
         mLocalQueries = new ArrayList<Query>();

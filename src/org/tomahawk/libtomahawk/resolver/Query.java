@@ -83,7 +83,11 @@ public class Query implements TomahawkListItem {
      * @param onlyLocal     whether or not this query should be resolved locally
      */
     private Query(String fullTextQuery, boolean onlyLocal) {
-        mFullTextQuery = fullTextQuery;
+        if (fullTextQuery == null) {
+            mFullTextQuery = "";
+        } else {
+            mFullTextQuery = fullTextQuery;
+        }
         mIsFullTextQuery = true;
         mIsOnlyLocal = onlyLocal;
     }

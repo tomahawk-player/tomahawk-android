@@ -50,7 +50,11 @@ public class Track implements TomahawkListItem {
      * Construct a new {@link Track}
      */
     private Track(String trackName, Album album, Artist artist) {
-        mName = trackName;
+        if (trackName == null) {
+            mName = "";
+        } else {
+            mName = trackName;
+        }
         mAlbum = album;
         mArtist = artist;
     }
