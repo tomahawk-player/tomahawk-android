@@ -58,7 +58,11 @@ public class Artist implements TomahawkListItem {
      * Construct a new {@link Artist} with the given name
      */
     private Artist(String artistName) {
-        mName = artistName;
+        if (artistName == null) {
+            mName = "";
+        } else {
+            mName = artistName;
+        }
     }
 
     /**
