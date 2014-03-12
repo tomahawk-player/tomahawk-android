@@ -39,6 +39,7 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer;
+import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -329,34 +330,35 @@ public class LibSpotifyWrapper {
             final int[] trackDiscnumbers, final int[] trackIndexes, final int[] albumYears,
             final String[] trackNames, final String[] trackUris, final String[] albumNames,
             final String[] artistNames) {
-        sTomahawkApp.getThreadManager().execute(new Runnable() {
-            @Override
-            public void run() {
-                if (!success) {
-                    sSpotifyResolver.onError(message);
-                }
-                if (sSpotifyResolver != null) {
-                    ArrayList<Result> results = new ArrayList<Result>();
-                    for (int i = 0; i < count; i++) {
-                        Artist artist = Artist.get(artistNames[i]);
-                        Album album = Album.get(albumNames[i], artist);
-                        album.setFirstYear("" + albumYears[i]);
-                        album.setLastYear("" + albumYears[i]);
-                        Track track = Track.get(trackNames[i], album, artist);
-                        track.setDiscNumber(trackDiscnumbers[i]);
-                        track.setDuration(trackDurations[i]);
-                        track.setAlbumPos(trackIndexes[i]);
-                        Result result = new Result(trackUris[i], track);
-                        result.setTrack(track);
-                        result.setArtist(artist);
-                        result.setAlbum(album);
-                        result.setResolvedBy(sSpotifyResolver);
-                        results.add(result);
+        sTomahawkApp.getThreadManager()
+                .execute(new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_REPORTING) {
+                    @Override
+                    public void run() {
+                        if (!success) {
+                            sSpotifyResolver.onError(message);
+                        }
+                        if (sSpotifyResolver != null) {
+                            ArrayList<Result> results = new ArrayList<Result>();
+                            for (int i = 0; i < count; i++) {
+                                Artist artist = Artist.get(artistNames[i]);
+                                Album album = Album.get(albumNames[i], artist);
+                                album.setFirstYear("" + albumYears[i]);
+                                album.setLastYear("" + albumYears[i]);
+                                Track track = Track.get(trackNames[i], album, artist);
+                                track.setDiscNumber(trackDiscnumbers[i]);
+                                track.setDuration(trackDurations[i]);
+                                track.setAlbumPos(trackIndexes[i]);
+                                Result result = new Result(trackUris[i], track);
+                                result.setTrack(track);
+                                result.setArtist(artist);
+                                result.setAlbum(album);
+                                result.setResolvedBy(sSpotifyResolver);
+                                results.add(result);
+                            }
+                            sSpotifyResolver.onResolved(qid, results);
+                        }
                     }
-                    sSpotifyResolver.onResolved(qid, results);
-                }
-            }
-        });
+                });
     }
 
     public static boolean isInitialized() {

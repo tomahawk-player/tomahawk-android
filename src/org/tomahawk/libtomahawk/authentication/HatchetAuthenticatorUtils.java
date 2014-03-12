@@ -28,6 +28,7 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
+import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -211,63 +212,65 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     @Override
     public void login(final String name, final String password) {
         mIsAuthenticating = true;
-        mTomahawkApp.getThreadManager().execute(new Runnable() {
-            @Override
-            public void run() {
-                Multimap<String, String> params = HashMultimap.create(3, 1);
-                params.put(PARAMS_PASSWORD, password);
-                params.put(PARAMS_USERNAME, name);
-                params.put(PARAMS_GRANT_TYPE, PARAMS_GRANT_TYPE_PASSWORD);
-                try {
-                    String jsonString = TomahawkUtils.httpsPost(AUTH_SERVER, params);
-                    JSONObject jsonObject = new JSONObject(jsonString);
-                    if (jsonObject.has(RESPONSE_ERROR)) {
-                        String error = jsonObject.getString(RESPONSE_ERROR);
-                        String errorDescription = "";
-                        if (jsonObject.has(RESPONSE_ERROR_DESCRIPTION)) {
-                            errorDescription += jsonObject.getString(
-                                    RESPONSE_ERROR_DESCRIPTION);
+        mTomahawkApp.getThreadManager()
+                .execute(new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_AUTHENTICATING) {
+                    @Override
+                    public void run() {
+                        Multimap<String, String> params = HashMultimap.create(3, 1);
+                        params.put(PARAMS_PASSWORD, password);
+                        params.put(PARAMS_USERNAME, name);
+                        params.put(PARAMS_GRANT_TYPE, PARAMS_GRANT_TYPE_PASSWORD);
+                        try {
+                            String jsonString = TomahawkUtils.httpsPost(AUTH_SERVER, params);
+                            JSONObject jsonObject = new JSONObject(jsonString);
+                            if (jsonObject.has(RESPONSE_ERROR)) {
+                                String error = jsonObject.getString(RESPONSE_ERROR);
+                                String errorDescription = "";
+                                if (jsonObject.has(RESPONSE_ERROR_DESCRIPTION)) {
+                                    errorDescription += jsonObject.getString(
+                                            RESPONSE_ERROR_DESCRIPTION);
+                                }
+                                if (jsonObject.has(RESPONSE_ERROR_URI)) {
+                                    errorDescription += ", URI: " + jsonObject
+                                            .getString(RESPONSE_ERROR_URI);
+                                }
+                                mAuthenticatorListener.onLoginFailed(error, errorDescription);
+                            } else if (jsonObject.has(RESPONSE_ACCESS_TOKEN) && jsonObject.has(
+                                    RESPONSE_CANONICAL_USERNAME) && jsonObject
+                                    .has(RESPONSE_EXPIRES_IN)
+                                    && jsonObject.has(RESPONSE_REFRESH_TOKEN) && jsonObject.has(
+                                    RESPONSE_REFRESH_TOKEN_EXPIRES_IN) && jsonObject.has(
+                                    RESPONSE_TOKEN_TYPE)) {
+                                String username = jsonObject.getString(RESPONSE_CANONICAL_USERNAME);
+                                String refreshtoken = jsonObject.getString(RESPONSE_REFRESH_TOKEN);
+                                int refreshTokenExpiresIn = jsonObject
+                                        .getInt(RESPONSE_REFRESH_TOKEN_EXPIRES_IN);
+                                String accessToken = jsonObject.getString(RESPONSE_ACCESS_TOKEN);
+                                int accessTokenExpiresIn = jsonObject.getInt(RESPONSE_EXPIRES_IN);
+                                mAuthenticatorListener.onLogin(username);
+                                mAuthenticatorListener.onAuthTokenProvided(username, refreshtoken,
+                                        refreshTokenExpiresIn, accessToken, accessTokenExpiresIn);
+                            } else {
+                                mAuthenticatorListener.onLoginFailed("Unknown error", "");
+                            }
+                        } catch (JSONException e) {
+                            Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
+                            mAuthenticatorListener.onLoginFailed(e.getMessage(), "");
+                        } catch (UnsupportedEncodingException e) {
+                            Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
+                            mAuthenticatorListener.onLoginFailed(e.getMessage(), "");
+                        } catch (IOException e) {
+                            Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
+                            mAuthenticatorListener.onLoginFailed(e.getMessage(), "");
+                        } catch (NoSuchAlgorithmException e) {
+                            Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
+                            mAuthenticatorListener.onLoginFailed(e.getMessage(), "");
+                        } catch (KeyManagementException e) {
+                            Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
+                            mAuthenticatorListener.onLoginFailed(e.getMessage(), "");
                         }
-                        if (jsonObject.has(RESPONSE_ERROR_URI)) {
-                            errorDescription += ", URI: " + jsonObject
-                                    .getString(RESPONSE_ERROR_URI);
-                        }
-                        mAuthenticatorListener.onLoginFailed(error, errorDescription);
-                    } else if (jsonObject.has(RESPONSE_ACCESS_TOKEN) && jsonObject.has(
-                            RESPONSE_CANONICAL_USERNAME) && jsonObject.has(RESPONSE_EXPIRES_IN)
-                            && jsonObject.has(RESPONSE_REFRESH_TOKEN) && jsonObject.has(
-                            RESPONSE_REFRESH_TOKEN_EXPIRES_IN) && jsonObject.has(
-                            RESPONSE_TOKEN_TYPE)) {
-                        String username = jsonObject.getString(RESPONSE_CANONICAL_USERNAME);
-                        String refreshtoken = jsonObject.getString(RESPONSE_REFRESH_TOKEN);
-                        int refreshTokenExpiresIn = jsonObject
-                                .getInt(RESPONSE_REFRESH_TOKEN_EXPIRES_IN);
-                        String accessToken = jsonObject.getString(RESPONSE_ACCESS_TOKEN);
-                        int accessTokenExpiresIn = jsonObject.getInt(RESPONSE_EXPIRES_IN);
-                        mAuthenticatorListener.onLogin(username);
-                        mAuthenticatorListener.onAuthTokenProvided(username, refreshtoken,
-                                refreshTokenExpiresIn, accessToken, accessTokenExpiresIn);
-                    } else {
-                        mAuthenticatorListener.onLoginFailed("Unknown error", "");
                     }
-                } catch (JSONException e) {
-                    Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
-                    mAuthenticatorListener.onLoginFailed(e.getMessage(), "");
-                } catch (UnsupportedEncodingException e) {
-                    Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
-                    mAuthenticatorListener.onLoginFailed(e.getMessage(), "");
-                } catch (IOException e) {
-                    Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
-                    mAuthenticatorListener.onLoginFailed(e.getMessage(), "");
-                } catch (NoSuchAlgorithmException e) {
-                    Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
-                    mAuthenticatorListener.onLoginFailed(e.getMessage(), "");
-                } catch (KeyManagementException e) {
-                    Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
-                    mAuthenticatorListener.onLoginFailed(e.getMessage(), "");
-                }
-            }
-        });
+                });
     }
 
     @Override

@@ -17,6 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -26,7 +27,7 @@ public class ThreadManager {
      * Gets the number of available cores
      * (not always the same as the maximum number of cores)
      */
-    private static int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
+    private static final int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
 
     // Sets the amount of time an idle thread waits before terminating
     private static final int KEEP_ALIVE_TIME = 1;
@@ -38,10 +39,10 @@ public class ThreadManager {
 
     public ThreadManager() {
         mThreadPool = new ThreadPoolExecutor(NUMBER_OF_CORES, NUMBER_OF_CORES, KEEP_ALIVE_TIME,
-                KEEP_ALIVE_TIME_UNIT, new LifoBlockingDeque<Runnable>());
+                KEEP_ALIVE_TIME_UNIT, new PriorityBlockingQueue<Runnable>());
     }
 
-    public void execute(Runnable r) {
+    public void execute(TomahawkRunnable r) {
         mThreadPool.execute(r);
     }
 }
