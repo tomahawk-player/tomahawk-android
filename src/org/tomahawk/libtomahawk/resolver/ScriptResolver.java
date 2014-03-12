@@ -27,6 +27,7 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -275,26 +276,29 @@ public class ScriptResolver implements Resolver {
             } else if (id == R.id.scriptresolver_resolver_init) {
                 resolverSettings();
             } else if (id == R.id.scriptresolver_add_track_results_string && jsonString != null) {
-                mTomahawkApp.getThreadManager().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        ScriptResolverResult result = null;
-                        try {
-                            result = mObjectMapper
-                                    .readValue(jsonString, ScriptResolverResult.class);
-                        } catch (IOException e) {
-                            Log.e(TAG, "handleCallbackToJava: " + e.getClass() + ": " + e
-                                    .getLocalizedMessage());
-                        }
-                        if (result != null) {
-                            ArrayList<Result> parsedResults = parseResultList(result.results);
-                            mTomahawkApp.getPipeLine()
-                                    .reportResults(mQueryKeys.get(result.qid), parsedResults);
-                        }
-                        mTimeOutHandler.removeCallbacksAndMessages(null);
-                        mStopped = true;
-                    }
-                });
+                mTomahawkApp.getThreadManager()
+                        .execute(new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_REPORTING) {
+                            @Override
+                            public void run() {
+                                ScriptResolverResult result = null;
+                                try {
+                                    result = mObjectMapper
+                                            .readValue(jsonString, ScriptResolverResult.class);
+                                } catch (IOException e) {
+                                    Log.e(TAG, "handleCallbackToJava: " + e.getClass() + ": " + e
+                                            .getLocalizedMessage());
+                                }
+                                if (result != null) {
+                                    ArrayList<Result> parsedResults = parseResultList(
+                                            result.results);
+                                    mTomahawkApp.getPipeLine()
+                                            .reportResults(mQueryKeys.get(result.qid),
+                                                    parsedResults);
+                                }
+                                mTimeOutHandler.removeCallbacksAndMessages(null);
+                                mStopped = true;
+                            }
+                        });
             }
         } catch (IOException e) {
             Log.e(TAG, "handleCallbackToJava: " + e.getClass() + ": " + e

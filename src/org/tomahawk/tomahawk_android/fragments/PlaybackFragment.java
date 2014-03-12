@@ -33,7 +33,6 @@ import org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager;
 
 import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -316,8 +315,7 @@ public class PlaybackFragment extends TomahawkFragment
                 && playbackService.getCurrentPlaylist() != null
                 && playbackService.getCurrentPlaylist().getCount() > 0) {
             mShownQueries = playbackService.getCurrentPlaylist().getQueries();
-            resolveQueriesFromTo(getListView().getFirstVisiblePosition(),
-                    getListView().getLastVisiblePosition() + 2);
+            resolveVisibleQueries();
         }
         if (tomahawkListAdapter != null) {
             if (playbackService != null && playbackService.getCurrentPlaylist() != null

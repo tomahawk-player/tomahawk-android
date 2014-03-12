@@ -19,6 +19,7 @@ package org.tomahawk.libtomahawk.resolver;
 
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.content.Intent;
 import android.text.TextUtils;
@@ -129,30 +130,31 @@ public class PipeLine {
      * This will invoke every {@link Resolver} to resolve the given {@link Query}.
      */
     public String resolve(final Query q, final boolean forceOnlyLocal) {
-        mTomahawkApp.getThreadManager().execute(new Runnable() {
-            @Override
-            public void run() {
-                if (!forceOnlyLocal && q.isSolved()) {
-                    sendResultsReportBroadcast(TomahawkUtils.getCacheKey(q));
-                } else {
-                    if (!isEveryResolverReady()) {
-                        if (!mWaitingQueries.containsKey(TomahawkUtils.getCacheKey(q))) {
-                            mWaitingQueries.put(TomahawkUtils.getCacheKey(q), q);
-                        }
-                    } else {
-                        mQueries.put(TomahawkUtils.getCacheKey(q), q);
-                        for (final Resolver resolver : mResolvers) {
-                            if ((forceOnlyLocal && resolver instanceof DataBaseResolver)
-                                    || (!forceOnlyLocal && q.isOnlyLocal()
-                                    && resolver instanceof DataBaseResolver)
-                                    || (!forceOnlyLocal && !q.isOnlyLocal())) {
-                                resolver.resolve(q);
+        mTomahawkApp.getThreadManager()
+                .execute(new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_RESOLVING) {
+                    @Override
+                    public void run() {
+                        if (!forceOnlyLocal && q.isSolved()) {
+                            sendResultsReportBroadcast(TomahawkUtils.getCacheKey(q));
+                        } else {
+                            if (!isEveryResolverReady()) {
+                                if (!mWaitingQueries.containsKey(TomahawkUtils.getCacheKey(q))) {
+                                    mWaitingQueries.put(TomahawkUtils.getCacheKey(q), q);
+                                }
+                            } else {
+                                mQueries.put(TomahawkUtils.getCacheKey(q), q);
+                                for (final Resolver resolver : mResolvers) {
+                                    if ((forceOnlyLocal && resolver instanceof DataBaseResolver)
+                                            || (!forceOnlyLocal && q.isOnlyLocal()
+                                            && resolver instanceof DataBaseResolver)
+                                            || (!forceOnlyLocal && !q.isOnlyLocal())) {
+                                        resolver.resolve(q);
+                                    }
+                                }
                             }
                         }
                     }
-                }
-            }
-        });
+                });
         return TomahawkUtils.getCacheKey(q);
     }
 
@@ -198,47 +200,60 @@ public class PipeLine {
      * @param results  the unfiltered {@link ArrayList} of {@link Result}s
      */
     public void reportResults(final String queryKey, final ArrayList<Result> results) {
-        mTomahawkApp.getThreadManager().execute(new Runnable() {
-            @Override
-            public void run() {
-                ArrayList<Result> cleanTrackResults = new ArrayList<Result>();
-                ArrayList<Result> cleanAlbumResults = new ArrayList<Result>();
-                ArrayList<Result> cleanArtistResults = new ArrayList<Result>();
-                Query q = Query.getQueryByKey(queryKey);
-                if (q != null && results != null) {
-                    for (Result r : results) {
-                        if (r != null) {
-                            r.setTrackScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_TRACKS));
-                            if (r.getTrackScore() >= MINSCORE && !cleanTrackResults.contains(r)) {
-                                if (r.getResolvedBy().getId() != TomahawkApp.RESOLVER_ID_EXFM
-                                        || TomahawkUtils.httpHeaderRequest(r.getPath())) {
-                                    r.setType(Result.RESULT_TYPE_TRACK);
-                                    cleanTrackResults.add(r);
+        if (results != null && results.size() > 0) {
+            int priority = results.get(0).getResolvedBy().getId() == TomahawkApp.RESOLVER_ID_EXFM
+                    ? TomahawkRunnable.PRIORITY_IS_REPORTING_WITH_HEADERREQUEST
+                    : TomahawkRunnable.PRIORITY_IS_REPORTING;
+            mTomahawkApp.getThreadManager().execute(
+                    new TomahawkRunnable(priority) {
+                        @Override
+                        public void run() {
+                            ArrayList<Result> cleanTrackResults = new ArrayList<Result>();
+                            ArrayList<Result> cleanAlbumResults = new ArrayList<Result>();
+                            ArrayList<Result> cleanArtistResults = new ArrayList<Result>();
+                            Query q = Query.getQueryByKey(queryKey);
+                            if (q != null) {
+                                for (Result r : results) {
+                                    if (r != null) {
+                                        r.setTrackScore(
+                                                q.howSimilar(r, PIPELINE_SEARCHTYPE_TRACKS));
+                                        if (r.getTrackScore() >= MINSCORE
+                                                && !cleanTrackResults.contains(r)) {
+                                            if (r.getResolvedBy().getId()
+                                                    != TomahawkApp.RESOLVER_ID_EXFM
+                                                    || TomahawkUtils
+                                                    .httpHeaderRequest(r.getPath())) {
+                                                r.setType(Result.RESULT_TYPE_TRACK);
+                                                cleanTrackResults.add(r);
+                                            }
+                                        }
+                                        if (q.isFullTextQuery()) {
+                                            r.setAlbumScore(
+                                                    q.howSimilar(r, PIPELINE_SEARCHTYPE_ALBUMS));
+                                            if (r.getAlbumScore() >= MINSCORE
+                                                    && !cleanAlbumResults.contains(r)) {
+                                                r.setType(Result.RESULT_TYPE_ALBUM);
+                                                cleanAlbumResults.add(r);
+                                            }
+                                            r.setArtistScore(
+                                                    q.howSimilar(r, PIPELINE_SEARCHTYPE_ARTISTS));
+                                            if (r.getArtistScore() >= MINSCORE
+                                                    && !cleanArtistResults.contains(r)) {
+                                                r.setType(Result.RESULT_TYPE_ARTIST);
+                                                cleanArtistResults.add(r);
+                                            }
+                                        }
+                                    }
                                 }
-                            }
-                            if (q.isFullTextQuery()) {
-                                r.setAlbumScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_ALBUMS));
-                                if (r.getAlbumScore() >= MINSCORE && !cleanAlbumResults
-                                        .contains(r)) {
-                                    r.setType(Result.RESULT_TYPE_ALBUM);
-                                    cleanAlbumResults.add(r);
-                                }
-                                r.setArtistScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_ARTISTS));
-                                if (r.getArtistScore() >= MINSCORE && !cleanArtistResults
-                                        .contains(r)) {
-                                    r.setType(Result.RESULT_TYPE_ARTIST);
-                                    cleanArtistResults.add(r);
-                                }
+                                q.addArtistResults(cleanArtistResults);
+                                q.addAlbumResults(cleanAlbumResults);
+                                q.addTrackResults(cleanTrackResults);
+                                sendResultsReportBroadcast(TomahawkUtils.getCacheKey(q));
                             }
                         }
                     }
-                    q.addArtistResults(cleanArtistResults);
-                    q.addAlbumResults(cleanAlbumResults);
-                    q.addTrackResults(cleanTrackResults);
-                    sendResultsReportBroadcast(TomahawkUtils.getCacheKey(q));
-                }
-            }
-        });
+            );
+        }
     }
 
     /**

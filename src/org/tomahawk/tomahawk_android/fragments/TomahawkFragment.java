@@ -109,6 +109,10 @@ public class TomahawkFragment extends TomahawkListFragment
     public static final String TOMAHAWK_LIST_ITEM_IS_LOCAL
             = "org.tomahawk.tomahawk_list_item_is_local";
 
+    private static final int RESOLVE_QUERIES_REPORTER_MSG = 1336;
+
+    private static final long RESOLVE_QUERIES_REPORTER_DELAY = 100;
+
     private static final int PIPELINE_RESULT_REPORTER_MSG = 1337;
 
     private static final long PIPELINE_RESULT_REPORTER_DELAY = 1000;
@@ -138,6 +142,18 @@ public class TomahawkFragment extends TomahawkListFragment
     protected UserPlaylist mUserPlaylist;
 
     protected boolean mIsLocal = false;
+
+    private int mFirstVisibleItemLastTime = 0;
+
+    private int mVisibleItemCount = 0;
+
+    private final Handler mResolveQueriesHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            removeMessages(msg.what);
+            resolveVisibleQueries();
+        }
+    };
 
     private ArrayList<String> mQueryKeysToReport = new ArrayList<String>();
 
@@ -191,8 +207,7 @@ public class TomahawkFragment extends TomahawkListFragment
                         intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
                 if (!noConnectivity && !(TomahawkFragment.this instanceof SearchableFragment)) {
                     mCorrespondingQueryIds.clear();
-                    resolveQueriesFromTo(getListView().getFirstVisiblePosition(),
-                            getListView().getLastVisiblePosition() + 2);
+                    resolveVisibleQueries();
                 }
             }
         }
@@ -613,32 +628,35 @@ public class TomahawkFragment extends TomahawkListFragment
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
             int totalItemCount) {
-        if (!(this instanceof SearchableFragment)) {
-            resolveQueriesFromTo(firstVisibleItem, firstVisibleItem + visibleItemCount + 2);
+        if (mFirstVisibleItemLastTime != firstVisibleItem
+                && !(this instanceof SearchableFragment)) {
+            mFirstVisibleItemLastTime = firstVisibleItem;
+            mVisibleItemCount = visibleItemCount;
+            mResolveQueriesHandler.removeCallbacksAndMessages(null);
+            mResolveQueriesHandler.sendEmptyMessageDelayed(RESOLVE_QUERIES_REPORTER_MSG,
+                    RESOLVE_QUERIES_REPORTER_DELAY);
         }
     }
 
-    protected void resolveQueriesFromTo(final int start, final int end) {
-        mTomahawkApp.getThreadManager().execute(new Runnable() {
-            @Override
-            public void run() {
-                ArrayList<Query> qs = new ArrayList<Query>();
-                for (int i = start; i < end; i++) {
-                    if (i >= 0 && i < mShownQueries.size()) {
-                        Query q = mShownQueries.get(i);
-                        if (!q.isSolved() && !mCorrespondingQueryIds
-                                .contains(TomahawkUtils.getCacheKey(q))) {
-                            qs.add(q);
-                        }
-                    }
-                }
-                if (!qs.isEmpty()) {
-                    HashSet<String> qids = mPipeline.resolve(qs);
-                    mCorrespondingQueryIds.addAll(qids);
-                    mTomahawkMainActivity.startLoadingAnimation();
-                }
+    protected void resolveVisibleQueries() {
+        resolveQueriesFromTo(mFirstVisibleItemLastTime - 5,
+                mFirstVisibleItemLastTime + mVisibleItemCount + 5);
+    }
+
+    private void resolveQueriesFromTo(final int start, final int end) {
+        ArrayList<Query> qs = new ArrayList<Query>();
+        for (int i = (start < 0 ? 0 : start); i < end && i < mShownQueries.size(); i++) {
+            Query q = mShownQueries.get(i);
+            if (!q.isSolved() && !mCorrespondingQueryIds
+                    .contains(TomahawkUtils.getCacheKey(q))) {
+                qs.add(q);
             }
-        });
+        }
+        if (!qs.isEmpty()) {
+            HashSet<String> qids = mPipeline.resolve(qs);
+            mCorrespondingQueryIds.addAll(qids);
+            mTomahawkMainActivity.startLoadingAnimation();
+        }
     }
 
     /**

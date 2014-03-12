@@ -17,33 +17,34 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
+public abstract class TomahawkRunnable implements Runnable, Comparable<TomahawkRunnable> {
 
-public class LifoBlockingDeque<E> extends LinkedBlockingDeque<E> {
+    public static final int PRIORITY_IS_CANCELLING = 100;
 
-    @Override
-    public boolean offer(E e) {
-        // override to put objects at the front of the list
-        return super.offerFirst(e);
+    public static final int PRIORITY_IS_HIGH = 90;
+
+    public static final int PRIORITY_IS_LOW = 80;
+
+    public static final int PRIORITY_IS_REPORTING = 20;
+
+    public static final int PRIORITY_IS_AUTHENTICATING = 10;
+
+    public static final int PRIORITY_IS_RESOLVING = 5;
+
+    public static final int PRIORITY_IS_REPORTING_WITH_HEADERREQUEST = 0;
+
+    private int mPriority = PRIORITY_IS_RESOLVING;
+
+    public TomahawkRunnable(int priority) {
+        mPriority = priority;
+    }
+
+    public int getPriority() {
+        return mPriority;
     }
 
     @Override
-    public boolean offer(E e, long timeout, TimeUnit unit) throws InterruptedException {
-        // override to put objects at the front of the list
-        return super.offerFirst(e, timeout, unit);
-    }
-
-
-    @Override
-    public boolean add(E e) {
-        // override to put objects at the front of the list
-        return super.offerFirst(e);
-    }
-
-    @Override
-    public void put(E e) throws InterruptedException {
-        // override to put objects at the front of the list
-        super.putFirst(e);
+    public int compareTo(TomahawkRunnable other) {
+        return other.getPriority() - mPriority;
     }
 }

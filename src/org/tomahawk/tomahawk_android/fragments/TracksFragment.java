@@ -233,8 +233,6 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         for (TomahawkListItem item : queries) {
             mShownQueries.add((Query) item);
         }
-        resolveQueriesFromTo(getListView().getFirstVisiblePosition(),
-                getListView().getLastVisiblePosition() + 2);
 
         getListView().setOnItemClickListener(this);
     }
