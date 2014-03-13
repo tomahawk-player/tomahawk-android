@@ -24,7 +24,6 @@ import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.TomahawkSQLiteHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
-import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -87,8 +86,6 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private TomahawkApp mTomahawkApp;
 
-    private PipeLine mPipeLine;
-
     private InfoSystem mInfoSystem;
 
     private CharSequence mTitle;
@@ -122,7 +119,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         public boolean handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_UPDATE_ANIMATION:
-                    if ((mPipeLine != null && mPipeLine.isResolving()) ||
+                    if ((mTomahawkApp.getThreadManager().isActive()) ||
                             (mPlaybackService != null && mPlaybackService.isPreparing()) ||
                             (mInfoSystem != null && mInfoSystem.isResolving())) {
                         mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 500);
@@ -192,7 +189,6 @@ public class TomahawkMainActivity extends ActionBarActivity
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         mTomahawkApp = ((TomahawkApp) getApplication());
-        mPipeLine = mTomahawkApp.getPipeLine();
         mInfoSystem = mTomahawkApp.getInfoSystem();
         mUserCollection = (UserCollection) mTomahawkApp.getSourceList().getLocalSource()
                 .getCollection();

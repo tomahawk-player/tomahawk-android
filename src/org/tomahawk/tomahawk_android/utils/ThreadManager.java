@@ -45,4 +45,8 @@ public class ThreadManager {
     public void execute(TomahawkRunnable r) {
         mThreadPool.execute(r);
     }
+
+    public boolean isActive() {
+        return mThreadPool.getActiveCount() > 0;
+    }
 }
