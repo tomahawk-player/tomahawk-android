@@ -203,6 +203,8 @@ public class TomahawkUtils {
         HttpsURLConnection connection = setSSLSocketFactory(
                 (HttpsURLConnection) url.openConnection());
 
+        connection.setConnectTimeout(15000);
+        connection.setReadTimeout(15000);
         connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
         for (String key : params.keySet()) {
             for (String value : params.get(key)) {
@@ -233,6 +235,8 @@ public class TomahawkUtils {
         HttpsURLConnection connection = setSSLSocketFactory(
                 (HttpsURLConnection) url.openConnection());
 
+        connection.setConnectTimeout(15000);
+        connection.setReadTimeout(15000);
         if (contentTypeIsJson) {
             connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
         } else if (!paramsInHeader) {
@@ -271,6 +275,8 @@ public class TomahawkUtils {
         HttpsURLConnection connection = setSSLSocketFactory(
                 (HttpsURLConnection) url.openConnection());
 
+        connection.setConnectTimeout(15000);
+        connection.setReadTimeout(15000);
         connection.setRequestMethod("GET");
         connection.setDoOutput(false);
         connection.setRequestProperty("Accept", "application/json; charset=utf-8");
@@ -291,6 +297,8 @@ public class TomahawkUtils {
             URL url = new URL(urlString);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
+            connection.setConnectTimeout(15000);
+            connection.setReadTimeout(15000);
             connection.setRequestMethod("HEAD");
             connection.setInstanceFollowRedirects(false);
             connection.setRequestProperty("Accept-Encoding", "");
