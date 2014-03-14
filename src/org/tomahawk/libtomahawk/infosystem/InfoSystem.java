@@ -66,9 +66,6 @@ public class InfoSystem {
     private ConcurrentHashMap<String, InfoRequestData> mRequests
             = new ConcurrentHashMap<String, InfoRequestData>();
 
-    private ConcurrentHashMap<String, InfoRequestData> mResolvingRequests
-            = new ConcurrentHashMap<String, InfoRequestData>();
-
     private ConcurrentHashMap<String, InfoRequestData> mSentLoggedOps
             = new ConcurrentHashMap<String, InfoRequestData>();
 
@@ -200,7 +197,6 @@ public class InfoSystem {
      */
     public void resolve(InfoRequestData infoRequestData) {
         mRequests.put(infoRequestData.getRequestId(), infoRequestData);
-        mResolvingRequests.put(infoRequestData.getRequestId(), infoRequestData);
         for (InfoPlugin infoPlugin : mInfoPlugins) {
             infoPlugin.resolve(infoRequestData);
         }
@@ -216,7 +212,6 @@ public class InfoSystem {
     public void resolve(InfoRequestData infoRequestData,
             TomahawkListItem itemToBeFilled) {
         mRequests.put(infoRequestData.getRequestId(), infoRequestData);
-        mResolvingRequests.put(infoRequestData.getRequestId(), infoRequestData);
         for (InfoPlugin infoPlugin : mInfoPlugins) {
             infoPlugin.resolve(infoRequestData, itemToBeFilled);
         }
@@ -303,7 +298,6 @@ public class InfoSystem {
      */
     private void send(InfoRequestData infoRequestData, AuthenticatorUtils authenticatorUtils) {
         mRequests.put(infoRequestData.getRequestId(), infoRequestData);
-        mResolvingRequests.put(infoRequestData.getRequestId(), infoRequestData);
         for (InfoPlugin infoPlugin : mInfoPlugins) {
             infoPlugin.send(infoRequestData, authenticatorUtils);
         }
@@ -322,7 +316,6 @@ public class InfoSystem {
      */
     public void reportResults(ArrayList<String> doneRequestsIds) {
         for (String doneRequestId : doneRequestsIds) {
-            mResolvingRequests.remove(doneRequestId);
             if (mSentLoggedOps.containsKey(doneRequestId)) {
                 InfoRequestData loggedOp = mSentLoggedOps.get(doneRequestId);
                 mTomahawkApp.getUserPlaylistsDataSource()
@@ -350,12 +343,5 @@ public class InfoSystem {
     private void sendOpLogIsEmptiedBroadcast() {
         Intent reportIntent = new Intent(INFOSYSTEM_OPLOGISEMPTIED);
         mTomahawkApp.sendBroadcast(reportIntent);
-    }
-
-    /**
-     * @return whether or not this InfoSystem is currently resolving
-     */
-    public boolean isResolving() {
-        return !mResolvingRequests.isEmpty();
     }
 }

@@ -129,8 +129,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         public void run() {
             mAnimationHandler.removeCallbacks(mAnimationRunnable);
             if ((mTomahawkApp.getThreadManager().isActive()) ||
-                    (mPlaybackService != null && mPlaybackService.isPreparing()) ||
-                    (mInfoSystem != null && mInfoSystem.isResolving())) {
+                    (mPlaybackService != null && mPlaybackService.isPreparing())) {
                 mAnimationHandler.post(mAnimationRunnable);
             } else {
                 getSupportActionBar().setLogo(R.drawable.ic_launcher);
