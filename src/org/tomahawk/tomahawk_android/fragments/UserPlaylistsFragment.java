@@ -90,11 +90,17 @@ public class UserPlaylistsFragment extends TomahawkFragment implements OnItemCli
                 = new ArrayList<List<TomahawkListItem>>();
         listArray.add(userPlaylists);
         listArray.add(hatchetUserPlaylists);
-        TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(getActivity(), listArray);
-        tomahawkListAdapter.setShowAddButton(true, getListView(),
-                getResources().getString(R.string.playbackactivity_create_playlist_dialog_title));
-        setListAdapter(tomahawkListAdapter);
-        tomahawkListAdapter.setShowCategoryHeaders(true, false);
+        if (getListAdapter() == null) {
+            TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(getActivity(),
+                    listArray);
+            tomahawkListAdapter.setShowAddButton(true, getListView(),
+                    getResources()
+                            .getString(R.string.playbackactivity_create_playlist_dialog_title));
+            setListAdapter(tomahawkListAdapter);
+            tomahawkListAdapter.setShowCategoryHeaders(true, false);
+        } else {
+            ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
+        }
 
         getListView().setOnItemClickListener(this);
         getListView().setAreHeadersSticky(false);
