@@ -602,6 +602,7 @@ public class TomahawkFragment extends TomahawkListFragment
                     mUserPlaylist.getId());
         }
         updateAdapter();
+        resolveVisibleQueries();
     }
 
     @Override

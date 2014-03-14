@@ -134,6 +134,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         super.onLoadFinished(loader, coll);
         updateAdapter();
+        resolveVisibleQueries();
     }
 
     /**
@@ -244,6 +245,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
     protected void onInfoSystemResultsReported(String requestId) {
         if (mCurrentRequestIds.contains(requestId)) {
             updateAdapter();
+            resolveVisibleQueries();
         }
     }
 }

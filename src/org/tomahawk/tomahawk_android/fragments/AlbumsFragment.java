@@ -180,6 +180,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
     protected void onInfoSystemResultsReported(String requestId) {
         if (mCurrentRequestIds.contains(requestId)) {
             updateAdapter();
+            resolveVisibleQueries();
         }
     }
 }
