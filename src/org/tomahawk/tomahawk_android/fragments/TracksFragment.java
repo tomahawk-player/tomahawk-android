@@ -50,25 +50,11 @@ import java.util.List;
  */
 public class TracksFragment extends TomahawkFragment implements OnItemClickListener {
 
-    private boolean mShouldShowLoadingAnimation = false;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setHasOptionsMenu(true);
-    }
-
-    /**
-     * Initialize
-     */
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        if (mShouldShowLoadingAnimation) {
-            mTomahawkMainActivity.startLoadingAnimation();
-        }
     }
 
     @Override

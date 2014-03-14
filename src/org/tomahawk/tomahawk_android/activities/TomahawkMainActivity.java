@@ -51,7 +51,6 @@ import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -111,29 +110,34 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private Drawable mProgressDrawable;
 
-    private static final int MSG_UPDATE_ANIMATION = 0x20;
+    private Handler mAnimationHandler;
 
-    // Used to display an animated progress drawable, as long as the PipeLine is resolving something
-    private Handler mAnimationHandler = new Handler(new Handler.Callback() {
+    // Used to display an animated progress drawable
+    private Runnable mAnimationRunnable = new Runnable() {
         @Override
-        public boolean handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_UPDATE_ANIMATION:
-                    if ((mTomahawkApp.getThreadManager().isActive()) ||
-                            (mPlaybackService != null && mPlaybackService.isPreparing()) ||
-                            (mInfoSystem != null && mInfoSystem.isResolving())) {
-                        mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 500);
-                        getSupportActionBar().setLogo(mProgressDrawable);
-                        mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
-                        mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
-                    } else {
-                        stopLoadingAnimation();
-                    }
-                    break;
-            }
-            return true;
+        public void run() {
+            mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 400);
+            getSupportActionBar().setLogo(mProgressDrawable);
+            mAnimationHandler.postDelayed(mAnimationRunnable, 50);
         }
-    });
+    };
+
+    private Handler mShouldShowAnimationHandler;
+
+    private Runnable mShouldShowAnimationRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mAnimationHandler.removeCallbacks(mAnimationRunnable);
+            if ((mTomahawkApp.getThreadManager().isActive()) ||
+                    (mPlaybackService != null && mPlaybackService.isPreparing()) ||
+                    (mInfoSystem != null && mInfoSystem.isResolving())) {
+                mAnimationHandler.post(mAnimationRunnable);
+            } else {
+                getSupportActionBar().setLogo(R.drawable.ic_launcher);
+            }
+            mShouldShowAnimationHandler.postDelayed(mShouldShowAnimationRunnable, 500);
+        }
+    };
 
     /**
      * Handles incoming broadcasts.
@@ -306,6 +310,10 @@ public class TomahawkMainActivity extends ActionBarActivity
     public void onResume() {
         super.onResume();
 
+        mAnimationHandler = new Handler();
+        mShouldShowAnimationHandler = new Handler();
+        mShouldShowAnimationHandler.post(mShouldShowAnimationRunnable);
+
         if (SHOW_PLAYBACKFRAGMENT_ON_STARTUP.equals(getIntent().getAction())) {
             // if this Activity is being shown after the user clicked the notification
             mTomahawkApp.getContentViewer().showHub(ContentViewer.HUB_ID_PLAYBACK);
@@ -341,6 +349,11 @@ public class TomahawkMainActivity extends ActionBarActivity
     @Override
     public void onPause() {
         super.onPause();
+
+        mAnimationHandler.removeCallbacks(mAnimationRunnable);
+        mShouldShowAnimationHandler.removeCallbacks(mShouldShowAnimationRunnable);
+        mAnimationHandler = null;
+        mShouldShowAnimationHandler = null;
 
         if (mTomahawkMainReceiver != null) {
             unregisterReceiver(mTomahawkMainReceiver);
@@ -629,20 +642,5 @@ public class TomahawkMainActivity extends ActionBarActivity
      */
     public UserCollection getUserCollection() {
         return mUserCollection;
-    }
-
-    /**
-     * Start the loading animation. Called when beginning login process.
-     */
-    public void startLoadingAnimation() {
-        mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
-    }
-
-    /**
-     * Stop the loading animation. Called when login/logout process has finished.
-     */
-    public void stopLoadingAnimation() {
-        mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
-        getSupportActionBar().setLogo(R.drawable.ic_launcher);
     }
 }

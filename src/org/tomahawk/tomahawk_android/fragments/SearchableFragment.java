@@ -228,7 +228,6 @@ public class SearchableFragment extends TomahawkFragment
         if (queryId != null) {
             mCorrespondingQueryIds.clear();
             mCorrespondingQueryIds.add(queryId);
-            mTomahawkMainActivity.startLoadingAnimation();
         }
     }
 

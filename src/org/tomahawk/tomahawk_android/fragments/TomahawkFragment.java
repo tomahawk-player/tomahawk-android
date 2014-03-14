@@ -197,7 +197,6 @@ public class TomahawkFragment extends TomahawkListFragment
                 onPlaybackServiceReady();
             } else if (PlaybackService.BROADCAST_CURRENTTRACKCHANGED.equals(intent.getAction())) {
                 onTrackChanged();
-                mTomahawkMainActivity.startLoadingAnimation();
             } else if (PlaybackService.BROADCAST_PLAYLISTCHANGED.equals(intent.getAction())) {
                 onPlaylistChanged();
             } else if (PlaybackService.BROADCAST_PLAYSTATECHANGED.equals(intent.getAction())) {
@@ -235,7 +234,6 @@ public class TomahawkFragment extends TomahawkListFragment
                 if (!mAlbum.isResolvedByInfoSystem()) {
                     mCurrentRequestIds.add(mInfoSystem.resolve(mAlbum));
                 }
-                mTomahawkMainActivity.startLoadingAnimation();
             }
             if (getArguments().containsKey(TOMAHAWK_USERPLAYLIST_KEY) && !TextUtils.isEmpty(
                     getArguments().getString(TOMAHAWK_USERPLAYLIST_KEY))) {
@@ -283,7 +281,6 @@ public class TomahawkFragment extends TomahawkListFragment
                         mCurrentRequestIds.add(requestId);
                     }
                 }
-                mTomahawkMainActivity.startLoadingAnimation();
             }
             if (getArguments().containsKey(TOMAHAWK_HUB_ID)
                     && getArguments().getInt(TOMAHAWK_HUB_ID) > 0) {
@@ -655,7 +652,6 @@ public class TomahawkFragment extends TomahawkListFragment
         if (!qs.isEmpty()) {
             HashSet<String> qids = mPipeline.resolve(qs);
             mCorrespondingQueryIds.addAll(qids);
-            mTomahawkMainActivity.startLoadingAnimation();
         }
     }
 
