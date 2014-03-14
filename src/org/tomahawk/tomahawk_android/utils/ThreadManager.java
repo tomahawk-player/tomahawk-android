@@ -47,6 +47,6 @@ public class ThreadManager {
     }
 
     public boolean isActive() {
-        return mThreadPool.getActiveCount() > 0;
+        return mThreadPool.getActiveCount() > 0 || mThreadPool.getQueue().size() > 0;
     }
 }
