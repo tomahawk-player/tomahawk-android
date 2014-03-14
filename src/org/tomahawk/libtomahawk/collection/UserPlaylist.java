@@ -65,6 +65,12 @@ public class UserPlaylist extends Playlist implements TomahawkListItem {
      */
     public static UserPlaylist fromQueryList(String id, String name, String currentRevision,
             boolean isHatchetPlaylist, ArrayList<Query> queries, Query currentQuery) {
+        if (id == null) {
+            id = "";
+        }
+        if (currentRevision == null) {
+            currentRevision = "";
+        }
         UserPlaylist pl = new UserPlaylist(id, name, currentRevision, isHatchetPlaylist);
         pl.setQueries(queries);
         if (currentQuery == null) {
