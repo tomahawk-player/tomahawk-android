@@ -39,6 +39,7 @@ import org.tomahawk.tomahawk_android.services.TomahawkService;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.os.AsyncTask;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -173,32 +174,29 @@ public class HatchetInfoPlugin extends InfoPlugin {
         long start = System.currentTimeMillis();
         Multimap<String, String> params = LinkedListMultimap.create();
         Map<String, Map> resultMapList = new HashMap<String, Map>();
-        Map<String, List> convertedResultMap = new HashMap<String, List>();
         String rawJsonString;
-        if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS_ALL) {
-            Map<PlaylistInfo, PlaylistEntries> playlistEntriesMap
-                    = new HashMap<PlaylistInfo, PlaylistEntries>();
+        if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS) {
+            if (TextUtils.isEmpty(mUserId)) {
+                return false;
+            }
             params.put(HATCHET_PARAM_ID, mUserId);
             rawJsonString = TomahawkUtils.httpsGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS, params));
-            Playlists playlists = mObjectMapper.readValue(rawJsonString, Playlists.class);
-            if (playlists.playlists != null) {
-                for (PlaylistInfo playlistInfo : playlists.playlists) {
-                    params.clear();
-                    params.put(HATCHET_PARAM_ID, playlistInfo.id);
-                    rawJsonString = TomahawkUtils.httpsGet(
-                            buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES,
-                                    params));
-                    PlaylistEntries playlistEntries = mObjectMapper
-                            .readValue(rawJsonString, PlaylistEntries.class);
-                    playlistEntriesMap.put(playlistInfo, playlistEntries);
-                }
-                resultMapList.put(HATCHET_PLAYLISTS_ENTRIES, playlistEntriesMap);
-            }
-            infoRequestData.setInfoResultMap(resultMapList);
+            infoRequestData.setInfoResult(mObjectMapper.readValue(rawJsonString, Playlists.class));
+            return true;
+        } else if (infoRequestData.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES) {
+            rawJsonString = TomahawkUtils.httpsGet(
+                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES,
+                            infoRequestData.getParams()));
+            infoRequestData.setInfoResult(mObjectMapper
+                    .readValue(rawJsonString, PlaylistEntries.class));
             return true;
         } else if (infoRequestData.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
+            if (TextUtils.isEmpty(mUserId)) {
+                return false;
+            }
             Map<PlaylistInfo, PlaylistEntries> playlistEntriesMap
                     = new HashMap<PlaylistInfo, PlaylistEntries>();
             params.put(HATCHET_PARAM_ID, mUserId);
@@ -213,7 +211,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
         } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS) {
             rawJsonString = TomahawkUtils.httpsGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS,
-                            infoRequestData.getParams()));
+                            infoRequestData.getParams())
+            );
             infoRequestData.setInfoResult(
                     mObjectMapper.readValue(rawJsonString, Artists.class));
             return true;
@@ -221,7 +220,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS) {
             rawJsonString = TomahawkUtils.httpsGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS,
-                            infoRequestData.getParams()));
+                            infoRequestData.getParams())
+            );
             Artists artists = mObjectMapper.readValue(rawJsonString, Artists.class);
 
             if (artists.artists != null && artists.artists.size() > 0) {
@@ -230,7 +230,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 params.put(HATCHET_PARAM_ID, artists.artists.get(0).id);
                 rawJsonString = TomahawkUtils.httpsGet(
                         buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS,
-                                params));
+                                params)
+                );
                 Charts charts = mObjectMapper.readValue(rawJsonString, Charts.class);
                 Map<String, Image> chartImageMap = new HashMap<String, Image>();
                 if (charts.images != null) {
@@ -250,7 +251,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                             }
                             rawJsonString = TomahawkUtils.httpsGet(
                                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_TRACKS,
-                                            params));
+                                            params)
+                            );
                             Tracks tracks = mObjectMapper.readValue(rawJsonString, Tracks.class);
                             tracksMap.put(albumInfo, tracks);
                         }
@@ -265,7 +267,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
             rawJsonString = TomahawkUtils.httpsGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS,
-                            infoRequestData.getParams()));
+                            infoRequestData.getParams())
+            );
             Artists artists = mObjectMapper.readValue(rawJsonString, Artists.class);
 
             if (artists.artists != null && artists.artists.size() > 0) {
@@ -273,7 +276,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 params.put(HATCHET_PARAM_ID, artists.artists.get(0).id);
                 rawJsonString = TomahawkUtils.httpsGet(
                         buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS,
-                                params));
+                                params)
+                );
                 Charts charts = mObjectMapper.readValue(rawJsonString, Charts.class);
                 Map<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
                 if (charts.tracks != null) {
@@ -293,7 +297,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
         } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS) {
             rawJsonString = TomahawkUtils.httpsGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS,
-                            infoRequestData.getParams()));
+                            infoRequestData.getParams())
+            );
             Albums albums = mObjectMapper.readValue(rawJsonString, Albums.class);
             if (albums.albums != null && albums.albums.size() > 0) {
                 AlbumInfo albumInfo = albums.albums.get(0);
@@ -323,8 +328,50 @@ public class HatchetInfoPlugin extends InfoPlugin {
         } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES) {
             rawJsonString = TomahawkUtils.httpsGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES,
-                            infoRequestData.getParams()));
-            Search search = mObjectMapper.readValue(rawJsonString, Search.class);
+                            infoRequestData.getParams())
+            );
+            infoRequestData.setInfoResult(mObjectMapper.readValue(rawJsonString, Search.class));
+            return true;
+        }
+        Log.d(TAG, "doInBackground(...) took " + (System.currentTimeMillis() - start)
+                + "ms to finish");
+        return false;
+    }
+
+    /**
+     * Convert the given InfoRequestData's result data. This is the processing step done after we've
+     * fetched the results from the API and parsed the JSON Data into our java objects. This method
+     * basically converts the Hatchet-specific java objects into tomahawk-android specific objects.
+     */
+    private void convertParsedItem(InfoRequestData infoRequestData) {
+        Map<String, List> convertedResultMap = new HashMap<String, List>();
+        if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS) {
+            Playlists playlists = (Playlists) infoRequestData.getInfoResult();
+            List<UserPlaylist> userPlaylists = new ArrayList<UserPlaylist>();
+            for (PlaylistInfo playlistInfo : playlists.playlists) {
+                userPlaylists.add(InfoSystemUtils.playlistInfoToUserPlaylist(playlistInfo));
+            }
+            convertedResultMap.put(HATCHET_PLAYLISTS, userPlaylists);
+        } else if (infoRequestData.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
+            Map<PlaylistInfo, PlaylistEntries> playlistInfoMap = infoRequestData.getInfoResultMap()
+                    .get(HatchetInfoPlugin.HATCHET_PLAYLISTS_ENTRIES);
+            List<PlaylistInfo> playlistInfos = new ArrayList<PlaylistInfo>(
+                    playlistInfoMap.keySet());
+            if (playlistInfos.size() > 0) {
+                PlaylistInfo playlistInfo = playlistInfos.get(0);
+                playlistInfo.id = UserPlaylistsDataSource.LOVEDITEMS_PLAYLIST_ID;
+                List<UserPlaylist> userPlaylists = new ArrayList<UserPlaylist>();
+                UserPlaylist userPlaylist = InfoSystemUtils
+                        .playlistInfoToUserPlaylist(playlistInfo);
+                userPlaylist = InfoSystemUtils.fillUserPlaylistWithPlaylistEntries(userPlaylist,
+                        playlistInfoMap.get(playlistInfo));
+                userPlaylists.add(userPlaylist);
+                convertedResultMap.put(HATCHET_PLAYLISTS, userPlaylists);
+            }
+        } else if (infoRequestData.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES) {
+            Search search = (Search) infoRequestData.getInfoResult();
             Map<String, AlbumInfo> albumInfoMap = new HashMap<String, AlbumInfo>();
             if (search.albums != null) {
                 for (AlbumInfo albumInfo : search.albums) {
@@ -373,99 +420,46 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 convertedResultMap.put(HATCHET_ALBUMS, albums);
                 convertedResultMap.put(HATCHET_ARTISTS, artists);
             }
-            infoRequestData.setConvertedResultMap(convertedResultMap);
-            return true;
         }
-        Log.d(TAG, "doInBackground(...) took " + (System.currentTimeMillis() - start)
-                + "ms to finish");
-        return false;
-    }
-
-    /**
-     * Convert the given InfoRequestData's result data. This is the processing step done after we've
-     * fetched the results from the API and parsed the JSON Data into our java objects. This method
-     * basically converts the Hatchet-specific java objects into tomahawk-android specific objects.
-     */
-    private void convertParsedItem(InfoRequestData infoRequestData) {
-        if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS_ALL) {
-            ArrayList<String> ids = new ArrayList<String>();
-            Map<PlaylistInfo, PlaylistEntries> playlistInfoMap = infoRequestData.getInfoResultMap()
-                    .get(HatchetInfoPlugin.HATCHET_PLAYLISTS_ENTRIES);
-            List<PlaylistInfo> playlistInfos = new ArrayList<PlaylistInfo>(
-                    playlistInfoMap.keySet());
-            for (PlaylistInfo playlistInfo : playlistInfos) {
-                UserPlaylist userPlaylist = InfoSystemUtils.playlistInfoToUserPlaylist(playlistInfo,
-                        playlistInfoMap.get(playlistInfo));
-                if (userPlaylist != null) {
-                    ids.add(userPlaylist.getId());
-                    UserPlaylist storedUserPlaylist = mTomahawkApp.getUserPlaylistsDataSource()
-                            .getUserPlaylist(userPlaylist.getId());
-                    if (storedUserPlaylist == null
-                            || storedUserPlaylist.getCurrentRevision() == null
-                            || !storedUserPlaylist.getCurrentRevision()
-                            .equals(userPlaylist.getCurrentRevision())) {
-                        // Userplaylist is not already stored, or has different or no
-                        // revision string, so we store it
-                        mTomahawkApp.getUserPlaylistsDataSource().storeUserPlaylist(userPlaylist);
-                    }
-                }
-            }
-            // Delete every playlist that has not been fetched via Hatchet.
-            // Meaning it is no longer valid.
-            for (UserPlaylist userPlaylist : mTomahawkApp.getUserPlaylistsDataSource()
-                    .getHatchetUserPlaylists()) {
-                if (!ids.contains(userPlaylist.getId())) {
-                    mTomahawkApp.getUserPlaylistsDataSource().deleteUserPlaylist(
-                            userPlaylist.getId());
-                }
-            }
-        } else if (infoRequestData.getType()
-                == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
-            Map<PlaylistInfo, PlaylistEntries> playlistInfoMap = infoRequestData.getInfoResultMap()
-                    .get(HatchetInfoPlugin.HATCHET_PLAYLISTS_ENTRIES);
-            List<PlaylistInfo> playlistInfos = new ArrayList<PlaylistInfo>(
-                    playlistInfoMap.keySet());
-            if (playlistInfos.size() > 0) {
-                PlaylistInfo playlistInfo = playlistInfos.get(0);
-                playlistInfo.id = UserPlaylistsDataSource.LOVEDITEMS_PLAYLIST_ID;
-                UserPlaylist userPlaylist = InfoSystemUtils.playlistInfoToUserPlaylist(playlistInfo,
-                        playlistInfoMap.get(playlistInfo));
-                if (userPlaylist != null) {
-                    mTomahawkApp.getUserPlaylistsDataSource().storeUserPlaylist(userPlaylist);
-                }
-            }
-        }
+        infoRequestData.setConvertedResultMap(convertedResultMap);
         if (mItemsToBeFilled.containsKey(infoRequestData.getRequestId())) {
             // We have an item that wants to be filled/enriched with data from Hatchet
             if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS) {
-                Artists artists = ((Artists) infoRequestData.getInfoResult());
-                if (artists.artists != null && artists.artists.size() > 0 && artists.images != null
-                        && artists.images.size() > 0 && artists.images != null
-                        && artists.images.size() > 0) {
-                    ArtistInfo artistInfo = artists.artists.get(0);
-                    String imageId = artistInfo.images.get(0);
-                    Image image = null;
-                    for (Image img : artists.images) {
-                        if (img.id.equals(imageId)) {
-                            image = img;
+                if (infoRequestData.getInfoResult() != null) {
+                    Artists artists = ((Artists) infoRequestData.getInfoResult());
+                    if (artists.artists != null && artists.artists.size() > 0
+                            && artists.images != null
+                            && artists.images.size() > 0 && artists.images != null
+                            && artists.images.size() > 0) {
+                        ArtistInfo artistInfo = artists.artists.get(0);
+                        String imageId = artistInfo.images.get(0);
+                        Image image = null;
+                        for (Image img : artists.images) {
+                            if (img.id.equals(imageId)) {
+                                image = img;
+                            }
                         }
+                        Artist artist = (Artist) mItemsToBeFilled
+                                .get(infoRequestData.getRequestId());
+                        InfoSystemUtils
+                                .fillArtistWithArtistInfo(artist, artists.artists.get(0), image);
                     }
-                    Artist artist = (Artist) mItemsToBeFilled.get(infoRequestData.getRequestId());
-                    InfoSystemUtils.fillArtistWithArtistInfo(artist, artists.artists.get(0), image);
                 }
             } else if (infoRequestData.getType()
                     == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS) {
-                Artist artist = (Artist) mItemsToBeFilled.get(infoRequestData.getRequestId());
                 if (infoRequestData.getInfoResultMap() != null) {
+                    Artist artist = (Artist) mItemsToBeFilled.get(infoRequestData.getRequestId());
                     InfoSystemUtils.fillArtistWithAlbums(artist,
                             infoRequestData.getInfoResultMap().get(HATCHET_TRACKS),
                             infoRequestData.getInfoResultMap().get(HATCHET_IMAGES));
                 }
             } else if (infoRequestData.getType()
                     == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
-                Artist artist = (Artist) mItemsToBeFilled.get(infoRequestData.getRequestId());
-                InfoSystemUtils.fillArtistWithTopHits(artist,
-                        infoRequestData.getInfoResultMap().get(HATCHET_TRACKS));
+                if (infoRequestData.getInfoResultMap() != null) {
+                    Artist artist = (Artist) mItemsToBeFilled.get(infoRequestData.getRequestId());
+                    InfoSystemUtils.fillArtistWithTopHits(artist,
+                            infoRequestData.getInfoResultMap().get(HATCHET_TRACKS));
+                }
             } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS) {
                 if (infoRequestData.getInfoResultMap() != null) {
                     AlbumInfo albumInfo = ((AlbumInfo) infoRequestData.getInfoResult());
@@ -590,6 +584,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     }
                     if (getAndParseInfo(infoRequestData)) {
                         convertParsedItem(infoRequestData);
+                        doneRequestsIds.add(infoRequestData.getRequestId());
                     }
                 }
             } catch (ClientProtocolException e) {
@@ -600,9 +595,6 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 Log.e(TAG, "JSONResponseTask: " + e.getClass() + ": " + e.getLocalizedMessage());
             } catch (KeyManagementException e) {
                 Log.e(TAG, "JSONResponseTask: " + e.getClass() + ": " + e.getLocalizedMessage());
-            }
-            for (InfoRequestData infoRequestData : infoRequestDatas) {
-                doneRequestsIds.add(infoRequestData.getRequestId());
             }
             return doneRequestsIds;
         }

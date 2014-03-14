@@ -19,17 +19,13 @@ package org.tomahawk.tomahawk_android.utils;
 
 public abstract class TomahawkRunnable implements Runnable, Comparable<TomahawkRunnable> {
 
-    public static final int PRIORITY_IS_CANCELLING = 100;
-
-    public static final int PRIORITY_IS_HIGH = 90;
-
-    public static final int PRIORITY_IS_LOW = 80;
+    public static final int PRIORITY_IS_AUTHENTICATING = 30;
 
     public static final int PRIORITY_IS_REPORTING = 20;
 
-    public static final int PRIORITY_IS_AUTHENTICATING = 10;
+    public static final int PRIORITY_IS_RESOLVING = 10;
 
-    public static final int PRIORITY_IS_RESOLVING = 5;
+    public static final int PRIORITY_IS_DATABASEACTION = 5;
 
     public static final int PRIORITY_IS_REPORTING_WITH_HEADERREQUEST = 0;
 

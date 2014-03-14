@@ -18,11 +18,16 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
+import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
+import org.tomahawk.libtomahawk.infosystem.hatchet.PlaylistEntries;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.resolver.Resolver;
@@ -30,6 +35,7 @@ import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
+import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -45,6 +51,7 @@ import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -92,7 +99,9 @@ public class UserCollection extends Collection {
         }
     };
 
-    protected HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
+    private HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
+
+    private HashMap<String, String> mRequestIdPlaylistMap = new HashMap<String, String>();
 
     private UserCollectionReceiver mUserCollectionReceiver;
 
@@ -114,10 +123,74 @@ public class UserCollection extends Collection {
                 final String requestId = intent
                         .getStringExtra(InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
                 if (mCorrespondingRequestIds.contains(requestId)) {
-                    UserCollection.this.updateUserPlaylists();
+                    mTomahawkApp.getThreadManager().execute(
+                            new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
+                                @Override
+                                public void run() {
+                                    InfoRequestData data = mTomahawkApp.getInfoSystem()
+                                            .getInfoRequestById(requestId);
+                                    UserPlaylistsDataSource userPlaylistsDataSource
+                                            = mTomahawkApp.getUserPlaylistsDataSource();
+                                    if (data.getType()
+                                            == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS) {
+                                        ArrayList<UserPlaylist> storedLists
+                                                = userPlaylistsDataSource.getHatchetUserPlaylists();
+                                        HashMap<String, UserPlaylist> storedListsMap
+                                                = new HashMap<String, UserPlaylist>();
+                                        for (UserPlaylist storedList : storedLists) {
+                                            storedListsMap.put(storedList.getId(), storedList);
+                                        }
+                                        List<UserPlaylist> fetchedLists = data
+                                                .getConvertedResultMap()
+                                                .get(HatchetInfoPlugin.HATCHET_PLAYLISTS);
+                                        for (UserPlaylist fetchedList : fetchedLists) {
+                                            UserPlaylist storedList = storedListsMap
+                                                    .remove(fetchedList.getId());
+                                            if (storedList == null) {
+                                                userPlaylistsDataSource
+                                                        .storeUserPlaylist(fetchedList);
+                                                fetchHatchetUserPlaylist(fetchedList.getId());
+                                            } else if (!storedList.getCurrentRevision()
+                                                    .equals(fetchedList.getCurrentRevision())
+                                                    || storedList.getCount() == 0) {
+                                                fetchHatchetUserPlaylist(storedList.getId());
+                                            }
+                                        }
+                                        for (UserPlaylist storedList : storedListsMap.values()) {
+                                            userPlaylistsDataSource
+                                                    .deleteUserPlaylist(storedList.getId());
+                                        }
+                                    } else if (data.getType()
+                                            == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES) {
+                                        PlaylistEntries playlistEntries = (PlaylistEntries) data
+                                                .getInfoResult();
+                                        UserPlaylist playlist = mUserPlaylists
+                                                .get(mRequestIdPlaylistMap.get(requestId));
+                                        if (playlist != null && playlistEntries != null) {
+                                            playlist = InfoSystemUtils
+                                                    .fillUserPlaylistWithPlaylistEntries(playlist,
+                                                            playlistEntries);
+                                            userPlaylistsDataSource.storeUserPlaylist(playlist);
+                                        }
+                                    } else if (data.getType()
+                                            == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
+                                        List<UserPlaylist> fetchedLists = data
+                                                .getConvertedResultMap()
+                                                .get(HatchetInfoPlugin.HATCHET_PLAYLISTS);
+                                        if (fetchedLists.size() > 0) {
+                                            userPlaylistsDataSource
+                                                    .storeUserPlaylist(fetchedLists.get(0));
+                                        }
+                                    }
+                                }
+                            }
+                    );
                 }
             } else if (InfoSystem.INFOSYSTEM_OPLOGISEMPTIED.equals(intent.getAction())) {
                 UserCollection.this.fetchLovedItemsUserPlaylists();
+            } else if (UserPlaylistsDataSource.USERPLAYLISTSDATASOURCE_RESULTSREPORTED
+                    .equals(intent.getAction())) {
+                UserCollection.this.updateUserPlaylists();
             }
         }
     }
@@ -132,6 +205,8 @@ public class UserCollection extends Collection {
                 new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
         mTomahawkApp.registerReceiver(mUserCollectionReceiver,
                 new IntentFilter(InfoSystem.INFOSYSTEM_OPLOGISEMPTIED));
+        mTomahawkApp.registerReceiver(mUserCollectionReceiver,
+                new IntentFilter(UserPlaylistsDataSource.USERPLAYLISTSDATASOURCE_RESULTSREPORTED));
 
         TomahawkApp.getContext().getContentResolver()
                 .registerContentObserver(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false,
@@ -366,19 +441,31 @@ public class UserCollection extends Collection {
      * Fetch all user {@link UserPlaylist} from the app's database via our helper class {@link
      * UserPlaylistsDataSource}
      */
-    public void updateUserPlaylists() {
-        mUserPlaylists.clear();
-        ArrayList<UserPlaylist> userPlayListList = mTomahawkApp.getUserPlaylistsDataSource()
-                .getLocalUserPlaylists();
-        for (UserPlaylist userPlaylist : userPlayListList) {
-            mUserPlaylists.put(userPlaylist.getId(), userPlaylist);
-        }
-        userPlayListList = mTomahawkApp.getUserPlaylistsDataSource()
-                .getHatchetUserPlaylists();
-        for (UserPlaylist userPlaylist : userPlayListList) {
-            mUserPlaylists.put(userPlaylist.getId(), userPlaylist);
-        }
-        TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
+    private void updateUserPlaylists() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (mTomahawkApp.getUserPlaylistsDataSource()) {
+                    ArrayList<UserPlaylist> localPlaylists = mTomahawkApp
+                            .getUserPlaylistsDataSource().getLocalUserPlaylists();
+                    for (UserPlaylist userPlaylist : localPlaylists) {
+                        mUserPlaylists.put(userPlaylist.getId(), userPlaylist);
+                    }
+                    ArrayList<UserPlaylist> hatchetPlaylists = mTomahawkApp
+                            .getUserPlaylistsDataSource().getHatchetUserPlaylists();
+                    for (UserPlaylist userPlaylist : hatchetPlaylists) {
+                        mUserPlaylists.put(userPlaylist.getId(), userPlaylist);
+                    }
+                    for (UserPlaylist userPlaylist : mUserPlaylists.values()) {
+                        if (!localPlaylists.contains(userPlaylist) && !hatchetPlaylists
+                                .contains(userPlaylist)) {
+                            mUserPlaylists.remove(userPlaylist.getId());
+                        }
+                    }
+                    TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
+                }
+            }
+        }).start();
     }
 
     /**
@@ -386,7 +473,19 @@ public class UserCollection extends Collection {
      */
     public void fetchHatchetUserPlaylists() {
         mCorrespondingRequestIds.add(mTomahawkApp.getInfoSystem()
-                .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS_ALL, null));
+                .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS, null));
+    }
+
+    /**
+     * Fetch the UserPlaylist entries from the Hatchet API and store them in the local db.
+     */
+    public void fetchHatchetUserPlaylist(String userPlaylistId) {
+        Multimap<String, String> params = HashMultimap.create(1, 1);
+        params.put(HatchetInfoPlugin.HATCHET_PARAM_ID, userPlaylistId);
+        String requestid = mTomahawkApp.getInfoSystem()
+                .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES, params);
+        mCorrespondingRequestIds.add(requestid);
+        mRequestIdPlaylistMap.put(requestid, userPlaylistId);
     }
 
     /**
