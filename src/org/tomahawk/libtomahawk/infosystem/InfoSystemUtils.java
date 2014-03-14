@@ -46,15 +46,15 @@ import java.util.concurrent.ConcurrentHashMap;
 public class InfoSystemUtils {
 
     /**
-     * Convert the given data into a UserPlaylist object and return that.
+     * Convert the given playlist entry data, add it to a UserPlaylist object and return that.
      *
-     * @param playlistInfo    Object containing basic playlist info like title etc...
+     * @param userPlaylist    the UserPlaylist to fill with entries(queries)
      * @param playlistEntries Object containing info about each entry of the playlist
-     * @return the converted UserPlaylist object
+     * @return the filled UserPlaylist object
      */
-    public static UserPlaylist playlistInfoToUserPlaylist(PlaylistInfo playlistInfo,
+    public static UserPlaylist fillUserPlaylistWithPlaylistEntries(UserPlaylist userPlaylist,
             PlaylistEntries playlistEntries) {
-        if (playlistInfo != null && playlistEntries != null) {
+        if (userPlaylist != null && playlistEntries != null) {
             ArrayList<Query> queries = new ArrayList<Query>();
             // Convert our Lists to Maps containing the id as the key, so we can efficiently build the
             // list of Queries afterwards
@@ -94,8 +94,21 @@ public class InfoSystemUtils {
                     queries.add(Query.get(trackName, albumName, artistName, false, true));
                 }
             }
+            userPlaylist.setQueries(queries);
+        }
+        return userPlaylist;
+    }
+
+    /**
+     * Convert the given data into a UserPlaylist object and return that.
+     *
+     * @param playlistInfo Object containing basic playlist info like title etc...
+     * @return the converted UserPlaylist object
+     */
+    public static UserPlaylist playlistInfoToUserPlaylist(PlaylistInfo playlistInfo) {
+        if (playlistInfo != null) {
             return UserPlaylist.fromQueryList(playlistInfo.id, playlistInfo.title,
-                    playlistInfo.currentrevision, queries);
+                    playlistInfo.currentrevision, new ArrayList<Query>());
         }
         return null;
     }

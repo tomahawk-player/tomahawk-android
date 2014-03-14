@@ -68,7 +68,6 @@ public class ChooseUserPlaylistDialog extends TomahawkDialogFragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 mTomahawkApp.getUserPlaylistsDataSource().addQueriesToUserPlaylist(mUserCollection
                         .getLocalUserPlaylists().get(position).getId(), queries);
-                mUserCollection.updateUserPlaylists();
                 getDialog().dismiss();
             }
         });

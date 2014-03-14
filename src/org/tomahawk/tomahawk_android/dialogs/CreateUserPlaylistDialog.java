@@ -135,7 +135,6 @@ public class CreateUserPlaylistDialog extends TomahawkDialogFragment {
             userPlaylistsDataSource.storeUserPlaylist(UserPlaylist.fromQueryList(
                     TomahawkApp.getLifetimeUniqueStringId(), playlistName, new ArrayList<Query>()));
         }
-        mUserCollection.updateUserPlaylists();
     }
 
     /**

@@ -145,12 +145,10 @@ public class FakeContextMenuDialog extends TomahawkDialogFragment {
             if (mTomahawkListItem instanceof UserPlaylist) {
                 ((TomahawkApp) mTomahawkMainActivity.getApplication()).getUserPlaylistsDataSource()
                         .deleteUserPlaylist(((UserPlaylist) mTomahawkListItem).getId());
-                userCollection.updateUserPlaylists();
             } else if (mTomahawkListItem instanceof Query && mUserPlaylist != null) {
                 ((TomahawkApp) mTomahawkMainActivity.getApplication()).getUserPlaylistsDataSource()
                         .deleteQueryInUserPlaylist(mUserPlaylist.getId(),
                                 (Query) mTomahawkListItem);
-                userCollection.updateUserPlaylists();
             } else if (playbackService != null && mFromPlaybackFragment
                     && mTomahawkListItem instanceof Query) {
                 if (TomahawkUtils.getCacheKey(playbackService.getCurrentTrack())
@@ -251,7 +249,6 @@ public class FakeContextMenuDialog extends TomahawkDialogFragment {
             args.putStringArrayList(TomahawkFragment.TOMAHAWK_QUERYKEYSARRAY_KEY, queryKeys);
             dialog.setArguments(args);
             dialog.show(getFragmentManager(), null);
-            userCollection.updateUserPlaylists();
         } else if (menuItemTitle.equals(mTomahawkMainActivity.getResources()
                 .getString(R.string.menu_item_go_to_album))) {
             Bundle bundle = new Bundle();
