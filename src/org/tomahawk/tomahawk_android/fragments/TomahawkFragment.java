@@ -626,10 +626,10 @@ public class TomahawkFragment extends TomahawkListFragment
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
             int totalItemCount) {
+        mVisibleItemCount = visibleItemCount;
         if (mFirstVisibleItemLastTime != firstVisibleItem
                 && !(this instanceof SearchableFragment)) {
             mFirstVisibleItemLastTime = firstVisibleItem;
-            mVisibleItemCount = visibleItemCount;
             mResolveQueriesHandler.removeCallbacksAndMessages(null);
             mResolveQueriesHandler.sendEmptyMessageDelayed(RESOLVE_QUERIES_REPORTER_MSG,
                     RESOLVE_QUERIES_REPORTER_DELAY);
