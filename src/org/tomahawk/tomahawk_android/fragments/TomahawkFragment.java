@@ -231,15 +231,19 @@ public class TomahawkFragment extends TomahawkListFragment
             if (getArguments().containsKey(TOMAHAWK_ALBUM_KEY)
                     && !TextUtils.isEmpty(getArguments().getString(TOMAHAWK_ALBUM_KEY))) {
                 mAlbum = Album.getAlbumByKey(getArguments().getString(TOMAHAWK_ALBUM_KEY));
-                if (!mAlbum.isResolvedByInfoSystem()) {
+                if (mAlbum == null) {
+                    mTomahawkApp.getContentViewer().back();
+                } else if (!mAlbum.isResolvedByInfoSystem()) {
                     mCurrentRequestIds.add(mInfoSystem.resolve(mAlbum));
                 }
             }
             if (getArguments().containsKey(TOMAHAWK_USERPLAYLIST_KEY) && !TextUtils.isEmpty(
                     getArguments().getString(TOMAHAWK_USERPLAYLIST_KEY))) {
-                mUserPlaylist = mTomahawkMainActivity.getUserCollection()
+                mUserPlaylist = UserPlaylist
                         .getUserPlaylistById(getArguments().getString(TOMAHAWK_USERPLAYLIST_KEY));
-                if (mUserPlaylist.getContentHeaderArtists().size() == 0) {
+                if (mUserPlaylist == null) {
+                    mTomahawkApp.getContentViewer().back();
+                } else if (mUserPlaylist.getContentHeaderArtists().size() == 0) {
                     final HashMap<Artist, Integer> countMap = new HashMap<Artist, Integer>();
                     for (Query query : mUserPlaylist.getQueries()) {
                         Artist artist = query.getArtist();
@@ -275,7 +279,9 @@ public class TomahawkFragment extends TomahawkListFragment
             if (getArguments().containsKey(TOMAHAWK_ARTIST_KEY) && !TextUtils
                     .isEmpty(getArguments().getString(TOMAHAWK_ARTIST_KEY))) {
                 mArtist = Artist.getArtistByKey(getArguments().getString(TOMAHAWK_ARTIST_KEY));
-                if (!mArtist.isResolvedByInfoSystem()) {
+                if (mArtist == null) {
+                    mTomahawkApp.getContentViewer().back();
+                } else if (!mArtist.isResolvedByInfoSystem()) {
                     ArrayList<String> requestIds = mInfoSystem.resolve(mArtist, false);
                     for (String requestId : requestIds) {
                         mCurrentRequestIds.add(requestId);
@@ -598,8 +604,10 @@ public class TomahawkFragment extends TomahawkListFragment
     protected void onCollectionUpdated() {
         mTomahawkMainActivity.getSupportLoaderManager().restartLoader(getId(), null, this);
         if (mUserPlaylist != null) {
-            mUserPlaylist = mTomahawkMainActivity.getUserCollection().getUserPlaylistById(
-                    mUserPlaylist.getId());
+            mUserPlaylist = UserPlaylist.getUserPlaylistById(mUserPlaylist.getId());
+            if (mUserPlaylist == null) {
+                mTomahawkApp.getContentViewer().back();
+            }
         }
         updateAdapter();
         resolveVisibleQueries();

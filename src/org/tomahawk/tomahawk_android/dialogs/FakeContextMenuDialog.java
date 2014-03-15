@@ -19,7 +19,6 @@ package org.tomahawk.tomahawk_android.dialogs;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -76,12 +75,21 @@ public class FakeContextMenuDialog extends TomahawkDialogFragment {
             if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_ALBUM_KEY)) {
                 mAlbum = Album.getAlbumByKey(
                         getArguments().getString(TomahawkFragment.TOMAHAWK_ALBUM_KEY));
+                if (mAlbum == null) {
+                    dismiss();
+                }
             } else if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_USERPLAYLIST_KEY)) {
                 mUserPlaylist = UserPlaylist.getUserPlaylistById(getArguments()
-                                .getString(TomahawkFragment.TOMAHAWK_USERPLAYLIST_KEY));
+                        .getString(TomahawkFragment.TOMAHAWK_USERPLAYLIST_KEY));
+                if (mUserPlaylist == null) {
+                    dismiss();
+                }
             } else if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_ARTIST_KEY)) {
                 mArtist = Artist.getArtistByKey(
                         getArguments().getString(TomahawkFragment.TOMAHAWK_ARTIST_KEY));
+                if (mArtist == null) {
+                    dismiss();
+                }
             }
             if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_LIST_ITEM_IS_LOCAL)) {
                 mIsLocal = getArguments().getBoolean(TomahawkFragment.TOMAHAWK_LIST_ITEM_IS_LOCAL);
@@ -111,6 +119,9 @@ public class FakeContextMenuDialog extends TomahawkDialogFragment {
                     mTomahawkListItem = Query.getQueryByKey(getArguments()
                             .getString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY));
                 }
+                if (mTomahawkListItem == null) {
+                    dismiss();
+                }
             }
         }
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
@@ -136,7 +147,6 @@ public class FakeContextMenuDialog extends TomahawkDialogFragment {
      * If the user clicks on a fakeContextItem, handle what should be done here
      */
     private void onFakeContextItemSelected(int position) {
-        UserCollection userCollection = mTomahawkMainActivity.getUserCollection();
         ArrayList<Query> queries = new ArrayList<Query>();
         PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
         String menuItemTitle = mMenuItemTitles[position];
