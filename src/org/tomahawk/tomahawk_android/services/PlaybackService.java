@@ -405,8 +405,9 @@ public class PlaybackService extends Service {
         Log.d(TAG, "Mediaplayer is prepared.");
         if (isPlaying()) {
             mTomahawkApp.getInfoSystem().sendNowPlayingPostStruct(mTomahawkApp.getTomahawkService()
-                    .getAuthenticatorUtils(TomahawkService.AUTHENTICATOR_ID_HATCHET),
-                    getCurrentQuery());
+                            .getAuthenticatorUtils(TomahawkService.AUTHENTICATOR_ID_HATCHET),
+                    getCurrentQuery()
+            );
         }
         handlePlayState();
     }
@@ -581,7 +582,8 @@ public class PlaybackService extends Service {
                         if (mTomahawkMediaPlayer.isPlaying()) {
                             mTomahawkApp.getInfoSystem().sendPlaybackEntryPostStruct(
                                     mTomahawkApp.getTomahawkService().getAuthenticatorUtils(
-                                            TomahawkService.AUTHENTICATOR_ID_HATCHET));
+                                            TomahawkService.AUTHENTICATOR_ID_HATCHET)
+                            );
                             mTomahawkMediaPlayer.pause();
                         }
                         if (mWakeLock.isHeld()) {
@@ -597,7 +599,8 @@ public class PlaybackService extends Service {
             } catch (IllegalStateException e1) {
                 Log.e(TAG,
                         "handlePlayState() IllegalStateException, msg:" + e1.getLocalizedMessage()
-                                + " , preparing=" + isPreparing());
+                                + " , preparing=" + isPreparing()
+                );
             }
             mKillTimerHandler.removeCallbacksAndMessages(null);
             Message msg = mKillTimerHandler.obtainMessage();
@@ -610,7 +613,13 @@ public class PlaybackService extends Service {
      */
     public void next() {
         if (mCurrentPlaylist != null) {
-            Query query = mCurrentPlaylist.getNextQuery();
+            Query query = null;
+            int maxCount = mCurrentPlaylist.getCount();
+            int counter = 0;
+            while (mCurrentPlaylist.hasNextQuery() && counter++ < maxCount && (query == null
+                    || !query.isPlayable())) {
+                query = mCurrentPlaylist.getNextQuery();
+            }
             if (query != null) {
                 setCurrentQuery(query);
             }
@@ -622,7 +631,13 @@ public class PlaybackService extends Service {
      */
     public void previous() {
         if (mCurrentPlaylist != null) {
-            Query query = mCurrentPlaylist.getPreviousQuery();
+            Query query = null;
+            int maxCount = mCurrentPlaylist.getCount();
+            int counter = 0;
+            while (mCurrentPlaylist.hasPreviousQuery() && counter++ < maxCount && (query == null
+                    || !query.isPlayable())) {
+                query = mCurrentPlaylist.getPreviousQuery();
+            }
             if (query != null) {
                 setCurrentQuery(query);
             }
@@ -724,15 +739,14 @@ public class PlaybackService extends Service {
                             int loopCounter = 0;
                             while (true) {
                                 if (loopCounter++ > 3) {
-                                    query.blacklistTrackResult(query.getPreferredTrackResult());
+                                    if (query.getPreferredTrackResult() != null) {
+                                        query.blacklistTrackResult(query.getPreferredTrackResult());
+                                        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+                                    }
                                     if (query.getPreferredTrackResult() == null) {
                                         Log.e(TAG, "MediaPlayer was unable to prepare the track");
                                         mLastPreparedPath = "";
-                                        if (((TomahawkApp) getApplication()).getPipeLine() != null
-                                                && !((TomahawkApp) getApplication()).getPipeLine()
-                                                .isResolving()) {
-                                            next();
-                                        }
+                                        next();
                                         break;
                                     } else {
                                         loopCounter = 0;
@@ -769,8 +783,7 @@ public class PlaybackService extends Service {
                     };
                     new Thread(releaseRunnable).start();
                 }
-            } else if (((TomahawkApp) getApplication()).getPipeLine() != null
-                    && !((TomahawkApp) getApplication()).getPipeLine().isResolving()) {
+            } else {
                 next();
             }
         }
