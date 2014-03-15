@@ -47,13 +47,6 @@ public abstract class Collection {
     public abstract ArrayList<UserPlaylist> getLocalUserPlaylists();
 
     /**
-     * Get the {@link UserPlaylist} by giving the {@link UserPlaylist}'s ID
-     *
-     * @return the {@link UserPlaylist} object
-     */
-    public abstract UserPlaylist getUserPlaylistById(String id);
-
-    /**
      * Update this {@link Collection}'s content.
      */
     public abstract void update();

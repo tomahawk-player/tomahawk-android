@@ -237,19 +237,6 @@ public class UserCollection extends Collection {
     }
 
     /**
-     * Get an {@link UserPlaylist} from this {@link UserCollection} by providing an id
-     */
-    @Override
-    public UserPlaylist getUserPlaylistById(String id) {
-        if (UserPlaylistsDataSource.LOVEDITEMS_PLAYLIST_ID.equals(id)) {
-            return getLovedItemsUserPlaylist();
-        } else if (UserPlaylistsDataSource.CACHED_PLAYLIST_ID.equals(id)) {
-            return getCachedUserPlaylist();
-        }
-        return mUserPlaylists.get(id);
-    }
-
-    /**
      * @return A {@link List} of all {@link UserPlaylist}s in this {@link UserCollection}
      */
     public ArrayList<UserPlaylist> getHatchetUserPlaylists() {
