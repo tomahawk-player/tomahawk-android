@@ -263,6 +263,7 @@ public class Query implements TomahawkListItem {
             String newKey = TomahawkUtils.getCacheKey(r);
             if (!key.equals(newKey) && !sBlacklistedResults.contains(newKey)) {
                 mTopTrackResultKey = newKey;
+                break;
             } else {
                 mTopTrackResultKey = "";
                 mPlayable = false;
