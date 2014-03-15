@@ -134,7 +134,7 @@ public class SpotifyResolver implements Resolver {
         mWaitingQueries.remove(queryKey);
         // report our results to the pipeline
         if (results != null && !results.isEmpty()) {
-            mTomahawkApp.getPipeLine().reportResults(queryKey, results);
+            mTomahawkApp.getPipeLine().reportResults(queryKey, results, mId);
         }
     }
 

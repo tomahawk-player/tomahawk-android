@@ -293,7 +293,7 @@ public class ScriptResolver implements Resolver {
                                             result.results);
                                     mTomahawkApp.getPipeLine()
                                             .reportResults(mQueryKeys.get(result.qid),
-                                                    parsedResults);
+                                                    parsedResults, mId);
                                 }
                                 mTimeOutHandler.removeCallbacksAndMessages(null);
                                 mStopped = true;

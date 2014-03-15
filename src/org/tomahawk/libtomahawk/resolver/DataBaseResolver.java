@@ -158,7 +158,7 @@ public class DataBaseResolver implements Resolver {
                 }
             }
             mTomahawkApp.getPipeLine()
-                    .reportResults(TomahawkUtils.getCacheKey(queryToSearchFor), results);
+                    .reportResults(TomahawkUtils.getCacheKey(queryToSearchFor), results, mId);
             mStopped = true;
         }
         return mReady;
