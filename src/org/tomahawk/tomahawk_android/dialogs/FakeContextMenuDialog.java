@@ -66,6 +66,8 @@ public class FakeContextMenuDialog extends TomahawkDialogFragment {
 
     private boolean mIsLocal;
 
+    private int mListItemPosition;
+
     /**
      * Called when this {@link DialogFragment} is being created
      */
@@ -93,6 +95,10 @@ public class FakeContextMenuDialog extends TomahawkDialogFragment {
             }
             if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_LIST_ITEM_IS_LOCAL)) {
                 mIsLocal = getArguments().getBoolean(TomahawkFragment.TOMAHAWK_LIST_ITEM_IS_LOCAL);
+            }
+            if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_LIST_ITEM_POSITION)) {
+                mListItemPosition = getArguments().getInt(
+                        TomahawkFragment.TOMAHAWK_LIST_ITEM_POSITION);
             }
             if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_MENUITEMTITLESARRAY_KEY)) {
                 mMenuItemTitles = getArguments()
@@ -157,8 +163,7 @@ public class FakeContextMenuDialog extends TomahawkDialogFragment {
                         .deleteUserPlaylist(((UserPlaylist) mTomahawkListItem).getId());
             } else if (mTomahawkListItem instanceof Query && mUserPlaylist != null) {
                 ((TomahawkApp) mTomahawkMainActivity.getApplication()).getUserPlaylistsDataSource()
-                        .deleteQueryInUserPlaylist(mUserPlaylist.getId(),
-                                (Query) mTomahawkListItem);
+                        .deleteQueryInUserPlaylist(mUserPlaylist.getId(), mListItemPosition);
             } else if (playbackService != null && mFromPlaybackFragment
                     && mTomahawkListItem instanceof Query) {
                 if (TomahawkUtils.getCacheKey(playbackService.getCurrentTrack())
