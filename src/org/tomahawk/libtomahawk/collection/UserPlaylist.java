@@ -78,9 +78,7 @@ public class UserPlaylist extends Playlist implements TomahawkListItem {
         } else {
             pl.setCurrentQuery(currentQuery);
         }
-        if (!sUserPlaylists.containsKey(id)) {
-            sUserPlaylists.put(id, pl);
-        }
+        sUserPlaylists.put(id, pl);
         return sUserPlaylists.get(id);
     }
 
