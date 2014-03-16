@@ -445,6 +445,15 @@ public class TomahawkFragment extends TomahawkListFragment
                     .equals(mUserPlaylist.getId()))) {
                 menuItemTitles.remove(getResources().getString(R.string.fake_context_menu_delete));
             }
+            if (!((Query) tomahawkListItem).isPlayable()) {
+                menuItemTitles.remove(getResources().getString(R.string.fake_context_menu_play));
+                menuItemTitles.remove(getResources()
+                        .getString(R.string.fake_context_menu_playaftercurrenttrack));
+                menuItemTitles.remove(getResources()
+                        .getString(R.string.fake_context_menu_appendtoplaybacklist));
+                menuItemTitles.remove(getResources()
+                        .getString(R.string.fake_context_menu_addtoplaylist));
+            }
         } else if (tomahawkListItem instanceof Artist) {
             menuItemTitles.remove(getResources().getString(R.string.menu_item_go_to_artist));
             menuItemTitles.remove(getResources().getString(R.string.menu_item_go_to_album));

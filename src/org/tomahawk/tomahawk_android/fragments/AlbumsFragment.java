@@ -68,7 +68,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
             } else {
                 item = getGridAdapter().getItem(position);
             }
-            if (item instanceof Query) {
+            if (item instanceof Query && ((Query) item).isPlayable()) {
                 PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
                 if (playbackService != null && shouldShowPlaystate()
                         && playbackService.getCurrentPlaylist().getCurrentQueryIndex()
