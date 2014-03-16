@@ -109,6 +109,9 @@ public class TomahawkFragment extends TomahawkListFragment
     public static final String TOMAHAWK_LIST_ITEM_IS_LOCAL
             = "org.tomahawk.tomahawk_list_item_is_local";
 
+    public static final String TOMAHAWK_LIST_ITEM_POSITION
+            = "org.tomahawk.tomahawk_android.tomahawk_list_item_position";
+
     private static final int RESOLVE_QUERIES_REPORTER_MSG = 1336;
 
     private static final long RESOLVE_QUERIES_REPORTER_DELAY = 100;
@@ -454,6 +457,10 @@ public class TomahawkFragment extends TomahawkListFragment
                 menuItemTitles.remove(getResources()
                         .getString(R.string.fake_context_menu_addtoplaylist));
             }
+            if (this instanceof PlaybackFragment
+                    && ((Query) tomahawkListItem).isCurrentlyPlaying()) {
+                menuItemTitles.remove(getResources().getString(R.string.fake_context_menu_delete));
+            }
         } else if (tomahawkListItem instanceof Artist) {
             menuItemTitles.remove(getResources().getString(R.string.menu_item_go_to_artist));
             menuItemTitles.remove(getResources().getString(R.string.menu_item_go_to_album));
@@ -473,6 +480,9 @@ public class TomahawkFragment extends TomahawkListFragment
         args.putStringArray(TOMAHAWK_MENUITEMTITLESARRAY_KEY,
                 menuItemTitles.toArray(new String[menuItemTitles.size()]));
         args.putBoolean(TOMAHAWK_LIST_ITEM_IS_LOCAL, mIsLocal);
+        if (position >= 0) {
+            args.putInt(TOMAHAWK_LIST_ITEM_POSITION, position);
+        }
         args.putBoolean(TOMAHAWK_FROMPLAYBACKFRAGMENT, this instanceof PlaybackFragment);
         if (mAlbum != null) {
             args.putString(TOMAHAWK_ALBUM_KEY, TomahawkUtils.getCacheKey(mAlbum));
