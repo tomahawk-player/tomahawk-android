@@ -59,17 +59,11 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
 
     private boolean mShowQueriesAsTopHits = false;
 
-    private boolean mShowContentHeader = false;
-
-    private View mContentHeaderView;
-
     private TomahawkListItem mContentHeaderTomahawkListItem;
 
     private boolean mShowPlaystate = false;
 
     private boolean mShowResolvedBy = false;
-
-    private boolean mShowAddButton = false;
 
     /**
      * Constructs a new {@link TomahawkListAdapter}.
@@ -108,81 +102,93 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
     }
 
     /**
-     * Set whether or not a content header should be shown. A content header provides information
-     * about the current {@link TomahawkListItem} that the user has navigated to. Like an AlbumArt
-     * image with the {@link Album}s name, which is shown at the top of the listview, if the user
-     * browses to a particular {@link Album} in his {@link org.tomahawk.libtomahawk.collection.UserCollection}.
+     * Show a content header. A content header provides information about the current {@link
+     * TomahawkListItem} that the user has navigated to. Like an AlbumArt image with the {@link
+     * Album}s name, which is shown at the top of the listview, if the user browses to a particular
+     * {@link Album} in his {@link org.tomahawk.libtomahawk.collection.UserCollection}.
      *
-     * @param showContentHeader             whether or not to show the content header
-     * @param list                          a reference to the list, so we can set its header view
-     * @param contentHeaderTomahawkListItem the {@link TomahawkListItem}'s information to show in
-     *                                      the header view
+     * @param list        a reference to the list, so we can set its header view
+     * @param listItem    the {@link TomahawkListItem}'s information to show in the header view
+     * @param isOnlyLocal whether or not the given listItem was given in a local context. This will
+     *                    determine whether to show the total track count, or just the count of
+     *                    local tracks in the contentHeader's textview.
      */
-    public void setShowContentHeader(boolean showContentHeader, boolean landscapeMode,
-            StickyListHeadersListView list,
-            TomahawkListItem contentHeaderTomahawkListItem) {
-        mContentHeaderTomahawkListItem = contentHeaderTomahawkListItem;
-        mShowContentHeader = showContentHeader;
+    public void showContentHeader(boolean landscapeMode, StickyListHeadersListView list,
+            TomahawkListItem listItem, boolean isOnlyLocal) {
+        mContentHeaderTomahawkListItem = listItem;
         View contentHeaderView = mLayoutInflater.inflate(R.layout.content_header, null);
-        if (contentHeaderView != null && list.getHeaderViewsCount() == 0) {
-            mContentHeaderView = contentHeaderView;
-            updateContentHeader(contentHeaderTomahawkListItem);
-            if (!landscapeMode) {
-                list.addHeaderView(mContentHeaderView);
-            }
+        if (!landscapeMode && contentHeaderView != null && list.getHeaderViewsCount() == 0) {
+            list.addHeaderView(contentHeaderView);
         }
+        updateContentHeader(listItem, isOnlyLocal);
     }
 
-    public void updateContentHeader(
-            TomahawkListItem contentHeaderTomahawkListItem) {
-        if (mContentHeaderView != null) {
-            SquareHeightRelativeLayout frame = (SquareHeightRelativeLayout)
-                    mActivity.findViewById(R.id.content_header_image_frame);
-            if (frame != null) {
-                frame.setVisibility(SquareHeightRelativeLayout.VISIBLE);
-            }
-            ImageView imageView = (ImageView) mActivity.findViewById(R.id.content_header_image);
-            imageView.setVisibility(ImageView.VISIBLE);
-            if (mContentHeaderTomahawkListItem instanceof Album) {
-                TomahawkUtils.loadImageIntoImageView(mActivity, imageView,
-                        ((Album) mContentHeaderTomahawkListItem).getImage(),
-                        Image.IMAGE_SIZE_LARGE);
-            } else if (mContentHeaderTomahawkListItem instanceof Artist) {
-                TomahawkUtils.loadImageIntoImageView(mActivity, imageView,
-                        ((Artist) mContentHeaderTomahawkListItem).getImage(),
-                        Image.IMAGE_SIZE_LARGE);
-            } else if (mContentHeaderTomahawkListItem instanceof UserPlaylist) {
-                ArrayList<Artist> artists = ((UserPlaylist) mContentHeaderTomahawkListItem)
-                        .getContentHeaderArtists();
-                ArrayList<Artist> artistsWithImage = new ArrayList<Artist>();
-                for (Artist artist : artists) {
-                    if (artist.getImage() != null) {
-                        artistsWithImage.add(artist);
-                    }
-                }
-                if (artistsWithImage.size() > 0) {
-                    TomahawkUtils.loadImageIntoImageView(mActivity, imageView,
-                            artistsWithImage.get(0).getImage(), Image.IMAGE_SIZE_LARGE);
-                }
-                if (artistsWithImage.size() > 3) {
-                    mActivity.findViewById(R.id.content_header_image_frame2)
-                            .setVisibility(View.VISIBLE);
-                    imageView = (ImageView) mActivity.findViewById(R.id.content_header_image2);
-                    imageView.setVisibility(ImageView.VISIBLE);
-                    TomahawkUtils.loadImageIntoImageView(mActivity, imageView,
-                            artistsWithImage.get(1).getImage(), Image.IMAGE_SIZE_LARGE);
-                    imageView = (ImageView) mActivity.findViewById(R.id.content_header_image3);
-                    imageView.setVisibility(ImageView.VISIBLE);
-                    TomahawkUtils.loadImageIntoImageView(mActivity, imageView,
-                            artistsWithImage.get(2).getImage(), Image.IMAGE_SIZE_LARGE);
-                    imageView = (ImageView) mActivity.findViewById(R.id.content_header_image4);
-                    imageView.setVisibility(ImageView.VISIBLE);
-                    TomahawkUtils.loadImageIntoImageView(mActivity, imageView,
-                            artistsWithImage.get(3).getImage(), Image.IMAGE_SIZE_LARGE);
+    public void updateContentHeader(TomahawkListItem listItem, boolean isOnlyLocal) {
+        SquareHeightRelativeLayout frame = (SquareHeightRelativeLayout)
+                mActivity.findViewById(R.id.content_header_image_frame);
+        if (frame != null) {
+            frame.setVisibility(SquareHeightRelativeLayout.VISIBLE);
+        }
+        ImageView imageView = (ImageView) mActivity.findViewById(R.id.content_header_image);
+        imageView.setVisibility(ImageView.VISIBLE);
+        TextView textView = (TextView) mActivity.findViewById(R.id.content_header_textview);
+        TextView textView2 = (TextView) mActivity.findViewById(R.id.content_header_textview2);
+        if (listItem instanceof Album) {
+            TomahawkUtils.loadImageIntoImageView(mActivity, imageView,
+                    ((Album) listItem).getImage(), Image.IMAGE_SIZE_LARGE);
+            int tracksCount = listItem.getAlbum().getQueries(isOnlyLocal).size();
+            String s = listItem.getArtist().getName() + ", " + tracksCount + " "
+                    + mActivity.getString(R.string.content_header_track)
+                    + (tracksCount == 1 ? "" : "s");
+            textView2.setText(s);
+        } else if (listItem instanceof Artist) {
+            TomahawkUtils.loadImageIntoImageView(mActivity, imageView,
+                    ((Artist) listItem).getImage(), Image.IMAGE_SIZE_LARGE);
+            int topHitsCount = listItem.getArtist().getTopHits().size();
+            int albumsCount = isOnlyLocal ? ((Artist) listItem).getLocalAlbums().size()
+                    : ((Artist) listItem).getAlbums().size();
+            String s = (isOnlyLocal ? "" : (topHitsCount + " "
+                    + mActivity.getString(R.string.content_header_tophit)
+                    + (topHitsCount == 1 ? "" : "s") + ", ")) + albumsCount + " "
+                    + mActivity.getString(R.string.content_header_album)
+                    + (albumsCount == 1 ? "" : "s");
+            textView2.setText(s);
+        } else if (listItem instanceof UserPlaylist) {
+            int tracksCount = listItem.getQueries(isOnlyLocal).size();
+            String s = tracksCount + " " + mActivity.getString(R.string.content_header_track)
+                    + (tracksCount == 1 ? "" : "s");
+            textView2.setText(s);
+            ArrayList<Artist> artists = ((UserPlaylist) listItem)
+                    .getContentHeaderArtists();
+            ArrayList<Artist> artistsWithImage = new ArrayList<Artist>();
+            for (Artist artist : artists) {
+                if (artist.getImage() != null) {
+                    artistsWithImage.add(artist);
                 }
             }
-            ((TextView) mContentHeaderView.findViewById(R.id.content_header_textview))
-                    .setText(contentHeaderTomahawkListItem.getName());
+            if (artistsWithImage.size() > 0) {
+                TomahawkUtils.loadImageIntoImageView(mActivity, imageView,
+                        artistsWithImage.get(0).getImage(), Image.IMAGE_SIZE_LARGE);
+            }
+            if (artistsWithImage.size() > 3) {
+                mActivity.findViewById(R.id.content_header_image_frame2)
+                        .setVisibility(View.VISIBLE);
+                imageView = (ImageView) mActivity.findViewById(R.id.content_header_image2);
+                imageView.setVisibility(ImageView.VISIBLE);
+                TomahawkUtils.loadImageIntoImageView(mActivity, imageView,
+                        artistsWithImage.get(1).getImage(), Image.IMAGE_SIZE_LARGE);
+                imageView = (ImageView) mActivity.findViewById(R.id.content_header_image3);
+                imageView.setVisibility(ImageView.VISIBLE);
+                TomahawkUtils.loadImageIntoImageView(mActivity, imageView,
+                        artistsWithImage.get(2).getImage(), Image.IMAGE_SIZE_LARGE);
+                imageView = (ImageView) mActivity.findViewById(R.id.content_header_image4);
+                imageView.setVisibility(ImageView.VISIBLE);
+                TomahawkUtils.loadImageIntoImageView(mActivity, imageView,
+                        artistsWithImage.get(3).getImage(), Image.IMAGE_SIZE_LARGE);
+            }
+        }
+        if (textView != null) {
+            textView.setText(listItem.getName());
         }
     }
 
@@ -212,7 +218,6 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
      */
     public void setShowAddButton(boolean showAddButton, StickyListHeadersListView list,
             String buttonText) {
-        mShowAddButton = showAddButton;
         View addButtonFooterView = mLayoutInflater.inflate(R.layout.add_button_layout, null);
         if (addButtonFooterView != null && list.getFooterViewsCount() == 0) {
             ((TextView) addButtonFooterView.findViewById(R.id.add_button_textview))

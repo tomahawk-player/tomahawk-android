@@ -124,4 +124,7 @@
     <string name="fake_preferences_bitrate_high">Best quality</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+    <string name="content_header_track">Track</string>
+    <string name="content_header_tophit">Top Song</string>
+    <string name="content_header_album">Album</string>
 </resources>
