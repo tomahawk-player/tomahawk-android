@@ -199,103 +199,131 @@ public class TomahawkUtils {
     public static String httpsPost(String urlString, Multimap<String, String> params,
             String jsonString)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
-        URL url = new URL(urlString);
-        HttpsURLConnection connection = setSSLSocketFactory(
-                (HttpsURLConnection) url.openConnection());
+        String output = null;
+        HttpsURLConnection connection = null;
+        OutputStreamWriter out = null;
+        try {
+            URL url = new URL(urlString);
+            connection = setSSLSocketFactory(
+                    (HttpsURLConnection) url.openConnection());
 
-        connection.setConnectTimeout(15000);
-        connection.setReadTimeout(15000);
-        connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
-        for (String key : params.keySet()) {
-            for (String value : params.get(key)) {
-                connection.setRequestProperty(key, value);
+            connection.setConnectTimeout(15000);
+            connection.setReadTimeout(15000);
+            connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
+            for (String key : params.keySet()) {
+                for (String value : params.get(key)) {
+                    connection.setRequestProperty(key, value);
+                }
+            }
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            connection.setFixedLengthStreamingMode(jsonString.getBytes().length);
+            out = new OutputStreamWriter(connection.getOutputStream());
+            out.write(jsonString);
+
+            if (connection.getResponseCode() / 100 != 2) {
+                throw new IOException("HttpsURLConnection (url:'" + urlString
+                        + "') didn't return with status code 2xx, instead it returned " + connection
+                        .getResponseCode());
+            }
+            output = inputStreamToString(connection);
+        } finally {
+            if (out != null) {
+                out.close();
+            }
+            if (connection != null) {
+                connection.disconnect();
             }
         }
-        connection.setRequestMethod("POST");
-        connection.setDoOutput(true);
-        connection.setFixedLengthStreamingMode(jsonString.getBytes().length);
-        OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
-        out.write(jsonString);
-        out.close();
-
-        if (connection.getResponseCode() / 100 != 2) {
-            throw new IOException("HttpsURLConnection (url:'" + urlString
-                    + "') didn't return with status code 2xx, instead it returned " + connection
-                    .getResponseCode());
-        }
-        String output = inputStreamToString(connection);
-        connection.disconnect();
         return output;
     }
 
     public static String httpsPost(String urlString, Multimap<String, String> params,
             boolean contentTypeIsJson, boolean paramsInHeader)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
-        URL url = new URL(urlString);
-        HttpsURLConnection connection = setSSLSocketFactory(
-                (HttpsURLConnection) url.openConnection());
+        String output = null;
+        HttpsURLConnection connection = null;
+        OutputStreamWriter out = null;
+        try {
+            URL url = new URL(urlString);
+            connection = setSSLSocketFactory(
+                    (HttpsURLConnection) url.openConnection());
 
-        connection.setConnectTimeout(15000);
-        connection.setReadTimeout(15000);
-        if (contentTypeIsJson) {
-            connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
-        } else if (!paramsInHeader) {
-            connection.setRequestProperty("Content-type", "application/x-www-form-urlencoded");
-            connection.setRequestProperty("Accept", "application/json; charset=utf-8");
-            connection.setDoOutput(true);
-        }
-        if (paramsInHeader) {
-            for (String key : params.keySet()) {
-                for (String value : params.get(key)) {
-                    connection.setRequestProperty(key, value);
-                }
+            connection.setConnectTimeout(15000);
+            connection.setReadTimeout(15000);
+            if (contentTypeIsJson) {
+                connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
+            } else if (!paramsInHeader) {
+                connection.setRequestProperty("Content-type", "application/x-www-form-urlencoded");
+                connection.setRequestProperty("Accept", "application/json; charset=utf-8");
+                connection.setDoOutput(true);
             }
-        } else {
-            connection.setRequestMethod("POST");
-            String paramsString = paramsListToString(params);
-            connection.setFixedLengthStreamingMode(paramsString.getBytes().length);
-            OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
-            out.write(paramsString);
-            out.close();
-        }
+            if (paramsInHeader) {
+                for (String key : params.keySet()) {
+                    for (String value : params.get(key)) {
+                        connection.setRequestProperty(key, value);
+                    }
+                }
+            } else {
+                connection.setRequestMethod("POST");
+                String paramsString = paramsListToString(params);
+                connection.setFixedLengthStreamingMode(paramsString.getBytes().length);
+                out = new OutputStreamWriter(connection.getOutputStream());
+                out.write(paramsString);
+            }
 
-        if (connection.getResponseCode() / 100 != 2) {
-            throw new IOException("HttpsURLConnection (url:'" + urlString
-                    + "') didn't return with status code 2xx, instead it returned " + connection
-                    .getResponseCode());
+            if (connection.getResponseCode() / 100 != 2) {
+                throw new IOException("HttpsURLConnection (url:'" + urlString
+                        + "') didn't return with status code 2xx, instead it returned " + connection
+                        .getResponseCode());
+            }
+            output = inputStreamToString(connection);
+        } finally {
+            if (out != null) {
+                out.close();
+            }
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
-        String output = inputStreamToString(connection);
-        connection.disconnect();
         return output;
     }
 
     public static String httpsGet(String urlString)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
-        URL url = new URL(urlString);
-        HttpsURLConnection connection = setSSLSocketFactory(
-                (HttpsURLConnection) url.openConnection());
+        String output = null;
+        HttpsURLConnection connection = null;
+        try {
+            URL url = new URL(urlString);
+            connection = setSSLSocketFactory(
+                    (HttpsURLConnection) url.openConnection());
 
-        connection.setConnectTimeout(15000);
-        connection.setReadTimeout(15000);
-        connection.setRequestMethod("GET");
-        connection.setDoOutput(false);
-        connection.setRequestProperty("Accept", "application/json; charset=utf-8");
-        connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
+            connection.setConnectTimeout(15000);
+            connection.setReadTimeout(15000);
+            connection.setRequestMethod("GET");
+            connection.setDoOutput(false);
+            connection.setRequestProperty("Accept", "application/json; charset=utf-8");
+            connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
 
-        if (connection.getResponseCode() / 100 != 2) {
-            throw new IOException("HttpsURLConnection (url:'" + urlString
-                    + "') didn't return with status code 2xx, instead it returned " + connection
-                    .getResponseCode());
+            if (connection.getResponseCode() / 100 != 2) {
+                throw new IOException("HttpsURLConnection (url:'" + urlString
+                        + "') didn't return with status code 2xx, instead it returned " + connection
+                        .getResponseCode());
+            }
+            output = inputStreamToString(connection);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
-        String output = inputStreamToString(connection);
-        connection.disconnect();
         return output;
     }
 
     public static boolean httpHeaderRequest(String urlString) {
+        HttpURLConnection connection = null;
         try {
             URL url = new URL(urlString);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
 
             connection.setConnectTimeout(15000);
             connection.setReadTimeout(15000);
@@ -311,6 +339,10 @@ public class TomahawkUtils {
             Log.e(TAG, "httpHeaderRequest: " + e.getClass() + ": " + e.getLocalizedMessage());
         } catch (IOException e) {
             Log.e(TAG, "httpHeaderRequest: " + e.getClass() + ": " + e.getLocalizedMessage());
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
         return false;
     }
