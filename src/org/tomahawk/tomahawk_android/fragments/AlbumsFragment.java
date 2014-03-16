@@ -127,14 +127,15 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(
                         mTomahawkMainActivity, listArray);
                 tomahawkListAdapter.setShowCategoryHeaders(true, true);
-                tomahawkListAdapter.setShowContentHeader(true,
-                        getResources().getConfiguration().orientation
-                                == Configuration.ORIENTATION_LANDSCAPE, getListView(), mArtist);
+                tomahawkListAdapter.showContentHeader(getResources().getConfiguration().orientation
+                                == Configuration.ORIENTATION_LANDSCAPE, getListView(), mArtist,
+                        mIsLocal
+                );
                 tomahawkListAdapter.setShowResolvedBy(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
-                ((TomahawkListAdapter) getListAdapter()).updateContentHeader(mArtist);
+                ((TomahawkListAdapter) getListAdapter()).updateContentHeader(mArtist, mIsLocal);
             }
             getListView().setOnItemClickListener(this);
         } else {
