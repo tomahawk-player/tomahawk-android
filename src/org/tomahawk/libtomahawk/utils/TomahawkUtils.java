@@ -201,7 +201,6 @@ public class TomahawkUtils {
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         String output = null;
         HttpsURLConnection connection = null;
-        OutputStreamWriter out = null;
         try {
             URL url = new URL(urlString);
             connection = setSSLSocketFactory(
@@ -218,8 +217,15 @@ public class TomahawkUtils {
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
             connection.setFixedLengthStreamingMode(jsonString.getBytes().length);
-            out = new OutputStreamWriter(connection.getOutputStream());
-            out.write(jsonString);
+            OutputStreamWriter out = null;
+            try {
+                out = new OutputStreamWriter(connection.getOutputStream());
+                out.write(jsonString);
+            } finally {
+                if (out != null) {
+                    out.close();
+                }
+            }
 
             if (connection.getResponseCode() / 100 != 2) {
                 throw new IOException("HttpsURLConnection (url:'" + urlString
@@ -228,9 +234,6 @@ public class TomahawkUtils {
             }
             output = inputStreamToString(connection);
         } finally {
-            if (out != null) {
-                out.close();
-            }
             if (connection != null) {
                 connection.disconnect();
             }
@@ -243,7 +246,6 @@ public class TomahawkUtils {
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         String output = null;
         HttpsURLConnection connection = null;
-        OutputStreamWriter out = null;
         try {
             URL url = new URL(urlString);
             connection = setSSLSocketFactory(
@@ -268,8 +270,15 @@ public class TomahawkUtils {
                 connection.setRequestMethod("POST");
                 String paramsString = paramsListToString(params);
                 connection.setFixedLengthStreamingMode(paramsString.getBytes().length);
-                out = new OutputStreamWriter(connection.getOutputStream());
-                out.write(paramsString);
+                OutputStreamWriter out = null;
+                try {
+                    out = new OutputStreamWriter(connection.getOutputStream());
+                    out.write(paramsString);
+                } finally {
+                    if (out != null) {
+                        out.close();
+                    }
+                }
             }
 
             if (connection.getResponseCode() / 100 != 2) {
@@ -279,9 +288,6 @@ public class TomahawkUtils {
             }
             output = inputStreamToString(connection);
         } finally {
-            if (out != null) {
-                out.close();
-            }
             if (connection != null) {
                 connection.disconnect();
             }
