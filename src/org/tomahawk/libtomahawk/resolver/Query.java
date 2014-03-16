@@ -360,6 +360,7 @@ public class Query implements TomahawkListItem {
 
     public String updateResultHint() {
         mResultHint = mTopTrackResultKey;
+        ensureCache(this);
         return mResultHint;
     }
 
