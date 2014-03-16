@@ -97,7 +97,8 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         position -= getListView().getHeaderViewsCount();
         if (position >= 0) {
-            if (getListAdapter().getItem(position) instanceof Query) {
+            if (getListAdapter().getItem(position) instanceof Query
+                    && ((Query) getListAdapter().getItem(position)).isPlayable()) {
                 ArrayList<Query> queries = new ArrayList<Query>();
                 if (mAlbum != null) {
                     queries = mAlbum.getQueries(mIsLocal);
