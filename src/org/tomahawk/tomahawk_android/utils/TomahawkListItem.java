@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.utils;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.resolver.Query;
 
 import java.util.ArrayList;
@@ -53,4 +54,6 @@ public interface TomahawkListItem {
      * @return the corresponding list of {@link org.tomahawk.libtomahawk.resolver.Query}s
      */
     public ArrayList<Query> getQueries();
+
+    public Image getImage();
 }

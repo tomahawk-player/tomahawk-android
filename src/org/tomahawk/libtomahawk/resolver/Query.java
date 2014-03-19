@@ -19,6 +19,7 @@ package org.tomahawk.libtomahawk.resolver;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
@@ -539,5 +540,15 @@ public class Query implements TomahawkListItem {
     @Override
     public ArrayList<Query> getQueries() {
         return getQueries(false);
+    }
+
+    @Override
+    public Image getImage() {
+        if (getAlbum().getImage() != null && !TextUtils
+                .isEmpty(getAlbum().getImage().getImagePath())) {
+            return getAlbum().getImage();
+        } else {
+            return getArtist().getImage();
+        }
     }
 }

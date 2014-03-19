@@ -714,7 +714,7 @@ public class PlaybackService extends Service {
                 updatePlayingNotification();
                 sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
 
-                if (query.getAlbum().getImage() == null && query.getArtist().getImage() == null) {
+                if (query.getImage() == null) {
                     if (!query.getArtist().isResolvedByInfoSystem()) {
                         ArrayList<String> requestIds = mTomahawkApp.getInfoSystem().resolve(
                                 query.getArtist(), true);
@@ -917,16 +917,12 @@ public class PlaybackService extends Service {
 
         String albumName = "";
         String artistName = "";
-        Image image = null;
+        Image image = query.getImage();
         if (query.getAlbum() != null) {
             albumName = query.getAlbum().getName();
-            image = query.getAlbum().getImage();
         }
         if (query.getArtist() != null) {
             artistName = query.getArtist().getName();
-            if (image == null) {
-                image = query.getArtist().getImage();
-            }
         }
 
         Intent intent = new Intent(BROADCAST_NOTIFICATIONINTENT_PREVIOUS, null, this,

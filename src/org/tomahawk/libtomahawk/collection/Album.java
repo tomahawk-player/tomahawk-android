@@ -207,15 +207,16 @@ public class Album implements TomahawkListItem {
         return getQueries(false);
     }
 
-    public void setQueriesFetchedViaHatchet(ArrayList<Query> queriesFetchedViaHatchet) {
-        mQueriesFetchedViaHatchet = queriesFetchedViaHatchet;
-    }
-
     /**
      * @return the filePath/url to this {@link Album}'s albumArt
      */
+    @Override
     public Image getImage() {
         return mImage;
+    }
+
+    public void setQueriesFetchedViaHatchet(ArrayList<Query> queriesFetchedViaHatchet) {
+        mQueriesFetchedViaHatchet = queriesFetchedViaHatchet;
     }
 
     /**

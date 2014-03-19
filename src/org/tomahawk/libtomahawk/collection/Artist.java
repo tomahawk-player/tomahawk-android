@@ -189,6 +189,11 @@ public class Artist implements TomahawkListItem {
         return getQueries(false);
     }
 
+    @Override
+    public Image getImage() {
+        return mImage;
+    }
+
     public ArrayList<Query> getTopHits() {
         return mTopHits;
     }
@@ -269,10 +274,6 @@ public class Artist implements TomahawkListItem {
      */
     public boolean hasAlbumsFetchedViaHatchet() {
         return mAlbumsFetchedViaHatchet.size() > 0;
-    }
-
-    public Image getImage() {
-        return mImage;
     }
 
     public void setImage(Image image) {
