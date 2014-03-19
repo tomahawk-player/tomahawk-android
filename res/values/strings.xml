@@ -70,21 +70,20 @@
     <string name="fakepreferencefragment_title_string">Settings</string>
     <string name="fakepreference_accounts_header">SERVICES</string>
     <string name="fakepreference_hatchetlogin_title_string">Hatchet</string>
-    <string name="fakepreference_hatchetlogin_summary_string">Authenticate with Hatchet, expect
-        blissful happiness.
+    <string name="fakepreference_hatchetlogin_summary_string">Sync your data with Hatchet.
     </string>
     <string name="fakepreference_spotifylogin_title_string">Spotify</string>
     <string name="fakepreference_spotifylogin_summary_string">Play your music from Spotify. Requires
-        a Premium account.
+        a Premium account. (Alpha version, unstable)
     </string>
     <string name="fakepreference_playback_header">PLAYBACK</string>
     <string name="fakepreference_plugintoplay_title_string">Plug in to play</string>
     <string name="fakepreference_plugintoplay_summary_string">Starts playing music
-        when a headset is connected
+        as soon as a headset is connected.
     </string>
     <string name="fakepreference_bitrate_title_string">Preferred audio quality</string>
-    <string name="fakepreference_bitrate_summary_string">The preferred audio quality when not
-        connected to wifi.
+    <string name="fakepreference_bitrate_summary_string">The preferred audio quality if not
+        connected to WiFi.
     </string>
     <string name="fakepreference_info_header">INFO</string>
     <string name="fakepreference_appversion_title_string">App-Version</string>
