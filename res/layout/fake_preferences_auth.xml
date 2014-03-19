@@ -51,11 +51,10 @@
 
     </LinearLayout>
 
-    <CheckBox
-            android:id="@+id/fake_preferences_checkbox"
+    <ImageView
+            android:id="@+id/fake_preferences_logo"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:clickable="false"/>
+            android:layout_gravity="center"/>
 
 </LinearLayout>

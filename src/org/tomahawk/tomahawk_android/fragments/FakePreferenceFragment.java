@@ -112,14 +112,16 @@ public class FakePreferenceFragment extends TomahawkListFragment
         mFakePreferenceGroups = new ArrayList<FakePreferenceGroup>();
         FakePreferenceGroup prefGroup = new FakePreferenceGroup(
                 getString(R.string.fakepreference_accounts_header));
-        prefGroup.addFakePreference(FakePreferenceGroup.FAKEPREFERENCE_TYPE_DIALOG,
+        prefGroup.addFakePreference(FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH,
                 FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN,
                 getString(R.string.fakepreference_spotifylogin_title_string),
-                getString(R.string.fakepreference_spotifylogin_summary_string));
-        prefGroup.addFakePreference(FakePreferenceGroup.FAKEPREFERENCE_TYPE_DIALOG,
+                getString(R.string.fakepreference_spotifylogin_summary_string),
+                R.drawable.spotify_icon);
+        prefGroup.addFakePreference(FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH,
                 FAKEPREFERENCEFRAGMENT_KEY_HATCHETLOGGEDIN,
                 getString(R.string.fakepreference_hatchetlogin_title_string),
-                getString(R.string.fakepreference_hatchetlogin_summary_string));
+                getString(R.string.fakepreference_hatchetlogin_summary_string),
+                R.drawable.hatchet_icon);
         mFakePreferenceGroups.add(prefGroup);
         prefGroup = new FakePreferenceGroup(getString(R.string.fakepreference_playback_header));
         prefGroup.addFakePreference(FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX,
@@ -228,8 +230,8 @@ public class FakePreferenceFragment extends TomahawkListFragment
                 editor.commit();
             } else if ((mTomahawkApp.getTomahawkService() != null)
                     && ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position)).
-                    getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_DIALOG) {
-                // if a FakePreference of type "FAKEPREFERENCE_TYPE_DIALOG" has been clicked,
+                    getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH) {
+                // if a FakePreference of type "FAKEPREFERENCE_TYPE_AUTH" has been clicked,
                 // we show a LoginDialog
                 if (((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position))
                         .getKey().equals(FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN)) {
@@ -277,7 +279,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
                         FAKEPREFERENCEFRAGMENT_KEY_HATCHETLOGGEDIN);
             }
             if (fakePreference != null) {
-                fakePreference.setCheckboxState(loggedIn);
+                fakePreference.setEnabled(loggedIn);
                 break;
             }
         }

@@ -20,12 +20,11 @@ package org.tomahawk.tomahawk_android.dialogs;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
+import org.tomahawk.tomahawk_android.utils.GreyscaleFilter;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -62,10 +61,6 @@ public class LoginDialog extends TomahawkDialogFragment {
     private TextView mNegativeButton;
 
     private Drawable mProgressDrawable;
-
-    private Drawable mLoggedInDrawable;
-
-    private Drawable mNotLoggedInDrawable;
 
     private ImageView mStatusImageView;
 
@@ -180,19 +175,12 @@ public class LoginDialog extends TomahawkDialogFragment {
         mNegativeButton = (TextView) view.findViewById(R.id.login_dialog_cancel_button);
         mNegativeButton.setOnClickListener(mNegativeButtonListener);
         mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
-        mLoggedInDrawable = getResources().getDrawable(R.drawable.ic_action_checked);
-        mLoggedInDrawable.setColorFilter(
-                new PorterDuffColorFilter(getResources().getColor(R.color.tomahawk_red),
-                        PorterDuff.Mode.MULTIPLY)
-        );
-        mNotLoggedInDrawable = getResources().getDrawable(R.drawable.ic_action_error);
-        mNotLoggedInDrawable.setColorFilter(
-                new PorterDuffColorFilter(getResources().getColor(R.color.tomahawk_red),
-                        PorterDuff.Mode.MULTIPLY)
-        );
         mStatusImageView = (ImageView) view.findViewById(R.id.login_dialog_status_imageview);
-        if (isLoggedIn) {
-            mStatusImageView.setImageDrawable(mLoggedInDrawable);
+        mStatusImageView.setImageResource(mAuthenticatorUtils.getIconResourceId());
+        if (!isLoggedIn) {
+            mStatusImageView.setColorFilter(GreyscaleFilter.create());
+        } else {
+            mStatusImageView.clearColorFilter();
         }
         updateButtonTexts();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -293,10 +281,11 @@ public class LoginDialog extends TomahawkDialogFragment {
         boolean isLoggedIn = AuthenticatorUtils.isLoggedIn(getActivity().getApplicationContext(),
                 mAuthenticatorUtils.getAuthenticatorUtilsName(),
                 mAuthenticatorUtils.getAuthenticatorUtilsTokenType());
-        if (isLoggedIn) {
-            mStatusImageView.setImageDrawable(mLoggedInDrawable);
+        mStatusImageView.setImageResource(mAuthenticatorUtils.getIconResourceId());
+        if (!isLoggedIn) {
+            mStatusImageView.setColorFilter(GreyscaleFilter.create());
         } else {
-            mStatusImageView.setImageDrawable(mNotLoggedInDrawable);
+            mStatusImageView.clearColorFilter();
         }
     }
 }

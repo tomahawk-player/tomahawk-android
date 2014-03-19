@@ -24,7 +24,7 @@ import java.util.ArrayList;
  */
 public class FakePreferenceGroup {
 
-    public static final int FAKEPREFERENCE_TYPE_DIALOG = 0;
+    public static final int FAKEPREFERENCE_TYPE_AUTH = 0;
 
     public static final int FAKEPREFERENCE_TYPE_CHECKBOX = 1;
 
@@ -50,23 +50,39 @@ public class FakePreferenceGroup {
         // the key to identify this FakePreference
         private String key;
 
-        // if this FakePreference's type is FAKEPREFERENCE_TYPE_CHECKBOX,
-        // this contains the current state of the checkbox
-        private boolean checkboxState;
+        // if this FakePreference's type is FAKEPREFERENCE_TYPE_CHECKBOX or FAKEPREFERENCE_TYPE_AUTH
+        // this contains the current state of this preference
+        private boolean isEnabled;
 
         private String title;
 
         // short summary text to describe this FakePreference to the user
         private String summary;
 
+        // drawable to show in grey, if isEnabled is false, otherwise colored
+        private int drawableResId;
+
         /**
          * Construct a {@link FakePreference}
          */
-        private FakePreference(int type, String key, boolean checkboxState, String title,
+        private FakePreference(int type, String key, boolean isEnabled, String title,
+                String summary, int drawableResId) {
+            this.type = type;
+            this.key = key;
+            this.isEnabled = isEnabled;
+            this.title = title;
+            this.summary = summary;
+            this.drawableResId = drawableResId;
+        }
+
+        /**
+         * Construct a {@link FakePreference}
+         */
+        private FakePreference(int type, String key, boolean isEnabled, String title,
                 String summary) {
             this.type = type;
             this.key = key;
-            this.checkboxState = checkboxState;
+            this.isEnabled = isEnabled;
             this.title = title;
             this.summary = summary;
         }
@@ -79,12 +95,12 @@ public class FakePreferenceGroup {
             return key;
         }
 
-        public boolean isCheckboxState() {
-            return checkboxState;
+        public boolean isEnabled() {
+            return isEnabled;
         }
 
-        public void setCheckboxState(boolean checkboxState) {
-            this.checkboxState = checkboxState;
+        public void setEnabled(boolean enabled) {
+            this.isEnabled = enabled;
         }
 
         public String getTitle() {
@@ -93,6 +109,10 @@ public class FakePreferenceGroup {
 
         public String getSummary() {
             return summary;
+        }
+
+        public int getDrawableResId() {
+            return drawableResId;
         }
     }
 
@@ -103,6 +123,14 @@ public class FakePreferenceGroup {
      */
     public FakePreferenceGroup(String header) {
         mHeader = header;
+    }
+
+    /**
+     * Add a {@link FakePreference} to this {@link FakePreferenceGroup}
+     */
+    public void addFakePreference(int type, String key, String title, String summary,
+            int drawableResId) {
+        mFakePreferences.add(new FakePreference(type, key, false, title, summary, drawableResId));
     }
 
     /**
