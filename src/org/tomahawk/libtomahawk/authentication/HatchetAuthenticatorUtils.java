@@ -212,8 +212,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     @Override
     public void login(final String name, final String password) {
         mIsAuthenticating = true;
-        mTomahawkApp.getThreadManager()
-                .execute(new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_AUTHENTICATING) {
+        mTomahawkApp.getThreadManager().executePipeLineRunnable(
+                new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_AUTHENTICATING) {
                     @Override
                     public void run() {
                         Multimap<String, String> params = HashMultimap.create(3, 1);
@@ -270,7 +270,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                             mAuthenticatorListener.onLoginFailed(e.getMessage(), "");
                         }
                     }
-                });
+                }
+        );
     }
 
     @Override

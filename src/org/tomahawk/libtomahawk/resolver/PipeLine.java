@@ -130,8 +130,8 @@ public class PipeLine {
      * This will invoke every {@link Resolver} to resolve the given {@link Query}.
      */
     public String resolve(final Query q, final boolean forceOnlyLocal) {
-        mTomahawkApp.getThreadManager()
-                .execute(new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_RESOLVING) {
+        mTomahawkApp.getThreadManager().executePipeLineRunnable(
+                new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_RESOLVING) {
                     @Override
                     public void run() {
                         if (!forceOnlyLocal && q.isSolved()) {
@@ -154,7 +154,8 @@ public class PipeLine {
                             }
                         }
                     }
-                });
+                }
+        );
         return TomahawkUtils.getCacheKey(q);
     }
 
@@ -209,7 +210,7 @@ public class PipeLine {
         } else {
             priority = TomahawkRunnable.PRIORITY_IS_REPORTING;
         }
-        mTomahawkApp.getThreadManager().execute(
+        mTomahawkApp.getThreadManager().executePipeLineRunnable(
                 new TomahawkRunnable(priority) {
                     @Override
                     public void run() {

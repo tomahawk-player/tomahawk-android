@@ -730,12 +730,12 @@ public class PlaybackService extends Service {
                     }
                 }
 
-                if (isPlaying()
-                        && !mLastPreparedPath.equals(query.getPreferredTrackResult().getPath())) {
-                    query.setCurrentlyPlaying(true);
-                    Runnable releaseRunnable = new Runnable() {
-                        @Override
-                        public void run() {
+                mTomahawkApp.getThreadManager().executePlaybackRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (isPlaying() && !mLastPreparedPath
+                                .equals(query.getPreferredTrackResult().getPath())) {
+                            query.setCurrentlyPlaying(true);
                             int loopCounter = 0;
                             while (true) {
                                 if (loopCounter++ > 3) {
@@ -780,9 +780,8 @@ public class PlaybackService extends Service {
                                 break;
                             }
                         }
-                    };
-                    new Thread(releaseRunnable).start();
-                }
+                    }
+                });
             } else {
                 next();
             }
