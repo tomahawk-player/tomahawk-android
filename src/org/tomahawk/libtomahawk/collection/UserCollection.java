@@ -123,7 +123,7 @@ public class UserCollection extends Collection {
                 final String requestId = intent
                         .getStringExtra(InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
                 if (mCorrespondingRequestIds.contains(requestId)) {
-                    mTomahawkApp.getThreadManager().execute(
+                    mTomahawkApp.getThreadManager().executePipeLineRunnable(
                             new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
                                 @Override
                                 public void run() {

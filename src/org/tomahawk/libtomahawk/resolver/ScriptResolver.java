@@ -276,8 +276,8 @@ public class ScriptResolver implements Resolver {
             } else if (id == R.id.scriptresolver_resolver_init) {
                 resolverSettings();
             } else if (id == R.id.scriptresolver_add_track_results_string && jsonString != null) {
-                mTomahawkApp.getThreadManager()
-                        .execute(new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_REPORTING) {
+                mTomahawkApp.getThreadManager().executePipeLineRunnable(
+                        new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_REPORTING) {
                             @Override
                             public void run() {
                                 ScriptResolverResult result = null;
@@ -298,7 +298,8 @@ public class ScriptResolver implements Resolver {
                                 mTimeOutHandler.removeCallbacksAndMessages(null);
                                 mStopped = true;
                             }
-                        });
+                        }
+                );
             }
         } catch (IOException e) {
             Log.e(TAG, "handleCallbackToJava: " + e.getClass() + ": " + e

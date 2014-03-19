@@ -330,8 +330,8 @@ public class LibSpotifyWrapper {
             final int[] trackDiscnumbers, final int[] trackIndexes, final int[] albumYears,
             final String[] trackNames, final String[] trackUris, final String[] albumNames,
             final String[] artistNames) {
-        sTomahawkApp.getThreadManager()
-                .execute(new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_REPORTING) {
+        sTomahawkApp.getThreadManager().executePipeLineRunnable(
+                new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_REPORTING) {
                     @Override
                     public void run() {
                         if (!success) {
@@ -358,7 +358,8 @@ public class LibSpotifyWrapper {
                             sSpotifyResolver.onResolved(qid, results);
                         }
                     }
-                });
+                }
+        );
     }
 
     public static boolean isInitialized() {

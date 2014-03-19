@@ -17,6 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -35,18 +36,29 @@ public class ThreadManager {
     // Sets the Time Unit to seconds
     private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
 
-    private ThreadPoolExecutor mThreadPool;
+    private ThreadPoolExecutor mPipeLineThreadPool;
+
+    private ThreadPoolExecutor mPlaybackThreadPool;
 
     public ThreadManager() {
-        mThreadPool = new ThreadPoolExecutor(NUMBER_OF_CORES, NUMBER_OF_CORES, KEEP_ALIVE_TIME,
-                KEEP_ALIVE_TIME_UNIT, new PriorityBlockingQueue<Runnable>());
+        mPipeLineThreadPool = new ThreadPoolExecutor(NUMBER_OF_CORES, NUMBER_OF_CORES,
+                KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, new PriorityBlockingQueue<Runnable>());
+        mPlaybackThreadPool = new ThreadPoolExecutor(1, 1, KEEP_ALIVE_TIME,
+                KEEP_ALIVE_TIME_UNIT, new LinkedBlockingQueue<Runnable>());
     }
 
-    public void execute(TomahawkRunnable r) {
-        mThreadPool.execute(r);
+    public void executePipeLineRunnable(TomahawkRunnable r) {
+        mPipeLineThreadPool.execute(r);
+    }
+
+    public void executePlaybackRunnable(Runnable r) {
+        mPlaybackThreadPool.execute(r);
     }
 
     public boolean isActive() {
-        return mThreadPool.getActiveCount() > 0 || mThreadPool.getQueue().size() > 0;
+        return mPipeLineThreadPool.getActiveCount() > 0
+                || mPipeLineThreadPool.getQueue().size() > 0
+                || mPlaybackThreadPool.getActiveCount() > 0
+                || mPlaybackThreadPool.getQueue().size() > 0;
     }
 }
