@@ -20,6 +20,8 @@ package org.tomahawk.libtomahawk.collection;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.text.TextUtils;
+
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -158,5 +160,15 @@ public class UserPlaylist extends Playlist implements TomahawkListItem {
     @Override
     public ArrayList<Query> getQueries(boolean onlyLocal) {
         return getQueries();
+    }
+
+    @Override
+    public Image getImage() {
+        for (Artist artist : mContentHeaderArtists) {
+            if (artist.getImage() != null && !TextUtils.isEmpty(artist.getImage().getImagePath())) {
+                return artist.getImage();
+            }
+        }
+        return null;
     }
 }

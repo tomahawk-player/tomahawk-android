@@ -69,13 +69,12 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = null;
-        Object item = getItem(position);
+        TomahawkListItem item = (TomahawkListItem) getItem(position);
 
         if (item != null) {
             ViewHolder viewHolder;
-            if ((item instanceof TomahawkListItem && convertView == null) || (
-                    item instanceof TomahawkListItem && ((ViewHolder) convertView.getTag()).viewType
-                            != R.id.tomahawklistadapter_viewtype_griditem)) {
+            if (convertView == null || ((ViewHolder) convertView.getTag()).viewType
+                    != R.id.tomahawklistadapter_viewtype_griditem) {
                 view = mActivity.getLayoutInflater()
                         .inflate(mGridItemResourceHolder.resourceId, null);
                 viewHolder = new ViewHolder();
@@ -91,16 +90,15 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
                 view = convertView;
                 viewHolder = (ViewHolder) view.getTag();
             }
-            if (viewHolder.viewType == R.id.tomahawklistadapter_viewtype_griditem
-                    && item instanceof TomahawkListItem) {
-                viewHolder.textFirstLine.setText(((TomahawkListItem) item).getName());
-                viewHolder.textSecondLine.setText(((TomahawkListItem) item).getArtist().getName());
+            if (viewHolder.viewType == R.id.tomahawklistadapter_viewtype_griditem) {
+                viewHolder.textFirstLine.setText(item.getName());
+                viewHolder.textSecondLine.setText(item.getArtist().getName());
                 if (item instanceof Album) {
                     TomahawkUtils.loadImageIntoImageView(mActivity, viewHolder.imageViewLeft,
-                            ((Album) item).getImage(), Image.IMAGE_SIZE_SMALL);
+                            item.getImage(), Image.IMAGE_SIZE_SMALL);
                 } else if (item instanceof Artist) {
                     TomahawkUtils.loadImageIntoImageView(mActivity, viewHolder.imageViewLeft,
-                            ((Artist) item).getImage(), Image.IMAGE_SIZE_SMALL);
+                            item.getImage(), Image.IMAGE_SIZE_SMALL);
                 }
             }
         }

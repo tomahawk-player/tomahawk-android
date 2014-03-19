@@ -419,16 +419,9 @@ public class TomahawkUtils {
      */
     public static void loadImageIntoImageView(Context context, ImageView imageView, Query query,
             int width) {
-        Image image = null;
         if (query != null) {
-            if (query.getArtist() != null) {
-                image = query.getAlbum().getImage();
-            }
-            if (image == null && query.getArtist() != null) {
-                image = query.getArtist().getImage();
-            }
+            loadImageIntoImageView(context, imageView, query.getImage(), width);
         }
-        loadImageIntoImageView(context, imageView, image, width);
     }
 
     /**

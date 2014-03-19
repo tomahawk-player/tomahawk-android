@@ -21,6 +21,8 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.text.TextUtils;
+
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -127,6 +129,15 @@ public class Track implements TomahawkListItem {
     @Override
     public ArrayList<Query> getQueries() {
         return null;
+    }
+
+    @Override
+    public Image getImage() {
+        if (mAlbum.getImage() != null && !TextUtils.isEmpty(mAlbum.getImage().getImagePath())) {
+            return mAlbum.getImage();
+        } else {
+            return mArtist.getImage();
+        }
     }
 
     /**
