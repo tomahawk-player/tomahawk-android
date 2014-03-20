@@ -25,10 +25,9 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.app.Activity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.util.List;
 
@@ -39,7 +38,7 @@ import java.util.List;
  */
 public class TomahawkGridAdapter extends TomahawkBaseAdapter {
 
-    private ResourceHolder mGridItemResourceHolder;
+    private LayoutInflater mLayoutInflater;
 
     /**
      * Constructs a new {@link TomahawkGridAdapter}
@@ -50,11 +49,7 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
      */
     public TomahawkGridAdapter(Activity activity, List<List<TomahawkListItem>> listArray) {
         mActivity = activity;
-        mGridItemResourceHolder = new ResourceHolder();
-        mGridItemResourceHolder.resourceId = R.layout.album_art_grid_item;
-        mGridItemResourceHolder.imageViewId = R.id.album_art_grid_image;
-        mGridItemResourceHolder.textViewId1 = R.id.album_art_grid_textView1;
-        mGridItemResourceHolder.textViewId2 = R.id.album_art_grid_textView2;
+        mLayoutInflater = mActivity.getLayoutInflater();
         mListArray = listArray;
     }
 
@@ -73,31 +68,20 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
 
         if (item != null) {
             ViewHolder viewHolder;
-            if (convertView == null || ((ViewHolder) convertView.getTag()).viewType
-                    != R.id.tomahawklistadapter_viewtype_griditem) {
-                view = mActivity.getLayoutInflater()
-                        .inflate(mGridItemResourceHolder.resourceId, null);
-                viewHolder = new ViewHolder();
-                viewHolder.viewType = R.id.tomahawklistadapter_viewtype_griditem;
-                viewHolder.imageViewLeft = (ImageView) view
-                        .findViewById(mGridItemResourceHolder.imageViewId);
-                viewHolder.textFirstLine = (TextView) view
-                        .findViewById(mGridItemResourceHolder.textViewId1);
-                viewHolder.textSecondLine = (TextView) view
-                        .findViewById(mGridItemResourceHolder.textViewId2);
-                view.setTag(viewHolder);
-            } else {
+            if (convertView != null) {
+                viewHolder = (ViewHolder) convertView.getTag();
                 view = convertView;
-                viewHolder = (ViewHolder) view.getTag();
+            } else {
+                view = mLayoutInflater.inflate(R.layout.album_art_grid_item, null);
+                viewHolder = new ViewHolder(view, R.id.tomahawklistadapter_viewtype_griditem);
+                view.setTag(viewHolder);
             }
-            if (viewHolder.viewType == R.id.tomahawklistadapter_viewtype_griditem) {
-                viewHolder.textFirstLine.setText(item.getName());
-                viewHolder.textSecondLine.setText(item.getArtist().getName());
-                if (item instanceof Album) {
-                    TomahawkUtils.loadImageIntoImageView(mActivity, viewHolder.imageViewLeft,
-                            item.getImage(), Image.IMAGE_SIZE_SMALL);
-                } else if (item instanceof Artist) {
-                    TomahawkUtils.loadImageIntoImageView(mActivity, viewHolder.imageViewLeft,
+
+            if (viewHolder.getViewType() == R.id.tomahawklistadapter_viewtype_griditem) {
+                viewHolder.getTextFirstLine().setText(item.getName());
+                viewHolder.getTextSecondLine().setText(item.getArtist().getName());
+                if (item instanceof Album || item instanceof Artist) {
+                    TomahawkUtils.loadImageIntoImageView(mActivity, viewHolder.getImageViewLeft(),
                             item.getImage(), Image.IMAGE_SIZE_SMALL);
                 }
             }

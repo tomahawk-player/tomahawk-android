@@ -21,12 +21,6 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.app.Activity;
 import android.widget.BaseAdapter;
-import android.widget.CheckBox;
-import android.widget.Filter;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.Spinner;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,50 +44,6 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
     protected List<List<TomahawkListItem>> mListArray;
 
     protected List<List<TomahawkListItem>> mFilteredListArray;
-
-    /**
-     * This {@link ResourceHolder} holds the resources to an entry in the grid/listView
-     */
-    static class ResourceHolder {
-
-        int resourceId;
-
-        int imageViewId;
-
-        int imageViewId2;
-
-        int checkBoxId;
-
-        int spinnerId;
-
-        int textViewId1;
-
-        int textViewId2;
-
-        int textViewId3;
-    }
-
-    /**
-     * This {@link ViewHolder} holds the data to an entry in the grid/listView
-     */
-    static class ViewHolder {
-
-        int viewType;
-
-        ImageView imageViewLeft;
-
-        ImageView imageViewRight;
-
-        CheckBox checkBox;
-
-        Spinner spinner;
-
-        TextView textFirstLine;
-
-        TextView textSecondLine;
-
-        TextView textThirdLine;
-    }
 
     /**
      * Add a list to the {@link TomahawkBaseAdapter}.
@@ -160,61 +110,6 @@ public abstract class TomahawkBaseAdapter extends BaseAdapter {
             aMListArray.clear();
         }
         notifyDataSetChanged();
-    }
-
-    /**
-     * @return the {@link Filter}, which allows to filter the items inside the custom {@link
-     * ListView} fed by {@link TomahawkBaseAdapter}
-     */
-    public Filter getFilter() {
-        return new Filter() {
-            @SuppressWarnings("unchecked")
-            @Override
-            protected void publishResults(CharSequence constraint, FilterResults results) {
-                mFilteredListArray = (List<List<TomahawkListItem>>) results.values;
-                TomahawkBaseAdapter.this.notifyDataSetChanged();
-            }
-
-            @Override
-            protected FilterResults performFiltering(CharSequence constraint) {
-                constraint = constraint.toString().toLowerCase();
-                constraint = constraint.toString().trim();
-                List<List<TomahawkListItem>> filteredResults = getFilteredResults(constraint);
-
-                FilterResults results = new FilterResults();
-                synchronized (this) {
-                    results.values = filteredResults;
-                }
-
-                return results;
-            }
-
-            protected List<List<TomahawkListItem>> getFilteredResults(CharSequence constraint) {
-                List<List<TomahawkListItem>> filteredResults
-                        = new ArrayList<List<TomahawkListItem>>();
-                if (constraint == null || constraint.toString().length() <= 1) {
-                    return filteredResults;
-                }
-
-                for (int i = 0; i < mListArray.size(); i++) {
-                    filteredResults.add(new ArrayList<TomahawkListItem>());
-                    for (int j = 0; j < mListArray.get(i).size(); j++) {
-                        TomahawkListItem item = mListArray.get(i).get(j);
-                        if (item.getName().toLowerCase().contains(constraint)) {
-                            filteredResults.get(i).add(item);
-                        }
-                    }
-                }
-                return filteredResults;
-            }
-        };
-    }
-
-    /**
-     * @param filtered true if the list is being filtered, else false
-     */
-    public void setFiltered(boolean filtered) {
-        this.mFiltered = filtered;
     }
 
     /**

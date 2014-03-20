@@ -5,10 +5,8 @@
     <item name="tomahawklistadapter_viewtype_contentheader" type="id"/>
     <item name="tomahawklistadapter_viewtype_singlelinelistitem" type="id"/>
     <item name="tomahawklistadapter_viewtype_doublelinelistitem" type="id"/>
-    <item name="tomahawklistadapter_viewtype_doublelineimagelistitem" type="id"/>
-    <item name="tomahawklistadapter_viewtype_doublelineplaystateimagelistitem" type="id"/>
     <item name="tomahawklistadapter_viewtype_griditem" type="id"/>
-    <item name="tomahawklistadapter_viewholder" type="id"/>
+    <item name="fakepreferencesadapter_viewtype_header" type="id"/>
     <item name="fakepreferencesadapter_viewtype_plain" type="id"/>
     <item name="fakepreferencesadapter_viewtype_checkbox" type="id"/>
     <item name="fakepreferencesadapter_viewtype_auth" type="id"/>
