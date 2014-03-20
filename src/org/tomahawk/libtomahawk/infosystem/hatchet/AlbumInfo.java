@@ -17,12 +17,9 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-
 import java.util.List;
 import java.util.Map;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class AlbumInfo {
 
     public String artist;
