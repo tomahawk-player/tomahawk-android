@@ -52,8 +52,6 @@ public class Artist implements TomahawkListItem {
 
     private Image mImage;
 
-    private boolean mResolvedByInfoSystem;
-
     /**
      * Construct a new {@link Artist} with the given name
      */
@@ -278,13 +276,5 @@ public class Artist implements TomahawkListItem {
 
     public void setImage(Image image) {
         mImage = image;
-    }
-
-    public boolean isResolvedByInfoSystem() {
-        return mResolvedByInfoSystem;
-    }
-
-    public void setResolvedByInfoSystem(boolean resolvedByInfoSystem) {
-        mResolvedByInfoSystem = resolvedByInfoSystem;
     }
 }
