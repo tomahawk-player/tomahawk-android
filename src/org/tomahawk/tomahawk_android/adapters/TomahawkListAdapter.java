@@ -243,15 +243,11 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                     viewHolder = new ViewHolder(view, viewType);
                     view.setTag(viewHolder);
                 }
-            } else {
-                if (viewHolder.getImageViewLeft() != null) {
-                    viewHolder.getImageViewLeft().setVisibility(View.GONE);
-                }
-                if (viewHolder.getImageViewRight() != null) {
-                    viewHolder.getImageViewRight().setVisibility(View.GONE);
-                }
-                viewHolder.getTextThirdLine().setVisibility(View.GONE);
+            } else if (viewType == R.id.tomahawklistadapter_viewtype_doublelinelistitem) {
+                viewHolder.getImageViewLeft().setVisibility(View.GONE);
+                viewHolder.getImageViewRight().setVisibility(View.GONE);
                 viewHolder.getTextSecondLine().setVisibility(View.GONE);
+                viewHolder.getTextThirdLine().setVisibility(View.GONE);
             }
 
             // After we've setup the correct view and viewHolder, we now can fill the View's
