@@ -19,6 +19,7 @@ package org.tomahawk.libtomahawk.infosystem.hatchet;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +42,7 @@ public class UserInfo {
 
     public String nowplaying;
 
-    public String nowplayingtimestamp;
+    public Date nowplayingtimestamp;
 
     public int totalPlays;
 

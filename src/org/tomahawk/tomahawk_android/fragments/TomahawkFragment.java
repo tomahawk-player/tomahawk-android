@@ -26,6 +26,7 @@ import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
+import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
@@ -135,6 +136,8 @@ public class TomahawkFragment extends TomahawkListFragment
     protected ArrayList<Album> mShownAlbums = new ArrayList<Album>();
 
     protected ArrayList<Artist> mShownArtists = new ArrayList<Artist>();
+
+    protected ArrayList<User> mShownUsers = new ArrayList<User>();
 
     protected int mCorrespondingHubId;
 

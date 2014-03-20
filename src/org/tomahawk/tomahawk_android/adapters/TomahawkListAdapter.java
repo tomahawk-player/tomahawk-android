@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -292,7 +293,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                         viewHolder.getImageViewRight().setImageDrawable(
                                 query.getPreferredTrackResult().getResolvedBy().getIcon());
                     }
-                } else if (item instanceof Album || item instanceof Artist) {
+                } else if (item instanceof Album || item instanceof Artist
+                        || item instanceof User) {
                     viewHolder.getImageViewLeft().setVisibility(View.VISIBLE);
                     TomahawkUtils.loadImageIntoImageView(mActivity, viewHolder.getImageViewLeft(),
                             item.getImage(), Image.IMAGE_SIZE_SMALL);
@@ -400,6 +402,10 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                     viewHolder.getTextFirstLine()
                             .setText(R.string.userplaylists_categoryheaders_string);
                 }
+            } else if (item instanceof User) {
+                TomahawkUtils.loadDrawableIntoImageView(mActivity, viewHolder.getImageViewLeft(),
+                        R.drawable.ic_action_friends);
+                viewHolder.getTextFirstLine().setText(R.string.userfragment_title_string);
             }
             return view;
         } else {
