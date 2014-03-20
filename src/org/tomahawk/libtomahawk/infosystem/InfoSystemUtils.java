@@ -1,25 +1,7 @@
-/* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
- *
- *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
- *
- *   Tomahawk is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   (at your option) any later version.
- *
- *   Tomahawk is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
- */
 package org.tomahawk.libtomahawk.infosystem;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.map.util.ISO8601DateFormat;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
@@ -254,7 +236,7 @@ public class InfoSystemUtils {
     public static ObjectMapper constructObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS, false);
-        objectMapper.setDateFormat(new ISO8601DateFormat());
+        objectMapper.setDateFormat(new org.tomahawk.libtomahawk.utils.ISO8601DateFormat());
         return objectMapper;
     }
 }
