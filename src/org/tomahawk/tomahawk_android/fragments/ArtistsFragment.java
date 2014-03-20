@@ -81,7 +81,13 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
         }
         List<List<TomahawkListItem>> listArray = new ArrayList<List<TomahawkListItem>>();
         listArray.add(artists);
-        setListAdapter(new TomahawkListAdapter(getActivity(), listArray));
+        if (getListAdapter() == null) {
+            TomahawkListAdapter adapter = new TomahawkListAdapter(getActivity(), listArray);
+            adapter.setShowArtistAsSingleLine(mIsLocal);
+            setListAdapter(adapter);
+        } else {
+            ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
+        }
 
         getListView().setOnItemClickListener(this);
         getListView().setAreHeadersSticky(false);

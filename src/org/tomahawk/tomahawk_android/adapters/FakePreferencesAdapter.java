@@ -31,10 +31,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.Spinner;
-import android.widget.TextView;
 
 import java.util.List;
 
@@ -54,15 +50,27 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
 
     private List<FakePreferenceGroup> mFakePreferenceGroups;
 
-    private TomahawkBaseAdapter.ResourceHolder mHeaderResourceHolder;
+    private class SpinnerListener implements AdapterView.OnItemSelectedListener {
 
-    private TomahawkBaseAdapter.ResourceHolder mFakePreferencesCheckboxResourceHolder;
+        private String mKey;
 
-    private TomahawkBaseAdapter.ResourceHolder mFakePreferencesPlainResourceHolder;
+        public SpinnerListener(String key) {
+            mKey = key;
+        }
 
-    private TomahawkBaseAdapter.ResourceHolder mFakePreferencesSpinnerResourceHolder;
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view,
+                int position, long id) {
+            SharedPreferences.Editor editor = mSharedPreferences.edit();
+            editor.putInt(mKey, position);
+            editor.commit();
+            LibSpotifyWrapper.setbitrate(position);
+        }
 
-    private TomahawkBaseAdapter.ResourceHolder mFakePreferencesAuthResourceHolder;
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+        }
+    }
 
     /**
      * Constructs a new {@link org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter}
@@ -73,28 +81,6 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
         mSharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(TomahawkApp.getContext());
         mFakePreferenceGroups = fakePreferenceGroups;
-        mHeaderResourceHolder = new TomahawkBaseAdapter.ResourceHolder();
-        mHeaderResourceHolder.resourceId = R.layout.fake_preferences_header;
-        mHeaderResourceHolder.textViewId1 = R.id.fake_preferences_header_textview;
-        mFakePreferencesCheckboxResourceHolder = new TomahawkBaseAdapter.ResourceHolder();
-        mFakePreferencesCheckboxResourceHolder.resourceId = R.layout.fake_preferences_checkbox;
-        mFakePreferencesCheckboxResourceHolder.checkBoxId = R.id.fake_preferences_checkbox;
-        mFakePreferencesCheckboxResourceHolder.textViewId1 = R.id.fake_preferences_textview;
-        mFakePreferencesCheckboxResourceHolder.textViewId2 = R.id.fake_preferences_textview2;
-        mFakePreferencesPlainResourceHolder = new TomahawkBaseAdapter.ResourceHolder();
-        mFakePreferencesPlainResourceHolder.resourceId = R.layout.fake_preferences_plain;
-        mFakePreferencesPlainResourceHolder.textViewId1 = R.id.fake_preferences_textview;
-        mFakePreferencesPlainResourceHolder.textViewId2 = R.id.fake_preferences_textview2;
-        mFakePreferencesSpinnerResourceHolder = new TomahawkBaseAdapter.ResourceHolder();
-        mFakePreferencesSpinnerResourceHolder.resourceId = R.layout.fake_preferences_spinner;
-        mFakePreferencesSpinnerResourceHolder.spinnerId = R.id.fake_preferences_spinner;
-        mFakePreferencesSpinnerResourceHolder.textViewId1 = R.id.fake_preferences_textview;
-        mFakePreferencesSpinnerResourceHolder.textViewId2 = R.id.fake_preferences_textview2;
-        mFakePreferencesAuthResourceHolder = new TomahawkBaseAdapter.ResourceHolder();
-        mFakePreferencesAuthResourceHolder.resourceId = R.layout.fake_preferences_auth;
-        mFakePreferencesAuthResourceHolder.textViewId1 = R.id.fake_preferences_textview;
-        mFakePreferencesAuthResourceHolder.textViewId2 = R.id.fake_preferences_textview2;
-        mFakePreferencesAuthResourceHolder.imageViewId = R.id.fake_preferences_logo;
     }
 
     @Override
@@ -152,125 +138,69 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = null;
-        Object item = getItem(position);
+        FakePreferenceGroup.FakePreference item =
+                (FakePreferenceGroup.FakePreference) getItem(position);
 
         if (item != null) {
-            TomahawkBaseAdapter.ViewHolder viewHolder;
-            // First we inflate the correct view and set the correct resource ids in the viewHolder.
-            // Also we check if we can re-use the old convertView
-            if (((FakePreferenceGroup.FakePreference) item).getType()
-                    == FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN && ((convertView == null)
-                    || ((TomahawkBaseAdapter.ViewHolder) convertView.getTag()).viewType
-                    != R.id.fakepreferencesadapter_viewtype_plain)) {
-                // In case the View should be drawn as a "FAKEPREFERENCE_TYPE_PLAIN" and no
-                // convertView is given or the viewType has changed
-                view = mLayoutInflater
-                        .inflate(mFakePreferencesPlainResourceHolder.resourceId, null);
-                viewHolder = new TomahawkBaseAdapter.ViewHolder();
-                viewHolder.viewType = R.id.fakepreferencesadapter_viewtype_plain;
-                viewHolder.textFirstLine = (TextView) view
-                        .findViewById(mFakePreferencesPlainResourceHolder.textViewId1);
-                viewHolder.textSecondLine = (TextView) view
-                        .findViewById(mFakePreferencesPlainResourceHolder.textViewId2);
-                view.setTag(viewHolder);
-            } else if (((FakePreferenceGroup.FakePreference) item).getType()
-                    == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX && ((convertView == null)
-                    || ((TomahawkBaseAdapter.ViewHolder) convertView.getTag()).viewType
-                    != R.id.fakepreferencesadapter_viewtype_checkbox)) {
-                // In case the View should be drawn as a "FAKEPREFERENCE_TYPE_CHECKBOX" and no
-                // convertView is given or the viewType has changed
-                view = mLayoutInflater
-                        .inflate(mFakePreferencesCheckboxResourceHolder.resourceId, null);
-                viewHolder = new TomahawkBaseAdapter.ViewHolder();
-                viewHolder.viewType = R.id.fakepreferencesadapter_viewtype_checkbox;
-                viewHolder.textFirstLine = (TextView) view
-                        .findViewById(mFakePreferencesCheckboxResourceHolder.textViewId1);
-                viewHolder.textSecondLine = (TextView) view
-                        .findViewById(mFakePreferencesCheckboxResourceHolder.textViewId2);
-                viewHolder.checkBox = (CheckBox) view
-                        .findViewById(mFakePreferencesCheckboxResourceHolder.checkBoxId);
-                view.setTag(viewHolder);
-            } else if (((FakePreferenceGroup.FakePreference) item).getType()
-                    == FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH && ((convertView == null)
-                    || ((TomahawkBaseAdapter.ViewHolder) convertView.getTag()).viewType
-                    != R.id.fakepreferencesadapter_viewtype_auth)) {
-                // In case the View should be drawn as a "FAKEPREFERENCE_TYPE_AUTH" and no
-                // convertView is given or the viewType has changed
-                view = mLayoutInflater
-                        .inflate(mFakePreferencesAuthResourceHolder.resourceId, null);
-                viewHolder = new TomahawkBaseAdapter.ViewHolder();
-                viewHolder.viewType = R.id.fakepreferencesadapter_viewtype_auth;
-                viewHolder.textFirstLine = (TextView) view
-                        .findViewById(mFakePreferencesAuthResourceHolder.textViewId1);
-                viewHolder.textSecondLine = (TextView) view
-                        .findViewById(mFakePreferencesAuthResourceHolder.textViewId2);
-                viewHolder.imageViewRight = (ImageView) view
-                        .findViewById(mFakePreferencesAuthResourceHolder.imageViewId);
-                view.setTag(viewHolder);
-            } else if (((FakePreferenceGroup.FakePreference) item).getType()
-                    == FakePreferenceGroup.FAKEPREFERENCE_TYPE_SPINNER && ((convertView == null)
-                    || ((TomahawkBaseAdapter.ViewHolder) convertView.getTag()).viewType
-                    != R.id.fakepreferencesadapter_viewtype_spinner)) {
-                // In case the View should be drawn as a "FAKEPREFERENCE_TYPE_SPINNER" and no
-                // convertView is given or the viewType has changed
-                view = mLayoutInflater
-                        .inflate(mFakePreferencesSpinnerResourceHolder.resourceId, null);
-                viewHolder = new TomahawkBaseAdapter.ViewHolder();
-                viewHolder.viewType = R.id.fakepreferencesadapter_viewtype_spinner;
-                viewHolder.textFirstLine = (TextView) view
-                        .findViewById(mFakePreferencesSpinnerResourceHolder.textViewId1);
-                viewHolder.textSecondLine = (TextView) view
-                        .findViewById(mFakePreferencesSpinnerResourceHolder.textViewId2);
-                viewHolder.spinner = (Spinner) view
-                        .findViewById(mFakePreferencesSpinnerResourceHolder.spinnerId);
-                view.setTag(viewHolder);
-            } else {
-                // Else we can simply re-use the old View referenced by convertView
+            ViewHolder viewHolder = null;
+            if (convertView != null) {
+                viewHolder = (ViewHolder) convertView.getTag();
                 view = convertView;
-                // set the viewHolder by getting the old viewHolder from the view's tag
-                viewHolder = (TomahawkBaseAdapter.ViewHolder) view.getTag();
             }
-
-            // After we've setup the correct view and viewHolder, we now can fill the View's
-            // components with the correct data
-            FakePreferenceGroup.FakePreference fakePreference
-                    = (FakePreferenceGroup.FakePreference) item;
-            if (viewHolder.viewType == R.id.fakepreferencesadapter_viewtype_checkbox) {
-                boolean preferenceState = mSharedPreferences
-                        .getBoolean(fakePreference.getKey(), false);
-                viewHolder.checkBox.setChecked(preferenceState);
-            } else if (viewHolder.viewType == R.id.fakepreferencesadapter_viewtype_auth) {
-                viewHolder.imageViewRight.setImageResource(fakePreference.getDrawableResId());
-                if (!fakePreference.isEnabled()) {
-                    viewHolder.imageViewRight.setColorFilter(GreyscaleFilter.create());
-                } else {
-                    viewHolder.imageViewRight.clearColorFilter();
+            int viewType = getViewType(item);
+            if (viewHolder == null || viewHolder.getViewType() != viewType) {
+                // If the viewHolder is null or the old viewType is different than the new one,
+                // we need to inflate a new view and construct a new viewHolder,
+                // which we set as the view's tag
+                if (viewType == R.id.fakepreferencesadapter_viewtype_plain) {
+                    view = mLayoutInflater.inflate(R.layout.fake_preferences_plain, null);
+                    viewHolder = new ViewHolder(view, viewType);
+                    view.setTag(viewHolder);
+                } else if (viewType == R.id.fakepreferencesadapter_viewtype_checkbox) {
+                    view = mLayoutInflater.inflate(R.layout.fake_preferences_checkbox, null);
+                    viewHolder = new ViewHolder(view, viewType);
+                    view.setTag(viewHolder);
+                } else if (viewType == R.id.fakepreferencesadapter_viewtype_auth) {
+                    view = mLayoutInflater.inflate(R.layout.fake_preferences_auth, null);
+                    viewHolder = new ViewHolder(view, viewType);
+                    view.setTag(viewHolder);
+                } else if (viewType == R.id.fakepreferencesadapter_viewtype_spinner) {
+                    view = mLayoutInflater.inflate(R.layout.fake_preferences_spinner, null);
+                    viewHolder = new ViewHolder(view, viewType);
+                    view.setTag(viewHolder);
                 }
-            } else if (viewHolder.viewType == R.id.fakepreferencesadapter_viewtype_spinner) {
-                final String key = fakePreference.getKey();
-                viewHolder.spinner.setSelection(mSharedPreferences
-                        .getInt(key, SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE_MODE_MEDIUM));
-                viewHolder.spinner
-                        .setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                            @Override
-                            public void onItemSelected(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                                SharedPreferences.Editor editor = mSharedPreferences.edit();
-                                editor.putInt(key, position);
-                                editor.commit();
-                                LibSpotifyWrapper.setbitrate(position);
-                            }
-
-                            @Override
-                            public void onNothingSelected(AdapterView<?> parent) {
-                            }
-                        });
+            } else {
+                if (viewHolder.getImageViewLeft() != null) {
+                    viewHolder.getImageViewLeft().setVisibility(View.GONE);
+                }
+                if (viewHolder.getImageViewRight() != null) {
+                    viewHolder.getImageViewRight().setVisibility(View.GONE);
+                }
             }
-            viewHolder.textFirstLine.setText(fakePreference.getTitle());
-            viewHolder.textSecondLine.setText(fakePreference.getSummary());
+
+            // After we've set up the correct view and viewHolder, we now can fill the View's
+            // components with the correct data
+            if (viewHolder.getViewType() == R.id.fakepreferencesadapter_viewtype_checkbox) {
+                boolean preferenceState = mSharedPreferences.getBoolean(item.getKey(), false);
+                viewHolder.getCheckBox().setChecked(preferenceState);
+            } else if (viewHolder.getViewType() == R.id.fakepreferencesadapter_viewtype_auth) {
+                viewHolder.getImageViewRight().setImageResource(item.getDrawableResId());
+                if (!item.isEnabled()) {
+                    viewHolder.getImageViewRight().setColorFilter(GreyscaleFilter.create());
+                } else {
+                    viewHolder.getImageViewRight().clearColorFilter();
+                }
+            } else if (viewHolder.getViewType() == R.id.fakepreferencesadapter_viewtype_spinner) {
+                String key = item.getKey();
+                viewHolder.getSpinner().setSelection(mSharedPreferences
+                        .getInt(key, SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE_MODE_MEDIUM));
+                viewHolder.getSpinner().setOnItemSelectedListener(new SpinnerListener(key));
+            }
+            viewHolder.getTextFirstLine().setText(item.getTitle());
+            viewHolder.getTextSecondLine().setText(item.getSummary());
         }
 
-        // Finally we can return the the correct view
+        // Finally we can return the correct view
         return view;
     }
 
@@ -286,23 +216,14 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
     @Override
     public View getHeaderView(int position, View convertView, ViewGroup parent) {
         View view;
-        TomahawkBaseAdapter.ViewHolder viewHolder;
-
-        // First we inflate the correct view and set the correct resource ids in the viewHolder.
-        // We don't do this if convertView already contains a properly setup View, that we can re-use.
-        if (convertView == null || ((TomahawkBaseAdapter.ViewHolder) convertView.getTag()).viewType
-                != R.id.tomahawklistadapter_viewtype_header) {
-            view = mLayoutInflater.inflate(mHeaderResourceHolder.resourceId, null);
-            viewHolder = new TomahawkBaseAdapter.ViewHolder();
-            viewHolder.viewType = R.id.tomahawklistadapter_viewtype_header;
-            viewHolder.textFirstLine = (TextView) view.findViewById(
-                    mHeaderResourceHolder.textViewId1);
-            view.setTag(viewHolder);
-        } else {
-            // Else we can simply re-use the old View referenced by convertView
+        ViewHolder viewHolder;
+        if (convertView != null) {
+            viewHolder = (ViewHolder) convertView.getTag();
             view = convertView;
-            // set the viewHolder by getting the old viewHolder from the view's tag
-            viewHolder = (TomahawkBaseAdapter.ViewHolder) view.getTag();
+        } else {
+            view = mLayoutInflater.inflate(R.layout.single_line_list_header, null);
+            viewHolder = new ViewHolder(view, R.id.fakepreferencesadapter_viewtype_header);
+            view.setTag(viewHolder);
         }
 
         // After we've setup the correct view and viewHolder, we now can set the text for
@@ -311,7 +232,7 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
         for (FakePreferenceGroup fakePreferenceGroup : mFakePreferenceGroups) {
             sizeSum += fakePreferenceGroup.getFakePreferences().size();
             if (position < sizeSum) {
-                viewHolder.textFirstLine.setText(fakePreferenceGroup.getHeader());
+                viewHolder.getTextFirstLine().setText(fakePreferenceGroup.getHeader());
                 break;
             }
         }
@@ -340,6 +261,17 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
             }
         }
         return result;
+    }
+
+    private int getViewType(FakePreferenceGroup.FakePreference item) {
+        if (item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX) {
+            return R.id.fakepreferencesadapter_viewtype_checkbox;
+        } else if (item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH) {
+            return R.id.fakepreferencesadapter_viewtype_auth;
+        } else if (item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_SPINNER) {
+            return R.id.fakepreferencesadapter_viewtype_spinner;
+        }
+        return R.id.fakepreferencesadapter_viewtype_plain;
     }
 
 }

@@ -65,6 +65,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
                     android:layout_weight="1"
+                    android:visibility="gone"
                     android:singleLine="true"
                     android:textColor="@color/secondary_textcolor"
                     android:textSize="@dimen/text_size_small"/>
@@ -73,6 +74,7 @@
                     android:id="@+id/double_line_list_textview3"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
+                    android:visibility="gone"
                     android:gravity="center_vertical"
                     android:singleLine="true"
                     android:textColor="@color/secondary_textcolor"
