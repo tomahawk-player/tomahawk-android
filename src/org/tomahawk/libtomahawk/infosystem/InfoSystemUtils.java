@@ -1,5 +1,6 @@
 package org.tomahawk.libtomahawk.infosystem;
 
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.tomahawk.libtomahawk.collection.Album;
@@ -236,6 +237,7 @@ public class InfoSystemUtils {
     public static ObjectMapper constructObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS, false);
+        objectMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         objectMapper.setDateFormat(new org.tomahawk.libtomahawk.utils.ISO8601DateFormat());
         return objectMapper;
     }
