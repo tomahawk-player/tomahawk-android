@@ -239,9 +239,8 @@ public class TomahawkFragment extends TomahawkListFragment
                 mAlbum = Album.getAlbumByKey(getArguments().getString(TOMAHAWK_ALBUM_KEY));
                 if (mAlbum == null) {
                     mTomahawkApp.getContentViewer().back();
-                } else if (!mAlbum.isResolvedByInfoSystem()) {
-                    mCurrentRequestIds.add(mInfoSystem.resolve(mAlbum));
                 }
+                mCurrentRequestIds.add(mInfoSystem.resolve(mAlbum));
             }
             if (getArguments().containsKey(TOMAHAWK_USERPLAYLIST_KEY) && !TextUtils.isEmpty(
                     getArguments().getString(TOMAHAWK_USERPLAYLIST_KEY))) {
@@ -270,11 +269,9 @@ public class TomahawkFragment extends TomahawkListFragment
                     sortedCountMap.putAll(countMap);
                     for (Artist artist : sortedCountMap.keySet()) {
                         mUserPlaylist.addContentHeaderArtists(artist);
-                        if (!artist.isResolvedByInfoSystem()) {
-                            ArrayList<String> requestIds = mInfoSystem.resolve(artist, true);
-                            for (String requestId : requestIds) {
-                                mCurrentRequestIds.add(requestId);
-                            }
+                        ArrayList<String> requestIds = mInfoSystem.resolve(artist, true);
+                        for (String requestId : requestIds) {
+                            mCurrentRequestIds.add(requestId);
                         }
                         if (mUserPlaylist.getContentHeaderArtists().size() == 10) {
                             break;
@@ -287,11 +284,10 @@ public class TomahawkFragment extends TomahawkListFragment
                 mArtist = Artist.getArtistByKey(getArguments().getString(TOMAHAWK_ARTIST_KEY));
                 if (mArtist == null) {
                     mTomahawkApp.getContentViewer().back();
-                } else if (!mArtist.isResolvedByInfoSystem()) {
-                    ArrayList<String> requestIds = mInfoSystem.resolve(mArtist, false);
-                    for (String requestId : requestIds) {
-                        mCurrentRequestIds.add(requestId);
-                    }
+                }
+                ArrayList<String> requestIds = mInfoSystem.resolve(mArtist, false);
+                for (String requestId : requestIds) {
+                    mCurrentRequestIds.add(requestId);
                 }
             }
             if (getArguments().containsKey(TOMAHAWK_HUB_ID)

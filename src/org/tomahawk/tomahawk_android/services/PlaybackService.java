@@ -715,18 +715,14 @@ public class PlaybackService extends Service {
                 sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
 
                 if (query.getImage() == null) {
-                    if (!query.getArtist().isResolvedByInfoSystem()) {
-                        ArrayList<String> requestIds = mTomahawkApp.getInfoSystem().resolve(
-                                query.getArtist(), true);
-                        for (String requestId : requestIds) {
-                            mCurrentRequestIds.put(requestId, TomahawkUtils.getCacheKey(query));
-                        }
+                    ArrayList<String> requestIds = mTomahawkApp.getInfoSystem().resolve(
+                            query.getArtist(), true);
+                    for (String requestId : requestIds) {
+                        mCurrentRequestIds.put(requestId, TomahawkUtils.getCacheKey(query));
                     }
-                    if (!query.getAlbum().isResolvedByInfoSystem()) {
-                        String requestId = mTomahawkApp.getInfoSystem().resolve(query.getAlbum());
-                        if (requestId != null) {
-                            mCurrentRequestIds.put(requestId, TomahawkUtils.getCacheKey(query));
-                        }
+                    String requestId = mTomahawkApp.getInfoSystem().resolve(query.getAlbum());
+                    if (requestId != null) {
+                        mCurrentRequestIds.put(requestId, TomahawkUtils.getCacheKey(query));
                     }
                 }
 
