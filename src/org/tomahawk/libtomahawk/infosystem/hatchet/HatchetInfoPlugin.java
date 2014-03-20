@@ -33,6 +33,7 @@ import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.infosystem.InfoPlugin;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
+import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
@@ -79,7 +80,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
     public static final String HATCHET_IMAGES = "images";
 
-    public static final String HATCHET_USER = "users";
+    public static final String HATCHET_USERS = "users";
 
     public static final String HATCHET_PLAYLISTS = "playlists";
 
@@ -90,6 +91,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
     public static final String HATCHET_SEARCHITEM_TYPE_ALBUM = "album";
 
     public static final String HATCHET_SEARCHITEM_TYPE_ARTIST = "artist";
+
+    public static final String HATCHET_SEARCHITEM_TYPE_USER = "user";
 
     public static final String HATCHET_PLAYBACKLOGENTRIES = "playbackLogEntries";
 
@@ -188,7 +191,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES) {
             rawJsonString = TomahawkUtils.httpsGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES,
-                            infoRequestData.getParams()));
+                            infoRequestData.getParams())
+            );
             infoRequestData.setInfoResult(mObjectMapper
                     .readValue(rawJsonString, PlaylistEntries.class));
             return true;
@@ -372,6 +376,12 @@ public class HatchetInfoPlugin extends InfoPlugin {
         } else if (infoRequestData.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES) {
             Search search = (Search) infoRequestData.getInfoResult();
+            Map<String, UserInfo> userInfoMap = new HashMap<String, UserInfo>();
+            if (search.users != null) {
+                for (UserInfo userInfo : search.users) {
+                    userInfoMap.put(userInfo.id, userInfo);
+                }
+            }
             Map<String, AlbumInfo> albumInfoMap = new HashMap<String, AlbumInfo>();
             if (search.albums != null) {
                 for (AlbumInfo albumInfo : search.albums) {
@@ -390,9 +400,16 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     imageMap.put(image.id, image);
                 }
             }
+            Map<String, TrackInfo> trackInfoMap = new HashMap<String, TrackInfo>();
+            if (search.tracks != null) {
+                for (TrackInfo trackInfo : search.tracks) {
+                    trackInfoMap.put(trackInfo.id, trackInfo);
+                }
+            }
             if (search.searchResults != null) {
                 List<Album> albums = new ArrayList<Album>();
                 List<Artist> artists = new ArrayList<Artist>();
+                List<User> users = new ArrayList<User>();
                 for (SearchItem searchItem : search.searchResults) {
                     if (searchItem.score > HATCHET_SEARCHITEM_MIN_SCORE) {
                         if (HATCHET_SEARCHITEM_TYPE_ALBUM.equals(searchItem.type)) {
@@ -414,11 +431,30 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                 }
                                 artists.add(InfoSystemUtils.artistInfoToArtist(artistInfo, image));
                             }
+                        } else if (HATCHET_SEARCHITEM_TYPE_USER.equals(searchItem.type)) {
+                            UserInfo userInfo = userInfoMap.get(searchItem.user);
+                            if (userInfo != null) {
+                                Image image = null;
+                                if (userInfo.images != null && userInfo.images.size() > 0) {
+                                    image = imageMap.get(userInfo.images.get(0));
+                                }
+                                TrackInfo trackInfo = null;
+                                ArtistInfo artistInfo = null;
+                                if (userInfo.nowplaying != null) {
+                                    trackInfo = trackInfoMap.get(userInfo.nowplaying);
+                                    if (trackInfo != null) {
+                                        artistInfo = artistInfoMap.get(trackInfo.artist);
+                                    }
+                                }
+                                users.add(InfoSystemUtils
+                                        .userInfoToUser(userInfo, image, trackInfo, artistInfo));
+                            }
                         }
                     }
                 }
                 convertedResultMap.put(HATCHET_ALBUMS, albums);
                 convertedResultMap.put(HATCHET_ARTISTS, artists);
+                convertedResultMap.put(HATCHET_USERS, users);
             }
         }
         infoRequestData.setConvertedResultMap(convertedResultMap);
@@ -624,14 +660,14 @@ public class HatchetInfoPlugin extends InfoPlugin {
             case InfoRequestData.INFOREQUESTDATA_TYPE_USERS:
                 queryString = HATCHET_BASE_URL + "/"
                         + HATCHET_VERSION + "/"
-                        + HATCHET_USER + "/";
+                        + HATCHET_USERS + "/";
                 break;
             case InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS:
                 paramStrings = params.get(HATCHET_PARAM_ID);
                 iterator = paramStrings.iterator();
                 queryString = HATCHET_BASE_URL + "/"
                         + HATCHET_VERSION + "/"
-                        + HATCHET_USER + "/"
+                        + HATCHET_USERS + "/"
                         + iterator.next() + "/"
                         + HATCHET_PLAYLISTS;
                 params.removeAll(HATCHET_PARAM_ID);
@@ -641,7 +677,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 iterator = paramStrings.iterator();
                 queryString = HATCHET_BASE_URL + "/"
                         + HATCHET_VERSION + "/"
-                        + HATCHET_USER + "/"
+                        + HATCHET_USERS + "/"
                         + iterator.next() + "/"
                         + HATCHET_LOVEDITEMS;
                 params.removeAll(HATCHET_PARAM_ID);

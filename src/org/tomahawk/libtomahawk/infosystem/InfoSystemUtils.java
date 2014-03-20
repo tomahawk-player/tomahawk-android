@@ -32,6 +32,7 @@ import org.tomahawk.libtomahawk.infosystem.hatchet.PlaylistEntryInfo;
 import org.tomahawk.libtomahawk.infosystem.hatchet.PlaylistInfo;
 import org.tomahawk.libtomahawk.infosystem.hatchet.TrackInfo;
 import org.tomahawk.libtomahawk.infosystem.hatchet.Tracks;
+import org.tomahawk.libtomahawk.infosystem.hatchet.UserInfo;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 
@@ -44,6 +45,24 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InfoSystemUtils {
+
+    public static Query trackInfoToQuery(TrackInfo trackInfo, AlbumInfo albumInfo,
+            ArtistInfo artistInfo) {
+        String trackName;
+        String artistName = "";
+        String albumName = "";
+        if (trackInfo != null) {
+            trackName = trackInfo.name;
+            if (artistInfo != null) {
+                artistName = artistInfo.name;
+            }
+            if (albumInfo != null) {
+                albumName = albumInfo.name;
+            }
+            return Query.get(trackName, albumName, artistName, false, true);
+        }
+        return null;
+    }
 
     /**
      * Convert the given playlist entry data, add it to a UserPlaylist object and return that.
@@ -77,21 +96,11 @@ public class InfoSystemUtils {
                 }
             }
             for (PlaylistEntryInfo playlistEntryInfo : playlistEntries.playlistEntries) {
-                String trackName;
-                String artistName = "";
-                String albumName = "";
                 TrackInfo trackInfo = trackInfoMap.get(playlistEntryInfo.track);
                 if (trackInfo != null) {
-                    trackName = trackInfo.name;
                     ArtistInfo artistInfo = artistInfoMap.get(trackInfo.artist);
-                    if (artistInfo != null) {
-                        artistName = artistInfo.name;
-                    }
                     AlbumInfo albumInfo = albumInfoMap.get(playlistEntryInfo.album);
-                    if (albumInfo != null) {
-                        albumName = albumInfo.name;
-                    }
-                    queries.add(Query.get(trackName, albumName, artistName, false, true));
+                    queries.add(trackInfoToQuery(trackInfo, albumInfo, artistInfo));
                 }
             }
             userPlaylist.setQueries(queries);
@@ -212,11 +221,40 @@ public class InfoSystemUtils {
         return album;
     }
 
+    /**
+     * Fill the given User with the given UserInfo
+     */
+    public static User fillUserWithUserInfo(User user, UserInfo userInfo, Image image,
+            Query nowPlaying) {
+        user.setAbout(userInfo.about);
+        user.setFollowCount(userInfo.followCount);
+        user.setFollowersCount(userInfo.followersCount);
+        user.setName(userInfo.name);
+        user.setNowPlaying(nowPlaying);
+        user.setNowPlayingTimeStamp(userInfo.nowplayingtimestamp);
+        user.setTotalPlays(userInfo.totalPlays);
+        if (user.getImage() == null && image != null && !TextUtils.isEmpty(image.squareurl)) {
+            user.setImage(org.tomahawk.libtomahawk.collection.Image.get(image.squareurl, true,
+                    image.width, image.height));
+        }
+        return user;
+    }
+
+    /**
+     * Convert the given UserInfo into a User object
+     */
+    public static User userInfoToUser(UserInfo userInfo, Image image, TrackInfo nowPlayingTrackInfo,
+            ArtistInfo nowPlayingArtistInfo) {
+        User user = User.get(userInfo.id);
+        Query nowPlayingQuery = trackInfoToQuery(nowPlayingTrackInfo, null, nowPlayingArtistInfo);
+        fillUserWithUserInfo(user, userInfo, image, nowPlayingQuery);
+        return user;
+    }
+
     public static ObjectMapper constructObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS, false);
         objectMapper.setDateFormat(new ISO8601DateFormat());
-        //objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'ZZZZZ"));
         return objectMapper;
     }
 }

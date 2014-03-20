@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
@@ -170,6 +171,8 @@ public class SearchableFragment extends TomahawkFragment
                     .get(HatchetInfoPlugin.HATCHET_ARTISTS);
             mShownAlbums = (ArrayList<Album>) convertedResultMap
                     .get(HatchetInfoPlugin.HATCHET_ALBUMS);
+            mShownUsers = (ArrayList<User>) convertedResultMap
+                    .get(HatchetInfoPlugin.HATCHET_USERS);
             updateAdapter();
         }
     }
@@ -188,6 +191,12 @@ public class SearchableFragment extends TomahawkFragment
                     = new ArrayList<TomahawkListItem>();
             albumResultList.addAll(mShownAlbums);
             listArray.add(albumResultList);
+        }
+        if (mShownUsers != null) {
+            ArrayList<TomahawkListItem> userResultList
+                    = new ArrayList<TomahawkListItem>();
+            userResultList.addAll(mShownUsers);
+            listArray.add(userResultList);
         }
         if (mShownQueries != null) {
             ArrayList<TomahawkListItem> trackResultList
