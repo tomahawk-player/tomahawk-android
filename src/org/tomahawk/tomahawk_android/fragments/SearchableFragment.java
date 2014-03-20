@@ -230,8 +230,8 @@ public class SearchableFragment extends TomahawkFragment
             String requestId = mInfoSystem.resolve(fullTextQuery);
             mCurrentRequestIds.add(requestId);
         } else {
-            mShownArtists = null;
-            mShownAlbums = null;
+            mShownArtists.clear();
+            mShownAlbums.clear();
             updateAdapter();
         }
         if (queryId != null) {
