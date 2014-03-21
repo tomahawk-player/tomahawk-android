@@ -23,12 +23,12 @@ import com.google.common.collect.Multimap;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.infosystem.hatchet.NowPlaying;
-import org.tomahawk.libtomahawk.infosystem.hatchet.NowPlayingPostStruct;
-import org.tomahawk.libtomahawk.infosystem.hatchet.PlaybackLogEntry;
-import org.tomahawk.libtomahawk.infosystem.hatchet.PlaybackLogPostStruct;
-import org.tomahawk.libtomahawk.infosystem.hatchet.SocialAction;
-import org.tomahawk.libtomahawk.infosystem.hatchet.SocialActionPostStruct;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetNowPlaying;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetNowPlayingPostStruct;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaybackLogEntry;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaybackLogPostStruct;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetSocialAction;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetSocialActionPostStruct;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
@@ -93,7 +93,7 @@ public class InfoSystem {
     }
 
     /**
-     * Search the added InfoPlugins with the given keyword
+     * HatchetSearch the added InfoPlugins with the given keyword
      *
      * @return the created InfoRequestData's requestId
      */
@@ -221,12 +221,12 @@ public class InfoSystem {
         if (mNowPlaying != null && mNowPlaying != mLastPlaybackLogEntry) {
             mLastPlaybackLogEntry = mNowPlaying;
             long timeStamp = System.currentTimeMillis();
-            PlaybackLogEntry playbackLogEntry = new PlaybackLogEntry();
+            HatchetPlaybackLogEntry playbackLogEntry = new HatchetPlaybackLogEntry();
             playbackLogEntry.albumString = mLastPlaybackLogEntry.getAlbum().getName();
             playbackLogEntry.artistString = mLastPlaybackLogEntry.getArtist().getName();
             playbackLogEntry.trackString = mLastPlaybackLogEntry.getName();
             playbackLogEntry.timestamp = new Date(timeStamp);
-            PlaybackLogPostStruct playbackLogPostStruct = new PlaybackLogPostStruct();
+            HatchetPlaybackLogPostStruct playbackLogPostStruct = new HatchetPlaybackLogPostStruct();
             playbackLogPostStruct.playbackLogEntry = playbackLogEntry;
 
             String requestId = TomahawkApp.getSessionUniqueStringId();
@@ -243,11 +243,11 @@ public class InfoSystem {
         if (mNowPlaying != query) {
             sendPlaybackEntryPostStruct(authenticatorUtils);
             mNowPlaying = query;
-            NowPlaying nowPlaying = new NowPlaying();
+            HatchetNowPlaying nowPlaying = new HatchetNowPlaying();
             nowPlaying.album = query.getAlbum().getName();
             nowPlaying.artist = query.getArtist().getName();
             nowPlaying.track = query.getName();
-            NowPlayingPostStruct nowPlayingPostStruct = new NowPlayingPostStruct();
+            HatchetNowPlayingPostStruct nowPlayingPostStruct = new HatchetNowPlayingPostStruct();
             nowPlayingPostStruct.nowPlaying = nowPlaying;
 
             String requestId = TomahawkApp.getSessionUniqueStringId();
@@ -261,13 +261,13 @@ public class InfoSystem {
     public void sendSocialActionPostStruct(AuthenticatorUtils authenticatorUtils, Query query,
             String type, boolean action) {
         long timeStamp = System.currentTimeMillis();
-        SocialAction socialAction = new SocialAction();
+        HatchetSocialAction socialAction = new HatchetSocialAction();
         socialAction.type = type;
         socialAction.action = String.valueOf(action);
         socialAction.trackString = query.getName();
         socialAction.artistString = query.getArtist().getName();
         socialAction.timestamp = new Date(timeStamp);
-        SocialActionPostStruct socialActionPostStruct = new SocialActionPostStruct();
+        HatchetSocialActionPostStruct socialActionPostStruct = new HatchetSocialActionPostStruct();
         socialActionPostStruct.socialAction = socialAction;
 
         String requestId = TomahawkApp.getSessionUniqueStringId();

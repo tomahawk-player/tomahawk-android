@@ -27,7 +27,7 @@ import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
-import org.tomahawk.libtomahawk.infosystem.hatchet.PlaylistEntries;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaylistEntries;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.resolver.Resolver;
@@ -162,13 +162,14 @@ public class UserCollection extends Collection {
                                         }
                                     } else if (data.getType()
                                             == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES) {
-                                        PlaylistEntries playlistEntries = (PlaylistEntries) data
+                                        HatchetPlaylistEntries
+                                                playlistEntries = (HatchetPlaylistEntries) data
                                                 .getInfoResult();
                                         UserPlaylist playlist = mUserPlaylists
                                                 .get(mRequestIdPlaylistMap.get(requestId));
                                         if (playlist != null && playlistEntries != null) {
                                             playlist = InfoSystemUtils
-                                                    .fillUserPlaylistWithPlaylistEntries(playlist,
+                                                    .fillUserPlaylist(playlist,
                                                             playlistEntries);
                                             userPlaylistsDataSource.storeUserPlaylist(playlist);
                                         }
