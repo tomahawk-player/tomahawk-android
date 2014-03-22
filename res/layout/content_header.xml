@@ -42,7 +42,7 @@
                 android:ellipsize="marquee"
                 android:singleLine="true"
                 android:textColor="@color/primary_textcolor"
-                android:textSize="@dimen/text_size_medium"
+                android:textSize="@dimen/text_size_large"
                 android:paddingLeft="@dimen/padding_small"
                 android:paddingTop="@dimen/padding_medium"/>
 

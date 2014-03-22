@@ -46,12 +46,13 @@ public class User implements TomahawkListItem {
 
     private int mFollowersCount;
 
-    public Query mNowPlaying;
+    private Query mNowPlaying;
 
-    public Date mNowPlayingTimeStamp;
+    private Date mNowPlayingTimeStamp;
 
-    public int mTotalPlays;
+    private int mTotalPlays;
 
+    private ArrayList<SocialAction> mSocialActions = new ArrayList<SocialAction>();
 
     /**
      * Construct a new {@link User} with the given id
@@ -190,5 +191,13 @@ public class User implements TomahawkListItem {
 
     public void setTotalPlays(int totalPlays) {
         mTotalPlays = totalPlays;
+    }
+
+    public ArrayList<SocialAction> getSocialActions() {
+        return mSocialActions;
+    }
+
+    public void setSocialActions(ArrayList<SocialAction> socialActions) {
+        mSocialActions = socialActions;
     }
 }

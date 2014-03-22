@@ -29,7 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="64dp"
             android:layout_marginLeft="16dp"
-            android:textSize="@dimen/text_size_large"
+            android:textSize="@dimen/text_size_verylarge"
             android:textColor="@color/tomahawk_red"
             android:gravity="center_vertical"/>
 

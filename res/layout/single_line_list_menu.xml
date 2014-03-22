@@ -47,6 +47,6 @@
             android:padding="@dimen/padding_small"
             android:singleLine="true"
             android:textColor="@color/primary_textcolor"
-            android:textSize="@dimen/text_size_large"/>
+            android:textSize="@dimen/text_size_verylarge"/>
 
 </LinearLayout>

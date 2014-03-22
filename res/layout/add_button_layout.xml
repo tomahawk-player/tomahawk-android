@@ -45,7 +45,7 @@
                 android:ellipsize="marquee"
                 android:padding="@dimen/padding_small"
                 android:singleLine="true"
-                android:textSize="@dimen/text_size_medium"
+                android:textSize="@dimen/text_size_large"
                 android:textColor="@color/primary_textcolor"
                 android:text="@string/playbackactivity_create_playlist_dialog_title"/>
     </LinearLayout>

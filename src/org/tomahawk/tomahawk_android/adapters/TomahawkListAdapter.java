@@ -22,7 +22,9 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -30,6 +32,7 @@ import org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.app.Activity;
+import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +41,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
@@ -168,6 +172,14 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                 TomahawkUtils.loadImageIntoImageView(mActivity, imageView,
                         artistsWithImage.get(3).getImage(), Image.IMAGE_SIZE_LARGE);
             }
+        } else if (listItem instanceof User) {
+            User user = ((User) listItem);
+            TomahawkUtils.loadImageIntoImageView(mActivity, imageView,
+                    user.getImage(), Image.IMAGE_SIZE_LARGE);
+            int followersCount = user.getFollowersCount();
+            int followCount = user.getFollowCount();
+            String s = "Followers: " + followersCount + ", Following: " + followCount;
+            textView2.setText(s);
         }
         if (textView != null) {
             textView.setText(listItem.getName());
@@ -248,6 +260,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                 viewHolder.getImageViewRight().setVisibility(View.GONE);
                 viewHolder.getTextSecondLine().setVisibility(View.GONE);
                 viewHolder.getTextThirdLine().setVisibility(View.GONE);
+                viewHolder.getTextFourthLine().setVisibility(View.GONE);
+                viewHolder.getTextFifthLine().setVisibility(View.GONE);
             }
 
             // After we've setup the correct view and viewHolder, we now can fill the View's
@@ -256,22 +270,23 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                 viewHolder.getTextFirstLine().setText(item.getName());
             } else if (viewHolder.getViewType()
                     == R.id.tomahawklistadapter_viewtype_doublelinelistitem) {
-                viewHolder.getTextFirstLine().setText(item.getName());
                 if (item instanceof Query) {
                     Query query = (Query) item;
-                    viewHolder.getTextSecondLine().setVisibility(View.VISIBLE);
-                    viewHolder.getTextSecondLine().setText(query.getArtist().getName());
-                    viewHolder.getTextThirdLine().setVisibility(View.VISIBLE);
+                    viewHolder.getTextFirstLine().setText(item.getName());
+                    viewHolder.getTextFourthLine().setVisibility(View.VISIBLE);
+                    viewHolder.getTextFourthLine().setText(query.getArtist().getName());
+                    viewHolder.getTextFifthLine().setVisibility(View.VISIBLE);
                     if (query.getPreferredTrack().getDuration() > 0) {
-                        viewHolder.getTextThirdLine().setText(TomahawkUtils.durationToString(
+                        viewHolder.getTextFifthLine().setText(TomahawkUtils.durationToString(
                                 (query.getPreferredTrack().getDuration())));
                     } else {
-                        viewHolder.getTextThirdLine().setText(mActivity.getResources().getString(
+                        viewHolder.getTextFifthLine().setText(mActivity.getResources().getString(
                                 R.string.playbackactivity_seekbar_completion_time_string));
                     }
                     setTextViewEnabled(viewHolder.getTextFirstLine(), query.isPlayable());
-                    setTextViewEnabled(viewHolder.getTextSecondLine(), query.isPlayable());
-                    setTextViewEnabled(viewHolder.getTextThirdLine(), query.isPlayable());
+                    viewHolder.getTextFourthLine().setVisibility(View.VISIBLE);
+                    setTextViewEnabled(viewHolder.getTextFourthLine(), query.isPlayable());
+                    setTextViewEnabled(viewHolder.getTextFifthLine(), query.isPlayable());
                     if (mShowPlaystate && position == mHighlightedItemPosition) {
                         view.setBackgroundResource(R.color.pressed_tomahawk);
                         if (mHighlightedItemIsPlaying) {
@@ -291,13 +306,73 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                     }
                 } else if (item instanceof Album || item instanceof Artist
                         || item instanceof User) {
+                    viewHolder.getTextFirstLine().setText(item.getName());
                     viewHolder.getImageViewLeft().setVisibility(View.VISIBLE);
                     TomahawkUtils.loadImageIntoImageView(mActivity, viewHolder.getImageViewLeft(),
                             item.getImage(), Image.IMAGE_SIZE_SMALL);
                     if (item instanceof Album) {
-                        viewHolder.getTextSecondLine().setVisibility(View.VISIBLE);
-                        viewHolder.getTextSecondLine().setText(item.getArtist().getName());
+                        viewHolder.getTextFourthLine().setVisibility(View.VISIBLE);
+                        viewHolder.getTextFourthLine().setText(item.getArtist().getName());
                     }
+                } else if (item instanceof SocialAction) {
+                    Resources resources = mActivity.getResources();
+                    SocialAction socialAction = (SocialAction) item;
+                    TomahawkListItem targetObject = socialAction.getTargetObject();
+                    if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE
+                            .equals(socialAction.getType())) {
+                        if (targetObject instanceof Query) {
+                            String phrase = socialAction.getAction() ?
+                                    resources.getString(R.string.socialaction_type_love_track_true)
+                                    : resources
+                                            .getString(R.string.socialaction_type_love_track_false);
+                            viewHolder.getTextFirstLine()
+                                    .setText(socialAction.getUser().getName() + " " + phrase);
+                            viewHolder.getTextSecondLine().setVisibility(View.VISIBLE);
+                            viewHolder.getTextSecondLine().setText(targetObject.getName());
+                            viewHolder.getTextThirdLine().setVisibility(View.VISIBLE);
+                            viewHolder.getTextThirdLine()
+                                    .setText(targetObject.getArtist().getName());
+                        } else if (targetObject instanceof Artist
+                                || targetObject instanceof Album) {
+                            String firstLine = "";
+                            String phrase = socialAction.getAction() ?
+                                    resources.getString(R.string.socialaction_type_starred_true)
+                                    : resources.getString(R.string.socialaction_type_starred_false);
+                            firstLine += socialAction.getUser().getName() + " " + phrase
+                                    + " " + targetObject.getName();
+                            if (targetObject instanceof Album) {
+                                firstLine += resources.getString(R.string.album_by_artist) + " "
+                                        + targetObject.getArtist().getName();
+                            }
+                            viewHolder.getTextFirstLine().setText(firstLine);
+                        }
+                    } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_FOLLOW
+                            .equals(socialAction.getType())) {
+                        String phrase = resources.getString(R.string.socialaction_type_follow_true);
+                        viewHolder.getTextFirstLine()
+                                .setText(socialAction.getUser().getName() + " " + phrase
+                                        + " " + targetObject.getName());
+                    }
+                    String fourthLine = "";
+                    if (socialAction.getDate() != null) {
+                        long diff = System.currentTimeMillis() - socialAction.getDate().getTime();
+                        if (diff < 60000) {
+                            fourthLine += TimeUnit.MILLISECONDS.toSeconds(diff) + " "
+                                    + resources.getString(R.string.time_seconds);
+                        } else if (diff < 3600000) {
+                            fourthLine += TimeUnit.MILLISECONDS.toMinutes(diff) + " "
+                                    + resources.getString(R.string.time_minutes);
+                        } else if (diff < 86400000) {
+                            fourthLine += TimeUnit.MILLISECONDS.toHours(diff) + " "
+                                    + resources.getString(R.string.time_hours);
+                        } else {
+                            fourthLine += TimeUnit.MILLISECONDS.toDays(diff) + " "
+                                    + resources.getString(R.string.time_days);
+                        }
+                        fourthLine += " " + resources.getString(R.string.time_ago);
+                    }
+                    viewHolder.getTextFourthLine().setVisibility(View.VISIBLE);
+                    viewHolder.getTextFourthLine().setText(fourthLine);
                 }
             }
         }
@@ -402,6 +477,10 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                 TomahawkUtils.loadDrawableIntoImageView(mActivity, viewHolder.getImageViewLeft(),
                         R.drawable.ic_action_friends);
                 viewHolder.getTextFirstLine().setText(R.string.userfragment_title_string);
+            } else if (item instanceof SocialAction) {
+                TomahawkUtils.loadDrawableIntoImageView(mActivity, viewHolder.getImageViewLeft(),
+                        R.drawable.ic_action_trending);
+                viewHolder.getTextFirstLine().setText(R.string.content_header_activityfeed);
             }
             return view;
         } else {

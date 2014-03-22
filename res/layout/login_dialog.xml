@@ -35,7 +35,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:textSize="@dimen/text_size_large"
+                android:textSize="@dimen/text_size_verylarge"
                 android:textColor="@color/tomahawk_red"
                 android:gravity="center_vertical"/>
         <ImageView

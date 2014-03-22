@@ -84,6 +84,9 @@ public class TomahawkFragment extends TomahawkListFragment
     public static final String TOMAHAWK_USERPLAYLIST_KEY
             = "org.tomahawk.tomahawk_android.tomahawk_userplaylist_id";
 
+    public static final String TOMAHAWK_USER_ID
+            = "org.tomahawk.tomahawk_android.tomahawk_user_id";
+
     public static final String TOMAHAWK_QUERY_KEY
             = "org.tomahawk.tomahawk_android.tomahawk_query_id";
 
@@ -146,6 +149,8 @@ public class TomahawkFragment extends TomahawkListFragment
     protected Artist mArtist;
 
     protected UserPlaylist mUserPlaylist;
+
+    protected User mUser;
 
     protected boolean mIsLocal = false;
 
@@ -286,6 +291,17 @@ public class TomahawkFragment extends TomahawkListFragment
                     mTomahawkApp.getContentViewer().back();
                 }
                 ArrayList<String> requestIds = mInfoSystem.resolve(mArtist, false);
+                for (String requestId : requestIds) {
+                    mCurrentRequestIds.add(requestId);
+                }
+            }
+            if (getArguments().containsKey(TOMAHAWK_USER_ID) && !TextUtils
+                    .isEmpty(getArguments().getString(TOMAHAWK_USER_ID))) {
+                mUser = User.getUserById(getArguments().getString(TOMAHAWK_USER_ID));
+                if (mUser == null) {
+                    mTomahawkApp.getContentViewer().back();
+                }
+                ArrayList<String> requestIds = mInfoSystem.resolve(mUser);
                 for (String requestId : requestIds) {
                     mCurrentRequestIds.add(requestId);
                 }

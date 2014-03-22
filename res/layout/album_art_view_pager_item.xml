@@ -37,7 +37,7 @@
                 android:maxLines="1"
                 android:textStyle="bold"
                 android:textColor="@color/primary_textcolor"
-                android:textSize="@dimen/text_size_medium"/>
+                android:textSize="@dimen/text_size_large"/>
 
         <TextView
                 android:id="@+id/textView_artist"

@@ -24,7 +24,7 @@ import java.util.Date;
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class HatchetSocialAction {
 
-    public String action;
+    public boolean action;
 
     public String album;
 

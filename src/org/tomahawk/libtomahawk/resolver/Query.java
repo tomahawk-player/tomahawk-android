@@ -172,7 +172,8 @@ public class Query implements TomahawkListItem {
      * Queries being unique by trackname/artistname/albumname/resulthint
      */
     public static Query get(Result result, boolean onlyLocal) {
-        Query query = new Query(result.getTrack().getName(), result.getTrack().getAlbum().getName(),
+        Query query = new Query(result.getTrack().getName(),
+                result.getTrack().getAlbum().getName(),
                 result.getTrack().getArtist().getName(), null, onlyLocal, false);
         return ensureCache(query);
     }
