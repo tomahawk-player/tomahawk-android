@@ -221,7 +221,7 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
             viewHolder = (ViewHolder) convertView.getTag();
             view = convertView;
         } else {
-            view = mLayoutInflater.inflate(R.layout.single_line_list_header, null);
+            view = mLayoutInflater.inflate(R.layout.fake_preferences_header, null);
             viewHolder = new ViewHolder(view, R.id.fakepreferencesadapter_viewtype_header);
             view.setTag(viewHolder);
         }
