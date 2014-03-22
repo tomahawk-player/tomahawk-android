@@ -614,7 +614,6 @@ public class HatchetInfoPlugin extends InfoPlugin {
     /**
      * Get the user id of the currently logged in Hatchet user
      */
-
     private void getUserid() throws IOException, NoSuchAlgorithmException, KeyManagementException {
         Map<String, String> data = new HashMap<String, String>();
         data.put(HATCHET_ACCOUNTDATA_USER_ID, null);
@@ -624,8 +623,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
         String userName = AuthenticatorUtils.getUserName(mTomahawkApp,
                 TomahawkService.AUTHENTICATOR_NAME_HATCHET);
         if (mUserId == null && userName != null) {
-            // If we couldn't fetch the user's id from the account's userData, get it from the
-            // API.
+            // If we couldn't fetch the user's id from the account's userData, get it from the API.
             Multimap<String, String> params = HashMultimap.create(1, 1);
             params.put(HATCHET_PARAM_NAME, userName);
             String query = buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS,
