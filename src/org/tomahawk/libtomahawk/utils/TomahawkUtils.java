@@ -14,6 +14,7 @@ import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
+import org.tomahawk.tomahawk_android.views.CircularImageTransformation;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -442,6 +443,31 @@ public class TomahawkUtils {
                     .error(R.drawable.no_album_art_placeholder).into(imageView);
         } else {
             Picasso.with(context).load(R.drawable.no_album_art_placeholder)
+                    .placeholder(R.drawable.no_album_art_placeholder)
+                    .error(R.drawable.no_album_art_placeholder).into(imageView);
+        }
+    }
+
+    /**
+     * Load a circle-shaped {@link android.graphics.Bitmap} asynchronously
+     *
+     * @param context   the context needed for fetching resources
+     * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
+     *                  android.graphics.Bitmap}
+     * @param image     the path to load the image from
+     * @param width     the width in density independent pixels to scale the image down to
+     */
+    public static void loadRoundedImageIntoImageView(Context context, ImageView imageView,
+            Image image, int width) {
+        if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
+            String imagePath = buildImagePath(context, image, width);
+            Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
+                    .transform(new CircularImageTransformation())
+                    .placeholder(R.drawable.no_album_art_placeholder)
+                    .error(R.drawable.no_album_art_placeholder).into(imageView);
+        } else {
+            Picasso.with(context).load(R.drawable.no_album_art_placeholder)
+                    .transform(new CircularImageTransformation())
                     .placeholder(R.drawable.no_album_art_placeholder)
                     .error(R.drawable.no_album_art_placeholder).into(imageView);
         }
