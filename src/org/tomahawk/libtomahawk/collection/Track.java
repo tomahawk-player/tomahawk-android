@@ -94,7 +94,7 @@ public class Track implements TomahawkListItem {
      */
     @Override
     public String toString() {
-        return getName();
+        return mName;
     }
 
     /**

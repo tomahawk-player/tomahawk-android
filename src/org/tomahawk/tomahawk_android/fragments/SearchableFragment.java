@@ -140,6 +140,12 @@ public class SearchableFragment extends TomahawkFragment
                 bundle.putString(TOMAHAWK_ARTIST_KEY, key);
                 mTomahawkApp.getContentViewer()
                         .replace(AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, false, false);
+            } else if (item instanceof User) {
+                Bundle bundle = new Bundle();
+                String key = ((User) item).getId();
+                bundle.putString(TOMAHAWK_ARTIST_KEY, key);
+                mTomahawkApp.getContentViewer()
+                        .replace(UserFragment.class, key, TOMAHAWK_USER_ID, false, false);
             }
         }
     }

@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:singleLine="true"
                 android:textColor="@color/primary_textcolor"
-                android:textSize="@dimen/text_size_medium"/>
+                android:textSize="@dimen/text_size_large"/>
 
         <TextView
                 android:id="@+id/notification_small_textview2"

@@ -23,6 +23,7 @@ import com.google.common.collect.Multimap;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetNowPlaying;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetNowPlayingPostStruct;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaybackLogEntry;
@@ -79,6 +80,10 @@ public class InfoSystem {
     private HashSet<Artist> mArtistAlbumsHashSet = new HashSet<Artist>();
 
     private HashSet<Album> mAlbumHashSet = new HashSet<Album>();
+
+    private HashSet<User> mUserHashSet = new HashSet<User>();
+
+    private HashSet<User> mUserSocialActionsHashSet = new HashSet<User>();
 
     private Query mLastPlaybackLogEntry = null;
 
@@ -156,6 +161,32 @@ public class InfoSystem {
             return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS, params, album);
         }
         return null;
+    }
+
+    /**
+     * Fill up the given user with metadata fetched from all added InfoPlugins
+     *
+     * @param user the User to enrich with data from the InfoPlugins
+     * @return the created InfoRequestData's requestId
+     */
+    public ArrayList<String> resolve(User user) {
+        ArrayList<String> requestIds = new ArrayList<String>();
+        if (user != null) {
+            if (!mUserHashSet.contains(user)) {
+                mUserHashSet.add(user);
+                Multimap<String, String> params = HashMultimap.create(1, 1);
+                params.put(HatchetInfoPlugin.HATCHET_PARAM_IDARRAY, user.getId());
+                requestIds.add(resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS, params, user));
+            }
+            if (!mUserSocialActionsHashSet.contains(user)) {
+                mUserSocialActionsHashSet.add(user);
+                Multimap<String, String> params = HashMultimap.create(1, 1);
+                params.put(HatchetInfoPlugin.HATCHET_PARAM_ID, user.getId());
+                requestIds.add(resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS,
+                        params, user));
+            }
+        }
+        return requestIds;
     }
 
     /**
@@ -263,7 +294,7 @@ public class InfoSystem {
         long timeStamp = System.currentTimeMillis();
         HatchetSocialAction socialAction = new HatchetSocialAction();
         socialAction.type = type;
-        socialAction.action = String.valueOf(action);
+        socialAction.action = action;
         socialAction.trackString = query.getName();
         socialAction.artistString = query.getArtist().getName();
         socialAction.timestamp = new Date(timeStamp);

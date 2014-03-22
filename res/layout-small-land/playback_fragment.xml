@@ -51,7 +51,7 @@
                     android:layout_height="wrap_content"
                     android:maxLines="1"
                     android:textStyle="bold"
-                    android:textSize="@dimen/text_size_medium"
+                    android:textSize="@dimen/text_size_large"
                     android:textColor="@color/primary_textcolor"/>
 
             <TextView

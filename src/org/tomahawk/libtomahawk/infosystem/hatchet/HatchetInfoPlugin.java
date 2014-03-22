@@ -33,6 +33,7 @@ import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.infosystem.InfoPlugin;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
+import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -101,6 +102,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
     public static final String HATCHET_SOCIALACTIONS = "socialActions";
 
     public static final String HATCHET_SOCIALACTION_TYPE_LOVE = "love";
+
+    public static final String HATCHET_SOCIALACTION_TYPE_FOLLOW = "follow";
 
     public static final String HATCHET_LOVEDITEMS = "lovedItems";
 
@@ -178,7 +181,16 @@ public class HatchetInfoPlugin extends InfoPlugin {
         Multimap<String, String> params = LinkedListMultimap.create();
         Map<String, Map> resultMapList = new HashMap<String, Map>();
         String rawJsonString;
-        if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS) {
+        if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS) {
+            rawJsonString = TomahawkUtils.httpsGet(
+                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS,
+                            infoRequestData.getParams())
+            );
+            infoRequestData
+                    .setInfoResult(mObjectMapper.readValue(rawJsonString, HatchetUsers.class));
+            return true;
+        } else if (infoRequestData.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS) {
             if (TextUtils.isEmpty(mUserId)) {
                 return false;
             }
@@ -212,6 +224,15 @@ public class HatchetInfoPlugin extends InfoPlugin {
             playlistEntriesMap.put(playlistEntries.playlist, playlistEntries);
             resultMapList.put(HATCHET_PLAYLISTS_ENTRIES, playlistEntriesMap);
             infoRequestData.setInfoResultMap(resultMapList);
+            return true;
+        } else if (infoRequestData.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS) {
+            rawJsonString = TomahawkUtils.httpsGet(
+                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS,
+                            infoRequestData.getParams())
+            );
+            infoRequestData.setInfoResult(
+                    mObjectMapper.readValue(rawJsonString, HatchetSocialActionResponse.class));
             return true;
         } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS) {
             rawJsonString = TomahawkUtils.httpsGet(
@@ -443,22 +464,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                             }
                         } else if (HATCHET_SEARCHITEM_TYPE_USER.equals(searchItem.type)) {
                             HatchetUserInfo userInfo = userInfoMap.get(searchItem.user);
-                            if (userInfo != null) {
-                                HatchetImage image = null;
-                                if (userInfo.images != null && userInfo.images.size() > 0) {
-                                    image = imageMap.get(userInfo.images.get(0));
-                                }
-                                HatchetTrackInfo trackInfo = null;
-                                HatchetArtistInfo artistInfo = null;
-                                if (userInfo.nowplaying != null) {
-                                    trackInfo = trackInfoMap.get(userInfo.nowplaying);
-                                    if (trackInfo != null) {
-                                        artistInfo = artistInfoMap.get(trackInfo.artist);
-                                    }
-                                }
-                                users.add(InfoSystemUtils
-                                        .userInfoToUser(userInfo, image, trackInfo, artistInfo));
-                            }
+                            users.add(InfoSystemUtils.convertToUser(userInfo, trackInfoMap,
+                                    artistInfoMap, imageMap));
                         }
                     }
                 }
@@ -525,6 +532,79 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         if (tracks != null) {
                             InfoSystemUtils.fillAlbum(album, tracks.tracks);
                         }
+                    }
+                }
+            } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS) {
+                if (infoRequestData.getInfoResult() != null) {
+                    User user = (User) mItemsToBeFilled.get(infoRequestData.getRequestId());
+                    HatchetUsers users = (HatchetUsers) infoRequestData.getInfoResult();
+                    if (users.users != null && users.users.size() > 0) {
+                        Map<String, HatchetArtistInfo> artistInfoMap
+                                = new HashMap<String, HatchetArtistInfo>();
+                        if (users.artists != null) {
+                            for (HatchetArtistInfo artistInfo : users.artists) {
+                                artistInfoMap.put(artistInfo.id, artistInfo);
+                            }
+                        }
+                        Map<String, HatchetImage> imageMap = new HashMap<String, HatchetImage>();
+                        if (users.images != null) {
+                            for (HatchetImage image : users.images) {
+                                imageMap.put(image.id, image);
+                            }
+                        }
+                        Map<String, HatchetTrackInfo> trackInfoMap
+                                = new HashMap<String, HatchetTrackInfo>();
+                        if (users.tracks != null) {
+                            for (HatchetTrackInfo trackInfo : users.tracks) {
+                                trackInfoMap.put(trackInfo.id, trackInfo);
+                            }
+                        }
+                        InfoSystemUtils.fillUser(user, users.users.get(0), trackInfoMap,
+                                artistInfoMap, imageMap);
+                    }
+                }
+            } else if (infoRequestData.getType()
+                    == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS) {
+                if (infoRequestData.getInfoResult() != null) {
+                    User user = (User) mItemsToBeFilled.get(infoRequestData.getRequestId());
+                    HatchetSocialActionResponse response
+                            = (HatchetSocialActionResponse) infoRequestData.getInfoResult();
+                    if (response.socialActions != null && response.socialActions.size() > 0) {
+                        Map<String, HatchetTrackInfo> trackInfoMap
+                                = new HashMap<String, HatchetTrackInfo>();
+                        if (response.tracks != null) {
+                            for (HatchetTrackInfo trackInfo : response.tracks) {
+                                trackInfoMap.put(trackInfo.id, trackInfo);
+                            }
+                        }
+                        Map<String, HatchetArtistInfo> artistInfoMap
+                                = new HashMap<String, HatchetArtistInfo>();
+                        if (response.artists != null) {
+                            for (HatchetArtistInfo artistInfo : response.artists) {
+                                artistInfoMap.put(artistInfo.id, artistInfo);
+                            }
+                        }
+                        Map<String, HatchetAlbumInfo> albumInfoMap
+                                = new HashMap<String, HatchetAlbumInfo>();
+                        if (response.albums != null) {
+                            for (HatchetAlbumInfo albumInfo : response.albums) {
+                                albumInfoMap.put(albumInfo.id, albumInfo);
+                            }
+                        }
+                        Map<String, HatchetUserInfo> userInfoMap
+                                = new HashMap<String, HatchetUserInfo>();
+                        if (response.users != null) {
+                            for (HatchetUserInfo userInfo : response.users) {
+                                userInfoMap.put(userInfo.id, userInfo);
+                            }
+                        }
+                        ArrayList<SocialAction> socialActions = new ArrayList<SocialAction>();
+                        for (HatchetSocialAction hatchetSocialAction : response.socialActions) {
+                            socialActions.add(InfoSystemUtils
+                                    .convertToSocialAction(hatchetSocialAction, trackInfoMap,
+                                            artistInfoMap, albumInfoMap, userInfoMap));
+                        }
+                        user.setSocialActions(socialActions);
                     }
                 }
             }
@@ -693,6 +773,16 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         + HATCHET_USERS + "/"
                         + iterator.next() + "/"
                         + HATCHET_LOVEDITEMS;
+                params.removeAll(HATCHET_PARAM_ID);
+                break;
+            case InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS:
+                paramStrings = params.get(HATCHET_PARAM_ID);
+                iterator = paramStrings.iterator();
+                queryString = HATCHET_BASE_URL + "/"
+                        + HATCHET_VERSION + "/"
+                        + HATCHET_USERS + "/"
+                        + iterator.next() + "/"
+                        + HATCHET_SOCIALACTIONS;
                 params.removeAll(HATCHET_PARAM_ID);
                 break;
             case InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES:

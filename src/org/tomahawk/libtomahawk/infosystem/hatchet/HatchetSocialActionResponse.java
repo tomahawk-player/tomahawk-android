@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,36 +17,25 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet;
 
-import java.util.Date;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
 import java.util.List;
-import java.util.Map;
 
-public class HatchetUserInfo {
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+public class HatchetSocialActionResponse {
 
-    public String about;
+    public List<HatchetSocialAction> socialActions;
 
-    public int followCount = -1;
+    public List<HatchetTrackInfo> tracks;
 
-    public int followersCount = -1;
+    public List<HatchetArtistInfo> artists;
 
-    public String id;
+    public List<HatchetAlbumInfo> albums;
 
-    public List<String> images;
+    public List<HatchetPlaylistInfo> playlists;
 
-    public Map<String, String> links;
+    public List<HatchetUserInfo> users;
 
-    public String name;
-
-    public String nowplaying;
-
-    public Date nowplayingtimestamp;
-
-    public int totalPlays = -1;
-
-    public String url;
-
-    public boolean isFull;
-
-    public HatchetUserInfo() {
+    public HatchetSocialActionResponse() {
     }
 }

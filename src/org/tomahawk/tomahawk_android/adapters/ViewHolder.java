@@ -43,6 +43,10 @@ public class ViewHolder {
 
     private TextView mTextThirdLine;
 
+    private TextView mTextFourthLine;
+
+    private TextView mTextFifthLine;
+
     public ViewHolder(View rootView, int viewType) {
         mViewType = viewType;
         if (viewType == R.id.tomahawklistadapter_viewtype_singlelinelistitem) {
@@ -59,6 +63,10 @@ public class ViewHolder {
                     .findViewById(R.id.double_line_list_textview2);
             mTextThirdLine = (TextView) rootView
                     .findViewById(R.id.double_line_list_textview3);
+            mTextFourthLine = (TextView) rootView
+                    .findViewById(R.id.double_line_list_textview4);
+            mTextFifthLine = (TextView) rootView
+                    .findViewById(R.id.double_line_list_textview5);
         } else if (viewType == R.id.tomahawklistadapter_viewtype_header) {
             mImageViewLeft = (ImageView) rootView
                     .findViewById(R.id.single_line_list_header_icon_imageview);
@@ -133,5 +141,13 @@ public class ViewHolder {
 
     public TextView getTextThirdLine() {
         return mTextThirdLine;
+    }
+
+    public TextView getTextFourthLine() {
+        return mTextFourthLine;
+    }
+
+    public TextView getTextFifthLine() {
+        return mTextFifthLine;
     }
 }

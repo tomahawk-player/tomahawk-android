@@ -127,4 +127,17 @@
     <string name="content_header_track">Track</string>
     <string name="content_header_tophit">Top Song</string>
     <string name="content_header_album">Album</string>
+    <string name="content_header_activityfeed">Activity Feed</string>
+    <string name="socialaction_type_follow_true">is now following</string>
+    <string name="socialaction_type_follow_false">is no longer following</string>
+    <string name="socialaction_type_love_track_true">loved a track:</string>
+    <string name="socialaction_type_love_track_false">is all out of love for</string>
+    <string name="socialaction_type_starred_true">starred</string>
+    <string name="socialaction_type_starred_false">unstarred</string>
+    <string name="album_by_artist">by</string>
+    <string name="time_ago">ago</string>
+    <string name="time_seconds">seconds</string>
+    <string name="time_minutes">minutes</string>
+    <string name="time_hours">hours</string>
+    <string name="time_days">days</string>
 </resources>

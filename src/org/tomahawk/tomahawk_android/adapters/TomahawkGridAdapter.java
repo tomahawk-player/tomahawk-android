@@ -79,6 +79,7 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
 
             if (viewHolder.getViewType() == R.id.tomahawklistadapter_viewtype_griditem) {
                 viewHolder.getTextFirstLine().setText(item.getName());
+                viewHolder.getTextSecondLine().setVisibility(View.VISIBLE);
                 viewHolder.getTextSecondLine().setText(item.getArtist().getName());
                 if (item instanceof Album || item instanceof Artist) {
                     TomahawkUtils.loadImageIntoImageView(mActivity, viewHolder.getImageViewLeft(),

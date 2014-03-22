@@ -20,7 +20,7 @@
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
-              android:layout_height="@dimen/row_height_verylarge"
+              android:layout_height="wrap_content"
               android:baselineAligned="false"
               android:orientation="horizontal"
               android:background="@drawable/selectable_background_tomahawk_opaque"
@@ -38,7 +38,7 @@
 
     <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="@dimen/row_height_verylarge"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
             android:padding="@dimen/padding_small">
@@ -46,21 +46,39 @@
         <TextView
                 android:id="@+id/double_line_list_textview"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:layout_weight="1"
                 android:singleLine="true"
                 android:textColor="@color/primary_textcolor"
                 android:textSize="@dimen/text_size_medium"/>
 
+        <TextView
+                android:id="@+id/double_line_list_textview2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:gravity="center_vertical"
+                android:singleLine="true"
+                android:textColor="@color/primary_textcolor"
+                android:textSize="@dimen/text_size_large"/>
+
+        <TextView
+                android:id="@+id/double_line_list_textview3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:gravity="center_vertical"
+                android:singleLine="true"
+                android:textColor="@color/secondary_textcolor"
+                android:textSize="@dimen/text_size_medium"/>
+
         <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
             <TextView
-                    android:id="@+id/double_line_list_textview2"
+                    android:id="@+id/double_line_list_textview4"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
@@ -71,7 +89,7 @@
                     android:textSize="@dimen/text_size_small"/>
 
             <TextView
-                    android:id="@+id/double_line_list_textview3"
+                    android:id="@+id/double_line_list_textview5"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:visibility="gone"
