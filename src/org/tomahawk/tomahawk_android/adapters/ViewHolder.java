@@ -77,14 +77,14 @@ public class ViewHolder {
                     .findViewById(R.id.fake_preferences_textview);
             mTextSecondLine = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview2);
-        } else if (viewType == R.id.fake_preferences_checkbox) {
+        } else if (viewType == R.id.fakepreferencesadapter_viewtype_checkbox) {
             mTextFirstLine = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview);
             mTextSecondLine = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview2);
             mCheckBox = (CheckBox) rootView
                     .findViewById(R.id.fake_preferences_checkbox);
-        } else if (viewType == R.id.fake_preferences_spinner) {
+        } else if (viewType == R.id.fakepreferencesadapter_viewtype_spinner) {
             mTextFirstLine = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview);
             mTextSecondLine = (TextView) rootView
