@@ -102,7 +102,12 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
     public void showContentHeader(boolean landscapeMode, StickyListHeadersListView list,
             TomahawkListItem listItem, boolean isOnlyLocal) {
         mContentHeaderTomahawkListItem = listItem;
-        View contentHeaderView = mLayoutInflater.inflate(R.layout.content_header, null);
+        View contentHeaderView;
+        if (listItem instanceof User) {
+            contentHeaderView = mLayoutInflater.inflate(R.layout.content_header_user, null);
+        } else {
+            contentHeaderView = mLayoutInflater.inflate(R.layout.content_header, null);
+        }
         if (!landscapeMode && contentHeaderView != null && list.getHeaderViewsCount() == 0) {
             list.addHeaderView(contentHeaderView);
         }
@@ -174,8 +179,13 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
             }
         } else if (listItem instanceof User) {
             User user = ((User) listItem);
-            TomahawkUtils.loadImageIntoImageView(mActivity, imageView,
+            TomahawkUtils
+                    .loadDrawableIntoImageView(mActivity, imageView, R.drawable.dummy_user_header);
+            ImageView roundedImageView = (ImageView) mActivity
+                    .findViewById(R.id.content_header_roundedimage);
+            TomahawkUtils.loadRoundedImageIntoImageView(mActivity, roundedImageView,
                     user.getImage(), Image.IMAGE_SIZE_LARGE);
+            roundedImageView.setVisibility(View.VISIBLE);
             int followersCount = user.getFollowersCount();
             int followCount = user.getFollowCount();
             String s = "Followers: " + followersCount + ", Following: " + followCount;
