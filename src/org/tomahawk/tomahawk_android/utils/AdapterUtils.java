@@ -36,6 +36,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class AdapterUtils {
@@ -224,26 +225,31 @@ public class AdapterUtils {
                     .setText(socialAction.getUser().getName() + " " + phrase
                             + " " + targetObject.getName());
         }
-        String fourthLine = "";
-        if (socialAction.getDate() != null) {
-            long diff = System.currentTimeMillis() - socialAction.getDate().getTime();
-            if (diff < 60000) {
-                fourthLine += TimeUnit.MILLISECONDS.toSeconds(diff) + " "
-                        + resources.getString(R.string.time_seconds);
-            } else if (diff < 3600000) {
-                fourthLine += TimeUnit.MILLISECONDS.toMinutes(diff) + " "
-                        + resources.getString(R.string.time_minutes);
-            } else if (diff < 86400000) {
-                fourthLine += TimeUnit.MILLISECONDS.toHours(diff) + " "
-                        + resources.getString(R.string.time_hours);
-            } else {
-                fourthLine += TimeUnit.MILLISECONDS.toDays(diff) + " "
-                        + resources.getString(R.string.time_days);
-            }
-            fourthLine += " " + resources.getString(R.string.time_ago);
-        }
+        String fourthLine = dateToString(resources,socialAction.getDate());
         viewHolder.getTextFourthLine().setVisibility(View.VISIBLE);
         viewHolder.getTextFourthLine().setText(fourthLine);
+    }
+
+    private static String dateToString(Resources resources, Date date) {
+        String s = "";
+        if (date != null) {
+            long diff = System.currentTimeMillis() - date.getTime();
+            if (diff < 60000) {
+                s += TimeUnit.MILLISECONDS.toSeconds(diff) + " "
+                        + resources.getString(R.string.time_seconds);
+            } else if (diff < 3600000) {
+                s += TimeUnit.MILLISECONDS.toMinutes(diff) + " "
+                        + resources.getString(R.string.time_minutes);
+            } else if (diff < 86400000) {
+                s += TimeUnit.MILLISECONDS.toHours(diff) + " "
+                        + resources.getString(R.string.time_hours);
+            } else {
+                s += TimeUnit.MILLISECONDS.toDays(diff) + " "
+                        + resources.getString(R.string.time_days);
+            }
+            s += " " + resources.getString(R.string.time_ago);
+        }
+        return s;
     }
 
     private static TextView setTextViewEnabled(TextView textView, boolean enabled) {
