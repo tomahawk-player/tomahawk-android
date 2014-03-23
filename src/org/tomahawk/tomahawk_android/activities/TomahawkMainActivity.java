@@ -23,7 +23,10 @@ import org.tomahawk.libtomahawk.collection.CollectionLoader;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.TomahawkSQLiteHelper;
+import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
+import org.tomahawk.libtomahawk.infosystem.User;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -32,6 +35,8 @@ import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
+import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
+import org.tomahawk.tomahawk_android.fragments.UserFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
@@ -70,6 +75,9 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * The main Tomahawk activity
  */
@@ -93,6 +101,8 @@ public class TomahawkMainActivity extends ActionBarActivity
             this);
 
     private PlaybackService mPlaybackService;
+
+    private User mLoggedInUser;
 
     private DrawerLayout mDrawerLayout;
 
@@ -153,6 +163,21 @@ public class TomahawkMainActivity extends ActionBarActivity
                 }
             } else if (PlaybackService.BROADCAST_PLAYSTATECHANGED.equals(intent.getAction())) {
                 updateNowPlayingButtons();
+            } else if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
+                String requestId = intent.getStringExtra(
+                        InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
+                InfoRequestData data = mInfoSystem.getInfoRequestById(requestId);
+                if (data != null
+                        && data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF) {
+                    Map<String, List> convertedResultMap = data.getConvertedResultMap();
+                    if (convertedResultMap != null) {
+                        List users = convertedResultMap.get(HatchetInfoPlugin.HATCHET_USERS);
+                        if (users != null && users.size() > 0) {
+                            mLoggedInUser = (User) users.get(0);
+                            updateDrawer();
+                        }
+                    }
+                }
             }
         }
     }
@@ -171,9 +196,20 @@ public class TomahawkMainActivity extends ActionBarActivity
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             // Show the correct hub, and if needed, display the search editText inside the ActionBar
-            mTomahawkApp.getContentViewer().showHub((int) id);
-            if (mDrawerLayout != null) {
-                mDrawerLayout.closeDrawer(mDrawerList);
+            if (id < 0) {
+                if (mLoggedInUser != null) {
+                    String key = mLoggedInUser.getId();
+                    mTomahawkApp.getContentViewer().replace(UserFragment.class, key,
+                            TomahawkFragment.TOMAHAWK_USER_ID, false, false);
+                    if (mDrawerLayout != null) {
+                        mDrawerLayout.closeDrawer(mDrawerList);
+                    }
+                }
+            } else {
+                mTomahawkApp.getContentViewer().showHub((int) id);
+                if (mDrawerLayout != null) {
+                    mDrawerLayout.closeDrawer(mDrawerList);
+                }
             }
         }
     }
@@ -259,15 +295,7 @@ public class TomahawkMainActivity extends ActionBarActivity
             // Set the drawer toggle as the DrawerListener
             mDrawerLayout.setDrawerListener(mDrawerToggle);
         }
-
-        // Set up the TomahawkMenuAdapter. Give it its set of menu item texts and icons to display
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
-        TomahawkMenuAdapter slideMenuAdapter = new TomahawkMenuAdapter(this,
-                getResources().getStringArray(R.array.slide_menu_items),
-                getResources().obtainTypedArray(R.array.slide_menu_items_icons));
-        mDrawerList.setAdapter(slideMenuAdapter);
-
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        updateDrawer();
 
         // set customization variables on the ActionBar
         final ActionBar actionBar = getSupportActionBar();
@@ -342,6 +370,8 @@ public class TomahawkMainActivity extends ActionBarActivity
         intentFilter = new IntentFilter(PlaybackService.BROADCAST_CURRENTTRACKCHANGED);
         registerReceiver(mTomahawkMainReceiver, intentFilter);
         intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYSTATECHANGED);
+        registerReceiver(mTomahawkMainReceiver, intentFilter);
+        intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
         registerReceiver(mTomahawkMainReceiver, intentFilter);
     }
 
@@ -537,6 +567,21 @@ public class TomahawkMainActivity extends ActionBarActivity
     @Override
     public void onLoadFinished(Loader<Collection> loader, Collection coll) {
         mUserCollection = (UserCollection) coll;
+    }
+
+    private void updateDrawer() {
+        if (mLoggedInUser == null) {
+            mInfoSystem.resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF, null);
+        }
+        // Set up the TomahawkMenuAdapter. Give it its set of menu item texts and icons to display
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        TomahawkMenuAdapter slideMenuAdapter = new TomahawkMenuAdapter(this,
+                getResources().getStringArray(R.array.slide_menu_items),
+                getResources().obtainTypedArray(R.array.slide_menu_items_icons));
+        slideMenuAdapter.showContentHeader(mDrawerList, mLoggedInUser);
+        mDrawerList.setAdapter(slideMenuAdapter);
+
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
     }
 
     /**

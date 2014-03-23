@@ -110,21 +110,20 @@ public class AdapterUtils {
     }
 
     public static void fillContentHeader(Activity activity, ViewHolder viewHolder, User user) {
-        viewHolder.getImageView1().setVisibility(View.VISIBLE);
+        if (viewHolder.getImageView1() != null) {
+            viewHolder.getImageView1().setVisibility(View.VISIBLE);
+            TomahawkUtils.loadDrawableIntoImageView(activity, viewHolder.getImageView1(),
+                    R.drawable.dummy_user_header);
+        }
         if (viewHolder.getTextFirstLine() != null) {
             viewHolder.getTextFirstLine().setText(user.getName());
         }
-        TomahawkUtils.loadDrawableIntoImageView(activity, viewHolder.getImageView1(),
-                R.drawable.dummy_user_header);
-        ImageView roundedImageView =
-                (ImageView) activity.findViewById(R.id.content_header_roundedimage);
-        TomahawkUtils.loadRoundedImageIntoImageView(activity, roundedImageView, user.getImage(),
-                Image.IMAGE_SIZE_LARGE);
-        roundedImageView.setVisibility(View.VISIBLE);
-        int followersCount = user.getFollowersCount();
-        int followCount = user.getFollowCount();
-        String s = "Followers: " + followersCount + ", Following: " + followCount;
-        viewHolder.getTextSecondLine().setText(s);
+        if (viewHolder.getRoundedImage() != null) {
+            TomahawkUtils.loadRoundedImageIntoImageView(activity, viewHolder.getRoundedImage(),
+                    user.getImage(), Image.IMAGE_SIZE_LARGE);
+            viewHolder.getRoundedImage().setVisibility(View.VISIBLE);
+        }
+        viewHolder.getTextSecondLine().setText(user.getAbout());
     }
 
     public static void fillView(Activity activity, ViewHolder viewHolder, View rootView,
@@ -192,8 +191,9 @@ public class AdapterUtils {
         TomahawkListItem targetObject = socialAction.getTargetObject();
         if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE
                 .equals(socialAction.getType())) {
+            boolean action = Boolean.valueOf(socialAction.getAction());
             if (targetObject instanceof Query) {
-                String phrase = socialAction.getAction() ?
+                String phrase = action ?
                         resources.getString(R.string.socialaction_type_love_track_true)
                         : resources
                                 .getString(R.string.socialaction_type_love_track_false);
@@ -207,7 +207,7 @@ public class AdapterUtils {
             } else if (targetObject instanceof Artist
                     || targetObject instanceof Album) {
                 String firstLine = "";
-                String phrase = socialAction.getAction() ?
+                String phrase = action ?
                         resources.getString(R.string.socialaction_type_starred_true)
                         : resources.getString(R.string.socialaction_type_starred_false);
                 firstLine += socialAction.getUser().getName() + " " + phrase
@@ -224,8 +224,20 @@ public class AdapterUtils {
             viewHolder.getTextFirstLine()
                     .setText(socialAction.getUser().getName() + " " + phrase
                             + " " + targetObject.getName());
+        } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_CREATECOMMENT
+                .equals(socialAction.getType())) {
+            String phrase = resources.getString(R.string.socialaction_type_createcomment);
+            viewHolder.getTextFirstLine()
+                    .setText(socialAction.getUser().getName() + " " + phrase
+                            + " " + targetObject.getName() + ":");
+            viewHolder.getTextSecondLine().setVisibility(View.VISIBLE);
+            viewHolder.getTextSecondLine().setText(socialAction.getAction());
+        } else {
+            // Fallback, if no view is set yet
+            viewHolder.getTextFirstLine().setText("!FIXME! type: " + socialAction.getType()
+                    + ", action: " + socialAction.getAction());
         }
-        String fourthLine = dateToString(resources,socialAction.getDate());
+        String fourthLine = dateToString(resources, socialAction.getDate());
         viewHolder.getTextFourthLine().setVisibility(View.VISIBLE);
         viewHolder.getTextFourthLine().setText(fourthLine);
     }

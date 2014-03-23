@@ -124,6 +124,7 @@
     <string name="fake_preferences_bitrate_high">Best quality</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+    <string name="drawer_content_header_default_text">Not logged in</string>
     <string name="content_header_track">Track</string>
     <string name="content_header_tophit">Top Song</string>
     <string name="content_header_album">Album</string>
@@ -134,6 +135,7 @@
     <string name="socialaction_type_love_track_false">is all out of love for</string>
     <string name="socialaction_type_starred_true">starred</string>
     <string name="socialaction_type_starred_false">unstarred</string>
+    <string name="socialaction_type_createcomment">commented on</string>
     <string name="album_by_artist">by</string>
     <string name="time_ago">ago</string>
     <string name="time_seconds">seconds</string>

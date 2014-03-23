@@ -35,7 +35,7 @@ public class SocialAction implements TomahawkListItem {
 
     private String mId;
 
-    private boolean mAction;
+    private String mAction;
 
     private Album mAlbum;
 
@@ -149,11 +149,11 @@ public class SocialAction implements TomahawkListItem {
         return mId;
     }
 
-    public boolean getAction() {
+    public String getAction() {
         return mAction;
     }
 
-    public void setAction(boolean action) {
+    public void setAction(String action) {
         mAction = action;
     }
 
