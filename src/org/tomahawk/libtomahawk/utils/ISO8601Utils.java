@@ -1,5 +1,7 @@
 package org.tomahawk.libtomahawk.utils;
 
+import com.google.common.base.Strings;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -132,7 +134,16 @@ public class ISO8601Utils {
 
             if (date.charAt(offset) == '.') {
                 checkOffset(date, offset, '.');
-                milliseconds = parseInt(date, offset += 1, offset += 3);
+                int digitCount = 1;
+                while (offset + digitCount < date.length() && digitCount < 3
+                        && date.charAt(offset + 1 + digitCount) != 'Z'
+                        && date.charAt(offset + 1 + digitCount) != '+'
+                        && date.charAt(offset + 1 + digitCount) != '-') {
+                    digitCount++;
+                }
+                String msString = date.substring(offset += 1, offset += digitCount);
+                msString = Strings.padEnd(msString, 3, '0');
+                milliseconds = parseInt(msString, 0, 3);
             }
 
             // extract timezone
