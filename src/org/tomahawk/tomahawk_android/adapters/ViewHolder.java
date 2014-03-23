@@ -29,9 +29,13 @@ public class ViewHolder {
 
     private int mViewType;
 
-    private ImageView mImageViewLeft;
+    private ImageView mImageView1;
 
-    private ImageView mImageViewRight;
+    private ImageView mImageView2;
+
+    private ImageView mImageView3;
+
+    private ImageView mImageView4;
 
     private CheckBox mCheckBox;
 
@@ -52,10 +56,23 @@ public class ViewHolder {
         if (viewType == R.id.tomahawklistadapter_viewtype_singlelinelistitem) {
             mTextFirstLine = (TextView) rootView
                     .findViewById(R.id.single_line_list_textview);
+        } else if (viewType == R.id.tomahawklistadapter_viewtype_contentheader) {
+            mTextFirstLine = (TextView) rootView
+                    .findViewById(R.id.content_header_textview);
+            mTextSecondLine = (TextView) rootView
+                    .findViewById(R.id.content_header_textview2);
+            mImageView1 = (ImageView) rootView
+                    .findViewById(R.id.content_header_image);
+            mImageView2 = (ImageView) rootView
+                    .findViewById(R.id.content_header_image2);
+            mImageView3 = (ImageView) rootView
+                    .findViewById(R.id.content_header_image3);
+            mImageView4 = (ImageView) rootView
+                    .findViewById(R.id.content_header_image4);
         } else if (viewType == R.id.tomahawklistadapter_viewtype_doublelinelistitem) {
-            mImageViewLeft = (ImageView) rootView
+            mImageView1 = (ImageView) rootView
                     .findViewById(R.id.double_line_list_imageview);
-            mImageViewRight = (ImageView) rootView
+            mImageView2 = (ImageView) rootView
                     .findViewById(R.id.double_line_list_imageview2);
             mTextFirstLine = (TextView) rootView
                     .findViewById(R.id.double_line_list_textview);
@@ -68,7 +85,7 @@ public class ViewHolder {
             mTextFifthLine = (TextView) rootView
                     .findViewById(R.id.double_line_list_textview5);
         } else if (viewType == R.id.tomahawklistadapter_viewtype_header) {
-            mImageViewLeft = (ImageView) rootView
+            mImageView1 = (ImageView) rootView
                     .findViewById(R.id.single_line_list_header_icon_imageview);
             mTextFirstLine = (TextView) rootView
                     .findViewById(R.id.single_line_list_header_textview);
@@ -96,13 +113,13 @@ public class ViewHolder {
                     .findViewById(R.id.fake_preferences_textview);
             mTextSecondLine = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview2);
-            mImageViewRight = (ImageView) rootView
+            mImageView2 = (ImageView) rootView
                     .findViewById(R.id.fake_preferences_logo);
         } else if (viewType == R.id.fakepreferencesadapter_viewtype_header) {
             mTextFirstLine = (TextView) rootView
                     .findViewById(R.id.fake_preferences_header_textview);
         } else if (viewType == R.id.tomahawklistadapter_viewtype_griditem) {
-            mImageViewLeft = (ImageView) rootView
+            mImageView1 = (ImageView) rootView
                     .findViewById(R.id.album_art_grid_image);
             mTextFirstLine = (TextView) rootView
                     .findViewById(R.id.album_art_grid_textView);
@@ -115,12 +132,20 @@ public class ViewHolder {
         return mViewType;
     }
 
-    public ImageView getImageViewLeft() {
-        return mImageViewLeft;
+    public ImageView getImageView1() {
+        return mImageView1;
     }
 
-    public ImageView getImageViewRight() {
-        return mImageViewRight;
+    public ImageView getImageView2() {
+        return mImageView2;
+    }
+
+    public ImageView getImageView3() {
+        return mImageView3;
+    }
+
+    public ImageView getImageView4() {
+        return mImageView4;
     }
 
     public CheckBox getCheckBox() {

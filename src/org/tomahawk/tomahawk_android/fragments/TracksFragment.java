@@ -31,7 +31,6 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.content.Loader;
 import android.view.Menu;
@@ -146,8 +145,6 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 = new ArrayList<TomahawkListItem>();
         TomahawkListAdapter tomahawkListAdapter;
         Collection coll = mTomahawkMainActivity.getUserCollection();
-        boolean isLandscape = getResources().getConfiguration().orientation
-                == Configuration.ORIENTATION_LANDSCAPE;
         if (mAlbum != null) {
             mTomahawkMainActivity.setTitle(mAlbum.getName());
             queries.addAll(mAlbum.getQueries(mIsLocal));
@@ -158,7 +155,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true, false);
-                tomahawkListAdapter.showContentHeader(isLandscape, getListView(), mAlbum, mIsLocal);
+                tomahawkListAdapter.showContentHeader(getListView(), mAlbum, mIsLocal);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
@@ -174,8 +171,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true, false);
-                tomahawkListAdapter
-                        .showContentHeader(isLandscape, getListView(), mArtist, mIsLocal);
+                tomahawkListAdapter.showContentHeader(getListView(), mArtist, mIsLocal);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
@@ -190,8 +186,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true, false);
-                tomahawkListAdapter
-                        .showContentHeader(isLandscape, getListView(), mUserPlaylist, mIsLocal);
+                tomahawkListAdapter.showContentHeader(getListView(), mUserPlaylist, mIsLocal);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);

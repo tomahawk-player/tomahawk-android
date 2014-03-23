@@ -82,7 +82,7 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
                 viewHolder.getTextSecondLine().setVisibility(View.VISIBLE);
                 viewHolder.getTextSecondLine().setText(item.getArtist().getName());
                 if (item instanceof Album || item instanceof Artist) {
-                    TomahawkUtils.loadImageIntoImageView(mActivity, viewHolder.getImageViewLeft(),
+                    TomahawkUtils.loadImageIntoImageView(mActivity, viewHolder.getImageView1(),
                             item.getImage(), Image.IMAGE_SIZE_SMALL);
                 }
             }
