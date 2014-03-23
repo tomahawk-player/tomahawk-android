@@ -45,6 +45,8 @@ public class InfoRequestData {
 
     public static final int INFOREQUESTDATA_TYPE_USERS = 800;
 
+    public static final int INFOREQUESTDATA_TYPE_USERS_SELF = 805;
+
     public static final int INFOREQUESTDATA_TYPE_USERS_PLAYLISTS = 801;
 
     public static final int INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS = 803;

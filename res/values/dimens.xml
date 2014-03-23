@@ -13,8 +13,11 @@
 
     <dimen name="header_clear_space">208dp</dimen>
     <dimen name="header_clear_space_user">160dp</dimen>
+    <dimen name="header_clear_space_user_navdrawer">32dp</dimen>
     <dimen name="header_height_large">256dp</dimen>
+    <dimen name="header_height_large_navdrawer">128dp</dimen>
     <dimen name="header_roundedimage_height">128dp</dimen>
+    <dimen name="header_roundedimage_height_navdrawer">96dp</dimen>
 
     <dimen name="divider_height_thin">1dp</dimen>
     <dimen name="divider_height_thick">2dp</dimen>

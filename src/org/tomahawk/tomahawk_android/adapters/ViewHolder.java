@@ -29,6 +29,8 @@ public class ViewHolder {
 
     private int mViewType;
 
+    private ImageView mRoundedImage;
+
     private ImageView mImageView1;
 
     private ImageView mImageView2;
@@ -61,6 +63,8 @@ public class ViewHolder {
                     .findViewById(R.id.content_header_textview);
             mTextSecondLine = (TextView) rootView
                     .findViewById(R.id.content_header_textview2);
+            mRoundedImage = (ImageView) rootView
+                    .findViewById(R.id.content_header_roundedimage);
             mImageView1 = (ImageView) rootView
                     .findViewById(R.id.content_header_image);
             mImageView2 = (ImageView) rootView
@@ -130,6 +134,10 @@ public class ViewHolder {
 
     public int getViewType() {
         return mViewType;
+    }
+
+    public ImageView getRoundedImage() {
+        return mRoundedImage;
     }
 
     public ImageView getImageView1() {

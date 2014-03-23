@@ -294,7 +294,7 @@ public class InfoSystem {
         long timeStamp = System.currentTimeMillis();
         HatchetSocialAction socialAction = new HatchetSocialAction();
         socialAction.type = type;
-        socialAction.action = action;
+        socialAction.action = String.valueOf(action);
         socialAction.trackString = query.getName();
         socialAction.artistString = query.getArtist().getName();
         socialAction.timestamp = new Date(timeStamp);

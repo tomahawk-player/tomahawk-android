@@ -105,6 +105,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
     public static final String HATCHET_SOCIALACTION_TYPE_FOLLOW = "follow";
 
+    public static final String HATCHET_SOCIALACTION_TYPE_CREATECOMMENT = "createcomment";
+
     public static final String HATCHET_LOVEDITEMS = "lovedItems";
 
     public static final double HATCHET_SEARCHITEM_MIN_SCORE = 5.0;
@@ -186,6 +188,16 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS,
                             infoRequestData.getParams())
             );
+            infoRequestData
+                    .setInfoResult(mObjectMapper.readValue(rawJsonString, HatchetUsers.class));
+            return true;
+        } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF) {
+            if (TextUtils.isEmpty(mUserId)) {
+                return false;
+            }
+            params.put(HATCHET_PARAM_IDARRAY, mUserId);
+            rawJsonString = TomahawkUtils.httpsGet(buildQuery(
+                    InfoRequestData.INFOREQUESTDATA_TYPE_USERS, params));
             infoRequestData
                     .setInfoResult(mObjectMapper.readValue(rawJsonString, HatchetUsers.class));
             return true;
@@ -472,6 +484,36 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 convertedResultMap.put(HATCHET_ALBUMS, albums);
                 convertedResultMap.put(HATCHET_ARTISTS, artists);
                 convertedResultMap.put(HATCHET_USERS, users);
+            }
+        } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF) {
+            if (infoRequestData.getInfoResult() != null) {
+                HatchetUsers users = (HatchetUsers) infoRequestData.getInfoResult();
+                if (users.users != null && users.users.size() > 0) {
+                    Map<String, HatchetArtistInfo> artistInfoMap
+                            = new HashMap<String, HatchetArtistInfo>();
+                    if (users.artists != null) {
+                        for (HatchetArtistInfo artistInfo : users.artists) {
+                            artistInfoMap.put(artistInfo.id, artistInfo);
+                        }
+                    }
+                    Map<String, HatchetImage> imageMap = new HashMap<String, HatchetImage>();
+                    if (users.images != null) {
+                        for (HatchetImage image : users.images) {
+                            imageMap.put(image.id, image);
+                        }
+                    }
+                    Map<String, HatchetTrackInfo> trackInfoMap
+                            = new HashMap<String, HatchetTrackInfo>();
+                    if (users.tracks != null) {
+                        for (HatchetTrackInfo trackInfo : users.tracks) {
+                            trackInfoMap.put(trackInfo.id, trackInfo);
+                        }
+                    }
+                    ArrayList<User> convertedUsers = new ArrayList<User>();
+                    convertedUsers.add(InfoSystemUtils.convertToUser(
+                            users.users.get(0), trackInfoMap, artistInfoMap, imageMap));
+                    convertedResultMap.put(HATCHET_USERS, convertedUsers);
+                }
             }
         }
         infoRequestData.setConvertedResultMap(convertedResultMap);

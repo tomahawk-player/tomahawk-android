@@ -17,14 +17,18 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
+import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.utils.AdapterUtils;
 
 import android.app.Activity;
 import android.content.res.TypedArray;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -40,6 +44,8 @@ public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeader
 
     private final Activity mActivity;
 
+    private LayoutInflater mLayoutInflater;
+
     private List<String> mStringArray = new ArrayList<String>();
 
     private List<Integer> mIconArray = new ArrayList<Integer>();
@@ -54,10 +60,39 @@ public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeader
      */
     public TomahawkMenuAdapter(Activity activity, String[] stringArray, TypedArray iconArray) {
         mActivity = activity;
+        mLayoutInflater = activity.getLayoutInflater();
         Collections.addAll(mStringArray, stringArray);
         for (int i = 0; i < iconArray.length(); i++) {
             mIconArray.add(iconArray.getResourceId(i, 0));
         }
+    }
+
+    /**
+     * Show a content header. A content header provides information about the current {@link
+     * org.tomahawk.tomahawk_android.utils.TomahawkListItem} that the user has navigated to. Like an
+     * AlbumArt image with the {@link org.tomahawk.libtomahawk.collection.Album}s name, which is
+     * shown at the top of the listview, if the user browses to a particular {@link
+     * org.tomahawk.libtomahawk.collection.Album} in his {@link org.tomahawk.libtomahawk.collection.UserCollection}.
+     *
+     * @param list a reference to the list, so we can set its header view
+     * @param user the {@link User} object to show in the header view
+     */
+    public void showContentHeader(ListView list, User user) {
+        View contentHeaderView;
+        if (list.getHeaderViewsCount() == 0) {
+            contentHeaderView = mLayoutInflater.inflate(R.layout.content_header_user_navdrawer,
+                    null);
+            list.addHeaderView(contentHeaderView);
+        }
+        if (user != null) {
+            updateContentHeader(list, user);
+        }
+    }
+
+    public void updateContentHeader(ListView list, User user) {
+        ViewHolder viewHolder = new ViewHolder(list,
+                R.id.tomahawklistadapter_viewtype_contentheader);
+        AdapterUtils.fillContentHeader(mActivity, viewHolder, user);
     }
 
     /**
@@ -94,7 +129,7 @@ public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeader
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View view = mActivity.getLayoutInflater().inflate(R.layout.single_line_list_menu, null);
+        View view = mLayoutInflater.inflate(R.layout.single_line_list_menu, null);
         TextView textView = (TextView) view.findViewById(R.id.single_line_list_menu_textview);
         ImageView imageView = (ImageView) view.findViewById(R.id.icon_menu_imageview);
         String string = mStringArray.get(position);

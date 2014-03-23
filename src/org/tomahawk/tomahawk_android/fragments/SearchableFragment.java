@@ -129,21 +129,15 @@ public class SearchableFragment extends TomahawkFragment
                     }
                 }
             } else if (item instanceof Album) {
-                Bundle bundle = new Bundle();
                 String key = TomahawkUtils.getCacheKey((Album) item);
-                bundle.putString(TOMAHAWK_ALBUM_KEY, key);
                 mTomahawkApp.getContentViewer()
                         .replace(TracksFragment.class, key, TOMAHAWK_ALBUM_KEY, false, false);
             } else if (item instanceof Artist) {
-                Bundle bundle = new Bundle();
                 String key = TomahawkUtils.getCacheKey((Artist) item);
-                bundle.putString(TOMAHAWK_ARTIST_KEY, key);
                 mTomahawkApp.getContentViewer()
                         .replace(AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, false, false);
             } else if (item instanceof User) {
-                Bundle bundle = new Bundle();
                 String key = ((User) item).getId();
-                bundle.putString(TOMAHAWK_ARTIST_KEY, key);
                 mTomahawkApp.getContentViewer()
                         .replace(UserFragment.class, key, TOMAHAWK_USER_ID, false, false);
             }
