@@ -26,7 +26,6 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -52,7 +51,7 @@ public class UserFragment extends TomahawkFragment implements OnItemClickListene
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
 
         updateAdapter();
@@ -137,8 +136,6 @@ public class UserFragment extends TomahawkFragment implements OnItemClickListene
         ArrayList<TomahawkListItem> socialActions
                 = new ArrayList<TomahawkListItem>(mUser.getSocialActions());
         TomahawkListAdapter tomahawkListAdapter;
-        boolean isLandscape = getResources().getConfiguration().orientation
-                == Configuration.ORIENTATION_LANDSCAPE;
         if (mUser != null) {
             mTomahawkMainActivity.setTitle(mUser.getName());
             List<List<TomahawkListItem>> listArray
@@ -148,7 +145,7 @@ public class UserFragment extends TomahawkFragment implements OnItemClickListene
                 tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true, false);
-                tomahawkListAdapter.showContentHeader(isLandscape, getListView(), mUser, mIsLocal);
+                tomahawkListAdapter.showContentHeader(getListView(), mUser, mIsLocal);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);

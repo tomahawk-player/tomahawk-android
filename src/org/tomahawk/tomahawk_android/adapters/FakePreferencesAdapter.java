@@ -170,11 +170,11 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                     view.setTag(viewHolder);
                 }
             } else {
-                if (viewHolder.getImageViewLeft() != null) {
-                    viewHolder.getImageViewLeft().setVisibility(View.GONE);
+                if (viewHolder.getImageView1() != null) {
+                    viewHolder.getImageView1().setVisibility(View.GONE);
                 }
-                if (viewHolder.getImageViewRight() != null) {
-                    viewHolder.getImageViewRight().setVisibility(View.GONE);
+                if (viewHolder.getImageView2() != null) {
+                    viewHolder.getImageView2().setVisibility(View.GONE);
                 }
             }
 
@@ -184,11 +184,11 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                 boolean preferenceState = mSharedPreferences.getBoolean(item.getKey(), false);
                 viewHolder.getCheckBox().setChecked(preferenceState);
             } else if (viewHolder.getViewType() == R.id.fakepreferencesadapter_viewtype_auth) {
-                viewHolder.getImageViewRight().setImageResource(item.getDrawableResId());
+                viewHolder.getImageView2().setImageResource(item.getDrawableResId());
                 if (!item.isEnabled()) {
-                    viewHolder.getImageViewRight().setColorFilter(GreyscaleFilter.create());
+                    viewHolder.getImageView2().setColorFilter(GreyscaleFilter.create());
                 } else {
-                    viewHolder.getImageViewRight().clearColorFilter();
+                    viewHolder.getImageView2().clearColorFilter();
                 }
             } else if (viewHolder.getViewType() == R.id.fakepreferencesadapter_viewtype_spinner) {
                 String key = item.getKey();
