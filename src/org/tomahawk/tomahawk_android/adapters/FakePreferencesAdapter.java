@@ -184,6 +184,7 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                 boolean preferenceState = mSharedPreferences.getBoolean(item.getKey(), false);
                 viewHolder.getCheckBox().setChecked(preferenceState);
             } else if (viewHolder.getViewType() == R.id.fakepreferencesadapter_viewtype_auth) {
+                viewHolder.getImageView2().setVisibility(View.VISIBLE);
                 viewHolder.getImageView2().setImageResource(item.getDrawableResId());
                 if (!item.isEnabled()) {
                     viewHolder.getImageView2().setColorFilter(GreyscaleFilter.create());
