@@ -199,14 +199,18 @@ public class AdapterUtils {
         viewHolder.getTextView4().setText(album.getArtist().getName());
     }
 
-    public static void fillView(Activity activity, ViewHolder viewHolder,
-            SocialAction socialAction) {
+    public static void fillView(Activity activity, ViewHolder viewHolder, View rootView,
+            SocialAction socialAction, boolean showHighlighted, boolean showAsPlaying,
+            boolean showResolvedBy) {
         Resources resources = activity.getResources();
         TomahawkListItem targetObject = socialAction.getTargetObject();
+        rootView.setBackgroundResource(
+                R.drawable.selectable_background_tomahawk_opaque);
         if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE
                 .equals(socialAction.getType())) {
             boolean action = Boolean.valueOf(socialAction.getAction());
             if (targetObject instanceof Query) {
+                Query query = (Query) targetObject;
                 String phrase = action ?
                         resources.getString(R.string.socialaction_type_love_track_true)
                         : resources
@@ -214,10 +218,24 @@ public class AdapterUtils {
                 viewHolder.getTextView1()
                         .setText(socialAction.getUser().getName() + " " + phrase);
                 viewHolder.getTextView2().setVisibility(View.VISIBLE);
-                viewHolder.getTextView2().setText(targetObject.getName());
+                viewHolder.getTextView2().setText(query.getName());
                 viewHolder.getTextView3().setVisibility(View.VISIBLE);
                 viewHolder.getTextView3()
-                        .setText(targetObject.getArtist().getName());
+                        .setText(query.getArtist().getName());
+                if (showHighlighted) {
+                    rootView.setBackgroundResource(R.color.pressed_tomahawk);
+                    if (showAsPlaying) {
+                        viewHolder.getImageView1().setVisibility(ImageView.VISIBLE);
+                        TomahawkUtils.loadDrawableIntoImageView(activity,
+                                viewHolder.getImageView1(),
+                                R.drawable.ic_playlist_is_playing);
+                    }
+                }
+                if (showResolvedBy && query.getPreferredTrackResult() != null) {
+                    viewHolder.getImageView2().setVisibility(ImageView.VISIBLE);
+                    viewHolder.getImageView2().setImageDrawable(
+                            query.getPreferredTrackResult().getResolvedBy().getIcon());
+                }
             } else if (targetObject instanceof Artist
                     || targetObject instanceof Album) {
                 String firstLine = "";

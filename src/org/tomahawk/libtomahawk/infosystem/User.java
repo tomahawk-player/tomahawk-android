@@ -54,6 +54,8 @@ public class User implements TomahawkListItem {
 
     private ArrayList<SocialAction> mSocialActions = new ArrayList<SocialAction>();
 
+    private ArrayList<SocialAction> mFriendsFeed = new ArrayList<SocialAction>();
+
     /**
      * Construct a new {@link User} with the given id
      */
@@ -199,5 +201,13 @@ public class User implements TomahawkListItem {
 
     public void setSocialActions(ArrayList<SocialAction> socialActions) {
         mSocialActions = socialActions;
+    }
+
+    public ArrayList<SocialAction> getFriendsFeed() {
+        return mFriendsFeed;
+    }
+
+    public void setFriendsFeed(ArrayList<SocialAction> friendsFeed) {
+        mFriendsFeed = friendsFeed;
     }
 }

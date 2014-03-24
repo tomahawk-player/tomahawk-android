@@ -22,12 +22,14 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 
 import java.util.List;
 
@@ -36,21 +38,34 @@ import java.util.List;
  * android.widget.GridView} used for displaying all {@link Album}s in the {@link
  * org.tomahawk.libtomahawk.collection.UserCollection}.
  */
-public class TomahawkGridAdapter extends TomahawkBaseAdapter {
+public class TomahawkGridAdapter extends BaseAdapter {
+
+    private TomahawkMainActivity mTomahawkMainActivity;
 
     private LayoutInflater mLayoutInflater;
+
+    private List<List<TomahawkListItem>> mListArray;
 
     /**
      * Constructs a new {@link TomahawkGridAdapter}
      *
-     * @param activity  reference to whatever {@link Activity}
-     * @param listArray complete set of lists containing all content which the listview should be
-     *                  populated with
+     * @param tomahawkMainActivity reference to whatever {@link Activity}
+     * @param listArray            complete set of lists containing all content which the listview
+     *                             should be populated with
      */
-    public TomahawkGridAdapter(Activity activity, List<List<TomahawkListItem>> listArray) {
-        mActivity = activity;
-        mLayoutInflater = mActivity.getLayoutInflater();
+    public TomahawkGridAdapter(TomahawkMainActivity tomahawkMainActivity,
+            List<List<TomahawkListItem>> listArray) {
+        mTomahawkMainActivity = tomahawkMainActivity;
+        mLayoutInflater = mTomahawkMainActivity.getLayoutInflater();
         mListArray = listArray;
+    }
+
+    /**
+     * Set the complete list of lists
+     */
+    public void setListArray(List<List<TomahawkListItem>> listArray) {
+        mListArray = listArray;
+        notifyDataSetChanged();
     }
 
     /**
@@ -82,7 +97,8 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
                 viewHolder.getTextView2().setVisibility(View.VISIBLE);
                 viewHolder.getTextView2().setText(item.getArtist().getName());
                 if (item instanceof Album || item instanceof Artist) {
-                    TomahawkUtils.loadImageIntoImageView(mActivity, viewHolder.getImageView1(),
+                    TomahawkUtils.loadImageIntoImageView(mTomahawkMainActivity,
+                            viewHolder.getImageView1(),
                             item.getImage(), Image.IMAGE_SIZE_SMALL);
                 }
             }
@@ -95,11 +111,8 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
      */
     @Override
     public int getCount() {
-        if ((mFiltered ? mFilteredListArray : mListArray) == null) {
-            return 0;
-        }
         int displayedListArrayItemsCount = 0;
-        for (List<TomahawkListItem> list : (mFiltered ? mFilteredListArray : mListArray)) {
+        for (List<TomahawkListItem> list : mListArray) {
             displayedListArrayItemsCount += list.size();
         }
         return displayedListArrayItemsCount;
@@ -112,8 +125,7 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
     public Object getItem(int position) {
         Object item = null;
         int offsetCounter = 0;
-        for (int i = 0; i < (mFiltered ? mFilteredListArray : mListArray).size(); i++) {
-            List<TomahawkListItem> list = (mFiltered ? mFilteredListArray : mListArray).get(i);
+        for (List<TomahawkListItem> list : mListArray) {
             if (position - offsetCounter < list.size()) {
                 item = list.get(position - offsetCounter);
                 break;

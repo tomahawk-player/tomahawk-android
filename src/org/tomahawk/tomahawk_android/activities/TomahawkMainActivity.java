@@ -35,8 +35,8 @@ import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
+import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
-import org.tomahawk.tomahawk_android.fragments.UserFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
@@ -199,7 +199,7 @@ public class TomahawkMainActivity extends ActionBarActivity
             if (id < 0) {
                 if (mLoggedInUser != null) {
                     String key = mLoggedInUser.getId();
-                    mTomahawkApp.getContentViewer().replace(UserFragment.class, key,
+                    mTomahawkApp.getContentViewer().replace(SocialActionsFragment.class, key,
                             TomahawkFragment.TOMAHAWK_USER_ID, false, false);
                     if (mDrawerLayout != null) {
                         mDrawerLayout.closeDrawer(mDrawerList);

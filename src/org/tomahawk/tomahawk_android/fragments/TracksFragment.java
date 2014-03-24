@@ -17,7 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
@@ -26,7 +25,6 @@ import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
@@ -96,31 +94,33 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         position -= getListView().getHeaderViewsCount();
         if (position >= 0) {
-            if (getListAdapter().getItem(position) instanceof Query
-                    && ((Query) getListAdapter().getItem(position)).isPlayable()) {
-                ArrayList<Query> queries = new ArrayList<Query>();
-                if (mAlbum != null) {
-                    queries = mAlbum.getQueries(mIsLocal);
-                } else if (mArtist != null) {
-                    queries = mArtist.getQueries(mIsLocal);
-                } else if (mUserPlaylist != null) {
-                    queries = mUserPlaylist.getQueries();
-                } else {
-                    queries.addAll(mTomahawkMainActivity.getUserCollection().getQueries());
-                }
-                PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
-                if (playbackService != null && shouldShowPlaystate()
-                        && playbackService.getCurrentPlaylist().getCurrentQueryIndex()
-                        == mShownAlbums.size() + mShownArtists.size() + position) {
-                    playbackService.playPause();
-                } else {
-                    UserPlaylist playlist = UserPlaylist
-                            .fromQueryList(UserPlaylistsDataSource.CACHED_PLAYLIST_ID,
-                                    UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, queries,
-                                    queries.get(position));
-                    if (playbackService != null) {
-                        playbackService.setCurrentPlaylist(playlist);
-                        playbackService.start();
+            if (getListAdapter().getItem(position) instanceof Query) {
+                Query query = (Query) getListAdapter().getItem(position);
+                if (query.isPlayable()) {
+                    ArrayList<Query> queries = new ArrayList<Query>();
+                    if (mAlbum != null) {
+                        queries = mAlbum.getQueries(mIsLocal);
+                    } else if (mArtist != null) {
+                        queries = mArtist.getQueries(mIsLocal);
+                    } else if (mUserPlaylist != null) {
+                        queries = mUserPlaylist.getQueries();
+                    } else {
+                        queries.addAll(mTomahawkMainActivity.getUserCollection().getQueries());
+                    }
+                    PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
+                    if (playbackService != null && shouldShowPlaystate() && mQueryPositions
+                            .get(playbackService.getCurrentPlaylist().getCurrentQueryIndex())
+                            == position) {
+                        playbackService.playPause();
+                    } else {
+                        UserPlaylist playlist = UserPlaylist.fromQueryList(
+                                UserPlaylistsDataSource.CACHED_PLAYLIST_ID,
+                                UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, queries,
+                                queries.get(position));
+                        if (playbackService != null) {
+                            playbackService.setCurrentPlaylist(playlist);
+                            playbackService.start();
+                        }
                     }
                 }
             }
@@ -138,18 +138,17 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
     }
 
     /**
-     * Update this {@link TomahawkFragment}'s {@link TomahawkBaseAdapter} content
+     * Update this {@link TomahawkFragment}'s {@link TomahawkListAdapter} content
      */
-    public void updateAdapter() {
-        ArrayList<TomahawkListItem> queries
-                = new ArrayList<TomahawkListItem>();
+    @Override
+    protected void updateAdapter() {
+        ArrayList<TomahawkListItem> queries = new ArrayList<TomahawkListItem>();
         TomahawkListAdapter tomahawkListAdapter;
         Collection coll = mTomahawkMainActivity.getUserCollection();
         if (mAlbum != null) {
             mTomahawkMainActivity.setTitle(mAlbum.getName());
             queries.addAll(mAlbum.getQueries(mIsLocal));
-            List<List<TomahawkListItem>> listArray
-                    = new ArrayList<List<TomahawkListItem>>();
+            List<List<TomahawkListItem>> listArray = new ArrayList<List<TomahawkListItem>>();
             listArray.add(queries);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
@@ -164,8 +163,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         } else if (mArtist != null) {
             mTomahawkMainActivity.setTitle(mArtist.getName());
             queries.addAll(mArtist.getQueries(mIsLocal));
-            List<List<TomahawkListItem>> listArray
-                    = new ArrayList<List<TomahawkListItem>>();
+            List<List<TomahawkListItem>> listArray = new ArrayList<List<TomahawkListItem>>();
             listArray.add(queries);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
@@ -179,8 +177,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         } else if (mUserPlaylist != null) {
             mTomahawkMainActivity.setTitle(mUserPlaylist.getName());
             queries.addAll(mUserPlaylist.getQueries());
-            List<List<TomahawkListItem>> listArray
-                    = new ArrayList<List<TomahawkListItem>>();
+            List<List<TomahawkListItem>> listArray = new ArrayList<List<TomahawkListItem>>();
             listArray.add(queries);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
@@ -196,8 +193,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         } else {
             mTomahawkMainActivity.setTitle(getString(R.string.tracksfragment_title_string));
             queries.addAll(coll.getQueries());
-            List<List<TomahawkListItem>> listArray
-                    = new ArrayList<List<TomahawkListItem>>();
+            List<List<TomahawkListItem>> listArray = new ArrayList<List<TomahawkListItem>>();
             listArray.add(queries);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
@@ -209,35 +205,15 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         }
 
         mShownQueries.clear();
+        int i = 0;
         for (TomahawkListItem item : queries) {
             mShownQueries.add((Query) item);
+            mQueryPositions.put(i, i);
+            i++;
         }
 
         getListView().setOnItemClickListener(this);
-    }
 
-    /**
-     * @return the {@link Album} associated with this {@link TracksFragment}
-     */
-    public Album getAlbum() {
-        return mAlbum;
-    }
-
-    @Override
-    protected void onPipeLineResultsReported(ArrayList<String> queryKeys) {
-        for (String key : queryKeys) {
-            if (mCorrespondingQueryIds.contains(key)) {
-                updateAdapter();
-                break;
-            }
-        }
-    }
-
-    @Override
-    protected void onInfoSystemResultsReported(String requestId) {
-        if (mCurrentRequestIds.contains(requestId)) {
-            updateAdapter();
-            resolveVisibleQueries();
-        }
+        updateShowPlaystate();
     }
 }
