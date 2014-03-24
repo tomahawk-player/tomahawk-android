@@ -196,8 +196,8 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                         .getInt(key, SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE_MODE_MEDIUM));
                 viewHolder.getSpinner().setOnItemSelectedListener(new SpinnerListener(key));
             }
-            viewHolder.getTextFirstLine().setText(item.getTitle());
-            viewHolder.getTextSecondLine().setText(item.getSummary());
+            viewHolder.getTextView1().setText(item.getTitle());
+            viewHolder.getTextView2().setText(item.getSummary());
         }
 
         // Finally we can return the correct view
@@ -232,7 +232,7 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
         for (FakePreferenceGroup fakePreferenceGroup : mFakePreferenceGroups) {
             sizeSum += fakePreferenceGroup.getFakePreferences().size();
             if (position < sizeSum) {
-                viewHolder.getTextFirstLine().setText(fakePreferenceGroup.getHeader());
+                viewHolder.getTextView1().setText(fakePreferenceGroup.getHeader());
                 break;
             }
         }

@@ -35,6 +35,7 @@ import android.content.res.Configuration;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.List;
@@ -101,13 +102,21 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
         View contentHeaderView;
         boolean landscapeMode = mActivity.getResources().getConfiguration().orientation
                 == Configuration.ORIENTATION_LANDSCAPE;
-        if (!landscapeMode && list.getHeaderViewsCount() == 0) {
-            if (listItem instanceof User) {
-                contentHeaderView = mLayoutInflater.inflate(R.layout.content_header_user, null);
-            } else {
-                contentHeaderView = mLayoutInflater.inflate(R.layout.content_header, null);
+        if (listItem instanceof User) {
+            contentHeaderView = mLayoutInflater.inflate(R.layout.content_header_user, null);
+        } else {
+            contentHeaderView = mLayoutInflater.inflate(R.layout.content_header, null);
+        }
+        if (!landscapeMode) {
+            if (list.getHeaderViewsCount() == 0) {
+                list.addHeaderView(contentHeaderView);
             }
-            list.addHeaderView(contentHeaderView);
+        } else {
+            RelativeLayout frame = (RelativeLayout) mActivity
+                    .findViewById(R.id.content_header_image_frame);
+            if (frame.findViewById(R.id.content_header) == null) {
+                frame.addView(contentHeaderView);
+            }
         }
         updateContentHeader(listItem, isOnlyLocal);
     }
@@ -205,16 +214,16 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
             } else if (viewType == R.id.tomahawklistadapter_viewtype_doublelinelistitem) {
                 viewHolder.getImageView1().setVisibility(View.GONE);
                 viewHolder.getImageView2().setVisibility(View.GONE);
-                viewHolder.getTextSecondLine().setVisibility(View.GONE);
-                viewHolder.getTextThirdLine().setVisibility(View.GONE);
-                viewHolder.getTextFourthLine().setVisibility(View.GONE);
-                viewHolder.getTextFifthLine().setVisibility(View.GONE);
+                viewHolder.getTextView2().setVisibility(View.GONE);
+                viewHolder.getTextView3().setVisibility(View.GONE);
+                viewHolder.getTextView4().setVisibility(View.GONE);
+                viewHolder.getTextView5().setVisibility(View.GONE);
             }
 
             // After we've setup the correct view and viewHolder, we now can fill the View's
             // components with the correct data
             if (viewHolder.getViewType() == R.id.tomahawklistadapter_viewtype_singlelinelistitem) {
-                viewHolder.getTextFirstLine().setText(item.getName());
+                viewHolder.getTextView1().setText(item.getName());
             } else if (viewHolder.getViewType()
                     == R.id.tomahawklistadapter_viewtype_doublelinelistitem) {
                 if (item instanceof Query) {
@@ -305,38 +314,38 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                 if (mShowQueriesAsTopHits) {
                     TomahawkUtils.loadDrawableIntoImageView(mActivity,
                             viewHolder.getImageView1(), R.drawable.ic_action_tophits);
-                    viewHolder.getTextFirstLine().setText(R.string.tophits_categoryheaders_string);
+                    viewHolder.getTextView1().setText(R.string.tophits_categoryheaders_string);
                 } else {
                     TomahawkUtils.loadDrawableIntoImageView(mActivity,
                             viewHolder.getImageView1(), R.drawable.ic_action_track);
-                    viewHolder.getTextFirstLine().setText(R.string.tracksfragment_title_string);
+                    viewHolder.getTextView1().setText(R.string.tracksfragment_title_string);
                 }
             } else if (item instanceof Artist) {
                 TomahawkUtils.loadDrawableIntoImageView(mActivity, viewHolder.getImageView1(),
                         R.drawable.ic_action_artist);
-                viewHolder.getTextFirstLine().setText(R.string.artistsfragment_title_string);
+                viewHolder.getTextView1().setText(R.string.artistsfragment_title_string);
             } else if (item instanceof Album) {
                 TomahawkUtils.loadDrawableIntoImageView(mActivity, viewHolder.getImageView1(),
                         R.drawable.ic_action_album);
-                viewHolder.getTextFirstLine().setText(R.string.albumsfragment_title_string);
+                viewHolder.getTextView1().setText(R.string.albumsfragment_title_string);
             } else if (item instanceof UserPlaylist) {
                 TomahawkUtils.loadDrawableIntoImageView(mActivity, viewHolder.getImageView1(),
                         R.drawable.ic_action_playlist);
                 if (((UserPlaylist) item).isHatchetPlaylist()) {
-                    viewHolder.getTextFirstLine()
+                    viewHolder.getTextView1()
                             .setText(R.string.hatchet_userplaylists_categoryheaders_string);
                 } else {
-                    viewHolder.getTextFirstLine()
+                    viewHolder.getTextView1()
                             .setText(R.string.userplaylists_categoryheaders_string);
                 }
             } else if (item instanceof User) {
                 TomahawkUtils.loadDrawableIntoImageView(mActivity, viewHolder.getImageView1(),
                         R.drawable.ic_action_friends);
-                viewHolder.getTextFirstLine().setText(R.string.userfragment_title_string);
+                viewHolder.getTextView1().setText(R.string.userfragment_title_string);
             } else if (item instanceof SocialAction) {
                 TomahawkUtils.loadDrawableIntoImageView(mActivity, viewHolder.getImageView1(),
                         R.drawable.ic_action_trending);
-                viewHolder.getTextFirstLine().setText(R.string.content_header_activityfeed);
+                viewHolder.getTextView1().setText(R.string.category_header_activityfeed);
             }
             return view;
         } else {
