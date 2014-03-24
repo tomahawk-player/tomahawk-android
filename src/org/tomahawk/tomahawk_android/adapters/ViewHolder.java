@@ -43,26 +43,36 @@ public class ViewHolder {
 
     private Spinner mSpinner;
 
-    private TextView mTextFirstLine;
+    private TextView mTextView1;
 
-    private TextView mTextSecondLine;
+    private TextView mTextView2;
 
-    private TextView mTextThirdLine;
+    private TextView mTextView3;
 
-    private TextView mTextFourthLine;
+    private TextView mTextView4;
 
-    private TextView mTextFifthLine;
+    private TextView mTextView5;
+
+    private TextView mTextView6;
 
     public ViewHolder(View rootView, int viewType) {
         mViewType = viewType;
         if (viewType == R.id.tomahawklistadapter_viewtype_singlelinelistitem) {
-            mTextFirstLine = (TextView) rootView
+            mTextView1 = (TextView) rootView
                     .findViewById(R.id.single_line_list_textview);
         } else if (viewType == R.id.tomahawklistadapter_viewtype_contentheader) {
-            mTextFirstLine = (TextView) rootView
+            mTextView1 = (TextView) rootView
                     .findViewById(R.id.content_header_textview);
-            mTextSecondLine = (TextView) rootView
+            mTextView2 = (TextView) rootView
                     .findViewById(R.id.content_header_textview2);
+            mTextView3 = (TextView) rootView
+                    .findViewById(R.id.content_header_textview3);
+            mTextView4 = (TextView) rootView
+                    .findViewById(R.id.content_header_textview4);
+            mTextView5 = (TextView) rootView
+                    .findViewById(R.id.content_header_textview5);
+            mTextView6 = (TextView) rootView
+                    .findViewById(R.id.content_header_textview6);
             mRoundedImage = (ImageView) rootView
                     .findViewById(R.id.content_header_roundedimage);
             mImageView1 = (ImageView) rootView
@@ -78,56 +88,56 @@ public class ViewHolder {
                     .findViewById(R.id.double_line_list_imageview);
             mImageView2 = (ImageView) rootView
                     .findViewById(R.id.double_line_list_imageview2);
-            mTextFirstLine = (TextView) rootView
+            mTextView1 = (TextView) rootView
                     .findViewById(R.id.double_line_list_textview);
-            mTextSecondLine = (TextView) rootView
+            mTextView2 = (TextView) rootView
                     .findViewById(R.id.double_line_list_textview2);
-            mTextThirdLine = (TextView) rootView
+            mTextView3 = (TextView) rootView
                     .findViewById(R.id.double_line_list_textview3);
-            mTextFourthLine = (TextView) rootView
+            mTextView4 = (TextView) rootView
                     .findViewById(R.id.double_line_list_textview4);
-            mTextFifthLine = (TextView) rootView
+            mTextView5 = (TextView) rootView
                     .findViewById(R.id.double_line_list_textview5);
         } else if (viewType == R.id.tomahawklistadapter_viewtype_header) {
             mImageView1 = (ImageView) rootView
                     .findViewById(R.id.single_line_list_header_icon_imageview);
-            mTextFirstLine = (TextView) rootView
+            mTextView1 = (TextView) rootView
                     .findViewById(R.id.single_line_list_header_textview);
         } else if (viewType == R.id.fakepreferencesadapter_viewtype_plain) {
-            mTextFirstLine = (TextView) rootView
+            mTextView1 = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview);
-            mTextSecondLine = (TextView) rootView
+            mTextView2 = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview2);
         } else if (viewType == R.id.fakepreferencesadapter_viewtype_checkbox) {
-            mTextFirstLine = (TextView) rootView
+            mTextView1 = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview);
-            mTextSecondLine = (TextView) rootView
+            mTextView2 = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview2);
             mCheckBox = (CheckBox) rootView
                     .findViewById(R.id.fake_preferences_checkbox);
         } else if (viewType == R.id.fakepreferencesadapter_viewtype_spinner) {
-            mTextFirstLine = (TextView) rootView
+            mTextView1 = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview);
-            mTextSecondLine = (TextView) rootView
+            mTextView2 = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview2);
             mSpinner = (Spinner) rootView
                     .findViewById(R.id.fake_preferences_spinner);
         } else if (viewType == R.id.fakepreferencesadapter_viewtype_auth) {
-            mTextFirstLine = (TextView) rootView
+            mTextView1 = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview);
-            mTextSecondLine = (TextView) rootView
+            mTextView2 = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview2);
             mImageView2 = (ImageView) rootView
                     .findViewById(R.id.fake_preferences_logo);
         } else if (viewType == R.id.fakepreferencesadapter_viewtype_header) {
-            mTextFirstLine = (TextView) rootView
+            mTextView1 = (TextView) rootView
                     .findViewById(R.id.fake_preferences_header_textview);
         } else if (viewType == R.id.tomahawklistadapter_viewtype_griditem) {
             mImageView1 = (ImageView) rootView
                     .findViewById(R.id.album_art_grid_image);
-            mTextFirstLine = (TextView) rootView
+            mTextView1 = (TextView) rootView
                     .findViewById(R.id.album_art_grid_textView);
-            mTextSecondLine = (TextView) rootView
+            mTextView2 = (TextView) rootView
                     .findViewById(R.id.album_art_grid_textView2);
         }
     }
@@ -164,23 +174,27 @@ public class ViewHolder {
         return mSpinner;
     }
 
-    public TextView getTextFirstLine() {
-        return mTextFirstLine;
+    public TextView getTextView1() {
+        return mTextView1;
     }
 
-    public TextView getTextSecondLine() {
-        return mTextSecondLine;
+    public TextView getTextView2() {
+        return mTextView2;
     }
 
-    public TextView getTextThirdLine() {
-        return mTextThirdLine;
+    public TextView getTextView3() {
+        return mTextView3;
     }
 
-    public TextView getTextFourthLine() {
-        return mTextFourthLine;
+    public TextView getTextView4() {
+        return mTextView4;
     }
 
-    public TextView getTextFifthLine() {
-        return mTextFifthLine;
+    public TextView getTextView5() {
+        return mTextView5;
+    }
+
+    public TextView getTextView6() {
+        return mTextView6;
     }
 }

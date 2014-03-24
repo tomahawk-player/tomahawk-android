@@ -22,9 +22,9 @@
              android:layout_width="match_parent"
              android:layout_height="@dimen/header_height_large_navdrawer">
 
-    <ImageView android:layout_width="match_parent"
+    <ImageView android:id="@+id/content_header_image"
+               android:layout_width="match_parent"
                android:layout_height="match_parent"
-               android:src="@drawable/dummy_user_header"
                android:scaleType="centerCrop"/>
 
     <LinearLayout android:layout_width="match_parent"
@@ -65,17 +65,6 @@
                         android:text="@string/drawer_content_header_default_text"
                         android:paddingLeft="@dimen/padding_small"
                         android:paddingTop="@dimen/padding_medium"/>
-
-                <TextView
-                        android:id="@+id/content_header_textview2"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center|left"
-                        android:ellipsize="marquee"
-                        android:singleLine="true"
-                        android:textColor="@color/secondary_textcolor"
-                        android:textSize="@dimen/text_size_small"
-                        android:paddingLeft="@dimen/padding_small"/>
 
             </LinearLayout>
         </LinearLayout>

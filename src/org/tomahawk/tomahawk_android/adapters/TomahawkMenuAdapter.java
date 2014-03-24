@@ -92,7 +92,7 @@ public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeader
     public void updateContentHeader(ListView list, User user) {
         ViewHolder viewHolder = new ViewHolder(list,
                 R.id.tomahawklistadapter_viewtype_contentheader);
-        AdapterUtils.fillContentHeader(mActivity, viewHolder, user);
+        AdapterUtils.fillContentHeaderSmall(mActivity, viewHolder, user);
     }
 
     /**

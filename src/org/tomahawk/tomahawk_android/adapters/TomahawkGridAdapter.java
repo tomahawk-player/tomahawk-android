@@ -78,9 +78,9 @@ public class TomahawkGridAdapter extends TomahawkBaseAdapter {
             }
 
             if (viewHolder.getViewType() == R.id.tomahawklistadapter_viewtype_griditem) {
-                viewHolder.getTextFirstLine().setText(item.getName());
-                viewHolder.getTextSecondLine().setVisibility(View.VISIBLE);
-                viewHolder.getTextSecondLine().setText(item.getArtist().getName());
+                viewHolder.getTextView1().setText(item.getName());
+                viewHolder.getTextView2().setVisibility(View.VISIBLE);
+                viewHolder.getTextView2().setText(item.getArtist().getName());
                 if (item instanceof Album || item instanceof Artist) {
                     TomahawkUtils.loadImageIntoImageView(mActivity, viewHolder.getImageView1(),
                             item.getImage(), Image.IMAGE_SIZE_SMALL);
