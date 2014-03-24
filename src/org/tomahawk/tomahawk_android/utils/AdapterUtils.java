@@ -264,6 +264,16 @@ public class AdapterUtils {
                             + " " + targetObject.getName() + ":");
             viewHolder.getTextView2().setVisibility(View.VISIBLE);
             viewHolder.getTextView2().setText(socialAction.getAction());
+        } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LATCHON
+                .equals(socialAction.getType())) {
+            String phrase = resources.getString(R.string.socialaction_type_latchon);
+            viewHolder.getTextView1().setText(socialAction.getUser().getName() + " " + phrase
+                    + " " + targetObject.getName());
+        } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LATCHOFF
+                .equals(socialAction.getType())) {
+            String phrase = resources.getString(R.string.socialaction_type_latchoff);
+            viewHolder.getTextView1().setText(socialAction.getUser().getName() + " " + phrase
+                    + " " + targetObject.getName());
         } else {
             // Fallback, if no view is set yet
             viewHolder.getTextView1().setText("!FIXME! type: " + socialAction.getType()
