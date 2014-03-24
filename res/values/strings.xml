@@ -140,6 +140,8 @@
     <string name="socialaction_type_starred_true">starred</string>
     <string name="socialaction_type_starred_false">unstarred</string>
     <string name="socialaction_type_createcomment">commented on</string>
+    <string name="socialaction_type_latchon">listened along to</string>
+    <string name="socialaction_type_latchoff">stopped listening along to</string>
     <string name="album_by_artist">by</string>
     <string name="time_ago">ago</string>
     <string name="time_seconds">seconds</string>

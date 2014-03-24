@@ -107,6 +107,10 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
     public static final String HATCHET_SOCIALACTION_TYPE_CREATECOMMENT = "createcomment";
 
+    public static final String HATCHET_SOCIALACTION_TYPE_LATCHON = "latchOn";
+
+    public static final String HATCHET_SOCIALACTION_TYPE_LATCHOFF = "latchOff";
+
     public static final String HATCHET_LOVEDITEMS = "lovedItems";
 
     public static final double HATCHET_SEARCHITEM_MIN_SCORE = 5.0;
