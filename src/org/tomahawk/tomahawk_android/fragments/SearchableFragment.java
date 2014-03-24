@@ -115,9 +115,9 @@ public class SearchableFragment extends TomahawkFragment
             Object item = getListAdapter().getItem(position);
             if (item instanceof Query) {
                 PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
-                if (playbackService != null && shouldShowPlaystate()
-                        && playbackService.getCurrentPlaylist().getCurrentQueryIndex()
-                        == position - mShownAlbums.size() - mShownArtists.size()) {
+                if (playbackService != null && shouldShowPlaystate() && mQueryPositions
+                        .get(playbackService.getCurrentPlaylist().getCurrentQueryIndex())
+                        == position) {
                     playbackService.playPause();
                 } else {
                     UserPlaylist playlist = UserPlaylist.fromQueryList(
@@ -139,7 +139,7 @@ public class SearchableFragment extends TomahawkFragment
             } else if (item instanceof User) {
                 String key = ((User) item).getId();
                 mTomahawkApp.getContentViewer()
-                        .replace(UserFragment.class, key, TOMAHAWK_USER_ID, false, false);
+                        .replace(SocialActionsFragment.class, key, TOMAHAWK_USER_ID, false, false);
             }
         }
     }
@@ -156,49 +156,65 @@ public class SearchableFragment extends TomahawkFragment
      * Display all {@link org.tomahawk.libtomahawk.resolver.Result}s of the {@link
      * org.tomahawk.libtomahawk.resolver.Query} with the given key
      */
-    public void showQueryResults(String queryKey) {
+    public void getQueryResults(String queryKey) {
         Query query = Query.getQueryByKey(queryKey);
         mCurrentQueryString = query.getFullTextQuery();
         mShownQueries = query.getTrackQueries();
-        updateAdapter();
     }
 
-    public void showInfoResults(String requestId) {
+    public void getInfoResults(String requestId) {
         Map<String, List> convertedResultMap = mInfoSystem.getInfoRequestById(requestId)
                 .getConvertedResultMap();
         if (convertedResultMap != null) {
-            mShownArtists = (ArrayList<Artist>) convertedResultMap
+            ArrayList<Artist> artists = (ArrayList<Artist>) convertedResultMap
                     .get(HatchetInfoPlugin.HATCHET_ARTISTS);
-            mShownAlbums = (ArrayList<Album>) convertedResultMap
+            if (artists != null) {
+                mShownArtists = artists;
+            }
+            ArrayList<Album> albums = (ArrayList<Album>) convertedResultMap
                     .get(HatchetInfoPlugin.HATCHET_ALBUMS);
-            mShownUsers = (ArrayList<User>) convertedResultMap
+            if (albums != null) {
+                mShownAlbums = albums;
+            }
+            ArrayList<User> users = (ArrayList<User>) convertedResultMap
                     .get(HatchetInfoPlugin.HATCHET_USERS);
-            updateAdapter();
+            if (users != null) {
+                mShownUsers = users;
+            }
         }
     }
 
+    /**
+     * Update this {@link TomahawkFragment}'s {@link TomahawkListAdapter} content
+     */
+    @Override
     protected void updateAdapter() {
         List<List<TomahawkListItem>> listArray
                 = new ArrayList<List<TomahawkListItem>>();
-        if (mShownArtists != null) {
+        if (!mShownArtists.isEmpty()) {
             ArrayList<TomahawkListItem> artistResultList
                     = new ArrayList<TomahawkListItem>();
             artistResultList.addAll(mShownArtists);
             listArray.add(artistResultList);
         }
-        if (mShownAlbums != null) {
+        if (!mShownAlbums.isEmpty()) {
             ArrayList<TomahawkListItem> albumResultList
                     = new ArrayList<TomahawkListItem>();
             albumResultList.addAll(mShownAlbums);
             listArray.add(albumResultList);
         }
-        if (mShownUsers != null) {
+        if (!mShownUsers.isEmpty()) {
             ArrayList<TomahawkListItem> userResultList
                     = new ArrayList<TomahawkListItem>();
             userResultList.addAll(mShownUsers);
             listArray.add(userResultList);
         }
-        if (mShownQueries != null) {
+        if (!mShownQueries.isEmpty()) {
+            int precedingItemCount = mShownAlbums.size() + mShownArtists.size()
+                    + mShownUsers.size();
+            for (int i = 0; i < mShownQueries.size(); i++) {
+                mQueryPositions.put(i, i + precedingItemCount);
+            }
             ArrayList<TomahawkListItem> trackResultList
                     = new ArrayList<TomahawkListItem>();
             trackResultList.addAll(mShownQueries);
@@ -214,6 +230,7 @@ public class SearchableFragment extends TomahawkFragment
             ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
         }
         getListView().setOnItemClickListener(this);
+
         updateShowPlaystate();
     }
 
@@ -242,17 +259,23 @@ public class SearchableFragment extends TomahawkFragment
 
     @Override
     protected void onPipeLineResultsReported(ArrayList<String> queryKeys) {
+        boolean needsUpdate = false;
         for (String key : queryKeys) {
             if (mCorrespondingQueryIds.contains(key)) {
-                showQueryResults(key);
+                getQueryResults(key);
+                needsUpdate = true;
             }
+        }
+        if (needsUpdate) {
+            updateAdapter();
         }
     }
 
     @Override
     protected void onInfoSystemResultsReported(String requestId) {
         if (mCurrentRequestIds.contains(requestId)) {
-            showInfoResults(requestId);
+            getInfoResults(requestId);
+            updateAdapter();
         }
     }
 }

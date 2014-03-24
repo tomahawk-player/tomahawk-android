@@ -32,7 +32,6 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.FakeContextMenuDialog;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
@@ -50,6 +49,7 @@ import android.os.Message;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
+import android.util.SparseIntArray;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.Adapter;
@@ -133,6 +133,8 @@ public class TomahawkFragment extends TomahawkListFragment
     protected PipeLine mPipeline;
 
     protected HashSet<String> mCorrespondingQueryIds = new HashSet<String>();
+
+    protected SparseIntArray mQueryPositions = new SparseIntArray();
 
     protected ArrayList<Query> mShownQueries = new ArrayList<Query>();
 
@@ -555,7 +557,7 @@ public class TomahawkFragment extends TomahawkListFragment
     }
 
     /**
-     * Update this {@link TomahawkFragment}'s {@link TomahawkBaseAdapter} content
+     * Update this {@link TomahawkFragment}'s {@link TomahawkListAdapter} content
      */
     protected void updateAdapter() {
     }
@@ -564,12 +566,23 @@ public class TomahawkFragment extends TomahawkListFragment
      * If the PlaybackService signals, that it is ready, this method is being called
      */
     protected void onPlaybackServiceReady() {
+        updateShowPlaystate();
     }
 
     protected void onPipeLineResultsReported(ArrayList<String> queryKeys) {
+        for (String key : queryKeys) {
+            if (mCorrespondingQueryIds.contains(key)) {
+                updateAdapter();
+                break;
+            }
+        }
     }
 
     protected void onInfoSystemResultsReported(String requestId) {
+        if (mCurrentRequestIds.contains(requestId)) {
+            updateAdapter();
+            resolveVisibleQueries();
+        }
     }
 
     /**
@@ -620,11 +633,8 @@ public class TomahawkFragment extends TomahawkListFragment
             if (shouldShowPlaystate() && playbackService != null
                     && playbackService.getCurrentPlaylist() != null) {
                 tomahawkListAdapter.setShowPlaystate(true);
-                tomahawkListAdapter.setHighlightedItem(
-                        playbackService.getCurrentPlaylist().getCurrentQueryIndex()
-                                + mShownAlbums.size() + mShownArtists.size()
-                );
-                tomahawkListAdapter.setHighlightedItemIsPlaying(playbackService.isPlaying());
+                tomahawkListAdapter.setHighlightedItem(playbackService.isPlaying(), mQueryPositions
+                        .get(playbackService.getCurrentPlaylist().getCurrentQueryIndex()));
             } else {
                 tomahawkListAdapter.setShowPlaystate(false);
             }

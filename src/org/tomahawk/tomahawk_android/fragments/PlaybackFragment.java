@@ -320,14 +320,15 @@ public class PlaybackFragment extends TomahawkFragment
         if (tomahawkListAdapter != null) {
             if (playbackService != null && playbackService.getCurrentPlaylist() != null
                     && playbackService.getCurrentPlaylist().getCount() > 0) {
-                ArrayList<TomahawkListItem> tracks
-                        = new ArrayList<TomahawkListItem>();
+                List<List<TomahawkListItem>> listArray = new ArrayList<List<TomahawkListItem>>();
+                ArrayList<TomahawkListItem> tracks = new ArrayList<TomahawkListItem>();
                 tracks.addAll(playbackService.getCurrentPlaylist().getQueries());
-                tomahawkListAdapter.setListWithIndex(0, tracks);
+                listArray.add(tracks);
+                tomahawkListAdapter.setListArray(listArray);
                 tomahawkListAdapter.notifyDataSetChanged();
             }
         } else {
-            initAdapter();
+            updateAdapter();
         }
         if (mAlbumArtSwipeAdapter != null) {
             mAlbumArtSwipeAdapter.updatePlaylist();
@@ -350,22 +351,11 @@ public class PlaybackFragment extends TomahawkFragment
         }
     }
 
-    @Override
-    protected void onPipeLineResultsReported(ArrayList<String> queryKeys) {
-        for (String key : queryKeys) {
-            if (mCorrespondingQueryIds.contains(key)) {
-                onPlaylistChanged();
-                break;
-            }
-        }
-    }
-
     /**
-     * Initialize our listview adapter. Adds the current playlist's tracks, sets boolean variables
-     * to customize the listview's appearance. Adds the PlaybackFragment to the top of the
-     * listview.
+     * Update this {@link TomahawkFragment}'s {@link TomahawkListAdapter} content
      */
-    private void initAdapter() {
+    @Override
+    protected void updateAdapter() {
         PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
         if (playbackService != null && playbackService.getCurrentPlaylist() != null) {
             List<TomahawkListItem> tracks
@@ -378,13 +368,17 @@ public class PlaybackFragment extends TomahawkFragment
                     listArray);
             tomahawkListAdapter.setShowPlaystate(true);
             tomahawkListAdapter.setShowResolvedBy(true);
-            tomahawkListAdapter.setHighlightedItem(
+            tomahawkListAdapter.setHighlightedItem(playbackService.isPlaying(),
                     playbackService.getCurrentPlaylist().getCurrentQueryIndex());
-            tomahawkListAdapter.setHighlightedItemIsPlaying(playbackService.isPlaying());
             StickyListHeadersListView list = getListView();
             list.setOnItemClickListener(this);
             setListAdapter(tomahawkListAdapter);
+            for (int i = 0; i < tracks.size(); i++) {
+                mQueryPositions.put(i, i);
+            }
         }
+
+        updateShowPlaystate();
     }
 
     private void handlePageSelect() {

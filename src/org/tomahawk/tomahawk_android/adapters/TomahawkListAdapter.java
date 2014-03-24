@@ -26,6 +26,7 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout;
 import org.tomahawk.tomahawk_android.utils.AdapterUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
@@ -35,6 +36,7 @@ import android.content.res.Configuration;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -46,7 +48,11 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 /**
  * This class is used to populate a {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}.
  */
-public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyListHeadersAdapter {
+public class TomahawkListAdapter extends BaseAdapter implements StickyListHeadersAdapter {
+
+    private TomahawkMainActivity mTomahawkMainActivity;
+
+    private List<List<TomahawkListItem>> mListArray;
 
     private LayoutInflater mLayoutInflater;
 
@@ -58,6 +64,10 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
 
     private boolean mShowPlaystate = false;
 
+    private int mHighlightedItemPosition = -1;
+
+    private boolean mHighlightedItemIsPlaying = false;
+
     private boolean mShowResolvedBy = false;
 
     private boolean mShowArtistAsSingleLine = false;
@@ -65,14 +75,23 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
     /**
      * Constructs a new {@link TomahawkListAdapter}.
      *
-     * @param activity  reference to whatever {@link Activity}
-     * @param listArray complete set of lists containing all content which the listview should be
-     *                  populated with
+     * @param tomahawkMainActivity reference to whatever {@link Activity}
+     * @param listArray            complete set of lists containing all content which the listview
+     *                             should be populated with
      */
-    public TomahawkListAdapter(Activity activity, List<List<TomahawkListItem>> listArray) {
-        mActivity = activity;
-        mLayoutInflater = mActivity.getLayoutInflater();
+    public TomahawkListAdapter(TomahawkMainActivity tomahawkMainActivity,
+            List<List<TomahawkListItem>> listArray) {
+        mTomahawkMainActivity = tomahawkMainActivity;
+        mLayoutInflater = mTomahawkMainActivity.getLayoutInflater();
         mListArray = listArray;
+    }
+
+    /**
+     * Set the complete list of lists
+     */
+    public void setListArray(List<List<TomahawkListItem>> listArray) {
+        mListArray = listArray;
+        notifyDataSetChanged();
     }
 
     /**
@@ -100,7 +119,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
             boolean isOnlyLocal) {
         mContentHeaderTomahawkListItem = listItem;
         View contentHeaderView;
-        boolean landscapeMode = mActivity.getResources().getConfiguration().orientation
+        boolean landscapeMode = mTomahawkMainActivity.getResources().getConfiguration().orientation
                 == Configuration.ORIENTATION_LANDSCAPE;
         if (listItem instanceof User) {
             contentHeaderView = mLayoutInflater.inflate(R.layout.content_header_user, null);
@@ -112,7 +131,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                 list.addHeaderView(contentHeaderView);
             }
         } else {
-            RelativeLayout frame = (RelativeLayout) mActivity
+            RelativeLayout frame = (RelativeLayout) mTomahawkMainActivity
                     .findViewById(R.id.content_header_image_frame);
             if (frame.findViewById(R.id.content_header) == null) {
                 frame.addView(contentHeaderView);
@@ -123,22 +142,24 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
 
     public void updateContentHeader(TomahawkListItem listItem, boolean isOnlyLocal) {
         SquareHeightRelativeLayout frame = (SquareHeightRelativeLayout)
-                mActivity.findViewById(R.id.content_header_image_frame);
+                mTomahawkMainActivity.findViewById(R.id.content_header_image_frame);
         if (frame != null) {
             frame.setVisibility(SquareHeightRelativeLayout.VISIBLE);
         }
         ViewHolder viewHolder = new ViewHolder(
-                mActivity.getWindow().getDecorView().findViewById(android.R.id.content),
+                mTomahawkMainActivity.getWindow().getDecorView().findViewById(android.R.id.content),
                 R.id.tomahawklistadapter_viewtype_contentheader);
         if (listItem instanceof Album) {
-            AdapterUtils.fillContentHeader(mActivity, viewHolder, (Album) listItem, isOnlyLocal);
-        } else if (listItem instanceof Artist) {
-            AdapterUtils.fillContentHeader(mActivity, viewHolder, (Artist) listItem, isOnlyLocal);
-        } else if (listItem instanceof UserPlaylist) {
-            AdapterUtils.fillContentHeader(mActivity, viewHolder, (UserPlaylist) listItem,
+            AdapterUtils.fillContentHeader(mTomahawkMainActivity, viewHolder, (Album) listItem,
                     isOnlyLocal);
+        } else if (listItem instanceof Artist) {
+            AdapterUtils.fillContentHeader(mTomahawkMainActivity, viewHolder, (Artist) listItem,
+                    isOnlyLocal);
+        } else if (listItem instanceof UserPlaylist) {
+            AdapterUtils.fillContentHeader(mTomahawkMainActivity, viewHolder,
+                    (UserPlaylist) listItem, isOnlyLocal);
         } else if (listItem instanceof User) {
-            AdapterUtils.fillContentHeader(mActivity, viewHolder, (User) listItem);
+            AdapterUtils.fillContentHeader(mTomahawkMainActivity, viewHolder, (User) listItem);
         }
     }
 
@@ -148,6 +169,15 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
      */
     public void setShowPlaystate(boolean showPlaystate) {
         this.mShowPlaystate = showPlaystate;
+    }
+
+    /**
+     * set the position of the item, which should be highlighted
+     */
+    public void setHighlightedItem(boolean highlightedItemIsPlaying, int position) {
+        mHighlightedItemPosition = position;
+        mHighlightedItemIsPlaying = highlightedItemIsPlaying;
+        notifyDataSetChanged();
     }
 
     /**
@@ -226,18 +256,21 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                 viewHolder.getTextView1().setText(item.getName());
             } else if (viewHolder.getViewType()
                     == R.id.tomahawklistadapter_viewtype_doublelinelistitem) {
+                boolean shouldBeHighlighted = mShowPlaystate
+                        && position == mHighlightedItemPosition;
                 if (item instanceof Query) {
-                    AdapterUtils.fillView(mActivity, viewHolder, view, (Query) item,
-                            mShowPlaystate && position == mHighlightedItemPosition,
-                            mHighlightedItemIsPlaying, mShowResolvedBy);
+                    AdapterUtils.fillView(mTomahawkMainActivity, viewHolder, view, (Query) item,
+                            shouldBeHighlighted, mHighlightedItemIsPlaying, mShowResolvedBy);
                 } else if (item instanceof Album) {
-                    AdapterUtils.fillView(mActivity, viewHolder, (Album) item);
+                    AdapterUtils.fillView(mTomahawkMainActivity, viewHolder, (Album) item);
                 } else if (item instanceof Artist) {
-                    AdapterUtils.fillView(mActivity, viewHolder, (Artist) item);
+                    AdapterUtils.fillView(mTomahawkMainActivity, viewHolder, (Artist) item);
                 } else if (item instanceof User) {
-                    AdapterUtils.fillView(mActivity, viewHolder, (User) item);
+                    AdapterUtils.fillView(mTomahawkMainActivity, viewHolder, (User) item);
                 } else if (item instanceof SocialAction) {
-                    AdapterUtils.fillView(mActivity, viewHolder, (SocialAction) item);
+                    AdapterUtils.fillView(mTomahawkMainActivity, viewHolder, view,
+                            (SocialAction) item, shouldBeHighlighted, mHighlightedItemIsPlaying,
+                            mShowResolvedBy);
                 }
             }
         }
@@ -249,12 +282,9 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
      */
     @Override
     public int getCount() {
-        if ((mFiltered ? mFilteredListArray : mListArray) == null) {
-            return 0;
-        }
         int displayedListArrayItemsCount = 0;
         int displayedContentHeaderCount = 0;
-        for (List<TomahawkListItem> list : (mFiltered ? mFilteredListArray : mListArray)) {
+        for (List<TomahawkListItem> list : mListArray) {
             displayedListArrayItemsCount += list.size();
         }
         return displayedListArrayItemsCount + displayedContentHeaderCount;
@@ -267,8 +297,8 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
     public Object getItem(int position) {
         Object item = null;
         int offsetCounter = 0;
-        for (int i = 0; i < (mFiltered ? mFilteredListArray : mListArray).size(); i++) {
-            List<TomahawkListItem> list = (mFiltered ? mFilteredListArray : mListArray).get(i);
+        for (int i = 0; i < mListArray.size(); i++) {
+            List<TomahawkListItem> list = mListArray.get(i);
             if (position - offsetCounter < list.size()) {
                 item = list.get(position - offsetCounter);
                 break;
@@ -312,25 +342,25 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
 
             if (item instanceof Track || item instanceof Query) {
                 if (mShowQueriesAsTopHits) {
-                    TomahawkUtils.loadDrawableIntoImageView(mActivity,
+                    TomahawkUtils.loadDrawableIntoImageView(mTomahawkMainActivity,
                             viewHolder.getImageView1(), R.drawable.ic_action_tophits);
                     viewHolder.getTextView1().setText(R.string.tophits_categoryheaders_string);
                 } else {
-                    TomahawkUtils.loadDrawableIntoImageView(mActivity,
+                    TomahawkUtils.loadDrawableIntoImageView(mTomahawkMainActivity,
                             viewHolder.getImageView1(), R.drawable.ic_action_track);
                     viewHolder.getTextView1().setText(R.string.tracksfragment_title_string);
                 }
             } else if (item instanceof Artist) {
-                TomahawkUtils.loadDrawableIntoImageView(mActivity, viewHolder.getImageView1(),
-                        R.drawable.ic_action_artist);
+                TomahawkUtils.loadDrawableIntoImageView(mTomahawkMainActivity,
+                        viewHolder.getImageView1(), R.drawable.ic_action_artist);
                 viewHolder.getTextView1().setText(R.string.artistsfragment_title_string);
             } else if (item instanceof Album) {
-                TomahawkUtils.loadDrawableIntoImageView(mActivity, viewHolder.getImageView1(),
-                        R.drawable.ic_action_album);
+                TomahawkUtils.loadDrawableIntoImageView(mTomahawkMainActivity,
+                        viewHolder.getImageView1(), R.drawable.ic_action_album);
                 viewHolder.getTextView1().setText(R.string.albumsfragment_title_string);
             } else if (item instanceof UserPlaylist) {
-                TomahawkUtils.loadDrawableIntoImageView(mActivity, viewHolder.getImageView1(),
-                        R.drawable.ic_action_playlist);
+                TomahawkUtils.loadDrawableIntoImageView(mTomahawkMainActivity,
+                        viewHolder.getImageView1(), R.drawable.ic_action_playlist);
                 if (((UserPlaylist) item).isHatchetPlaylist()) {
                     viewHolder.getTextView1()
                             .setText(R.string.hatchet_userplaylists_categoryheaders_string);
@@ -339,17 +369,17 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
                             .setText(R.string.userplaylists_categoryheaders_string);
                 }
             } else if (item instanceof User) {
-                TomahawkUtils.loadDrawableIntoImageView(mActivity, viewHolder.getImageView1(),
-                        R.drawable.ic_action_friends);
+                TomahawkUtils.loadDrawableIntoImageView(mTomahawkMainActivity,
+                        viewHolder.getImageView1(), R.drawable.ic_action_friends);
                 viewHolder.getTextView1().setText(R.string.userfragment_title_string);
             } else if (item instanceof SocialAction) {
-                TomahawkUtils.loadDrawableIntoImageView(mActivity, viewHolder.getImageView1(),
-                        R.drawable.ic_action_trending);
+                TomahawkUtils.loadDrawableIntoImageView(mTomahawkMainActivity,
+                        viewHolder.getImageView1(), R.drawable.ic_action_trending);
                 viewHolder.getTextView1().setText(R.string.category_header_activityfeed);
             }
             return view;
         } else {
-            return new View(mActivity);
+            return new View(mTomahawkMainActivity);
         }
     }
 
@@ -364,7 +394,7 @@ public class TomahawkListAdapter extends TomahawkBaseAdapter implements StickyLi
     public long getHeaderId(int position) {
         long result = 0;
         int sizeSum = 0;
-        for (List<TomahawkListItem> list : mFiltered ? mFilteredListArray : mListArray) {
+        for (List<TomahawkListItem> list : mListArray) {
             sizeSum += list.size();
             if (position < sizeSum) {
                 break;

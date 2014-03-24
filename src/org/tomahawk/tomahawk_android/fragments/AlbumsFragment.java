@@ -18,7 +18,6 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Album;
-import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
@@ -26,7 +25,6 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.adapters.TomahawkBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
@@ -69,9 +67,9 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
             }
             if (item instanceof Query && ((Query) item).isPlayable()) {
                 PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
-                if (playbackService != null && shouldShowPlaystate()
-                        && playbackService.getCurrentPlaylist().getCurrentQueryIndex()
-                        == mShownAlbums.size() + mShownArtists.size() + position) {
+                if (playbackService != null && shouldShowPlaystate() && mQueryPositions.get(
+                        playbackService.getCurrentPlaylist().getCurrentQueryIndex())
+                        == position) {
                     playbackService.playPause();
                 } else {
                     UserPlaylist playlist = UserPlaylist
@@ -102,13 +100,12 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
     }
 
     /**
-     * Update this {@link TomahawkFragment}'s {@link TomahawkBaseAdapter} content
+     * Update this {@link TomahawkFragment}'s {@link TomahawkListAdapter} content
      */
+    @Override
     protected void updateAdapter() {
-        List<TomahawkListItem> albums
-                = new ArrayList<TomahawkListItem>();
-        List<TomahawkListItem> topHits
-                = new ArrayList<TomahawkListItem>();
+        List<TomahawkListItem> albums = new ArrayList<TomahawkListItem>();
+        List<TomahawkListItem> topHits = new ArrayList<TomahawkListItem>();
         if (!isShowGridView() && mArtist != null) {
             mTomahawkMainActivity.setTitle(mArtist.getName());
             if (mIsLocal) {
@@ -117,9 +114,11 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                 albums.addAll(mArtist.getAlbums());
                 topHits.addAll(mArtist.getTopHits());
                 mShownQueries = mArtist.getTopHits();
+                for (int i = 0; i < mShownQueries.size(); i++) {
+                    mQueryPositions.put(i, i);
+                }
             }
-            List<List<TomahawkListItem>> listArray
-                    = new ArrayList<List<TomahawkListItem>>();
+            List<List<TomahawkListItem>> listArray = new ArrayList<List<TomahawkListItem>>();
             listArray.add(topHits);
             listArray.add(albums);
             if (getListAdapter() == null) {
@@ -141,12 +140,11 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
             } else {
                 albums.addAll(Album.getAlbums());
             }
-            List<List<TomahawkListItem>> listArray
-                    = new ArrayList<List<TomahawkListItem>>();
+            List<List<TomahawkListItem>> listArray = new ArrayList<List<TomahawkListItem>>();
             listArray.add(albums);
             if (getGridAdapter() == null) {
-                TomahawkGridAdapter tomahawkGridAdapter = new TomahawkGridAdapter(getActivity(),
-                        listArray);
+                TomahawkGridAdapter tomahawkGridAdapter =
+                        new TomahawkGridAdapter(mTomahawkMainActivity, listArray);
                 setGridAdapter(tomahawkGridAdapter);
             } else {
                 getGridAdapter().setListArray(listArray);
@@ -154,30 +152,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
             getGridView().setOnItemClickListener(this);
             adaptColumnCount();
         }
-    }
 
-    /**
-     * @return the {@link Artist} corresponding to this instance of {@link AlbumsFragment}
-     */
-    public Artist getArtist() {
-        return mArtist;
-    }
-
-    @Override
-    protected void onPipeLineResultsReported(ArrayList<String> queryKeys) {
-        for (String key : queryKeys) {
-            if (mCorrespondingQueryIds.contains(key)) {
-                updateAdapter();
-                break;
-            }
-        }
-    }
-
-    @Override
-    protected void onInfoSystemResultsReported(String requestId) {
-        if (mCurrentRequestIds.contains(requestId)) {
-            updateAdapter();
-            resolveVisibleQueries();
-        }
+        updateShowPlaystate();
     }
 }
