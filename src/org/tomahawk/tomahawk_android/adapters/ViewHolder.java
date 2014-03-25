@@ -83,6 +83,13 @@ public class ViewHolder {
                     .findViewById(R.id.content_header_image3);
             mImageView4 = (ImageView) rootView
                     .findViewById(R.id.content_header_image4);
+        } else if (viewType == R.id.tomahawklistadapter_viewtype_contentheader_user_navdrawer) {
+            mTextView1 = (TextView) rootView
+                    .findViewById(R.id.content_header_textview_user_navdrawer);
+            mRoundedImage = (ImageView) rootView
+                    .findViewById(R.id.content_header_roundedimage_user_navdrawer);
+            mImageView1 = (ImageView) rootView
+                    .findViewById(R.id.content_header_image_user_navdrawer);
         } else if (viewType == R.id.tomahawklistadapter_viewtype_doublelinelistitem) {
             mImageView1 = (ImageView) rootView
                     .findViewById(R.id.double_line_list_imageview);
