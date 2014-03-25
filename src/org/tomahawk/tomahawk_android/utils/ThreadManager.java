@@ -36,6 +36,8 @@ public class ThreadManager {
     // Sets the Time Unit to seconds
     private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
 
+    private ThreadPoolExecutor mInfoSystemThreadPool;
+
     private ThreadPoolExecutor mPipeLineThreadPool;
 
     private ThreadPoolExecutor mPlaybackThreadPool;
@@ -43,8 +45,14 @@ public class ThreadManager {
     public ThreadManager() {
         mPipeLineThreadPool = new ThreadPoolExecutor(NUMBER_OF_CORES, NUMBER_OF_CORES,
                 KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, new PriorityBlockingQueue<Runnable>());
+        mInfoSystemThreadPool = new ThreadPoolExecutor(NUMBER_OF_CORES, NUMBER_OF_CORES,
+                KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, new PriorityBlockingQueue<Runnable>());
         mPlaybackThreadPool = new ThreadPoolExecutor(1, 1, KEEP_ALIVE_TIME,
                 KEEP_ALIVE_TIME_UNIT, new LinkedBlockingQueue<Runnable>());
+    }
+
+    public void executeInfoSystemRunnable(TomahawkRunnable r) {
+        mPipeLineThreadPool.execute(r);
     }
 
     public void executePipeLineRunnable(TomahawkRunnable r) {
@@ -59,6 +67,8 @@ public class ThreadManager {
         return mPipeLineThreadPool.getActiveCount() > 0
                 || mPipeLineThreadPool.getQueue().size() > 0
                 || mPlaybackThreadPool.getActiveCount() > 0
-                || mPlaybackThreadPool.getQueue().size() > 0;
+                || mPlaybackThreadPool.getQueue().size() > 0
+                || mInfoSystemThreadPool.getActiveCount() > 0
+                || mInfoSystemThreadPool.getQueue().size() > 0;
     }
 }

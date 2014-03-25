@@ -39,8 +39,8 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
+import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
-import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -152,15 +152,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
     @Override
     public void send(InfoRequestData infoRequestData, AuthenticatorUtils authenticatorUtils) {
         mHatchetAuthenticatorUtils = (HatchetAuthenticatorUtils) authenticatorUtils;
-        new JSONSendTask().execute(infoRequestData);
-    }
-
-    /**
-     * Start the JSONResponseTask to fetch results for the given InfoRequestData
-     */
-    @Override
-    public void resolve(InfoRequestData infoRequestData) {
-        new JSONResponseTask().execute(infoRequestData);
+        send(infoRequestData);
     }
 
     /**
@@ -170,10 +162,9 @@ public class HatchetInfoPlugin extends InfoPlugin {
      *                       results from the Hatchet API
      */
     @Override
-    public void resolve(InfoRequestData infoRequestData,
-            TomahawkListItem itemToBeFilled) {
+    public void resolve(InfoRequestData infoRequestData, TomahawkListItem itemToBeFilled) {
         mItemsToBeFilled.put(infoRequestData.getRequestId(), itemToBeFilled);
-        new JSONResponseTask().execute(infoRequestData);
+        resolve(infoRequestData);
     }
 
     /**
@@ -706,21 +697,21 @@ public class HatchetInfoPlugin extends InfoPlugin {
     }
 
     /**
-     * AsyncTask used to _send_ data to the Hatchet API (e.g. nowPlaying, playbackLogs etc.)
+     * _send_ data to the Hatchet API (e.g. nowPlaying, playbackLogs etc.)
      */
-    private class JSONSendTask extends AsyncTask<InfoRequestData, Void, ArrayList<String>> {
-
-        @Override
-        protected ArrayList<String> doInBackground(InfoRequestData... infoRequestDatas) {
-            ArrayList<String> doneRequestsIds = new ArrayList<String>();
-            if (mObjectMapper == null) {
-                mObjectMapper = InfoSystemUtils.constructObjectMapper();
-            }
-            try {
-                // Before we do anything, get the accesstoken
-                String accessToken = mHatchetAuthenticatorUtils.ensureAccessTokens();
-                if (accessToken != null) {
-                    for (InfoRequestData infoRequestData : infoRequestDatas) {
+    public void send(final InfoRequestData infoRequestData) {
+        TomahawkRunnable runnable = new TomahawkRunnable(
+                TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_LOW) {
+            @Override
+            public void run() {
+                ArrayList<String> doneRequestsIds = new ArrayList<String>();
+                if (mObjectMapper == null) {
+                    mObjectMapper = InfoSystemUtils.constructObjectMapper();
+                }
+                try {
+                    // Before we do anything, get the accesstoken
+                    String accessToken = mHatchetAuthenticatorUtils.ensureAccessTokens();
+                    if (accessToken != null) {
                         if (infoRequestData.getType()
                                 == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES
                                 || infoRequestData.getType()
@@ -735,41 +726,42 @@ public class HatchetInfoPlugin extends InfoPlugin {
                             doneRequestsIds.add(infoRequestData.getRequestId());
                         }
                     }
+                } catch (UnsupportedEncodingException e) {
+                    Log.e(TAG, "send: " + e.getClass() + ": " + e.getLocalizedMessage());
+                } catch (IOException e) {
+                    Log.e(TAG, "send: " + e.getClass() + ": " + e.getLocalizedMessage());
+                } catch (NoSuchAlgorithmException e) {
+                    Log.e(TAG, "send: " + e.getClass() + ": " + e.getLocalizedMessage());
+                } catch (KeyManagementException e) {
+                    Log.e(TAG, "send: " + e.getClass() + ": " + e.getLocalizedMessage());
                 }
-            } catch (UnsupportedEncodingException e) {
-                Log.e(TAG, "JSONSendTask: " + e.getClass() + ": " + e.getLocalizedMessage());
-            } catch (IOException e) {
-                Log.e(TAG, "JSONSendTask: " + e.getClass() + ": " + e.getLocalizedMessage());
-            } catch (NoSuchAlgorithmException e) {
-                Log.e(TAG, "JSONSendTask: " + e.getClass() + ": " + e.getLocalizedMessage());
-            } catch (KeyManagementException e) {
-                Log.e(TAG, "JSONSendTask: " + e.getClass() + ": " + e.getLocalizedMessage());
+                mTomahawkApp.getInfoSystem().reportResults(doneRequestsIds);
             }
-            return doneRequestsIds;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<String> doneRequestsIds) {
-            mTomahawkApp.getInfoSystem().reportResults(doneRequestsIds);
-        }
+        };
+        mTomahawkApp.getThreadManager().executeInfoSystemRunnable(runnable);
     }
 
     /**
-     * AsyncTask used to _fetch_ data from the Hatchet API (e.g. artist's top-hits, image etc.)
+     * _fetch_ data from the Hatchet API (e.g. artist's top-hits, image etc.)
      */
-    private class JSONResponseTask extends AsyncTask<InfoRequestData, Void, ArrayList<String>> {
-
-        @Override
-        protected ArrayList<String> doInBackground(InfoRequestData... infoRequestDatas) {
-            ArrayList<String> doneRequestsIds = new ArrayList<String>();
-            if (mObjectMapper == null) {
-                mObjectMapper = InfoSystemUtils.constructObjectMapper();
-            }
-            try {
-                // Before we do anything, fetch the mUserId corresponding to the currently logged in
-                // user's username
-                getUserid();
-                for (InfoRequestData infoRequestData : infoRequestDatas) {
+    public void resolve(final InfoRequestData infoRequestData) {
+        int priority;
+        if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
+            priority = TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_HIGH;
+        } else {
+            priority = TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_LOW;
+        }
+        TomahawkRunnable runnable = new TomahawkRunnable(priority) {
+            @Override
+            public void run() {
+                ArrayList<String> doneRequestsIds = new ArrayList<String>();
+                if (mObjectMapper == null) {
+                    mObjectMapper = InfoSystemUtils.constructObjectMapper();
+                }
+                try {
+                    // Before we do anything, fetch the mUserId corresponding to the currently logged in
+                    // user's username
+                    getUserid();
                     if (infoRequestData.getType()
                             == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
                         Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
@@ -778,23 +770,19 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         convertParsedItem(infoRequestData);
                         doneRequestsIds.add(infoRequestData.getRequestId());
                     }
+                } catch (ClientProtocolException e) {
+                    Log.e(TAG, "resolve: " + e.getClass() + ": " + e.getLocalizedMessage());
+                } catch (IOException e) {
+                    Log.e(TAG, "resolve: " + e.getClass() + ": " + e.getLocalizedMessage());
+                } catch (NoSuchAlgorithmException e) {
+                    Log.e(TAG, "resolve: " + e.getClass() + ": " + e.getLocalizedMessage());
+                } catch (KeyManagementException e) {
+                    Log.e(TAG, "resolve: " + e.getClass() + ": " + e.getLocalizedMessage());
                 }
-            } catch (ClientProtocolException e) {
-                Log.e(TAG, "JSONResponseTask: " + e.getClass() + ": " + e.getLocalizedMessage());
-            } catch (IOException e) {
-                Log.e(TAG, "JSONResponseTask: " + e.getClass() + ": " + e.getLocalizedMessage());
-            } catch (NoSuchAlgorithmException e) {
-                Log.e(TAG, "JSONResponseTask: " + e.getClass() + ": " + e.getLocalizedMessage());
-            } catch (KeyManagementException e) {
-                Log.e(TAG, "JSONResponseTask: " + e.getClass() + ": " + e.getLocalizedMessage());
+                mTomahawkApp.getInfoSystem().reportResults(doneRequestsIds);
             }
-            return doneRequestsIds;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<String> doneRequestsIds) {
-            mTomahawkApp.getInfoSystem().reportResults(doneRequestsIds);
-        }
+        };
+        mTomahawkApp.getThreadManager().executeInfoSystemRunnable(runnable);
     }
 
     /**
