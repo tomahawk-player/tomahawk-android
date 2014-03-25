@@ -424,8 +424,9 @@ public class TomahawkFragment extends TomahawkListFragment
             tomahawkListItem = ((TomahawkListAdapter) adapter).getContentHeaderTomahawkListItem();
         }
         boolean showDelete = true;
-        if (tomahawkListItem instanceof SocialAction
-                && ((SocialAction) tomahawkListItem).getTargetObject() instanceof User) {
+        if ((tomahawkListItem instanceof SocialAction
+                && ((SocialAction) tomahawkListItem).getTargetObject() instanceof User)
+                || tomahawkListItem instanceof User) {
             return false;
         }
         if (tomahawkListItem instanceof UserPlaylist
