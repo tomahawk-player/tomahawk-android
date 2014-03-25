@@ -148,9 +148,9 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
 
             mShownQueries.clear();
             int i = 0;
-            for (SocialAction socialAction : mUser.getSocialActions()) {
-                if (socialAction.getQuery() != null) {
-                    mShownQueries.add(socialAction.getQuery());
+            for (TomahawkListItem listItem : socialActions) {
+                if (((SocialAction) listItem).getQuery() != null) {
+                    mShownQueries.add(((SocialAction) listItem).getQuery());
                     mQueryPositions.put(mShownQueries.size() - 1, i);
                 }
                 i++;
