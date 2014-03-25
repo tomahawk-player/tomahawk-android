@@ -21,9 +21,11 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
+import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkContextMenuAdapter;
 import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
@@ -49,8 +51,7 @@ import java.util.ArrayList;
  */
 public class FakeContextMenuDialog extends TomahawkDialogFragment {
 
-    //array of {@link String} containing all menu entry texts
-    private String[] mMenuItemTitles;
+    TomahawkContextMenuAdapter mMenuAdapter;
 
     //the {@link TomahawkListItem} this {@link FakeContextMenuDialog} is associated with
     private TomahawkListItem mTomahawkListItem;
@@ -72,6 +73,7 @@ public class FakeContextMenuDialog extends TomahawkDialogFragment {
      */
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        boolean showDelete = false;
         if (getArguments() != null) {
             if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_ALBUM_KEY)) {
                 mAlbum = Album.getAlbumByKey(
@@ -92,16 +94,15 @@ public class FakeContextMenuDialog extends TomahawkDialogFragment {
                     dismiss();
                 }
             }
+            if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_SHOWDELETE_KEY)) {
+                showDelete = getArguments().getBoolean(TomahawkFragment.TOMAHAWK_SHOWDELETE_KEY);
+            }
             if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_LIST_ITEM_IS_LOCAL)) {
                 mIsLocal = getArguments().getBoolean(TomahawkFragment.TOMAHAWK_LIST_ITEM_IS_LOCAL);
             }
             if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_LIST_ITEM_POSITION)) {
                 mListItemPosition = getArguments().getInt(
                         TomahawkFragment.TOMAHAWK_LIST_ITEM_POSITION);
-            }
-            if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_MENUITEMTITLESARRAY_KEY)) {
-                mMenuItemTitles = getArguments()
-                        .getStringArray(TomahawkFragment.TOMAHAWK_MENUITEMTITLESARRAY_KEY);
             }
             if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_FROMPLAYBACKFRAGMENT)) {
                 mFromPlaybackFragment = getArguments()
@@ -123,6 +124,9 @@ public class FakeContextMenuDialog extends TomahawkDialogFragment {
                 } else if (TomahawkFragment.TOMAHAWK_QUERY_KEY.equals(type)) {
                     mTomahawkListItem = Query.getQueryByKey(getArguments()
                             .getString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY));
+                } else if (TomahawkFragment.TOMAHAWK_SOCIALACTION_ID.equals(type)) {
+                    mTomahawkListItem = SocialAction.getSocialActionById(getArguments()
+                            .getString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY));
                 }
                 if (mTomahawkListItem == null) {
                     dismiss();
@@ -140,8 +144,9 @@ public class FakeContextMenuDialog extends TomahawkDialogFragment {
                 dismiss();
             }
         });
-        listView.setAdapter(
-                new TomahawkContextMenuAdapter(getActivity().getLayoutInflater(), mMenuItemTitles));
+        mMenuAdapter = new TomahawkContextMenuAdapter((TomahawkMainActivity) getActivity(),
+                mTomahawkListItem, showDelete);
+        listView.setAdapter(mMenuAdapter);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(view);
         return builder.create();
@@ -155,7 +160,10 @@ public class FakeContextMenuDialog extends TomahawkDialogFragment {
         UserPlaylistsDataSource dataSource = mTomahawkApp.getUserPlaylistsDataSource();
         ArrayList<Query> queries = new ArrayList<Query>();
         PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
-        String menuItemTitle = mMenuItemTitles[position];
+        String menuItemTitle = (String) mMenuAdapter.getItem(position);
+        if (mTomahawkListItem instanceof SocialAction) {
+            mTomahawkListItem = ((SocialAction) mTomahawkListItem).getTargetObject();
+        }
         if (menuItemTitle
                 .equals(mTomahawkMainActivity.getString(R.string.fake_context_menu_delete))) {
             if (mTomahawkListItem instanceof UserPlaylist) {

@@ -17,7 +17,14 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
+import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.infosystem.SocialAction;
+import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,7 +33,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -36,19 +43,29 @@ import java.util.List;
  */
 public class TomahawkContextMenuAdapter extends BaseAdapter {
 
+    private TomahawkMainActivity mActivity;
+
     private final LayoutInflater mLayoutInflater;
 
     private List<String> mStringArray = new ArrayList<String>();
 
     /**
      * Constructs a new {@link TomahawkContextMenuAdapter}
-     *
-     * @param layoutInflater used to inflate the {@link View}s
-     * @param stringArray    the array of {@link String}s containing the context menu entry texts
      */
-    public TomahawkContextMenuAdapter(LayoutInflater layoutInflater, String[] stringArray) {
-        mLayoutInflater = layoutInflater;
-        Collections.addAll(mStringArray, stringArray);
+    public TomahawkContextMenuAdapter(TomahawkMainActivity activity, List<String> stringArray) {
+        mActivity = activity;
+        mLayoutInflater = activity.getLayoutInflater();
+        mStringArray = stringArray;
+    }
+
+    /**
+     * Constructs a new {@link TomahawkContextMenuAdapter}
+     */
+    public TomahawkContextMenuAdapter(TomahawkMainActivity activity, TomahawkListItem item,
+            boolean showDelete) {
+        mActivity = activity;
+        mLayoutInflater = activity.getLayoutInflater();
+        mStringArray = getMenuItems(item, showDelete);
     }
 
     /**
@@ -93,6 +110,54 @@ public class TomahawkContextMenuAdapter extends BaseAdapter {
             textView.setText(string);
         }
         return view;
+    }
+
+    private List<String> getMenuItems(TomahawkListItem item, boolean showDelete) {
+        LinkedList<String> menuItems = new LinkedList<String>();
+        if (item instanceof SocialAction) {
+            item = ((SocialAction) item).getTargetObject();
+            showDelete = false;
+        }
+        if (item instanceof UserPlaylist) {
+            menuItems.add(mActivity.getString(R.string.fake_context_menu_play));
+            menuItems.add(mActivity.getString(R.string.fake_context_menu_playaftercurrenttrack));
+            menuItems.add(mActivity.getString(R.string.fake_context_menu_appendtoplaybacklist));
+            menuItems.add(mActivity.getString(R.string.fake_context_menu_addtoplaylist));
+            if (showDelete) {
+                menuItems.add(mActivity.getString(R.string.fake_context_menu_delete));
+            }
+        } else if (item instanceof Query) {
+            Query query = ((Query) item);
+            if (query.isPlayable()) {
+                menuItems.add(mActivity.getString(R.string.fake_context_menu_play));
+                menuItems
+                        .add(mActivity.getString(R.string.fake_context_menu_playaftercurrenttrack));
+                menuItems.add(mActivity.getString(R.string.fake_context_menu_appendtoplaybacklist));
+                menuItems.add(mActivity.getString(R.string.fake_context_menu_addtoplaylist));
+            }
+            menuItems.add(mActivity.getString(R.string.menu_item_go_to_artist));
+            menuItems.add(mActivity.getString(R.string.menu_item_go_to_album));
+            if (mActivity.getUserCollection().isQueryLoved(query)) {
+                menuItems.add(mActivity.getString(R.string.fake_context_menu_unlove_track));
+            } else {
+                menuItems.add(mActivity.getString(R.string.fake_context_menu_love_track));
+            }
+            if (showDelete) {
+                menuItems.add(mActivity.getString(R.string.fake_context_menu_delete));
+            }
+        } else if (item instanceof Artist) {
+            menuItems.add(mActivity.getString(R.string.fake_context_menu_play));
+            menuItems.add(mActivity.getString(R.string.fake_context_menu_playaftercurrenttrack));
+            menuItems.add(mActivity.getString(R.string.fake_context_menu_appendtoplaybacklist));
+            menuItems.add(mActivity.getString(R.string.fake_context_menu_addtoplaylist));
+        } else if (item instanceof Album) {
+            menuItems.add(mActivity.getString(R.string.fake_context_menu_play));
+            menuItems.add(mActivity.getString(R.string.fake_context_menu_playaftercurrenttrack));
+            menuItems.add(mActivity.getString(R.string.fake_context_menu_appendtoplaybacklist));
+            menuItems.add(mActivity.getString(R.string.fake_context_menu_addtoplaylist));
+            menuItems.add(mActivity.getString(R.string.menu_item_go_to_artist));
+        }
+        return menuItems;
     }
 
 }
