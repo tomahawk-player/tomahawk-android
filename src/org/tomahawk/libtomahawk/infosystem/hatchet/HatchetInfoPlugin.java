@@ -111,6 +111,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
     public static final String HATCHET_SOCIALACTION_TYPE_LATCHOFF = "latchOff";
 
+    public static final String HATCHET_FRIENDSFEED = "friendsFeed";
+
     public static final String HATCHET_LOVEDITEMS = "lovedItems";
 
     public static final double HATCHET_SEARCHITEM_MIN_SCORE = 5.0;
@@ -245,6 +247,15 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS) {
             rawJsonString = TomahawkUtils.httpsGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS,
+                            infoRequestData.getParams())
+            );
+            infoRequestData.setInfoResult(
+                    mObjectMapper.readValue(rawJsonString, HatchetSocialActionResponse.class));
+            return true;
+        } else if (infoRequestData.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FRIENDSFEED) {
+            rawJsonString = TomahawkUtils.httpsGet(
+                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FRIENDSFEED,
                             infoRequestData.getParams())
             );
             infoRequestData.setInfoResult(
@@ -610,7 +621,9 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     }
                 }
             } else if (infoRequestData.getType()
-                    == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS) {
+                    == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS
+                    || infoRequestData.getType()
+                    == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FRIENDSFEED) {
                 if (infoRequestData.getInfoResult() != null) {
                     User user = (User) mItemsToBeFilled.get(infoRequestData.getRequestId());
                     HatchetSocialActionResponse response
@@ -650,7 +663,13 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                     .convertToSocialAction(hatchetSocialAction, trackInfoMap,
                                             artistInfoMap, albumInfoMap, userInfoMap));
                         }
-                        user.setSocialActions(socialActions);
+                        if (infoRequestData.getType()
+                                == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS) {
+                            user.setSocialActions(socialActions);
+                        } else if (infoRequestData.getType()
+                                == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FRIENDSFEED) {
+                            user.setFriendsFeed(socialActions);
+                        }
                     }
                 }
             }
@@ -827,6 +846,16 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         + HATCHET_USERS + "/"
                         + iterator.next() + "/"
                         + HATCHET_SOCIALACTIONS;
+                params.removeAll(HATCHET_PARAM_ID);
+                break;
+            case InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FRIENDSFEED:
+                paramStrings = params.get(HATCHET_PARAM_ID);
+                iterator = paramStrings.iterator();
+                queryString = HATCHET_BASE_URL + "/"
+                        + HATCHET_VERSION + "/"
+                        + HATCHET_USERS + "/"
+                        + iterator.next() + "/"
+                        + HATCHET_FRIENDSFEED;
                 params.removeAll(HATCHET_PARAM_ID);
                 break;
             case InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES:

@@ -42,10 +42,23 @@ import java.util.List;
  */
 public class SocialActionsFragment extends TomahawkFragment implements OnItemClickListener {
 
+    public static final String SHOW_DASHBOARD = "org.tomahawk.tomahawk_android.show_dashboard";
+
+    private boolean mShowDashboard;
+
     @Override
     public void onResume() {
         super.onResume();
-
+        if (getArguments() != null) {
+            if (getArguments().containsKey(SHOW_DASHBOARD)) {
+                mShowDashboard = getArguments().getBoolean(SHOW_DASHBOARD);
+                if (mShowDashboard) {
+                    mCurrentRequestIds.add(mInfoSystem.resolveFriendsFeed(mUser));
+                } else {
+                    mCurrentRequestIds.add(mInfoSystem.resolveSocialActions(mUser));
+                }
+            }
+        }
         updateAdapter();
     }
 
@@ -107,38 +120,45 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
      */
     @Override
     protected void updateAdapter() {
-        ArrayList<TomahawkListItem> socialActions
-                = new ArrayList<TomahawkListItem>(mUser.getSocialActions());
-        TomahawkListAdapter tomahawkListAdapter;
         if (mUser != null) {
+            ArrayList<TomahawkListItem> socialActions;
+            if (mShowDashboard) {
+                socialActions = new ArrayList<TomahawkListItem>(mUser.getFriendsFeed());
+            } else {
+                socialActions = new ArrayList<TomahawkListItem>(mUser.getSocialActions());
+            }
+            TomahawkListAdapter tomahawkListAdapter;
             mTomahawkMainActivity.setTitle(mUser.getName());
-            List<List<TomahawkListItem>> listArray
-                    = new ArrayList<List<TomahawkListItem>>();
+            List<List<TomahawkListItem>> listArray = new ArrayList<List<TomahawkListItem>>();
             listArray.add(socialActions);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true, false);
-                tomahawkListAdapter.showContentHeader(getListView(), mUser, mIsLocal);
+                if (!mShowDashboard) {
+                    tomahawkListAdapter.showContentHeader(getListView(), mUser, mIsLocal);
+                }
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
-                ((TomahawkListAdapter) getListAdapter()).updateContentHeader(mUser, mIsLocal);
+                if (!mShowDashboard) {
+                    ((TomahawkListAdapter) getListAdapter()).updateContentHeader(mUser, mIsLocal);
+                }
             }
-        }
 
-        mShownQueries.clear();
-        int i = 0;
-        for (SocialAction socialAction : mUser.getSocialActions()) {
-            if (socialAction.getQuery() != null) {
-                mShownQueries.add(socialAction.getQuery());
-                mQueryPositions.put(mShownQueries.size() - 1, i);
+            mShownQueries.clear();
+            int i = 0;
+            for (SocialAction socialAction : mUser.getSocialActions()) {
+                if (socialAction.getQuery() != null) {
+                    mShownQueries.add(socialAction.getQuery());
+                    mQueryPositions.put(mShownQueries.size() - 1, i);
+                }
+                i++;
             }
-            i++;
+
+            getListView().setOnItemClickListener(this);
+
+            updateShowPlaystate();
         }
-
-        getListView().setOnItemClickListener(this);
-
-        updateShowPlaystate();
     }
 }

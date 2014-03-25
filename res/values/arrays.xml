@@ -21,12 +21,14 @@
 <resources>
 
     <string-array name="slide_menu_items">
+        <item>@string/hub_title_dashboard</item>
         <item>@string/hub_title_collection</item>
         <item>@string/hub_title_lovedtracks</item>
         <item>@string/hub_title_playlists</item>
         <item>@string/hub_title_settings</item>
     </string-array>
     <array name="slide_menu_items_icons">
+        <item>@drawable/ic_action_dashboard</item>
         <item>@drawable/ic_action_collection</item>
         <item>@drawable/ic_action_loved</item>
         <item>@drawable/ic_action_playlist</item>

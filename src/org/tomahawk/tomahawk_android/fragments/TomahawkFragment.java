@@ -306,10 +306,7 @@ public class TomahawkFragment extends TomahawkListFragment
                 if (mUser == null) {
                     mTomahawkApp.getContentViewer().back();
                 }
-                ArrayList<String> requestIds = mInfoSystem.resolve(mUser);
-                for (String requestId : requestIds) {
-                    mCurrentRequestIds.add(requestId);
-                }
+                mCurrentRequestIds.add(mInfoSystem.resolve(mUser));
             }
             if (getArguments().containsKey(TOMAHAWK_HUB_ID)
                     && getArguments().getInt(TOMAHAWK_HUB_ID) > 0) {

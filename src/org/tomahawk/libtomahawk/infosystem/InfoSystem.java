@@ -35,6 +35,7 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.Intent;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -84,6 +85,8 @@ public class InfoSystem {
     private HashSet<User> mUserHashSet = new HashSet<User>();
 
     private HashSet<User> mUserSocialActionsHashSet = new HashSet<User>();
+
+    private HashSet<User> mUserFriendsFeedHashSet = new HashSet<User>();
 
     private Query mLastPlaybackLogEntry = null;
 
@@ -169,24 +172,54 @@ public class InfoSystem {
      * @param user the User to enrich with data from the InfoPlugins
      * @return the created InfoRequestData's requestId
      */
-    public ArrayList<String> resolve(User user) {
-        ArrayList<String> requestIds = new ArrayList<String>();
+    public String resolve(User user) {
         if (user != null) {
             if (!mUserHashSet.contains(user)) {
                 mUserHashSet.add(user);
                 Multimap<String, String> params = HashMultimap.create(1, 1);
                 params.put(HatchetInfoPlugin.HATCHET_PARAM_IDARRAY, user.getId());
-                requestIds.add(resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS, params, user));
+                return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS, params, user);
             }
+        }
+        return null;
+    }
+
+    /**
+     * Fill up the given user with metadata fetched from all added InfoPlugins
+     *
+     * @param user the User to enrich with data from the InfoPlugins
+     * @return the created InfoRequestData's requestId
+     */
+    public String resolveSocialActions(User user) {
+        if (user != null) {
             if (!mUserSocialActionsHashSet.contains(user)) {
                 mUserSocialActionsHashSet.add(user);
                 Multimap<String, String> params = HashMultimap.create(1, 1);
                 params.put(HatchetInfoPlugin.HATCHET_PARAM_ID, user.getId());
-                requestIds.add(resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS,
-                        params, user));
+                return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS,
+                        params, user);
             }
         }
-        return requestIds;
+        return null;
+    }
+
+    /**
+     * Fill up the given user with metadata fetched from all added InfoPlugins
+     *
+     * @param user the User to enrich with data from the InfoPlugins
+     * @return the created InfoRequestData's requestId
+     */
+    public String resolveFriendsFeed(User user) {
+        if (user != null) {
+            if (!mUserFriendsFeedHashSet.contains(user)) {
+                mUserFriendsFeedHashSet.add(user);
+                Multimap<String, String> params = HashMultimap.create(1, 1);
+                params.put(HatchetInfoPlugin.HATCHET_PARAM_ID, user.getId());
+                return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FRIENDSFEED,
+                        params, user);
+            }
+        }
+        return null;
     }
 
     /**

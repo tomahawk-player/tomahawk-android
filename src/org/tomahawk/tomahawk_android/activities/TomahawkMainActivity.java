@@ -687,4 +687,8 @@ public class TomahawkMainActivity extends ActionBarActivity
     public UserCollection getUserCollection() {
         return mUserCollection;
     }
+
+    public User getLoggedInUser() {
+        return mLoggedInUser;
+    }
 }
