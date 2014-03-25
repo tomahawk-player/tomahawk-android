@@ -22,6 +22,7 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
+import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.fragments.TracksFragment;
 import org.tomahawk.tomahawk_android.fragments.UserCollectionFragment;
@@ -31,7 +32,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.text.TextUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -41,39 +41,24 @@ import java.util.ArrayList;
  * user navigates to a new {@link Fragment}. It also implements a custom back stack for every hub,
  * so the user can always return to the previous {@link Fragment}s. There is one hub for every menu
  * entry in the navigation drawer.
- *
- *
- * Example state of the {@link ContentViewer}:
- *
- * Home (Hub #1): HomeFragment (not yet implemented) -> END OF BACKSTACK
- *
- * Search (Hub #2): SearchableFragment -> END OF BACKSTACK
- *
- * Collection (Hub #3): UserCollectionFragment -> AlbumsFragment -> END OF BACKSTACK
- *
- * Playlists (Hub #4): UserPlaylistsFragment -> TracksFragment -> END OF BACKSTACK
- *
- * Stations (Hub #5): StationsFragment (not yet implemented) -> END OF BACKSTACK
- *
- * Friends (Hub #6): FriendsFragment (not yet implemented) -> END OF BACKSTACK
- *
- * Settings (Hub #7): FakePreferenceFragment -> END OF BACKSTACK
  */
 public class ContentViewer {
 
     public static final int HUB_ID_HOME = -1;
 
-    public static final int HUB_ID_COLLECTION = 0;
+    public static final int HUB_ID_DASHBOARD = 0;
 
-    public static final int HUB_ID_LOVEDTRACKS = 1;
+    public static final int HUB_ID_COLLECTION = 1;
 
-    public static final int HUB_ID_PLAYLISTS = 2;
+    public static final int HUB_ID_LOVEDTRACKS = 2;
+
+    public static final int HUB_ID_PLAYLISTS = 3;
 
     public static final int HUB_ID_STATIONS = -2;
 
     public static final int HUB_ID_FRIENDS = -3;
 
-    public static final int HUB_ID_SETTINGS = 3;
+    public static final int HUB_ID_SETTINGS = 4;
 
     public static final int HUB_ID_PLAYBACK = 100;
 
@@ -101,12 +86,14 @@ public class ContentViewer {
         public String tomahawkListItemKey = "";
 
         //the type of the corresponding TomahawkListItem
-        public String tomahawkListItemType = null;
+        public String tomahawkListItemType = "";
 
         //whether or not the corresponding TomahawkListItem is local
         public boolean tomahawkListItemIsLocal = false;
 
-        public String queryString = null;
+        public boolean showDashboard = false;
+
+        public String queryString = "";
 
         //the listScrollPosition which is being stored and restored when the fragment is popped or stashed.
         public int listScrollPosition = 0;
@@ -134,6 +121,31 @@ public class ContentViewer {
             this.tomahawkListItemKey = tomahawkListItemKey;
             this.tomahawkListItemType = tomahawkListItemType;
             this.tomahawkListItemIsLocal = tomahawkListItemIsLocal;
+        }
+
+        /**
+         * Construct a {@link FragmentStateHolder} while also providing a reference to a {@link
+         * TomahawkListItem}
+         */
+        public FragmentStateHolder(Class clss, ArrayList<String> correspondingQueryIds,
+                String tomahawkListItemKey, String tomahawkListItemType,
+                boolean tomahawkListItemIsLocal, boolean showDashboard) {
+            this.clss = clss;
+            this.correspondingQueryIds = correspondingQueryIds;
+            this.tomahawkListItemKey = tomahawkListItemKey;
+            this.tomahawkListItemType = tomahawkListItemType;
+            this.tomahawkListItemIsLocal = tomahawkListItemIsLocal;
+            this.showDashboard = showDashboard;
+        }
+
+        public boolean equals(FragmentStateHolder fragmentStateHolder) {
+            return fragmentStateHolder != null
+                    && fragmentStateHolder.clss == this.clss
+                    && fragmentStateHolder.showDashboard == this.showDashboard
+                    && fragmentStateHolder.tomahawkListItemIsLocal == this.tomahawkListItemIsLocal
+                    && fragmentStateHolder.tomahawkListItemType.equals(this.tomahawkListItemType)
+                    && fragmentStateHolder.tomahawkListItemKey.equals(this.tomahawkListItemKey)
+                    && fragmentStateHolder.queryString.equals(this.queryString);
         }
     }
 
@@ -194,9 +206,12 @@ public class ContentViewer {
                 fragmentStateHolder.listScrollPosition);
         bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING,
                 fragmentStateHolder.queryString);
+        bundle.putBoolean(SocialActionsFragment.SHOW_DASHBOARD,
+                fragmentStateHolder.showDashboard);
         ft.replace(mContentFrameId,
                 Fragment.instantiate(mTomahawkMainActivity, fragmentStateHolder.clss.getName(),
-                        bundle), FRAGMENT_TAG);
+                        bundle), FRAGMENT_TAG
+        );
         ft.commit();
         mTomahawkMainActivity.updateViewVisibility();
     }
@@ -272,6 +287,13 @@ public class ContentViewer {
         FragmentStateHolder newFragmentStateHolder = null;
         switch (hubToShow) {
             case HUB_ID_HOME:
+            case HUB_ID_DASHBOARD:
+                if (mTomahawkMainActivity.getLoggedInUser() != null) {
+                    String key = mTomahawkMainActivity.getLoggedInUser().getId();
+                    newFragmentStateHolder = new FragmentStateHolder(SocialActionsFragment.class,
+                            null, key, TomahawkFragment.TOMAHAWK_USER_ID, false, true);
+                }
+                break;
             case HUB_ID_COLLECTION:
                 newFragmentStateHolder = new FragmentStateHolder(UserCollectionFragment.class,
                         null);
@@ -298,10 +320,7 @@ public class ContentViewer {
         }
         FragmentStateHolder currentFragmentStateHolder = getCurrentFragmentStateHolder();
         if (newFragmentStateHolder != null
-                || currentFragmentStateHolder == null
-                || currentFragmentStateHolder.clss != null
-                || !TextUtils.isEmpty(currentFragmentStateHolder.tomahawkListItemKey)
-                || currentFragmentStateHolder.tomahawkListItemType != null) {
+                && !newFragmentStateHolder.equals(currentFragmentStateHolder)) {
             replace(newFragmentStateHolder, false);
         }
     }

@@ -45,13 +45,15 @@ public class InfoRequestData {
 
     public static final int INFOREQUESTDATA_TYPE_USERS = 800;
 
-    public static final int INFOREQUESTDATA_TYPE_USERS_SELF = 805;
+    public static final int INFOREQUESTDATA_TYPE_USERS_SELF = 801;
 
-    public static final int INFOREQUESTDATA_TYPE_USERS_PLAYLISTS = 801;
+    public static final int INFOREQUESTDATA_TYPE_USERS_PLAYLISTS = 802;
 
     public static final int INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS = 803;
 
     public static final int INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS = 804;
+
+    public static final int INFOREQUESTDATA_TYPE_USERS_FRIENDSFEED = 805;
 
     public static final int INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES = 1000;
 

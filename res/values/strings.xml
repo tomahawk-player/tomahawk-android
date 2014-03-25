@@ -112,6 +112,7 @@
     <string name="menu_item_go_to_album">Go to album</string>
     <string name="hub_title_home">Home</string>
     <string name="hub_title_search">Search</string>
+    <string name="hub_title_dashboard">Dashboard</string>
     <string name="hub_title_collection">Collection</string>
     <string name="hub_title_playlists">Playlists</string>
     <string name="hub_title_lovedtracks">Loved tracks</string>
