@@ -24,7 +24,6 @@ import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.TomahawkContextMenuAdapter;
 import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
@@ -153,17 +152,16 @@ public class FakeContextMenuDialog extends TomahawkDialogFragment {
      * If the user clicks on a fakeContextItem, handle what should be done here
      */
     private void onFakeContextItemSelected(int position) {
+        UserPlaylistsDataSource dataSource = mTomahawkApp.getUserPlaylistsDataSource();
         ArrayList<Query> queries = new ArrayList<Query>();
         PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
         String menuItemTitle = mMenuItemTitles[position];
-        if (menuItemTitle.equals(mTomahawkMainActivity.getResources()
-                .getString(R.string.fake_context_menu_delete))) {
+        if (menuItemTitle
+                .equals(mTomahawkMainActivity.getString(R.string.fake_context_menu_delete))) {
             if (mTomahawkListItem instanceof UserPlaylist) {
-                ((TomahawkApp) mTomahawkMainActivity.getApplication()).getUserPlaylistsDataSource()
-                        .deleteUserPlaylist(((UserPlaylist) mTomahawkListItem).getId());
+                dataSource.deleteUserPlaylist(((UserPlaylist) mTomahawkListItem).getId());
             } else if (mTomahawkListItem instanceof Query && mUserPlaylist != null) {
-                ((TomahawkApp) mTomahawkMainActivity.getApplication()).getUserPlaylistsDataSource()
-                        .deleteQueryInUserPlaylist(mUserPlaylist.getId(), mListItemPosition);
+                dataSource.deleteQueryInUserPlaylist(mUserPlaylist.getId(), mListItemPosition);
             } else if (playbackService != null && mFromPlaybackFragment
                     && mTomahawkListItem instanceof Query) {
                 if (TomahawkUtils.getCacheKey(playbackService.getCurrentTrack())
@@ -187,7 +185,7 @@ public class FakeContextMenuDialog extends TomahawkDialogFragment {
                 playbackService.deleteQuery((Query) mTomahawkListItem);
             }
         } else if (menuItemTitle.equals(
-                mTomahawkMainActivity.getResources().getString(R.string.fake_context_menu_play))) {
+                mTomahawkMainActivity.getString(R.string.fake_context_menu_play))) {
             if (mFromPlaybackFragment) {
                 if (playbackService != null && mTomahawkListItem instanceof Query
                         && playbackService.getCurrentPlaylist().getCurrentQuery() != null) {
@@ -272,7 +270,7 @@ public class FakeContextMenuDialog extends TomahawkDialogFragment {
             mTomahawkApp.getContentViewer()
                     .replace(TracksFragment.class, key, TomahawkFragment.TOMAHAWK_ALBUM_KEY, false,
                             false);
-        } else if (menuItemTitle.equals(mTomahawkMainActivity.getResources()
+        } else if (menuItemTitle.equals(mTomahawkMainActivity
                 .getString(R.string.menu_item_go_to_artist))) {
             Bundle bundle = new Bundle();
             String key = TomahawkUtils.getCacheKey(mTomahawkListItem.getArtist());
