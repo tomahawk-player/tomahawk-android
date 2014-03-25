@@ -17,10 +17,14 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
+import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
@@ -60,8 +64,9 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
         position -= getListView().getHeaderViewsCount();
         if (position >= 0) {
             if (getListAdapter().getItem(position) instanceof SocialAction) {
-                Query query = ((SocialAction) getListAdapter().getItem(position)).getQuery();
-                if (query != null && query.isPlayable()) {
+                TomahawkListItem item = ((SocialAction) getListAdapter().getItem(position))
+                        .getTargetObject();
+                if (item instanceof Query && ((Query) item).isPlayable()) {
                     ArrayList<Query> queries = new ArrayList<Query>();
                     queries.addAll(mShownQueries);
                     PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
@@ -73,12 +78,25 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
                         UserPlaylist playlist = UserPlaylist
                                 .fromQueryList(UserPlaylistsDataSource.CACHED_PLAYLIST_ID,
                                         UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, queries,
-                                        query);
+                                        ((Query) item));
                         if (playbackService != null) {
                             playbackService.setCurrentPlaylist(playlist);
                             playbackService.start();
                         }
                     }
+                } else if (item instanceof Album) {
+                    String key = TomahawkUtils.getCacheKey(item);
+                    mTomahawkApp.getContentViewer()
+                            .replace(TracksFragment.class, key, TOMAHAWK_ALBUM_KEY, false, false);
+                } else if (item instanceof Artist) {
+                    String key = TomahawkUtils.getCacheKey(item);
+                    mTomahawkApp.getContentViewer()
+                            .replace(AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, false, false);
+                } else if (item instanceof User) {
+                    String key = ((User) item).getId();
+                    mTomahawkApp.getContentViewer()
+                            .replace(SocialActionsFragment.class, key, TOMAHAWK_USER_ID, false,
+                                    false);
                 }
             }
         }

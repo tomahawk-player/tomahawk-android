@@ -21,6 +21,7 @@ import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkContextMenuAdapter;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 
@@ -35,6 +36,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A {@link DialogFragment} which shows a list of all {@link UserPlaylist}s to choose from.
@@ -72,12 +74,12 @@ public class ChooseUserPlaylistDialog extends TomahawkDialogFragment {
             }
         });
         int customPlaylistCount = mUserCollection.getLocalUserPlaylists().size();
-        String[] playlistNames = new String[customPlaylistCount];
+        List<String> playlistNames = new ArrayList<String>();
         for (int i = 0; i < customPlaylistCount; i++) {
-            playlistNames[i] = mUserCollection.getLocalUserPlaylists().get(i).getName();
+            playlistNames.add(mUserCollection.getLocalUserPlaylists().get(i).getName());
         }
-        listView.setAdapter(
-                new TomahawkContextMenuAdapter(getActivity().getLayoutInflater(), playlistNames));
+        listView.setAdapter(new TomahawkContextMenuAdapter((TomahawkMainActivity) getActivity(),
+                playlistNames));
         LinearLayout linearLayout = (LinearLayout) view
                 .findViewById(R.id.playlist_dialog_addplaylist_layout);
         linearLayout.setOnClickListener(new View.OnClickListener() {

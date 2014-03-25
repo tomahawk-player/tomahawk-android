@@ -259,9 +259,30 @@ public class AdapterUtils {
         } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_CREATECOMMENT
                 .equals(socialAction.getType())) {
             String phrase = resources.getString(R.string.socialaction_type_createcomment);
-            viewHolder.getTextView1()
-                    .setText(socialAction.getUser().getName() + " " + phrase
-                            + " " + targetObject.getName() + ":");
+            if (targetObject instanceof Query) {
+                Query query = (Query) targetObject;
+                viewHolder.getTextView1().setText(socialAction.getUser().getName()
+                        + " " + phrase + " " + query.getName() + " "
+                        + resources.getString(R.string.album_by_artist) + " "
+                        + query.getArtist().getName() + ":");
+                if (showHighlighted) {
+                    rootView.setBackgroundResource(R.color.pressed_tomahawk);
+                    if (showAsPlaying) {
+                        viewHolder.getImageView1().setVisibility(ImageView.VISIBLE);
+                        TomahawkUtils.loadDrawableIntoImageView(activity,
+                                viewHolder.getImageView1(),
+                                R.drawable.ic_playlist_is_playing);
+                    }
+                }
+                if (showResolvedBy && query.getPreferredTrackResult() != null) {
+                    viewHolder.getImageView2().setVisibility(ImageView.VISIBLE);
+                    viewHolder.getImageView2().setImageDrawable(
+                            query.getPreferredTrackResult().getResolvedBy().getIcon());
+                }
+            } else {
+                viewHolder.getTextView1().setText(socialAction.getUser().getName() + " " + phrase
+                        + " " + targetObject.getName() + ":");
+            }
             viewHolder.getTextView2().setVisibility(View.VISIBLE);
             viewHolder.getTextView2().setText(socialAction.getAction());
         } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LATCHON
