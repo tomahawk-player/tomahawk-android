@@ -24,6 +24,7 @@ import com.google.common.collect.Multimap;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -173,6 +174,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                     .getLocalSource().getCollection());
             userCollection.fetchHatchetUserPlaylists();
             userCollection.fetchLovedItemsUserPlaylists();
+            mTomahawkApp.getInfoSystem().resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF,
+                    null);
             mIsAuthenticating = false;
             mTomahawkService.onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_HATCHET, true);
         }
