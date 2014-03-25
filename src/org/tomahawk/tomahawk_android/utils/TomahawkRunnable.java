@@ -19,6 +19,10 @@ package org.tomahawk.tomahawk_android.utils;
 
 public abstract class TomahawkRunnable implements Runnable, Comparable<TomahawkRunnable> {
 
+    public static final int PRIORITY_IS_INFOSYSTEM_HIGH = 100;
+
+    public static final int PRIORITY_IS_INFOSYSTEM_LOW = 90;
+
     public static final int PRIORITY_IS_AUTHENTICATING = 50;
 
     public static final int PRIORITY_IS_REPORTING_LOCALSOURCE = 40;
