@@ -84,7 +84,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     public static final String RESPONSE_TOKEN_TYPE = "token_type";
 
-    public static final String RESPONSE_TOKEN_TYPE_BEARER = "Bearer";
+    public static final String RESPONSE_TOKEN_TYPE_BEARER = "bearer";
 
     public static final String RESPONSE_TOKEN_TYPE_CALUMET = "calumet";
 
@@ -342,7 +342,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
      * Fetch the accessToken of the given tokenType by providing an existent token. The token is
      * cached and then returned.
      *
-     * @param tokenType The token type ("Bearer"(aka mandella) or "calumet")
+     * @param tokenType The token type ("bearer"(aka mandella) or "calumet")
      * @param token     In the case of fetching the bearer token, this token should be the bearer
      *                  refresh token provided by the initial auth process. If the calumet access
      *                  token should be fetched, then the given token should be the bearer access
