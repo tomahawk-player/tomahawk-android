@@ -366,7 +366,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
             }
             JSONObject jsonObject = new JSONObject(jsonString);
             if (jsonObject.has(RESPONSE_ERROR)
-                    || !tokenType.equals(jsonObject.getString(RESPONSE_TOKEN_TYPE))) {
+                    || !tokenType.toLowerCase().equals(
+                    jsonObject.getString(RESPONSE_TOKEN_TYPE).toLowerCase())) {
                 String error = jsonObject.getString(RESPONSE_ERROR);
                 String errorDescription = "Please reenter your Hatchet credentials";
                 logout();
@@ -380,7 +381,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 int expirationTime = currentTime + expiresIn;
                 Log.d(TAG, "Access token fetched, current time: '" + currentTime +
                         "', expiration time: '" + expirationTime + "'");
-                if (tokenType.equals(RESPONSE_TOKEN_TYPE_BEARER)) {
+                if (tokenType.toLowerCase().equals(RESPONSE_TOKEN_TYPE_BEARER.toLowerCase())) {
                     data.put(TomahawkService.MANDELLA_ACCESS_TOKEN_HATCHET, accessToken);
                     data.put(TomahawkService.MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
                             String.valueOf(expirationTime));
