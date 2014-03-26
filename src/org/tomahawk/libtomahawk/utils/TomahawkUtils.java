@@ -36,6 +36,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -201,12 +202,19 @@ public class TomahawkUtils {
             String jsonString)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         String output = null;
+        URLConnection urlConnection;
         HttpsURLConnection connection = null;
         try {
             URL url = new URL(urlString);
-            connection = setSSLSocketFactory(
-                    (HttpsURLConnection) url.openConnection());
+            urlConnection = url.openConnection();
+            if (urlConnection instanceof HttpsURLConnection) {
+                connection = (HttpsURLConnection) urlConnection;
+            } else {
+                throw new MalformedURLException(
+                        "Connection could not be cast to HttpUrlConnection");
+            }
 
+            connection = setSSLSocketFactory(connection);
             connection.setConnectTimeout(15000);
             connection.setReadTimeout(15000);
             connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
@@ -246,12 +254,19 @@ public class TomahawkUtils {
             boolean contentTypeIsJson, boolean paramsInHeader)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         String output = null;
+        URLConnection urlConnection;
         HttpsURLConnection connection = null;
         try {
             URL url = new URL(urlString);
-            connection = setSSLSocketFactory(
-                    (HttpsURLConnection) url.openConnection());
+            urlConnection = url.openConnection();
+            if (urlConnection instanceof HttpsURLConnection) {
+                connection = (HttpsURLConnection) urlConnection;
+            } else {
+                throw new MalformedURLException(
+                        "Connection could not be cast to HttpUrlConnection");
+            }
 
+            connection = setSSLSocketFactory(connection);
             connection.setConnectTimeout(15000);
             connection.setReadTimeout(15000);
             if (contentTypeIsJson) {
@@ -299,12 +314,19 @@ public class TomahawkUtils {
     public static String httpsGet(String urlString)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         String output = null;
+        URLConnection urlConnection;
         HttpsURLConnection connection = null;
         try {
             URL url = new URL(urlString);
-            connection = setSSLSocketFactory(
-                    (HttpsURLConnection) url.openConnection());
+            urlConnection = url.openConnection();
+            if (urlConnection instanceof HttpsURLConnection) {
+                connection = (HttpsURLConnection) urlConnection;
+            } else {
+                throw new MalformedURLException(
+                        "Connection could not be cast to HttpUrlConnection");
+            }
 
+            connection = setSSLSocketFactory(connection);
             connection.setConnectTimeout(15000);
             connection.setReadTimeout(15000);
             connection.setRequestMethod("GET");
@@ -327,10 +349,17 @@ public class TomahawkUtils {
     }
 
     public static boolean httpHeaderRequest(String urlString) {
+        URLConnection urlConnection;
         HttpURLConnection connection = null;
         try {
             URL url = new URL(urlString);
-            connection = (HttpURLConnection) url.openConnection();
+            urlConnection = url.openConnection();
+            if (urlConnection instanceof HttpURLConnection) {
+                connection = (HttpURLConnection) urlConnection;
+            } else {
+                throw new MalformedURLException(
+                        "Connection could not be cast to HttpUrlConnection");
+            }
 
             connection.setConnectTimeout(15000);
             connection.setReadTimeout(15000);
