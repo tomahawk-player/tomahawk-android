@@ -955,10 +955,10 @@ public class PlaybackService extends Service {
         }
         if (isPlaying()) {
             smallNotificationView.setImageViewResource(R.id.notification_small_imageview_playpause,
-                    R.drawable.ic_player_pause);
+                    R.drawable.ic_player_pause_light);
         } else {
             smallNotificationView.setImageViewResource(R.id.notification_small_imageview_playpause,
-                    R.drawable.ic_player_play);
+                    R.drawable.ic_player_play_light);
         }
         smallNotificationView.setOnClickPendingIntent(R.id.notification_small_imageview_playpause,
                 playPausePendingIntent);
@@ -1002,11 +1002,11 @@ public class PlaybackService extends Service {
             if (isPlaying()) {
                 largeNotificationView
                         .setImageViewResource(R.id.notification_large_imageview_playpause,
-                                R.drawable.ic_player_pause);
+                                R.drawable.ic_player_pause_light);
             } else {
                 largeNotificationView
                         .setImageViewResource(R.id.notification_large_imageview_playpause,
-                                R.drawable.ic_player_play);
+                                R.drawable.ic_player_play_light);
             }
             largeNotificationView
                     .setOnClickPendingIntent(R.id.notification_large_imageview_previous,

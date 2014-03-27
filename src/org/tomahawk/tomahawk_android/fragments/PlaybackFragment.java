@@ -637,7 +637,7 @@ public class PlaybackFragment extends TomahawkFragment
                 if (playbackService != null && playbackService.getCurrentPlaylist() != null
                         && playbackService.getCurrentPlaylist().isRepeating()) {
                     imageButton.getDrawable()
-                            .setColorFilter(getResources().getColor(R.color.pressed_tomahawk),
+                            .setColorFilter(getResources().getColor(R.color.tomahawk_red_transparent),
                                     PorterDuff.Mode.MULTIPLY);
                 } else {
                     imageButton.getDrawable().clearColorFilter();
@@ -658,7 +658,7 @@ public class PlaybackFragment extends TomahawkFragment
                 if (playbackService != null && playbackService.getCurrentPlaylist() != null
                         && playbackService.getCurrentPlaylist().isShuffled()) {
                     imageButton.getDrawable()
-                            .setColorFilter(getResources().getColor(R.color.pressed_tomahawk),
+                            .setColorFilter(getResources().getColor(R.color.tomahawk_red_transparent),
                                     PorterDuff.Mode.MULTIPLY);
                 } else {
                     imageButton.getDrawable().clearColorFilter();

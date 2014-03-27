@@ -27,7 +27,7 @@
             android:id="@+id/playback_trackInfoPanel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dip"
+            android:padding="@dimen/padding_small"
             android:orientation="vertical">
 
         <TextView
@@ -35,6 +35,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
+                android:ellipsize="marquee"
                 android:textStyle="bold"
                 android:textColor="@color/primary_textcolor"
                 android:textSize="@dimen/text_size_large"/>
@@ -44,6 +45,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
+                android:ellipsize="marquee"
                 android:textColor="@color/secondary_textcolor"
                 android:textSize="@dimen/text_size_small"/>
 
@@ -52,6 +54,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
+                android:ellipsize="marquee"
                 android:textColor="@color/secondary_textcolor"
                 android:textSize="@dimen/text_size_small"/>
     </LinearLayout>

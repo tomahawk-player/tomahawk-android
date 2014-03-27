@@ -23,7 +23,7 @@
               android:layout_height="match_parent"
               android:baselineAligned="false"
               android:orientation="horizontal"
-              android:background="@color/transparent_black">
+              android:background="@color/primary_transparent">
 
     <!-- The navigation drawer -->
     <ListView android:id="@+id/left_drawer"
@@ -77,7 +77,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@color/transparent_black">
+                android:background="@color/primary_transparent">
 
             <View
                     android:layout_width="match_parent"

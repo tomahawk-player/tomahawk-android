@@ -40,10 +40,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dip"
                 android:layout_weight="1"
-                android:paddingLeft="@dimen/padding_medium"
-                android:paddingRight="@dimen/padding_medium"
+                android:paddingLeft="@dimen/padding_large"
+                android:paddingRight="@dimen/padding_large"
                 android:gravity="center_vertical"
-                android:background="@color/transparent_black"
+                android:background="@color/primary_transparent"
                 android:orientation="vertical">
             <TextView
                     android:id="@+id/textView_title"
@@ -75,7 +75,7 @@
                 android:id="@+id/playback_seekbarpanel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/transparent_black">
+                android:background="@color/primary_transparent">
 
             <TextView
                     android:id="@+id/textView_currentTime"
@@ -116,16 +116,16 @@
                 android:id="@+id/playback_buttonPanel"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/row_height_verylarge"
-                android:background="@color/transparent_black">
+                android:background="@color/primary_transparent">
 
             <ImageButton
                     android:id="@+id/imageButton_shuffle"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_gravity="bottom"
                     android:layout_weight="1"
                     android:adjustViewBounds="true"
-                    android:background="@drawable/selectable_background_playback_small_land_tomahawk"
+                    android:background="@drawable/selectable_background_playback_small_tomahawk"
                     android:padding="15dip"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_player_shuffle"/>
@@ -137,22 +137,22 @@
                     android:layout_gravity="bottom"
                     android:layout_weight="1"
                     android:adjustViewBounds="true"
-                    android:background="@drawable/selectable_background_playback_small_land_tomahawk"
-                    android:paddingBottom="15dip"
-                    android:paddingLeft="15dip"
-                    android:paddingRight="20dip"
-                    android:paddingTop="15dip"
+                    android:background="@drawable/selectable_background_playback_small_tomahawk"
+                    android:paddingBottom="8dip"
+                    android:paddingLeft="8dip"
+                    android:paddingRight="13dip"
+                    android:paddingTop="8dip"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_player_previous"/>
 
             <ImageButton
                     android:id="@+id/imageButton_playpause"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_gravity="bottom|center_vertical"
                     android:layout_weight="1"
                     android:adjustViewBounds="true"
-                    android:background="@drawable/selectable_background_playback_large_land_tomahawk"
+                    android:background="@drawable/selectable_background_playback_small_tomahawk"
                     android:padding="8dip"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_player_pause"/>
@@ -160,26 +160,26 @@
             <ImageButton
                     android:id="@+id/imageButton_next"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_gravity="bottom"
                     android:layout_weight="1"
                     android:adjustViewBounds="true"
-                    android:background="@drawable/selectable_background_playback_small_land_tomahawk"
-                    android:paddingBottom="15dip"
-                    android:paddingLeft="20dip"
-                    android:paddingRight="15dip"
-                    android:paddingTop="15dip"
+                    android:background="@drawable/selectable_background_playback_small_tomahawk"
+                    android:paddingBottom="8dip"
+                    android:paddingLeft="13dip"
+                    android:paddingRight="8dip"
+                    android:paddingTop="8dip"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_player_next"/>
 
             <ImageButton
                     android:id="@+id/imageButton_repeat"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_gravity="bottom"
                     android:layout_weight="1"
                     android:adjustViewBounds="true"
-                    android:background="@drawable/selectable_background_playback_small_land_tomahawk"
+                    android:background="@drawable/selectable_background_playback_small_tomahawk"
                     android:padding="15dip"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_player_repeat"/>

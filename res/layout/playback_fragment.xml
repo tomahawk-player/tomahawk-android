@@ -77,13 +77,12 @@
     <LinearLayout
             android:id="@+id/playback_buttonPanel"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_height="@dimen/row_height_verylarge">
 
         <ImageButton
                 android:id="@+id/imageButton_shuffle"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_gravity="bottom"
                 android:layout_weight="1"
                 android:adjustViewBounds="true"
@@ -95,49 +94,49 @@
         <ImageButton
                 android:id="@+id/imageButton_previous"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_gravity="bottom"
                 android:layout_weight="1"
                 android:adjustViewBounds="true"
                 android:background="@drawable/selectable_background_playback_small_tomahawk"
-                android:paddingBottom="15dip"
-                android:paddingLeft="15dip"
-                android:paddingRight="20dip"
-                android:paddingTop="15dip"
+                android:paddingBottom="8dip"
+                android:paddingLeft="8dip"
+                android:paddingRight="13dip"
+                android:paddingTop="8dip"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_player_previous"/>
 
         <ImageButton
                 android:id="@+id/imageButton_playpause"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_gravity="bottom"
                 android:layout_weight="1"
                 android:adjustViewBounds="true"
-                android:background="@drawable/selectable_background_playback_large_tomahawk"
-                android:padding="8dip"
+                android:background="@drawable/selectable_background_playback_small_tomahawk"
+                android:padding="6dip"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_player_pause"/>
 
         <ImageButton
                 android:id="@+id/imageButton_next"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_gravity="bottom"
                 android:layout_weight="1"
                 android:adjustViewBounds="true"
                 android:background="@drawable/selectable_background_playback_small_tomahawk"
-                android:paddingBottom="15dip"
-                android:paddingLeft="20dip"
-                android:paddingRight="15dip"
-                android:paddingTop="15dip"
+                android:paddingBottom="8dip"
+                android:paddingLeft="13dip"
+                android:paddingRight="8dip"
+                android:paddingTop="8dip"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_player_next"/>
 
         <ImageButton
                 android:id="@+id/imageButton_repeat"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_gravity="bottom"
                 android:layout_weight="1"
                 android:adjustViewBounds="true"

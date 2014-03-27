@@ -50,6 +50,8 @@ public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeader
 
     private List<Integer> mIconArray = new ArrayList<Integer>();
 
+    private List<Integer> mColorArray = new ArrayList<Integer>();
+
     /**
      * Constructs a new {@link TomahawkMenuAdapter}
      *
@@ -57,13 +59,19 @@ public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeader
      * @param stringArray Array of {@link String}s containing every menu entry text
      * @param iconArray   {@link TypedArray} containing an array of resource ids to be used to show
      *                    an icon left to every menu entry text
+     * @param colorArray  {@link TypedArray} containing an array of resource ids to be used to show
+     *                    the appropriately colored background (fancy stuff :>)
      */
-    public TomahawkMenuAdapter(Activity activity, String[] stringArray, TypedArray iconArray) {
+    public TomahawkMenuAdapter(Activity activity, String[] stringArray, TypedArray iconArray,
+            TypedArray colorArray) {
         mActivity = activity;
         mLayoutInflater = activity.getLayoutInflater();
         Collections.addAll(mStringArray, stringArray);
         for (int i = 0; i < iconArray.length(); i++) {
             mIconArray.add(iconArray.getResourceId(i, 0));
+        }
+        for (int i = 0; i < colorArray.length(); i++) {
+            mColorArray.add(mActivity.getResources().getColor(colorArray.getResourceId(i, 0)));
         }
     }
 
@@ -134,11 +142,15 @@ public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeader
         ImageView imageView = (ImageView) view.findViewById(R.id.icon_menu_imageview);
         String string = mStringArray.get(position);
         Integer icon = mIconArray.get(position);
+        Integer color = mColorArray.get(position);
         if (string != null) {
             textView.setText(string);
         }
         if (icon != null) {
-            imageView.setBackgroundResource(icon);
+            imageView.setImageResource(icon);
+        }
+        if (color != null) {
+            imageView.setBackgroundColor(color);
         }
         return view;
     }

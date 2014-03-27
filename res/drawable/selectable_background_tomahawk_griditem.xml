@@ -25,6 +25,6 @@
     <item android:drawable="@drawable/list_focused_tomahawk" android:state_focused="true"
           android:state_pressed="false"/>
     <item android:drawable="@drawable/pressed_background_tomahawk" android:state_pressed="true"/>
-    <item android:drawable="@color/transparent_black"/>
+    <item android:drawable="@color/primary_transparent"/>
 
 </selector>

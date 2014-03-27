@@ -23,12 +23,12 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/row_height_medium"
         android:orientation="vertical"
-        android:background="@color/plain_black">
+        android:background="@color/primary_background">
 
     <View
             android:layout_width="match_parent"
             android:layout_height="@dimen/divider_height_thick"
-            android:background="@color/transparent_white"/>
+            android:background="@color/secondary_transparent"/>
 
     <LinearLayout
             android:layout_width="wrap_content"
@@ -68,5 +68,5 @@
     <View
             android:layout_width="match_parent"
             android:layout_height="@dimen/divider_height_thick"
-            android:background="@color/transparent_white"/>
+            android:background="@color/secondary_transparent"/>
 </LinearLayout>

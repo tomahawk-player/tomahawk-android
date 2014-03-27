@@ -5,6 +5,6 @@
        android:useLevel="false"
        android:shape="ring">
 
-    <solid android:color="@color/pressed_tomahawk"/>
+    <solid android:color="@color/tomahawk_red_transparent"/>
 
 </shape>

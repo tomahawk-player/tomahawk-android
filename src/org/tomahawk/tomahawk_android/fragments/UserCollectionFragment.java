@@ -44,7 +44,8 @@ public class UserCollectionFragment extends TomahawkListFragment implements OnIt
 
         TomahawkMenuAdapter tomahawkMenuAdapter = new TomahawkMenuAdapter(getActivity(),
                 getResources().getStringArray(R.array.local_collection_menu_items),
-                getResources().obtainTypedArray(R.array.local_collection_menu_items_icons));
+                getResources().obtainTypedArray(R.array.local_collection_menu_items_icons),
+                getResources().obtainTypedArray(R.array.local_collection_menu_items_colors));
         setListAdapter(tomahawkMenuAdapter);
         getListView().setOnItemClickListener(this);
     }

@@ -49,13 +49,13 @@
 
     <item
             android:id="@+id/action_gotoartist_item"
-            android:icon="@drawable/ic_action_artist"
+            android:icon="@drawable/ic_action_artist_light"
             tomahawk:showAsAction="ifRoom"
             android:title="@string/menu_item_go_to_artist"/>
 
     <item
             android:id="@+id/action_gotoalbum_item"
-            android:icon="@drawable/ic_action_album"
+            android:icon="@drawable/ic_action_album_light"
             tomahawk:showAsAction="ifRoom"
             android:title="@string/menu_item_go_to_album"/>
 
