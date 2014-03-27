@@ -49,6 +49,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:singleLine="true"
+                android:textStyle="bold"
                 android:textColor="@color/primary_textcolor"
                 android:textSize="@dimen/text_size_medium"/>
 
