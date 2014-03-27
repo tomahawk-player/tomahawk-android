@@ -157,8 +157,15 @@ public class AdapterUtils {
         viewHolder.getTextView4().setVisibility(View.VISIBLE);
         setTextViewEnabled(viewHolder.getTextView4(), query.isPlayable());
         setTextViewEnabled(viewHolder.getTextView5(), query.isPlayable());
+        Resources resources = activity.getResources();
         if (showHighlighted) {
             rootView.setBackgroundResource(R.color.tomahawk_red_transparent);
+            viewHolder.getTextView1()
+                    .setTextColor(resources.getColor(R.color.primary_textcolor_inverted));
+            viewHolder.getTextView4()
+                    .setTextColor(resources.getColor(R.color.secondary_textcolor_inverted));
+            viewHolder.getTextView5()
+                    .setTextColor(resources.getColor(R.color.secondary_textcolor_inverted));
             if (showAsPlaying) {
                 viewHolder.getImageView1().setVisibility(ImageView.VISIBLE);
                 TomahawkUtils.loadDrawableIntoImageView(activity,
@@ -166,6 +173,9 @@ public class AdapterUtils {
                         R.drawable.ic_playlist_is_playing);
             }
         } else {
+            viewHolder.getTextView1().setTextColor(resources.getColor(R.color.primary_textcolor));
+            viewHolder.getTextView4().setTextColor(resources.getColor(R.color.secondary_textcolor));
+            viewHolder.getTextView5().setTextColor(resources.getColor(R.color.secondary_textcolor));
             rootView.setBackgroundResource(
                     R.drawable.selectable_background_tomahawk_opaque);
         }
