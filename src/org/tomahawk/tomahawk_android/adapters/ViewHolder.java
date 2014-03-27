@@ -90,7 +90,8 @@ public class ViewHolder {
                     .findViewById(R.id.content_header_roundedimage_user_navdrawer);
             mImageView1 = (ImageView) rootView
                     .findViewById(R.id.content_header_image_user_navdrawer);
-        } else if (viewType == R.id.tomahawklistadapter_viewtype_doublelinelistitem) {
+        } else if (viewType == R.id.tomahawklistadapter_viewtype_listitem
+                || viewType == R.id.tomahawklistadapter_viewtype_listitemhighlighted) {
             mImageView1 = (ImageView) rootView
                     .findViewById(R.id.double_line_list_imageview);
             mImageView2 = (ImageView) rootView

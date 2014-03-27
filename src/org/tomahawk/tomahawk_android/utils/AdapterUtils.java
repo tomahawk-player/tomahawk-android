@@ -32,6 +32,8 @@ import org.tomahawk.tomahawk_android.adapters.ViewHolder;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -140,8 +142,8 @@ public class AdapterUtils {
         }
     }
 
-    public static void fillView(Activity activity, ViewHolder viewHolder, View rootView,
-            Query query, boolean showHighlighted, boolean showAsPlaying, boolean showResolvedBy) {
+    public static void fillView(Activity activity, ViewHolder viewHolder, Query query,
+            boolean showAsPlaying, boolean showResolvedBy) {
         viewHolder.getTextView1().setText(query.getName());
         viewHolder.getTextView4().setVisibility(View.VISIBLE);
         viewHolder.getTextView4().setText(query.getArtist().getName());
@@ -153,31 +155,20 @@ public class AdapterUtils {
             viewHolder.getTextView5().setText(activity.getResources().getString(
                     R.string.playbackactivity_seekbar_completion_time_string));
         }
-        setTextViewEnabled(viewHolder.getTextView1(), query.isPlayable());
+        boolean isHighlighted =
+                viewHolder.getViewType() == R.id.tomahawklistadapter_viewtype_listitemhighlighted;
+        setTextViewEnabled(viewHolder.getTextView1(), query.isPlayable(), false, isHighlighted);
         viewHolder.getTextView4().setVisibility(View.VISIBLE);
-        setTextViewEnabled(viewHolder.getTextView4(), query.isPlayable());
-        setTextViewEnabled(viewHolder.getTextView5(), query.isPlayable());
-        Resources resources = activity.getResources();
-        if (showHighlighted) {
-            rootView.setBackgroundResource(R.color.tomahawk_red_transparent);
-            viewHolder.getTextView1()
-                    .setTextColor(resources.getColor(R.color.primary_textcolor_inverted));
-            viewHolder.getTextView4()
-                    .setTextColor(resources.getColor(R.color.secondary_textcolor_inverted));
-            viewHolder.getTextView5()
-                    .setTextColor(resources.getColor(R.color.secondary_textcolor_inverted));
-            if (showAsPlaying) {
-                viewHolder.getImageView1().setVisibility(ImageView.VISIBLE);
-                TomahawkUtils.loadDrawableIntoImageView(activity,
-                        viewHolder.getImageView1(),
-                        R.drawable.ic_playlist_is_playing);
+        setTextViewEnabled(viewHolder.getTextView4(), query.isPlayable(), true, isHighlighted);
+        setTextViewEnabled(viewHolder.getTextView5(), query.isPlayable(), true, isHighlighted);
+        if (showAsPlaying) {
+            viewHolder.getImageView1().setVisibility(ImageView.VISIBLE);
+            viewHolder.getImageView1().setBackgroundResource(R.drawable.ic_playlist_is_playing);
+            if (viewHolder.getImageView1().getAnimation() == null) {
+                viewHolder.getImageView1().startAnimation(constructRotateAnimation());
             }
         } else {
-            viewHolder.getTextView1().setTextColor(resources.getColor(R.color.primary_textcolor));
-            viewHolder.getTextView4().setTextColor(resources.getColor(R.color.secondary_textcolor));
-            viewHolder.getTextView5().setTextColor(resources.getColor(R.color.secondary_textcolor));
-            rootView.setBackgroundResource(
-                    R.drawable.selectable_background_tomahawk_opaque);
+            viewHolder.getImageView1().clearAnimation();
         }
         if (showResolvedBy && query.getPreferredTrackResult() != null) {
             viewHolder.getImageView2().setVisibility(ImageView.VISIBLE);
@@ -209,13 +200,10 @@ public class AdapterUtils {
         viewHolder.getTextView4().setText(album.getArtist().getName());
     }
 
-    public static void fillView(Activity activity, ViewHolder viewHolder, View rootView,
-            SocialAction socialAction, boolean showHighlighted, boolean showAsPlaying,
-            boolean showResolvedBy) {
+    public static void fillView(Activity activity, ViewHolder viewHolder, SocialAction socialAction,
+            boolean showAsPlaying, boolean showResolvedBy) {
         Resources resources = activity.getResources();
         TomahawkListItem targetObject = socialAction.getTargetObject();
-        rootView.setBackgroundResource(
-                R.drawable.selectable_background_tomahawk_opaque);
         if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE
                 .equals(socialAction.getType())) {
             boolean action = Boolean.valueOf(socialAction.getAction());
@@ -223,31 +211,29 @@ public class AdapterUtils {
                 Query query = (Query) targetObject;
                 String phrase = action ?
                         resources.getString(R.string.socialaction_type_love_track_true)
-                        : resources
-                                .getString(R.string.socialaction_type_love_track_false);
+                        : resources.getString(R.string.socialaction_type_love_track_false);
                 viewHolder.getTextView1()
                         .setText(socialAction.getUser().getName() + " " + phrase);
                 viewHolder.getTextView2().setVisibility(View.VISIBLE);
                 viewHolder.getTextView2().setText(query.getName());
                 viewHolder.getTextView3().setVisibility(View.VISIBLE);
-                viewHolder.getTextView3()
-                        .setText(query.getArtist().getName());
-                if (showHighlighted) {
-                    rootView.setBackgroundResource(R.color.tomahawk_red_transparent);
-                    if (showAsPlaying) {
-                        viewHolder.getImageView1().setVisibility(ImageView.VISIBLE);
-                        TomahawkUtils.loadDrawableIntoImageView(activity,
-                                viewHolder.getImageView1(),
-                                R.drawable.ic_playlist_is_playing);
+                viewHolder.getTextView3().setText(query.getArtist().getName());
+                if (showAsPlaying) {
+                    viewHolder.getImageView1().setVisibility(ImageView.VISIBLE);
+                    viewHolder.getImageView1()
+                            .setBackgroundResource(R.drawable.ic_playlist_is_playing);
+                    if (viewHolder.getImageView1().getAnimation() == null) {
+                        viewHolder.getImageView1().startAnimation(constructRotateAnimation());
                     }
+                } else {
+                    viewHolder.getImageView1().clearAnimation();
                 }
                 if (showResolvedBy && query.getPreferredTrackResult() != null) {
                     viewHolder.getImageView2().setVisibility(ImageView.VISIBLE);
                     viewHolder.getImageView2().setImageDrawable(
                             query.getPreferredTrackResult().getResolvedBy().getIcon());
                 }
-            } else if (targetObject instanceof Artist
-                    || targetObject instanceof Album) {
+            } else if (targetObject instanceof Artist || targetObject instanceof Album) {
                 String firstLine = "";
                 String phrase = action ?
                         resources.getString(R.string.socialaction_type_starred_true)
@@ -263,9 +249,8 @@ public class AdapterUtils {
         } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_FOLLOW
                 .equals(socialAction.getType())) {
             String phrase = resources.getString(R.string.socialaction_type_follow_true);
-            viewHolder.getTextView1()
-                    .setText(socialAction.getUser().getName() + " " + phrase
-                            + " " + targetObject.getName());
+            viewHolder.getTextView1().setText(socialAction.getUser().getName() + " " + phrase
+                    + " " + targetObject.getName());
         } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_CREATECOMMENT
                 .equals(socialAction.getType())) {
             String phrase = resources.getString(R.string.socialaction_type_createcomment);
@@ -275,14 +260,15 @@ public class AdapterUtils {
                         + " " + phrase + " " + query.getName() + " "
                         + resources.getString(R.string.album_by_artist) + " "
                         + query.getArtist().getName() + ":");
-                if (showHighlighted) {
-                    rootView.setBackgroundResource(R.color.tomahawk_red_transparent);
-                    if (showAsPlaying) {
-                        viewHolder.getImageView1().setVisibility(ImageView.VISIBLE);
-                        TomahawkUtils.loadDrawableIntoImageView(activity,
-                                viewHolder.getImageView1(),
-                                R.drawable.ic_playlist_is_playing);
+                if (showAsPlaying) {
+                    viewHolder.getImageView1().setVisibility(ImageView.VISIBLE);
+                    viewHolder.getImageView1()
+                            .setBackgroundResource(R.drawable.ic_playlist_is_playing);
+                    if (viewHolder.getImageView1().getAnimation() == null) {
+                        viewHolder.getImageView1().startAnimation(constructRotateAnimation());
                     }
+                } else {
+                    viewHolder.getImageView1().clearAnimation();
                 }
                 if (showResolvedBy && query.getPreferredTrackResult() != null) {
                     viewHolder.getImageView2().setVisibility(ImageView.VISIBLE);
@@ -337,16 +323,39 @@ public class AdapterUtils {
         return s;
     }
 
-    private static TextView setTextViewEnabled(TextView textView, boolean enabled) {
+    private static TextView setTextViewEnabled(TextView textView, boolean enabled,
+            boolean isSecondary, boolean isHighlighted) {
         if (textView != null && textView.getResources() != null) {
             int colorResId;
             if (enabled) {
-                colorResId = R.color.primary_textcolor;
+                if (isSecondary) {
+                    if (isHighlighted) {
+                        colorResId = R.color.secondary_textcolor_inverted;
+                    } else {
+                        colorResId = R.color.secondary_textcolor;
+                    }
+                } else {
+                    if (isHighlighted) {
+                        colorResId = R.color.primary_textcolor_inverted;
+                    } else {
+                        colorResId = R.color.primary_textcolor;
+                    }
+                }
             } else {
                 colorResId = R.color.disabled;
             }
             textView.setTextColor(textView.getResources().getColor(colorResId));
         }
         return textView;
+    }
+
+    private static RotateAnimation constructRotateAnimation() {
+        final RotateAnimation animation = new RotateAnimation(0.0f, 360.0f,
+                RotateAnimation.RELATIVE_TO_SELF, 0.49f,
+                RotateAnimation.RELATIVE_TO_SELF, 0.5f);
+        animation.setDuration(1500);
+        animation.setInterpolator(new LinearInterpolator());
+        animation.setRepeatCount(RotateAnimation.INFINITE);
+        return animation;
     }
 }

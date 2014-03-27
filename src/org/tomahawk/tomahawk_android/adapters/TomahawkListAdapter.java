@@ -222,12 +222,13 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
         TomahawkListItem item = (TomahawkListItem) getItem(position);
 
         if (item != null) {
+            boolean shouldBeHighlighted = mShowPlaystate && position == mHighlightedItemPosition;
             ViewHolder viewHolder = null;
             if (convertView != null) {
                 viewHolder = (ViewHolder) convertView.getTag();
                 view = convertView;
             }
-            int viewType = getViewType(item);
+            int viewType = getViewType(item, shouldBeHighlighted);
             if (viewHolder == null || viewHolder.getViewType() != viewType) {
                 // If the viewHolder is null or the old viewType is different than the new one,
                 // we need to inflate a new view and construct a new viewHolder,
@@ -236,12 +237,17 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                     view = mLayoutInflater.inflate(R.layout.single_line_list_item, null);
                     viewHolder = new ViewHolder(view, viewType);
                     view.setTag(viewHolder);
-                } else if (viewType == R.id.tomahawklistadapter_viewtype_doublelinelistitem) {
-                    view = mLayoutInflater.inflate(R.layout.double_line_list_item, null);
+                } else if (viewType == R.id.tomahawklistadapter_viewtype_listitem) {
+                    view = mLayoutInflater.inflate(R.layout.list_item, null);
+                    viewHolder = new ViewHolder(view, viewType);
+                    view.setTag(viewHolder);
+                } else if (viewType == R.id.tomahawklistadapter_viewtype_listitemhighlighted) {
+                    view = mLayoutInflater.inflate(R.layout.list_item_highlighted, null);
                     viewHolder = new ViewHolder(view, viewType);
                     view.setTag(viewHolder);
                 }
-            } else if (viewType == R.id.tomahawklistadapter_viewtype_doublelinelistitem) {
+            } else if (viewType == R.id.tomahawklistadapter_viewtype_listitem
+                    || viewType == R.id.tomahawklistadapter_viewtype_listitemhighlighted) {
                 viewHolder.getImageView1().setVisibility(View.GONE);
                 viewHolder.getImageView2().setVisibility(View.GONE);
                 viewHolder.getTextView2().setVisibility(View.GONE);
@@ -255,12 +261,12 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
             if (viewHolder.getViewType() == R.id.tomahawklistadapter_viewtype_singlelinelistitem) {
                 viewHolder.getTextView1().setText(item.getName());
             } else if (viewHolder.getViewType()
-                    == R.id.tomahawklistadapter_viewtype_doublelinelistitem) {
-                boolean shouldBeHighlighted = mShowPlaystate
-                        && position == mHighlightedItemPosition;
+                    == R.id.tomahawklistadapter_viewtype_listitem
+                    || viewHolder.getViewType()
+                    == R.id.tomahawklistadapter_viewtype_listitemhighlighted) {
                 if (item instanceof Query) {
-                    AdapterUtils.fillView(mTomahawkMainActivity, viewHolder, view, (Query) item,
-                            shouldBeHighlighted, mHighlightedItemIsPlaying, mShowResolvedBy);
+                    AdapterUtils.fillView(mTomahawkMainActivity, viewHolder, (Query) item,
+                            mHighlightedItemIsPlaying && shouldBeHighlighted, mShowResolvedBy);
                 } else if (item instanceof Album) {
                     AdapterUtils.fillView(mTomahawkMainActivity, viewHolder, (Album) item);
                 } else if (item instanceof Artist) {
@@ -268,9 +274,8 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                 } else if (item instanceof User) {
                     AdapterUtils.fillView(mTomahawkMainActivity, viewHolder, (User) item);
                 } else if (item instanceof SocialAction) {
-                    AdapterUtils.fillView(mTomahawkMainActivity, viewHolder, view,
-                            (SocialAction) item, shouldBeHighlighted, mHighlightedItemIsPlaying,
-                            mShowResolvedBy);
+                    AdapterUtils.fillView(mTomahawkMainActivity, viewHolder, (SocialAction) item,
+                            mHighlightedItemIsPlaying && shouldBeHighlighted, mShowResolvedBy);
                 }
             }
         }
@@ -412,11 +417,13 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
         return mContentHeaderTomahawkListItem;
     }
 
-    private int getViewType(TomahawkListItem item) {
+    private int getViewType(TomahawkListItem item, boolean isHighlighted) {
         if (item instanceof UserPlaylist || (item instanceof Artist && mShowArtistAsSingleLine)) {
             return R.id.tomahawklistadapter_viewtype_singlelinelistitem;
+        } else if (isHighlighted) {
+            return R.id.tomahawklistadapter_viewtype_listitemhighlighted;
         } else {
-            return R.id.tomahawklistadapter_viewtype_doublelinelistitem;
+            return R.id.tomahawklistadapter_viewtype_listitem;
         }
     }
 }
