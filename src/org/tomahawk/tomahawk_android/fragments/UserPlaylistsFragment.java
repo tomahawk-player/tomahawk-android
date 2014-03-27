@@ -95,6 +95,5 @@ public class UserPlaylistsFragment extends TomahawkFragment implements OnItemCli
         }
 
         getListView().setOnItemClickListener(this);
-        getListView().setAreHeadersSticky(false);
     }
 }
