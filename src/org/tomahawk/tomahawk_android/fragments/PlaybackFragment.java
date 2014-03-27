@@ -48,8 +48,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
-
 /**
  * This {@link android.support.v4.app.Fragment} represents our Playback view in which the user can
  * play/stop/pause. It is being shown as the topmost fragment in the {@link PlaybackFragment}'s
@@ -364,18 +362,23 @@ public class PlaybackFragment extends TomahawkFragment
             List<List<TomahawkListItem>> listArray
                     = new ArrayList<List<TomahawkListItem>>();
             listArray.add(tracks);
-            TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity,
-                    listArray);
-            tomahawkListAdapter.setShowPlaystate(true);
-            tomahawkListAdapter.setShowResolvedBy(true);
-            tomahawkListAdapter.setHighlightedItem(playbackService.isPlaying(),
-                    playbackService.getCurrentPlaylist().getCurrentQueryIndex());
-            StickyListHeadersListView list = getListView();
-            list.setOnItemClickListener(this);
-            setListAdapter(tomahawkListAdapter);
+            if (getListAdapter() == null) {
+                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(
+                        mTomahawkMainActivity, listArray);
+                tomahawkListAdapter.setShowPlaystate(true);
+                tomahawkListAdapter.setShowResolvedBy(true);
+                tomahawkListAdapter.setHighlightedItem(playbackService.isPlaying(),
+                        playbackService.getCurrentPlaylist().getCurrentQueryIndex());
+                setListAdapter(tomahawkListAdapter);
+            } else {
+                ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
+            }
+
             for (int i = 0; i < tracks.size(); i++) {
                 mQueryPositions.put(i, i);
             }
+
+            getListView().setOnItemClickListener(this);
         }
 
         updateShowPlaystate();
