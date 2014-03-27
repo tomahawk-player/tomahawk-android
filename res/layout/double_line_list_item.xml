@@ -60,7 +60,7 @@
                 android:visibility="gone"
                 android:gravity="center_vertical"
                 android:singleLine="true"
-                android:textColor="@color/primary_textcolor"
+                android:textColor="@color/secondary_textcolor"
                 android:textSize="@dimen/text_size_large"/>
 
         <TextView
