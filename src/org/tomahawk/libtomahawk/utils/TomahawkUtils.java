@@ -544,11 +544,11 @@ public class TomahawkUtils {
     }
 
     private static String buildImagePath(Context context, Image image, int width) {
-        ConnectivityManager connMgr = (ConnectivityManager) context
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
         if (image.isHatchetImage()) {
             int squareImageWidth = Math.min(image.getHeight(), image.getWidth());
             width = convertDpToPixel(width, context);
+            ConnectivityManager connMgr = (ConnectivityManager) context
+                    .getSystemService(Context.CONNECTIVITY_SERVICE);
             if (connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI) != null
                     && connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected()) {
                 if (squareImageWidth > width) {
