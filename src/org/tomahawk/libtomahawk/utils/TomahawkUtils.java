@@ -21,8 +21,6 @@ import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -465,34 +463,18 @@ public class TomahawkUtils {
      * @param image     the path to load the image from
      * @param width     the width in density independent pixels to scale the image down to
      */
-    public static void loadImageIntoImageView(final Context context, final ImageView imageView,
-            final Image image, final int width) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
-                    final String imagePath = buildImagePath(context, image, width);
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Picasso.with(context)
-                                    .load(TomahawkUtils.preparePathForPicasso(imagePath))
-                                    .placeholder(R.drawable.no_album_art_placeholder)
-                                    .error(R.drawable.no_album_art_placeholder).into(imageView);
-                        }
-                    });
-                } else {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Picasso.with(context).load(R.drawable.no_album_art_placeholder)
-                                    .placeholder(R.drawable.no_album_art_placeholder)
-                                    .error(R.drawable.no_album_art_placeholder).into(imageView);
-                        }
-                    });
-                }
-            }
-        }).start();
+    public static void loadImageIntoImageView(Context context, ImageView imageView, Image image,
+            int width) {
+        if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
+            String imagePath = buildImagePath(context, image, width);
+            Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
+                    .placeholder(R.drawable.no_album_art_placeholder)
+                    .error(R.drawable.no_album_art_placeholder).into(imageView);
+        } else {
+            Picasso.with(context).load(R.drawable.no_album_art_placeholder)
+                    .placeholder(R.drawable.no_album_art_placeholder)
+                    .error(R.drawable.no_album_art_placeholder).into(imageView);
+        }
     }
 
     /**
@@ -504,36 +486,20 @@ public class TomahawkUtils {
      * @param image     the path to load the image from
      * @param width     the width in density independent pixels to scale the image down to
      */
-    public static void loadRoundedImageIntoImageView(final Context context,
-            final ImageView imageView, final Image image, final int width) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
-                    final String imagePath = buildImagePath(context, image, width);
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Picasso.with(context)
-                                    .load(TomahawkUtils.preparePathForPicasso(imagePath))
-                                    .transform(new CircularImageTransformation())
-                                    .placeholder(R.drawable.no_album_art_placeholder)
-                                    .error(R.drawable.no_album_art_placeholder).into(imageView);
-                        }
-                    });
-                } else {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Picasso.with(context).load(R.drawable.no_album_art_placeholder)
-                                    .transform(new CircularImageTransformation())
-                                    .placeholder(R.drawable.no_album_art_placeholder)
-                                    .error(R.drawable.no_album_art_placeholder).into(imageView);
-                        }
-                    });
-                }
-            }
-        }).start();
+    public static void loadRoundedImageIntoImageView(Context context, ImageView imageView,
+            Image image, int width) {
+        if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
+            String imagePath = buildImagePath(context, image, width);
+            Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
+                    .transform(new CircularImageTransformation())
+                    .placeholder(R.drawable.no_album_art_placeholder)
+                    .error(R.drawable.no_album_art_placeholder).into(imageView);
+        } else {
+            Picasso.with(context).load(R.drawable.no_album_art_placeholder)
+                    .transform(new CircularImageTransformation())
+                    .placeholder(R.drawable.no_album_art_placeholder)
+                    .error(R.drawable.no_album_art_placeholder).into(imageView);
+        }
     }
 
     /**
@@ -557,34 +523,17 @@ public class TomahawkUtils {
      * @param target  the Target which the loaded image will be pushed to
      * @param width   the width in density independent pixels to scale the image down to
      */
-    public static void loadImageIntoBitmap(final Context context, final Image image,
-            final Target target, final int width) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
-                    final String imagePath = buildImagePath(context, image, width);
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Picasso.with(context)
-                                    .load(TomahawkUtils.preparePathForPicasso(imagePath))
-                                    .placeholder(R.drawable.no_album_art_placeholder)
-                                    .error(R.drawable.no_album_art_placeholder).into(target);
-                        }
-                    });
-                } else {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Picasso.with(context).load(R.drawable.no_album_art_placeholder)
-                                    .placeholder(R.drawable.no_album_art_placeholder)
-                                    .error(R.drawable.no_album_art_placeholder).into(target);
-                        }
-                    });
-                }
-            }
-        }).start();
+    public static void loadImageIntoBitmap(Context context, Image image, Target target, int width) {
+        if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
+            String imagePath = buildImagePath(context, image, width);
+            Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
+                    .placeholder(R.drawable.no_album_art_placeholder)
+                    .error(R.drawable.no_album_art_placeholder).into(target);
+        } else {
+            Picasso.with(context).load(R.drawable.no_album_art_placeholder)
+                    .placeholder(R.drawable.no_album_art_placeholder)
+                    .error(R.drawable.no_album_art_placeholder).into(target);
+        }
     }
 
     public static String preparePathForPicasso(String path) {
