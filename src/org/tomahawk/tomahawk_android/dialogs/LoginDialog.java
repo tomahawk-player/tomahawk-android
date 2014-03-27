@@ -77,7 +77,15 @@ public class LoginDialog extends TomahawkDialogFragment {
                         mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
                     } else {
                         stopLoadingAnimation();
-                        updateButtonTexts();
+                        boolean isLoggedIn = AuthenticatorUtils
+                                .isLoggedIn(getActivity().getApplicationContext(),
+                                        mAuthenticatorUtils.getAuthenticatorUtilsName(),
+                                        mAuthenticatorUtils.getAuthenticatorUtilsTokenType());
+                        if (isLoggedIn) {
+                            dismiss();
+                        } else {
+                            updateButtonTexts(isLoggedIn);
+                        }
                     }
                     break;
             }
@@ -182,7 +190,7 @@ public class LoginDialog extends TomahawkDialogFragment {
         } else {
             mStatusImageView.clearColorFilter();
         }
-        updateButtonTexts();
+        updateButtonTexts(isLoggedIn);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(view);
         return builder.create();
@@ -253,10 +261,7 @@ public class LoginDialog extends TomahawkDialogFragment {
     /**
      * Update the texts of all buttons. Depends on whether or not the user is logged in.
      */
-    private void updateButtonTexts() {
-        boolean isLoggedIn = AuthenticatorUtils.isLoggedIn(getActivity().getApplicationContext(),
-                mAuthenticatorUtils.getAuthenticatorUtilsName(),
-                mAuthenticatorUtils.getAuthenticatorUtilsTokenType());
+    private void updateButtonTexts(boolean isLoggedIn) {
         if (isLoggedIn) {
             mPositiveButton.setText(R.string.ok);
             mNegativeButton.setText(R.string.logout);
