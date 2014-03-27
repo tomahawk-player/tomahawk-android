@@ -23,7 +23,7 @@
               android:orientation="vertical"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:background="@color/primary_transparent">
+              android:background="@color/primary_background">
 
     <ListView
             android:id="@+id/playlist_dialog_playlists_listview"
