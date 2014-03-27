@@ -5,7 +5,8 @@
     <item name="tomahawklistadapter_viewtype_contentheader" type="id"/>
     <item name="tomahawklistadapter_viewtype_contentheader_user_navdrawer" type="id"/>
     <item name="tomahawklistadapter_viewtype_singlelinelistitem" type="id"/>
-    <item name="tomahawklistadapter_viewtype_doublelinelistitem" type="id"/>
+    <item name="tomahawklistadapter_viewtype_listitem" type="id"/>
+    <item name="tomahawklistadapter_viewtype_listitemhighlighted" type="id"/>
     <item name="tomahawklistadapter_viewtype_griditem" type="id"/>
     <item name="fakepreferencesadapter_viewtype_header" type="id"/>
     <item name="fakepreferencesadapter_viewtype_plain" type="id"/>

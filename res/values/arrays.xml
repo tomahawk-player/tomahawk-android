@@ -30,8 +30,8 @@
     <array name="slide_menu_items_icons">
         <item>@drawable/ic_action_dashboard</item>
         <item>@drawable/ic_action_collection</item>
-        <item>@drawable/ic_action_loved</item>
-        <item>@drawable/ic_action_playlist</item>
+        <item>@drawable/ic_action_favorites</item>
+        <item>@drawable/ic_action_playlist_light</item>
         <item>@drawable/ic_action_settings</item>
     </array>
     <array name="slide_menu_items_colors">
