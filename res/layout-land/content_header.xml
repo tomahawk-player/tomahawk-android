@@ -90,7 +90,7 @@
                 android:gravity="center|left"
                 android:ellipsize="marquee"
                 android:singleLine="true"
-                android:textColor="@color/primary_textcolor"
+                android:textColor="@color/primary_textcolor_inverted"
                 android:textSize="@dimen/text_size_small"
                 android:paddingLeft="@dimen/padding_small"/>
 

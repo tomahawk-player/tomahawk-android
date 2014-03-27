@@ -2,14 +2,17 @@
 
     <dimen name="padding_verysmall">4dp</dimen>
     <dimen name="padding_small">8dp</dimen>
-    <dimen name="padding_medium">16dp</dimen>
-    <dimen name="padding_large">32dp</dimen>
+    <dimen name="padding_medium">12dp</dimen>
+    <dimen name="padding_large">16dp</dimen>
+    <dimen name="padding_verylarge">32dp</dimen>
 
     <dimen name="row_height_small">16dp</dimen>
     <dimen name="row_height_medium">32dp</dimen>
     <dimen name="row_height_large">48dp</dimen>
     <dimen name="row_height_verylarge">64dp</dimen>
     <dimen name="row_height_superlarge">96dp</dimen>
+
+    <dimen name="menu_item_height">52dp</dimen>
 
     <dimen name="header_clear_space">208dp</dimen>
     <dimen name="header_clear_space_user">96dp</dimen>

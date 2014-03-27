@@ -43,7 +43,7 @@
                 android:paddingLeft="@dimen/padding_small"
                 android:paddingRight="@dimen/padding_small"
                 android:gravity="center_vertical"
-                android:background="@color/transparent_black"
+                android:background="@color/primary_transparent"
                 android:orientation="vertical">
             <TextView
                     android:id="@+id/textView_title"
@@ -75,7 +75,7 @@
                 android:id="@+id/playback_seekbarpanel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/transparent_black">
+                android:background="@color/primary_transparent">
 
             <TextView
                     android:id="@+id/textView_currentTime"
@@ -116,7 +116,7 @@
                 android:id="@+id/playback_buttonPanel"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/row_height_verylarge"
-                android:background="@color/transparent_black">
+                android:background="@color/primary_transparent">
 
             <ImageButton
                     android:id="@+id/imageButton_shuffle"

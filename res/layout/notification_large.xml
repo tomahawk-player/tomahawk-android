@@ -45,7 +45,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:singleLine="true"
-                    android:textColor="@color/primary_textcolor"
+                    android:textColor="@color/primary_textcolor_inverted"
                     android:textSize="@dimen/text_size_large"/>
 
             <TextView
@@ -53,7 +53,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:singleLine="true"
-                    android:textColor="@color/secondary_textcolor"
+                    android:textColor="@color/secondary_textcolor_inverted"
                     android:textSize="@dimen/text_size_small"/>
 
             <TextView
@@ -61,7 +61,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:singleLine="true"
-                    android:textColor="@color/secondary_textcolor"
+                    android:textColor="@color/secondary_textcolor_inverted"
                     android:textSize="@dimen/text_size_small"/>
         </LinearLayout>
         <LinearLayout
@@ -77,8 +77,7 @@
                     android:layout_width="match_parent"
                     android:layout_weight="1"
                     android:padding="@dimen/padding_small"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/ic_player_previous"
+                    android:src="@drawable/ic_player_previous_light"
                     android:background="@drawable/selectable_background_tomahawk"/>
             <ImageView
                     android:id="@+id/notification_large_imageview_playpause"
@@ -86,8 +85,7 @@
                     android:layout_width="match_parent"
                     android:layout_weight="1"
                     android:padding="@dimen/padding_small"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/ic_player_play"
+                    android:src="@drawable/ic_player_play_light"
                     android:background="@drawable/selectable_background_tomahawk"/>
             <ImageView
                     android:id="@+id/notification_large_imageview_next"
@@ -95,17 +93,15 @@
                     android:layout_width="match_parent"
                     android:layout_weight="1"
                     android:padding="@dimen/padding_small"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/ic_player_next"
+                    android:src="@drawable/ic_player_next_light"
                     android:background="@drawable/selectable_background_tomahawk"/>
             <ImageView
                     android:id="@+id/notification_large_imageview_exit"
                     android:layout_height="match_parent"
                     android:layout_width="match_parent"
                     android:layout_weight="1"
-                    android:padding="@dimen/padding_small"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/ic_player_exit"
+                    android:padding="@dimen/padding_medium"
+                    android:src="@drawable/ic_player_exit_light"
                     android:background="@drawable/selectable_background_tomahawk"/>
         </LinearLayout>
     </LinearLayout>

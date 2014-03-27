@@ -27,8 +27,8 @@
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="@dimen/row_height_verylarge"
-            android:layout_marginLeft="@dimen/padding_medium"
-            android:layout_marginRight="@dimen/padding_medium">
+            android:layout_marginLeft="@dimen/padding_large"
+            android:layout_marginRight="@dimen/padding_large">
 
         <TextView
                 android:id="@+id/login_dialog_title_textview"
@@ -53,7 +53,7 @@
             android:id="@+id/login_dialog_username_edittext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/padding_medium"
+            android:layout_marginTop="@dimen/padding_large"
             android:layout_marginLeft="@dimen/padding_verysmall"
             android:layout_marginRight="@dimen/padding_verysmall"
             android:imeOptions="flagNoExtractUi"
@@ -64,7 +64,7 @@
             android:id="@+id/login_dialog_password_edittext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/padding_medium"
+            android:layout_marginTop="@dimen/padding_large"
             android:layout_marginLeft="@dimen/padding_verysmall"
             android:layout_marginRight="@dimen/padding_verysmall"
             android:hint="@string/logindialog_password_label_string"

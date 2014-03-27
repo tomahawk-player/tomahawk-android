@@ -115,7 +115,7 @@ public class AdapterUtils {
         viewHolder.getTextView1().setText(user.getName());
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils.loadDrawableIntoImageView(activity, viewHolder.getImageView1(),
-                R.drawable.dummy_user_header);
+                R.drawable.no_album_art_placeholder);
         TomahawkUtils.loadRoundedImageIntoImageView(activity, viewHolder.getRoundedImage(),
                 user.getImage(), Image.IMAGE_SIZE_LARGE);
         viewHolder.getRoundedImage().setVisibility(View.VISIBLE);
@@ -124,7 +124,7 @@ public class AdapterUtils {
     public static void fillContentHeader(Activity activity, ViewHolder viewHolder, User user) {
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils.loadDrawableIntoImageView(activity, viewHolder.getImageView1(),
-                R.drawable.dummy_user_header);
+                R.drawable.no_album_art_placeholder);
         TomahawkUtils.loadRoundedImageIntoImageView(activity, viewHolder.getRoundedImage(),
                 user.getImage(), Image.IMAGE_SIZE_LARGE);
         viewHolder.getRoundedImage().setVisibility(View.VISIBLE);
@@ -158,7 +158,7 @@ public class AdapterUtils {
         setTextViewEnabled(viewHolder.getTextView4(), query.isPlayable());
         setTextViewEnabled(viewHolder.getTextView5(), query.isPlayable());
         if (showHighlighted) {
-            rootView.setBackgroundResource(R.color.pressed_tomahawk);
+            rootView.setBackgroundResource(R.color.tomahawk_red_transparent);
             if (showAsPlaying) {
                 viewHolder.getImageView1().setVisibility(ImageView.VISIBLE);
                 TomahawkUtils.loadDrawableIntoImageView(activity,
@@ -223,7 +223,7 @@ public class AdapterUtils {
                 viewHolder.getTextView3()
                         .setText(query.getArtist().getName());
                 if (showHighlighted) {
-                    rootView.setBackgroundResource(R.color.pressed_tomahawk);
+                    rootView.setBackgroundResource(R.color.tomahawk_red_transparent);
                     if (showAsPlaying) {
                         viewHolder.getImageView1().setVisibility(ImageView.VISIBLE);
                         TomahawkUtils.loadDrawableIntoImageView(activity,
@@ -266,7 +266,7 @@ public class AdapterUtils {
                         + resources.getString(R.string.album_by_artist) + " "
                         + query.getArtist().getName() + ":");
                 if (showHighlighted) {
-                    rootView.setBackgroundResource(R.color.pressed_tomahawk);
+                    rootView.setBackgroundResource(R.color.tomahawk_red_transparent);
                     if (showAsPlaying) {
                         viewHolder.getImageView1().setVisibility(ImageView.VISIBLE);
                         TomahawkUtils.loadDrawableIntoImageView(activity,
@@ -333,7 +333,7 @@ public class AdapterUtils {
             if (enabled) {
                 colorResId = R.color.primary_textcolor;
             } else {
-                colorResId = R.color.disabled_grey;
+                colorResId = R.color.disabled;
             }
             textView.setTextColor(textView.getResources().getColor(colorResId));
         }

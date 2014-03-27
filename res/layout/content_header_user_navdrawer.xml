@@ -24,7 +24,7 @@
 
     <ImageView android:id="@+id/content_header_image_user_navdrawer"
                android:layout_width="match_parent"
-               android:layout_height="match_parent"
+               android:layout_height="@dimen/header_height_large_navdrawer"
                android:scaleType="centerCrop"/>
 
     <LinearLayout android:layout_width="match_parent"
@@ -60,11 +60,11 @@
                         android:gravity="center|left"
                         android:ellipsize="marquee"
                         android:singleLine="true"
-                        android:textColor="@color/primary_textcolor"
+                        android:textColor="@color/primary_textcolor_inverted"
                         android:textSize="@dimen/text_size_large"
                         android:text="@string/drawer_content_header_default_text"
                         android:paddingLeft="@dimen/padding_small"
-                        android:paddingTop="@dimen/padding_medium"/>
+                        android:paddingTop="@dimen/padding_large"/>
 
             </LinearLayout>
         </LinearLayout>
