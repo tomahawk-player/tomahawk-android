@@ -30,8 +30,8 @@
               android:layout_width="240dp"
               android:layout_height="match_parent"
               android:choiceMode="singleChoice"
-              android:divider="@android:color/transparent"
-              android:dividerHeight="0dp"
+              android:divider="@color/listview_divider"
+              android:dividerHeight="1px"
               android:background="#111"/>
 
     <!-- The main content view -->

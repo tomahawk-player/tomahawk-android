@@ -23,6 +23,7 @@
     <color name="tomahawk_red">#FFe23a2e</color>
     <color name="tomahawk_red_transparent">#DDe23a2e</color>
     <color name="divider">#3B3F45</color>
+    <color name="listview_divider">#FFc2c1bf</color>
     <color name="primary_background">#FFf0f0ee</color>
     <color name="secondary_background">#FFc2c1bf</color>
     <color name="primary_transparent">#CCebebeb</color>
