@@ -163,7 +163,7 @@ public class AdapterUtils {
         setTextViewEnabled(viewHolder.getTextView5(), query.isPlayable(), true, isHighlighted);
         if (showAsPlaying) {
             viewHolder.getImageView1().setVisibility(ImageView.VISIBLE);
-            viewHolder.getImageView1().setBackgroundResource(R.drawable.ic_playlist_is_playing);
+            viewHolder.getImageView1().setBackgroundResource(R.drawable.ic_action_album_light);
             if (viewHolder.getImageView1().getAnimation() == null) {
                 viewHolder.getImageView1().startAnimation(constructRotateAnimation());
             }
@@ -221,7 +221,7 @@ public class AdapterUtils {
                 if (showAsPlaying) {
                     viewHolder.getImageView1().setVisibility(ImageView.VISIBLE);
                     viewHolder.getImageView1()
-                            .setBackgroundResource(R.drawable.ic_playlist_is_playing);
+                            .setBackgroundResource(R.drawable.ic_action_album_light);
                     if (viewHolder.getImageView1().getAnimation() == null) {
                         viewHolder.getImageView1().startAnimation(constructRotateAnimation());
                     }
@@ -263,7 +263,7 @@ public class AdapterUtils {
                 if (showAsPlaying) {
                     viewHolder.getImageView1().setVisibility(ImageView.VISIBLE);
                     viewHolder.getImageView1()
-                            .setBackgroundResource(R.drawable.ic_playlist_is_playing);
+                            .setBackgroundResource(R.drawable.ic_action_album_light);
                     if (viewHolder.getImageView1().getAnimation() == null) {
                         viewHolder.getImageView1().startAnimation(constructRotateAnimation());
                     }
