@@ -18,6 +18,7 @@
 package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.libtomahawk.infosystem.User;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.utils.AdapterUtils;
 
@@ -147,7 +148,7 @@ public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeader
             textView.setText(string);
         }
         if (icon != null) {
-            imageView.setImageResource(icon);
+            TomahawkUtils.loadDrawableIntoImageView(mActivity, imageView, icon);
         }
         if (color != null) {
             imageView.setBackgroundColor(color);

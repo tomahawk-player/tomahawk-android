@@ -19,8 +19,10 @@ package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticatorUtils;
 import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.FakePreferenceGroup;
 import org.tomahawk.tomahawk_android.utils.GreyscaleFilter;
 
@@ -43,6 +45,8 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
  * FakePreferencesAdapter}
  */
 public class FakePreferencesAdapter extends BaseAdapter implements StickyListHeadersAdapter {
+
+    private TomahawkMainActivity mActivity;
 
     private final LayoutInflater mLayoutInflater;
 
@@ -75,9 +79,10 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
     /**
      * Constructs a new {@link org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter}
      */
-    public FakePreferencesAdapter(LayoutInflater layoutInflater,
+    public FakePreferencesAdapter(TomahawkMainActivity activity,
             List<FakePreferenceGroup> fakePreferenceGroups) {
-        mLayoutInflater = layoutInflater;
+        mActivity = activity;
+        mLayoutInflater = activity.getLayoutInflater();
         mSharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(TomahawkApp.getContext());
         mFakePreferenceGroups = fakePreferenceGroups;
@@ -185,7 +190,8 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                 viewHolder.getCheckBox().setChecked(preferenceState);
             } else if (viewHolder.getViewType() == R.id.fakepreferencesadapter_viewtype_auth) {
                 viewHolder.getImageView2().setVisibility(View.VISIBLE);
-                viewHolder.getImageView2().setImageResource(item.getDrawableResId());
+                TomahawkUtils.loadDrawableIntoImageView(mActivity, viewHolder.getImageView2(),
+                        item.getDrawableResId());
                 if (!item.isEnabled()) {
                     viewHolder.getImageView2().setColorFilter(GreyscaleFilter.create());
                 } else {

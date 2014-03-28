@@ -18,6 +18,7 @@
 package org.tomahawk.tomahawk_android.dialogs;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.utils.GreyscaleFilter;
@@ -184,7 +185,8 @@ public class LoginDialog extends TomahawkDialogFragment {
         mNegativeButton.setOnClickListener(mNegativeButtonListener);
         mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
         mStatusImageView = (ImageView) view.findViewById(R.id.login_dialog_status_imageview);
-        mStatusImageView.setImageResource(mAuthenticatorUtils.getIconResourceId());
+        TomahawkUtils.loadDrawableIntoImageView(mTomahawkMainActivity, mStatusImageView,
+                mAuthenticatorUtils.getIconResourceId());
         if (!isLoggedIn) {
             mStatusImageView.setColorFilter(GreyscaleFilter.create());
         } else {
@@ -286,7 +288,8 @@ public class LoginDialog extends TomahawkDialogFragment {
         boolean isLoggedIn = AuthenticatorUtils.isLoggedIn(getActivity().getApplicationContext(),
                 mAuthenticatorUtils.getAuthenticatorUtilsName(),
                 mAuthenticatorUtils.getAuthenticatorUtilsTokenType());
-        mStatusImageView.setImageResource(mAuthenticatorUtils.getIconResourceId());
+        TomahawkUtils.loadDrawableIntoImageView(mTomahawkMainActivity, mStatusImageView,
+                mAuthenticatorUtils.getIconResourceId());
         if (!isLoggedIn) {
             mStatusImageView.setColorFilter(GreyscaleFilter.create());
         } else {

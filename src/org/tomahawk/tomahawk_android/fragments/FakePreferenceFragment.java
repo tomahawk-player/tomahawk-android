@@ -151,8 +151,8 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
         // Now we can push the complete set of FakePreferences into our FakePreferencesAdapter,
         // so that it can provide our ListView with the correct Views.
-        FakePreferencesAdapter fakePreferencesAdapter = new FakePreferencesAdapter(
-                mTomahawkMainActivity.getLayoutInflater(), mFakePreferenceGroups);
+        FakePreferencesAdapter fakePreferencesAdapter =
+                new FakePreferencesAdapter(mTomahawkMainActivity, mFakePreferenceGroups);
         setListAdapter(fakePreferencesAdapter);
 
         getListView().setOnItemClickListener(this);

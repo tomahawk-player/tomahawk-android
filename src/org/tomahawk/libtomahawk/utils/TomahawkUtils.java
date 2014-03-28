@@ -469,11 +469,11 @@ public class TomahawkUtils {
             String imagePath = buildImagePath(context, image, width);
             Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
                     .placeholder(R.drawable.no_album_art_placeholder)
-                    .error(R.drawable.no_album_art_placeholder).into(imageView);
+                    .error(R.drawable.no_album_art_placeholder).fit().into(imageView);
         } else {
             Picasso.with(context).load(R.drawable.no_album_art_placeholder)
                     .placeholder(R.drawable.no_album_art_placeholder)
-                    .error(R.drawable.no_album_art_placeholder).into(imageView);
+                    .error(R.drawable.no_album_art_placeholder).fit().into(imageView);
         }
     }
 
@@ -493,12 +493,12 @@ public class TomahawkUtils {
             Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
                     .transform(new CircularImageTransformation())
                     .placeholder(R.drawable.no_album_art_placeholder)
-                    .error(R.drawable.no_album_art_placeholder).into(imageView);
+                    .error(R.drawable.no_album_art_placeholder).fit().into(imageView);
         } else {
             Picasso.with(context).load(R.drawable.no_album_art_placeholder)
                     .transform(new CircularImageTransformation())
                     .placeholder(R.drawable.no_album_art_placeholder)
-                    .error(R.drawable.no_album_art_placeholder).into(imageView);
+                    .error(R.drawable.no_album_art_placeholder).fit().into(imageView);
         }
     }
 
