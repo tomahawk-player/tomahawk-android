@@ -93,6 +93,8 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private TomahawkApp mTomahawkApp;
 
+    private ContentViewer mContentViewer;
+
     private InfoSystem mInfoSystem;
 
     private CharSequence mTitle;
@@ -199,14 +201,14 @@ public class TomahawkMainActivity extends ActionBarActivity
             if (id < 0) {
                 if (mLoggedInUser != null) {
                     String key = mLoggedInUser.getId();
-                    mTomahawkApp.getContentViewer().replace(SocialActionsFragment.class, key,
+                    mContentViewer.replace(SocialActionsFragment.class, key,
                             TomahawkFragment.TOMAHAWK_USER_ID, false, false);
                     if (mDrawerLayout != null) {
                         mDrawerLayout.closeDrawer(mDrawerList);
                     }
                 }
             } else {
-                mTomahawkApp.getContentViewer().showHub((int) id);
+                mContentViewer.showHub((int) id);
                 if (mDrawerLayout != null) {
                     mDrawerLayout.closeDrawer(mDrawerList);
                 }
@@ -242,7 +244,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         mNowPlayingFrame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mTomahawkApp.getContentViewer().showHub(ContentViewer.HUB_ID_PLAYBACK);
+                mContentViewer.showHub(ContentViewer.HUB_ID_PLAYBACK);
             }
         });
         ImageButton previousButton = (ImageButton) mNowPlayingFrame
@@ -306,13 +308,13 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         // initialize our ContentViewer, which will handle switching the fragments whenever an
         // entry in the slidingmenu is being clicked. Restore our saved state, if one exists.
-        if (mTomahawkApp.getContentViewer() == null) {
-            mTomahawkApp.setContentViewer(new ContentViewer(this, getSupportFragmentManager(),
-                    R.id.content_viewer_frame));
-            mTomahawkApp.getContentViewer().showHub(ContentViewer.HUB_ID_COLLECTION);
+        if (mContentViewer == null) {
+            mContentViewer = new ContentViewer(this, getSupportFragmentManager(),
+                    R.id.content_viewer_frame);
+            mContentViewer.showHub(ContentViewer.HUB_ID_COLLECTION);
         } else {
-            mTomahawkApp.getContentViewer().setTomahawkMainActivity(this);
-            mTomahawkApp.getContentViewer().setFragmentManager(getSupportFragmentManager());
+            mContentViewer.setTomahawkMainActivity(this);
+            mContentViewer.setFragmentManager(getSupportFragmentManager());
         }
     }
 
@@ -343,10 +345,10 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         if (SHOW_PLAYBACKFRAGMENT_ON_STARTUP.equals(getIntent().getAction())) {
             // if this Activity is being shown after the user clicked the notification
-            mTomahawkApp.getContentViewer().showHub(ContentViewer.HUB_ID_PLAYBACK);
+            mContentViewer.showHub(ContentViewer.HUB_ID_PLAYBACK);
         }
         if (getIntent().hasExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)) {
-            ContentViewer.FragmentStateHolder fragmentStateHolder = mTomahawkApp.getContentViewer()
+            ContentViewer.FragmentStateHolder fragmentStateHolder = mContentViewer
                     .getBackStack().get(0);
             fragmentStateHolder.tomahawkListItemType = TomahawkService.AUTHENTICATOR_ID;
             fragmentStateHolder.tomahawkListItemKey = String.valueOf(
@@ -448,7 +450,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                             = new ContentViewer.FragmentStateHolder(SearchableFragment.class,
                             null);
                     fragmentStateHolder.queryString = query;
-                    mTomahawkApp.getContentViewer().replace(fragmentStateHolder, false);
+                    mContentViewer.replace(fragmentStateHolder, false);
                     if (searchItem != null) {
                         MenuItemCompat.collapseActionView(searchItem);
                     }
@@ -549,7 +551,7 @@ public class TomahawkMainActivity extends ActionBarActivity
      */
     @Override
     public void onBackPressed() {
-        if (!mTomahawkApp.getContentViewer().back()) {
+        if (!mContentViewer.back()) {
             super.onBackPressed();
         }
     }
@@ -638,7 +640,7 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     public void updateViewVisibility() {
-        ContentViewer.FragmentStateHolder currentFSH = mTomahawkApp.getContentViewer()
+        ContentViewer.FragmentStateHolder currentFSH = mContentViewer
                 .getCurrentFragmentStateHolder();
         if (currentFSH.clss == PlaybackFragment.class
                 || mPlaybackService == null || mPlaybackService.getCurrentQuery() == null) {
@@ -691,5 +693,9 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public User getLoggedInUser() {
         return mLoggedInUser;
+    }
+
+    public ContentViewer getContentViewer() {
+        return mContentViewer;
     }
 }

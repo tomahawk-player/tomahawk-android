@@ -55,7 +55,7 @@ public class UserPlaylistsFragment extends TomahawkFragment implements OnItemCli
         if (position >= 0) {
             if (getListAdapter().getItem(position) instanceof UserPlaylist) {
                 if (mTomahawkApp != null) {
-                    mTomahawkApp.getContentViewer().replace(TracksFragment.class,
+                    mTomahawkMainActivity.getContentViewer().replace(TracksFragment.class,
                             ((UserPlaylist) getListAdapter().getItem(position)).getId(),
                             TOMAHAWK_USERPLAYLIST_KEY, true, false);
                 }

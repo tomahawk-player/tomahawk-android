@@ -220,7 +220,7 @@ public class PlaybackFragment extends TomahawkFragment
                     String key = TomahawkUtils
                             .getCacheKey(playbackService.getCurrentQuery().getArtist());
                     bundle.putString(TOMAHAWK_ARTIST_KEY, key);
-                    mTomahawkApp.getContentViewer()
+                    mTomahawkMainActivity.getContentViewer()
                             .replace(AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, false, false);
                 }
             } else if (item.getItemId() == R.id.action_gotoalbum_item) {
@@ -229,7 +229,7 @@ public class PlaybackFragment extends TomahawkFragment
                     String key = TomahawkUtils
                             .getCacheKey(playbackService.getCurrentQuery().getAlbum());
                     bundle.putString(TOMAHAWK_ALBUM_KEY, key);
-                    mTomahawkApp.getContentViewer()
+                    mTomahawkMainActivity.getContentViewer()
                             .replace(TracksFragment.class, key, TOMAHAWK_ALBUM_KEY, false, false);
                 }
             } else if (item.getItemId() == R.id.action_love_item) {

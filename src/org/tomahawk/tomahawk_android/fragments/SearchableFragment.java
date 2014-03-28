@@ -130,15 +130,15 @@ public class SearchableFragment extends TomahawkFragment
                 }
             } else if (item instanceof Album) {
                 String key = TomahawkUtils.getCacheKey((Album) item);
-                mTomahawkApp.getContentViewer()
+                mTomahawkMainActivity.getContentViewer()
                         .replace(TracksFragment.class, key, TOMAHAWK_ALBUM_KEY, false, false);
             } else if (item instanceof Artist) {
                 String key = TomahawkUtils.getCacheKey((Artist) item);
-                mTomahawkApp.getContentViewer()
+                mTomahawkMainActivity.getContentViewer()
                         .replace(AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, false, false);
             } else if (item instanceof User) {
                 String key = ((User) item).getId();
-                mTomahawkApp.getContentViewer()
+                mTomahawkMainActivity.getContentViewer()
                         .replace(SocialActionsFragment.class, key, TOMAHAWK_USER_ID, false, false);
             }
         }
