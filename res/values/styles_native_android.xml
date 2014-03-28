@@ -34,7 +34,7 @@
 
     <style name="SpinnerItemTomahawkTheme"
            parent="android:TextAppearance.Widget.TextView.SpinnerItem">
-        <item name="android:textColor">#ffffff</item>
+        <item name="android:textColor">@color/primary_textcolor</item>
     </style>
 
     <style name="CheckBoxTomahawkTheme" parent="android:Widget.CompoundButton.CheckBox">
