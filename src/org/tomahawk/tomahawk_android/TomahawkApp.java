@@ -34,7 +34,6 @@ import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.tomahawk_android.services.TomahawkService;
-import org.tomahawk.tomahawk_android.utils.ContentViewer;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkExceptionReporter;
 
@@ -91,8 +90,6 @@ public class TomahawkApp extends Application implements
     private InfoSystem mInfoSystem;
 
     private UserPlaylistsDataSource mUserPlaylistsDataSource;
-
-    private ContentViewer mContentViewer;
 
     private TomahawkService.TomahawkServiceConnection mTomahawkServiceConnection
             = new TomahawkService.TomahawkServiceConnection(this);
@@ -234,14 +231,6 @@ public class TomahawkApp extends Application implements
 
     public UserPlaylistsDataSource getUserPlaylistsDataSource() {
         return mUserPlaylistsDataSource;
-    }
-
-    public ContentViewer getContentViewer() {
-        return mContentViewer;
-    }
-
-    public void setContentViewer(ContentViewer contentViewer) {
-        mContentViewer = contentViewer;
     }
 
     /**

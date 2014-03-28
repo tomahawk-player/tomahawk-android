@@ -238,7 +238,7 @@ public class FakeContextMenuDialog extends TomahawkDialogFragment {
                     playbackService.setCurrentPlaylist(playlist);
                     playbackService.start();
                 }
-                mTomahawkApp.getContentViewer().showHub(ContentViewer.HUB_ID_PLAYBACK);
+                mTomahawkMainActivity.getContentViewer().showHub(ContentViewer.HUB_ID_PLAYBACK);
             }
         } else if (menuItemTitle.equals(mTomahawkMainActivity.getResources()
                 .getString(R.string.fake_context_menu_playaftercurrenttrack))) {
@@ -275,7 +275,7 @@ public class FakeContextMenuDialog extends TomahawkDialogFragment {
             Bundle bundle = new Bundle();
             String key = TomahawkUtils.getCacheKey(mTomahawkListItem.getAlbum());
             bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY, key);
-            mTomahawkApp.getContentViewer()
+            mTomahawkMainActivity.getContentViewer()
                     .replace(TracksFragment.class, key, TomahawkFragment.TOMAHAWK_ALBUM_KEY, false,
                             false);
         } else if (menuItemTitle.equals(mTomahawkMainActivity
@@ -283,7 +283,7 @@ public class FakeContextMenuDialog extends TomahawkDialogFragment {
             Bundle bundle = new Bundle();
             String key = TomahawkUtils.getCacheKey(mTomahawkListItem.getArtist());
             bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, key);
-            mTomahawkApp.getContentViewer()
+            mTomahawkMainActivity.getContentViewer()
                     .replace(AlbumsFragment.class, key, TomahawkFragment.TOMAHAWK_ARTIST_KEY, false,
                             false);
         } else if (menuItemTitle.equals(mTomahawkMainActivity.getResources()

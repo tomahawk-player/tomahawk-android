@@ -73,7 +73,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 Bundle bundle = new Bundle();
                 String key = TomahawkUtils.getCacheKey(mAlbum.getArtist());
                 bundle.putString(TOMAHAWK_ARTIST_KEY, key);
-                mTomahawkApp.getContentViewer()
+                mTomahawkMainActivity.getContentViewer()
                         .replace(AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, false, false);
             }
         }

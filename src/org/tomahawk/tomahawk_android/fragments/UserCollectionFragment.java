@@ -64,17 +64,17 @@ public class UserCollectionFragment extends TomahawkListFragment implements OnIt
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         switch ((int) id) {
             case 0:
-                mTomahawkApp.getContentViewer()
+                mTomahawkMainActivity.getContentViewer()
                         .replace(TracksFragment.class, "", null, true, false);
                 mTomahawkMainActivity.setTitle(getString(R.string.tracksfragment_title_string));
                 break;
             case 1:
-                mTomahawkApp.getContentViewer()
+                mTomahawkMainActivity.getContentViewer()
                         .replace(AlbumsFragment.class, "", null, true, false);
                 mTomahawkMainActivity.setTitle(getString(R.string.albumsfragment_title_string));
                 break;
             case 2:
-                mTomahawkApp.getContentViewer()
+                mTomahawkMainActivity.getContentViewer()
                         .replace(ArtistsFragment.class, "", null, true, false);
                 mTomahawkMainActivity.setTitle(getString(R.string.artistsfragment_title_string));
                 break;

@@ -72,7 +72,7 @@ public class CreateUserPlaylistDialog extends TomahawkDialogFragment {
             mUserPlaylist = UserPlaylist.getUserPlaylistById(
                     getArguments().getString(TomahawkFragment.TOMAHAWK_USERPLAYLIST_KEY));
             if (mUserPlaylist == null) {
-                mTomahawkApp.getContentViewer().back();
+                mTomahawkMainActivity.getContentViewer().back();
             }
         }
 
