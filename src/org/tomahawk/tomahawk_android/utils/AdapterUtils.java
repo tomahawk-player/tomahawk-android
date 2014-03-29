@@ -29,7 +29,7 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.ViewHolder;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.res.Resources;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
@@ -43,48 +43,48 @@ import java.util.concurrent.TimeUnit;
 
 public class AdapterUtils {
 
-    public static void fillContentHeader(Activity activity, ViewHolder viewHolder,
+    public static void fillContentHeader(Context context, ViewHolder viewHolder,
             Album album, boolean isOnlyLocal) {
         if (viewHolder.getTextView1() != null) {
             viewHolder.getTextView1().setText(album.getName());
         }
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
-        TomahawkUtils.loadImageIntoImageView(activity, viewHolder.getImageView1(),
+        TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
                 album.getImage(), Image.IMAGE_SIZE_LARGE);
         int tracksCount = album.getQueries(isOnlyLocal).size();
         String s = album.getArtist().getName() + ", " + tracksCount + " "
-                + activity.getString(R.string.category_header_track) + (tracksCount == 1 ? ""
+                + context.getString(R.string.category_header_track) + (tracksCount == 1 ? ""
                 : "s");
         viewHolder.getTextView2().setText(s);
     }
 
-    public static void fillContentHeader(Activity activity, ViewHolder viewHolder,
+    public static void fillContentHeader(Context context, ViewHolder viewHolder,
             Artist artist, boolean isOnlyLocal) {
         if (viewHolder.getTextView1() != null) {
             viewHolder.getTextView1().setText(artist.getName());
         }
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils
-                .loadImageIntoImageView(activity, viewHolder.getImageView1(), artist.getImage(),
+                .loadImageIntoImageView(context, viewHolder.getImageView1(), artist.getImage(),
                         Image.IMAGE_SIZE_LARGE);
         int topHitsCount = artist.getArtist().getTopHits().size();
         int albumsCount = isOnlyLocal ? artist.getLocalAlbums().size() : artist.getAlbums().size();
         String s = (isOnlyLocal ? "" : (topHitsCount + " "
-                + activity.getString(R.string.category_header_tophit)
+                + context.getString(R.string.category_header_tophit)
                 + (topHitsCount == 1 ? "" : "s") + ", ")) + albumsCount + " "
-                + activity.getString(R.string.category_header_album)
+                + context.getString(R.string.category_header_album)
                 + (albumsCount == 1 ? "" : "s");
         viewHolder.getTextView2().setText(s);
     }
 
-    public static void fillContentHeader(Activity activity, ViewHolder viewHolder,
+    public static void fillContentHeader(Context context, ViewHolder viewHolder,
             UserPlaylist userPlaylist, boolean isOnlyLocal) {
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         if (viewHolder.getTextView1() != null) {
             viewHolder.getTextView1().setText(userPlaylist.getName());
         }
         int tracksCount = userPlaylist.getQueries(isOnlyLocal).size();
-        String s = tracksCount + " " + activity.getString(R.string.category_header_track)
+        String s = tracksCount + " " + context.getString(R.string.category_header_track)
                 + (tracksCount == 1 ? "" : "s");
         viewHolder.getTextView2().setText(s);
         ArrayList<Artist> artists = userPlaylist.getContentHeaderArtists();
@@ -95,39 +95,38 @@ public class AdapterUtils {
             }
         }
         if (artistsWithImage.size() > 0) {
-            TomahawkUtils.loadImageIntoImageView(activity, viewHolder.getImageView1(),
+            TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
                     artistsWithImage.get(0).getImage(), Image.IMAGE_SIZE_LARGE);
         }
         if (artistsWithImage.size() > 3) {
-            activity.findViewById(R.id.content_header_image_frame2)
-                    .setVisibility(View.VISIBLE);
+            viewHolder.getImageViewFrame().setVisibility(View.VISIBLE);
             viewHolder.getImageView2().setVisibility(ImageView.VISIBLE);
-            TomahawkUtils.loadImageIntoImageView(activity, viewHolder.getImageView2(),
+            TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView2(),
                     artistsWithImage.get(1).getImage(), Image.IMAGE_SIZE_LARGE);
             viewHolder.getImageView3().setVisibility(ImageView.VISIBLE);
-            TomahawkUtils.loadImageIntoImageView(activity, viewHolder.getImageView3(),
+            TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView3(),
                     artistsWithImage.get(2).getImage(), Image.IMAGE_SIZE_LARGE);
             viewHolder.getImageView4().setVisibility(ImageView.VISIBLE);
-            TomahawkUtils.loadImageIntoImageView(activity, viewHolder.getImageView4(),
+            TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView4(),
                     artistsWithImage.get(3).getImage(), Image.IMAGE_SIZE_LARGE);
         }
     }
 
-    public static void fillContentHeaderSmall(Activity activity, ViewHolder viewHolder, User user) {
+    public static void fillContentHeaderSmall(Context context, ViewHolder viewHolder, User user) {
         viewHolder.getTextView1().setText(user.getName());
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
-        TomahawkUtils.loadDrawableIntoImageView(activity, viewHolder.getImageView1(),
+        TomahawkUtils.loadDrawableIntoImageView(context, viewHolder.getImageView1(),
                 R.drawable.no_album_art_placeholder);
-        TomahawkUtils.loadRoundedImageIntoImageView(activity, viewHolder.getRoundedImage(),
+        TomahawkUtils.loadRoundedImageIntoImageView(context, viewHolder.getRoundedImage(),
                 user.getImage(), Image.IMAGE_SIZE_LARGE);
         viewHolder.getRoundedImage().setVisibility(View.VISIBLE);
     }
 
-    public static void fillContentHeader(Activity activity, ViewHolder viewHolder, User user) {
+    public static void fillContentHeader(Context context, ViewHolder viewHolder, User user) {
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
-        TomahawkUtils.loadDrawableIntoImageView(activity, viewHolder.getImageView1(),
+        TomahawkUtils.loadDrawableIntoImageView(context, viewHolder.getImageView1(),
                 R.drawable.no_album_art_placeholder);
-        TomahawkUtils.loadRoundedImageIntoImageView(activity, viewHolder.getRoundedImage(),
+        TomahawkUtils.loadRoundedImageIntoImageView(context, viewHolder.getRoundedImage(),
                 user.getImage(), Image.IMAGE_SIZE_LARGE);
         viewHolder.getRoundedImage().setVisibility(View.VISIBLE);
         viewHolder.getTextView2().setText(user.getAbout());
@@ -135,14 +134,14 @@ public class AdapterUtils {
         viewHolder.getTextView4().setText("" + user.getFollowCount());
         viewHolder.getTextView5().setText("" + user.getFollowersCount());
         if (user.getNowPlaying() != null) {
-            viewHolder.getTextView6().setText(activity.getString(R.string.content_header_nowplaying)
+            viewHolder.getTextView6().setText(context.getString(R.string.content_header_nowplaying)
                     + " " + user.getNowPlaying().getName() + " "
-                    + activity.getString(R.string.album_by_artist)
+                    + context.getString(R.string.album_by_artist)
                     + " " + user.getNowPlaying().getArtist().getName());
         }
     }
 
-    public static void fillView(Activity activity, ViewHolder viewHolder, Query query,
+    public static void fillView(Context context, ViewHolder viewHolder, Query query,
             boolean showAsPlaying, boolean showResolvedBy) {
         viewHolder.getTextView1().setText(query.getName());
         viewHolder.getTextView4().setVisibility(View.VISIBLE);
@@ -152,7 +151,7 @@ public class AdapterUtils {
             viewHolder.getTextView5().setText(TomahawkUtils.durationToString(
                     (query.getPreferredTrack().getDuration())));
         } else {
-            viewHolder.getTextView5().setText(activity.getResources().getString(
+            viewHolder.getTextView5().setText(context.getString(
                     R.string.playbackactivity_seekbar_completion_time_string));
         }
         boolean isHighlighted =
@@ -177,32 +176,32 @@ public class AdapterUtils {
         }
     }
 
-    public static void fillView(Activity activity, ViewHolder viewHolder, User user) {
+    public static void fillView(Context context, ViewHolder viewHolder, User user) {
         viewHolder.getTextView1().setText(user.getName());
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
-        TomahawkUtils.loadImageIntoImageView(activity, viewHolder.getImageView1(),
+        TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
                 user.getImage(), Image.IMAGE_SIZE_SMALL);
     }
 
-    public static void fillView(Activity activity, ViewHolder viewHolder, Artist artist) {
+    public static void fillView(Context context, ViewHolder viewHolder, Artist artist) {
         viewHolder.getTextView1().setText(artist.getName());
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
-        TomahawkUtils.loadImageIntoImageView(activity, viewHolder.getImageView1(),
+        TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
                 artist.getImage(), Image.IMAGE_SIZE_SMALL);
     }
 
-    public static void fillView(Activity activity, ViewHolder viewHolder, Album album) {
+    public static void fillView(Context context, ViewHolder viewHolder, Album album) {
         viewHolder.getTextView1().setText(album.getName());
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
-        TomahawkUtils.loadImageIntoImageView(activity, viewHolder.getImageView1(),
+        TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
                 album.getImage(), Image.IMAGE_SIZE_SMALL);
         viewHolder.getTextView4().setVisibility(View.VISIBLE);
         viewHolder.getTextView4().setText(album.getArtist().getName());
     }
 
-    public static void fillView(Activity activity, ViewHolder viewHolder, SocialAction socialAction,
+    public static void fillView(Context context, ViewHolder viewHolder, SocialAction socialAction,
             boolean showAsPlaying, boolean showResolvedBy) {
-        Resources resources = activity.getResources();
+        Resources resources = context.getResources();
         TomahawkListItem targetObject = socialAction.getTargetObject();
         if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE
                 .equals(socialAction.getType())) {

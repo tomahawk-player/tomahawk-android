@@ -71,11 +71,6 @@
         </service>
 
         <service
-                android:name=".services.TomahawkService"
-                android:exported="false">
-        </service>
-
-        <service
                 android:name="org.tomahawk.libtomahawk.authentication.TomahawkAuthenticator$HatchetAuthenticationService">
             <!-- Required filter used by the system to launch our account service. -->
             <intent-filter>

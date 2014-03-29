@@ -18,19 +18,25 @@
  */
 package org.tomahawk.tomahawk_android.activities;
 
-import org.tomahawk.libtomahawk.collection.Collection;
+import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
+import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.CollectionLoader;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.database.TomahawkSQLiteHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
+import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
+import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.resolver.ScriptResolver;
+import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
+import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
@@ -40,22 +46,25 @@ import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
-import org.tomahawk.tomahawk_android.services.TomahawkService;
 import org.tomahawk.tomahawk_android.utils.ContentViewer;
+import org.tomahawk.tomahawk_android.utils.ContentViewerListener;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
 
 import android.accounts.AccountManager;
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -65,6 +74,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -75,6 +85,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -83,7 +94,10 @@ import java.util.Map;
  */
 public class TomahawkMainActivity extends ActionBarActivity
         implements PlaybackServiceConnectionListener,
-        LoaderManager.LoaderCallbacks<Collection> {
+        LoaderManager.LoaderCallbacks<UserCollection>,
+        ContentViewerListener {
+
+    private final static String TAG = TomahawkMainActivity.class.getName();
 
     public static final String PLAYBACKSERVICE_READY
             = "org.tomahawk.tomahawk_android.playbackservice_ready";
@@ -91,11 +105,13 @@ public class TomahawkMainActivity extends ActionBarActivity
     public static final String SHOW_PLAYBACKFRAGMENT_ON_STARTUP
             = "org.tomahawk.tomahawk_android.show_playbackfragment_on_startup";
 
-    private TomahawkApp mTomahawkApp;
+    public static final String ID_COUNTER = "org.tomahawk.tomahawk_android.id_counter";
+
+    private static Context sApplicationContext;
+
+    private static long mSessionIdCounter = 0;
 
     private ContentViewer mContentViewer;
-
-    private InfoSystem mInfoSystem;
 
     private CharSequence mTitle;
 
@@ -113,8 +129,6 @@ public class TomahawkMainActivity extends ActionBarActivity
     private ActionBarDrawerToggle mDrawerToggle;
 
     private CharSequence mDrawerTitle;
-
-    private UserCollection mUserCollection;
 
     private TomahawkMainReceiver mTomahawkMainReceiver;
 
@@ -140,8 +154,8 @@ public class TomahawkMainActivity extends ActionBarActivity
         @Override
         public void run() {
             mAnimationHandler.removeCallbacks(mAnimationRunnable);
-            if ((mTomahawkApp.getThreadManager().isActive()) ||
-                    (mPlaybackService != null && mPlaybackService.isPreparing())) {
+            if (ThreadManager.getInstance().isActive()
+                    || (mPlaybackService != null && mPlaybackService.isPreparing())) {
                 mAnimationHandler.post(mAnimationRunnable);
             } else {
                 getSupportActionBar().setLogo(R.drawable.ic_launcher);
@@ -157,7 +171,18 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (Collection.COLLECTION_UPDATED.equals(intent.getAction())) {
+            if (UserCollection.COLLECTION_UPDATED.equals(intent.getAction())) {
+                PipeLine.getInstance().onCollectionUpdated();
+            } else if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
+                boolean noConnectivity =
+                        intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
+                if (!noConnectivity) {
+                    AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
+                            .getAuthenticatorUtils(AuthenticatorUtils.AUTHENTICATOR_ID_HATCHET);
+                    InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
+                    UserCollection.getInstance().fetchHatchetUserPlaylists();
+                }
+            } else if (UserCollection.COLLECTION_UPDATED.equals(intent.getAction())) {
                 onCollectionUpdated();
             } else if (PlaybackService.BROADCAST_CURRENTTRACKCHANGED.equals(intent.getAction())) {
                 if (mPlaybackService != null) {
@@ -168,7 +193,7 @@ public class TomahawkMainActivity extends ActionBarActivity
             } else if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
                 String requestId = intent.getStringExtra(
                         InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
-                InfoRequestData data = mInfoSystem.getInfoRequestById(requestId);
+                InfoRequestData data = InfoSystem.getInstance().getInfoRequestById(requestId);
                 if (data != null
                         && data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF) {
                     Map<String, List> convertedResultMap = data.getConvertedResultMap();
@@ -220,6 +245,8 @@ public class TomahawkMainActivity extends ActionBarActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        sApplicationContext = getApplicationContext();
+
         //Setup our services
         Intent intent = new Intent(this, PlaybackService.class);
         startService(intent);
@@ -229,10 +256,57 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        mTomahawkApp = ((TomahawkApp) getApplication());
-        mInfoSystem = mTomahawkApp.getInfoSystem();
-        mUserCollection = (UserCollection) mTomahawkApp.getSourceList().getLocalSource()
-                .getCollection();
+        // Load the LibSpotifyWrapper libaries
+        System.loadLibrary("spotify");
+        System.loadLibrary("spotifywrapper");
+
+        // Initialize LibSpotifyWrapper
+        LibSpotifyWrapper
+                .init(LibSpotifyWrapper.class.getClassLoader(), getFilesDir() + "/Spotify");
+
+        if (!AuthenticatorManager.getInstance().isInitialized()) {
+            AuthenticatorManager.getInstance().setContext(getContext());
+        }
+
+        if (!PipeLine.getInstance().isInitialized()) {
+            PipeLine.getInstance().setContext(getContext());
+            PipeLine.getInstance()
+                    .addResolver(new DataBaseResolver(PipeLine.RESOLVER_ID_USERCOLLECTION,
+                            getContext()));
+            ScriptResolver scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_JAMENDO,
+                    "js/jamendo/content/contents/code/jamendo.js", getContext());
+            PipeLine.getInstance().addResolver(scriptResolver);
+            scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_OFFICIALFM,
+                    "js/official.fm/content/contents/code/officialfm.js", getContext());
+            PipeLine.getInstance().addResolver(scriptResolver);
+            scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_EXFM,
+                    "js/exfm/content/contents/code/exfm.js", getContext());
+            PipeLine.getInstance().addResolver(scriptResolver);
+            scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_SOUNDCLOUD,
+                    "js/soundcloud/content/contents/code/soundcloud.js", getContext());
+            PipeLine.getInstance().addResolver(scriptResolver);
+            SpotifyResolver spotifyResolver = new SpotifyResolver(PipeLine.RESOLVER_ID_SPOTIFY,
+                    getContext());
+            PipeLine.getInstance().addResolver(spotifyResolver);
+            PipeLine.getInstance().setAllResolversAdded(true);
+        }
+
+        // Initialize UserPlaylistsDataSource, which makes it possible to retrieve persisted
+        // UserPlaylists
+        if (!DatabaseHelper.getInstance().isInitialized()) {
+            DatabaseHelper.getInstance().setContext(getContext());
+            DatabaseHelper.getInstance().open();
+        }
+
+        if (!InfoSystem.getInstance().isInitialized()) {
+            InfoSystem.getInstance().setContext(getContext());
+            InfoSystem.getInstance().addInfoPlugin(new HatchetInfoPlugin(getContext()));
+        }
+
+        if (!UserCollection.getInstance().isInitialized()) {
+            Log.d(TAG, "Initializing Local Collection.");
+            UserCollection.getInstance().setContext(getContext());
+        }
 
         mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
 
@@ -309,12 +383,12 @@ public class TomahawkMainActivity extends ActionBarActivity
         // initialize our ContentViewer, which will handle switching the fragments whenever an
         // entry in the slidingmenu is being clicked. Restore our saved state, if one exists.
         if (mContentViewer == null) {
-            mContentViewer = new ContentViewer(this, getSupportFragmentManager(),
+            mContentViewer = new ContentViewer(getContext(), getSupportFragmentManager(), this,
                     R.id.content_viewer_frame);
             mContentViewer.showHub(ContentViewer.HUB_ID_COLLECTION);
         } else {
-            mContentViewer.setTomahawkMainActivity(this);
-            mContentViewer.setFragmentManager(getSupportFragmentManager());
+            mContentViewer.initialize(getContext(), getSupportFragmentManager(), this,
+                    R.id.content_viewer_frame);
         }
     }
 
@@ -350,9 +424,9 @@ public class TomahawkMainActivity extends ActionBarActivity
         if (getIntent().hasExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)) {
             ContentViewer.FragmentStateHolder fragmentStateHolder = mContentViewer
                     .getBackStack().get(0);
-            fragmentStateHolder.tomahawkListItemType = TomahawkService.AUTHENTICATOR_ID;
+            fragmentStateHolder.tomahawkListItemType = AuthenticatorUtils.AUTHENTICATOR_ID;
             fragmentStateHolder.tomahawkListItemKey = String.valueOf(
-                    getIntent().getIntExtra(TomahawkService.AUTHENTICATOR_ID, -1));
+                    getIntent().getIntExtra(AuthenticatorUtils.AUTHENTICATOR_ID, -1));
         }
 
         if (mPlaybackService != null) {
@@ -367,14 +441,16 @@ public class TomahawkMainActivity extends ActionBarActivity
         }
 
         // Register intents that the BroadcastReceiver should listen to
-        IntentFilter intentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
-        registerReceiver(mTomahawkMainReceiver, intentFilter);
-        intentFilter = new IntentFilter(PlaybackService.BROADCAST_CURRENTTRACKCHANGED);
-        registerReceiver(mTomahawkMainReceiver, intentFilter);
-        intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYSTATECHANGED);
-        registerReceiver(mTomahawkMainReceiver, intentFilter);
-        intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
-        registerReceiver(mTomahawkMainReceiver, intentFilter);
+        registerReceiver(mTomahawkMainReceiver,
+                new IntentFilter(UserCollection.COLLECTION_UPDATED));
+        registerReceiver(mTomahawkMainReceiver,
+                new IntentFilter(PlaybackService.BROADCAST_CURRENTTRACKCHANGED));
+        registerReceiver(mTomahawkMainReceiver,
+                new IntentFilter(PlaybackService.BROADCAST_PLAYSTATECHANGED));
+        registerReceiver(mTomahawkMainReceiver,
+                new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
+        registerReceiver(mTomahawkMainReceiver,
+                new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
     @Override
@@ -445,7 +521,7 @@ public class TomahawkMainActivity extends ActionBarActivity
             @Override
             public boolean onQueryTextSubmit(String query) {
                 if (query != null && !TextUtils.isEmpty(query)) {
-                    mTomahawkApp.getUserPlaylistsDataSource().addEntryToSearchHistory(query);
+                    DatabaseHelper.getInstance().addEntryToSearchHistory(query);
                     ContentViewer.FragmentStateHolder fragmentStateHolder
                             = new ContentViewer.FragmentStateHolder(SearchableFragment.class,
                             null);
@@ -462,8 +538,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                Cursor cursor = mTomahawkApp.getUserPlaylistsDataSource().getSearchHistoryCursor(
-                        newText);
+                Cursor cursor = DatabaseHelper.getInstance().getSearchHistoryCursor(newText);
                 if (cursor.getCount() != 0) {
                     String[] columns = new String[]{
                             TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ENTRY};
@@ -557,23 +632,28 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     @Override
-    public Loader<Collection> onCreateLoader(int id, Bundle args) {
-        return new CollectionLoader(this,
-                ((TomahawkApp) getApplication()).getSourceList().getLocalSource().getCollection());
+    public Loader<UserCollection> onCreateLoader(int id, Bundle args) {
+        return new CollectionLoader(getContext(), UserCollection.getInstance());
     }
 
     @Override
-    public void onLoaderReset(Loader<Collection> loader) {
+    public void onLoaderReset(Loader<UserCollection> loader) {
     }
 
     @Override
-    public void onLoadFinished(Loader<Collection> loader, Collection coll) {
-        mUserCollection = (UserCollection) coll;
+    public void onLoadFinished(Loader<UserCollection> loader, UserCollection coll) {
+    }
+
+    /**
+     * Called when a {@link Collection} has been updated.
+     */
+    protected void onCollectionUpdated() {
+        getSupportLoaderManager().restartLoader(0, null, this);
     }
 
     private void updateDrawer() {
         if (mLoggedInUser == null) {
-            mInfoSystem.resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF, null);
+            InfoSystem.getInstance().resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF, null);
         }
         // Set up the TomahawkMenuAdapter. Give it its set of menu item texts and icons to display
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
@@ -585,13 +665,6 @@ public class TomahawkMainActivity extends ActionBarActivity
         mDrawerList.setAdapter(slideMenuAdapter);
 
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-    }
-
-    /**
-     * Called when a {@link Collection} has been updated.
-     */
-    protected void onCollectionUpdated() {
-        getSupportLoaderManager().restartLoader(0, null, this);
     }
 
     /**
@@ -639,6 +712,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         }
     }
 
+    @Override
     public void updateViewVisibility() {
         ContentViewer.FragmentStateHolder currentFSH = mContentViewer
                 .getCurrentFragmentStateHolder();
@@ -681,21 +755,36 @@ public class TomahawkMainActivity extends ActionBarActivity
         }
     }
 
-    /**
-     * Returns this {@link Activity}s current {@link org.tomahawk.libtomahawk.collection.UserCollection}.
-     *
-     * @return the current {@link org.tomahawk.libtomahawk.collection.UserCollection} in this {@link
-     * Activity}.
-     */
-    public UserCollection getUserCollection() {
-        return mUserCollection;
-    }
-
+    @Override
     public User getLoggedInUser() {
         return mLoggedInUser;
     }
 
     public ContentViewer getContentViewer() {
         return mContentViewer;
+    }
+
+    public static long getSessionUniqueId() {
+        return mSessionIdCounter++;
+    }
+
+    public static String getSessionUniqueStringId() {
+        return String.valueOf(getSessionUniqueId());
+    }
+
+    public static long getLifetimeUniqueId() {
+        SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(sApplicationContext);
+        long id = sharedPreferences.getLong(ID_COUNTER, 0);
+        sharedPreferences.edit().putLong(ID_COUNTER, id + 1).commit();
+        return id;
+    }
+
+    public static String getLifetimeUniqueStringId() {
+        return String.valueOf(getLifetimeUniqueId());
+    }
+
+    public static Context getContext() {
+        return sApplicationContext;
     }
 }

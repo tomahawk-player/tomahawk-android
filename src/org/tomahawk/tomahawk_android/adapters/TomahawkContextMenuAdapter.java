@@ -19,13 +19,14 @@ package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,28 +44,29 @@ import java.util.List;
  */
 public class TomahawkContextMenuAdapter extends BaseAdapter {
 
-    private TomahawkMainActivity mActivity;
+    private Context mContext;
 
-    private final LayoutInflater mLayoutInflater;
+    private LayoutInflater mLayoutInflater;
 
     private List<String> mStringArray = new ArrayList<String>();
 
     /**
      * Constructs a new {@link TomahawkContextMenuAdapter}
      */
-    public TomahawkContextMenuAdapter(TomahawkMainActivity activity, List<String> stringArray) {
-        mActivity = activity;
-        mLayoutInflater = activity.getLayoutInflater();
+    public TomahawkContextMenuAdapter(Context context, LayoutInflater layoutInflater,
+            List<String> stringArray) {
+        mContext = context;
+        mLayoutInflater = layoutInflater;
         mStringArray = stringArray;
     }
 
     /**
      * Constructs a new {@link TomahawkContextMenuAdapter}
      */
-    public TomahawkContextMenuAdapter(TomahawkMainActivity activity, TomahawkListItem item,
-            boolean showDelete) {
-        mActivity = activity;
-        mLayoutInflater = activity.getLayoutInflater();
+    public TomahawkContextMenuAdapter(Context context, LayoutInflater layoutInflater,
+            TomahawkListItem item, boolean showDelete) {
+        mContext = context;
+        mLayoutInflater = layoutInflater;
         mStringArray = getMenuItems(item, showDelete);
     }
 
@@ -119,43 +121,43 @@ public class TomahawkContextMenuAdapter extends BaseAdapter {
             showDelete = false;
         }
         if (item instanceof UserPlaylist) {
-            menuItems.add(mActivity.getString(R.string.fake_context_menu_play));
-            menuItems.add(mActivity.getString(R.string.fake_context_menu_playaftercurrenttrack));
-            menuItems.add(mActivity.getString(R.string.fake_context_menu_appendtoplaybacklist));
-            menuItems.add(mActivity.getString(R.string.fake_context_menu_addtoplaylist));
+            menuItems.add(mContext.getString(R.string.fake_context_menu_play));
+            menuItems.add(mContext.getString(R.string.fake_context_menu_playaftercurrenttrack));
+            menuItems.add(mContext.getString(R.string.fake_context_menu_appendtoplaybacklist));
+            menuItems.add(mContext.getString(R.string.fake_context_menu_addtoplaylist));
             if (showDelete) {
-                menuItems.add(mActivity.getString(R.string.fake_context_menu_delete));
+                menuItems.add(mContext.getString(R.string.fake_context_menu_delete));
             }
         } else if (item instanceof Query) {
             Query query = ((Query) item);
             if (query.isPlayable()) {
-                menuItems.add(mActivity.getString(R.string.fake_context_menu_play));
+                menuItems.add(mContext.getString(R.string.fake_context_menu_play));
                 menuItems
-                        .add(mActivity.getString(R.string.fake_context_menu_playaftercurrenttrack));
-                menuItems.add(mActivity.getString(R.string.fake_context_menu_appendtoplaybacklist));
-                menuItems.add(mActivity.getString(R.string.fake_context_menu_addtoplaylist));
+                        .add(mContext.getString(R.string.fake_context_menu_playaftercurrenttrack));
+                menuItems.add(mContext.getString(R.string.fake_context_menu_appendtoplaybacklist));
+                menuItems.add(mContext.getString(R.string.fake_context_menu_addtoplaylist));
             }
-            menuItems.add(mActivity.getString(R.string.menu_item_go_to_artist));
-            menuItems.add(mActivity.getString(R.string.menu_item_go_to_album));
-            if (mActivity.getUserCollection().isQueryLoved(query)) {
-                menuItems.add(mActivity.getString(R.string.fake_context_menu_unlove_track));
+            menuItems.add(mContext.getString(R.string.menu_item_go_to_artist));
+            menuItems.add(mContext.getString(R.string.menu_item_go_to_album));
+            if (UserCollection.getInstance().isQueryLoved(query)) {
+                menuItems.add(mContext.getString(R.string.fake_context_menu_unlove_track));
             } else {
-                menuItems.add(mActivity.getString(R.string.fake_context_menu_love_track));
+                menuItems.add(mContext.getString(R.string.fake_context_menu_love_track));
             }
             if (showDelete) {
-                menuItems.add(mActivity.getString(R.string.fake_context_menu_delete));
+                menuItems.add(mContext.getString(R.string.fake_context_menu_delete));
             }
         } else if (item instanceof Artist) {
-            menuItems.add(mActivity.getString(R.string.fake_context_menu_play));
-            menuItems.add(mActivity.getString(R.string.fake_context_menu_playaftercurrenttrack));
-            menuItems.add(mActivity.getString(R.string.fake_context_menu_appendtoplaybacklist));
-            menuItems.add(mActivity.getString(R.string.fake_context_menu_addtoplaylist));
+            menuItems.add(mContext.getString(R.string.fake_context_menu_play));
+            menuItems.add(mContext.getString(R.string.fake_context_menu_playaftercurrenttrack));
+            menuItems.add(mContext.getString(R.string.fake_context_menu_appendtoplaybacklist));
+            menuItems.add(mContext.getString(R.string.fake_context_menu_addtoplaylist));
         } else if (item instanceof Album) {
-            menuItems.add(mActivity.getString(R.string.fake_context_menu_play));
-            menuItems.add(mActivity.getString(R.string.fake_context_menu_playaftercurrenttrack));
-            menuItems.add(mActivity.getString(R.string.fake_context_menu_appendtoplaybacklist));
-            menuItems.add(mActivity.getString(R.string.fake_context_menu_addtoplaylist));
-            menuItems.add(mActivity.getString(R.string.menu_item_go_to_artist));
+            menuItems.add(mContext.getString(R.string.fake_context_menu_play));
+            menuItems.add(mContext.getString(R.string.fake_context_menu_playaftercurrenttrack));
+            menuItems.add(mContext.getString(R.string.fake_context_menu_appendtoplaybacklist));
+            menuItems.add(mContext.getString(R.string.fake_context_menu_addtoplaylist));
+            menuItems.add(mContext.getString(R.string.menu_item_go_to_artist));
         }
         return menuItems;
     }

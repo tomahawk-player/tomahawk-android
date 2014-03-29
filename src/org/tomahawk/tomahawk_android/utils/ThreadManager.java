@@ -24,6 +24,8 @@ import java.util.concurrent.TimeUnit;
 
 public class ThreadManager {
 
+    private static ThreadManager instance;
+
     /*
      * Gets the number of available cores
      * (not always the same as the maximum number of cores)
@@ -42,13 +44,24 @@ public class ThreadManager {
 
     private ThreadPoolExecutor mPlaybackThreadPool;
 
-    public ThreadManager() {
+    private ThreadManager() {
         mPipeLineThreadPool = new ThreadPoolExecutor(NUMBER_OF_CORES, NUMBER_OF_CORES,
                 KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, new PriorityBlockingQueue<Runnable>());
         mInfoSystemThreadPool = new ThreadPoolExecutor(NUMBER_OF_CORES, NUMBER_OF_CORES,
                 KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, new PriorityBlockingQueue<Runnable>());
         mPlaybackThreadPool = new ThreadPoolExecutor(1, 1, KEEP_ALIVE_TIME,
                 KEEP_ALIVE_TIME_UNIT, new LinkedBlockingQueue<Runnable>());
+    }
+
+    public static ThreadManager getInstance() {
+        if (instance == null) {
+            synchronized (ThreadManager.class) {
+                if (instance == null) {
+                    instance = new ThreadManager();
+                }
+            }
+        }
+        return instance;
     }
 
     public void executeInfoSystemRunnable(TomahawkRunnable r) {

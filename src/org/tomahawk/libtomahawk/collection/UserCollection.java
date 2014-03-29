@@ -21,20 +21,21 @@ package org.tomahawk.libtomahawk.collection;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
+import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
-import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaylistEntries;
+import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.services.TomahawkService;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.content.BroadcastReceiver;
@@ -57,13 +58,18 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * This class represents a user's local {@link Collection} of all his {@link Track}s.
+ * This class represents a user's local {@link UserCollection} of all his {@link Track}s.
  */
-public class UserCollection extends Collection {
+public class UserCollection {
+
+    public static final String COLLECTION_UPDATED
+            = "org.tomahawk.tomahawk_android.COLLECTION_UPDATED";
+
+    private static UserCollection instance;
 
     public static final int Id = 0;
 
-    private TomahawkApp mTomahawkApp;
+    private Context mContext;
 
     private HandlerThread mCollectionUpdateHandlerThread;
 
@@ -106,7 +112,7 @@ public class UserCollection extends Collection {
     private UserCollectionReceiver mUserCollectionReceiver;
 
     /**
-     * Handles incoming {@link Collection} updated broadcasts.
+     * Handles incoming {@link UserCollection} updated broadcasts.
      */
     private class UserCollectionReceiver extends BroadcastReceiver {
 
@@ -123,18 +129,17 @@ public class UserCollection extends Collection {
                 final String requestId = intent
                         .getStringExtra(InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
                 if (mCorrespondingRequestIds.contains(requestId)) {
-                    mTomahawkApp.getThreadManager().executePipeLineRunnable(
+                    ThreadManager.getInstance().executePipeLineRunnable(
                             new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
                                 @Override
                                 public void run() {
-                                    InfoRequestData data = mTomahawkApp.getInfoSystem()
+                                    InfoRequestData data = InfoSystem.getInstance()
                                             .getInfoRequestById(requestId);
-                                    UserPlaylistsDataSource userPlaylistsDataSource
-                                            = mTomahawkApp.getUserPlaylistsDataSource();
                                     if (data.getType()
                                             == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS) {
                                         ArrayList<UserPlaylist> storedLists
-                                                = userPlaylistsDataSource.getHatchetUserPlaylists();
+                                                = DatabaseHelper.getInstance()
+                                                .getHatchetUserPlaylists();
                                         HashMap<String, UserPlaylist> storedListsMap
                                                 = new HashMap<String, UserPlaylist>();
                                         for (UserPlaylist storedList : storedLists) {
@@ -147,8 +152,8 @@ public class UserCollection extends Collection {
                                             UserPlaylist storedList = storedListsMap
                                                     .remove(fetchedList.getId());
                                             if (storedList == null) {
-                                                userPlaylistsDataSource
-                                                        .storeUserPlaylist(fetchedList);
+                                                DatabaseHelper.getInstance().storeUserPlaylist(
+                                                        fetchedList);
                                                 fetchHatchetUserPlaylist(fetchedList.getId());
                                             } else if (!storedList.getCurrentRevision()
                                                     .equals(fetchedList.getCurrentRevision())
@@ -157,8 +162,8 @@ public class UserCollection extends Collection {
                                             }
                                         }
                                         for (UserPlaylist storedList : storedListsMap.values()) {
-                                            userPlaylistsDataSource
-                                                    .deleteUserPlaylist(storedList.getId());
+                                            DatabaseHelper.getInstance().deleteUserPlaylist(
+                                                    storedList.getId());
                                         }
                                     } else if (data.getType()
                                             == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES) {
@@ -171,7 +176,8 @@ public class UserCollection extends Collection {
                                             playlist = InfoSystemUtils
                                                     .fillUserPlaylist(playlist,
                                                             playlistEntries);
-                                            userPlaylistsDataSource.storeUserPlaylist(playlist);
+                                            DatabaseHelper.getInstance()
+                                                    .storeUserPlaylist(playlist);
                                         }
                                     } else if (data.getType()
                                             == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
@@ -179,8 +185,8 @@ public class UserCollection extends Collection {
                                                 .getConvertedResultMap()
                                                 .get(HatchetInfoPlugin.HATCHET_PLAYLISTS);
                                         if (fetchedLists.size() > 0) {
-                                            userPlaylistsDataSource
-                                                    .storeUserPlaylist(fetchedLists.get(0));
+                                            DatabaseHelper.getInstance().storeUserPlaylist(
+                                                    fetchedLists.get(0));
                                         }
                                     }
                                 }
@@ -189,29 +195,39 @@ public class UserCollection extends Collection {
                 }
             } else if (InfoSystem.INFOSYSTEM_OPLOGISEMPTIED.equals(intent.getAction())) {
                 UserCollection.this.fetchLovedItemsUserPlaylists();
-            } else if (UserPlaylistsDataSource.USERPLAYLISTSDATASOURCE_RESULTSREPORTED
+            } else if (DatabaseHelper.USERPLAYLISTSDATASOURCE_RESULTSREPORTED
                     .equals(intent.getAction())) {
                 UserCollection.this.updateUserPlaylists();
             }
         }
     }
 
-    /**
-     * Construct a new {@link UserCollection} and initializes it.
-     */
-    public UserCollection(TomahawkApp tomahawkApp) {
-        mTomahawkApp = tomahawkApp;
-        mUserCollectionReceiver = new UserCollectionReceiver();
-        mTomahawkApp.registerReceiver(mUserCollectionReceiver,
-                new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
-        mTomahawkApp.registerReceiver(mUserCollectionReceiver,
-                new IntentFilter(InfoSystem.INFOSYSTEM_OPLOGISEMPTIED));
-        mTomahawkApp.registerReceiver(mUserCollectionReceiver,
-                new IntentFilter(UserPlaylistsDataSource.USERPLAYLISTSDATASOURCE_RESULTSREPORTED));
+    private UserCollection() {
+    }
 
-        TomahawkApp.getContext().getContentResolver()
-                .registerContentObserver(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false,
-                        mLocalMediaObserver);
+    public static UserCollection getInstance() {
+        if (instance == null) {
+            synchronized (UserCollection.class) {
+                if (instance == null) {
+                    instance = new UserCollection();
+                }
+            }
+        }
+        return instance;
+    }
+
+    public void setContext(Context context) {
+        mContext = context;
+        mUserCollectionReceiver = new UserCollectionReceiver();
+        mContext.registerReceiver(mUserCollectionReceiver,
+                new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
+        mContext.registerReceiver(mUserCollectionReceiver,
+                new IntentFilter(InfoSystem.INFOSYSTEM_OPLOGISEMPTIED));
+        mContext.registerReceiver(mUserCollectionReceiver,
+                new IntentFilter(DatabaseHelper.USERPLAYLISTSDATASOURCE_RESULTSREPORTED));
+
+        mContext.getContentResolver().registerContentObserver(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false, mLocalMediaObserver);
 
         mCollectionUpdateHandlerThread = new HandlerThread("CollectionUpdate",
                 android.os.Process.THREAD_PRIORITY_BACKGROUND);
@@ -221,10 +237,13 @@ public class UserCollection extends Collection {
         mHandler.postDelayed(mUpdateRunnable, 300);
     }
 
+    public boolean isInitialized() {
+        return mContext != null;
+    }
+
     /**
      * @return A {@link List} of all {@link UserPlaylist}s in this {@link UserCollection}
      */
-    @Override
     public ArrayList<UserPlaylist> getLocalUserPlaylists() {
         ArrayList<UserPlaylist> userPlaylists = new ArrayList<UserPlaylist>();
         for (UserPlaylist userPlaylist : mUserPlaylists.values()) {
@@ -256,18 +275,18 @@ public class UserCollection extends Collection {
      * Store the PlaybackService's currentPlaylist
      */
     public void setCachedUserPlaylist(UserPlaylist userPlaylist) {
-        mTomahawkApp.getUserPlaylistsDataSource().storeUserPlaylist(userPlaylist);
+        DatabaseHelper.getInstance().storeUserPlaylist(userPlaylist);
     }
 
     /**
      * @return the previously cached {@link UserPlaylist}
      */
     public UserPlaylist getCachedUserPlaylist() {
-        return mTomahawkApp.getUserPlaylistsDataSource().getCachedUserPlaylist();
+        return DatabaseHelper.getInstance().getCachedUserPlaylist();
     }
 
     public boolean isQueryLoved(Query query) {
-        return mTomahawkApp.getUserPlaylistsDataSource().isItemLoved(query);
+        return DatabaseHelper.getInstance().isItemLoved(query);
     }
 
     /**
@@ -276,11 +295,11 @@ public class UserCollection extends Collection {
      */
     public void toggleLovedItem(Query query) {
         boolean doSweetSweetLovin = !isQueryLoved(query);
-        mTomahawkApp.getUserPlaylistsDataSource().setLovedItem(query, doSweetSweetLovin);
-        TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
-        AuthenticatorUtils hatchetAuthUtils = mTomahawkApp.getTomahawkService()
-                .getAuthenticatorUtils(TomahawkService.AUTHENTICATOR_ID_HATCHET);
-        mTomahawkApp.getInfoSystem().sendSocialActionPostStruct(hatchetAuthUtils, query,
+        DatabaseHelper.getInstance().setLovedItem(query, doSweetSweetLovin);
+        mContext.sendBroadcast(new Intent(COLLECTION_UPDATED));
+        AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
+                .getAuthenticatorUtils(AuthenticatorUtils.AUTHENTICATOR_ID_HATCHET);
+        InfoSystem.getInstance().sendSocialActionPostStruct(hatchetAuthUtils, query,
                 HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE, doSweetSweetLovin);
     }
 
@@ -288,21 +307,20 @@ public class UserCollection extends Collection {
      * @return the previously stored {@link UserPlaylist} which stores all of the user's loved items
      */
     public UserPlaylist getLovedItemsUserPlaylist() {
-        return mTomahawkApp.getUserPlaylistsDataSource().getLovedItemsUserPlaylist();
+        return DatabaseHelper.getInstance().getLovedItemsUserPlaylist();
     }
 
     /**
      * Update the loved items user-playlist and the contained queries.
      */
     private void updateLovedItemsUserPlaylist() {
-        UserPlaylist lovedItemsPlayList = mTomahawkApp.getUserPlaylistsDataSource()
-                .getLovedItemsUserPlaylist();
+        UserPlaylist lovedItemsPlayList = DatabaseHelper.getInstance().getLovedItemsUserPlaylist();
         if (lovedItemsPlayList == null) {
             // If we don't yet have a UserPlaylist to store loved items, we create and store an
             // empty UserPlaylist here
-            mTomahawkApp.getUserPlaylistsDataSource().storeUserPlaylist(
-                    UserPlaylist.fromQueryList(UserPlaylistsDataSource.LOVEDITEMS_PLAYLIST_ID,
-                            UserPlaylistsDataSource.LOVEDITEMS_PLAYLIST_NAME,
+            DatabaseHelper.getInstance().storeUserPlaylist(
+                    UserPlaylist.fromQueryList(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID,
+                            DatabaseHelper.LOVEDITEMS_PLAYLIST_NAME,
                             new ArrayList<Query>())
             );
         }
@@ -314,20 +332,19 @@ public class UserCollection extends Collection {
      * to the API.
      */
     public void fetchLovedItemsUserPlaylists() {
-        if (mTomahawkApp.getUserPlaylistsDataSource().getLoggedOps().isEmpty()) {
-            mCorrespondingRequestIds.add(mTomahawkApp.getInfoSystem()
-                    .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS, null));
-        } else if (mTomahawkApp.getTomahawkService() != null) {
-            AuthenticatorUtils hatchetAuthUtils = mTomahawkApp.getTomahawkService()
-                    .getAuthenticatorUtils(TomahawkService.AUTHENTICATOR_ID_HATCHET);
-            mTomahawkApp.getInfoSystem().sendLoggedOps(hatchetAuthUtils);
+        if (DatabaseHelper.getInstance().getLoggedOps().isEmpty()) {
+            mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(
+                    InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS, null));
+        } else {
+            AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
+                    .getAuthenticatorUtils(AuthenticatorUtils.AUTHENTICATOR_ID_HATCHET);
+            InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
         }
     }
 
     /**
      * @return A {@link List} of all {@link Track}s in this {@link UserCollection}
      */
-    @Override
     public ArrayList<Query> getQueries() {
         return getQueries(true);
     }
@@ -346,7 +363,6 @@ public class UserCollection extends Collection {
     /**
      * @return always true
      */
-    @Override
     public boolean isLocal() {
         return true;
     }
@@ -356,8 +372,8 @@ public class UserCollection extends Collection {
      * add them to our {@link UserCollection}
      */
     private void initializeCollection() {
-        Resolver userCollectionResolver = mTomahawkApp.getPipeLine().getResolver(
-                TomahawkApp.RESOLVER_ID_USERCOLLECTION);
+        Resolver userCollectionResolver = PipeLine.getInstance().getResolver(
+                PipeLine.RESOLVER_ID_USERCOLLECTION);
 
         updateLovedItemsUserPlaylist();
         updateUserPlaylists();
@@ -371,7 +387,7 @@ public class UserCollection extends Collection {
                 MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM_ID,
                 MediaStore.Audio.Media.ALBUM};
 
-        ContentResolver resolver = TomahawkApp.getContext().getContentResolver();
+        ContentResolver resolver = mContext.getContentResolver();
 
         Cursor cursor = resolver
                 .query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, selection, null,
@@ -427,20 +443,20 @@ public class UserCollection extends Collection {
 
     /**
      * Fetch all user {@link UserPlaylist} from the app's database via our helper class {@link
-     * UserPlaylistsDataSource}
+     * org.tomahawk.libtomahawk.database.DatabaseHelper}
      */
     private void updateUserPlaylists() {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                synchronized (mTomahawkApp.getUserPlaylistsDataSource()) {
-                    ArrayList<UserPlaylist> localPlaylists = mTomahawkApp
-                            .getUserPlaylistsDataSource().getLocalUserPlaylists();
+                synchronized (DatabaseHelper.getInstance()) {
+                    ArrayList<UserPlaylist> localPlaylists = DatabaseHelper.getInstance()
+                            .getLocalUserPlaylists();
                     for (UserPlaylist userPlaylist : localPlaylists) {
                         mUserPlaylists.put(userPlaylist.getId(), userPlaylist);
                     }
-                    ArrayList<UserPlaylist> hatchetPlaylists = mTomahawkApp
-                            .getUserPlaylistsDataSource().getHatchetUserPlaylists();
+                    ArrayList<UserPlaylist> hatchetPlaylists = DatabaseHelper.getInstance()
+                            .getHatchetUserPlaylists();
                     for (UserPlaylist userPlaylist : hatchetPlaylists) {
                         mUserPlaylists.put(userPlaylist.getId(), userPlaylist);
                     }
@@ -450,7 +466,7 @@ public class UserCollection extends Collection {
                             mUserPlaylists.remove(userPlaylist.getId());
                         }
                     }
-                    TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
+                    mContext.sendBroadcast(new Intent(COLLECTION_UPDATED));
                 }
             }
         }).start();
@@ -460,8 +476,8 @@ public class UserCollection extends Collection {
      * Fetch the UserPlaylists from the Hatchet API and store it in the local db.
      */
     public void fetchHatchetUserPlaylists() {
-        mCorrespondingRequestIds.add(mTomahawkApp.getInfoSystem()
-                .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS, null));
+        mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(
+                InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS, null));
     }
 
     /**
@@ -470,7 +486,7 @@ public class UserCollection extends Collection {
     public void fetchHatchetUserPlaylist(String userPlaylistId) {
         Multimap<String, String> params = HashMultimap.create(1, 1);
         params.put(HatchetInfoPlugin.HATCHET_PARAM_ID, userPlaylistId);
-        String requestid = mTomahawkApp.getInfoSystem()
+        String requestid = InfoSystem.getInstance()
                 .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES, params);
         mCorrespondingRequestIds.add(requestid);
         mRequestIdPlaylistMap.put(requestid, userPlaylistId);
@@ -479,17 +495,15 @@ public class UserCollection extends Collection {
     /**
      * Reinitalize this {@link UserCollection} and send a broadcast letting everybody know.
      */
-    @Override
     public void update() {
         initializeCollection();
 
-        TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
+        mContext.sendBroadcast(new Intent(COLLECTION_UPDATED));
     }
 
     /**
      * @return this {@link UserCollection}'s id
      */
-    @Override
     public int getId() {
         return Id;
     }

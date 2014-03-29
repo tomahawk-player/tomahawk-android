@@ -25,14 +25,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
+import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.services.TomahawkService;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -130,20 +131,22 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(mTomahawkApp,
+                    Toast.makeText(mContext,
                             TextUtils.isEmpty(errorDescription) ? error : errorDescription,
                             Toast.LENGTH_LONG).show();
                 }
             });
             mIsAuthenticating = false;
-            mTomahawkService.onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_HATCHET, false);
+            AuthenticatorManager.getInstance()
+                    .onLoggedInOut(AuthenticatorUtils.AUTHENTICATOR_ID_HATCHET, false);
         }
 
         @Override
         public void onLogout() {
             Log.d(TAG, "TomahawkService: Hatchet user logged out");
             mIsAuthenticating = false;
-            mTomahawkService.onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_HATCHET, false);
+            AuthenticatorManager.getInstance().onLoggedInOut(
+                    AuthenticatorUtils.AUTHENTICATOR_ID_HATCHET, false);
         }
 
         @Override
@@ -153,37 +156,36 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                     && !TextUtils.isEmpty(refreshToken)) {
                 Log.d(TAG, "TomahawkService: Hatchet auth token is served and yummy");
                 Account account = new Account(username,
-                        mTomahawkApp.getString(R.string.accounttype_string));
-                AccountManager am = AccountManager.get(mTomahawkApp);
+                        mContext.getString(R.string.accounttype_string));
+                AccountManager am = AccountManager.get(mContext);
                 if (am != null) {
                     am.addAccountExplicitly(account, null, new Bundle());
-                    am.setUserData(account, TomahawkService.AUTHENTICATOR_NAME,
+                    am.setUserData(account, AuthenticatorUtils.AUTHENTICATOR_NAME,
                             getAuthenticatorUtilsName());
-                    am.setAuthToken(account, TomahawkService.AUTH_TOKEN_TYPE_HATCHET, refreshToken);
-                    am.setUserData(account, TomahawkService.AUTH_TOKEN_EXPIRES_IN_HATCHET,
+                    am.setAuthToken(account, AuthenticatorUtils.AUTH_TOKEN_TYPE_HATCHET,
+                            refreshToken);
+                    am.setUserData(account, AuthenticatorUtils.AUTH_TOKEN_EXPIRES_IN_HATCHET,
                             String.valueOf(refreshTokenExpiresIn));
-                    am.setUserData(account, TomahawkService.MANDELLA_ACCESS_TOKEN_HATCHET,
+                    am.setUserData(account, AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_HATCHET,
                             accessToken);
                     am.setUserData(account,
-                            TomahawkService.MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
+                            AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
                             String.valueOf(accessTokenExpiresIn));
                     ensureAccessTokens();
                 }
             }
-            UserCollection userCollection = ((UserCollection) mTomahawkApp.getSourceList()
-                    .getLocalSource().getCollection());
-            userCollection.fetchHatchetUserPlaylists();
-            userCollection.fetchLovedItemsUserPlaylists();
-            mTomahawkApp.getInfoSystem().resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF,
+            UserCollection.getInstance().fetchHatchetUserPlaylists();
+            UserCollection.getInstance().fetchLovedItemsUserPlaylists();
+            InfoSystem.getInstance().resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF,
                     null);
             mIsAuthenticating = false;
-            mTomahawkService.onLoggedInOut(TomahawkService.AUTHENTICATOR_ID_HATCHET, true);
+            AuthenticatorManager.getInstance().onLoggedInOut(
+                    AuthenticatorUtils.AUTHENTICATOR_ID_HATCHET, true);
         }
     };
 
-    public HatchetAuthenticatorUtils(TomahawkApp tomahawkApp, TomahawkService tomahawkService) {
-        mTomahawkApp = tomahawkApp;
-        mTomahawkService = tomahawkService;
+    public HatchetAuthenticatorUtils(Context context) {
+        mContext = context;
         mAuthenticatorListener.onInit();
     }
 
@@ -199,12 +201,12 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     @Override
     public String getAuthenticatorUtilsName() {
-        return TomahawkService.AUTHENTICATOR_NAME_HATCHET;
+        return AuthenticatorUtils.AUTHENTICATOR_NAME_HATCHET;
     }
 
     @Override
     public String getAuthenticatorUtilsTokenType() {
-        return TomahawkService.AUTH_TOKEN_TYPE_HATCHET;
+        return AuthenticatorUtils.AUTH_TOKEN_TYPE_HATCHET;
     }
 
     @Override
@@ -215,7 +217,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     @Override
     public void login(final String name, final String password) {
         mIsAuthenticating = true;
-        mTomahawkApp.getThreadManager().executePipeLineRunnable(
+        ThreadManager.getInstance().executePipeLineRunnable(
                 new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_AUTHENTICATING) {
                     @Override
                     public void run() {
@@ -280,8 +282,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     @Override
     public void logout() {
         mIsAuthenticating = true;
-        final AccountManager am = AccountManager.get(mTomahawkApp);
-        Account account = TomahawkUtils.getAccountByName(mTomahawkApp, getAuthenticatorUtilsName());
+        final AccountManager am = AccountManager.get(mContext);
+        Account account = TomahawkUtils.getAccountByName(mContext, getAuthenticatorUtilsName());
         if (am != null && account != null) {
             am.removeAccount(account, null, null);
         }
@@ -297,29 +299,29 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
      */
     public String ensureAccessTokens() {
         Map<String, String> userData = new HashMap<String, String>();
-        userData.put(TomahawkService.MANDELLA_ACCESS_TOKEN_HATCHET, null);
-        userData.put(TomahawkService.MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET, null);
-        userData.put(TomahawkService.CALUMET_ACCESS_TOKEN_HATCHET, null);
-        userData.put(TomahawkService.CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET, null);
+        userData.put(AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_HATCHET, null);
+        userData.put(AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET, null);
+        userData.put(AuthenticatorUtils.CALUMET_ACCESS_TOKEN_HATCHET, null);
+        userData.put(AuthenticatorUtils.CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET, null);
         userData = TomahawkUtils
-                .getUserDataForAccount(mTomahawkApp, userData, getAuthenticatorUtilsName());
-        String mandellaAccessToken = userData.get(TomahawkService.MANDELLA_ACCESS_TOKEN_HATCHET);
+                .getUserDataForAccount(mContext, userData, getAuthenticatorUtilsName());
+        String mandellaAccessToken = userData.get(AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_HATCHET);
         int mandellaExpirationTime = -1;
         String mandellaExpirationTimeString =
-                userData.get(TomahawkService.MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET);
+                userData.get(AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET);
         if (mandellaExpirationTimeString != null) {
             mandellaExpirationTime = Integer.valueOf(mandellaExpirationTimeString);
         }
-        String calumetAccessToken = userData.get(TomahawkService.CALUMET_ACCESS_TOKEN_HATCHET);
+        String calumetAccessToken = userData.get(AuthenticatorUtils.CALUMET_ACCESS_TOKEN_HATCHET);
         int calumetExpirationTime = -1;
         String calumetExpirationTimeString =
-                userData.get(TomahawkService.CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET);
+                userData.get(AuthenticatorUtils.CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET);
         if (calumetExpirationTimeString != null) {
             calumetExpirationTime = Integer.valueOf(mandellaExpirationTimeString);
         }
         int currentTime = (int) (System.currentTimeMillis() / 1000);
         String refreshToken = TomahawkUtils
-                .peekAuthTokenForAccount(mTomahawkApp, getAuthenticatorUtilsName(),
+                .peekAuthTokenForAccount(mContext, getAuthenticatorUtilsName(),
                         getAuthenticatorUtilsTokenType());
         if (refreshToken != null && (mandellaAccessToken == null
                 || currentTime > mandellaExpirationTime - EXPIRING_LIMIT)) {
@@ -382,16 +384,15 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 Log.d(TAG, "Access token fetched, current time: '" + currentTime +
                         "', expiration time: '" + expirationTime + "'");
                 if (tokenType.toLowerCase().equals(RESPONSE_TOKEN_TYPE_BEARER.toLowerCase())) {
-                    data.put(TomahawkService.MANDELLA_ACCESS_TOKEN_HATCHET, accessToken);
-                    data.put(TomahawkService.MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
+                    data.put(AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_HATCHET, accessToken);
+                    data.put(AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
                             String.valueOf(expirationTime));
                 } else {
-                    data.put(TomahawkService.CALUMET_ACCESS_TOKEN_HATCHET, accessToken);
-                    data.put(TomahawkService.CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
+                    data.put(AuthenticatorUtils.CALUMET_ACCESS_TOKEN_HATCHET, accessToken);
+                    data.put(AuthenticatorUtils.CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
                             String.valueOf(expirationTime));
                 }
-                TomahawkUtils
-                        .setUserDataForAccount(mTomahawkApp, data, getAuthenticatorUtilsName());
+                TomahawkUtils.setUserDataForAccount(mContext, data, getAuthenticatorUtilsName());
             }
         } catch (JSONException e) {
             Log.e(TAG,

@@ -22,9 +22,10 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -38,7 +39,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * This class provides a way of storing user created {@link org.tomahawk.libtomahawk.collection.UserPlaylist}s
  * in the database
  */
-public class UserPlaylistsDataSource {
+public class DatabaseHelper {
+
+    private static DatabaseHelper instance;
 
     public static final String USERPLAYLISTSDATASOURCE_RESULTSREPORTED
             = "org.tomahawk.tomahawk_android.userplaylistsdatasource_resultsreported";
@@ -55,7 +58,7 @@ public class UserPlaylistsDataSource {
 
     public static final int TRUE = 1;
 
-    private TomahawkApp mTomahawkApp;
+    private Context mContext;
 
     // Database fields
     private SQLiteDatabase mDatabase;
@@ -87,9 +90,27 @@ public class UserPlaylistsDataSource {
     private ConcurrentHashMap<String, ConcurrentHashMap<Integer, Long>> mPlaylistPosToIdMap
             = new ConcurrentHashMap<String, ConcurrentHashMap<Integer, Long>>();
 
-    public UserPlaylistsDataSource(TomahawkApp tomahawkApp) {
-        mTomahawkApp = tomahawkApp;
-        mDbHelper = new TomahawkSQLiteHelper(tomahawkApp);
+    private DatabaseHelper() {
+    }
+
+    public static DatabaseHelper getInstance() {
+        if (instance == null) {
+            synchronized (DatabaseHelper.class) {
+                if (instance == null) {
+                    instance = new DatabaseHelper();
+                }
+            }
+        }
+        return instance;
+    }
+
+    public void setContext(Context context) {
+        mContext = context;
+        mDbHelper = new TomahawkSQLiteHelper(context);
+    }
+
+    public boolean isInitialized() {
+        return mContext != null;
     }
 
     /**
@@ -412,7 +433,7 @@ public class UserPlaylistsDataSource {
         if (isLoved) {
             ArrayList<Query> queries = new ArrayList<Query>();
             queries.add(query);
-            addQueriesToUserPlaylist(UserPlaylistsDataSource.LOVEDITEMS_PLAYLIST_ID, queries);
+            addQueriesToUserPlaylist(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID, queries);
         } else {
             mDatabase.beginTransaction();
             mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
@@ -489,7 +510,7 @@ public class UserPlaylistsDataSource {
                 TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TIMESTAMP + " DESC");
         opLogCursor.moveToFirst();
         while (!opLogCursor.isAfterLast()) {
-            String requestId = TomahawkApp.getSessionUniqueStringId();
+            String requestId = TomahawkMainActivity.getSessionUniqueStringId();
             InfoRequestData infoRequestData = new InfoRequestData(requestId, opLogCursor.getInt(0),
                     opLogCursor.getInt(1), opLogCursor.getString(2));
             loggedOps.add(infoRequestData);
@@ -505,6 +526,6 @@ public class UserPlaylistsDataSource {
      */
     private void sendReportResultsBroadcast() {
         Intent reportIntent = new Intent(USERPLAYLISTSDATASOURCE_RESULTSREPORTED);
-        mTomahawkApp.sendBroadcast(reportIntent);
+        mContext.sendBroadcast(reportIntent);
     }
 }

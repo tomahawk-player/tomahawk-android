@@ -18,6 +18,7 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 
 import android.os.Bundle;
@@ -40,7 +41,7 @@ public class UserCollectionFragment extends TomahawkListFragment implements OnIt
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mTomahawkMainActivity.setTitle(getString(R.string.usercollectionfragment_title_string));
+        getActivity().setTitle(getString(R.string.usercollectionfragment_title_string));
 
         TomahawkMenuAdapter tomahawkMenuAdapter = new TomahawkMenuAdapter(getActivity(),
                 getResources().getStringArray(R.array.local_collection_menu_items),
@@ -62,21 +63,22 @@ public class UserCollectionFragment extends TomahawkListFragment implements OnIt
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         switch ((int) id) {
             case 0:
-                mTomahawkMainActivity.getContentViewer()
+                activity.getContentViewer()
                         .replace(TracksFragment.class, "", null, true, false);
-                mTomahawkMainActivity.setTitle(getString(R.string.tracksfragment_title_string));
+                activity.setTitle(getString(R.string.tracksfragment_title_string));
                 break;
             case 1:
-                mTomahawkMainActivity.getContentViewer()
+                activity.getContentViewer()
                         .replace(AlbumsFragment.class, "", null, true, false);
-                mTomahawkMainActivity.setTitle(getString(R.string.albumsfragment_title_string));
+                activity.setTitle(getString(R.string.albumsfragment_title_string));
                 break;
             case 2:
-                mTomahawkMainActivity.getContentViewer()
+                activity.getContentViewer()
                         .replace(ArtistsFragment.class, "", null, true, false);
-                mTomahawkMainActivity.setTitle(getString(R.string.artistsfragment_title_string));
+                activity.setTitle(getString(R.string.artistsfragment_title_string));
                 break;
         }
     }

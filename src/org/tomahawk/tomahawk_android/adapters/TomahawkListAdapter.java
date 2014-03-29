@@ -26,12 +26,11 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout;
 import org.tomahawk.tomahawk_android.utils.AdapterUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,11 +49,13 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
  */
 public class TomahawkListAdapter extends BaseAdapter implements StickyListHeadersAdapter {
 
-    private TomahawkMainActivity mTomahawkMainActivity;
+    private Context mContext;
 
     private List<List<TomahawkListItem>> mListArray;
 
     private LayoutInflater mLayoutInflater;
+
+    private View mRootView;
 
     private boolean mShowCategoryHeaders = false;
 
@@ -75,14 +76,14 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
     /**
      * Constructs a new {@link TomahawkListAdapter}.
      *
-     * @param tomahawkMainActivity reference to whatever {@link Activity}
-     * @param listArray            complete set of lists containing all content which the listview
-     *                             should be populated with
+     * @param listArray complete set of lists containing all content which the listview should be
+     *                  populated with
      */
-    public TomahawkListAdapter(TomahawkMainActivity tomahawkMainActivity,
+    public TomahawkListAdapter(Context context, LayoutInflater layoutInflater, View rootView,
             List<List<TomahawkListItem>> listArray) {
-        mTomahawkMainActivity = tomahawkMainActivity;
-        mLayoutInflater = mTomahawkMainActivity.getLayoutInflater();
+        mContext = context;
+        mLayoutInflater = layoutInflater;
+        mRootView = rootView;
         mListArray = listArray;
     }
 
@@ -119,7 +120,7 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
             boolean isOnlyLocal) {
         mContentHeaderTomahawkListItem = listItem;
         View contentHeaderView;
-        boolean landscapeMode = mTomahawkMainActivity.getResources().getConfiguration().orientation
+        boolean landscapeMode = mContext.getResources().getConfiguration().orientation
                 == Configuration.ORIENTATION_LANDSCAPE;
         if (listItem instanceof User) {
             contentHeaderView = mLayoutInflater.inflate(R.layout.content_header_user, null);
@@ -131,7 +132,7 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                 list.addHeaderView(contentHeaderView);
             }
         } else {
-            RelativeLayout frame = (RelativeLayout) mTomahawkMainActivity
+            RelativeLayout frame = (RelativeLayout) mRootView
                     .findViewById(R.id.content_header_image_frame);
             if (frame.findViewById(R.id.content_header) == null) {
                 frame.addView(contentHeaderView);
@@ -142,24 +143,21 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
 
     public void updateContentHeader(TomahawkListItem listItem, boolean isOnlyLocal) {
         SquareHeightRelativeLayout frame = (SquareHeightRelativeLayout)
-                mTomahawkMainActivity.findViewById(R.id.content_header_image_frame);
+                mRootView.findViewById(R.id.content_header_image_frame);
         if (frame != null) {
             frame.setVisibility(SquareHeightRelativeLayout.VISIBLE);
         }
-        ViewHolder viewHolder = new ViewHolder(
-                mTomahawkMainActivity.getWindow().getDecorView().findViewById(android.R.id.content),
+        ViewHolder viewHolder = new ViewHolder(mRootView,
                 R.id.tomahawklistadapter_viewtype_contentheader);
         if (listItem instanceof Album) {
-            AdapterUtils.fillContentHeader(mTomahawkMainActivity, viewHolder, (Album) listItem,
-                    isOnlyLocal);
+            AdapterUtils.fillContentHeader(mContext, viewHolder, (Album) listItem, isOnlyLocal);
         } else if (listItem instanceof Artist) {
-            AdapterUtils.fillContentHeader(mTomahawkMainActivity, viewHolder, (Artist) listItem,
-                    isOnlyLocal);
+            AdapterUtils.fillContentHeader(mContext, viewHolder, (Artist) listItem, isOnlyLocal);
         } else if (listItem instanceof UserPlaylist) {
-            AdapterUtils.fillContentHeader(mTomahawkMainActivity, viewHolder,
-                    (UserPlaylist) listItem, isOnlyLocal);
+            AdapterUtils
+                    .fillContentHeader(mContext, viewHolder, (UserPlaylist) listItem, isOnlyLocal);
         } else if (listItem instanceof User) {
-            AdapterUtils.fillContentHeader(mTomahawkMainActivity, viewHolder, (User) listItem);
+            AdapterUtils.fillContentHeader(mContext, viewHolder, (User) listItem);
         }
     }
 
@@ -265,16 +263,16 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                     || viewHolder.getViewType()
                     == R.id.tomahawklistadapter_viewtype_listitemhighlighted) {
                 if (item instanceof Query) {
-                    AdapterUtils.fillView(mTomahawkMainActivity, viewHolder, (Query) item,
+                    AdapterUtils.fillView(mContext, viewHolder, (Query) item,
                             mHighlightedItemIsPlaying && shouldBeHighlighted, mShowResolvedBy);
                 } else if (item instanceof Album) {
-                    AdapterUtils.fillView(mTomahawkMainActivity, viewHolder, (Album) item);
+                    AdapterUtils.fillView(mContext, viewHolder, (Album) item);
                 } else if (item instanceof Artist) {
-                    AdapterUtils.fillView(mTomahawkMainActivity, viewHolder, (Artist) item);
+                    AdapterUtils.fillView(mContext, viewHolder, (Artist) item);
                 } else if (item instanceof User) {
-                    AdapterUtils.fillView(mTomahawkMainActivity, viewHolder, (User) item);
+                    AdapterUtils.fillView(mContext, viewHolder, (User) item);
                 } else if (item instanceof SocialAction) {
-                    AdapterUtils.fillView(mTomahawkMainActivity, viewHolder, (SocialAction) item,
+                    AdapterUtils.fillView(mContext, viewHolder, (SocialAction) item,
                             mHighlightedItemIsPlaying && shouldBeHighlighted, mShowResolvedBy);
                 }
             }
@@ -347,24 +345,24 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
 
             if (item instanceof Track || item instanceof Query) {
                 if (mShowQueriesAsTopHits) {
-                    TomahawkUtils.loadDrawableIntoImageView(mTomahawkMainActivity,
+                    TomahawkUtils.loadDrawableIntoImageView(mContext,
                             viewHolder.getImageView1(), R.drawable.ic_action_tophits);
                     viewHolder.getTextView1().setText(R.string.tophits_categoryheaders_string);
                 } else {
-                    TomahawkUtils.loadDrawableIntoImageView(mTomahawkMainActivity,
+                    TomahawkUtils.loadDrawableIntoImageView(mContext,
                             viewHolder.getImageView1(), R.drawable.ic_action_track);
                     viewHolder.getTextView1().setText(R.string.tracksfragment_title_string);
                 }
             } else if (item instanceof Artist) {
-                TomahawkUtils.loadDrawableIntoImageView(mTomahawkMainActivity,
+                TomahawkUtils.loadDrawableIntoImageView(mContext,
                         viewHolder.getImageView1(), R.drawable.ic_action_artist);
                 viewHolder.getTextView1().setText(R.string.artistsfragment_title_string);
             } else if (item instanceof Album) {
-                TomahawkUtils.loadDrawableIntoImageView(mTomahawkMainActivity,
+                TomahawkUtils.loadDrawableIntoImageView(mContext,
                         viewHolder.getImageView1(), R.drawable.ic_action_album);
                 viewHolder.getTextView1().setText(R.string.albumsfragment_title_string);
             } else if (item instanceof UserPlaylist) {
-                TomahawkUtils.loadDrawableIntoImageView(mTomahawkMainActivity,
+                TomahawkUtils.loadDrawableIntoImageView(mContext,
                         viewHolder.getImageView1(), R.drawable.ic_action_playlist);
                 if (((UserPlaylist) item).isHatchetPlaylist()) {
                     viewHolder.getTextView1()
@@ -374,17 +372,17 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                             .setText(R.string.userplaylists_categoryheaders_string);
                 }
             } else if (item instanceof User) {
-                TomahawkUtils.loadDrawableIntoImageView(mTomahawkMainActivity,
+                TomahawkUtils.loadDrawableIntoImageView(mContext,
                         viewHolder.getImageView1(), R.drawable.ic_action_friends);
                 viewHolder.getTextView1().setText(R.string.userfragment_title_string);
             } else if (item instanceof SocialAction) {
-                TomahawkUtils.loadDrawableIntoImageView(mTomahawkMainActivity,
+                TomahawkUtils.loadDrawableIntoImageView(mContext,
                         viewHolder.getImageView1(), R.drawable.ic_action_trending);
                 viewHolder.getTextView1().setText(R.string.category_header_activityfeed);
             }
             return view;
         } else {
-            return new View(mTomahawkMainActivity);
+            return new View(mContext);
         }
     }
 

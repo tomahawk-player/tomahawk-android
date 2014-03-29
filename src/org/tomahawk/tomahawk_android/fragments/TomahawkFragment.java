@@ -20,11 +20,11 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionLoader;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
-import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
@@ -71,7 +71,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
  * to those classes, related to displaying {@link TomahawkListItem}s in whichever needed way.
  */
 public class TomahawkFragment extends TomahawkListFragment
-        implements LoaderManager.LoaderCallbacks<Collection>,
+        implements LoaderManager.LoaderCallbacks<UserCollection>,
         AdapterView.OnItemLongClickListener, AbsListView.OnScrollListener,
         View.OnLongClickListener {
 
@@ -130,10 +130,6 @@ public class TomahawkFragment extends TomahawkListFragment
     private TomahawkFragmentReceiver mTomahawkFragmentReceiver;
 
     protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
-
-    protected InfoSystem mInfoSystem;
-
-    protected PipeLine mPipeline;
 
     protected HashSet<String> mCorrespondingQueryIds = new HashSet<String>();
 
@@ -194,7 +190,7 @@ public class TomahawkFragment extends TomahawkListFragment
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (Collection.COLLECTION_UPDATED.equals(intent.getAction())) {
+            if (UserCollection.COLLECTION_UPDATED.equals(intent.getAction())) {
                 onCollectionUpdated();
             } else if (PipeLine.PIPELINE_RESULTSREPORTED.equals(intent.getAction())) {
                 String queryKey = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QUERYKEY);
@@ -228,36 +224,26 @@ public class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    /**
-     * Basic initializations. Get corresponding hub id through getArguments(), if not null
-     */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        mInfoSystem = mTomahawkApp.getInfoSystem();
-        mPipeline = mTomahawkApp.getPipeLine();
-    }
-
     @Override
     public void onResume() {
         super.onResume();
 
+        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         if (getArguments() != null) {
             if (getArguments().containsKey(TOMAHAWK_ALBUM_KEY)
                     && !TextUtils.isEmpty(getArguments().getString(TOMAHAWK_ALBUM_KEY))) {
                 mAlbum = Album.getAlbumByKey(getArguments().getString(TOMAHAWK_ALBUM_KEY));
                 if (mAlbum == null) {
-                    mTomahawkMainActivity.getContentViewer().back();
+                    activity.getContentViewer().back();
                 }
-                mCurrentRequestIds.add(mInfoSystem.resolve(mAlbum));
+                mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mAlbum));
             }
             if (getArguments().containsKey(TOMAHAWK_USERPLAYLIST_KEY) && !TextUtils.isEmpty(
                     getArguments().getString(TOMAHAWK_USERPLAYLIST_KEY))) {
                 mUserPlaylist = UserPlaylist
                         .getUserPlaylistById(getArguments().getString(TOMAHAWK_USERPLAYLIST_KEY));
                 if (mUserPlaylist == null) {
-                    mTomahawkMainActivity.getContentViewer().back();
+                    activity.getContentViewer().back();
                 } else if (mUserPlaylist.getContentHeaderArtists().size() == 0) {
                     final HashMap<Artist, Integer> countMap = new HashMap<Artist, Integer>();
                     for (Query query : mUserPlaylist.getQueries()) {
@@ -279,7 +265,8 @@ public class TomahawkFragment extends TomahawkListFragment
                     sortedCountMap.putAll(countMap);
                     for (Artist artist : sortedCountMap.keySet()) {
                         mUserPlaylist.addContentHeaderArtists(artist);
-                        ArrayList<String> requestIds = mInfoSystem.resolve(artist, true);
+                        ArrayList<String> requestIds = InfoSystem.getInstance().resolve(artist,
+                                true);
                         for (String requestId : requestIds) {
                             mCurrentRequestIds.add(requestId);
                         }
@@ -293,9 +280,9 @@ public class TomahawkFragment extends TomahawkListFragment
                     .isEmpty(getArguments().getString(TOMAHAWK_ARTIST_KEY))) {
                 mArtist = Artist.getArtistByKey(getArguments().getString(TOMAHAWK_ARTIST_KEY));
                 if (mArtist == null) {
-                    mTomahawkMainActivity.getContentViewer().back();
+                    activity.getContentViewer().back();
                 }
-                ArrayList<String> requestIds = mInfoSystem.resolve(mArtist, false);
+                ArrayList<String> requestIds = InfoSystem.getInstance().resolve(mArtist, false);
                 for (String requestId : requestIds) {
                     mCurrentRequestIds.add(requestId);
                 }
@@ -304,9 +291,9 @@ public class TomahawkFragment extends TomahawkListFragment
                     .isEmpty(getArguments().getString(TOMAHAWK_USER_ID))) {
                 mUser = User.getUserById(getArguments().getString(TOMAHAWK_USER_ID));
                 if (mUser == null) {
-                    mTomahawkMainActivity.getContentViewer().back();
+                    activity.getContentViewer().back();
                 }
-                mCurrentRequestIds.add(mInfoSystem.resolve(mUser));
+                mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mUser));
             }
             if (getArguments().containsKey(TOMAHAWK_HUB_ID)
                     && getArguments().getInt(TOMAHAWK_HUB_ID) > 0) {
@@ -320,28 +307,28 @@ public class TomahawkFragment extends TomahawkListFragment
         // Adapt to current orientation. Show different count of columns in the GridView
         adaptColumnCount();
 
-        mTomahawkMainActivity.getSupportLoaderManager().destroyLoader(getId());
-        mTomahawkMainActivity.getSupportLoaderManager().initLoader(getId(), null, this);
+        activity.getSupportLoaderManager().destroyLoader(getId());
+        activity.getSupportLoaderManager().initLoader(getId(), null, this);
 
         // Initialize and register Receiver
         if (mTomahawkFragmentReceiver == null) {
             mTomahawkFragmentReceiver = new TomahawkFragmentReceiver();
-            IntentFilter intentFilter = new IntentFilter(Collection.COLLECTION_UPDATED);
-            mTomahawkMainActivity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
+            IntentFilter intentFilter = new IntentFilter(UserCollection.COLLECTION_UPDATED);
+            activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED);
-            mTomahawkMainActivity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
+            activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
-            mTomahawkMainActivity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
+            activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(PlaybackService.BROADCAST_CURRENTTRACKCHANGED);
-            mTomahawkMainActivity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
+            activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYLISTCHANGED);
-            mTomahawkMainActivity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
+            activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYSTATECHANGED);
-            mTomahawkMainActivity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
+            activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(TomahawkMainActivity.PLAYBACKSERVICE_READY);
-            mTomahawkMainActivity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
+            activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-            mTomahawkMainActivity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
+            activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
         }
         StickyListHeadersListView list = getListView();
         if (list != null) {
@@ -368,7 +355,7 @@ public class TomahawkFragment extends TomahawkListFragment
         mPipeLineResultReporter.removeCallbacksAndMessages(null);
 
         if (mTomahawkFragmentReceiver != null) {
-            mTomahawkMainActivity.unregisterReceiver(mTomahawkFragmentReceiver);
+            getActivity().unregisterReceiver(mTomahawkFragmentReceiver);
             mTomahawkFragmentReceiver = null;
         }
     }
@@ -383,7 +370,8 @@ public class TomahawkFragment extends TomahawkListFragment
         if (view == getView().findViewById(R.id.content_header_image_frame)) {
             return onItemLongClick(null, view, -1, 0);
         } else { //assume click on PlaybackFragment's albumart viewpager
-            Query query = mTomahawkMainActivity.getPlaybackService().getCurrentQuery();
+            Query query = ((TomahawkMainActivity) getActivity()).getPlaybackService()
+                    .getCurrentQuery();
             FakeContextMenuDialog dialog = new FakeContextMenuDialog();
             Bundle args = new Bundle();
             args.putBoolean(TOMAHAWK_SHOWDELETE_KEY, false);
@@ -431,7 +419,7 @@ public class TomahawkFragment extends TomahawkListFragment
             showDelete = false;
         } else if (!(this instanceof PlaybackFragment)) {
             if (!(mUserPlaylist == null || mUserPlaylist.isHatchetPlaylist()
-                    || UserPlaylistsDataSource.LOVEDITEMS_PLAYLIST_ID
+                    || DatabaseHelper.LOVEDITEMS_PLAYLIST_ID
                     .equals(mUserPlaylist.getId()))) {
                 showDelete = false;
             }
@@ -560,7 +548,8 @@ public class TomahawkFragment extends TomahawkListFragment
     }
 
     public boolean shouldShowPlaystate() {
-        PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
+        PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
+                .getPlaybackService();
         if (playbackService != null) {
             Playlist playlist = playbackService.getCurrentPlaylist();
             if (playlist != null && playlist.getCount() == mShownQueries.size()) {
@@ -577,7 +566,8 @@ public class TomahawkFragment extends TomahawkListFragment
     }
 
     protected void updateShowPlaystate() {
-        PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
+        PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
+                .getPlaybackService();
         if (getListAdapter() instanceof TomahawkListAdapter) {
             TomahawkListAdapter tomahawkListAdapter = (TomahawkListAdapter) getListAdapter();
             if (shouldShowPlaystate() && playbackService != null
@@ -596,11 +586,11 @@ public class TomahawkFragment extends TomahawkListFragment
      * Called when a Collection has been updated.
      */
     protected void onCollectionUpdated() {
-        mTomahawkMainActivity.getSupportLoaderManager().restartLoader(getId(), null, this);
+        getActivity().getSupportLoaderManager().restartLoader(getId(), null, this);
         if (mUserPlaylist != null) {
             mUserPlaylist = UserPlaylist.getUserPlaylistById(mUserPlaylist.getId());
             if (mUserPlaylist == null) {
-                mTomahawkMainActivity.getContentViewer().back();
+                ((TomahawkMainActivity) getActivity()).getContentViewer().back();
             }
         }
         updateAdapter();
@@ -608,16 +598,18 @@ public class TomahawkFragment extends TomahawkListFragment
     }
 
     @Override
-    public Loader<Collection> onCreateLoader(int id, Bundle args) {
-        return new CollectionLoader(getActivity(), mTomahawkMainActivity.getUserCollection());
+    public Loader<UserCollection> onCreateLoader(int id, Bundle args) {
+        return new CollectionLoader(getActivity(), UserCollection.getInstance());
     }
 
     @Override
-    public void onLoadFinished(Loader<Collection> loader, Collection coll) {
+    public void onLoadFinished(Loader<UserCollection> loader, UserCollection data) {
+
     }
 
     @Override
-    public void onLoaderReset(Loader<Collection> loader) {
+    public void onLoaderReset(Loader<UserCollection> loader) {
+
     }
 
     @Override
@@ -653,7 +645,7 @@ public class TomahawkFragment extends TomahawkListFragment
             }
         }
         if (!qs.isEmpty()) {
-            HashSet<String> qids = mPipeline.resolve(qs);
+            HashSet<String> qids = PipeLine.getInstance().resolve(qs);
             mCorrespondingQueryIds.addAll(qids);
         }
     }
@@ -663,7 +655,7 @@ public class TomahawkFragment extends TomahawkListFragment
      * it is already a lovedItem
      */
     protected void toggleLovedItem(Query query) {
-        mTomahawkMainActivity.getUserCollection().toggleLovedItem(query);
+        UserCollection.getInstance().toggleLovedItem(query);
         onTrackChanged();
     }
 }

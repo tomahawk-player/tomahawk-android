@@ -17,6 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.dialogs;
 
+import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -47,7 +48,7 @@ import android.widget.TextView;
  * A {@link DialogFragment} which shows a textfield to enter a username and password, and provides
  * button for cancel/logout and ok/login, depending on whether or not the user is logged in
  */
-public class LoginDialog extends TomahawkDialogFragment {
+public class LoginDialog extends DialogFragment {
 
     public final static String TAG = LoginDialog.class.getName();
 
@@ -149,7 +150,7 @@ public class LoginDialog extends TomahawkDialogFragment {
                 .containsKey(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY)) {
             int authenticatorId = getArguments().getInt(
                     TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY);
-            mAuthenticatorUtils = mTomahawkApp.getTomahawkService().getAuthenticatorUtils(
+            mAuthenticatorUtils = AuthenticatorManager.getInstance().getAuthenticatorUtils(
                     authenticatorId);
             if (mAuthenticatorUtils.isAuthenticating()) {
                 startLoadingAnimation();
@@ -185,7 +186,7 @@ public class LoginDialog extends TomahawkDialogFragment {
         mNegativeButton.setOnClickListener(mNegativeButtonListener);
         mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
         mStatusImageView = (ImageView) view.findViewById(R.id.login_dialog_status_imageview);
-        TomahawkUtils.loadDrawableIntoImageView(mTomahawkMainActivity, mStatusImageView,
+        TomahawkUtils.loadDrawableIntoImageView(getActivity(), mStatusImageView,
                 mAuthenticatorUtils.getIconResourceId());
         if (!isLoggedIn) {
             mStatusImageView.setColorFilter(GreyscaleFilter.create());
@@ -288,7 +289,7 @@ public class LoginDialog extends TomahawkDialogFragment {
         boolean isLoggedIn = AuthenticatorUtils.isLoggedIn(getActivity().getApplicationContext(),
                 mAuthenticatorUtils.getAuthenticatorUtilsName(),
                 mAuthenticatorUtils.getAuthenticatorUtilsTokenType());
-        TomahawkUtils.loadDrawableIntoImageView(mTomahawkMainActivity, mStatusImageView,
+        TomahawkUtils.loadDrawableIntoImageView(getActivity(), mStatusImageView,
                 mAuthenticatorUtils.getIconResourceId());
         if (!isLoggedIn) {
             mStatusImageView.setColorFilter(GreyscaleFilter.create());

@@ -29,18 +29,19 @@ import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
-import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoPlugin;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
+import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.services.TomahawkService;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
+import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -131,7 +132,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
     public static final String HATCHET_ACCOUNTDATA_USER_ID = "hatchet_preference_user_id";
 
-    private TomahawkApp mTomahawkApp;
+    private Context mContext;
 
     private HatchetAuthenticatorUtils mHatchetAuthenticatorUtils;
 
@@ -142,8 +143,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
     private ConcurrentHashMap<String, TomahawkListItem> mItemsToBeFilled
             = new ConcurrentHashMap<String, TomahawkListItem>();
 
-    public HatchetInfoPlugin(TomahawkApp tomahawkApp) {
-        mTomahawkApp = tomahawkApp;
+    public HatchetInfoPlugin(Context context) {
+        mContext = context;
     }
 
     /**
@@ -413,7 +414,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     playlistInfoMap.keySet());
             if (playlistInfos.size() > 0) {
                 HatchetPlaylistInfo playlistInfo = playlistInfos.get(0);
-                playlistInfo.id = UserPlaylistsDataSource.LOVEDITEMS_PLAYLIST_ID;
+                playlistInfo.id = DatabaseHelper.LOVEDITEMS_PLAYLIST_ID;
                 List<UserPlaylist> userPlaylists = new ArrayList<UserPlaylist>();
                 UserPlaylist userPlaylist = InfoSystemUtils
                         .convertToUserPlaylist(playlistInfo);
@@ -673,11 +674,11 @@ public class HatchetInfoPlugin extends InfoPlugin {
     private void getUserid() throws IOException, NoSuchAlgorithmException, KeyManagementException {
         Map<String, String> data = new HashMap<String, String>();
         data.put(HATCHET_ACCOUNTDATA_USER_ID, null);
-        TomahawkUtils.getUserDataForAccount(mTomahawkApp, data,
-                TomahawkService.AUTHENTICATOR_NAME_HATCHET);
+        TomahawkUtils.getUserDataForAccount(mContext, data,
+                AuthenticatorUtils.AUTHENTICATOR_NAME_HATCHET);
         mUserId = data.get(HATCHET_ACCOUNTDATA_USER_ID);
-        String userName = AuthenticatorUtils.getUserName(mTomahawkApp,
-                TomahawkService.AUTHENTICATOR_NAME_HATCHET);
+        String userName = AuthenticatorUtils.getUserName(mContext,
+                AuthenticatorUtils.AUTHENTICATOR_NAME_HATCHET);
         if (mUserId == null && userName != null) {
             // If we couldn't fetch the user's id from the account's userData, get it from the API.
             Multimap<String, String> params = HashMultimap.create(1, 1);
@@ -690,8 +691,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 mUserId = users.users.get(0).id;
                 data = new HashMap<String, String>();
                 data.put(HATCHET_ACCOUNTDATA_USER_ID, mUserId);
-                TomahawkUtils.setUserDataForAccount(mTomahawkApp, data,
-                        TomahawkService.AUTHENTICATOR_NAME_HATCHET);
+                TomahawkUtils.setUserDataForAccount(mContext, data,
+                        AuthenticatorUtils.AUTHENTICATOR_NAME_HATCHET);
             }
         }
     }
@@ -735,10 +736,10 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 } catch (KeyManagementException e) {
                     Log.e(TAG, "send: " + e.getClass() + ": " + e.getLocalizedMessage());
                 }
-                mTomahawkApp.getInfoSystem().reportResults(doneRequestsIds);
+                InfoSystem.getInstance().reportResults(doneRequestsIds);
             }
         };
-        mTomahawkApp.getThreadManager().executeInfoSystemRunnable(runnable);
+        ThreadManager.getInstance().executeInfoSystemRunnable(runnable);
     }
 
     /**
@@ -779,10 +780,10 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 } catch (KeyManagementException e) {
                     Log.e(TAG, "resolve: " + e.getClass() + ": " + e.getLocalizedMessage());
                 }
-                mTomahawkApp.getInfoSystem().reportResults(doneRequestsIds);
+                InfoSystem.getInstance().reportResults(doneRequestsIds);
             }
         };
-        mTomahawkApp.getThreadManager().executeInfoSystemRunnable(runnable);
+        ThreadManager.getInstance().executeInfoSystemRunnable(runnable);
     }
 
     /**

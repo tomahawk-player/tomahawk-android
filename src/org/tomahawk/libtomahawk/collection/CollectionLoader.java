@@ -1,6 +1,7 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
  *   Copyright 2012, Christopher Reichert <creichert07@gmail.com>
+ *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -21,29 +22,29 @@ import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 
 /**
- * Represents a {@link AsyncTaskLoader} for a {@link Collection}.
+ * Represents a {@link AsyncTaskLoader} for a {@link UserCollection}.
  *
- * This class aids in refreshing and keeping the {@link Collection} views in sync with their
- * underlying {@link Collection}.
+ * This class aids in refreshing and keeping the {@link UserCollection} views in sync with their
+ * underlying {@link UserCollection}.
  */
-public class CollectionLoader extends AsyncTaskLoader<Collection> {
+public class CollectionLoader extends AsyncTaskLoader<UserCollection> {
 
-    private Collection mCollection;
+    private UserCollection mCollection;
 
     /**
      * Constructs a new {@link CollectionLoader}.
      */
-    public CollectionLoader(Context context, Collection coll) {
+    public CollectionLoader(Context context, UserCollection coll) {
         super(context);
 
         mCollection = coll;
     }
 
     /**
-     * Load the {@link Collection} in the background.
+     * Load the {@link UserCollection} in the background.
      */
     @Override
-    public Collection loadInBackground() {
+    public UserCollection loadInBackground() {
         return mCollection;
     }
 
@@ -51,7 +52,7 @@ public class CollectionLoader extends AsyncTaskLoader<Collection> {
      * Called when the results of this {@link AsyncTaskLoader} need to be delivered.
      */
     @Override
-    public void deliverResult(Collection coll) {
+    public void deliverResult(UserCollection coll) {
         if (isStarted()) {
             super.deliverResult(coll);
         }

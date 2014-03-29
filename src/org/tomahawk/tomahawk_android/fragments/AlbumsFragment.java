@@ -18,20 +18,21 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Album;
-import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.content.Loader;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -60,20 +61,21 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
         position -= getListView().getHeaderViewsCount();
         if (position >= 0) {
             Object item;
+            TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
             if (!isShowGridView()) {
                 item = getListAdapter().getItem(position);
             } else {
                 item = getGridAdapter().getItem(position);
             }
             if (item instanceof Query && ((Query) item).isPlayable()) {
-                PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
+                PlaybackService playbackService = activity.getPlaybackService();
                 if (playbackService != null && shouldShowPlaystate() && mQueryPositions.get(
                         playbackService.getCurrentPlaylist().getCurrentQueryIndex())
                         == position) {
                     playbackService.playPause();
                 } else {
                     UserPlaylist playlist = UserPlaylist
-                            .fromQueryList(TomahawkApp.getLifetimeUniqueStringId(), "",
+                            .fromQueryList(TomahawkMainActivity.getLifetimeUniqueStringId(), "",
                                     mShownQueries, mShownQueries.get(position));
                     if (playbackService != null) {
                         playbackService.setCurrentPlaylist(playlist);
@@ -84,8 +86,8 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                 Bundle bundle = new Bundle();
                 String key = TomahawkUtils.getCacheKey((Album) item);
                 bundle.putString(TOMAHAWK_ALBUM_KEY, key);
-                mTomahawkMainActivity.getContentViewer()
-                        .replace(TracksFragment.class, key, TOMAHAWK_ALBUM_KEY, mIsLocal, false);
+                activity.getContentViewer().replace(TracksFragment.class, key, TOMAHAWK_ALBUM_KEY,
+                        mIsLocal, false);
             }
         }
     }
@@ -94,7 +96,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
      * Called whenever the {@link UserCollection} {@link Loader} has finished
      */
     @Override
-    public void onLoadFinished(Loader<Collection> loader, Collection coll) {
+    public void onLoadFinished(Loader<UserCollection> loader, UserCollection coll) {
         super.onLoadFinished(loader, coll);
         updateAdapter();
     }
@@ -106,8 +108,12 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
     protected void updateAdapter() {
         List<TomahawkListItem> albums = new ArrayList<TomahawkListItem>();
         List<TomahawkListItem> topHits = new ArrayList<TomahawkListItem>();
+        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+        Context context = getActivity();
+        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
+        View rootView = getActivity().findViewById(android.R.id.content);
         if (!isShowGridView() && mArtist != null) {
-            mTomahawkMainActivity.setTitle(mArtist.getName());
+            activity.setTitle(mArtist.getName());
             if (mIsLocal) {
                 albums.addAll(mArtist.getLocalAlbums());
             } else {
@@ -122,8 +128,8 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
             listArray.add(topHits);
             listArray.add(albums);
             if (getListAdapter() == null) {
-                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(
-                        mTomahawkMainActivity, listArray);
+                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
+                        layoutInflater, rootView, listArray);
                 tomahawkListAdapter.setShowCategoryHeaders(true, true);
                 tomahawkListAdapter.showContentHeader(getListView(), mArtist, mIsLocal);
                 tomahawkListAdapter.setShowResolvedBy(true);
@@ -134,7 +140,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
             }
             getListView().setOnItemClickListener(this);
         } else {
-            mTomahawkMainActivity.setTitle(getString(R.string.albumsfragment_title_string));
+            activity.setTitle(getString(R.string.albumsfragment_title_string));
             if (mIsLocal) {
                 albums.addAll(Album.getLocalAlbums());
             } else {
@@ -143,8 +149,8 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
             List<List<TomahawkListItem>> listArray = new ArrayList<List<TomahawkListItem>>();
             listArray.add(albums);
             if (getGridAdapter() == null) {
-                TomahawkGridAdapter tomahawkGridAdapter =
-                        new TomahawkGridAdapter(mTomahawkMainActivity, listArray);
+                TomahawkGridAdapter tomahawkGridAdapter = new TomahawkGridAdapter(activity,
+                        layoutInflater, listArray);
                 setGridAdapter(tomahawkGridAdapter);
             } else {
                 getGridAdapter().setListArray(listArray);

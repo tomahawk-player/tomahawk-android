@@ -26,9 +26,11 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
@@ -72,7 +74,7 @@ public class ScriptResolver implements Resolver {
     // resolver script
     private ConcurrentHashMap<String, String> mQueryKeys = new ConcurrentHashMap<String, String>();
 
-    private TomahawkApp mTomahawkApp;
+    private Context mContext;
 
     private int mId;
 
@@ -111,17 +113,15 @@ public class ScriptResolver implements Resolver {
     /**
      * Construct a new {@link ScriptResolver}
      *
-     * @param id          the id of this {@link ScriptResolver}
-     * @param tomahawkApp referenced {@link TomahawkApp}, needed to report our results in the {@link
-     *                    PipeLine}
-     * @param scriptPath  {@link String} containing the path to our javascript file
+     * @param id         the id of this {@link ScriptResolver}
+     * @param scriptPath {@link String} containing the path to our javascript file
      */
-    public ScriptResolver(int id, TomahawkApp tomahawkApp, String scriptPath) {
+    public ScriptResolver(int id, String scriptPath, Context context) {
         mReady = false;
         mStopped = true;
         mId = id;
-        mTomahawkApp = tomahawkApp;
-        mScriptEngine = new WebView(mTomahawkApp);
+        mContext = context;
+        mScriptEngine = new WebView(mContext);
         WebSettings settings = mScriptEngine.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDatabaseEnabled(true);
@@ -132,7 +132,7 @@ public class ScriptResolver implements Resolver {
         mScriptEngine.addJavascriptInterface(scriptInterface, SCRIPT_INTERFACE_NAME);
         String[] tokens = scriptPath.split("/");
         mName = tokens[tokens.length - 1];
-        mIcon = mTomahawkApp.getResources().getDrawable(R.drawable.ic_resolver_default);
+        mIcon = mContext.getResources().getDrawable(R.drawable.ic_resolver_default);
         mScriptFilePath = scriptPath;
 
         init();
@@ -194,7 +194,7 @@ public class ScriptResolver implements Resolver {
         resolverInit();
         resolverUserConfig();
         mReady = true;
-        mTomahawkApp.getPipeLine().onResolverReady();
+        PipeLine.getInstance().onResolverReady();
     }
 
     /**
@@ -269,14 +269,14 @@ public class ScriptResolver implements Resolver {
                     basepath += tokens[i];
                     basepath += "/";
                 }
-                mIcon = Drawable
-                        .createFromStream(mTomahawkApp.getAssets().open(basepath + settings.icon),
-                                null);
+                mIcon = Drawable.createFromStream(
+                        mContext.getAssets().open(basepath + settings.icon),
+                        null);
             } else if (id == R.id.scriptresolver_resolver_userconfig) {
             } else if (id == R.id.scriptresolver_resolver_init) {
                 resolverSettings();
             } else if (id == R.id.scriptresolver_add_track_results_string && jsonString != null) {
-                mTomahawkApp.getThreadManager().executePipeLineRunnable(
+                ThreadManager.getInstance().executePipeLineRunnable(
                         new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_REPORTING) {
                             @Override
                             public void run() {
@@ -291,9 +291,8 @@ public class ScriptResolver implements Resolver {
                                 if (result != null) {
                                     ArrayList<Result> parsedResults = parseResultList(
                                             result.results);
-                                    mTomahawkApp.getPipeLine()
-                                            .reportResults(mQueryKeys.get(result.qid),
-                                                    parsedResults, mId);
+                                    PipeLine.getInstance().reportResults(mQueryKeys.get(result.qid),
+                                            parsedResults, mId);
                                 }
                                 mTimeOutHandler.removeCallbacksAndMessages(null);
                                 mStopped = true;
@@ -322,7 +321,7 @@ public class ScriptResolver implements Resolver {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    String qid = TomahawkApp.getSessionUniqueStringId();
+                    String qid = TomahawkMainActivity.getSessionUniqueStringId();
                     mQueryKeys.put(qid, TomahawkUtils.getCacheKey(query));
                     if (!query.isFullTextQuery()) {
                         mScriptEngine.loadUrl(

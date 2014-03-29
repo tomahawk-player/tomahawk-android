@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
@@ -12,7 +13,6 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.services.TomahawkService;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.CircularImageTransformation;
 
@@ -642,7 +642,7 @@ public class TomahawkUtils {
             if (accounts != null) {
                 for (Account account : accounts) {
                     if (accountName.equals(am.getUserData(account,
-                            TomahawkService.AUTHENTICATOR_NAME))) {
+                            AuthenticatorUtils.AUTHENTICATOR_NAME))) {
                         return account;
                     }
                 }
