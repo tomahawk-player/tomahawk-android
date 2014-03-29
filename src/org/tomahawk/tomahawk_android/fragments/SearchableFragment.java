@@ -20,17 +20,21 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
+import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -77,7 +81,7 @@ public class SearchableFragment extends TomahawkFragment
         }
 
         // Initialize our onlineSourcesCheckBox
-        CheckBox onlineSourcesCheckBox = (CheckBox) mTomahawkMainActivity
+        CheckBox onlineSourcesCheckBox = (CheckBox) getActivity()
                 .findViewById(R.id.search_onlinesources_checkbox);
         onlineSourcesCheckBox.setOnCheckedChangeListener(this);
 
@@ -85,7 +89,7 @@ public class SearchableFragment extends TomahawkFragment
         // results again
         if (mCurrentQueryString != null) {
             resolveFullTextQuery(mCurrentQueryString);
-            mTomahawkMainActivity.setTitle(mCurrentQueryString);
+            getActivity().setTitle(mCurrentQueryString);
         }
     }
 
@@ -113,15 +117,16 @@ public class SearchableFragment extends TomahawkFragment
         position -= getListView().getHeaderViewsCount();
         if (position >= 0) {
             Object item = getListAdapter().getItem(position);
+            TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
             if (item instanceof Query) {
-                PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
+                PlaybackService playbackService = activity.getPlaybackService();
                 if (playbackService != null && shouldShowPlaystate() && mQueryPositions
                         .get(playbackService.getCurrentPlaylist().getCurrentQueryIndex())
                         == position) {
                     playbackService.playPause();
                 } else {
                     UserPlaylist playlist = UserPlaylist.fromQueryList(
-                            TomahawkApp.getLifetimeUniqueStringId(), mCurrentQueryString,
+                            TomahawkMainActivity.getLifetimeUniqueStringId(), mCurrentQueryString,
                             mShownQueries, ((Query) item));
                     if (playbackService != null) {
                         playbackService.setCurrentPlaylist(playlist);
@@ -130,15 +135,15 @@ public class SearchableFragment extends TomahawkFragment
                 }
             } else if (item instanceof Album) {
                 String key = TomahawkUtils.getCacheKey((Album) item);
-                mTomahawkMainActivity.getContentViewer()
+                activity.getContentViewer()
                         .replace(TracksFragment.class, key, TOMAHAWK_ALBUM_KEY, false, false);
             } else if (item instanceof Artist) {
                 String key = TomahawkUtils.getCacheKey((Artist) item);
-                mTomahawkMainActivity.getContentViewer()
+                activity.getContentViewer()
                         .replace(AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, false, false);
             } else if (item instanceof User) {
                 String key = ((User) item).getId();
-                mTomahawkMainActivity.getContentViewer()
+                activity.getContentViewer()
                         .replace(SocialActionsFragment.class, key, TOMAHAWK_USER_ID, false, false);
             }
         }
@@ -163,7 +168,8 @@ public class SearchableFragment extends TomahawkFragment
     }
 
     public void getInfoResults(String requestId) {
-        Map<String, List> convertedResultMap = mInfoSystem.getInfoRequestById(requestId)
+        Map<String, List> convertedResultMap = InfoSystem.getInstance().getInfoRequestById(
+                requestId)
                 .getConvertedResultMap();
         if (convertedResultMap != null) {
             ArrayList<Artist> artists = (ArrayList<Artist>) convertedResultMap
@@ -189,6 +195,9 @@ public class SearchableFragment extends TomahawkFragment
      */
     @Override
     protected void updateAdapter() {
+        Context context = getActivity();
+        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
+        View rootView = getActivity().findViewById(android.R.id.content);
         List<List<TomahawkListItem>> listArray
                 = new ArrayList<List<TomahawkListItem>>();
         if (!mShownArtists.isEmpty()) {
@@ -221,8 +230,8 @@ public class SearchableFragment extends TomahawkFragment
             listArray.add(trackResultList);
         }
         if (getListAdapter() == null) {
-            TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity,
-                    listArray);
+            TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
+                    layoutInflater, rootView, listArray);
             tomahawkListAdapter.setShowCategoryHeaders(true, false);
             tomahawkListAdapter.setShowResolvedBy(true);
             setListAdapter(tomahawkListAdapter);
@@ -239,12 +248,13 @@ public class SearchableFragment extends TomahawkFragment
      */
     public void resolveFullTextQuery(String fullTextQuery) {
         mCurrentQueryString = fullTextQuery;
-        CheckBox onlineSourcesCheckBox = (CheckBox) mTomahawkMainActivity
+        CheckBox onlineSourcesCheckBox = (CheckBox) getActivity()
                 .findViewById(R.id.search_onlinesources_checkbox);
-        String queryId = mPipeline.resolve(fullTextQuery, !onlineSourcesCheckBox.isChecked());
+        String queryId = PipeLine.getInstance().resolve(fullTextQuery,
+                !onlineSourcesCheckBox.isChecked());
         if (onlineSourcesCheckBox.isChecked()) {
             mCurrentRequestIds.clear();
-            String requestId = mInfoSystem.resolve(fullTextQuery);
+            String requestId = InfoSystem.getInstance().resolve(fullTextQuery);
             mCurrentRequestIds.add(requestId);
         } else {
             mShownArtists.clear();

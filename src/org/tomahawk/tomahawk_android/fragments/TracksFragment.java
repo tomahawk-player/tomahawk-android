@@ -17,20 +17,22 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
-import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.content.Loader;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -73,7 +75,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 Bundle bundle = new Bundle();
                 String key = TomahawkUtils.getCacheKey(mAlbum.getArtist());
                 bundle.putString(TOMAHAWK_ARTIST_KEY, key);
-                mTomahawkMainActivity.getContentViewer()
+                ((TomahawkMainActivity) getActivity()).getContentViewer()
                         .replace(AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, false, false);
             }
         }
@@ -98,6 +100,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 Query query = (Query) getListAdapter().getItem(position);
                 if (query.isPlayable()) {
                     ArrayList<Query> queries = new ArrayList<Query>();
+                    TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
                     if (mAlbum != null) {
                         queries = mAlbum.getQueries(mIsLocal);
                     } else if (mArtist != null) {
@@ -105,17 +108,17 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                     } else if (mUserPlaylist != null) {
                         queries = mUserPlaylist.getQueries();
                     } else {
-                        queries.addAll(mTomahawkMainActivity.getUserCollection().getQueries());
+                        queries.addAll(UserCollection.getInstance().getQueries());
                     }
-                    PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
+                    PlaybackService playbackService = activity.getPlaybackService();
                     if (playbackService != null && shouldShowPlaystate() && mQueryPositions
                             .get(playbackService.getCurrentPlaylist().getCurrentQueryIndex())
                             == position) {
                         playbackService.playPause();
                     } else {
                         UserPlaylist playlist = UserPlaylist.fromQueryList(
-                                UserPlaylistsDataSource.CACHED_PLAYLIST_ID,
-                                UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, queries,
+                                DatabaseHelper.CACHED_PLAYLIST_ID,
+                                DatabaseHelper.CACHED_PLAYLIST_NAME, queries,
                                 queries.get(position));
                         if (playbackService != null) {
                             playbackService.setCurrentPlaylist(playlist);
@@ -131,7 +134,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
      * Called whenever the {@link UserCollection} {@link Loader} has finished
      */
     @Override
-    public void onLoadFinished(Loader<Collection> loader, Collection coll) {
+    public void onLoadFinished(Loader<UserCollection> loader, UserCollection coll) {
         super.onLoadFinished(loader, coll);
         updateAdapter();
         resolveVisibleQueries();
@@ -144,14 +147,18 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
     protected void updateAdapter() {
         ArrayList<TomahawkListItem> queries = new ArrayList<TomahawkListItem>();
         TomahawkListAdapter tomahawkListAdapter;
-        Collection coll = mTomahawkMainActivity.getUserCollection();
+        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+        Context context = getActivity();
+        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
+        View rootView = getActivity().findViewById(android.R.id.content);
         if (mAlbum != null) {
-            mTomahawkMainActivity.setTitle(mAlbum.getName());
+            activity.setTitle(mAlbum.getName());
             queries.addAll(mAlbum.getQueries(mIsLocal));
             List<List<TomahawkListItem>> listArray = new ArrayList<List<TomahawkListItem>>();
             listArray.add(queries);
             if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
+                tomahawkListAdapter = new TomahawkListAdapter(context, layoutInflater, rootView,
+                        listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true, false);
                 tomahawkListAdapter.showContentHeader(getListView(), mAlbum, mIsLocal);
@@ -161,12 +168,13 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 ((TomahawkListAdapter) getListAdapter()).updateContentHeader(mAlbum, mIsLocal);
             }
         } else if (mArtist != null) {
-            mTomahawkMainActivity.setTitle(mArtist.getName());
+            activity.setTitle(mArtist.getName());
             queries.addAll(mArtist.getQueries(mIsLocal));
             List<List<TomahawkListItem>> listArray = new ArrayList<List<TomahawkListItem>>();
             listArray.add(queries);
             if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
+                tomahawkListAdapter = new TomahawkListAdapter(context, layoutInflater, rootView,
+                        listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true, false);
                 tomahawkListAdapter.showContentHeader(getListView(), mArtist, mIsLocal);
@@ -175,12 +183,13 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
             }
         } else if (mUserPlaylist != null) {
-            mTomahawkMainActivity.setTitle(mUserPlaylist.getName());
+            activity.setTitle(mUserPlaylist.getName());
             queries.addAll(mUserPlaylist.getQueries());
             List<List<TomahawkListItem>> listArray = new ArrayList<List<TomahawkListItem>>();
             listArray.add(queries);
             if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
+                tomahawkListAdapter = new TomahawkListAdapter(context, layoutInflater, rootView,
+                        listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true, false);
                 tomahawkListAdapter.showContentHeader(getListView(), mUserPlaylist, mIsLocal);
@@ -191,12 +200,13 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                         .updateContentHeader(mUserPlaylist, mIsLocal);
             }
         } else {
-            mTomahawkMainActivity.setTitle(getString(R.string.tracksfragment_title_string));
-            queries.addAll(coll.getQueries());
+            activity.setTitle(getString(R.string.tracksfragment_title_string));
+            queries.addAll(UserCollection.getInstance().getQueries());
             List<List<TomahawkListItem>> listArray = new ArrayList<List<TomahawkListItem>>();
             listArray.add(queries);
             if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
+                tomahawkListAdapter = new TomahawkListAdapter(context, layoutInflater, rootView,
+                        listArray);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);

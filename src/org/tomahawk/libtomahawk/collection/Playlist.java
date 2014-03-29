@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * This class represents an abstract {@link Playlist}.
  */
-public abstract class Playlist implements Playable {
+public abstract class Playlist {
 
     private String mName;
 
@@ -83,7 +83,6 @@ public abstract class Playlist implements Playable {
     /**
      * Set this {@link Playlist}'s {@link Query}s
      */
-    @Override
     public void setQueries(Collection<Query> queries) {
         mQueries = (ArrayList<Query>) queries;
         mCurrentQueryIndex = 0;
@@ -92,7 +91,6 @@ public abstract class Playlist implements Playable {
     /**
      * Set the current {@link Query} of this {@link Playlist}
      */
-    @Override
     public void setCurrentQuery(Query newquery) {
         List<Query> querys = mShuffled ? mShuffledQueries : mQueries;
         int i = 0;
@@ -118,7 +116,6 @@ public abstract class Playlist implements Playable {
     /**
      * @return the current {@link Query}
      */
-    @Override
     public Query getCurrentQuery() {
         List<Query> querys = mShuffled ? mShuffledQueries : mQueries;
         if (querys != null && mCurrentQueryIndex >= 0 && mCurrentQueryIndex < querys.size()) {
@@ -137,7 +134,6 @@ public abstract class Playlist implements Playable {
     /**
      * @return the next {@link Query}
      */
-    @Override
     public Query getNextQuery() {
         List<Query> querys = mShuffled ? mShuffledQueries : mQueries;
         if (mCurrentQueryIndex + 1 < querys.size()) {
@@ -154,7 +150,6 @@ public abstract class Playlist implements Playable {
     /**
      * @return the previous {@link Query}
      */
-    @Override
     public Query getPreviousQuery() {
         List<Query> querys = mShuffled ? mShuffledQueries : mQueries;
         if (mCurrentQueryIndex - 1 >= 0) {
@@ -171,7 +166,6 @@ public abstract class Playlist implements Playable {
     /**
      * Get the {@link Query} at the given position
      */
-    @Override
     public Query getQueryAtPos(int i) {
         if (i >= 0 && i < (mShuffled ? mShuffledQueries.size() : mQueries.size())) {
             mCurrentQueryIndex = i;
@@ -183,7 +177,6 @@ public abstract class Playlist implements Playable {
     /**
      * @return the first {@link Query} of this playlist
      */
-    @Override
     public Query getFirstQuery() {
         if (mShuffled ? mShuffledQueries.isEmpty() : mQueries.isEmpty()) {
             return null;
@@ -195,7 +188,6 @@ public abstract class Playlist implements Playable {
     /**
      * @return the last {@link Query} of this playlist
      */
-    @Override
     public Query getLastQuery() {
         if (mShuffled ? mShuffledQueries.isEmpty() : mQueries.isEmpty()) {
             return null;

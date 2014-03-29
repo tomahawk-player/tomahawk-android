@@ -22,10 +22,9 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import android.app.Activity;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +39,7 @@ import java.util.List;
  */
 public class TomahawkGridAdapter extends BaseAdapter {
 
-    private TomahawkMainActivity mTomahawkMainActivity;
+    private Context mContext;
 
     private LayoutInflater mLayoutInflater;
 
@@ -49,14 +48,13 @@ public class TomahawkGridAdapter extends BaseAdapter {
     /**
      * Constructs a new {@link TomahawkGridAdapter}
      *
-     * @param tomahawkMainActivity reference to whatever {@link Activity}
-     * @param listArray            complete set of lists containing all content which the listview
-     *                             should be populated with
+     * @param listArray complete set of lists containing all content which the listview should be
+     *                  populated with
      */
-    public TomahawkGridAdapter(TomahawkMainActivity tomahawkMainActivity,
+    public TomahawkGridAdapter(Context context, LayoutInflater layoutInflater,
             List<List<TomahawkListItem>> listArray) {
-        mTomahawkMainActivity = tomahawkMainActivity;
-        mLayoutInflater = mTomahawkMainActivity.getLayoutInflater();
+        mContext = context;
+        mLayoutInflater = layoutInflater;
         mListArray = listArray;
     }
 
@@ -97,7 +95,7 @@ public class TomahawkGridAdapter extends BaseAdapter {
                 viewHolder.getTextView2().setVisibility(View.VISIBLE);
                 viewHolder.getTextView2().setText(item.getArtist().getName());
                 if (item instanceof Album || item instanceof Artist) {
-                    TomahawkUtils.loadImageIntoImageView(mTomahawkMainActivity,
+                    TomahawkUtils.loadImageIntoImageView(mContext,
                             viewHolder.getImageView1(),
                             item.getImage(), Image.IMAGE_SIZE_SMALL);
                 }

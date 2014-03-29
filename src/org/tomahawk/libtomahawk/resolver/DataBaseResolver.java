@@ -18,13 +18,12 @@
 package org.tomahawk.libtomahawk.resolver;
 
 import org.json.JSONObject;
-import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 
@@ -34,11 +33,11 @@ import java.util.List;
 /**
  * A {@link Resolver} which resolves {@link Track}s via our local database. Or in other words:
  * Fetches {@link Track}s from the local {@link UserCollection}. Can also be used to resolve from
- * remote {@link Collection}s.
+ * remote {@link UserCollection}s.
  */
 public class DataBaseResolver implements Resolver {
 
-    private TomahawkApp mTomahawkApp;
+    private Context mContext;
 
     private int mId;
 
@@ -59,26 +58,23 @@ public class DataBaseResolver implements Resolver {
     /**
      * Construct this {@link DataBaseResolver}
      *
-     * @param id          the id of this {@link Resolver}
-     * @param tomahawkApp reference needed to {@link TomahawkApp}, so that we have access to the
-     *                    {@link org.tomahawk.libtomahawk.resolver.PipeLine} to report our results
+     * @param id the id of this {@link Resolver}
      */
-    public DataBaseResolver(int id, TomahawkApp tomahawkApp) {
+    public DataBaseResolver(int id, Context context) {
+        mId = id;
+        mContext = context;
         mWeight = 100;
         mReady = false;
         mStopped = true;
-        mTomahawkApp = tomahawkApp;
-        mId = id;
-        mName = String.valueOf(TomahawkApp.RESOLVER_ID_USERCOLLECTION);
-        if (id == TomahawkApp.RESOLVER_ID_USERCOLLECTION) {
-            mIcon = mTomahawkApp.getResources()
-                    .getDrawable(R.drawable.ic_action_sd_storage);
+        mName = String.valueOf(PipeLine.RESOLVER_ID_USERCOLLECTION);
+        if (id == PipeLine.RESOLVER_ID_USERCOLLECTION) {
+            mIcon = context.getResources().getDrawable(R.drawable.ic_action_sd_storage);
         } else {
-            mIcon = mTomahawkApp.getResources().getDrawable(R.drawable.ic_resolver_default);
+            mIcon = context.getResources().getDrawable(R.drawable.ic_resolver_default);
         }
 
         mReady = true;
-        mTomahawkApp.getPipeLine().onResolverReady();
+        PipeLine.getInstance().onResolverReady();
     }
 
     /**
@@ -116,13 +112,7 @@ public class DataBaseResolver implements Resolver {
         if (mReady) {
             mStopped = false;
             ArrayList<Result> results = new ArrayList<Result>();
-            UserCollection userCollection = (UserCollection) mTomahawkApp.getSourceList()
-                    .getLocalSource().getCollection();
-            if (userCollection == null) {
-                mStopped = true;
-                return false;
-            }
-            List<Query> inputList = userCollection.getQueries(false);
+            List<Query> inputList = UserCollection.getInstance().getQueries(false);
 
             for (Query existingQuery : inputList) {
                 String existingTrackName = existingQuery.getName().toLowerCase();
@@ -157,8 +147,8 @@ public class DataBaseResolver implements Resolver {
                     }
                 }
             }
-            mTomahawkApp.getPipeLine()
-                    .reportResults(TomahawkUtils.getCacheKey(queryToSearchFor), results, mId);
+            PipeLine.getInstance().reportResults(TomahawkUtils.getCacheKey(queryToSearchFor),
+                    results, mId);
             mStopped = true;
         }
         return mReady;

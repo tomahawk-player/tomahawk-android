@@ -21,20 +21,22 @@ package org.tomahawk.tomahawk_android.services;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
+import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
-import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer;
 
 import android.app.Notification;
@@ -116,10 +118,6 @@ public class PlaybackService extends Service {
     private static final int PLAYBACKSERVICE_NOTIFICATION_ID = 1;
 
     private static final int DELAY_TO_KILL = 300000;
-
-    private TomahawkApp mTomahawkApp;
-
-    private PipeLine mPipeLine;
 
     protected HashSet<String> mCorrespondingQueryIds = new HashSet<String>();
 
@@ -255,8 +253,8 @@ public class PlaybackService extends Service {
             } else if (Intent.ACTION_HEADSET_PLUG.equals(intent.getAction()) && intent
                     .hasExtra("state") && intent.getIntExtra("state", 0) == 1) {
                 // Headset has been plugged in
-                SharedPreferences prefs = PreferenceManager
-                        .getDefaultSharedPreferences(TomahawkApp.getContext());
+                SharedPreferences prefs =
+                        PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 boolean playbackOnHeadsetInsert = prefs
                         .getBoolean(FakePreferenceFragment.FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY,
                                 false);
@@ -318,9 +316,6 @@ public class PlaybackService extends Service {
 
     @Override
     public void onCreate() {
-        mTomahawkApp = (TomahawkApp) getApplication();
-        mPipeLine = mTomahawkApp.getPipeLine();
-
         mHandler = new Handler();
 
         // Initialize PhoneCallListener
@@ -404,8 +399,9 @@ public class PlaybackService extends Service {
     public void onPrepared(TomahawkMediaPlayer tmp) {
         Log.d(TAG, "Mediaplayer is prepared.");
         if (isPlaying()) {
-            mTomahawkApp.getInfoSystem().sendNowPlayingPostStruct(mTomahawkApp.getTomahawkService()
-                            .getAuthenticatorUtils(TomahawkService.AUTHENTICATOR_ID_HATCHET),
+            InfoSystem.getInstance().sendNowPlayingPostStruct(
+                    AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                            AuthenticatorUtils.AUTHENTICATOR_ID_HATCHET),
                     getCurrentQuery()
             );
         }
@@ -462,11 +458,10 @@ public class PlaybackService extends Service {
     private void saveState() {
         if (getCurrentPlaylist() != null) {
             long startTime = System.currentTimeMillis();
-            UserCollection userCollection = (UserCollection) ((TomahawkApp) getApplication())
-                    .getSourceList().getCollectionFromId(UserCollection.Id);
+            UserCollection userCollection = UserCollection.getInstance();
             userCollection.setCachedUserPlaylist(UserPlaylist
-                    .fromQueryList(UserPlaylistsDataSource.CACHED_PLAYLIST_ID,
-                            UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
+                    .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
+                            DatabaseHelper.CACHED_PLAYLIST_NAME,
                             getCurrentPlaylist().getQueries(),
                             getCurrentPlaylist().getCurrentQuery()));
             Log.d(TAG, "Playlist stored in " + (System.currentTimeMillis() - startTime) + "ms");
@@ -480,8 +475,7 @@ public class PlaybackService extends Service {
      */
     private void restoreState() {
         long startTime = System.currentTimeMillis();
-        UserCollection userCollection = (UserCollection) ((TomahawkApp) getApplication())
-                .getSourceList().getCollectionFromId(UserCollection.Id);
+        UserCollection userCollection = UserCollection.getInstance();
         setCurrentPlaylist(userCollection.getCachedUserPlaylist());
         Log.d(TAG, "Playlist loaded in " + (System.currentTimeMillis() - startTime) + "ms");
         if (getCurrentPlaylist() != null && isPlaying()) {
@@ -580,9 +574,9 @@ public class PlaybackService extends Service {
                         break;
                     case PLAYBACKSERVICE_PLAYSTATE_PAUSED:
                         if (mTomahawkMediaPlayer.isPlaying()) {
-                            mTomahawkApp.getInfoSystem().sendPlaybackEntryPostStruct(
-                                    mTomahawkApp.getTomahawkService().getAuthenticatorUtils(
-                                            TomahawkService.AUTHENTICATOR_ID_HATCHET)
+                            InfoSystem.getInstance().sendPlaybackEntryPostStruct(
+                                    AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                                            AuthenticatorUtils.AUTHENTICATOR_ID_HATCHET)
                             );
                             mTomahawkMediaPlayer.pause();
                         }
@@ -715,18 +709,18 @@ public class PlaybackService extends Service {
                 sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
 
                 if (query.getImage() == null) {
-                    ArrayList<String> requestIds = mTomahawkApp.getInfoSystem().resolve(
+                    ArrayList<String> requestIds = InfoSystem.getInstance().resolve(
                             query.getArtist(), true);
                     for (String requestId : requestIds) {
                         mCurrentRequestIds.put(requestId, TomahawkUtils.getCacheKey(query));
                     }
-                    String requestId = mTomahawkApp.getInfoSystem().resolve(query.getAlbum());
+                    String requestId = InfoSystem.getInstance().resolve(query.getAlbum());
                     if (requestId != null) {
                         mCurrentRequestIds.put(requestId, TomahawkUtils.getCacheKey(query));
                     }
                 }
 
-                mTomahawkApp.getThreadManager().executePlaybackRunnable(new Runnable() {
+                ThreadManager.getInstance().executePlaybackRunnable(new Runnable() {
                     @Override
                     public void run() {
                         if (isPlaying() && !mLastPreparedPath
@@ -757,7 +751,7 @@ public class PlaybackService extends Service {
                                 try {
                                     boolean isSpotifyUrl =
                                             query.getPreferredTrackResult().getResolvedBy().getId()
-                                                    == TomahawkApp.RESOLVER_ID_SPOTIFY;
+                                                    == PipeLine.RESOLVER_ID_SPOTIFY;
                                     mTomahawkMediaPlayer.prepare(
                                             query.getPreferredTrackResult().getPath(),
                                             isSpotifyUrl);
@@ -820,8 +814,8 @@ public class PlaybackService extends Service {
     public void addQueriesToCurrentPlaylist(ArrayList<Query> queries) {
         if (mCurrentPlaylist == null) {
             mCurrentPlaylist = UserPlaylist
-                    .fromQueryList(UserPlaylistsDataSource.CACHED_PLAYLIST_ID,
-                            UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
+                    .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
+                            DatabaseHelper.CACHED_PLAYLIST_NAME,
                             new ArrayList<Query>());
         }
         boolean wasEmpty = mCurrentPlaylist.getCount() <= 0;
@@ -839,8 +833,8 @@ public class PlaybackService extends Service {
     public void addTracksToCurrentPlaylist(int position, ArrayList<Query> queries) {
         if (mCurrentPlaylist == null) {
             mCurrentPlaylist = UserPlaylist
-                    .fromQueryList(UserPlaylistsDataSource.CACHED_PLAYLIST_ID,
-                            UserPlaylistsDataSource.CACHED_PLAYLIST_NAME,
+                    .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
+                            DatabaseHelper.CACHED_PLAYLIST_NAME,
                             new ArrayList<Query>());
         }
         boolean wasEmpty = mCurrentPlaylist.getCount() <= 0;
@@ -1056,7 +1050,7 @@ public class PlaybackService extends Service {
             }
         }
         if (!qs.isEmpty()) {
-            HashSet<String> qids = mPipeLine.resolve(qs);
+            HashSet<String> qids = PipeLine.getInstance().resolve(qs);
             mCorrespondingQueryIds.addAll(qids);
         }
     }

@@ -18,9 +18,10 @@
 package org.tomahawk.libtomahawk.resolver;
 
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
+import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 
@@ -34,6 +35,20 @@ import java.util.concurrent.ConcurrentHashMap;
  * included in this class.
  */
 public class PipeLine {
+
+    private static PipeLine instance;
+
+    public static final int RESOLVER_ID_USERCOLLECTION = 0;
+
+    public static final int RESOLVER_ID_JAMENDO = 100;
+
+    public static final int RESOLVER_ID_OFFICIALFM = 101;
+
+    public static final int RESOLVER_ID_EXFM = 102;
+
+    public static final int RESOLVER_ID_SOUNDCLOUD = 103;
+
+    public static final int RESOLVER_ID_SPOTIFY = 200;
 
     public static final int PIPELINE_SEARCHTYPE_TRACKS = 0;
 
@@ -49,7 +64,7 @@ public class PipeLine {
 
     private static final float MINSCORE = 0.5F;
 
-    private TomahawkApp mTomahawkApp;
+    private Context mContext;
 
     private ArrayList<Resolver> mResolvers = new ArrayList<Resolver>();
 
@@ -60,8 +75,26 @@ public class PipeLine {
 
     private boolean mAllResolversAdded;
 
-    public PipeLine(TomahawkApp tomahawkApp) {
-        mTomahawkApp = tomahawkApp;
+    private PipeLine() {
+    }
+
+    public static PipeLine getInstance() {
+        if (instance == null) {
+            synchronized (PipeLine.class) {
+                if (instance == null) {
+                    instance = new PipeLine();
+                }
+            }
+        }
+        return instance;
+    }
+
+    public void setContext(Context context) {
+        mContext = context;
+    }
+
+    public boolean isInitialized() {
+        return mContext != null;
     }
 
     /**
@@ -130,7 +163,7 @@ public class PipeLine {
      * This will invoke every {@link Resolver} to resolve the given {@link Query}.
      */
     public String resolve(final Query q, final boolean forceOnlyLocal) {
-        mTomahawkApp.getThreadManager().executePipeLineRunnable(
+        ThreadManager.getInstance().executePipeLineRunnable(
                 new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_RESOLVING) {
                     @Override
                     public void run() {
@@ -189,7 +222,7 @@ public class PipeLine {
     private void sendResultsReportBroadcast(String queryKey) {
         Intent reportIntent = new Intent(PIPELINE_RESULTSREPORTED);
         reportIntent.putExtra(PIPELINE_RESULTSREPORTED_QUERYKEY, queryKey);
-        mTomahawkApp.sendBroadcast(reportIntent);
+        mContext.sendBroadcast(reportIntent);
     }
 
     /**
@@ -203,14 +236,14 @@ public class PipeLine {
     public void reportResults(final String queryKey, final ArrayList<Result> results,
             final int resolverId) {
         int priority;
-        if (resolverId == TomahawkApp.RESOLVER_ID_EXFM) {
+        if (resolverId == RESOLVER_ID_EXFM) {
             priority = TomahawkRunnable.PRIORITY_IS_REPORTING_WITH_HEADERREQUEST;
-        } else if (resolverId == TomahawkApp.RESOLVER_ID_USERCOLLECTION) {
+        } else if (resolverId == RESOLVER_ID_USERCOLLECTION) {
             priority = TomahawkRunnable.PRIORITY_IS_REPORTING_LOCALSOURCE;
         } else {
             priority = TomahawkRunnable.PRIORITY_IS_REPORTING;
         }
-        mTomahawkApp.getThreadManager().executePipeLineRunnable(
+        ThreadManager.getInstance().executePipeLineRunnable(
                 new TomahawkRunnable(priority) {
                     @Override
                     public void run() {
@@ -224,7 +257,7 @@ public class PipeLine {
                                     r.setTrackScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_TRACKS));
                                     if (r.getTrackScore() >= MINSCORE
                                             && !cleanTrackResults.contains(r)) {
-                                        if (resolverId != TomahawkApp.RESOLVER_ID_EXFM
+                                        if (resolverId != RESOLVER_ID_EXFM
                                                 || TomahawkUtils.httpHeaderRequest(r.getPath())) {
                                             r.setType(Result.RESULT_TYPE_TRACK);
                                             cleanTrackResults.add(r);

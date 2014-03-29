@@ -20,15 +20,19 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
-import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
+import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -53,9 +57,9 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
             if (getArguments().containsKey(SHOW_DASHBOARD)) {
                 mShowDashboard = getArguments().getBoolean(SHOW_DASHBOARD);
                 if (mShowDashboard) {
-                    mCurrentRequestIds.add(mInfoSystem.resolveFriendsFeed(mUser));
+                    mCurrentRequestIds.add(InfoSystem.getInstance().resolveFriendsFeed(mUser));
                 } else {
-                    mCurrentRequestIds.add(mInfoSystem.resolveSocialActions(mUser));
+                    mCurrentRequestIds.add(InfoSystem.getInstance().resolveSocialActions(mUser));
                 }
             }
         }
@@ -79,18 +83,19 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
             if (getListAdapter().getItem(position) instanceof SocialAction) {
                 TomahawkListItem item = ((SocialAction) getListAdapter().getItem(position))
                         .getTargetObject();
+                TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
                 if (item instanceof Query && ((Query) item).isPlayable()) {
                     ArrayList<Query> queries = new ArrayList<Query>();
                     queries.addAll(mShownQueries);
-                    PlaybackService playbackService = mTomahawkMainActivity.getPlaybackService();
+                    PlaybackService playbackService = activity.getPlaybackService();
                     if (playbackService != null && shouldShowPlaystate() && mQueryPositions
                             .get(playbackService.getCurrentPlaylist().getCurrentQueryIndex())
                             == position) {
                         playbackService.playPause();
                     } else {
                         UserPlaylist playlist = UserPlaylist
-                                .fromQueryList(UserPlaylistsDataSource.CACHED_PLAYLIST_ID,
-                                        UserPlaylistsDataSource.CACHED_PLAYLIST_NAME, queries,
+                                .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
+                                        DatabaseHelper.CACHED_PLAYLIST_NAME, queries,
                                         ((Query) item));
                         if (playbackService != null) {
                             playbackService.setCurrentPlaylist(playlist);
@@ -99,15 +104,15 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
                     }
                 } else if (item instanceof Album) {
                     String key = TomahawkUtils.getCacheKey(item);
-                    mTomahawkMainActivity.getContentViewer()
+                    activity.getContentViewer()
                             .replace(TracksFragment.class, key, TOMAHAWK_ALBUM_KEY, false, false);
                 } else if (item instanceof Artist) {
                     String key = TomahawkUtils.getCacheKey(item);
-                    mTomahawkMainActivity.getContentViewer()
+                    activity.getContentViewer()
                             .replace(AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, false, false);
                 } else if (item instanceof User) {
                     String key = ((User) item).getId();
-                    mTomahawkMainActivity.getContentViewer()
+                    activity.getContentViewer()
                             .replace(SocialActionsFragment.class, key, TOMAHAWK_USER_ID, false,
                                     false);
                 }
@@ -120,6 +125,9 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
      */
     @Override
     protected void updateAdapter() {
+        Context context = getActivity();
+        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
+        View rootView = getActivity().findViewById(android.R.id.content);
         if (mUser != null) {
             ArrayList<TomahawkListItem> socialActions;
             if (mShowDashboard) {
@@ -128,11 +136,12 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
                 socialActions = new ArrayList<TomahawkListItem>(mUser.getSocialActions());
             }
             TomahawkListAdapter tomahawkListAdapter;
-            mTomahawkMainActivity.setTitle(mUser.getName());
+            getActivity().setTitle(mUser.getName());
             List<List<TomahawkListItem>> listArray = new ArrayList<List<TomahawkListItem>>();
             listArray.add(socialActions);
             if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(mTomahawkMainActivity, listArray);
+                tomahawkListAdapter = new TomahawkListAdapter(context,
+                        layoutInflater, rootView, listArray);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true, false);
                 if (!mShowDashboard) {

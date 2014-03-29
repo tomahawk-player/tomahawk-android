@@ -37,7 +37,7 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
-import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
@@ -56,8 +56,6 @@ public class LibSpotifyWrapper {
     private static AuthenticatorListener sAuthenticatorListener;
 
     private static SpotifyResolver sSpotifyResolver;
-
-    private static TomahawkApp sTomahawkApp;
 
     private static TomahawkMediaPlayer sTomahawkMediaPlayer;
 
@@ -283,13 +281,9 @@ public class LibSpotifyWrapper {
      * @param queryKey        the key of the given query
      * @param query           {@link org.tomahawk.libtomahawk.resolver.Query} to be resolved
      * @param spotifyResolver reference to the {@link SpotifyResolver}
-     * @param tomahawkApp     reference to the TomahawkApp to enable this wrapper to execute a
-     *                        thread on the threadmanager
      */
-    public static void resolve(String queryKey, Query query, SpotifyResolver spotifyResolver,
-            TomahawkApp tomahawkApp) {
+    public static void resolve(String queryKey, Query query, SpotifyResolver spotifyResolver) {
         sSpotifyResolver = spotifyResolver;
-        sTomahawkApp = tomahawkApp;
         resolve(queryKey, query);
     }
 
@@ -330,7 +324,7 @@ public class LibSpotifyWrapper {
             final int[] trackDiscnumbers, final int[] trackIndexes, final int[] albumYears,
             final String[] trackNames, final String[] trackUris, final String[] albumNames,
             final String[] artistNames) {
-        sTomahawkApp.getThreadManager().executePipeLineRunnable(
+        ThreadManager.getInstance().executePipeLineRunnable(
                 new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_REPORTING) {
                     @Override
                     public void run() {

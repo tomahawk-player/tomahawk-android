@@ -23,6 +23,7 @@ import com.google.common.collect.Multimap;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetNowPlaying;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetNowPlayingPostStruct;
@@ -31,11 +32,11 @@ import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaybackLogPostStruct;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetSocialAction;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetSocialActionPostStruct;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,6 +48,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * The InfoSystem resolves metadata for artists and albums like album covers and artist images.
  */
 public class InfoSystem {
+
+    private static InfoSystem instance;
 
     public static final String INFOSYSTEM_RESULTSREPORTED = "infosystem_resultsreported";
 
@@ -61,7 +64,7 @@ public class InfoSystem {
 
     public static final String PARAM_TERM = "term";
 
-    TomahawkApp mTomahawkApp;
+    private Context mContext;
 
     private ArrayList<InfoPlugin> mInfoPlugins = new ArrayList<InfoPlugin>();
 
@@ -92,8 +95,26 @@ public class InfoSystem {
 
     private Query mNowPlaying = null;
 
-    public InfoSystem(TomahawkApp tomahawkApp) {
-        mTomahawkApp = tomahawkApp;
+    private InfoSystem() {
+    }
+
+    public static InfoSystem getInstance() {
+        if (instance == null) {
+            synchronized (InfoSystem.class) {
+                if (instance == null) {
+                    instance = new InfoSystem();
+                }
+            }
+        }
+        return instance;
+    }
+
+    public void setContext(Context context) {
+        mContext = context;
+    }
+
+    public boolean isInitialized() {
+        return mContext != null;
     }
 
     public void addInfoPlugin(InfoPlugin infoPlugin) {
@@ -230,7 +251,7 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolve(int type, Multimap<String, String> params) {
-        String requestId = TomahawkApp.getSessionUniqueStringId();
+        String requestId = TomahawkMainActivity.getSessionUniqueStringId();
         InfoRequestData infoRequestData = new InfoRequestData(requestId, type, params);
         resolve(infoRequestData);
         return infoRequestData.getRequestId();
@@ -247,7 +268,7 @@ public class InfoSystem {
      */
     public String resolve(int type, Multimap<String, String> params,
             TomahawkListItem itemToBeFilled) {
-        String requestId = TomahawkApp.getSessionUniqueStringId();
+        String requestId = TomahawkMainActivity.getSessionUniqueStringId();
         InfoRequestData infoRequestData = new InfoRequestData(requestId, type, params);
         resolve(infoRequestData, itemToBeFilled);
         return infoRequestData.getRequestId();
@@ -293,12 +314,12 @@ public class InfoSystem {
             HatchetPlaybackLogPostStruct playbackLogPostStruct = new HatchetPlaybackLogPostStruct();
             playbackLogPostStruct.playbackLogEntry = playbackLogEntry;
 
-            String requestId = TomahawkApp.getSessionUniqueStringId();
+            String requestId = TomahawkMainActivity.getSessionUniqueStringId();
             InfoRequestData infoRequestData = new InfoRequestData(requestId,
                     InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES,
                     playbackLogPostStruct);
-            mTomahawkApp.getUserPlaylistsDataSource()
-                    .addOpToInfoSystemOpLog(infoRequestData, (int) (timeStamp / 1000));
+            DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
+                    (int) (timeStamp / 1000));
             sendLoggedOps(authenticatorUtils);
         }
     }
@@ -314,7 +335,7 @@ public class InfoSystem {
             HatchetNowPlayingPostStruct nowPlayingPostStruct = new HatchetNowPlayingPostStruct();
             nowPlayingPostStruct.nowPlaying = nowPlaying;
 
-            String requestId = TomahawkApp.getSessionUniqueStringId();
+            String requestId = TomahawkMainActivity.getSessionUniqueStringId();
             InfoRequestData infoRequestData = new InfoRequestData(requestId,
                     InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES_NOWPLAYING,
                     nowPlayingPostStruct);
@@ -334,17 +355,17 @@ public class InfoSystem {
         HatchetSocialActionPostStruct socialActionPostStruct = new HatchetSocialActionPostStruct();
         socialActionPostStruct.socialAction = socialAction;
 
-        String requestId = TomahawkApp.getSessionUniqueStringId();
+        String requestId = TomahawkMainActivity.getSessionUniqueStringId();
         InfoRequestData infoRequestData = new InfoRequestData(requestId,
                 InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS, socialActionPostStruct);
-        mTomahawkApp.getUserPlaylistsDataSource()
-                .addOpToInfoSystemOpLog(infoRequestData, (int) (timeStamp / 1000));
+        DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
+                (int) (timeStamp / 1000));
         sendLoggedOps(authenticatorUtils);
     }
 
     public List<String> sendLoggedOps(AuthenticatorUtils authenticatorUtils) {
         List<String> requestIds = new ArrayList<String>();
-        List<InfoRequestData> loggedOps = mTomahawkApp.getUserPlaylistsDataSource().getLoggedOps();
+        List<InfoRequestData> loggedOps = DatabaseHelper.getInstance().getLoggedOps();
         for (InfoRequestData loggedOp : loggedOps) {
             requestIds.add(loggedOp.getRequestId());
             mSentLoggedOps.put(loggedOp.getRequestId(), loggedOp);
@@ -382,9 +403,8 @@ public class InfoSystem {
         for (String doneRequestId : doneRequestsIds) {
             if (mSentLoggedOps.containsKey(doneRequestId)) {
                 InfoRequestData loggedOp = mSentLoggedOps.get(doneRequestId);
-                mTomahawkApp.getUserPlaylistsDataSource()
-                        .removeOpFromInfoSystemOpLog(loggedOp.getOpLogId());
-                if (mTomahawkApp.getUserPlaylistsDataSource().getLoggedOps().isEmpty()) {
+                DatabaseHelper.getInstance().removeOpFromInfoSystemOpLog(loggedOp.getOpLogId());
+                if (DatabaseHelper.getInstance().getLoggedOps().isEmpty()) {
                     sendOpLogIsEmptiedBroadcast();
                 }
             }
@@ -398,7 +418,7 @@ public class InfoSystem {
     private void sendReportResultsBroadcast(String requestId) {
         Intent reportIntent = new Intent(INFOSYSTEM_RESULTSREPORTED);
         reportIntent.putExtra(INFOSYSTEM_RESULTSREPORTED_REQUESTID, requestId);
-        mTomahawkApp.sendBroadcast(reportIntent);
+        mContext.sendBroadcast(reportIntent);
     }
 
     /**
@@ -406,6 +426,6 @@ public class InfoSystem {
      */
     private void sendOpLogIsEmptiedBroadcast() {
         Intent reportIntent = new Intent(INFOSYSTEM_OPLOGISEMPTIED);
-        mTomahawkApp.sendBroadcast(reportIntent);
+        mContext.sendBroadcast(reportIntent);
     }
 }

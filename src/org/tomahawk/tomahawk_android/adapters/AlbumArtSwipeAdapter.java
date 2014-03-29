@@ -19,16 +19,17 @@ package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 
 import android.content.Context;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -44,7 +45,9 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     //Used to provide fake infinite swiping behaviour, if current Playlist is repeating
     private static final int FAKE_INFINITY_COUNT = 20000;
 
-    private TomahawkMainActivity mTomahawkMainActivity;
+    private Context mContext;
+
+    private LayoutInflater mLayoutInflater;
 
     private int mFakeInfinityOffset;
 
@@ -65,13 +68,12 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     /**
      * Constructs a new AlbumArtSwipeAdapter.
      *
-     * @param tomahawkMainActivity the {@link Context} needed to call .loadBitmap in {@link
-     *                             org.tomahawk.libtomahawk.collection.Album}
-     * @param viewPager            ViewPager which this adapter has been connected with
+     * @param viewPager ViewPager which this adapter has been connected with
      */
-    public AlbumArtSwipeAdapter(TomahawkMainActivity tomahawkMainActivity, ViewPager viewPager,
+    public AlbumArtSwipeAdapter(Context context, LayoutInflater layoutInflater, ViewPager viewPager,
             View.OnLongClickListener onLongClickListener) {
-        mTomahawkMainActivity = tomahawkMainActivity;
+        mContext = context;
+        mLayoutInflater = layoutInflater;
         mViewPager = viewPager;
         mOnLongClickListener = onLongClickListener;
         mByUser = true;
@@ -84,7 +86,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      */
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        View view = mTomahawkMainActivity.getLayoutInflater().inflate(
+        View view = mLayoutInflater.inflate(
                 org.tomahawk.tomahawk_android.R.layout.album_art_view_pager_item, container, false);
         if (mPlaylist != null && mPlaylist.getCount() > 0) {
             Query query;
@@ -289,9 +291,8 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         ImageButton loveButton = (ImageButton) view.findViewById(R.id.love_button);
         if (query != null) {
             ImageView imageView = (ImageView) view.findViewById(R.id.album_art_image);
-            TomahawkUtils
-                    .loadImageIntoImageView(mTomahawkMainActivity, imageView, query,
-                            Image.IMAGE_SIZE_LARGE);
+            TomahawkUtils.loadImageIntoImageView(mContext, imageView, query,
+                    Image.IMAGE_SIZE_LARGE);
 
             // Update all relevant TextViews
             if (artistTextView != null) {
@@ -315,7 +316,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                     titleTextView.setText(R.string.playbackactivity_unknown_string);
                 }
             }
-            if (mTomahawkMainActivity.getUserCollection().isQueryLoved(query)) {
+            if (UserCollection.getInstance().isQueryLoved(query)) {
                 loveButton.setVisibility(ImageButton.VISIBLE);
             } else {
                 loveButton.setVisibility(ImageButton.GONE);

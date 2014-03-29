@@ -17,8 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
-import org.tomahawk.libtomahawk.database.UserPlaylistsDataSource;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
@@ -28,6 +27,7 @@ import org.tomahawk.tomahawk_android.fragments.TracksFragment;
 import org.tomahawk.tomahawk_android.fragments.UserCollectionFragment;
 import org.tomahawk.tomahawk_android.fragments.UserPlaylistsFragment;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -64,9 +64,11 @@ public class ContentViewer {
 
     public static final String FRAGMENT_TAG = "the_ultimate_tag";
 
-    private TomahawkMainActivity mTomahawkMainActivity;
+    private Context mContext;
 
     private FragmentManager mFragmentManager;
+
+    private ContentViewerListener mContentViewerListener;
 
     private int mContentFrameId;
 
@@ -152,19 +154,17 @@ public class ContentViewer {
     /**
      * Constructs a new {@link ContentViewer}
      */
-    public ContentViewer(TomahawkMainActivity activity, FragmentManager fragmentManager,
-            int contentFrameId) {
-        mTomahawkMainActivity = activity;
+    public ContentViewer(Context context, FragmentManager fragmentManager,
+            ContentViewerListener listener, int contentFrameId) {
+        initialize(context, fragmentManager, listener, contentFrameId);
+    }
+
+    public void initialize(Context context, FragmentManager fragmentManager,
+            ContentViewerListener listener, int contentFrameId) {
+        mContext = context;
         mFragmentManager = fragmentManager;
         mContentFrameId = contentFrameId;
-    }
-
-    public void setTomahawkMainActivity(TomahawkMainActivity tomahawkMainActivity) {
-        mTomahawkMainActivity = tomahawkMainActivity;
-    }
-
-    public void setFragmentManager(FragmentManager fragmentManager) {
-        mFragmentManager = fragmentManager;
+        mContentViewerListener = listener;
     }
 
     /**
@@ -209,11 +209,10 @@ public class ContentViewer {
         bundle.putBoolean(SocialActionsFragment.SHOW_DASHBOARD,
                 fragmentStateHolder.showDashboard);
         ft.replace(mContentFrameId,
-                Fragment.instantiate(mTomahawkMainActivity, fragmentStateHolder.clss.getName(),
-                        bundle), FRAGMENT_TAG
-        );
+                Fragment.instantiate(mContext, fragmentStateHolder.clss.getName(), bundle),
+                FRAGMENT_TAG);
         ft.commit();
-        mTomahawkMainActivity.updateViewVisibility();
+        mContentViewerListener.updateViewVisibility();
     }
 
     /**
@@ -288,8 +287,8 @@ public class ContentViewer {
         switch (hubToShow) {
             case HUB_ID_HOME:
             case HUB_ID_DASHBOARD:
-                if (mTomahawkMainActivity.getLoggedInUser() != null) {
-                    String key = mTomahawkMainActivity.getLoggedInUser().getId();
+                if (mContentViewerListener.getLoggedInUser() != null) {
+                    String key = mContentViewerListener.getLoggedInUser().getId();
                     newFragmentStateHolder = new FragmentStateHolder(SocialActionsFragment.class,
                             null, key, TomahawkFragment.TOMAHAWK_USER_ID, false, true);
                 }
@@ -300,7 +299,7 @@ public class ContentViewer {
                 break;
             case HUB_ID_LOVEDTRACKS:
                 newFragmentStateHolder = new FragmentStateHolder(TracksFragment.class, null,
-                        UserPlaylistsDataSource.LOVEDITEMS_PLAYLIST_ID,
+                        DatabaseHelper.LOVEDITEMS_PLAYLIST_ID,
                         UserPlaylistsFragment.TOMAHAWK_USERPLAYLIST_KEY, false);
                 break;
             case HUB_ID_PLAYLISTS:

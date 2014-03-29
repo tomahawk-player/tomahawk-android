@@ -19,11 +19,8 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -43,10 +40,6 @@ public class TomahawkListFragment extends Fragment {
 
     public static final String TOMAHAWK_LIST_SCROLL_POSITION
             = "org.tomahawk.tomahawk_android.tomahawk_list_scroll_position";
-
-    protected TomahawkApp mTomahawkApp;
-
-    protected TomahawkMainActivity mTomahawkMainActivity;
 
     private StickyListHeadersAdapter mTomahawkListAdapter;
 
@@ -71,25 +64,12 @@ public class TomahawkListFragment extends Fragment {
     };
 
     /**
-     * Store the reference to the attached {@link android.app.Activity}
-     */
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        if (activity instanceof TomahawkMainActivity) {
-            mTomahawkMainActivity = (TomahawkMainActivity) activity;
-        }
-    }
-
-    /**
      * Get a stored list scroll position, if present
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mTomahawkApp = ((TomahawkApp) mTomahawkMainActivity.getApplication());
         if (getArguments() != null) {
             if (getArguments().containsKey(TOMAHAWK_LIST_SCROLL_POSITION)
                     && getArguments().getInt(TOMAHAWK_LIST_SCROLL_POSITION) > 0) {
@@ -136,7 +116,7 @@ public class TomahawkListFragment extends Fragment {
             return;
         }
         View root = getView();
-        LayoutInflater layoutInflater = mTomahawkMainActivity.getLayoutInflater();
+        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         if (root == null) {
             return;
         }

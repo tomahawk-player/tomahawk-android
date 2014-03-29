@@ -18,17 +18,47 @@
 package org.tomahawk.libtomahawk.authentication;
 
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.services.TomahawkService;
 
 import android.accounts.Account;
 import android.content.Context;
 
 public abstract class AuthenticatorUtils {
 
-    protected TomahawkApp mTomahawkApp;
+    public static final String AUTHENTICATOR_ID = "org.tomahawk.tomahawk_android.authenticator_id";
 
-    protected TomahawkService mTomahawkService;
+    public static final String AUTHENTICATOR_NAME
+            = "org.tomahawk.tomahawk_android.authenticator_name";
+
+    public static final int AUTHENTICATOR_ID_SPOTIFY = 0;
+
+    public static final int AUTHENTICATOR_ID_HATCHET = 1;
+
+    public static final String AUTHENTICATOR_NAME_SPOTIFY
+            = "org.tomahawk.tomahawk_android.authenticator_name_spotify";
+
+    public static final String AUTHENTICATOR_NAME_HATCHET
+            = "org.tomahawk.tomahawk_android.authenticator_name_hatchet";
+
+    public static final String AUTH_TOKEN_TYPE_SPOTIFY = "org.tomahawk.spotify.authtoken";
+
+    public static final String AUTH_TOKEN_TYPE_HATCHET = "org.tomahawk.hatchet.authtoken";
+
+    public static final String AUTH_TOKEN_EXPIRES_IN_HATCHET
+            = "org.tomahawk.hatchet.authtokenexpiresin";
+
+    public static final String MANDELLA_ACCESS_TOKEN_HATCHET
+            = "org.tomahawk.hatchet.mandellaaccesstoken";
+
+    public static final String MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET
+            = "org.tomahawk.hatchet.mandellaaccesstokenexpiresin";
+
+    public static final String CALUMET_ACCESS_TOKEN_HATCHET
+            = "org.tomahawk.hatchet.calumetaccesstoken";
+
+    public static final String CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET
+            = "org.tomahawk.hatchet.calumetaccesstokenexpiresin";
+
+    protected Context mContext;
 
     protected boolean mIsAuthenticating;
 
@@ -56,7 +86,7 @@ public abstract class AuthenticatorUtils {
 
     public static boolean isLoggedIn(Context context, String authenticatorName,
             String authTokenType) {
-        if (authenticatorName.equals(TomahawkService.AUTHENTICATOR_NAME_SPOTIFY)) {
+        if (authenticatorName.equals(AUTHENTICATOR_NAME_SPOTIFY)) {
             return SpotifyAuthenticatorUtils.isSpotifyLoggedIn();
         } else {
             return TomahawkUtils.peekAuthTokenForAccount(context, authenticatorName, authTokenType)

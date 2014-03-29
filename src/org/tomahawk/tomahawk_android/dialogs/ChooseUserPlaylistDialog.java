@@ -17,10 +17,11 @@
  */
 package org.tomahawk.tomahawk_android.dialogs;
 
+import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkContextMenuAdapter;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
@@ -41,14 +42,14 @@ import java.util.List;
 /**
  * A {@link DialogFragment} which shows a list of all {@link UserPlaylist}s to choose from.
  */
-public class ChooseUserPlaylistDialog extends TomahawkDialogFragment {
+public class ChooseUserPlaylistDialog extends DialogFragment {
 
     /**
      * Called when this {@link DialogFragment} is being created
      */
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+        final LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.choose_playlist_dialog, null);
 
         // Get all query keys from this fragment's arguments and through get the actual queries.
@@ -68,25 +69,29 @@ public class ChooseUserPlaylistDialog extends TomahawkDialogFragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mTomahawkApp.getUserPlaylistsDataSource().addQueriesToUserPlaylist(mUserCollection
+                DatabaseHelper.getInstance().addQueriesToUserPlaylist(UserCollection.getInstance()
                         .getLocalUserPlaylists().get(position).getId(), queries);
                 getDialog().dismiss();
             }
         });
-        int customPlaylistCount = mUserCollection.getLocalUserPlaylists().size();
+        int customPlaylistCount = UserCollection.getInstance().getLocalUserPlaylists().size();
         List<String> playlistNames = new ArrayList<String>();
         for (int i = 0; i < customPlaylistCount; i++) {
-            playlistNames.add(mUserCollection.getLocalUserPlaylists().get(i).getName());
+            playlistNames
+                    .add(UserCollection.getInstance().getLocalUserPlaylists().get(i).getName());
         }
-        listView.setAdapter(new TomahawkContextMenuAdapter((TomahawkMainActivity) getActivity(),
-                playlistNames));
+        listView.setAdapter(
+                new TomahawkContextMenuAdapter(getActivity(), getActivity().getLayoutInflater(),
+                        playlistNames)
+        );
         LinearLayout linearLayout = (LinearLayout) view
                 .findViewById(R.id.playlist_dialog_addplaylist_layout);
         linearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 UserPlaylist userPlaylist = UserPlaylist
-                        .fromQueryList(TomahawkApp.getLifetimeUniqueStringId(), "", queries);
+                        .fromQueryList(TomahawkMainActivity.getLifetimeUniqueStringId(), "",
+                                queries);
                 CreateUserPlaylistDialog dialog = new CreateUserPlaylistDialog();
                 Bundle args = new Bundle();
                 args.putString(TomahawkFragment.TOMAHAWK_USERPLAYLIST_KEY, userPlaylist.getId());

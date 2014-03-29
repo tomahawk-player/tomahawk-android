@@ -22,6 +22,7 @@ import org.tomahawk.tomahawk_android.R;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -38,6 +39,8 @@ public class ViewHolder {
     private ImageView mImageView3;
 
     private ImageView mImageView4;
+
+    private LinearLayout mImageViewFrame;
 
     private CheckBox mCheckBox;
 
@@ -83,6 +86,8 @@ public class ViewHolder {
                     .findViewById(R.id.content_header_image3);
             mImageView4 = (ImageView) rootView
                     .findViewById(R.id.content_header_image4);
+            mImageViewFrame = (LinearLayout) rootView
+                    .findViewById(R.id.content_header_image_frame2);
         } else if (viewType == R.id.tomahawklistadapter_viewtype_contentheader_user_navdrawer) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.content_header_textview_user_navdrawer);
@@ -172,6 +177,10 @@ public class ViewHolder {
 
     public ImageView getImageView4() {
         return mImageView4;
+    }
+
+    public LinearLayout getImageViewFrame() {
+        return mImageViewFrame;
     }
 
     public CheckBox getCheckBox() {
