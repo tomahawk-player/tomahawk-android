@@ -41,13 +41,10 @@ import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
-import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
-import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
-import org.tomahawk.tomahawk_android.utils.ContentViewer;
-import org.tomahawk.tomahawk_android.utils.ContentViewerListener;
+import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 
 import android.accounts.AccountManager;
@@ -66,6 +63,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
@@ -95,7 +94,7 @@ import java.util.Map;
 public class TomahawkMainActivity extends ActionBarActivity
         implements PlaybackServiceConnectionListener,
         LoaderManager.LoaderCallbacks<UserCollection>,
-        ContentViewerListener {
+        FragmentManager.OnBackStackChangedListener {
 
     private final static String TAG = TomahawkMainActivity.class.getName();
 
@@ -107,11 +106,11 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public static final String ID_COUNTER = "org.tomahawk.tomahawk_android.id_counter";
 
+    public static final String FRAGMENT_TAG = "the_ultimate_tag";
+
     private static Context sApplicationContext;
 
     private static long mSessionIdCounter = 0;
-
-    private ContentViewer mContentViewer;
 
     private CharSequence mTitle;
 
@@ -223,20 +222,10 @@ public class TomahawkMainActivity extends ActionBarActivity
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             // Show the correct hub, and if needed, display the search editText inside the ActionBar
-            if (id < 0) {
-                if (mLoggedInUser != null) {
-                    String key = mLoggedInUser.getId();
-                    mContentViewer.replace(SocialActionsFragment.class, key,
-                            TomahawkFragment.TOMAHAWK_USER_ID, false, false);
-                    if (mDrawerLayout != null) {
-                        mDrawerLayout.closeDrawer(mDrawerList);
-                    }
-                }
-            } else {
-                mContentViewer.showHub((int) id);
-                if (mDrawerLayout != null) {
-                    mDrawerLayout.closeDrawer(mDrawerList);
-                }
+            FragmentUtils.showHub(TomahawkMainActivity.this, getSupportFragmentManager(),
+                    (int) id, mLoggedInUser);
+            if (mDrawerLayout != null) {
+                mDrawerLayout.closeDrawer(mDrawerList);
             }
         }
     }
@@ -318,7 +307,8 @@ public class TomahawkMainActivity extends ActionBarActivity
         mNowPlayingFrame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mContentViewer.showHub(ContentViewer.HUB_ID_PLAYBACK);
+                FragmentUtils.showHub(TomahawkMainActivity.this, getSupportFragmentManager(),
+                        FragmentUtils.HUB_ID_PLAYBACK);
             }
         });
         ImageButton previousButton = (ImageButton) mNowPlayingFrame
@@ -380,16 +370,10 @@ public class TomahawkMainActivity extends ActionBarActivity
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);
 
-        // initialize our ContentViewer, which will handle switching the fragments whenever an
-        // entry in the slidingmenu is being clicked. Restore our saved state, if one exists.
-        if (mContentViewer == null) {
-            mContentViewer = new ContentViewer(getContext(), getSupportFragmentManager(), this,
-                    R.id.content_viewer_frame);
-            mContentViewer.showHub(ContentViewer.HUB_ID_COLLECTION);
-        } else {
-            mContentViewer.initialize(getContext(), getSupportFragmentManager(), this,
-                    R.id.content_viewer_frame);
+        if (savedInstanceState == null) {
+            FragmentUtils.addRootFragment(TomahawkMainActivity.this, getSupportFragmentManager());
         }
+        getSupportFragmentManager().addOnBackStackChangedListener(this);
     }
 
     @Override
@@ -419,14 +403,12 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         if (SHOW_PLAYBACKFRAGMENT_ON_STARTUP.equals(getIntent().getAction())) {
             // if this Activity is being shown after the user clicked the notification
-            mContentViewer.showHub(ContentViewer.HUB_ID_PLAYBACK);
+            FragmentUtils.showHub(TomahawkMainActivity.this, getSupportFragmentManager(),
+                    FragmentUtils.HUB_ID_PLAYBACK);
         }
         if (getIntent().hasExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)) {
-            ContentViewer.FragmentStateHolder fragmentStateHolder = mContentViewer
-                    .getBackStack().get(0);
-            fragmentStateHolder.tomahawkListItemType = AuthenticatorUtils.AUTHENTICATOR_ID;
-            fragmentStateHolder.tomahawkListItemKey = String.valueOf(
-                    getIntent().getIntExtra(AuthenticatorUtils.AUTHENTICATOR_ID, -1));
+            FragmentUtils.showHub(TomahawkMainActivity.this, getSupportFragmentManager(),
+                    FragmentUtils.HUB_ID_SETTINGS);
         }
 
         if (mPlaybackService != null) {
@@ -522,11 +504,8 @@ public class TomahawkMainActivity extends ActionBarActivity
             public boolean onQueryTextSubmit(String query) {
                 if (query != null && !TextUtils.isEmpty(query)) {
                     DatabaseHelper.getInstance().addEntryToSearchHistory(query);
-                    ContentViewer.FragmentStateHolder fragmentStateHolder
-                            = new ContentViewer.FragmentStateHolder(SearchableFragment.class,
-                            null);
-                    fragmentStateHolder.queryString = query;
-                    mContentViewer.replace(fragmentStateHolder, false);
+                    FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
+                            SearchableFragment.class, null, null, query, false, true);
                     if (searchItem != null) {
                         MenuItemCompat.collapseActionView(searchItem);
                     }
@@ -620,17 +599,6 @@ public class TomahawkMainActivity extends ActionBarActivity
         return mPlaybackService;
     }
 
-    /**
-     * Whenever the back-button is pressed, go back in the ContentViewer, until the root fragment is
-     * reached. After that use the normal back-button functionality.
-     */
-    @Override
-    public void onBackPressed() {
-        if (!mContentViewer.back()) {
-            super.onBackPressed();
-        }
-    }
-
     @Override
     public Loader<UserCollection> onCreateLoader(int id, Bundle args) {
         return new CollectionLoader(getContext(), UserCollection.getInstance());
@@ -713,16 +681,19 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     @Override
+    public void onBackStackChanged() {
+        updateViewVisibility();
+    }
+
     public void updateViewVisibility() {
-        ContentViewer.FragmentStateHolder currentFSH = mContentViewer
-                .getCurrentFragmentStateHolder();
-        if (currentFSH.clss == PlaybackFragment.class
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+        if (fragment instanceof PlaybackFragment
                 || mPlaybackService == null || mPlaybackService.getCurrentQuery() == null) {
             setNowPlayingInfoVisibility(false);
         } else {
             setNowPlayingInfoVisibility(true);
         }
-        if (currentFSH.clss == SearchableFragment.class) {
+        if (fragment instanceof SearchableFragment) {
             setSearchPanelVisibility(true);
         } else {
             setSearchPanelVisibility(false);
@@ -753,15 +724,6 @@ public class TomahawkMainActivity extends ActionBarActivity
             mNowPlayingFrame.setLayoutParams(new LinearLayout.LayoutParams(0, 0));
             mNowPlayingFrame.setVisibility(View.GONE);
         }
-    }
-
-    @Override
-    public User getLoggedInUser() {
-        return mLoggedInUser;
-    }
-
-    public ContentViewer getContentViewer() {
-        return mContentViewer;
     }
 
     public static long getSessionUniqueId() {

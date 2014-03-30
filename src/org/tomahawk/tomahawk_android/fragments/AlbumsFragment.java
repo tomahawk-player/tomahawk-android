@@ -18,7 +18,6 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Album;
-import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
@@ -27,11 +26,10 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
+import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.Context;
-import android.os.Bundle;
-import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -46,6 +44,13 @@ import java.util.List;
  */
 public class AlbumsFragment extends TomahawkFragment implements OnItemClickListener {
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        updateAdapter();
+    }
+
     /**
      * Called every time an item inside the {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}
      * is clicked
@@ -58,7 +63,9 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        position -= getListView().getHeaderViewsCount();
+        if (getListView() != null) {
+            position -= getListView().getHeaderViewsCount();
+        }
         if (position >= 0) {
             Object item;
             TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
@@ -83,22 +90,11 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                     }
                 }
             } else if (item instanceof Album) {
-                Bundle bundle = new Bundle();
                 String key = TomahawkUtils.getCacheKey((Album) item);
-                bundle.putString(TOMAHAWK_ALBUM_KEY, key);
-                activity.getContentViewer().replace(TracksFragment.class, key, TOMAHAWK_ALBUM_KEY,
-                        mIsLocal, false);
+                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                        TracksFragment.class, key, TomahawkFragment.TOMAHAWK_ALBUM_KEY, mIsLocal);
             }
         }
-    }
-
-    /**
-     * Called whenever the {@link UserCollection} {@link Loader} has finished
-     */
-    @Override
-    public void onLoadFinished(Loader<UserCollection> loader, UserCollection coll) {
-        super.onLoadFinished(loader, coll);
-        updateAdapter();
     }
 
     /**
@@ -106,8 +102,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
      */
     @Override
     protected void updateAdapter() {
-        List<TomahawkListItem> albums = new ArrayList<TomahawkListItem>();
-        List<TomahawkListItem> topHits = new ArrayList<TomahawkListItem>();
+        List<TomahawkListItem> albumsAndTopHits = new ArrayList<TomahawkListItem>();
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         Context context = getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
@@ -115,45 +110,41 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
         if (!isShowGridView() && mArtist != null) {
             activity.setTitle(mArtist.getName());
             if (mIsLocal) {
-                albums.addAll(mArtist.getLocalAlbums());
+                albumsAndTopHits.addAll(mArtist.getLocalAlbums());
             } else {
-                albums.addAll(mArtist.getAlbums());
-                topHits.addAll(mArtist.getTopHits());
+                albumsAndTopHits.addAll(mArtist.getTopHits());
+                albumsAndTopHits.addAll(mArtist.getAlbums());
                 mShownQueries = mArtist.getTopHits();
                 for (int i = 0; i < mShownQueries.size(); i++) {
                     mQueryPositions.put(i, i);
                 }
             }
-            List<List<TomahawkListItem>> listArray = new ArrayList<List<TomahawkListItem>>();
-            listArray.add(topHits);
-            listArray.add(albums);
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
-                        layoutInflater, rootView, listArray);
+                        layoutInflater, albumsAndTopHits);
                 tomahawkListAdapter.setShowCategoryHeaders(true, true);
-                tomahawkListAdapter.showContentHeader(getListView(), mArtist, mIsLocal);
+                tomahawkListAdapter.showContentHeader(rootView, getListView(), mArtist, mIsLocal);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
-                ((TomahawkListAdapter) getListAdapter()).updateContentHeader(mArtist, mIsLocal);
+                ((TomahawkListAdapter) getListAdapter()).setListItems(albumsAndTopHits);
+                ((TomahawkListAdapter) getListAdapter()).showContentHeader(rootView, getListView(),
+                        mArtist, mIsLocal);
             }
             getListView().setOnItemClickListener(this);
         } else {
             activity.setTitle(getString(R.string.albumsfragment_title_string));
             if (mIsLocal) {
-                albums.addAll(Album.getLocalAlbums());
+                albumsAndTopHits.addAll(Album.getLocalAlbums());
             } else {
-                albums.addAll(Album.getAlbums());
+                albumsAndTopHits.addAll(Album.getAlbums());
             }
-            List<List<TomahawkListItem>> listArray = new ArrayList<List<TomahawkListItem>>();
-            listArray.add(albums);
             if (getGridAdapter() == null) {
                 TomahawkGridAdapter tomahawkGridAdapter = new TomahawkGridAdapter(activity,
-                        layoutInflater, listArray);
+                        layoutInflater, albumsAndTopHits);
                 setGridAdapter(tomahawkGridAdapter);
             } else {
-                getGridAdapter().setListArray(listArray);
+                getGridAdapter().setListArray(albumsAndTopHits);
             }
             getGridView().setOnItemClickListener(this);
             adaptColumnCount();

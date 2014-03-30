@@ -31,7 +31,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -143,19 +142,6 @@ public class FakePreferenceFragment extends TomahawkListFragment
         super.onResume();
 
         getActivity().setTitle(getString(R.string.fakepreferencefragment_title_string));
-
-        if (getArguments() != null) {
-            if (getArguments().containsKey(AuthenticatorUtils.AUTHENTICATOR_ID)) {
-                int authenticatorId = Integer.valueOf(
-                        getArguments().getString(AuthenticatorUtils.AUTHENTICATOR_ID));
-                if (authenticatorId == AuthenticatorUtils.AUTHENTICATOR_ID_HATCHET
-                        || authenticatorId == AuthenticatorUtils.AUTHENTICATOR_ID_SPOTIFY) {
-                    Bundle args = new Bundle();
-                    args.putInt(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY, authenticatorId);
-                    DialogFragment.instantiate(getActivity(), LoginDialog.class.getName(), args);
-                }
-            }
-        }
     }
 
     /**

@@ -51,11 +51,9 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
 
     private Context mContext;
 
-    private List<List<TomahawkListItem>> mListArray;
+    private List<TomahawkListItem> mListItems;
 
     private LayoutInflater mLayoutInflater;
-
-    private View mRootView;
 
     private boolean mShowCategoryHeaders = false;
 
@@ -75,23 +73,19 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
 
     /**
      * Constructs a new {@link TomahawkListAdapter}.
-     *
-     * @param listArray complete set of lists containing all content which the listview should be
-     *                  populated with
      */
-    public TomahawkListAdapter(Context context, LayoutInflater layoutInflater, View rootView,
-            List<List<TomahawkListItem>> listArray) {
+    public TomahawkListAdapter(Context context, LayoutInflater layoutInflater,
+            List<TomahawkListItem> listItems) {
         mContext = context;
         mLayoutInflater = layoutInflater;
-        mRootView = rootView;
-        mListArray = listArray;
+        mListItems = listItems;
     }
 
     /**
      * Set the complete list of lists
      */
-    public void setListArray(List<List<TomahawkListItem>> listArray) {
-        mListArray = listArray;
+    public void setListItems(List<TomahawkListItem> listItems) {
+        mListItems = listItems;
         notifyDataSetChanged();
     }
 
@@ -116,8 +110,8 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
      *                    determine whether to show the total track count, or just the count of
      *                    local tracks in the contentHeader's textview.
      */
-    public void showContentHeader(StickyListHeadersListView list, TomahawkListItem listItem,
-            boolean isOnlyLocal) {
+    public void showContentHeader(View rootView, StickyListHeadersListView list,
+            TomahawkListItem listItem, boolean isOnlyLocal) {
         mContentHeaderTomahawkListItem = listItem;
         View contentHeaderView;
         boolean landscapeMode = mContext.getResources().getConfiguration().orientation
@@ -132,22 +126,22 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                 list.addHeaderView(contentHeaderView);
             }
         } else {
-            RelativeLayout frame = (RelativeLayout) mRootView
+            RelativeLayout frame = (RelativeLayout) rootView
                     .findViewById(R.id.content_header_image_frame);
             if (frame.findViewById(R.id.content_header) == null) {
                 frame.addView(contentHeaderView);
             }
         }
-        updateContentHeader(listItem, isOnlyLocal);
+        updateContentHeader(rootView, listItem, isOnlyLocal);
     }
 
-    public void updateContentHeader(TomahawkListItem listItem, boolean isOnlyLocal) {
+    public void updateContentHeader(View rootView, TomahawkListItem listItem, boolean isOnlyLocal) {
         SquareHeightRelativeLayout frame = (SquareHeightRelativeLayout)
-                mRootView.findViewById(R.id.content_header_image_frame);
+                rootView.findViewById(R.id.content_header_image_frame);
         if (frame != null) {
             frame.setVisibility(SquareHeightRelativeLayout.VISIBLE);
         }
-        ViewHolder viewHolder = new ViewHolder(mRootView,
+        ViewHolder viewHolder = new ViewHolder(rootView,
                 R.id.tomahawklistadapter_viewtype_contentheader);
         if (listItem instanceof Album) {
             AdapterUtils.fillContentHeader(mContext, viewHolder, (Album) listItem, isOnlyLocal);
@@ -285,12 +279,7 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
      */
     @Override
     public int getCount() {
-        int displayedListArrayItemsCount = 0;
-        int displayedContentHeaderCount = 0;
-        for (List<TomahawkListItem> list : mListArray) {
-            displayedListArrayItemsCount += list.size();
-        }
-        return displayedListArrayItemsCount + displayedContentHeaderCount;
+        return mListItems.size();
     }
 
     /**
@@ -298,17 +287,7 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
      */
     @Override
     public Object getItem(int position) {
-        Object item = null;
-        int offsetCounter = 0;
-        for (int i = 0; i < mListArray.size(); i++) {
-            List<TomahawkListItem> list = mListArray.get(i);
-            if (position - offsetCounter < list.size()) {
-                item = list.get(position - offsetCounter);
-                break;
-            }
-            offsetCounter += list.size();
-        }
-        return item;
+        return mListItems.get(position);
     }
 
     /**
@@ -395,17 +374,24 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
      */
     @Override
     public long getHeaderId(int position) {
-        long result = 0;
-        int sizeSum = 0;
-        for (List<TomahawkListItem> list : mListArray) {
-            sizeSum += list.size();
-            if (position < sizeSum) {
-                break;
-            } else {
-                result++;
-            }
+        Object item = mListItems.get(position);
+        if (item instanceof Album) {
+            return 1;
+        } else if (item instanceof Artist) {
+            return 2;
+        } else if (item instanceof Query) {
+            return 3;
+        } else if (item instanceof SocialAction) {
+            return 4;
+        } else if (item instanceof User) {
+            return 5;
+        } else if (item instanceof Track) {
+            return 6;
+        } else if (item instanceof UserPlaylist) {
+            return 7;
+        } else {
+            return 0;
         }
-        return result;
     }
 
     /**

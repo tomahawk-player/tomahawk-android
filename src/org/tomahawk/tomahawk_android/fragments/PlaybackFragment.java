@@ -28,6 +28,7 @@ import org.tomahawk.tomahawk_android.adapters.PlaybackPagerAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.CreateUserPlaylistDialog;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
+import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 import org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager;
@@ -178,6 +179,7 @@ public class PlaybackFragment extends TomahawkFragment
         refreshPlayPauseButtonState();
         refreshRepeatButtonState();
         refreshShuffleButtonState();
+        updateAdapter();
     }
 
     @Override
@@ -223,21 +225,17 @@ public class PlaybackFragment extends TomahawkFragment
                 return true;
             } else if (item.getItemId() == R.id.action_gotoartist_item) {
                 if (playbackService.getCurrentQuery() != null) {
-                    Bundle bundle = new Bundle();
                     String key = TomahawkUtils
                             .getCacheKey(playbackService.getCurrentQuery().getArtist());
-                    bundle.putString(TOMAHAWK_ARTIST_KEY, key);
-                    activity.getContentViewer()
-                            .replace(AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, false, false);
+                    FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                            AlbumsFragment.class, key, TomahawkFragment.TOMAHAWK_ARTIST_KEY, false);
                 }
             } else if (item.getItemId() == R.id.action_gotoalbum_item) {
                 if (playbackService.getCurrentQuery() != null) {
-                    Bundle bundle = new Bundle();
                     String key = TomahawkUtils
                             .getCacheKey(playbackService.getCurrentQuery().getAlbum());
-                    bundle.putString(TOMAHAWK_ALBUM_KEY, key);
-                    activity.getContentViewer()
-                            .replace(TracksFragment.class, key, TOMAHAWK_ALBUM_KEY, false, false);
+                    FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                            TracksFragment.class, key, TomahawkFragment.TOMAHAWK_ALBUM_KEY, false);
                 }
             } else if (item.getItemId() == R.id.action_love_item) {
                 if (playbackService.getCurrentQuery() != null) {
@@ -329,11 +327,9 @@ public class PlaybackFragment extends TomahawkFragment
         if (tomahawkListAdapter != null) {
             if (playbackService != null && playbackService.getCurrentPlaylist() != null
                     && playbackService.getCurrentPlaylist().getCount() > 0) {
-                List<List<TomahawkListItem>> listArray = new ArrayList<List<TomahawkListItem>>();
                 ArrayList<TomahawkListItem> tracks = new ArrayList<TomahawkListItem>();
                 tracks.addAll(playbackService.getCurrentPlaylist().getQueries());
-                listArray.add(tracks);
-                tomahawkListAdapter.setListArray(listArray);
+                tomahawkListAdapter.setListItems(tracks);
                 tomahawkListAdapter.notifyDataSetChanged();
             }
         } else {
@@ -368,25 +364,21 @@ public class PlaybackFragment extends TomahawkFragment
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         Context context = getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-        View rootView = getActivity().findViewById(android.R.id.content);
         PlaybackService playbackService = activity.getPlaybackService();
         if (playbackService != null && playbackService.getCurrentPlaylist() != null) {
             List<TomahawkListItem> tracks
                     = new ArrayList<TomahawkListItem>();
             tracks.addAll(playbackService.getCurrentPlaylist().getQueries());
-            List<List<TomahawkListItem>> listArray
-                    = new ArrayList<List<TomahawkListItem>>();
-            listArray.add(tracks);
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
-                        layoutInflater, rootView, listArray);
+                        layoutInflater, tracks);
                 tomahawkListAdapter.setShowPlaystate(true);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setHighlightedItem(playbackService.isPlaying(),
                         playbackService.getCurrentPlaylist().getCurrentQueryIndex());
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
+                ((TomahawkListAdapter) getListAdapter()).setListItems(tracks);
             }
 
             for (int i = 0; i < tracks.size(); i++) {

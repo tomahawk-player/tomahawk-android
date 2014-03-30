@@ -18,16 +18,14 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
+import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.Context;
-import android.os.Bundle;
-import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -41,6 +39,13 @@ import java.util.List;
  * se.emilsjolander.stickylistheaders.StickyListHeadersListView}
  */
 public class ArtistsFragment extends TomahawkFragment implements OnItemClickListener {
+
+    @Override
+    public void onResume(){
+        super.onResume();
+
+        updateAdapter();
+    }
 
     /**
      * Called every time an item inside the {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}
@@ -58,27 +63,22 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
         if (position >= 0) {
             Object item = getListAdapter().getItem(position);
             if (getListAdapter().getItem(position) instanceof Artist) {
-                Bundle bundle = new Bundle();
                 String key = TomahawkUtils.getCacheKey((Artist) item);
-                bundle.putString(TOMAHAWK_ARTIST_KEY, key);
-                ((TomahawkMainActivity) getActivity()).getContentViewer()
-                        .replace(AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, mIsLocal, false);
+                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                        AlbumsFragment.class, key, TomahawkFragment.TOMAHAWK_ARTIST_KEY,
+                        mIsLocal);
             }
         }
     }
 
     /**
-     * Called whenever the {@link org.tomahawk.libtomahawk.collection.UserCollection} {@link Loader}
-     * has finished
+     * Update this {@link TomahawkFragment}'s {@link TomahawkListAdapter} content
      */
     @Override
-    public void onLoadFinished(Loader<UserCollection> loader, UserCollection coll) {
-        super.onLoadFinished(loader, coll);
-
+    protected void updateAdapter() {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         Context context = getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-        View rootView = getActivity().findViewById(android.R.id.content);
 
         activity.setTitle(getString(R.string.artistsfragment_title_string));
         List<TomahawkListItem> artists = new ArrayList<TomahawkListItem>();
@@ -87,15 +87,13 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
         } else {
             artists.addAll(Artist.getArtists());
         }
-        List<List<TomahawkListItem>> listArray = new ArrayList<List<TomahawkListItem>>();
-        listArray.add(artists);
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
-                    layoutInflater, rootView, listArray);
+                    layoutInflater, artists);
             tomahawkListAdapter.setShowArtistAsSingleLine(mIsLocal);
             setListAdapter(tomahawkListAdapter);
         } else {
-            ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
+            ((TomahawkListAdapter) getListAdapter()).setListItems(artists);
         }
 
         getListView().setOnItemClickListener(this);

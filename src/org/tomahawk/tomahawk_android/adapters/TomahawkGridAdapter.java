@@ -43,26 +43,23 @@ public class TomahawkGridAdapter extends BaseAdapter {
 
     private LayoutInflater mLayoutInflater;
 
-    private List<List<TomahawkListItem>> mListArray;
+    private List<TomahawkListItem> mListItems;
 
     /**
      * Constructs a new {@link TomahawkGridAdapter}
-     *
-     * @param listArray complete set of lists containing all content which the listview should be
-     *                  populated with
      */
     public TomahawkGridAdapter(Context context, LayoutInflater layoutInflater,
-            List<List<TomahawkListItem>> listArray) {
+            List<TomahawkListItem> listItems) {
         mContext = context;
         mLayoutInflater = layoutInflater;
-        mListArray = listArray;
+        mListItems = listItems;
     }
 
     /**
      * Set the complete list of lists
      */
-    public void setListArray(List<List<TomahawkListItem>> listArray) {
-        mListArray = listArray;
+    public void setListArray(List<TomahawkListItem> listItems) {
+        mListItems = listItems;
         notifyDataSetChanged();
     }
 
@@ -109,11 +106,7 @@ public class TomahawkGridAdapter extends BaseAdapter {
      */
     @Override
     public int getCount() {
-        int displayedListArrayItemsCount = 0;
-        for (List<TomahawkListItem> list : mListArray) {
-            displayedListArrayItemsCount += list.size();
-        }
-        return displayedListArrayItemsCount;
+        return mListItems.size();
     }
 
     /**
@@ -121,16 +114,7 @@ public class TomahawkGridAdapter extends BaseAdapter {
      */
     @Override
     public Object getItem(int position) {
-        Object item = null;
-        int offsetCounter = 0;
-        for (List<TomahawkListItem> list : mListArray) {
-            if (position - offsetCounter < list.size()) {
-                item = list.get(position - offsetCounter);
-                break;
-            }
-            offsetCounter += list.size();
-        }
-        return item;
+        return mListItems.get(position);
     }
 
     /**

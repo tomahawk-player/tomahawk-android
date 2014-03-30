@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
+import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 
 import android.os.Bundle;
 import android.view.View;
@@ -66,18 +67,18 @@ public class UserCollectionFragment extends TomahawkListFragment implements OnIt
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         switch ((int) id) {
             case 0:
-                activity.getContentViewer()
-                        .replace(TracksFragment.class, "", null, true, false);
+                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                        TracksFragment.class, null, null, true);
                 activity.setTitle(getString(R.string.tracksfragment_title_string));
                 break;
             case 1:
-                activity.getContentViewer()
-                        .replace(AlbumsFragment.class, "", null, true, false);
+                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                        AlbumsFragment.class, null, null, true);
                 activity.setTitle(getString(R.string.albumsfragment_title_string));
                 break;
             case 2:
-                activity.getContentViewer()
-                        .replace(ArtistsFragment.class, "", null, true, false);
+                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                        ArtistsFragment.class, null, null, true);
                 activity.setTitle(getString(R.string.artistsfragment_title_string));
                 break;
         }
