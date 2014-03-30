@@ -26,6 +26,7 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -291,8 +292,10 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         ImageButton loveButton = (ImageButton) view.findViewById(R.id.love_button);
         if (query != null) {
             ImageView imageView = (ImageView) view.findViewById(R.id.album_art_image);
-            TomahawkUtils.loadImageIntoImageView(mContext, imageView, query,
-                    Image.IMAGE_SIZE_LARGE);
+            boolean landscapeMode = mContext.getResources().getConfiguration().orientation
+                    == Configuration.ORIENTATION_LANDSCAPE;
+            TomahawkUtils.loadImageIntoImageView(mContext, imageView, query.getImage(),
+                    Image.IMAGE_SIZE_LARGE, landscapeMode);
 
             // Update all relevant TextViews
             if (artistTextView != null) {
