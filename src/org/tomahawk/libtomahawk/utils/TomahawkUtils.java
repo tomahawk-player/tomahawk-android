@@ -3,6 +3,7 @@ package org.tomahawk.libtomahawk.utils;
 import com.google.common.collect.Multimap;
 
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
@@ -444,14 +445,12 @@ public class TomahawkUtils {
      * @param context   the context needed for fetching resources
      * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
      *                  android.graphics.Bitmap}
-     * @param query     the query to get the albumart/artist image's path to load the image from
+     * @param image     the path to load the image from
      * @param width     the width in density independent pixels to scale the image down to
      */
-    public static void loadImageIntoImageView(Context context, ImageView imageView, Query query,
+    public static void loadImageIntoImageView(Context context, ImageView imageView, Image image,
             int width) {
-        if (query != null) {
-            loadImageIntoImageView(context, imageView, query.getImage(), width);
-        }
+        loadImageIntoImageView(context, imageView, image, width, true);
     }
 
     /**
@@ -464,16 +463,25 @@ public class TomahawkUtils {
      * @param width     the width in density independent pixels to scale the image down to
      */
     public static void loadImageIntoImageView(Context context, ImageView imageView, Image image,
-            int width) {
+            int width, boolean fit) {
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
             String imagePath = buildImagePath(context, image, width);
-            Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
+            RequestCreator creator = Picasso.with(context).load(
+                    TomahawkUtils.preparePathForPicasso(imagePath))
                     .placeholder(R.drawable.no_album_art_placeholder)
-                    .error(R.drawable.no_album_art_placeholder).fit().into(imageView);
+                    .error(R.drawable.no_album_art_placeholder);
+            if (fit) {
+                creator.fit();
+            }
+            creator.into(imageView);
         } else {
-            Picasso.with(context).load(R.drawable.no_album_art_placeholder)
+            RequestCreator creator = Picasso.with(context).load(R.drawable.no_album_art_placeholder)
                     .placeholder(R.drawable.no_album_art_placeholder)
-                    .error(R.drawable.no_album_art_placeholder).fit().into(imageView);
+                    .error(R.drawable.no_album_art_placeholder);
+            if (fit) {
+                creator.fit();
+            }
+            creator.into(imageView);
         }
     }
 
