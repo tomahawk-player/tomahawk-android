@@ -29,6 +29,7 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
+import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.Context;
@@ -38,7 +39,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * {@link org.tomahawk.tomahawk_android.fragments.TomahawkFragment} which shows information provided
@@ -53,6 +53,7 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
     @Override
     public void onResume() {
         super.onResume();
+
         if (getArguments() != null) {
             if (getArguments().containsKey(SHOW_DASHBOARD)) {
                 mShowDashboard = getArguments().getBoolean(SHOW_DASHBOARD);
@@ -104,17 +105,19 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
                     }
                 } else if (item instanceof Album) {
                     String key = TomahawkUtils.getCacheKey(item);
-                    activity.getContentViewer()
-                            .replace(TracksFragment.class, key, TOMAHAWK_ALBUM_KEY, false, false);
+                    FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                            TracksFragment.class, key, TomahawkFragment.TOMAHAWK_ALBUM_KEY,
+                            false);
                 } else if (item instanceof Artist) {
                     String key = TomahawkUtils.getCacheKey(item);
-                    activity.getContentViewer()
-                            .replace(AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, false, false);
+                    FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                            AlbumsFragment.class, key, TomahawkFragment.TOMAHAWK_ARTIST_KEY,
+                            false);
                 } else if (item instanceof User) {
                     String key = ((User) item).getId();
-                    activity.getContentViewer()
-                            .replace(SocialActionsFragment.class, key, TOMAHAWK_USER_ID, false,
-                                    false);
+                    FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                            SocialActionsFragment.class, key, TomahawkFragment.TOMAHAWK_USER_ID,
+                            false);
                 }
             }
         }
@@ -137,21 +140,20 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
             }
             TomahawkListAdapter tomahawkListAdapter;
             getActivity().setTitle(mUser.getName());
-            List<List<TomahawkListItem>> listArray = new ArrayList<List<TomahawkListItem>>();
-            listArray.add(socialActions);
             if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(context,
-                        layoutInflater, rootView, listArray);
+                tomahawkListAdapter = new TomahawkListAdapter(context, layoutInflater,
+                        socialActions);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true, false);
                 if (!mShowDashboard) {
-                    tomahawkListAdapter.showContentHeader(getListView(), mUser, mIsLocal);
+                    tomahawkListAdapter.showContentHeader(rootView, getListView(), mUser, mIsLocal);
                 }
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
+                ((TomahawkListAdapter) getListAdapter()).setListItems(socialActions);
                 if (!mShowDashboard) {
-                    ((TomahawkListAdapter) getListAdapter()).updateContentHeader(mUser, mIsLocal);
+                    ((TomahawkListAdapter) getListAdapter()).showContentHeader(rootView,
+                            getListView(), mUser, mIsLocal);
                 }
             }
 

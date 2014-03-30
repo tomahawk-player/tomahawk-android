@@ -30,6 +30,7 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
+import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.Context;
@@ -91,6 +92,7 @@ public class SearchableFragment extends TomahawkFragment
             resolveFullTextQuery(mCurrentQueryString);
             getActivity().setTitle(mCurrentQueryString);
         }
+        updateAdapter();
     }
 
     /**
@@ -135,16 +137,19 @@ public class SearchableFragment extends TomahawkFragment
                 }
             } else if (item instanceof Album) {
                 String key = TomahawkUtils.getCacheKey((Album) item);
-                activity.getContentViewer()
-                        .replace(TracksFragment.class, key, TOMAHAWK_ALBUM_KEY, false, false);
+                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                        TracksFragment.class, key, TomahawkFragment.TOMAHAWK_ALBUM_KEY,
+                        false);
             } else if (item instanceof Artist) {
                 String key = TomahawkUtils.getCacheKey((Artist) item);
-                activity.getContentViewer()
-                        .replace(AlbumsFragment.class, key, TOMAHAWK_ARTIST_KEY, false, false);
+                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                        TracksFragment.class, key, TomahawkFragment.TOMAHAWK_ARTIST_KEY,
+                        false);
             } else if (item instanceof User) {
                 String key = ((User) item).getId();
-                activity.getContentViewer()
-                        .replace(SocialActionsFragment.class, key, TOMAHAWK_USER_ID, false, false);
+                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                        SocialActionsFragment.class, key, TomahawkFragment.TOMAHAWK_USER_ID,
+                        false);
             }
         }
     }
@@ -197,26 +202,15 @@ public class SearchableFragment extends TomahawkFragment
     protected void updateAdapter() {
         Context context = getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-        View rootView = getActivity().findViewById(android.R.id.content);
-        List<List<TomahawkListItem>> listArray
-                = new ArrayList<List<TomahawkListItem>>();
+        ArrayList<TomahawkListItem> listItems = new ArrayList<TomahawkListItem>();
         if (!mShownArtists.isEmpty()) {
-            ArrayList<TomahawkListItem> artistResultList
-                    = new ArrayList<TomahawkListItem>();
-            artistResultList.addAll(mShownArtists);
-            listArray.add(artistResultList);
+            listItems.addAll(mShownArtists);
         }
         if (!mShownAlbums.isEmpty()) {
-            ArrayList<TomahawkListItem> albumResultList
-                    = new ArrayList<TomahawkListItem>();
-            albumResultList.addAll(mShownAlbums);
-            listArray.add(albumResultList);
+            listItems.addAll(mShownAlbums);
         }
         if (!mShownUsers.isEmpty()) {
-            ArrayList<TomahawkListItem> userResultList
-                    = new ArrayList<TomahawkListItem>();
-            userResultList.addAll(mShownUsers);
-            listArray.add(userResultList);
+            listItems.addAll(mShownUsers);
         }
         if (!mShownQueries.isEmpty()) {
             int precedingItemCount = mShownAlbums.size() + mShownArtists.size()
@@ -224,19 +218,16 @@ public class SearchableFragment extends TomahawkFragment
             for (int i = 0; i < mShownQueries.size(); i++) {
                 mQueryPositions.put(i, i + precedingItemCount);
             }
-            ArrayList<TomahawkListItem> trackResultList
-                    = new ArrayList<TomahawkListItem>();
-            trackResultList.addAll(mShownQueries);
-            listArray.add(trackResultList);
+            listItems.addAll(mShownQueries);
         }
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
-                    layoutInflater, rootView, listArray);
+                    layoutInflater, listItems);
             tomahawkListAdapter.setShowCategoryHeaders(true, false);
             tomahawkListAdapter.setShowResolvedBy(true);
             setListAdapter(tomahawkListAdapter);
         } else {
-            ((TomahawkListAdapter) getListAdapter()).setListArray(listArray);
+            ((TomahawkListAdapter) getListAdapter()).setListItems(listItems);
         }
         getListView().setOnItemClickListener(this);
 

@@ -32,7 +32,7 @@ import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.fragments.TracksFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
-import org.tomahawk.tomahawk_android.utils.ContentViewer;
+import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.app.AlertDialog;
@@ -239,8 +239,8 @@ public class FakeContextMenuDialog extends DialogFragment {
                     playbackService.setCurrentPlaylist(playlist);
                     playbackService.start();
                 }
-                ((TomahawkMainActivity) getActivity()).getContentViewer()
-                        .showHub(ContentViewer.HUB_ID_PLAYBACK);
+                FragmentUtils.showHub(getActivity(), getActivity().getSupportFragmentManager(),
+                        FragmentUtils.HUB_ID_PLAYBACK);
             }
         } else if (menuItemTitle
                 .equals(getString(R.string.fake_context_menu_playaftercurrenttrack))) {
@@ -270,21 +270,16 @@ public class FakeContextMenuDialog extends DialogFragment {
             Bundle args = new Bundle();
             args.putStringArrayList(TomahawkFragment.TOMAHAWK_QUERYKEYSARRAY_KEY, queryKeys);
             dialog.setArguments(args);
-            dialog.show(getFragmentManager(), null);
+            dialog.show(getActivity().getSupportFragmentManager(), null);
         } else if (menuItemTitle.equals(getString(R.string.menu_item_go_to_album))) {
-            Bundle bundle = new Bundle();
             String key = TomahawkUtils.getCacheKey(mTomahawkListItem.getAlbum());
-            bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY, key);
-            ((TomahawkMainActivity) getActivity()).getContentViewer()
-                    .replace(TracksFragment.class, key, TomahawkFragment.TOMAHAWK_ALBUM_KEY, false,
-                            false);
+            FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                    TracksFragment.class, key, TomahawkFragment.TOMAHAWK_ALBUM_KEY, false);
         } else if (menuItemTitle.equals(getActivity().getString(R.string.menu_item_go_to_artist))) {
-            Bundle bundle = new Bundle();
             String key = TomahawkUtils.getCacheKey(mTomahawkListItem.getArtist());
-            bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, key);
-            ((TomahawkMainActivity) getActivity()).getContentViewer()
-                    .replace(AlbumsFragment.class, key, TomahawkFragment.TOMAHAWK_ARTIST_KEY, false,
-                            false);
+            FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                    AlbumsFragment.class, key,
+                    TomahawkFragment.TOMAHAWK_ARTIST_KEY, false);
         } else if (menuItemTitle.equals(getString(R.string.fake_context_menu_love_track))
                 || menuItemTitle.equals(getString(R.string.fake_context_menu_unlove_track))) {
             UserCollection.getInstance().toggleLovedItem((Query) mTomahawkListItem);

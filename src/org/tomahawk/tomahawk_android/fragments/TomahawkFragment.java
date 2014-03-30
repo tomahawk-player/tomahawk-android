@@ -20,7 +20,6 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.CollectionLoader;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
@@ -47,8 +46,6 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.util.SparseIntArray;
 import android.view.View;
@@ -71,8 +68,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
  * to those classes, related to displaying {@link TomahawkListItem}s in whichever needed way.
  */
 public class TomahawkFragment extends TomahawkListFragment
-        implements LoaderManager.LoaderCallbacks<UserCollection>,
-        AdapterView.OnItemLongClickListener, AbsListView.OnScrollListener,
+        implements AdapterView.OnItemLongClickListener, AbsListView.OnScrollListener,
         View.OnLongClickListener {
 
     public static final String TOMAHAWK_ALBUM_KEY
@@ -234,7 +230,8 @@ public class TomahawkFragment extends TomahawkListFragment
                     && !TextUtils.isEmpty(getArguments().getString(TOMAHAWK_ALBUM_KEY))) {
                 mAlbum = Album.getAlbumByKey(getArguments().getString(TOMAHAWK_ALBUM_KEY));
                 if (mAlbum == null) {
-                    activity.getContentViewer().back();
+                    getActivity().getSupportFragmentManager().beginTransaction().remove(this)
+                            .commit();
                 }
                 mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mAlbum));
             }
@@ -243,7 +240,8 @@ public class TomahawkFragment extends TomahawkListFragment
                 mUserPlaylist = UserPlaylist
                         .getUserPlaylistById(getArguments().getString(TOMAHAWK_USERPLAYLIST_KEY));
                 if (mUserPlaylist == null) {
-                    activity.getContentViewer().back();
+                    getActivity().getSupportFragmentManager().beginTransaction().remove(this)
+                            .commit();
                 } else if (mUserPlaylist.getContentHeaderArtists().size() == 0) {
                     final HashMap<Artist, Integer> countMap = new HashMap<Artist, Integer>();
                     for (Query query : mUserPlaylist.getQueries()) {
@@ -280,7 +278,8 @@ public class TomahawkFragment extends TomahawkListFragment
                     .isEmpty(getArguments().getString(TOMAHAWK_ARTIST_KEY))) {
                 mArtist = Artist.getArtistByKey(getArguments().getString(TOMAHAWK_ARTIST_KEY));
                 if (mArtist == null) {
-                    activity.getContentViewer().back();
+                    getActivity().getSupportFragmentManager().beginTransaction().remove(this)
+                            .commit();
                 }
                 ArrayList<String> requestIds = InfoSystem.getInstance().resolve(mArtist, false);
                 for (String requestId : requestIds) {
@@ -291,7 +290,8 @@ public class TomahawkFragment extends TomahawkListFragment
                     .isEmpty(getArguments().getString(TOMAHAWK_USER_ID))) {
                 mUser = User.getUserById(getArguments().getString(TOMAHAWK_USER_ID));
                 if (mUser == null) {
-                    activity.getContentViewer().back();
+                    getActivity().getSupportFragmentManager().beginTransaction().remove(this)
+                            .commit();
                 }
                 mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mUser));
             }
@@ -306,9 +306,6 @@ public class TomahawkFragment extends TomahawkListFragment
 
         // Adapt to current orientation. Show different count of columns in the GridView
         adaptColumnCount();
-
-        activity.getSupportLoaderManager().destroyLoader(getId());
-        activity.getSupportLoaderManager().initLoader(getId(), null, this);
 
         // Initialize and register Receiver
         if (mTomahawkFragmentReceiver == null) {
@@ -586,30 +583,15 @@ public class TomahawkFragment extends TomahawkListFragment
      * Called when a Collection has been updated.
      */
     protected void onCollectionUpdated() {
-        getActivity().getSupportLoaderManager().restartLoader(getId(), null, this);
         if (mUserPlaylist != null) {
             mUserPlaylist = UserPlaylist.getUserPlaylistById(mUserPlaylist.getId());
             if (mUserPlaylist == null) {
-                ((TomahawkMainActivity) getActivity()).getContentViewer().back();
+                getActivity().getSupportFragmentManager().beginTransaction().remove(this)
+                        .commit();
             }
         }
         updateAdapter();
         resolveVisibleQueries();
-    }
-
-    @Override
-    public Loader<UserCollection> onCreateLoader(int id, Bundle args) {
-        return new CollectionLoader(getActivity(), UserCollection.getInstance());
-    }
-
-    @Override
-    public void onLoadFinished(Loader<UserCollection> loader, UserCollection data) {
-
-    }
-
-    @Override
-    public void onLoaderReset(Loader<UserCollection> loader) {
-
     }
 
     @Override
