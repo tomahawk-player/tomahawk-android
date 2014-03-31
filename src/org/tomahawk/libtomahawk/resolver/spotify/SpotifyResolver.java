@@ -29,6 +29,8 @@ import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.services.SpotifyService;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
+import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -177,28 +179,35 @@ public class SpotifyResolver implements Resolver {
      * Called by {@link LibSpotifyWrapper}, which has been called by libspotify. Signals that the
      * {@link org.tomahawk.libtomahawk.resolver.Query} with the given query key has been resolved.
      */
-    public void onResolved(SpotifyResults spotifyResults) {
-        // report our results to the pipeline
-        if (spotifyResults != null && !spotifyResults.results.isEmpty()) {
-            ArrayList<Result> results = new ArrayList<Result>();
-            for (SpotifyResult spotifyResult : spotifyResults.results) {
-                Artist artist = Artist.get(spotifyResult.artistName);
-                Album album = Album.get(spotifyResult.albumName, artist);
-                album.setFirstYear("" + spotifyResult.albumYear);
-                album.setLastYear("" + spotifyResult.albumYear);
-                Track track = Track.get(spotifyResult.trackName, album, artist);
-                track.setDiscNumber(spotifyResult.trackDiscnumber);
-                track.setDuration(spotifyResult.trackDuration);
-                track.setAlbumPos(spotifyResult.trackIndex);
-                Result result = new Result(spotifyResult.trackUri, track);
-                result.setTrack(track);
-                result.setArtist(artist);
-                result.setAlbum(album);
-                result.setResolvedBy(this);
-                results.add(result);
-            }
-            PipeLine.getInstance().reportResults(spotifyResults.qid, results, mId);
-        }
+    public void onResolved(final SpotifyResults spotifyResults) {
+        ThreadManager.getInstance().executePipeLineRunnable(
+                new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_REPORTING) {
+                    @Override
+                    public void run() {
+                        // report our results to the pipeline
+                        if (spotifyResults != null && !spotifyResults.results.isEmpty()) {
+                            ArrayList<Result> results = new ArrayList<Result>();
+                            for (SpotifyResult spotifyResult : spotifyResults.results) {
+                                Artist artist = Artist.get(spotifyResult.artistName);
+                                Album album = Album.get(spotifyResult.albumName, artist);
+                                album.setFirstYear("" + spotifyResult.albumYear);
+                                album.setLastYear("" + spotifyResult.albumYear);
+                                Track track = Track.get(spotifyResult.trackName, album, artist);
+                                track.setDiscNumber(spotifyResult.trackDiscnumber);
+                                track.setDuration(spotifyResult.trackDuration);
+                                track.setAlbumPos(spotifyResult.trackIndex);
+                                Result result = new Result(spotifyResult.trackUri, track);
+                                result.setTrack(track);
+                                result.setArtist(artist);
+                                result.setAlbum(album);
+                                result.setResolvedBy(SpotifyResolver.this);
+                                results.add(result);
+                            }
+                            PipeLine.getInstance().reportResults(spotifyResults.qid, results, mId);
+                        }
+                    }
+                }
+        );
     }
 
     /**
