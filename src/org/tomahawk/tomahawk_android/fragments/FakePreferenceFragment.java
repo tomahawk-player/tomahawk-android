@@ -181,7 +181,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
                     LoginDialog dialog = new LoginDialog();
                     Bundle args = new Bundle();
                     args.putInt(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY,
-                            AuthenticatorUtils.AUTHENTICATOR_ID_SPOTIFY);
+                            AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY);
                     dialog.setArguments(args);
                     dialog.show(getFragmentManager(), null);
                 } else if (((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position))
@@ -189,7 +189,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
                     LoginDialog dialog = new LoginDialog();
                     Bundle args = new Bundle();
                     args.putInt(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY,
-                            AuthenticatorUtils.AUTHENTICATOR_ID_HATCHET);
+                            AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
                     dialog.setArguments(args);
                     dialog.show(getFragmentManager(), null);
                 }
@@ -214,10 +214,10 @@ public class FakePreferenceFragment extends TomahawkListFragment
     public void onLoggedInOut(int authenticatorId, boolean loggedIn) {
         for (FakePreferenceGroup fakePreferenceGroup : mFakePreferenceGroups) {
             FakePreferenceGroup.FakePreference fakePreference = null;
-            if (authenticatorId == AuthenticatorUtils.AUTHENTICATOR_ID_SPOTIFY) {
+            if (authenticatorId == AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY) {
                 fakePreference = fakePreferenceGroup.getFakePreferenceByKey(
                         FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN);
-            } else if (authenticatorId == AuthenticatorUtils.AUTHENTICATOR_ID_HATCHET) {
+            } else if (authenticatorId == AuthenticatorManager.AUTHENTICATOR_ID_HATCHET) {
                 fakePreference = fakePreferenceGroup.getFakePreferenceByKey(
                         FAKEPREFERENCEFRAGMENT_KEY_HATCHETLOGGEDIN);
             }
@@ -238,16 +238,16 @@ public class FakePreferenceFragment extends TomahawkListFragment
         if (AuthenticatorUtils.isLoggedIn(getActivity(),
                 AuthenticatorUtils.AUTHENTICATOR_NAME_SPOTIFY,
                 AuthenticatorUtils.AUTH_TOKEN_TYPE_SPOTIFY)) {
-            onLoggedInOut(AuthenticatorUtils.AUTHENTICATOR_ID_SPOTIFY, true);
+            onLoggedInOut(AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY, true);
         } else {
-            onLoggedInOut(AuthenticatorUtils.AUTHENTICATOR_ID_SPOTIFY, false);
+            onLoggedInOut(AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY, false);
         }
         if (AuthenticatorUtils.isLoggedIn(getActivity(),
                 AuthenticatorUtils.AUTHENTICATOR_NAME_HATCHET,
                 AuthenticatorUtils.AUTH_TOKEN_TYPE_HATCHET)) {
-            onLoggedInOut(AuthenticatorUtils.AUTHENTICATOR_ID_HATCHET, true);
+            onLoggedInOut(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET, true);
         } else {
-            onLoggedInOut(AuthenticatorUtils.AUTHENTICATOR_ID_HATCHET, false);
+            onLoggedInOut(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET, false);
         }
     }
 }

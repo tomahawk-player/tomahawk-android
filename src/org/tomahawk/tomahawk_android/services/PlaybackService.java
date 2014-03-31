@@ -22,7 +22,7 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
-import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
+import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.Track;
@@ -32,6 +32,8 @@ import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
+import org.tomahawk.libtomahawk.resolver.spotify.SpotifyServiceUtils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -61,6 +63,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.Messenger;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
@@ -139,6 +142,42 @@ public class PlaybackService extends Service {
     private Bitmap mNotificationBitmap = null;
 
     private Image mNotificationBitmapImage = null;
+
+    private boolean mSpotifyIsInitialized;
+
+    private int mSpotifyCurrentPosition = 0;
+
+    private Messenger mToSpotifyMessenger = null;
+
+    private final Messenger mFromSpotifyMessenger = new Messenger(new FromSpotifyHandler());
+
+    /**
+     * Handler of incoming messages from the SpotifyService's messenger.
+     */
+    private class FromSpotifyHandler extends Handler {
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case SpotifyService.MSG_ONINIT:
+                    mSpotifyIsInitialized = true;
+                    mTomahawkMediaPlayer.setSpotifyIsInitalized(mSpotifyIsInitialized);
+                    break;
+                case SpotifyService.MSG_ONPREPARED:
+                    mTomahawkMediaPlayer.onPrepared(null);
+                    break;
+                case SpotifyService.MSG_ONPLAYERENDOFTRACK:
+                    mTomahawkMediaPlayer.onCompletion(null);
+                    break;
+                case SpotifyService.MSG_ONPLAYERPOSITIONCHANGED:
+                    mSpotifyCurrentPosition = msg.arg1;
+                    mTomahawkMediaPlayer.setSpotifyCurrentPosition(mSpotifyCurrentPosition);
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
+        }
+    }
 
     private Target mTarget = new Target() {
         @Override
@@ -237,6 +276,34 @@ public class PlaybackService extends Service {
         }
     }
 
+    private class SpotifyServiceConnectionListener
+            implements SpotifyService.SpotifyServiceConnection.SpotifyServiceConnectionListener {
+
+        @Override
+        public void setToSpotifyMessenger(Messenger messenger) {
+            mToSpotifyMessenger = messenger;
+            SpotifyResolver spotifyResolver = (SpotifyResolver) PipeLine.getInstance()
+                    .getResolver(PipeLine.RESOLVER_ID_SPOTIFY);
+            spotifyResolver.setToSpotifyMessenger(mToSpotifyMessenger);
+            SpotifyAuthenticatorUtils authUtils = (SpotifyAuthenticatorUtils)
+                    AuthenticatorManager.getInstance()
+                            .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY);
+            authUtils.setToSpotifyMessenger(mToSpotifyMessenger);
+            mTomahawkMediaPlayer.setToSpotifyMessenger(mToSpotifyMessenger);
+            SpotifyServiceUtils.registerMsg(mToSpotifyMessenger, mFromSpotifyMessenger);
+            //Now that every client has its messenger reference and registered itself to the
+            //SpotifyService's messenger, we can initialize libspotify through the wrapper
+            if (mToSpotifyMessenger != null) {
+                SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_INIT);
+            } else {
+                mSpotifyIsInitialized = false;
+                mTomahawkMediaPlayer.setSpotifyIsInitalized(mSpotifyIsInitialized);
+                mSpotifyCurrentPosition = 0;
+                mTomahawkMediaPlayer.setSpotifyCurrentPosition(mSpotifyCurrentPosition);
+            }
+        }
+    }
+
     /**
      * Handles incoming broadcasts
      */
@@ -317,6 +384,10 @@ public class PlaybackService extends Service {
     @Override
     public void onCreate() {
         mHandler = new Handler();
+
+        bindService(new Intent(this, SpotifyService.class),
+                new SpotifyService.SpotifyServiceConnection(new SpotifyServiceConnectionListener()),
+                Context.BIND_AUTO_CREATE);
 
         // Initialize PhoneCallListener
         TelephonyManager telephonyManager = (TelephonyManager) getSystemService(
@@ -401,7 +472,7 @@ public class PlaybackService extends Service {
         if (isPlaying()) {
             InfoSystem.getInstance().sendNowPlayingPostStruct(
                     AuthenticatorManager.getInstance().getAuthenticatorUtils(
-                            AuthenticatorUtils.AUTHENTICATOR_ID_HATCHET),
+                            AuthenticatorManager.AUTHENTICATOR_ID_HATCHET),
                     getCurrentQuery()
             );
         }
@@ -450,6 +521,9 @@ public class PlaybackService extends Service {
      */
     public void initMediaPlayer() {
         mTomahawkMediaPlayer = new TomahawkMediaPlayer(this);
+        mTomahawkMediaPlayer.setSpotifyIsInitalized(mSpotifyIsInitialized);
+        mTomahawkMediaPlayer.setSpotifyCurrentPosition(mSpotifyCurrentPosition);
+        mTomahawkMediaPlayer.setToSpotifyMessenger(mToSpotifyMessenger);
     }
 
     /**
@@ -576,7 +650,7 @@ public class PlaybackService extends Service {
                         if (mTomahawkMediaPlayer.isPlaying()) {
                             InfoSystem.getInstance().sendPlaybackEntryPostStruct(
                                     AuthenticatorManager.getInstance().getAuthenticatorUtils(
-                                            AuthenticatorUtils.AUTHENTICATOR_ID_HATCHET)
+                                            AuthenticatorManager.AUTHENTICATOR_ID_HATCHET)
                             );
                             mTomahawkMediaPlayer.pause();
                         }

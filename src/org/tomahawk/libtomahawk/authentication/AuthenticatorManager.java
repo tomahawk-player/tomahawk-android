@@ -27,6 +27,10 @@ import android.util.SparseArray;
 
 public class AuthenticatorManager {
 
+    public static final int AUTHENTICATOR_ID_SPOTIFY = 0;
+
+    public static final int AUTHENTICATOR_ID_HATCHET = 1;
+
     private static AuthenticatorManager instance;
 
     private Context mContext;
@@ -58,9 +62,9 @@ public class AuthenticatorManager {
 
     public void setContext(Context context) {
         mContext = context;
-        mAuthenticatorUtils.put(AuthenticatorUtils.AUTHENTICATOR_ID_SPOTIFY,
+        mAuthenticatorUtils.put(AUTHENTICATOR_ID_SPOTIFY,
                 new SpotifyAuthenticatorUtils(context));
-        mAuthenticatorUtils.put(AuthenticatorUtils.AUTHENTICATOR_ID_HATCHET,
+        mAuthenticatorUtils.put(AUTHENTICATOR_ID_HATCHET,
                 new HatchetAuthenticatorUtils(context));
     }
 
@@ -100,8 +104,7 @@ public class AuthenticatorManager {
         NetworkInfo netInfo = conMan.getActiveNetworkInfo();
         if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
             Log.d("WifiReceiver", "Have Wifi Connection");
-            ((SpotifyAuthenticatorUtils) mAuthenticatorUtils
-                    .get(AuthenticatorUtils.AUTHENTICATOR_ID_SPOTIFY))
+            ((SpotifyAuthenticatorUtils) mAuthenticatorUtils.get(AUTHENTICATOR_ID_SPOTIFY))
                     .setBitrate(SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE_MODE_HIGH);
         } else {
             Log.d("WifiReceiver", "Don't have Wifi Connection");
@@ -110,8 +113,7 @@ public class AuthenticatorManager {
             int prefbitrate = preferences.getInt(
                     SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE,
                     SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE_MODE_MEDIUM);
-            ((SpotifyAuthenticatorUtils) mAuthenticatorUtils
-                    .get(AuthenticatorUtils.AUTHENTICATOR_ID_SPOTIFY))
+            ((SpotifyAuthenticatorUtils) mAuthenticatorUtils.get(AUTHENTICATOR_ID_SPOTIFY))
                     .setBitrate(prefbitrate);
         }
     }

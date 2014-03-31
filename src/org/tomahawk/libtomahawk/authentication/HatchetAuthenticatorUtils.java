@@ -138,7 +138,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
             });
             mIsAuthenticating = false;
             AuthenticatorManager.getInstance()
-                    .onLoggedInOut(AuthenticatorUtils.AUTHENTICATOR_ID_HATCHET, false);
+                    .onLoggedInOut(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET, false);
         }
 
         @Override
@@ -146,7 +146,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
             Log.d(TAG, "TomahawkService: Hatchet user logged out");
             mIsAuthenticating = false;
             AuthenticatorManager.getInstance().onLoggedInOut(
-                    AuthenticatorUtils.AUTHENTICATOR_ID_HATCHET, false);
+                    AuthenticatorManager.AUTHENTICATOR_ID_HATCHET, false);
         }
 
         @Override
@@ -180,7 +180,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                     null);
             mIsAuthenticating = false;
             AuthenticatorManager.getInstance().onLoggedInOut(
-                    AuthenticatorUtils.AUTHENTICATOR_ID_HATCHET, true);
+                    AuthenticatorManager.AUTHENTICATOR_ID_HATCHET, true);
         }
     };
 

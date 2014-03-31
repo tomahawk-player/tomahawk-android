@@ -33,7 +33,6 @@ import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
-import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -177,7 +176,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                         intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
                 if (!noConnectivity) {
                     AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
-                            .getAuthenticatorUtils(AuthenticatorUtils.AUTHENTICATOR_ID_HATCHET);
+                            .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
                     InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
                     UserCollection.getInstance().fetchHatchetUserPlaylists();
                 }
@@ -244,14 +243,6 @@ public class TomahawkMainActivity extends ActionBarActivity
         setContentView(R.layout.tomahawk_main_activity);
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-
-        // Load the LibSpotifyWrapper libaries
-        System.loadLibrary("spotify");
-        System.loadLibrary("spotifywrapper");
-
-        // Initialize LibSpotifyWrapper
-        LibSpotifyWrapper
-                .init(LibSpotifyWrapper.class.getClassLoader(), getFilesDir() + "/Spotify");
 
         if (!AuthenticatorManager.getInstance().isInitialized()) {
             AuthenticatorManager.getInstance().setContext(getContext());

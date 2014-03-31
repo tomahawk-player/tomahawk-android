@@ -18,11 +18,13 @@
 package org.tomahawk.tomahawk_android.utils;
 
 import org.tomahawk.libtomahawk.collection.Track;
-import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
+import org.tomahawk.libtomahawk.resolver.spotify.SpotifyServiceUtils;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
+import org.tomahawk.tomahawk_android.services.SpotifyService;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Messenger;
 
 import java.io.IOException;
 
@@ -45,6 +47,12 @@ public class TomahawkMediaPlayer
 
     private boolean mIsPlaying;
 
+    private Messenger mToSpotifyMessenger = null;
+
+    private int mSpotifyCurrentPosition = 0;
+
+    private boolean mSpotifyIsInitalized;
+
     /**
      * Construct a new {@link TomahawkMediaPlayer}
      */
@@ -55,6 +63,10 @@ public class TomahawkMediaPlayer
         mMediaPlayer.setOnPreparedListener(this);
         mMediaPlayer.setOnErrorListener(this);
         mMediaPlayer.setOnCompletionListener(this);
+    }
+
+    public void setToSpotifyMessenger(Messenger toSpotifyMessenger) {
+        mToSpotifyMessenger = toSpotifyMessenger;
     }
 
     @Override
@@ -73,6 +85,14 @@ public class TomahawkMediaPlayer
         mPlaybackService.onCompletion(this);
     }
 
+    public void setSpotifyCurrentPosition(int position) {
+        mSpotifyCurrentPosition = position;
+    }
+
+    public void setSpotifyIsInitalized(boolean spotifyIsInitalized) {
+        mSpotifyIsInitalized = spotifyIsInitalized;
+    }
+
     /**
      * @return the current track position
      */
@@ -80,7 +100,7 @@ public class TomahawkMediaPlayer
         if (mUseMediaPlayer) {
             return mMediaPlayer.getCurrentPosition();
         } else {
-            return LibSpotifyWrapper.getCurrentPosition();
+            return mSpotifyCurrentPosition;
         }
     }
 
@@ -109,7 +129,9 @@ public class TomahawkMediaPlayer
                 mMediaPlayer.seekTo(0);
             }
         } else {
-            LibSpotifyWrapper.play();
+            if (mSpotifyIsInitalized) {
+                SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PLAY);
+            }
         }
     }
 
@@ -121,7 +143,9 @@ public class TomahawkMediaPlayer
         if (mUseMediaPlayer) {
             mMediaPlayer.pause();
         } else {
-            LibSpotifyWrapper.pause();
+            if (mSpotifyIsInitalized) {
+                SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PAUSE);
+            }
         }
     }
 
@@ -133,7 +157,9 @@ public class TomahawkMediaPlayer
         if (mUseMediaPlayer) {
             mMediaPlayer.stop();
         } else {
-            LibSpotifyWrapper.pause();
+            if (mSpotifyIsInitalized) {
+                SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PAUSE);
+            }
         }
     }
 
@@ -144,7 +170,9 @@ public class TomahawkMediaPlayer
         if (mUseMediaPlayer) {
             mMediaPlayer.seekTo(msec);
         } else {
-            LibSpotifyWrapper.seek(msec);
+            if (mSpotifyIsInitalized) {
+                SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_SEEK, msec);
+            }
         }
     }
 
@@ -163,10 +191,14 @@ public class TomahawkMediaPlayer
                 mMediaPlayer.stop();
             }
             mMediaPlayer.reset();
-            LibSpotifyWrapper.prepare(url, this);
+            if (mSpotifyIsInitalized) {
+                SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PREPARE, url);
+            }
         } else {
             mUseMediaPlayer = true;
-            LibSpotifyWrapper.pause();
+            if (mSpotifyIsInitalized) {
+                SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PAUSE);
+            }
             mMediaPlayer.setDataSource(url);
             mMediaPlayer.prepare();
         }

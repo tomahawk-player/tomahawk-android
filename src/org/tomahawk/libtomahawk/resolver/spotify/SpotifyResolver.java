@@ -17,20 +17,28 @@
  */
 package org.tomahawk.libtomahawk.resolver.spotify;
 
+import org.codehaus.jackson.map.ObjectMapper;
+import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Track;
+import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.utils.ThreadManager;
+import org.tomahawk.tomahawk_android.services.SpotifyService;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Messenger;
 import android.util.Log;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A {@link Resolver} which resolves {@link org.tomahawk.libtomahawk.collection.Track}s via
@@ -40,22 +48,53 @@ public class SpotifyResolver implements Resolver {
 
     private final static String TAG = SpotifyResolver.class.getName();
 
+    private Messenger mToSpotifyMessenger = null;
+
+    private final Messenger mFromSpotifyMessenger = new Messenger(new FromSpotifyHandler());
+
+    private ObjectMapper mObjectMapper = InfoSystemUtils.constructObjectMapper();
+
     private int mId;
 
     private Drawable mIcon;
 
-    private int mWeight;
+    private int mWeight = 90;
 
-    private boolean mReady;
+    private boolean mReady = true;
 
     private boolean mAuthenticated;
 
-    private boolean mStopped;
+    private boolean mInitialized;
 
-    private ConcurrentHashMap<String, Query> mWaitingQueries
-            = new ConcurrentHashMap<String, Query>();
+    /**
+     * Handler of incoming messages from the SpotifyService's messenger.
+     */
+    private class FromSpotifyHandler extends Handler {
 
-    private static int SPOTIFY_RESOLVER_WORKER_COUNT = 10;
+        @Override
+        public void handleMessage(Message msg) {
+            try {
+                switch (msg.what) {
+                    case SpotifyService.MSG_ONINIT:
+                        mInitialized = true;
+                        break;
+                    case SpotifyService.MSG_ONRESOLVED:
+                        SpotifyResults spotifyResults = mObjectMapper
+                                .readValue(msg.getData().getString(SpotifyService.STRING_KEY),
+                                        SpotifyResults.class);
+                        onResolved(spotifyResults);
+                        break;
+                    case SpotifyService.MSG_ONCREDBLOBUPDATED:
+                        mAuthenticated = true;
+                        break;
+                    default:
+                        super.handleMessage(msg);
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "handleMessage: " + e.getClass() + ": " + e.getLocalizedMessage());
+            }
+        }
+    }
 
     /**
      * Construct a new {@link SpotifyResolver}
@@ -65,10 +104,14 @@ public class SpotifyResolver implements Resolver {
     public SpotifyResolver(int id, Context context) {
         mId = id;
         mIcon = context.getResources().getDrawable(R.drawable.spotify_icon);
-        mWeight = 90;
-        mReady = true;
         PipeLine.getInstance().onResolverReady();
-        mStopped = true;
+    }
+
+    public void setToSpotifyMessenger(Messenger toSpotifyMessenger) {
+        mToSpotifyMessenger = toSpotifyMessenger;
+        if (mToSpotifyMessenger != null) {
+            SpotifyServiceUtils.registerMsg(mToSpotifyMessenger, mFromSpotifyMessenger);
+        }
     }
 
     /**
@@ -76,7 +119,7 @@ public class SpotifyResolver implements Resolver {
      */
     @Override
     public boolean isResolving() {
-        return mReady && mAuthenticated && !mStopped;
+        return mReady && mAuthenticated && mInitialized;
     }
 
     /**
@@ -94,16 +137,24 @@ public class SpotifyResolver implements Resolver {
      */
     @Override
     public boolean resolve(Query query) {
-        mStopped = false;
-        if (mAuthenticated) {
-            String queryKey = TomahawkUtils.getCacheKey(query);
-            if (mWaitingQueries.size() >= SPOTIFY_RESOLVER_WORKER_COUNT) {
-                mWaitingQueries.put(queryKey, query);
-            } else {
-                LibSpotifyWrapper.resolve(queryKey, query, this);
+        if (mToSpotifyMessenger != null && mAuthenticated && mInitialized) {
+            try {
+                SpotifyQuery spotifyQuery = new SpotifyQuery();
+                spotifyQuery.queryKey = TomahawkUtils.getCacheKey(query);
+                if (query.isFullTextQuery()) {
+                    spotifyQuery.queryString = query.getFullTextQuery();
+                } else {
+                    spotifyQuery.queryString = query.getArtist().getName() + " " + query.getName();
+                }
+                String jsonString = mObjectMapper.writeValueAsString(spotifyQuery);
+                SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_RESOLVE,
+                        jsonString);
+            } catch (IOException e) {
+                Log.e(TAG, "SpotifyResolver: " + e.getClass() + ": " + e.getLocalizedMessage());
             }
+            return true;
         }
-        return mAuthenticated;
+        return false;
     }
 
     /**
@@ -126,17 +177,28 @@ public class SpotifyResolver implements Resolver {
      * Called by {@link LibSpotifyWrapper}, which has been called by libspotify. Signals that the
      * {@link org.tomahawk.libtomahawk.resolver.Query} with the given query key has been resolved.
      */
-    public void onResolved(String queryKey, ArrayList<Result> results) {
-        mStopped = true;
-        mWaitingQueries.remove(queryKey);
+    public void onResolved(SpotifyResults spotifyResults) {
         // report our results to the pipeline
-        if (results != null && !results.isEmpty()) {
-            PipeLine.getInstance().reportResults(queryKey, results, mId);
+        if (spotifyResults != null && !spotifyResults.results.isEmpty()) {
+            ArrayList<Result> results = new ArrayList<Result>();
+            for (SpotifyResult spotifyResult : spotifyResults.results) {
+                Artist artist = Artist.get(spotifyResult.artistName);
+                Album album = Album.get(spotifyResult.albumName, artist);
+                album.setFirstYear("" + spotifyResult.albumYear);
+                album.setLastYear("" + spotifyResult.albumYear);
+                Track track = Track.get(spotifyResult.trackName, album, artist);
+                track.setDiscNumber(spotifyResult.trackDiscnumber);
+                track.setDuration(spotifyResult.trackDuration);
+                track.setAlbumPos(spotifyResult.trackIndex);
+                Result result = new Result(spotifyResult.trackUri, track);
+                result.setTrack(track);
+                result.setArtist(artist);
+                result.setAlbum(album);
+                result.setResolvedBy(this);
+                results.add(result);
+            }
+            PipeLine.getInstance().reportResults(spotifyResults.qid, results, mId);
         }
-    }
-
-    public void onError(String message) {
-        Log.d(TAG, "Spotify encountered an error during the resolving process: '" + message + "'");
     }
 
     /**
@@ -144,13 +206,6 @@ public class SpotifyResolver implements Resolver {
      */
     @Override
     public boolean isReady() {
-        return mReady;
-    }
-
-    /**
-     * Set whether or not this {@link Resolver} is authenticated
-     */
-    public void setAuthenticated(boolean authenticated) {
-        mAuthenticated = authenticated;
+        return mReady && mInitialized;
     }
 }
