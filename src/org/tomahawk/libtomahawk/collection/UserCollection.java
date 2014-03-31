@@ -298,7 +298,7 @@ public class UserCollection {
         DatabaseHelper.getInstance().setLovedItem(query, doSweetSweetLovin);
         mContext.sendBroadcast(new Intent(COLLECTION_UPDATED));
         AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(AuthenticatorUtils.AUTHENTICATOR_ID_HATCHET);
+                .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
         InfoSystem.getInstance().sendSocialActionPostStruct(hatchetAuthUtils, query,
                 HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE, doSweetSweetLovin);
     }
@@ -337,7 +337,7 @@ public class UserCollection {
                     InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS, null));
         } else {
             AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(AuthenticatorUtils.AUTHENTICATOR_ID_HATCHET);
+                    .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
             InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
         }
     }

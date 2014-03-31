@@ -29,10 +29,6 @@ public abstract class AuthenticatorUtils {
     public static final String AUTHENTICATOR_NAME
             = "org.tomahawk.tomahawk_android.authenticator_name";
 
-    public static final int AUTHENTICATOR_ID_SPOTIFY = 0;
-
-    public static final int AUTHENTICATOR_ID_HATCHET = 1;
-
     public static final String AUTHENTICATOR_NAME_SPOTIFY
             = "org.tomahawk.tomahawk_android.authenticator_name_spotify";
 
@@ -86,12 +82,8 @@ public abstract class AuthenticatorUtils {
 
     public static boolean isLoggedIn(Context context, String authenticatorName,
             String authTokenType) {
-        if (authenticatorName.equals(AUTHENTICATOR_NAME_SPOTIFY)) {
-            return SpotifyAuthenticatorUtils.isSpotifyLoggedIn();
-        } else {
-            return TomahawkUtils.peekAuthTokenForAccount(context, authenticatorName, authTokenType)
-                    != null;
-        }
+        return TomahawkUtils.peekAuthTokenForAccount(context, authenticatorName, authTokenType)
+                != null;
     }
 
     public boolean isAuthenticating() {

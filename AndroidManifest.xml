@@ -66,8 +66,13 @@
 
         <service
                 android:name=".services.PlaybackService"
-                android:label="@string/playbackservice_label_string"
                 android:stopWithTask="true">
+        </service>
+
+        <service
+                android:name=".services.SpotifyService"
+                android:stopWithTask="true"
+                android:process=":SpotifyService">
         </service>
 
         <service

@@ -17,8 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
+import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticatorUtils;
-import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.utils.FakePreferenceGroup;
@@ -67,7 +67,10 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
             SharedPreferences.Editor editor = mSharedPreferences.edit();
             editor.putInt(mKey, position);
             editor.commit();
-            LibSpotifyWrapper.setbitrate(position);
+            SpotifyAuthenticatorUtils authUtils = (SpotifyAuthenticatorUtils) AuthenticatorManager
+                    .getInstance().getAuthenticatorUtils(
+                            AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY);
+            authUtils.setBitrate(position);
         }
 
         @Override
