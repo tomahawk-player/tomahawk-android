@@ -388,7 +388,11 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
         } else if (item instanceof Track) {
             return 6;
         } else if (item instanceof UserPlaylist) {
-            return 7;
+            if (((UserPlaylist) item).isHatchetPlaylist()) {
+                return 7;
+            } else {
+                return 8;
+            }
         } else {
             return 0;
         }

@@ -200,6 +200,10 @@ public class SearchableFragment extends TomahawkFragment
      */
     @Override
     protected void updateAdapter() {
+        if (!isResumed) {
+            return;
+        }
+
         Context context = getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         ArrayList<TomahawkListItem> listItems = new ArrayList<TomahawkListItem>();

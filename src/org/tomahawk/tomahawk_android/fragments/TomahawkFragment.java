@@ -107,8 +107,6 @@ public class TomahawkFragment extends TomahawkListFragment
     public static final String TOMAHAWK_FROMPLAYBACKFRAGMENT
             = "org.tomahawk.tomahawk_android.tomahawk_fromplaybackfragment";
 
-    public static final String TOMAHAWK_HUB_ID = "org.tomahawk.tomahawk_android.tomahawk_hub_id";
-
     public static final String TOMAHAWK_LIST_ITEM_IS_LOCAL
             = "org.tomahawk.tomahawk_list_item_is_local";
 
@@ -125,6 +123,8 @@ public class TomahawkFragment extends TomahawkListFragment
 
     private TomahawkFragmentReceiver mTomahawkFragmentReceiver;
 
+    protected boolean isResumed;
+
     protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
 
     protected HashSet<String> mCorrespondingQueryIds = new HashSet<String>();
@@ -138,8 +138,6 @@ public class TomahawkFragment extends TomahawkListFragment
     protected ArrayList<Artist> mShownArtists = new ArrayList<Artist>();
 
     protected ArrayList<User> mShownUsers = new ArrayList<User>();
-
-    protected int mCorrespondingHubId;
 
     protected Album mAlbum;
 
@@ -295,10 +293,6 @@ public class TomahawkFragment extends TomahawkListFragment
                 }
                 mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mUser));
             }
-            if (getArguments().containsKey(TOMAHAWK_HUB_ID)
-                    && getArguments().getInt(TOMAHAWK_HUB_ID) > 0) {
-                mCorrespondingHubId = getArguments().getInt(TOMAHAWK_HUB_ID);
-            }
             if (getArguments().containsKey(TOMAHAWK_LIST_ITEM_IS_LOCAL)) {
                 mIsLocal = getArguments().getBoolean(TOMAHAWK_LIST_ITEM_IS_LOCAL);
             }
@@ -343,6 +337,8 @@ public class TomahawkFragment extends TomahawkListFragment
         }
 
         onPlaylistChanged();
+
+        isResumed = true;
     }
 
     @Override
@@ -355,6 +351,8 @@ public class TomahawkFragment extends TomahawkListFragment
             getActivity().unregisterReceiver(mTomahawkFragmentReceiver);
             mTomahawkFragmentReceiver = null;
         }
+
+        isResumed = false;
     }
 
     @Override
@@ -583,13 +581,6 @@ public class TomahawkFragment extends TomahawkListFragment
      * Called when a Collection has been updated.
      */
     protected void onCollectionUpdated() {
-        if (mUserPlaylist != null) {
-            mUserPlaylist = UserPlaylist.getUserPlaylistById(mUserPlaylist.getId());
-            if (mUserPlaylist == null) {
-                getActivity().getSupportFragmentManager().beginTransaction().remove(this)
-                        .commit();
-            }
-        }
         updateAdapter();
         resolveVisibleQueries();
     }

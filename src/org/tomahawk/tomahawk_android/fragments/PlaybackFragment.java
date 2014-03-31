@@ -361,6 +361,10 @@ public class PlaybackFragment extends TomahawkFragment
      */
     @Override
     protected void updateAdapter() {
+        if (!isResumed) {
+            return;
+        }
+
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         Context context = getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
