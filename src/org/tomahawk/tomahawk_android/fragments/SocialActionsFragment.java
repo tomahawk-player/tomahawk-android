@@ -128,6 +128,10 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
      */
     @Override
     protected void updateAdapter() {
+        if (!isResumed) {
+            return;
+        }
+
         Context context = getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         View rootView = getActivity().findViewById(android.R.id.content);

@@ -235,12 +235,35 @@ public class DatabaseHelper {
                 );
         userplaylistsCursor.moveToFirst();
         while (!userplaylistsCursor.isAfterLast()) {
-            UserPlaylist userPlaylist = getUserPlaylist(userplaylistsCursor.getString(0));
+            UserPlaylist userPlaylist = getEmptyUserPlaylist(userplaylistsCursor.getString(0));
             playListList.add(userPlaylist);
             userplaylistsCursor.moveToNext();
         }
         userplaylistsCursor.close();
         return playListList;
+    }
+
+    /**
+     * @param playlistId the id by which to get the correct {@link org.tomahawk.libtomahawk.collection.Playlist}
+     * @return the stored {@link org.tomahawk.libtomahawk.collection.Playlist} with playlistId as
+     * its id
+     */
+    public UserPlaylist getEmptyUserPlaylist(String playlistId) {
+        Cursor userplaylistsCursor = mDatabase
+                .query(TomahawkSQLiteHelper.TABLE_USERPLAYLISTS, mAllUserPlaylistsColumns,
+                        TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ID + " = \"" + playlistId + "\"",
+                        null, null, null, null);
+        if (userplaylistsCursor.moveToFirst()) {
+            UserPlaylist userPlaylist = UserPlaylist
+                    .fromQueryList(playlistId, userplaylistsCursor.getString(2),
+                            userplaylistsCursor.getString(4),
+                            userplaylistsCursor.getInt(1) == TRUE, new ArrayList<Query>(),
+                            null);
+            userplaylistsCursor.close();
+            return userPlaylist;
+        }
+        userplaylistsCursor.close();
+        return null;
     }
 
     /**
@@ -285,6 +308,7 @@ public class DatabaseHelper {
                             userplaylistsCursor.getString(4),
                             userplaylistsCursor.getInt(1) == TRUE, queries,
                             currentQuery);
+            userPlaylist.setFilled(true);
             tracksCursor.close();
             userplaylistsCursor.close();
             return userPlaylist;

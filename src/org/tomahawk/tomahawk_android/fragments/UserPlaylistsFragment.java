@@ -78,6 +78,10 @@ public class UserPlaylistsFragment extends TomahawkFragment implements OnItemCli
      */
     @Override
     protected void updateAdapter() {
+        if (!isResumed) {
+            return;
+        }
+
         Context context = getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 

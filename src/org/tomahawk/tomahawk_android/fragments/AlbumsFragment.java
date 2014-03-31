@@ -102,6 +102,10 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
      */
     @Override
     protected void updateAdapter() {
+        if (!isResumed) {
+            return;
+        }
+
         List<TomahawkListItem> albumsAndTopHits = new ArrayList<TomahawkListItem>();
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         Context context = getActivity();

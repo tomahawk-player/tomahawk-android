@@ -42,6 +42,8 @@ public class UserPlaylist extends Playlist implements TomahawkListItem {
 
     private ArrayList<Artist> mContentHeaderArtists = new ArrayList<Artist>();
 
+    private boolean mIsFilled;
+
     /**
      * Construct a new empty {@link UserPlaylist}.
      */
@@ -170,5 +172,13 @@ public class UserPlaylist extends Playlist implements TomahawkListItem {
             }
         }
         return null;
+    }
+
+    public boolean isFilled() {
+        return mIsFilled;
+    }
+
+    public void setFilled(boolean isFilled) {
+        mIsFilled = isFilled;
     }
 }

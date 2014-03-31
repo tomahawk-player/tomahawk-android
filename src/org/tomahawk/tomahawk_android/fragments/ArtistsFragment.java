@@ -41,7 +41,7 @@ import java.util.List;
 public class ArtistsFragment extends TomahawkFragment implements OnItemClickListener {
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
 
         updateAdapter();
@@ -76,6 +76,10 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
      */
     @Override
     protected void updateAdapter() {
+        if (!isResumed) {
+            return;
+        }
+
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         Context context = getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();

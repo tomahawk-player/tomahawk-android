@@ -28,10 +28,15 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
+import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -81,7 +86,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
 
         updateAdapter();
@@ -140,6 +145,10 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
      */
     @Override
     protected void updateAdapter() {
+        if (!isResumed) {
+            return;
+        }
+
         resolveVisibleQueries();
         ArrayList<TomahawkListItem> queries = new ArrayList<TomahawkListItem>();
         TomahawkListAdapter tomahawkListAdapter;
@@ -176,18 +185,45 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                         mArtist, mIsLocal);
             }
         } else if (mUserPlaylist != null) {
-            activity.setTitle(mUserPlaylist.getName());
-            queries.addAll(mUserPlaylist.getQueries());
-            if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(context, layoutInflater, queries);
-                tomahawkListAdapter.setShowResolvedBy(true);
-                tomahawkListAdapter.setShowCategoryHeaders(true, false);
-                tomahawkListAdapter.showContentHeader(rootView, getListView(), mUserPlaylist, mIsLocal);
-                setListAdapter(tomahawkListAdapter);
+            if (!mUserPlaylist.isFilled()) {
+                mUserPlaylist.setFilled(true);
+                ThreadManager.getInstance().executeInfoSystemRunnable(
+                        new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_HIGH) {
+                            @Override
+                            public void run() {
+                                long startTime = System.currentTimeMillis();
+                                mUserPlaylist = DatabaseHelper.getInstance()
+                                        .getUserPlaylist(mUserPlaylist.getId());
+                                Log.d("test",
+                                        "time to fetch the playlist " + mUserPlaylist.getName()
+                                                + ": " + (System.currentTimeMillis() - startTime)
+                                                + "ms"
+                                );
+                                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        updateAdapter();
+                                    }
+                                });
+                            }
+                        }
+                );
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setListItems(queries);
-                ((TomahawkListAdapter) getListAdapter()).showContentHeader(rootView, getListView(),
-                        mUserPlaylist, mIsLocal);
+                activity.setTitle(mUserPlaylist.getName());
+                queries.addAll(mUserPlaylist.getQueries());
+                if (getListAdapter() == null) {
+                    tomahawkListAdapter = new TomahawkListAdapter(context, layoutInflater, queries);
+                    tomahawkListAdapter.setShowResolvedBy(true);
+                    tomahawkListAdapter.setShowCategoryHeaders(true, false);
+                    tomahawkListAdapter
+                            .showContentHeader(rootView, getListView(), mUserPlaylist, mIsLocal);
+                    setListAdapter(tomahawkListAdapter);
+                } else {
+                    ((TomahawkListAdapter) getListAdapter()).setListItems(queries);
+                    ((TomahawkListAdapter) getListAdapter())
+                            .showContentHeader(rootView, getListView(),
+                                    mUserPlaylist, mIsLocal);
+                }
             }
         } else {
             activity.setTitle(getString(R.string.tracksfragment_title_string));
