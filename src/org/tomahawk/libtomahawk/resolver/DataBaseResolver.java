@@ -115,19 +115,18 @@ public class DataBaseResolver implements Resolver {
             List<Query> inputList = UserCollection.getInstance().getQueries(false);
 
             for (Query existingQuery : inputList) {
-                String existingTrackName = existingQuery.getName().toLowerCase();
-                String existingArtistName = existingQuery.getArtist().getName().toLowerCase();
-                String existingAlbumName = existingQuery.getAlbum().getName().toLowerCase();
+                String existingTrackName = existingQuery.getName();
+                String existingArtistName = existingQuery.getArtist().getName();
+                String existingAlbumName = existingQuery.getAlbum().getName();
                 if (queryToSearchFor.isFullTextQuery()) {
                     if (!TextUtils.isEmpty(queryToSearchFor.getFullTextQuery())) {
-                        String toSearchForFullText = queryToSearchFor.getFullTextQuery()
-                                .toLowerCase();
-                        if (existingTrackName.contains(toSearchForFullText)
-                                || existingArtistName.contains(toSearchForFullText)
-                                || existingAlbumName.contains(toSearchForFullText)
-                                || toSearchForFullText.contains(existingTrackName)
-                                || toSearchForFullText.contains(existingArtistName)
-                                || toSearchForFullText.contains(existingAlbumName)) {
+                        String toSearchForFullText = queryToSearchFor.getFullTextQuery();
+                        if (TomahawkUtils.contains(existingTrackName, toSearchForFullText)
+                                || TomahawkUtils.contains(existingArtistName, toSearchForFullText)
+                                || TomahawkUtils.contains(existingAlbumName, toSearchForFullText)
+                                || TomahawkUtils.contains(toSearchForFullText, existingTrackName)
+                                || TomahawkUtils.contains(toSearchForFullText, existingArtistName)
+                                || TomahawkUtils.contains(toSearchForFullText, existingAlbumName)) {
                             results.add(existingQuery.getPreferredTrackResult());
                         }
 
@@ -135,13 +134,13 @@ public class DataBaseResolver implements Resolver {
                 } else {
                     if (!TextUtils.isEmpty(queryToSearchFor.getName()) &&
                             !TextUtils.isEmpty(queryToSearchFor.getArtist().getName())) {
-                        String toSearchTrackName = queryToSearchFor.getName().toLowerCase();
-                        String toSearchArtistName = queryToSearchFor.getArtist().getName()
-                                .toLowerCase();
-                        if ((existingTrackName.contains(toSearchTrackName)
-                                || toSearchTrackName.contains(existingTrackName))
-                                && (existingArtistName.contains(toSearchArtistName)
-                                || toSearchArtistName.contains(existingArtistName))) {
+                        String toSearchTrackName = queryToSearchFor.getName();
+                        String toSearchArtistName = queryToSearchFor.getArtist().getName();
+                        if ((TomahawkUtils.contains(existingTrackName, toSearchTrackName)
+                                || TomahawkUtils.contains(toSearchTrackName, existingTrackName))
+                                && (TomahawkUtils.contains(existingArtistName, toSearchArtistName)
+                                || TomahawkUtils
+                                .contains(toSearchArtistName, existingArtistName))) {
                             results.add(existingQuery.getPreferredTrackResult());
                         }
                     }
