@@ -200,7 +200,7 @@ public class SearchableFragment extends TomahawkFragment
      */
     @Override
     protected void updateAdapter() {
-        if (!isResumed) {
+        if (!mIsResumed) {
             return;
         }
 

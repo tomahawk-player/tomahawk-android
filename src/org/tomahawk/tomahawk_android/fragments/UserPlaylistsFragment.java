@@ -78,7 +78,7 @@ public class UserPlaylistsFragment extends TomahawkFragment implements OnItemCli
      */
     @Override
     protected void updateAdapter() {
-        if (!isResumed) {
+        if (!mIsResumed) {
             return;
         }
 

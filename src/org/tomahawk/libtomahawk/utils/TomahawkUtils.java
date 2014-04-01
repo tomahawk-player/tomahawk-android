@@ -14,6 +14,7 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.CircularImageTransformation;
 
@@ -21,7 +22,6 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.res.Resources;
-import android.net.ConnectivityManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -556,10 +556,7 @@ public class TomahawkUtils {
         if (image.isHatchetImage()) {
             int squareImageWidth = Math.min(image.getHeight(), image.getWidth());
             width = convertDpToPixel(width, context);
-            ConnectivityManager connMgr = (ConnectivityManager) context
-                    .getSystemService(Context.CONNECTIVITY_SERVICE);
-            if (connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI) != null
-                    && connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected()) {
+            if (TomahawkMainActivity.sIsConnectedToWifi) {
                 if (squareImageWidth > width) {
                     return image.getImagePath() + "?width=" + width;
                 }
