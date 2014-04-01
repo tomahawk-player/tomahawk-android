@@ -149,7 +149,8 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             return;
         }
 
-        resolveVisibleQueries();
+        mResolveQueriesHandler.removeCallbacksAndMessages(null);
+        mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
         ArrayList<TomahawkListItem> queries = new ArrayList<TomahawkListItem>();
         TomahawkListAdapter tomahawkListAdapter;
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();

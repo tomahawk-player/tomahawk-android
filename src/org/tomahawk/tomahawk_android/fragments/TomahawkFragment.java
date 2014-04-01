@@ -113,13 +113,13 @@ public class TomahawkFragment extends TomahawkListFragment
     public static final String TOMAHAWK_LIST_ITEM_POSITION
             = "org.tomahawk.tomahawk_android.tomahawk_list_item_position";
 
-    private static final int RESOLVE_QUERIES_REPORTER_MSG = 1336;
+    protected static final int RESOLVE_QUERIES_REPORTER_MSG = 1336;
 
-    private static final long RESOLVE_QUERIES_REPORTER_DELAY = 100;
+    protected static final long RESOLVE_QUERIES_REPORTER_DELAY = 100;
 
-    private static final int PIPELINE_RESULT_REPORTER_MSG = 1337;
+    protected static final int PIPELINE_RESULT_REPORTER_MSG = 1337;
 
-    private static final long PIPELINE_RESULT_REPORTER_DELAY = 1000;
+    protected static final long PIPELINE_RESULT_REPORTER_DELAY = 1000;
 
     private TomahawkFragmentReceiver mTomahawkFragmentReceiver;
 
@@ -153,7 +153,7 @@ public class TomahawkFragment extends TomahawkListFragment
 
     private int mVisibleItemCount = 0;
 
-    private final Handler mResolveQueriesHandler = new Handler() {
+    protected final Handler mResolveQueriesHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             removeMessages(msg.what);
@@ -212,7 +212,8 @@ public class TomahawkFragment extends TomahawkListFragment
                         intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
                 if (!noConnectivity && !(TomahawkFragment.this instanceof SearchableFragment)) {
                     mCorrespondingQueryIds.clear();
-                    resolveVisibleQueries();
+                    mResolveQueriesHandler.removeCallbacksAndMessages(null);
+                    mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
                 }
             }
         }
@@ -514,7 +515,8 @@ public class TomahawkFragment extends TomahawkListFragment
     protected void onInfoSystemResultsReported(String requestId) {
         if (mCurrentRequestIds.contains(requestId)) {
             updateAdapter();
-            resolveVisibleQueries();
+            mResolveQueriesHandler.removeCallbacksAndMessages(null);
+            mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
         }
     }
 
@@ -582,7 +584,8 @@ public class TomahawkFragment extends TomahawkListFragment
      */
     protected void onCollectionUpdated() {
         updateAdapter();
-        resolveVisibleQueries();
+        mResolveQueriesHandler.removeCallbacksAndMessages(null);
+        mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
     }
 
     @Override
@@ -603,7 +606,7 @@ public class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    protected void resolveVisibleQueries() {
+    private void resolveVisibleQueries() {
         resolveQueriesFromTo(mFirstVisibleItemLastTime - 5,
                 mFirstVisibleItemLastTime + mVisibleItemCount + 5);
     }
