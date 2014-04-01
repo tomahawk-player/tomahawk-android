@@ -763,10 +763,6 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     // Before we do anything, fetch the mUserId corresponding to the currently logged in
                     // user's username
                     getUserid();
-                    if (infoRequestData.getType()
-                            == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
-                        Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
-                    }
                     if (getAndParseInfo(infoRequestData)) {
                         convertParsedItem(infoRequestData);
                         doneRequestsIds.add(infoRequestData.getRequestId());
