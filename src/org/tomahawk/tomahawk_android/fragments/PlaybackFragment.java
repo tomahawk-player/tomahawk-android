@@ -322,7 +322,8 @@ public class PlaybackFragment extends TomahawkFragment
                 && playbackService.getCurrentPlaylist() != null
                 && playbackService.getCurrentPlaylist().getCount() > 0) {
             mShownQueries = playbackService.getCurrentPlaylist().getQueries();
-            resolveVisibleQueries();
+            mResolveQueriesHandler.removeCallbacksAndMessages(null);
+            mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
         }
         if (tomahawkListAdapter != null) {
             if (playbackService != null && playbackService.getCurrentPlaylist() != null
