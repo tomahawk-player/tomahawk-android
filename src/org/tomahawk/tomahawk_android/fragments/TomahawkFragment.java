@@ -55,10 +55,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.TreeMap;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
@@ -241,36 +238,6 @@ public class TomahawkFragment extends TomahawkListFragment
                 if (mUserPlaylist == null) {
                     getActivity().getSupportFragmentManager().beginTransaction().remove(this)
                             .commit();
-                } else if (mUserPlaylist.getContentHeaderArtists().size() == 0) {
-                    final HashMap<Artist, Integer> countMap = new HashMap<Artist, Integer>();
-                    for (Query query : mUserPlaylist.getQueries()) {
-                        Artist artist = query.getArtist();
-                        if (countMap.containsKey(artist)) {
-                            countMap.put(artist, countMap.get(artist) + 1);
-                        } else {
-                            countMap.put(artist, 1);
-                        }
-                    }
-                    TreeMap<Artist, Integer> sortedCountMap = new TreeMap<Artist, Integer>(
-                            new Comparator<Artist>() {
-                                @Override
-                                public int compare(Artist lhs, Artist rhs) {
-                                    return countMap.get(lhs) >= countMap.get(rhs) ? -1 : 1;
-                                }
-                            }
-                    );
-                    sortedCountMap.putAll(countMap);
-                    for (Artist artist : sortedCountMap.keySet()) {
-                        mUserPlaylist.addContentHeaderArtists(artist);
-                        ArrayList<String> requestIds = InfoSystem.getInstance().resolve(artist,
-                                true);
-                        for (String requestId : requestIds) {
-                            mCurrentRequestIds.add(requestId);
-                        }
-                        if (mUserPlaylist.getContentHeaderArtists().size() == 10) {
-                            break;
-                        }
-                    }
                 }
             }
             if (getArguments().containsKey(TOMAHAWK_ARTIST_KEY) && !TextUtils
