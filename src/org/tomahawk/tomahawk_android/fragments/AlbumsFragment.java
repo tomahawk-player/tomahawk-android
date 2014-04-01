@@ -102,7 +102,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
      */
     @Override
     protected void updateAdapter() {
-        if (!isResumed) {
+        if (!mIsResumed) {
             return;
         }
 

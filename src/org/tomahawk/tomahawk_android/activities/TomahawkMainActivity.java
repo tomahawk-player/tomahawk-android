@@ -136,6 +136,8 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private Handler mAnimationHandler;
 
+    public static boolean sIsConnectedToWifi;
+
     // Used to display an animated progress drawable
     private Runnable mAnimationRunnable = new Runnable() {
         @Override
@@ -179,6 +181,14 @@ public class TomahawkMainActivity extends ActionBarActivity
                             .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
                     InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
                     UserCollection.getInstance().fetchHatchetUserPlaylists();
+                }
+                ConnectivityManager connMgr = (ConnectivityManager) context
+                        .getSystemService(Context.CONNECTIVITY_SERVICE);
+                if (connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI) != null
+                        && connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected()) {
+                    sIsConnectedToWifi = true;
+                } else {
+                    sIsConnectedToWifi = false;
                 }
             } else if (UserCollection.COLLECTION_UPDATED.equals(intent.getAction())) {
                 onCollectionUpdated();

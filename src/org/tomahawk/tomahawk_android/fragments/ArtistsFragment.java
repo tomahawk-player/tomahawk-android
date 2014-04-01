@@ -76,7 +76,7 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
      */
     @Override
     protected void updateAdapter() {
-        if (!isResumed) {
+        if (!mIsResumed) {
             return;
         }
 

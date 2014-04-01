@@ -120,7 +120,7 @@ public class TomahawkFragment extends TomahawkListFragment
 
     private TomahawkFragmentReceiver mTomahawkFragmentReceiver;
 
-    protected boolean isResumed;
+    protected boolean mIsResumed;
 
     protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
 
@@ -306,7 +306,7 @@ public class TomahawkFragment extends TomahawkListFragment
 
         onPlaylistChanged();
 
-        isResumed = true;
+        mIsResumed = true;
     }
 
     @Override
@@ -320,7 +320,7 @@ public class TomahawkFragment extends TomahawkListFragment
             mTomahawkFragmentReceiver = null;
         }
 
-        isResumed = false;
+        mIsResumed = false;
     }
 
     @Override

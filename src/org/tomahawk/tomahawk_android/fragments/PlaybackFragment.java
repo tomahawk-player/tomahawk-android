@@ -362,7 +362,7 @@ public class PlaybackFragment extends TomahawkFragment
      */
     @Override
     protected void updateAdapter() {
-        if (!isResumed) {
+        if (!mIsResumed) {
             return;
         }
 
