@@ -17,10 +17,12 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
+import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -36,7 +38,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -46,6 +47,9 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.TreeMap;
 
 /**
  * {@link TomahawkFragment} which shows a set of {@link Track}s inside its {@link
@@ -186,20 +190,22 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                         mArtist, mIsLocal);
             }
         } else if (mUserPlaylist != null) {
+            ThreadManager.getInstance().executeInfoSystemRunnable(
+                    new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_LOW) {
+                        @Override
+                        public void run() {
+                            getUserPlaylistArtists(mUserPlaylist);
+                        }
+                    }
+            );
             if (!mUserPlaylist.isFilled()) {
                 mUserPlaylist.setFilled(true);
                 ThreadManager.getInstance().executeInfoSystemRunnable(
                         new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_HIGH) {
                             @Override
                             public void run() {
-                                long startTime = System.currentTimeMillis();
                                 mUserPlaylist = DatabaseHelper.getInstance()
                                         .getUserPlaylist(mUserPlaylist.getId());
-                                Log.d("test",
-                                        "time to fetch the playlist " + mUserPlaylist.getName()
-                                                + ": " + (System.currentTimeMillis() - startTime)
-                                                + "ms"
-                                );
                                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                                     @Override
                                     public void run() {
@@ -248,5 +254,38 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         getListView().setOnItemClickListener(this);
 
         updateShowPlaystate();
+    }
+
+    private void getUserPlaylistArtists(UserPlaylist userPlaylist) {
+        if (userPlaylist.getContentHeaderArtists().size() < 6) {
+            final HashMap<Artist, Integer> countMap = new HashMap<Artist, Integer>();
+            for (Query query : userPlaylist.getQueries()) {
+                Artist artist = query.getArtist();
+                if (countMap.containsKey(artist)) {
+                    countMap.put(artist, countMap.get(artist) + 1);
+                } else {
+                    countMap.put(artist, 1);
+                }
+            }
+            TreeMap<Artist, Integer> sortedCountMap = new TreeMap<Artist, Integer>(
+                    new Comparator<Artist>() {
+                        @Override
+                        public int compare(Artist lhs, Artist rhs) {
+                            return countMap.get(lhs) >= countMap.get(rhs) ? -1 : 1;
+                        }
+                    }
+            );
+            sortedCountMap.putAll(countMap);
+            for (Artist artist : sortedCountMap.keySet()) {
+                userPlaylist.addContentHeaderArtists(artist);
+                ArrayList<String> requestIds = InfoSystem.getInstance().resolve(artist, true);
+                for (String requestId : requestIds) {
+                    mCurrentRequestIds.add(requestId);
+                }
+                if (userPlaylist.getContentHeaderArtists().size() == 6) {
+                    break;
+                }
+            }
+        }
     }
 }
