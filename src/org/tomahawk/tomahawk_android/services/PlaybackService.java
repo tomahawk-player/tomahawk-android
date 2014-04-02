@@ -291,10 +291,10 @@ public class PlaybackService extends Service {
                             .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY);
             authUtils.setToSpotifyMessenger(mToSpotifyMessenger);
             mTomahawkMediaPlayer.setToSpotifyMessenger(mToSpotifyMessenger);
-            SpotifyServiceUtils.registerMsg(mToSpotifyMessenger, mFromSpotifyMessenger);
             //Now that every client has its messenger reference and registered itself to the
             //SpotifyService's messenger, we can initialize libspotify through the wrapper
             if (mToSpotifyMessenger != null) {
+                SpotifyServiceUtils.registerMsg(mToSpotifyMessenger, mFromSpotifyMessenger);
                 SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_INIT);
             } else {
                 mSpotifyIsInitialized = false;
