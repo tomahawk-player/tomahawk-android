@@ -434,9 +434,8 @@ public class DatabaseHelper {
             while (!tracksCursor.isAfterLast()) {
                 String trackName = tracksCursor.getString(2);
                 String artistName = tracksCursor.getString(3);
-                String albumName = tracksCursor.getString(4);
-                if (query.getName().equals(trackName) && query.getArtist().getName()
-                        .equals(artistName) && query.getAlbum().getName().equals(albumName)) {
+                if (query.getName().equalsIgnoreCase(trackName)
+                        && query.getArtist().getName().equalsIgnoreCase(artistName)) {
                     tracksCursor.close();
                     userplaylistsCursor.close();
                     return true;
@@ -466,9 +465,7 @@ public class DatabaseHelper {
                             + " AND " + TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME
                             + " = \"" + query.getName() + "\""
                             + " AND " + TomahawkSQLiteHelper.TRACKS_COLUMN_ARTISTNAME
-                            + " = \"" + query.getArtist().getName() + "\""
-                            + " AND " + TomahawkSQLiteHelper.TRACKS_COLUMN_ALBUMNAME
-                            + " = \"" + query.getAlbum().getName() + "\"", null
+                            + " = \"" + query.getArtist().getName() + "\"", null
             );
             mDatabase.setTransactionSuccessful();
             mDatabase.endTransaction();
