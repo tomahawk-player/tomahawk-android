@@ -129,12 +129,13 @@ public class UserCollection {
                 final String requestId = intent
                         .getStringExtra(InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
                 if (mCorrespondingRequestIds.contains(requestId)) {
+                    mCorrespondingRequestIds.remove(requestId);
                     ThreadManager.getInstance().executePipeLineRunnable(
                             new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
                                 @Override
                                 public void run() {
                                     InfoRequestData data = InfoSystem.getInstance()
-                                            .getInfoRequestById(requestId);
+                                            .removeInfoRequestById(requestId);
                                     if (data.getType()
                                             == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS) {
                                         ArrayList<UserPlaylist> storedLists
