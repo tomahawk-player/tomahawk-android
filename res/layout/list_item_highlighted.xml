@@ -23,7 +23,7 @@
               android:layout_height="wrap_content"
               android:baselineAligned="false"
               android:orientation="horizontal"
-              android:background="@color/tomahawk_red_transparent"
+              android:background="@color/tomahawk_red"
               android:descendantFocusability="blocksDescendants">
 
     <ImageView
