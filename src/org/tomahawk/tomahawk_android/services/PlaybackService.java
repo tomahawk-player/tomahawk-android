@@ -40,6 +40,7 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer;
+import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -794,7 +795,7 @@ public class PlaybackService extends Service {
                     }
                 }
 
-                ThreadManager.getInstance().executePlaybackRunnable(new Runnable() {
+                TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_PLAYBACK) {
                     @Override
                     public void run() {
                         if (isPlaying() && !mLastPreparedPath
@@ -845,7 +846,8 @@ public class PlaybackService extends Service {
                             }
                         }
                     }
-                });
+                };
+                ThreadManager.getInstance().execute(r);
             } else {
                 next();
             }

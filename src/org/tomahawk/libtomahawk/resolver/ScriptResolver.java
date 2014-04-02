@@ -276,7 +276,7 @@ public class ScriptResolver implements Resolver {
             } else if (id == R.id.scriptresolver_resolver_init) {
                 resolverSettings();
             } else if (id == R.id.scriptresolver_add_track_results_string && jsonString != null) {
-                ThreadManager.getInstance().executePipeLineRunnable(
+                ThreadManager.getInstance().execute(
                         new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_REPORTING) {
                             @Override
                             public void run() {

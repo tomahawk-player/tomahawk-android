@@ -241,8 +241,8 @@ public class TomahawkFragment extends TomahawkListFragment
                     getActivity().getSupportFragmentManager().beginTransaction().remove(this)
                             .commit();
                 }
-                ThreadManager.getInstance().executeInfoSystemRunnable(
-                        new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
+                ThreadManager.getInstance().execute(
+                        new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
                             @Override
                             public void run() {
                                 mUserPlaylist = DatabaseHelper.getInstance()

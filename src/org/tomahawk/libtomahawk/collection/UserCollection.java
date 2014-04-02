@@ -130,7 +130,7 @@ public class UserCollection {
                         .getStringExtra(InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
                 if (mCorrespondingRequestIds.contains(requestId)) {
                     mCorrespondingRequestIds.remove(requestId);
-                    ThreadManager.getInstance().executePipeLineRunnable(
+                    ThreadManager.getInstance().execute(
                             new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
                                 @Override
                                 public void run() {

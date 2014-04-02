@@ -190,8 +190,8 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                         mArtist, mIsLocal);
             }
         } else if (mUserPlaylist != null) {
-            ThreadManager.getInstance().executeInfoSystemRunnable(
-                    new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_LOW) {
+            ThreadManager.getInstance().execute(
+                    new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_MEDIUM) {
                         @Override
                         public void run() {
                             getUserPlaylistArtists(mUserPlaylist);
@@ -200,7 +200,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             );
             if (!mUserPlaylist.isFilled()) {
                 mUserPlaylist.setFilled(true);
-                ThreadManager.getInstance().executeInfoSystemRunnable(
+                ThreadManager.getInstance().execute(
                         new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_HIGH) {
                             @Override
                             public void run() {

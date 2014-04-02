@@ -19,9 +19,13 @@ package org.tomahawk.tomahawk_android.utils;
 
 public abstract class TomahawkRunnable implements Runnable, Comparable<TomahawkRunnable> {
 
+    public static final int PRIORITY_IS_PLAYBACK = 1000;
+
+    public static final int PRIORITY_IS_VERYHIGH = 200;
+
     public static final int PRIORITY_IS_INFOSYSTEM_HIGH = 100;
 
-    public static final int PRIORITY_IS_INFOSYSTEM_LOW = 90;
+    public static final int PRIORITY_IS_INFOSYSTEM_MEDIUM = 90;
 
     public static final int PRIORITY_IS_AUTHENTICATING = 50;
 
@@ -32,6 +36,8 @@ public abstract class TomahawkRunnable implements Runnable, Comparable<TomahawkR
     public static final int PRIORITY_IS_RESOLVING = 10;
 
     public static final int PRIORITY_IS_DATABASEACTION = 5;
+
+    public static final int PRIORITY_IS_INFOSYSTEM_LOW = 4;
 
     public static final int PRIORITY_IS_REPORTING_WITH_HEADERREQUEST = 0;
 

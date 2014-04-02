@@ -17,7 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
-import java.util.concurrent.LinkedBlockingQueue;
+import android.util.Log;
+
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -38,19 +39,11 @@ public class ThreadManager {
     // Sets the Time Unit to seconds
     private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
 
-    private ThreadPoolExecutor mInfoSystemThreadPool;
-
-    private ThreadPoolExecutor mPipeLineThreadPool;
-
-    private ThreadPoolExecutor mPlaybackThreadPool;
+    private ThreadPoolExecutor mThreadPool;
 
     private ThreadManager() {
-        mPipeLineThreadPool = new ThreadPoolExecutor(NUMBER_OF_CORES, NUMBER_OF_CORES,
+        mThreadPool = new ThreadPoolExecutor(NUMBER_OF_CORES, NUMBER_OF_CORES,
                 KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, new PriorityBlockingQueue<Runnable>());
-        mInfoSystemThreadPool = new ThreadPoolExecutor(NUMBER_OF_CORES, NUMBER_OF_CORES,
-                KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, new PriorityBlockingQueue<Runnable>());
-        mPlaybackThreadPool = new ThreadPoolExecutor(1, 1, KEEP_ALIVE_TIME,
-                KEEP_ALIVE_TIME_UNIT, new LinkedBlockingQueue<Runnable>());
     }
 
     public static ThreadManager getInstance() {
@@ -64,24 +57,12 @@ public class ThreadManager {
         return instance;
     }
 
-    public void executeInfoSystemRunnable(TomahawkRunnable r) {
-        mPipeLineThreadPool.execute(r);
-    }
-
-    public void executePipeLineRunnable(TomahawkRunnable r) {
-        mPipeLineThreadPool.execute(r);
-    }
-
-    public void executePlaybackRunnable(Runnable r) {
-        mPlaybackThreadPool.execute(r);
+    public void execute(Runnable r) {
+        mThreadPool.execute(r);
     }
 
     public boolean isActive() {
-        return mPipeLineThreadPool.getActiveCount() > 0
-                || mPipeLineThreadPool.getQueue().size() > 0
-                || mPlaybackThreadPool.getActiveCount() > 0
-                || mPlaybackThreadPool.getQueue().size() > 0
-                || mInfoSystemThreadPool.getActiveCount() > 0
-                || mInfoSystemThreadPool.getQueue().size() > 0;
+        return mThreadPool.getActiveCount() > 0
+                || mThreadPool.getQueue().size() > 0;
     }
 }

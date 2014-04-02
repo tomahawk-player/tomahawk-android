@@ -180,7 +180,7 @@ public class SpotifyResolver implements Resolver {
      * {@link org.tomahawk.libtomahawk.resolver.Query} with the given query key has been resolved.
      */
     public void onResolved(final SpotifyResults spotifyResults) {
-        ThreadManager.getInstance().executePipeLineRunnable(
+        ThreadManager.getInstance().execute(
                 new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_REPORTING) {
                     @Override
                     public void run() {
