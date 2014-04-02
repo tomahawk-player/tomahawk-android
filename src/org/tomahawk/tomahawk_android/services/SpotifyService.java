@@ -218,6 +218,7 @@ public class SpotifyService extends Service {
 
         mWifiLock.release();
         Log.d(TAG, "SpotifyService has been destroyed");
+        LibSpotifyWrapper.nativedestroy();
     }
 
     @Override
