@@ -163,7 +163,7 @@ public class PipeLine {
      * This will invoke every {@link Resolver} to resolve the given {@link Query}.
      */
     public String resolve(final Query q, final boolean forceOnlyLocal) {
-        ThreadManager.getInstance().executePipeLineRunnable(
+        ThreadManager.getInstance().execute(
                 new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_RESOLVING) {
                     @Override
                     public void run() {
@@ -243,7 +243,7 @@ public class PipeLine {
         } else {
             priority = TomahawkRunnable.PRIORITY_IS_REPORTING;
         }
-        ThreadManager.getInstance().executePipeLineRunnable(
+        ThreadManager.getInstance().execute(
                 new TomahawkRunnable(priority) {
                     @Override
                     public void run() {

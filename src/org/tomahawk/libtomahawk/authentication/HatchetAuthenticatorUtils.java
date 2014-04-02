@@ -217,7 +217,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     @Override
     public void login(final String name, final String password) {
         mIsAuthenticating = true;
-        ThreadManager.getInstance().executePipeLineRunnable(
+        ThreadManager.getInstance().execute(
                 new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_AUTHENTICATING) {
                     @Override
                     public void run() {

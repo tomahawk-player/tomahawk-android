@@ -702,7 +702,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
      */
     public void send(final InfoRequestData infoRequestData) {
         TomahawkRunnable runnable = new TomahawkRunnable(
-                TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_LOW) {
+                TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_MEDIUM) {
             @Override
             public void run() {
                 ArrayList<String> doneRequestsIds = new ArrayList<String>();
@@ -739,7 +739,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 InfoSystem.getInstance().reportResults(doneRequestsIds);
             }
         };
-        ThreadManager.getInstance().executeInfoSystemRunnable(runnable);
+        ThreadManager.getInstance().execute(runnable);
     }
 
     /**
@@ -749,8 +749,13 @@ public class HatchetInfoPlugin extends InfoPlugin {
         int priority;
         if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
             priority = TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_HIGH;
-        } else {
+        } else if (infoRequestData.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES
+                || infoRequestData.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
             priority = TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_LOW;
+        } else {
+            priority = TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_MEDIUM;
         }
         TomahawkRunnable runnable = new TomahawkRunnable(priority) {
             @Override
@@ -779,7 +784,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 InfoSystem.getInstance().reportResults(doneRequestsIds);
             }
         };
-        ThreadManager.getInstance().executeInfoSystemRunnable(runnable);
+        ThreadManager.getInstance().execute(runnable);
     }
 
     /**
