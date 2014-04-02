@@ -88,8 +88,6 @@ public class PlaybackService extends Service {
 
     private final IBinder mBinder = new PlaybackServiceBinder();
 
-    private boolean mHasBoundServices;
-
     public static final String BROADCAST_CURRENTTRACKCHANGED
             = "org.tomahawk.tomahawk_android.BROADCAST_CURRENTTRACKCHANGED";
 
@@ -385,7 +383,7 @@ public class PlaybackService extends Service {
     private final Handler mKillTimerHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            if (isPlaying() || mHasBoundServices) {
+            if (isPlaying()) {
                 mKillTimerHandler.removeCallbacksAndMessages(null);
                 Message msgx = mKillTimerHandler.obtainMessage();
                 mKillTimerHandler.sendMessageDelayed(msgx, DELAY_TO_KILL);
@@ -458,14 +456,12 @@ public class PlaybackService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        mHasBoundServices = true;
         Log.d(TAG, "Client has been bound to PlaybackService");
         return mBinder;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        mHasBoundServices = false;
         Log.d(TAG, "Client has been unbound from PlaybackService");
         return false;
     }
