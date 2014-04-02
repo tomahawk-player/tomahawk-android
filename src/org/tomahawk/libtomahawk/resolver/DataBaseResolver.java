@@ -121,12 +121,17 @@ public class DataBaseResolver implements Resolver {
                 if (queryToSearchFor.isFullTextQuery()) {
                     if (!TextUtils.isEmpty(queryToSearchFor.getFullTextQuery())) {
                         String toSearchForFullText = queryToSearchFor.getFullTextQuery();
-                        if (TomahawkUtils.contains(existingTrackName, toSearchForFullText)
-                                || TomahawkUtils.contains(existingArtistName, toSearchForFullText)
-                                || TomahawkUtils.contains(existingAlbumName, toSearchForFullText)
-                                || TomahawkUtils.contains(toSearchForFullText, existingTrackName)
-                                || TomahawkUtils.contains(toSearchForFullText, existingArtistName)
-                                || TomahawkUtils.contains(toSearchForFullText, existingAlbumName)) {
+                        if (TomahawkUtils.containsIgnoreCase(existingTrackName, toSearchForFullText)
+                                || TomahawkUtils.containsIgnoreCase(existingArtistName,
+                                toSearchForFullText)
+                                || TomahawkUtils.containsIgnoreCase(existingAlbumName,
+                                toSearchForFullText)
+                                || TomahawkUtils.containsIgnoreCase(toSearchForFullText,
+                                existingTrackName)
+                                || TomahawkUtils.containsIgnoreCase(toSearchForFullText,
+                                existingArtistName)
+                                || TomahawkUtils.containsIgnoreCase(toSearchForFullText,
+                                existingAlbumName)) {
                             results.add(existingQuery.getPreferredTrackResult());
                         }
 
@@ -136,11 +141,13 @@ public class DataBaseResolver implements Resolver {
                             !TextUtils.isEmpty(queryToSearchFor.getArtist().getName())) {
                         String toSearchTrackName = queryToSearchFor.getName();
                         String toSearchArtistName = queryToSearchFor.getArtist().getName();
-                        if ((TomahawkUtils.contains(existingTrackName, toSearchTrackName)
-                                || TomahawkUtils.contains(toSearchTrackName, existingTrackName))
-                                && (TomahawkUtils.contains(existingArtistName, toSearchArtistName)
+                        if ((TomahawkUtils.containsIgnoreCase(existingTrackName, toSearchTrackName)
+                                || TomahawkUtils.containsIgnoreCase(toSearchTrackName,
+                                existingTrackName))
+                                && (TomahawkUtils.containsIgnoreCase(existingArtistName,
+                                toSearchArtistName)
                                 || TomahawkUtils
-                                .contains(toSearchArtistName, existingArtistName))) {
+                                .containsIgnoreCase(toSearchArtistName, existingArtistName))) {
                             results.add(existingQuery.getPreferredTrackResult());
                         }
                     }

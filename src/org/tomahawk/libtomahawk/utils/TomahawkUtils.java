@@ -47,7 +47,6 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -567,9 +566,8 @@ public class TomahawkUtils {
         return image.getImagePath();
     }
 
-    public static boolean contains(String str1, String str2) {
-        return Pattern.compile(str2, Pattern.CASE_INSENSITIVE + Pattern.LITERAL).matcher(str1)
-                .find();
+    public static boolean containsIgnoreCase(String str1, String str2) {
+        return str1.toLowerCase().contains(str2.toLowerCase());
     }
 
     /**
