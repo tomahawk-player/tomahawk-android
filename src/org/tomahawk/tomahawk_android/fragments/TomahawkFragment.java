@@ -35,7 +35,9 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.FakeContextMenuDialog;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
+import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -239,6 +241,17 @@ public class TomahawkFragment extends TomahawkListFragment
                     getActivity().getSupportFragmentManager().beginTransaction().remove(this)
                             .commit();
                 }
+                ThreadManager.getInstance().executeInfoSystemRunnable(
+                        new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
+                            @Override
+                            public void run() {
+                                mUserPlaylist = DatabaseHelper.getInstance()
+                                        .getUserPlaylist(mUserPlaylist.getId());
+                                TomahawkMainActivity.getContext().sendBroadcast(
+                                        new Intent(UserCollection.COLLECTION_UPDATED));
+                            }
+                        }
+                );
             }
             if (getArguments().containsKey(TOMAHAWK_ARTIST_KEY) && !TextUtils
                     .isEmpty(getArguments().getString(TOMAHAWK_ARTIST_KEY))) {
