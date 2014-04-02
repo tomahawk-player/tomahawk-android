@@ -240,6 +240,8 @@ public class PipeLine {
             priority = TomahawkRunnable.PRIORITY_IS_REPORTING_WITH_HEADERREQUEST;
         } else if (resolverId == RESOLVER_ID_USERCOLLECTION) {
             priority = TomahawkRunnable.PRIORITY_IS_REPORTING_LOCALSOURCE;
+        } else if (resolverId == RESOLVER_ID_SPOTIFY) {
+            priority = TomahawkRunnable.PRIORITY_IS_REPORTING_SUBSCRIPTION;
         } else {
             priority = TomahawkRunnable.PRIORITY_IS_REPORTING;
         }

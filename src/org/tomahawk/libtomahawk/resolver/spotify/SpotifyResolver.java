@@ -181,7 +181,7 @@ public class SpotifyResolver implements Resolver {
      */
     public void onResolved(final SpotifyResults spotifyResults) {
         ThreadManager.getInstance().execute(
-                new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_REPORTING) {
+                new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_REPORTING_SUBSCRIPTION) {
                     @Override
                     public void run() {
                         // report our results to the pipeline
