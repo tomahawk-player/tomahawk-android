@@ -148,6 +148,11 @@ public class PlaybackService extends Service {
 
     private int mSpotifyCurrentPosition = 0;
 
+    private boolean mIsBindingToSpotifyService;
+
+    private SpotifyService.SpotifyServiceConnection mSpotifyServiceConnection
+            = new SpotifyService.SpotifyServiceConnection(new SpotifyServiceConnectionListener());
+
     private Messenger mToSpotifyMessenger = null;
 
     private final Messenger mFromSpotifyMessenger = new Messenger(new FromSpotifyHandler());
@@ -302,6 +307,7 @@ public class PlaybackService extends Service {
                 mSpotifyCurrentPosition = 0;
                 mTomahawkMediaPlayer.setSpotifyCurrentPosition(mSpotifyCurrentPosition);
             }
+            mIsBindingToSpotifyService = false;
         }
     }
 
@@ -338,6 +344,12 @@ public class PlaybackService extends Service {
                 String requestId = intent
                         .getStringExtra(InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
                 onInfoSystemResultsReported(requestId);
+            } else if (SpotifyService.REQUEST_SPOTIFYSERVICE.equals(intent.getAction())) {
+                if (!mIsBindingToSpotifyService) {
+                    mIsBindingToSpotifyService = true;
+                    bindService(new Intent(PlaybackService.this, SpotifyService.class),
+                            mSpotifyServiceConnection, Context.BIND_AUTO_CREATE);
+                }
             }
         }
     }
@@ -372,11 +384,11 @@ public class PlaybackService extends Service {
     private final Handler mKillTimerHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            if (isPlaying()) {
+            if (isPlaying() || mHasBoundServices) {
                 mKillTimerHandler.removeCallbacksAndMessages(null);
                 Message msgx = mKillTimerHandler.obtainMessage();
                 mKillTimerHandler.sendMessageDelayed(msgx, DELAY_TO_KILL);
-            } else if (!mHasBoundServices) {
+            } else {
                 stopSelf();
             }
         }
@@ -386,8 +398,7 @@ public class PlaybackService extends Service {
     public void onCreate() {
         mHandler = new Handler();
 
-        bindService(new Intent(this, SpotifyService.class),
-                new SpotifyService.SpotifyServiceConnection(new SpotifyServiceConnectionListener()),
+        bindService(new Intent(this, SpotifyService.class), mSpotifyServiceConnection,
                 Context.BIND_AUTO_CREATE);
 
         // Initialize PhoneCallListener
@@ -411,6 +422,8 @@ public class PlaybackService extends Service {
                 new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED));
         registerReceiver(mPlaybackServiceBroadcastReceiver,
                 new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
+        registerReceiver(mPlaybackServiceBroadcastReceiver,
+                new IntentFilter(SpotifyService.REQUEST_SPOTIFYSERVICE));
 
         // Initialize killtime handler (watchdog style)
         mKillTimerHandler.removeCallbacksAndMessages(null);
@@ -461,6 +474,7 @@ public class PlaybackService extends Service {
         if (mWakeLock.isHeld()) {
             mWakeLock.release();
         }
+        unbindService(mSpotifyServiceConnection);
 
         super.onDestroy();
     }

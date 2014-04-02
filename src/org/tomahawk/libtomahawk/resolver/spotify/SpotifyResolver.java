@@ -28,11 +28,13 @@ import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.services.SpotifyService;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
@@ -62,11 +64,12 @@ public class SpotifyResolver implements Resolver {
 
     private int mWeight = 90;
 
-    private boolean mReady = true;
-
     private boolean mAuthenticated;
 
     private boolean mInitialized;
+
+    // In case we currently don't have a connection to the SpotifyService, we cache Queries here
+    private ArrayList<Query> mCachedQueries = new ArrayList<Query>();
 
     /**
      * Handler of incoming messages from the SpotifyService's messenger.
@@ -79,6 +82,7 @@ public class SpotifyResolver implements Resolver {
                 switch (msg.what) {
                     case SpotifyService.MSG_ONINIT:
                         mInitialized = true;
+                        resolveWaitingQueries();
                         break;
                     case SpotifyService.MSG_ONRESOLVED:
                         SpotifyResults spotifyResults = mObjectMapper
@@ -121,7 +125,7 @@ public class SpotifyResolver implements Resolver {
      */
     @Override
     public boolean isResolving() {
-        return mReady && mAuthenticated && mInitialized;
+        return mAuthenticated && mInitialized;
     }
 
     /**
@@ -139,24 +143,45 @@ public class SpotifyResolver implements Resolver {
      */
     @Override
     public boolean resolve(Query query) {
-        if (mToSpotifyMessenger != null && mAuthenticated && mInitialized) {
-            try {
-                SpotifyQuery spotifyQuery = new SpotifyQuery();
-                spotifyQuery.queryKey = TomahawkUtils.getCacheKey(query);
-                if (query.isFullTextQuery()) {
-                    spotifyQuery.queryString = query.getFullTextQuery();
-                } else {
-                    spotifyQuery.queryString = query.getArtist().getName() + " " + query.getName();
-                }
-                String jsonString = mObjectMapper.writeValueAsString(spotifyQuery);
-                SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_RESOLVE,
-                        jsonString);
-            } catch (IOException e) {
-                Log.e(TAG, "SpotifyResolver: " + e.getClass() + ": " + e.getLocalizedMessage());
+        if (mToSpotifyMessenger != null) {
+            if (mAuthenticated && mInitialized) {
+                sendResolveMsg(query);
+                return true;
             }
-            return true;
+        } else {
+            mCachedQueries.add(query);
+            TomahawkMainActivity.getContext()
+                    .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
         }
         return false;
+    }
+
+    private void resolveWaitingQueries() {
+        if (mToSpotifyMessenger != null) {
+            if (mAuthenticated && mInitialized) {
+                for (int i = 0; i < mCachedQueries.size(); i++) {
+                    sendResolveMsg(mCachedQueries.remove(i));
+                }
+            }
+        }
+    }
+
+    private void sendResolveMsg(Query query) {
+        try {
+            SpotifyQuery spotifyQuery = new SpotifyQuery();
+            spotifyQuery.queryKey = TomahawkUtils.getCacheKey(query);
+            if (query.isFullTextQuery()) {
+                spotifyQuery.queryString = query.getFullTextQuery();
+            } else {
+                spotifyQuery.queryString = query.getArtist().getName() + " " + query
+                        .getName();
+            }
+            String jsonString = mObjectMapper.writeValueAsString(spotifyQuery);
+            SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_RESOLVE,
+                    jsonString);
+        } catch (IOException e) {
+            Log.e(TAG, "SpotifyResolver: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
     }
 
     /**
@@ -215,6 +240,6 @@ public class SpotifyResolver implements Resolver {
      */
     @Override
     public boolean isReady() {
-        return mReady && mInitialized;
+        return mToSpotifyMessenger != null && mInitialized;
     }
 }
