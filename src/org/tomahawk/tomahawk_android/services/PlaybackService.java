@@ -86,8 +86,6 @@ public class PlaybackService extends Service {
 
     private static String TAG = PlaybackService.class.getName();
 
-    private final IBinder mBinder = new PlaybackServiceBinder();
-
     public static final String BROADCAST_CURRENTTRACKCHANGED
             = "org.tomahawk.tomahawk_android.BROADCAST_CURRENTTRACKCHANGED";
 
@@ -153,7 +151,7 @@ public class PlaybackService extends Service {
 
     private Messenger mToSpotifyMessenger = null;
 
-    private final Messenger mFromSpotifyMessenger = new Messenger(new FromSpotifyHandler());
+    private Messenger mFromSpotifyMessenger = new Messenger(new FromSpotifyHandler());
 
     /**
      * Handler of incoming messages from the SpotifyService's messenger.
@@ -236,6 +234,7 @@ public class PlaybackService extends Service {
         }
     }
 
+    private PhoneCallListener mPhoneCallListener = new PhoneCallListener();
 
     /**
      * Listens for incoming phone calls and handles playback.
@@ -380,7 +379,7 @@ public class PlaybackService extends Service {
     };
 
     // Stops this service if it doesn't have any bound services
-    private final Handler mKillTimerHandler = new Handler() {
+    private Handler mKillTimerHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             if (isPlaying()) {
@@ -405,9 +404,9 @@ public class PlaybackService extends Service {
         // Initialize PhoneCallListener
         TelephonyManager telephonyManager = (TelephonyManager) getSystemService(
                 Context.TELEPHONY_SERVICE);
-        telephonyManager.listen(new PhoneCallListener(), PhoneStateListener.LISTEN_CALL_STATE);
+        telephonyManager.listen(mPhoneCallListener, PhoneStateListener.LISTEN_CALL_STATE);
         telephonyManager
-                .listen(new PhoneCallListener(), PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
+                .listen(mPhoneCallListener, PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
 
         // Initialize WakeLock
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -457,7 +456,7 @@ public class PlaybackService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "Client has been bound to PlaybackService");
-        return mBinder;
+        return new PlaybackServiceBinder();
     }
 
     @Override
@@ -471,12 +470,24 @@ public class PlaybackService extends Service {
         pause(true);
         saveState();
         unregisterReceiver(mPlaybackServiceBroadcastReceiver);
+        mPlaybackServiceBroadcastReceiver = null;
+        unbindService(mSpotifyServiceConnection);
+        mSpotifyServiceConnection = null;
         mTomahawkMediaPlayer.release();
         mTomahawkMediaPlayer = null;
         if (mWakeLock.isHeld()) {
             mWakeLock.release();
         }
-        unbindService(mSpotifyServiceConnection);
+        mWakeLock = null;
+        mVolumeIncreaseFader = null;
+        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(
+                Context.TELEPHONY_SERVICE);
+        telephonyManager.listen(mPhoneCallListener, PhoneStateListener.LISTEN_NONE);
+        mPhoneCallListener = null;
+        mTarget = null;
+        mKillTimerHandler.removeCallbacksAndMessages(null);
+        mKillTimerHandler = null;
+        mFromSpotifyMessenger = null;
 
         super.onDestroy();
         Log.d(TAG, "PlaybackService has been destroyed");
