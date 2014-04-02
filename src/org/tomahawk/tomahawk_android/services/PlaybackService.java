@@ -346,6 +346,7 @@ public class PlaybackService extends Service {
                 onInfoSystemResultsReported(requestId);
             } else if (SpotifyService.REQUEST_SPOTIFYSERVICE.equals(intent.getAction())) {
                 if (!mIsBindingToSpotifyService) {
+                    Log.d(TAG, "SpotifyService has been requested, I'm trying to bind to it ...");
                     mIsBindingToSpotifyService = true;
                     bindService(new Intent(PlaybackService.this, SpotifyService.class),
                             mSpotifyServiceConnection, Context.BIND_AUTO_CREATE);
@@ -388,7 +389,9 @@ public class PlaybackService extends Service {
                 mKillTimerHandler.removeCallbacksAndMessages(null);
                 Message msgx = mKillTimerHandler.obtainMessage();
                 mKillTimerHandler.sendMessageDelayed(msgx, DELAY_TO_KILL);
+                Log.d(TAG, "Killtimer checked if I should die, but I survived *cheer*");
             } else {
+                Log.d(TAG, "Killtimer called stopSelf() on me");
                 stopSelf();
             }
         }
@@ -433,6 +436,7 @@ public class PlaybackService extends Service {
         // Finally initialize the heart of this PlaybackService, the TomahawkMediaPlayer object
         initMediaPlayer();
         restoreState();
+        Log.d(TAG, "PlaybackService has been created");
     }
 
     @Override
@@ -455,12 +459,14 @@ public class PlaybackService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         mHasBoundServices = true;
+        Log.d(TAG, "Client has been bound to PlaybackService");
         return mBinder;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
         mHasBoundServices = false;
+        Log.d(TAG, "Client has been unbound from PlaybackService");
         return false;
     }
 
@@ -477,6 +483,7 @@ public class PlaybackService extends Service {
         unbindService(mSpotifyServiceConnection);
 
         super.onDestroy();
+        Log.d(TAG, "PlaybackService has been destroyed");
     }
 
     /**

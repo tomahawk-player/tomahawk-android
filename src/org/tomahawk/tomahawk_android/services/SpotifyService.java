@@ -202,6 +202,7 @@ public class SpotifyService extends Service {
         mWifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
                 .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
         mWifiLock.acquire();
+        Log.d(TAG, "SpotifyService has been created");
     }
 
     @Override
@@ -216,15 +217,18 @@ public class SpotifyService extends Service {
         super.onDestroy();
 
         mWifiLock.release();
+        Log.d(TAG, "SpotifyService has been destroyed");
     }
 
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d(TAG, "Client has been bound to SpotifyService");
         return mToSpotifyMessenger.getBinder();
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
+        Log.d(TAG, "Client has been unbound from SpotifyService");
         stopSelf();
         return false;
     }
