@@ -31,6 +31,8 @@ public abstract class TomahawkRunnable implements Runnable, Comparable<TomahawkR
 
     public static final int PRIORITY_IS_REPORTING_LOCALSOURCE = 40;
 
+    public static final int PRIORITY_IS_REPORTING_SUBSCRIPTION = 25;
+
     public static final int PRIORITY_IS_REPORTING = 20;
 
     public static final int PRIORITY_IS_RESOLVING = 10;
@@ -41,7 +43,7 @@ public abstract class TomahawkRunnable implements Runnable, Comparable<TomahawkR
 
     public static final int PRIORITY_IS_REPORTING_WITH_HEADERREQUEST = 0;
 
-    private int mPriority = PRIORITY_IS_RESOLVING;
+    private int mPriority;
 
     public TomahawkRunnable(int priority) {
         mPriority = priority;
