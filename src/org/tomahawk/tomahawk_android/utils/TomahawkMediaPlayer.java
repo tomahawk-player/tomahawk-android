@@ -19,9 +19,11 @@ package org.tomahawk.tomahawk_android.utils;
 
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyServiceUtils;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.services.SpotifyService;
 
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Messenger;
@@ -129,8 +131,13 @@ public class TomahawkMediaPlayer
                 mMediaPlayer.seekTo(0);
             }
         } else {
-            if (mSpotifyIsInitalized) {
-                SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PLAY);
+            if (mToSpotifyMessenger != null) {
+                if (mSpotifyIsInitalized) {
+                    SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PLAY);
+                }
+            } else {
+                TomahawkMainActivity.getContext()
+                        .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
             }
         }
     }
@@ -143,8 +150,13 @@ public class TomahawkMediaPlayer
         if (mUseMediaPlayer) {
             mMediaPlayer.pause();
         } else {
-            if (mSpotifyIsInitalized) {
-                SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PAUSE);
+            if (mToSpotifyMessenger != null) {
+                if (mSpotifyIsInitalized) {
+                    SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PAUSE);
+                }
+            } else {
+                TomahawkMainActivity.getContext()
+                        .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
             }
         }
     }
@@ -157,8 +169,13 @@ public class TomahawkMediaPlayer
         if (mUseMediaPlayer) {
             mMediaPlayer.stop();
         } else {
-            if (mSpotifyIsInitalized) {
-                SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PAUSE);
+            if (mToSpotifyMessenger != null) {
+                if (mSpotifyIsInitalized) {
+                    SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PAUSE);
+                }
+            } else {
+                TomahawkMainActivity.getContext()
+                        .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
             }
         }
     }
@@ -170,8 +187,13 @@ public class TomahawkMediaPlayer
         if (mUseMediaPlayer) {
             mMediaPlayer.seekTo(msec);
         } else {
-            if (mSpotifyIsInitalized) {
-                SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_SEEK, msec);
+            if (mToSpotifyMessenger != null) {
+                if (mSpotifyIsInitalized) {
+                    SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_SEEK, msec);
+                }
+            } else {
+                TomahawkMainActivity.getContext()
+                        .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
             }
         }
     }
@@ -191,13 +213,24 @@ public class TomahawkMediaPlayer
                 mMediaPlayer.stop();
             }
             mMediaPlayer.reset();
-            if (mSpotifyIsInitalized) {
-                SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PREPARE, url);
+            if (mToSpotifyMessenger != null) {
+                if (mSpotifyIsInitalized) {
+                    SpotifyServiceUtils
+                            .sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PREPARE, url);
+                }
+            } else {
+                TomahawkMainActivity.getContext()
+                        .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
             }
         } else {
             mUseMediaPlayer = true;
-            if (mSpotifyIsInitalized) {
-                SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PAUSE);
+            if (mToSpotifyMessenger != null) {
+                if (mSpotifyIsInitalized) {
+                    SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PAUSE);
+                }
+            } else {
+                TomahawkMainActivity.getContext()
+                        .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
             }
             mMediaPlayer.setDataSource(url);
             mMediaPlayer.prepare();

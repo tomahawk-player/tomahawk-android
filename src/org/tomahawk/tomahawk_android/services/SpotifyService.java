@@ -49,6 +49,9 @@ public class SpotifyService extends Service {
     // Used for debug logging
     private static final String TAG = SpotifyService.class.getName();
 
+    public static final String REQUEST_SPOTIFYSERVICE
+            = "org.tomahawk.tomahawk_android.request_spotifyservice";
+
     public static final String STRING_KEY = "org.tomahawk.tomahawk_android.string_key";
 
     /**
@@ -97,14 +100,9 @@ public class SpotifyService extends Service {
 
     public static final int MSG_ONPLAYERPOSITIONCHANGED = 108;
 
-    // After this time we will check if this service can be killed
-    private static final int DELAY_TO_KILL = 300000;
-
     private ArrayList<Messenger> mFromSpotifyMessengers = new ArrayList<Messenger>();
 
     private final Messenger mToSpotifyMessenger = new Messenger(new ToSpotifyHandler());
-
-    private boolean mHasBoundServices;
 
     private WifiManager.WifiLock mWifiLock;
 
@@ -191,20 +189,6 @@ public class SpotifyService extends Service {
         }
     }
 
-    // Stops this service if it doesn't have any bound services
-    private final Handler mKillTimerHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            if (!mHasBoundServices) {
-                stopSelf();
-            } else {
-                mKillTimerHandler.removeCallbacksAndMessages(null);
-                Message msgx = mKillTimerHandler.obtainMessage();
-                mKillTimerHandler.sendMessageDelayed(msgx, DELAY_TO_KILL);
-            }
-        }
-    };
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -218,11 +202,6 @@ public class SpotifyService extends Service {
         mWifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
                 .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
         mWifiLock.acquire();
-
-        // Start our killtimer (watchdog-style)
-        mKillTimerHandler.removeCallbacksAndMessages(null);
-        Message msg = mKillTimerHandler.obtainMessage();
-        mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
     }
 
     @Override
@@ -241,13 +220,11 @@ public class SpotifyService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        mHasBoundServices = true;
         return mToSpotifyMessenger.getBinder();
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        mHasBoundServices = false;
         stopSelf();
         return false;
     }
