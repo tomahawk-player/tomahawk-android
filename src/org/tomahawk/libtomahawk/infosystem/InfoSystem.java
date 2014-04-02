@@ -396,6 +396,13 @@ public class InfoSystem {
     }
 
     /**
+     * Get the InfoRequestData with the given Id
+     */
+    public InfoRequestData removeInfoRequestById(String requestId) {
+        return mRequests.remove(requestId);
+    }
+
+    /**
      * Method to enable InfoPlugins to report that the InfoRequestData objects with the given
      * requestIds have received their results
      */
