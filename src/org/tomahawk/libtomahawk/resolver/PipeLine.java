@@ -68,8 +68,6 @@ public class PipeLine {
 
     private ArrayList<Resolver> mResolvers = new ArrayList<Resolver>();
 
-    private ConcurrentHashMap<String, Query> mQueries = new ConcurrentHashMap<String, Query>();
-
     private ConcurrentHashMap<String, Query> mWaitingQueries
             = new ConcurrentHashMap<String, Query>();
 
@@ -175,7 +173,6 @@ public class PipeLine {
                                     mWaitingQueries.put(TomahawkUtils.getCacheKey(q), q);
                                 }
                             } else {
-                                mQueries.put(TomahawkUtils.getCacheKey(q), q);
                                 for (final Resolver resolver : mResolvers) {
                                     if ((forceOnlyLocal && resolver instanceof DataBaseResolver)
                                             || (!forceOnlyLocal && q.isOnlyLocal()
