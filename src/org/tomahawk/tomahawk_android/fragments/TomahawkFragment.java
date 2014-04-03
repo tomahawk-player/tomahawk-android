@@ -388,24 +388,24 @@ public class TomahawkFragment extends TomahawkListFragment
             }
             tomahawkListItem = ((TomahawkListAdapter) adapter).getContentHeaderTomahawkListItem();
         }
-        boolean showDelete = true;
         if ((tomahawkListItem instanceof SocialAction
                 && ((SocialAction) tomahawkListItem).getTargetObject() instanceof User)
                 || tomahawkListItem instanceof User) {
             return false;
         }
+        boolean showDelete = false;
         if (tomahawkListItem instanceof UserPlaylist
                 && !((UserPlaylist) tomahawkListItem).isHatchetPlaylist()) {
-            showDelete = false;
+            showDelete = true;
         } else if (!(this instanceof PlaybackFragment)) {
             if (!(mUserPlaylist == null || mUserPlaylist.isHatchetPlaylist()
                     || DatabaseHelper.LOVEDITEMS_PLAYLIST_ID
                     .equals(mUserPlaylist.getId()))) {
-                showDelete = false;
+                showDelete = true;
             }
         } else if (tomahawkListItem instanceof Query
                 && !((Query) tomahawkListItem).isCurrentlyPlaying()) {
-            showDelete = false;
+            showDelete = true;
         }
         FakeContextMenuDialog dialog = new FakeContextMenuDialog();
         Bundle args = new Bundle();
