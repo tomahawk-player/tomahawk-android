@@ -214,6 +214,11 @@ public class TomahawkFragment extends TomahawkListFragment
                     mResolveQueriesHandler.removeCallbacksAndMessages(null);
                     mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
                 }
+            } else if (DatabaseHelper.USERPLAYLISTSDATASOURCE_RESULTSREPORTED
+                    .equals(intent.getAction())) {
+                if (mUserPlaylist != null) {
+                    refreshCurrentUserPlaylist();
+                }
             }
         }
     }
@@ -242,17 +247,7 @@ public class TomahawkFragment extends TomahawkListFragment
                     getActivity().getSupportFragmentManager().beginTransaction().remove(this)
                             .commit();
                 } else {
-                    ThreadManager.getInstance().execute(
-                            new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
-                                @Override
-                                public void run() {
-                                    mUserPlaylist = DatabaseHelper.getInstance()
-                                            .getUserPlaylist(mUserPlaylist.getId());
-                                    TomahawkMainActivity.getContext().sendBroadcast(
-                                            new Intent(UserCollection.COLLECTION_UPDATED));
-                                }
-                            }
-                    );
+                    refreshCurrentUserPlaylist();
                 }
             }
             if (getArguments().containsKey(TOMAHAWK_ARTIST_KEY) && !TextUtils
@@ -304,6 +299,8 @@ public class TomahawkFragment extends TomahawkListFragment
             intentFilter = new IntentFilter(TomahawkMainActivity.PLAYBACKSERVICE_READY);
             activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+            activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
+            intentFilter = new IntentFilter(DatabaseHelper.USERPLAYLISTSDATASOURCE_RESULTSREPORTED);
             activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
         }
         StickyListHeadersListView list = getListView();
@@ -617,5 +614,19 @@ public class TomahawkFragment extends TomahawkListFragment
     protected void toggleLovedItem(Query query) {
         UserCollection.getInstance().toggleLovedItem(query);
         onTrackChanged();
+    }
+
+    protected void refreshCurrentUserPlaylist() {
+        ThreadManager.getInstance().execute(
+                new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
+                    @Override
+                    public void run() {
+                        mUserPlaylist = DatabaseHelper.getInstance()
+                                .getUserPlaylist(mUserPlaylist.getId());
+                        TomahawkMainActivity.getContext().sendBroadcast(
+                                new Intent(UserCollection.COLLECTION_UPDATED));
+                    }
+                }
+        );
     }
 }
