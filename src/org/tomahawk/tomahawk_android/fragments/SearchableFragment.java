@@ -143,7 +143,7 @@ public class SearchableFragment extends TomahawkFragment
             } else if (item instanceof Artist) {
                 String key = TomahawkUtils.getCacheKey((Artist) item);
                 FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                        TracksFragment.class, key, TomahawkFragment.TOMAHAWK_ARTIST_KEY,
+                        AlbumsFragment.class, key, TomahawkFragment.TOMAHAWK_ARTIST_KEY,
                         false);
             } else if (item instanceof User) {
                 String key = ((User) item).getId();
