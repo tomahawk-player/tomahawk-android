@@ -90,7 +90,7 @@ public class SpotifyResolver implements Resolver {
                                         SpotifyResults.class);
                         onResolved(spotifyResults);
                         break;
-                    case SpotifyService.MSG_ONCREDBLOBUPDATED:
+                    case SpotifyService.MSG_ONLOGIN:
                         mAuthenticated = true;
                         break;
                     default:

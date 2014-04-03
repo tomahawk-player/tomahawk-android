@@ -38,6 +38,8 @@ import org.tomahawk.tomahawk_android.services.SpotifyService;
  */
 public class LibSpotifyWrapper {
 
+    private static boolean sIsAuthenticated = false;
+
     private static SpotifyService sSpotifyService;
 
     native public static void nativeinit(ClassLoader loader, String storagePath);
@@ -103,6 +105,9 @@ public class LibSpotifyWrapper {
      */
     public static void onInit() {
         sSpotifyService.onInit();
+        if (sIsAuthenticated) {
+            onLogin(true, "Spotify user was already logged in", "");
+        }
     }
 
     /**
@@ -121,6 +126,7 @@ public class LibSpotifyWrapper {
      * Called by libspotify on logout
      */
     public static void onLogout() {
+        sIsAuthenticated = false;
         sSpotifyService.onLogout();
     }
 
@@ -131,6 +137,7 @@ public class LibSpotifyWrapper {
      * @param blob     {@link String} containing the blob
      */
     public static void onCredentialsBlobUpdated(final String username, final String blob) {
+        sIsAuthenticated = true;
         sSpotifyService.onCredentialsBlobUpdated(username, blob);
     }
 
