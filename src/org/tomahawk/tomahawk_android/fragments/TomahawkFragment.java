@@ -230,8 +230,9 @@ public class TomahawkFragment extends TomahawkListFragment
                 if (mAlbum == null) {
                     getActivity().getSupportFragmentManager().beginTransaction().remove(this)
                             .commit();
+                } else {
+                    mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mAlbum));
                 }
-                mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mAlbum));
             }
             if (getArguments().containsKey(TOMAHAWK_USERPLAYLIST_KEY) && !TextUtils.isEmpty(
                     getArguments().getString(TOMAHAWK_USERPLAYLIST_KEY))) {
@@ -240,18 +241,19 @@ public class TomahawkFragment extends TomahawkListFragment
                 if (mUserPlaylist == null) {
                     getActivity().getSupportFragmentManager().beginTransaction().remove(this)
                             .commit();
-                }
-                ThreadManager.getInstance().execute(
-                        new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
-                            @Override
-                            public void run() {
-                                mUserPlaylist = DatabaseHelper.getInstance()
-                                        .getUserPlaylist(mUserPlaylist.getId());
-                                TomahawkMainActivity.getContext().sendBroadcast(
-                                        new Intent(UserCollection.COLLECTION_UPDATED));
+                } else {
+                    ThreadManager.getInstance().execute(
+                            new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
+                                @Override
+                                public void run() {
+                                    mUserPlaylist = DatabaseHelper.getInstance()
+                                            .getUserPlaylist(mUserPlaylist.getId());
+                                    TomahawkMainActivity.getContext().sendBroadcast(
+                                            new Intent(UserCollection.COLLECTION_UPDATED));
+                                }
                             }
-                        }
-                );
+                    );
+                }
             }
             if (getArguments().containsKey(TOMAHAWK_ARTIST_KEY) && !TextUtils
                     .isEmpty(getArguments().getString(TOMAHAWK_ARTIST_KEY))) {
@@ -259,10 +261,11 @@ public class TomahawkFragment extends TomahawkListFragment
                 if (mArtist == null) {
                     getActivity().getSupportFragmentManager().beginTransaction().remove(this)
                             .commit();
-                }
-                ArrayList<String> requestIds = InfoSystem.getInstance().resolve(mArtist, false);
-                for (String requestId : requestIds) {
-                    mCurrentRequestIds.add(requestId);
+                } else {
+                    ArrayList<String> requestIds = InfoSystem.getInstance().resolve(mArtist, false);
+                    for (String requestId : requestIds) {
+                        mCurrentRequestIds.add(requestId);
+                    }
                 }
             }
             if (getArguments().containsKey(TOMAHAWK_USER_ID) && !TextUtils
@@ -271,8 +274,9 @@ public class TomahawkFragment extends TomahawkListFragment
                 if (mUser == null) {
                     getActivity().getSupportFragmentManager().beginTransaction().remove(this)
                             .commit();
+                } else {
+                    mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mUser));
                 }
-                mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mUser));
             }
             if (getArguments().containsKey(TOMAHAWK_LIST_ITEM_IS_LOCAL)) {
                 mIsLocal = getArguments().getBoolean(TOMAHAWK_LIST_ITEM_IS_LOCAL);
