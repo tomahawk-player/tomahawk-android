@@ -124,7 +124,7 @@ public class PlaybackFragment extends TomahawkFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.playback_fragment, null, false);
+        return inflater.inflate(R.layout.playback_fragment, container, false);
     }
 
     @Override
@@ -151,7 +151,7 @@ public class PlaybackFragment extends TomahawkFragment
 
         PlaybackService playbackService = activity.getPlaybackService();
         ViewPager viewPager = (ViewPager) activity.getLayoutInflater()
-                .inflate(R.layout.album_art_view_pager, null, false);
+                .inflate(R.layout.album_art_view_pager, null);
         mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter(activity, activity.getLayoutInflater(),
                 viewPager, this);
         mAlbumArtSwipeAdapter.setPlaybackService(playbackService);

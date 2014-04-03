@@ -82,7 +82,7 @@ public class TomahawkGridAdapter extends BaseAdapter {
                 viewHolder = (ViewHolder) convertView.getTag();
                 view = convertView;
             } else {
-                view = mLayoutInflater.inflate(R.layout.album_art_grid_item, null);
+                view = mLayoutInflater.inflate(R.layout.album_art_grid_item, parent, false);
                 viewHolder = new ViewHolder(view, R.id.tomahawklistadapter_viewtype_griditem);
                 view.setTag(viewHolder);
             }

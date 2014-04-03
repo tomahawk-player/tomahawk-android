@@ -159,19 +159,21 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                 // we need to inflate a new view and construct a new viewHolder,
                 // which we set as the view's tag
                 if (viewType == R.id.fakepreferencesadapter_viewtype_plain) {
-                    view = mLayoutInflater.inflate(R.layout.fake_preferences_plain, null);
+                    view = mLayoutInflater.inflate(R.layout.fake_preferences_plain, parent, false);
                     viewHolder = new ViewHolder(view, viewType);
                     view.setTag(viewHolder);
                 } else if (viewType == R.id.fakepreferencesadapter_viewtype_checkbox) {
-                    view = mLayoutInflater.inflate(R.layout.fake_preferences_checkbox, null);
+                    view = mLayoutInflater
+                            .inflate(R.layout.fake_preferences_checkbox, parent, false);
                     viewHolder = new ViewHolder(view, viewType);
                     view.setTag(viewHolder);
                 } else if (viewType == R.id.fakepreferencesadapter_viewtype_auth) {
-                    view = mLayoutInflater.inflate(R.layout.fake_preferences_auth, null);
+                    view = mLayoutInflater.inflate(R.layout.fake_preferences_auth, parent, false);
                     viewHolder = new ViewHolder(view, viewType);
                     view.setTag(viewHolder);
                 } else if (viewType == R.id.fakepreferencesadapter_viewtype_spinner) {
-                    view = mLayoutInflater.inflate(R.layout.fake_preferences_spinner, null);
+                    view = mLayoutInflater
+                            .inflate(R.layout.fake_preferences_spinner, parent, false);
                     viewHolder = new ViewHolder(view, viewType);
                     view.setTag(viewHolder);
                 }
@@ -229,7 +231,7 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
             viewHolder = (ViewHolder) convertView.getTag();
             view = convertView;
         } else {
-            view = mLayoutInflater.inflate(R.layout.fake_preferences_header, null);
+            view = mLayoutInflater.inflate(R.layout.fake_preferences_header, parent, false);
             viewHolder = new ViewHolder(view, R.id.fakepreferencesadapter_viewtype_header);
             view.setTag(viewHolder);
         }

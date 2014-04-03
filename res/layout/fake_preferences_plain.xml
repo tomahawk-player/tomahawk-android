@@ -24,7 +24,6 @@
               android:baselineAligned="false"
               android:orientation="vertical"
               android:padding="@dimen/padding_small"
-              android:background="@drawable/selectable_background_tomahawk"
               android:descendantFocusability="blocksDescendants">
 
     <TextView

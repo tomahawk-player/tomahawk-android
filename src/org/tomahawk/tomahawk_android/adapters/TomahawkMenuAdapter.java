@@ -138,7 +138,7 @@ public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeader
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View view = mLayoutInflater.inflate(R.layout.single_line_list_menu, null);
+        View view = mLayoutInflater.inflate(R.layout.single_line_list_menu, parent, false);
         TextView textView = (TextView) view.findViewById(R.id.single_line_list_menu_textview);
         ImageView imageView = (ImageView) view.findViewById(R.id.icon_menu_imageview);
         String string = mStringArray.get(position);
