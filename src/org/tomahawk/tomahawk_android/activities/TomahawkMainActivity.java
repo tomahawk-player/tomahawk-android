@@ -171,25 +171,18 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (UserCollection.COLLECTION_UPDATED.equals(intent.getAction())) {
-                PipeLine.getInstance().onCollectionUpdated();
-            } else if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
+            if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
                 boolean noConnectivity =
                         intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
                 if (!noConnectivity) {
                     AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
                             .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
                     InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
-                    UserCollection.getInstance().fetchHatchetUserPlaylists();
                 }
                 ConnectivityManager connMgr = (ConnectivityManager) context
                         .getSystemService(Context.CONNECTIVITY_SERVICE);
-                if (connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI) != null
-                        && connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected()) {
-                    sIsConnectedToWifi = true;
-                } else {
-                    sIsConnectedToWifi = false;
-                }
+                sIsConnectedToWifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI) != null
+                        && connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected();
             } else if (UserCollection.COLLECTION_UPDATED.equals(intent.getAction())) {
                 onCollectionUpdated();
             } else if (PlaybackService.BROADCAST_CURRENTTRACKCHANGED.equals(intent.getAction())) {
