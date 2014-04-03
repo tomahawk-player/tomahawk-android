@@ -226,15 +226,15 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                 // we need to inflate a new view and construct a new viewHolder,
                 // which we set as the view's tag
                 if (viewType == R.id.tomahawklistadapter_viewtype_singlelinelistitem) {
-                    view = mLayoutInflater.inflate(R.layout.single_line_list_item, null);
+                    view = mLayoutInflater.inflate(R.layout.single_line_list_item, parent, false);
                     viewHolder = new ViewHolder(view, viewType);
                     view.setTag(viewHolder);
                 } else if (viewType == R.id.tomahawklistadapter_viewtype_listitem) {
-                    view = mLayoutInflater.inflate(R.layout.list_item, null);
+                    view = mLayoutInflater.inflate(R.layout.list_item, parent, false);
                     viewHolder = new ViewHolder(view, viewType);
                     view.setTag(viewHolder);
                 } else if (viewType == R.id.tomahawklistadapter_viewtype_listitemhighlighted) {
-                    view = mLayoutInflater.inflate(R.layout.list_item_highlighted, null);
+                    view = mLayoutInflater.inflate(R.layout.list_item_highlighted, parent, false);
                     viewHolder = new ViewHolder(view, viewType);
                     view.setTag(viewHolder);
                 }

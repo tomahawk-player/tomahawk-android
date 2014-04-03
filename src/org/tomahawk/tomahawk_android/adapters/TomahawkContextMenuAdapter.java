@@ -104,7 +104,7 @@ public class TomahawkContextMenuAdapter extends BaseAdapter {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View view = mLayoutInflater.inflate(R.layout.single_line_list_context_menu, null);
+        View view = mLayoutInflater.inflate(R.layout.single_line_list_context_menu, parent, false);
         TextView textView = (TextView) view
                 .findViewById(R.id.single_line_list_context_menu_textview);
         String string = mStringArray.get(position);

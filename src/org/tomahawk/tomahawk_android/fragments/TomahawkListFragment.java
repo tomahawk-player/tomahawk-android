@@ -81,7 +81,7 @@ public class TomahawkListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.tomahawklistfragment_layout, null, false);
+        return inflater.inflate(R.layout.tomahawklistfragment_layout, container, false);
     }
 
     @Override
@@ -121,22 +121,24 @@ public class TomahawkListFragment extends Fragment {
             return;
         }
         if (!mShowGridView) {
-            mList = (StickyListHeadersListView) layoutInflater
-                    .inflate(R.layout.stickylistheaderslistview, null, false);
-            View listViewContainer = root
+            View container = root
                     .findViewById(R.id.fragmentLayout_listLayout_frameLayout);
-            if (listViewContainer instanceof FrameLayout) {
-                ((FrameLayout) listViewContainer).addView(mList);
+            mList = (StickyListHeadersListView) layoutInflater
+                    .inflate(R.layout.stickylistheaderslistview, (ViewGroup) container,
+                            false);
+            if (container instanceof FrameLayout) {
+                ((FrameLayout) container).addView(mList);
             }
             if (mTomahawkListAdapter != null) {
                 setListAdapter(mTomahawkListAdapter);
             }
         } else {
-            mGrid = (GridView) layoutInflater.inflate(R.layout.gridview, null, false);
-            View listViewContainer = root
+            View container = root
                     .findViewById(R.id.fragmentLayout_gridLayout_frameLayout);
-            if (listViewContainer instanceof FrameLayout) {
-                ((FrameLayout) listViewContainer).addView(mGrid);
+            mGrid = (GridView) layoutInflater
+                    .inflate(R.layout.gridview, (ViewGroup) container, false);
+            if (container instanceof FrameLayout) {
+                ((FrameLayout) container).addView(mGrid);
             }
             if (mTomahawkGridAdapter != null) {
                 setGridAdapter(mTomahawkGridAdapter);
