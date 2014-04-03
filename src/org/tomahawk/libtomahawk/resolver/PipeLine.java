@@ -335,9 +335,4 @@ public class PipeLine {
     public void setAllResolversAdded(boolean allResolversAdded) {
         mAllResolversAdded = allResolversAdded;
     }
-
-    public void onCollectionUpdated() {
-        ArrayList<Query> queries = new ArrayList<Query>(mQueries.values());
-        resolve(queries, true);
-    }
 }
