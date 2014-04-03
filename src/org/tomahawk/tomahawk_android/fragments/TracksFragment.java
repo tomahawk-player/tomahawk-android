@@ -257,7 +257,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
     }
 
     private void getUserPlaylistArtists(UserPlaylist userPlaylist) {
-        if (userPlaylist.getContentHeaderArtists().size() < 6) {
+        if (!userPlaylist.isContentHeaderArtistsFilled()) {
             final HashMap<Artist, Integer> countMap = new HashMap<Artist, Integer>();
             for (Query query : userPlaylist.getQueries()) {
                 Artist artist = query.getArtist();
@@ -286,6 +286,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                     break;
                 }
             }
+            userPlaylist.setContentHeaderArtistsFilled(true);
         }
     }
 }

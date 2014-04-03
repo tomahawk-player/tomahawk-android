@@ -87,28 +87,30 @@ public class AdapterUtils {
         String s = tracksCount + " " + context.getString(R.string.category_header_track)
                 + (tracksCount == 1 ? "" : "s");
         viewHolder.getTextView2().setText(s);
-        ArrayList<Artist> artists = userPlaylist.getContentHeaderArtists();
-        ArrayList<Artist> artistsWithImage = new ArrayList<Artist>();
-        for (Artist artist : artists) {
-            if (artist.getImage() != null) {
-                artistsWithImage.add(artist);
+        if (userPlaylist.isContentHeaderArtistsFilled()) {
+            ArrayList<Artist> artists = userPlaylist.getContentHeaderArtists();
+            ArrayList<Artist> artistsWithImage = new ArrayList<Artist>();
+            for (Artist artist : artists) {
+                if (artist.getImage() != null) {
+                    artistsWithImage.add(artist);
+                }
             }
-        }
-        if (artistsWithImage.size() > 0) {
-            TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
-                    artistsWithImage.get(0).getImage(), Image.IMAGE_SIZE_LARGE);
-        }
-        if (artistsWithImage.size() > 3) {
-            viewHolder.getImageViewFrame().setVisibility(View.VISIBLE);
-            viewHolder.getImageView2().setVisibility(ImageView.VISIBLE);
-            TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView2(),
-                    artistsWithImage.get(1).getImage(), Image.IMAGE_SIZE_LARGE);
-            viewHolder.getImageView3().setVisibility(ImageView.VISIBLE);
-            TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView3(),
-                    artistsWithImage.get(2).getImage(), Image.IMAGE_SIZE_LARGE);
-            viewHolder.getImageView4().setVisibility(ImageView.VISIBLE);
-            TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView4(),
-                    artistsWithImage.get(3).getImage(), Image.IMAGE_SIZE_LARGE);
+            if (artistsWithImage.size() > 0) {
+                TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
+                        artistsWithImage.get(0).getImage(), Image.IMAGE_SIZE_LARGE);
+            }
+            if (artistsWithImage.size() > 3) {
+                viewHolder.getImageViewFrame().setVisibility(View.VISIBLE);
+                viewHolder.getImageView2().setVisibility(ImageView.VISIBLE);
+                TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView2(),
+                        artistsWithImage.get(1).getImage(), Image.IMAGE_SIZE_LARGE);
+                viewHolder.getImageView3().setVisibility(ImageView.VISIBLE);
+                TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView3(),
+                        artistsWithImage.get(2).getImage(), Image.IMAGE_SIZE_LARGE);
+                viewHolder.getImageView4().setVisibility(ImageView.VISIBLE);
+                TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView4(),
+                        artistsWithImage.get(3).getImage(), Image.IMAGE_SIZE_LARGE);
+            }
         }
     }
 
