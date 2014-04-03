@@ -23,6 +23,7 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,7 +52,7 @@ public class TomahawkListFragment extends Fragment {
 
     private GridView mGrid;
 
-    private int mListScrollPosition = 0;
+    private Parcelable mListState = null;
 
     private boolean restoreScrollPosition = true;
 
@@ -70,10 +71,10 @@ public class TomahawkListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments() != null) {
-            if (getArguments().containsKey(TOMAHAWK_LIST_SCROLL_POSITION)
-                    && getArguments().getInt(TOMAHAWK_LIST_SCROLL_POSITION) > 0) {
-                mListScrollPosition = getArguments().getInt(TOMAHAWK_LIST_SCROLL_POSITION);
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(TOMAHAWK_LIST_SCROLL_POSITION)) {
+                mListState = savedInstanceState.getParcelable(
+                        TOMAHAWK_LIST_SCROLL_POSITION);
             }
         }
     }
@@ -85,11 +86,28 @@ public class TomahawkListFragment extends Fragment {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+
+        mListState = getListState();
+    }
+
+    @Override
     public void onDestroyView() {
         mHandler.removeCallbacks(mRequestFocus);
         mList = null;
         mGrid = null;
         super.onDestroyView();
+    }
+
+    /**
+     * Save the {@link String} inside the search {@link android.widget.TextView}.
+     */
+    @Override
+    public void onSaveInstanceState(Bundle out) {
+        super.onSaveInstanceState(out);
+
+        out.putParcelable(TOMAHAWK_LIST_SCROLL_POSITION, mListState);
     }
 
     /**
@@ -150,11 +168,11 @@ public class TomahawkListFragment extends Fragment {
     /**
      * @return the current scrolling position of the list- or gridView
      */
-    public int getListScrollPosition() {
+    public Parcelable getListState() {
         if (mShowGridView) {
-            return getGridView().getFirstVisiblePosition();
+            return getGridView().onSaveInstanceState();
         }
-        return getListView().getFirstVisiblePosition();
+        return getListView().getWrappedList().onSaveInstanceState();
     }
 
     /**
@@ -180,10 +198,9 @@ public class TomahawkListFragment extends Fragment {
     public void setListAdapter(StickyListHeadersAdapter adapter) {
         mTomahawkListAdapter = adapter;
         mShowGridView = false;
-        StickyListHeadersListView listView = getListView();
-        listView.setAdapter(adapter);
-        if (restoreScrollPosition) {
-            listView.setSelection(mListScrollPosition);
+        getListView().setAdapter(adapter);
+        if (restoreScrollPosition && mListState != null) {
+            getListView().getWrappedList().onRestoreInstanceState(mListState);
         }
     }
 
@@ -194,10 +211,9 @@ public class TomahawkListFragment extends Fragment {
     public void setGridAdapter(TomahawkGridAdapter adapter) {
         mTomahawkGridAdapter = adapter;
         mShowGridView = true;
-        GridView gridView = getGridView();
-        gridView.setAdapter(adapter);
-        if (restoreScrollPosition) {
-            gridView.setSelection(mListScrollPosition);
+        getGridView().setAdapter(adapter);
+        if (restoreScrollPosition && mListState != null) {
+            getGridView().onRestoreInstanceState(mListState);
         }
     }
 
