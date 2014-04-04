@@ -56,13 +56,6 @@ public class UserPlaylist extends Playlist implements TomahawkListItem {
     }
 
     /**
-     * Get the {@link org.tomahawk.libtomahawk.collection.Artist} by providing its cache key
-     */
-    public static UserPlaylist getUserPlaylistById(String key) {
-        return sUserPlaylists.get(key);
-    }
-
-    /**
      * Create a {@link UserPlaylist} from a list of {@link org.tomahawk.libtomahawk.resolver.Query}s.
      *
      * @return a reference to the constructed {@link UserPlaylist}
@@ -113,6 +106,17 @@ public class UserPlaylist extends Playlist implements TomahawkListItem {
      */
     public static UserPlaylist fromQueryList(String id, String name, ArrayList<Query> queries) {
         return UserPlaylist.fromQueryList(id, name, null, false, queries, null);
+    }
+
+    /**
+     * Get the {@link org.tomahawk.libtomahawk.collection.Artist} by providing its cache key
+     */
+    public static UserPlaylist getUserPlaylistById(String key) {
+        return sUserPlaylists.get(key);
+    }
+
+    public String getCacheKey() {
+        return mId;
     }
 
     public String getId() {

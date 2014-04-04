@@ -130,7 +130,7 @@ public class PipeLine {
         if (fullTextQuery != null && !TextUtils.isEmpty(fullTextQuery)) {
             Query q = Query.get(fullTextQuery, forceOnlyLocal);
             resolve(q, forceOnlyLocal);
-            return TomahawkUtils.getCacheKey(q);
+            return q.getCacheKey();
         }
         return null;
     }
@@ -166,11 +166,11 @@ public class PipeLine {
                     @Override
                     public void run() {
                         if (!forceOnlyLocal && q.isSolved()) {
-                            sendResultsReportBroadcast(TomahawkUtils.getCacheKey(q));
+                            sendResultsReportBroadcast(q.getCacheKey());
                         } else {
                             if (!isEveryResolverReady()) {
-                                if (!mWaitingQueries.containsKey(TomahawkUtils.getCacheKey(q))) {
-                                    mWaitingQueries.put(TomahawkUtils.getCacheKey(q), q);
+                                if (!mWaitingQueries.containsKey(q.getCacheKey())) {
+                                    mWaitingQueries.put(q.getCacheKey(), q);
                                 }
                             } else {
                                 for (final Resolver resolver : mResolvers) {
@@ -186,7 +186,7 @@ public class PipeLine {
                     }
                 }
         );
-        return TomahawkUtils.getCacheKey(q);
+        return q.getCacheKey();
     }
 
     /**
@@ -283,7 +283,7 @@ public class PipeLine {
                             q.addArtistResults(cleanArtistResults);
                             q.addAlbumResults(cleanAlbumResults);
                             q.addTrackResults(cleanTrackResults);
-                            sendResultsReportBroadcast(TomahawkUtils.getCacheKey(q));
+                            sendResultsReportBroadcast(q.getCacheKey());
                         }
                     }
                 }
@@ -323,7 +323,7 @@ public class PipeLine {
     public void onResolverReady() {
         if (isEveryResolverReady()) {
             for (Query query : mWaitingQueries.values()) {
-                mWaitingQueries.remove(TomahawkUtils.getCacheKey(query));
+                mWaitingQueries.remove(query.getCacheKey());
                 resolve(query);
             }
         }

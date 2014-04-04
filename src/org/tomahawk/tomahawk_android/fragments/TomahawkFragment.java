@@ -29,7 +29,6 @@ import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -355,13 +354,13 @@ public class TomahawkFragment extends TomahawkListFragment
             args.putBoolean(TOMAHAWK_LIST_ITEM_IS_LOCAL, mIsLocal);
             args.putBoolean(TOMAHAWK_FROMPLAYBACKFRAGMENT, this instanceof PlaybackFragment);
             if (mAlbum != null) {
-                args.putString(TOMAHAWK_ALBUM_KEY, TomahawkUtils.getCacheKey(mAlbum));
+                args.putString(TOMAHAWK_ALBUM_KEY, mAlbum.getCacheKey());
             } else if (mUserPlaylist != null) {
                 args.putString(TOMAHAWK_USERPLAYLIST_KEY, mUserPlaylist.getId());
             } else if (mArtist != null) {
-                args.putString(TOMAHAWK_ARTIST_KEY, TomahawkUtils.getCacheKey(mArtist));
+                args.putString(TOMAHAWK_ARTIST_KEY, mArtist.getCacheKey());
             }
-            args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY, TomahawkUtils.getCacheKey(query));
+            args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY, query.getCacheKey());
             args.putString(TOMAHAWK_TOMAHAWKLISTITEM_TYPE, TOMAHAWK_QUERY_KEY);
             dialog.setArguments(args);
             dialog.show(getFragmentManager(), null);
@@ -413,23 +412,20 @@ public class TomahawkFragment extends TomahawkListFragment
         }
         args.putBoolean(TOMAHAWK_FROMPLAYBACKFRAGMENT, this instanceof PlaybackFragment);
         if (mAlbum != null) {
-            args.putString(TOMAHAWK_ALBUM_KEY, TomahawkUtils.getCacheKey(mAlbum));
+            args.putString(TOMAHAWK_ALBUM_KEY, mAlbum.getCacheKey());
         } else if (mUserPlaylist != null) {
             args.putString(TOMAHAWK_USERPLAYLIST_KEY, mUserPlaylist.getId());
         } else if (mArtist != null) {
-            args.putString(TOMAHAWK_ARTIST_KEY, TomahawkUtils.getCacheKey(mArtist));
+            args.putString(TOMAHAWK_ARTIST_KEY, mArtist.getCacheKey());
         }
         if (tomahawkListItem instanceof Query) {
-            args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY,
-                    TomahawkUtils.getCacheKey(tomahawkListItem));
+            args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY, tomahawkListItem.getCacheKey());
             args.putString(TOMAHAWK_TOMAHAWKLISTITEM_TYPE, TOMAHAWK_QUERY_KEY);
         } else if (tomahawkListItem instanceof Album) {
-            args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY,
-                    TomahawkUtils.getCacheKey(tomahawkListItem));
+            args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY, tomahawkListItem.getCacheKey());
             args.putString(TOMAHAWK_TOMAHAWKLISTITEM_TYPE, TOMAHAWK_ALBUM_KEY);
         } else if (tomahawkListItem instanceof Artist) {
-            args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY,
-                    TomahawkUtils.getCacheKey(tomahawkListItem));
+            args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY, tomahawkListItem.getCacheKey());
             args.putString(TOMAHAWK_TOMAHAWKLISTITEM_TYPE, TOMAHAWK_ARTIST_KEY);
         } else if (tomahawkListItem instanceof UserPlaylist) {
             args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY,
@@ -532,8 +528,8 @@ public class TomahawkFragment extends TomahawkListFragment
             Playlist playlist = playbackService.getCurrentPlaylist();
             if (playlist != null && playlist.getCount() == mShownQueries.size()) {
                 for (int i = 0; i < playlist.getCount(); i++) {
-                    if (!TomahawkUtils.getCacheKey(playlist.peekQueryAtPos(i))
-                            .equals(TomahawkUtils.getCacheKey(mShownQueries.get(i)))) {
+                    if (!playlist.peekQueryAtPos(i).getCacheKey()
+                            .equals(mShownQueries.get(i).getCacheKey())) {
                         return false;
                     }
                 }
@@ -596,8 +592,7 @@ public class TomahawkFragment extends TomahawkListFragment
         ArrayList<Query> qs = new ArrayList<Query>();
         for (int i = (start < 0 ? 0 : start); i < end && i < mShownQueries.size(); i++) {
             Query q = mShownQueries.get(i);
-            if (!q.isSolved() && !mCorrespondingQueryIds
-                    .contains(TomahawkUtils.getCacheKey(q))) {
+            if (!q.isSolved() && !mCorrespondingQueryIds.contains(q.getCacheKey())) {
                 qs.add(q);
             }
         }

@@ -24,7 +24,6 @@ import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -80,10 +79,9 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item != null) {
             if (item.getItemId() == R.id.action_gotoartist_item) {
-                String key = TomahawkUtils.getCacheKey(mAlbum.getArtist());
                 FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                        AlbumsFragment.class, key, TomahawkFragment.TOMAHAWK_ARTIST_KEY,
-                        false);
+                        AlbumsFragment.class, mAlbum.getArtist().getCacheKey(),
+                        TomahawkFragment.TOMAHAWK_ARTIST_KEY, false);
             }
         }
         return super.onOptionsItemSelected(item);

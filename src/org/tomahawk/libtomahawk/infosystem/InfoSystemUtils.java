@@ -35,7 +35,6 @@ import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetTrackInfo;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetTracks;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetUserInfo;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 
 import android.text.TextUtils;
 
@@ -148,8 +147,7 @@ public class InfoSystemUtils {
                 List<HatchetTrackInfo> trackInfos = tracksMap.get(albumInfo).tracks;
                 Album album = convertToAlbum(albumInfo, artist.getName(), trackInfos,
                         image);
-                String key = TomahawkUtils.getCacheKey(album);
-                albumMap.put(key, album);
+                albumMap.put(album.getCacheKey(), album);
                 artist.addAlbum(album);
             }
         }

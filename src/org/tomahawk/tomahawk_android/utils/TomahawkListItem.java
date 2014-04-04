@@ -25,10 +25,14 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import java.util.ArrayList;
 
 /**
- * This interface represents an item displayed in our {@link org.tomahawk.libtomahawk.collection.Collection}
- * list.
+ * This interface represents an item displayed in some sort of list.
  */
 public interface TomahawkListItem {
+
+    /**
+     * @return the unique cache key of this object
+     */
+    public String getCacheKey();
 
     /**
      * @return the corresponding name/title
@@ -55,5 +59,8 @@ public interface TomahawkListItem {
      */
     public ArrayList<Query> getQueries();
 
+    /**
+     * @return a corresponding image like an artist's portrait image or an album cover
+     */
     public Image getImage();
 }

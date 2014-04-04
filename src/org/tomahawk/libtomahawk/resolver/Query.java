@@ -47,6 +47,8 @@ public class Query implements TomahawkListItem {
 
     private static HashSet<String> sBlacklistedResults = new HashSet<String>();
 
+    private String mCacheKey;
+
     private ConcurrentHashMap<String, Result> mTrackResults
             = new ConcurrentHashMap<String, Result>();
 
@@ -56,7 +58,7 @@ public class Query implements TomahawkListItem {
     private ConcurrentHashMap<String, Result> mArtistResults
             = new ConcurrentHashMap<String, Result>();
 
-    private Track mTrack;
+    private Track mBasicTrack;
 
     private boolean mPlayable = false;
 
@@ -91,6 +93,9 @@ public class Query implements TomahawkListItem {
         }
         mIsFullTextQuery = true;
         mIsOnlyLocal = onlyLocal;
+        if (mCacheKey == null) {
+            mCacheKey = TomahawkUtils.getCacheKey(this);
+        }
     }
 
     /**
@@ -107,13 +112,16 @@ public class Query implements TomahawkListItem {
             boolean onlyLocal, boolean isFetchedViaHatchet) {
         Artist artist = Artist.get(artistName);
         Album album = Album.get(albumName, artist);
-        mTrack = Track.get(trackName, album, artist);
+        mBasicTrack = Track.get(trackName, album, artist);
         if (resultHint != null) {
             mResultHint = resultHint;
         }
         mIsFullTextQuery = false;
         mIsOnlyLocal = onlyLocal;
         mIsFetchedViaHatchet = isFetchedViaHatchet;
+        if (mCacheKey == null) {
+            mCacheKey = TomahawkUtils.getCacheKey(this);
+        }
     }
 
     /**
@@ -182,11 +190,18 @@ public class Query implements TomahawkListItem {
      * If Query is already in our cache, return that. Otherwise add it to the cache.
      */
     private static Query ensureCache(Query query) {
-        String key = TomahawkUtils.getCacheKey(query);
-        if (!sQueries.containsKey(key)) {
-            sQueries.put(key, query);
+        if (!sQueries.containsKey(query.getCacheKey())) {
+            sQueries.put(query.getCacheKey(), query);
         }
-        return sQueries.get(key);
+        return sQueries.get(query.getCacheKey());
+    }
+
+    public String getCacheKey() {
+        return mCacheKey;
+    }
+
+    public Track getBasicTrack() {
+        return mBasicTrack;
     }
 
     /**
@@ -220,7 +235,7 @@ public class Query implements TomahawkListItem {
             if (!isOnlyLocal() || result.isLocal()) {
                 Query query = Query.get(result, isOnlyLocal());
                 query.addTrackResult(result);
-                queryMap.put(TomahawkUtils.getCacheKey(query), query);
+                queryMap.put(query.getCacheKey(), query);
             }
         }
         ArrayList<Query> queries = new ArrayList<Query>(queryMap.values());
@@ -236,35 +251,33 @@ public class Query implements TomahawkListItem {
         if (getPreferredTrackResult() != null) {
             return getPreferredTrackResult().getTrack();
         }
-        return mTrack;
+        return mBasicTrack;
     }
 
     public void addTrackResult(Result result) {
-        String key = TomahawkUtils.getCacheKey(result);
-        if (!sBlacklistedResults.contains(key)) {
+        if (!sBlacklistedResults.contains(result.getCacheKey())) {
             mPlayable = true;
             if (!mCurrentlyPlaying && result.getTrackScore() == 1f) {
                 mSolved = true;
             }
-            mTrackResults.put(key, result);
+            mTrackResults.put(result.getCacheKey(), result);
             if (!mCurrentlyPlaying && (getPreferredTrackResult() == null
-                    || mResultHint.equals(key)
+                    || mResultHint.equals(result.getCacheKey())
                     || getPreferredTrackResult().getTrackScore() < result.getTrackScore()
                     || (getPreferredTrackResult().getTrackScore() == result.getTrackScore()
                     && getPreferredTrackResult().getResolvedBy().getWeight()
                     < result.getResolvedBy().getWeight()))) {
-                mTopTrackResultKey = key;
+                mTopTrackResultKey = result.getCacheKey();
             }
         }
     }
 
     public void blacklistTrackResult(Result result) {
-        String key = TomahawkUtils.getCacheKey(result);
-        sBlacklistedResults.add(key);
+        sBlacklistedResults.add(result.getCacheKey());
         for (Result r : getTrackResults()) {
-            String newKey = TomahawkUtils.getCacheKey(r);
-            if (!key.equals(newKey) && !sBlacklistedResults.contains(newKey)) {
-                mTopTrackResultKey = newKey;
+            if (!result.getCacheKey().equals(r.getCacheKey())
+                    && !sBlacklistedResults.contains(r.getCacheKey())) {
+                mTopTrackResultKey = r.getCacheKey();
                 break;
             } else {
                 mTopTrackResultKey = "";
@@ -306,8 +319,7 @@ public class Query implements TomahawkListItem {
     }
 
     public void addAlbumResult(Result result) {
-        String key = TomahawkUtils.getCacheKey(result.getAlbum());
-        mAlbumResults.put(key, result);
+        mAlbumResults.put(result.getAlbum().getCacheKey(), result);
     }
 
     /**
@@ -343,8 +355,7 @@ public class Query implements TomahawkListItem {
 
 
     public void addArtistResult(Result result) {
-        String key = TomahawkUtils.getCacheKey(result.getArtist());
-        mArtistResults.put(key, result);
+        mArtistResults.put(result.getArtist().getCacheKey(), result);
     }
 
     /**
@@ -360,10 +371,8 @@ public class Query implements TomahawkListItem {
         return mResultHint;
     }
 
-    public String updateResultHint() {
-        mResultHint = mTopTrackResultKey;
-        ensureCache(this);
-        return mResultHint;
+    public String getTopTrackResultKey() {
+        return mTopTrackResultKey;
     }
 
     public String getFullTextQuery() {
@@ -413,9 +422,9 @@ public class Query implements TomahawkListItem {
             albumName = cleanUpString(mFullTextQuery, false);
             trackName = albumName;
         } else {
-            artistName = cleanUpString(mTrack.getArtist().getName(), false);
-            albumName = cleanUpString(mTrack.getAlbum().getName(), false);
-            trackName = cleanUpString(mTrack.getName(), false);
+            artistName = cleanUpString(mBasicTrack.getArtist().getName(), false);
+            albumName = cleanUpString(mBasicTrack.getAlbum().getName(), false);
+            trackName = cleanUpString(mBasicTrack.getName(), false);
         }
         if (r.getArtist().getName() != null) {
             resultArtistName = cleanUpString(r.getArtist().getName(), false);
@@ -489,7 +498,7 @@ public class Query implements TomahawkListItem {
             }
             return maxResult;
         } else {
-            if (TextUtils.isEmpty(mTrack.getAlbum().getName())) {
+            if (TextUtils.isEmpty(mBasicTrack.getAlbum().getName())) {
                 distanceScoreAlbum = 1F;
             }
 
@@ -524,7 +533,7 @@ public class Query implements TomahawkListItem {
     @Override
     public Album getAlbum() {
         if (mIsFetchedViaHatchet) {
-            return mTrack.getAlbum();
+            return mBasicTrack.getAlbum();
         }
         return getPreferredTrack().getAlbum();
     }

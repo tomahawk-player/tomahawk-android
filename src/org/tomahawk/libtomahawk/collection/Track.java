@@ -34,6 +34,8 @@ public class Track implements TomahawkListItem {
     private static ConcurrentHashMap<String, Track> sTracks
             = new ConcurrentHashMap<String, Track>();
 
+    private String mCacheKey;
+
     private String mName;
 
     private Album mAlbum;
@@ -59,6 +61,9 @@ public class Track implements TomahawkListItem {
         }
         mAlbum = album;
         mArtist = artist;
+        if (mCacheKey == null) {
+            mCacheKey = TomahawkUtils.getCacheKey(this);
+        }
     }
 
     /**
@@ -75,11 +80,21 @@ public class Track implements TomahawkListItem {
             album = Album.get("", artist);
         }
         Track track = new Track(trackName, album, artist);
-        String key = TomahawkUtils.getCacheKey(track);
-        if (!sTracks.containsKey(key)) {
-            sTracks.put(key, track);
+        return ensureCache(track);
+    }
+
+    /**
+     * If Track is already in our cache, return that. Otherwise add it to the cache.
+     */
+    private static Track ensureCache(Track track) {
+        if (!sTracks.containsKey(track.getCacheKey())) {
+            sTracks.put(track.getCacheKey(), track);
         }
-        return sTracks.get(key);
+        return sTracks.get(track.getCacheKey());
+    }
+
+    public String getCacheKey() {
+        return mCacheKey;
     }
 
     /**

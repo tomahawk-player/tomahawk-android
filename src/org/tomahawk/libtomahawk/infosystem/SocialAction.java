@@ -91,6 +91,11 @@ public class SocialAction implements TomahawkListItem {
     }
 
     @Override
+    public String getCacheKey() {
+        return mId;
+    }
+
+    @Override
     public String getName() {
         return null;
     }

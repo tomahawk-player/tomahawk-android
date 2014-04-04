@@ -34,7 +34,6 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
@@ -430,7 +429,7 @@ public class UserCollection {
             result.setResolvedBy(userCollectionResolver);
             result.setTrackScore(1f);
             query.addTrackResult(result);
-            mQueries.put(TomahawkUtils.getCacheKey(query), query);
+            mQueries.put(query.getCacheKey(), query);
 
             artist.addQuery(query);
             artist.addAlbum(album, true);

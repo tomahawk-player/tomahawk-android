@@ -119,9 +119,9 @@ public class PlaybackService extends Service {
 
     private static final int DELAY_TO_KILL = 300000;
 
-    protected HashSet<String> mCorrespondingQueryIds = new HashSet<String>();
+    protected HashSet<String> mCorrespondingQueryKeys = new HashSet<String>();
 
-    protected ConcurrentHashMap<String, String> mCurrentRequestIds
+    protected ConcurrentHashMap<String, String> mCorrespondingInfoDataIds
             = new ConcurrentHashMap<String, String>();
 
     private Playlist mCurrentPlaylist;
@@ -815,11 +815,11 @@ public class PlaybackService extends Service {
                     ArrayList<String> requestIds = InfoSystem.getInstance().resolve(
                             query.getArtist(), true);
                     for (String requestId : requestIds) {
-                        mCurrentRequestIds.put(requestId, TomahawkUtils.getCacheKey(query));
+                        mCorrespondingInfoDataIds.put(requestId, query.getCacheKey());
                     }
                     String requestId = InfoSystem.getInstance().resolve(query.getAlbum());
                     if (requestId != null) {
-                        mCurrentRequestIds.put(requestId, TomahawkUtils.getCacheKey(query));
+                        mCorrespondingInfoDataIds.put(requestId, query.getCacheKey());
                     }
                 }
 
@@ -1147,27 +1147,26 @@ public class PlaybackService extends Service {
         for (int i = start; i < end; i++) {
             if (i >= 0 && i < mCurrentPlaylist.getQueries().size()) {
                 Query q = mCurrentPlaylist.peekQueryAtPos(i);
-                if (!q.isSolved() && !mCorrespondingQueryIds
-                        .contains(TomahawkUtils.getCacheKey(q))) {
+                if (!q.isSolved() && !mCorrespondingQueryKeys.contains(q.getCacheKey())) {
                     qs.add(q);
                 }
             }
         }
         if (!qs.isEmpty()) {
-            HashSet<String> qids = PipeLine.getInstance().resolve(qs);
-            mCorrespondingQueryIds.addAll(qids);
+            HashSet<String> queryKeys = PipeLine.getInstance().resolve(qs);
+            mCorrespondingQueryKeys.addAll(queryKeys);
         }
     }
 
-    private void onPipeLineResultsReported(String qId) {
-        if (mCurrentPlaylist != null && TomahawkUtils.getCacheKey(getCurrentQuery()).equals(qId)) {
+    private void onPipeLineResultsReported(String queryKey) {
+        if (mCurrentPlaylist != null && getCurrentQuery().getCacheKey().equals(queryKey)) {
             setCurrentQuery(mCurrentPlaylist.getCurrentQuery());
         }
     }
 
     private void onInfoSystemResultsReported(String requestId) {
-        if (mCurrentPlaylist != null && TomahawkUtils.getCacheKey(getCurrentQuery())
-                .equals(mCurrentRequestIds.get(requestId))) {
+        if (mCurrentPlaylist != null && getCurrentQuery().getCacheKey()
+                .equals(mCorrespondingInfoDataIds.get(requestId))) {
             updatePlayingNotification();
             sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
         }
