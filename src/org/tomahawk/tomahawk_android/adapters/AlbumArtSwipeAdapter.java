@@ -23,13 +23,19 @@ import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
+import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
+import org.tomahawk.tomahawk_android.fragments.TracksFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
+import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Parcelable;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,6 +55,8 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     private Context mContext;
 
     private LayoutInflater mLayoutInflater;
+
+    private FragmentManager mFragmentManager;
 
     private int mFakeInfinityOffset;
 
@@ -71,10 +79,12 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      *
      * @param viewPager ViewPager which this adapter has been connected with
      */
-    public AlbumArtSwipeAdapter(Context context, LayoutInflater layoutInflater, ViewPager viewPager,
+    public AlbumArtSwipeAdapter(Context context, FragmentManager fragmentManager,
+            LayoutInflater layoutInflater, ViewPager viewPager,
             View.OnLongClickListener onLongClickListener) {
         mContext = context;
         mLayoutInflater = layoutInflater;
+        mFragmentManager = fragmentManager;
         mViewPager = viewPager;
         mOnLongClickListener = onLongClickListener;
         mByUser = true;
@@ -285,7 +295,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         updatePlaylist();
     }
 
-    private void refreshTrackInfo(View view, Query query) {
+    private void refreshTrackInfo(View view, final Query query) {
         TextView artistTextView = (TextView) view.findViewById(R.id.textView_artist);
         TextView albumTextView = (TextView) view.findViewById(R.id.textView_album);
         TextView titleTextView = (TextView) view.findViewById(R.id.textView_title);
@@ -301,6 +311,17 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
             if (artistTextView != null) {
                 if (query.getArtist() != null && query.getArtist().getName() != null) {
                     artistTextView.setText(query.getArtist().toString());
+                    if (!TextUtils.isEmpty(query.getArtist().getName())) {
+                        artistTextView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                String key = TomahawkUtils.getCacheKey(query.getArtist());
+                                FragmentUtils.replace(mContext, mFragmentManager,
+                                        AlbumsFragment.class, key,
+                                        TomahawkFragment.TOMAHAWK_ARTIST_KEY, false);
+                            }
+                        });
+                    }
                 } else {
                     artistTextView.setText(R.string.playbackactivity_unknown_string);
                 }
@@ -308,6 +329,17 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
             if (albumTextView != null) {
                 if (query.getAlbum() != null && query.getAlbum().getName() != null) {
                     albumTextView.setText(query.getAlbum().toString());
+                    if (!TextUtils.isEmpty(query.getAlbum().getName())) {
+                        albumTextView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                String key = TomahawkUtils.getCacheKey(query.getAlbum());
+                                FragmentUtils.replace(mContext, mFragmentManager,
+                                        TracksFragment.class, key,
+                                        TomahawkFragment.TOMAHAWK_ALBUM_KEY, false);
+                            }
+                        });
+                    }
                 } else {
                     albumTextView.setText(R.string.playbackactivity_unknown_string);
                 }
@@ -330,9 +362,11 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
 
             if (artistTextView != null) {
                 artistTextView.setText("");
+                artistTextView.setOnClickListener(null);
             }
             if (albumTextView != null) {
                 albumTextView.setText("");
+                albumTextView.setOnClickListener(null);
             }
             if (titleTextView != null) {
                 titleTextView.setText(R.string.playbackactivity_no_track);

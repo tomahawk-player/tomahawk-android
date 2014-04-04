@@ -21,14 +21,16 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:orientation="vertical">
+              android:orientation="vertical"
+              android:descendantFocusability="afterDescendants">
 
     <LinearLayout
             android:id="@+id/playback_trackInfoPanel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="@dimen/padding_small"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:descendantFocusability="afterDescendants">
 
         <TextView
                 android:id="@+id/textView_title"
@@ -47,7 +49,9 @@
                 android:maxLines="1"
                 android:ellipsize="marquee"
                 android:textColor="@color/secondary_textcolor"
-                android:textSize="@dimen/text_size_small"/>
+                android:textSize="@dimen/text_size_small"
+                android:background="@drawable/selectable_background_tomahawk"
+                android:clickable="true"/>
 
         <TextView
                 android:id="@+id/textView_album"
@@ -56,7 +60,9 @@
                 android:maxLines="1"
                 android:ellipsize="marquee"
                 android:textColor="@color/secondary_textcolor"
-                android:textSize="@dimen/text_size_small"/>
+                android:textSize="@dimen/text_size_small"
+                android:background="@drawable/selectable_background_tomahawk"
+                android:clickable="true"/>
     </LinearLayout>
 
     <RelativeLayout
