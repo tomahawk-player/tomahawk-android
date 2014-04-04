@@ -42,8 +42,6 @@ public class UserPlaylist extends Playlist implements TomahawkListItem {
 
     private ArrayList<Artist> mContentHeaderArtists = new ArrayList<Artist>();
 
-    private boolean mContentHeaderArtistsFilled;
-
     private boolean mIsFilled;
 
     /**
@@ -135,14 +133,6 @@ public class UserPlaylist extends Playlist implements TomahawkListItem {
 
     public void addContentHeaderArtists(Artist artist) {
         mContentHeaderArtists.add(artist);
-    }
-
-    public boolean isContentHeaderArtistsFilled() {
-        return mContentHeaderArtistsFilled;
-    }
-
-    public void setContentHeaderArtistsFilled(boolean contentHeaderArtistsFilled) {
-        mContentHeaderArtistsFilled = contentHeaderArtistsFilled;
     }
 
     /**
