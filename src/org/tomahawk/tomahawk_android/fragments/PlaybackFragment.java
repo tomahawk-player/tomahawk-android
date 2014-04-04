@@ -37,6 +37,7 @@ import android.content.Context;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -152,8 +153,9 @@ public class PlaybackFragment extends TomahawkFragment
         PlaybackService playbackService = activity.getPlaybackService();
         ViewPager viewPager = (ViewPager) activity.getLayoutInflater()
                 .inflate(R.layout.album_art_view_pager, null);
-        mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter(activity, activity.getLayoutInflater(),
-                viewPager, this);
+        mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter(activity,
+                activity.getSupportFragmentManager(), activity.getLayoutInflater(), viewPager,
+                this);
         mAlbumArtSwipeAdapter.setPlaybackService(playbackService);
         viewPager.setAdapter(mAlbumArtSwipeAdapter);
         viewPager.setOnPageChangeListener(mAlbumArtSwipeAdapter);
@@ -524,7 +526,7 @@ public class PlaybackFragment extends TomahawkFragment
      *
      * @param query the query to which the track info view stuff should be updated to
      */
-    protected void refreshTrackInfo(Query query) {
+    protected void refreshTrackInfo(final Query query) {
         if (getView() != null) {
             TextView artistTextView = (TextView) getView().findViewById(R.id.textView_artist);
             TextView albumTextView = (TextView) getView().findViewById(R.id.textView_album);
@@ -554,6 +556,18 @@ public class PlaybackFragment extends TomahawkFragment
                 if (artistTextView != null) {
                     if (query.getArtist() != null && query.getArtist().getName() != null) {
                         artistTextView.setText(query.getArtist().toString());
+                        if (!TextUtils.isEmpty(query.getArtist().getName())) {
+                            artistTextView.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    String key = TomahawkUtils.getCacheKey(query.getArtist());
+                                    FragmentUtils.replace(getActivity(),
+                                            getActivity().getSupportFragmentManager(),
+                                            AlbumsFragment.class, key,
+                                            TomahawkFragment.TOMAHAWK_ARTIST_KEY, false);
+                                }
+                            });
+                        }
                     } else {
                         artistTextView.setText(R.string.playbackactivity_unknown_string);
                     }
@@ -561,6 +575,18 @@ public class PlaybackFragment extends TomahawkFragment
                 if (albumTextView != null) {
                     if (query.getAlbum() != null && query.getAlbum().getName() != null) {
                         albumTextView.setText(query.getAlbum().toString());
+                        if (!TextUtils.isEmpty(query.getAlbum().getName())) {
+                            albumTextView.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    String key = TomahawkUtils.getCacheKey(query.getAlbum());
+                                    FragmentUtils.replace(getActivity(),
+                                            getActivity().getSupportFragmentManager(),
+                                            TracksFragment.class, key,
+                                            TomahawkFragment.TOMAHAWK_ALBUM_KEY, false);
+                                }
+                            });
+                        }
                     } else {
                         albumTextView.setText(R.string.playbackactivity_unknown_string);
                     }
@@ -605,9 +631,11 @@ public class PlaybackFragment extends TomahawkFragment
 
                 if (artistTextView != null) {
                     artistTextView.setText("");
+                    artistTextView.setOnClickListener(null);
                 }
                 if (albumTextView != null) {
                     albumTextView.setText("");
+                    albumTextView.setOnClickListener(null);
                 }
                 if (titleTextView != null) {
                     titleTextView.setText(R.string.playbackactivity_no_track);

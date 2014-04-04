@@ -21,7 +21,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:orientation="horizontal">
+              android:orientation="horizontal"
+              android:descendantFocusability="afterDescendants">
 
     <org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager
             android:id="@+id/playback_view_pager"
@@ -34,7 +35,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:descendantFocusability="afterDescendants">
         <LinearLayout
                 android:id="@+id/playback_trackInfoPanel"
                 android:layout_width="match_parent"
@@ -43,11 +45,13 @@
                 android:paddingLeft="@dimen/padding_large"
                 android:paddingRight="@dimen/padding_large"
                 android:gravity="center_vertical"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:descendantFocusability="afterDescendants">
             <TextView
                     android:id="@+id/textView_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:padding="@dimen/padding_verysmall"
                     android:maxLines="1"
                     android:textStyle="bold"
                     android:textSize="@dimen/text_size_large"
@@ -57,17 +61,23 @@
                     android:id="@+id/textView_artist"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:padding="@dimen/padding_verysmall"
                     android:maxLines="1"
                     android:textSize="@dimen/text_size_small"
-                    android:textColor="@color/secondary_textcolor"/>
+                    android:textColor="@color/secondary_textcolor"
+                    android:background="@drawable/selectable_background_tomahawk"
+                    android:clickable="true"/>
 
             <TextView
                     android:id="@+id/textView_album"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:padding="@dimen/padding_verysmall"
                     android:maxLines="1"
                     android:textSize="@dimen/text_size_small"
-                    android:textColor="@color/secondary_textcolor"/>
+                    android:textColor="@color/secondary_textcolor"
+                    android:background="@drawable/selectable_background_tomahawk"
+                    android:clickable="true"/>
         </LinearLayout>
 
         <LinearLayout
