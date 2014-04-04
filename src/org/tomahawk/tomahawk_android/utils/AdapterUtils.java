@@ -87,12 +87,14 @@ public class AdapterUtils {
         String s = tracksCount + " " + context.getString(R.string.category_header_track)
                 + (tracksCount == 1 ? "" : "s");
         viewHolder.getTextView2().setText(s);
-        if (userPlaylist.isContentHeaderArtistsFilled()) {
-            ArrayList<Artist> artists = userPlaylist.getContentHeaderArtists();
+        if (userPlaylist.getContentHeaderArtists().size() > 0) {
             ArrayList<Artist> artistsWithImage = new ArrayList<Artist>();
-            for (Artist artist : artists) {
-                if (artist.getImage() != null) {
-                    artistsWithImage.add(artist);
+            synchronized (userPlaylist) {
+                ArrayList<Artist> artists = userPlaylist.getContentHeaderArtists();
+                for (Artist artist : artists) {
+                    if (artist.getImage() != null) {
+                        artistsWithImage.add(artist);
+                    }
                 }
             }
             if (artistsWithImage.size() > 0) {

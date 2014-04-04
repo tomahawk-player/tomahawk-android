@@ -257,7 +257,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
     }
 
     private void getUserPlaylistArtists(UserPlaylist userPlaylist) {
-        if (!userPlaylist.isContentHeaderArtistsFilled()) {
+        if (userPlaylist.getContentHeaderArtists().size() < 6) {
             final HashMap<Artist, Integer> countMap = new HashMap<Artist, Integer>();
             for (Query query : userPlaylist.getQueries()) {
                 Artist artist = query.getArtist();
@@ -277,7 +277,9 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             );
             sortedCountMap.putAll(countMap);
             for (Artist artist : sortedCountMap.keySet()) {
-                userPlaylist.addContentHeaderArtists(artist);
+                synchronized (userPlaylist) {
+                    userPlaylist.addContentHeaderArtists(artist);
+                }
                 ArrayList<String> requestIds = InfoSystem.getInstance().resolve(artist, true);
                 for (String requestId : requestIds) {
                     mCurrentRequestIds.add(requestId);
@@ -286,7 +288,6 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                     break;
                 }
             }
-            userPlaylist.setContentHeaderArtistsFilled(true);
         }
     }
 }
