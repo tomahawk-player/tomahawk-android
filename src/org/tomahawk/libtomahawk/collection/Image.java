@@ -33,6 +33,8 @@ public class Image {
     private static ConcurrentHashMap<String, Image> sImages
             = new ConcurrentHashMap<String, Image>();
 
+    private String mCacheKey;
+
     private String mImagePath;
 
     private boolean mIsHatchetImage;
@@ -47,6 +49,9 @@ public class Image {
     private Image(String imagePath, boolean isHatchetImage) {
         mImagePath = imagePath;
         mIsHatchetImage = isHatchetImage;
+        if (mCacheKey == null) {
+            mCacheKey = TomahawkUtils.getCacheKey(this);
+        }
     }
 
     /**
@@ -57,6 +62,9 @@ public class Image {
         mIsHatchetImage = isHatchetImage;
         mWidth = width;
         mHeight = height;
+        if (mCacheKey == null) {
+            mCacheKey = TomahawkUtils.getCacheKey(this);
+        }
     }
 
     /**
@@ -80,11 +88,21 @@ public class Image {
      */
     public static Image get(String imagePath, boolean scaleItDown, int width, int height) {
         Image image = new Image(imagePath, scaleItDown, width, height);
-        String key = TomahawkUtils.getCacheKey(image);
-        if (!sImages.containsKey(key)) {
-            sImages.put(key, image);
+        return ensureCache(image);
+    }
+
+    /**
+     * If Image is already in our cache, return that. Otherwise add it to the cache.
+     */
+    private static Image ensureCache(Image image) {
+        if (!sImages.containsKey(image.getCacheKey())) {
+            sImages.put(image.getCacheKey(), image);
         }
-        return sImages.get(key);
+        return sImages.get(image.getCacheKey());
+    }
+
+    public String getCacheKey() {
+        return mCacheKey;
     }
 
     /**

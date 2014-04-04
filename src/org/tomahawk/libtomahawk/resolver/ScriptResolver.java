@@ -24,7 +24,6 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
@@ -322,7 +321,7 @@ public class ScriptResolver implements Resolver {
                 @Override
                 public void run() {
                     String qid = TomahawkMainActivity.getSessionUniqueStringId();
-                    mQueryKeys.put(qid, TomahawkUtils.getCacheKey(query));
+                    mQueryKeys.put(qid, query.getCacheKey());
                     if (!query.isFullTextQuery()) {
                         mScriptEngine.loadUrl(
                                 "javascript:" + RESOLVER_LEGACY_CODE2 + makeJSFunctionCallbackJava(

@@ -35,6 +35,8 @@ public class Artist implements TomahawkListItem {
     private static ConcurrentHashMap<String, Artist> sArtists
             = new ConcurrentHashMap<String, Artist>();
 
+    private String mCacheKey;
+
     private String mName;
 
     private ConcurrentHashMap<String, Album> mAlbums = new ConcurrentHashMap<String, Album>();
@@ -61,6 +63,9 @@ public class Artist implements TomahawkListItem {
         } else {
             mName = artistName;
         }
+        if (mCacheKey == null) {
+            mCacheKey = TomahawkUtils.getCacheKey(this);
+        }
     }
 
     /**
@@ -71,11 +76,21 @@ public class Artist implements TomahawkListItem {
      */
     public static Artist get(String artistName) {
         Artist artist = new Artist(artistName);
-        String key = TomahawkUtils.getCacheKey(artist);
-        if (!sArtists.containsKey(key)) {
-            sArtists.put(key, artist);
+        return ensureCache(artist);
+    }
+
+    /**
+     * If Artist is already in our cache, return that. Otherwise add it to the cache.
+     */
+    private static Artist ensureCache(Artist artist) {
+        if (!sArtists.containsKey(artist.getCacheKey())) {
+            sArtists.put(artist.getCacheKey(), artist);
         }
-        return sArtists.get(key);
+        return sArtists.get(artist.getCacheKey());
+    }
+
+    public String getCacheKey() {
+        return mCacheKey;
     }
 
     /**
@@ -153,15 +168,14 @@ public class Artist implements TomahawkListItem {
      * @param query the {@link org.tomahawk.libtomahawk.resolver.Query} to be added
      */
     public void addQuery(Query query) {
-        String key = TomahawkUtils.getCacheKey(query);
         synchronized (this) {
-            if (!mQueries.containsKey(key)) {
-                mQueries.put(key, query);
+            if (!mQueries.containsKey(query.getCacheKey())) {
+                mQueries.put(query.getCacheKey(), query);
                 boolean isLocalQuery = query.getPreferredTrackResult() != null
                         && query.getPreferredTrackResult()
                         .getResolvedBy() instanceof DataBaseResolver;
                 if (isLocalQuery) {
-                    mLocalQueries.put(key, query);
+                    mLocalQueries.put(query.getCacheKey(), query);
                 }
             }
         }
@@ -215,12 +229,11 @@ public class Artist implements TomahawkListItem {
      * @param album the {@link Album} to be added
      */
     public void addAlbum(Album album, boolean isLocalAlbum) {
-        String key = TomahawkUtils.getCacheKey(album);
         synchronized (this) {
-            if (!mAlbums.containsKey(key)) {
-                mAlbums.put(key, album);
+            if (!mAlbums.containsKey(album.getCacheKey())) {
+                mAlbums.put(album.getCacheKey(), album);
                 if (isLocalAlbum) {
-                    mLocalAlbums.put(key, album);
+                    mLocalAlbums.put(album.getCacheKey(), album);
                 }
             }
         }

@@ -177,7 +177,7 @@ public class DatabaseHelper {
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ALBUMNAME,
                                 query.getAlbum().getName());
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_RESULTHINT,
-                                query.updateResultHint());
+                                query.getTopTrackResultKey());
                         if (query.isFetchedViaHatchet()) {
                             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ISFETCHEDVIAHATCHET,
                                     TRUE);

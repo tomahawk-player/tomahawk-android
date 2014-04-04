@@ -315,9 +315,8 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                         artistTextView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                String key = TomahawkUtils.getCacheKey(query.getArtist());
                                 FragmentUtils.replace(mContext, mFragmentManager,
-                                        AlbumsFragment.class, key,
+                                        AlbumsFragment.class, query.getArtist().getCacheKey(),
                                         TomahawkFragment.TOMAHAWK_ARTIST_KEY, false);
                             }
                         });
@@ -333,9 +332,8 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                         albumTextView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                String key = TomahawkUtils.getCacheKey(query.getAlbum());
                                 FragmentUtils.replace(mContext, mFragmentManager,
-                                        TracksFragment.class, key,
+                                        TracksFragment.class, query.getAlbum().getCacheKey(),
                                         TomahawkFragment.TOMAHAWK_ALBUM_KEY, false);
                             }
                         });

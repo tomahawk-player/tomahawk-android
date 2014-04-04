@@ -227,17 +227,17 @@ public class PlaybackFragment extends TomahawkFragment
                 return true;
             } else if (item.getItemId() == R.id.action_gotoartist_item) {
                 if (playbackService.getCurrentQuery() != null) {
-                    String key = TomahawkUtils
-                            .getCacheKey(playbackService.getCurrentQuery().getArtist());
                     FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                            AlbumsFragment.class, key, TomahawkFragment.TOMAHAWK_ARTIST_KEY, false);
+                            AlbumsFragment.class,
+                            playbackService.getCurrentQuery().getArtist().getCacheKey(),
+                            TomahawkFragment.TOMAHAWK_ARTIST_KEY, false);
                 }
             } else if (item.getItemId() == R.id.action_gotoalbum_item) {
                 if (playbackService.getCurrentQuery() != null) {
-                    String key = TomahawkUtils
-                            .getCacheKey(playbackService.getCurrentQuery().getAlbum());
                     FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                            TracksFragment.class, key, TomahawkFragment.TOMAHAWK_ALBUM_KEY, false);
+                            TracksFragment.class,
+                            playbackService.getCurrentQuery().getAlbum().getCacheKey(),
+                            TomahawkFragment.TOMAHAWK_ALBUM_KEY, false);
                 }
             } else if (item.getItemId() == R.id.action_love_item) {
                 if (playbackService.getCurrentQuery() != null) {
@@ -560,10 +560,9 @@ public class PlaybackFragment extends TomahawkFragment
                             artistTextView.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    String key = TomahawkUtils.getCacheKey(query.getArtist());
                                     FragmentUtils.replace(getActivity(),
                                             getActivity().getSupportFragmentManager(),
-                                            AlbumsFragment.class, key,
+                                            AlbumsFragment.class, query.getArtist().getCacheKey(),
                                             TomahawkFragment.TOMAHAWK_ARTIST_KEY, false);
                                 }
                             });
@@ -579,10 +578,9 @@ public class PlaybackFragment extends TomahawkFragment
                             albumTextView.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    String key = TomahawkUtils.getCacheKey(query.getAlbum());
                                     FragmentUtils.replace(getActivity(),
                                             getActivity().getSupportFragmentManager(),
-                                            TracksFragment.class, key,
+                                            TracksFragment.class, query.getAlbum().getCacheKey(),
                                             TomahawkFragment.TOMAHAWK_ALBUM_KEY, false);
                                 }
                             });

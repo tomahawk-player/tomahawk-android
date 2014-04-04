@@ -35,6 +35,8 @@ public class Album implements TomahawkListItem {
     private static ConcurrentHashMap<String, Album> sAlbums
             = new ConcurrentHashMap<String, Album>();
 
+    private String mCacheKey;
+
     private ArrayList<Query> mQueries;
 
     private ArrayList<Query> mLocalQueries;
@@ -64,6 +66,9 @@ public class Album implements TomahawkListItem {
         mQueries = new ArrayList<Query>();
         mLocalQueries = new ArrayList<Query>();
         mQueriesFetchedViaHatchet = new ArrayList<Query>();
+        if (mCacheKey == null) {
+            mCacheKey = TomahawkUtils.getCacheKey(this);
+        }
     }
 
     /**
@@ -75,11 +80,21 @@ public class Album implements TomahawkListItem {
             artist = Artist.get("");
         }
         Album album = new Album(albumName, artist);
-        String key = TomahawkUtils.getCacheKey(album);
-        if (!sAlbums.containsKey(key)) {
-            sAlbums.put(key, album);
+        return ensureCache(album);
+    }
+
+    /**
+     * If Album is already in our cache, return that. Otherwise add it to the cache.
+     */
+    private static Album ensureCache(Album album) {
+        if (!sAlbums.containsKey(album.getCacheKey())) {
+            sAlbums.put(album.getCacheKey(), album);
         }
-        return sAlbums.get(key);
+        return sAlbums.get(album.getCacheKey());
+    }
+
+    public String getCacheKey() {
+        return mCacheKey;
     }
 
     /**
@@ -153,10 +168,9 @@ public class Album implements TomahawkListItem {
      */
     public void addQuery(Query query) {
         boolean containsQuery = false;
-        String key = TomahawkUtils.getCacheKey(query);
         synchronized (this) {
             for (Query q : mQueries) {
-                if (TomahawkUtils.getCacheKey(q).equals(key)) {
+                if (q.getCacheKey().equals(query.getCacheKey())) {
                     containsQuery = true;
                 }
             }

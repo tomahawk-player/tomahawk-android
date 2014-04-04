@@ -25,7 +25,6 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -136,20 +135,17 @@ public class SearchableFragment extends TomahawkFragment
                     }
                 }
             } else if (item instanceof Album) {
-                String key = TomahawkUtils.getCacheKey((Album) item);
                 FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                        TracksFragment.class, key, TomahawkFragment.TOMAHAWK_ALBUM_KEY,
-                        false);
+                        TracksFragment.class, ((Album) item).getCacheKey(),
+                        TomahawkFragment.TOMAHAWK_ALBUM_KEY, false);
             } else if (item instanceof Artist) {
-                String key = TomahawkUtils.getCacheKey((Artist) item);
                 FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                        AlbumsFragment.class, key, TomahawkFragment.TOMAHAWK_ARTIST_KEY,
-                        false);
+                        AlbumsFragment.class, ((Artist) item).getCacheKey(),
+                        TomahawkFragment.TOMAHAWK_ARTIST_KEY, false);
             } else if (item instanceof User) {
-                String key = ((User) item).getId();
                 FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                        SocialActionsFragment.class, key, TomahawkFragment.TOMAHAWK_USER_ID,
-                        false);
+                        SocialActionsFragment.class, ((User) item).getId(),
+                        TomahawkFragment.TOMAHAWK_USER_ID, false);
             }
         }
     }

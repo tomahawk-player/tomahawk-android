@@ -26,7 +26,6 @@ import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.services.SpotifyService;
@@ -169,7 +168,7 @@ public class SpotifyResolver implements Resolver {
     private void sendResolveMsg(Query query) {
         try {
             SpotifyQuery spotifyQuery = new SpotifyQuery();
-            spotifyQuery.queryKey = TomahawkUtils.getCacheKey(query);
+            spotifyQuery.queryKey = query.getCacheKey();
             if (query.isFullTextQuery()) {
                 spotifyQuery.queryString = query.getFullTextQuery();
             } else {

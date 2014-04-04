@@ -25,7 +25,6 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
@@ -104,20 +103,17 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
                         }
                     }
                 } else if (item instanceof Album) {
-                    String key = TomahawkUtils.getCacheKey(item);
                     FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                            TracksFragment.class, key, TomahawkFragment.TOMAHAWK_ALBUM_KEY,
-                            false);
+                            TracksFragment.class, item.getCacheKey(),
+                            TomahawkFragment.TOMAHAWK_ALBUM_KEY, false);
                 } else if (item instanceof Artist) {
-                    String key = TomahawkUtils.getCacheKey(item);
                     FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                            AlbumsFragment.class, key, TomahawkFragment.TOMAHAWK_ARTIST_KEY,
-                            false);
+                            AlbumsFragment.class, item.getCacheKey(),
+                            TomahawkFragment.TOMAHAWK_ARTIST_KEY, false);
                 } else if (item instanceof User) {
-                    String key = ((User) item).getId();
                     FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                            SocialActionsFragment.class, key, TomahawkFragment.TOMAHAWK_USER_ID,
-                            false);
+                            SocialActionsFragment.class, ((User) item).getId(),
+                            TomahawkFragment.TOMAHAWK_USER_ID, false);
                 }
             }
         }

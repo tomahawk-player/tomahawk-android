@@ -94,6 +94,11 @@ public class User implements TomahawkListItem {
         return users;
     }
 
+    @Override
+    public String getCacheKey(){
+        return mId;
+    }
+
     /**
      * @return this object's name
      */

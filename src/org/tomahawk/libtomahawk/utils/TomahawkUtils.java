@@ -175,12 +175,13 @@ public class TomahawkUtils {
                     tomahawkListItem.getArtist().getName());
         } else if (tomahawkListItem instanceof Query) {
             Query query = ((Query) tomahawkListItem);
-            boolean isFullTextQuery = query.isFullTextQuery();
-            if (isFullTextQuery) {
+            if (query.isFullTextQuery()) {
                 return getCacheKey(query.getFullTextQuery(), String.valueOf(query.isOnlyLocal()));
             } else {
-                return getCacheKey(query.getName(), query.getAlbum().getName(),
-                        query.getArtist().getName(), query.getResultHint());
+                return getCacheKey(query.getBasicTrack().getName(),
+                        query.getBasicTrack().getAlbum().getName(),
+                        query.getBasicTrack().getArtist().getName(),
+                        query.getResultHint());
             }
         }
         return "";

@@ -19,7 +19,6 @@
 package org.tomahawk.libtomahawk.collection;
 
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -96,7 +95,7 @@ public abstract class Playlist {
         int i = 0;
         while (i < querys.size()) {
             Query query = querys.get(i);
-            if (TomahawkUtils.getCacheKey(newquery).equals(TomahawkUtils.getCacheKey(query))) {
+            if (newquery.getCacheKey().equals(query.getCacheKey())) {
                 mCurrentQueryIndex = i;
                 break;
             }

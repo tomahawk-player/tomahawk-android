@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.resolver;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 
 import android.text.TextUtils;
 
@@ -33,6 +34,10 @@ public class Result {
     public static int RESULT_TYPE_ALBUM = 1;
 
     public static int RESULT_TYPE_ARTIST = 2;
+
+    // Normally cache keys are unique. In this case the result's cache key is only unique in the
+    // context of a _single_ Query.
+    private String mCacheKey;
 
     private Artist mArtist;
 
@@ -75,6 +80,9 @@ public class Result {
         mArtist = query.getArtist();
         mAlbum = query.getAlbum();
         mTrack = query.getPreferredTrack();
+        if (mCacheKey == null) {
+            mCacheKey = TomahawkUtils.getCacheKey(this);
+        }
     }
 
     /**
@@ -85,6 +93,9 @@ public class Result {
         mArtist = track.getArtist();
         mAlbum = track.getAlbum();
         mTrack = track;
+        if (mCacheKey == null) {
+            mCacheKey = TomahawkUtils.getCacheKey(this);
+        }
     }
 
     /**
@@ -93,6 +104,9 @@ public class Result {
     public Result(Artist artist) {
         mArtist = artist;
         mAlbum = artist.getAlbum();
+        if (mCacheKey == null) {
+            mCacheKey = TomahawkUtils.getCacheKey(this);
+        }
     }
 
     /**
@@ -100,6 +114,13 @@ public class Result {
      */
     public Result(Album album) {
         mAlbum = album;
+        if (mCacheKey == null) {
+            mCacheKey = TomahawkUtils.getCacheKey(this);
+        }
+    }
+
+    public String getCacheKey() {
+        return mCacheKey;
     }
 
     /**

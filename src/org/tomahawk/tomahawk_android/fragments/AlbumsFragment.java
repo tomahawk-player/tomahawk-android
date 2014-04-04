@@ -20,7 +20,6 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
@@ -90,9 +89,9 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                     }
                 }
             } else if (item instanceof Album) {
-                String key = TomahawkUtils.getCacheKey((Album) item);
                 FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                        TracksFragment.class, key, TomahawkFragment.TOMAHAWK_ALBUM_KEY, mIsLocal);
+                        TracksFragment.class, ((Album) item).getCacheKey(),
+                        TomahawkFragment.TOMAHAWK_ALBUM_KEY, mIsLocal);
             }
         }
     }
