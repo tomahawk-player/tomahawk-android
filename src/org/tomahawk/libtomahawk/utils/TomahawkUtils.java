@@ -213,7 +213,7 @@ public class TomahawkUtils {
                 connection = (HttpsURLConnection) urlConnection;
             } else {
                 throw new MalformedURLException(
-                        "Connection could not be cast to HttpUrlConnection");
+                        "Connection could not be cast to HttpsUrlConnection");
             }
 
             connection = setSSLSocketFactory(connection);
