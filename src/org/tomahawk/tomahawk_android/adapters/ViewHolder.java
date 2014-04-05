@@ -58,6 +58,12 @@ public class ViewHolder {
 
     private TextView mTextView6;
 
+    private LinearLayout mButton1;
+
+    private LinearLayout mButton2;
+
+    private LinearLayout mButton3;
+
     public ViewHolder(View rootView, int viewType) {
         mViewType = viewType;
         if (viewType == R.id.tomahawklistadapter_viewtype_singlelinelistitem) {
@@ -88,6 +94,12 @@ public class ViewHolder {
                     .findViewById(R.id.content_header_image4);
             mImageViewFrame = (LinearLayout) rootView
                     .findViewById(R.id.content_header_image_frame2);
+            mButton1 = (LinearLayout) rootView
+                    .findViewById(R.id.content_header_button1);
+            mButton2 = (LinearLayout) rootView
+                    .findViewById(R.id.content_header_button2);
+            mButton3 = (LinearLayout) rootView
+                    .findViewById(R.id.content_header_button3);
         } else if (viewType == R.id.tomahawklistadapter_viewtype_contentheader_user_navdrawer) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.content_header_textview_user_navdrawer);
@@ -213,5 +225,17 @@ public class ViewHolder {
 
     public TextView getTextView6() {
         return mTextView6;
+    }
+
+    public LinearLayout getButton1() {
+        return mButton1;
+    }
+
+    public LinearLayout getButton2() {
+        return mButton2;
+    }
+
+    public LinearLayout getButton3() {
+        return mButton3;
     }
 }

@@ -31,6 +31,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class User implements TomahawkListItem {
 
+    public static final String USERPLAYLIST_PLAYBACKLOG_ID = "_playbackLog";
+
     private static ConcurrentHashMap<String, User> sUsers
             = new ConcurrentHashMap<String, User>();
 
@@ -55,6 +57,12 @@ public class User implements TomahawkListItem {
     private ArrayList<SocialAction> mSocialActions = new ArrayList<SocialAction>();
 
     private ArrayList<SocialAction> mFriendsFeed = new ArrayList<SocialAction>();
+
+    private ArrayList<Query> mPlaybackLog = new ArrayList<Query>();
+
+    private ArrayList<User> mFollowings = new ArrayList<User>();
+
+    private ArrayList<User> mFollowers = new ArrayList<User>();
 
     /**
      * Construct a new {@link User} with the given id
@@ -95,7 +103,7 @@ public class User implements TomahawkListItem {
     }
 
     @Override
-    public String getCacheKey(){
+    public String getCacheKey() {
         return mId;
     }
 
@@ -214,5 +222,29 @@ public class User implements TomahawkListItem {
 
     public void setFriendsFeed(ArrayList<SocialAction> friendsFeed) {
         mFriendsFeed = friendsFeed;
+    }
+
+    public ArrayList<Query> getPlaybackLog() {
+        return mPlaybackLog;
+    }
+
+    public void setPlaybackLog(ArrayList<Query> playbackLog) {
+        mPlaybackLog = playbackLog;
+    }
+
+    public ArrayList<User> getFollowings() {
+        return mFollowings;
+    }
+
+    public void setFollowings(ArrayList<User> followings) {
+        mFollowings = followings;
+    }
+
+    public ArrayList<User> getFollowers() {
+        return mFollowers;
+    }
+
+    public void setFollowers(ArrayList<User> followers) {
+        mFollowers = followers;
     }
 }

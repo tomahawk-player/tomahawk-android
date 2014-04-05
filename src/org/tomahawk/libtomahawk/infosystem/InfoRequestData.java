@@ -55,6 +55,8 @@ public class InfoRequestData {
 
     public static final int INFOREQUESTDATA_TYPE_USERS_FRIENDSFEED = 805;
 
+    public static final int INFOREQUESTDATA_TYPE_USERS_PLAYBACKLOG = 806;
+
     public static final int INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES = 1000;
 
     public static final int INFOREQUESTDATA_TYPE_SEARCHES = 1100;
