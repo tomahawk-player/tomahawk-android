@@ -144,16 +144,19 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
                 tomahawkListAdapter = new TomahawkListAdapter(context, layoutInflater,
                         socialActions);
                 tomahawkListAdapter.setShowResolvedBy(true);
-                tomahawkListAdapter.setShowCategoryHeaders(true, false);
+                tomahawkListAdapter.setShowCategoryHeaders(true);
                 if (!mShowDashboard) {
-                    tomahawkListAdapter.showContentHeader(rootView, getListView(), mUser, mIsLocal);
+                    tomahawkListAdapter.showContentHeaderUser(
+                            getActivity().getSupportFragmentManager(),
+                            rootView, getListView(), mUser, mIsLocal);
                 }
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListItems(socialActions);
                 if (!mShowDashboard) {
-                    ((TomahawkListAdapter) getListAdapter()).showContentHeader(rootView,
-                            getListView(), mUser, mIsLocal);
+                    ((TomahawkListAdapter) getListAdapter()).showContentHeaderUser(
+                            getActivity().getSupportFragmentManager(), rootView, getListView(),
+                            mUser, mIsLocal);
                 }
             }
 

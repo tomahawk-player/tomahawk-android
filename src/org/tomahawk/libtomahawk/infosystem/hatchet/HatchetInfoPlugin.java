@@ -36,6 +36,7 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
+import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
@@ -115,6 +116,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
     public static final String HATCHET_FRIENDSFEED = "friendsFeed";
 
     public static final String HATCHET_LOVEDITEMS = "lovedItems";
+
+    public static final String HATCHET_PLAYBACKLOG = "playbackLog";
 
     public static final double HATCHET_SEARCHITEM_MIN_SCORE = 5.0;
 
@@ -252,6 +255,15 @@ public class HatchetInfoPlugin extends InfoPlugin {
             );
             infoRequestData.setInfoResult(
                     mObjectMapper.readValue(rawJsonString, HatchetSocialActionResponse.class));
+            return true;
+        } else if (infoRequestData.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYBACKLOG) {
+            rawJsonString = TomahawkUtils.httpsGet(
+                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYBACKLOG,
+                            infoRequestData.getParams())
+            );
+            infoRequestData.setInfoResult(
+                    mObjectMapper.readValue(rawJsonString, HatchetPlaybackLogsResponse.class));
             return true;
         } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS) {
             rawJsonString = TomahawkUtils.httpsGet(
@@ -664,6 +676,38 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         }
                     }
                 }
+            } else if (infoRequestData.getType()
+                    == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYBACKLOG) {
+                User user = (User) mItemsToBeFilled.get(infoRequestData.getRequestId());
+                HatchetPlaybackLogsResponse response
+                        = (HatchetPlaybackLogsResponse) infoRequestData.getInfoResult();
+                if (response.playbackLogEntries != null && response.playbackLogEntries.size() > 0) {
+                    Map<String, HatchetPlaybackItemResponse> playbackItemMap
+                            = new HashMap<String, HatchetPlaybackItemResponse>();
+                    if (response.playbackLogEntries != null) {
+                        for (HatchetPlaybackItemResponse playbackItem : response.playbackLogEntries) {
+                            playbackItemMap.put(playbackItem.id, playbackItem);
+                        }
+                    }
+                    Map<String, HatchetTrackInfo> trackInfoMap
+                            = new HashMap<String, HatchetTrackInfo>();
+                    if (response.tracks != null) {
+                        for (HatchetTrackInfo trackInfo : response.tracks) {
+                            trackInfoMap.put(trackInfo.id, trackInfo);
+                        }
+                    }
+                    Map<String, HatchetArtistInfo> artistInfoMap
+                            = new HashMap<String, HatchetArtistInfo>();
+                    if (response.artists != null) {
+                        for (HatchetArtistInfo artistInfo : response.artists) {
+                            artistInfoMap.put(artistInfo.id, artistInfo);
+                        }
+                    }
+                    ArrayList<Query> playbackItems = InfoSystemUtils
+                            .convertToQueryList(response.playbackLog, playbackItemMap, trackInfoMap,
+                                    artistInfoMap);
+                    user.setPlaybackLog(playbackItems);
+                }
             }
         }
     }
@@ -846,6 +890,16 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         + HATCHET_USERS + "/"
                         + iterator.next() + "/"
                         + HATCHET_FRIENDSFEED;
+                params.removeAll(HATCHET_PARAM_ID);
+                break;
+            case InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYBACKLOG:
+                paramStrings = params.get(HATCHET_PARAM_ID);
+                iterator = paramStrings.iterator();
+                queryString = HATCHET_BASE_URL + "/"
+                        + HATCHET_VERSION + "/"
+                        + HATCHET_USERS + "/"
+                        + iterator.next() + "/"
+                        + HATCHET_PLAYBACKLOG;
                 params.removeAll(HATCHET_PARAM_ID);
                 break;
             case InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES:

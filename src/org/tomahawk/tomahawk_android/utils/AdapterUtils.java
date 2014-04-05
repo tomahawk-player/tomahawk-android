@@ -28,9 +28,12 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.ViewHolder;
+import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
+import org.tomahawk.tomahawk_android.fragments.TracksFragment;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
@@ -126,7 +129,8 @@ public class AdapterUtils {
         viewHolder.getRoundedImage().setVisibility(View.VISIBLE);
     }
 
-    public static void fillContentHeader(Context context, ViewHolder viewHolder, User user) {
+    public static void fillContentHeader(final FragmentManager fragmentManager,
+            final Context context, ViewHolder viewHolder, final User user) {
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils.loadDrawableIntoImageView(context, viewHolder.getImageView1(),
                 R.drawable.no_album_art_placeholder);
@@ -137,6 +141,14 @@ public class AdapterUtils {
         viewHolder.getTextView3().setText("" + user.getTotalPlays());
         viewHolder.getTextView4().setText("" + user.getFollowCount());
         viewHolder.getTextView5().setText("" + user.getFollowersCount());
+        viewHolder.getButton1().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentUtils.replace(context, fragmentManager,
+                        TracksFragment.class, user.getCacheKey(),
+                        TomahawkFragment.TOMAHAWK_USER_ID, false);
+            }
+        });
         if (user.getNowPlaying() != null) {
             viewHolder.getTextView6().setText(context.getString(R.string.content_header_nowplaying)
                     + " " + user.getNowPlaying().getName() + " "

@@ -32,6 +32,7 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,6 +50,10 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
  */
 public class TomahawkListAdapter extends BaseAdapter implements StickyListHeadersAdapter {
 
+    public static final int SHOW_QUERIES_AS_TOPHITS = 0;
+
+    public static final int SHOW_QUERIES_AS_RECENTLYPLAYED = 1;
+
     private Context mContext;
 
     private List<TomahawkListItem> mListItems;
@@ -57,7 +62,7 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
 
     private boolean mShowCategoryHeaders = false;
 
-    private boolean mShowQueriesAsTopHits = false;
+    private int mShowQueriesAs = -1;
 
     private TomahawkListItem mContentHeaderTomahawkListItem;
 
@@ -93,9 +98,17 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
      * Set whether or not a header should be shown above each "category". Like "Albums", "Tracks"
      * etc.
      */
-    public void setShowCategoryHeaders(boolean showCategoryHeaders, boolean showQueriesAsTopHits) {
+    public void setShowCategoryHeaders(boolean showCategoryHeaders) {
         mShowCategoryHeaders = showCategoryHeaders;
-        mShowQueriesAsTopHits = showQueriesAsTopHits;
+    }
+
+    /**
+     * Set whether or not a header should be shown above each "category". Like "Albums", "Tracks"
+     * etc.
+     */
+    public void setShowCategoryHeaders(boolean showCategoryHeaders, int showQueriesAs) {
+        mShowCategoryHeaders = showCategoryHeaders;
+        mShowQueriesAs = showQueriesAs;
     }
 
     /**
@@ -112,6 +125,16 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
      */
     public void showContentHeader(View rootView, StickyListHeadersListView list,
             TomahawkListItem listItem, boolean isOnlyLocal) {
+        showContentHeader(null, rootView, list, listItem, isOnlyLocal);
+    }
+
+    public void showContentHeaderUser(FragmentManager fragmentManager, View rootView,
+            StickyListHeadersListView list, User user, boolean isOnlyLocal) {
+        showContentHeader(fragmentManager, rootView, list, user, isOnlyLocal);
+    }
+
+    private void showContentHeader(FragmentManager fragmentManager, View rootView,
+            StickyListHeadersListView list, TomahawkListItem listItem, boolean isOnlyLocal) {
         mContentHeaderTomahawkListItem = listItem;
         View contentHeaderView;
         boolean landscapeMode = mContext.getResources().getConfiguration().orientation
@@ -132,10 +155,11 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                 frame.addView(contentHeaderView);
             }
         }
-        updateContentHeader(rootView, listItem, isOnlyLocal);
+        updateContentHeader(fragmentManager, rootView, listItem, isOnlyLocal);
     }
 
-    public void updateContentHeader(View rootView, TomahawkListItem listItem, boolean isOnlyLocal) {
+    private void updateContentHeader(FragmentManager fragmentManager, View rootView,
+            TomahawkListItem listItem, boolean isOnlyLocal) {
         SquareHeightRelativeLayout frame = (SquareHeightRelativeLayout)
                 rootView.findViewById(R.id.content_header_image_frame);
         if (frame != null) {
@@ -151,7 +175,7 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
             AdapterUtils
                     .fillContentHeader(mContext, viewHolder, (UserPlaylist) listItem, isOnlyLocal);
         } else if (listItem instanceof User) {
-            AdapterUtils.fillContentHeader(mContext, viewHolder, (User) listItem);
+            AdapterUtils.fillContentHeader(fragmentManager, mContext, viewHolder, (User) listItem);
         }
     }
 
@@ -323,10 +347,15 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
             }
 
             if (item instanceof Track || item instanceof Query) {
-                if (mShowQueriesAsTopHits) {
+                if (mShowQueriesAs == SHOW_QUERIES_AS_TOPHITS) {
                     TomahawkUtils.loadDrawableIntoImageView(mContext,
                             viewHolder.getImageView1(), R.drawable.ic_action_tophits);
                     viewHolder.getTextView1().setText(R.string.tophits_categoryheaders_string);
+                } else if (mShowQueriesAs == SHOW_QUERIES_AS_RECENTLYPLAYED) {
+                    TomahawkUtils.loadDrawableIntoImageView(mContext,
+                            viewHolder.getImageView1(), R.drawable.ic_action_time);
+                    viewHolder.getTextView1()
+                            .setText(R.string.recentlyplayed_categoryheaders_string);
                 } else {
                     TomahawkUtils.loadDrawableIntoImageView(mContext,
                             viewHolder.getImageView1(), R.drawable.ic_action_track);

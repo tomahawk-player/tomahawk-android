@@ -94,7 +94,8 @@
                   android:orientation="horizontal"
                   android:descendantFocusability="afterDescendants">
 
-        <LinearLayout android:layout_width="0dp"
+        <LinearLayout android:id="@+id/content_header_button1"
+                      android:layout_width="0dp"
                       android:layout_height="wrap_content"
                       android:layout_weight="1"
                       android:orientation="vertical"
@@ -128,7 +129,8 @@
               android:layout_height="match_parent"
               android:background="@color/divider"/>
 
-        <LinearLayout android:layout_width="0dp"
+        <LinearLayout android:id="@+id/content_header_button2"
+                      android:layout_width="0dp"
                       android:layout_height="wrap_content"
                       android:layout_weight="1"
                       android:orientation="vertical"
@@ -162,7 +164,8 @@
               android:layout_height="match_parent"
               android:background="@color/divider"/>
 
-        <LinearLayout android:layout_width="0dp"
+        <LinearLayout android:id="@+id/content_header_button3"
+                      android:layout_width="0dp"
                       android:layout_height="wrap_content"
                       android:layout_weight="1"
                       android:orientation="vertical"

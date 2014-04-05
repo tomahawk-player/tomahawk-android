@@ -27,6 +27,8 @@ import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetAlbumInfo;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetArtistInfo;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetChartItem;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetImage;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaybackItemResponse;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaybackLogResponse;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaylistEntries;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaylistEntryInfo;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaylistInfo;
@@ -326,6 +328,24 @@ public class InfoSystemUtils {
         fillSocialAction(socialAction, hatchetSocialAction, trackInfoMap, artistInfoMap,
                 albumInfoMap, userInfoMap);
         return socialAction;
+    }
+
+    /**
+     * Convert the given HatchetPlaybackLogResponse into a List of Queries
+     */
+    public static ArrayList<Query> convertToQueryList(HatchetPlaybackLogResponse playbackLog,
+            Map<String, HatchetPlaybackItemResponse> playbackitemMap,
+            Map<String, HatchetTrackInfo> trackInfoMap,
+            Map<String, HatchetArtistInfo> artistInfoMap) {
+        ArrayList<Query> queries = new ArrayList<Query>();
+        for (String playbackItemId : playbackLog.playbackLogEntries) {
+            HatchetPlaybackItemResponse playbackitem = playbackitemMap.get(playbackItemId);
+            HatchetTrackInfo trackInfo = trackInfoMap.get(playbackitem.track);
+            HatchetArtistInfo artistInfo = artistInfoMap.get(trackInfo.artist);
+            Query q = Query.get(trackInfo.name, "", artistInfo.name, false, true);
+            queries.add(q);
+        }
+        return queries;
     }
 
     public static ObjectMapper constructObjectMapper() {

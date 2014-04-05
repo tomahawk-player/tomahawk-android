@@ -36,6 +36,7 @@
     <string name="userplaylists_categoryheaders_string">Local Playlists</string>
     <string name="hatchet_userplaylists_categoryheaders_string">Hatchet Playlists</string>
     <string name="tophits_categoryheaders_string">Top Hits</string>
+    <string name="recentlyplayed_categoryheaders_string">Recently Played</string>
     <string name="searchfragment_title_string">Search</string>
     <string name="searchfragment_searchforonlinesources">Also search online</string>
     <string name="searchfragment_searchtype">Search for</string>
@@ -150,4 +151,5 @@
     <string name="time_minutes">minutes</string>
     <string name="time_hours">hours</string>
     <string name="time_days">days</string>
+    <string name="users_playbacklog_suffix">\'s recently played</string>
 </resources>

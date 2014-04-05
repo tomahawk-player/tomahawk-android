@@ -91,6 +91,8 @@ public class InfoSystem {
 
     private HashSet<User> mUserFriendsFeedHashSet = new HashSet<User>();
 
+    private HashSet<User> mUserPlaybackLogHashSet = new HashSet<User>();
+
     private Query mLastPlaybackLogEntry = null;
 
     private Query mNowPlaying = null;
@@ -237,6 +239,25 @@ public class InfoSystem {
                 Multimap<String, String> params = HashMultimap.create(1, 1);
                 params.put(HatchetInfoPlugin.HATCHET_PARAM_ID, user.getId());
                 return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FRIENDSFEED,
+                        params, user);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Fill up the given user with metadata fetched from all added InfoPlugins
+     *
+     * @param user the User to enrich with data from the InfoPlugins
+     * @return the created InfoRequestData's requestId
+     */
+    public String resolvePlaybackLog(User user) {
+        if (user != null) {
+            if (!mUserPlaybackLogHashSet.contains(user)) {
+                mUserPlaybackLogHashSet.add(user);
+                Multimap<String, String> params = HashMultimap.create(1, 1);
+                params.put(HatchetInfoPlugin.HATCHET_PARAM_ID, user.getId());
+                return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYBACKLOG,
                         params, user);
             }
         }
