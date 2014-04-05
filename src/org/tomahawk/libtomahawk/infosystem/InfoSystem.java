@@ -85,14 +85,6 @@ public class InfoSystem {
 
     private HashSet<Album> mAlbumHashSet = new HashSet<Album>();
 
-    private HashSet<User> mUserHashSet = new HashSet<User>();
-
-    private HashSet<User> mUserSocialActionsHashSet = new HashSet<User>();
-
-    private HashSet<User> mUserFriendsFeedHashSet = new HashSet<User>();
-
-    private HashSet<User> mUserPlaybackLogHashSet = new HashSet<User>();
-
     private Query mLastPlaybackLogEntry = null;
 
     private Query mNowPlaying = null;
@@ -197,12 +189,9 @@ public class InfoSystem {
      */
     public String resolve(User user) {
         if (user != null) {
-            if (!mUserHashSet.contains(user)) {
-                mUserHashSet.add(user);
-                Multimap<String, String> params = HashMultimap.create(1, 1);
-                params.put(HatchetInfoPlugin.HATCHET_PARAM_IDARRAY, user.getId());
-                return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS, params, user);
-            }
+            Multimap<String, String> params = HashMultimap.create(1, 1);
+            params.put(HatchetInfoPlugin.HATCHET_PARAM_IDARRAY, user.getId());
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS, params, user);
         }
         return null;
     }
@@ -215,13 +204,10 @@ public class InfoSystem {
      */
     public String resolveSocialActions(User user) {
         if (user != null) {
-            if (!mUserSocialActionsHashSet.contains(user)) {
-                mUserSocialActionsHashSet.add(user);
-                Multimap<String, String> params = HashMultimap.create(1, 1);
-                params.put(HatchetInfoPlugin.HATCHET_PARAM_ID, user.getId());
-                return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS,
-                        params, user);
-            }
+            Multimap<String, String> params = HashMultimap.create(1, 1);
+            params.put(HatchetInfoPlugin.HATCHET_PARAM_ID, user.getId());
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS,
+                    params, user);
         }
         return null;
     }
@@ -234,13 +220,10 @@ public class InfoSystem {
      */
     public String resolveFriendsFeed(User user) {
         if (user != null) {
-            if (!mUserFriendsFeedHashSet.contains(user)) {
-                mUserFriendsFeedHashSet.add(user);
-                Multimap<String, String> params = HashMultimap.create(1, 1);
-                params.put(HatchetInfoPlugin.HATCHET_PARAM_ID, user.getId());
-                return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FRIENDSFEED,
-                        params, user);
-            }
+            Multimap<String, String> params = HashMultimap.create(1, 1);
+            params.put(HatchetInfoPlugin.HATCHET_PARAM_ID, user.getId());
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FRIENDSFEED,
+                    params, user);
         }
         return null;
     }
@@ -253,13 +236,10 @@ public class InfoSystem {
      */
     public String resolvePlaybackLog(User user) {
         if (user != null) {
-            if (!mUserPlaybackLogHashSet.contains(user)) {
-                mUserPlaybackLogHashSet.add(user);
-                Multimap<String, String> params = HashMultimap.create(1, 1);
-                params.put(HatchetInfoPlugin.HATCHET_PARAM_ID, user.getId());
-                return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYBACKLOG,
-                        params, user);
-            }
+            Multimap<String, String> params = HashMultimap.create(1, 1);
+            params.put(HatchetInfoPlugin.HATCHET_PARAM_ID, user.getId());
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYBACKLOG,
+                    params, user);
         }
         return null;
     }
