@@ -152,4 +152,6 @@
     <string name="time_hours">hours</string>
     <string name="time_days">days</string>
     <string name="users_playbacklog_suffix">\'s recently played</string>
+    <string name="users_followings_suffix">is following</string>
+    <string name="users_followers_suffix">is followed by</string>
 </resources>

@@ -45,18 +45,18 @@ import java.util.ArrayList;
  */
 public class SocialActionsFragment extends TomahawkFragment implements OnItemClickListener {
 
-    public static final String SHOW_DASHBOARD = "org.tomahawk.tomahawk_android.show_dashboard";
+    public static final int SHOW_MODE_SOCIALACTIONS = 0;
 
-    private boolean mShowDashboard;
+    public static final int SHOW_MODE_DASHBOARD = 1;
 
     @Override
     public void onResume() {
         super.onResume();
 
         if (getArguments() != null) {
-            if (getArguments().containsKey(SHOW_DASHBOARD)) {
-                mShowDashboard = getArguments().getBoolean(SHOW_DASHBOARD);
-                if (mShowDashboard) {
+            if (getArguments().containsKey(SHOW_MODE)) {
+                mShowMode = getArguments().getInt(SHOW_MODE);
+                if (mShowMode == SHOW_MODE_DASHBOARD) {
                     mCurrentRequestIds.add(InfoSystem.getInstance().resolveFriendsFeed(mUser));
                 } else {
                     mCurrentRequestIds.add(InfoSystem.getInstance().resolveSocialActions(mUser));
@@ -133,7 +133,7 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
         View rootView = getActivity().findViewById(android.R.id.content);
         if (mUser != null) {
             ArrayList<TomahawkListItem> socialActions;
-            if (mShowDashboard) {
+            if (mShowMode == SHOW_MODE_DASHBOARD) {
                 socialActions = new ArrayList<TomahawkListItem>(mUser.getFriendsFeed());
             } else {
                 socialActions = new ArrayList<TomahawkListItem>(mUser.getSocialActions());
@@ -145,7 +145,7 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
                         socialActions);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true);
-                if (!mShowDashboard) {
+                if (mShowMode != SHOW_MODE_DASHBOARD) {
                     tomahawkListAdapter.showContentHeaderUser(
                             getActivity().getSupportFragmentManager(),
                             rootView, getListView(), mUser, mIsLocal);
@@ -153,7 +153,7 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListItems(socialActions);
-                if (!mShowDashboard) {
+                if (mShowMode != SHOW_MODE_DASHBOARD) {
                     ((TomahawkListAdapter) getListAdapter()).showContentHeaderUser(
                             getActivity().getSupportFragmentManager(), rootView, getListView(),
                             mUser, mIsLocal);

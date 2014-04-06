@@ -28,8 +28,10 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.ViewHolder;
+import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.fragments.TracksFragment;
+import org.tomahawk.tomahawk_android.fragments.UsersFragment;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -146,7 +148,26 @@ public class AdapterUtils {
             public void onClick(View v) {
                 FragmentUtils.replace(context, fragmentManager,
                         TracksFragment.class, user.getCacheKey(),
-                        TomahawkFragment.TOMAHAWK_USER_ID, false);
+                        TomahawkFragment.TOMAHAWK_USER_ID,
+                        SocialActionsFragment.SHOW_MODE_DASHBOARD);
+            }
+        });
+        viewHolder.getButton2().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentUtils.replace(context, fragmentManager,
+                        UsersFragment.class, user.getCacheKey(),
+                        TomahawkFragment.TOMAHAWK_USER_ID,
+                        UsersFragment.SHOW_MODE_TYPE_FOLLOWINGS);
+            }
+        });
+        viewHolder.getButton3().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentUtils.replace(context, fragmentManager,
+                        UsersFragment.class, user.getCacheKey(),
+                        TomahawkFragment.TOMAHAWK_USER_ID,
+                        UsersFragment.SHOW_MODE_TYPE_FOLLOWERS);
             }
         });
         if (user.getNowPlaying() != null) {
