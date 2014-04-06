@@ -499,7 +499,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                 if (query != null && !TextUtils.isEmpty(query)) {
                     DatabaseHelper.getInstance().addEntryToSearchHistory(query);
                     FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
-                            SearchableFragment.class, null, null, query, false, true);
+                            SearchableFragment.class, query);
                     if (searchItem != null) {
                         MenuItemCompat.collapseActionView(searchItem);
                     }

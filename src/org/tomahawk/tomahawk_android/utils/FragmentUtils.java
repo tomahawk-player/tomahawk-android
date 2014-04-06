@@ -76,21 +76,38 @@ public class FragmentUtils {
      */
     public static void replace(Context context, FragmentManager fragmentManager, Class clss,
             String tomahawkListItemKey, String tomahawkListItemType, boolean isLocal) {
-        replace(context, fragmentManager, clss, tomahawkListItemKey, tomahawkListItemType, null,
-                isLocal, false);
+        FragmentTransaction ft = fragmentManager.beginTransaction();
+        Bundle bundle = new Bundle();
+        bundle.putString(tomahawkListItemType, tomahawkListItemKey);
+        bundle.putBoolean(TomahawkFragment.TOMAHAWK_LIST_ITEM_IS_LOCAL, isLocal);
+        ft.replace(R.id.content_viewer_frame, Fragment.instantiate(context, clss.getName(), bundle),
+                FRAGMENT_TAG);
+        ft.addToBackStack(FRAGMENT_TAG);
+        ft.commit();
     }
 
     /**
      * Replaces the current {@link Fragment}
      */
     public static void replace(Context context, FragmentManager fragmentManager, Class clss,
-            String tomahawkListItemKey, String tomahawkListItemType, String queryString,
-            boolean isLocal, boolean showDashboard) {
+            String tomahawkListItemKey, String tomahawkListItemType, int showMode) {
         FragmentTransaction ft = fragmentManager.beginTransaction();
         Bundle bundle = new Bundle();
         bundle.putString(tomahawkListItemType, tomahawkListItemKey);
-        bundle.putBoolean(TomahawkFragment.TOMAHAWK_LIST_ITEM_IS_LOCAL, isLocal);
-        bundle.putBoolean(SocialActionsFragment.SHOW_DASHBOARD, showDashboard);
+        bundle.putInt(TomahawkFragment.SHOW_MODE, showMode);
+        ft.replace(R.id.content_viewer_frame, Fragment.instantiate(context, clss.getName(), bundle),
+                FRAGMENT_TAG);
+        ft.addToBackStack(FRAGMENT_TAG);
+        ft.commit();
+    }
+
+    /**
+     * Replaces the current {@link Fragment}
+     */
+    public static void replace(Context context, FragmentManager fragmentManager, Class clss,
+            String queryString) {
+        FragmentTransaction ft = fragmentManager.beginTransaction();
+        Bundle bundle = new Bundle();
         bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING, queryString);
         ft.replace(R.id.content_viewer_frame, Fragment.instantiate(context, clss.getName(), bundle),
                 FRAGMENT_TAG);
@@ -156,6 +173,12 @@ public class FragmentUtils {
                 clss = PlaybackFragment.class;
                 break;
         }
-        replace(context, fragmentManager, clss, key, type, null, false, showDashboard);
+        if (showDashboard) {
+            replace(context, fragmentManager, clss, key, type,
+                    SocialActionsFragment.SHOW_MODE_DASHBOARD);
+        } else {
+            replace(context, fragmentManager, clss, key, type,
+                    SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
+        }
     }
 }

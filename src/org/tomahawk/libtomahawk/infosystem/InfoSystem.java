@@ -245,6 +245,42 @@ public class InfoSystem {
     }
 
     /**
+     * Fill up the given user with metadata fetched from all added InfoPlugins
+     *
+     * @param user the User to enrich with data from the InfoPlugins
+     * @return the created InfoRequestData's requestId
+     */
+    public String resolveFollowings(User user) {
+        if (user != null) {
+            Multimap<String, String> params = HashMultimap.create(1, 1);
+            params.put(HatchetInfoPlugin.HATCHET_PARAM_USERID, user.getId());
+            params.put(HatchetInfoPlugin.HATCHET_PARAM_TYPE,
+                    HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_FOLLOW);
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWINGS,
+                    params, user);
+        }
+        return null;
+    }
+
+    /**
+     * Fill up the given user with metadata fetched from all added InfoPlugins
+     *
+     * @param user the User to enrich with data from the InfoPlugins
+     * @return the created InfoRequestData's requestId
+     */
+    public String resolveFollowers(User user) {
+        if (user != null) {
+            Multimap<String, String> params = HashMultimap.create(1, 1);
+            params.put(HatchetInfoPlugin.HATCHET_PARAM_TARGETUSERID, user.getId());
+            params.put(HatchetInfoPlugin.HATCHET_PARAM_TYPE,
+                    HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_FOLLOW);
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWERS,
+                    params, user);
+        }
+        return null;
+    }
+
+    /**
      * Build an InfoRequestData object with the given data and order results
      *
      * @param type   the type of the InfoRequestData object

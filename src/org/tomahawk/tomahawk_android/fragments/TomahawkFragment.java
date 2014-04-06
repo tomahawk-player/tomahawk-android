@@ -111,6 +111,9 @@ public class TomahawkFragment extends TomahawkListFragment
     public static final String TOMAHAWK_LIST_ITEM_POSITION
             = "org.tomahawk.tomahawk_android.tomahawk_list_item_position";
 
+    public static final String SHOW_MODE
+            = "org.tomahawk.tomahawk_android.show_mode";
+
     protected static final int RESOLVE_QUERIES_REPORTER_MSG = 1336;
 
     protected static final long RESOLVE_QUERIES_REPORTER_DELAY = 100;
@@ -150,6 +153,8 @@ public class TomahawkFragment extends TomahawkListFragment
     private int mFirstVisibleItemLastTime = 0;
 
     private int mVisibleItemCount = 0;
+
+    protected int mShowMode;
 
     protected final Handler mResolveQueriesHandler = new Handler() {
         @Override
