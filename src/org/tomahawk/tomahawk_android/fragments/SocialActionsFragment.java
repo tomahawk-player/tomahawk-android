@@ -113,7 +113,8 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
                 } else if (item instanceof User) {
                     FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
                             SocialActionsFragment.class, ((User) item).getId(),
-                            TomahawkFragment.TOMAHAWK_USER_ID, false);
+                            TomahawkFragment.TOMAHAWK_USER_ID,
+                            SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
                 }
             }
         }
