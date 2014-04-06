@@ -216,7 +216,7 @@ public class AdapterUtils {
     public static void fillView(Context context, ViewHolder viewHolder, User user) {
         viewHolder.getTextView1().setText(user.getName());
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
-        TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
+        TomahawkUtils.loadRoundedImageIntoImageView(context, viewHolder.getImageView1(),
                 user.getImage(), Image.IMAGE_SIZE_SMALL);
     }
 
