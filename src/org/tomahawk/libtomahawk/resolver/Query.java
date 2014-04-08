@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.text.TextUtils;
@@ -63,9 +64,6 @@ public class Query implements TomahawkListItem {
     private boolean mPlayable = false;
 
     private boolean mSolved = false;
-
-    // If this query is currently being played, we don't update the preferred track result.
-    private boolean mCurrentlyPlaying = false;
 
     private String mTopTrackResultKey = "";
 
@@ -196,6 +194,14 @@ public class Query implements TomahawkListItem {
         return sQueries.get(query.getCacheKey());
     }
 
+    public MediaPlayerInterface getMediaPlayerInterface() {
+        if (getPreferredTrackResult() != null) {
+            return getPreferredTrackResult().getMediaPlayerInterface();
+        } else {
+            return null;
+        }
+    }
+
     public String getCacheKey() {
         return mCacheKey;
     }
@@ -257,11 +263,11 @@ public class Query implements TomahawkListItem {
     public void addTrackResult(Result result) {
         if (!sBlacklistedResults.contains(result.getCacheKey())) {
             mPlayable = true;
-            if (!mCurrentlyPlaying && result.getTrackScore() == 1f) {
+            if (result.getTrackScore() == 1f) {
                 mSolved = true;
             }
             mTrackResults.put(result.getCacheKey(), result);
-            if (!mCurrentlyPlaying && (getPreferredTrackResult() == null
+            if ((getPreferredTrackResult() == null
                     || mResultHint.equals(result.getCacheKey())
                     || getPreferredTrackResult().getTrackScore() < result.getTrackScore()
                     || (getPreferredTrackResult().getTrackScore() == result.getTrackScore()
@@ -393,14 +399,6 @@ public class Query implements TomahawkListItem {
 
     public boolean isSolved() {
         return mSolved;
-    }
-
-    public boolean isCurrentlyPlaying() {
-        return mCurrentlyPlaying;
-    }
-
-    public void setCurrentlyPlaying(boolean currentlyPlaying) {
-        mCurrentlyPlaying = currentlyPlaying;
     }
 
     public boolean isFetchedViaHatchet() {

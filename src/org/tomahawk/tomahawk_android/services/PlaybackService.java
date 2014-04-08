@@ -38,6 +38,7 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
+import org.tomahawk.tomahawk_android.utils.SpotifyMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
@@ -74,7 +75,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
@@ -82,7 +82,9 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * This {@link Service} handles all playback related processes.
  */
-public class PlaybackService extends Service {
+public class PlaybackService extends Service
+        implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
+        MediaPlayer.OnCompletionListener {
 
     private static String TAG = PlaybackService.class.getName();
 
@@ -111,8 +113,6 @@ public class PlaybackService extends Service {
 
     private static final int PLAYBACKSERVICE_PLAYSTATE_PAUSED = 1;
 
-    private static final int PLAYBACKSERVICE_PLAYSTATE_STOPPED = 2;
-
     private int mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
 
     private static final int PLAYBACKSERVICE_NOTIFICATION_ID = 1;
@@ -126,60 +126,18 @@ public class PlaybackService extends Service {
 
     private Playlist mCurrentPlaylist;
 
-    private TomahawkMediaPlayer mTomahawkMediaPlayer;
-
-    private String mLastPreparedPath = "";
-
     private PowerManager.WakeLock mWakeLock;
 
     private PlaybackServiceBroadcastReceiver mPlaybackServiceBroadcastReceiver;
-
-    private Handler mHandler;
 
     private Bitmap mNotificationBitmap = null;
 
     private Image mNotificationBitmapImage = null;
 
-    private boolean mSpotifyIsInitialized;
-
-    private int mSpotifyCurrentPosition = 0;
-
     private boolean mIsBindingToSpotifyService;
 
     private SpotifyService.SpotifyServiceConnection mSpotifyServiceConnection
             = new SpotifyService.SpotifyServiceConnection(new SpotifyServiceConnectionListener());
-
-    private Messenger mToSpotifyMessenger = null;
-
-    private Messenger mFromSpotifyMessenger = new Messenger(new FromSpotifyHandler());
-
-    /**
-     * Handler of incoming messages from the SpotifyService's messenger.
-     */
-    private class FromSpotifyHandler extends Handler {
-
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case SpotifyService.MSG_ONINIT:
-                    mSpotifyIsInitialized = true;
-                    mTomahawkMediaPlayer.setSpotifyIsInitalized(mSpotifyIsInitialized);
-                    break;
-                case SpotifyService.MSG_ONPREPARED:
-                    mTomahawkMediaPlayer.onPrepared(null);
-                    break;
-                case SpotifyService.MSG_ONPLAYERENDOFTRACK:
-                    mTomahawkMediaPlayer.onCompletion(null);
-                    break;
-                case SpotifyService.MSG_ONPLAYERPOSITIONCHANGED:
-                    mSpotifyCurrentPosition = msg.arg1;
-                    mTomahawkMediaPlayer.setSpotifyCurrentPosition(mSpotifyCurrentPosition);
-                    break;
-                default:
-                    super.handleMessage(msg);
-            }
-        }
-    }
 
     private Target mTarget = new Target() {
         @Override
@@ -257,24 +215,11 @@ public class PlaybackService extends Service {
                 case TelephonyManager.CALL_STATE_IDLE:
                     if (mStartCallTime > 0 && (System.currentTimeMillis() - mStartCallTime
                             < 30000)) {
-                        mVolumeIncreaseFader.run();
                         start();
                     }
 
                     mStartCallTime = 0L;
                     break;
-            }
-        }
-
-        @Override
-        public void onDataConnectionStateChanged(int state) {
-            super.onDataConnectionStateChanged(state);
-            switch (state) {
-                case TelephonyManager.DATA_CONNECTED:
-                    if (mTomahawkMediaPlayer != null
-                            && mTomahawkMediaPlayer.getCurrentPosition() == 0) {
-                        setCurrentQuery(getCurrentQuery());
-                    }
             }
         }
     }
@@ -284,25 +229,19 @@ public class PlaybackService extends Service {
 
         @Override
         public void setToSpotifyMessenger(Messenger messenger) {
-            mToSpotifyMessenger = messenger;
             SpotifyResolver spotifyResolver = (SpotifyResolver) PipeLine.getInstance()
                     .getResolver(PipeLine.RESOLVER_ID_SPOTIFY);
-            spotifyResolver.setToSpotifyMessenger(mToSpotifyMessenger);
+            spotifyResolver.setToSpotifyMessenger(messenger);
             SpotifyAuthenticatorUtils authUtils = (SpotifyAuthenticatorUtils)
                     AuthenticatorManager.getInstance()
                             .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY);
-            authUtils.setToSpotifyMessenger(mToSpotifyMessenger);
-            mTomahawkMediaPlayer.setToSpotifyMessenger(mToSpotifyMessenger);
+            authUtils.setToSpotifyMessenger(messenger);
+            SpotifyMediaPlayer spotifyMediaPlayer = SpotifyMediaPlayer.getInstance();
+            spotifyMediaPlayer.setToSpotifyMessenger(messenger);
             //Now that every client has its messenger reference and registered itself to the
             //SpotifyService's messenger, we can initialize libspotify through the wrapper
-            if (mToSpotifyMessenger != null) {
-                SpotifyServiceUtils.registerMsg(mToSpotifyMessenger, mFromSpotifyMessenger);
-                SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_INIT);
-            } else {
-                mSpotifyIsInitialized = false;
-                mTomahawkMediaPlayer.setSpotifyIsInitalized(mSpotifyIsInitialized);
-                mSpotifyCurrentPosition = 0;
-                mTomahawkMediaPlayer.setSpotifyCurrentPosition(mSpotifyCurrentPosition);
+            if (messenger != null) {
+                SpotifyServiceUtils.sendMsg(messenger, SpotifyService.MSG_INIT);
             }
             mIsBindingToSpotifyService = false;
         }
@@ -359,25 +298,6 @@ public class PlaybackService extends Service {
         }
     }
 
-    // This Runnable is used to increase the volume gently.
-    private Runnable mVolumeIncreaseFader = new Runnable() {
-
-        private float mVolume = 0f;
-
-        @Override
-        public void run() {
-
-            mTomahawkMediaPlayer.setVolume(mVolume, mVolume);
-
-            if (mVolume < 1.0f) {
-                mVolume += .05f;
-                mHandler.postDelayed(mVolumeIncreaseFader, 250);
-            } else {
-                mVolume = 0;
-            }
-        }
-    };
-
     // Stops this service if it doesn't have any bound services
     private Handler mKillTimerHandler = new Handler() {
         @Override
@@ -396,8 +316,6 @@ public class PlaybackService extends Service {
 
     @Override
     public void onCreate() {
-        mHandler = new Handler();
-
         bindService(new Intent(this, SpotifyService.class), mSpotifyServiceConnection,
                 Context.BIND_AUTO_CREATE);
 
@@ -430,8 +348,6 @@ public class PlaybackService extends Service {
         Message msg = mKillTimerHandler.obtainMessage();
         mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
 
-        // Finally initialize the heart of this PlaybackService, the TomahawkMediaPlayer object
-        initMediaPlayer();
         restoreState();
         Log.d(TAG, "PlaybackService has been created");
     }
@@ -473,13 +389,12 @@ public class PlaybackService extends Service {
         mPlaybackServiceBroadcastReceiver = null;
         unbindService(mSpotifyServiceConnection);
         mSpotifyServiceConnection = null;
-        mTomahawkMediaPlayer.release();
-        mTomahawkMediaPlayer = null;
+        SpotifyMediaPlayer.getInstance().release();
+        TomahawkMediaPlayer.getInstance().release();
         if (mWakeLock.isHeld()) {
             mWakeLock.release();
         }
         mWakeLock = null;
-        mVolumeIncreaseFader = null;
         TelephonyManager telephonyManager = (TelephonyManager) getSystemService(
                 Context.TELEPHONY_SERVICE);
         telephonyManager.listen(mPhoneCallListener, PhoneStateListener.LISTEN_NONE);
@@ -487,7 +402,6 @@ public class PlaybackService extends Service {
         mTarget = null;
         mKillTimerHandler.removeCallbacksAndMessages(null);
         mKillTimerHandler = null;
-        mFromSpotifyMessenger = null;
 
         super.onDestroy();
         Log.d(TAG, "PlaybackService has been destroyed");
@@ -496,12 +410,18 @@ public class PlaybackService extends Service {
     /**
      * Called if given {@link TomahawkMediaPlayer} has been prepared for playback
      */
-    public void onPrepared(TomahawkMediaPlayer tmp) {
-        Log.d(TAG, "Mediaplayer is prepared.");
+    @Override
+    public void onPrepared(MediaPlayer mp) {
+        Log.d(TAG, "MediaPlayer successfully prepared the track '"
+                + getCurrentQuery().getName() + "' by '"
+                + getCurrentQuery().getArtist().getName()
+                + "' resolved by Resolver " + getCurrentQuery()
+                .getPreferredTrackResult().getResolvedBy());
         if (isPlaying()) {
             InfoSystem.getInstance().sendNowPlayingPostStruct(
-                    AuthenticatorManager.getInstance().getAuthenticatorUtils(
-                            AuthenticatorManager.AUTHENTICATOR_ID_HATCHET),
+                    AuthenticatorManager.getInstance()
+                            .getAuthenticatorUtils(
+                                    AuthenticatorManager.AUTHENTICATOR_ID_HATCHET),
                     getCurrentQuery()
             );
         }
@@ -511,7 +431,8 @@ public class PlaybackService extends Service {
     /**
      * Called if an error has occurred while trying to prepare {@link TomahawkMediaPlayer}
      */
-    public boolean onError(TomahawkMediaPlayer tmp, int what, int extra) {
+    @Override
+    public boolean onError(MediaPlayer mp, int what, int extra) {
         String whatString = "CODE UNSPECIFIED";
         switch (what) {
             case MediaPlayer.MEDIA_ERROR_UNKNOWN:
@@ -522,37 +443,18 @@ public class PlaybackService extends Service {
         }
 
         Log.e(TAG, "onError - " + whatString);
-        if (tmp == mTomahawkMediaPlayer && isNetworkAvailable()) {
-            next();
-        }
         return false;
     }
 
     /**
      * Called if given {@link org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer} has finished
-     * playing a song. Prepare the next track if possible, otherwise stop.
+     * playing a song. Prepare the next track if possible.
      */
-    public void onCompletion(TomahawkMediaPlayer tmp) {
-        if (mCurrentPlaylist == null) {
-            stop();
-            return;
-        }
-
-        if (mCurrentPlaylist.peekNextQuery() != null) {
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        if (mCurrentPlaylist != null && mCurrentPlaylist.peekNextQuery() != null) {
             next();
-        } else {
-            stop();
         }
-    }
-
-    /**
-     * Initializes the {@link TomahawkMediaPlayer}. Sets the listeners and AudioStreamType.
-     */
-    public void initMediaPlayer() {
-        mTomahawkMediaPlayer = new TomahawkMediaPlayer(this);
-        mTomahawkMediaPlayer.setSpotifyIsInitalized(mSpotifyIsInitialized);
-        mTomahawkMediaPlayer.setSpotifyCurrentPosition(mSpotifyCurrentPosition);
-        mTomahawkMediaPlayer.setToSpotifyMessenger(mToSpotifyMessenger);
     }
 
     /**
@@ -566,7 +468,7 @@ public class PlaybackService extends Service {
                     .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
                             DatabaseHelper.CACHED_PLAYLIST_NAME,
                             getCurrentPlaylist().getQueries(),
-                            getCurrentPlaylist().getCurrentQuery()));
+                            getCurrentPlaylist().getCurrentQueryIndex()));
             Log.d(TAG, "Playlist stored in " + (System.currentTimeMillis() - startTime) + "ms");
         }
     }
@@ -606,10 +508,8 @@ public class PlaybackService extends Service {
             } else {
                 updatePlayingNotification();
             }
-        } else if (mPlayState == PLAYBACKSERVICE_PLAYSTATE_PAUSED
-                || mPlayState == PLAYBACKSERVICE_PLAYSTATE_STOPPED) {
+        } else if (mPlayState == PLAYBACKSERVICE_PLAYSTATE_PAUSED) {
             mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
-            setCurrentQuery(getCurrentQuery());
             updatePlayingNotification();
         }
         sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
@@ -621,20 +521,9 @@ public class PlaybackService extends Service {
      */
     public void start() {
         mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
-        setCurrentQuery(getCurrentQuery());
         sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
         handlePlayState();
         updatePlayingNotification();
-    }
-
-    /**
-     * Stop playback.
-     */
-    public void stop() {
-        mPlayState = PLAYBACKSERVICE_PLAYSTATE_STOPPED;
-        sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
-        handlePlayState();
-        stopForeground(true);
     }
 
     /**
@@ -664,34 +553,36 @@ public class PlaybackService extends Service {
      * Update the TomahawkMediaPlayer so that it reflects the current playState
      */
     public void handlePlayState() {
-        if (!isPreparing()) {
+        if (!isPreparing() && getCurrentQuery().getMediaPlayerInterface() != null) {
             try {
                 switch (mPlayState) {
                     case PLAYBACKSERVICE_PLAYSTATE_PLAYING:
                         if (!mWakeLock.isHeld()) {
                             mWakeLock.acquire();
                         }
-                        if (!mTomahawkMediaPlayer.isPlaying()) {
-                            mTomahawkMediaPlayer.start();
+                        if (getCurrentQuery().getMediaPlayerInterface()
+                                .isPrepared(getCurrentQuery())) {
+                            if (!getCurrentQuery().getMediaPlayerInterface().isPlaying()) {
+                                getCurrentQuery().getMediaPlayerInterface().start();
+                            }
+                        } else if (!isPreparing()) {
+                            prepareCurrentQuery();
                         }
                         break;
                     case PLAYBACKSERVICE_PLAYSTATE_PAUSED:
-                        if (mTomahawkMediaPlayer.isPlaying()) {
+                        if (getCurrentQuery().getMediaPlayerInterface().isPlaying()
+                                && getCurrentQuery().getMediaPlayerInterface()
+                                .isPrepared(getCurrentQuery())) {
                             InfoSystem.getInstance().sendPlaybackEntryPostStruct(
                                     AuthenticatorManager.getInstance().getAuthenticatorUtils(
                                             AuthenticatorManager.AUTHENTICATOR_ID_HATCHET)
                             );
-                            mTomahawkMediaPlayer.pause();
+                            getCurrentQuery().getMediaPlayerInterface().pause();
                         }
                         if (mWakeLock.isHeld()) {
                             mWakeLock.release();
                         }
                         break;
-                    case PLAYBACKSERVICE_PLAYSTATE_STOPPED:
-                        mTomahawkMediaPlayer.stop();
-                        if (mWakeLock.isHeld()) {
-                            mWakeLock.release();
-                        }
                 }
             } catch (IllegalStateException e1) {
                 Log.e(TAG,
@@ -710,16 +601,17 @@ public class PlaybackService extends Service {
      */
     public void next() {
         if (mCurrentPlaylist != null) {
+            TomahawkMediaPlayer.getInstance().release();
+            SpotifyMediaPlayer.getInstance().release();
             Query query = null;
             int maxCount = mCurrentPlaylist.getCount();
             int counter = 0;
             while (mCurrentPlaylist.hasNextQuery() && counter++ < maxCount && (query == null
                     || !query.isPlayable())) {
                 query = mCurrentPlaylist.getNextQuery();
+                sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
             }
-            if (query != null) {
-                setCurrentQuery(query);
-            }
+            handlePlayState();
         }
     }
 
@@ -728,16 +620,17 @@ public class PlaybackService extends Service {
      */
     public void previous() {
         if (mCurrentPlaylist != null) {
+            TomahawkMediaPlayer.getInstance().release();
+            SpotifyMediaPlayer.getInstance().release();
             Query query = null;
             int maxCount = mCurrentPlaylist.getCount();
             int counter = 0;
             while (mCurrentPlaylist.hasPreviousQuery() && counter++ < maxCount && (query == null
                     || !query.isPlayable())) {
                 query = mCurrentPlaylist.getPreviousQuery();
+                sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
             }
-            if (query != null) {
-                setCurrentQuery(query);
-            }
+            handlePlayState();
         }
     }
 
@@ -768,18 +661,17 @@ public class PlaybackService extends Service {
      * @return Whether or not the mediaPlayer currently prepares a track
      */
     public boolean isPreparing() {
-        return mTomahawkMediaPlayer == null || mTomahawkMediaPlayer.isPreparing();
+        return getCurrentQuery().getMediaPlayerInterface() != null && getCurrentQuery()
+                .getMediaPlayerInterface().isPreparing();
     }
 
     /**
      * Get the current Query
      */
     public Query getCurrentQuery() {
-
         if (mCurrentPlaylist == null) {
             return null;
         }
-
         return mCurrentPlaylist.getCurrentQuery();
     }
 
@@ -796,14 +688,11 @@ public class PlaybackService extends Service {
     /**
      * This method sets the current track and prepares it for playback.
      */
-    public void setCurrentQuery(final Query query) {
+    private void prepareCurrentQuery() {
         if (getCurrentQuery() != null) {
-            getCurrentQuery().setCurrentlyPlaying(false);
-        }
-        if (mTomahawkMediaPlayer != null && query != null) {
             resolveQueriesFromTo(getCurrentPlaylist().getCurrentQueryIndex(),
                     getCurrentPlaylist().getCurrentQueryIndex() + 10);
-            if (query.isPlayable() && query.getPreferredTrackResult() != null) {
+            if (getCurrentQuery().isPlayable()) {
                 mKillTimerHandler.removeCallbacksAndMessages(null);
                 Message msg = mKillTimerHandler.obtainMessage();
                 mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
@@ -811,75 +700,57 @@ public class PlaybackService extends Service {
                 updatePlayingNotification();
                 sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
 
-                if (query.getImage() == null) {
+                if (getCurrentQuery().getImage() == null) {
                     ArrayList<String> requestIds = InfoSystem.getInstance().resolve(
-                            query.getArtist(), true);
+                            getCurrentQuery().getArtist(), true);
                     for (String requestId : requestIds) {
-                        mCorrespondingInfoDataIds.put(requestId, query.getCacheKey());
+                        mCorrespondingInfoDataIds.put(requestId, getCurrentQuery().getCacheKey());
                     }
-                    String requestId = InfoSystem.getInstance().resolve(query.getAlbum());
+                    String requestId = InfoSystem.getInstance()
+                            .resolve(getCurrentQuery().getAlbum());
                     if (requestId != null) {
-                        mCorrespondingInfoDataIds.put(requestId, query.getCacheKey());
+                        mCorrespondingInfoDataIds.put(requestId, getCurrentQuery().getCacheKey());
                     }
                 }
 
                 TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_PLAYBACK) {
                     @Override
                     public void run() {
-                        if (isPlaying() && !mLastPreparedPath
-                                .equals(query.getPreferredTrackResult().getPath())) {
-                            query.setCurrentlyPlaying(true);
-                            int loopCounter = 0;
-                            while (true) {
-                                if (loopCounter++ > 3) {
-                                    if (query.getPreferredTrackResult() != null) {
-                                        query.blacklistTrackResult(query.getPreferredTrackResult());
-                                        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
-                                    }
-                                    if (query.getPreferredTrackResult() == null) {
-                                        Log.e(TAG, "MediaPlayer was unable to prepare the track");
-                                        mLastPreparedPath = "";
-                                        next();
-                                        break;
-                                    } else {
-                                        loopCounter = 0;
-                                    }
+                        if (isPlaying() && getCurrentQuery().getMediaPlayerInterface() != null) {
+                            if (getCurrentQuery().getMediaPlayerInterface().prepare(
+                                    PlaybackService.this, getCurrentQuery(), PlaybackService.this,
+                                    PlaybackService.this, PlaybackService.this) == null) {
+                                if (getCurrentQuery().getPreferredTrackResult() != null) {
+                                    getCurrentQuery().blacklistTrackResult(
+                                            getCurrentQuery().getPreferredTrackResult());
+                                    sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
                                 }
-                                long startTime = System.currentTimeMillis();
-                                mTomahawkMediaPlayer.release();
-                                initMediaPlayer();
-                                long endTime = System.currentTimeMillis();
-                                Log.d(TAG, "MediaPlayer reinitialize in " + (endTime - startTime)
-                                        + "ms, preparing=" + isPreparing());
-                                try {
-                                    boolean isSpotifyUrl =
-                                            query.getPreferredTrackResult().getResolvedBy().getId()
-                                                    == PipeLine.RESOLVER_ID_SPOTIFY;
-                                    mTomahawkMediaPlayer.prepare(
-                                            query.getPreferredTrackResult().getPath(),
-                                            isSpotifyUrl);
-                                } catch (IllegalStateException e1) {
-                                    Log.e(TAG, "setDataSource() IllegalStateException, msg:" + e1
-                                            .getLocalizedMessage() + " , preparing="
-                                            + isPreparing());
-                                    continue;
-                                } catch (IOException e2) {
-                                    Log.e(TAG, "setDataSource() IOException, msg:" + e2
-                                            .getLocalizedMessage() + " , preparing="
-                                            + isPreparing());
-                                    continue;
+                                if (getCurrentQuery().getPreferredTrackResult() == null) {
+                                    Log.e(TAG,
+                                            "MediaPlayer was unable to prepare the track, jumping to next track");
+                                    next();
+                                } else {
+                                    Log.d(TAG,
+                                            "MediaPlayer blacklisted a result and tries to prepare again");
+                                    prepareCurrentQuery();
                                 }
-                                mLastPreparedPath = query.getPreferredTrackResult().getPath();
-                                break;
                             }
                         }
                     }
                 };
-                ThreadManager.getInstance().execute(r);
+                ThreadManager.getInstance().executePlayback(r);
             } else {
                 next();
             }
         }
+    }
+
+    public void setCurrentQueryIndex(int queryIndex) {
+        TomahawkMediaPlayer.getInstance().release();
+        SpotifyMediaPlayer.getInstance().release();
+        getCurrentPlaylist().setCurrentQueryIndex(queryIndex);
+        handlePlayState();
+        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
 
     /**
@@ -904,10 +775,10 @@ public class PlaybackService extends Service {
      * Track.
      */
     public void setCurrentPlaylist(Playlist playlist) {
+        TomahawkMediaPlayer.getInstance().release();
+        SpotifyMediaPlayer.getInstance().release();
         mCurrentPlaylist = playlist;
-        if (playlist != null) {
-            setCurrentQuery(mCurrentPlaylist.getCurrentQuery());
-        }
+        handlePlayState();
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
 
@@ -922,11 +793,7 @@ public class PlaybackService extends Service {
                             DatabaseHelper.CACHED_PLAYLIST_NAME,
                             new ArrayList<Query>());
         }
-        boolean wasEmpty = mCurrentPlaylist.getCount() <= 0;
         mCurrentPlaylist.addQueries(queries);
-        if (wasEmpty && mCurrentPlaylist.getCount() > 0) {
-            setCurrentQuery(mCurrentPlaylist.getQueryAtPos(0));
-        }
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
 
@@ -934,21 +801,17 @@ public class PlaybackService extends Service {
      * Add given {@link ArrayList} of {@link Track}s to the current {@link Playlist} at the given
      * position
      */
-    public void addTracksToCurrentPlaylist(int position, ArrayList<Query> queries) {
+    public void addQueriesToCurrentPlaylist(int position, ArrayList<Query> queries) {
         if (mCurrentPlaylist == null) {
             mCurrentPlaylist = UserPlaylist
                     .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
                             DatabaseHelper.CACHED_PLAYLIST_NAME,
                             new ArrayList<Query>());
         }
-        boolean wasEmpty = mCurrentPlaylist.getCount() <= 0;
         if (position < mCurrentPlaylist.getCount()) {
             mCurrentPlaylist.addQueries(position, queries);
         } else {
             mCurrentPlaylist.addQueries(queries);
-        }
-        if (wasEmpty && mCurrentPlaylist.getCount() > 0) {
-            setCurrentQuery(mCurrentPlaylist.getQueryAtPos(0));
         }
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
@@ -980,11 +843,9 @@ public class PlaybackService extends Service {
      */
     public int getPosition() {
         int position = 0;
-        if (getCurrentQuery() != null && getCurrentQuery().getPreferredTrackResult() != null
-                && mLastPreparedPath
-                .equals(getCurrentQuery().getPreferredTrackResult().getPath())) {
+        if (getCurrentQuery() != null && getCurrentQuery().getMediaPlayerInterface() != null) {
             try {
-                position = mTomahawkMediaPlayer.getCurrentPosition();
+                position = getCurrentQuery().getMediaPlayerInterface().getPosition();
             } catch (IllegalStateException e) {
                 Log.e(TAG, "getPosition: " + e.getClass() + ": " + e.getLocalizedMessage());
             }
@@ -996,7 +857,10 @@ public class PlaybackService extends Service {
      * Seeks to position msec
      */
     public void seekTo(int msec) {
-        mTomahawkMediaPlayer.seekTo(msec);
+        if (getCurrentQuery() != null && getCurrentQuery().getMediaPlayerInterface() != null
+                && getCurrentQuery().getMediaPlayerInterface().isPrepared(getCurrentQuery())) {
+            getCurrentQuery().getMediaPlayerInterface().seekTo(msec);
+        }
     }
 
     /**
@@ -1159,9 +1023,6 @@ public class PlaybackService extends Service {
     }
 
     private void onPipeLineResultsReported(String queryKey) {
-        if (mCurrentPlaylist != null && getCurrentQuery().getCacheKey().equals(queryKey)) {
-            setCurrentQuery(mCurrentPlaylist.getCurrentQuery());
-        }
     }
 
     private void onInfoSystemResultsReported(String requestId) {

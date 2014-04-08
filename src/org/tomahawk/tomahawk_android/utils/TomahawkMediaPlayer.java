@@ -18,126 +18,65 @@
 package org.tomahawk.tomahawk_android.utils;
 
 import org.tomahawk.libtomahawk.collection.Track;
-import org.tomahawk.libtomahawk.resolver.spotify.SpotifyServiceUtils;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.services.PlaybackService;
-import org.tomahawk.tomahawk_android.services.SpotifyService;
+import org.tomahawk.libtomahawk.resolver.Query;
 
-import android.content.Intent;
+import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.os.Messenger;
-
-import java.io.IOException;
+import android.net.Uri;
+import android.util.Log;
 
 /**
- * This class wraps a standard {@link MediaPlayer} object together with all functionality to be able
- * to directly playback spotify-resolved tracks with OpenSLES .
+ * This class wraps a standard {@link MediaPlayer} object.
  */
 public class TomahawkMediaPlayer
-        implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
-        MediaPlayer.OnCompletionListener {
+        implements MediaPlayerInterface, MediaPlayer.OnPreparedListener,
+        MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
-    private PlaybackService mPlaybackService;
+    private static String TAG = TomahawkMediaPlayer.class.getName();
+
+    private static TomahawkMediaPlayer instance;
+
+    private MediaPlayer.OnPreparedListener mOnPreparedListener;
+
+    private MediaPlayer.OnCompletionListener mOnCompletionListener;
+
+    private MediaPlayer.OnErrorListener mOnErrorListener;
 
     private MediaPlayer mMediaPlayer;
 
-    // Whether to use the MediaPlayer or OpenSLES
-    private boolean mUseMediaPlayer;
+    private Query mPreparedQuery;
 
-    private boolean mIsPreparing;
+    private Query mPreparingQuery;
 
-    private boolean mIsPlaying;
-
-    private Messenger mToSpotifyMessenger = null;
-
-    private int mSpotifyCurrentPosition = 0;
-
-    private boolean mSpotifyIsInitalized;
-
-    /**
-     * Construct a new {@link TomahawkMediaPlayer}
-     */
-    public TomahawkMediaPlayer(PlaybackService playbackService) {
-        mPlaybackService = playbackService;
-        mMediaPlayer = new MediaPlayer();
-        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mMediaPlayer.setOnPreparedListener(this);
-        mMediaPlayer.setOnErrorListener(this);
-        mMediaPlayer.setOnCompletionListener(this);
+    private TomahawkMediaPlayer() {
     }
 
-    public void setToSpotifyMessenger(Messenger toSpotifyMessenger) {
-        mToSpotifyMessenger = toSpotifyMessenger;
-    }
-
-    @Override
-    public void onPrepared(MediaPlayer mp) {
-        mIsPreparing = false;
-        mPlaybackService.onPrepared(this);
-    }
-
-    @Override
-    public boolean onError(MediaPlayer mp, int what, int extra) {
-        return mPlaybackService.onError(this, what, extra);
-    }
-
-    @Override
-    public void onCompletion(MediaPlayer mp) {
-        mPlaybackService.onCompletion(this);
-    }
-
-    public void setSpotifyCurrentPosition(int position) {
-        mSpotifyCurrentPosition = position;
-    }
-
-    public void setSpotifyIsInitalized(boolean spotifyIsInitalized) {
-        mSpotifyIsInitalized = spotifyIsInitalized;
-    }
-
-    /**
-     * @return the current track position
-     */
-    public int getCurrentPosition() {
-        if (mUseMediaPlayer) {
-            return mMediaPlayer.getCurrentPosition();
-        } else {
-            return mSpotifyCurrentPosition;
+    public static TomahawkMediaPlayer getInstance() {
+        if (instance == null) {
+            synchronized (TomahawkMediaPlayer.class) {
+                if (instance == null) {
+                    instance = new TomahawkMediaPlayer();
+                }
+            }
         }
-    }
-
-    public void setVolume(float leftVolume, float rightVolume) {
-        mMediaPlayer.setVolume(leftVolume, rightVolume);
-    }
-
-    public void release() {
-        mMediaPlayer.release();
-    }
-
-    public boolean isPlaying() {
-        return mIsPlaying;
+        return instance;
     }
 
     /**
      * Start playing the previously prepared {@link Track}
      */
+    @Override
     public void start() throws IllegalStateException {
-        mIsPlaying = true;
-        if (mUseMediaPlayer) {
-            mMediaPlayer.start();
+        Log.d(TAG, "start()");
+        if (mMediaPlayer != null) {
+            if (!mMediaPlayer.isPlaying()) {
+                mMediaPlayer.start();
+            }
             // mMediaplayer.seekTo(0) should be called whenever a Track has just been prepared
             // and is being started. This workaround is needed because of a bug in Android 4.4.
             if (mMediaPlayer.getCurrentPosition() == 0) {
                 mMediaPlayer.seekTo(0);
-            }
-        } else {
-            if (mToSpotifyMessenger != null) {
-                if (mSpotifyIsInitalized) {
-                    SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PLAY);
-                }
-            } else {
-                TomahawkMainActivity.getContext()
-                        .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
             }
         }
     }
@@ -145,37 +84,12 @@ public class TomahawkMediaPlayer
     /**
      * Pause playing the current {@link Track}
      */
+    @Override
     public void pause() throws IllegalStateException {
-        mIsPlaying = false;
-        if (mUseMediaPlayer) {
-            mMediaPlayer.pause();
-        } else {
-            if (mToSpotifyMessenger != null) {
-                if (mSpotifyIsInitalized) {
-                    SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PAUSE);
-                }
-            } else {
-                TomahawkMainActivity.getContext()
-                        .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
-            }
-        }
-    }
-
-    /**
-     * Stop playing the current {@link Track}
-     */
-    public void stop() throws IllegalStateException {
-        mIsPlaying = false;
-        if (mUseMediaPlayer) {
-            mMediaPlayer.stop();
-        } else {
-            if (mToSpotifyMessenger != null) {
-                if (mSpotifyIsInitalized) {
-                    SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PAUSE);
-                }
-            } else {
-                TomahawkMainActivity.getContext()
-                        .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
+        Log.d(TAG, "pause()");
+        if (mMediaPlayer != null) {
+            if (mMediaPlayer.isPlaying()) {
+                mMediaPlayer.pause();
             }
         }
     }
@@ -183,61 +97,97 @@ public class TomahawkMediaPlayer
     /**
      * Seek to the given playback position (in ms)
      */
+    @Override
     public void seekTo(int msec) throws IllegalStateException {
-        if (mUseMediaPlayer) {
+        Log.d(TAG, "seekTo()");
+        if (mMediaPlayer != null) {
             mMediaPlayer.seekTo(msec);
-        } else {
-            if (mToSpotifyMessenger != null) {
-                if (mSpotifyIsInitalized) {
-                    SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_SEEK, msec);
-                }
-            } else {
-                TomahawkMainActivity.getContext()
-                        .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
-            }
         }
     }
 
     /**
      * Prepare the given url
-     *
-     * @param url          the url to prepare
-     * @param isSpotifyUrl whether or not the given url is a spotify url
      */
-    public void prepare(String url, boolean isSpotifyUrl)
-            throws IllegalStateException, IOException {
-        mIsPreparing = true;
-        if (isSpotifyUrl) {
-            mUseMediaPlayer = false;
-            if (mMediaPlayer.isPlaying()) {
-                mMediaPlayer.stop();
-            }
-            mMediaPlayer.reset();
-            if (mToSpotifyMessenger != null) {
-                if (mSpotifyIsInitalized) {
-                    SpotifyServiceUtils
-                            .sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PREPARE, url);
-                }
-            } else {
-                TomahawkMainActivity.getContext()
-                        .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
-            }
-        } else {
-            mUseMediaPlayer = true;
-            if (mToSpotifyMessenger != null) {
-                if (mSpotifyIsInitalized) {
-                    SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PAUSE);
-                }
-            } else {
-                TomahawkMainActivity.getContext()
-                        .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
-            }
-            mMediaPlayer.setDataSource(url);
-            mMediaPlayer.prepare();
+    @Override
+    public MediaPlayerInterface prepare(Context context, Query query,
+            MediaPlayer.OnPreparedListener onPreparedListener,
+            MediaPlayer.OnCompletionListener onCompletionListener,
+            MediaPlayer.OnErrorListener onErrorListener) {
+        Log.d(TAG, "prepare()");
+        mOnPreparedListener = onPreparedListener;
+        mOnCompletionListener = onCompletionListener;
+        mOnErrorListener = onErrorListener;
+        mPreparedQuery = null;
+        mPreparingQuery = query;
+        release();
+        mMediaPlayer = MediaPlayer
+                .create(context, Uri.parse(query.getPreferredTrackResult().getPath()));
+        if (mMediaPlayer == null) {
+            return null;
+        }
+        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mMediaPlayer.setOnPreparedListener(this);
+        mMediaPlayer.setOnErrorListener(this);
+        mMediaPlayer.setOnCompletionListener(this);
+        return this;
+    }
+
+    @Override
+    public void release() {
+        Log.d(TAG, "release()");
+        mPreparedQuery = null;
+        if (mMediaPlayer != null) {
+            mMediaPlayer.release();
+            mMediaPlayer = null;
         }
     }
 
+    /**
+     * @return the current track position
+     */
+    @Override
+    public int getPosition() {
+        if (mMediaPlayer != null && mPreparedQuery != null) {
+            return mMediaPlayer.getCurrentPosition();
+        } else {
+            return 0;
+        }
+    }
+
+    @Override
+    public boolean isPlaying() {
+        return mMediaPlayer != null && mPreparedQuery != null && mMediaPlayer.isPlaying();
+    }
+
+    @Override
     public boolean isPreparing() {
-        return mIsPreparing;
+        return mPreparingQuery != null;
+    }
+
+    @Override
+    public boolean isPrepared(Query query) {
+        return mPreparedQuery == query;
+    }
+
+    @Override
+    public void onPrepared(MediaPlayer mp) {
+        Log.d(TAG, "onPrepared()");
+        mPreparedQuery = mPreparingQuery;
+        mPreparingQuery = null;
+        mOnPreparedListener.onPrepared(mp);
+    }
+
+    @Override
+    public boolean onError(MediaPlayer mp, int what, int extra) {
+        Log.d(TAG, "onError()");
+        mPreparedQuery = null;
+        mPreparingQuery = null;
+        return mOnErrorListener.onError(mp, what, extra);
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        Log.d(TAG, "onCompletion()");
+        mOnCompletionListener.onCompletion(mp);
     }
 }

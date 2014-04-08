@@ -260,8 +260,7 @@ public class PlaybackFragment extends TomahawkFragment
                 if (playbackService.getCurrentPlaylist().getCurrentQueryIndex() == idx) {
                     playbackService.playPause();
                 } else {
-                    playbackService.setCurrentQuery(
-                            playbackService.getCurrentPlaylist().getQueryAtPos(idx));
+                    playbackService.setCurrentQueryIndex(idx);
                 }
             }
         }

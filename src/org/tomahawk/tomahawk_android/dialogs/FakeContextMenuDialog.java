@@ -203,9 +203,7 @@ public class FakeContextMenuDialog extends DialogFragment {
                             playbackService.start();
                         }
                     } else {
-                        playbackService.setCurrentQuery((Query) mTomahawkListItem);
-                        playbackService.getCurrentPlaylist()
-                                .setCurrentQuery((Query) mTomahawkListItem);
+                        playbackService.setCurrentQueryIndex(mListItemPosition);
                         playbackService.start();
                     }
                 }
@@ -224,7 +222,7 @@ public class FakeContextMenuDialog extends DialogFragment {
                     playlist = UserPlaylist
                             .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
                                     DatabaseHelper.CACHED_PLAYLIST_NAME, queries,
-                                    (Query) mTomahawkListItem);
+                                    mListItemPosition);
                 } else if (mTomahawkListItem instanceof UserPlaylist) {
                     playlist = (UserPlaylist) mTomahawkListItem;
                 } else {
@@ -245,7 +243,7 @@ public class FakeContextMenuDialog extends DialogFragment {
             queries = mTomahawkListItem.getQueries(mIsLocal);
             if (playbackService != null) {
                 if (playbackService.getCurrentPlaylist() != null) {
-                    playbackService.addTracksToCurrentPlaylist(
+                    playbackService.addQueriesToCurrentPlaylist(
                             playbackService.getCurrentPlaylist().getCurrentQueryIndex() + 1,
                             queries);
                 } else {

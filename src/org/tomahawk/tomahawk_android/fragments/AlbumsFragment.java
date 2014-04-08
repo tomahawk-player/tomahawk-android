@@ -82,7 +82,8 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                 } else {
                     UserPlaylist playlist = UserPlaylist
                             .fromQueryList(TomahawkMainActivity.getLifetimeUniqueStringId(), "",
-                                    mShownQueries, mShownQueries.get(position));
+                                    mShownQueries,
+                                    mQueryPositions.keyAt(mQueryPositions.indexOfValue(position)));
                     if (playbackService != null) {
                         playbackService.setCurrentPlaylist(playlist);
                         playbackService.start();

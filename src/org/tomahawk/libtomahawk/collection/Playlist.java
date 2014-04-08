@@ -88,22 +88,6 @@ public abstract class Playlist {
     }
 
     /**
-     * Set the current {@link Query} of this {@link Playlist}
-     */
-    public void setCurrentQuery(Query newquery) {
-        List<Query> querys = mShuffled ? mShuffledQueries : mQueries;
-        int i = 0;
-        while (i < querys.size()) {
-            Query query = querys.get(i);
-            if (newquery.getCacheKey().equals(query.getCacheKey())) {
-                mCurrentQueryIndex = i;
-                break;
-            }
-            i++;
-        }
-    }
-
-    /**
      * Set the current {@link Query} index
      *
      * @param currentQueryIndex int containig the {@link Query}'s index

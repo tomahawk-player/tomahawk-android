@@ -395,12 +395,11 @@ public class ScriptResolver implements Resolver {
                 }
                 track.setDuration(resultEntry.duration * 1000);
 
-                Result result = new Result(resultEntry.url, track);
+                Result result = new Result(resultEntry.url, track, this);
                 result.setBitrate(resultEntry.bitrate);
                 result.setSize(resultEntry.size);
                 result.setPurchaseUrl(resultEntry.purchaseUrl);
                 result.setLinkUrl(resultEntry.linkUrl);
-                result.setResolvedBy(this);
                 result.setArtist(artist);
                 result.setAlbum(album);
                 result.setTrack(track);

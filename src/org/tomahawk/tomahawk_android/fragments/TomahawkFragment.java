@@ -405,7 +405,8 @@ public class TomahawkFragment extends TomahawkListFragment
                 showDelete = true;
             }
         } else if (tomahawkListItem instanceof Query
-                && !((Query) tomahawkListItem).isCurrentlyPlaying()) {
+                && !(tomahawkListItem == ((TomahawkMainActivity) getActivity())
+                .getPlaybackService().getCurrentQuery())) {
             showDelete = true;
         }
         FakeContextMenuDialog dialog = new FakeContextMenuDialog();
@@ -533,8 +534,12 @@ public class TomahawkFragment extends TomahawkListFragment
             Playlist playlist = playbackService.getCurrentPlaylist();
             if (playlist != null && playlist.getCount() == mShownQueries.size()) {
                 for (int i = 0; i < playlist.getCount(); i++) {
-                    if (!playlist.peekQueryAtPos(i).getCacheKey()
-                            .equals(mShownQueries.get(i).getCacheKey())) {
+                    if (!playlist.peekQueryAtPos(i).getBasicTrack().getName()
+                            .equals(mShownQueries.get(i).getBasicTrack().getName())
+                            || !playlist.peekQueryAtPos(i).getBasicTrack().getArtist().getName()
+                            .equals(mShownQueries.get(i).getBasicTrack().getArtist().getName())
+                            || !playlist.peekQueryAtPos(i).getBasicTrack().getAlbum().getName()
+                            .equals(mShownQueries.get(i).getBasicTrack().getAlbum().getName())) {
                         return false;
                     }
                 }

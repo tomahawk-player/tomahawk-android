@@ -17,8 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
-import android.util.Log;
-
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -41,9 +39,13 @@ public class ThreadManager {
 
     private ThreadPoolExecutor mThreadPool;
 
+    private ThreadPoolExecutor mPlaybackThreadPool;
+
     private ThreadManager() {
         mThreadPool = new ThreadPoolExecutor(NUMBER_OF_CORES, NUMBER_OF_CORES,
                 KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, new PriorityBlockingQueue<Runnable>());
+        mPlaybackThreadPool = new ThreadPoolExecutor(1, 1, KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT,
+                new PriorityBlockingQueue<Runnable>());
     }
 
     public static ThreadManager getInstance() {
@@ -61,8 +63,14 @@ public class ThreadManager {
         mThreadPool.execute(r);
     }
 
+    public void executePlayback(Runnable r) {
+        mPlaybackThreadPool.execute(r);
+    }
+
     public boolean isActive() {
         return mThreadPool.getActiveCount() > 0
-                || mThreadPool.getQueue().size() > 0;
+                || mThreadPool.getQueue().size() > 0
+                || mPlaybackThreadPool.getActiveCount() > 0
+                || mPlaybackThreadPool.getQueue().size() > 0;
     }
 }

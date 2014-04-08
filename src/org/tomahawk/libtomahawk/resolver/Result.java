@@ -21,6 +21,9 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
+import org.tomahawk.tomahawk_android.utils.SpotifyMediaPlayer;
+import org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer;
 
 import android.text.TextUtils;
 
@@ -34,6 +37,8 @@ public class Result {
     public static int RESULT_TYPE_ALBUM = 1;
 
     public static int RESULT_TYPE_ARTIST = 2;
+
+    private MediaPlayerInterface mMediaPlayerInterface;
 
     // Normally cache keys are unique. In this case the result's cache key is only unique in the
     // context of a _single_ Query.
@@ -75,21 +80,17 @@ public class Result {
     /**
      * Construct a new {@link Result} with the given {@link Track}
      */
-    public Result(String url, Query query) {
+    public Result(String url, Track track, Resolver resolvedBy) {
         setPath(url);
-        mArtist = query.getArtist();
-        mAlbum = query.getAlbum();
-        mTrack = query.getPreferredTrack();
-        if (mCacheKey == null) {
-            mCacheKey = TomahawkUtils.getCacheKey(this);
+        mResolvedBy =resolvedBy;
+        if (mResolvedBy.getId() == PipeLine.RESOLVER_ID_SPOTIFY){
+            mMediaPlayerInterface = SpotifyMediaPlayer.getInstance();
+        } else {
+            mMediaPlayerInterface = TomahawkMediaPlayer.getInstance();
+            if (mResolvedBy.getId() == PipeLine.RESOLVER_ID_USERCOLLECTION){
+                mIsLocal = true;
+            }
         }
-    }
-
-    /**
-     * Construct a new {@link Result} with the given {@link Track}
-     */
-    public Result(String url, Track track) {
-        setPath(url);
         mArtist = track.getArtist();
         mAlbum = track.getAlbum();
         mTrack = track;
@@ -117,6 +118,10 @@ public class Result {
         if (mCacheKey == null) {
             mCacheKey = TomahawkUtils.getCacheKey(this);
         }
+    }
+
+    public MediaPlayerInterface getMediaPlayerInterface() {
+        return mMediaPlayerInterface;
     }
 
     public String getCacheKey() {
@@ -215,16 +220,6 @@ public class Result {
     }
 
     /**
-     * Set the given {@link Resolver} as this {@link Result}'s {@link Resolver}
-     */
-    public void setResolvedBy(Resolver resolvedBy) {
-        if (resolvedBy instanceof DataBaseResolver) {
-            mIsLocal = true;
-        }
-        this.mResolvedBy = resolvedBy;
-    }
-
-    /**
      * @return Whether or not this Result has been resolved locally
      */
     public boolean isLocal() {
@@ -246,7 +241,7 @@ public class Result {
      *             data
      */
     public void setPath(String path) {
-        this.mPath = path;
+        mPath = path;
         if (path != null && !TextUtils.isEmpty(path)) {
             isResolved = true;
         }

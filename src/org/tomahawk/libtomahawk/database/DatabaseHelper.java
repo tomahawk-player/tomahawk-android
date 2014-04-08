@@ -258,7 +258,7 @@ public class DatabaseHelper {
                     .fromQueryList(playlistId, userplaylistsCursor.getString(2),
                             userplaylistsCursor.getString(4),
                             userplaylistsCursor.getInt(1) == TRUE, new ArrayList<Query>(),
-                            null);
+                            0);
             userplaylistsCursor.close();
             return userPlaylist;
         }
@@ -299,15 +299,11 @@ public class DatabaseHelper {
                 tracksCursor.moveToNext();
             }
             mPlaylistPosToIdMap.put(playlistId, queryIdMap);
-            Query currentQuery = null;
-            if (queries.size() > userplaylistsCursor.getInt(3)) {
-                currentQuery = queries.get(userplaylistsCursor.getInt(3));
-            }
             UserPlaylist userPlaylist = UserPlaylist
                     .fromQueryList(playlistId, userplaylistsCursor.getString(2),
                             userplaylistsCursor.getString(4),
                             userplaylistsCursor.getInt(1) == TRUE, queries,
-                            currentQuery);
+                            userplaylistsCursor.getInt(3));
             userPlaylist.setFilled(true);
             tracksCursor.close();
             userplaylistsCursor.close();

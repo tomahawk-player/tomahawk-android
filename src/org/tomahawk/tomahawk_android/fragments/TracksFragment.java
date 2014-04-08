@@ -136,7 +136,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                         UserPlaylist playlist = UserPlaylist.fromQueryList(
                                 DatabaseHelper.CACHED_PLAYLIST_ID,
                                 DatabaseHelper.CACHED_PLAYLIST_NAME, queries,
-                                queries.get(position));
+                                mQueryPositions.keyAt(mQueryPositions.indexOfValue(position)));
                         if (playbackService != null) {
                             playbackService.setCurrentPlaylist(playlist);
                             playbackService.start();
