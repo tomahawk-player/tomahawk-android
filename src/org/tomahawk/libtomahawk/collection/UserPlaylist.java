@@ -61,7 +61,7 @@ public class UserPlaylist extends Playlist implements TomahawkListItem {
      * @return a reference to the constructed {@link UserPlaylist}
      */
     public static UserPlaylist fromQueryList(String id, String name, String currentRevision,
-            boolean isHatchetPlaylist, ArrayList<Query> queries, Query currentQuery) {
+            boolean isHatchetPlaylist, ArrayList<Query> queries, int currentQueryIndex) {
         if (id == null) {
             id = "";
         }
@@ -70,11 +70,7 @@ public class UserPlaylist extends Playlist implements TomahawkListItem {
         }
         UserPlaylist pl = new UserPlaylist(id, name, currentRevision, isHatchetPlaylist);
         pl.setQueries(queries);
-        if (currentQuery == null) {
-            pl.setCurrentQueryIndex(0);
-        } else {
-            pl.setCurrentQuery(currentQuery);
-        }
+        pl.setCurrentQueryIndex(currentQueryIndex);
         sUserPlaylists.put(id, pl);
         return sUserPlaylists.get(id);
     }
@@ -86,7 +82,7 @@ public class UserPlaylist extends Playlist implements TomahawkListItem {
      */
     public static UserPlaylist fromQueryList(String id, String name, String currentRevision,
             ArrayList<Query> queries) {
-        return UserPlaylist.fromQueryList(id, name, currentRevision, true, queries, null);
+        return UserPlaylist.fromQueryList(id, name, currentRevision, true, queries, 0);
     }
 
     /**
@@ -95,8 +91,8 @@ public class UserPlaylist extends Playlist implements TomahawkListItem {
      * @return a reference to the constructed {@link UserPlaylist}
      */
     public static UserPlaylist fromQueryList(String id, String name, ArrayList<Query> queries,
-            Query currentQuery) {
-        return UserPlaylist.fromQueryList(id, name, null, false, queries, currentQuery);
+            int currentQueryIndex) {
+        return UserPlaylist.fromQueryList(id, name, null, false, queries, currentQueryIndex);
     }
 
     /**
@@ -105,7 +101,7 @@ public class UserPlaylist extends Playlist implements TomahawkListItem {
      * @return a reference to the constructed {@link UserPlaylist}
      */
     public static UserPlaylist fromQueryList(String id, String name, ArrayList<Query> queries) {
-        return UserPlaylist.fromQueryList(id, name, null, false, queries, null);
+        return UserPlaylist.fromQueryList(id, name, null, false, queries, 0);
     }
 
     /**

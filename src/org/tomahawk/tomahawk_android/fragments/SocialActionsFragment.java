@@ -96,7 +96,8 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
                         UserPlaylist playlist = UserPlaylist
                                 .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
                                         DatabaseHelper.CACHED_PLAYLIST_NAME, queries,
-                                        ((Query) item));
+                                        mQueryPositions
+                                                .keyAt(mQueryPositions.indexOfValue(position)));
                         if (playbackService != null) {
                             playbackService.setCurrentPlaylist(playlist);
                             playbackService.start();

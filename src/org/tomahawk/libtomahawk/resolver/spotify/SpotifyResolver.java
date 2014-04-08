@@ -220,11 +220,11 @@ public class SpotifyResolver implements Resolver {
                                 track.setDiscNumber(spotifyResult.trackDiscnumber);
                                 track.setDuration(spotifyResult.trackDuration);
                                 track.setAlbumPos(spotifyResult.trackIndex);
-                                Result result = new Result(spotifyResult.trackUri, track);
+                                Result result = new Result(spotifyResult.trackUri, track,
+                                        SpotifyResolver.this);
                                 result.setTrack(track);
                                 result.setArtist(artist);
                                 result.setAlbum(album);
-                                result.setResolvedBy(SpotifyResolver.this);
                                 results.add(result);
                             }
                             PipeLine.getInstance().reportResults(spotifyResults.qid, results, mId);
