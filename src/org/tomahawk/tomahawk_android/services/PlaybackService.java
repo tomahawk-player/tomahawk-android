@@ -720,12 +720,15 @@ public class PlaybackService extends Service
                             if (getCurrentQuery().getMediaPlayerInterface().prepare(
                                     PlaybackService.this, getCurrentQuery(), PlaybackService.this,
                                     PlaybackService.this, PlaybackService.this) == null) {
-                                if (getCurrentQuery().getPreferredTrackResult() != null) {
+                                boolean isNetworkAvailable = isNetworkAvailable();
+                                if (isNetworkAvailable
+                                        && getCurrentQuery().getPreferredTrackResult() != null) {
                                     getCurrentQuery().blacklistTrackResult(
                                             getCurrentQuery().getPreferredTrackResult());
                                     sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
                                 }
-                                if (getCurrentQuery().getPreferredTrackResult() == null) {
+                                if (!isNetworkAvailable
+                                        || getCurrentQuery().getPreferredTrackResult() == null) {
                                     Log.e(TAG,
                                             "MediaPlayer was unable to prepare the track, jumping to next track");
                                     next();
