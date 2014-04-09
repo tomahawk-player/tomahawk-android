@@ -888,17 +888,17 @@ public class PlaybackService extends Service
         Intent intent = new Intent(BROADCAST_NOTIFICATIONINTENT_PREVIOUS, null, this,
                 PlaybackService.class);
         PendingIntent previousPendingIntent = PendingIntent
-                .getService(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                .getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         intent = new Intent(BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE, null, this,
                 PlaybackService.class);
         PendingIntent playPausePendingIntent = PendingIntent
-                .getService(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                .getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         intent = new Intent(BROADCAST_NOTIFICATIONINTENT_NEXT, null, this, PlaybackService.class);
         PendingIntent nextPendingIntent = PendingIntent
-                .getService(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                .getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         intent = new Intent(BROADCAST_NOTIFICATIONINTENT_EXIT, null, this, PlaybackService.class);
         PendingIntent exitPendingIntent = PendingIntent
-                .getService(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                .getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         RemoteViews smallNotificationView;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
