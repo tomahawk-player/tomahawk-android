@@ -605,10 +605,8 @@ public class PlaybackService extends Service
             while (mCurrentPlaylist.hasNextQuery() && counter++ < maxCount && (query == null
                     || !query.isPlayable())) {
                 query = mCurrentPlaylist.getNextQuery();
-                if (mIsRunningInForeground) {
-                    updatePlayingNotification();
-                }
                 sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+                onTrackChanged();
             }
             handlePlayState();
         }
@@ -627,10 +625,8 @@ public class PlaybackService extends Service
             while (mCurrentPlaylist.hasPreviousQuery() && counter++ < maxCount && (query == null
                     || !query.isPlayable())) {
                 query = mCurrentPlaylist.getPreviousQuery();
-                if (mIsRunningInForeground) {
-                    updatePlayingNotification();
-                }
                 sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+                onTrackChanged();
             }
             handlePlayState();
         }
@@ -692,8 +688,6 @@ public class PlaybackService extends Service
      */
     private void prepareCurrentQuery() {
         if (getCurrentQuery() != null) {
-            resolveQueriesFromTo(getCurrentPlaylist().getCurrentQueryIndex(),
-                    getCurrentPlaylist().getCurrentQueryIndex() + 10);
             if (getCurrentQuery().isPlayable()) {
                 mKillTimerHandler.removeCallbacksAndMessages(null);
                 Message msg = mKillTimerHandler.obtainMessage();
@@ -757,10 +751,18 @@ public class PlaybackService extends Service
         SpotifyMediaPlayer.getInstance().release();
         getCurrentPlaylist().setCurrentQueryIndex(queryIndex);
         handlePlayState();
-        if (mIsRunningInForeground) {
-            updatePlayingNotification();
-        }
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+        onTrackChanged();
+    }
+
+    private void onTrackChanged() {
+        if (getCurrentQuery() != null) {
+            resolveQueriesFromTo(getCurrentPlaylist().getCurrentQueryIndex(),
+                    getCurrentPlaylist().getCurrentQueryIndex() + 10);
+            if (mIsRunningInForeground) {
+                updatePlayingNotification();
+            }
+        }
     }
 
     /**
@@ -789,10 +791,8 @@ public class PlaybackService extends Service
         SpotifyMediaPlayer.getInstance().release();
         mCurrentPlaylist = playlist;
         handlePlayState();
-        if (mIsRunningInForeground) {
-            updatePlayingNotification();
-        }
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+        onTrackChanged();
     }
 
     /**
@@ -1025,7 +1025,7 @@ public class PlaybackService extends Service
         for (int i = start; i < end; i++) {
             if (i >= 0 && i < mCurrentPlaylist.getQueries().size()) {
                 Query q = mCurrentPlaylist.peekQueryAtPos(i);
-                if (!q.isSolved() && !mCorrespondingQueryKeys.contains(q.getCacheKey())) {
+                if (!mCorrespondingQueryKeys.contains(q.getCacheKey())) {
                     qs.add(q);
                 }
             }
