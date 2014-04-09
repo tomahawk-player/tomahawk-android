@@ -119,6 +119,8 @@ public class PlaybackService extends Service
 
     private static final int DELAY_TO_KILL = 300000;
 
+    private boolean mIsRunningInForeground;
+
     protected HashSet<String> mCorrespondingQueryKeys = new HashSet<String>();
 
     protected ConcurrentHashMap<String, String> mCorrespondingInfoDataIds
@@ -143,7 +145,9 @@ public class PlaybackService extends Service
         @Override
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
             mNotificationBitmap = resizeNotificationBitmap(getResources(), bitmap);
-            updatePlayingNotification();
+            if (mIsRunningInForeground) {
+                updatePlayingNotification();
+            }
         }
 
         @Override
@@ -362,8 +366,7 @@ public class PlaybackService extends Service
             } else if (intent.getAction().equals(BROADCAST_NOTIFICATIONINTENT_NEXT)) {
                 next();
             } else if (intent.getAction().equals(BROADCAST_NOTIFICATIONINTENT_EXIT)) {
-                pause();
-                stopForeground(true);
+                pause(true);
             }
         }
         return START_STICKY;
@@ -502,18 +505,10 @@ public class PlaybackService extends Service
      */
     public void playPause(boolean dismissNotificationOnPause) {
         if (mPlayState == PLAYBACKSERVICE_PLAYSTATE_PLAYING) {
-            mPlayState = PLAYBACKSERVICE_PLAYSTATE_PAUSED;
-            if (dismissNotificationOnPause) {
-                stopForeground(true);
-            } else {
-                updatePlayingNotification();
-            }
+            pause(dismissNotificationOnPause);
         } else if (mPlayState == PLAYBACKSERVICE_PLAYSTATE_PAUSED) {
-            mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
-            updatePlayingNotification();
+            start();
         }
-        sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
-        handlePlayState();
     }
 
     /**
@@ -543,6 +538,7 @@ public class PlaybackService extends Service
         sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
         handlePlayState();
         if (dismissNotificationOnPause) {
+            mIsRunningInForeground = false;
             stopForeground(true);
         } else {
             updatePlayingNotification();
@@ -609,6 +605,9 @@ public class PlaybackService extends Service
             while (mCurrentPlaylist.hasNextQuery() && counter++ < maxCount && (query == null
                     || !query.isPlayable())) {
                 query = mCurrentPlaylist.getNextQuery();
+                if (mIsRunningInForeground) {
+                    updatePlayingNotification();
+                }
                 sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
             }
             handlePlayState();
@@ -628,6 +627,9 @@ public class PlaybackService extends Service
             while (mCurrentPlaylist.hasPreviousQuery() && counter++ < maxCount && (query == null
                     || !query.isPlayable())) {
                 query = mCurrentPlaylist.getPreviousQuery();
+                if (mIsRunningInForeground) {
+                    updatePlayingNotification();
+                }
                 sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
             }
             handlePlayState();
@@ -697,7 +699,9 @@ public class PlaybackService extends Service
                 Message msg = mKillTimerHandler.obtainMessage();
                 mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
 
-                updatePlayingNotification();
+                if (mIsRunningInForeground) {
+                    updatePlayingNotification();
+                }
                 sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
 
                 if (getCurrentQuery().getImage() == null) {
@@ -753,6 +757,9 @@ public class PlaybackService extends Service
         SpotifyMediaPlayer.getInstance().release();
         getCurrentPlaylist().setCurrentQueryIndex(queryIndex);
         handlePlayState();
+        if (mIsRunningInForeground) {
+            updatePlayingNotification();
+        }
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
 
@@ -782,6 +789,9 @@ public class PlaybackService extends Service
         SpotifyMediaPlayer.getInstance().release();
         mCurrentPlaylist = playlist;
         handlePlayState();
+        if (mIsRunningInForeground) {
+            updatePlayingNotification();
+        }
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
 
@@ -985,6 +995,7 @@ public class PlaybackService extends Service
                     exitPendingIntent);
             notification.bigContentView = largeNotificationView;
         }
+        mIsRunningInForeground = true;
         startForeground(PLAYBACKSERVICE_NOTIFICATION_ID, notification);
     }
 
@@ -1026,12 +1037,21 @@ public class PlaybackService extends Service
     }
 
     private void onPipeLineResultsReported(String queryKey) {
+        if (mCurrentPlaylist != null
+                && getCurrentQuery().getCacheKey().equals(queryKey)) {
+            if (mIsRunningInForeground) {
+                updatePlayingNotification();
+            }
+            sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
+        }
     }
 
     private void onInfoSystemResultsReported(String requestId) {
         if (mCurrentPlaylist != null && getCurrentQuery().getCacheKey()
                 .equals(mCorrespondingInfoDataIds.get(requestId))) {
-            updatePlayingNotification();
+            if (mIsRunningInForeground) {
+                updatePlayingNotification();
+            }
             sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
         }
     }
