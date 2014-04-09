@@ -266,14 +266,16 @@ public class Query implements TomahawkListItem {
             if (result.getTrackScore() == 1f) {
                 mSolved = true;
             }
-            mTrackResults.put(result.getCacheKey(), result);
-            if ((getPreferredTrackResult() == null
-                    || mResultHint.equals(result.getCacheKey())
-                    || getPreferredTrackResult().getTrackScore() < result.getTrackScore()
-                    || (getPreferredTrackResult().getTrackScore() == result.getTrackScore()
-                    && getPreferredTrackResult().getResolvedBy().getWeight()
-                    < result.getResolvedBy().getWeight()))) {
-                mTopTrackResultKey = result.getCacheKey();
+            if (!mTrackResults.containsKey(result.getCacheKey())) {
+                mTrackResults.put(result.getCacheKey(), result);
+                if ((getPreferredTrackResult() == null
+                        || mResultHint.equals(result.getCacheKey())
+                        || getPreferredTrackResult().getTrackScore() < result.getTrackScore()
+                        || (getPreferredTrackResult().getTrackScore() == result.getTrackScore()
+                        && getPreferredTrackResult().getResolvedBy().getWeight()
+                        < result.getResolvedBy().getWeight()))) {
+                    mTopTrackResultKey = result.getCacheKey();
+                }
             }
         }
     }
