@@ -50,6 +50,8 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
 
     private Query mPreparingQuery;
 
+    private boolean mOverrideCurrentPosition = false;
+
     private int mSpotifyCurrentPosition = 0;
 
     private boolean mSpotifyIsInitialized;
@@ -90,7 +92,9 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
                     onCompletion(null);
                     break;
                 case SpotifyService.MSG_ONPLAYERPOSITIONCHANGED:
-                    mSpotifyCurrentPosition = msg.arg1;
+                    if (!mOverrideCurrentPosition) {
+                        mSpotifyCurrentPosition = msg.arg1;
+                    }
                     break;
                 default:
                     super.handleMessage(msg);
@@ -148,6 +152,15 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
         if (mToSpotifyMessenger != null) {
             if (mSpotifyIsInitialized) {
                 SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_SEEK, msec);
+                mSpotifyCurrentPosition = msec;
+                mOverrideCurrentPosition = true;
+                // After 1 second, we set mOverrideCurrentPosition to false again
+                new Handler() {
+                    @Override
+                    public void handleMessage(Message msg) {
+                        mOverrideCurrentPosition = false;
+                    }
+                }.sendEmptyMessageDelayed(1337, 1000);
             }
         } else {
             TomahawkMainActivity.getContext()
