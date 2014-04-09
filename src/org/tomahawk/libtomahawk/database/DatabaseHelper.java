@@ -171,11 +171,11 @@ public class DatabaseHelper {
                         values.clear();
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS, insertId);
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME,
-                                query.getName());
+                                query.getBasicTrack().getName());
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ARTISTNAME,
-                                query.getArtist().getName());
+                                query.getBasicTrack().getArtist().getName());
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ALBUMNAME,
-                                query.getAlbum().getName());
+                                query.getBasicTrack().getAlbum().getName());
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_RESULTHINT,
                                 query.getTopTrackResultKey());
                         if (query.isFetchedViaHatchet()) {
@@ -391,11 +391,20 @@ public class DatabaseHelper {
                             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS,
                                     playlistId);
                             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME,
-                                    query.getPreferredTrack().getName());
+                                    query.getBasicTrack().getName());
                             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ARTISTNAME,
-                                    query.getPreferredTrack().getArtist().getName());
+                                    query.getBasicTrack().getArtist().getName());
                             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ALBUMNAME,
-                                    query.getPreferredTrack().getAlbum().getName());
+                                    query.getBasicTrack().getAlbum().getName());
+                            values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_RESULTHINT,
+                                    query.getTopTrackResultKey());
+                            if (query.isFetchedViaHatchet()) {
+                                values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ISFETCHEDVIAHATCHET,
+                                        TRUE);
+                            } else {
+                                values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ISFETCHEDVIAHATCHET,
+                                        FALSE);
+                            }
                             mDatabase.insert(TomahawkSQLiteHelper.TABLE_TRACKS, null, values);
                         }
                         mDatabase.setTransactionSuccessful();
@@ -477,7 +486,7 @@ public class DatabaseHelper {
     public void addEntryToSearchHistory(String entry) {
         ContentValues values = new ContentValues();
         mDatabase.beginTransaction();
-        values.put(TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ENTRY, entry);
+        values.put(TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ENTRY, entry.trim());
         mDatabase.insert(TomahawkSQLiteHelper.TABLE_SEARCHHISTORY, null, values);
         mDatabase.setTransactionSuccessful();
         mDatabase.endTransaction();
