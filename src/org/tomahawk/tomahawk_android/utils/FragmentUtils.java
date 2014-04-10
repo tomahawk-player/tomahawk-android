@@ -17,8 +17,11 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
+import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.User;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
@@ -34,6 +37,9 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class wraps all functionality that handles the switching of {@link Fragment}s, whenever the
@@ -60,10 +66,28 @@ public class FragmentUtils {
     public static final String FRAGMENT_TAG = "the_ultimate_tag";
 
     public static void addRootFragment(Context context, FragmentManager fragmentManager) {
+        Map<String, String> data = new HashMap<String, String>();
+        data.put(HatchetInfoPlugin.HATCHET_ACCOUNTDATA_USER_ID, null);
+        TomahawkUtils.getUserDataForAccount(context, data,
+                AuthenticatorUtils.AUTHENTICATOR_NAME_HATCHET);
+        String mUserId = data.get(HatchetInfoPlugin.HATCHET_ACCOUNTDATA_USER_ID);
         FragmentTransaction ft = fragmentManager.beginTransaction();
-        ft.add(R.id.content_viewer_frame,
-                Fragment.instantiate(context, UserCollectionFragment.class.getName(), null),
-                FRAGMENT_TAG);
+        if (mUserId != null) {
+            String userName = AuthenticatorUtils.getUserName(context,
+                    AuthenticatorUtils.AUTHENTICATOR_NAME_HATCHET);
+            User loggedInUser = User.get(mUserId);
+            loggedInUser.setName(userName);
+            Bundle bundle = new Bundle();
+            bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUserId);
+            bundle.putInt(TomahawkFragment.SHOW_MODE, SocialActionsFragment.SHOW_MODE_DASHBOARD);
+            ft.add(R.id.content_viewer_frame,
+                    Fragment.instantiate(context, SocialActionsFragment.class.getName(), bundle),
+                    FRAGMENT_TAG);
+        } else {
+            ft.add(R.id.content_viewer_frame,
+                    Fragment.instantiate(context, UserCollectionFragment.class.getName(), null),
+                    FRAGMENT_TAG);
+        }
         ft.commit();
     }
 
