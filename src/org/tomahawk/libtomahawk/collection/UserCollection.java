@@ -199,7 +199,7 @@ public class UserCollection {
                     .equals(intent.getAction())) {
                 UserCollection.this.updateUserPlaylists();
             } else if (DataBaseResolver.DATABASERESOLVER_READY.equals(intent.getAction())) {
-                update();
+                mHandler.post(mUpdateRunnable);
             }
         }
     }
