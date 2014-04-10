@@ -127,7 +127,6 @@
     <string name="fake_preferences_bitrate_high">Best quality</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
-    <string name="drawer_content_header_default_text">Not logged in</string>
     <string name="category_header_track">Track</string>
     <string name="category_header_tophit">Top Song</string>
     <string name="category_header_album">Album</string>
