@@ -23,8 +23,9 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
-import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -66,8 +67,6 @@ public class PipeLine {
 
     private static final float MINSCORE = 0.5F;
 
-    private Context mContext;
-
     private ArrayList<Resolver> mResolvers = new ArrayList<Resolver>();
 
     private ConcurrentHashMap<String, Query> mWaitingQueries
@@ -76,6 +75,31 @@ public class PipeLine {
     private boolean mAllResolversAdded;
 
     private PipeLine() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                addResolver(new DataBaseResolver(PipeLine.RESOLVER_ID_USERCOLLECTION,
+                        TomahawkApp.getContext()));
+                ScriptResolver scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_JAMENDO,
+                        "js/jamendo/content/contents/code/jamendo.js", TomahawkApp.getContext());
+                addResolver(scriptResolver);
+                scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_OFFICIALFM,
+                        "js/official.fm/content/contents/code/officialfm.js",
+                        TomahawkApp.getContext());
+                addResolver(scriptResolver);
+                scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_EXFM,
+                        "js/exfm/content/contents/code/exfm.js", TomahawkApp.getContext());
+                addResolver(scriptResolver);
+                scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_SOUNDCLOUD,
+                        "js/soundcloud/content/contents/code/soundcloud.js",
+                        TomahawkApp.getContext());
+                addResolver(scriptResolver);
+                SpotifyResolver spotifyResolver = new SpotifyResolver(PipeLine.RESOLVER_ID_SPOTIFY,
+                        TomahawkApp.getContext());
+                addResolver(spotifyResolver);
+                setAllResolversAdded(true);
+            }
+        });
     }
 
     public static PipeLine getInstance() {
@@ -83,33 +107,10 @@ public class PipeLine {
             synchronized (PipeLine.class) {
                 if (instance == null) {
                     instance = new PipeLine();
-                    instance.setContext(TomahawkApp.getContext());
                 }
             }
         }
         return instance;
-    }
-
-    public void setContext(Context context) {
-        mContext = context;
-        PipeLine.getInstance().addResolver(new DataBaseResolver(PipeLine.RESOLVER_ID_USERCOLLECTION,
-                context));
-        ScriptResolver scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_JAMENDO,
-                "js/jamendo/content/contents/code/jamendo.js", context);
-        PipeLine.getInstance().addResolver(scriptResolver);
-        scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_OFFICIALFM,
-                "js/official.fm/content/contents/code/officialfm.js", context);
-        PipeLine.getInstance().addResolver(scriptResolver);
-        scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_EXFM,
-                "js/exfm/content/contents/code/exfm.js", context);
-        PipeLine.getInstance().addResolver(scriptResolver);
-        scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_SOUNDCLOUD,
-                "js/soundcloud/content/contents/code/soundcloud.js", context);
-        PipeLine.getInstance().addResolver(scriptResolver);
-        SpotifyResolver spotifyResolver = new SpotifyResolver(PipeLine.RESOLVER_ID_SPOTIFY,
-                context);
-        PipeLine.getInstance().addResolver(spotifyResolver);
-        PipeLine.getInstance().setAllResolversAdded(true);
     }
 
     /**
@@ -236,7 +237,7 @@ public class PipeLine {
     private void sendResultsReportBroadcast(String queryKey) {
         Intent reportIntent = new Intent(PIPELINE_RESULTSREPORTED);
         reportIntent.putExtra(PIPELINE_RESULTSREPORTED_QUERYKEY, queryKey);
-        mContext.sendBroadcast(reportIntent);
+        TomahawkApp.getContext().sendBroadcast(reportIntent);
     }
 
     /**

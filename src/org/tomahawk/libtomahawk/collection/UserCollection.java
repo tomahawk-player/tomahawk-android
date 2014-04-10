@@ -69,8 +69,6 @@ public class UserCollection {
 
     public static final int Id = 0;
 
-    private Context mContext;
-
     private HandlerThread mCollectionUpdateHandlerThread;
 
     private Handler mHandler;
@@ -204,31 +202,15 @@ public class UserCollection {
     }
 
     private UserCollection() {
-    }
-
-    public static UserCollection getInstance() {
-        if (instance == null) {
-            synchronized (UserCollection.class) {
-                if (instance == null) {
-                    instance = new UserCollection();
-                    instance.setContext(TomahawkApp.getContext());
-                }
-            }
-        }
-        return instance;
-    }
-
-    public void setContext(Context context) {
-        mContext = context;
         mUserCollectionReceiver = new UserCollectionReceiver();
-        mContext.registerReceiver(mUserCollectionReceiver,
+        TomahawkApp.getContext().registerReceiver(mUserCollectionReceiver,
                 new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
-        mContext.registerReceiver(mUserCollectionReceiver,
+        TomahawkApp.getContext().registerReceiver(mUserCollectionReceiver,
                 new IntentFilter(InfoSystem.INFOSYSTEM_OPLOGISEMPTIED));
-        mContext.registerReceiver(mUserCollectionReceiver,
+        TomahawkApp.getContext().registerReceiver(mUserCollectionReceiver,
                 new IntentFilter(DatabaseHelper.USERPLAYLISTSDATASOURCE_RESULTSREPORTED));
 
-        mContext.getContentResolver().registerContentObserver(
+        TomahawkApp.getContext().getContentResolver().registerContentObserver(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false, mLocalMediaObserver);
 
         mCollectionUpdateHandlerThread = new HandlerThread("CollectionUpdate",
@@ -237,6 +219,17 @@ public class UserCollection {
 
         mHandler = new Handler(mCollectionUpdateHandlerThread.getLooper());
         mHandler.postDelayed(mUpdateRunnable, 300);
+    }
+
+    public static UserCollection getInstance() {
+        if (instance == null) {
+            synchronized (UserCollection.class) {
+                if (instance == null) {
+                    instance = new UserCollection();
+                }
+            }
+        }
+        return instance;
     }
 
     /**
@@ -294,7 +287,7 @@ public class UserCollection {
     public void toggleLovedItem(Query query) {
         boolean doSweetSweetLovin = !isQueryLoved(query);
         DatabaseHelper.getInstance().setLovedItem(query, doSweetSweetLovin);
-        mContext.sendBroadcast(new Intent(COLLECTION_UPDATED));
+        TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
         AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
         InfoSystem.getInstance().sendSocialActionPostStruct(hatchetAuthUtils, query,
@@ -385,7 +378,7 @@ public class UserCollection {
                 MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM_ID,
                 MediaStore.Audio.Media.ALBUM};
 
-        ContentResolver resolver = mContext.getContentResolver();
+        ContentResolver resolver = TomahawkApp.getContext().getContentResolver();
 
         Cursor cursor = resolver
                 .query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, selection, null,
@@ -463,7 +456,7 @@ public class UserCollection {
                             mUserPlaylists.remove(userPlaylist.getId());
                         }
                     }
-                    mContext.sendBroadcast(new Intent(COLLECTION_UPDATED));
+                    TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
                 }
             }
         }).start();
@@ -495,7 +488,7 @@ public class UserCollection {
     public void update() {
         initializeCollection();
 
-        mContext.sendBroadcast(new Intent(COLLECTION_UPDATED));
+        TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
     }
 
     /**
