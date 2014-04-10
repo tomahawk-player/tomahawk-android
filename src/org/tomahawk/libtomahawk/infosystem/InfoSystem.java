@@ -64,6 +64,8 @@ public class InfoSystem {
 
     public static final String PARAM_TERM = "term";
 
+    private boolean mInitialized;
+
     private ArrayList<InfoPlugin> mInfoPlugins = new ArrayList<InfoPlugin>();
 
     private ConcurrentHashMap<String, InfoRequestData> mRequests
@@ -88,7 +90,6 @@ public class InfoSystem {
     private Query mNowPlaying = null;
 
     private InfoSystem() {
-        addInfoPlugin(new HatchetInfoPlugin(TomahawkApp.getContext()));
     }
 
     public static InfoSystem getInstance() {
@@ -102,8 +103,11 @@ public class InfoSystem {
         return instance;
     }
 
-    public void addInfoPlugin(InfoPlugin infoPlugin) {
-        mInfoPlugins.add(infoPlugin);
+    public void ensureInit() {
+        if (!mInitialized) {
+            mInitialized = true;
+            mInfoPlugins.add(new HatchetInfoPlugin(TomahawkApp.getContext()));
+        }
     }
 
     /**

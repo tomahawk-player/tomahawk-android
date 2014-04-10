@@ -29,6 +29,7 @@ import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
+import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -229,6 +230,12 @@ public class TomahawkMainActivity extends ActionBarActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        DatabaseHelper.getInstance().ensureInit();
+        PipeLine.getInstance().ensureInit();
+        InfoSystem.getInstance().ensureInit();
+        AuthenticatorManager.getInstance().ensureInit();
+        UserCollection.getInstance().ensureInit();
 
         //Setup our services
         Intent intent = new Intent(this, PlaybackService.class);

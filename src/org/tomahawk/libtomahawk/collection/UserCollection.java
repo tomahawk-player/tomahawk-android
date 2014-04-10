@@ -29,7 +29,6 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaylistEntries;
-import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
@@ -69,6 +68,8 @@ public class UserCollection {
     private static UserCollection instance;
 
     public static final int Id = 0;
+
+    private boolean mInitialized;
 
     private HandlerThread mCollectionUpdateHandlerThread;
 
@@ -198,32 +199,11 @@ public class UserCollection {
             } else if (DatabaseHelper.USERPLAYLISTSDATASOURCE_RESULTSREPORTED
                     .equals(intent.getAction())) {
                 UserCollection.this.updateUserPlaylists();
-            } else if (DataBaseResolver.DATABASERESOLVER_READY.equals(intent.getAction())) {
-                mHandler.post(mUpdateRunnable);
             }
         }
     }
 
     private UserCollection() {
-        mUserCollectionReceiver = new UserCollectionReceiver();
-        TomahawkApp.getContext().registerReceiver(mUserCollectionReceiver,
-                new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
-        TomahawkApp.getContext().registerReceiver(mUserCollectionReceiver,
-                new IntentFilter(InfoSystem.INFOSYSTEM_OPLOGISEMPTIED));
-        TomahawkApp.getContext().registerReceiver(mUserCollectionReceiver,
-                new IntentFilter(DatabaseHelper.USERPLAYLISTSDATASOURCE_RESULTSREPORTED));
-        TomahawkApp.getContext().registerReceiver(mUserCollectionReceiver,
-                new IntentFilter(DataBaseResolver.DATABASERESOLVER_READY));
-
-        TomahawkApp.getContext().getContentResolver().registerContentObserver(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false, mLocalMediaObserver);
-
-        mCollectionUpdateHandlerThread = new HandlerThread("CollectionUpdate",
-                android.os.Process.THREAD_PRIORITY_BACKGROUND);
-        mCollectionUpdateHandlerThread.start();
-
-        mHandler = new Handler(mCollectionUpdateHandlerThread.getLooper());
-        mHandler.postDelayed(mUpdateRunnable, 300);
     }
 
     public static UserCollection getInstance() {
@@ -235,6 +215,29 @@ public class UserCollection {
             }
         }
         return instance;
+    }
+
+    public void ensureInit() {
+        if (!mInitialized) {
+            mInitialized = true;
+            mUserCollectionReceiver = new UserCollectionReceiver();
+            TomahawkApp.getContext().registerReceiver(mUserCollectionReceiver,
+                    new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
+            TomahawkApp.getContext().registerReceiver(mUserCollectionReceiver,
+                    new IntentFilter(InfoSystem.INFOSYSTEM_OPLOGISEMPTIED));
+            TomahawkApp.getContext().registerReceiver(mUserCollectionReceiver,
+                    new IntentFilter(DatabaseHelper.USERPLAYLISTSDATASOURCE_RESULTSREPORTED));
+
+            TomahawkApp.getContext().getContentResolver().registerContentObserver(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false, mLocalMediaObserver);
+
+            mCollectionUpdateHandlerThread = new HandlerThread("CollectionUpdate",
+                    android.os.Process.THREAD_PRIORITY_BACKGROUND);
+            mCollectionUpdateHandlerThread.start();
+
+            mHandler = new Handler(mCollectionUpdateHandlerThread.getLooper());
+            mHandler.postDelayed(mUpdateRunnable, 300);
+        }
     }
 
     /**

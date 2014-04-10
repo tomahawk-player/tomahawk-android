@@ -37,9 +37,6 @@ import java.util.List;
  */
 public class DataBaseResolver implements Resolver {
 
-    public static final String DATABASERESOLVER_READY
-            = "org.tomahawk.tomahawk_android.databaseresolver_ready";
-
     private int mId;
 
     private String mName;
