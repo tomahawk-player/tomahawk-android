@@ -557,7 +557,8 @@ public class PlaybackService extends Service
      * Update the TomahawkMediaPlayer so that it reflects the current playState
      */
     public void handlePlayState() {
-        if (!isPreparing() && getCurrentQuery().getMediaPlayerInterface() != null) {
+        if (!isPreparing() && getCurrentQuery() != null
+                && getCurrentQuery().getMediaPlayerInterface() != null) {
             try {
                 switch (mPlayState) {
                     case PLAYBACKSERVICE_PLAYSTATE_PLAYING:
@@ -667,8 +668,8 @@ public class PlaybackService extends Service
      * @return Whether or not the mediaPlayer currently prepares a track
      */
     public boolean isPreparing() {
-        return getCurrentQuery().getMediaPlayerInterface() != null && getCurrentQuery()
-                .getMediaPlayerInterface().isPreparing();
+        return getCurrentQuery() != null && getCurrentQuery().getMediaPlayerInterface() != null
+                && getCurrentQuery().getMediaPlayerInterface().isPreparing();
     }
 
     /**
