@@ -29,6 +29,7 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaylistEntries;
+import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
@@ -197,6 +198,8 @@ public class UserCollection {
             } else if (DatabaseHelper.USERPLAYLISTSDATASOURCE_RESULTSREPORTED
                     .equals(intent.getAction())) {
                 UserCollection.this.updateUserPlaylists();
+            } else if (DataBaseResolver.DATABASERESOLVER_READY.equals(intent.getAction())) {
+                update();
             }
         }
     }
@@ -209,6 +212,8 @@ public class UserCollection {
                 new IntentFilter(InfoSystem.INFOSYSTEM_OPLOGISEMPTIED));
         TomahawkApp.getContext().registerReceiver(mUserCollectionReceiver,
                 new IntentFilter(DatabaseHelper.USERPLAYLISTSDATASOURCE_RESULTSREPORTED));
+        TomahawkApp.getContext().registerReceiver(mUserCollectionReceiver,
+                new IntentFilter(DataBaseResolver.DATABASERESOLVER_READY));
 
         TomahawkApp.getContext().getContentResolver().registerContentObserver(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, false, mLocalMediaObserver);
@@ -365,6 +370,9 @@ public class UserCollection {
     private void initializeCollection() {
         Resolver userCollectionResolver = PipeLine.getInstance().getResolver(
                 PipeLine.RESOLVER_ID_USERCOLLECTION);
+        if (userCollectionResolver == null) {
+            return;
+        }
 
         updateLovedItemsUserPlaylist();
         updateUserPlaylists();

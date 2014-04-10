@@ -80,6 +80,8 @@ public class PipeLine {
             public void run() {
                 addResolver(new DataBaseResolver(PipeLine.RESOLVER_ID_USERCOLLECTION,
                         TomahawkApp.getContext()));
+                TomahawkApp.getContext()
+                        .sendBroadcast(new Intent(DataBaseResolver.DATABASERESOLVER_READY));
                 ScriptResolver scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_JAMENDO,
                         "js/jamendo/content/contents/code/jamendo.js", TomahawkApp.getContext());
                 addResolver(scriptResolver);
