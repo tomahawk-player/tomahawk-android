@@ -37,7 +37,8 @@ import java.util.List;
  */
 public class DataBaseResolver implements Resolver {
 
-    private Context mContext;
+    public static final String DATABASERESOLVER_READY
+            = "org.tomahawk.tomahawk_android.databaseresolver_ready";
 
     private int mId;
 
@@ -62,7 +63,6 @@ public class DataBaseResolver implements Resolver {
      */
     public DataBaseResolver(int id, Context context) {
         mId = id;
-        mContext = context;
         mWeight = 100;
         mReady = false;
         mStopped = true;
