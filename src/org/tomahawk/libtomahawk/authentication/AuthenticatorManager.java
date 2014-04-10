@@ -35,6 +35,8 @@ public class AuthenticatorManager {
 
     private static AuthenticatorManager instance;
 
+    private boolean mInitialized;
+
     private SparseArray<AuthenticatorUtils> mAuthenticatorUtils
             = new SparseArray<AuthenticatorUtils>();
 
@@ -47,10 +49,6 @@ public class AuthenticatorManager {
     }
 
     private AuthenticatorManager() {
-        mAuthenticatorUtils.put(AUTHENTICATOR_ID_SPOTIFY,
-                new SpotifyAuthenticatorUtils(TomahawkApp.getContext()));
-        mAuthenticatorUtils.put(AUTHENTICATOR_ID_HATCHET,
-                new HatchetAuthenticatorUtils(TomahawkApp.getContext()));
     }
 
     public static AuthenticatorManager getInstance() {
@@ -62,6 +60,16 @@ public class AuthenticatorManager {
             }
         }
         return instance;
+    }
+
+    public void ensureInit() {
+        if (!mInitialized) {
+            mInitialized = true;
+            mAuthenticatorUtils.put(AUTHENTICATOR_ID_SPOTIFY,
+                    new SpotifyAuthenticatorUtils(TomahawkApp.getContext()));
+            mAuthenticatorUtils.put(AUTHENTICATOR_ID_HATCHET,
+                    new HatchetAuthenticatorUtils(TomahawkApp.getContext()));
+        }
     }
 
     /**

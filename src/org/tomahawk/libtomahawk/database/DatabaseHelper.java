@@ -57,6 +57,8 @@ public class DatabaseHelper {
 
     public static final int TRUE = 1;
 
+    private boolean mInitialized;
+
     // Database fields
     private SQLiteDatabase mDatabase;
 
@@ -88,9 +90,6 @@ public class DatabaseHelper {
             = new ConcurrentHashMap<String, ConcurrentHashMap<Integer, Long>>();
 
     private DatabaseHelper() {
-        mDbHelper = new TomahawkSQLiteHelper(TomahawkApp.getContext());
-        mDbHelper.close();
-        mDatabase = mDbHelper.getWritableDatabase();
     }
 
     public static DatabaseHelper getInstance() {
@@ -102,6 +101,15 @@ public class DatabaseHelper {
             }
         }
         return instance;
+    }
+
+    public void ensureInit() {
+        if (!mInitialized) {
+            mInitialized = true;
+            mDbHelper = new TomahawkSQLiteHelper(TomahawkApp.getContext());
+            mDbHelper.close();
+            mDatabase = mDbHelper.getWritableDatabase();
+        }
     }
 
     /**

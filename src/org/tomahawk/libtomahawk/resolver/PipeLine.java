@@ -24,8 +24,6 @@ import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.content.Intent;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -67,6 +65,8 @@ public class PipeLine {
 
     private static final float MINSCORE = 0.5F;
 
+    private boolean mInitialized;
+
     private ArrayList<Resolver> mResolvers = new ArrayList<Resolver>();
 
     private ConcurrentHashMap<String, Query> mWaitingQueries
@@ -75,33 +75,6 @@ public class PipeLine {
     private boolean mAllResolversAdded;
 
     private PipeLine() {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                addResolver(new DataBaseResolver(PipeLine.RESOLVER_ID_USERCOLLECTION,
-                        TomahawkApp.getContext()));
-                TomahawkApp.getContext()
-                        .sendBroadcast(new Intent(DataBaseResolver.DATABASERESOLVER_READY));
-                ScriptResolver scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_JAMENDO,
-                        "js/jamendo/content/contents/code/jamendo.js", TomahawkApp.getContext());
-                addResolver(scriptResolver);
-                scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_OFFICIALFM,
-                        "js/official.fm/content/contents/code/officialfm.js",
-                        TomahawkApp.getContext());
-                addResolver(scriptResolver);
-                scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_EXFM,
-                        "js/exfm/content/contents/code/exfm.js", TomahawkApp.getContext());
-                addResolver(scriptResolver);
-                scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_SOUNDCLOUD,
-                        "js/soundcloud/content/contents/code/soundcloud.js",
-                        TomahawkApp.getContext());
-                addResolver(scriptResolver);
-                SpotifyResolver spotifyResolver = new SpotifyResolver(PipeLine.RESOLVER_ID_SPOTIFY,
-                        TomahawkApp.getContext());
-                addResolver(spotifyResolver);
-                setAllResolversAdded(true);
-            }
-        });
     }
 
     public static PipeLine getInstance() {
@@ -115,11 +88,30 @@ public class PipeLine {
         return instance;
     }
 
-    /**
-     * Add a {@link Resolver} to the internal list.
-     */
-    public void addResolver(Resolver resolver) {
-        mResolvers.add(resolver);
+    public void ensureInit() {
+        if (!mInitialized) {
+            mInitialized = true;
+            mResolvers.add(new DataBaseResolver(PipeLine.RESOLVER_ID_USERCOLLECTION,
+                    TomahawkApp.getContext()));
+            ScriptResolver scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_JAMENDO,
+                    "js/jamendo/content/contents/code/jamendo.js", TomahawkApp.getContext());
+            mResolvers.add(scriptResolver);
+            scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_OFFICIALFM,
+                    "js/official.fm/content/contents/code/officialfm.js",
+                    TomahawkApp.getContext());
+            mResolvers.add(scriptResolver);
+            scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_EXFM,
+                    "js/exfm/content/contents/code/exfm.js", TomahawkApp.getContext());
+            mResolvers.add(scriptResolver);
+            scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_SOUNDCLOUD,
+                    "js/soundcloud/content/contents/code/soundcloud.js",
+                    TomahawkApp.getContext());
+            mResolvers.add(scriptResolver);
+            SpotifyResolver spotifyResolver = new SpotifyResolver(PipeLine.RESOLVER_ID_SPOTIFY,
+                    TomahawkApp.getContext());
+            mResolvers.add(spotifyResolver);
+            setAllResolversAdded(true);
+        }
     }
 
     /**

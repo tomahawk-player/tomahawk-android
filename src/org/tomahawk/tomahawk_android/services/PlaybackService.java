@@ -320,6 +320,14 @@ public class PlaybackService extends Service
 
     @Override
     public void onCreate() {
+        super.onCreate();
+
+        DatabaseHelper.getInstance().ensureInit();
+        PipeLine.getInstance().ensureInit();
+        InfoSystem.getInstance().ensureInit();
+        AuthenticatorManager.getInstance().ensureInit();
+        UserCollection.getInstance().ensureInit();
+
         bindService(new Intent(this, SpotifyService.class), mSpotifyServiceConnection,
                 Context.BIND_AUTO_CREATE);
 
