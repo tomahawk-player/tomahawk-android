@@ -17,6 +17,11 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+
+import org.tomahawk.libtomahawk.resolver.Query;
+
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -41,7 +46,10 @@ public class ThreadManager {
 
     private ThreadPoolExecutor mPlaybackThreadPool;
 
+    private Multimap<Query, Runnable> mQueryRunnableMap;
+
     private ThreadManager() {
+        mQueryRunnableMap = HashMultimap.create();
         mThreadPool = new ThreadPoolExecutor(NUMBER_OF_CORES, NUMBER_OF_CORES,
                 KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, new PriorityBlockingQueue<Runnable>());
         mPlaybackThreadPool = new ThreadPoolExecutor(1, 1, KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT,
@@ -61,6 +69,21 @@ public class ThreadManager {
 
     public void execute(Runnable r) {
         mThreadPool.execute(r);
+    }
+
+    public void execute(Runnable r, Query query) {
+        synchronized (query) {
+            mQueryRunnableMap.put(query, r);
+        }
+        mThreadPool.execute(r);
+    }
+
+    public void stop(Query query) {
+        synchronized (query) {
+            for (Runnable r : mQueryRunnableMap.removeAll(query)) {
+                mThreadPool.remove(r);
+            }
+        }
     }
 
     public void executePlayback(Runnable r) {
