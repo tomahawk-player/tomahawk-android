@@ -22,13 +22,13 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
@@ -98,6 +98,7 @@ public class DatabaseHelper {
             synchronized (DatabaseHelper.class) {
                 if (instance == null) {
                     instance = new DatabaseHelper();
+                    instance.setContext(TomahawkApp.getContext());
                 }
             }
         }
@@ -107,33 +108,14 @@ public class DatabaseHelper {
     public void setContext(Context context) {
         mContext = context;
         mDbHelper = new TomahawkSQLiteHelper(context);
-    }
-
-    public boolean isInitialized() {
-        return mContext != null;
-    }
-
-    /**
-     * Always try to close the {@link TomahawkSQLiteHelper}, in case it is still open for whatever
-     * reason. Then get a reference to our database.
-     */
-    public void open() throws SQLException {
         mDbHelper.close();
         mDatabase = mDbHelper.getWritableDatabase();
-    }
-
-    /**
-     * Close the {@link TomahawkSQLiteHelper}
-     */
-    public void close() {
-        mDbHelper.close();
     }
 
     /**
      * Store the given {@link Playlist}
      *
      * @param playlist the given {@link Playlist}
-     * @return String containing the stored {@link Playlist}'s id
      */
     public void storeUserPlaylist(final UserPlaylist playlist) {
         new Thread(new Runnable() {

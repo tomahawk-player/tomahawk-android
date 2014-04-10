@@ -19,7 +19,7 @@ package org.tomahawk.tomahawk_android.utils;
 
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyServiceUtils;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.SpotifyService;
 
 import android.content.Context;
@@ -121,7 +121,7 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
                 SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PLAY);
             }
         } else {
-            TomahawkMainActivity.getContext()
+            TomahawkApp.getContext()
                     .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
         }
     }
@@ -138,7 +138,7 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
                 SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PAUSE);
             }
         } else {
-            TomahawkMainActivity.getContext()
+            TomahawkApp.getContext()
                     .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
         }
     }
@@ -163,7 +163,7 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
                 }.sendEmptyMessageDelayed(1337, 1000);
             }
         } else {
-            TomahawkMainActivity.getContext()
+            TomahawkApp.getContext()
                     .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
         }
     }
@@ -188,7 +188,7 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
                         query.getPreferredTrackResult().getPath());
             }
         } else {
-            TomahawkMainActivity.getContext()
+            TomahawkApp.getContext()
                     .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
         }
         return this;
