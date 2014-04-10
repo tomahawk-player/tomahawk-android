@@ -32,6 +32,7 @@ import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaybackLogPostStruct;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetSocialAction;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetSocialActionPostStruct;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
@@ -97,6 +98,7 @@ public class InfoSystem {
             synchronized (InfoSystem.class) {
                 if (instance == null) {
                     instance = new InfoSystem();
+                    instance.setContext(TomahawkApp.getContext());
                 }
             }
         }
@@ -105,10 +107,7 @@ public class InfoSystem {
 
     public void setContext(Context context) {
         mContext = context;
-    }
-
-    public boolean isInitialized() {
-        return mContext != null;
+        InfoSystem.getInstance().addInfoPlugin(new HatchetInfoPlugin(context));
     }
 
     public void addInfoPlugin(InfoPlugin infoPlugin) {

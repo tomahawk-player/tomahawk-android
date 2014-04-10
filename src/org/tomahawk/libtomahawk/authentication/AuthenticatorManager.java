@@ -17,6 +17,8 @@
  */
 package org.tomahawk.libtomahawk.authentication;
 
+import org.tomahawk.tomahawk_android.TomahawkApp;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -54,6 +56,7 @@ public class AuthenticatorManager {
             synchronized (AuthenticatorManager.class) {
                 if (instance == null) {
                     instance = new AuthenticatorManager();
+                    instance.setContext(TomahawkApp.getContext());
                 }
             }
         }
@@ -66,10 +69,6 @@ public class AuthenticatorManager {
                 new SpotifyAuthenticatorUtils(context));
         mAuthenticatorUtils.put(AUTHENTICATOR_ID_HATCHET,
                 new HatchetAuthenticatorUtils(context));
-    }
-
-    public boolean isInitialized() {
-        return mContext != null;
     }
 
     /**

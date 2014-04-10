@@ -17,7 +17,9 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
+import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
@@ -81,6 +83,7 @@ public class PipeLine {
             synchronized (PipeLine.class) {
                 if (instance == null) {
                     instance = new PipeLine();
+                    instance.setContext(TomahawkApp.getContext());
                 }
             }
         }
@@ -89,10 +92,24 @@ public class PipeLine {
 
     public void setContext(Context context) {
         mContext = context;
-    }
-
-    public boolean isInitialized() {
-        return mContext != null;
+        PipeLine.getInstance().addResolver(new DataBaseResolver(PipeLine.RESOLVER_ID_USERCOLLECTION,
+                context));
+        ScriptResolver scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_JAMENDO,
+                "js/jamendo/content/contents/code/jamendo.js", context);
+        PipeLine.getInstance().addResolver(scriptResolver);
+        scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_OFFICIALFM,
+                "js/official.fm/content/contents/code/officialfm.js", context);
+        PipeLine.getInstance().addResolver(scriptResolver);
+        scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_EXFM,
+                "js/exfm/content/contents/code/exfm.js", context);
+        PipeLine.getInstance().addResolver(scriptResolver);
+        scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_SOUNDCLOUD,
+                "js/soundcloud/content/contents/code/soundcloud.js", context);
+        PipeLine.getInstance().addResolver(scriptResolver);
+        SpotifyResolver spotifyResolver = new SpotifyResolver(PipeLine.RESOLVER_ID_SPOTIFY,
+                context);
+        PipeLine.getInstance().addResolver(spotifyResolver);
+        PipeLine.getInstance().setAllResolversAdded(true);
     }
 
     /**

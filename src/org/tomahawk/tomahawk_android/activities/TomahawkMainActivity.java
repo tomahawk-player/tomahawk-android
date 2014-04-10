@@ -29,13 +29,10 @@ import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
-import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
-import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.resolver.ScriptResolver;
-import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
@@ -72,7 +69,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -106,8 +102,6 @@ public class TomahawkMainActivity extends ActionBarActivity
     public static final String ID_COUNTER = "org.tomahawk.tomahawk_android.id_counter";
 
     public static final String FRAGMENT_TAG = "the_ultimate_tag";
-
-    private static Context sApplicationContext;
 
     private static long mSessionIdCounter = 0;
 
@@ -236,8 +230,6 @@ public class TomahawkMainActivity extends ActionBarActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        sApplicationContext = getApplicationContext();
-
         //Setup our services
         Intent intent = new Intent(this, PlaybackService.class);
         startService(intent);
@@ -246,50 +238,6 @@ public class TomahawkMainActivity extends ActionBarActivity
         setContentView(R.layout.tomahawk_main_activity);
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-
-        if (!AuthenticatorManager.getInstance().isInitialized()) {
-            AuthenticatorManager.getInstance().setContext(getContext());
-        }
-
-        if (!PipeLine.getInstance().isInitialized()) {
-            PipeLine.getInstance().setContext(getContext());
-            PipeLine.getInstance()
-                    .addResolver(new DataBaseResolver(PipeLine.RESOLVER_ID_USERCOLLECTION,
-                            getContext()));
-            ScriptResolver scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_JAMENDO,
-                    "js/jamendo/content/contents/code/jamendo.js", getContext());
-            PipeLine.getInstance().addResolver(scriptResolver);
-            scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_OFFICIALFM,
-                    "js/official.fm/content/contents/code/officialfm.js", getContext());
-            PipeLine.getInstance().addResolver(scriptResolver);
-            scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_EXFM,
-                    "js/exfm/content/contents/code/exfm.js", getContext());
-            PipeLine.getInstance().addResolver(scriptResolver);
-            scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_SOUNDCLOUD,
-                    "js/soundcloud/content/contents/code/soundcloud.js", getContext());
-            PipeLine.getInstance().addResolver(scriptResolver);
-            SpotifyResolver spotifyResolver = new SpotifyResolver(PipeLine.RESOLVER_ID_SPOTIFY,
-                    getContext());
-            PipeLine.getInstance().addResolver(spotifyResolver);
-            PipeLine.getInstance().setAllResolversAdded(true);
-        }
-
-        // Initialize UserPlaylistsDataSource, which makes it possible to retrieve persisted
-        // UserPlaylists
-        if (!DatabaseHelper.getInstance().isInitialized()) {
-            DatabaseHelper.getInstance().setContext(getContext());
-            DatabaseHelper.getInstance().open();
-        }
-
-        if (!InfoSystem.getInstance().isInitialized()) {
-            InfoSystem.getInstance().setContext(getContext());
-            InfoSystem.getInstance().addInfoPlugin(new HatchetInfoPlugin(getContext()));
-        }
-
-        if (!UserCollection.getInstance().isInitialized()) {
-            Log.d(TAG, "Initializing Local Collection.");
-            UserCollection.getInstance().setContext(getContext());
-        }
 
         mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
 
@@ -595,7 +543,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @Override
     public Loader<UserCollection> onCreateLoader(int id, Bundle args) {
-        return new CollectionLoader(getContext(), UserCollection.getInstance());
+        return new CollectionLoader(this, UserCollection.getInstance());
     }
 
     @Override
@@ -730,7 +678,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public static long getLifetimeUniqueId() {
         SharedPreferences sharedPreferences = PreferenceManager
-                .getDefaultSharedPreferences(sApplicationContext);
+                .getDefaultSharedPreferences(TomahawkApp.getContext());
         long id = sharedPreferences.getLong(ID_COUNTER, 0);
         sharedPreferences.edit().putLong(ID_COUNTER, id + 1).commit();
         return id;
@@ -738,9 +686,5 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public static String getLifetimeUniqueStringId() {
         return String.valueOf(getLifetimeUniqueId());
-    }
-
-    public static Context getContext() {
-        return sApplicationContext;
     }
 }

@@ -23,6 +23,7 @@ import org.acra.annotation.ReportsCrashes;
 import org.tomahawk.tomahawk_android.utils.TomahawkExceptionReporter;
 
 import android.app.Application;
+import android.content.Context;
 
 /**
  * This class contains represents the Application core.
@@ -36,10 +37,18 @@ import android.app.Application;
         resDialogOkToast = R.string.crash_dialog_ok_toast)
 public class TomahawkApp extends Application {
 
+    private static Context sApplicationContext;
+
     @Override
     public void onCreate() {
         TomahawkExceptionReporter.init(this);
         super.onCreate();
+
+        sApplicationContext = getApplicationContext();
+    }
+
+    public static Context getContext() {
+        return sApplicationContext;
     }
 
 }

@@ -34,6 +34,7 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
@@ -210,6 +211,7 @@ public class UserCollection {
             synchronized (UserCollection.class) {
                 if (instance == null) {
                     instance = new UserCollection();
+                    instance.setContext(TomahawkApp.getContext());
                 }
             }
         }
@@ -235,10 +237,6 @@ public class UserCollection {
 
         mHandler = new Handler(mCollectionUpdateHandlerThread.getLooper());
         mHandler.postDelayed(mUpdateRunnable, 300);
-    }
-
-    public boolean isInitialized() {
-        return mContext != null;
     }
 
     /**

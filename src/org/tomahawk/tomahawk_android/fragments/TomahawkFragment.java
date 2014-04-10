@@ -30,6 +30,7 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.FakeContextMenuDialog;
@@ -628,7 +629,7 @@ public class TomahawkFragment extends TomahawkListFragment
                     public void run() {
                         mUserPlaylist = DatabaseHelper.getInstance()
                                 .getUserPlaylist(mUserPlaylist.getId());
-                        TomahawkMainActivity.getContext().sendBroadcast(
+                        TomahawkApp.getContext().sendBroadcast(
                                 new Intent(UserCollection.COLLECTION_UPDATED));
                     }
                 }

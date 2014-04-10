@@ -27,7 +27,7 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.SpotifyService;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
@@ -149,7 +149,7 @@ public class SpotifyResolver implements Resolver {
             }
         } else {
             mCachedQueries.add(query);
-            TomahawkMainActivity.getContext()
+            TomahawkApp.getContext()
                     .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
         }
         return false;
