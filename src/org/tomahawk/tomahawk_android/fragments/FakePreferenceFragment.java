@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter;
 import org.tomahawk.tomahawk_android.dialogs.LoginDialog;
 import org.tomahawk.tomahawk_android.utils.FakePreferenceGroup;
@@ -211,7 +212,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
      * @param loggedIn        true, if logged in, otherwise false
      */
     @Override
-    public void onLoggedInOut(int authenticatorId, boolean loggedIn) {
+    public void onLoggedInOut(int authenticatorId, final boolean loggedIn) {
         for (FakePreferenceGroup fakePreferenceGroup : mFakePreferenceGroups) {
             FakePreferenceGroup.FakePreference fakePreference = null;
             if (authenticatorId == AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY) {
@@ -220,6 +221,13 @@ public class FakePreferenceFragment extends TomahawkListFragment
             } else if (authenticatorId == AuthenticatorManager.AUTHENTICATOR_ID_HATCHET) {
                 fakePreference = fakePreferenceGroup.getFakePreferenceByKey(
                         FAKEPREFERENCEFRAGMENT_KEY_HATCHETLOGGEDIN);
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((TomahawkMainActivity) getActivity()).onLogout();
+                        ((TomahawkMainActivity) getActivity()).updateDrawer();
+                    }
+                });
             }
             if (fakePreference != null) {
                 fakePreference.setEnabled(loggedIn);

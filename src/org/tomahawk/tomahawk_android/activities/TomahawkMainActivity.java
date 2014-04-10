@@ -561,7 +561,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         getSupportLoaderManager().restartLoader(0, null, this);
     }
 
-    private void updateDrawer() {
+    public void updateDrawer() {
         if (mLoggedInUser == null) {
             InfoSystem.getInstance().resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF, null);
         }
@@ -571,7 +571,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                 getResources().getStringArray(R.array.slide_menu_items),
                 getResources().obtainTypedArray(R.array.slide_menu_items_icons),
                 getResources().obtainTypedArray(R.array.slide_menu_items_colors));
-        slideMenuAdapter.showContentHeader(mDrawerList, mLoggedInUser);
+        slideMenuAdapter.setShowHatchetMenu(true);
+        slideMenuAdapter.setUser(mLoggedInUser);
         mDrawerList.setAdapter(slideMenuAdapter);
 
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
@@ -666,6 +667,10 @@ public class TomahawkMainActivity extends ActionBarActivity
             mNowPlayingFrame.setLayoutParams(new LinearLayout.LayoutParams(0, 0));
             mNowPlayingFrame.setVisibility(View.GONE);
         }
+    }
+
+    public void onLogout() {
+        mLoggedInUser = null;
     }
 
     public static long getSessionUniqueId() {

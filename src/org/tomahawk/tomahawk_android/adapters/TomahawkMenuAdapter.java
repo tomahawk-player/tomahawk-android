@@ -21,6 +21,7 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.utils.AdapterUtils;
+import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 
 import android.app.Activity;
 import android.content.res.TypedArray;
@@ -29,11 +30,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
@@ -47,11 +46,20 @@ public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeader
 
     private LayoutInflater mLayoutInflater;
 
-    private List<String> mStringArray = new ArrayList<String>();
+    private List<ResourceHolder> mItems = new ArrayList<ResourceHolder>();
 
-    private List<Integer> mIconArray = new ArrayList<Integer>();
+    private User mUser;
 
-    private List<Integer> mColorArray = new ArrayList<Integer>();
+    private boolean mShowHatchetMenu;
+
+    private static class ResourceHolder {
+
+        String title;
+
+        int icon;
+
+        int color;
+    }
 
     /**
      * Constructs a new {@link TomahawkMenuAdapter}
@@ -67,41 +75,21 @@ public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeader
             TypedArray colorArray) {
         mActivity = activity;
         mLayoutInflater = activity.getLayoutInflater();
-        Collections.addAll(mStringArray, stringArray);
-        for (int i = 0; i < iconArray.length(); i++) {
-            mIconArray.add(iconArray.getResourceId(i, 0));
-        }
-        for (int i = 0; i < colorArray.length(); i++) {
-            mColorArray.add(mActivity.getResources().getColor(colorArray.getResourceId(i, 0)));
-        }
-    }
-
-    /**
-     * Show a content header. A content header provides information about the current {@link
-     * org.tomahawk.tomahawk_android.utils.TomahawkListItem} that the user has navigated to. Like an
-     * AlbumArt image with the {@link org.tomahawk.libtomahawk.collection.Album}s name, which is
-     * shown at the top of the listview, if the user browses to a particular {@link
-     * org.tomahawk.libtomahawk.collection.Album} in his {@link org.tomahawk.libtomahawk.collection.UserCollection}.
-     *
-     * @param list a reference to the list, so we can set its header view
-     * @param user the {@link User} object to show in the header view
-     */
-    public void showContentHeader(ListView list, User user) {
-        View contentHeaderView;
-        if (list.getHeaderViewsCount() == 0) {
-            contentHeaderView = mLayoutInflater.inflate(R.layout.content_header_user_navdrawer,
-                    null);
-            list.addHeaderView(contentHeaderView);
-        }
-        if (user != null) {
-            updateContentHeader(list, user);
+        for (int i = 0; i < stringArray.length; i++) {
+            ResourceHolder holder = new ResourceHolder();
+            holder.title = stringArray[i];
+            holder.icon = iconArray.getResourceId(i, 0);
+            holder.color = mActivity.getResources().getColor(colorArray.getResourceId(i, 0));
+            mItems.add(holder);
         }
     }
 
-    public void updateContentHeader(ListView list, User user) {
-        ViewHolder viewHolder = new ViewHolder(list,
-                R.id.tomahawklistadapter_viewtype_contentheader_user_navdrawer);
-        AdapterUtils.fillContentHeaderSmall(mActivity, viewHolder, user);
+    public void setUser(User user) {
+        mUser = user;
+    }
+
+    public void setShowHatchetMenu(boolean showHatchetMenu) {
+        mShowHatchetMenu = showHatchetMenu;
     }
 
     /**
@@ -109,7 +97,15 @@ public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeader
      */
     @Override
     public int getCount() {
-        return mStringArray.size();
+        int correction = 0;
+        if (mShowHatchetMenu) {
+            if (mUser != null) {
+                correction = 1;
+            } else {
+                correction = -1;
+            }
+        }
+        return mItems.size() + correction;
     }
 
     /**
@@ -117,7 +113,18 @@ public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeader
      */
     @Override
     public Object getItem(int position) {
-        return mStringArray.get(position);
+        if (mShowHatchetMenu) {
+            if (mUser != null) {
+                position--;
+            } else {
+                position++;
+            }
+        }
+        if (position < 0) {
+            return mUser;
+        } else {
+            return mItems.get(position);
+        }
     }
 
     /**
@@ -125,6 +132,22 @@ public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeader
      */
     @Override
     public long getItemId(int position) {
+        Object item = getItem(position);
+        if (item == mUser) {
+            return FragmentUtils.HUB_ID_HOME;
+        } else if (item instanceof ResourceHolder) {
+            if (item.equals(mItems.get(0))) {
+                return FragmentUtils.HUB_ID_DASHBOARD;
+            } else if (item.equals(mItems.get(1))) {
+                return FragmentUtils.HUB_ID_COLLECTION;
+            } else if (item.equals(mItems.get(2))) {
+                return FragmentUtils.HUB_ID_LOVEDTRACKS;
+            } else if (item.equals(mItems.get(3))) {
+                return FragmentUtils.HUB_ID_PLAYLISTS;
+            } else if (item.equals(mItems.get(4))) {
+                return FragmentUtils.HUB_ID_SETTINGS;
+            }
+        }
         return position;
     }
 
@@ -138,22 +161,27 @@ public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeader
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View view = mLayoutInflater.inflate(R.layout.single_line_list_menu, parent, false);
-        TextView textView = (TextView) view.findViewById(R.id.single_line_list_menu_textview);
-        ImageView imageView = (ImageView) view.findViewById(R.id.icon_menu_imageview);
-        String string = mStringArray.get(position);
-        Integer icon = mIconArray.get(position);
-        Integer color = mColorArray.get(position);
-        if (string != null) {
-            textView.setText(string);
+        Object item = getItem(position);
+        if (item instanceof User) {
+            View contentHeaderView = mLayoutInflater
+                    .inflate(R.layout.content_header_user_navdrawer,
+                            null);
+            ViewHolder viewHolder = new ViewHolder(contentHeaderView,
+                    R.id.tomahawklistadapter_viewtype_contentheader_user_navdrawer);
+            AdapterUtils.fillContentHeaderSmall(mActivity, viewHolder, mUser);
+            return contentHeaderView;
+        } else if (item instanceof ResourceHolder) {
+            View view = mLayoutInflater.inflate(R.layout.single_line_list_menu, parent, false);
+            TextView textView = (TextView) view.findViewById(R.id.single_line_list_menu_textview);
+            ImageView imageView = (ImageView) view.findViewById(R.id.icon_menu_imageview);
+            ResourceHolder holder = (ResourceHolder) item;
+            textView.setText(holder.title);
+            TomahawkUtils.loadDrawableIntoImageView(mActivity, imageView, holder.icon);
+            imageView.setBackgroundColor(holder.color);
+            return view;
+        } else {
+            return new View(null);
         }
-        if (icon != null) {
-            TomahawkUtils.loadDrawableIntoImageView(mActivity, imageView, icon);
-        }
-        if (color != null) {
-            imageView.setBackgroundColor(color);
-        }
-        return view;
     }
 
     /**

@@ -53,10 +53,6 @@ public class FragmentUtils {
 
     public static final int HUB_ID_PLAYLISTS = 3;
 
-    public static final int HUB_ID_STATIONS = -2;
-
-    public static final int HUB_ID_FRIENDS = -3;
-
     public static final int HUB_ID_SETTINGS = 4;
 
     public static final int HUB_ID_PLAYBACK = 100;
@@ -116,6 +112,17 @@ public class FragmentUtils {
     }
 
     /**
+     * Replaces the current {@link Fragment}
+     */
+    public static void replace(Context context, FragmentManager fragmentManager, Class clss) {
+        FragmentTransaction ft = fragmentManager.beginTransaction();
+        ft.replace(R.id.content_viewer_frame, Fragment.instantiate(context, clss.getName()),
+                FRAGMENT_TAG);
+        ft.addToBackStack(FRAGMENT_TAG);
+        ft.commit();
+    }
+
+    /**
      * Set the currently shown hub, by providing its id
      *
      * @param hubToShow the id of the hub which should be shown
@@ -131,54 +138,43 @@ public class FragmentUtils {
      */
     public static void showHub(Context context, FragmentManager fragmentManager, int hubToShow,
             User loggedInUser) {
-        Class clss = null;
-        String type = null;
-        String key = null;
-        boolean showDashboard = false;
         switch (hubToShow) {
             case HUB_ID_HOME:
                 if (loggedInUser == null) {
                     return;
                 }
-                clss = SocialActionsFragment.class;
-                type = TomahawkFragment.TOMAHAWK_USER_ID;
-                key = loggedInUser.getId();
+                replace(context, fragmentManager, SocialActionsFragment.class,
+                        loggedInUser.getId(),
+                        TomahawkFragment.TOMAHAWK_USER_ID,
+                        SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
                 break;
             case HUB_ID_DASHBOARD:
                 if (loggedInUser == null) {
                     return;
                 }
-                clss = SocialActionsFragment.class;
-                type = TomahawkFragment.TOMAHAWK_USER_ID;
-                key = loggedInUser.getId();
-                showDashboard = true;
+                replace(context, fragmentManager, SocialActionsFragment.class,
+                        loggedInUser.getId(),
+                        TomahawkFragment.TOMAHAWK_USER_ID,
+                        SocialActionsFragment.SHOW_MODE_DASHBOARD);
                 break;
             case HUB_ID_COLLECTION:
-                clss = UserCollectionFragment.class;
+                replace(context, fragmentManager, UserCollectionFragment.class);
                 break;
             case HUB_ID_LOVEDTRACKS:
-                clss = TracksFragment.class;
-                type = UserPlaylistsFragment.TOMAHAWK_USERPLAYLIST_KEY;
-                key = DatabaseHelper.LOVEDITEMS_PLAYLIST_ID;
+                replace(context, fragmentManager, TracksFragment.class,
+                        DatabaseHelper.LOVEDITEMS_PLAYLIST_ID,
+                        UserPlaylistsFragment.TOMAHAWK_USERPLAYLIST_KEY,
+                        SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
                 break;
             case HUB_ID_PLAYLISTS:
-                clss = UserPlaylistsFragment.class;
+                replace(context, fragmentManager, UserPlaylistsFragment.class);
                 break;
-            case HUB_ID_STATIONS:
-            case HUB_ID_FRIENDS:
             case HUB_ID_SETTINGS:
-                clss = FakePreferenceFragment.class;
+                replace(context, fragmentManager, FakePreferenceFragment.class);
                 break;
             case HUB_ID_PLAYBACK:
-                clss = PlaybackFragment.class;
+                replace(context, fragmentManager, PlaybackFragment.class);
                 break;
-        }
-        if (showDashboard) {
-            replace(context, fragmentManager, clss, key, type,
-                    SocialActionsFragment.SHOW_MODE_DASHBOARD);
-        } else {
-            replace(context, fragmentManager, clss, key, type,
-                    SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
         }
     }
 }
