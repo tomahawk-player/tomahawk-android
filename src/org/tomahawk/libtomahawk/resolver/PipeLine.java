@@ -173,31 +173,30 @@ public class PipeLine {
      * This will invoke every {@link Resolver} to resolve the given {@link Query}.
      */
     public String resolve(final Query q, final boolean forceOnlyLocal) {
-        ThreadManager.getInstance().execute(
-                new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_RESOLVING) {
-                    @Override
-                    public void run() {
-                        if (!forceOnlyLocal && q.isSolved()) {
-                            sendResultsReportBroadcast(q.getCacheKey());
-                        } else {
-                            if (!isEveryResolverReady()) {
-                                if (!mWaitingQueries.containsKey(q.getCacheKey())) {
-                                    mWaitingQueries.put(q.getCacheKey(), q);
-                                }
-                            } else {
-                                for (final Resolver resolver : mResolvers) {
-                                    if ((forceOnlyLocal && resolver instanceof DataBaseResolver)
-                                            || (!forceOnlyLocal && q.isOnlyLocal()
-                                            && resolver instanceof DataBaseResolver)
-                                            || (!forceOnlyLocal && !q.isOnlyLocal())) {
-                                        resolver.resolve(q);
-                                    }
-                                }
+        TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_RESOLVING) {
+            @Override
+            public void run() {
+                if (!forceOnlyLocal && q.isSolved()) {
+                    sendResultsReportBroadcast(q.getCacheKey());
+                } else {
+                    if (!isEveryResolverReady()) {
+                        if (!mWaitingQueries.containsKey(q.getCacheKey())) {
+                            mWaitingQueries.put(q.getCacheKey(), q);
+                        }
+                    } else {
+                        for (final Resolver resolver : mResolvers) {
+                            if ((forceOnlyLocal && resolver instanceof DataBaseResolver)
+                                    || (!forceOnlyLocal && q.isOnlyLocal()
+                                    && resolver instanceof DataBaseResolver)
+                                    || (!forceOnlyLocal && !q.isOnlyLocal())) {
+                                resolver.resolve(q);
                             }
                         }
                     }
                 }
-        );
+            }
+        };
+        ThreadManager.getInstance().execute(r, q);
         return q.getCacheKey();
     }
 
@@ -296,6 +295,9 @@ public class PipeLine {
                             q.addAlbumResults(cleanAlbumResults);
                             q.addTrackResults(cleanTrackResults);
                             sendResultsReportBroadcast(q.getCacheKey());
+                            if (q.isSolved()) {
+                                ThreadManager.getInstance().stop(q);
+                            }
                         }
                     }
                 }
