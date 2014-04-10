@@ -36,7 +36,6 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import android.content.Context;
 import android.content.Intent;
 
 import java.util.ArrayList;
@@ -65,8 +64,6 @@ public class InfoSystem {
 
     public static final String PARAM_TERM = "term";
 
-    private Context mContext;
-
     private ArrayList<InfoPlugin> mInfoPlugins = new ArrayList<InfoPlugin>();
 
     private ConcurrentHashMap<String, InfoRequestData> mRequests
@@ -91,6 +88,7 @@ public class InfoSystem {
     private Query mNowPlaying = null;
 
     private InfoSystem() {
+        addInfoPlugin(new HatchetInfoPlugin(TomahawkApp.getContext()));
     }
 
     public static InfoSystem getInstance() {
@@ -98,16 +96,10 @@ public class InfoSystem {
             synchronized (InfoSystem.class) {
                 if (instance == null) {
                     instance = new InfoSystem();
-                    instance.setContext(TomahawkApp.getContext());
                 }
             }
         }
         return instance;
-    }
-
-    public void setContext(Context context) {
-        mContext = context;
-        InfoSystem.getInstance().addInfoPlugin(new HatchetInfoPlugin(context));
     }
 
     public void addInfoPlugin(InfoPlugin infoPlugin) {
@@ -461,7 +453,7 @@ public class InfoSystem {
     private void sendReportResultsBroadcast(String requestId) {
         Intent reportIntent = new Intent(INFOSYSTEM_RESULTSREPORTED);
         reportIntent.putExtra(INFOSYSTEM_RESULTSREPORTED_REQUESTID, requestId);
-        mContext.sendBroadcast(reportIntent);
+        TomahawkApp.getContext().sendBroadcast(reportIntent);
     }
 
     /**
@@ -469,6 +461,6 @@ public class InfoSystem {
      */
     private void sendOpLogIsEmptiedBroadcast() {
         Intent reportIntent = new Intent(INFOSYSTEM_OPLOGISEMPTIED);
-        mContext.sendBroadcast(reportIntent);
+        TomahawkApp.getContext().sendBroadcast(reportIntent);
     }
 }

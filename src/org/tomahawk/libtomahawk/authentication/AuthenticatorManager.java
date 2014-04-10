@@ -35,8 +35,6 @@ public class AuthenticatorManager {
 
     private static AuthenticatorManager instance;
 
-    private Context mContext;
-
     private SparseArray<AuthenticatorUtils> mAuthenticatorUtils
             = new SparseArray<AuthenticatorUtils>();
 
@@ -49,6 +47,10 @@ public class AuthenticatorManager {
     }
 
     private AuthenticatorManager() {
+        mAuthenticatorUtils.put(AUTHENTICATOR_ID_SPOTIFY,
+                new SpotifyAuthenticatorUtils(TomahawkApp.getContext()));
+        mAuthenticatorUtils.put(AUTHENTICATOR_ID_HATCHET,
+                new HatchetAuthenticatorUtils(TomahawkApp.getContext()));
     }
 
     public static AuthenticatorManager getInstance() {
@@ -56,19 +58,10 @@ public class AuthenticatorManager {
             synchronized (AuthenticatorManager.class) {
                 if (instance == null) {
                     instance = new AuthenticatorManager();
-                    instance.setContext(TomahawkApp.getContext());
                 }
             }
         }
         return instance;
-    }
-
-    public void setContext(Context context) {
-        mContext = context;
-        mAuthenticatorUtils.put(AUTHENTICATOR_ID_SPOTIFY,
-                new SpotifyAuthenticatorUtils(context));
-        mAuthenticatorUtils.put(AUTHENTICATOR_ID_HATCHET,
-                new HatchetAuthenticatorUtils(context));
     }
 
     /**
@@ -98,8 +91,8 @@ public class AuthenticatorManager {
     }
 
     public void updateBitrate() {
-        ConnectivityManager conMan = (ConnectivityManager) mContext.getSystemService(
-                Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager conMan = (ConnectivityManager) TomahawkApp.getContext()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = conMan.getActiveNetworkInfo();
         if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
             Log.d("WifiReceiver", "Have Wifi Connection");
@@ -108,7 +101,7 @@ public class AuthenticatorManager {
         } else {
             Log.d("WifiReceiver", "Don't have Wifi Connection");
             SharedPreferences preferences = PreferenceManager
-                    .getDefaultSharedPreferences(mContext);
+                    .getDefaultSharedPreferences(TomahawkApp.getContext());
             int prefbitrate = preferences.getInt(
                     SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE,
                     SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE_MODE_MEDIUM);

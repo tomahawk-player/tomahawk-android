@@ -26,7 +26,6 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -57,8 +56,6 @@ public class DatabaseHelper {
     public static final int FALSE = 0;
 
     public static final int TRUE = 1;
-
-    private Context mContext;
 
     // Database fields
     private SQLiteDatabase mDatabase;
@@ -91,6 +88,9 @@ public class DatabaseHelper {
             = new ConcurrentHashMap<String, ConcurrentHashMap<Integer, Long>>();
 
     private DatabaseHelper() {
+        mDbHelper = new TomahawkSQLiteHelper(TomahawkApp.getContext());
+        mDbHelper.close();
+        mDatabase = mDbHelper.getWritableDatabase();
     }
 
     public static DatabaseHelper getInstance() {
@@ -98,18 +98,10 @@ public class DatabaseHelper {
             synchronized (DatabaseHelper.class) {
                 if (instance == null) {
                     instance = new DatabaseHelper();
-                    instance.setContext(TomahawkApp.getContext());
                 }
             }
         }
         return instance;
-    }
-
-    public void setContext(Context context) {
-        mContext = context;
-        mDbHelper = new TomahawkSQLiteHelper(context);
-        mDbHelper.close();
-        mDatabase = mDbHelper.getWritableDatabase();
     }
 
     /**
@@ -534,6 +526,6 @@ public class DatabaseHelper {
      */
     private void sendReportResultsBroadcast() {
         Intent reportIntent = new Intent(USERPLAYLISTSDATASOURCE_RESULTSREPORTED);
-        mContext.sendBroadcast(reportIntent);
+        TomahawkApp.getContext().sendBroadcast(reportIntent);
     }
 }
