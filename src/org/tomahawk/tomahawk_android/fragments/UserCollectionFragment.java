@@ -18,14 +18,17 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
-import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
+import android.view.ViewGroup;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * {@link TomahawkListFragment} which shows a simple listview menu to the user, so that he can
@@ -33,7 +36,13 @@ import android.widget.AdapterView.OnItemClickListener;
  * ArtistsFragment}, which display the {@link org.tomahawk.libtomahawk.collection.UserCollection}'s
  * content to the user.
  */
-public class UserCollectionFragment extends TomahawkListFragment implements OnItemClickListener {
+public class UserCollectionFragment extends Fragment {
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.pagerfragment_layout, container, false);
+    }
 
     /**
      * Called, when this {@link UserCollectionFragment}'s {@link View} has been created
@@ -44,43 +53,17 @@ public class UserCollectionFragment extends TomahawkListFragment implements OnIt
 
         getActivity().setTitle(getString(R.string.usercollectionfragment_title_string));
 
-        TomahawkMenuAdapter tomahawkMenuAdapter = new TomahawkMenuAdapter(getActivity(),
-                getResources().getStringArray(R.array.local_collection_menu_items),
-                getResources().obtainTypedArray(R.array.local_collection_menu_items_icons),
-                getResources().obtainTypedArray(R.array.local_collection_menu_items_colors));
-        setListAdapter(tomahawkMenuAdapter);
-        getListView().setOnItemClickListener(this);
-    }
-
-    /**
-     * Called every time an item inside the {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}
-     * is clicked
-     *
-     * @param parent   The AdapterView where the click happened.
-     * @param view     The view within the AdapterView that was clicked (this will be a view
-     *                 provided by the adapter)
-     * @param position The position of the view in the adapter.
-     * @param id       The row id of the item that was clicked.
-     */
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        switch ((int) id) {
-            case 0:
-                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                        TracksFragment.class, null, null, true);
-                activity.setTitle(getString(R.string.tracksfragment_title_string));
-                break;
-            case 1:
-                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                        AlbumsFragment.class, null, null, true);
-                activity.setTitle(getString(R.string.albumsfragment_title_string));
-                break;
-            case 2:
-                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                        ArtistsFragment.class, null, null, true);
-                activity.setTitle(getString(R.string.artistsfragment_title_string));
-                break;
-        }
+        List<String> fragmentClassNames = new ArrayList<String>();
+        fragmentClassNames.add(TracksFragment.class.getName());
+        fragmentClassNames.add(ArtistsFragment.class.getName());
+        fragmentClassNames.add(AlbumsFragment.class.getName());
+        List<String> fragmentTitles = new ArrayList<String>();
+        fragmentTitles.add(getString(R.string.tracksfragment_title_string));
+        fragmentTitles.add(getString(R.string.artistsfragment_title_string));
+        fragmentTitles.add(getString(R.string.albumsfragment_title_string));
+        TomahawkPagerAdapter adapter = new TomahawkPagerAdapter(getChildFragmentManager(),
+                fragmentClassNames, fragmentTitles);
+        ViewPager fragmentPager = (ViewPager) getActivity().findViewById(R.id.fragmentpager);
+        fragmentPager.setAdapter(adapter);
     }
 }

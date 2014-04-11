@@ -268,7 +268,6 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 }
             }
         } else {
-            activity.setTitle(getString(R.string.tracksfragment_title_string));
             queries.addAll(UserCollection.getInstance().getQueries());
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(context, layoutInflater, queries);

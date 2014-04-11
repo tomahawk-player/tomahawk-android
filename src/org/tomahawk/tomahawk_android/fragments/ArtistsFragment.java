@@ -18,7 +18,6 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
@@ -82,7 +81,6 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
         Context context = getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
-        activity.setTitle(getString(R.string.artistsfragment_title_string));
         List<TomahawkListItem> artists = new ArrayList<TomahawkListItem>();
         if (mIsLocal) {
             artists.addAll(Artist.getLocalArtists());
