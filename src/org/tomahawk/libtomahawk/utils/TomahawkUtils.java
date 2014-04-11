@@ -465,6 +465,7 @@ public class TomahawkUtils {
      */
     public static void loadImageIntoImageView(Context context, ImageView imageView, Image image,
             int width, boolean fit) {
+        int pixelWidth = convertDpToPixel(width, context);
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
             String imagePath = buildImagePath(context, image, width);
             RequestCreator creator = Picasso.with(context).load(
@@ -472,7 +473,7 @@ public class TomahawkUtils {
                     .placeholder(R.drawable.no_album_art_placeholder)
                     .error(R.drawable.no_album_art_placeholder);
             if (fit) {
-                creator.fit();
+                creator.resize(pixelWidth, pixelWidth);
             }
             creator.into(imageView);
         } else {
@@ -480,7 +481,7 @@ public class TomahawkUtils {
                     .placeholder(R.drawable.no_album_art_placeholder)
                     .error(R.drawable.no_album_art_placeholder);
             if (fit) {
-                creator.fit();
+                creator.resize(pixelWidth, pixelWidth);
             }
             creator.into(imageView);
         }
@@ -497,17 +498,22 @@ public class TomahawkUtils {
      */
     public static void loadRoundedImageIntoImageView(Context context, ImageView imageView,
             Image image, int width) {
+        int pixelWidth = convertDpToPixel(width, context);
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
             String imagePath = buildImagePath(context, image, width);
             Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
                     .transform(new CircularImageTransformation())
                     .placeholder(R.drawable.no_album_art_placeholder)
-                    .error(R.drawable.no_album_art_placeholder).fit().into(imageView);
+                    .error(R.drawable.no_album_art_placeholder)
+                    .resize(pixelWidth, pixelWidth)
+                    .into(imageView);
         } else {
             Picasso.with(context).load(R.drawable.no_album_art_placeholder)
                     .transform(new CircularImageTransformation())
                     .placeholder(R.drawable.no_album_art_placeholder)
-                    .error(R.drawable.no_album_art_placeholder).fit().into(imageView);
+                    .error(R.drawable.no_album_art_placeholder)
+                    .resize(pixelWidth, pixelWidth)
+                    .into(imageView);
         }
     }
 
@@ -533,15 +539,20 @@ public class TomahawkUtils {
      * @param width   the width in density independent pixels to scale the image down to
      */
     public static void loadImageIntoBitmap(Context context, Image image, Target target, int width) {
+        int pixelWidth = convertDpToPixel(width, context);
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
             String imagePath = buildImagePath(context, image, width);
             Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
                     .placeholder(R.drawable.no_album_art_placeholder)
-                    .error(R.drawable.no_album_art_placeholder).into(target);
+                    .error(R.drawable.no_album_art_placeholder)
+                    .resize(pixelWidth, pixelWidth)
+                    .into(target);
         } else {
             Picasso.with(context).load(R.drawable.no_album_art_placeholder)
                     .placeholder(R.drawable.no_album_art_placeholder)
-                    .error(R.drawable.no_album_art_placeholder).into(target);
+                    .error(R.drawable.no_album_art_placeholder)
+                    .resize(pixelWidth, pixelWidth)
+                    .into(target);
         }
     }
 
@@ -560,8 +571,8 @@ public class TomahawkUtils {
                 if (squareImageWidth > width) {
                     return image.getImagePath() + "?width=" + width;
                 }
-            } else if (squareImageWidth > width / 2) {
-                return image.getImagePath() + "?width=" + width / 2;
+            } else if (squareImageWidth > width * 2 / 3) {
+                return image.getImagePath() + "?width=" + width * 2 / 3;
             }
         }
         return image.getImagePath();

@@ -102,21 +102,23 @@ public class AdapterUtils {
                     }
                 }
             }
-            if (artistsWithImage.size() > 0) {
-                TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
-                        artistsWithImage.get(0).getImage(), Image.IMAGE_SIZE_LARGE);
-            }
             if (artistsWithImage.size() > 3) {
                 viewHolder.getImageViewFrame().setVisibility(View.VISIBLE);
+
+                TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
+                        artistsWithImage.get(0).getImage(), Image.IMAGE_SIZE_SMALL);
                 viewHolder.getImageView2().setVisibility(ImageView.VISIBLE);
                 TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView2(),
-                        artistsWithImage.get(1).getImage(), Image.IMAGE_SIZE_LARGE);
+                        artistsWithImage.get(1).getImage(), Image.IMAGE_SIZE_SMALL);
                 viewHolder.getImageView3().setVisibility(ImageView.VISIBLE);
                 TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView3(),
-                        artistsWithImage.get(2).getImage(), Image.IMAGE_SIZE_LARGE);
+                        artistsWithImage.get(2).getImage(), Image.IMAGE_SIZE_SMALL);
                 viewHolder.getImageView4().setVisibility(ImageView.VISIBLE);
                 TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView4(),
-                        artistsWithImage.get(3).getImage(), Image.IMAGE_SIZE_LARGE);
+                        artistsWithImage.get(3).getImage(), Image.IMAGE_SIZE_SMALL);
+            } else if (artistsWithImage.size() > 0) {
+                TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
+                        artistsWithImage.get(0).getImage(), Image.IMAGE_SIZE_LARGE);
             }
         }
     }
