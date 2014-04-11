@@ -58,6 +58,7 @@ import android.widget.GridView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
@@ -129,7 +130,8 @@ public class TomahawkFragment extends TomahawkListFragment
 
     protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
 
-    protected HashSet<String> mCorrespondingQueryIds = new HashSet<String>();
+    protected ConcurrentSkipListSet<String> mCorrespondingQueryIds
+            = new ConcurrentSkipListSet<String>();
 
     protected SparseIntArray mQueryPositions = new SparseIntArray();
 
@@ -331,6 +333,12 @@ public class TomahawkFragment extends TomahawkListFragment
     @Override
     public void onPause() {
         super.onPause();
+
+        for (String queryKey : mCorrespondingQueryIds) {
+            if (ThreadManager.getInstance().stop(Query.getQueryByKey(queryKey))) {
+                mCorrespondingQueryIds.remove(queryKey);
+            }
+        }
 
         mPipeLineResultReporter.removeCallbacksAndMessages(null);
 

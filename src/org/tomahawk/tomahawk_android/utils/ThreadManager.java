@@ -78,12 +78,15 @@ public class ThreadManager {
         mThreadPool.execute(r);
     }
 
-    public void stop(Query query) {
+    public boolean stop(Query query) {
+        boolean success = false;
         synchronized (query) {
             for (Runnable r : mQueryRunnableMap.removeAll(query)) {
                 mThreadPool.remove(r);
+                success = true;
             }
         }
+        return success;
     }
 
     public void executePlayback(Runnable r) {
