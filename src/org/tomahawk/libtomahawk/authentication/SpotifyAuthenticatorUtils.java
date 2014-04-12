@@ -23,17 +23,22 @@ import org.tomahawk.libtomahawk.resolver.spotify.SpotifyLogin;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyServiceUtils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.SpotifyService;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -194,11 +199,30 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
                 am.setUserData(account, AuthenticatorUtils.AUTHENTICATOR_NAME,
                         getAuthenticatorUtilsName());
                 am.setAuthToken(account, getAuthenticatorUtilsTokenType(), refreshToken);
+                updateBitrate();
             }
         }
         AuthenticatorManager.getInstance()
                 .onLoggedInOut(AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY, true);
         mIsAuthenticating = false;
+    }
+
+    public void updateBitrate() {
+        ConnectivityManager conMan = (ConnectivityManager) TomahawkApp.getContext()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = conMan.getActiveNetworkInfo();
+        if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+            Log.d(TAG, "Updating bitrate to HIGH, because we have a Wifi connection");
+            setBitrate(SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE_MODE_HIGH);
+        } else {
+            Log.d(TAG, "Updating bitrate to user setting, because we don't have a Wifi connection");
+            SharedPreferences preferences = PreferenceManager
+                    .getDefaultSharedPreferences(TomahawkApp.getContext());
+            int prefbitrate = preferences.getInt(
+                    SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE,
+                    SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE_MODE_MEDIUM);
+            setBitrate(prefbitrate);
+        }
     }
 
     public void setBitrate(int bitrate) {
