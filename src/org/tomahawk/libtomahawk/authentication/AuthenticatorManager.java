@@ -97,24 +97,4 @@ public class AuthenticatorManager {
     public void setOnAuthenticatedListener(OnAuthenticatedListener onAuthenticatedListener) {
         mOnAuthenticatedListener = onAuthenticatedListener;
     }
-
-    public void updateBitrate() {
-        ConnectivityManager conMan = (ConnectivityManager) TomahawkApp.getContext()
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = conMan.getActiveNetworkInfo();
-        if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-            Log.d("WifiReceiver", "Have Wifi Connection");
-            ((SpotifyAuthenticatorUtils) mAuthenticatorUtils.get(AUTHENTICATOR_ID_SPOTIFY))
-                    .setBitrate(SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE_MODE_HIGH);
-        } else {
-            Log.d("WifiReceiver", "Don't have Wifi Connection");
-            SharedPreferences preferences = PreferenceManager
-                    .getDefaultSharedPreferences(TomahawkApp.getContext());
-            int prefbitrate = preferences.getInt(
-                    SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE,
-                    SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE_MODE_MEDIUM);
-            ((SpotifyAuthenticatorUtils) mAuthenticatorUtils.get(AUTHENTICATOR_ID_SPOTIFY))
-                    .setBitrate(prefbitrate);
-        }
-    }
 }

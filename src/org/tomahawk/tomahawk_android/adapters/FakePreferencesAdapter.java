@@ -64,13 +64,17 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
         @Override
         public void onItemSelected(AdapterView<?> parent, View view,
                 int position, long id) {
-            SharedPreferences.Editor editor = mSharedPreferences.edit();
-            editor.putInt(mKey, position);
-            editor.commit();
-            SpotifyAuthenticatorUtils authUtils = (SpotifyAuthenticatorUtils) AuthenticatorManager
-                    .getInstance().getAuthenticatorUtils(
-                            AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY);
-            authUtils.setBitrate(position);
+            if (mSharedPreferences.getInt(mKey,
+                    SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE_MODE_MEDIUM) != position) {
+                SharedPreferences.Editor editor = mSharedPreferences.edit();
+                editor.putInt(mKey, position);
+                editor.commit();
+                SpotifyAuthenticatorUtils authUtils
+                        = (SpotifyAuthenticatorUtils) AuthenticatorManager
+                        .getInstance().getAuthenticatorUtils(
+                                AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY);
+                authUtils.setBitrate(position);
+            }
         }
 
         @Override
