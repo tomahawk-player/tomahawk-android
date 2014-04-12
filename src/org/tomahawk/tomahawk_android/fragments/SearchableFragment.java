@@ -252,6 +252,7 @@ public class SearchableFragment extends TomahawkFragment
         } else {
             mShownArtists.clear();
             mShownAlbums.clear();
+            mShownUsers.clear();
             updateAdapter();
         }
         if (queryId != null) {
