@@ -341,6 +341,8 @@ public class AdapterUtils {
         String fourthLine = dateToString(resources, socialAction.getDate());
         viewHolder.getTextView4().setVisibility(View.VISIBLE);
         viewHolder.getTextView4().setText(fourthLine);
+        viewHolder.getImageView3().setVisibility(View.VISIBLE);
+        viewHolder.getImageView3().setImageResource(R.drawable.ic_action_time);
     }
 
     private static String dateToString(Resources resources, Date date) {
@@ -348,17 +350,28 @@ public class AdapterUtils {
         if (date != null) {
             long diff = System.currentTimeMillis() - date.getTime();
             if (diff < 60000) {
-                s += TimeUnit.MILLISECONDS.toSeconds(diff) + " "
-                        + resources.getString(R.string.time_seconds);
+                s += resources.getString(R.string.time_afewseconds);
             } else if (diff < 3600000) {
-                s += TimeUnit.MILLISECONDS.toMinutes(diff) + " "
-                        + resources.getString(R.string.time_minutes);
+                long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
+                if (minutes < 2) {
+                    s += resources.getString(R.string.time_aminute);
+                } else {
+                    s += minutes + " " + resources.getString(R.string.time_minutes);
+                }
             } else if (diff < 86400000) {
-                s += TimeUnit.MILLISECONDS.toHours(diff) + " "
-                        + resources.getString(R.string.time_hours);
+                long hours = TimeUnit.MILLISECONDS.toHours(diff);
+                if (hours < 2) {
+                    s += resources.getString(R.string.time_anhour);
+                } else {
+                    s += hours + " " + resources.getString(R.string.time_hours);
+                }
             } else {
-                s += TimeUnit.MILLISECONDS.toDays(diff) + " "
-                        + resources.getString(R.string.time_days);
+                long days = TimeUnit.MILLISECONDS.toDays(diff);
+                if (days < 2) {
+                    s += resources.getString(R.string.time_aday);
+                } else {
+                    s += days + " " + resources.getString(R.string.time_days);
+                }
             }
             s += " " + resources.getString(R.string.time_ago);
         }

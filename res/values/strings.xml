@@ -147,6 +147,10 @@
     <string name="socialaction_type_createplaylist">created a playlist</string>
     <string name="album_by_artist">by</string>
     <string name="time_ago">ago</string>
+    <string name="time_afewseconds">a few seconds</string>
+    <string name="time_aminute">a minute</string>
+    <string name="time_anhour">an hour</string>
+    <string name="time_aday">a day</string>
     <string name="time_seconds">seconds</string>
     <string name="time_minutes">minutes</string>
     <string name="time_hours">hours</string>

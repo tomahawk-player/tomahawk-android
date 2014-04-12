@@ -113,6 +113,8 @@ public class ViewHolder {
                     .findViewById(R.id.double_line_list_imageview);
             mImageView2 = (ImageView) rootView
                     .findViewById(R.id.double_line_list_imageview2);
+            mImageView3 = (ImageView) rootView
+                    .findViewById(R.id.double_line_list_imageview3);
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.double_line_list_textview);
             mTextView2 = (TextView) rootView
