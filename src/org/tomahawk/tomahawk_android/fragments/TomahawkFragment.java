@@ -621,15 +621,6 @@ public class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    /**
-     * Remove or add a lovedItem-query from the LovedItems-UserPlaylist, depending on whether or not
-     * it is already a lovedItem
-     */
-    protected void toggleLovedItem(Query query) {
-        UserCollection.getInstance().toggleLovedItem(query);
-        onTrackChanged();
-    }
-
     protected void refreshCurrentUserPlaylist() {
         ThreadManager.getInstance().execute(
                 new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {

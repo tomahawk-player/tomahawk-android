@@ -37,47 +37,65 @@
             android:orientation="vertical"
             android:layout_weight="1"
             android:descendantFocusability="afterDescendants">
+
         <LinearLayout
-                android:id="@+id/playback_trackInfoPanel"
                 android:layout_width="match_parent"
                 android:layout_height="0dip"
                 android:layout_weight="1"
-                android:paddingLeft="@dimen/padding_large"
-                android:paddingRight="@dimen/padding_large"
-                android:gravity="center_vertical"
-                android:orientation="vertical"
-                android:descendantFocusability="afterDescendants">
-            <TextView
-                    android:id="@+id/textView_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="@dimen/padding_verysmall"
-                    android:maxLines="1"
-                    android:textStyle="bold"
-                    android:textSize="@dimen/text_size_large"
-                    android:textColor="@color/primary_textcolor"/>
+                android:orientation="horizontal">
+            <LinearLayout
+                    android:id="@+id/playback_trackInfoPanel"
+                    android:layout_width="0dip"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:paddingLeft="@dimen/padding_large"
+                    android:paddingRight="@dimen/padding_large"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:descendantFocusability="afterDescendants">
+                <TextView
+                        android:id="@+id/textView_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/padding_verysmall"
+                        android:maxLines="1"
+                        android:textStyle="bold"
+                        android:textSize="@dimen/text_size_large"
+                        android:textColor="@color/primary_textcolor"/>
 
-            <TextView
-                    android:id="@+id/textView_artist"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="@dimen/padding_verysmall"
-                    android:maxLines="1"
-                    android:textSize="@dimen/text_size_small"
-                    android:textColor="@color/secondary_textcolor"
-                    android:background="@drawable/selectable_background_tomahawk"
-                    android:clickable="true"/>
+                <TextView
+                        android:id="@+id/textView_artist"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/padding_verysmall"
+                        android:maxLines="1"
+                        android:textSize="@dimen/text_size_small"
+                        android:textColor="@color/secondary_textcolor"
+                        android:background="@drawable/selectable_background_tomahawk"
+                        android:clickable="true"/>
 
-            <TextView
-                    android:id="@+id/textView_album"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="@dimen/padding_verysmall"
-                    android:maxLines="1"
-                    android:textSize="@dimen/text_size_small"
-                    android:textColor="@color/secondary_textcolor"
-                    android:background="@drawable/selectable_background_tomahawk"
-                    android:clickable="true"/>
+                <TextView
+                        android:id="@+id/textView_album"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/padding_verysmall"
+                        android:maxLines="1"
+                        android:textSize="@dimen/text_size_small"
+                        android:textColor="@color/secondary_textcolor"
+                        android:background="@drawable/selectable_background_tomahawk"
+                        android:clickable="true"/>
+            </LinearLayout>
+
+            <ImageButton
+                    android:id="@+id/love_button"
+                    android:layout_width="@dimen/row_height_verylarge"
+                    android:layout_height="@dimen/row_height_verylarge"
+                    android:layout_gravity="center"
+                    android:layout_marginRight="@dimen/padding_verylarge"
+                    android:scaleType="centerCrop"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_action_notloved"/>
+
         </LinearLayout>
 
         <LinearLayout
