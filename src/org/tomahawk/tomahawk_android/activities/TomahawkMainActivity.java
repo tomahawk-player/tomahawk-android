@@ -583,6 +583,10 @@ public class TomahawkMainActivity extends ActionBarActivity
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
     }
 
+    public void closeDrawer() {
+        mDrawerLayout.closeDrawer(mDrawerList);
+    }
+
     /**
      * Sets the playback information
      */
