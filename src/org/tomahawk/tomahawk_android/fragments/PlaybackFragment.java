@@ -34,6 +34,7 @@ import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 import org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
@@ -192,7 +193,6 @@ public class PlaybackFragment extends TomahawkFragment
         mMenu.findItem(R.id.action_saveplaylist_item).setVisible(true);
         mMenu.findItem(R.id.action_gotoartist_item).setVisible(true);
         mMenu.findItem(R.id.action_gotoalbum_item).setVisible(true);
-        mMenu.findItem(R.id.action_love_item).setVisible(true);
 
         onTrackChanged();
 
@@ -238,10 +238,6 @@ public class PlaybackFragment extends TomahawkFragment
                             TracksFragment.class,
                             playbackService.getCurrentQuery().getAlbum().getCacheKey(),
                             TomahawkFragment.TOMAHAWK_ALBUM_KEY, false);
-                }
-            } else if (item.getItemId() == R.id.action_love_item) {
-                if (playbackService.getCurrentQuery() != null) {
-                    toggleLovedItem(playbackService.getCurrentQuery());
                 }
             }
         }
@@ -610,18 +606,21 @@ public class PlaybackFragment extends TomahawkFragment
                 mPlaybackSeekBar.updateSeekBarPosition();
                 mPlaybackSeekBar.updateTextViewCompleteTime();
 
-                // Update the love menu action item
-                if (mMenu != null) {
-                    MenuItem lovedItem = mMenu.findItem(R.id.action_love_item);
-                    if (lovedItem != null) {
-                        if (UserCollection.getInstance().isQueryLoved(query)) {
-                            lovedItem.setTitle(R.string.fake_context_menu_unlove_track);
-                            lovedItem.setIcon(R.drawable.ic_action_loved);
-                        } else {
-                            lovedItem.setTitle(R.string.fake_context_menu_love_track);
-                            lovedItem.setIcon(R.drawable.ic_action_notloved);
-                        }
+                ImageButton loveButton = (ImageButton) getView().findViewById(R.id.love_button);
+                if (loveButton != null) {
+                    if (UserCollection.getInstance().isQueryLoved(query)) {
+                        loveButton.setImageResource(R.drawable.ic_action_loved);
+                    } else {
+                        loveButton.setImageResource(R.drawable.ic_action_notloved);
                     }
+                    loveButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            UserCollection.getInstance().toggleLovedItem(query);
+                            getActivity().sendBroadcast(
+                                    new Intent(PlaybackService.BROADCAST_CURRENTTRACKCHANGED));
+                        }
+                    });
                 }
             } else {
                 //No track has been given, so we update the view state accordingly

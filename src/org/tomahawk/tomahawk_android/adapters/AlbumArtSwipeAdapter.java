@@ -30,6 +30,7 @@ import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Parcelable;
 import android.support.v4.app.FragmentManager;
@@ -349,10 +350,20 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                     titleTextView.setText(R.string.playbackactivity_unknown_string);
                 }
             }
-            if (UserCollection.getInstance().isQueryLoved(query)) {
-                loveButton.setVisibility(ImageButton.VISIBLE);
-            } else {
-                loveButton.setVisibility(ImageButton.GONE);
+            if (loveButton != null) {
+                if (UserCollection.getInstance().isQueryLoved(query)) {
+                    loveButton.setImageResource(R.drawable.ic_action_loved);
+                } else {
+                    loveButton.setImageResource(R.drawable.ic_action_notloved);
+                }
+                loveButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        UserCollection.getInstance().toggleLovedItem(query);
+                        mContext.sendBroadcast(
+                                new Intent(PlaybackService.BROADCAST_CURRENTTRACKCHANGED));
+                    }
+                });
             }
         } else {
             //No track has been given, so we update the view state accordingly
@@ -368,6 +379,9 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
             }
             if (titleTextView != null) {
                 titleTextView.setText(R.string.playbackactivity_no_track);
+            }
+            if (loveButton != null) {
+                loveButton.setImageResource(R.drawable.ic_action_notloved);
             }
         }
     }
