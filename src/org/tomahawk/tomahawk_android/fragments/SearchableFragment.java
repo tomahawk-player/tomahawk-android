@@ -240,6 +240,7 @@ public class SearchableFragment extends TomahawkFragment
      * Invoke the resolving process with the given fullTextQuery {@link String}
      */
     public void resolveFullTextQuery(String fullTextQuery) {
+        ((TomahawkMainActivity) getActivity()).closeDrawer();
         mCurrentQueryString = fullTextQuery;
         CheckBox onlineSourcesCheckBox = (CheckBox) getActivity()
                 .findViewById(R.id.search_onlinesources_checkbox);
