@@ -765,6 +765,7 @@ public class PlaybackService extends Service
     }
 
     private void onTrackChanged() {
+        sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
         if (getCurrentQuery() != null) {
             resolveQueriesFromTo(getCurrentPlaylist().getCurrentQueryIndex(),
                     getCurrentPlaylist().getCurrentQueryIndex() + 10);
