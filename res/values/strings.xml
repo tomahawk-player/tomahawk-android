@@ -77,7 +77,7 @@
     </string>
     <string name="fakepreference_spotifylogin_title_string">Spotify</string>
     <string name="fakepreference_spotifylogin_summary_string">Play your music from Spotify. Requires
-        a Premium account. (Alpha version, unstable)
+        a Premium account.
     </string>
     <string name="fakepreference_playback_header">PLAYBACK</string>
     <string name="fakepreference_plugintoplay_title_string">Plug in to play</string>
