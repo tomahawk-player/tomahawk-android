@@ -73,15 +73,12 @@ public class UsersFragment extends TomahawkFragment implements OnItemClickListen
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        position -= getListView().getHeaderViewsCount();
-        if (position >= 0) {
-            Object item = getListAdapter().getItem(position);
-            if (item instanceof User) {
-                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                        SocialActionsFragment.class, ((User) item).getId(),
-                        TomahawkFragment.TOMAHAWK_USER_ID,
-                        SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
-            }
+        Object item = getListAdapter().getItem(position);
+        if (item instanceof User) {
+            FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                    SocialActionsFragment.class, ((User) item).getId(),
+                    TomahawkFragment.TOMAHAWK_USER_ID,
+                    SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
         }
     }
 

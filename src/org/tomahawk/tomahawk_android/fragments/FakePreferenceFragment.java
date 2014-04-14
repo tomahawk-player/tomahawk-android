@@ -157,43 +157,40 @@ public class FakePreferenceFragment extends TomahawkListFragment
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        position -= getListView().getHeaderViewsCount();
-        if (position >= 0) {
-            if (((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position)).getType()
-                    == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX) {
-                // if a FakePreference of type "FAKEPREFERENCE_TYPE_CHECKBOX" has been clicked,
-                // we edit the associated SharedPreference and toggle its boolean value
-                SharedPreferences.Editor editor = mSharedPreferences.edit();
-                boolean preferenceState = mSharedPreferences.getBoolean(
-                        ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position))
-                                .getKey(), false
-                );
-                editor.putBoolean(
-                        ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position))
-                                .getKey(), !preferenceState
-                );
-                editor.commit();
-            } else if (((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position)).
-                    getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH) {
-                // if a FakePreference of type "FAKEPREFERENCE_TYPE_AUTH" has been clicked,
-                // we show a LoginDialog
-                if (((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position))
-                        .getKey().equals(FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN)) {
-                    LoginDialog dialog = new LoginDialog();
-                    Bundle args = new Bundle();
-                    args.putInt(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY,
-                            AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY);
-                    dialog.setArguments(args);
-                    dialog.show(getFragmentManager(), null);
-                } else if (((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position))
-                        .getKey().equals(FAKEPREFERENCEFRAGMENT_KEY_HATCHETLOGGEDIN)) {
-                    LoginDialog dialog = new LoginDialog();
-                    Bundle args = new Bundle();
-                    args.putInt(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY,
-                            AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
-                    dialog.setArguments(args);
-                    dialog.show(getFragmentManager(), null);
-                }
+        if (((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position)).getType()
+                == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX) {
+            // if a FakePreference of type "FAKEPREFERENCE_TYPE_CHECKBOX" has been clicked,
+            // we edit the associated SharedPreference and toggle its boolean value
+            SharedPreferences.Editor editor = mSharedPreferences.edit();
+            boolean preferenceState = mSharedPreferences.getBoolean(
+                    ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position))
+                            .getKey(), false
+            );
+            editor.putBoolean(
+                    ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position))
+                            .getKey(), !preferenceState
+            );
+            editor.commit();
+        } else if (((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position)).
+                getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH) {
+            // if a FakePreference of type "FAKEPREFERENCE_TYPE_AUTH" has been clicked,
+            // we show a LoginDialog
+            if (((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position))
+                    .getKey().equals(FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN)) {
+                LoginDialog dialog = new LoginDialog();
+                Bundle args = new Bundle();
+                args.putInt(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY,
+                        AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY);
+                dialog.setArguments(args);
+                dialog.show(getFragmentManager(), null);
+            } else if (((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position))
+                    .getKey().equals(FAKEPREFERENCEFRAGMENT_KEY_HATCHETLOGGEDIN)) {
+                LoginDialog dialog = new LoginDialog();
+                Bundle args = new Bundle();
+                args.putInt(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY,
+                        AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
+                dialog.setArguments(args);
+                dialog.show(getFragmentManager(), null);
             }
         }
     }

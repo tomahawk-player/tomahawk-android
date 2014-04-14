@@ -14,10 +14,10 @@
 
     <dimen name="menu_item_height">52dp</dimen>
 
-    <dimen name="header_clear_space">208dp</dimen>
-    <dimen name="header_clear_space_user">96dp</dimen>
+    <dimen name="header_clear_space">256dp</dimen>
+    <dimen name="header_clear_space_user">144dp</dimen>
     <dimen name="header_clear_space_user_navdrawer">32dp</dimen>
-    <dimen name="header_height_large">256dp</dimen>
+    <dimen name="header_height_large">304dp</dimen>
     <dimen name="header_height_large_navdrawer">128dp</dimen>
     <dimen name="header_roundedimage_height">128dp</dimen>
     <dimen name="header_roundedimage_height_navdrawer">96dp</dimen>

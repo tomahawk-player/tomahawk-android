@@ -25,6 +25,7 @@
                 android:orientation="vertical">
 
     <org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout
+            android:id="@+id/content_header_image_frame"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 

@@ -61,38 +61,33 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (getListView() != null) {
-            position -= getListView().getHeaderViewsCount();
+        Object item;
+        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+        if (!isShowGridView()) {
+            item = getListAdapter().getItem(position);
+        } else {
+            item = getGridAdapter().getItem(position);
         }
-        if (position >= 0) {
-            Object item;
-            TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-            if (!isShowGridView()) {
-                item = getListAdapter().getItem(position);
+        if (item instanceof Query && ((Query) item).isPlayable()) {
+            PlaybackService playbackService = activity.getPlaybackService();
+            if (playbackService != null && shouldShowPlaystate() && mQueryPositions.get(
+                    playbackService.getCurrentPlaylist().getCurrentQueryIndex())
+                    == position) {
+                playbackService.playPause();
             } else {
-                item = getGridAdapter().getItem(position);
-            }
-            if (item instanceof Query && ((Query) item).isPlayable()) {
-                PlaybackService playbackService = activity.getPlaybackService();
-                if (playbackService != null && shouldShowPlaystate() && mQueryPositions.get(
-                        playbackService.getCurrentPlaylist().getCurrentQueryIndex())
-                        == position) {
-                    playbackService.playPause();
-                } else {
-                    UserPlaylist playlist = UserPlaylist
-                            .fromQueryList(TomahawkMainActivity.getLifetimeUniqueStringId(), "",
-                                    mShownQueries,
-                                    mQueryPositions.keyAt(mQueryPositions.indexOfValue(position)));
-                    if (playbackService != null) {
-                        playbackService.setCurrentPlaylist(playlist);
-                        playbackService.start();
-                    }
+                UserPlaylist playlist = UserPlaylist
+                        .fromQueryList(TomahawkMainActivity.getLifetimeUniqueStringId(), "",
+                                mShownQueries,
+                                mQueryPositions.keyAt(mQueryPositions.indexOfValue(position)));
+                if (playbackService != null) {
+                    playbackService.setCurrentPlaylist(playlist);
+                    playbackService.start();
                 }
-            } else if (item instanceof Album) {
-                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                        TracksFragment.class, ((Album) item).getCacheKey(),
-                        TomahawkFragment.TOMAHAWK_ALBUM_KEY, mIsLocal);
             }
+        } else if (item instanceof Album) {
+            FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                    TracksFragment.class, ((Album) item).getCacheKey(),
+                    TomahawkFragment.TOMAHAWK_ALBUM_KEY, mIsLocal);
         }
     }
 
@@ -118,8 +113,14 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                 albumsAndTopHits.addAll(mArtist.getTopHits());
                 albumsAndTopHits.addAll(mArtist.getAlbums());
                 mShownQueries = mArtist.getTopHits();
+                int precedingItemCount = 0;
+                if (getListAdapter() != null
+                        && ((TomahawkListAdapter) getListAdapter()).isShowingContentHeader()) {
+                    precedingItemCount++;
+                }
+                mQueryPositions.clear();
                 for (int i = 0; i < mShownQueries.size(); i++) {
-                    mQueryPositions.put(i, i);
+                    mQueryPositions.put(i, i + precedingItemCount);
                 }
             }
             if (getListAdapter() == null) {
@@ -127,13 +128,13 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                         layoutInflater, albumsAndTopHits);
                 tomahawkListAdapter
                         .setShowCategoryHeaders(true, TomahawkListAdapter.SHOW_QUERIES_AS_TOPHITS);
-                tomahawkListAdapter.showContentHeader(rootView, getListView(), mArtist, mIsLocal);
+                tomahawkListAdapter.showContentHeader(rootView, mArtist, mIsLocal);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListItems(albumsAndTopHits);
-                ((TomahawkListAdapter) getListAdapter()).showContentHeader(rootView, getListView(),
-                        mArtist, mIsLocal);
+                ((TomahawkListAdapter) getListAdapter())
+                        .showContentHeader(rootView, mArtist, mIsLocal);
             }
             getListView().setOnItemClickListener(this);
         } else {

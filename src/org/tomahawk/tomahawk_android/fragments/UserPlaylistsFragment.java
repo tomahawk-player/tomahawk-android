@@ -59,17 +59,14 @@ public class UserPlaylistsFragment extends TomahawkFragment implements OnItemCli
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        position -= getListView().getHeaderViewsCount();
-        if (position >= 0) {
-            if (getListAdapter().getItem(position) instanceof UserPlaylist) {
-                String key = ((UserPlaylist) getListAdapter().getItem(position)).getId();
-                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                        TracksFragment.class, key, TomahawkFragment.TOMAHAWK_USERPLAYLIST_KEY,
-                        true);
-            } else {
-                new CreateUserPlaylistDialog().show(getFragmentManager(),
-                        getString(R.string.playbackactivity_create_playlist_dialog_title));
-            }
+        if (getListAdapter().getItem(position) instanceof UserPlaylist) {
+            String key = ((UserPlaylist) getListAdapter().getItem(position)).getId();
+            FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                    TracksFragment.class, key, TomahawkFragment.TOMAHAWK_USERPLAYLIST_KEY,
+                    true);
+        } else {
+            new CreateUserPlaylistDialog().show(getFragmentManager(),
+                    getString(R.string.playbackactivity_create_playlist_dialog_title));
         }
     }
 

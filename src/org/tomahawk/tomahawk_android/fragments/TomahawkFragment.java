@@ -387,17 +387,8 @@ public class TomahawkFragment extends TomahawkListFragment
      */
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        TomahawkListItem tomahawkListItem;
-        position -= getListView().getHeaderViewsCount();
         Adapter adapter = isShowGridView() ? getGridAdapter() : getListAdapter();
-        if (position >= 0) {
-            tomahawkListItem = ((TomahawkListItem) adapter.getItem(position));
-        } else {
-            if (isShowGridView()) {
-                return false;
-            }
-            tomahawkListItem = ((TomahawkListAdapter) adapter).getContentHeaderTomahawkListItem();
-        }
+        TomahawkListItem tomahawkListItem = ((TomahawkListItem) adapter.getItem(position));
         if ((tomahawkListItem instanceof SocialAction
                 && ((SocialAction) tomahawkListItem).getTargetObject() instanceof User)
                 || tomahawkListItem instanceof User) {
