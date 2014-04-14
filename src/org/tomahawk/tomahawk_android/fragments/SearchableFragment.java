@@ -115,40 +115,37 @@ public class SearchableFragment extends TomahawkFragment
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        position -= getListView().getHeaderViewsCount();
-        if (position >= 0) {
-            Object item = getListAdapter().getItem(position);
-            TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-            if (item instanceof Query) {
-                PlaybackService playbackService = activity.getPlaybackService();
-                if (playbackService != null && shouldShowPlaystate() && mQueryPositions
-                        .get(playbackService.getCurrentPlaylist().getCurrentQueryIndex())
-                        == position) {
-                    playbackService.playPause();
-                } else {
-                    UserPlaylist playlist = UserPlaylist.fromQueryList(
-                            TomahawkMainActivity.getLifetimeUniqueStringId(), mCurrentQueryString,
-                            mShownQueries,
-                            mQueryPositions.keyAt(mQueryPositions.indexOfValue(position)));
-                    if (playbackService != null) {
-                        playbackService.setCurrentPlaylist(playlist);
-                        playbackService.start();
-                    }
+        Object item = getListAdapter().getItem(position);
+        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+        if (item instanceof Query) {
+            PlaybackService playbackService = activity.getPlaybackService();
+            if (playbackService != null && shouldShowPlaystate() && mQueryPositions
+                    .get(playbackService.getCurrentPlaylist().getCurrentQueryIndex())
+                    == position) {
+                playbackService.playPause();
+            } else {
+                UserPlaylist playlist = UserPlaylist.fromQueryList(
+                        TomahawkMainActivity.getLifetimeUniqueStringId(), mCurrentQueryString,
+                        mShownQueries,
+                        mQueryPositions.keyAt(mQueryPositions.indexOfValue(position)));
+                if (playbackService != null) {
+                    playbackService.setCurrentPlaylist(playlist);
+                    playbackService.start();
                 }
-            } else if (item instanceof Album) {
-                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                        TracksFragment.class, ((Album) item).getCacheKey(),
-                        TomahawkFragment.TOMAHAWK_ALBUM_KEY, false);
-            } else if (item instanceof Artist) {
-                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                        AlbumsFragment.class, ((Artist) item).getCacheKey(),
-                        TomahawkFragment.TOMAHAWK_ARTIST_KEY, false);
-            } else if (item instanceof User) {
-                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                        SocialActionsFragment.class, ((User) item).getId(),
-                        TomahawkFragment.TOMAHAWK_USER_ID,
-                        SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
             }
+        } else if (item instanceof Album) {
+            FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                    TracksFragment.class, ((Album) item).getCacheKey(),
+                    TomahawkFragment.TOMAHAWK_ALBUM_KEY, false);
+        } else if (item instanceof Artist) {
+            FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                    AlbumsFragment.class, ((Artist) item).getCacheKey(),
+                    TomahawkFragment.TOMAHAWK_ARTIST_KEY, false);
+        } else if (item instanceof User) {
+            FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                    SocialActionsFragment.class, ((User) item).getId(),
+                    TomahawkFragment.TOMAHAWK_USER_ID,
+                    SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
         }
     }
 
@@ -217,6 +214,11 @@ public class SearchableFragment extends TomahawkFragment
         if (!mShownQueries.isEmpty()) {
             int precedingItemCount = mShownAlbums.size() + mShownArtists.size()
                     + mShownUsers.size();
+            if (getListAdapter() != null
+                    && ((TomahawkListAdapter) getListAdapter()).isShowingContentHeader()) {
+                precedingItemCount++;
+            }
+            mQueryPositions.clear();
             for (int i = 0; i < mShownQueries.size(); i++) {
                 mQueryPositions.put(i, i + precedingItemCount);
             }

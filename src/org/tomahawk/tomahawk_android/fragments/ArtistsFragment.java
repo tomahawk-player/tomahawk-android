@@ -18,7 +18,6 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
@@ -57,14 +56,11 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        position -= getListView().getHeaderViewsCount();
-        if (position >= 0) {
-            Object item = getListAdapter().getItem(position);
-            if (getListAdapter().getItem(position) instanceof Artist) {
-                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                        AlbumsFragment.class, ((Artist) item).getCacheKey(),
-                        TomahawkFragment.TOMAHAWK_ARTIST_KEY, mIsLocal);
-            }
+        Object item = getListAdapter().getItem(position);
+        if (getListAdapter().getItem(position) instanceof Artist) {
+            FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                    AlbumsFragment.class, ((Artist) item).getCacheKey(),
+                    TomahawkFragment.TOMAHAWK_ARTIST_KEY, mIsLocal);
         }
     }
 
@@ -77,7 +73,6 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
             return;
         }
 
-        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         Context context = getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 

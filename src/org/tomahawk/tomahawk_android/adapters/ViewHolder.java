@@ -65,11 +65,16 @@ public class ViewHolder {
     private LinearLayout mButton3;
 
     public ViewHolder(View rootView, int viewType) {
+        this(null, rootView, viewType);
+    }
+
+    public ViewHolder(View listItemView, View rootView, int viewType) {
         mViewType = viewType;
         if (viewType == R.id.tomahawklistadapter_viewtype_singlelinelistitem) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.single_line_list_textview);
-        } else if (viewType == R.id.tomahawklistadapter_viewtype_contentheader) {
+        } else if (viewType == R.id.tomahawklistadapter_viewtype_contentheader
+                || viewType == R.id.tomahawklistadapter_viewtype_contentheader_user) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.content_header_textview);
             mTextView2 = (TextView) rootView
@@ -84,15 +89,19 @@ public class ViewHolder {
                     .findViewById(R.id.content_header_textview6);
             mRoundedImage = (ImageView) rootView
                     .findViewById(R.id.content_header_roundedimage);
-            mImageView1 = (ImageView) rootView
+            View view = rootView;
+            if (listItemView != null) {
+                view = listItemView;
+            }
+            mImageView1 = (ImageView) view
                     .findViewById(R.id.content_header_image);
-            mImageView2 = (ImageView) rootView
+            mImageView2 = (ImageView) view
                     .findViewById(R.id.content_header_image2);
-            mImageView3 = (ImageView) rootView
+            mImageView3 = (ImageView) view
                     .findViewById(R.id.content_header_image3);
-            mImageView4 = (ImageView) rootView
+            mImageView4 = (ImageView) view
                     .findViewById(R.id.content_header_image4);
-            mImageViewFrame = (LinearLayout) rootView
+            mImageViewFrame = (LinearLayout) view
                     .findViewById(R.id.content_header_image_frame2);
             mButton1 = (LinearLayout) rootView
                     .findViewById(R.id.content_header_button1);

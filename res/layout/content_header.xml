@@ -44,8 +44,7 @@
                 android:singleLine="true"
                 android:textColor="@color/primary_textcolor_inverted"
                 android:textSize="@dimen/text_size_large"
-                android:paddingLeft="@dimen/padding_small"
-                android:paddingTop="@dimen/padding_large"/>
+                android:paddingLeft="@dimen/padding_small"/>
 
         <TextView
                 android:id="@+id/content_header_textview2"

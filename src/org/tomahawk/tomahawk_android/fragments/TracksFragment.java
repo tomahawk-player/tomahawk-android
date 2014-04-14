@@ -111,38 +111,35 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        position -= getListView().getHeaderViewsCount();
-        if (position >= 0) {
-            if (getListAdapter().getItem(position) instanceof Query) {
-                Query query = (Query) getListAdapter().getItem(position);
-                if (query.isPlayable()) {
-                    ArrayList<Query> queries = new ArrayList<Query>();
-                    TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-                    if (mAlbum != null) {
-                        queries = mAlbum.getQueries(mIsLocal);
-                    } else if (mArtist != null) {
-                        queries = mArtist.getQueries(mIsLocal);
-                    } else if (mUserPlaylist != null) {
-                        queries = mUserPlaylist.getQueries();
-                    } else if (mUser != null) {
-                        queries = mUser.getPlaybackLog();
-                    } else {
-                        queries.addAll(UserCollection.getInstance().getQueries());
-                    }
-                    PlaybackService playbackService = activity.getPlaybackService();
-                    if (playbackService != null && shouldShowPlaystate() && mQueryPositions
-                            .get(playbackService.getCurrentPlaylist().getCurrentQueryIndex())
-                            == position) {
-                        playbackService.playPause();
-                    } else {
-                        UserPlaylist playlist = UserPlaylist.fromQueryList(
-                                DatabaseHelper.CACHED_PLAYLIST_ID,
-                                DatabaseHelper.CACHED_PLAYLIST_NAME, queries,
-                                mQueryPositions.keyAt(mQueryPositions.indexOfValue(position)));
-                        if (playbackService != null) {
-                            playbackService.setCurrentPlaylist(playlist);
-                            playbackService.start();
-                        }
+        if (getListAdapter().getItem(position) instanceof Query) {
+            Query query = (Query) getListAdapter().getItem(position);
+            if (query.isPlayable()) {
+                ArrayList<Query> queries = new ArrayList<Query>();
+                TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+                if (mAlbum != null) {
+                    queries = mAlbum.getQueries(mIsLocal);
+                } else if (mArtist != null) {
+                    queries = mArtist.getQueries(mIsLocal);
+                } else if (mUserPlaylist != null) {
+                    queries = mUserPlaylist.getQueries();
+                } else if (mUser != null) {
+                    queries = mUser.getPlaybackLog();
+                } else {
+                    queries.addAll(UserCollection.getInstance().getQueries());
+                }
+                PlaybackService playbackService = activity.getPlaybackService();
+                if (playbackService != null && shouldShowPlaystate() && mQueryPositions
+                        .get(playbackService.getCurrentPlaylist().getCurrentQueryIndex())
+                        == position) {
+                    playbackService.playPause();
+                } else {
+                    UserPlaylist playlist = UserPlaylist.fromQueryList(
+                            DatabaseHelper.CACHED_PLAYLIST_ID,
+                            DatabaseHelper.CACHED_PLAYLIST_NAME, queries,
+                            mQueryPositions.keyAt(mQueryPositions.indexOfValue(position)));
+                    if (playbackService != null) {
+                        playbackService.setCurrentPlaylist(playlist);
+                        playbackService.start();
                     }
                 }
             }
@@ -173,12 +170,12 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 tomahawkListAdapter = new TomahawkListAdapter(context, layoutInflater, queries);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true);
-                tomahawkListAdapter.showContentHeader(rootView, getListView(), mAlbum, mIsLocal);
+                tomahawkListAdapter.showContentHeader(rootView, mAlbum, mIsLocal);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListItems(queries);
-                ((TomahawkListAdapter) getListAdapter()).showContentHeader(rootView, getListView(),
-                        mAlbum, mIsLocal);
+                ((TomahawkListAdapter) getListAdapter())
+                        .showContentHeader(rootView, mAlbum, mIsLocal);
             }
         } else if (mArtist != null) {
             activity.setTitle(mArtist.getName());
@@ -187,12 +184,12 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 tomahawkListAdapter = new TomahawkListAdapter(context, layoutInflater, queries);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true);
-                tomahawkListAdapter.showContentHeader(rootView, getListView(), mArtist, mIsLocal);
+                tomahawkListAdapter.showContentHeader(rootView, mArtist, mIsLocal);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListItems(queries);
-                ((TomahawkListAdapter) getListAdapter()).showContentHeader(rootView, getListView(),
-                        mArtist, mIsLocal);
+                ((TomahawkListAdapter) getListAdapter())
+                        .showContentHeader(rootView, mArtist, mIsLocal);
             }
         } else if (mUserPlaylist != null) {
             ThreadManager.getInstance().execute(
@@ -227,14 +224,12 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                     tomahawkListAdapter = new TomahawkListAdapter(context, layoutInflater, queries);
                     tomahawkListAdapter.setShowResolvedBy(true);
                     tomahawkListAdapter.setShowCategoryHeaders(true);
-                    tomahawkListAdapter
-                            .showContentHeader(rootView, getListView(), mUserPlaylist, mIsLocal);
+                    tomahawkListAdapter.showContentHeader(rootView, mUserPlaylist, mIsLocal);
                     setListAdapter(tomahawkListAdapter);
                 } else {
                     ((TomahawkListAdapter) getListAdapter()).setListItems(queries);
-                    ((TomahawkListAdapter) getListAdapter())
-                            .showContentHeader(rootView, getListView(),
-                                    mUserPlaylist, mIsLocal);
+                    ((TomahawkListAdapter) getListAdapter()).showContentHeader(rootView,
+                            mUserPlaylist, mIsLocal);
                 }
             }
         } else if (mUser != null) {
@@ -259,14 +254,12 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                     tomahawkListAdapter.setShowResolvedBy(true);
                     tomahawkListAdapter.setShowCategoryHeaders(true,
                             TomahawkListAdapter.SHOW_QUERIES_AS_RECENTLYPLAYED);
-                    tomahawkListAdapter
-                            .showContentHeader(rootView, getListView(), playbackLog, false);
+                    tomahawkListAdapter.showContentHeader(rootView, playbackLog, false);
                     setListAdapter(tomahawkListAdapter);
                 } else {
                     ((TomahawkListAdapter) getListAdapter()).setListItems(queries);
-                    ((TomahawkListAdapter) getListAdapter())
-                            .showContentHeader(rootView, getListView(),
-                                    playbackLog, false);
+                    ((TomahawkListAdapter) getListAdapter()).showContentHeader(rootView,
+                            playbackLog, false);
                 }
             }
         } else {
@@ -279,12 +272,16 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             }
         }
 
+        int precedingItemCount = 0;
+        if (getListAdapter() != null
+                && ((TomahawkListAdapter) getListAdapter()).isShowingContentHeader()) {
+            precedingItemCount++;
+        }
         mShownQueries.clear();
-        int i = 0;
-        for (TomahawkListItem item : queries) {
-            mShownQueries.add((Query) item);
-            mQueryPositions.put(i, i);
-            i++;
+        mQueryPositions.clear();
+        for (int i = 0; i < queries.size(); i++) {
+            mShownQueries.add((Query) queries.get(i));
+            mQueryPositions.put(i, i + precedingItemCount);
         }
 
         getListView().setOnItemClickListener(this);

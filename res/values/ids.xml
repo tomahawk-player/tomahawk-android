@@ -3,6 +3,7 @@
 
     <item name="tomahawklistadapter_viewtype_header" type="id"/>
     <item name="tomahawklistadapter_viewtype_contentheader" type="id"/>
+    <item name="tomahawklistadapter_viewtype_contentheader_user" type="id"/>
     <item name="tomahawklistadapter_viewtype_contentheader_user_navdrawer" type="id"/>
     <item name="tomahawklistadapter_viewtype_singlelinelistitem" type="id"/>
     <item name="tomahawklistadapter_viewtype_listitem" type="id"/>
