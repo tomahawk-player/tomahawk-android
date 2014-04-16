@@ -240,8 +240,7 @@ public class TomahawkFragment extends TomahawkListFragment
                     && !TextUtils.isEmpty(getArguments().getString(TOMAHAWK_ALBUM_KEY))) {
                 mAlbum = Album.getAlbumByKey(getArguments().getString(TOMAHAWK_ALBUM_KEY));
                 if (mAlbum == null) {
-                    getActivity().getSupportFragmentManager().beginTransaction().remove(this)
-                            .commit();
+                    getActivity().getSupportFragmentManager().popBackStack();
                 } else {
                     mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mAlbum));
                 }
@@ -251,8 +250,7 @@ public class TomahawkFragment extends TomahawkListFragment
                 mUserPlaylist = UserPlaylist
                         .getUserPlaylistById(getArguments().getString(TOMAHAWK_USERPLAYLIST_KEY));
                 if (mUserPlaylist == null) {
-                    getActivity().getSupportFragmentManager().beginTransaction().remove(this)
-                            .commit();
+                    getActivity().getSupportFragmentManager().popBackStack();
                 } else {
                     refreshCurrentUserPlaylist();
                 }
@@ -261,8 +259,7 @@ public class TomahawkFragment extends TomahawkListFragment
                     .isEmpty(getArguments().getString(TOMAHAWK_ARTIST_KEY))) {
                 mArtist = Artist.getArtistByKey(getArguments().getString(TOMAHAWK_ARTIST_KEY));
                 if (mArtist == null) {
-                    getActivity().getSupportFragmentManager().beginTransaction().remove(this)
-                            .commit();
+                    getActivity().getSupportFragmentManager().popBackStack();
                 } else {
                     ArrayList<String> requestIds = InfoSystem.getInstance().resolve(mArtist, false);
                     for (String requestId : requestIds) {
@@ -274,8 +271,7 @@ public class TomahawkFragment extends TomahawkListFragment
                     .isEmpty(getArguments().getString(TOMAHAWK_USER_ID))) {
                 mUser = User.getUserById(getArguments().getString(TOMAHAWK_USER_ID));
                 if (mUser == null) {
-                    getActivity().getSupportFragmentManager().beginTransaction().remove(this)
-                            .commit();
+                    getActivity().getSupportFragmentManager().popBackStack();
                 } else {
                     mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mUser));
                 }
