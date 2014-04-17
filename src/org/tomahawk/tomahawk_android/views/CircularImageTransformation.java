@@ -52,7 +52,7 @@ public class CircularImageTransformation implements Transformation {
 
         // Draw an underlying frame with a shadow
         Paint framePaint = new Paint();
-        framePaint.setStrokeWidth(2);
+        framePaint.setStrokeWidth(4);
         framePaint.setStyle(Paint.Style.STROKE);
         framePaint.setColor(Color.WHITE);
         framePaint.setAntiAlias(true);

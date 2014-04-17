@@ -18,6 +18,10 @@
 package org.tomahawk.libtomahawk.collection;
 
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.tomahawk_android.TomahawkApp;
+
+import android.content.res.Resources;
+import android.util.DisplayMetrics;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,9 +30,13 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Image {
 
-    public static final int IMAGE_SIZE_SMALL = 64;
+    private static final float IMAGE_SIZE_SMALL = 0.3f;
 
-    public static final int IMAGE_SIZE_LARGE = 180;
+    private static final float IMAGE_SIZE_LARGE = 0.7f;
+
+    private static int sScreenHeightPixels = 0;
+
+    private static int sScreenWidthPixels = 0;
 
     private static ConcurrentHashMap<String, Image> sImages
             = new ConcurrentHashMap<String, Image>();
@@ -126,5 +134,33 @@ public class Image {
 
     public int getWidth() {
         return mWidth;
+    }
+
+    public static int getSmallImageSize() {
+        getScreenResolution();
+        return (int) (sScreenHeightPixels * IMAGE_SIZE_SMALL);
+    }
+
+    public static int getLargeImageSize() {
+        getScreenResolution();
+        return (int) (sScreenHeightPixels * IMAGE_SIZE_LARGE);
+    }
+
+    private static void getScreenResolution() {
+        if (sScreenWidthPixels == 0 || sScreenHeightPixels == 0) {
+            Resources resources = TomahawkApp.getContext().getResources();
+            DisplayMetrics metrics = resources.getDisplayMetrics();
+            int width;
+            int height;
+            if (metrics.widthPixels > metrics.heightPixels) {
+                width = metrics.widthPixels;
+                height = metrics.heightPixels;
+            } else {
+                width = metrics.heightPixels;
+                height = metrics.widthPixels;
+            }
+            sScreenWidthPixels = width;
+            sScreenHeightPixels = height;
+        }
     }
 }

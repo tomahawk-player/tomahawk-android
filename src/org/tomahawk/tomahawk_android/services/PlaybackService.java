@@ -961,7 +961,7 @@ public class PlaybackService extends Service
         }
         if (mNotificationBitmap == null || image != mNotificationBitmapImage) {
             mNotificationBitmapImage = image;
-            TomahawkUtils.loadImageIntoBitmap(this, image, mTarget, Image.IMAGE_SIZE_SMALL);
+            TomahawkUtils.loadImageIntoBitmap(this, image, mTarget, Image.getSmallImageSize());
         }
 
         Intent notificationIntent = new Intent(this, TomahawkMainActivity.class);
