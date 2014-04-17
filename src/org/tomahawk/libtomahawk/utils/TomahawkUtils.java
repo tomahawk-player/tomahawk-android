@@ -461,11 +461,10 @@ public class TomahawkUtils {
      * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
      *                  android.graphics.Bitmap}
      * @param image     the path to load the image from
-     * @param width     the width in density independent pixels to scale the image down to
+     * @param width     the width in pixels to scale the image down to
      */
     public static void loadImageIntoImageView(Context context, ImageView imageView, Image image,
             int width, boolean fit) {
-        int pixelWidth = convertDpToPixel(width, context);
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
             String imagePath = buildImagePath(context, image, width);
             RequestCreator creator = Picasso.with(context).load(
@@ -473,7 +472,7 @@ public class TomahawkUtils {
                     .placeholder(R.drawable.no_album_art_placeholder)
                     .error(R.drawable.no_album_art_placeholder);
             if (fit) {
-                creator.resize(pixelWidth, pixelWidth);
+                creator.resize(width, width);
             }
             creator.into(imageView);
         } else {
@@ -481,7 +480,7 @@ public class TomahawkUtils {
                     .placeholder(R.drawable.no_album_art_placeholder)
                     .error(R.drawable.no_album_art_placeholder);
             if (fit) {
-                creator.resize(pixelWidth, pixelWidth);
+                creator.resize(width, width);
             }
             creator.into(imageView);
         }
@@ -494,25 +493,24 @@ public class TomahawkUtils {
      * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
      *                  android.graphics.Bitmap}
      * @param image     the path to load the image from
-     * @param width     the width in density independent pixels to scale the image down to
+     * @param width     the width in pixels to scale the image down to
      */
     public static void loadRoundedImageIntoImageView(Context context, ImageView imageView,
             Image image, int width) {
-        int pixelWidth = convertDpToPixel(width, context);
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
             String imagePath = buildImagePath(context, image, width);
             Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
                     .transform(new CircularImageTransformation())
                     .placeholder(R.drawable.no_album_art_placeholder)
                     .error(R.drawable.no_album_art_placeholder)
-                    .resize(pixelWidth, pixelWidth)
+                    .resize(width, width)
                     .into(imageView);
         } else {
             Picasso.with(context).load(R.drawable.no_album_art_placeholder)
                     .transform(new CircularImageTransformation())
                     .placeholder(R.drawable.no_album_art_placeholder)
                     .error(R.drawable.no_album_art_placeholder)
-                    .resize(pixelWidth, pixelWidth)
+                    .resize(width, width)
                     .into(imageView);
         }
     }
@@ -536,22 +534,21 @@ public class TomahawkUtils {
      * @param context the context needed for fetching resources
      * @param image   the path to load the image from
      * @param target  the Target which the loaded image will be pushed to
-     * @param width   the width in density independent pixels to scale the image down to
+     * @param width   the width in pixels to scale the image down to
      */
     public static void loadImageIntoBitmap(Context context, Image image, Target target, int width) {
-        int pixelWidth = convertDpToPixel(width, context);
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
             String imagePath = buildImagePath(context, image, width);
             Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
                     .placeholder(R.drawable.no_album_art_placeholder)
                     .error(R.drawable.no_album_art_placeholder)
-                    .resize(pixelWidth, pixelWidth)
+                    .resize(width, width)
                     .into(target);
         } else {
             Picasso.with(context).load(R.drawable.no_album_art_placeholder)
                     .placeholder(R.drawable.no_album_art_placeholder)
                     .error(R.drawable.no_album_art_placeholder)
-                    .resize(pixelWidth, pixelWidth)
+                    .resize(width, width)
                     .into(target);
         }
     }
@@ -566,7 +563,6 @@ public class TomahawkUtils {
     private static String buildImagePath(Context context, Image image, int width) {
         if (image.isHatchetImage()) {
             int squareImageWidth = Math.min(image.getHeight(), image.getWidth());
-            width = convertDpToPixel(width, context);
             if (TomahawkMainActivity.sIsConnectedToWifi) {
                 if (squareImageWidth > width) {
                     return image.getImagePath() + "?width=" + width;

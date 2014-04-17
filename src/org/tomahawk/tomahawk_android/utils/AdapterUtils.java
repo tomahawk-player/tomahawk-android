@@ -55,7 +55,7 @@ public class AdapterUtils {
         }
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
-                album.getImage(), Image.IMAGE_SIZE_LARGE);
+                album.getImage(), Image.getLargeImageSize());
         int tracksCount = album.getQueries(isOnlyLocal).size();
         String s = album.getArtist().getName() + ", " + tracksCount + " "
                 + context.getString(R.string.category_header_track) + (tracksCount == 1 ? ""
@@ -71,7 +71,7 @@ public class AdapterUtils {
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils
                 .loadImageIntoImageView(context, viewHolder.getImageView1(), artist.getImage(),
-                        Image.IMAGE_SIZE_LARGE);
+                        Image.getLargeImageSize());
         int topHitsCount = artist.getArtist().getTopHits().size();
         int albumsCount = isOnlyLocal ? artist.getLocalAlbums().size() : artist.getAlbums().size();
         String s = (isOnlyLocal ? "" : (topHitsCount + " "
@@ -106,19 +106,19 @@ public class AdapterUtils {
                 viewHolder.getImageViewFrame().setVisibility(View.VISIBLE);
 
                 TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
-                        artistsWithImage.get(0).getImage(), Image.IMAGE_SIZE_SMALL);
+                        artistsWithImage.get(0).getImage(), Image.getSmallImageSize());
                 viewHolder.getImageView2().setVisibility(ImageView.VISIBLE);
                 TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView2(),
-                        artistsWithImage.get(1).getImage(), Image.IMAGE_SIZE_SMALL);
+                        artistsWithImage.get(1).getImage(), Image.getSmallImageSize());
                 viewHolder.getImageView3().setVisibility(ImageView.VISIBLE);
                 TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView3(),
-                        artistsWithImage.get(2).getImage(), Image.IMAGE_SIZE_SMALL);
+                        artistsWithImage.get(2).getImage(), Image.getSmallImageSize());
                 viewHolder.getImageView4().setVisibility(ImageView.VISIBLE);
                 TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView4(),
-                        artistsWithImage.get(3).getImage(), Image.IMAGE_SIZE_SMALL);
+                        artistsWithImage.get(3).getImage(), Image.getSmallImageSize());
             } else if (artistsWithImage.size() > 0) {
                 TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
-                        artistsWithImage.get(0).getImage(), Image.IMAGE_SIZE_LARGE);
+                        artistsWithImage.get(0).getImage(), Image.getLargeImageSize());
             }
         }
     }
@@ -129,7 +129,7 @@ public class AdapterUtils {
         TomahawkUtils.loadDrawableIntoImageView(context, viewHolder.getImageView1(),
                 R.drawable.no_album_art_placeholder);
         TomahawkUtils.loadRoundedImageIntoImageView(context, viewHolder.getRoundedImage(),
-                user.getImage(), Image.IMAGE_SIZE_LARGE);
+                user.getImage(), Image.getLargeImageSize());
         viewHolder.getRoundedImage().setVisibility(View.VISIBLE);
     }
 
@@ -139,7 +139,7 @@ public class AdapterUtils {
         TomahawkUtils.loadDrawableIntoImageView(context, viewHolder.getImageView1(),
                 R.drawable.no_album_art_placeholder);
         TomahawkUtils.loadRoundedImageIntoImageView(context, viewHolder.getRoundedImage(),
-                user.getImage(), Image.IMAGE_SIZE_LARGE);
+                user.getImage(), Image.getLargeImageSize());
         viewHolder.getRoundedImage().setVisibility(View.VISIBLE);
         viewHolder.getTextView2().setText(user.getAbout());
         viewHolder.getTextView3().setText("" + user.getTotalPlays());
@@ -219,21 +219,21 @@ public class AdapterUtils {
         viewHolder.getTextView1().setText(user.getName());
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils.loadRoundedImageIntoImageView(context, viewHolder.getImageView1(),
-                user.getImage(), Image.IMAGE_SIZE_SMALL);
+                user.getImage(), Image.getSmallImageSize());
     }
 
     public static void fillView(Context context, ViewHolder viewHolder, Artist artist) {
         viewHolder.getTextView1().setText(artist.getName());
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
-                artist.getImage(), Image.IMAGE_SIZE_SMALL);
+                artist.getImage(), Image.getSmallImageSize());
     }
 
     public static void fillView(Context context, ViewHolder viewHolder, Album album) {
         viewHolder.getTextView1().setText(album.getName());
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
-                album.getImage(), Image.IMAGE_SIZE_SMALL);
+                album.getImage(), Image.getSmallImageSize());
         viewHolder.getTextView4().setVisibility(View.VISIBLE);
         viewHolder.getTextView4().setText(album.getArtist().getName());
     }

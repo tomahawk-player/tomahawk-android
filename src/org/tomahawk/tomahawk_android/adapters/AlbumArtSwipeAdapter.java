@@ -306,7 +306,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
             boolean landscapeMode = mContext.getResources().getConfiguration().orientation
                     == Configuration.ORIENTATION_LANDSCAPE;
             TomahawkUtils.loadImageIntoImageView(mContext, imageView, query.getImage(),
-                    Image.IMAGE_SIZE_LARGE, landscapeMode);
+                    Image.getLargeImageSize(), landscapeMode);
 
             // Update all relevant TextViews
             if (artistTextView != null) {
