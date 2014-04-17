@@ -154,7 +154,7 @@ public class SpotifyService extends Service {
                         seek(msg.arg1);
                         break;
                     case MSG_SETBITRATE:
-                        seek(msg.arg1);
+                        setbitrate(msg.arg1);
                         break;
                     default:
                         super.handleMessage(msg);
