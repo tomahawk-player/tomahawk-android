@@ -23,6 +23,8 @@ import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.text.TextUtils;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
@@ -120,7 +122,7 @@ public class Album implements TomahawkListItem {
     public static ArrayList<Album> getLocalAlbums() {
         ArrayList<Album> albums = new ArrayList<Album>();
         for (Album album : sAlbums.values()) {
-            if (album.hasLocalQueries()) {
+            if (album.hasLocalQueries() && !TextUtils.isEmpty(album.getName())) {
                 albums.add(album);
             }
         }
