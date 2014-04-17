@@ -465,6 +465,8 @@ public class PlaybackService extends Service
     public void onCompletion(MediaPlayer mp) {
         if (mCurrentPlaylist != null && mCurrentPlaylist.peekNextQuery() != null) {
             next();
+        } else {
+            pause();
         }
     }
 
