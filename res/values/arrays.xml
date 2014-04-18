@@ -25,36 +25,18 @@
         <item>@string/hub_title_collection</item>
         <item>@string/hub_title_lovedtracks</item>
         <item>@string/hub_title_playlists</item>
-        <item>@string/hub_title_settings</item>
     </string-array>
     <array name="slide_menu_items_icons">
         <item>@drawable/ic_action_dashboard</item>
         <item>@drawable/ic_action_collection</item>
         <item>@drawable/ic_action_favorites</item>
         <item>@drawable/ic_action_playlist_light</item>
-        <item>@drawable/ic_action_settings</item>
     </array>
     <array name="slide_menu_items_colors">
         <item>@color/menu_icon_background_dashboard</item>
         <item>@color/menu_icon_background_collection</item>
         <item>@color/menu_icon_background_lovedtracks</item>
         <item>@color/menu_icon_background_playlists</item>
-        <item>@color/menu_icon_background_settings</item>
-    </array>
-    <string-array name="local_collection_menu_items">
-        <item>Tracks</item>
-        <item>Albums</item>
-        <item>Artists</item>
-    </string-array>
-    <array name="local_collection_menu_items_icons">
-        <item>@drawable/ic_action_track_light</item>
-        <item>@drawable/ic_action_album_light</item>
-        <item>@drawable/ic_action_artist_light</item>
-    </array>
-    <array name="local_collection_menu_items_colors">
-        <item>@color/menu_icon_background_default</item>
-        <item>@color/menu_icon_background_default</item>
-        <item>@color/menu_icon_background_default</item>
     </array>
     <string-array name="fake_preferences_items_bitrate">
         <item>@string/fake_preferences_bitrate_low</item>
