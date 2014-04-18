@@ -1,9 +1,13 @@
 tomahawk-android
 ================
-Tomahawk's Android Music Player
+Music is everywhere, now you don’t have to be. Tomahawk, the critically acclaimed multi-source music player, is now available on Android. Given the name of an artist, album or song Tomahawk will find the best available source and play it - whether that be from Spotify, Soundcloud, Official.fm, Ex.fm, Jamendo or your phone’s local storage.
+Tomahawk for Android also syncs your history, your loved tracks and your playlists to/from the desktop versions of Tomahawk via our new music community, Hatchet. On Hatchet you can hear your friends' favorite tracks and see what they're currently listening to.
 
-Nightly
+Beta and Nightly
 ================
+Join this Google+ community to take part in our current beta test on Google Play:
+https://plus.google.com/u/0/communities/107064391247577662665
+
 Nightly builds are available here:
 http://download.tomahawk-player.org/nightly/android/
 
@@ -39,6 +43,9 @@ Setup
     - tomahawk-android depends on the following jar libraries:
         - acra-4.5.0.jar (https://github.com/ACRA/acra)
         - android.support.v4.jar
+        - Google Guava Libraries (https://code.google.com/p/guava-libraries/)
+        - Jackson JSON Processor (https://github.com/FasterXML/jackson)
+        - Picasso (http://square.github.io/picasso/)
     - In addition tomahawk-android uses these library projects:
         - Android Support v7 appcompat library
         - StickyListHeaders (https://github.com/emilsjolander/StickyListHeaders)
@@ -58,7 +65,7 @@ Setup
 
 Ready to contribute?
 ================
-Here's the to-do list :) https://trello.com/board/tomahawk-android/500c1f61aa1ffaae1b027ba1
+Here's a link to the bug/to-do tracker :) https://bugs.tomahawk-player.org/secure/RapidBoard.jspa?rapidView=2
 
 Code Style Guidelines for Contributors
 ================
