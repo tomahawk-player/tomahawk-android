@@ -38,12 +38,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import java.util.List;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
-import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
  * This class is used to populate a {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}.
@@ -211,22 +209,6 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
 
     public void setShowArtistAsSingleLine(boolean showArtistAsSingleLine) {
         mShowArtistAsSingleLine = showArtistAsSingleLine;
-    }
-
-    /**
-     * Set whether or not to show an AddButton, so that the user can add {@link UserPlaylist}s to
-     * the database
-     *
-     * @param list       a reference to the list, so we can set its footer view
-     * @param buttonText {@link String} containing the button's text to show
-     */
-    public void setShowAddButton(StickyListHeadersListView list, String buttonText) {
-        View addButtonFooterView = mLayoutInflater.inflate(R.layout.add_button_layout, null);
-        if (addButtonFooterView != null && list.getFooterViewsCount() == 0) {
-            ((TextView) addButtonFooterView.findViewById(R.id.add_button_textview))
-                    .setText(buttonText);
-            list.addFooterView(addButtonFooterView);
-        }
     }
 
     /**
