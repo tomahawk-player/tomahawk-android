@@ -23,7 +23,6 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
 import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
@@ -58,8 +57,6 @@ public class FragmentUtils {
     public static final int HUB_ID_LOVEDTRACKS = 2;
 
     public static final int HUB_ID_PLAYLISTS = 3;
-
-    public static final int HUB_ID_SETTINGS = 4;
 
     public static final int HUB_ID_PLAYBACK = 100;
 
@@ -192,9 +189,6 @@ public class FragmentUtils {
                 break;
             case HUB_ID_PLAYLISTS:
                 replace(context, fragmentManager, UserPlaylistsFragment.class);
-                break;
-            case HUB_ID_SETTINGS:
-                replace(context, fragmentManager, FakePreferenceFragment.class);
                 break;
             case HUB_ID_PLAYBACK:
                 replace(context, fragmentManager, PlaybackFragment.class);

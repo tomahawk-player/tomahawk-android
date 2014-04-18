@@ -36,6 +36,7 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
+import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
@@ -356,8 +357,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                     FragmentUtils.HUB_ID_PLAYBACK);
         }
         if (getIntent().hasExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)) {
-            FragmentUtils.showHub(TomahawkMainActivity.this, getSupportFragmentManager(),
-                    FragmentUtils.HUB_ID_SETTINGS);
+            FragmentUtils.replace(this, getSupportFragmentManager(), FakePreferenceFragment.class);
         }
 
         if (mPlaybackService != null) {
@@ -521,6 +521,12 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (item != null) {
+            if (item.getItemId() == R.id.action_settings_item) {
+                FragmentUtils.replace(this, getSupportFragmentManager(),
+                        FakePreferenceFragment.class);
+            }
+        }
         // Pass the event to ActionBarDrawerToggle, if it returns
         // true, then it has handled the app icon touch event
         return mDrawerToggle != null && mDrawerToggle.onOptionsItemSelected(item) ||

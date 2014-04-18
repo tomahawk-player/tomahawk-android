@@ -38,7 +38,6 @@
     <color name="menu_icon_background_collection">#FF707be1</color>
     <color name="menu_icon_background_lovedtracks">#FFf4875c</color>
     <color name="menu_icon_background_playlists">#FFdadb7d</color>
-    <color name="menu_icon_background_settings">#FF222222</color>
     <color name="menu_icon_background_default">#FF222222</color>
 
 </resources>
