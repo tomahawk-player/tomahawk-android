@@ -28,6 +28,7 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
@@ -461,8 +462,10 @@ public class DatabaseHelper {
 
     public Cursor getSearchHistoryCursor(String entry) {
         return mDatabase.query(TomahawkSQLiteHelper.TABLE_SEARCHHISTORY, mAllSearchHistoryColumns,
-                TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ENTRY + " LIKE '" + entry + "%'",
-                null, null, null, TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ID + " DESC");
+                TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ENTRY
+                        + " LIKE " + DatabaseUtils.sqlEscapeString(entry + "%"), null, null, null,
+                TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ID + " DESC"
+        );
     }
 
     public void addEntryToSearchHistory(String entry) {
