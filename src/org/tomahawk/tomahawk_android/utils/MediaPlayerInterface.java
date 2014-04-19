@@ -39,9 +39,9 @@ public interface MediaPlayerInterface {
 
     public int getPosition();
 
-    public boolean isPlaying();
+    public boolean isPlaying(Query query);
 
-    public boolean isPreparing();
+    public boolean isPreparing(Query query);
 
     public boolean isPrepared(Query query);
 

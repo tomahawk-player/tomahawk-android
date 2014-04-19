@@ -209,13 +209,13 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
     }
 
     @Override
-    public boolean isPlaying() {
-        return mIsPlaying;
+    public boolean isPlaying(Query query) {
+        return mPreparedQuery == query && mIsPlaying;
     }
 
     @Override
-    public boolean isPreparing() {
-        return mPreparingQuery != null;
+    public boolean isPreparing(Query query) {
+        return mPreparingQuery == query;
     }
 
     @Override
