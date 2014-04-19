@@ -155,13 +155,13 @@ public class TomahawkMediaPlayer
     }
 
     @Override
-    public boolean isPlaying() {
-        return mMediaPlayer != null && mPreparedQuery != null && mMediaPlayer.isPlaying();
+    public boolean isPlaying(Query query) {
+        return mMediaPlayer != null && mPreparedQuery == query && mMediaPlayer.isPlaying();
     }
 
     @Override
-    public boolean isPreparing() {
-        return mPreparingQuery != null;
+    public boolean isPreparing(Query query) {
+        return mPreparingQuery == query;
     }
 
     @Override

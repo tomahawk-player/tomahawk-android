@@ -569,7 +569,8 @@ public class PlaybackService extends Service
                         }
                         if (getCurrentQuery().getMediaPlayerInterface()
                                 .isPrepared(getCurrentQuery())) {
-                            if (!getCurrentQuery().getMediaPlayerInterface().isPlaying()) {
+                            if (!getCurrentQuery().getMediaPlayerInterface()
+                                    .isPlaying(getCurrentQuery())) {
                                 getCurrentQuery().getMediaPlayerInterface().start();
                             }
                         } else if (!isPreparing()) {
@@ -577,7 +578,7 @@ public class PlaybackService extends Service
                         }
                         break;
                     case PLAYBACKSERVICE_PLAYSTATE_PAUSED:
-                        if (getCurrentQuery().getMediaPlayerInterface().isPlaying()
+                        if (getCurrentQuery().getMediaPlayerInterface().isPlaying(getCurrentQuery())
                                 && getCurrentQuery().getMediaPlayerInterface()
                                 .isPrepared(getCurrentQuery())) {
                             InfoSystem.getInstance().sendPlaybackEntryPostStruct(
@@ -671,7 +672,7 @@ public class PlaybackService extends Service
      */
     public boolean isPreparing() {
         return getCurrentQuery() != null && getCurrentQuery().getMediaPlayerInterface() != null
-                && getCurrentQuery().getMediaPlayerInterface().isPreparing();
+                && getCurrentQuery().getMediaPlayerInterface().isPreparing(getCurrentQuery());
     }
 
     /**
