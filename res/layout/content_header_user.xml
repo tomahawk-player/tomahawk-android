@@ -25,25 +25,6 @@
               android:orientation="vertical"
               android:descendantFocusability="afterDescendants">
 
-    <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/row_height_large"
-            android:orientation="vertical"
-            android:background="@drawable/gradient_reverse">
-
-        <TextView android:id="@+id/content_header_textview6"
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent"
-                  android:gravity="center"
-                  android:ellipsize="marquee"
-                  android:singleLine="true"
-                  android:textColor="@color/primary_textcolor_inverted"
-                  android:textSize="@dimen/text_size_medium"
-                  android:paddingLeft="@dimen/padding_small"
-                  android:paddingRight="@dimen/padding_small"/>
-
-    </LinearLayout>
-
     <View android:layout_width="match_parent"
           android:layout_height="@dimen/header_clear_space_user"/>
 
@@ -70,8 +51,7 @@
                       android:singleLine="true"
                       android:textColor="@color/primary_textcolor_inverted"
                       android:textSize="@dimen/text_size_large"
-                      android:paddingLeft="@dimen/padding_small"
-                      android:paddingTop="@dimen/padding_large"/>
+                      android:padding="@dimen/padding_small"/>
 
             <TextView android:id="@+id/content_header_textview2"
                       android:layout_width="match_parent"
@@ -79,9 +59,29 @@
                       android:gravity="center|left"
                       android:textColor="@color/secondary_textcolor_inverted"
                       android:textSize="@dimen/text_size_small"
-                      android:paddingLeft="@dimen/padding_small"/>
+                      android:padding="@dimen/padding_small"/>
 
         </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/row_height_large"
+            android:orientation="vertical"
+            android:background="@drawable/selectable_background_tomahawk_opaque_inverted"
+            android:clickable="true">
+
+        <TextView android:id="@+id/content_header_textview6"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:gravity="center"
+                  android:ellipsize="marquee"
+                  android:singleLine="true"
+                  android:textColor="@color/primary_textcolor_inverted"
+                  android:textSize="@dimen/text_size_medium"
+                  android:paddingLeft="@dimen/padding_small"
+                  android:paddingRight="@dimen/padding_small"/>
 
     </LinearLayout>
 
@@ -96,32 +96,31 @@
 
         <LinearLayout android:id="@+id/content_header_button1"
                       android:layout_width="0dp"
-                      android:layout_height="wrap_content"
+                      android:layout_height="@dimen/row_height_large"
                       android:layout_weight="1"
-                      android:orientation="vertical"
-                      android:background="@drawable/selectable_background_tomahawk_opaque"
+                      android:orientation="horizontal"
+                      android:background="@drawable/selectable_background_tomahawk_opaque_inverted"
                       android:clickable="true">
 
             <TextView android:id="@+id/content_header_textview3"
                       android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:gravity="center|left"
-                      android:ellipsize="marquee"
+                      android:layout_height="match_parent"
+                      android:layout_weight="1"
+                      android:gravity="center|right"
+                      android:ellipsize="none"
                       android:singleLine="true"
-                      android:textColor="@color/primary_textcolor"
-                      android:textSize="@dimen/text_size_large"
-                      android:paddingLeft="@dimen/padding_verysmall"
-                      android:paddingTop="@dimen/padding_verysmall"/>
+                      android:textColor="@color/primary_textcolor_inverted"
+                      android:textSize="@dimen/text_size_small"
+                      android:paddingRight="@dimen/padding_verysmall"/>
 
             <TextView android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
+                      android:layout_height="match_parent"
+                      android:layout_weight="1"
                       android:gravity="center|left"
-                      android:ellipsize="marquee"
                       android:singleLine="true"
-                      android:textColor="@color/secondary_textcolor"
-                      android:textSize="@dimen/text_size_small"
-                      android:text="@string/content_header_plays"
-                      android:padding="@dimen/padding_verysmall"/>
+                      android:textColor="@color/secondary_textcolor_inverted"
+                      android:textSize="@dimen/text_size_micro"
+                      android:text="@string/content_header_plays"/>
 
         </LinearLayout>
 
@@ -131,32 +130,31 @@
 
         <LinearLayout android:id="@+id/content_header_button2"
                       android:layout_width="0dp"
-                      android:layout_height="wrap_content"
+                      android:layout_height="@dimen/row_height_large"
                       android:layout_weight="1"
-                      android:orientation="vertical"
-                      android:background="@drawable/selectable_background_tomahawk_opaque"
+                      android:orientation="horizontal"
+                      android:background="@drawable/selectable_background_tomahawk_opaque_inverted"
                       android:clickable="true">
 
             <TextView android:id="@+id/content_header_textview4"
                       android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:gravity="center|left"
-                      android:ellipsize="marquee"
+                      android:layout_height="match_parent"
+                      android:layout_weight="1"
+                      android:gravity="center|right"
+                      android:ellipsize="none"
                       android:singleLine="true"
-                      android:textColor="@color/primary_textcolor"
-                      android:textSize="@dimen/text_size_large"
-                      android:paddingLeft="@dimen/padding_verysmall"
-                      android:paddingTop="@dimen/padding_verysmall"/>
+                      android:textColor="@color/primary_textcolor_inverted"
+                      android:textSize="@dimen/text_size_small"
+                      android:paddingRight="@dimen/padding_verysmall"/>
 
             <TextView android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
+                      android:layout_height="match_parent"
+                      android:layout_weight="1"
                       android:gravity="center|left"
-                      android:ellipsize="marquee"
                       android:singleLine="true"
-                      android:textColor="@color/secondary_textcolor"
-                      android:textSize="@dimen/text_size_small"
-                      android:text="@string/content_header_following"
-                      android:padding="@dimen/padding_verysmall"/>
+                      android:textColor="@color/secondary_textcolor_inverted"
+                      android:textSize="@dimen/text_size_micro"
+                      android:text="@string/content_header_following"/>
 
         </LinearLayout>
 
@@ -166,39 +164,34 @@
 
         <LinearLayout android:id="@+id/content_header_button3"
                       android:layout_width="0dp"
-                      android:layout_height="wrap_content"
+                      android:layout_height="@dimen/row_height_large"
                       android:layout_weight="1"
-                      android:orientation="vertical"
-                      android:background="@drawable/selectable_background_tomahawk_opaque"
+                      android:orientation="horizontal"
+                      android:background="@drawable/selectable_background_tomahawk_opaque_inverted"
                       android:clickable="true">
 
             <TextView android:id="@+id/content_header_textview5"
                       android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:gravity="center|left"
-                      android:ellipsize="marquee"
+                      android:layout_height="match_parent"
+                      android:layout_weight="1"
+                      android:gravity="center|right"
+                      android:ellipsize="none"
                       android:singleLine="true"
-                      android:textColor="@color/primary_textcolor"
-                      android:textSize="@dimen/text_size_large"
-                      android:paddingLeft="@dimen/padding_verysmall"
-                      android:paddingTop="@dimen/padding_verysmall"/>
+                      android:textColor="@color/primary_textcolor_inverted"
+                      android:textSize="@dimen/text_size_small"
+                      android:paddingRight="@dimen/padding_verysmall"/>
 
             <TextView android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
+                      android:layout_height="match_parent"
+                      android:layout_weight="1"
                       android:gravity="center|left"
-                      android:ellipsize="marquee"
                       android:singleLine="true"
-                      android:textColor="@color/secondary_textcolor"
-                      android:textSize="@dimen/text_size_small"
-                      android:text="@string/content_header_followers"
-                      android:padding="@dimen/padding_verysmall"/>
+                      android:textColor="@color/secondary_textcolor_inverted"
+                      android:textSize="@dimen/text_size_micro"
+                      android:text="@string/content_header_followers"/>
 
         </LinearLayout>
 
     </LinearLayout>
-
-    <View android:layout_width="match_parent"
-          android:layout_height="@dimen/divider_height_thin"
-          android:background="@color/secondary_transparent"/>
 
 </LinearLayout>

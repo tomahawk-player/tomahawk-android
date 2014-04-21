@@ -132,9 +132,9 @@
     <string name="category_header_tophit">Top Song</string>
     <string name="category_header_album">Album</string>
     <string name="category_header_activityfeed">Activity Feed</string>
-    <string name="content_header_plays">Plays</string>
-    <string name="content_header_following">Following</string>
-    <string name="content_header_followers">Followers</string>
+    <string name="content_header_plays">PLAYS</string>
+    <string name="content_header_following">FOLLOWING</string>
+    <string name="content_header_followers">FOLLOWERS</string>
     <string name="content_header_nowplaying">Now Playing:</string>
     <string name="socialaction_type_follow_true">is now following</string>
     <string name="socialaction_type_follow_false">is no longer following</string>
