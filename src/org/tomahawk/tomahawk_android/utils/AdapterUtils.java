@@ -305,7 +305,7 @@ public class AdapterUtils {
                 firstLine += socialAction.getUser().getName() + " " + phrase
                         + " " + targetObject.getName();
                 if (targetObject instanceof Album) {
-                    firstLine += resources.getString(R.string.album_by_artist) + " "
+                    firstLine += " " + resources.getString(R.string.album_by_artist) + " "
                             + targetObject.getArtist().getName();
                 }
                 viewHolder.getTextView1().setText(firstLine);
