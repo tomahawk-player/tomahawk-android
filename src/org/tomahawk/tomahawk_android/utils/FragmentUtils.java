@@ -18,16 +18,15 @@
 package org.tomahawk.tomahawk_android.utils;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
-import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.fragments.FavoritesFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
 import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
-import org.tomahawk.tomahawk_android.fragments.TracksFragment;
 import org.tomahawk.tomahawk_android.fragments.UserCollectionFragment;
 import org.tomahawk.tomahawk_android.fragments.UserPlaylistsFragment;
 
@@ -182,10 +181,7 @@ public class FragmentUtils {
                 replace(context, fragmentManager, UserCollectionFragment.class);
                 break;
             case HUB_ID_LOVEDTRACKS:
-                replace(context, fragmentManager, TracksFragment.class,
-                        DatabaseHelper.LOVEDITEMS_PLAYLIST_ID,
-                        UserPlaylistsFragment.TOMAHAWK_USERPLAYLIST_KEY,
-                        SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
+                replace(context, fragmentManager, FavoritesFragment.class);
                 break;
             case HUB_ID_PLAYLISTS:
                 replace(context, fragmentManager, UserPlaylistsFragment.class);

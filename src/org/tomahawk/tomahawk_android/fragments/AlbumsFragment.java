@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
@@ -42,10 +43,17 @@ import java.util.List;
  */
 public class AlbumsFragment extends TomahawkFragment implements OnItemClickListener {
 
+    public static final int SHOW_MODE_STARREDALBUMS = 1;
+
     @Override
     public void onResume() {
         super.onResume();
 
+        if (getArguments() != null) {
+            if (getArguments().containsKey(SHOW_MODE)) {
+                mShowMode = getArguments().getInt(SHOW_MODE);
+            }
+        }
         updateAdapter();
     }
 
@@ -104,8 +112,8 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         Context context = getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-        View rootView = getActivity().findViewById(android.R.id.content);
-        if (!isShowGridView() && mArtist != null) {
+        View rootView = getView();
+        if (mArtist != null) {
             activity.setTitle(mArtist.getName());
             if (mIsLocal) {
                 albumsAndTopHits.addAll(mArtist.getLocalAlbums());
@@ -127,7 +135,8 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
                         layoutInflater, albumsAndTopHits);
                 tomahawkListAdapter
-                        .setShowCategoryHeaders(true, TomahawkListAdapter.SHOW_QUERIES_AS_TOPHITS);
+                        .setShowCategoryHeaders(true,
+                                TomahawkListAdapter.SHOW_QUERIES_AS_TOPHITS);
                 tomahawkListAdapter.showContentHeader(rootView, mArtist, mIsLocal);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 setListAdapter(tomahawkListAdapter);
@@ -135,6 +144,18 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                 ((TomahawkListAdapter) getListAdapter()).setListItems(albumsAndTopHits);
                 ((TomahawkListAdapter) getListAdapter())
                         .showContentHeader(rootView, mArtist, mIsLocal);
+            }
+            getListView().setOnItemClickListener(this);
+        } else if (mShowMode == SHOW_MODE_STARREDALBUMS) {
+            ArrayList<Album> albums = DatabaseHelper.getInstance().getStarredAlbums();
+            albumsAndTopHits.addAll(albums);
+            if (getListAdapter() == null) {
+                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
+                        layoutInflater, albumsAndTopHits);
+                tomahawkListAdapter.setShowCategoryHeaders(true);
+                setListAdapter(tomahawkListAdapter);
+            } else {
+                ((TomahawkListAdapter) getListAdapter()).setListItems(albumsAndTopHits);
             }
             getListView().setOnItemClickListener(this);
         } else {

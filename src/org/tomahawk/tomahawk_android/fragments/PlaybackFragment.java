@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -608,7 +609,7 @@ public class PlaybackFragment extends TomahawkFragment
 
                 ImageButton loveButton = (ImageButton) getView().findViewById(R.id.love_button);
                 if (loveButton != null) {
-                    if (UserCollection.getInstance().isQueryLoved(query)) {
+                    if (DatabaseHelper.getInstance().isItemLoved(query)) {
                         loveButton.setImageResource(R.drawable.ic_action_loved);
                     } else {
                         loveButton.setImageResource(R.drawable.ic_action_notloved);

@@ -18,6 +18,7 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
@@ -37,10 +38,17 @@ import java.util.List;
  */
 public class ArtistsFragment extends TomahawkFragment implements OnItemClickListener {
 
+    public static final int SHOW_MODE_STARREDARTISTS = 1;
+
     @Override
     public void onResume() {
         super.onResume();
 
+        if (getArguments() != null) {
+            if (getArguments().containsKey(SHOW_MODE)) {
+                mShowMode = getArguments().getInt(SHOW_MODE);
+            }
+        }
         updateAdapter();
     }
 
@@ -77,18 +85,31 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
         List<TomahawkListItem> artists = new ArrayList<TomahawkListItem>();
-        if (mIsLocal) {
-            artists.addAll(Artist.getLocalArtists());
+        if (mShowMode == SHOW_MODE_STARREDARTISTS) {
+            ArrayList<Artist> starredArtists = DatabaseHelper.getInstance().getStarredArtists();
+            artists.addAll(starredArtists);
+            if (getListAdapter() == null) {
+                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
+                        layoutInflater, artists);
+                tomahawkListAdapter.setShowCategoryHeaders(true);
+                setListAdapter(tomahawkListAdapter);
+            } else {
+                ((TomahawkListAdapter) getListAdapter()).setListItems(artists);
+            }
         } else {
-            artists.addAll(Artist.getArtists());
-        }
-        if (getListAdapter() == null) {
-            TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
-                    layoutInflater, artists);
-            tomahawkListAdapter.setShowArtistAsSingleLine(mIsLocal);
-            setListAdapter(tomahawkListAdapter);
-        } else {
-            ((TomahawkListAdapter) getListAdapter()).setListItems(artists);
+            if (mIsLocal) {
+                artists.addAll(Artist.getLocalArtists());
+            } else {
+                artists.addAll(Artist.getArtists());
+            }
+            if (getListAdapter() == null) {
+                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
+                        layoutInflater, artists);
+                tomahawkListAdapter.setShowArtistAsSingleLine(mIsLocal);
+                setListAdapter(tomahawkListAdapter);
+            } else {
+                ((TomahawkListAdapter) getListAdapter()).setListItems(artists);
+            }
         }
 
         getListView().setOnItemClickListener(this);

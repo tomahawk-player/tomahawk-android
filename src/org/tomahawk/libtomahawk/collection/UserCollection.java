@@ -189,6 +189,22 @@ public class UserCollection {
                                             DatabaseHelper.getInstance().storeUserPlaylist(
                                                     fetchedLists.get(0));
                                         }
+                                    } else if (data.getType()
+                                            == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS) {
+                                        List<Album> fetchedAlbums = data.getConvertedResultMap()
+                                                .get(HatchetInfoPlugin.HATCHET_ALBUMS);
+                                        if (fetchedAlbums.size() > 0) {
+                                            DatabaseHelper.getInstance()
+                                                    .storeStarredAlbums(fetchedAlbums);
+                                        }
+                                    } else if (data.getType()
+                                            == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDARTISTS) {
+                                        List<Artist> fetchedArtists = data.getConvertedResultMap()
+                                                .get(HatchetInfoPlugin.HATCHET_ARTISTS);
+                                        if (fetchedArtists.size() > 0) {
+                                            DatabaseHelper.getInstance()
+                                                    .storeStarredArtists(fetchedArtists);
+                                        }
                                     }
                                 }
                             }
@@ -196,6 +212,8 @@ public class UserCollection {
                 }
             } else if (InfoSystem.INFOSYSTEM_OPLOGISEMPTIED.equals(intent.getAction())) {
                 UserCollection.this.fetchLovedItemsUserPlaylists();
+                UserCollection.this.fetchStarredAlbums();
+                UserCollection.this.fetchStarredArtists();
             } else if (DatabaseHelper.USERPLAYLISTSDATASOURCE_RESULTSREPORTED
                     .equals(intent.getAction())) {
                 UserCollection.this.updateUserPlaylists();
@@ -284,16 +302,12 @@ public class UserCollection {
         return DatabaseHelper.getInstance().getCachedUserPlaylist();
     }
 
-    public boolean isQueryLoved(Query query) {
-        return DatabaseHelper.getInstance().isItemLoved(query);
-    }
-
     /**
      * Remove or add a lovedItem-query from the LovedItems-UserPlaylist, depending on whether or not
      * it is already a lovedItem
      */
     public void toggleLovedItem(Query query) {
-        boolean doSweetSweetLovin = !isQueryLoved(query);
+        boolean doSweetSweetLovin = !DatabaseHelper.getInstance().isItemLoved(query);
         DatabaseHelper.getInstance().setLovedItem(query, doSweetSweetLovin);
         TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
         AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
@@ -302,11 +316,24 @@ public class UserCollection {
                 HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE, doSweetSweetLovin);
     }
 
-    /**
-     * @return the previously stored {@link UserPlaylist} which stores all of the user's loved items
-     */
-    public UserPlaylist getLovedItemsUserPlaylist() {
-        return DatabaseHelper.getInstance().getLovedItemsUserPlaylist();
+    public void toggleLovedItem(Artist artist) {
+        boolean doSweetSweetLovin = !DatabaseHelper.getInstance().isItemLoved(artist);
+        DatabaseHelper.getInstance().setLovedItem(artist, doSweetSweetLovin);
+        TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
+        AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
+                .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
+        InfoSystem.getInstance().sendSocialActionPostStruct(hatchetAuthUtils, artist,
+                HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE, doSweetSweetLovin);
+    }
+
+    public void toggleLovedItem(Album album) {
+        boolean doSweetSweetLovin = !DatabaseHelper.getInstance().isItemLoved(album);
+        DatabaseHelper.getInstance().setLovedItem(album, doSweetSweetLovin);
+        TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
+        AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
+                .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
+        InfoSystem.getInstance().sendSocialActionPostStruct(hatchetAuthUtils, album,
+                HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE, doSweetSweetLovin);
     }
 
     /**
@@ -334,6 +361,36 @@ public class UserCollection {
         if (DatabaseHelper.getInstance().getLoggedOps().isEmpty()) {
             mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(
                     InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS, null));
+        } else {
+            AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
+                    .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
+            InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
+        }
+    }
+
+    /**
+     * Fetch the starred artists from the Hatchet API and store it in the local db, if the log of
+     * pending operations is empty. Meaning if every love/unlove has already been delivered to the
+     * API.
+     */
+    public void fetchStarredArtists() {
+        if (DatabaseHelper.getInstance().getLoggedOps().isEmpty()) {
+            mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveStarredArtists(null));
+        } else {
+            AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
+                    .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
+            InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
+        }
+    }
+
+    /**
+     * Fetch the starred albums from the Hatchet API and store it in the local db, if the log of
+     * pending operations is empty. Meaning if every love/unlove has already been delivered to the
+     * API.
+     */
+    public void fetchStarredAlbums() {
+        if (DatabaseHelper.getInstance().getLoggedOps().isEmpty()) {
+            mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveStarredAlbums(null));
         } else {
             AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
                     .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
@@ -380,6 +437,8 @@ public class UserCollection {
         updateLovedItemsUserPlaylist();
         updateUserPlaylists();
         fetchHatchetUserPlaylists();
+        fetchStarredAlbums();
+        fetchStarredArtists();
 
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
 

@@ -176,6 +176,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
             }
             UserCollection.getInstance().fetchHatchetUserPlaylists();
             UserCollection.getInstance().fetchLovedItemsUserPlaylists();
+            UserCollection.getInstance().fetchStarredArtists();
+            UserCollection.getInstance().fetchStarredAlbums();
             InfoSystem.getInstance().resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF,
                     null);
             mIsAuthenticating = false;

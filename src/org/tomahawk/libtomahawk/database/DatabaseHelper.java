@@ -17,6 +17,8 @@
  */
 package org.tomahawk.libtomahawk.database;
 
+import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
@@ -86,6 +88,13 @@ public class DatabaseHelper {
             TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TYPE,
             TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_JSONSTRING,
             TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TIMESTAMP};
+
+    private String[] mAllLovedAlbumsColumns = {TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ID,
+            TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ARTISTNAME,
+            TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ALBUMNAME};
+
+    private String[] mAllLovedArtistsColumns = {TomahawkSQLiteHelper.LOVED_ARTISTS_COLUMN_ID,
+            TomahawkSQLiteHelper.LOVED_ARTISTS_COLUMN_ARTISTNAME};
 
     private ConcurrentHashMap<String, ConcurrentHashMap<Integer, Long>> mPlaylistPosToIdMap
             = new ConcurrentHashMap<String, ConcurrentHashMap<Integer, Long>>();
@@ -437,6 +446,46 @@ public class DatabaseHelper {
     }
 
     /**
+     * Checks if an artist with the same artistName as the given artist is loved
+     *
+     * @return whether or not the given artist is loved
+     */
+    public boolean isItemLoved(Artist artist) {
+        boolean isLoved = false;
+        Cursor artistsCursor = mDatabase
+                .query(TomahawkSQLiteHelper.TABLE_LOVED_ARTISTS, mAllLovedArtistsColumns,
+                        TomahawkSQLiteHelper.LOVED_ARTISTS_COLUMN_ARTISTNAME + " = \""
+                                + artist.getName() + "\"", null, null, null, null
+                );
+        if (artistsCursor.getCount() > 0) {
+            isLoved = true;
+        }
+        artistsCursor.close();
+        return isLoved;
+    }
+
+    /**
+     * Checks if an album with the same albumName as the given album is loved
+     *
+     * @return whether or not the given album is loved
+     */
+    public boolean isItemLoved(Album album) {
+        boolean isLoved = false;
+        Cursor albumsCursor = mDatabase
+                .query(TomahawkSQLiteHelper.TABLE_LOVED_ALBUMS, mAllLovedAlbumsColumns,
+                        TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ALBUMNAME + " = \""
+                                + album.getName() + "\" AND "
+                                + TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ARTISTNAME + " = \""
+                                + album.getArtist().getName() + "\"", null, null, null, null
+                );
+        if (albumsCursor.getCount() > 0) {
+            isLoved = true;
+        }
+        albumsCursor.close();
+        return isLoved;
+    }
+
+    /**
      * Store the given query as a lovedItem, if isLoved is true. Otherwise remove(unlove) the
      * query.
      */
@@ -458,6 +507,142 @@ public class DatabaseHelper {
             mDatabase.setTransactionSuccessful();
             mDatabase.endTransaction();
         }
+    }
+
+    /**
+     * Store the given artist as a lovedItem, if isLoved is true. Otherwise remove(unlove) it.
+     */
+    public void setLovedItem(final Artist artist, final boolean isLoved) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    mDatabase.beginTransaction();
+                    if (isLoved) {
+                        ContentValues values = new ContentValues();
+                        values.put(TomahawkSQLiteHelper.LOVED_ARTISTS_COLUMN_ARTISTNAME,
+                                artist.getName());
+                        mDatabase.insert(TomahawkSQLiteHelper.TABLE_LOVED_ARTISTS, null, values);
+                    } else {
+                        mDatabase.delete(TomahawkSQLiteHelper.TABLE_LOVED_ARTISTS,
+                                TomahawkSQLiteHelper.LOVED_ARTISTS_COLUMN_ARTISTNAME
+                                        + " = \"" + artist.getName() + "\"", null
+                        );
+                    }
+                    mDatabase.setTransactionSuccessful();
+                    mDatabase.endTransaction();
+                }
+            }
+        }).start();
+    }
+
+    /**
+     * Store the given album as a lovedItem, if isLoved is true. Otherwise remove(unlove) it.
+     */
+    public void setLovedItem(final Album album, final boolean isLoved) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    mDatabase.beginTransaction();
+                    if (isLoved) {
+                        ContentValues values = new ContentValues();
+                        values.put(TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ALBUMNAME,
+                                album.getName());
+                        values.put(TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ARTISTNAME,
+                                album.getArtist().getName());
+                        mDatabase.insert(TomahawkSQLiteHelper.TABLE_LOVED_ALBUMS, null, values);
+                    } else {
+                        mDatabase.delete(TomahawkSQLiteHelper.TABLE_LOVED_ALBUMS,
+                                TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ALBUMNAME
+                                        + " = \"" + album.getName() + "\""
+                                        + " AND "
+                                        + TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ARTISTNAME
+                                        + " = \"" + album.getArtist().getName() + "\"", null
+                        );
+                    }
+                    mDatabase.setTransactionSuccessful();
+                    mDatabase.endTransaction();
+                }
+            }
+        }).start();
+    }
+
+    public void storeStarredArtists(final List<Artist> artists) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    mDatabase.beginTransaction();
+                    mDatabase.delete(TomahawkSQLiteHelper.TABLE_LOVED_ARTISTS, null, null);
+                    for (Artist artist : artists) {
+                        ContentValues values = new ContentValues();
+                        values.put(TomahawkSQLiteHelper.LOVED_ARTISTS_COLUMN_ARTISTNAME,
+                                artist.getName());
+                        mDatabase.insert(TomahawkSQLiteHelper.TABLE_LOVED_ARTISTS, null, values);
+                    }
+                    mDatabase.setTransactionSuccessful();
+                    mDatabase.endTransaction();
+                    sendReportResultsBroadcast();
+                }
+            }
+        }).start();
+    }
+
+    public void storeStarredAlbums(final List<Album> albums) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    mDatabase.beginTransaction();
+                    mDatabase.delete(TomahawkSQLiteHelper.TABLE_LOVED_ALBUMS, null, null);
+                    for (Album album : albums) {
+                        ContentValues values = new ContentValues();
+                        values.put(TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ALBUMNAME,
+                                album.getName());
+                        values.put(TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ARTISTNAME,
+                                album.getArtist().getName());
+                        mDatabase.insert(TomahawkSQLiteHelper.TABLE_LOVED_ALBUMS, null, values);
+                    }
+                    mDatabase.setTransactionSuccessful();
+                    mDatabase.endTransaction();
+                    sendReportResultsBroadcast();
+                }
+            }
+        }).start();
+    }
+
+    public ArrayList<Artist> getStarredArtists() {
+        ArrayList<Artist> starredArtists = new ArrayList<Artist>();
+        Cursor artistsCursor = mDatabase
+                .query(TomahawkSQLiteHelper.TABLE_LOVED_ARTISTS, mAllLovedArtistsColumns, null,
+                        null, null, null, null
+                );
+        artistsCursor.moveToFirst();
+        while (!artistsCursor.isAfterLast()) {
+            String artistName = artistsCursor.getString(1);
+            starredArtists.add(Artist.get(artistName));
+            artistsCursor.moveToNext();
+        }
+        artistsCursor.close();
+        return starredArtists;
+    }
+
+    public ArrayList<Album> getStarredAlbums() {
+        ArrayList<Album> starredAlbums = new ArrayList<Album>();
+        Cursor albumsCursor = mDatabase
+                .query(TomahawkSQLiteHelper.TABLE_LOVED_ALBUMS, mAllLovedAlbumsColumns, null, null,
+                        null, null, null
+                );
+        albumsCursor.moveToFirst();
+        while (!albumsCursor.isAfterLast()) {
+            String artistName = albumsCursor.getString(1);
+            String albumName = albumsCursor.getString(2);
+            starredAlbums.add(Album.get(albumName, Artist.get(artistName)));
+            albumsCursor.moveToNext();
+        }
+        albumsCursor.close();
+        return starredAlbums;
     }
 
     public Cursor getSearchHistoryCursor(String entry) {

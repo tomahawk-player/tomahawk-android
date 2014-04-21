@@ -21,6 +21,7 @@ import org.tomahawk.tomahawk_android.R;
 
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -63,6 +64,8 @@ public class ViewHolder {
     private LinearLayout mButton2;
 
     private LinearLayout mButton3;
+
+    private ImageButton mStarButton;
 
     public ViewHolder(View rootView, int viewType) {
         this(null, rootView, viewType);
@@ -109,6 +112,8 @@ public class ViewHolder {
                     .findViewById(R.id.content_header_button2);
             mButton3 = (LinearLayout) rootView
                     .findViewById(R.id.content_header_button3);
+            mStarButton = (ImageButton) rootView
+                    .findViewById(R.id.star_button);
         } else if (viewType == R.id.tomahawklistadapter_viewtype_contentheader_user_navdrawer) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.content_header_textview_user_navdrawer);
@@ -248,5 +253,9 @@ public class ViewHolder {
 
     public LinearLayout getButton3() {
         return mButton3;
+    }
+
+    public ImageButton getStarButton() {
+        return mStarButton;
     }
 }
