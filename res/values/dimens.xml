@@ -12,7 +12,7 @@
     <dimen name="row_height_verylarge">64dp</dimen>
     <dimen name="row_height_superlarge">96dp</dimen>
 
-    <dimen name="menu_item_height">52dp</dimen>
+    <dimen name="menu_item_height">48dp</dimen>
 
     <dimen name="header_clear_space">256dp</dimen>
     <dimen name="header_clear_space_user">144dp</dimen>
