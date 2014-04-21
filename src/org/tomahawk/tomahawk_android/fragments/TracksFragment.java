@@ -225,7 +225,6 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 if (getListAdapter() == null) {
                     tomahawkListAdapter = new TomahawkListAdapter(context, layoutInflater, queries);
                     tomahawkListAdapter.setShowResolvedBy(true);
-                    tomahawkListAdapter.setShowCategoryHeaders(true);
                     tomahawkListAdapter.showContentHeader(rootView, mUserPlaylist, mIsLocal);
                     setListAdapter(tomahawkListAdapter);
                 } else {
