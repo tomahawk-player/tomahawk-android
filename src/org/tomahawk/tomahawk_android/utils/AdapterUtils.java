@@ -20,7 +20,9 @@ package org.tomahawk.tomahawk_android.utils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
+import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
@@ -49,7 +51,7 @@ import java.util.concurrent.TimeUnit;
 public class AdapterUtils {
 
     public static void fillContentHeader(Context context, ViewHolder viewHolder,
-            Album album, boolean isOnlyLocal) {
+            final Album album, boolean isOnlyLocal) {
         if (viewHolder.getTextView1() != null) {
             viewHolder.getTextView1().setText(album.getName());
         }
@@ -61,10 +63,22 @@ public class AdapterUtils {
                 + context.getString(R.string.category_header_track) + (tracksCount == 1 ? ""
                 : "s");
         viewHolder.getTextView2().setText(s);
+        if (DatabaseHelper.getInstance().isItemLoved(album)) {
+            viewHolder.getStarButton().setImageResource(R.drawable.ic_action_starred);
+        } else {
+            viewHolder.getStarButton().setImageResource(R.drawable.ic_action_notstarred);
+        }
+        viewHolder.getStarButton().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                UserCollection.getInstance().toggleLovedItem(album);
+            }
+        });
+        viewHolder.getStarButton().setVisibility(View.VISIBLE);
     }
 
     public static void fillContentHeader(Context context, ViewHolder viewHolder,
-            Artist artist, boolean isOnlyLocal) {
+            final Artist artist, boolean isOnlyLocal) {
         if (viewHolder.getTextView1() != null) {
             viewHolder.getTextView1().setText(artist.getName());
         }
@@ -80,6 +94,18 @@ public class AdapterUtils {
                 + context.getString(R.string.category_header_album)
                 + (albumsCount == 1 ? "" : "s");
         viewHolder.getTextView2().setText(s);
+        if (DatabaseHelper.getInstance().isItemLoved(artist)) {
+            viewHolder.getStarButton().setImageResource(R.drawable.ic_action_starred);
+        } else {
+            viewHolder.getStarButton().setImageResource(R.drawable.ic_action_notstarred);
+        }
+        viewHolder.getStarButton().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                UserCollection.getInstance().toggleLovedItem(artist);
+            }
+        });
+        viewHolder.getStarButton().setVisibility(View.VISIBLE);
     }
 
     public static void fillContentHeader(Context context, ViewHolder viewHolder,

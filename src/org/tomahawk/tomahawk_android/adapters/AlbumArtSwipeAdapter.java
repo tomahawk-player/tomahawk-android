@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.adapters;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -351,7 +352,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                 }
             }
             if (loveButton != null) {
-                if (UserCollection.getInstance().isQueryLoved(query)) {
+                if (DatabaseHelper.getInstance().isItemLoved(query)) {
                     loveButton.setImageResource(R.drawable.ic_action_loved);
                 } else {
                     loveButton.setImageResource(R.drawable.ic_action_notloved);

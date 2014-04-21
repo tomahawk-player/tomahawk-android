@@ -19,8 +19,8 @@ package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
@@ -139,7 +139,7 @@ public class TomahawkContextMenuAdapter extends BaseAdapter {
             }
             menuItems.add(mContext.getString(R.string.menu_item_go_to_artist));
             menuItems.add(mContext.getString(R.string.menu_item_go_to_album));
-            if (UserCollection.getInstance().isQueryLoved(query)) {
+            if (DatabaseHelper.getInstance().isItemLoved(query)) {
                 menuItems.add(mContext.getString(R.string.fake_context_menu_unlove_track));
             } else {
                 menuItems.add(mContext.getString(R.string.fake_context_menu_love_track));

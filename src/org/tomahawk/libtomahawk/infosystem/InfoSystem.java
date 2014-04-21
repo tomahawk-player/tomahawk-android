@@ -247,7 +247,7 @@ public class InfoSystem {
      */
     public String resolveFollowings(User user) {
         if (user != null) {
-            Multimap<String, String> params = HashMultimap.create(1, 1);
+            Multimap<String, String> params = HashMultimap.create(2, 1);
             params.put(HatchetInfoPlugin.HATCHET_PARAM_USERID, user.getId());
             params.put(HatchetInfoPlugin.HATCHET_PARAM_TYPE,
                     HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_FOLLOW);
@@ -265,7 +265,7 @@ public class InfoSystem {
      */
     public String resolveFollowers(User user) {
         if (user != null) {
-            Multimap<String, String> params = HashMultimap.create(1, 1);
+            Multimap<String, String> params = HashMultimap.create(2, 1);
             params.put(HatchetInfoPlugin.HATCHET_PARAM_TARGETUSERID, user.getId());
             params.put(HatchetInfoPlugin.HATCHET_PARAM_TYPE,
                     HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_FOLLOW);
@@ -273,6 +273,42 @@ public class InfoSystem {
                     params, user);
         }
         return null;
+    }
+
+    /**
+     * Fetch the given user's list of starred albums
+     *
+     * @return the created InfoRequestData's requestId
+     */
+    public String resolveStarredAlbums(User user) {
+        Multimap<String, String> params = HashMultimap.create(3, 1);
+        if (user != null) {
+            params.put(HatchetInfoPlugin.HATCHET_PARAM_USERID, user.getId());
+        }
+        params.put(HatchetInfoPlugin.HATCHET_PARAM_TYPE,
+                HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_LOVE);
+        params.put(HatchetInfoPlugin.HATCHET_PARAM_TARGETTYPE,
+                HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TARGETTYPE_ALBUM);
+        return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS,
+                params, user);
+    }
+
+    /**
+     * Fetch the given user's list of starred artists
+     *
+     * @return the created InfoRequestData's requestId
+     */
+    public String resolveStarredArtists(User user) {
+        Multimap<String, String> params = HashMultimap.create(3, 1);
+        if (user != null) {
+            params.put(HatchetInfoPlugin.HATCHET_PARAM_USERID, user.getId());
+        }
+        params.put(HatchetInfoPlugin.HATCHET_PARAM_TYPE,
+                HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_LOVE);
+        params.put(HatchetInfoPlugin.HATCHET_PARAM_TARGETTYPE,
+                HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TARGETTYPE_ARTIST);
+        return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDARTISTS,
+                params, user);
     }
 
     /**
@@ -302,7 +338,11 @@ public class InfoSystem {
             TomahawkListItem itemToBeFilled) {
         String requestId = TomahawkMainActivity.getSessionUniqueStringId();
         InfoRequestData infoRequestData = new InfoRequestData(requestId, type, params);
-        resolve(infoRequestData, itemToBeFilled);
+        if (itemToBeFilled != null) {
+            resolve(infoRequestData, itemToBeFilled);
+        } else {
+            resolve(infoRequestData);
+        }
         return infoRequestData.getRequestId();
     }
 
@@ -375,14 +415,16 @@ public class InfoSystem {
         }
     }
 
-    public void sendSocialActionPostStruct(AuthenticatorUtils authenticatorUtils, Query query,
-            String type, boolean action) {
+    private void sendSocialActionPostStruct(AuthenticatorUtils authenticatorUtils,
+            String trackString, String artistString, String albumString, String type,
+            boolean action) {
         long timeStamp = System.currentTimeMillis();
         HatchetSocialAction socialAction = new HatchetSocialAction();
         socialAction.type = type;
         socialAction.action = String.valueOf(action);
-        socialAction.trackString = query.getName();
-        socialAction.artistString = query.getArtist().getName();
+        socialAction.trackString = trackString;
+        socialAction.artistString = artistString;
+        socialAction.albumString = albumString;
         socialAction.timestamp = new Date(timeStamp);
         HatchetSocialActionPostStruct socialActionPostStruct = new HatchetSocialActionPostStruct();
         socialActionPostStruct.socialAction = socialAction;
@@ -393,6 +435,23 @@ public class InfoSystem {
         DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
                 (int) (timeStamp / 1000));
         sendLoggedOps(authenticatorUtils);
+    }
+
+    public void sendSocialActionPostStruct(AuthenticatorUtils authenticatorUtils, Query query,
+            String type, boolean action) {
+        sendSocialActionPostStruct(authenticatorUtils, query.getName(), query.getArtist().getName(),
+                null, type, action);
+    }
+
+    public void sendSocialActionPostStruct(AuthenticatorUtils authenticatorUtils, Artist artist,
+            String type, boolean action) {
+        sendSocialActionPostStruct(authenticatorUtils, null, artist.getName(), null, type, action);
+    }
+
+    public void sendSocialActionPostStruct(AuthenticatorUtils authenticatorUtils, Album album,
+            String type, boolean action) {
+        sendSocialActionPostStruct(authenticatorUtils, null, album.getArtist().getName(),
+                album.getName(), type, action);
     }
 
     public List<String> sendLoggedOps(AuthenticatorUtils authenticatorUtils) {

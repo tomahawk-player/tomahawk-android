@@ -33,6 +33,17 @@ public class TomahawkPagerAdapter extends FragmentPagerAdapter {
 
     private List<String> mFragmentTitles;
 
+    private List<Bundle> mFragmentBundles;
+
+    public TomahawkPagerAdapter(FragmentManager fragmentManager, List<String> fragmentClassNames,
+            List<String> fragmentTitles, List<Bundle> fragmentBundles) {
+        super(fragmentManager);
+
+        mFragmentClassNames = fragmentClassNames;
+        mFragmentTitles = fragmentTitles;
+        mFragmentBundles = fragmentBundles;
+    }
+
     public TomahawkPagerAdapter(FragmentManager fragmentManager, List<String> fragmentClassNames,
             List<String> fragmentTitles) {
         super(fragmentManager);
@@ -43,8 +54,13 @@ public class TomahawkPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(TomahawkFragment.TOMAHAWK_LIST_ITEM_IS_LOCAL, true);
+        Bundle bundle;
+        if (mFragmentBundles != null && mFragmentBundles.get(position) != null) {
+            bundle = mFragmentBundles.get(position);
+        } else {
+            bundle = new Bundle();
+            bundle.putBoolean(TomahawkFragment.TOMAHAWK_LIST_ITEM_IS_LOCAL, true);
+        }
         return Fragment.instantiate(TomahawkApp.getContext(),
                 mFragmentClassNames.get(position), bundle);
     }

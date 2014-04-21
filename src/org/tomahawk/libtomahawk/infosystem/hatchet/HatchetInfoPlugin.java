@@ -125,6 +125,12 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
     public static final String HATCHET_RELATIONSHIPS_TYPE_FOLLOW = "follow";
 
+    public static final String HATCHET_RELATIONSHIPS_TYPE_LOVE = "love";
+
+    public static final String HATCHET_RELATIONSHIPS_TARGETTYPE_ALBUM = "album";
+
+    public static final String HATCHET_RELATIONSHIPS_TARGETTYPE_ARTIST = "artist";
+
     public static final double HATCHET_SEARCHITEM_MIN_SCORE = 5.0;
 
     public static final String HATCHET_PARAM_NAME = "name";
@@ -144,6 +150,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
     public static final String HATCHET_PARAM_USERID = "user_id";
 
     public static final String HATCHET_PARAM_TARGETUSERID = "target_user_id";
+
+    public static final String HATCHET_PARAM_TARGETTYPE = "target_type";
 
     public static final String HATCHET_ACCOUNTDATA_USER_ID = "hatchet_preference_user_id";
 
@@ -414,7 +422,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 || infoRequestData.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWINGS) {
             rawJsonString = TomahawkUtils.httpsGet(
-                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWERS,
+                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS,
                             infoRequestData.getParams())
             );
             HatchetRelationshipsStruct relationshipsStruct = mObjectMapper
@@ -434,6 +442,24 @@ public class HatchetInfoPlugin extends InfoPlugin {
             HatchetUsers hatchetUsers = mObjectMapper
                     .readValue(rawJsonString, HatchetUsers.class);
             infoRequestData.setInfoResult(hatchetUsers);
+            return true;
+        } else if (infoRequestData.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS
+                || infoRequestData.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDARTISTS) {
+            if (!infoRequestData.getParams().containsKey(HATCHET_PARAM_USERID)) {
+                infoRequestData.getParams().put(HATCHET_PARAM_USERID, mUserId);
+            }
+            rawJsonString = TomahawkUtils.httpsGet(
+                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS,
+                            infoRequestData.getParams())
+            );
+            HatchetRelationshipsStruct relationshipsStruct = mObjectMapper
+                    .readValue(rawJsonString, HatchetRelationshipsStruct.class);
+            if (relationshipsStruct.relationships.isEmpty()) {
+                return false;
+            }
+            infoRequestData.setInfoResult(relationshipsStruct);
             return true;
         }
         Log.d(TAG, "doInBackground(...) took " + (System.currentTimeMillis() - start)
@@ -571,6 +597,53 @@ public class HatchetInfoPlugin extends InfoPlugin {
                             users.users.get(0), trackInfoMap, artistInfoMap, imageMap));
                     convertedResultMap.put(HATCHET_USERS, convertedUsers);
                 }
+            }
+        } else if (infoRequestData.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS) {
+            if (infoRequestData.getInfoResult() != null) {
+                HatchetRelationshipsStruct relationShips
+                        = (HatchetRelationshipsStruct) infoRequestData.getInfoResult();
+                Map<String, HatchetAlbumInfo> albumInfoMap
+                        = new HashMap<String, HatchetAlbumInfo>();
+                for (HatchetAlbumInfo albumInfo : relationShips.albums) {
+                    albumInfoMap.put(albumInfo.id, albumInfo);
+                }
+                Map<String, HatchetArtistInfo> artistInfoMap
+                        = new HashMap<String, HatchetArtistInfo>();
+                for (HatchetArtistInfo artistInfo : relationShips.artists) {
+                    artistInfoMap.put(artistInfo.id, artistInfo);
+                }
+                List<Album> convertedAlbums = new ArrayList<Album>();
+                if (relationShips.relationships != null) {
+                    for (HatchetRelationshipStruct relationship : relationShips.relationships) {
+                        HatchetAlbumInfo albumInfo = albumInfoMap.get(relationship.targetAlbum);
+                        Album album = InfoSystemUtils
+                                .convertToAlbum(albumInfo, artistInfoMap.get(albumInfo.artist).name,
+                                        null, null);
+                        convertedAlbums.add(album);
+                    }
+                }
+                convertedResultMap.put(HATCHET_ALBUMS, convertedAlbums);
+            }
+        } else if (infoRequestData.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDARTISTS) {
+            if (infoRequestData.getInfoResult() != null) {
+                HatchetRelationshipsStruct relationShips
+                        = (HatchetRelationshipsStruct) infoRequestData.getInfoResult();
+                Map<String, HatchetArtistInfo> artistInfoMap
+                        = new HashMap<String, HatchetArtistInfo>();
+                for (HatchetArtistInfo artistInfo : relationShips.artists) {
+                    artistInfoMap.put(artistInfo.id, artistInfo);
+                }
+                List<Artist> convertedArtists = new ArrayList<Artist>();
+                if (relationShips.relationships != null) {
+                    for (HatchetRelationshipStruct relationship : relationShips.relationships) {
+                        HatchetArtistInfo artistInfo = artistInfoMap.get(relationship.targetArtist);
+                        Artist artist = InfoSystemUtils.convertToArtist(artistInfo, null);
+                        convertedArtists.add(artist);
+                    }
+                }
+                convertedResultMap.put(HATCHET_ARTISTS, convertedArtists);
             }
         }
         infoRequestData.setConvertedResultMap(convertedResultMap);
@@ -1052,7 +1125,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         + HATCHET_VERSION + "/"
                         + HATCHET_SOCIALACTIONS + "/";
                 break;
-            case InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWERS:
+            case InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS:
                 queryString = HATCHET_BASE_URL + "/"
                         + HATCHET_VERSION + "/"
                         + HATCHET_RELATIONSHIPS + "/";

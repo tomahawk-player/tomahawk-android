@@ -75,11 +75,26 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     public static final String INFOSYSTEMOPLOG_COLUMN_TIMESTAMP = "timestamp";
 
+    public static final String TABLE_LOVED_ALBUMS = "starred_albums";
+
+    public static final String LOVED_ALBUMS_COLUMN_ID = "id";
+
+    public static final String LOVED_ALBUMS_COLUMN_ARTISTNAME = "artistname";
+
+    public static final String LOVED_ALBUMS_COLUMN_ALBUMNAME = "albumname";
+
+    public static final String TABLE_LOVED_ARTISTS = "starred_artists";
+
+    public static final String LOVED_ARTISTS_COLUMN_ID = "id";
+
+    public static final String LOVED_ARTISTS_COLUMN_ARTISTNAME = "artistname";
+
+    //Legacy
     public static final String TABLE_ALBUMS = "albums";
 
     private static final String DATABASE_NAME = "userplaylists.db";
 
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 9;
 
     // Database creation sql statements
     private static final String CREATE_TABLE_USERPLAYLISTS =
@@ -115,6 +130,17 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
                     + INFOSYSTEMOPLOG_COLUMN_JSONSTRING + "` TEXT, `"
                     + INFOSYSTEMOPLOG_COLUMN_TIMESTAMP + "` INTEGER);";
 
+    private static final String CREATE_TABLE_LOVED_ALBUMS =
+            "CREATE TABLE `" + TABLE_LOVED_ALBUMS + "` (  `"
+                    + LOVED_ALBUMS_COLUMN_ID + "` INTEGER PRIMARY KEY AUTOINCREMENT, `"
+                    + LOVED_ALBUMS_COLUMN_ARTISTNAME + "` TEXT ,`"
+                    + LOVED_ALBUMS_COLUMN_ALBUMNAME + "` TEXT);";
+
+    private static final String CREATE_TABLE_LOVED_ARTISTS =
+            "CREATE TABLE `" + TABLE_LOVED_ARTISTS + "` (  `"
+                    + LOVED_ARTISTS_COLUMN_ID + "` INTEGER PRIMARY KEY AUTOINCREMENT, `"
+                    + LOVED_ARTISTS_COLUMN_ARTISTNAME + "` TEXT);";
+
     public TomahawkSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -128,6 +154,8 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
         database.execSQL(CREATE_TABLE_TRACKS);
         database.execSQL(CREATE_TABLE_SEARCHHISTORY);
         database.execSQL(CREATE_TABLE_INFOSYSTEMOPLOG);
+        database.execSQL(CREATE_TABLE_LOVED_ALBUMS);
+        database.execSQL(CREATE_TABLE_LOVED_ARTISTS);
     }
 
     /**
@@ -136,13 +164,20 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.d(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion
-                + ", which will destroy all old data");
-        db.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
-        db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ALBUMS + "`;");
-        db.execSQL("DROP TABLE IF EXISTS `" + TABLE_USERPLAYLISTS + "`;");
-        db.execSQL("DROP TABLE IF EXISTS `" + TABLE_SEARCHHISTORY + "`;");
-        db.execSQL("DROP TABLE IF EXISTS `" + TABLE_INFOSYSTEMOPLOG + "`;");
-        onCreate(db);
+                + ", which might destroy all old data");
+        if (oldVersion == 8 && newVersion == 9) {
+            db.execSQL(CREATE_TABLE_LOVED_ALBUMS);
+            db.execSQL(CREATE_TABLE_LOVED_ARTISTS);
+        } else {
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ALBUMS + "`;");
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_USERPLAYLISTS + "`;");
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_SEARCHHISTORY + "`;");
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_INFOSYSTEMOPLOG + "`;");
+            db.execSQL("DROP TABLE IF EXISTS `" + CREATE_TABLE_LOVED_ALBUMS + "`;");
+            db.execSQL("DROP TABLE IF EXISTS `" + CREATE_TABLE_LOVED_ARTISTS + "`;");
+            onCreate(db);
+        }
     }
 
 }

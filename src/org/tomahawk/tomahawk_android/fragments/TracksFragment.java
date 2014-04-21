@@ -162,7 +162,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         Context context = getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-        View rootView = getActivity().findViewById(android.R.id.content);
+        View rootView = getView();
         if (mAlbum != null) {
             activity.setTitle(mAlbum.getName());
             queries.addAll(mAlbum.getQueries(mIsLocal));
@@ -218,7 +218,9 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                         }
                 );
             } else {
-                activity.setTitle(mUserPlaylist.getName());
+                if (!mUserPlaylist.getId().equals(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID)) {
+                    activity.setTitle(mUserPlaylist.getName());
+                }
                 queries.addAll(mUserPlaylist.getQueries());
                 if (getListAdapter() == null) {
                     tomahawkListAdapter = new TomahawkListAdapter(context, layoutInflater, queries);
