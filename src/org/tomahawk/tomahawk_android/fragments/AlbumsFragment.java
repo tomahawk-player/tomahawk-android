@@ -152,7 +152,6 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
                         layoutInflater, albumsAndTopHits);
-                tomahawkListAdapter.setShowCategoryHeaders(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListItems(albumsAndTopHits);
