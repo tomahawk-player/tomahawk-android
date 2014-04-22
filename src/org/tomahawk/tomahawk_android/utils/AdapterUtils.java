@@ -167,7 +167,13 @@ public class AdapterUtils {
         TomahawkUtils.loadRoundedImageIntoImageView(context, viewHolder.getRoundedImage(),
                 user.getImage(), Image.getLargeImageSize());
         viewHolder.getRoundedImage().setVisibility(View.VISIBLE);
-        viewHolder.getTextView2().setText(user.getAbout());
+        viewHolder.getTextView1().setText(user.getAbout());
+        if (user.getNowPlaying() != null) {
+            viewHolder.getTextView2().setText(context.getString(R.string.content_header_nowplaying)
+                    + " " + user.getNowPlaying().getName() + " "
+                    + context.getString(R.string.album_by_artist)
+                    + " " + user.getNowPlaying().getArtist().getName());
+        }
         viewHolder.getTextView3().setText("" + user.getTotalPlays());
         viewHolder.getTextView4().setText("" + user.getFollowCount());
         viewHolder.getTextView5().setText("" + user.getFollowersCount());
@@ -198,12 +204,6 @@ public class AdapterUtils {
                         UsersFragment.SHOW_MODE_TYPE_FOLLOWERS);
             }
         });
-        if (user.getNowPlaying() != null) {
-            viewHolder.getTextView6().setText(context.getString(R.string.content_header_nowplaying)
-                    + " " + user.getNowPlaying().getName() + " "
-                    + context.getString(R.string.album_by_artist)
-                    + " " + user.getNowPlaying().getArtist().getName());
-        }
     }
 
     public static void fillView(Context context, ViewHolder viewHolder, Query query,
