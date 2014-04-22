@@ -277,7 +277,6 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                     AdapterUtils.fillContentHeader(mFragmentManager, mContext, viewHolder,
                             (User) mContentHeaderTomahawkListItem);
                 }
-                viewHolder.getTextView1().setText(item.getName());
             } else if (viewHolder.getViewType()
                     == R.id.tomahawklistadapter_viewtype_singlelinelistitem) {
                 viewHolder.getTextView1().setText(item.getName());

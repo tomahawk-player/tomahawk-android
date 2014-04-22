@@ -57,8 +57,6 @@ public class ViewHolder {
 
     private TextView mTextView5;
 
-    private TextView mTextView6;
-
     private LinearLayout mButton1;
 
     private LinearLayout mButton2;
@@ -88,8 +86,6 @@ public class ViewHolder {
                     .findViewById(R.id.content_header_textview4);
             mTextView5 = (TextView) rootView
                     .findViewById(R.id.content_header_textview5);
-            mTextView6 = (TextView) rootView
-                    .findViewById(R.id.content_header_textview6);
             mRoundedImage = (ImageView) rootView
                     .findViewById(R.id.content_header_roundedimage);
             View view = rootView;
@@ -237,10 +233,6 @@ public class ViewHolder {
 
     public TextView getTextView5() {
         return mTextView5;
-    }
-
-    public TextView getTextView6() {
-        return mTextView6;
     }
 
     public LinearLayout getButton1() {
