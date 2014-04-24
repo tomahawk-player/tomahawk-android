@@ -40,8 +40,8 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.utils.SpotifyMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
-import org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
+import org.tomahawk.tomahawk_android.utils.VLCMediaPlayer;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -402,7 +402,7 @@ public class PlaybackService extends Service
         unbindService(mSpotifyServiceConnection);
         mSpotifyServiceConnection = null;
         SpotifyMediaPlayer.getInstance().release();
-        TomahawkMediaPlayer.getInstance().release();
+        VLCMediaPlayer.getInstance().release();
         if (mWakeLock.isHeld()) {
             mWakeLock.release();
         }
@@ -420,7 +420,7 @@ public class PlaybackService extends Service
     }
 
     /**
-     * Called if given {@link TomahawkMediaPlayer} has been prepared for playback
+     * Called if given {@link VLCMediaPlayer} has been prepared for playback
      */
     @Override
     public void onPrepared(MediaPlayer mp) {
@@ -441,7 +441,7 @@ public class PlaybackService extends Service
     }
 
     /**
-     * Called if an error has occurred while trying to prepare {@link TomahawkMediaPlayer}
+     * Called if an error has occurred while trying to prepare {@link VLCMediaPlayer}
      */
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
@@ -459,7 +459,7 @@ public class PlaybackService extends Service
     }
 
     /**
-     * Called if given {@link org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer} has finished
+     * Called if given {@link org.tomahawk.tomahawk_android.utils.VLCMediaPlayer} has finished
      * playing a song. Prepare the next track if possible.
      */
     @Override
@@ -617,7 +617,7 @@ public class PlaybackService extends Service
     public void next() {
         Log.d(TAG, "next");
         if (mCurrentPlaylist != null) {
-            TomahawkMediaPlayer.getInstance().release();
+            VLCMediaPlayer.getInstance().release();
             SpotifyMediaPlayer.getInstance().release();
             Query query = null;
             int maxCount = mCurrentPlaylist.getCount();
@@ -638,7 +638,7 @@ public class PlaybackService extends Service
     public void previous() {
         Log.d(TAG, "previous");
         if (mCurrentPlaylist != null) {
-            TomahawkMediaPlayer.getInstance().release();
+            VLCMediaPlayer.getInstance().release();
             SpotifyMediaPlayer.getInstance().release();
             Query query = null;
             int maxCount = mCurrentPlaylist.getCount();
@@ -772,7 +772,7 @@ public class PlaybackService extends Service
 
     public void setCurrentQueryIndex(int queryIndex) {
         Log.d(TAG, "setCurrentQueryIndex to " + queryIndex);
-        TomahawkMediaPlayer.getInstance().release();
+        VLCMediaPlayer.getInstance().release();
         SpotifyMediaPlayer.getInstance().release();
         getCurrentPlaylist().setCurrentQueryIndex(queryIndex);
         handlePlayState();
@@ -815,7 +815,7 @@ public class PlaybackService extends Service
      */
     public void setCurrentPlaylist(Playlist playlist) {
         Log.d(TAG, "setCurrentPlaylist");
-        TomahawkMediaPlayer.getInstance().release();
+        VLCMediaPlayer.getInstance().release();
         SpotifyMediaPlayer.getInstance().release();
         mCurrentPlaylist = playlist;
         handlePlayState();

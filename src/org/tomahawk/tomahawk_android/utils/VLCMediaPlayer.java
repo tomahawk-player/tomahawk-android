@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,25 +17,27 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
-import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.videolan.libvlc.EventHandler;
+import org.videolan.libvlc.LibVLC;
+import org.videolan.libvlc.LibVlcException;
 
 import android.content.Context;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 /**
- * This class wraps a standard {@link MediaPlayer} object.
+ * This class wraps a libvlc mediaplayer instance.
  */
-public class TomahawkMediaPlayer
-        implements MediaPlayerInterface, MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
+public class VLCMediaPlayer implements MediaPlayerInterface {
 
-    private static String TAG = TomahawkMediaPlayer.class.getName();
+    private static String TAG = VLCMediaPlayer.class.getName();
 
-    private static TomahawkMediaPlayer instance;
+    private static VLCMediaPlayer instance;
 
     private MediaPlayer.OnPreparedListener mOnPreparedListener;
 
@@ -43,20 +45,47 @@ public class TomahawkMediaPlayer
 
     private MediaPlayer.OnErrorListener mOnErrorListener;
 
-    private MediaPlayer mMediaPlayer;
-
     private Query mPreparedQuery;
 
     private Query mPreparingQuery;
 
-    private TomahawkMediaPlayer() {
+    private LibVLC mLibVLC;
+
+    private VLCMediaPlayer() {
+        try {
+            mLibVLC = LibVLC.getInstance();
+            mLibVLC.init(TomahawkApp.getContext());
+            Handler eventHandler = new Handler(new Handler.Callback() {
+                @Override
+                public boolean handleMessage(Message msg) {
+                    Bundle data = msg.getData();
+                    if (data != null) {
+                        switch (data.getInt("event")) {
+                            case EventHandler.MediaPlayerEncounteredError:
+                                onError(null, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0);
+                                break;
+                            case EventHandler.MediaPlayerEndReached:
+                                onCompletion(null);
+                                break;
+                            default:
+                                return false;
+                        }
+                        return true;
+                    }
+                    return false;
+                }
+            });
+            EventHandler.getInstance().addHandler(eventHandler);
+        } catch (LibVlcException e) {
+            Log.e(TAG, "<init>: Failed to initialize LibVLC: " + e.getLocalizedMessage());
+        }
     }
 
-    public static TomahawkMediaPlayer getInstance() {
+    public static VLCMediaPlayer getInstance() {
         if (instance == null) {
-            synchronized (TomahawkMediaPlayer.class) {
+            synchronized (VLCMediaPlayer.class) {
                 if (instance == null) {
-                    instance = new TomahawkMediaPlayer();
+                    instance = new VLCMediaPlayer();
                 }
             }
         }
@@ -64,32 +93,27 @@ public class TomahawkMediaPlayer
     }
 
     /**
-     * Start playing the previously prepared {@link Track}
+     * Start playing the previously prepared {@link org.tomahawk.libtomahawk.collection.Track}
      */
     @Override
     public void start() throws IllegalStateException {
         Log.d(TAG, "start()");
-        if (mMediaPlayer != null) {
-            if (!mMediaPlayer.isPlaying()) {
-                mMediaPlayer.start();
-            }
-            // mMediaplayer.seekTo(0) should be called whenever a Track has just been prepared
-            // and is being started. This workaround is needed because of a bug in Android 4.4.
-            if (mMediaPlayer.getCurrentPosition() == 0) {
-                mMediaPlayer.seekTo(0);
+        if (mLibVLC != null) {
+            if (!mLibVLC.isPlaying()) {
+                mLibVLC.playIndex(0);
             }
         }
     }
 
     /**
-     * Pause playing the current {@link Track}
+     * Pause playing the current {@link org.tomahawk.libtomahawk.collection.Track}
      */
     @Override
     public void pause() throws IllegalStateException {
         Log.d(TAG, "pause()");
-        if (mMediaPlayer != null) {
-            if (mMediaPlayer.isPlaying()) {
-                mMediaPlayer.pause();
+        if (mLibVLC != null) {
+            if (mLibVLC.isPlaying()) {
+                mLibVLC.pause();
             }
         }
     }
@@ -100,8 +124,8 @@ public class TomahawkMediaPlayer
     @Override
     public void seekTo(int msec) throws IllegalStateException {
         Log.d(TAG, "seekTo()");
-        if (mMediaPlayer != null) {
-            mMediaPlayer.seekTo(msec);
+        if (mLibVLC != null) {
+            mLibVLC.setTime(msec);
         }
     }
 
@@ -120,26 +144,20 @@ public class TomahawkMediaPlayer
         mPreparedQuery = null;
         mPreparingQuery = query;
         release();
-        mMediaPlayer = MediaPlayer
-                .create(context, Uri.parse(query.getPreferredTrackResult().getPath()));
-        if (mMediaPlayer == null) {
+        if (mLibVLC == null) {
             return null;
         }
-        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mMediaPlayer.setOnPreparedListener(this);
-        mMediaPlayer.setOnErrorListener(this);
-        mMediaPlayer.setOnCompletionListener(this);
+        mLibVLC.getMediaList().clear();
+        mLibVLC.getMediaList().insert(0,
+                LibVLC.PathToURI(query.getPreferredTrackResult().getPath()));
+        onPrepared(null);
         return this;
     }
 
     @Override
     public void release() {
         Log.d(TAG, "release()");
-        mPreparedQuery = null;
-        if (mMediaPlayer != null) {
-            mMediaPlayer.release();
-            mMediaPlayer = null;
-        }
+        pause();
     }
 
     /**
@@ -147,8 +165,8 @@ public class TomahawkMediaPlayer
      */
     @Override
     public int getPosition() {
-        if (mMediaPlayer != null && mPreparedQuery != null) {
-            return mMediaPlayer.getCurrentPosition();
+        if (mLibVLC != null && mPreparedQuery != null) {
+            return (int) mLibVLC.getTime();
         } else {
             return 0;
         }
@@ -156,20 +174,19 @@ public class TomahawkMediaPlayer
 
     @Override
     public boolean isPlaying(Query query) {
-        return mMediaPlayer != null && mPreparedQuery == query && mMediaPlayer.isPlaying();
+        return mLibVLC != null && isPrepared(query) && mLibVLC.isPlaying();
     }
 
     @Override
     public boolean isPreparing(Query query) {
-        return mPreparingQuery == query;
+        return mPreparingQuery != null && mPreparingQuery == query;
     }
 
     @Override
     public boolean isPrepared(Query query) {
-        return mPreparedQuery == query;
+        return mPreparedQuery != null && mPreparedQuery == query;
     }
 
-    @Override
     public void onPrepared(MediaPlayer mp) {
         Log.d(TAG, "onPrepared()");
         mPreparedQuery = mPreparingQuery;
@@ -177,7 +194,6 @@ public class TomahawkMediaPlayer
         mOnPreparedListener.onPrepared(mp);
     }
 
-    @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
         Log.d(TAG, "onError()");
         mPreparedQuery = null;
@@ -185,7 +201,6 @@ public class TomahawkMediaPlayer
         return mOnErrorListener.onError(mp, what, extra);
     }
 
-    @Override
     public void onCompletion(MediaPlayer mp) {
         Log.d(TAG, "onCompletion()");
         mOnCompletionListener.onCompletion(mp);
