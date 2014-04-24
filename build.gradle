@@ -24,6 +24,7 @@ dependencies {
     compile "com.google.guava:guava:16.0"
     compile "com.squareup.picasso:picasso:2.1.1"
     compile "com.github.castorflex.verticalviewpager:library:19.0.0"
+    compile "de.mrmaffen:vlc-android-sdk:1.0.1"
 }
 
 /*
@@ -98,20 +99,6 @@ android {
     }
 
     productFlavors {
-        x86 {
-            versionName getNewVersionName() + "_x86"
-            versionCode Integer.parseInt("6" + defaultConfig.versionCode)
-            ndk {
-                abiFilter "x86"
-            }
-        }
-        mips {
-            versionName getNewVersionName() + "_mips"
-            versionCode Integer.parseInt("4" + defaultConfig.versionCode)
-            ndk {
-                abiFilter "mips"
-            }
-        }
         arm {
             versionName getNewVersionName() + "_arm"
             versionCode Integer.parseInt("1" + defaultConfig.versionCode)

@@ -23,7 +23,7 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
 import org.tomahawk.tomahawk_android.utils.SpotifyMediaPlayer;
-import org.tomahawk.tomahawk_android.utils.TomahawkMediaPlayer;
+import org.tomahawk.tomahawk_android.utils.VLCMediaPlayer;
 
 import android.text.TextUtils;
 
@@ -86,7 +86,7 @@ public class Result {
         if (mResolvedBy.getId() == PipeLine.RESOLVER_ID_SPOTIFY){
             mMediaPlayerInterface = SpotifyMediaPlayer.getInstance();
         } else {
-            mMediaPlayerInterface = TomahawkMediaPlayer.getInstance();
+            mMediaPlayerInterface = VLCMediaPlayer.getInstance();
             if (mResolvedBy.getId() == PipeLine.RESOLVER_ID_USERCOLLECTION){
                 mIsLocal = true;
             }
