@@ -106,9 +106,9 @@ public class SpotifyResolver implements Resolver {
      *
      * @param id the id of this {@link Resolver}
      */
-    public SpotifyResolver(int id, Context context) {
+    public SpotifyResolver(int id) {
         mId = id;
-        mIcon = context.getResources().getDrawable(R.drawable.spotify_icon);
+        mIcon = TomahawkApp.getContext().getResources().getDrawable(R.drawable.spotify_icon);
         PipeLine.getInstance().onResolverReady();
     }
 

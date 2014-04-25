@@ -22,8 +22,8 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 
-import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 
@@ -58,16 +58,16 @@ public class DataBaseResolver implements Resolver {
      *
      * @param id the id of this {@link Resolver}
      */
-    public DataBaseResolver(int id, Context context) {
+    public DataBaseResolver(int id) {
         mId = id;
         mWeight = 100;
         mReady = false;
         mStopped = true;
         mName = String.valueOf(PipeLine.RESOLVER_ID_USERCOLLECTION);
         if (id == PipeLine.RESOLVER_ID_USERCOLLECTION) {
-            mIcon = context.getResources().getDrawable(R.drawable.ic_action_sd_storage);
+            mIcon = TomahawkApp.getContext().getResources().getDrawable(R.drawable.ic_action_sd_storage);
         } else {
-            mIcon = context.getResources().getDrawable(R.drawable.ic_resolver_default);
+            mIcon = TomahawkApp.getContext().getResources().getDrawable(R.drawable.ic_resolver_default);
         }
 
         mReady = true;

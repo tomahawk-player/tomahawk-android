@@ -1,11 +1,17 @@
 package org.tomahawk.libtomahawk.resolver;
 
-import org.json.JSONException;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONObject;
+import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.tomahawk_android.R;
 
 import android.util.Log;
 import android.webkit.JavascriptInterface;
+
+import java.io.IOException;
+import java.util.Map;
 
 /**
  * This class contains all methods that are being exposed to the javascript script inside a {@link
@@ -16,6 +22,8 @@ public class ScriptInterface {
     private final static String TAG = ScriptInterface.class.getName();
 
     private ScriptResolver mScriptResolver;
+
+    private ObjectMapper mObjectMapper;
 
     ScriptInterface(ScriptResolver scriptResolver) {
         mScriptResolver = scriptResolver;
@@ -47,14 +55,24 @@ public class ScriptInterface {
      */
     @JavascriptInterface
     public String resolverDataString() {
-        JSONObject result = new JSONObject();
+        if (mObjectMapper == null) {
+            mObjectMapper = InfoSystemUtils.constructObjectMapper();
+        }
+        Map<String, String> config = mScriptResolver.getConfig();
+        ScriptResolverData data = new ScriptResolverData();
+        data.scriptPath = mScriptResolver.getScriptFilePath();
+        data.config = config;
+        String jsonString = "";
         try {
-            result.put("scriptPath", mScriptResolver.getScriptFilePath());
-            result.put("config", mScriptResolver.getScriptFilePath());
-        } catch (JSONException e) {
+            jsonString = mObjectMapper.writeValueAsString(data);
+        } catch (JsonMappingException e) {
+            Log.e(TAG, "resolverDataString: " + e.getClass() + ": " + e.getLocalizedMessage());
+        } catch (JsonGenerationException e) {
+            Log.e(TAG, "resolverDataString: " + e.getClass() + ": " + e.getLocalizedMessage());
+        } catch (IOException e) {
             Log.e(TAG, "resolverDataString: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
-        return result.toString();
+        return jsonString;
     }
 
     /**
@@ -62,7 +80,7 @@ public class ScriptInterface {
      */
     @JavascriptInterface
     public void log(String message) {
-        //Log.d(TAG, "log: " + mScriptResolver.getScriptFilePath() + ":" + message);
+        Log.d(TAG, "log: " + mScriptResolver.getScriptFilePath() + ":" + message);
     }
 
     /**
@@ -87,4 +105,24 @@ public class ScriptInterface {
     public void reportCapabilities(int in) {
     }
 
+    /**
+     * This method is needed because the javascript script is expecting an exposed method which it
+     * can call to report its capabilities. This method is being called in tomahawk_android.js
+     */
+    @JavascriptInterface
+    public void addCustomUrlTranslator(String protocol, String callbackFuncName, boolean isAsync) {
+    }
+
+    @JavascriptInterface
+    public void reportUrlTranslation(String qid, String url) {
+        Log.d("test", "ScriptInterface reportUrlTranslation " + qid + " " + url);
+        mScriptResolver.handleCallbackToJava(R.id.scriptresolver_report_url_translation, qid, url);
+    }
+
+    @JavascriptInterface
+    public String readBase64(String fileName) {
+        // We return an empty string because we don't want the base64 string containing png image
+        // data or stuff from config.ui.
+        return "";
+    }
 }

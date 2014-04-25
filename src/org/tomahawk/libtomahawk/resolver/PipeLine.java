@@ -25,9 +25,11 @@ import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.content.Intent;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -49,6 +51,8 @@ public class PipeLine {
 
     public static final int RESOLVER_ID_SOUNDCLOUD = 103;
 
+    public static final int RESOLVER_ID_BEATSMUSIC = 104;
+
     public static final int RESOLVER_ID_SPOTIFY = 200;
 
     public static final int PIPELINE_SEARCHTYPE_TRACKS = 0;
@@ -59,6 +63,9 @@ public class PipeLine {
 
     public static final String PIPELINE_RESULTSREPORTED
             = "org.tomahawk.tomahawk_android.pipeline_resultsreported";
+
+    public static final String PIPELINE_URLTRANSLATIONREPORTED
+            = "org.tomahawk.tomahawk_android.pipeline_urltranslationreported";
 
     public static final String PIPELINE_RESULTSREPORTED_QUERYKEY
             = "org.tomahawk.tomahawk_android.pipeline_resultsreported_querykey";
@@ -91,24 +98,23 @@ public class PipeLine {
     public void ensureInit() {
         if (!mInitialized) {
             mInitialized = true;
-            mResolvers.add(new DataBaseResolver(PipeLine.RESOLVER_ID_USERCOLLECTION,
-                    TomahawkApp.getContext()));
-            ScriptResolver scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_JAMENDO,
-                    "js/jamendo/content/contents/code/jamendo.js", TomahawkApp.getContext());
+            mResolvers.add(new DataBaseResolver(PipeLine.RESOLVER_ID_USERCOLLECTION));
+            ScriptResolver scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_BEATSMUSIC,
+                    "js/beatsmusic/content");
+            mResolvers.add(scriptResolver);
+            scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_JAMENDO,
+                    "js/jamendo/content");
             mResolvers.add(scriptResolver);
             scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_OFFICIALFM,
-                    "js/official.fm/content/contents/code/officialfm.js",
-                    TomahawkApp.getContext());
+                    "js/official.fm/content");
             mResolvers.add(scriptResolver);
             scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_EXFM,
-                    "js/exfm/content/contents/code/exfm.js", TomahawkApp.getContext());
+                    "js/exfm/content");
             mResolvers.add(scriptResolver);
             scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_SOUNDCLOUD,
-                    "js/soundcloud/content/contents/code/soundcloud.js",
-                    TomahawkApp.getContext());
+                    "js/soundcloud/content");
             mResolvers.add(scriptResolver);
-            SpotifyResolver spotifyResolver = new SpotifyResolver(PipeLine.RESOLVER_ID_SPOTIFY,
-                    TomahawkApp.getContext());
+            SpotifyResolver spotifyResolver = new SpotifyResolver(PipeLine.RESOLVER_ID_SPOTIFY);
             mResolvers.add(spotifyResolver);
             setAllResolversAdded(true);
         }
@@ -124,6 +130,19 @@ public class PipeLine {
             }
         }
         return null;
+    }
+
+    /**
+     * Get the ArrayList of all {@link org.tomahawk.libtomahawk.resolver.ScriptResolver}s
+     */
+    public ArrayList<ScriptResolver> getScriptResolvers() {
+        ArrayList<ScriptResolver> scriptResolvers = new ArrayList<ScriptResolver>();
+        for (Resolver resolver : mResolvers) {
+            if (resolver instanceof ScriptResolver) {
+                scriptResolvers.add((ScriptResolver) resolver);
+            }
+        }
+        return scriptResolvers;
     }
 
     /**
@@ -173,7 +192,7 @@ public class PipeLine {
      * This will invoke every {@link Resolver} to resolve the given {@link Query}.
      */
     public String resolve(final Query q, final boolean forceOnlyLocal) {
-        TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_RESOLVING) {
+        final TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_RESOLVING) {
             @Override
             public void run() {
                 if (!forceOnlyLocal && q.isSolved()) {
@@ -185,10 +204,7 @@ public class PipeLine {
                         }
                     } else {
                         for (final Resolver resolver : mResolvers) {
-                            if ((forceOnlyLocal && resolver instanceof DataBaseResolver)
-                                    || (!forceOnlyLocal && q.isOnlyLocal()
-                                    && resolver instanceof DataBaseResolver)
-                                    || (!forceOnlyLocal && !q.isOnlyLocal())) {
+                            if (shouldResolve(resolver, q, forceOnlyLocal)) {
                                 resolver.resolve(q);
                             }
                         }
@@ -198,6 +214,42 @@ public class PipeLine {
         };
         ThreadManager.getInstance().execute(r, q);
         return q.getCacheKey();
+    }
+
+    /**
+     * Method to determine if a given Resolver should resolve the query or not
+     */
+    public boolean shouldResolve(Resolver resolver, Query q, boolean forceOnlyLocal) {
+        if (!forceOnlyLocal && !q.isOnlyLocal()) {
+            if (resolver instanceof ScriptResolver) {
+                ScriptResolver scriptResolver = ((ScriptResolver) resolver);
+                if (scriptResolver.isEnabled()) {
+                    if (scriptResolver.getId() != RESOLVER_ID_BEATSMUSIC) {
+                        return true;
+                    } else {
+                        boolean configured = true;
+                        Map<String, String> config = scriptResolver.getConfig();
+                        if (config != null && scriptResolver.getConfigUi() != null
+                                && scriptResolver.getConfigUi().fields != null) {
+                            for (ScriptResolverConfigUiField field : scriptResolver
+                                    .getConfigUi().fields) {
+                                if (TextUtils.isEmpty(config.get(field.name))) {
+                                    configured = false;
+                                }
+                            }
+                        }
+                        if (configured) {
+                            return true;
+                        }
+                    }
+                }
+            } else {
+                return true;
+            }
+        } else if (resolver instanceof DataBaseResolver) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -222,6 +274,15 @@ public class PipeLine {
             }
         }
         return queryKeys;
+    }
+
+    /**
+     * Send a broadcast containing the key of the resolved {@link Query}.
+     */
+    private void sendUrlTranslationReportBroadcast(String queryKey) {
+        Intent reportIntent = new Intent(PIPELINE_URLTRANSLATIONREPORTED);
+        reportIntent.putExtra(PIPELINE_RESULTSREPORTED_QUERYKEY, queryKey);
+        TomahawkApp.getContext().sendBroadcast(reportIntent);
     }
 
     /**
@@ -302,6 +363,13 @@ public class PipeLine {
                     }
                 }
         );
+    }
+
+    public void reportUrlTranslation(String queryKey, String url, int resolverId) {
+        Result result = Query.getQueryByKey(queryKey).getPreferredTrackResult();
+        result.setTranslatedUrl(url);
+        sendUrlTranslationReportBroadcast(queryKey);
+        Log.d("test", "converted " + result.getLinkUrl() + " to " + result.getPath());
     }
 
     /**

@@ -171,7 +171,8 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                             .inflate(R.layout.fake_preferences_checkbox, parent, false);
                     viewHolder = new ViewHolder(view, viewType);
                     view.setTag(viewHolder);
-                } else if (viewType == R.id.fakepreferencesadapter_viewtype_auth) {
+                } else if (viewType == R.id.fakepreferencesadapter_viewtype_auth ||
+                        viewType == R.id.fakepreferencesadapter_viewtype_config) {
                     view = mLayoutInflater.inflate(R.layout.fake_preferences_auth, parent, false);
                     viewHolder = new ViewHolder(view, viewType);
                     view.setTag(viewHolder);
@@ -193,7 +194,8 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
             // After we've set up the correct view and viewHolder, we now can fill the View's
             // components with the correct data
             if (viewHolder.getViewType() == R.id.fakepreferencesadapter_viewtype_checkbox) {
-                boolean preferenceState = mSharedPreferences.getBoolean(item.getKey(), false);
+                boolean preferenceState = mSharedPreferences
+                        .getBoolean(item.getStorageKey(), false);
                 viewHolder.getCheckBox().setChecked(preferenceState);
             } else if (viewHolder.getViewType() == R.id.fakepreferencesadapter_viewtype_auth) {
                 viewHolder.getImageView2().setVisibility(View.VISIBLE);
@@ -204,8 +206,16 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                 } else {
                     viewHolder.getImageView2().clearColorFilter();
                 }
+            } else if (viewHolder.getViewType() == R.id.fakepreferencesadapter_viewtype_config) {
+                viewHolder.getImageView2().setVisibility(View.VISIBLE);
+                viewHolder.getImageView2().setImageDrawable(item.getDrawable());
+                if (!item.isEnabled()) {
+                    viewHolder.getImageView2().setColorFilter(GreyscaleFilter.create());
+                } else {
+                    viewHolder.getImageView2().clearColorFilter();
+                }
             } else if (viewHolder.getViewType() == R.id.fakepreferencesadapter_viewtype_spinner) {
-                String key = item.getKey();
+                String key = item.getStorageKey();
                 viewHolder.getSpinner().setSelection(mSharedPreferences
                         .getInt(key, SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE_MODE_MEDIUM));
                 viewHolder.getSpinner().setOnItemSelectedListener(new SpinnerListener(key));
@@ -284,6 +294,8 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
             return R.id.fakepreferencesadapter_viewtype_auth;
         } else if (item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_SPINNER) {
             return R.id.fakepreferencesadapter_viewtype_spinner;
+        } else if (item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CONFIG) {
+            return R.id.fakepreferencesadapter_viewtype_config;
         }
         return R.id.fakepreferencesadapter_viewtype_plain;
     }

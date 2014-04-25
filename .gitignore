@@ -6,6 +6,7 @@
 
 # built NDK stuff
 libs/armeabi
+libs/armeabi-v7a
 obj/
 
 # files for the dex VM
