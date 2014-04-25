@@ -261,12 +261,13 @@ public class PlaybackService extends Service
             if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(intent.getAction())) {
                 // AudioManager tells us that the sound will be played through the speaker
                 if (isPlaying()) {
+                    Log.d(TAG, "Action audio becoming noisy, pausing ...");
                     // So we stop playback, if needed
                     pause();
                 }
             } else if (Intent.ACTION_HEADSET_PLUG.equals(intent.getAction()) && intent
                     .hasExtra("state") && intent.getIntExtra("state", 0) == 1) {
-                // Headset has been plugged in
+                Log.d(TAG, "Headset has been plugged in");
                 SharedPreferences prefs =
                         PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 boolean playbackOnHeadsetInsert = prefs
@@ -463,6 +464,7 @@ public class PlaybackService extends Service
      */
     @Override
     public void onCompletion(MediaPlayer mp) {
+        Log.d(TAG, "onCompletion");
         if (mCurrentPlaylist != null && mCurrentPlaylist.peekNextQuery() != null) {
             next();
         } else {
@@ -525,6 +527,7 @@ public class PlaybackService extends Service
      * Initial start of playback. Acquires wakelock and creates a notification
      */
     public void start() {
+        Log.d(TAG, "start");
         mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
         sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
         handlePlayState();
@@ -544,6 +547,7 @@ public class PlaybackService extends Service
      * @param dismissNotificationOnPause if true, dismiss notification on pause, otherwise don't
      */
     public void pause(boolean dismissNotificationOnPause) {
+        Log.d(TAG, "pause, dismissing Notification:" + dismissNotificationOnPause);
         mPlayState = PLAYBACKSERVICE_PLAYSTATE_PAUSED;
         sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
         handlePlayState();
@@ -559,6 +563,7 @@ public class PlaybackService extends Service
      * Update the TomahawkMediaPlayer so that it reflects the current playState
      */
     public void handlePlayState() {
+        Log.d(TAG, "handlePlayState");
         if (!isPreparing() && getCurrentQuery() != null
                 && getCurrentQuery().getMediaPlayerInterface() != null) {
             try {
@@ -594,13 +599,15 @@ public class PlaybackService extends Service
                 }
             } catch (IllegalStateException e1) {
                 Log.e(TAG,
-                        "handlePlayState() IllegalStateException, msg:" + e1.getLocalizedMessage()
+                        "handlePlayState IllegalStateException, msg:" + e1.getLocalizedMessage()
                                 + " , preparing=" + isPreparing()
                 );
             }
             mKillTimerHandler.removeCallbacksAndMessages(null);
             Message msg = mKillTimerHandler.obtainMessage();
             mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
+        } else {
+            Log.d(TAG, "handlePlayState couldn't do anything, isPreparing" + isPreparing());
         }
     }
 
@@ -608,6 +615,7 @@ public class PlaybackService extends Service
      * Start playing the next Track.
      */
     public void next() {
+        Log.d(TAG, "next");
         if (mCurrentPlaylist != null) {
             TomahawkMediaPlayer.getInstance().release();
             SpotifyMediaPlayer.getInstance().release();
@@ -628,6 +636,7 @@ public class PlaybackService extends Service
      * Play the previous track.
      */
     public void previous() {
+        Log.d(TAG, "previous");
         if (mCurrentPlaylist != null) {
             TomahawkMediaPlayer.getInstance().release();
             SpotifyMediaPlayer.getInstance().release();
@@ -648,6 +657,7 @@ public class PlaybackService extends Service
      * Set whether or not to enable shuffle mode on the current playlist.
      */
     public void setShuffled(boolean shuffled) {
+        Log.d(TAG, "setShuffled to " + shuffled);
         mCurrentPlaylist.setShuffled(shuffled);
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
@@ -656,6 +666,7 @@ public class PlaybackService extends Service
      * Set whether or not to enable repeat mode on the current playlist.
      */
     public void setRepeating(boolean repeating) {
+        Log.d(TAG, "setRepeating to " + repeating);
         mCurrentPlaylist.setRepeating(repeating);
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
@@ -699,6 +710,7 @@ public class PlaybackService extends Service
      * This method sets the current track and prepares it for playback.
      */
     private void prepareCurrentQuery() {
+        Log.d(TAG, "prepareCurrentQuery");
         if (getCurrentQuery() != null) {
             if (getCurrentQuery().isPlayable()) {
                 mKillTimerHandler.removeCallbacksAndMessages(null);
@@ -759,6 +771,7 @@ public class PlaybackService extends Service
     }
 
     public void setCurrentQueryIndex(int queryIndex) {
+        Log.d(TAG, "setCurrentQueryIndex to " + queryIndex);
         TomahawkMediaPlayer.getInstance().release();
         SpotifyMediaPlayer.getInstance().release();
         getCurrentPlaylist().setCurrentQueryIndex(queryIndex);
@@ -768,6 +781,7 @@ public class PlaybackService extends Service
     }
 
     private void onTrackChanged() {
+        Log.d(TAG, "onTrackChanged");
         sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
         if (getCurrentQuery() != null) {
             resolveQueriesFromTo(getCurrentPlaylist().getCurrentQueryIndex(),
@@ -800,6 +814,7 @@ public class PlaybackService extends Service
      * Track.
      */
     public void setCurrentPlaylist(Playlist playlist) {
+        Log.d(TAG, "setCurrentPlaylist");
         TomahawkMediaPlayer.getInstance().release();
         SpotifyMediaPlayer.getInstance().release();
         mCurrentPlaylist = playlist;
@@ -813,6 +828,7 @@ public class PlaybackService extends Service
      * current {@link Playlist}
      */
     public void addQueriesToCurrentPlaylist(ArrayList<Query> queries) {
+        Log.d(TAG, "addQueriesToCurrentPlaylist count: " + queries.size());
         if (mCurrentPlaylist == null) {
             mCurrentPlaylist = UserPlaylist
                     .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
@@ -828,6 +844,8 @@ public class PlaybackService extends Service
      * position
      */
     public void addQueriesToCurrentPlaylist(int position, ArrayList<Query> queries) {
+        Log.d(TAG, "addQueriesToCurrentPlaylist at position " + position + " count: " + queries
+                .size());
         if (mCurrentPlaylist == null) {
             mCurrentPlaylist = UserPlaylist
                     .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
@@ -846,6 +864,7 @@ public class PlaybackService extends Service
      * Remove query at given position from current playlist
      */
     public void deleteQueryAtPos(int position) {
+        Log.d(TAG, "deleteQueryAtPos at position " + position);
         mCurrentPlaylist.deleteQueryAtPos(position);
         if (mCurrentPlaylist.getCount() == 0) {
             pause(true);
@@ -857,6 +876,7 @@ public class PlaybackService extends Service
      * Remove query at given position from current playlist
      */
     public void deleteQuery(Query query) {
+        Log.d(TAG, "deleteQuery");
         mCurrentPlaylist.deleteQuery(query);
         if (mCurrentPlaylist.getCount() == 0) {
             pause(true);
@@ -883,6 +903,7 @@ public class PlaybackService extends Service
      * Seeks to position msec
      */
     public void seekTo(int msec) {
+        Log.d(TAG, "seekTo " + msec);
         if (getCurrentQuery() != null && getCurrentQuery().getMediaPlayerInterface() != null
                 && getCurrentQuery().getMediaPlayerInterface().isPrepared(getCurrentQuery())) {
             getCurrentQuery().getMediaPlayerInterface().seekTo(msec);
@@ -893,6 +914,7 @@ public class PlaybackService extends Service
      * Create or update an ongoing notification
      */
     public void updatePlayingNotification() {
+        Log.d(TAG, "updatePlayingNotification");
         Query query = getCurrentQuery();
         if (query == null) {
             return;
