@@ -13,12 +13,17 @@
  *   all copies or substantial portions of the Software.
  */
 
+// This detour is needed because we can only send Strings and no JSON objects from Java to JS
+// through the Javascript Interface.
 Tomahawk.resolverData =
     function () {
         return JSON.parse(Tomahawk.resolverDataString());
     };
 
+// This detour is needed because we can only send Strings and no JSON objects back to JAVA through
+// the Javascript Interface. Therefore we receive the JSON object here, stringify it and send it
+// back to Java, where we then parse it to a JSON object again.
 Tomahawk.addTrackResults =
     function (results) {
         Tomahawk.addTrackResultsString(JSON.stringify(results));
-    }
+    };

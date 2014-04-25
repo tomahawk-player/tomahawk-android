@@ -19,10 +19,13 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
+import org.tomahawk.libtomahawk.resolver.PipeLine;
+import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter;
 import org.tomahawk.tomahawk_android.dialogs.LoginDialog;
+import org.tomahawk.tomahawk_android.dialogs.ResolverConfigDialog;
 import org.tomahawk.tomahawk_android.utils.FakePreferenceGroup;
 
 import android.content.SharedPreferences;
@@ -51,11 +54,11 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
     private static final String TAG = FakePreferenceFragment.class.getName();
 
-    public static final String FAKEPREFERENCEFRAGMENT_KEY_HATCHETLOGGEDIN
-            = "org.tomahawk.tomahawk_android.hatchetloggedin";
+    public static final int FAKEPREFERENCEFRAGMENT_ID_PREFBITRATE = 0;
 
-    public static final String FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN
-            = "org.tomahawk.tomahawk_android.spotifyloggedin";
+    public static final int FAKEPREFERENCEFRAGMENT_ID_PLUGINTOPLAY = 1;
+
+    public static final int FAKEPREFERENCEFRAGMENT_ID_APPVERSION = 2;
 
     public static final String FAKEPREFERENCEFRAGMENT_KEY_PREFBITRATE
             = "org.tomahawk.tomahawk_android.prefbitrate";
@@ -87,26 +90,38 @@ public class FakePreferenceFragment extends TomahawkListFragment
         mFakePreferenceGroups = new ArrayList<FakePreferenceGroup>();
         FakePreferenceGroup prefGroup = new FakePreferenceGroup(
                 getString(R.string.fakepreference_accounts_header));
-        prefGroup.addFakePreference(FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH,
-                FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN,
-                getString(R.string.fakepreference_spotifylogin_title_string),
-                getString(R.string.fakepreference_spotifylogin_summary_string),
-                R.drawable.spotify_icon);
-        prefGroup.addFakePreference(FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH,
-                FAKEPREFERENCEFRAGMENT_KEY_HATCHETLOGGEDIN,
+        prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
+                FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH,
+                AuthenticatorManager.AUTHENTICATOR_ID_HATCHET,
                 getString(R.string.fakepreference_hatchetlogin_title_string),
                 getString(R.string.fakepreference_hatchetlogin_summary_string),
-                R.drawable.hatchet_icon);
+                R.drawable.hatchet_icon));
+        prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
+                FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH,
+                AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY,
+                getString(R.string.fakepreference_spotifylogin_title_string),
+                getString(R.string.fakepreference_spotifylogin_summary_string),
+                R.drawable.spotify_icon));
+        for (ScriptResolver scriptResolver : PipeLine.getInstance().getScriptResolvers()) {
+            prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
+                    FakePreferenceGroup.FAKEPREFERENCE_TYPE_CONFIG, scriptResolver.getId(),
+                    scriptResolver.isEnabled(), scriptResolver.getName(),
+                    scriptResolver.getDescription(), scriptResolver.getIcon()));
+        }
         mFakePreferenceGroups.add(prefGroup);
         prefGroup = new FakePreferenceGroup(getString(R.string.fakepreference_playback_header));
-        prefGroup.addFakePreference(FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX,
+        prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
+                FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX,
+                FAKEPREFERENCEFRAGMENT_ID_PLUGINTOPLAY,
                 FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY,
                 getString(R.string.fakepreference_plugintoplay_title_string),
-                getString(R.string.fakepreference_plugintoplay_summary_string));
-        prefGroup.addFakePreference(FakePreferenceGroup.FAKEPREFERENCE_TYPE_SPINNER,
+                getString(R.string.fakepreference_plugintoplay_summary_string)));
+        prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
+                FakePreferenceGroup.FAKEPREFERENCE_TYPE_SPINNER,
+                FAKEPREFERENCEFRAGMENT_ID_PREFBITRATE,
                 FAKEPREFERENCEFRAGMENT_KEY_PREFBITRATE,
                 getString(R.string.fakepreference_bitrate_title_string),
-                getString(R.string.fakepreference_bitrate_summary_string));
+                getString(R.string.fakepreference_bitrate_summary_string)));
         mFakePreferenceGroups.add(prefGroup);
         prefGroup = new FakePreferenceGroup(getString(R.string.fakepreference_info_header));
         String versionName = "";
@@ -119,9 +134,11 @@ public class FakePreferenceFragment extends TomahawkListFragment
         } catch (PackageManager.NameNotFoundException e) {
             Log.e(TAG, "onViewCreated: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
-        prefGroup.addFakePreference(FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN,
+        prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
+                FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN,
+                FAKEPREFERENCEFRAGMENT_ID_APPVERSION,
                 FAKEPREFERENCEFRAGMENT_KEY_APPVERSION,
-                getString(R.string.fakepreference_appversion_title_string), versionName);
+                getString(R.string.fakepreference_appversion_title_string), versionName));
         mFakePreferenceGroups.add(prefGroup);
 
         // Now we can push the complete set of FakePreferences into our FakePreferencesAdapter,
@@ -157,41 +174,30 @@ public class FakePreferenceFragment extends TomahawkListFragment
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position)).getType()
-                == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX) {
+        FakePreferenceGroup.FakePreference fakePreference
+                = (FakePreferenceGroup.FakePreference) getListAdapter().getItem(position);
+        if (fakePreference.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX) {
             // if a FakePreference of type "FAKEPREFERENCE_TYPE_CHECKBOX" has been clicked,
             // we edit the associated SharedPreference and toggle its boolean value
             SharedPreferences.Editor editor = mSharedPreferences.edit();
-            boolean preferenceState = mSharedPreferences.getBoolean(
-                    ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position))
-                            .getKey(), false
-            );
-            editor.putBoolean(
-                    ((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position))
-                            .getKey(), !preferenceState
-            );
+            boolean preferenceState = mSharedPreferences
+                    .getBoolean(fakePreference.getStorageKey(), false);
+            editor.putBoolean(fakePreference.getStorageKey(), !preferenceState);
             editor.commit();
-        } else if (((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position)).
-                getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH) {
+        } else if (fakePreference.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH) {
             // if a FakePreference of type "FAKEPREFERENCE_TYPE_AUTH" has been clicked,
             // we show a LoginDialog
-            if (((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position))
-                    .getKey().equals(FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN)) {
-                LoginDialog dialog = new LoginDialog();
-                Bundle args = new Bundle();
-                args.putInt(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY,
-                        AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY);
-                dialog.setArguments(args);
-                dialog.show(getFragmentManager(), null);
-            } else if (((FakePreferenceGroup.FakePreference) getListAdapter().getItem(position))
-                    .getKey().equals(FAKEPREFERENCEFRAGMENT_KEY_HATCHETLOGGEDIN)) {
-                LoginDialog dialog = new LoginDialog();
-                Bundle args = new Bundle();
-                args.putInt(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY,
-                        AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
-                dialog.setArguments(args);
-                dialog.show(getFragmentManager(), null);
-            }
+            LoginDialog dialog = new LoginDialog();
+            Bundle args = new Bundle();
+            args.putInt(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY, fakePreference.getKey());
+            dialog.setArguments(args);
+            dialog.show(getFragmentManager(), null);
+        } else if (fakePreference.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CONFIG) {
+            ResolverConfigDialog dialog = new ResolverConfigDialog();
+            Bundle args = new Bundle();
+            args.putInt(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY, fakePreference.getKey());
+            dialog.setArguments(args);
+            dialog.show(getFragmentManager(), null);
         }
     }
 
@@ -212,19 +218,18 @@ public class FakePreferenceFragment extends TomahawkListFragment
     public void onLoggedInOut(int authenticatorId, final boolean loggedIn) {
         for (FakePreferenceGroup fakePreferenceGroup : mFakePreferenceGroups) {
             FakePreferenceGroup.FakePreference fakePreference = null;
-            if (authenticatorId == AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY) {
-                fakePreference = fakePreferenceGroup.getFakePreferenceByKey(
-                        FAKEPREFERENCEFRAGMENT_KEY_SPOTIFYLOGGEDIN);
-            } else if (authenticatorId == AuthenticatorManager.AUTHENTICATOR_ID_HATCHET) {
-                fakePreference = fakePreferenceGroup.getFakePreferenceByKey(
-                        FAKEPREFERENCEFRAGMENT_KEY_HATCHETLOGGEDIN);
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        ((TomahawkMainActivity) getActivity()).onLogout();
-                        ((TomahawkMainActivity) getActivity()).updateDrawer();
-                    }
-                });
+            fakePreference = fakePreferenceGroup.getFakePreferenceByKey(
+                    authenticatorId);
+            if (authenticatorId == AuthenticatorManager.AUTHENTICATOR_ID_HATCHET) {
+                if (!loggedIn) {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            ((TomahawkMainActivity) getActivity()).onLogout();
+                            ((TomahawkMainActivity) getActivity()).updateDrawer();
+                        }
+                    });
+                }
             }
             if (fakePreference != null) {
                 fakePreference.setEnabled(loggedIn);

@@ -17,6 +17,8 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -24,23 +26,29 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
-import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -66,22 +74,26 @@ public class ScriptResolver implements Resolver {
     private final static String BASEURL_JAMENDO = "http://api.jamendo.com";
 
     private final static String BASEURL_SOUNDCLOUD = "http://developer.echonest.com";
+
+    private final static String BASEURL_BEATSMUSIC = "https://partner.api.beatsmusic.com";
     //TEMPORARY WORKAROUND END
+
+    public final static String CONFIG = "config";
+
+    public final static String ENABLED_KEY = "_enabled_";
 
     // We have to map the original cache keys to an id string, because a string containing "\t\t"
     // delimiters does come out without the delimiters, after it has been processed in the js
     // resolver script
     private ConcurrentHashMap<String, String> mQueryKeys = new ConcurrentHashMap<String, String>();
 
-    private Context mContext;
-
     private int mId;
 
     private WebView mScriptEngine;
 
-    private String mScriptFilePath;
+    private String mPath;
 
-    private String mName;
+    private ScriptResolverMetaData mMetaData;
 
     private Drawable mIcon;
 
@@ -89,13 +101,17 @@ public class ScriptResolver implements Resolver {
 
     private int mTimeout;
 
-    private JSONObject mConfig;
+    private ScriptResolverConfigUi mConfigUi;
+
+    private boolean mEnabled;
 
     private boolean mReady;
 
     private boolean mStopped;
 
     private ObjectMapper mObjectMapper;
+
+    private SharedPreferences mSharedPreferences;
 
     private static final int TIMEOUT_HANDLER_MSG = 1337;
 
@@ -112,15 +128,18 @@ public class ScriptResolver implements Resolver {
     /**
      * Construct a new {@link ScriptResolver}
      *
-     * @param id         the id of this {@link ScriptResolver}
-     * @param scriptPath {@link String} containing the path to our javascript file
+     * @param id   the id of this {@link ScriptResolver}
+     * @param path {@link String} containing the path to this js resolver's "content"-folder
      */
-    public ScriptResolver(int id, String scriptPath, Context context) {
+    public ScriptResolver(int id, String path) {
+        mObjectMapper = InfoSystemUtils.constructObjectMapper();
+        mSharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(TomahawkApp.getContext());
+        mPath = path;
         mReady = false;
         mStopped = true;
         mId = id;
-        mContext = context;
-        mScriptEngine = new WebView(mContext);
+        mScriptEngine = new WebView(TomahawkApp.getContext());
         WebSettings settings = mScriptEngine.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDatabaseEnabled(true);
@@ -129,10 +148,26 @@ public class ScriptResolver implements Resolver {
         mScriptEngine.setWebViewClient(new ScriptEngine(this));
         final ScriptInterface scriptInterface = new ScriptInterface(this);
         mScriptEngine.addJavascriptInterface(scriptInterface, SCRIPT_INTERFACE_NAME);
-        String[] tokens = scriptPath.split("/");
-        mName = tokens[tokens.length - 1];
-        mIcon = mContext.getResources().getDrawable(R.drawable.ic_resolver_default);
-        mScriptFilePath = scriptPath;
+        try {
+            String rawJsonString = TomahawkUtils.inputStreamToString(TomahawkApp.getContext()
+                    .getAssets().open(path + "/metadata.json"));
+            mMetaData = mObjectMapper.readValue(rawJsonString, ScriptResolverMetaData.class);
+            mIcon = Drawable.createFromStream(TomahawkApp.getContext().getAssets().open(path + "/" +
+                    mMetaData.manifest.icon), null);
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, "ScriptResolver: " + e.getClass() + ": " + e.getLocalizedMessage());
+        } catch (JsonMappingException e) {
+            Log.e(TAG, "ScriptResolver: " + e.getClass() + ": " + e.getLocalizedMessage());
+        } catch (JsonParseException e) {
+            Log.e(TAG, "ScriptResolver: " + e.getClass() + ": " + e.getLocalizedMessage());
+        } catch (IOException e) {
+            Log.e(TAG, "ScriptResolver: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
+        if (getConfig().get(ENABLED_KEY) != null) {
+            mEnabled = Boolean.valueOf(getConfig().get(ENABLED_KEY));
+        } else {
+            setEnabled(true);
+        }
 
         init();
     }
@@ -162,24 +197,32 @@ public class ScriptResolver implements Resolver {
             @Override
             public void run() {
                 String baseurl = "http://fake.bla.blu";
-                if (mScriptFilePath.contains("officialfm.js")) {
+                if (mMetaData.manifest.main.contains("officialfm.js")) {
                     baseurl = BASEURL_OFFICIALFM;
-                } else if (mScriptFilePath.contains("exfm.js")) {
+                } else if (mMetaData.manifest.main.contains("exfm.js")) {
                     baseurl = BASEURL_EXFM;
-                } else if (mScriptFilePath.contains("jamendo-resolver.js")) {
+                } else if (mMetaData.manifest.main.contains("jamendo-resolver.js")) {
                     baseurl = BASEURL_JAMENDO;
-                } else if (mScriptFilePath.contains("soundcloud.js")) {
+                } else if (mMetaData.manifest.main.contains("soundcloud.js")) {
                     baseurl = BASEURL_SOUNDCLOUD;
+                } else if (mMetaData.manifest.main.contains("beatsmusic.js")) {
+                    baseurl = BASEURL_BEATSMUSIC;
                 }
-                mScriptEngine.loadDataWithBaseURL(baseurl, "<!DOCTYPE html>"
-                        + "<html><body>"
+                String data = "<!DOCTYPE html>" + "<html><body>";
+                for (String scriptPath : mMetaData.manifest.scripts) {
+                    data += "<script src=\"file:///android_asset/" + mPath + "/" + scriptPath
+                            + "\" type=\"text/javascript\"></script>";
+                }
+                data += "<script src=\"file:///android_asset/js/cryptojs-core.js"
+                        + "\" type=\"text/javascript\"></script>"
                         + "<script src=\"file:///android_asset/js/tomahawk_android.js"
                         + "\" type=\"text/javascript\"></script>"
                         + "<script src=\"file:///android_asset/js/tomahawk.js"
                         + "\" type=\"text/javascript\"></script>"
-                        + "<script src=\"file:///android_asset/" + mScriptFilePath
-                        + "\" type=\"text/javascript\"></script>"
-                        + "</body></html>", "text/html", null, null);
+                        + "<script src=\"file:///android_asset/" + mPath + "/"
+                        + mMetaData.manifest.main + "\" type=\"text/javascript\"></script>"
+                        + "</body></html>";
+                mScriptEngine.loadDataWithBaseURL(baseurl, data, "text/html", null, null);
             }
         });
     }
@@ -191,7 +234,6 @@ public class ScriptResolver implements Resolver {
 
     public void onScriptEngineReady() {
         resolverInit();
-        resolverUserConfig();
         mReady = true;
         PipeLine.getInstance().onResolverReady();
     }
@@ -228,15 +270,33 @@ public class ScriptResolver implements Resolver {
     }
 
     /**
-     * This method tries to get the {@link Resolver}'s UserConfig.
+     * This method tries to save the {@link Resolver}'s UserConfig.
      */
-    private void resolverUserConfig() {
+    private void resolverSaveUserConfig() {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 mScriptEngine.loadUrl(
                         "javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
-                                R.id.scriptresolver_resolver_userconfig, "resolver.getUserConfig()",
+                                R.id.scriptresolver_resolver_save_userconfig,
+                                "resolver.saveUserConfig()",
+                                false)
+                );
+            }
+        });
+    }
+
+    /**
+     * This method tries to get the {@link Resolver}'s UserConfig.
+     */
+    private void resolverGetConfigUi() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                mScriptEngine.loadUrl(
+                        "javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
+                                R.id.scriptresolver_resolver_get_config_ui,
+                                "resolver.getConfigUi()",
                                 true)
                 );
             }
@@ -251,27 +311,18 @@ public class ScriptResolver implements Resolver {
      * @param id         used to identify which function did the callback
      * @param jsonString the json-string containing the {@link Result} information. Can be null
      */
-    public void handleCallbackToJava(final int id, final String jsonString) {
-        if (mObjectMapper == null) {
-            mObjectMapper = InfoSystemUtils.constructObjectMapper();
-        }
+    public void handleCallbackToJava(final int id, final String... jsonString) {
         try {
-            if (id == R.id.scriptresolver_resolver_settings && jsonString != null) {
+            if (id == R.id.scriptresolver_resolver_settings && jsonString != null
+                    && jsonString.length == 1) {
                 ScriptResolverSettings settings = mObjectMapper
-                        .readValue(jsonString, ScriptResolverSettings.class);
-                mName = settings.name;
+                        .readValue(jsonString[0], ScriptResolverSettings.class);
                 mWeight = settings.weight;
                 mTimeout = settings.timeout * 1000;
-                String[] tokens = mScriptFilePath.split("/");
-                String basepath = "";
-                for (int i = 0; i < tokens.length - 1; i++) {
-                    basepath += tokens[i];
-                    basepath += "/";
-                }
-                mIcon = Drawable.createFromStream(
-                        mContext.getAssets().open(basepath + settings.icon),
-                        null);
-            } else if (id == R.id.scriptresolver_resolver_userconfig) {
+                resolverGetConfigUi();
+            } else if (id == R.id.scriptresolver_resolver_get_config_ui && jsonString != null
+                    && jsonString.length == 1) {
+                mConfigUi = mObjectMapper.readValue(jsonString[0], ScriptResolverConfigUi.class);
             } else if (id == R.id.scriptresolver_resolver_init) {
                 resolverSettings();
             } else if (id == R.id.scriptresolver_add_track_results_string && jsonString != null) {
@@ -282,7 +333,7 @@ public class ScriptResolver implements Resolver {
                                 ScriptResolverResult result = null;
                                 try {
                                     result = mObjectMapper
-                                            .readValue(jsonString, ScriptResolverResult.class);
+                                            .readValue(jsonString[0], ScriptResolverResult.class);
                                 } catch (IOException e) {
                                     Log.e(TAG, "handleCallbackToJava: " + e.getClass() + ": " + e
                                             .getLocalizedMessage());
@@ -298,6 +349,10 @@ public class ScriptResolver implements Resolver {
                             }
                         }
                 );
+            } else if (id == R.id.scriptresolver_report_url_translation && jsonString != null
+                    && jsonString.length == 2) {
+                String queryKey = mQueryKeys.get(jsonString[0]);
+                PipeLine.getInstance().reportUrlTranslation(queryKey, jsonString[1], mId);
             }
         } catch (IOException e) {
             Log.e(TAG, "handleCallbackToJava: " + e.getClass() + ": " + e
@@ -358,6 +413,31 @@ public class ScriptResolver implements Resolver {
             });
         }
         return mReady;
+    }
+
+    public void getStreamUrl(final Query query) {
+        Log.d("test", "ScriptResolver getStreamUrl " + query.getPreferredTrackResult().getPath());
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if (query.getPreferredTrackResult() != null) {
+                    String qid = TomahawkMainActivity.getSessionUniqueStringId();
+                    mQueryKeys.put(qid, query.getCacheKey());
+                    mScriptEngine.loadUrl(
+                            "javascript:" + RESOLVER_LEGACY_CODE2 + makeJSFunctionCallbackJava(
+                                    R.id.scriptresolver_report_url_translation,
+                                    "resolver.getStreamUrl( '"
+                                            + qid.replace("'", "\\'")
+                                            + "', '"
+                                            + query.getPreferredTrackResult().getPath()
+                                            .replace("'", "\\'")
+                                            + "' )",
+                                    true
+                            )
+                    );
+                }
+            }
+        });
     }
 
     /**
@@ -436,19 +516,38 @@ public class ScriptResolver implements Resolver {
         return mId;
     }
 
+    public String getName() {
+        return mMetaData.name;
+    }
+
     /**
      * @return the absolute filepath (without file://android_asset) of the corresponding script
      */
     public String getScriptFilePath() {
-        return mScriptFilePath;
+        return mPath + "/" + mMetaData.manifest.main;
+    }
+
+    public void setConfig(Map<String, String> config) {
+        try {
+            String rawJsonString = mObjectMapper.writeValueAsString(config);
+            mSharedPreferences.edit().putString(buildPreferenceKey(), rawJsonString).commit();
+            resolverSaveUserConfig();
+        } catch (IOException e) {
+            Log.e(TAG, "setConfig: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
     }
 
     /**
-     * @return the {@link JSONObject} containing the Config information, which was returned by the
-     * corresponding script
+     * @return the Map<String, String> containing the Config information of this resolver
      */
-    public JSONObject getConfig() {
-        return mConfig;
+    public Map<String, String> getConfig() {
+        String rawJsonString = mSharedPreferences.getString(buildPreferenceKey(), "");
+        try {
+            return mObjectMapper.readValue(rawJsonString, Map.class);
+        } catch (IOException e) {
+            Log.e(TAG, "getConfig: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
+        return new HashMap<String, String>();
     }
 
     /**
@@ -468,4 +567,27 @@ public class ScriptResolver implements Resolver {
         return mWeight;
     }
 
+    public String getDescription() {
+        return mMetaData.description;
+    }
+
+    private String buildPreferenceKey() {
+        return mMetaData.pluginName + "_" + CONFIG;
+    }
+
+    public ScriptResolverConfigUi getConfigUi() {
+        return mConfigUi;
+    }
+
+    public boolean isEnabled() {
+        return mEnabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        Log.d(TAG, this + " has been " + (enabled ? "enabled" : "disabled"));
+        mEnabled = enabled;
+        Map<String, String> config = getConfig();
+        config.put(ENABLED_KEY, String.valueOf(enabled));
+        setConfig(config);
+    }
 }

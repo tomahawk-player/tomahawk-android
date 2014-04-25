@@ -17,13 +17,19 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
+import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.resolver.Result;
+import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.videolan.libvlc.EventHandler;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.LibVlcException;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -51,7 +57,35 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
 
     private LibVLC mLibVLC;
 
+    private VLCMediaPlayerReceiver mVLCMediaPlayerReceiver;
+
+    /**
+     * Handles incoming broadcasts.
+     */
+    private class VLCMediaPlayerReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (PipeLine.PIPELINE_URLTRANSLATIONREPORTED.equals(intent.getAction())) {
+                String queryKey = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QUERYKEY);
+                if (queryKey != null) {
+                    Query query = Query.getQueryByKey(queryKey);
+                    if (query == mPreparingQuery) {
+                        prepare(mPreparingQuery);
+                    }
+                }
+            }
+        }
+    }
+
     private VLCMediaPlayer() {
+        // Initialize and register Receiver
+        if (mVLCMediaPlayerReceiver == null) {
+            mVLCMediaPlayerReceiver = new VLCMediaPlayerReceiver();
+            IntentFilter intentFilter = new IntentFilter(PipeLine.PIPELINE_URLTRANSLATIONREPORTED);
+            TomahawkApp.getContext().registerReceiver(mVLCMediaPlayerReceiver, intentFilter);
+        }
+
         try {
             mLibVLC = LibVLC.getInstance();
             mLibVLC.init(TomahawkApp.getContext());
@@ -132,6 +166,28 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
     /**
      * Prepare the given url
      */
+    private MediaPlayerInterface prepare(Query query) {
+        mPreparedQuery = null;
+        mPreparingQuery = query;
+        release();
+        if (mLibVLC == null) {
+            return null;
+        }
+        Result result = query.getPreferredTrackResult();
+        if (result.getResolvedBy().getId() == PipeLine.RESOLVER_ID_BEATSMUSIC
+                && !result.hasTranslatedUrl()) {
+            ((ScriptResolver) result.getResolvedBy()).getStreamUrl(query);
+        } else {
+            mLibVLC.getMediaList().clear();
+            mLibVLC.getMediaList().insert(0, LibVLC.PathToURI(result.getPath()));
+            onPrepared(null);
+        }
+        return this;
+    }
+
+    /**
+     * Prepare the given url
+     */
     @Override
     public MediaPlayerInterface prepare(Context context, Query query,
             MediaPlayer.OnPreparedListener onPreparedListener,
@@ -141,17 +197,7 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
         mOnPreparedListener = onPreparedListener;
         mOnCompletionListener = onCompletionListener;
         mOnErrorListener = onErrorListener;
-        mPreparedQuery = null;
-        mPreparingQuery = query;
-        release();
-        if (mLibVLC == null) {
-            return null;
-        }
-        mLibVLC.getMediaList().clear();
-        mLibVLC.getMediaList().insert(0,
-                LibVLC.PathToURI(query.getPreferredTrackResult().getPath()));
-        onPrepared(null);
-        return this;
+        return prepare(query);
     }
 
     @Override

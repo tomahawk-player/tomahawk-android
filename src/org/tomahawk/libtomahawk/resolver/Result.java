@@ -77,17 +77,19 @@ public class Result {
 
     private int mType = RESULT_TYPE_TRACK;
 
+    private boolean mHasTranslatedUrl;
+
     /**
      * Construct a new {@link Result} with the given {@link Track}
      */
     public Result(String url, Track track, Resolver resolvedBy) {
         setPath(url);
-        mResolvedBy =resolvedBy;
-        if (mResolvedBy.getId() == PipeLine.RESOLVER_ID_SPOTIFY){
+        mResolvedBy = resolvedBy;
+        if (mResolvedBy.getId() == PipeLine.RESOLVER_ID_SPOTIFY) {
             mMediaPlayerInterface = SpotifyMediaPlayer.getInstance();
         } else {
             mMediaPlayerInterface = VLCMediaPlayer.getInstance();
-            if (mResolvedBy.getId() == PipeLine.RESOLVER_ID_USERCOLLECTION){
+            if (mResolvedBy.getId() == PipeLine.RESOLVER_ID_USERCOLLECTION) {
                 mIsLocal = true;
             }
         }
@@ -324,5 +326,15 @@ public class Result {
      */
     public void setType(int type) {
         mType = type;
+    }
+
+    public boolean hasTranslatedUrl() {
+        return mHasTranslatedUrl;
+    }
+
+    public void setTranslatedUrl(String url) {
+        mHasTranslatedUrl = true;
+        mLinkUrl = mPath;
+        mPath = url;
     }
 }

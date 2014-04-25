@@ -17,6 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
+import android.graphics.drawable.Drawable;
+
 import java.util.ArrayList;
 
 /**
@@ -31,6 +33,8 @@ public class FakePreferenceGroup {
     public static final int FAKEPREFERENCE_TYPE_PLAIN = 2;
 
     public static final int FAKEPREFERENCE_TYPE_SPINNER = 3;
+
+    public static final int FAKEPREFERENCE_TYPE_CONFIG = 4;
 
     private ArrayList<FakePreference> mFakePreferences = new ArrayList<FakePreference>();
 
@@ -48,7 +52,10 @@ public class FakePreferenceGroup {
         private int type;
 
         // the key to identify this FakePreference
-        private String key;
+        private int key;
+
+        // the key to store preferences with
+        private String storageKey;
 
         // if this FakePreference's type is FAKEPREFERENCE_TYPE_CHECKBOX or FAKEPREFERENCE_TYPE_AUTH
         // this contains the current state of this preference
@@ -62,14 +69,36 @@ public class FakePreferenceGroup {
         // drawable to show in grey, if isEnabled is false, otherwise colored
         private int drawableResId;
 
+        // drawable to show in grey, if isEnabled is false, otherwise colored
+        private Drawable drawable;
+
         /**
          * Construct a {@link FakePreference}
          */
-        private FakePreference(int type, String key, boolean isEnabled, String title,
-                String summary, int drawableResId) {
+        public FakePreference(int type, int key, String storageKey, String title, String summary) {
             this.type = type;
             this.key = key;
-            this.isEnabled = isEnabled;
+            this.storageKey = storageKey;
+            this.title = title;
+            this.summary = summary;
+        }
+
+        /**
+         * Construct a {@link FakePreference}
+         */
+        public FakePreference(int type, int key, String title, String summary) {
+            this.type = type;
+            this.key = key;
+            this.title = title;
+            this.summary = summary;
+        }
+
+        /**
+         * Construct a {@link FakePreference}
+         */
+        public FakePreference(int type, int key, String title, String summary, int drawableResId) {
+            this.type = type;
+            this.key = key;
             this.title = title;
             this.summary = summary;
             this.drawableResId = drawableResId;
@@ -78,21 +107,26 @@ public class FakePreferenceGroup {
         /**
          * Construct a {@link FakePreference}
          */
-        private FakePreference(int type, String key, boolean isEnabled, String title,
-                String summary) {
+        public FakePreference(int type, int key, boolean isEnabled, String title, String summary,
+                Drawable drawable) {
             this.type = type;
             this.key = key;
             this.isEnabled = isEnabled;
             this.title = title;
             this.summary = summary;
+            this.drawable = drawable;
         }
 
         public int getType() {
             return type;
         }
 
-        public String getKey() {
+        public int getKey() {
             return key;
+        }
+
+        public String getStorageKey() {
+            return storageKey;
         }
 
         public boolean isEnabled() {
@@ -114,6 +148,10 @@ public class FakePreferenceGroup {
         public int getDrawableResId() {
             return drawableResId;
         }
+
+        public Drawable getDrawable() {
+            return drawable;
+        }
     }
 
     /**
@@ -128,16 +166,8 @@ public class FakePreferenceGroup {
     /**
      * Add a {@link FakePreference} to this {@link FakePreferenceGroup}
      */
-    public void addFakePreference(int type, String key, String title, String summary,
-            int drawableResId) {
-        mFakePreferences.add(new FakePreference(type, key, false, title, summary, drawableResId));
-    }
-
-    /**
-     * Add a {@link FakePreference} to this {@link FakePreferenceGroup}
-     */
-    public void addFakePreference(int type, String key, String title, String summary) {
-        mFakePreferences.add(new FakePreference(type, key, false, title, summary));
+    public void addFakePreference(FakePreference fakePreference) {
+        mFakePreferences.add(fakePreference);
     }
 
     /**
@@ -150,9 +180,9 @@ public class FakePreferenceGroup {
     /**
      * Get the {@link FakePreference} with the given key
      */
-    public FakePreference getFakePreferenceByKey(String key) {
+    public FakePreference getFakePreferenceByKey(int key) {
         for (FakePreference fakePreference : mFakePreferences) {
-            if (fakePreference.getKey().equals(key)) {
+            if (fakePreference.getKey() == key) {
                 return fakePreference;
             }
         }

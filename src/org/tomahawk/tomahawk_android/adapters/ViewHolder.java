@@ -159,7 +159,8 @@ public class ViewHolder {
                     .findViewById(R.id.fake_preferences_textview2);
             mSpinner = (Spinner) rootView
                     .findViewById(R.id.fake_preferences_spinner);
-        } else if (viewType == R.id.fakepreferencesadapter_viewtype_auth) {
+        } else if (viewType == R.id.fakepreferencesadapter_viewtype_auth
+                || viewType == R.id.fakepreferencesadapter_viewtype_config) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview);
             mTextView2 = (TextView) rootView

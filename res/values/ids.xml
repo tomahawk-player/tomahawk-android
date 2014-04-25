@@ -14,10 +14,13 @@
     <item name="fakepreferencesadapter_viewtype_checkbox" type="id"/>
     <item name="fakepreferencesadapter_viewtype_auth" type="id"/>
     <item name="fakepreferencesadapter_viewtype_spinner" type="id"/>
+    <item name="fakepreferencesadapter_viewtype_config" type="id"/>
     <item name="scriptresolver_resolver_init" type="id"/>
     <item name="scriptresolver_resolver_settings" type="id"/>
-    <item name="scriptresolver_resolver_userconfig" type="id"/>
+    <item name="scriptresolver_resolver_get_config_ui" type="id"/>
+    <item name="scriptresolver_resolver_save_userconfig" type="id"/>
     <item name="scriptresolver_resolve" type="id"/>
     <item name="scriptresolver_add_track_results_string" type="id"/>
+    <item name="scriptresolver_report_url_translation" type="id"/>
 
 </resources>

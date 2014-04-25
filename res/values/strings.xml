@@ -162,4 +162,5 @@
     <string name="loved_tracks">Loved Tracks</string>
     <string name="starred_albums">Starred Albums</string>
     <string name="starred_artists">Starred Artists</string>
+    <string name="configuration">Configuration</string>
 </resources>
