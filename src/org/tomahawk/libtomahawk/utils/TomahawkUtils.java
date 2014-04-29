@@ -400,16 +400,20 @@ public class TomahawkUtils {
         boolean first = true;
 
         for (String key : params.keySet()) {
-            Collection<String> values = params.get(key);
-            for (String value : values) {
-                if (first) {
-                    first = false;
-                } else {
-                    result.append("&");
+            if (key != null) {
+                Collection<String> values = params.get(key);
+                for (String value : values) {
+                    if (value != null) {
+                        if (first) {
+                            first = false;
+                        } else {
+                            result.append("&");
+                        }
+                        result.append(URLEncoder.encode(key, "UTF-8"));
+                        result.append("=");
+                        result.append(URLEncoder.encode(value, "UTF-8"));
+                    }
                 }
-                result.append(URLEncoder.encode(key, "UTF-8"));
-                result.append("=");
-                result.append(URLEncoder.encode(value, "UTF-8"));
             }
         }
 
