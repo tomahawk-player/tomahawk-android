@@ -1,12 +1,30 @@
-import java.util.regex.Pattern
+import org.apache.tools.ant.taskdefs.condition.Os
 
-/*
- * Hack that copies our AndroidManifest.xml so we don't touch the original file, when setting the
- * versionName
- */
-File srcFile = new File(projectDir, "AndroidManifest.xml")
-File destFile = new File(buildDir, "AndroidManifest.xml")
-getAnt().copy(file: srcFile.getCanonicalPath(), tofile: destFile.getCanonicalPath())
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.10.0'
+    }
+}
+apply plugin: 'android'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "com.android.support:appcompat-v7:19.1.0"
+    compile "com.android.support:support-v4:19.1.0"
+    compile "se.emilsjolander:stickylistheaders:2.1.3"
+    compile "ch.acra:acra:4.5.0"
+    compile "org.codehaus.jackson:jackson-core-asl:1.9.13"
+    compile "org.codehaus.jackson:jackson-mapper-asl:1.9.13"
+    compile "com.google.guava:guava:16.0"
+    compile "com.squareup.picasso:picasso:2.1.1"
+    compile "com.github.castorflex.verticalviewpager:library:19.0.0"
+}
 
 /*
  * Gets the version name from the latest Git tag
@@ -20,39 +38,21 @@ def getNewVersionName = { ->
     return stdout.toString().trim()
 }
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:0.9.1'
-    }
-}
-apply plugin: 'android'
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    compile "com.android.support:appcompat-v7:19.0.0"
-    compile "com.android.support:support-v4:19.0.0"
-    compile "se.emilsjolander:stickylistheaders:2.1.3"
-    compile "ch.acra:acra:4.5.0"
-    compile "org.codehaus.jackson:jackson-core-asl:1.9.13"
-    compile "org.codehaus.jackson:jackson-mapper-asl:1.9.13"
-    compile "com.google.guava:guava:16.0"
-    compile "com.squareup.picasso:picasso:2.1.1"
-    compile "com.github.castorflex.verticalviewpager:library:19.0.0"
-}
-
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.0"
+    buildToolsVersion "19.0.3"
 
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 19
+        versionName '0.50'
+        versionCode 0500
+        ndk {
+            moduleName "libspotifywrapper"
+            stl "stlport_static"
+            ldLibs "log", "OpenSLES"
+            cFlags " -std=c++0x -D__STDC_INT64__"
+        }
     }
 
     packagingOptions {
@@ -64,13 +64,14 @@ android {
 
     sourceSets {
         main {
-            // We are using a copy of AndroidManifest.xml, so we don't modify the original file
-            manifest.srcFile 'build/AndroidManifest.xml'
+            manifest.srcFile 'AndroidManifest.xml'
             java.srcDirs = ['src']
             aidl.srcDirs = ['src']
             renderscript.srcDirs = ['src']
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
+            jniLibs.srcDir 'libs'
+            jni.srcDirs = [] //disable automatic ndk-build call
         }
 
         // Move the tests to tests/java, tests/res, etc...
@@ -90,57 +91,53 @@ android {
         release {
             runProguard true
             proguardFile 'proguard-android.txt'
-            applicationVariants.all { variant ->
-                def file = variant.outputFile
-                variant.outputFile = new File((String) file.parent,
-                        file.name.replace(".apk", "-" + getNewVersionName() + ".apk"))
-            }
         }
         debug {
             zipAlign true
         }
     }
-}
 
-///////////////////////////////////////////////////////////////////////
-// Tasks related to setting the correct version number automatically //
-///////////////////////////////////////////////////////////////////////
-task setVersionName {
-    def manifestFile = file("build/AndroidManifest.xml")
-    def pattern = Pattern.compile("versionName=\".*\"")
-    def manifestText = manifestFile.getText()
-    def matcher = pattern.matcher(manifestText)
-    matcher.find()
-    def versionName = getNewVersionName()
-    println "VersionName: " + versionName
-    def manifestContent = matcher.replaceAll("versionName=\"" + versionName + "\"")
-    manifestFile.write(manifestContent)
+    productFlavors {
+        x86 {
+            versionName getNewVersionName() + "_x86"
+            versionCode Integer.parseInt("6" + defaultConfig.versionCode)
+            ndk {
+                abiFilter "x86"
+            }
+        }
+        mips {
+            versionName getNewVersionName() + "_mips"
+            versionCode Integer.parseInt("4" + defaultConfig.versionCode)
+            ndk {
+                abiFilter "mips"
+            }
+        }
+        arm {
+            versionName getNewVersionName() + "_arm"
+            versionCode Integer.parseInt("1" + defaultConfig.versionCode)
+            ndk {
+                abiFilters "armeabi", "armeabi-v7a"
+            }
+        }
+        fat
+    }
 }
-
-tasks.withType(JavaCompile) { compileTask -> compileTask.dependsOn setVersionName }
 
 ////////////////////////////////////////////////////
 // NDK Support (by https://gist.github.com/pboos) //
 ////////////////////////////////////////////////////
 // Make sure the environment variable $ANDROID_NDK_HOME is set:
 // example: ANDROID_NDK_HOME /home/maffen/SDKs/android-ndk-r8e
-task copyNativeLibs(type: Copy, dependsOn: 'ndkBuild') {
-    dependsOn 'ndkBuild'
-    from(new File('libs')) { include '**/*.so' }
-    into new File(buildDir, 'native-libs')
-}
-
-tasks.withType(JavaCompile) { compileTask -> compileTask.dependsOn copyNativeLibs }
-
-clean.dependsOn 'cleanCopyNativeLibs'
-
-tasks.withType(com.android.build.gradle.tasks.PackageApplication) { pkgTask ->
-    pkgTask.jniFolders = new HashSet<File>()
-    pkgTask.jniFolders.add(new File(buildDir, 'native-libs'))
-}
-
 task ndkBuild(type: Exec) {
-    commandLine new File((String) System.env.ANDROID_NDK_HOME, 'ndk-build')
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        commandLine 'ndk-build.cmd', '-C', file('./').absolutePath
+    } else {
+        commandLine 'ndk-build', '-C', file('./').absolutePath
+    }
+}
+
+tasks.withType(JavaCompile) {
+    compileTask -> compileTask.dependsOn ndkBuild
 }
 
 /*
