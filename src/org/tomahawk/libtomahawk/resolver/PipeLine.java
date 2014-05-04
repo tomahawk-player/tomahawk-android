@@ -25,7 +25,6 @@ import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.content.Intent;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -66,6 +65,12 @@ public class PipeLine {
 
     public static final String PIPELINE_URLTRANSLATIONREPORTED
             = "org.tomahawk.tomahawk_android.pipeline_urltranslationreported";
+
+    public static final String PIPELINE_URLTRANSLATIONREPORTED_URL
+            = "org.tomahawk.tomahawk_android.pipeline_urltranslationreported_url";
+
+    public static final String PIPELINE_URLTRANSLATIONREPORTED_RESULTKEY
+            = "org.tomahawk.tomahawk_android.pipeline_urltranslationreported_resultkey";
 
     public static final String PIPELINE_RESULTSREPORTED_QUERYKEY
             = "org.tomahawk.tomahawk_android.pipeline_resultsreported_querykey";
@@ -277,11 +282,12 @@ public class PipeLine {
     }
 
     /**
-     * Send a broadcast containing the key of the resolved {@link Query}.
+     * Send a broadcast containing the key of the resolved {@link org.tomahawk.libtomahawk.resolver.Result}.
      */
-    private void sendUrlTranslationReportBroadcast(String queryKey) {
+    public void sendUrlTranslationReportBroadcast(String resultKey, String url) {
         Intent reportIntent = new Intent(PIPELINE_URLTRANSLATIONREPORTED);
-        reportIntent.putExtra(PIPELINE_RESULTSREPORTED_QUERYKEY, queryKey);
+        reportIntent.putExtra(PIPELINE_URLTRANSLATIONREPORTED_RESULTKEY, resultKey);
+        reportIntent.putExtra(PIPELINE_URLTRANSLATIONREPORTED_URL, url);
         TomahawkApp.getContext().sendBroadcast(reportIntent);
     }
 
@@ -363,13 +369,6 @@ public class PipeLine {
                     }
                 }
         );
-    }
-
-    public void reportUrlTranslation(String queryKey, String url, int resolverId) {
-        Result result = Query.getQueryByKey(queryKey).getPreferredTrackResult();
-        result.setTranslatedUrl(url);
-        sendUrlTranslationReportBroadcast(queryKey);
-        Log.d("test", "converted " + result.getLinkUrl() + " to " + result.getPath());
     }
 
     /**
