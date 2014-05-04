@@ -35,6 +35,7 @@ import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -148,6 +149,9 @@ public class ScriptResolver implements Resolver {
         mScriptEngine.setWebViewClient(new ScriptEngine(this));
         final ScriptInterface scriptInterface = new ScriptInterface(this);
         mScriptEngine.addJavascriptInterface(scriptInterface, SCRIPT_INTERFACE_NAME);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            mScriptEngine.getSettings().setAllowUniversalAccessFromFileURLs(true);
+        }
         try {
             String rawJsonString = TomahawkUtils.inputStreamToString(TomahawkApp.getContext()
                     .getAssets().open(path + "/metadata.json"));
@@ -164,7 +168,7 @@ public class ScriptResolver implements Resolver {
             Log.e(TAG, "ScriptResolver: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
         if (getConfig().get(ENABLED_KEY) != null) {
-            mEnabled = (Boolean)getConfig().get(ENABLED_KEY);
+            mEnabled = (Boolean) getConfig().get(ENABLED_KEY);
         } else {
             setEnabled(true);
         }
@@ -196,7 +200,7 @@ public class ScriptResolver implements Resolver {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                String baseurl = "http://fake.bla.blu";
+                String baseurl = "file://fake.bla.blu";
                 if (mMetaData.manifest.main.contains("officialfm.js")) {
                     baseurl = BASEURL_OFFICIALFM;
                 } else if (mMetaData.manifest.main.contains("exfm.js")) {

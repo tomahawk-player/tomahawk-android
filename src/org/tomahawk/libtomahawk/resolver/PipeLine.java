@@ -53,6 +53,8 @@ public class PipeLine {
 
     public static final int RESOLVER_ID_BEATSMUSIC = 104;
 
+    public static final int RESOLVER_ID_BEETS = 105;
+
     public static final int RESOLVER_ID_SPOTIFY = 200;
 
     public static final int PIPELINE_SEARCHTYPE_TRACKS = 0;
@@ -119,6 +121,9 @@ public class PipeLine {
             mResolvers.add(scriptResolver);
             scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_SOUNDCLOUD,
                     "js/soundcloud/content");
+            mResolvers.add(scriptResolver);
+            scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_BEETS,
+                    "js/beets/content");
             mResolvers.add(scriptResolver);
             SpotifyResolver spotifyResolver = new SpotifyResolver(PipeLine.RESOLVER_ID_SPOTIFY);
             mResolvers.add(spotifyResolver);
