@@ -32,7 +32,6 @@ import org.tomahawk.tomahawk_android.services.SpotifyService;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -220,8 +219,8 @@ public class SpotifyResolver implements Resolver {
                                 track.setDiscNumber(spotifyResult.trackDiscnumber);
                                 track.setDuration(spotifyResult.trackDuration);
                                 track.setAlbumPos(spotifyResult.trackIndex);
-                                Result result = new Result(spotifyResult.trackUri, track,
-                                        SpotifyResolver.this);
+                                Result result = Result.get(spotifyResult.trackUri, track,
+                                        SpotifyResolver.this, spotifyResults.qid);
                                 result.setTrack(track);
                                 result.setArtist(artist);
                                 result.setAlbum(album);

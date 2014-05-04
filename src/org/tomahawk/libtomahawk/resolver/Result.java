@@ -27,6 +27,8 @@ import org.tomahawk.tomahawk_android.utils.VLCMediaPlayer;
 
 import android.text.TextUtils;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * This class represents a {@link Result}, which will be returned by a {@link Resolver}.
  */
@@ -37,6 +39,9 @@ public class Result {
     public static int RESULT_TYPE_ALBUM = 1;
 
     public static int RESULT_TYPE_ARTIST = 2;
+
+    private static ConcurrentHashMap<String, Result> sResults
+            = new ConcurrentHashMap<String, Result>();
 
     private MediaPlayerInterface mMediaPlayerInterface;
 
@@ -82,7 +87,7 @@ public class Result {
     /**
      * Construct a new {@link Result} with the given {@link Track}
      */
-    public Result(String url, Track track, Resolver resolvedBy) {
+    private Result(String url, Track track, Resolver resolvedBy, String queryKey) {
         setPath(url);
         mResolvedBy = resolvedBy;
         if (mResolvedBy.getId() == PipeLine.RESOLVER_ID_SPOTIFY) {
@@ -97,29 +102,61 @@ public class Result {
         mAlbum = track.getAlbum();
         mTrack = track;
         if (mCacheKey == null) {
-            mCacheKey = TomahawkUtils.getCacheKey(this);
+            mCacheKey = TomahawkUtils.getCacheKey(this, queryKey);
         }
     }
 
     /**
      * Construct a new {@link Result} with the given {@link Artist}
      */
-    public Result(Artist artist) {
+    private Result(Artist artist, String queryKey) {
         mArtist = artist;
         mAlbum = artist.getAlbum();
         if (mCacheKey == null) {
-            mCacheKey = TomahawkUtils.getCacheKey(this);
+            mCacheKey = TomahawkUtils.getCacheKey(this, queryKey);
         }
     }
 
     /**
      * Construct a new {@link Result} with the given {@link Album}
      */
-    public Result(Album album) {
+    private Result(Album album, String queryKey) {
         mAlbum = album;
         if (mCacheKey == null) {
-            mCacheKey = TomahawkUtils.getCacheKey(this);
+            mCacheKey = TomahawkUtils.getCacheKey(this, queryKey);
         }
+    }
+
+    public static Result get(String url, Track track, Resolver resolvedBy, String queryKey) {
+        Result result = new Result(url, track, resolvedBy, queryKey);
+        return ensureCache(result);
+    }
+
+    public static Result get(Artist artist, String queryKey) {
+        Result result = new Result(artist, queryKey);
+        return ensureCache(result);
+    }
+
+    public static Result get(Album album, String queryKey) {
+        Result result = new Result(album, queryKey);
+        return ensureCache(result);
+    }
+
+    /**
+     * If Result is already in our cache, return that. Otherwise add it to the cache.
+     */
+    private static Result ensureCache(Result result) {
+        if (!sResults.containsKey(result.getCacheKey())) {
+            sResults.put(result.getCacheKey(), result);
+        }
+        return sResults.get(result.getCacheKey());
+    }
+
+    /**
+     * Get the {@link Result} by providing its cache key
+     */
+    public static Result getResultByKey(String key) {
+        return sResults.get(key);
     }
 
     public MediaPlayerInterface getMediaPlayerInterface() {
