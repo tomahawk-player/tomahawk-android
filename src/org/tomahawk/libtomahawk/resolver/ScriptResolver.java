@@ -340,7 +340,7 @@ public class ScriptResolver implements Resolver {
                                 }
                                 if (result != null) {
                                     ArrayList<Result> parsedResults = parseResultList(
-                                            result.results);
+                                            result.results, result.qid);
                                     PipeLine.getInstance().reportResults(mQueryKeys.get(result.qid),
                                             parsedResults, mId);
                                 }
@@ -447,7 +447,8 @@ public class ScriptResolver implements Resolver {
      *                      information
      * @return a {@link ArrayList} of {@link Result}s containing the parsed data
      */
-    private ArrayList<Result> parseResultList(ArrayList<ScriptResolverResultEntry> resultEntries) {
+    private ArrayList<Result> parseResultList(ArrayList<ScriptResolverResultEntry> resultEntries,
+            String queryKey) {
         ArrayList<Result> resultList = new ArrayList<Result>();
         for (ScriptResolverResultEntry resultEntry : resultEntries) {
             if (resultEntry != null && !TextUtils.isEmpty(resultEntry.url)
@@ -475,7 +476,7 @@ public class ScriptResolver implements Resolver {
                 }
                 track.setDuration(resultEntry.duration * 1000);
 
-                Result result = new Result(resultEntry.url, track, this);
+                Result result = Result.get(resultEntry.url, track, this, queryKey);
                 result.setBitrate(resultEntry.bitrate);
                 result.setSize(resultEntry.size);
                 result.setPurchaseUrl(resultEntry.purchaseUrl);

@@ -486,7 +486,8 @@ public class UserCollection {
             track.setAlbumPos(cursor.getInt(4));
 
             Query query = Query.get(track.getName(), album.getName(), artist.getName(), true);
-            Result result = new Result(cursor.getString(1), track, userCollectionResolver);
+            Result result = Result.get(cursor.getString(1), track, userCollectionResolver,
+                    query.getCacheKey());
             result.setTrackScore(1f);
             query.addTrackResult(result);
             mQueries.put(query.getCacheKey(), query);

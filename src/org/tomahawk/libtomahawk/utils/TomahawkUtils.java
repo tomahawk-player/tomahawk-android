@@ -179,10 +179,7 @@ public class TomahawkUtils {
             if (query.isFullTextQuery()) {
                 return getCacheKey(query.getFullTextQuery(), String.valueOf(query.isOnlyLocal()));
             } else {
-                return getCacheKey(query.getBasicTrack().getName(),
-                        query.getBasicTrack().getAlbum().getName(),
-                        query.getBasicTrack().getArtist().getName(),
-                        query.getResultHint());
+                return getCacheKey(query.getBasicTrack().getCacheKey(), query.getResultHint());
             }
         }
         return "";
@@ -192,8 +189,9 @@ public class TomahawkUtils {
         return getCacheKey(image.getImagePath());
     }
 
-    public static String getCacheKey(Result result) {
-        return getCacheKey(result.getPath());
+    public static String getCacheKey(Result result, String queryKey) {
+        return getCacheKey(result.getTrack().getCacheKey(), result.getAlbum().getCacheKey(),
+                result.getArtist().getCacheKey(), result.getPath(), queryKey);
     }
 
     public static String httpsPost(String urlString, Multimap<String, String> params)
