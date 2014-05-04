@@ -36,6 +36,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * This class wraps a libvlc mediaplayer instance.
  */
@@ -59,6 +61,9 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
 
     private VLCMediaPlayerReceiver mVLCMediaPlayerReceiver;
 
+    private ConcurrentHashMap<Result, String> mTranslatedUrls
+            = new ConcurrentHashMap<Result, String>();
+
     /**
      * Handles incoming broadcasts.
      */
@@ -67,12 +72,20 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (PipeLine.PIPELINE_URLTRANSLATIONREPORTED.equals(intent.getAction())) {
-                String queryKey = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QUERYKEY);
-                if (queryKey != null) {
-                    Query query = Query.getQueryByKey(queryKey);
-                    if (query == mPreparingQuery) {
-                        prepare(mPreparingQuery);
+                String resultKey = intent
+                        .getStringExtra(PipeLine.PIPELINE_URLTRANSLATIONREPORTED_RESULTKEY);
+                String url = intent.getStringExtra(PipeLine.PIPELINE_URLTRANSLATIONREPORTED_URL);
+                final Result result = Result.getResultByKey(resultKey);
+                mTranslatedUrls.put(Result.getResultByKey(resultKey), url);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mTranslatedUrls.remove(result);
                     }
+                }, 300000);
+                if (mPreparingQuery != null
+                        && result == mPreparingQuery.getPreferredTrackResult()) {
+                    prepare(mPreparingQuery);
                 }
             }
         }
@@ -174,9 +187,14 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
             return null;
         }
         Result result = query.getPreferredTrackResult();
-        if (result.getResolvedBy().getId() == PipeLine.RESOLVER_ID_BEATSMUSIC
-                && !result.hasTranslatedUrl()) {
-            ((ScriptResolver) result.getResolvedBy()).getStreamUrl(query);
+        if (result.getResolvedBy().getId() == PipeLine.RESOLVER_ID_BEATSMUSIC) {
+            if (mTranslatedUrls.get(result) == null) {
+                ((ScriptResolver) result.getResolvedBy()).getStreamUrl(result);
+            } else {
+                mLibVLC.getMediaList().clear();
+                mLibVLC.getMediaList().insert(0, LibVLC.PathToURI(mTranslatedUrls.get(result)));
+                onPrepared(null);
+            }
         } else {
             mLibVLC.getMediaList().clear();
             mLibVLC.getMediaList().insert(0, LibVLC.PathToURI(result.getPath()));

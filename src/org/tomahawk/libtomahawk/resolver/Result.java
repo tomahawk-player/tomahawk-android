@@ -82,8 +82,6 @@ public class Result {
 
     private int mType = RESULT_TYPE_TRACK;
 
-    private boolean mHasTranslatedUrl;
-
     /**
      * Construct a new {@link Result} with the given {@link Track}
      */
@@ -363,15 +361,5 @@ public class Result {
      */
     public void setType(int type) {
         mType = type;
-    }
-
-    public boolean hasTranslatedUrl() {
-        return mHasTranslatedUrl;
-    }
-
-    public void setTranslatedUrl(String url) {
-        mHasTranslatedUrl = true;
-        mLinkUrl = mPath;
-        mPath = url;
     }
 }

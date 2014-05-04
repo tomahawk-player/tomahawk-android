@@ -351,8 +351,8 @@ public class ScriptResolver implements Resolver {
                 );
             } else if (id == R.id.scriptresolver_report_url_translation && jsonString != null
                     && jsonString.length == 2) {
-                String queryKey = mQueryKeys.get(jsonString[0]);
-                PipeLine.getInstance().reportUrlTranslation(queryKey, jsonString[1], mId);
+                String resultKey = mQueryKeys.get(jsonString[0]);
+                PipeLine.getInstance().sendUrlTranslationReportBroadcast(resultKey, jsonString[1]);
             }
         } catch (IOException e) {
             Log.e(TAG, "handleCallbackToJava: " + e.getClass() + ": " + e
@@ -415,22 +415,21 @@ public class ScriptResolver implements Resolver {
         return mReady;
     }
 
-    public void getStreamUrl(final Query query) {
-        Log.d("test", "ScriptResolver getStreamUrl " + query.getPreferredTrackResult().getPath());
+    public void getStreamUrl(final Result result) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                if (query.getPreferredTrackResult() != null) {
-                    String qid = TomahawkMainActivity.getSessionUniqueStringId();
-                    mQueryKeys.put(qid, query.getCacheKey());
+                if (result != null) {
+                    String resultId = TomahawkMainActivity.getSessionUniqueStringId();
+                    // we are using the same map as we do when resolving queries
+                    mQueryKeys.put(resultId, result.getCacheKey());
                     mScriptEngine.loadUrl(
                             "javascript:" + RESOLVER_LEGACY_CODE2 + makeJSFunctionCallbackJava(
                                     R.id.scriptresolver_report_url_translation,
                                     "resolver.getStreamUrl( '"
-                                            + qid.replace("'", "\\'")
+                                            + resultId.replace("'", "\\'")
                                             + "', '"
-                                            + query.getPreferredTrackResult().getPath()
-                                            .replace("'", "\\'")
+                                            + result.getPath().replace("'", "\\'")
                                             + "' )",
                                     true
                             )
