@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.resolver;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.dialogs.ResolverConfigDialog;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
@@ -233,12 +234,13 @@ public class PipeLine {
                         return true;
                     } else {
                         boolean configured = true;
-                        Map<String, String> config = scriptResolver.getConfig();
+                        Map<String, Object> config = scriptResolver.getConfig();
                         if (config != null && scriptResolver.getConfigUi() != null
                                 && scriptResolver.getConfigUi().fields != null) {
                             for (ScriptResolverConfigUiField field : scriptResolver
                                     .getConfigUi().fields) {
-                                if (TextUtils.isEmpty(config.get(field.name))) {
+                                if (ResolverConfigDialog.PROPERTY_TEXT.equals(field.property)
+                                        && TextUtils.isEmpty((String) config.get(field.name))) {
                                     configured = false;
                                 }
                             }

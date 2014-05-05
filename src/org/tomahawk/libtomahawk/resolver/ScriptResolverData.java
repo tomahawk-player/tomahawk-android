@@ -26,7 +26,7 @@ public class ScriptResolverData {
 
     public String scriptPath;
 
-    public Map<String, String> config;
+    public Map<String, Object> config;
 
     public ScriptResolverData() {
     }

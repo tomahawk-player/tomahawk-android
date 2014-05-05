@@ -122,7 +122,7 @@ public class ResolverConfigDialog extends DialogFragment {
         LinearLayout frame = (LinearLayout) view.findViewById(R.id.resolver_config_dialog_frame);
         if (mScriptResolver.getConfigUi() != null && mScriptResolver.getConfigUi().fields != null) {
             for (ScriptResolverConfigUiField field : mScriptResolver.getConfigUi().fields) {
-                Map<String, String> config = mScriptResolver.getConfig();
+                Map<String, Object> config = mScriptResolver.getConfig();
                 if (PROPERTY_CHECKED.equals(field.property)) {
                     LinearLayout checkboxLayout = (LinearLayout) inflater
                             .inflate(R.layout.resolver_config_checkbox, null);
@@ -134,7 +134,7 @@ public class ResolverConfigDialog extends DialogFragment {
                     checkBox.mFieldName = field.name;
                     mStringViews.add(checkBox);
                     if (config.get(field.name) != null) {
-                        checkBox.setChecked(Boolean.valueOf(config.get(field.name)));
+                        checkBox.setChecked((Boolean) config.get(field.name));
                     }
                     frame.addView(checkboxLayout);
                 } else if (PROPERTY_TEXT.equals(field.property)) {
@@ -146,7 +146,7 @@ public class ResolverConfigDialog extends DialogFragment {
                     editText.setHint(field.name);
                     mStringViews.add(editText);
                     if (config.get(field.name) != null) {
-                        editText.setText(config.get(field.name));
+                        editText.setText((String) config.get(field.name));
                         if (TomahawkUtils.containsIgnoreCase(field.name, "password")) {
                             editText.setTransformationMethod(new PasswordTransformationMethod());
                         }
@@ -165,7 +165,7 @@ public class ResolverConfigDialog extends DialogFragment {
                     editText.setHint(field.name);
                     mStringViews.add(editText);
                     if (config.get(field.name) != null) {
-                        editText.setText(config.get(field.name));
+                        editText.setText(String.valueOf(config.get(field.name)));
                     }
                     frame.addView(numberpickerLayout);
                     showSoftKeyboard(numberpickerLayout);
@@ -211,9 +211,9 @@ public class ResolverConfigDialog extends DialogFragment {
      * Save the config.
      */
     public void saveConfig() {
-        Map<String, String> config = mScriptResolver.getConfig();
+        Map<String, Object> config = mScriptResolver.getConfig();
         for (StringView stringView : mStringViews) {
-            config.put(stringView.getFieldName(), stringView.getString());
+            config.put(stringView.getFieldName(), stringView.getValue());
         }
         mScriptResolver.setConfig(config);
     }

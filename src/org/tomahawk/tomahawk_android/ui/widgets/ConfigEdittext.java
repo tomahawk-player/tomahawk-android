@@ -34,8 +34,8 @@ public class ConfigEdittext extends EditText implements StringView {
     }
 
     @Override
-    public String getString() {
-        return String.valueOf(getText());
+    public Object getValue() {
+        return getText().toString();
     }
 
     @Override
