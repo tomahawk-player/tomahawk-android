@@ -19,23 +19,23 @@ package org.tomahawk.tomahawk_android.ui.widgets;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.widget.CheckBox;
+import android.widget.EditText;
 
-public class ConfigCheckbox extends CheckBox implements StringView {
+public class ConfigNumberEdittext extends EditText implements StringView {
 
     public String mFieldName;
 
-    public ConfigCheckbox(Context context) {
+    public ConfigNumberEdittext(Context context) {
         super(context);
     }
 
-    public ConfigCheckbox(Context context, AttributeSet attrs) {
+    public ConfigNumberEdittext(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
     @Override
     public Object getValue() {
-        return isChecked();
+        return Double.valueOf(getText().toString());
     }
 
     @Override

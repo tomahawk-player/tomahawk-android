@@ -19,7 +19,7 @@ package org.tomahawk.tomahawk_android.ui.widgets;
 
 public interface StringView {
 
-    public String getString();
+    public Object getValue();
 
     public String getFieldName();
 }

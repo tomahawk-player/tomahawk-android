@@ -58,7 +58,7 @@ public class ScriptInterface {
         if (mObjectMapper == null) {
             mObjectMapper = InfoSystemUtils.constructObjectMapper();
         }
-        Map<String, String> config = mScriptResolver.getConfig();
+        Map<String, Object> config = mScriptResolver.getConfig();
         ScriptResolverData data = new ScriptResolverData();
         data.scriptPath = mScriptResolver.getScriptFilePath();
         data.config = config;

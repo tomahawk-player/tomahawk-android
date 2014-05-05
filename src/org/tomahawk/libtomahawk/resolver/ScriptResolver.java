@@ -164,7 +164,7 @@ public class ScriptResolver implements Resolver {
             Log.e(TAG, "ScriptResolver: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
         if (getConfig().get(ENABLED_KEY) != null) {
-            mEnabled = Boolean.valueOf(getConfig().get(ENABLED_KEY));
+            mEnabled = (Boolean)getConfig().get(ENABLED_KEY);
         } else {
             setEnabled(true);
         }
@@ -527,7 +527,7 @@ public class ScriptResolver implements Resolver {
         return mPath + "/" + mMetaData.manifest.main;
     }
 
-    public void setConfig(Map<String, String> config) {
+    public void setConfig(Map<String, Object> config) {
         try {
             String rawJsonString = mObjectMapper.writeValueAsString(config);
             mSharedPreferences.edit().putString(buildPreferenceKey(), rawJsonString).commit();
@@ -540,14 +540,14 @@ public class ScriptResolver implements Resolver {
     /**
      * @return the Map<String, String> containing the Config information of this resolver
      */
-    public Map<String, String> getConfig() {
+    public Map<String, Object> getConfig() {
         String rawJsonString = mSharedPreferences.getString(buildPreferenceKey(), "");
         try {
             return mObjectMapper.readValue(rawJsonString, Map.class);
         } catch (IOException e) {
             Log.e(TAG, "getConfig: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
-        return new HashMap<String, String>();
+        return new HashMap<String, Object>();
     }
 
     /**
@@ -586,8 +586,8 @@ public class ScriptResolver implements Resolver {
     public void setEnabled(boolean enabled) {
         Log.d(TAG, this + " has been " + (enabled ? "enabled" : "disabled"));
         mEnabled = enabled;
-        Map<String, String> config = getConfig();
-        config.put(ENABLED_KEY, String.valueOf(enabled));
+        Map<String, Object> config = getConfig();
+        config.put(ENABLED_KEY, enabled);
         setConfig(config);
     }
 }
