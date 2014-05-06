@@ -23,16 +23,13 @@
               android:layout_height="wrap_content"
               android:baselineAligned="false"
               android:orientation="horizontal"
-              android:padding="@dimen/padding_small"
+              android:padding="@dimen/padding_medium"
               android:background="@drawable/selectable_background_tomahawk">
 
     <org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext
             android:id="@+id/resolver_config_edittext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/padding_large"
-            android:layout_marginLeft="@dimen/padding_verysmall"
-            android:layout_marginRight="@dimen/padding_verysmall"
             android:imeOptions="flagNoExtractUi"
             android:singleLine="true"
             android:inputType="textEmailAddress"/>

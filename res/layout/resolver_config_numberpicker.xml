@@ -23,7 +23,7 @@
               android:layout_height="wrap_content"
               android:baselineAligned="false"
               android:orientation="horizontal"
-              android:padding="@dimen/padding_small"
+              android:padding="@dimen/padding_medium"
               android:background="@drawable/selectable_background_tomahawk">
 
     <TextView
@@ -31,6 +31,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_gravity="bottom"
             android:singleLine="true"
             android:textColor="@color/primary_textcolor_inverted"
             android:textSize="@dimen/text_size_large"/>
@@ -40,9 +41,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginTop="@dimen/padding_large"
-            android:layout_marginLeft="@dimen/padding_verysmall"
-            android:layout_marginRight="@dimen/padding_verysmall"
             android:imeOptions="flagNoExtractUi"
             android:singleLine="true"
             android:inputType="number"/>

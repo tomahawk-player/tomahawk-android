@@ -33,6 +33,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -147,9 +148,10 @@ public class ResolverConfigDialog extends DialogFragment {
                     mStringViews.add(editText);
                     if (config.get(field.name) != null) {
                         editText.setText((String) config.get(field.name));
-                        if (TomahawkUtils.containsIgnoreCase(field.name, "password")) {
-                            editText.setTransformationMethod(new PasswordTransformationMethod());
-                        }
+                    }
+                    if (TomahawkUtils.containsIgnoreCase(field.name, "password")) {
+                        editText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                        editText.setTransformationMethod(new PasswordTransformationMethod());
                     }
                     frame.addView(textLayout);
                     showSoftKeyboard(textLayout);
