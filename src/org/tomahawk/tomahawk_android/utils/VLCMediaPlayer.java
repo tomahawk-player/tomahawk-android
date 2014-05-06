@@ -102,6 +102,7 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
         try {
             mLibVLC = LibVLC.getInstance();
             mLibVLC.init(TomahawkApp.getContext());
+            mLibVLC.setHardwareAcceleration(LibVLC.HW_ACCELERATION_DISABLED);
             Handler eventHandler = new Handler(new Handler.Callback() {
                 @Override
                 public boolean handleMessage(Message msg) {
@@ -147,7 +148,7 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
         Log.d(TAG, "start()");
         if (mLibVLC != null) {
             if (!mLibVLC.isPlaying()) {
-                mLibVLC.playIndex(0);
+                mLibVLC.play();
             }
         }
     }
@@ -191,13 +192,11 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
             if (mTranslatedUrls.get(result) == null) {
                 ((ScriptResolver) result.getResolvedBy()).getStreamUrl(result);
             } else {
-                mLibVLC.getMediaList().clear();
-                mLibVLC.getMediaList().insert(0, LibVLC.PathToURI(mTranslatedUrls.get(result)));
+                mLibVLC.playMRL(LibVLC.PathToURI(mTranslatedUrls.get(result)));
                 onPrepared(null);
             }
         } else {
-            mLibVLC.getMediaList().clear();
-            mLibVLC.getMediaList().insert(0, LibVLC.PathToURI(result.getPath()));
+            mLibVLC.playMRL(LibVLC.PathToURI(result.getPath()));
             onPrepared(null);
         }
         return this;
