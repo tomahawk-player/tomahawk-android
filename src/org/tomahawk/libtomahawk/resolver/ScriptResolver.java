@@ -212,14 +212,24 @@ public class ScriptResolver implements Resolver {
                 } else if (mMetaData.manifest.main.contains("beatsmusic.js")) {
                     baseurl = BASEURL_BEATSMUSIC;
                 }
-                String data = "<!DOCTYPE html>" + "<html><body>";
+                String data = "<!DOCTYPE html>" + "<html><body>"
+                        + "<script src=\"file:///android_asset/js/cryptojs-core.js"
+                        + "\" type=\"text/javascript\"></script>";
                 for (String scriptPath : mMetaData.manifest.scripts) {
                     data += "<script src=\"file:///android_asset/" + mPath + "/" + scriptPath
                             + "\" type=\"text/javascript\"></script>";
                 }
-                data += "<script src=\"file:///android_asset/js/cryptojs-core.js"
-                        + "\" type=\"text/javascript\"></script>"
-                        + "<script src=\"file:///android_asset/js/tomahawk_android.js"
+                try {
+                    String[] cryptoJsScripts =
+                            TomahawkApp.getContext().getAssets().list("js/cryptojs");
+                    for (String scriptPath : cryptoJsScripts) {
+                        data += "<script src=\"file:///android_asset/js/cryptojs/" + scriptPath
+                                + "\" type=\"text/javascript\"></script>";
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG, "ScriptResolver: " + e.getClass() + ": " + e.getLocalizedMessage());
+                }
+                data += "<script src=\"file:///android_asset/js/tomahawk_android.js"
                         + "\" type=\"text/javascript\"></script>"
                         + "<script src=\"file:///android_asset/js/tomahawk.js"
                         + "\" type=\"text/javascript\"></script>"
