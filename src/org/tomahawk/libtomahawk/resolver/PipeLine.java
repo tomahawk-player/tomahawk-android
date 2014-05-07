@@ -55,6 +55,8 @@ public class PipeLine {
 
     public static final int RESOLVER_ID_BEETS = 105;
 
+    public static final int RESOLVER_ID_RDIO = 106;
+
     public static final int RESOLVER_ID_SPOTIFY = 200;
 
     public static final int PIPELINE_SEARCHTYPE_TRACKS = 0;
@@ -109,6 +111,9 @@ public class PipeLine {
             mResolvers.add(new DataBaseResolver(PipeLine.RESOLVER_ID_USERCOLLECTION));
             ScriptResolver scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_BEATSMUSIC,
                     "js/beatsmusic/content");
+            mResolvers.add(scriptResolver);
+            scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_RDIO,
+                    "js/rdio/content");
             mResolvers.add(scriptResolver);
             scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_JAMENDO,
                     "js/jamendo/content");

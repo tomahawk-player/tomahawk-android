@@ -1,0 +1,18 @@
+{
+	"name": "rdio",
+	"pluginName": "rdio",
+	"author": "Uwe and Enno",
+	"email": "uwelk@xhochy.com",
+	"version": "0.1.0",
+	"website": "http://gettomahawk.com",
+	"description": "Stream music with Rdio",
+	"type": "resolver/javascript",
+	"manifest": {
+		"main": "contents/code/rdio.js",
+		"scripts": [],
+		"icon": "contents/images/icon.png",
+		"resources": [
+			"contents/code/rdio.png"
+		]
+	}
+}

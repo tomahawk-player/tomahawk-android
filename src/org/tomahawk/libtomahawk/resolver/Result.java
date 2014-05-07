@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
+import org.tomahawk.tomahawk_android.utils.RdioMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.SpotifyMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.VLCMediaPlayer;
 
@@ -90,6 +91,8 @@ public class Result {
         mResolvedBy = resolvedBy;
         if (mResolvedBy.getId() == PipeLine.RESOLVER_ID_SPOTIFY) {
             mMediaPlayerInterface = SpotifyMediaPlayer.getInstance();
+        } else if (mResolvedBy.getId() == PipeLine.RESOLVER_ID_RDIO) {
+            mMediaPlayerInterface = RdioMediaPlayer.getInstance();
         } else {
             mMediaPlayerInterface = VLCMediaPlayer.getInstance();
             if (mResolvedBy.getId() == PipeLine.RESOLVER_ID_USERCOLLECTION) {

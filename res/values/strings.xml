@@ -163,4 +163,6 @@
     <string name="starred_albums">Starred Albums</string>
     <string name="starred_artists">Starred Artists</string>
     <string name="configuration">Configuration</string>
+    <string name="resolver_config_redirect_button_text_log_into">Log into</string>
+    <string name="resolver_config_redirect_button_text_log_out_of">Log out of</string>
 </resources>

@@ -21,11 +21,12 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticatorUtils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.FakePreferenceGroup;
-import org.tomahawk.tomahawk_android.utils.GreyscaleFilter;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -202,7 +203,10 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                 TomahawkUtils.loadDrawableIntoImageView(mContext, viewHolder.getImageView2(),
                         item.getDrawableResId());
                 if (!item.isEnabled()) {
-                    viewHolder.getImageView2().setColorFilter(GreyscaleFilter.create());
+                    viewHolder.getImageView2().setColorFilter(
+                            TomahawkApp.getContext().getResources()
+                                    .getColor(R.color.disabled_resolver), PorterDuff.Mode.MULTIPLY
+                    );
                 } else {
                     viewHolder.getImageView2().clearColorFilter();
                 }
@@ -210,7 +214,10 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                 viewHolder.getImageView2().setVisibility(View.VISIBLE);
                 viewHolder.getImageView2().setImageDrawable(item.getDrawable());
                 if (!item.isEnabled()) {
-                    viewHolder.getImageView2().setColorFilter(GreyscaleFilter.create());
+                    viewHolder.getImageView2().setColorFilter(
+                            TomahawkApp.getContext().getResources()
+                                    .getColor(R.color.disabled_resolver), PorterDuff.Mode.MULTIPLY
+                    );
                 } else {
                     viewHolder.getImageView2().clearColorFilter();
                 }

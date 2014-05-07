@@ -25,6 +25,7 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter;
 import org.tomahawk.tomahawk_android.dialogs.LoginDialog;
+import org.tomahawk.tomahawk_android.dialogs.RedirectConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.ResolverConfigDialog;
 import org.tomahawk.tomahawk_android.utils.FakePreferenceGroup;
 
@@ -35,6 +36,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -193,7 +195,12 @@ public class FakePreferenceFragment extends TomahawkListFragment
             dialog.setArguments(args);
             dialog.show(getFragmentManager(), null);
         } else if (fakePreference.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CONFIG) {
-            ResolverConfigDialog dialog = new ResolverConfigDialog();
+            DialogFragment dialog;
+            if (fakePreference.getKey() == PipeLine.RESOLVER_ID_RDIO) {
+                dialog = new RedirectConfigDialog();
+            } else {
+                dialog = new ResolverConfigDialog();
+            }
             Bundle args = new Bundle();
             args.putInt(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY, fakePreference.getKey());
             dialog.setArguments(args);
