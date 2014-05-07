@@ -35,10 +35,8 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -50,9 +48,8 @@ import java.util.ArrayList;
 import java.util.Map;
 
 /**
- * A {@link android.support.v4.app.DialogFragment} which shows a textfield to enter a username and
- * password, and provides button for cancel/logout and ok/login, depending on whether or not the
- * user is logged in
+ * A {@link android.support.v4.app.DialogFragment} which shows checkboxes and edittexts depending
+ * on the given ScriptResolver's config. Enables the user to configure a certain ScriptResolver.
  */
 public class ResolverConfigDialog extends DialogFragment {
 
@@ -73,21 +70,6 @@ public class ResolverConfigDialog extends DialogFragment {
     private ImageView mStatusImageView;
 
     private ArrayList<StringView> mStringViews = new ArrayList<StringView>();
-
-    //So that the user can login by pressing "Enter" or something similar on his keyboard
-    private TextView.OnEditorActionListener mOnLoginActionListener
-            = new TextView.OnEditorActionListener() {
-        @Override
-        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-            if (event == null || actionId == EditorInfo.IME_ACTION_SEARCH
-                    || actionId == EditorInfo.IME_ACTION_DONE
-                    || event.getAction() == KeyEvent.ACTION_DOWN
-                    && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-                saveConfig();
-            }
-            return false;
-        }
-    };
 
     private View.OnClickListener mPositiveButtonListener = new View.OnClickListener() {
         @Override
