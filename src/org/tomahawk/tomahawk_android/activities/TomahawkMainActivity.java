@@ -533,6 +533,11 @@ public class TomahawkMainActivity extends ActionBarActivity
                 super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
     /**
      * If the PlaybackService signals, that it is ready, this method is being called
      */

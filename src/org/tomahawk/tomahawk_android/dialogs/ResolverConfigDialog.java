@@ -22,15 +22,16 @@ import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.resolver.ScriptResolverConfigUiField;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.ui.widgets.ConfigCheckbox;
 import org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext;
 import org.tomahawk.tomahawk_android.ui.widgets.StringView;
-import org.tomahawk.tomahawk_android.utils.GreyscaleFilter;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.text.InputType;
@@ -168,7 +169,8 @@ public class ResolverConfigDialog extends DialogFragment {
                 mScriptResolver.setEnabled(isChecked);
 
                 if (!mScriptResolver.isEnabled()) {
-                    mStatusImageView.setColorFilter(GreyscaleFilter.create());
+                    mStatusImageView.setColorFilter(TomahawkApp.getContext().getResources()
+                            .getColor(R.color.disabled_resolver), PorterDuff.Mode.MULTIPLY);
                 } else {
                     mStatusImageView.clearColorFilter();
                 }
@@ -183,7 +185,8 @@ public class ResolverConfigDialog extends DialogFragment {
                 .findViewById(R.id.resolver_config_dialog_status_imageview);
         mStatusImageView.setImageDrawable(mScriptResolver.getIcon());
         if (!mScriptResolver.isEnabled()) {
-            mStatusImageView.setColorFilter(GreyscaleFilter.create());
+            mStatusImageView.setColorFilter(TomahawkApp.getContext().getResources()
+                    .getColor(R.color.disabled_resolver), PorterDuff.Mode.MULTIPLY);
         } else {
             mStatusImageView.clearColorFilter();
         }

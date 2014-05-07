@@ -58,6 +58,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="com.rdio.android.api.OAuth1WebViewActivity" />
+
         <service
                 android:name=".services.PlaybackService"
                 android:stopWithTask="true">

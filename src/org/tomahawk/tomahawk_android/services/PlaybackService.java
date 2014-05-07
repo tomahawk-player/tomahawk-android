@@ -38,6 +38,7 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
+import org.tomahawk.tomahawk_android.utils.RdioMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.SpotifyMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
@@ -401,8 +402,7 @@ public class PlaybackService extends Service
         mPlaybackServiceBroadcastReceiver = null;
         unbindService(mSpotifyServiceConnection);
         mSpotifyServiceConnection = null;
-        SpotifyMediaPlayer.getInstance().release();
-        VLCMediaPlayer.getInstance().release();
+        releaseAllPlayers();
         if (mWakeLock.isHeld()) {
             mWakeLock.release();
         }
@@ -617,8 +617,7 @@ public class PlaybackService extends Service
     public void next() {
         Log.d(TAG, "next");
         if (mCurrentPlaylist != null) {
-            VLCMediaPlayer.getInstance().release();
-            SpotifyMediaPlayer.getInstance().release();
+            releaseAllPlayers();
             Query query = null;
             int maxCount = mCurrentPlaylist.getCount();
             int counter = 0;
@@ -638,8 +637,7 @@ public class PlaybackService extends Service
     public void previous() {
         Log.d(TAG, "previous");
         if (mCurrentPlaylist != null) {
-            VLCMediaPlayer.getInstance().release();
-            SpotifyMediaPlayer.getInstance().release();
+            releaseAllPlayers();
             Query query = null;
             int maxCount = mCurrentPlaylist.getCount();
             int counter = 0;
@@ -772,8 +770,7 @@ public class PlaybackService extends Service
 
     public void setCurrentQueryIndex(int queryIndex) {
         Log.d(TAG, "setCurrentQueryIndex to " + queryIndex);
-        VLCMediaPlayer.getInstance().release();
-        SpotifyMediaPlayer.getInstance().release();
+        releaseAllPlayers();
         getCurrentPlaylist().setCurrentQueryIndex(queryIndex);
         handlePlayState();
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
@@ -815,8 +812,7 @@ public class PlaybackService extends Service
      */
     public void setCurrentPlaylist(Playlist playlist) {
         Log.d(TAG, "setCurrentPlaylist");
-        VLCMediaPlayer.getInstance().release();
-        SpotifyMediaPlayer.getInstance().release();
+        releaseAllPlayers();
         mCurrentPlaylist = playlist;
         handlePlayState();
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
@@ -1089,5 +1085,11 @@ public class PlaybackService extends Service
             }
             sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
         }
+    }
+
+    private void releaseAllPlayers() {
+        VLCMediaPlayer.getInstance().release();
+        SpotifyMediaPlayer.getInstance().release();
+        RdioMediaPlayer.getInstance().release();
     }
 }

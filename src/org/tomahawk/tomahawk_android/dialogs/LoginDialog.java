@@ -21,12 +21,13 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
-import org.tomahawk.tomahawk_android.utils.GreyscaleFilter;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -189,7 +190,8 @@ public class LoginDialog extends DialogFragment {
         TomahawkUtils.loadDrawableIntoImageView(getActivity(), mStatusImageView,
                 mAuthenticatorUtils.getIconResourceId());
         if (!isLoggedIn) {
-            mStatusImageView.setColorFilter(GreyscaleFilter.create());
+            mStatusImageView.setColorFilter(TomahawkApp.getContext().getResources()
+                    .getColor(R.color.disabled_resolver), PorterDuff.Mode.MULTIPLY);
         } else {
             mStatusImageView.clearColorFilter();
         }
@@ -292,7 +294,8 @@ public class LoginDialog extends DialogFragment {
         TomahawkUtils.loadDrawableIntoImageView(getActivity(), mStatusImageView,
                 mAuthenticatorUtils.getIconResourceId());
         if (!isLoggedIn) {
-            mStatusImageView.setColorFilter(GreyscaleFilter.create());
+            mStatusImageView.setColorFilter(TomahawkApp.getContext().getResources()
+                    .getColor(R.color.disabled_resolver), PorterDuff.Mode.MULTIPLY);
         } else {
             mStatusImageView.clearColorFilter();
         }

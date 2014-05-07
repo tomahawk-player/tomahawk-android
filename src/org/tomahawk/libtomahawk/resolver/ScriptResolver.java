@@ -171,7 +171,11 @@ public class ScriptResolver implements Resolver {
         if (getConfig().get(ENABLED_KEY) != null) {
             mEnabled = (Boolean) getConfig().get(ENABLED_KEY);
         } else {
-            setEnabled(true);
+            if (mId == PipeLine.RESOLVER_ID_RDIO) {
+                setEnabled(false);
+            } else {
+                setEnabled(true);
+            }
         }
 
         init();
