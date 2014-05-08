@@ -217,9 +217,8 @@ public class FakePreferenceFragment extends TomahawkListFragment
     @Override
     public void onLoggedInOut(int authenticatorId, final boolean loggedIn) {
         for (FakePreferenceGroup fakePreferenceGroup : mFakePreferenceGroups) {
-            FakePreferenceGroup.FakePreference fakePreference = null;
-            fakePreference = fakePreferenceGroup.getFakePreferenceByKey(
-                    authenticatorId);
+            FakePreferenceGroup.FakePreference fakePreference = fakePreferenceGroup
+                    .getFakePreferenceByKey(authenticatorId);
             if (authenticatorId == AuthenticatorManager.AUTHENTICATOR_ID_HATCHET) {
                 if (!loggedIn) {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {

@@ -94,6 +94,10 @@ public class AuthenticatorManager {
         return false;
     }
 
+    public OnAuthenticatedListener getOnAuthenticatedListener() {
+        return mOnAuthenticatedListener;
+    }
+
     public void setOnAuthenticatedListener(OnAuthenticatedListener onAuthenticatedListener) {
         mOnAuthenticatedListener = onAuthenticatedListener;
     }

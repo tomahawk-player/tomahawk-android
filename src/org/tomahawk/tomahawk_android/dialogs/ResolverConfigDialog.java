@@ -166,6 +166,7 @@ public class ResolverConfigDialog extends DialogFragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mScriptResolver.setEnabled(isChecked);
+
                 if (!mScriptResolver.isEnabled()) {
                     mStatusImageView.setColorFilter(GreyscaleFilter.create());
                 } else {
