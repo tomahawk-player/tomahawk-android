@@ -22,6 +22,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
@@ -603,5 +604,7 @@ public class ScriptResolver implements Resolver {
         Map<String, Object> config = getConfig();
         config.put(ENABLED_KEY, enabled);
         setConfig(config);
+        AuthenticatorManager.getInstance().getOnAuthenticatedListener()
+                .onLoggedInOut(mId, enabled);
     }
 }
