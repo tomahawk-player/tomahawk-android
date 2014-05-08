@@ -94,7 +94,7 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
     spell: function(a){magic=function(b){return(b=(b)?b:this).split("").map(function(d){if(!d.match(/[A-Za-z]/)){return d}c=d.charCodeAt(0)>=96;k=(d.toLowerCase().charCodeAt(0)-96+12)%26+1;return String.fromCharCode(k+(c?96:64))}).join("")};return magic(a)},
 
 	init: function() {
-	    this.app_token = this.spell("s4fw8if4jfwxakawi7xud55c");
+        this.app_token = this.spell("s4fw8if4jfwxakawi7xud55c");
 
         Tomahawk.reportCapabilities(TomahawkResolverCapability.UrlLookup);
 
@@ -146,19 +146,46 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
 	search: function (qid, searchString) {
         var that = this;
         // TODO: Search for albums and artists, too.
-        Tomahawk.asyncRequest(this.endpoint + "/api/search?type=track&filters=streamable:true&limit=200&q=" + encodeURIComponent(searchString) + "&client_id=" + this.app_token, function (xhr) {
+        Tomahawk.asyncRequest(this.endpoint
+            + "/api/search?type=track&filters=streamable:true&limit=100&q="
+            + encodeURIComponent(searchString) + "&client_id=" + this.app_token, function (xhr) {
             var res = JSON.parse(xhr.responseText);
-            if (res.code == "OK") {
-                // TODO: Load more metatdata
-                var results = res.data.map(function (item) {
-                    return {
-                        artist: item.detail,
-                        source: that.settings.name,
-                        track: item.display,
-                        url: "beatsmusic://track/" + item.id
-                    };
+            if (res.code == "OK" && res.data.length > 0) {
+                var results = [];
+                doneCounter = res.data.length;
+                for (i = 0; i < res.data.length; i++) {
+                    if (res.data[i].result_type === "track") {
+                        Tomahawk.asyncRequest(that.endpoint + "/api/tracks/" + res.data[i].id
+                            + "?fields=artist_display_name&fields=duration&fields=title&fields=id&client_id="
+                            + that.app_token, function (xhr2) {
+                            var res2 = JSON.parse(xhr2.responseText);
+                            if (res2.code == "OK") {
+                                var result = {
+                                    artist: res2.data.artist_display_name,
+                                    duration: res2.data.duration,
+                                    source: that.settings.name,
+                                    track: res2.data.title,
+                                    url: "beatsmusic://track/" + res2.data.id
+                                };
+                                results.push(result);
+                            }
+                            doneCounter -= 1;
+                            if (doneCounter === 0) {
+                                Tomahawk.addTrackResults({
+                                    results: results,
+                                    qid: qid
+                                });
+                            }
+                        });
+                    } else {
+                        doneCounter -= 1;
+                    }
+                }
+            } else {
+                Tomahawk.addTrackResults({
+                    results: [],
+                    qid: qid
                 });
-                Tomahawk.addTrackResults({ results: results, qid: qid });
             }
         });
 	},
