@@ -31,7 +31,6 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -165,7 +164,6 @@ public class DatabaseHelper {
      * @param newName  the new playlist name
      */
     public void renameUserPlaylist(final UserPlaylist playlist, final String newName) {
-        Log.d("test", "renamed playlist: " + playlist.getName() + " to " + newName);
         new Thread(new Runnable() {
             @Override
             public void run() {

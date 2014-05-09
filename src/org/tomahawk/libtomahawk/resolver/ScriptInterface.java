@@ -115,7 +115,6 @@ public class ScriptInterface {
 
     @JavascriptInterface
     public void reportUrlTranslation(String qid, String url) {
-        Log.d("test", "ScriptInterface reportUrlTranslation " + qid + " " + url);
         mScriptResolver.handleCallbackToJava(R.id.scriptresolver_report_url_translation, qid, url);
     }
 
