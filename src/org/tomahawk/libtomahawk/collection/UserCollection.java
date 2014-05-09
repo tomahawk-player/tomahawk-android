@@ -158,8 +158,14 @@ public class UserCollection {
                                                 fetchHatchetUserPlaylist(fetchedList.getId());
                                             } else if (!storedList.getCurrentRevision()
                                                     .equals(fetchedList.getCurrentRevision())
-                                                    || storedList.getCount() == 0) {
+                                                    || DatabaseHelper.getInstance()
+                                                    .getUserPlaylistTrackCount(storedList.getId())
+                                                    == 0) {
                                                 fetchHatchetUserPlaylist(storedList.getId());
+                                            } else if (!storedList.getName()
+                                                    .equals(fetchedList.getName())) {
+                                                DatabaseHelper.getInstance().renameUserPlaylist(
+                                                        storedList, fetchedList.getName());
                                             }
                                         }
                                         for (UserPlaylist storedList : storedListsMap.values()) {
