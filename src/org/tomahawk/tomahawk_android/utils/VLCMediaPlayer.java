@@ -195,7 +195,9 @@ public class VLCMediaPlayer implements MediaPlayerInterface, Handler.Callback {
     @Override
     public void seekTo(int msec) throws IllegalStateException {
         Log.d(TAG, "seekTo()");
-        if (mLibVLC != null) {
+        if (mLibVLC != null && mPreparedQuery != null
+                && mPreparedQuery.getPreferredTrackResult().getResolvedBy().getId()
+                != PipeLine.RESOLVER_ID_BEATSMUSIC) {
             mLibVLC.setTime(msec);
         }
     }
