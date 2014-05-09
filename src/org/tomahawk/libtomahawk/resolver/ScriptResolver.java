@@ -608,7 +608,9 @@ public class ScriptResolver implements Resolver {
         Map<String, Object> config = getConfig();
         config.put(ENABLED_KEY, enabled);
         setConfig(config);
-        AuthenticatorManager.getInstance().getOnAuthenticatedListener()
-                .onLoggedInOut(mId, enabled);
+        if (AuthenticatorManager.getInstance().getOnAuthenticatedListener() != null) {
+            AuthenticatorManager.getInstance().getOnAuthenticatedListener()
+                    .onLoggedInOut(mId, enabled);
+        }
     }
 }
