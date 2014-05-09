@@ -31,6 +31,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -149,6 +150,44 @@ public class DatabaseHelper {
                         }
                         mDatabase.insert(TomahawkSQLiteHelper.TABLE_TRACKS, null, values);
                     }
+                    mDatabase.setTransactionSuccessful();
+                    mDatabase.endTransaction();
+                    sendReportResultsBroadcast();
+                }
+            }
+        }).start();
+    }
+
+    /**
+     * Rename the given {@link Playlist}
+     *
+     * @param playlist the given {@link Playlist}
+     * @param newName  the new playlist name
+     */
+    public void renameUserPlaylist(final UserPlaylist playlist, final String newName) {
+        Log.d("test", "renamed playlist: " + playlist.getName() + " to " + newName);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    ContentValues values = new ContentValues();
+                    values.put(TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_NAME, newName);
+                    values.put(TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_CURRENTTRACKINDEX,
+                            playlist.getCurrentQueryIndex());
+                    String insertId = playlist.getId();
+                    if (!playlist.isHatchetPlaylist()) {
+                        values.put(TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ISHATCHETPLAYLIST,
+                                FALSE);
+                    } else {
+                        values.put(TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_CURRENTREVISION,
+                                playlist.getCurrentRevision());
+                        values.put(TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ISHATCHETPLAYLIST,
+                                TRUE);
+                    }
+                    values.put(TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ID, insertId);
+                    mDatabase.beginTransaction();
+                    mDatabase.insertWithOnConflict(TomahawkSQLiteHelper.TABLE_USERPLAYLISTS, null,
+                            values, SQLiteDatabase.CONFLICT_REPLACE);
                     mDatabase.setTransactionSuccessful();
                     mDatabase.endTransaction();
                     sendReportResultsBroadcast();
@@ -280,6 +319,38 @@ public class DatabaseHelper {
         }
         userplaylistsCursor.close();
         return null;
+    }
+
+    /**
+     * @param playlistId the id by which to get the correct {@link org.tomahawk.libtomahawk.collection.Playlist}
+     * @return the stored {@link org.tomahawk.libtomahawk.collection.Playlist} with playlistId as
+     * its id
+     */
+    public int getUserPlaylistTrackCount(String playlistId) {
+        int count = 0;
+        String[] columns = new String[]{TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_NAME,
+                TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_CURRENTREVISION,
+                TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ISHATCHETPLAYLIST,
+                TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_CURRENTTRACKINDEX};
+        Cursor userplaylistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_USERPLAYLISTS,
+                columns, TomahawkSQLiteHelper.USERPLAYLISTS_COLUMN_ID + " = ?",
+                new String[]{playlistId}, null, null, null);
+        if (userplaylistsCursor.moveToFirst()) {
+            ConcurrentHashMap<Integer, Long> queryIdMap = new ConcurrentHashMap<Integer, Long>();
+            columns = new String[]{TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME,
+                    TomahawkSQLiteHelper.TRACKS_COLUMN_ARTISTNAME,
+                    TomahawkSQLiteHelper.TRACKS_COLUMN_ALBUMNAME,
+                    TomahawkSQLiteHelper.TRACKS_COLUMN_RESULTHINT,
+                    TomahawkSQLiteHelper.TRACKS_COLUMN_ISFETCHEDVIAHATCHET,
+                    TomahawkSQLiteHelper.TRACKS_COLUMN_ID};
+            Cursor tracksCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_TRACKS, columns,
+                    TomahawkSQLiteHelper.TRACKS_COLUMN_IDUSERPLAYLISTS + " = ?",
+                    new String[]{playlistId}, null, null, null);
+            count = tracksCursor.getCount();
+            tracksCursor.close();
+        }
+        userplaylistsCursor.close();
+        return count;
     }
 
     /**
