@@ -162,8 +162,6 @@ public class RdioMediaPlayer
         if (mRdio == null) {
             return null;
         }
-        Log.d("test",
-                "path: " + query.getPreferredTrackResult().getPath().replace("rdio://track/", ""));
         mMediaPlayer = mRdio.getPlayerForTrack(
                 query.getPreferredTrackResult().getPath().replace("rdio://track/", ""), null, true);
         if (mMediaPlayer == null) {
