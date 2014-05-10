@@ -51,13 +51,10 @@ var RdioMetadataResolver = Tomahawk.extend(TomahawkResolver, {
         var toSign = 'POST&' + encodeURIComponent(fetchUrl) + '&' + encodeURIComponent(query);
         var signature = CryptoJS.HmacSHA1(toSign, this.spell("oKeSjHrS9d") + '&').toString(CryptoJS.enc.Base64);
         query += '&oauth_signature=' + encodeURIComponent(signature);
-		Tomahawk.log("query: " + query);
 
         Tomahawk.asyncRequest(fetchUrl, function (xhr) {
             var res = JSON.parse(xhr.responseText);
-            Tomahawk.log("Received result with status: " + res.status + ", message: " + res.message);
             if (res.status == 'ok' && res.result.results.length !== 0) {
-                Tomahawk.log("Result was ok, resultCount: " + res.result.results.length);
                 var results = [];
                 for (i = 0; i < res.result.results.length; i++) {
                     if (res.result.results[i].type == 't' && res.result.results[i].canStream) {
