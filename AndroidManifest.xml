@@ -58,12 +58,27 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.rdio.android.api.OAuth1WebViewActivity" />
+        <activity android:name="com.rdio.android.api.OAuth1WebViewActivity"/>
 
         <service
                 android:name=".services.PlaybackService"
-                android:stopWithTask="true">
+                android:stopWithTask="true"
+                android:exported="false">
+            <intent-filter>
+                <action android:name="org.tomahawk.tomahawk_android.ACTION_PLAYPAUSE"/>
+                <action android:name="org.tomahawk.tomahawk_android.ACTION_PLAY"/>
+                <action android:name="org.tomahawk.tomahawk_android.ACTION_PAUSE"/>
+                <action android:name="org.tomahawk.tomahawk_android.ACTION_NEXT"/>
+                <action android:name="org.tomahawk.tomahawk_android.ACTION_PREVIOUS"/>
+                <action android:name="org.tomahawk.tomahawk_android.ACTION_EXIT"/>
+            </intent-filter>
         </service>
+
+        <receiver android:name=".utils.MediaButtonReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON"/>
+            </intent-filter>
+        </receiver>
 
         <service
                 android:name=".services.SpotifyService"

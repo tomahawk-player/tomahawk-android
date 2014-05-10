@@ -24,6 +24,8 @@ import android.media.MediaPlayer;
 
 public interface MediaPlayerInterface {
 
+    public void setVolume(float leftVolume, float rightVolume);
+
     public void start();
 
     public void pause();

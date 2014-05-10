@@ -163,6 +163,13 @@ public class VLCMediaPlayer implements MediaPlayerInterface, Handler.Callback {
         return instance;
     }
 
+    @Override
+    public void setVolume(float leftVolume, float rightVolume) {
+        if (mLibVLC != null) {
+            mLibVLC.setVolume((int) (leftVolume + rightVolume * 50));
+        }
+    }
+
     /**
      * Start playing the previously prepared {@link org.tomahawk.libtomahawk.collection.Track}
      */

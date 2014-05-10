@@ -103,6 +103,13 @@ public class RdioMediaPlayer
         return instance;
     }
 
+    @Override
+    public void setVolume(float leftVolume, float rightVolume) {
+        if (mMediaPlayer != null) {
+            mMediaPlayer.setVolume(leftVolume, rightVolume);
+        }
+    }
+
     /**
      * Start playing the previously prepared {@link org.tomahawk.libtomahawk.collection.Track}
      */

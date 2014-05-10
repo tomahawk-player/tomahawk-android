@@ -563,12 +563,14 @@ public class TomahawkUtils {
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
             String imagePath = buildImagePath(context, image, width);
             Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
+                    .skipMemoryCache()
                     .placeholder(R.drawable.no_album_art_placeholder)
                     .error(R.drawable.no_album_art_placeholder)
                     .resize(width, width)
                     .into(target);
         } else {
             Picasso.with(context).load(R.drawable.no_album_art_placeholder)
+                    .skipMemoryCache()
                     .placeholder(R.drawable.no_album_art_placeholder)
                     .error(R.drawable.no_album_art_placeholder)
                     .resize(width, width)
