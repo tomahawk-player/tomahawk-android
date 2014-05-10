@@ -174,8 +174,8 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_USERPLAYLISTS + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_SEARCHHISTORY + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_INFOSYSTEMOPLOG + "`;");
-            db.execSQL("DROP TABLE IF EXISTS `" + CREATE_TABLE_LOVED_ALBUMS + "`;");
-            db.execSQL("DROP TABLE IF EXISTS `" + CREATE_TABLE_LOVED_ARTISTS + "`;");
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_LOVED_ALBUMS + "`;");
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_LOVED_ARTISTS + "`;");
             onCreate(db);
         }
     }
