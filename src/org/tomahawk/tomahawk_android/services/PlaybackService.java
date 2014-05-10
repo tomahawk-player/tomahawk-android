@@ -38,7 +38,13 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
+import org.tomahawk.tomahawk_android.utils.AudioFocusHelper;
+import org.tomahawk.tomahawk_android.utils.MediaButtonHelper;
+import org.tomahawk.tomahawk_android.utils.MediaButtonReceiver;
+import org.tomahawk.tomahawk_android.utils.MusicFocusable;
 import org.tomahawk.tomahawk_android.utils.RdioMediaPlayer;
+import org.tomahawk.tomahawk_android.utils.RemoteControlClientCompat;
+import org.tomahawk.tomahawk_android.utils.RemoteControlHelper;
 import org.tomahawk.tomahawk_android.utils.SpotifyMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
@@ -54,11 +60,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.media.RemoteControlClient;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Binder;
@@ -85,7 +92,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PlaybackService extends Service
         implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
-        MediaPlayer.OnCompletionListener {
+        MediaPlayer.OnCompletionListener, MusicFocusable {
 
     private static String TAG = PlaybackService.class.getName();
 
@@ -98,17 +105,27 @@ public class PlaybackService extends Service
     public static final String BROADCAST_PLAYSTATECHANGED
             = "org.tomahawk.tomahawk_android.BROADCAST_PLAYSTATECHANGED";
 
-    public static final String BROADCAST_NOTIFICATIONINTENT_PREVIOUS
-            = "org.tomahawk.tomahawk_android.BROADCAST_NOTIFICATIONINTENT_PREVIOUS";
+    public static final String ACTION_PLAYPAUSE
+            = "org.tomahawk.tomahawk_android.ACTION_PLAYPAUSE";
 
-    public static final String BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE
-            = "org.tomahawk.tomahawk_android.BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE";
+    public static final String ACTION_PLAY
+            = "org.tomahawk.tomahawk_android.ACTION_PLAY";
 
-    public static final String BROADCAST_NOTIFICATIONINTENT_NEXT
-            = "org.tomahawk.tomahawk_android.BROADCAST_NOTIFICATIONINTENT_NEXT";
+    public static final String ACTION_PAUSE
+            = "org.tomahawk.tomahawk_android.ACTION_PAUSE";
 
-    public static final String BROADCAST_NOTIFICATIONINTENT_EXIT
-            = "org.tomahawk.tomahawk_android.BROADCAST_NOTIFICATIONINTENT_EXIT";
+    public static final String ACTION_NEXT
+            = "org.tomahawk.tomahawk_android.ACTION_NEXT";
+
+    public static final String ACTION_PREVIOUS
+            = "org.tomahawk.tomahawk_android.ACTION_PREVIOUS";
+
+    public static final String ACTION_EXIT
+            = "org.tomahawk.tomahawk_android.ACTION_EXIT";
+
+    // The volume we set the media player to when we lose audio focus, but are allowed to reduce
+    // the volume instead of stopping playback.
+    public static final float DUCK_VOLUME = 0.1f;
 
     private static final int PLAYBACKSERVICE_PLAYSTATE_PLAYING = 0;
 
@@ -135,20 +152,71 @@ public class PlaybackService extends Service
 
     private Bitmap mNotificationBitmap = null;
 
-    private Image mNotificationBitmapImage = null;
+    private Bitmap mLockscreenBitmap = null;
+
+    private Image mLoadedBitmapImage = null;
 
     private boolean mIsBindingToSpotifyService;
+
+    // our RemoteControlClient object, which will use remote control APIs available in
+    // SDK level >= 14, if they're available.
+    RemoteControlClientCompat mRemoteControlClientCompat;
+
+    AudioManager mAudioManager;
+
+    // The component name of PlaybackServiceBroadcastReceiver, for use with media button and
+    // remote control APIs
+    ComponentName mMediaButtonReceiverComponent;
+
+    // our AudioFocusHelper object, if it's available (it's available on SDK level >= 8)
+    // If not available, this will be null. Always check for null before using!
+    AudioFocusHelper mAudioFocusHelper = null;
+
+    // do we have audio focus?
+    enum AudioFocus {
+        NoFocusNoDuck,    // we don't have audio focus, and can't duck
+        NoFocusCanDuck,   // we don't have focus, but can play at a low volume ("ducking")
+        Focused           // we have full audio focus
+    }
+
+    AudioFocus mAudioFocus = AudioFocus.NoFocusNoDuck;
 
     private SpotifyService.SpotifyServiceConnection mSpotifyServiceConnection
             = new SpotifyService.SpotifyServiceConnection(new SpotifyServiceConnectionListener());
 
-    private Target mTarget = new Target() {
+    private Target mNotificationTarget = new Target() {
         @Override
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
-            mNotificationBitmap = resizeNotificationBitmap(getResources(), bitmap);
+            mNotificationBitmap = bitmap;
             if (mIsRunningInForeground) {
                 updatePlayingNotification();
             }
+        }
+
+        @Override
+        public void onBitmapFailed(Drawable drawable) {
+
+        }
+
+        @Override
+        public void onPrepareLoad(Drawable drawable) {
+
+        }
+    };
+
+    private Target mLockscreenTarget = new Target() {
+        @Override
+        public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
+            ThreadManager.getInstance().execute(
+                    new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
+                        @Override
+                        public void run() {
+                            mRemoteControlClientCompat.editMetadata(false).putBitmap(
+                                    RemoteControlClientCompat.MetadataEditorCompat.METADATA_KEY_ARTWORK,
+                                    bitmap).apply();
+                        }
+                    }
+            );
         }
 
         @Override
@@ -333,6 +401,8 @@ public class PlaybackService extends Service
         bindService(new Intent(this, SpotifyService.class), mSpotifyServiceConnection,
                 Context.BIND_AUTO_CREATE);
 
+        mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+
         // Initialize PhoneCallListener
         TelephonyManager telephonyManager = (TelephonyManager) getSystemService(
                 Context.TELEPHONY_SERVICE);
@@ -357,6 +427,14 @@ public class PlaybackService extends Service
         registerReceiver(mPlaybackServiceBroadcastReceiver,
                 new IntentFilter(SpotifyService.REQUEST_SPOTIFYSERVICE));
 
+        mMediaButtonReceiverComponent = new ComponentName(this, MediaButtonReceiver.class);
+        // create the Audio Focus Helper, if the Audio Focus feature is available (SDK 8 or above)
+        if (android.os.Build.VERSION.SDK_INT >= 8) {
+            mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), this);
+        } else {
+            mAudioFocus = AudioFocus.Focused; // no focus feature, so we always "have" audio focus
+        }
+
         // Initialize killtime handler (watchdog style)
         mKillTimerHandler.removeCallbacksAndMessages(null);
         Message msg = mKillTimerHandler.obtainMessage();
@@ -369,13 +447,17 @@ public class PlaybackService extends Service
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.getAction() != null) {
-            if (intent.getAction().equals(BROADCAST_NOTIFICATIONINTENT_PREVIOUS)) {
+            if (intent.getAction().equals(ACTION_PREVIOUS)) {
                 previous();
-            } else if (intent.getAction().equals(BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE)) {
+            } else if (intent.getAction().equals(ACTION_PLAYPAUSE)) {
                 playPause();
-            } else if (intent.getAction().equals(BROADCAST_NOTIFICATIONINTENT_NEXT)) {
+            } else if (intent.getAction().equals(ACTION_PLAY)) {
+                start();
+            } else if (intent.getAction().equals(ACTION_PAUSE)) {
+                pause();
+            } else if (intent.getAction().equals(ACTION_NEXT)) {
                 next();
-            } else if (intent.getAction().equals(BROADCAST_NOTIFICATIONINTENT_EXIT)) {
+            } else if (intent.getAction().equals(ACTION_EXIT)) {
                 pause(true);
             }
         }
@@ -396,6 +478,7 @@ public class PlaybackService extends Service
 
     @Override
     public void onDestroy() {
+        giveUpAudioFocus();
         pause(true);
         saveState();
         unregisterReceiver(mPlaybackServiceBroadcastReceiver);
@@ -411,7 +494,7 @@ public class PlaybackService extends Service
                 Context.TELEPHONY_SERVICE);
         telephonyManager.listen(mPhoneCallListener, PhoneStateListener.LISTEN_NONE);
         mPhoneCallListener = null;
-        mTarget = null;
+        mNotificationTarget = null;
         mKillTimerHandler.removeCallbacksAndMessages(null);
         mKillTimerHandler = null;
 
@@ -445,6 +528,7 @@ public class PlaybackService extends Service
      */
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
+        giveUpAudioFocus();
         String whatString = "CODE UNSPECIFIED";
         switch (what) {
             case MediaPlayer.MEDIA_ERROR_UNKNOWN:
@@ -532,6 +616,12 @@ public class PlaybackService extends Service
         sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
         handlePlayState();
         updatePlayingNotification();
+
+        // Tell any remote controls that our playback state is 'playing'.
+        if (mRemoteControlClientCompat != null) {
+            mRemoteControlClientCompat.setPlaybackState(RemoteControlClient.PLAYSTATE_PLAYING);
+        }
+        tryToGetAudioFocus();
     }
 
     /**
@@ -556,6 +646,11 @@ public class PlaybackService extends Service
             stopForeground(true);
         } else {
             updatePlayingNotification();
+        }
+
+        // Tell any remote controls that our playback state is 'paused'.
+        if (mRemoteControlClientCompat != null) {
+            mRemoteControlClientCompat.setPlaybackState(RemoteControlClient.PLAYSTATE_PAUSED);
         }
     }
 
@@ -718,6 +813,7 @@ public class PlaybackService extends Service
                 if (mIsRunningInForeground) {
                     updatePlayingNotification();
                 }
+                updateLockscreenControls();
                 sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
 
                 if (getCurrentQuery().getImage() == null) {
@@ -786,6 +882,7 @@ public class PlaybackService extends Service
             if (mIsRunningInForeground) {
                 updatePlayingNotification();
             }
+            updateLockscreenControls();
         }
     }
 
@@ -926,18 +1023,16 @@ public class PlaybackService extends Service
             artistName = query.getArtist().getName();
         }
 
-        Intent intent = new Intent(BROADCAST_NOTIFICATIONINTENT_PREVIOUS, null, this,
-                PlaybackService.class);
+        Intent intent = new Intent(ACTION_PREVIOUS, null, this, PlaybackService.class);
         PendingIntent previousPendingIntent = PendingIntent
                 .getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        intent = new Intent(BROADCAST_NOTIFICATIONINTENT_PLAYPAUSE, null, this,
-                PlaybackService.class);
+        intent = new Intent(ACTION_PLAYPAUSE, null, this, PlaybackService.class);
         PendingIntent playPausePendingIntent = PendingIntent
                 .getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        intent = new Intent(BROADCAST_NOTIFICATIONINTENT_NEXT, null, this, PlaybackService.class);
+        intent = new Intent(ACTION_NEXT, null, this, PlaybackService.class);
         PendingIntent nextPendingIntent = PendingIntent
                 .getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        intent = new Intent(BROADCAST_NOTIFICATIONINTENT_EXIT, null, this, PlaybackService.class);
+        intent = new Intent(ACTION_EXIT, null, this, PlaybackService.class);
         PendingIntent exitPendingIntent = PendingIntent
                 .getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -980,9 +1075,10 @@ public class PlaybackService extends Service
         if (mNotificationBitmap != null) {
             builder.setLargeIcon(mNotificationBitmap);
         }
-        if (mNotificationBitmap == null || image != mNotificationBitmapImage) {
-            mNotificationBitmapImage = image;
-            TomahawkUtils.loadImageIntoBitmap(this, image, mTarget, Image.getSmallImageSize());
+        if (mNotificationBitmap == null || image != mLoadedBitmapImage) {
+            mLoadedBitmapImage = image;
+            TomahawkUtils.loadImageIntoBitmap(this, image, mNotificationTarget,
+                    Image.getSmallImageSize());
         }
 
         Intent notificationIntent = new Intent(this, TomahawkMainActivity.class);
@@ -1030,25 +1126,86 @@ public class PlaybackService extends Service
         startForeground(PLAYBACKSERVICE_NOTIFICATION_ID, notification);
     }
 
-    private static Bitmap resizeNotificationBitmap(Resources resources, Bitmap bitmap) {
-        if (resources != null && bitmap != null) {
-            int width = bitmap.getWidth();
-            int height = bitmap.getHeight();
-            float goalHeight = resources
-                    .getDimension(android.R.dimen.notification_large_icon_height);
-            float goalWidth = resources.getDimension(android.R.dimen.notification_large_icon_width);
-            float scaleHeight = (float) height / goalHeight;
-            float scaleWidth = (float) width / goalWidth;
-            float scale;
-            if (scaleWidth < scaleHeight) {
-                scale = scaleHeight;
-            } else {
-                scale = scaleWidth;
+    /**
+     * Update the playback controls/views which are being shown on the lockscreen
+     */
+    private void updateLockscreenControls() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH
+                && getCurrentQuery() != null) {
+            Log.d(TAG, "updateLockscreenControls()");
+            // Use the media button APIs (if available) to register ourselves for media button
+            // events
+            MediaButtonHelper.registerMediaButtonEventReceiverCompat(
+                    mAudioManager, mMediaButtonReceiverComponent);
+
+            // Use the remote control APIs (if available) to set the playback state
+            if (mRemoteControlClientCompat == null) {
+                Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+                intent.setComponent(mMediaButtonReceiverComponent);
+                mRemoteControlClientCompat = new RemoteControlClientCompat(
+                        PendingIntent.getBroadcast(this /*context*/,
+                                0 /*requestCode, ignored*/, intent /*intent*/, 0 /*flags*/)
+                );
+                RemoteControlHelper.registerRemoteControlClient(mAudioManager,
+                        mRemoteControlClientCompat);
             }
-            return Bitmap.createScaledBitmap(bitmap, (int) (width / scale), (int) (height / scale),
-                    true);
+
+            if (isPlaying()) {
+                mRemoteControlClientCompat.setPlaybackState(RemoteControlClient.PLAYSTATE_PLAYING);
+            } else {
+                mRemoteControlClientCompat.setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
+            }
+
+            int flags = RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
+                    RemoteControlClient.FLAG_KEY_MEDIA_PAUSE;
+            if (getCurrentPlaylist().hasNextQuery()) {
+                flags |= RemoteControlClient.FLAG_KEY_MEDIA_NEXT;
+            }
+            if (getCurrentPlaylist().hasPreviousQuery()) {
+                flags |= RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS;
+            }
+            mRemoteControlClientCompat.setTransportControlFlags(flags);
+
+            // Update the remote controls
+            String secondLine = getCurrentQuery().getArtist().getName();
+            if (!TextUtils.isEmpty(getCurrentQuery().getAlbum().getName())) {
+                secondLine += " - " + getCurrentQuery().getAlbum().getName();
+            }
+            mRemoteControlClientCompat.editMetadata(true)
+                    .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
+                            secondLine)
+                    .putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
+                            getCurrentQuery().getName())
+                    .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
+                            getCurrentQuery().getPreferredTrack().getDuration())
+                    .apply();
+            TomahawkUtils.loadImageIntoBitmap(this, getCurrentQuery().getImage(),
+                    mLockscreenTarget, Image.getLargeImageSize());
         }
-        return null;
+    }
+
+    @Override
+    public void onGainedAudioFocus() {
+
+    }
+
+    @Override
+    public void onLostAudioFocus(boolean canDuck) {
+
+    }
+
+    void tryToGetAudioFocus() {
+        if (mAudioFocus != AudioFocus.Focused && mAudioFocusHelper != null
+                && mAudioFocusHelper.requestFocus()) {
+            mAudioFocus = AudioFocus.Focused;
+        }
+    }
+
+    void giveUpAudioFocus() {
+        if (mAudioFocus == AudioFocus.Focused && mAudioFocusHelper != null
+                && mAudioFocusHelper.abandonFocus()) {
+            mAudioFocus = AudioFocus.NoFocusNoDuck;
+        }
     }
 
     private void resolveQueriesFromTo(int start, int end) {
@@ -1073,6 +1230,7 @@ public class PlaybackService extends Service
             if (mIsRunningInForeground) {
                 updatePlayingNotification();
             }
+            updateLockscreenControls();
             sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
         }
     }
@@ -1083,6 +1241,7 @@ public class PlaybackService extends Service
             if (mIsRunningInForeground) {
                 updatePlayingNotification();
             }
+            updateLockscreenControls();
             sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
         }
     }
