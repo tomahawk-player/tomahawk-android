@@ -617,11 +617,8 @@ public class PlaybackService extends Service
         handlePlayState();
         updatePlayingNotification();
 
-        // Tell any remote controls that our playback state is 'playing'.
-        if (mRemoteControlClientCompat != null) {
-            mRemoteControlClientCompat.setPlaybackState(RemoteControlClient.PLAYSTATE_PLAYING);
-        }
         tryToGetAudioFocus();
+        updateLockscreenControls();
     }
 
     /**
@@ -644,14 +641,11 @@ public class PlaybackService extends Service
         if (dismissNotificationOnPause) {
             mIsRunningInForeground = false;
             stopForeground(true);
+            giveUpAudioFocus();
         } else {
             updatePlayingNotification();
         }
-
-        // Tell any remote controls that our playback state is 'paused'.
-        if (mRemoteControlClientCompat != null) {
-            mRemoteControlClientCompat.setPlaybackState(RemoteControlClient.PLAYSTATE_PAUSED);
-        }
+        updateLockscreenControls();
     }
 
     /**
