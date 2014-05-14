@@ -19,8 +19,10 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
@@ -134,8 +136,9 @@ public class TomahawkListFragment extends Fragment {
             return;
         }
         View root = getView();
-        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-        if (root == null) {
+        LayoutInflater layoutInflater = (LayoutInflater)
+                TomahawkApp.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        if (root == null || layoutInflater == null) {
             return;
         }
         if (!mShowGridView) {
