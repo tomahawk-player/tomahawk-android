@@ -49,6 +49,7 @@ import org.tomahawk.tomahawk_android.utils.SpotifyMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 import org.tomahawk.tomahawk_android.utils.VLCMediaPlayer;
+import org.videolan.libvlc.EventHandler;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -70,6 +71,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -104,6 +106,12 @@ public class PlaybackService extends Service
 
     public static final String BROADCAST_PLAYSTATECHANGED
             = "org.tomahawk.tomahawk_android.BROADCAST_PLAYSTATECHANGED";
+
+    public static final String BROADCAST_VLCMEDIAPLAYER_PREPARED
+            = "org.tomahawk.tomahawk_android.BROADCAST_VLCMEDIAPLAYER_PREPARED";
+
+    public static final String BROADCAST_VLCMEDIAPLAYER_RELEASED
+            = "org.tomahawk.tomahawk_android.BROADCAST_VLCMEDIAPLAYER_RELEASED";
 
     public static final String ACTION_PLAYPAUSE
             = "org.tomahawk.tomahawk_android.ACTION_PLAYPAUSE";
@@ -183,6 +191,28 @@ public class PlaybackService extends Service
 
     private SpotifyService.SpotifyServiceConnection mSpotifyServiceConnection
             = new SpotifyService.SpotifyServiceConnection(new SpotifyServiceConnectionListener());
+
+    private Handler mVlcHandler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            Bundle data = msg.getData();
+            if (data != null) {
+                switch (data.getInt("event")) {
+                    case EventHandler.MediaPlayerEncounteredError:
+                        VLCMediaPlayer.getInstance().onError(null, MediaPlayer.MEDIA_ERROR_UNKNOWN,
+                                0);
+                        break;
+                    case EventHandler.MediaPlayerEndReached:
+                        VLCMediaPlayer.getInstance().onCompletion(null);
+                        break;
+                    default:
+                        return false;
+                }
+                return true;
+            }
+            return false;
+        }
+    });
 
     private Target mNotificationTarget = new Target() {
         @Override
@@ -361,6 +391,10 @@ public class PlaybackService extends Service
                     bindService(new Intent(PlaybackService.this, SpotifyService.class),
                             mSpotifyServiceConnection, Context.BIND_AUTO_CREATE);
                 }
+            } else if (BROADCAST_VLCMEDIAPLAYER_PREPARED.equals(intent.getAction())) {
+                EventHandler.getInstance().addHandler(mVlcHandler);
+            } else if (BROADCAST_VLCMEDIAPLAYER_RELEASED.equals(intent.getAction())) {
+                EventHandler.getInstance().removeHandler(mVlcHandler);
             }
         }
     }
@@ -426,6 +460,10 @@ public class PlaybackService extends Service
                 new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
         registerReceiver(mPlaybackServiceBroadcastReceiver,
                 new IntentFilter(SpotifyService.REQUEST_SPOTIFYSERVICE));
+        registerReceiver(mPlaybackServiceBroadcastReceiver,
+                new IntentFilter(BROADCAST_VLCMEDIAPLAYER_PREPARED));
+        registerReceiver(mPlaybackServiceBroadcastReceiver,
+                new IntentFilter(BROADCAST_VLCMEDIAPLAYER_RELEASED));
 
         mMediaButtonReceiverComponent = new ComponentName(this, MediaButtonReceiver.class);
         // create the Audio Focus Helper, if the Audio Focus feature is available (SDK 8 or above)
