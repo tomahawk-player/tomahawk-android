@@ -22,7 +22,7 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.videolan.libvlc.EventHandler;
+import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.LibVlcException;
 
@@ -31,18 +31,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
-import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
-import java.lang.ref.WeakReference;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class wraps a libvlc mediaplayer instance.
  */
-public class VLCMediaPlayer implements MediaPlayerInterface, Handler.Callback {
+public class VLCMediaPlayer implements MediaPlayerInterface {
 
     private static String TAG = VLCMediaPlayer.class.getName();
 
@@ -64,48 +61,6 @@ public class VLCMediaPlayer implements MediaPlayerInterface, Handler.Callback {
 
     private ConcurrentHashMap<Result, String> mTranslatedUrls
             = new ConcurrentHashMap<Result, String>();
-
-    private VlcHandler mVlcHandler;
-
-    @Override
-    public boolean handleMessage(Message msg) {
-        Bundle data = msg.getData();
-        if (data != null) {
-            switch (data.getInt("event")) {
-                case EventHandler.MediaPlayerEncounteredError:
-                    onError(null, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0);
-                    break;
-                case EventHandler.MediaPlayerEndReached:
-                    onCompletion(null);
-                    break;
-                default:
-                    return false;
-            }
-            return true;
-        }
-        return false;
-    }
-
-    private class VlcHandler extends Handler {
-
-        private WeakReference<Callback> mWeakCallback;
-
-        public VlcHandler(Handler.Callback callback) {
-            mWeakCallback = new WeakReference<Handler.Callback>(callback);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-
-            Handler.Callback callback = mWeakCallback.get();
-            if (callback == null) {
-                return;
-            }
-
-            callback.handleMessage(msg);
-        }
-    }
 
     /**
      * Handles incoming broadcasts.
@@ -146,7 +101,6 @@ public class VLCMediaPlayer implements MediaPlayerInterface, Handler.Callback {
             mLibVLC = LibVLC.getInstance();
             mLibVLC.init(TomahawkApp.getContext());
             mLibVLC.setHardwareAcceleration(LibVLC.HW_ACCELERATION_DISABLED);
-            mVlcHandler = new VlcHandler(this);
         } catch (LibVlcException e) {
             Log.e(TAG, "<init>: Failed to initialize LibVLC: " + e.getLocalizedMessage());
         }
@@ -252,7 +206,8 @@ public class VLCMediaPlayer implements MediaPlayerInterface, Handler.Callback {
     @Override
     public void release() {
         Log.d(TAG, "release()");
-        EventHandler.getInstance().removeHandler(mVlcHandler);
+        TomahawkApp.getContext()
+                .sendBroadcast(new Intent(PlaybackService.BROADCAST_VLCMEDIAPLAYER_RELEASED));
         pause();
     }
 
@@ -283,14 +238,17 @@ public class VLCMediaPlayer implements MediaPlayerInterface, Handler.Callback {
         return mPreparedQuery != null && mPreparedQuery == query;
     }
 
+    @Override
     public void onPrepared(MediaPlayer mp) {
         Log.d(TAG, "onPrepared()");
         mPreparedQuery = mPreparingQuery;
         mPreparingQuery = null;
         mOnPreparedListener.onPrepared(mp);
-        EventHandler.getInstance().addHandler(mVlcHandler);
+        TomahawkApp.getContext()
+                .sendBroadcast(new Intent(PlaybackService.BROADCAST_VLCMEDIAPLAYER_PREPARED));
     }
 
+    @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
         Log.d(TAG, "onError()");
         mPreparedQuery = null;
@@ -298,6 +256,7 @@ public class VLCMediaPlayer implements MediaPlayerInterface, Handler.Callback {
         return mOnErrorListener.onError(mp, what, extra);
     }
 
+    @Override
     public void onCompletion(MediaPlayer mp) {
         Log.d(TAG, "onCompletion()");
         mOnCompletionListener.onCompletion(mp);
