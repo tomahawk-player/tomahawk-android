@@ -522,16 +522,6 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        // If the nav drawer is open, hide action items related to the content view
-        if (mDrawerLayout != null) {
-            boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
-            getSupportActionBar().setDisplayShowCustomEnabled(!drawerOpen);
-        }
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item != null) {
             if (item.getItemId() == R.id.action_settings_item) {
