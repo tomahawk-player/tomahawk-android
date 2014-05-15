@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.activities;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
+import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.CollectionLoader;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.UserCollection;
@@ -71,7 +72,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -117,8 +117,6 @@ public class TomahawkMainActivity extends ActionBarActivity
             this);
 
     private PlaybackService mPlaybackService;
-
-    private User mLoggedInUser;
 
     private DrawerLayout mDrawerLayout;
 
@@ -202,7 +200,11 @@ public class TomahawkMainActivity extends ActionBarActivity
                         if (convertedResultMap != null) {
                             List users = convertedResultMap.get(HatchetInfoPlugin.HATCHET_USERS);
                             if (users != null && users.size() > 0) {
-                                mLoggedInUser = (User) users.get(0);
+                                HatchetAuthenticatorUtils authenticatorUtils
+                                        = (HatchetAuthenticatorUtils) AuthenticatorManager
+                                        .getInstance().getAuthenticatorUtils(
+                                                AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
+                                authenticatorUtils.setLoggedInUser((User) users.get(0));
                                 updateDrawer();
                             }
                         }
@@ -225,9 +227,12 @@ public class TomahawkMainActivity extends ActionBarActivity
          */
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            HatchetAuthenticatorUtils authenticatorUtils
+                    = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                    .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
             // Show the correct hub, and if needed, display the search editText inside the ActionBar
             FragmentUtils.showHub(TomahawkMainActivity.this, getSupportFragmentManager(),
-                    (int) id, mLoggedInUser);
+                    (int) id, authenticatorUtils.getLoggedInUser());
             if (mDrawerLayout != null) {
                 mDrawerLayout.closeDrawer(mDrawerList);
             }
@@ -585,7 +590,10 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     public void updateDrawer() {
-        if (mLoggedInUser == null) {
+        HatchetAuthenticatorUtils authenticatorUtils
+                = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
+        if (authenticatorUtils.getLoggedInUser() == null) {
             mCurrentRequestIds.add(InfoSystem.getInstance()
                     .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF, null));
         }
@@ -596,11 +604,10 @@ public class TomahawkMainActivity extends ActionBarActivity
                 getResources().obtainTypedArray(R.array.slide_menu_items_icons),
                 getResources().obtainTypedArray(R.array.slide_menu_items_colors));
         slideMenuAdapter.setShowHatchetMenu(true);
-        slideMenuAdapter.setUser(mLoggedInUser);
+        slideMenuAdapter.setUser(authenticatorUtils.getLoggedInUser());
         mDrawerList.setAdapter(slideMenuAdapter);
 
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-        Log.d("test", "updated Drawer, user was " + (mLoggedInUser == null ? "null" : "not null"));
     }
 
     public void closeDrawer() {
@@ -698,10 +705,6 @@ public class TomahawkMainActivity extends ActionBarActivity
             mNowPlayingFrame.setLayoutParams(new LinearLayout.LayoutParams(0, 0));
             mNowPlayingFrame.setVisibility(View.GONE);
         }
-    }
-
-    public void onLogout() {
-        mLoggedInUser = null;
     }
 
     public static long getSessionUniqueId() {
