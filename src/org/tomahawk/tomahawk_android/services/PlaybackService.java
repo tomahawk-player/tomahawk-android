@@ -63,6 +63,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
@@ -131,6 +132,8 @@ public class PlaybackService extends Service
 
     public static final String ACTION_EXIT
             = "org.tomahawk.tomahawk_android.ACTION_EXIT";
+
+    private static Bitmap sPlaceHolder = null;
 
     // The volume we set the media player to when we lose audio focus, but are allowed to reduce
     // the volume instead of stopping playback.
@@ -483,6 +486,9 @@ public class PlaybackService extends Service
         Message msg = mKillTimerHandler.obtainMessage();
         mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
 
+        sPlaceHolder =
+                BitmapFactory.decodeResource(getResources(), R.drawable.no_album_art_placeholder);
+
         restoreState();
         Log.d(TAG, "PlaybackService has been created");
     }
@@ -571,7 +577,6 @@ public class PlaybackService extends Service
      */
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        giveUpAudioFocus();
         String whatString = "CODE UNSPECIFIED";
         switch (what) {
             case MediaPlayer.MEDIA_ERROR_UNKNOWN:
@@ -580,8 +585,13 @@ public class PlaybackService extends Service
             case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
                 whatString = "MEDIA_ERROR_SERVER_DIED";
         }
-
         Log.e(TAG, "onError - " + whatString);
+        giveUpAudioFocus();
+        if (mCurrentPlaylist != null && mCurrentPlaylist.peekNextQuery() != null) {
+            next();
+        } else {
+            pause();
+        }
         return false;
     }
 
@@ -1044,197 +1054,245 @@ public class PlaybackService extends Service
      * Create or update an ongoing notification
      */
     public void updatePlayingNotification() {
-        Log.d(TAG, "updatePlayingNotification");
-        Query query = getCurrentQuery();
-        if (query == null) {
-            return;
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "updatePlayingNotification");
+                Query query = getCurrentQuery();
+                if (query == null) {
+                    return;
+                }
 
-        String albumName = "";
-        String artistName = "";
-        if (query.getAlbum() != null) {
-            albumName = query.getAlbum().getName();
-        }
-        if (query.getArtist() != null) {
-            artistName = query.getArtist().getName();
-        }
+                String albumName = "";
+                String artistName = "";
+                if (query.getAlbum() != null) {
+                    albumName = query.getAlbum().getName();
+                }
+                if (query.getArtist() != null) {
+                    artistName = query.getArtist().getName();
+                }
 
-        Intent intent = new Intent(ACTION_PREVIOUS, null, this, PlaybackService.class);
-        PendingIntent previousPendingIntent = PendingIntent
-                .getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        intent = new Intent(ACTION_PLAYPAUSE, null, this, PlaybackService.class);
-        PendingIntent playPausePendingIntent = PendingIntent
-                .getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        intent = new Intent(ACTION_NEXT, null, this, PlaybackService.class);
-        PendingIntent nextPendingIntent = PendingIntent
-                .getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        intent = new Intent(ACTION_EXIT, null, this, PlaybackService.class);
-        PendingIntent exitPendingIntent = PendingIntent
-                .getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                Intent intent = new Intent(ACTION_PREVIOUS, null, PlaybackService.this,
+                        PlaybackService.class);
+                PendingIntent previousPendingIntent = PendingIntent
+                        .getService(PlaybackService.this, 0, intent,
+                                PendingIntent.FLAG_UPDATE_CURRENT);
+                intent = new Intent(ACTION_PLAYPAUSE, null, PlaybackService.this,
+                        PlaybackService.class);
+                PendingIntent playPausePendingIntent = PendingIntent
+                        .getService(PlaybackService.this, 0, intent,
+                                PendingIntent.FLAG_UPDATE_CURRENT);
+                intent = new Intent(ACTION_NEXT, null, PlaybackService.this, PlaybackService.class);
+                PendingIntent nextPendingIntent = PendingIntent
+                        .getService(PlaybackService.this, 0, intent,
+                                PendingIntent.FLAG_UPDATE_CURRENT);
+                intent = new Intent(ACTION_EXIT, null, PlaybackService.this, PlaybackService.class);
+                PendingIntent exitPendingIntent = PendingIntent
+                        .getService(PlaybackService.this, 0, intent,
+                                PendingIntent.FLAG_UPDATE_CURRENT);
 
-        RemoteViews smallNotificationView;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            smallNotificationView = new RemoteViews(getPackageName(), R.layout.notification_small);
-            if (mNotificationBitmap != null
-                    && mLoadedNotificationImage == getCurrentQuery().getImage()) {
-                smallNotificationView.setImageViewBitmap(R.id.notification_small_imageview_albumart,
-                        mNotificationBitmap);
+                RemoteViews smallNotificationView;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    smallNotificationView = new RemoteViews(getPackageName(),
+                            R.layout.notification_small);
+                    if (mNotificationBitmap != null && mLoadedNotificationImage != null
+                            && mLoadedNotificationImage == getCurrentQuery().getImage()) {
+                        smallNotificationView
+                                .setImageViewBitmap(R.id.notification_small_imageview_albumart,
+                                        mNotificationBitmap);
+                    } else {
+                        smallNotificationView
+                                .setImageViewBitmap(R.id.notification_small_imageview_albumart,
+                                        sPlaceHolder.copy(sPlaceHolder.getConfig(), false));
+                    }
+                } else {
+                    smallNotificationView = new RemoteViews(getPackageName(),
+                            R.layout.notification_small_compat);
+                }
+                smallNotificationView
+                        .setTextViewText(R.id.notification_small_textview, query.getName());
+                if (TextUtils.isEmpty(albumName)) {
+                    smallNotificationView
+                            .setTextViewText(R.id.notification_small_textview2, artistName);
+                } else {
+                    smallNotificationView.setTextViewText(R.id.notification_small_textview2,
+                            artistName + " - " + albumName);
+                }
+                if (isPlaying()) {
+                    smallNotificationView
+                            .setImageViewResource(R.id.notification_small_imageview_playpause,
+                                    R.drawable.ic_player_pause_light);
+                } else {
+                    smallNotificationView
+                            .setImageViewResource(R.id.notification_small_imageview_playpause,
+                                    R.drawable.ic_player_play_light);
+                }
+                smallNotificationView
+                        .setOnClickPendingIntent(R.id.notification_small_imageview_playpause,
+                                playPausePendingIntent);
+                smallNotificationView
+                        .setOnClickPendingIntent(R.id.notification_small_imageview_next,
+                                nextPendingIntent);
+                smallNotificationView
+                        .setOnClickPendingIntent(R.id.notification_small_imageview_exit,
+                                exitPendingIntent);
+
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(
+                        PlaybackService.this)
+                        .setSmallIcon(R.drawable.ic_launcher).setContentTitle(artistName)
+                        .setContentText(query.getName()).setOngoing(true).setPriority(
+                                NotificationCompat.PRIORITY_MAX).setContent(smallNotificationView);
+                if (mNotificationBitmap != null && mLoadedNotificationImage != null
+                        && mLoadedNotificationImage == getCurrentQuery().getImage()) {
+                    builder.setLargeIcon(mNotificationBitmap);
+                } else if (mLoadingNotificationImage != getCurrentQuery().getImage()) {
+                    // A bitmap has been loaded or is loading, but it's not the one we want
+                    builder.setLargeIcon(sPlaceHolder.copy(sPlaceHolder.getConfig(), false));
+                    Picasso.with(TomahawkApp.getContext())
+                            .cancelRequest(mNotificationTarget);
+                    mLoadingNotificationImage = getCurrentQuery().getImage();
+                    TomahawkUtils.loadImageIntoBitmap(TomahawkApp.getContext(),
+                            getCurrentQuery().getImage(), mNotificationTarget,
+                            Image.getLargeImageSize());
+                }
+
+                Intent notificationIntent = new Intent(PlaybackService.this,
+                        TomahawkMainActivity.class);
+                intent.setAction(TomahawkMainActivity.SHOW_PLAYBACKFRAGMENT_ON_STARTUP);
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                PendingIntent resultPendingIntent = PendingIntent
+                        .getActivity(PlaybackService.this, 0, notificationIntent,
+                                PendingIntent.FLAG_UPDATE_CURRENT);
+                builder.setContentIntent(resultPendingIntent);
+
+                Notification notification = builder.build();
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    RemoteViews largeNotificationView = new RemoteViews(getPackageName(),
+                            R.layout.notification_large);
+                    if (mNotificationBitmap != null && mLoadedNotificationImage != null
+                            && mLoadedNotificationImage == getCurrentQuery().getImage()) {
+                        largeNotificationView
+                                .setImageViewBitmap(R.id.notification_large_imageview_albumart,
+                                        mNotificationBitmap);
+                    } else {
+                        largeNotificationView
+                                .setImageViewBitmap(R.id.notification_large_imageview_albumart,
+                                        sPlaceHolder.copy(sPlaceHolder.getConfig(), false));
+                    }
+                    largeNotificationView.setTextViewText(R.id.notification_large_textview,
+                            query.getName());
+                    largeNotificationView
+                            .setTextViewText(R.id.notification_large_textview2, artistName);
+                    largeNotificationView
+                            .setTextViewText(R.id.notification_large_textview3, albumName);
+                    if (isPlaying()) {
+                        largeNotificationView
+                                .setImageViewResource(R.id.notification_large_imageview_playpause,
+                                        R.drawable.ic_player_pause_light);
+                    } else {
+                        largeNotificationView
+                                .setImageViewResource(R.id.notification_large_imageview_playpause,
+                                        R.drawable.ic_player_play_light);
+                    }
+                    largeNotificationView
+                            .setOnClickPendingIntent(R.id.notification_large_imageview_previous,
+                                    previousPendingIntent);
+                    largeNotificationView
+                            .setOnClickPendingIntent(R.id.notification_large_imageview_playpause,
+                                    playPausePendingIntent);
+                    largeNotificationView
+                            .setOnClickPendingIntent(R.id.notification_large_imageview_next,
+                                    nextPendingIntent);
+                    largeNotificationView
+                            .setOnClickPendingIntent(R.id.notification_large_imageview_exit,
+                                    exitPendingIntent);
+                    notification.bigContentView = largeNotificationView;
+                }
+                mIsRunningInForeground = true;
+                startForeground(PLAYBACKSERVICE_NOTIFICATION_ID, notification);
             }
-        } else {
-            smallNotificationView = new RemoteViews(getPackageName(),
-                    R.layout.notification_small_compat);
-        }
-        smallNotificationView.setTextViewText(R.id.notification_small_textview, query.getName());
-        if (TextUtils.isEmpty(albumName)) {
-            smallNotificationView.setTextViewText(R.id.notification_small_textview2, artistName);
-        } else {
-            smallNotificationView.setTextViewText(R.id.notification_small_textview2,
-                    artistName + " - " + albumName);
-        }
-        if (isPlaying()) {
-            smallNotificationView.setImageViewResource(R.id.notification_small_imageview_playpause,
-                    R.drawable.ic_player_pause_light);
-        } else {
-            smallNotificationView.setImageViewResource(R.id.notification_small_imageview_playpause,
-                    R.drawable.ic_player_play_light);
-        }
-        smallNotificationView.setOnClickPendingIntent(R.id.notification_small_imageview_playpause,
-                playPausePendingIntent);
-        smallNotificationView
-                .setOnClickPendingIntent(R.id.notification_small_imageview_next, nextPendingIntent);
-        smallNotificationView
-                .setOnClickPendingIntent(R.id.notification_small_imageview_exit, exitPendingIntent);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_launcher).setContentTitle(artistName)
-                .setContentText(query.getName()).setOngoing(true).setPriority(
-                        NotificationCompat.PRIORITY_MAX).setContent(smallNotificationView);
-        if (mNotificationBitmap != null
-                && mLoadedNotificationImage == getCurrentQuery().getImage()) {
-            builder.setLargeIcon(mNotificationBitmap);
-        } else if (mLoadingNotificationImage != getCurrentQuery().getImage()) {
-            // A bitmap has been loaded or is loading, but it's not the one we want
-            Picasso.with(TomahawkApp.getContext())
-                    .cancelRequest(mNotificationTarget);
-            mLoadingNotificationImage = getCurrentQuery().getImage();
-            TomahawkUtils.loadImageIntoBitmap(TomahawkApp.getContext(),
-                    getCurrentQuery().getImage(), mNotificationTarget, Image.getLargeImageSize());
-        }
-
-        Intent notificationIntent = new Intent(this, TomahawkMainActivity.class);
-        intent.setAction(TomahawkMainActivity.SHOW_PLAYBACKFRAGMENT_ON_STARTUP);
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent resultPendingIntent = PendingIntent
-                .getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        builder.setContentIntent(resultPendingIntent);
-
-        Notification notification = builder.build();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            RemoteViews largeNotificationView = new RemoteViews(getPackageName(),
-                    R.layout.notification_large);
-            if (mNotificationBitmap != null
-                    && mLoadedNotificationImage == getCurrentQuery().getImage()) {
-                largeNotificationView.setImageViewBitmap(R.id.notification_large_imageview_albumart,
-                        mNotificationBitmap);
-            }
-            largeNotificationView.setTextViewText(R.id.notification_large_textview,
-                    query.getName());
-            largeNotificationView.setTextViewText(R.id.notification_large_textview2, artistName);
-            largeNotificationView.setTextViewText(R.id.notification_large_textview3, albumName);
-            if (isPlaying()) {
-                largeNotificationView
-                        .setImageViewResource(R.id.notification_large_imageview_playpause,
-                                R.drawable.ic_player_pause_light);
-            } else {
-                largeNotificationView
-                        .setImageViewResource(R.id.notification_large_imageview_playpause,
-                                R.drawable.ic_player_play_light);
-            }
-            largeNotificationView
-                    .setOnClickPendingIntent(R.id.notification_large_imageview_previous,
-                            previousPendingIntent);
-            largeNotificationView
-                    .setOnClickPendingIntent(R.id.notification_large_imageview_playpause,
-                            playPausePendingIntent);
-            largeNotificationView.setOnClickPendingIntent(R.id.notification_large_imageview_next,
-                    nextPendingIntent);
-            largeNotificationView.setOnClickPendingIntent(R.id.notification_large_imageview_exit,
-                    exitPendingIntent);
-            notification.bigContentView = largeNotificationView;
-        }
-        mIsRunningInForeground = true;
-        startForeground(PLAYBACKSERVICE_NOTIFICATION_ID, notification);
+        }).start();
     }
 
     /**
      * Update the playback controls/views which are being shown on the lockscreen
      */
     private void updateLockscreenControls() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH
-                && getCurrentQuery() != null) {
-            Log.d(TAG, "updateLockscreenControls()");
-            // Use the media button APIs (if available) to register ourselves for media button
-            // events
-            MediaButtonHelper.registerMediaButtonEventReceiverCompat(
-                    mAudioManager, mMediaButtonReceiverComponent);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH
+                        && getCurrentQuery() != null) {
+                    Log.d(TAG, "updateLockscreenControls()");
+                    // Use the media button APIs (if available) to register ourselves for media button
+                    // events
+                    MediaButtonHelper.registerMediaButtonEventReceiverCompat(
+                            mAudioManager, mMediaButtonReceiverComponent);
 
-            // Use the remote control APIs (if available) to set the playback state
-            if (mRemoteControlClientCompat == null) {
-                Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-                intent.setComponent(mMediaButtonReceiverComponent);
-                mRemoteControlClientCompat = new RemoteControlClientCompat(
-                        PendingIntent.getBroadcast(this /*context*/,
-                                0 /*requestCode, ignored*/, intent /*intent*/, 0 /*flags*/)
-                );
-                RemoteControlHelper.registerRemoteControlClient(mAudioManager,
-                        mRemoteControlClientCompat);
-            }
+                    // Use the remote control APIs (if available) to set the playback state
+                    if (mRemoteControlClientCompat == null) {
+                        Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+                        intent.setComponent(mMediaButtonReceiverComponent);
+                        mRemoteControlClientCompat = new RemoteControlClientCompat(
+                                PendingIntent.getBroadcast(PlaybackService.this /*context*/,
+                                        0 /*requestCode, ignored*/, intent /*intent*/, 0 /*flags*/)
+                        );
+                        RemoteControlHelper.registerRemoteControlClient(mAudioManager,
+                                mRemoteControlClientCompat);
+                    }
 
-            if (isPlaying()) {
-                mRemoteControlClientCompat.setPlaybackState(RemoteControlClient.PLAYSTATE_PLAYING);
-            } else {
-                mRemoteControlClientCompat.setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
-            }
+                    if (isPlaying()) {
+                        mRemoteControlClientCompat
+                                .setPlaybackState(RemoteControlClient.PLAYSTATE_PLAYING);
+                    } else {
+                        mRemoteControlClientCompat
+                                .setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
+                    }
 
-            int flags = RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
-                    RemoteControlClient.FLAG_KEY_MEDIA_PAUSE;
-            if (getCurrentPlaylist().hasNextQuery()) {
-                flags |= RemoteControlClient.FLAG_KEY_MEDIA_NEXT;
-            }
-            if (getCurrentPlaylist().hasPreviousQuery()) {
-                flags |= RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS;
-            }
-            mRemoteControlClientCompat.setTransportControlFlags(flags);
+                    int flags = RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
+                            RemoteControlClient.FLAG_KEY_MEDIA_PAUSE;
+                    if (getCurrentPlaylist().hasNextQuery()) {
+                        flags |= RemoteControlClient.FLAG_KEY_MEDIA_NEXT;
+                    }
+                    if (getCurrentPlaylist().hasPreviousQuery()) {
+                        flags |= RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS;
+                    }
+                    mRemoteControlClientCompat.setTransportControlFlags(flags);
 
-            // Update the remote controls
-            String secondLine = getCurrentQuery().getArtist().getName();
-            if (!TextUtils.isEmpty(getCurrentQuery().getAlbum().getName())) {
-                secondLine += " - " + getCurrentQuery().getAlbum().getName();
+                    // Update the remote controls
+                    String secondLine = getCurrentQuery().getArtist().getName();
+                    if (!TextUtils.isEmpty(getCurrentQuery().getAlbum().getName())) {
+                        secondLine += " - " + getCurrentQuery().getAlbum().getName();
+                    }
+                    RemoteControlClientCompat.MetadataEditorCompat editor =
+                            mRemoteControlClientCompat.editMetadata(true);
+                    editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, secondLine)
+                            .putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
+                                    getCurrentQuery().getName())
+                            .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
+                                    getCurrentQuery().getPreferredTrack().getDuration());
+                    if (mLockscreenBitmap != null && mLoadedLockscreenImage != null
+                            && mLoadedLockscreenImage == getCurrentQuery().getImage()) {
+                        // Bitmap is already loaded, we'll use that
+                        editor.putBitmap(
+                                RemoteControlClientCompat.MetadataEditorCompat.METADATA_KEY_ARTWORK,
+                                mLockscreenBitmap);
+                    } else if (mLoadingLockscreenImage != getCurrentQuery().getImage()) {
+                        // A bitmap has been loaded or is loading, but it's not the one we want
+                        editor.putBitmap(
+                                RemoteControlClientCompat.MetadataEditorCompat.METADATA_KEY_ARTWORK,
+                                sPlaceHolder.copy(sPlaceHolder.getConfig(), false));
+                        Picasso.with(TomahawkApp.getContext()).cancelRequest(mLockscreenTarget);
+                        mLoadingLockscreenImage = getCurrentQuery().getImage();
+                        TomahawkUtils.loadImageIntoBitmap(TomahawkApp.getContext(),
+                                getCurrentQuery().getImage(), mLockscreenTarget,
+                                Image.getLargeImageSize());
+                    }
+                    editor.apply();
+                }
             }
-            RemoteControlClientCompat.MetadataEditorCompat editor =
-                    mRemoteControlClientCompat.editMetadata(true);
-            editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, secondLine)
-                    .putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
-                            getCurrentQuery().getName())
-                    .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
-                            getCurrentQuery().getPreferredTrack().getDuration());
-            if (mLockscreenBitmap != null
-                    && mLoadedLockscreenImage == getCurrentQuery().getImage()) {
-                // Bitmap is already loaded, we'll use that
-                editor.putBitmap(
-                        RemoteControlClientCompat.MetadataEditorCompat.METADATA_KEY_ARTWORK,
-                        mLockscreenBitmap);
-            } else if (mLoadingLockscreenImage != getCurrentQuery().getImage()) {
-                // A bitmap has been loaded or is loading, but it's not the one we want
-                Picasso.with(TomahawkApp.getContext()).cancelRequest(mLockscreenTarget);
-                mLoadingLockscreenImage = getCurrentQuery().getImage();
-                TomahawkUtils.loadImageIntoBitmap(TomahawkApp.getContext(),
-                        getCurrentQuery().getImage(), mLockscreenTarget,
-                        Image.getLargeImageSize());
-            }
-            editor.apply();
-        }
+        }).start();
     }
 
     @Override
