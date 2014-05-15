@@ -26,6 +26,7 @@ import org.json.JSONObject;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
+import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
@@ -108,6 +109,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     public static final String RESPONSE_ERROR_URI = "error_uri";
 
     private static final int EXPIRING_LIMIT = 300;
+
+    private User mLoggedInUser;
 
     // This listener handles every event regarding the login/logout methods
     private AuthenticatorListener mAuthenticatorListener = new AuthenticatorListener() {
@@ -289,6 +292,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
         if (am != null && account != null) {
             am.removeAccount(account, null, null);
         }
+        mLoggedInUser = null;
         mAuthenticatorListener.onLogout();
     }
 
@@ -412,6 +416,14 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                     "fetchAccessToken: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
         return accessToken;
+    }
+
+    public User getLoggedInUser() {
+        return mLoggedInUser;
+    }
+
+    public void setLoggedInUser(User loggedInUser) {
+        mLoggedInUser = loggedInUser;
     }
 }
 
