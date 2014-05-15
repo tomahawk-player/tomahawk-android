@@ -36,6 +36,7 @@ import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyServiceUtils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.utils.AudioFocusHelper;
@@ -162,7 +163,13 @@ public class PlaybackService extends Service
 
     private Bitmap mLockscreenBitmap = null;
 
-    private Image mLoadedBitmapImage = null;
+    private Image mLoadingNotificationImage = null;
+
+    private Image mLoadedNotificationImage = null;
+
+    private Image mLoadingLockscreenImage = null;
+
+    private Image mLoadedLockscreenImage = null;
 
     private boolean mIsBindingToSpotifyService;
 
@@ -217,6 +224,8 @@ public class PlaybackService extends Service
     private Target mNotificationTarget = new Target() {
         @Override
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
+            mLoadedNotificationImage = mLoadingNotificationImage;
+            mLoadingNotificationImage = null;
             mNotificationBitmap = bitmap;
             if (mIsRunningInForeground) {
                 updatePlayingNotification();
@@ -225,7 +234,8 @@ public class PlaybackService extends Service
 
         @Override
         public void onBitmapFailed(Drawable drawable) {
-
+            mLoadingNotificationImage = null;
+            mLoadedNotificationImage = null;
         }
 
         @Override
@@ -237,21 +247,16 @@ public class PlaybackService extends Service
     private Target mLockscreenTarget = new Target() {
         @Override
         public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
-            ThreadManager.getInstance().execute(
-                    new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
-                        @Override
-                        public void run() {
-                            mRemoteControlClientCompat.editMetadata(false).putBitmap(
-                                    RemoteControlClientCompat.MetadataEditorCompat.METADATA_KEY_ARTWORK,
-                                    bitmap).apply();
-                        }
-                    }
-            );
+            mLoadedLockscreenImage = mLoadingLockscreenImage;
+            mLoadingLockscreenImage = null;
+            mLockscreenBitmap = bitmap;
+            updateLockscreenControls();
         }
 
         @Override
         public void onBitmapFailed(Drawable drawable) {
-
+            mLoadingLockscreenImage = null;
+            mLoadedLockscreenImage = null;
         }
 
         @Override
@@ -1047,7 +1052,6 @@ public class PlaybackService extends Service
 
         String albumName = "";
         String artistName = "";
-        Image image = query.getImage();
         if (query.getAlbum() != null) {
             albumName = query.getAlbum().getName();
         }
@@ -1071,7 +1075,8 @@ public class PlaybackService extends Service
         RemoteViews smallNotificationView;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             smallNotificationView = new RemoteViews(getPackageName(), R.layout.notification_small);
-            if (mNotificationBitmap != null) {
+            if (mNotificationBitmap != null
+                    && mLoadedNotificationImage == getCurrentQuery().getImage()) {
                 smallNotificationView.setImageViewBitmap(R.id.notification_small_imageview_albumart,
                         mNotificationBitmap);
             }
@@ -1104,13 +1109,16 @@ public class PlaybackService extends Service
                 .setSmallIcon(R.drawable.ic_launcher).setContentTitle(artistName)
                 .setContentText(query.getName()).setOngoing(true).setPriority(
                         NotificationCompat.PRIORITY_MAX).setContent(smallNotificationView);
-        if (mNotificationBitmap != null) {
+        if (mNotificationBitmap != null
+                && mLoadedNotificationImage == getCurrentQuery().getImage()) {
             builder.setLargeIcon(mNotificationBitmap);
-        }
-        if (mNotificationBitmap == null || image != mLoadedBitmapImage) {
-            mLoadedBitmapImage = image;
-            TomahawkUtils.loadImageIntoBitmap(this, image, mNotificationTarget,
-                    Image.getSmallImageSize());
+        } else if (mLoadingNotificationImage != getCurrentQuery().getImage()) {
+            // A bitmap has been loaded or is loading, but it's not the one we want
+            Picasso.with(TomahawkApp.getContext())
+                    .cancelRequest(mNotificationTarget);
+            mLoadingNotificationImage = getCurrentQuery().getImage();
+            TomahawkUtils.loadImageIntoBitmap(TomahawkApp.getContext(),
+                    getCurrentQuery().getImage(), mNotificationTarget, Image.getLargeImageSize());
         }
 
         Intent notificationIntent = new Intent(this, TomahawkMainActivity.class);
@@ -1125,7 +1133,8 @@ public class PlaybackService extends Service
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             RemoteViews largeNotificationView = new RemoteViews(getPackageName(),
                     R.layout.notification_large);
-            if (mNotificationBitmap != null) {
+            if (mNotificationBitmap != null
+                    && mLoadedNotificationImage == getCurrentQuery().getImage()) {
                 largeNotificationView.setImageViewBitmap(R.id.notification_large_imageview_albumart,
                         mNotificationBitmap);
             }
@@ -1203,16 +1212,28 @@ public class PlaybackService extends Service
             if (!TextUtils.isEmpty(getCurrentQuery().getAlbum().getName())) {
                 secondLine += " - " + getCurrentQuery().getAlbum().getName();
             }
-            mRemoteControlClientCompat.editMetadata(true)
-                    .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
-                            secondLine)
+            RemoteControlClientCompat.MetadataEditorCompat editor =
+                    mRemoteControlClientCompat.editMetadata(true);
+            editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, secondLine)
                     .putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
                             getCurrentQuery().getName())
                     .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
-                            getCurrentQuery().getPreferredTrack().getDuration())
-                    .apply();
-            TomahawkUtils.loadImageIntoBitmap(this, getCurrentQuery().getImage(),
-                    mLockscreenTarget, Image.getLargeImageSize());
+                            getCurrentQuery().getPreferredTrack().getDuration());
+            if (mLockscreenBitmap != null
+                    && mLoadedLockscreenImage == getCurrentQuery().getImage()) {
+                // Bitmap is already loaded, we'll use that
+                editor.putBitmap(
+                        RemoteControlClientCompat.MetadataEditorCompat.METADATA_KEY_ARTWORK,
+                        mLockscreenBitmap);
+            } else if (mLoadingLockscreenImage != getCurrentQuery().getImage()) {
+                // A bitmap has been loaded or is loading, but it's not the one we want
+                Picasso.with(TomahawkApp.getContext()).cancelRequest(mLockscreenTarget);
+                mLoadingLockscreenImage = getCurrentQuery().getImage();
+                TomahawkUtils.loadImageIntoBitmap(TomahawkApp.getContext(),
+                        getCurrentQuery().getImage(), mLockscreenTarget,
+                        Image.getLargeImageSize());
+            }
+            editor.apply();
         }
     }
 
