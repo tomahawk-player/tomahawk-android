@@ -71,6 +71,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -82,6 +83,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -106,6 +108,8 @@ public class TomahawkMainActivity extends ActionBarActivity
     public static final String FRAGMENT_TAG = "the_ultimate_tag";
 
     private static long mSessionIdCounter = 0;
+
+    protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
 
     private CharSequence mTitle;
 
@@ -190,15 +194,17 @@ public class TomahawkMainActivity extends ActionBarActivity
             } else if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
                 String requestId = intent.getStringExtra(
                         InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
-                InfoRequestData data = InfoSystem.getInstance().getInfoRequestById(requestId);
-                if (data != null
-                        && data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF) {
-                    Map<String, List> convertedResultMap = data.getConvertedResultMap();
-                    if (convertedResultMap != null) {
-                        List users = convertedResultMap.get(HatchetInfoPlugin.HATCHET_USERS);
-                        if (users != null && users.size() > 0) {
-                            mLoggedInUser = (User) users.get(0);
-                            updateDrawer();
+                if (mCurrentRequestIds.contains(requestId)) {
+                    InfoRequestData data = InfoSystem.getInstance().getInfoRequestById(requestId);
+                    if (data != null
+                            && data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF) {
+                        Map<String, List> convertedResultMap = data.getConvertedResultMap();
+                        if (convertedResultMap != null) {
+                            List users = convertedResultMap.get(HatchetInfoPlugin.HATCHET_USERS);
+                            if (users != null && users.size() > 0) {
+                                mLoggedInUser = (User) users.get(0);
+                                updateDrawer();
+                            }
                         }
                     }
                 }
@@ -311,7 +317,6 @@ public class TomahawkMainActivity extends ActionBarActivity
             // Set the drawer toggle as the DrawerListener
             mDrawerLayout.setDrawerListener(mDrawerToggle);
         }
-        updateDrawer();
 
         // set customization variables on the ActionBar
         final ActionBar actionBar = getSupportActionBar();
@@ -346,6 +351,8 @@ public class TomahawkMainActivity extends ActionBarActivity
     @Override
     public void onResume() {
         super.onResume();
+
+        updateDrawer();
 
         mAnimationHandler = new Handler();
         mShouldShowAnimationHandler = new Handler();
@@ -579,7 +586,8 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public void updateDrawer() {
         if (mLoggedInUser == null) {
-            InfoSystem.getInstance().resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF, null);
+            mCurrentRequestIds.add(InfoSystem.getInstance()
+                    .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF, null));
         }
         // Set up the TomahawkMenuAdapter. Give it its set of menu item texts and icons to display
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
@@ -592,6 +600,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         mDrawerList.setAdapter(slideMenuAdapter);
 
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        Log.d("test", "updated Drawer, user was " + (mLoggedInUser == null ? "null" : "not null"));
     }
 
     public void closeDrawer() {
