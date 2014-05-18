@@ -84,6 +84,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                         AlbumsFragment.class, mAlbum.getArtist().getCacheKey(),
                         TomahawkFragment.TOMAHAWK_ARTIST_KEY, false);
             }
+            ((TomahawkMainActivity) getActivity()).closeDrawer();
         }
         return super.onOptionsItemSelected(item);
     }

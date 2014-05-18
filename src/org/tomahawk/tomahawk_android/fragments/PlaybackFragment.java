@@ -241,6 +241,7 @@ public class PlaybackFragment extends TomahawkFragment
                             TomahawkFragment.TOMAHAWK_ALBUM_KEY, false);
                 }
             }
+            ((TomahawkMainActivity) getActivity()).closeDrawer();
         }
         return super.onOptionsItemSelected(item);
     }
