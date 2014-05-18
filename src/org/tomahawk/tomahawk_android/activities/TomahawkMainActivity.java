@@ -118,6 +118,8 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private PlaybackService mPlaybackService;
 
+    private MenuItem mSearchItem;
+
     private DrawerLayout mDrawerLayout;
 
     private ListView mDrawerList;
@@ -316,6 +318,9 @@ public class TomahawkMainActivity extends ActionBarActivity
                 /** Called when a drawer has settled in a completely open state. */
                 public void onDrawerOpened(View drawerView) {
                     getSupportActionBar().setTitle(mDrawerTitle);
+                    if (mSearchItem != null) {
+                        MenuItemCompat.collapseActionView(mSearchItem);
+                    }
                     supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
                 }
             };
@@ -448,8 +453,8 @@ public class TomahawkMainActivity extends ActionBarActivity
         final MenuItem goToAlbumItem = menu.findItem(R.id.action_gotoalbum_item);
         goToAlbumItem.setVisible(false);
         // customize the searchView
-        final MenuItem searchItem = menu.findItem(R.id.action_search);
-        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        mSearchItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(mSearchItem);
         SearchView.SearchAutoComplete searchAutoComplete
                 = (SearchView.SearchAutoComplete) searchView
                 .findViewById(android.support.v7.appcompat.R.id.search_src_text);
@@ -465,8 +470,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                     DatabaseHelper.getInstance().addEntryToSearchHistory(query);
                     FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
                             SearchableFragment.class, query);
-                    if (searchItem != null) {
-                        MenuItemCompat.collapseActionView(searchItem);
+                    if (mSearchItem != null) {
+                        MenuItemCompat.collapseActionView(mSearchItem);
                     }
                     searchView.clearFocus();
                     return true;
@@ -528,6 +533,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                 FragmentUtils.replace(this, getSupportFragmentManager(),
                         FakePreferenceFragment.class);
             }
+            closeDrawer();
         }
         // Pass the event to ActionBarDrawerToggle, if it returns
         // true, then it has handled the app icon touch event
