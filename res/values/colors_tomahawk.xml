@@ -31,7 +31,7 @@
     <color name="primary_transparent">#CCebebeb</color>
     <color name="secondary_transparent">#99151515</color>
     <color name="disabled">#FF777777</color>
-    <color name="disabled_resolver">#55FFFFFF</color>
+    <color name="disabled_resolver">#33FFFFFF</color>
     <color name="primary_textcolor">#FF222222</color>
     <color name="secondary_textcolor">#FF333333</color>
     <color name="primary_textcolor_inverted">#FFdddddd</color>
