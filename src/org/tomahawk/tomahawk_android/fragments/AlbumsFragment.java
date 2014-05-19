@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
+import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
@@ -148,6 +149,9 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
             getListView().setOnItemClickListener(this);
         } else if (mShowMode == SHOW_MODE_STARREDALBUMS) {
             ArrayList<Album> albums = DatabaseHelper.getInstance().getStarredAlbums();
+            for (Album album : albums) {
+                mCurrentRequestIds.add(InfoSystem.getInstance().resolve(album));
+            }
             albumsAndTopHits.addAll(albums);
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
