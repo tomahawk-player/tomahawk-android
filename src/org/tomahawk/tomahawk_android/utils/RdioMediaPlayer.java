@@ -169,8 +169,14 @@ public class RdioMediaPlayer
         if (mRdio == null) {
             return null;
         }
-        mMediaPlayer = mRdio.getPlayerForTrack(
-                query.getPreferredTrackResult().getPath().replace("rdio://track/", ""), null, true);
+        try {
+            mMediaPlayer = mRdio.getPlayerForTrack(
+                    query.getPreferredTrackResult().getPath().replace("rdio://track/", ""), null,
+                    true);
+        } catch (IllegalStateException e) {
+            Log.e(TAG, "prepare: " + e.getClass() + ": " + e.getLocalizedMessage());
+            return null;
+        }
         if (mMediaPlayer == null) {
             return null;
         }
