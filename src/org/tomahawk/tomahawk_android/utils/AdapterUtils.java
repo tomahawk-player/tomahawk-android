@@ -268,6 +268,9 @@ public class AdapterUtils {
             boolean showAsPlaying, boolean showResolvedBy) {
         Resources resources = context.getResources();
         TomahawkListItem targetObject = socialAction.getTargetObject();
+        viewHolder.getImageView1().setVisibility(ImageView.VISIBLE);
+        TomahawkUtils.loadRoundedImageIntoImageView(context, viewHolder.getImageView1(),
+                socialAction.getUser().getImage(), Image.getSmallImageSize());
         if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE
                 .equals(socialAction.getType())) {
             boolean action = Boolean.valueOf(socialAction.getAction());
@@ -284,8 +287,7 @@ public class AdapterUtils {
                 viewHolder.getTextView3().setText(query.getArtist().getName());
                 if (showAsPlaying) {
                     viewHolder.getImageView1().setVisibility(ImageView.VISIBLE);
-                    viewHolder.getImageView1()
-                            .setBackgroundResource(R.drawable.ic_action_album_light);
+                    viewHolder.getImageView1().setImageResource(R.drawable.ic_action_album_light);
                     if (viewHolder.getImageView1().getAnimation() == null) {
                         viewHolder.getImageView1().startAnimation(constructRotateAnimation());
                     }
@@ -326,8 +328,7 @@ public class AdapterUtils {
                         + query.getArtist().getName() + ":");
                 if (showAsPlaying) {
                     viewHolder.getImageView1().setVisibility(ImageView.VISIBLE);
-                    viewHolder.getImageView1()
-                            .setBackgroundResource(R.drawable.ic_action_album_light);
+                    viewHolder.getImageView1().setImageResource(R.drawable.ic_action_album_light);
                     if (viewHolder.getImageView1().getAnimation() == null) {
                         viewHolder.getImageView1().startAnimation(constructRotateAnimation());
                     }
