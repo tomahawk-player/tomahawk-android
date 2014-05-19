@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
+import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
@@ -87,6 +88,12 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
         List<TomahawkListItem> artists = new ArrayList<TomahawkListItem>();
         if (mShowMode == SHOW_MODE_STARREDARTISTS) {
             ArrayList<Artist> starredArtists = DatabaseHelper.getInstance().getStarredArtists();
+            for (Artist artist : starredArtists) {
+                ArrayList<String> requestIds = InfoSystem.getInstance().resolve(artist, false);
+                for (String requestId : requestIds) {
+                    mCurrentRequestIds.add(requestId);
+                }
+            }
             artists.addAll(starredArtists);
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
