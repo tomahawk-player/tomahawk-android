@@ -31,7 +31,6 @@
             android:layout_width="@dimen/row_height_verylarge"
             android:layout_height="@dimen/row_height_verylarge"
             android:layout_gravity="center"
-            android:padding="@dimen/padding_small"
             android:visibility="gone"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"/>

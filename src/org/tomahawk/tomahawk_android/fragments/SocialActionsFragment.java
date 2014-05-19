@@ -38,6 +38,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * {@link org.tomahawk.tomahawk_android.fragments.TomahawkFragment} which shows information provided
@@ -48,6 +49,8 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
     public static final int SHOW_MODE_SOCIALACTIONS = 0;
 
     public static final int SHOW_MODE_DASHBOARD = 1;
+
+    private HashSet<User> mResolvedUsers = new HashSet<User>();
 
     @Override
     public void onResume() {
@@ -137,6 +140,13 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
                 socialActions = new ArrayList<TomahawkListItem>(mUser.getFriendsFeed());
             } else {
                 socialActions = new ArrayList<TomahawkListItem>(mUser.getSocialActions());
+            }
+            for (TomahawkListItem socialAction : socialActions) {
+                User user = ((SocialAction) socialAction).getUser();
+                if (!mResolvedUsers.contains(user) && user.getImage() == null) {
+                    mResolvedUsers.add(user);
+                    mCurrentRequestIds.add(InfoSystem.getInstance().resolve(user));
+                }
             }
             TomahawkListAdapter tomahawkListAdapter;
             getActivity().setTitle(mUser.getName());
