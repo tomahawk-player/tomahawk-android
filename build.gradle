@@ -33,11 +33,28 @@ dependencies {
  */
 def getNewVersionName = { ->
     def stdout = new ByteArrayOutputStream()
+    boolean isChanged = false
+    exec {
+        commandLine 'git', 'diff', '--cached'
+        standardOutput = stdout
+    }
+    if (stdout.toString().length() > 0) {
+        isChanged = true
+    }
+    stdout.reset()
+    exec {
+        commandLine 'git', 'diff'
+        standardOutput = stdout
+    }
+    if (stdout.toString().length() > 0) {
+        isChanged = true
+    }
+    stdout.reset()
     exec {
         commandLine 'git', 'describe', '--tags'
         standardOutput = stdout
     }
-    return stdout.toString().trim()
+    return stdout.toString().trim() + (isChanged ? "_modified" : "")
 }
 
 android {
