@@ -107,7 +107,6 @@ android {
                 abiFilters "armeabi", "armeabi-v7a"
             }
         }
-        fat
     }
 }
 

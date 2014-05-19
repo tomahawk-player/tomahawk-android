@@ -35,6 +35,10 @@
 -keep class org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper {
     public <methods>;
 }
+-keep class org.videolan.libvlc.LibVLC {
+    public <methods>;
+    private <methods>;
+}
 
 # keep setters in Views so that animations can still work.
 # see http://proguard.sourceforge.net/manual/examples.html#beans
