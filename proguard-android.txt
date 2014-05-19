@@ -89,6 +89,9 @@
 -keepnames class org.codehaus.jackson.** {
     *;
 }
+-keepclassmembers public class * {
+    public <init>(...);
+}
 
 
 ################
