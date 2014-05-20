@@ -474,12 +474,7 @@ public class PlaybackService extends Service
                 new IntentFilter(BROADCAST_VLCMEDIAPLAYER_RELEASED));
 
         mMediaButtonReceiverComponent = new ComponentName(this, MediaButtonReceiver.class);
-        // create the Audio Focus Helper, if the Audio Focus feature is available (SDK 8 or above)
-        if (android.os.Build.VERSION.SDK_INT >= 8) {
-            mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), this);
-        } else {
-            mAudioFocus = AudioFocus.Focused; // no focus feature, so we always "have" audio focus
-        }
+        mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), this);
 
         // Initialize killtime handler (watchdog style)
         mKillTimerHandler.removeCallbacksAndMessages(null);
