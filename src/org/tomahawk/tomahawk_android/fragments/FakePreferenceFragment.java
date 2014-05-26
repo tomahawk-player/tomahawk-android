@@ -27,11 +27,13 @@ import org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter;
 import org.tomahawk.tomahawk_android.dialogs.LoginDialog;
 import org.tomahawk.tomahawk_android.dialogs.RedirectConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.ResolverConfigDialog;
+import org.tomahawk.tomahawk_android.services.RemoteControllerService;
 import org.tomahawk.tomahawk_android.utils.FakePreferenceGroup;
 
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -60,10 +62,15 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
     public static final int FAKEPREFERENCEFRAGMENT_ID_PLUGINTOPLAY = 1;
 
+    public static final int FAKEPREFERENCEFRAGMENT_ID_SCROBBLEEVERYTHING = 3;
+
     public static final int FAKEPREFERENCEFRAGMENT_ID_APPVERSION = 2;
 
     public static final String FAKEPREFERENCEFRAGMENT_KEY_PREFBITRATE
             = "org.tomahawk.tomahawk_android.prefbitrate";
+
+    public static final String FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING
+            = "org.tomahawk.tomahawk_android.scrobbleeverything";
 
     public static final String FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY
             = "org.tomahawk.tomahawk_android.plugintoplay";
@@ -118,6 +125,12 @@ public class FakePreferenceFragment extends TomahawkListFragment
                 FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY,
                 getString(R.string.fakepreference_plugintoplay_title_string),
                 getString(R.string.fakepreference_plugintoplay_summary_string)));
+        prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
+                FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX,
+                FAKEPREFERENCEFRAGMENT_ID_SCROBBLEEVERYTHING,
+                FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING,
+                getString(R.string.fakepreference_scrobble_title_string),
+                getString(R.string.fakepreference_scrobble_summary_string)));
         prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
                 FakePreferenceGroup.FAKEPREFERENCE_TYPE_SPINNER,
                 FAKEPREFERENCEFRAGMENT_ID_PREFBITRATE,
@@ -186,6 +199,10 @@ public class FakePreferenceFragment extends TomahawkListFragment
                     .getBoolean(fakePreference.getStorageKey(), false);
             editor.putBoolean(fakePreference.getStorageKey(), !preferenceState);
             editor.commit();
+            if (fakePreference.getKey() == FAKEPREFERENCEFRAGMENT_ID_SCROBBLEEVERYTHING
+                    && !preferenceState && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                RemoteControllerService.askAccess();
+            }
         } else if (fakePreference.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH) {
             // if a FakePreference of type "FAKEPREFERENCE_TYPE_AUTH" has been clicked,
             // we show a LoginDialog
@@ -231,7 +248,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
-                            ((TomahawkMainActivity) getActivity()).updateDrawer();
+                            ((TomahawkMainActivity) getActivity()).onHatchetLoggedIn();
                         }
                     });
                 }

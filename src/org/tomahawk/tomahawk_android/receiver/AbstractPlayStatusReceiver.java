@@ -26,6 +26,7 @@ import org.tomahawk.tomahawk_android.services.MicroService;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -45,37 +46,39 @@ public abstract class AbstractPlayStatusReceiver extends BroadcastReceiver {
 
     @Override
     public final void onReceive(Context context, Intent intent) {
-        String action = intent.getAction();
-        Bundle bundle = intent.getExtras();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            String action = intent.getAction();
+            Bundle bundle = intent.getExtras();
 
-        Log.v(TAG, "Action received was: " + action);
+            Log.v(TAG, "Action received was: " + action);
 
-        // check to make sure we actually got something
-        if (action == null) {
-            Log.w(TAG, "Got null action");
-            return;
-        }
-
-        if (bundle == null) {
-            bundle = Bundle.EMPTY;
-        }
-
-        mServiceIntent = new Intent(MicroService.ACTION_PLAYSTATECHANGED);
-
-        try {
-            parseIntent(context, action, bundle); // might throw
-
-            // parseIntent must have called setTrack with non-null values
-            if (mTrack == null) {
-                throw new IllegalArgumentException(
-                        "Track was null, not starting/calling MicroService");
-            } else {
-                mServiceIntent.putExtra(MicroService.EXTRA_TRACKKEY, mTrack.getCacheKey());
-                // start/call the Scrobbling Service
-                context.startService(mServiceIntent);
+            // check to make sure we actually got something
+            if (action == null) {
+                Log.w(TAG, "Got null action");
+                return;
             }
-        } catch (IllegalArgumentException e) {
-            Log.i(TAG, "onReceive: Got a bad track, ignoring it (" + e.getMessage() + ")");
+
+            if (bundle == null) {
+                bundle = Bundle.EMPTY;
+            }
+
+            mServiceIntent = new Intent(MicroService.ACTION_PLAYSTATECHANGED);
+
+            try {
+                parseIntent(context, action, bundle); // might throw
+
+                // parseIntent must have called setTrack with non-null values
+                if (mTrack == null) {
+                    throw new IllegalArgumentException(
+                            "Track was null, not starting/calling MicroService");
+                } else {
+                    mServiceIntent.putExtra(MicroService.EXTRA_TRACKKEY, mTrack.getCacheKey());
+                    // start/call the Scrobbling Service
+                    context.startService(mServiceIntent);
+                }
+            } catch (IllegalArgumentException e) {
+                Log.i(TAG, "onReceive: Got a bad track, ignoring it (" + e.getMessage() + ")");
+            }
         }
     }
 

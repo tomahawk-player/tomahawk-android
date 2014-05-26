@@ -17,18 +17,36 @@
  */
 package org.tomahawk.tomahawk_android.services;
 
+import org.electricwisdom.unifiedremotemetadataprovider.media.RemoteMetadataProvider;
+import org.electricwisdom.unifiedremotemetadataprovider.media.enums.PlayState;
+import org.electricwisdom.unifiedremotemetadataprovider.media.enums.RemoteControlFeature;
+import org.electricwisdom.unifiedremotemetadataprovider.media.listeners.OnArtworkChangeListener;
+import org.electricwisdom.unifiedremotemetadataprovider.media.listeners.OnMetadataChangeListener;
+import org.electricwisdom.unifiedremotemetadataprovider.media.listeners.OnPlaybackStateChangeListener;
+import org.electricwisdom.unifiedremotemetadataprovider.media.listeners.OnRemoteControlFeaturesChangeListener;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
+import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
+
+import java.util.List;
 
 public class MicroService extends Service {
 
@@ -54,15 +72,66 @@ public class MicroService extends Service {
         START, RESUME, PAUSE, COMPLETE, PLAYLIST_FINISHED, UNKNOWN_NONPLAYING
     }
 
-    private Track mCurrentTrack = null;
+    private static Track sCurrentTrack = null;
+
+    private RemoteMetadataProvider mMetadataProvider;
 
     @Override
     public void onCreate() {
+        Log.d(TAG, "onCreate");
         super.onCreate();
 
         DatabaseHelper.getInstance().ensureInit();
         InfoSystem.getInstance().ensureInit();
         AuthenticatorManager.getInstance().ensureInit();
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+                //Acquiring instance of RemoteMetadataProvider
+                mMetadataProvider = RemoteMetadataProvider.getInstance(this);
+                //setting up metadata listener
+                mMetadataProvider.setOnMetadataChangeListener(new OnMetadataChangeListener() {
+                    @Override
+                    public void onMetadataChanged(String artistName, String trackName,
+                            String albumName,
+                            String albumArtistName, long duration) {
+                        Log.d(TAG, "onMetadataChanged");
+                        scrobbleTrack(trackName, artistName, albumName, albumArtistName);
+                    }
+                });
+
+                //setting up artwork listener
+                mMetadataProvider.setOnArtworkChangeListener(new OnArtworkChangeListener() {
+                    @Override
+                    public void onArtworkChanged(Bitmap artwork) {
+                        Log.d(TAG, "onArtworkChanged");
+                    }
+                });
+
+                //setting up remote control flags listener
+                mMetadataProvider.setOnRemoteControlFeaturesChangeListener(
+                        new OnRemoteControlFeaturesChangeListener() {
+                            @Override
+                            public void onFeaturesChanged(List<RemoteControlFeature> usesFeatures) {
+                                Log.d(TAG, "onFeaturesChanged");
+                            }
+                        }
+                );
+
+                //setting up playback state change listener
+                mMetadataProvider
+                        .setOnPlaybackStateChangeListener(new OnPlaybackStateChangeListener() {
+                            @Override
+                            public void onPlaybackStateChanged(PlayState playbackState) {
+                                Log.d(TAG, "onPlaybackStateChanged");
+                            }
+                        });
+            }
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                mMetadataProvider.acquireRemoteControls();
+            } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+                mMetadataProvider.acquireRemoteControls(256, 256);
+            }
+        }
     }
 
     @Override
@@ -90,7 +159,7 @@ public class MicroService extends Service {
                 }
             }
         }
-        return Service.START_NOT_STICKY;
+        return Service.START_STICKY;
     }
 
     private synchronized void onPlayStateChanged(Track track, MicroService.State state,
@@ -98,21 +167,49 @@ public class MicroService extends Service {
         if (isSameAsCurrentTrack) {
             // this only happens for apps implementing Scrobble Droid's API
             Log.d(TAG, "Got a SAME_AS_CURRENT track");
-            if (mCurrentTrack != null) {
-                track = mCurrentTrack;
+            if (sCurrentTrack != null) {
+                track = sCurrentTrack;
             } else {
                 Log.e(TAG, "Got a SAME_AS_CURRENT track, but current was null!");
                 return;
             }
         }
-        Log.d(TAG, "Track data: '" + track.getName() + "' - '" + track.getArtist().getName()
-                + "' - '" + track.getAlbum().getName() + "' ,source: " + source + ",state: "
-                + state);
-        if (mCurrentTrack != track) {
-            mCurrentTrack = track;
-            AuthenticatorUtils utils = AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
-            InfoSystem.getInstance().sendNowPlayingPostStruct(utils, Query.get(track, false));
+        if (State.RESUME.equals(state) || State.START.equals(state)) {
+            scrobbleTrack(track.getName(), track.getArtist().getName(), track.getAlbum().getName(),
+                    null);
+        }
+    }
+
+    public static void scrobbleTrack(String trackName, String artistName, String albumName,
+            String albumArtistName) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(
+                TomahawkApp.getContext());
+        boolean scrobbleEverything = preferences.getBoolean(
+                FakePreferenceFragment.FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING, false);
+        if (scrobbleEverything && !TextUtils.isEmpty(trackName) && (!TextUtils.isEmpty(artistName)
+                || !TextUtils.isEmpty(albumArtistName))) {
+            Artist artist;
+            if (!TextUtils.isEmpty(artistName)) {
+                artist = Artist.get(artistName);
+            } else {
+                artist = Artist.get(albumArtistName);
+            }
+            Album album = null;
+            if (!TextUtils.isEmpty(albumName)) {
+                album = Album.get(albumName, artist);
+            }
+            Track track = Track.get(trackName, album, artist);
+            if (sCurrentTrack != track) {
+                sCurrentTrack = track;
+                AuthenticatorUtils utils = AuthenticatorManager.getInstance()
+                        .getAuthenticatorUtils(
+                                AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
+                InfoSystem.getInstance()
+                        .sendNowPlayingPostStruct(utils, Query.get(track, false));
+                Log.d(TAG, "Scrobbling track: '" + track.getName() + "' - '"
+                        + track.getArtist().getName() + "' - '"
+                        + track.getAlbum().getName());
+            }
         }
     }
 }
