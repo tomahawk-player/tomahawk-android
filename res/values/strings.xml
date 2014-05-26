@@ -21,6 +21,7 @@
 -->
 <resources>
     <string name="appname_string">Tomahawk</string>
+    <string name="scrobblingservice_string">Tomahawk Scrobbling-Service</string>
     <string name="nodata_string">No data</string>
     <string name="mainactivity_title_string">Tomahawk</string>
     <string name="ok">OK</string>
@@ -81,6 +82,10 @@
         a Premium account.
     </string>
     <string name="fakepreference_playback_header">PLAYBACK</string>
+    <string name="fakepreference_scrobble_title_string">Scrobble everything</string>
+    <string name="fakepreference_scrobble_summary_string">Scrobble every track from every music
+        player app on the phone to Hatchet.
+    </string>
     <string name="fakepreference_plugintoplay_title_string">Plug in to play</string>
     <string name="fakepreference_plugintoplay_summary_string">Starts playing music
         as soon as a headset is connected.
@@ -165,4 +170,8 @@
     <string name="configuration">Configuration</string>
     <string name="resolver_config_redirect_button_text_log_into">Log into</string>
     <string name="resolver_config_redirect_button_text_log_out_of">Log out of</string>
+    <string name="ask_access_activity_header">Want to automatically scrobble all tracks you play to Hatchet?</string>
+    <string name="ask_access_activity_text1">We\'ll do that for you! Please enable our service in your system settings.</string>
+    <string name="ask_access_activity_text2">(You can disable this whenever you want in Tomahawk\'s settings)</string>
+    <string name="ask_access_activity_button_text">Go to Settings</string>
 </resources>

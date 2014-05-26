@@ -32,6 +32,7 @@
     <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <supports-screens
             android:anyDensity="true"
@@ -49,8 +50,7 @@
 
         <activity
                 android:name=".activities.TomahawkMainActivity"
-                android:label="@string/mainactivity_title_string"
-                android:launchMode="singleTop">
+                android:label="@string/mainactivity_title_string">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -59,6 +59,8 @@
         </activity>
 
         <activity android:name="com.rdio.android.api.OAuth1WebViewActivity"/>
+
+        <activity android:name=".activities.AskAccessActivity"/>
 
         <service
                 android:name=".services.PlaybackService"
@@ -97,7 +99,14 @@
                        android:resource="@xml/authenticator"/>
         </service>
 
-        <!-- the service -->
+        <service android:name=".services.RemoteControllerService"
+                 android:label="@string/scrobblingservice_string"
+                 android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService"/>
+            </intent-filter>
+        </service>
+
         <service
                 android:name=".services.MicroService"
                 android:enabled="true"
@@ -110,7 +119,14 @@
             </intent-filter>
         </service>
 
-        <!-- the receivers -->
+        <receiver android:name=".receiver.BootCompletedReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.ACTION_EXTERNAL_APPLICATIONS_AVAILABLE"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
+            </intent-filter>
+        </receiver>
+
         <receiver
                 android:name=".receiver.AndroidMusicReceiver"
                 android:exported="true"

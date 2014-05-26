@@ -43,6 +43,7 @@ import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
+import org.tomahawk.tomahawk_android.services.RemoteControllerService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 
@@ -58,6 +59,7 @@ import android.database.sqlite.SQLiteCursor;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -207,7 +209,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                                         .getInstance().getAuthenticatorUtils(
                                                 AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
                                 authenticatorUtils.setLoggedInUser((User) users.get(0));
-                                updateDrawer();
+                                onHatchetLoggedIn();
                             }
                         }
                     }
@@ -339,6 +341,15 @@ public class TomahawkMainActivity extends ActionBarActivity
             FragmentUtils.addRootFragment(TomahawkMainActivity.this, getSupportFragmentManager());
         }
         getSupportFragmentManager().addOnBackStackChangedListener(this);
+
+        // Set default preferences
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if (!preferences.contains(
+                FakePreferenceFragment.FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING)) {
+            preferences.edit().putBoolean(
+                    FakePreferenceFragment.FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING, true)
+                    .commit();
+        }
     }
 
     @Override
@@ -583,6 +594,13 @@ public class TomahawkMainActivity extends ActionBarActivity
      */
     protected void onCollectionUpdated() {
         getSupportLoaderManager().restartLoader(0, null, this);
+    }
+
+    public void onHatchetLoggedIn() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            RemoteControllerService.attemptAskAccess();
+        }
+        updateDrawer();
     }
 
     public void updateDrawer() {

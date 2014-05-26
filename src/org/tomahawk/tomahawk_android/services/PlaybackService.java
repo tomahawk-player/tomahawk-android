@@ -443,6 +443,8 @@ public class PlaybackService extends Service
         bindService(new Intent(this, SpotifyService.class), mSpotifyServiceConnection,
                 Context.BIND_AUTO_CREATE);
 
+        startService(new Intent(this, MicroService.class));
+
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 
         // Initialize PhoneCallListener
