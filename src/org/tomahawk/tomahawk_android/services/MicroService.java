@@ -207,9 +207,11 @@ public class MicroService extends Service {
                 InfoSystem.getInstance()
                         .sendNowPlayingPostStruct(utils, Query.get(track, false));
                 Log.d(TAG, "Scrobbling track: '" + track.getName() + "' - '"
-                        + track.getArtist().getName() + "' - '"
-                        + track.getAlbum().getName());
+                        + track.getArtist().getName() + "' - '" + track.getAlbum().getName());
             }
+        } else {
+            Log.d(TAG, "Didn't scrobble track: '" + trackName + "' - '"
+                    + artistName + "' - '" + albumName + "' - '" + albumArtistName);
         }
     }
 }
