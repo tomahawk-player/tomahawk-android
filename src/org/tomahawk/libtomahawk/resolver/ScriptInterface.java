@@ -5,12 +5,18 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONObject;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 
+import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,6 +30,26 @@ public class ScriptInterface {
     private ScriptResolver mScriptResolver;
 
     private ObjectMapper mObjectMapper;
+
+    /**
+     * Class to make a callback on the javascript side of this ScriptInterface. The callback is
+     * stored in a map on the js side and can be identified by its callback-id, which is given to
+     * this JsCallback in its constructor.
+     */
+    public class JsCallback {
+
+        private int mCallbackId;
+
+        public JsCallback(int callbackId) {
+            mCallbackId = callbackId;
+        }
+
+        public void call(String responseText, Map<String, List<String>> responseHeaders, int status,
+                String statusText) {
+            mScriptResolver
+                    .callback(mCallbackId, responseText, responseHeaders, status, statusText);
+        }
+    }
 
     ScriptInterface(ScriptResolver scriptResolver) {
         mScriptResolver = scriptResolver;
@@ -49,7 +75,7 @@ public class ScriptInterface {
 
     /**
      * This method is needed because the javascript script is expecting an exposed method which will
-     * return the scriptPath and config. This method is being called in tomahawk_android.js
+     * return the scriptPath and config. This method is being called in tomahawk_android_pre.js
      *
      * @return a {@link JSONObject} containing the scriptPath and config.
      */
@@ -86,7 +112,7 @@ public class ScriptInterface {
     /**
      * This method is needed because the javascript script is expecting an exposed method which it
      * can call to return the resolved {@link Result}s. This method is being called in
-     * tomahawk_android.js
+     * tomahawk_android_pre.js
      *
      * @param in the JSONObject {@link String} containing the resolved {@link Result}s
      */
@@ -97,7 +123,7 @@ public class ScriptInterface {
 
     /**
      * This method is needed because the javascript script is expecting an exposed method which it
-     * can call to report its capabilities. This method is being called in tomahawk_android.js
+     * can call to report its capabilities. This method is being called in tomahawk_android_pre.js
      *
      * @param in the int pointing to the script's capabilities
      */
@@ -107,7 +133,7 @@ public class ScriptInterface {
 
     /**
      * This method is needed because the javascript script is expecting an exposed method which it
-     * can call to report its capabilities. This method is being called in tomahawk_android.js
+     * can call to report its capabilities. This method is being called in tomahawk_android_pre.js
      */
     @JavascriptInterface
     public void addCustomUrlTranslator(String protocol, String callbackFuncName, boolean isAsync) {
@@ -119,9 +145,64 @@ public class ScriptInterface {
     }
 
     @JavascriptInterface
+    public void addCustomUrlHandler(String protocol, String callbackFuncName, boolean isAsync) {
+    }
+
+    @JavascriptInterface
     public String readBase64(String fileName) {
         // We return an empty string because we don't want the base64 string containing png image
         // data or stuff from config.ui.
         return "";
+    }
+
+    @JavascriptInterface
+    public void javaAsyncRequest(final String url, final int callbackId,
+            final String stringifiedExtraHeaders, final String stringifiedOptions,
+            final int errorHandlerId) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Map<String, String> extraHeaders = new HashMap<String, String>();
+                    if (!TextUtils.isEmpty(stringifiedExtraHeaders)) {
+                        extraHeaders = mObjectMapper.readValue(stringifiedExtraHeaders, Map.class);
+                    }
+                    ScriptInterfaceRequestOptions options = null;
+                    if (!TextUtils.isEmpty(stringifiedOptions)) {
+                        options = mObjectMapper.readValue(stringifiedOptions,
+                                ScriptInterfaceRequestOptions.class);
+                    }
+                    JsCallback callback = null;
+                    if (callbackId >= 0) {
+                        callback = new JsCallback(callbackId);
+                    }
+                    String method = null;
+                    String username = null;
+                    String password = null;
+                    String data = null;
+                    JsCallback errorHandler = null;
+                    if (options != null) {
+                        method = options.method;
+                        username = options.username;
+                        password = options.password;
+                        data = options.data;
+                        if (errorHandlerId >= 0) {
+                            errorHandler = new JsCallback(errorHandlerId);
+                        }
+                    }
+                    TomahawkUtils.httpRequest(method, url, extraHeaders, username, password, data,
+                            callback, errorHandler);
+                } catch (NoSuchAlgorithmException e) {
+                    Log.e(TAG,
+                            "javaAsyncRequest: " + e.getClass() + ": " + e.getLocalizedMessage());
+                } catch (KeyManagementException e) {
+                    Log.e(TAG,
+                            "javaAsyncRequest: " + e.getClass() + ": " + e.getLocalizedMessage());
+                } catch (IOException e) {
+                    Log.e(TAG,
+                            "javaAsyncRequest: " + e.getClass() + ": " + e.getLocalizedMessage());
+                }
+            }
+        }).start();
     }
 }
