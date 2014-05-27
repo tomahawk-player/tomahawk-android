@@ -49,7 +49,7 @@ public interface Resolver {
     /**
      * @return this {@link Resolver}'s id
      */
-    public int getId();
+    public String getId();
 
     /**
      * @return this {@link Resolver}'s weight

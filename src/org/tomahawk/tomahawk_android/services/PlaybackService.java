@@ -341,7 +341,7 @@ public class PlaybackService extends Service
         @Override
         public void setToSpotifyMessenger(Messenger messenger) {
             SpotifyResolver spotifyResolver = (SpotifyResolver) PipeLine.getInstance()
-                    .getResolver(PipeLine.RESOLVER_ID_SPOTIFY);
+                    .getResolver(PipeLine.PLUGINNAME_SPOTIFY);
             spotifyResolver.setToSpotifyMessenger(messenger);
             SpotifyAuthenticatorUtils authUtils = (SpotifyAuthenticatorUtils)
                     AuthenticatorManager.getInstance()

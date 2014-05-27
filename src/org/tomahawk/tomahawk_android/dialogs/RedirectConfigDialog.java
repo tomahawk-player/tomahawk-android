@@ -55,7 +55,7 @@ public class RedirectConfigDialog extends DialogFragment {
 
     public final static String TAG = RedirectConfigDialog.class.getName();
 
-    private int mResolverId;
+    private String mResolverId;
 
     private TextView mButtonText;
 
@@ -80,7 +80,7 @@ public class RedirectConfigDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         if (getArguments() != null && getArguments()
                 .containsKey(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY)) {
-            mResolverId = getArguments().getInt(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY);
+            mResolverId = getArguments().getString(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY);
         }
 
         LayoutInflater inflater = getActivity().getLayoutInflater();

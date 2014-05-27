@@ -26,7 +26,9 @@ import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.content.Intent;
 import android.text.TextUtils;
+import android.util.Log;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
@@ -39,25 +41,19 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PipeLine {
 
+    private final static String TAG = PipeLine.class.getSimpleName();
+
     private static PipeLine instance;
 
-    public static final int RESOLVER_ID_USERCOLLECTION = 0;
+    public final static String PLUGINNAME_USERCOLLECTION = "usercollection";
 
-    public static final int RESOLVER_ID_JAMENDO = 100;
+    public final static String PLUGINNAME_SPOTIFY = "spotify";
 
-    public static final int RESOLVER_ID_OFFICIALFM = 101;
+    public final static String PLUGINNAME_BEATSMUSIC = "beatsmusic";
 
-    public static final int RESOLVER_ID_EXFM = 102;
+    public final static String PLUGINNAME_RDIO = "rdio";
 
-    public static final int RESOLVER_ID_SOUNDCLOUD = 103;
-
-    public static final int RESOLVER_ID_BEATSMUSIC = 104;
-
-    public static final int RESOLVER_ID_BEETS = 105;
-
-    public static final int RESOLVER_ID_RDIO = 106;
-
-    public static final int RESOLVER_ID_SPOTIFY = 200;
+    public final static String PLUGINNAME_EXFM = "ex.fm";
 
     public static final int PIPELINE_SEARCHTYPE_TRACKS = 0;
 
@@ -108,29 +104,18 @@ public class PipeLine {
     public void ensureInit() {
         if (!mInitialized) {
             mInitialized = true;
-            mResolvers.add(new DataBaseResolver(PipeLine.RESOLVER_ID_USERCOLLECTION));
-            ScriptResolver scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_BEATSMUSIC,
-                    "js/beatsmusic/content");
-            mResolvers.add(scriptResolver);
-            scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_RDIO,
-                    "js/rdio/content");
-            mResolvers.add(scriptResolver);
-            scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_JAMENDO,
-                    "js/jamendo/content");
-            mResolvers.add(scriptResolver);
-            scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_OFFICIALFM,
-                    "js/official.fm/content");
-            mResolvers.add(scriptResolver);
-            scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_EXFM,
-                    "js/exfm/content");
-            mResolvers.add(scriptResolver);
-            scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_SOUNDCLOUD,
-                    "js/soundcloud/content");
-            mResolvers.add(scriptResolver);
-            scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_BEETS,
-                    "js/beets/content");
-            mResolvers.add(scriptResolver);
-            SpotifyResolver spotifyResolver = new SpotifyResolver(PipeLine.RESOLVER_ID_SPOTIFY);
+            try {
+                String[] plugins = TomahawkApp.getContext().getAssets().list("js/resolvers");
+                for (String plugin : plugins) {
+                    ScriptResolver scriptResolver =
+                            new ScriptResolver("js/resolvers/" + plugin + "/content");
+                    mResolvers.add(scriptResolver);
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "ensureInit: " + e.getClass() + ": " + e.getLocalizedMessage());
+            }
+            mResolvers.add(new DataBaseResolver());
+            SpotifyResolver spotifyResolver = new SpotifyResolver();
             mResolvers.add(spotifyResolver);
             setAllResolversAdded(true);
         }
@@ -139,9 +124,9 @@ public class PipeLine {
     /**
      * Get the {@link Resolver} with the given id, null if not found
      */
-    public Resolver getResolver(int id) {
+    public Resolver getResolver(String id) {
         for (Resolver resolver : mResolvers) {
-            if (resolver.getId() == id) {
+            if (resolver.getId().equals(id)) {
                 return resolver;
             }
         }
@@ -240,7 +225,7 @@ public class PipeLine {
             if (resolver instanceof ScriptResolver) {
                 ScriptResolver scriptResolver = ((ScriptResolver) resolver);
                 if (scriptResolver.isEnabled()) {
-                    if (scriptResolver.getId() != RESOLVER_ID_BEATSMUSIC) {
+                    if (PipeLine.PLUGINNAME_BEATSMUSIC.equals(scriptResolver.getId())) {
                         return true;
                     } else {
                         boolean configured = true;
@@ -321,13 +306,13 @@ public class PipeLine {
      * @param results  the unfiltered {@link ArrayList} of {@link Result}s
      */
     public void reportResults(final String queryKey, final ArrayList<Result> results,
-            final int resolverId) {
+            final String resolverId) {
         int priority;
-        if (resolverId == RESOLVER_ID_EXFM) {
+        if (PLUGINNAME_EXFM.equals(resolverId)) {
             priority = TomahawkRunnable.PRIORITY_IS_REPORTING_WITH_HEADERREQUEST;
-        } else if (resolverId == RESOLVER_ID_USERCOLLECTION) {
+        } else if (PLUGINNAME_USERCOLLECTION.equals(resolverId)) {
             priority = TomahawkRunnable.PRIORITY_IS_REPORTING_LOCALSOURCE;
-        } else if (resolverId == RESOLVER_ID_SPOTIFY) {
+        } else if (PLUGINNAME_SPOTIFY.equals(resolverId)) {
             priority = TomahawkRunnable.PRIORITY_IS_REPORTING_SUBSCRIPTION;
         } else {
             priority = TomahawkRunnable.PRIORITY_IS_REPORTING;
@@ -346,7 +331,7 @@ public class PipeLine {
                                     r.setTrackScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_TRACKS));
                                     if (r.getTrackScore() >= MINSCORE
                                             && !cleanTrackResults.contains(r)) {
-                                        if (resolverId != RESOLVER_ID_EXFM
+                                        if (!PLUGINNAME_EXFM.equals(resolverId)
                                                 || TomahawkUtils.httpHeaderRequest(r.getPath())) {
                                             r.setType(Result.RESULT_TYPE_TRACK);
                                             cleanTrackResults.add(r);

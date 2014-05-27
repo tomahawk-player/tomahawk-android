@@ -19,32 +19,26 @@ package org.tomahawk.libtomahawk.authentication;
 
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.preference.PreferenceManager;
-import android.util.Log;
-import android.util.SparseArray;
+import java.util.HashMap;
 
 public class AuthenticatorManager {
 
-    public static final int AUTHENTICATOR_ID_SPOTIFY = 0;
+    public static final String AUTHENTICATOR_ID_SPOTIFY = "spotify_auth";
 
-    public static final int AUTHENTICATOR_ID_HATCHET = 1;
+    public static final String AUTHENTICATOR_ID_HATCHET = "hatchet_auth";
 
     private static AuthenticatorManager instance;
 
     private boolean mInitialized;
 
-    private SparseArray<AuthenticatorUtils> mAuthenticatorUtils
-            = new SparseArray<AuthenticatorUtils>();
+    private HashMap<String, AuthenticatorUtils> mAuthenticatorUtils
+            = new HashMap<String, AuthenticatorUtils>();
 
     private OnAuthenticatedListener mOnAuthenticatedListener;
 
     public interface OnAuthenticatedListener {
 
-        void onLoggedInOut(int authenticatorId, boolean loggedIn);
+        void onLoggedInOut(String authenticatorId, boolean loggedIn);
 
     }
 
@@ -75,19 +69,19 @@ public class AuthenticatorManager {
     /**
      * Authenticators should callback here, if they logged in or out
      */
-    public void onLoggedInOut(int authenticatorId, boolean loggedIn) {
+    public void onLoggedInOut(String authenticatorId, boolean loggedIn) {
         if (mOnAuthenticatedListener != null) {
             mOnAuthenticatedListener.onLoggedInOut(authenticatorId, loggedIn);
         }
     }
 
-    public AuthenticatorUtils getAuthenticatorUtils(int authenticatorId) {
+    public AuthenticatorUtils getAuthenticatorUtils(String authenticatorId) {
         return mAuthenticatorUtils.get(authenticatorId);
     }
 
     public boolean isAuthenticating() {
-        for (int i = 0; i < mAuthenticatorUtils.size(); i++) {
-            if (mAuthenticatorUtils.valueAt(i).isAuthenticating()) {
+        for (AuthenticatorUtils authUtils : mAuthenticatorUtils.values()) {
+            if (authUtils.isAuthenticating()) {
                 return true;
             }
         }

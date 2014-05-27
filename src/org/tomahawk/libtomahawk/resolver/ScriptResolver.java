@@ -22,7 +22,6 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
@@ -89,7 +88,7 @@ public class ScriptResolver implements Resolver {
     // resolver script
     private ConcurrentHashMap<String, String> mQueryKeys = new ConcurrentHashMap<String, String>();
 
-    private int mId;
+    private String mId;
 
     private WebView mScriptEngine;
 
@@ -130,17 +129,15 @@ public class ScriptResolver implements Resolver {
     /**
      * Construct a new {@link ScriptResolver}
      *
-     * @param id   the id of this {@link ScriptResolver}
      * @param path {@link String} containing the path to this js resolver's "content"-folder
      */
-    public ScriptResolver(int id, String path) {
+    public ScriptResolver(String path) {
         mObjectMapper = InfoSystemUtils.constructObjectMapper();
         mSharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(TomahawkApp.getContext());
         mPath = path;
         mReady = false;
         mStopped = true;
-        mId = id;
         mScriptEngine = new WebView(TomahawkApp.getContext());
         WebSettings settings = mScriptEngine.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -157,6 +154,7 @@ public class ScriptResolver implements Resolver {
             String rawJsonString = TomahawkUtils.inputStreamToString(TomahawkApp.getContext()
                     .getAssets().open(path + "/metadata.json"));
             mMetaData = mObjectMapper.readValue(rawJsonString, ScriptResolverMetaData.class);
+            mId = mMetaData.pluginName;
             mIcon = Drawable.createFromStream(TomahawkApp.getContext().getAssets().open(path + "/" +
                     mMetaData.manifest.icon), null);
         } catch (FileNotFoundException e) {
@@ -171,7 +169,7 @@ public class ScriptResolver implements Resolver {
         if (getConfig().get(ENABLED_KEY) != null) {
             mEnabled = (Boolean) getConfig().get(ENABLED_KEY);
         } else {
-            if (mId == PipeLine.RESOLVER_ID_RDIO) {
+            if (PipeLine.PLUGINNAME_RDIO.equals(mId)) {
                 setEnabled(false);
             } else {
                 setEnabled(true);
@@ -531,7 +529,7 @@ public class ScriptResolver implements Resolver {
      * @return this {@link ScriptResolver}'s id
      */
     @Override
-    public int getId() {
+    public String getId() {
         return mId;
     }
 
@@ -608,9 +606,5 @@ public class ScriptResolver implements Resolver {
         Map<String, Object> config = getConfig();
         config.put(ENABLED_KEY, enabled);
         setConfig(config);
-        if (AuthenticatorManager.getInstance().getOnAuthenticatedListener() != null) {
-            AuthenticatorManager.getInstance().getOnAuthenticatedListener()
-                    .onLoggedInOut(mId, enabled);
-        }
     }
 }

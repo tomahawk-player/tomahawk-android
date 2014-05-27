@@ -157,8 +157,8 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
     public void seekTo(int msec) throws IllegalStateException {
         Log.d(TAG, "seekTo()");
         if (mLibVLC != null && mPreparedQuery != null
-                && mPreparedQuery.getPreferredTrackResult().getResolvedBy().getId()
-                != PipeLine.RESOLVER_ID_BEATSMUSIC) {
+                && !PipeLine.PLUGINNAME_BEATSMUSIC.equals(
+                mPreparedQuery.getPreferredTrackResult().getResolvedBy().getId())) {
             mLibVLC.setTime(msec);
         }
     }
@@ -174,7 +174,7 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
             return null;
         }
         Result result = query.getPreferredTrackResult();
-        if (result.getResolvedBy().getId() == PipeLine.RESOLVER_ID_BEATSMUSIC) {
+        if (PipeLine.PLUGINNAME_BEATSMUSIC.equals(result.getResolvedBy().getId())) {
             if (mTranslatedUrls.get(result) == null) {
                 ((ScriptResolver) result.getResolvedBy()).getStreamUrl(result);
             } else {

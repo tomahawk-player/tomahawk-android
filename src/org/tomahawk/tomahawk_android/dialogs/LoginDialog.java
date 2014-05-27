@@ -149,7 +149,7 @@ public class LoginDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         if (getArguments() != null && getArguments()
                 .containsKey(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY)) {
-            int authenticatorId = getArguments().getInt(
+            String authenticatorId = getArguments().getString(
                     TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY);
             mAuthenticatorUtils = AuthenticatorManager.getInstance().getAuthenticatorUtils(
                     authenticatorId);

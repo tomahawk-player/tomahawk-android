@@ -96,7 +96,7 @@ public class ResolverConfigDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         if (getArguments() != null && getArguments()
                 .containsKey(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY)) {
-            int resolverId = getArguments().getInt(
+            String resolverId = getArguments().getString(
                     TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY);
             mScriptResolver = (ScriptResolver) PipeLine.getInstance().getResolver(resolverId);
         }

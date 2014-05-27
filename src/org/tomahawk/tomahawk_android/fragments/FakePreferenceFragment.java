@@ -58,13 +58,13 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
     private static final String TAG = FakePreferenceFragment.class.getName();
 
-    public static final int FAKEPREFERENCEFRAGMENT_ID_PREFBITRATE = 0;
+    public static final String FAKEPREFERENCEFRAGMENT_ID_PREFBITRATE = "pref_bitrate";
 
-    public static final int FAKEPREFERENCEFRAGMENT_ID_PLUGINTOPLAY = 1;
+    public static final String FAKEPREFERENCEFRAGMENT_ID_PLUGINTOPLAY = "plugin_to_play";
 
-    public static final int FAKEPREFERENCEFRAGMENT_ID_SCROBBLEEVERYTHING = 3;
+    public static final String FAKEPREFERENCEFRAGMENT_ID_SCROBBLEEVERYTHING = "scrobble_everything";
 
-    public static final int FAKEPREFERENCEFRAGMENT_ID_APPVERSION = 2;
+    public static final String FAKEPREFERENCEFRAGMENT_ID_APPVERSION = "app_version";
 
     public static final String FAKEPREFERENCEFRAGMENT_KEY_PREFBITRATE
             = "org.tomahawk.tomahawk_android.prefbitrate";
@@ -208,18 +208,18 @@ public class FakePreferenceFragment extends TomahawkListFragment
             // we show a LoginDialog
             LoginDialog dialog = new LoginDialog();
             Bundle args = new Bundle();
-            args.putInt(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY, fakePreference.getKey());
+            args.putString(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY, fakePreference.getKey());
             dialog.setArguments(args);
             dialog.show(getFragmentManager(), null);
         } else if (fakePreference.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CONFIG) {
             DialogFragment dialog;
-            if (fakePreference.getKey() == PipeLine.RESOLVER_ID_RDIO) {
+            if (PipeLine.PLUGINNAME_RDIO.equals(fakePreference.getKey())) {
                 dialog = new RedirectConfigDialog();
             } else {
                 dialog = new ResolverConfigDialog();
             }
             Bundle args = new Bundle();
-            args.putInt(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY, fakePreference.getKey());
+            args.putString(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY, fakePreference.getKey());
             dialog.setArguments(args);
             dialog.show(getFragmentManager(), null);
         }
@@ -239,11 +239,11 @@ public class FakePreferenceFragment extends TomahawkListFragment
      * @param loggedIn        true, if logged in, otherwise false
      */
     @Override
-    public void onLoggedInOut(int authenticatorId, final boolean loggedIn) {
+    public void onLoggedInOut(String authenticatorId, final boolean loggedIn) {
         for (FakePreferenceGroup fakePreferenceGroup : mFakePreferenceGroups) {
             FakePreferenceGroup.FakePreference fakePreference = fakePreferenceGroup
                     .getFakePreferenceByKey(authenticatorId);
-            if (authenticatorId == AuthenticatorManager.AUTHENTICATOR_ID_HATCHET) {
+            if (AuthenticatorManager.AUTHENTICATOR_ID_HATCHET.equals(authenticatorId)) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {

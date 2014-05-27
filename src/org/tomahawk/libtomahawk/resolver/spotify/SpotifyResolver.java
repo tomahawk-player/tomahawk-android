@@ -56,7 +56,7 @@ public class SpotifyResolver implements Resolver {
 
     private ObjectMapper mObjectMapper = InfoSystemUtils.constructObjectMapper();
 
-    private int mId;
+    private String mId;
 
     private Drawable mIcon;
 
@@ -102,11 +102,9 @@ public class SpotifyResolver implements Resolver {
 
     /**
      * Construct a new {@link SpotifyResolver}
-     *
-     * @param id the id of this {@link Resolver}
      */
-    public SpotifyResolver(int id) {
-        mId = id;
+    public SpotifyResolver() {
+        mId = PipeLine.PLUGINNAME_SPOTIFY;
         mIcon = TomahawkApp.getContext().getResources().getDrawable(R.drawable.spotify_icon);
         PipeLine.getInstance().onResolverReady();
     }
@@ -186,7 +184,7 @@ public class SpotifyResolver implements Resolver {
      * @return this {@link Resolver}'s id
      */
     @Override
-    public int getId() {
+    public String getId() {
         return mId;
     }
 

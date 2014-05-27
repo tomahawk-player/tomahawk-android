@@ -37,9 +37,7 @@ import java.util.List;
  */
 public class DataBaseResolver implements Resolver {
 
-    private int mId;
-
-    private String mName;
+    private String mId;
 
     private Drawable mIcon;
 
@@ -55,21 +53,14 @@ public class DataBaseResolver implements Resolver {
 
     /**
      * Construct this {@link DataBaseResolver}
-     *
-     * @param id the id of this {@link Resolver}
      */
-    public DataBaseResolver(int id) {
-        mId = id;
+    public DataBaseResolver() {
+        mId = PipeLine.PLUGINNAME_USERCOLLECTION;
         mWeight = 100;
         mReady = false;
         mStopped = true;
-        mName = String.valueOf(PipeLine.RESOLVER_ID_USERCOLLECTION);
-        if (id == PipeLine.RESOLVER_ID_USERCOLLECTION) {
-            mIcon = TomahawkApp.getContext().getResources().getDrawable(R.drawable.ic_action_sd_storage);
-        } else {
-            mIcon = TomahawkApp.getContext().getResources().getDrawable(R.drawable.ic_resolver_default);
-        }
-
+        mIcon = TomahawkApp.getContext().getResources()
+                .getDrawable(R.drawable.ic_action_sd_storage);
         mReady = true;
         PipeLine.getInstance().onResolverReady();
     }
@@ -160,7 +151,7 @@ public class DataBaseResolver implements Resolver {
      * @return this {@link DataBaseResolver}'s id
      */
     @Override
-    public int getId() {
+    public String getId() {
         return mId;
     }
 
