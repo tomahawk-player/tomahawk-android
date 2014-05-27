@@ -209,7 +209,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                                         .getInstance().getAuthenticatorUtils(
                                                 AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
                                 authenticatorUtils.setLoggedInUser((User) users.get(0));
-                                onHatchetLoggedIn();
+                                updateDrawer();
                             }
                         }
                     }
@@ -596,8 +596,8 @@ public class TomahawkMainActivity extends ActionBarActivity
         getSupportLoaderManager().restartLoader(0, null, this);
     }
 
-    public void onHatchetLoggedIn() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+    public void onHatchetLoggedInOut(boolean loggedIn) {
+        if (loggedIn && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             RemoteControllerService.attemptAskAccess();
         }
         updateDrawer();

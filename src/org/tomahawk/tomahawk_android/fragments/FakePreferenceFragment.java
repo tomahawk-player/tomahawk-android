@@ -244,14 +244,12 @@ public class FakePreferenceFragment extends TomahawkListFragment
             FakePreferenceGroup.FakePreference fakePreference = fakePreferenceGroup
                     .getFakePreferenceByKey(authenticatorId);
             if (authenticatorId == AuthenticatorManager.AUTHENTICATOR_ID_HATCHET) {
-                if (!loggedIn) {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            ((TomahawkMainActivity) getActivity()).onHatchetLoggedIn();
-                        }
-                    });
-                }
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((TomahawkMainActivity) getActivity()).onHatchetLoggedInOut(loggedIn);
+                    }
+                });
             }
             if (fakePreference != null) {
                 fakePreference.setEnabled(loggedIn);
