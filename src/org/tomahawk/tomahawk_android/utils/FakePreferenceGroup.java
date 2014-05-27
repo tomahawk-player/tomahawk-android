@@ -52,7 +52,7 @@ public class FakePreferenceGroup {
         private int type;
 
         // the key to identify this FakePreference
-        private int key;
+        private String key;
 
         // the key to store preferences with
         private String storageKey;
@@ -75,7 +75,8 @@ public class FakePreferenceGroup {
         /**
          * Construct a {@link FakePreference}
          */
-        public FakePreference(int type, int key, String storageKey, String title, String summary) {
+        public FakePreference(int type, String key, String storageKey, String title,
+                String summary) {
             this.type = type;
             this.key = key;
             this.storageKey = storageKey;
@@ -86,7 +87,7 @@ public class FakePreferenceGroup {
         /**
          * Construct a {@link FakePreference}
          */
-        public FakePreference(int type, int key, String title, String summary) {
+        public FakePreference(int type, String key, String title, String summary) {
             this.type = type;
             this.key = key;
             this.title = title;
@@ -96,7 +97,8 @@ public class FakePreferenceGroup {
         /**
          * Construct a {@link FakePreference}
          */
-        public FakePreference(int type, int key, String title, String summary, int drawableResId) {
+        public FakePreference(int type, String key, String title, String summary,
+                int drawableResId) {
             this.type = type;
             this.key = key;
             this.title = title;
@@ -107,7 +109,7 @@ public class FakePreferenceGroup {
         /**
          * Construct a {@link FakePreference}
          */
-        public FakePreference(int type, int key, boolean isEnabled, String title, String summary,
+        public FakePreference(int type, String key, boolean isEnabled, String title, String summary,
                 Drawable drawable) {
             this.type = type;
             this.key = key;
@@ -121,7 +123,7 @@ public class FakePreferenceGroup {
             return type;
         }
 
-        public int getKey() {
+        public String getKey() {
             return key;
         }
 
@@ -180,9 +182,9 @@ public class FakePreferenceGroup {
     /**
      * Get the {@link FakePreference} with the given key
      */
-    public FakePreference getFakePreferenceByKey(int key) {
+    public FakePreference getFakePreferenceByKey(String key) {
         for (FakePreference fakePreference : mFakePreferences) {
-            if (fakePreference.getKey() == key) {
+            if (fakePreference.getKey().equals(key)) {
                 return fakePreference;
             }
         }

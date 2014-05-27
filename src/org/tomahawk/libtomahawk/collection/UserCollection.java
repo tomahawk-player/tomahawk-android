@@ -435,7 +435,7 @@ public class UserCollection {
      */
     private void initializeCollection() {
         Resolver userCollectionResolver = PipeLine.getInstance().getResolver(
-                PipeLine.RESOLVER_ID_USERCOLLECTION);
+                PipeLine.PLUGINNAME_USERCOLLECTION);
         if (userCollectionResolver == null) {
             return;
         }

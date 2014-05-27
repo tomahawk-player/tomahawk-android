@@ -89,13 +89,13 @@ public class Result {
     private Result(String url, Track track, Resolver resolvedBy, String queryKey) {
         setPath(url);
         mResolvedBy = resolvedBy;
-        if (mResolvedBy.getId() == PipeLine.RESOLVER_ID_SPOTIFY) {
+        if (PipeLine.PLUGINNAME_SPOTIFY.equals(mResolvedBy.getId())) {
             mMediaPlayerInterface = SpotifyMediaPlayer.getInstance();
-        } else if (mResolvedBy.getId() == PipeLine.RESOLVER_ID_RDIO) {
+        } else if (PipeLine.PLUGINNAME_RDIO.equals(mResolvedBy.getId())) {
             mMediaPlayerInterface = RdioMediaPlayer.getInstance();
         } else {
             mMediaPlayerInterface = VLCMediaPlayer.getInstance();
-            if (mResolvedBy.getId() == PipeLine.RESOLVER_ID_USERCOLLECTION) {
+            if (PipeLine.PLUGINNAME_USERCOLLECTION.equals(mResolvedBy.getId())) {
                 mIsLocal = true;
             }
         }
