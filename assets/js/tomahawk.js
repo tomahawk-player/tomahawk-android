@@ -151,11 +151,9 @@ var TomahawkResolver = {
         return {};
     },
     getUserConfig: function () {
-        return JSON.parse(window.localStorage[this.scriptPath()] || "{}");
+        return Tomahawk.resolverData().config;
     },
     saveUserConfig: function () {
-        var configJson = JSON.stringify(Tomahawk.resolverData().config);
-        window.localStorage[ this.scriptPath() ] = configJson;
         this.newConfigSaved();
     },
     newConfigSaved: function () {

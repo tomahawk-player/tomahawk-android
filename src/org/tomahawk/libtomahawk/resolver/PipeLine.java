@@ -25,7 +25,6 @@ import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.content.Intent;
-import android.os.Build;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -128,11 +127,9 @@ public class PipeLine {
             scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_SOUNDCLOUD,
                     "js/soundcloud/content");
             mResolvers.add(scriptResolver);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_BEETS,
-                        "js/beets/content");
-                mResolvers.add(scriptResolver);
-            }
+            scriptResolver = new ScriptResolver(PipeLine.RESOLVER_ID_BEETS,
+                    "js/beets/content");
+            mResolvers.add(scriptResolver);
             SpotifyResolver spotifyResolver = new SpotifyResolver(PipeLine.RESOLVER_ID_SPOTIFY);
             mResolvers.add(spotifyResolver);
             setAllResolversAdded(true);
