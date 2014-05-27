@@ -1258,13 +1258,10 @@ public class PlaybackService extends Service
                     mRemoteControlClientCompat.setTransportControlFlags(flags);
 
                     // Update the remote controls
-                    String secondLine = getCurrentQuery().getArtist().getName();
-                    if (!TextUtils.isEmpty(getCurrentQuery().getAlbum().getName())) {
-                        secondLine += " - " + getCurrentQuery().getAlbum().getName();
-                    }
                     RemoteControlClientCompat.MetadataEditorCompat editor =
                             mRemoteControlClientCompat.editMetadata(true);
-                    editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, secondLine)
+                    editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
+                            getCurrentQuery().getArtist().getName())
                             .putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
                                     getCurrentQuery().getName())
                             .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
