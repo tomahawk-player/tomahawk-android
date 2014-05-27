@@ -1,7 +1,10 @@
 package org.tomahawk.libtomahawk.utils;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.io.CharStreams;
+import com.google.common.io.Closeables;
 
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
@@ -14,6 +17,7 @@ import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
+import org.tomahawk.libtomahawk.resolver.ScriptInterface;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
@@ -28,8 +32,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.ImageView;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -209,18 +211,23 @@ public class TomahawkUtils {
     /**
      * Does a HTTP or HTTPS request
      *
-     * @param method       the method that should be used ("GET" or "POST"), defaults to "GET"
-     *                     (optional)
-     * @param urlString    the complete url string to do the request with
-     * @param extraHeaders extra headers that should be added to the request (optional)
-     * @param username     the username for HTTP Basic Auth (optional)
-     * @param password     the password for HTTP Basic Auth (optional)
-     * @param data         the body data included in POST requests (optional)
+     * @param method        the method that should be used ("GET" or "POST"), defaults to "GET"
+     *                      (optional)
+     * @param urlString     the complete url string to do the request with
+     * @param extraHeaders  extra headers that should be added to the request (optional)
+     * @param username      the username for HTTP Basic Auth (optional)
+     * @param password      the password for HTTP Basic Auth (optional)
+     * @param data          the body data included in POST requests (optional)
+     * @param callback      a ScriptInterface.JsCallback that should be called if this request has
+     *                      been successful (optional)
+     * @param errorCallback a ScriptInterface.JsCallback that should be called if this request has
+     *                      failed (optional)
      * @return a String containing the response of this request
      */
     public static String httpRequest(String method, String urlString,
             Map<String, String> extraHeaders, final String username, final String password,
-            String data)
+            String data, ScriptInterface.JsCallback callback,
+            ScriptInterface.JsCallback errorCallback)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         String responseText = null;
         HttpURLConnection connection = null;
@@ -287,9 +294,19 @@ public class TomahawkUtils {
             }
 
             // Read response text and response Headers and call callbacks if possible
-            responseText = inputStreamToString(connection);
-            if (connection.getResponseCode() / 100 != 2) {
+            responseText = inputStreamToString(connection.getInputStream());
+            if (connection.getResponseCode() / 100 == 2) {
+                // Status code is 2xx, we're good, call back
+                if (callback != null) {
+                    callback.call(responseText, connection.getHeaderFields(),
+                            connection.getResponseCode(), connection.getResponseMessage());
+                }
+            } else {
                 // Status code isn't 2xx, try to call error callback and throw IOException
+                if (errorCallback != null) {
+                    errorCallback.call(responseText, connection.getHeaderFields(),
+                            connection.getResponseCode(), connection.getResponseMessage());
+                }
                 throw new IOException("HttpsURLConnection (url:'" + urlString
                         + "') didn't return with status code 2xx, instead it returned " + connection
                         .getResponseCode());
@@ -320,7 +337,7 @@ public class TomahawkUtils {
         }
         extraHeaders.put("Accept", "application/json; charset=utf-8");
         extraHeaders.put("Content-type", contentType);
-        return httpRequest(HTTP_METHOD_POST, urlString, extraHeaders, null, null, data);
+        return httpRequest(HTTP_METHOD_POST, urlString, extraHeaders, null, null, data, null, null);
     }
 
     /**
@@ -336,7 +353,7 @@ public class TomahawkUtils {
             extraHeaders = new HashMap<String, String>();
         }
         extraHeaders.put("Accept", "application/json; charset=utf-8");
-        return httpRequest(HTTP_METHOD_GET, urlString, extraHeaders, null, null, null);
+        return httpRequest(HTTP_METHOD_GET, urlString, extraHeaders, null, null, null, null, null);
     }
 
     /**
@@ -438,34 +455,17 @@ public class TomahawkUtils {
         return result.toString();
     }
 
-    private static String inputStreamToString(HttpURLConnection connection) throws IOException {
-        try {
-            return inputStreamToString(connection.getInputStream());
-        } catch (FileNotFoundException e) {
-            return inputStreamToString(connection.getErrorStream());
-        }
-    }
-
     public static String inputStreamToString(InputStream inputStream) throws IOException {
-        String result = null;
-        BufferedReader in = null;
+        String text;
+        InputStreamReader reader = new InputStreamReader(inputStream, Charsets.UTF_8);
+        boolean threw = true;
         try {
-            in = new BufferedReader(new InputStreamReader(inputStream));
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-            result = response.toString();
-        } catch (FileNotFoundException e) {
-            Log.e(TAG, "inputStreamToString: " + e.getClass() + ": " + e.getLocalizedMessage());
+            text = CharStreams.toString(reader);
+            threw = false;
         } finally {
-            if (in != null) {
-                in.close();
-            }
+            Closeables.close(reader, threw);
         }
-        return result;
+        return text;
     }
 
     /**

@@ -26,6 +26,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
+import org.tomahawk.libtomahawk.utils.StringEscapeUtils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -49,6 +50,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -202,46 +204,38 @@ public class ScriptResolver implements Resolver {
      * appropriate base URL.
      */
     private void init() {
+        final String baseurl = "file://fake.bla.blu";
+        String data = "<!DOCTYPE html>" + "<html><body>"
+                + "<script src=\"file:///android_asset/js/cryptojs-core.js"
+                + "\" type=\"text/javascript\"></script>";
+        for (String scriptPath : mMetaData.manifest.scripts) {
+            data += "<script src=\"file:///android_asset/" + mPath + "/" + scriptPath
+                    + "\" type=\"text/javascript\"></script>";
+        }
+        try {
+            String[] cryptoJsScripts =
+                    TomahawkApp.getContext().getAssets().list("js/cryptojs");
+            for (String scriptPath : cryptoJsScripts) {
+                data += "<script src=\"file:///android_asset/js/cryptojs/" + scriptPath
+                        + "\" type=\"text/javascript\"></script>";
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "ScriptResolver: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
+        data += "<script src=\"file:///android_asset/js/tomahawk_android_pre.js"
+                + "\" type=\"text/javascript\"></script>"
+                + "<script src=\"file:///android_asset/js/tomahawk.js"
+                + "\" type=\"text/javascript\"></script>"
+                + "<script src=\"file:///android_asset/js/tomahawk_android_post.js"
+                + "\" type=\"text/javascript\"></script>"
+                + "<script src=\"file:///android_asset/" + mPath + "/"
+                + mMetaData.manifest.main + "\" type=\"text/javascript\"></script>"
+                + "</body></html>";
+        final String finalData = data;
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                String baseurl = "file://fake.bla.blu";
-                if (mMetaData.manifest.main.contains("officialfm.js")) {
-                    baseurl = BASEURL_OFFICIALFM;
-                } else if (mMetaData.manifest.main.contains("exfm.js")) {
-                    baseurl = BASEURL_EXFM;
-                } else if (mMetaData.manifest.main.contains("jamendo-resolver.js")) {
-                    baseurl = BASEURL_JAMENDO;
-                } else if (mMetaData.manifest.main.contains("soundcloud.js")) {
-                    baseurl = BASEURL_SOUNDCLOUD;
-                } else if (mMetaData.manifest.main.contains("beatsmusic.js")) {
-                    baseurl = BASEURL_BEATSMUSIC;
-                }
-                String data = "<!DOCTYPE html>" + "<html><body>"
-                        + "<script src=\"file:///android_asset/js/cryptojs-core.js"
-                        + "\" type=\"text/javascript\"></script>";
-                for (String scriptPath : mMetaData.manifest.scripts) {
-                    data += "<script src=\"file:///android_asset/" + mPath + "/" + scriptPath
-                            + "\" type=\"text/javascript\"></script>";
-                }
-                try {
-                    String[] cryptoJsScripts =
-                            TomahawkApp.getContext().getAssets().list("js/cryptojs");
-                    for (String scriptPath : cryptoJsScripts) {
-                        data += "<script src=\"file:///android_asset/js/cryptojs/" + scriptPath
-                                + "\" type=\"text/javascript\"></script>";
-                    }
-                } catch (IOException e) {
-                    Log.e(TAG, "ScriptResolver: " + e.getClass() + ": " + e.getLocalizedMessage());
-                }
-                data += "<script src=\"file:///android_asset/js/tomahawk_android.js"
-                        + "\" type=\"text/javascript\"></script>"
-                        + "<script src=\"file:///android_asset/js/tomahawk.js"
-                        + "\" type=\"text/javascript\"></script>"
-                        + "<script src=\"file:///android_asset/" + mPath + "/"
-                        + mMetaData.manifest.main + "\" type=\"text/javascript\"></script>"
-                        + "</body></html>";
-                mScriptEngine.loadDataWithBaseURL(baseurl, data, "text/html", null, null);
+                mScriptEngine.loadDataWithBaseURL(baseurl, finalData, "text/html", null, null);
             }
         });
     }
@@ -261,13 +255,12 @@ public class ScriptResolver implements Resolver {
      * This method calls the js function resolver.init().
      */
     private void resolverInit() {
+        final String url = "javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
+                R.id.scriptresolver_resolver_init, "resolver.init()", false);
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                mScriptEngine.loadUrl(
-                        "javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
-                                R.id.scriptresolver_resolver_init, "resolver.init()", false)
-                );
+                mScriptEngine.loadUrl(url);
             }
         });
     }
@@ -276,14 +269,13 @@ public class ScriptResolver implements Resolver {
      * This method tries to get the {@link Resolver}'s settings.
      */
     private void resolverSettings() {
+        final String url = "javascript:" + RESOLVER_LEGACY_CODE
+                + makeJSFunctionCallbackJava(R.id.scriptresolver_resolver_settings,
+                "resolver.settings ? resolver.settings : getSettings() ", true);
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                mScriptEngine.loadUrl(
-                        "javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
-                                R.id.scriptresolver_resolver_settings,
-                                "resolver.settings ? resolver.settings : getSettings() ", true)
-                );
+                mScriptEngine.loadUrl(url);
             }
         });
     }
@@ -292,15 +284,13 @@ public class ScriptResolver implements Resolver {
      * This method tries to save the {@link Resolver}'s UserConfig.
      */
     private void resolverSaveUserConfig() {
+        final String url = "javascript:" + RESOLVER_LEGACY_CODE
+                + makeJSFunctionCallbackJava(R.id.scriptresolver_resolver_save_userconfig,
+                "resolver.saveUserConfig()", false);
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                mScriptEngine.loadUrl(
-                        "javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
-                                R.id.scriptresolver_resolver_save_userconfig,
-                                "resolver.saveUserConfig()",
-                                false)
-                );
+                mScriptEngine.loadUrl(url);
             }
         });
     }
@@ -309,17 +299,49 @@ public class ScriptResolver implements Resolver {
      * This method tries to get the {@link Resolver}'s UserConfig.
      */
     private void resolverGetConfigUi() {
+        final String url = "javascript:" + RESOLVER_LEGACY_CODE
+                + makeJSFunctionCallbackJava(R.id.scriptresolver_resolver_get_config_ui,
+                "resolver.getConfigUi()", true);
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                mScriptEngine.loadUrl(
-                        "javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
-                                R.id.scriptresolver_resolver_get_config_ui,
-                                "resolver.getConfigUi()",
-                                true)
-                );
+                mScriptEngine.loadUrl(url);
             }
         });
+    }
+
+    public void callback(final int callbackId, final String responseText,
+            final Map<String, List<String>> responseHeaders, final int status,
+            final String statusText) {
+        final Map<String, String> headers = new HashMap<String, String>();
+        for (String key : responseHeaders.keySet()) {
+            if (key != null) {
+                String concatenatedValues = "";
+                for (int i = 0; i < responseHeaders.get(key).size(); i++) {
+                    if (i > 0) {
+                        concatenatedValues += "\n";
+                    }
+                    concatenatedValues += responseHeaders.get(key).get(i);
+                }
+                headers.put(key, concatenatedValues);
+            }
+        }
+        try {
+            String headersString = mObjectMapper.writeValueAsString(headers);
+            final String url = "javascript: Tomahawk.callback(" + callbackId + ","
+                    + "'" + StringEscapeUtils.escapeJavaScript(responseText) + "',"
+                    + "'" + StringEscapeUtils.escapeJavaScript(headersString) + "',"
+                    + status + ","
+                    + "'" + StringEscapeUtils.escapeJavaScript(statusText) + "');";
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    mScriptEngine.loadUrl(url);
+                }
+            });
+        } catch (IOException e) {
+            Log.e(TAG, "callback: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
     }
 
     /**
@@ -391,43 +413,37 @@ public class ScriptResolver implements Resolver {
             mStopped = false;
             mTimeOutHandler.removeCallbacksAndMessages(null);
             mTimeOutHandler.sendEmptyMessageDelayed(TIMEOUT_HANDLER_MSG, mTimeout);
+            String qid = TomahawkMainActivity.getSessionUniqueStringId();
+            mQueryKeys.put(qid, query.getCacheKey());
+
+            // construct javascript call url
+            final String url;
+            String escapedQid = StringEscapeUtils.escapeJavaScript(qid);
+            if (query.isFullTextQuery()) {
+                String fullTextQuery = StringEscapeUtils.escapeJavaScript(query.getFullTextQuery());
+                url = "javascript:" + RESOLVER_LEGACY_CODE
+                        + makeJSFunctionCallbackJava(R.id.scriptresolver_resolve,
+                        "(Tomahawk.resolver.instance !== undefined) ?resolver.search( '"
+                                + escapedQid + "', '" + fullTextQuery
+                                + "' ):resolve( '" + escapedQid + "', '', '', '"
+                                + fullTextQuery + "' )",
+                        false);
+            } else {
+                String artistName = StringEscapeUtils.escapeJavaScript(query.getArtist().getName());
+                String albumName = StringEscapeUtils.escapeJavaScript(query.getAlbum().getName());
+                String trackName = StringEscapeUtils.escapeJavaScript(query.getName());
+                url = "javascript:" + RESOLVER_LEGACY_CODE2
+                        + makeJSFunctionCallbackJava(R.id.scriptresolver_resolve,
+                        "resolver.resolve( '" + escapedQid + "', '" + artistName
+                                + "', '" + albumName + "', '" + trackName + "' )",
+                        false);
+            }
+
+            // call it
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    String qid = TomahawkMainActivity.getSessionUniqueStringId();
-                    mQueryKeys.put(qid, query.getCacheKey());
-                    if (!query.isFullTextQuery()) {
-                        mScriptEngine.loadUrl(
-                                "javascript:" + RESOLVER_LEGACY_CODE2 + makeJSFunctionCallbackJava(
-                                        R.id.scriptresolver_resolve,
-                                        "resolver.resolve( '"
-                                                + qid.replace("'", "\\'")
-                                                + "', '"
-                                                + query.getArtist().getName().replace("'", "\\'")
-                                                + "', '"
-                                                + query.getAlbum().getName().replace("'", "\\'")
-                                                + "', '"
-                                                + query.getName().replace("'", "\\'")
-                                                + "' )",
-                                        false
-                                )
-                        );
-                    } else {
-                        mScriptEngine.loadUrl(
-                                "javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
-                                        R.id.scriptresolver_resolve,
-                                        "(Tomahawk.resolver.instance !== undefined) ?resolver.search( '"
-                                                + qid.replace("'", "\\'")
-                                                + "', '"
-                                                + query.getFullTextQuery().replace("'", "\\'")
-                                                + "' ):resolve( '"
-                                                + qid.replace("'", "\\'")
-                                                + "', '', '', '"
-                                                + query.getFullTextQuery().replace("'", "\\'")
-                                                + "' )", false
-                                )
-                        );
-                    }
+                    mScriptEngine.loadUrl(url);
                 }
             });
         }
@@ -435,27 +451,22 @@ public class ScriptResolver implements Resolver {
     }
 
     public void getStreamUrl(final Result result) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                if (result != null) {
-                    String resultId = TomahawkMainActivity.getSessionUniqueStringId();
-                    // we are using the same map as we do when resolving queries
-                    mQueryKeys.put(resultId, result.getCacheKey());
-                    mScriptEngine.loadUrl(
-                            "javascript:" + RESOLVER_LEGACY_CODE2 + makeJSFunctionCallbackJava(
-                                    R.id.scriptresolver_report_url_translation,
-                                    "resolver.getStreamUrl( '"
-                                            + resultId.replace("'", "\\'")
-                                            + "', '"
-                                            + result.getPath().replace("'", "\\'")
-                                            + "' )",
-                                    true
-                            )
-                    );
+        if (result != null) {
+            String resultId = TomahawkMainActivity.getSessionUniqueStringId();
+            // we are using the same map as we do when resolving queries
+            mQueryKeys.put(resultId, result.getCacheKey());
+            final String url = "javascript:" + RESOLVER_LEGACY_CODE2
+                    + makeJSFunctionCallbackJava(R.id.scriptresolver_report_url_translation,
+                    "resolver.getStreamUrl( '" + StringEscapeUtils.escapeJavaScript(resultId)
+                            + "', '" + StringEscapeUtils.escapeJavaScript(result.getPath()) + "' )",
+                    true);
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    mScriptEngine.loadUrl(url);
                 }
-            }
-        });
+            });
+        }
     }
 
     /**
