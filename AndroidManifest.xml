@@ -314,17 +314,6 @@
         </receiver>
 
         <receiver
-                android:name=".receiver.AmazonMp3Receiver"
-                android:exported="true"
-                android:enabled="true">
-            <intent-filter>
-                <action android:name="com.amazon.mp3.playstatechanged"/>
-                <action android:name="com.amazon.mp3.metachanged"/>
-                <action android:name="com.amazon.mp3.playbackcomplete"/>
-            </intent-filter>
-        </receiver>
-
-        <receiver
                 android:name=".receiver.DoubleTwistReceiver"
                 android:exported="true"
                 android:enabled="true">
