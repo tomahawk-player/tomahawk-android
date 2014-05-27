@@ -6,7 +6,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 /**
- * This class is just an empty shell, so that KitkatScrobblingService doesn't crash on API18
+ * This class is just an empty shell, so that RemoteControllerService doesn't crash on API18
  * devices
  */
 public class RemoteController {
