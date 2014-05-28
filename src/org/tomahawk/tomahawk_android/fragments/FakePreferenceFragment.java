@@ -247,7 +247,9 @@ public class FakePreferenceFragment extends TomahawkListFragment
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        ((TomahawkMainActivity) getActivity()).onHatchetLoggedInOut(loggedIn);
+                        if (getActivity() != null) {
+                            ((TomahawkMainActivity) getActivity()).onHatchetLoggedInOut(loggedIn);
+                        }
                     }
                 });
             }
