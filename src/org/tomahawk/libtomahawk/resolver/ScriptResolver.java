@@ -169,7 +169,9 @@ public class ScriptResolver implements Resolver {
         if (getConfig().get(ENABLED_KEY) != null) {
             mEnabled = (Boolean) getConfig().get(ENABLED_KEY);
         } else {
-            if (PipeLine.PLUGINNAME_RDIO.equals(mId)) {
+            if (PipeLine.PLUGINNAME_RDIO.equals(mId)
+                    || PipeLine.PLUGINNAME_BEATSMUSIC.equals(mId)
+                    || PipeLine.PLUGINNAME_BEETS.equals(mId)) {
                 setEnabled(false);
             } else {
                 setEnabled(true);

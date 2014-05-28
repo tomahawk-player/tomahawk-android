@@ -55,6 +55,8 @@ public class PipeLine {
 
     public final static String PLUGINNAME_EXFM = "ex.fm";
 
+    public final static String PLUGINNAME_BEETS = "beets";
+
     public static final int PIPELINE_SEARCHTYPE_TRACKS = 0;
 
     public static final int PIPELINE_SEARCHTYPE_ARTISTS = 1;
