@@ -18,9 +18,6 @@
  */
 package org.tomahawk.libtomahawk.authentication;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.tomahawk.libtomahawk.collection.UserCollection;
@@ -226,12 +223,14 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_AUTHENTICATING) {
                     @Override
                     public void run() {
-                        Multimap<String, String> params = HashMultimap.create(3, 1);
-                        params.put(PARAMS_PASSWORD, password);
-                        params.put(PARAMS_USERNAME, name);
-                        params.put(PARAMS_GRANT_TYPE, PARAMS_GRANT_TYPE_PASSWORD);
+                        Map<String, String> dataMap = new HashMap<String, String>();
+                        dataMap.put(PARAMS_PASSWORD, password);
+                        dataMap.put(PARAMS_USERNAME, name);
+                        dataMap.put(PARAMS_GRANT_TYPE, PARAMS_GRANT_TYPE_PASSWORD);
+                        String data = TomahawkUtils.paramsListToString(dataMap);
                         try {
-                            String jsonString = TomahawkUtils.httpsPost(AUTH_SERVER, params);
+                            String jsonString = TomahawkUtils.httpPost(AUTH_SERVER, null, data,
+                                    TomahawkUtils.HTTP_CONTENT_TYPE_FORM);
                             JSONObject jsonObject = new JSONObject(jsonString);
                             if (jsonObject.has(RESPONSE_ERROR)) {
                                 String error = jsonObject.getString(RESPONSE_ERROR);
@@ -362,15 +361,17 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
         try {
             String jsonString;
             if (tokenType.equals(RESPONSE_TOKEN_TYPE_BEARER)) {
-                Multimap<String, String> params = HashMultimap.create(2, 1);
-                params.put(PARAMS_REFRESHTOKEN, token);
-                params.put(PARAMS_GRANT_TYPE, PARAMS_GRANT_TYPE_REFRESHTOKEN);
-                jsonString = TomahawkUtils.httpsPost(REFRESH_TOKEN_SERVER, params, false, false);
+                Map<String, String> dataMap = new HashMap<String, String>();
+                dataMap.put(PARAMS_REFRESHTOKEN, token);
+                dataMap.put(PARAMS_GRANT_TYPE, PARAMS_GRANT_TYPE_REFRESHTOKEN);
+                String data = TomahawkUtils.paramsListToString(dataMap);
+                jsonString = TomahawkUtils.httpPost(REFRESH_TOKEN_SERVER, null, data,
+                        TomahawkUtils.HTTP_CONTENT_TYPE_FORM);
             } else {
-                Multimap<String, String> params = HashMultimap.create(1, 1);
+                Map<String, String> params = new HashMap<String, String>();
                 params.put(PARAMS_AUTHORIZATION, RESPONSE_TOKEN_TYPE_BEARER + " " + token);
-                jsonString = TomahawkUtils.httpsPost(
-                        TOKEN_SERVER + RESPONSE_TOKEN_TYPE_CALUMET, params, false, true);
+                jsonString = TomahawkUtils.httpGet(TOKEN_SERVER + RESPONSE_TOKEN_TYPE_CALUMET,
+                        params);
             }
             JSONObject jsonObject = new JSONObject(jsonString);
             if (jsonObject.has(RESPONSE_ERROR) || !TomahawkUtils
