@@ -1092,7 +1092,8 @@ public class PlaybackService extends Service
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                     smallNotificationView = new RemoteViews(getPackageName(),
                             R.layout.notification_small);
-                    if (mNotificationBitmap != null && mLoadedNotificationImage != null
+                    if (mNotificationBitmap != null && !mNotificationBitmap.isRecycled()
+                            && mLoadedNotificationImage != null
                             && mLoadedNotificationImage == getCurrentQuery().getImage()) {
                         smallNotificationView
                                 .setImageViewBitmap(R.id.notification_small_imageview_albumart,
@@ -1139,7 +1140,8 @@ public class PlaybackService extends Service
                         .setSmallIcon(R.drawable.ic_launcher).setContentTitle(artistName)
                         .setContentText(query.getName()).setOngoing(true).setPriority(
                                 NotificationCompat.PRIORITY_MAX).setContent(smallNotificationView);
-                if (mNotificationBitmap != null && mLoadedNotificationImage != null
+                if (mNotificationBitmap != null && !mNotificationBitmap.isRecycled()
+                        && mLoadedNotificationImage != null
                         && mLoadedNotificationImage == getCurrentQuery().getImage()) {
                     builder.setLargeIcon(mNotificationBitmap);
                 } else if (mLoadingNotificationImage != getCurrentQuery().getImage()) {
@@ -1167,7 +1169,8 @@ public class PlaybackService extends Service
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                     RemoteViews largeNotificationView = new RemoteViews(getPackageName(),
                             R.layout.notification_large);
-                    if (mNotificationBitmap != null && mLoadedNotificationImage != null
+                    if (mNotificationBitmap != null && !mNotificationBitmap.isRecycled()
+                            && mLoadedNotificationImage != null
                             && mLoadedNotificationImage == getCurrentQuery().getImage()) {
                         largeNotificationView
                                 .setImageViewBitmap(R.id.notification_large_imageview_albumart,
@@ -1266,7 +1269,8 @@ public class PlaybackService extends Service
                                     getCurrentQuery().getName())
                             .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
                                     getCurrentQuery().getPreferredTrack().getDuration());
-                    if (mLockscreenBitmap != null && mLoadedLockscreenImage != null
+                    if (mLockscreenBitmap != null && !mLockscreenBitmap.isRecycled()
+                            && mLoadedLockscreenImage != null
                             && mLoadedLockscreenImage == getCurrentQuery().getImage()) {
                         // Bitmap is already loaded, we'll use that
                         editor.putBitmap(
