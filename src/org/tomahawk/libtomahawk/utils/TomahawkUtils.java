@@ -1,5 +1,6 @@
 package org.tomahawk.libtomahawk.utils;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import com.squareup.picasso.Picasso;
@@ -34,8 +35,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.PasswordAuthentication;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -47,6 +50,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -55,6 +59,14 @@ import javax.net.ssl.SSLContext;
 public class TomahawkUtils {
 
     public static String TAG = TomahawkUtils.class.getName();
+
+    public static String HTTP_METHOD_POST = "POST";
+
+    public static String HTTP_METHOD_GET = "GET";
+
+    public static String HTTP_CONTENT_TYPE_JSON = "application/json; charset=utf-8";
+
+    public static String HTTP_CONTENT_TYPE_FORM = "application/x-www-form-urlencoded";
 
     /**
      * Author: Chas Emerick (source: http://mrfoo.de/archiv/1176-Levenshtein-Distance-in-Java.html)
@@ -194,103 +206,79 @@ public class TomahawkUtils {
                 result.getArtist().getCacheKey(), result.getPath(), queryKey);
     }
 
-    public static String httpsPost(String urlString, Multimap<String, String> params)
+    /**
+     * Does a HTTP or HTTPS request
+     *
+     * @param method       the method that should be used ("GET" or "POST"), defaults to "GET"
+     *                     (optional)
+     * @param urlString    the complete url string to do the request with
+     * @param extraHeaders extra headers that should be added to the request (optional)
+     * @param username     the username for HTTP Basic Auth (optional)
+     * @param password     the password for HTTP Basic Auth (optional)
+     * @param data         the body data included in POST requests (optional)
+     * @return a String containing the response of this request
+     */
+    public static String httpRequest(String method, String urlString,
+            Map<String, String> extraHeaders, final String username, final String password,
+            String data)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
-        return httpsPost(urlString, params, false, false);
-    }
-
-    public static String httpsPost(String urlString, Multimap<String, String> params,
-            String jsonString)
-            throws NoSuchAlgorithmException, KeyManagementException, IOException {
-        String output = null;
-        URLConnection urlConnection;
-        HttpsURLConnection connection = null;
+        String responseText = null;
+        HttpURLConnection connection = null;
         try {
+            // Establish correct HTTP/HTTPS connection
             URL url = new URL(urlString);
-            urlConnection = url.openConnection();
+            URLConnection urlConnection = url.openConnection();
             if (urlConnection instanceof HttpsURLConnection) {
                 connection = (HttpsURLConnection) urlConnection;
-            } else {
-                throw new MalformedURLException(
-                        "Connection could not be cast to HttpsUrlConnection");
-            }
-
-            connection = setSSLSocketFactory(connection);
-            connection.setConnectTimeout(15000);
-            connection.setReadTimeout(15000);
-            connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
-            for (String key : params.keySet()) {
-                for (String value : params.get(key)) {
-                    connection.setRequestProperty(key, value);
-                }
-            }
-            connection.setRequestMethod("POST");
-            connection.setDoOutput(true);
-            connection.setFixedLengthStreamingMode(jsonString.getBytes().length);
-            OutputStreamWriter out = null;
-            try {
-                out = new OutputStreamWriter(connection.getOutputStream());
-                out.write(jsonString);
-            } finally {
-                if (out != null) {
-                    out.close();
-                }
-            }
-
-            if (connection.getResponseCode() / 100 != 2) {
-                throw new IOException("HttpsURLConnection (url:'" + urlString
-                        + "') didn't return with status code 2xx, instead it returned " + connection
-                        .getResponseCode());
-            }
-            output = inputStreamToString(connection);
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
-        return output;
-    }
-
-    public static String httpsPost(String urlString, Multimap<String, String> params,
-            boolean contentTypeIsJson, boolean paramsInHeader)
-            throws NoSuchAlgorithmException, KeyManagementException, IOException {
-        String output = null;
-        URLConnection urlConnection;
-        HttpsURLConnection connection = null;
-        try {
-            URL url = new URL(urlString);
-            urlConnection = url.openConnection();
-            if (urlConnection instanceof HttpsURLConnection) {
-                connection = (HttpsURLConnection) urlConnection;
+                connection = setSSLSocketFactory((HttpsURLConnection) urlConnection);
+            } else if (urlConnection instanceof HttpURLConnection) {
+                connection = (HttpURLConnection) urlConnection;
             } else {
                 throw new MalformedURLException(
                         "Connection could not be cast to HttpUrlConnection");
             }
 
-            connection = setSSLSocketFactory(connection);
+            // Configure HTTP Basic Auth if available
+            if (username != null && password != null) {
+                Authenticator.setDefault(new Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(username, password.toCharArray());
+                    }
+                });
+            }
+
+            // Add headers if available
+            if (extraHeaders != null) {
+                for (String key : extraHeaders.keySet()) {
+                    connection.setRequestProperty(key, extraHeaders.get(key));
+                }
+            }
+
+            // Set timeout to 15 sec
             connection.setConnectTimeout(15000);
             connection.setReadTimeout(15000);
-            if (contentTypeIsJson) {
-                connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
-            } else if (!paramsInHeader) {
-                connection.setRequestProperty("Content-type", "application/x-www-form-urlencoded");
-                connection.setRequestProperty("Accept", "application/json; charset=utf-8");
-                connection.setDoOutput(true);
-            }
-            if (paramsInHeader) {
-                for (String key : params.keySet()) {
-                    for (String value : params.get(key)) {
-                        connection.setRequestProperty(key, value);
-                    }
+
+            // Set the given request method if available - default to "GET"
+            if (!TextUtils.isEmpty(method)) {
+                if (method.equals(HTTP_METHOD_POST)) {
+                    connection.setRequestMethod(HTTP_METHOD_POST);
+                    connection.setDoOutput(true);
+                } else {
+                    connection.setRequestMethod(method);
                 }
             } else {
-                connection.setRequestMethod("POST");
-                String paramsString = paramsListToString(params);
-                connection.setFixedLengthStreamingMode(paramsString.getBytes().length);
+                connection.setRequestMethod(HTTP_METHOD_GET);
+                connection.setDoOutput(false);
+            }
+
+            // Send data string if available
+            if (!TextUtils.isEmpty(data)) {
+                connection.setFixedLengthStreamingMode(data.getBytes().length);
                 OutputStreamWriter out = null;
                 try {
                     out = new OutputStreamWriter(connection.getOutputStream());
-                    out.write(paramsString);
+                    out.write(data);
                 } finally {
                     if (out != null) {
                         out.close();
@@ -298,57 +286,76 @@ public class TomahawkUtils {
                 }
             }
 
+            // Read response text and response Headers and call callbacks if possible
+            responseText = inputStreamToString(connection);
             if (connection.getResponseCode() / 100 != 2) {
+                // Status code isn't 2xx, try to call error callback and throw IOException
                 throw new IOException("HttpsURLConnection (url:'" + urlString
                         + "') didn't return with status code 2xx, instead it returned " + connection
                         .getResponseCode());
             }
-            output = inputStreamToString(connection);
         } finally {
+            // Always disconnect connection to avoid leaks
             if (connection != null) {
                 connection.disconnect();
             }
         }
-        return output;
+
+        return responseText;
     }
 
-    public static String httpsGet(String urlString)
+    /**
+     * Does a HTTP/HTTPS POST request
+     *
+     * @param urlString    the complete url string to do the request with
+     * @param extraHeaders extra headers that should be added to the request (optional)
+     * @param data         the body data included in POST requests (optional)
+     * @return a String containing the response of this request
+     */
+    public static String httpPost(String urlString, Map<String, String> extraHeaders, String data,
+            String contentType)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
-        String output = null;
-        URLConnection urlConnection;
-        HttpsURLConnection connection = null;
-        try {
-            URL url = new URL(urlString);
-            urlConnection = url.openConnection();
-            if (urlConnection instanceof HttpsURLConnection) {
-                connection = (HttpsURLConnection) urlConnection;
-            } else {
-                throw new MalformedURLException(
-                        "Connection could not be cast to HttpUrlConnection");
-            }
-
-            connection = setSSLSocketFactory(connection);
-            connection.setConnectTimeout(15000);
-            connection.setReadTimeout(15000);
-            connection.setRequestMethod("GET");
-            connection.setDoOutput(false);
-            connection.setRequestProperty("Accept", "application/json; charset=utf-8");
-            connection.setRequestProperty("Content-type", "application/json; charset=utf-8");
-
-            if (connection.getResponseCode() / 100 != 2) {
-                throw new IOException("HttpsURLConnection (url:'" + urlString
-                        + "') didn't return with status code 2xx, instead it returned " + connection
-                        .getResponseCode());
-            }
-            output = inputStreamToString(connection);
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
+        if (extraHeaders == null) {
+            extraHeaders = new HashMap<String, String>();
         }
-        return output;
+        extraHeaders.put("Accept", "application/json; charset=utf-8");
+        extraHeaders.put("Content-type", contentType);
+        return httpRequest(HTTP_METHOD_POST, urlString, extraHeaders, null, null, data);
     }
 
+    /**
+     * Does a HTTP/HTTPS GET request
+     *
+     * @param urlString    the complete url string to do the request with
+     * @param extraHeaders extra headers that should be added to the request (optional)
+     * @return a String containing the response of this request
+     */
+    public static String httpGet(String urlString, Map<String, String> extraHeaders)
+            throws NoSuchAlgorithmException, KeyManagementException, IOException {
+        if (extraHeaders == null) {
+            extraHeaders = new HashMap<String, String>();
+        }
+        extraHeaders.put("Accept", "application/json; charset=utf-8");
+        return httpRequest(HTTP_METHOD_GET, urlString, extraHeaders, null, null, null);
+    }
+
+    /**
+     * Does a HTTP/HTTPS GET request
+     *
+     * @param urlString the complete url string to do the request with
+     * @return a String containing the response of this request
+     */
+    public static String httpGet(String urlString)
+            throws NoSuchAlgorithmException, KeyManagementException, IOException {
+        return httpGet(urlString, null);
+    }
+
+    /**
+     * Does a HTTP/HTTPS HEADER request (currently used to check ex.fm links)
+     *
+     * @param urlString the complete url string to do the request with
+     * @return a String containing the response of this request
+     */
     public static boolean httpHeaderRequest(String urlString) {
         URLConnection urlConnection;
         HttpURLConnection connection = null;
@@ -393,8 +400,15 @@ public class TomahawkUtils {
         return connection;
     }
 
-    public static String paramsListToString(Multimap<String, String> params)
-            throws UnsupportedEncodingException {
+    public static String paramsListToString(Map<String, String> params) {
+        Multimap<String, String> multimap = HashMultimap.create(params.size(), 1);
+        for (String key : params.keySet()) {
+            multimap.put(key, params.get(key));
+        }
+        return paramsListToString(multimap);
+    }
+
+    public static String paramsListToString(Multimap<String, String> params) {
         StringBuilder result = new StringBuilder();
         boolean first = true;
 
@@ -408,9 +422,14 @@ public class TomahawkUtils {
                         } else {
                             result.append("&");
                         }
-                        result.append(URLEncoder.encode(key, "UTF-8"));
-                        result.append("=");
-                        result.append(URLEncoder.encode(value, "UTF-8"));
+                        try {
+                            result.append(URLEncoder.encode(key, "UTF-8"));
+                            result.append("=");
+                            result.append(URLEncoder.encode(value, "UTF-8"));
+                        } catch (UnsupportedEncodingException e) {
+                            Log.e(TAG, "paramsListToString: " + e.getClass() + ": " + e
+                                    .getLocalizedMessage());
+                        }
                     }
                 }
             }
@@ -421,29 +440,14 @@ public class TomahawkUtils {
 
     private static String inputStreamToString(HttpURLConnection connection) throws IOException {
         try {
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream()));
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-            return response.toString();
+            return inputStreamToString(connection.getInputStream());
         } catch (FileNotFoundException e) {
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(connection.getErrorStream()));
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-            return response.toString();
+            return inputStreamToString(connection.getErrorStream());
         }
     }
 
     public static String inputStreamToString(InputStream inputStream) throws IOException {
+        String result = null;
         BufferedReader in = null;
         try {
             in = new BufferedReader(new InputStreamReader(inputStream));
@@ -453,14 +457,15 @@ public class TomahawkUtils {
                 response.append(inputLine);
             }
             in.close();
-            return response.toString();
+            result = response.toString();
         } catch (FileNotFoundException e) {
             Log.e(TAG, "inputStreamToString: " + e.getClass() + ": " + e.getLocalizedMessage());
+        } finally {
             if (in != null) {
                 in.close();
             }
-            return null;
         }
+        return result;
     }
 
     /**
