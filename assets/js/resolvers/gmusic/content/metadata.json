@@ -1,0 +1,19 @@
+{
+    "name": "Google Play Music",
+    "pluginName": "gmusic",
+    "author": "Sam Hanes, Lalit Maganti",
+    "email": "sam@maltera.com, lalitmaganti@gmail.com",
+    "version": "0.2",
+    "website": "http://gettomahawk.com",
+    "description": "Streams music from Google Play Music.",
+    "type": "resolver/javascript",
+    "manifest": {
+        "main": "contents/code/gmusic.js",
+        "icon": "contents/images/icon.png",
+        "scripts": [],
+        "resources": [
+            "contents/code/config.ui",
+            "contents/code/play-logo.png"
+        ]
+    }
+}
