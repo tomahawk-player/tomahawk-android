@@ -29,6 +29,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
@@ -56,6 +58,8 @@ public class PipeLine {
     public final static String PLUGINNAME_EXFM = "ex.fm";
 
     public final static String PLUGINNAME_BEETS = "beets";
+
+    public final static String PLUGINNAME_GMUSIC = "gmusic";
 
     public static final int PIPELINE_SEARCHTYPE_TRACKS = 0;
 
@@ -288,6 +292,32 @@ public class PipeLine {
         reportIntent.putExtra(PIPELINE_URLTRANSLATIONREPORTED_RESULTKEY, resultKey);
         reportIntent.putExtra(PIPELINE_URLTRANSLATIONREPORTED_URL, url);
         TomahawkApp.getContext().sendBroadcast(reportIntent);
+    }
+
+    /**
+     * Send a broadcast containing the key of the resolved {@link org.tomahawk.libtomahawk.resolver.Result}.
+     */
+    public void sendStreamUrlReportBroadcast(final String resultKey, final String url,
+            final Map<String, String> headers) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String finalUrl = TomahawkUtils.getRedirectedUrl(TomahawkUtils.HTTP_METHOD_GET,
+                            url, headers);
+                    Intent reportIntent = new Intent(PIPELINE_URLTRANSLATIONREPORTED);
+                    reportIntent.putExtra(PIPELINE_URLTRANSLATIONREPORTED_RESULTKEY, resultKey);
+                    reportIntent.putExtra(PIPELINE_URLTRANSLATIONREPORTED_URL, finalUrl);
+                    TomahawkApp.getContext().sendBroadcast(reportIntent);
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (KeyManagementException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     /**

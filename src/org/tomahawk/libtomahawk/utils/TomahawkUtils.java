@@ -209,7 +209,42 @@ public class TomahawkUtils {
     }
 
     /**
-     * Does a HTTP or HTTPS request
+     * Gets the URL that this request has been redirected to.
+     *
+     * @param method       the method that should be used ("GET" or "POST"), defaults to "GET"
+     *                     (optional)
+     * @param urlString    the complete url string to do the request with
+     * @param extraHeaders extra headers that should be added to the request (optional)
+     * @return a String containing the url that this request has been redirected to
+     */
+    public static String getRedirectedUrl(String method, String urlString,
+            Map<String, String> extraHeaders)
+            throws NoSuchAlgorithmException, KeyManagementException, IOException {
+        return httpRequest(method, urlString, extraHeaders, null, null, null, null, null, false);
+    }
+
+    /**
+     * Does a HTTP or HTTPS request (convenience method)
+     *
+     * @param method       the method that should be used ("GET" or "POST"), defaults to "GET"
+     *                     (optional)
+     * @param urlString    the complete url string to do the request with
+     * @param extraHeaders extra headers that should be added to the request (optional)
+     * @param username     the username for HTTP Basic Auth (optional)
+     * @param password     the password for HTTP Basic Auth (optional)
+     * @param data         the body data included in POST requests (optional)
+     * @return a String containing the response of this request
+     */
+    private static String httpRequest(String method, String urlString,
+            Map<String, String> extraHeaders, final String username, final String password,
+            String data)
+            throws NoSuchAlgorithmException, KeyManagementException, IOException {
+        return httpRequest(method, urlString, extraHeaders, username, password, data, null, null,
+                true);
+    }
+
+    /**
+     * Does a HTTP or HTTPS request (convenience method)
      *
      * @param method        the method that should be used ("GET" or "POST"), defaults to "GET"
      *                      (optional)
@@ -228,6 +263,34 @@ public class TomahawkUtils {
             Map<String, String> extraHeaders, final String username, final String password,
             String data, ScriptInterface.JsCallback callback,
             ScriptInterface.JsCallback errorCallback)
+            throws NoSuchAlgorithmException, KeyManagementException, IOException {
+        return httpRequest(method, urlString, extraHeaders, username, password, data, callback,
+                errorCallback, true);
+    }
+
+    /**
+     * Does a HTTP or HTTPS request
+     *
+     * @param method          the method that should be used ("GET" or "POST"), defaults to "GET"
+     *                        (optional)
+     * @param urlString       the complete url string to do the request with
+     * @param extraHeaders    extra headers that should be added to the request (optional)
+     * @param username        the username for HTTP Basic Auth (optional)
+     * @param password        the password for HTTP Basic Auth (optional)
+     * @param data            the body data included in POST requests (optional)
+     * @param callback        a ScriptInterface.JsCallback that should be called if this request has
+     *                        been successful (optional)
+     * @param errorCallback   a ScriptInterface.JsCallback that should be called if this request has
+     *                        failed (optional)
+     * @param followRedirects whether or not to follow redirects (also defines what is being
+     *                        returned)
+     * @return a String containing the response of this request, if followRedirects is false,
+     * otherwise the url that this request has been redirected to
+     */
+    private static String httpRequest(String method, String urlString,
+            Map<String, String> extraHeaders, final String username, final String password,
+            String data, ScriptInterface.JsCallback callback,
+            ScriptInterface.JsCallback errorCallback, boolean followRedirects)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         String responseText = null;
         HttpURLConnection connection = null;
@@ -267,7 +330,7 @@ public class TomahawkUtils {
             connection.setReadTimeout(15000);
 
             // Set the given request method if available - default to "GET"
-            if (!TextUtils.isEmpty(method)) {
+            if (!TextUtils.isEmpty(method) && !method.equals(HTTP_METHOD_GET)) {
                 if (method.equals(HTTP_METHOD_POST)) {
                     connection.setRequestMethod(HTTP_METHOD_POST);
                     connection.setDoOutput(true);
@@ -293,23 +356,31 @@ public class TomahawkUtils {
                 }
             }
 
-            // Read response text and response Headers and call callbacks if possible
-            responseText = inputStreamToString(connection.getInputStream());
-            if (connection.getResponseCode() / 100 == 2) {
-                // Status code is 2xx, we're good, call back
-                if (callback != null) {
-                    callback.call(responseText, connection.getHeaderFields(),
-                            connection.getResponseCode(), connection.getResponseMessage());
+            // configure whether or not to follow redirects
+            connection.setInstanceFollowRedirects(followRedirects);
+
+            if (followRedirects) {
+                // Read response text and response Headers and call callbacks if possible
+                responseText = inputStreamToString(connection.getInputStream());
+                if (connection.getResponseCode() / 100 == 2) {
+                    // Status code is 2xx, we're good, call back
+                    if (callback != null) {
+                        callback.call(responseText, connection.getHeaderFields(),
+                                connection.getResponseCode(), connection.getResponseMessage());
+                    }
+                } else {
+                    // Status code isn't 2xx, try to call error callback and throw IOException
+                    if (errorCallback != null) {
+                        errorCallback.call(responseText, connection.getHeaderFields(),
+                                connection.getResponseCode(), connection.getResponseMessage());
+                    }
+                    throw new IOException("HttpsURLConnection (url:'" + urlString
+                            + "') didn't return with status code 2xx, instead it returned "
+                            + connection.getResponseCode());
                 }
             } else {
-                // Status code isn't 2xx, try to call error callback and throw IOException
-                if (errorCallback != null) {
-                    errorCallback.call(responseText, connection.getHeaderFields(),
-                            connection.getResponseCode(), connection.getResponseMessage());
-                }
-                throw new IOException("HttpsURLConnection (url:'" + urlString
-                        + "') didn't return with status code 2xx, instead it returned " + connection
-                        .getResponseCode());
+                connection.connect();
+                responseText = connection.getHeaderField("Location");
             }
         } finally {
             // Always disconnect connection to avoid leaks
@@ -337,7 +408,7 @@ public class TomahawkUtils {
         }
         extraHeaders.put("Accept", "application/json; charset=utf-8");
         extraHeaders.put("Content-type", contentType);
-        return httpRequest(HTTP_METHOD_POST, urlString, extraHeaders, null, null, data, null, null);
+        return httpRequest(HTTP_METHOD_POST, urlString, extraHeaders, null, null, data);
     }
 
     /**
@@ -353,11 +424,11 @@ public class TomahawkUtils {
             extraHeaders = new HashMap<String, String>();
         }
         extraHeaders.put("Accept", "application/json; charset=utf-8");
-        return httpRequest(HTTP_METHOD_GET, urlString, extraHeaders, null, null, null, null, null);
+        return httpRequest(HTTP_METHOD_GET, urlString, extraHeaders, null, null, null);
     }
 
     /**
-     * Does a HTTP/HTTPS GET request
+     * Does a HTTP/HTTPS GET request (convenience method)
      *
      * @param urlString the complete url string to do the request with
      * @return a String containing the response of this request

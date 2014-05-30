@@ -174,7 +174,8 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
             return null;
         }
         Result result = query.getPreferredTrackResult();
-        if (PipeLine.PLUGINNAME_BEATSMUSIC.equals(result.getResolvedBy().getId())) {
+        if (PipeLine.PLUGINNAME_BEATSMUSIC.equals(result.getResolvedBy().getId())
+                || PipeLine.PLUGINNAME_GMUSIC.equals(result.getResolvedBy().getId())) {
             if (mTranslatedUrls.get(result) == null) {
                 ((ScriptResolver) result.getResolvedBy()).getStreamUrl(result);
             } else {
