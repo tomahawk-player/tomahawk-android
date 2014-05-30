@@ -145,6 +145,12 @@ public class ScriptInterface {
     }
 
     @JavascriptInterface
+    public void reportStreamUrlString(String qid, String url, String stringifiedHeaders) {
+        mScriptResolver.handleCallbackToJava(R.id.scriptresolver_report_stream_url, qid, url,
+                stringifiedHeaders);
+    }
+
+    @JavascriptInterface
     public void addCustomUrlHandler(String protocol, String callbackFuncName, boolean isAsync) {
     }
 

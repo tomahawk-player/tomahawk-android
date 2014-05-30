@@ -394,6 +394,12 @@ public class ScriptResolver implements Resolver {
                     && jsonString.length == 2) {
                 String resultKey = mQueryKeys.get(jsonString[0]);
                 PipeLine.getInstance().sendUrlTranslationReportBroadcast(resultKey, jsonString[1]);
+            } else if (id == R.id.scriptresolver_report_stream_url && jsonString != null
+                    && jsonString.length == 3) {
+                Map<String, String> headers = mObjectMapper.readValue(jsonString[2], Map.class);
+                String resultKey = mQueryKeys.get(jsonString[0]);
+                PipeLine.getInstance().sendStreamUrlReportBroadcast(resultKey, jsonString[1],
+                        headers);
             }
         } catch (IOException e) {
             Log.e(TAG, "handleCallbackToJava: " + e.getClass() + ": " + e

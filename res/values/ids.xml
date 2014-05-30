@@ -22,5 +22,6 @@
     <item name="scriptresolver_resolve" type="id"/>
     <item name="scriptresolver_add_track_results_string" type="id"/>
     <item name="scriptresolver_report_url_translation" type="id"/>
+    <item name="scriptresolver_report_stream_url" type="id"/>
 
 </resources>
