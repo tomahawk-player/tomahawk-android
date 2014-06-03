@@ -342,7 +342,7 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
                 'Authorization': 'GoogleLogin auth=' + this._token
             }, {
                 method: 'HEAD',
-                doNativeRequest: true
+                needCookieHeader: true
             }
         );
     },
