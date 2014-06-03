@@ -31,6 +31,20 @@ Tomahawk.addTrackResults =
 // This detour is needed because we can only send Strings and no JSON objects back to JAVA through
 // the Javascript Interface. Therefore we receive the JSON object here, stringify it and send it
 // back to Java, where we then parse it to a JSON object again.
+Tomahawk.addAlbumResults =
+    function (results) {
+    };
+
+// This detour is needed because we can only send Strings and no JSON objects back to JAVA through
+// the Javascript Interface. Therefore we receive the JSON object here, stringify it and send it
+// back to Java, where we then parse it to a JSON object again.
+Tomahawk.addArtistResults =
+    function (results) {
+    };
+
+// This detour is needed because we can only send Strings and no JSON objects back to JAVA through
+// the Javascript Interface. Therefore we receive the JSON object here, stringify it and send it
+// back to Java, where we then parse it to a JSON object again.
 Tomahawk.reportStreamUrl =
     function (qid, url, headers) {
         var stringifiedHeaders = null;
