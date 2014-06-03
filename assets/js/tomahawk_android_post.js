@@ -24,10 +24,10 @@
  *  - password: The password for HTTP Basic Auth
  *  - errorHandler: callback called if the request was not completed
  *  - data: body data included in POST requests
- *  - doNativeRequest: boolean to indicate whether or not the request should be done natively
+ *  - needCookieHeader: boolean to indicate whether or not the request should return the "Set-Cookie" header
  */
 Tomahawk.asyncRequest = function (url, callback, extraHeaders, options) {
-    if (options && options.doNativeRequest) {
+    if (options && options.needCookieHeader) {
         if (!Tomahawk.idCounter) {
             Tomahawk.idCounter = 0;
         }
