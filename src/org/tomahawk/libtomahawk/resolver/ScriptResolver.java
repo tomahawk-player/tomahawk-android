@@ -69,18 +69,6 @@ public class ScriptResolver implements Resolver {
 
     private final static String SCRIPT_INTERFACE_NAME = "Tomahawk";
 
-    //TEMPORARY WORKAROUND
-    private final static String BASEURL_OFFICIALFM = "http://api.official.fm";
-
-    private final static String BASEURL_EXFM = "https://ex.fm";
-
-    private final static String BASEURL_JAMENDO = "http://api.jamendo.com";
-
-    private final static String BASEURL_SOUNDCLOUD = "http://developer.echonest.com";
-
-    private final static String BASEURL_BEATSMUSIC = "https://partner.api.beatsmusic.com";
-    //TEMPORARY WORKAROUND END
-
     public final static String CONFIG = "config";
 
     public final static String ENABLED_KEY = "_enabled_";
@@ -173,7 +161,8 @@ public class ScriptResolver implements Resolver {
         } else {
             if (PipeLine.PLUGINNAME_RDIO.equals(mId)
                     || PipeLine.PLUGINNAME_BEATSMUSIC.equals(mId)
-                    || PipeLine.PLUGINNAME_BEETS.equals(mId)) {
+                    || PipeLine.PLUGINNAME_BEETS.equals(mId)
+                    || PipeLine.PLUGINNAME_GMUSIC.equals(mId)) {
                 setEnabled(false);
             } else {
                 setEnabled(true);
