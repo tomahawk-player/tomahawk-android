@@ -647,9 +647,11 @@ public class PlaybackFragment extends TomahawkFragment
                 getView().findViewById(R.id.imageButton_repeat).setClickable(false);
 
                 // Update the PlaybackSeekBar
-                mPlaybackSeekBar.setEnabled(false);
-                mPlaybackSeekBar.updateSeekBarPosition();
-                mPlaybackSeekBar.updateTextViewCompleteTime();
+                if (mPlaybackSeekBar != null) {
+                    mPlaybackSeekBar.setEnabled(false);
+                    mPlaybackSeekBar.updateSeekBarPosition();
+                    mPlaybackSeekBar.updateTextViewCompleteTime();
+                }
             }
         }
     }
