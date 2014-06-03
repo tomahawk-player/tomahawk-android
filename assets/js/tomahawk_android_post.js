@@ -27,7 +27,7 @@
  *  - doNativeRequest: boolean to indicate whether or not the request should be done natively
  */
 Tomahawk.asyncRequest = function (url, callback, extraHeaders, options) {
-    if (options.doNativeRequest) {
+    if (options && options.doNativeRequest) {
         if (!Tomahawk.idCounter) {
             Tomahawk.idCounter = 0;
         }
