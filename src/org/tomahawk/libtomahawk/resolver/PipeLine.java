@@ -20,7 +20,6 @@ package org.tomahawk.libtomahawk.resolver;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.dialogs.ResolverConfigDialog;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
@@ -230,27 +229,7 @@ public class PipeLine {
         if (!forceOnlyLocal && !q.isOnlyLocal()) {
             if (resolver instanceof ScriptResolver) {
                 ScriptResolver scriptResolver = ((ScriptResolver) resolver);
-                if (scriptResolver.isEnabled()) {
-                    if (PipeLine.PLUGINNAME_BEATSMUSIC.equals(scriptResolver.getId())) {
-                        return true;
-                    } else {
-                        boolean configured = true;
-                        Map<String, Object> config = scriptResolver.getConfig();
-                        if (config != null && scriptResolver.getConfigUi() != null
-                                && scriptResolver.getConfigUi().fields != null) {
-                            for (ScriptResolverConfigUiField field : scriptResolver
-                                    .getConfigUi().fields) {
-                                if (ResolverConfigDialog.PROPERTY_TEXT.equals(field.property)
-                                        && TextUtils.isEmpty((String) config.get(field.name))) {
-                                    configured = false;
-                                }
-                            }
-                        }
-                        if (configured) {
-                            return true;
-                        }
-                    }
-                }
+                return scriptResolver.isEnabled();
             } else {
                 return true;
             }
