@@ -114,8 +114,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
         for (ScriptResolver scriptResolver : PipeLine.getInstance().getScriptResolvers()) {
             prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
                     FakePreferenceGroup.FAKEPREFERENCE_TYPE_CONFIG, scriptResolver.getId(),
-                    scriptResolver.isEnabled(), scriptResolver.getName(),
-                    scriptResolver.getDescription(), scriptResolver.getIcon()));
+                    scriptResolver.getName(),scriptResolver.getDescription()));
         }
         mFakePreferenceGroups.add(prefGroup);
         prefGroup = new FakePreferenceGroup(getString(R.string.fakepreference_playback_header));
@@ -241,8 +240,6 @@ public class FakePreferenceFragment extends TomahawkListFragment
     @Override
     public void onLoggedInOut(String authenticatorId, final boolean loggedIn) {
         for (FakePreferenceGroup fakePreferenceGroup : mFakePreferenceGroups) {
-            FakePreferenceGroup.FakePreference fakePreference = fakePreferenceGroup
-                    .getFakePreferenceByKey(authenticatorId);
             if (AuthenticatorManager.AUTHENTICATOR_ID_HATCHET.equals(authenticatorId)) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
@@ -252,10 +249,6 @@ public class FakePreferenceFragment extends TomahawkListFragment
                         }
                     }
                 });
-            }
-            if (fakePreference != null) {
-                fakePreference.setEnabled(loggedIn);
-                break;
             }
         }
         new Handler(Looper.getMainLooper()).post(new Runnable() {

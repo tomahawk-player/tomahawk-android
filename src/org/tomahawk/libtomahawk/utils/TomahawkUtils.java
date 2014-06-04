@@ -16,10 +16,12 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptInterface;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.utils.GrayOutTransformation;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.CircularImageTransformation;
 
@@ -615,7 +617,43 @@ public class TomahawkUtils {
     }
 
     /**
-     * Load a {@link android.graphics.drawable.Drawable} asynchronously
+     * Load a {@link android.graphics.Bitmap} asynchronously
+     *
+     * @param context   the context needed for fetching resources
+     * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
+     *                  android.graphics.Bitmap}
+     * @param resolver  the Resolver of which to load icon
+     */
+    public static void loadResolverIconIntoImageView(Context context, ImageView imageView,
+            Resolver resolver) {
+        loadResolverIconIntoImageView(context, imageView, resolver, false);
+    }
+
+    /**
+     * Load a {@link android.graphics.Bitmap} asynchronously
+     *
+     * @param context   the context needed for fetching resources
+     * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
+     *                  android.graphics.Bitmap}
+     * @param resolver  the Resolver of which to load icon
+     * @param grayOut   whether or not to gray out the resolver icon
+     */
+    public static void loadResolverIconIntoImageView(Context context, ImageView imageView,
+            Resolver resolver, boolean grayOut) {
+        RequestCreator creator;
+        if (resolver.getIconPath() != null) {
+            creator = Picasso.with(context).load(resolver.getIconPath());
+        } else {
+            creator = Picasso.with(context).load(resolver.getIconResId());
+        }
+        if (grayOut) {
+            creator.transform(new GrayOutTransformation());
+        }
+        creator.error(R.drawable.ic_resolver_default).into(imageView);
+    }
+
+    /**
+     * Load a {@link android.graphics.drawable.Drawable} asynchronously (convenience method)
      *
      * @param context       the context needed for fetching resources
      * @param imageView     the {@link android.widget.ImageView}, which will be used to show the
@@ -624,7 +662,25 @@ public class TomahawkUtils {
      */
     public static void loadDrawableIntoImageView(Context context, ImageView imageView,
             int drawableResId) {
-        Picasso.with(context).load(drawableResId).error(R.drawable.ic_action_error).into(imageView);
+        loadDrawableIntoImageView(context, imageView, drawableResId, false);
+    }
+
+    /**
+     * Load a {@link android.graphics.drawable.Drawable} asynchronously
+     *
+     * @param context       the context needed for fetching resources
+     * @param imageView     the {@link android.widget.ImageView}, which will be used to show the
+     *                      {@link android.graphics.drawable.Drawable}
+     * @param drawableResId the resource id of the drawable to load into the imageview
+     * @param grayOut       whether or not to gray out the resolver icon
+     */
+    public static void loadDrawableIntoImageView(Context context, ImageView imageView,
+            int drawableResId, boolean grayOut) {
+        RequestCreator creator = Picasso.with(context).load(drawableResId);
+        if (grayOut) {
+            creator.transform(new GrayOutTransformation());
+        }
+        creator.error(R.drawable.ic_action_error).into(imageView);
     }
 
     /**

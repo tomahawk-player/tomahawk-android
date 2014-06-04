@@ -17,8 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
-import android.graphics.drawable.Drawable;
-
 import java.util.ArrayList;
 
 /**
@@ -57,10 +55,6 @@ public class FakePreferenceGroup {
         // the key to store preferences with
         private String storageKey;
 
-        // if this FakePreference's type is FAKEPREFERENCE_TYPE_CHECKBOX or FAKEPREFERENCE_TYPE_AUTH
-        // this contains the current state of this preference
-        private boolean isEnabled;
-
         private String title;
 
         // short summary text to describe this FakePreference to the user
@@ -68,9 +62,6 @@ public class FakePreferenceGroup {
 
         // drawable to show in grey, if isEnabled is false, otherwise colored
         private int drawableResId;
-
-        // drawable to show in grey, if isEnabled is false, otherwise colored
-        private Drawable drawable;
 
         /**
          * Construct a {@link FakePreference}
@@ -106,19 +97,6 @@ public class FakePreferenceGroup {
             this.drawableResId = drawableResId;
         }
 
-        /**
-         * Construct a {@link FakePreference}
-         */
-        public FakePreference(int type, String key, boolean isEnabled, String title, String summary,
-                Drawable drawable) {
-            this.type = type;
-            this.key = key;
-            this.isEnabled = isEnabled;
-            this.title = title;
-            this.summary = summary;
-            this.drawable = drawable;
-        }
-
         public int getType() {
             return type;
         }
@@ -131,14 +109,6 @@ public class FakePreferenceGroup {
             return storageKey;
         }
 
-        public boolean isEnabled() {
-            return isEnabled;
-        }
-
-        public void setEnabled(boolean enabled) {
-            this.isEnabled = enabled;
-        }
-
         public String getTitle() {
             return title;
         }
@@ -149,10 +119,6 @@ public class FakePreferenceGroup {
 
         public int getDrawableResId() {
             return drawableResId;
-        }
-
-        public Drawable getDrawable() {
-            return drawable;
         }
     }
 
