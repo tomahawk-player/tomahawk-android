@@ -21,13 +21,11 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -188,13 +186,7 @@ public class LoginDialog extends DialogFragment {
         mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
         mStatusImageView = (ImageView) view.findViewById(R.id.login_dialog_status_imageview);
         TomahawkUtils.loadDrawableIntoImageView(getActivity(), mStatusImageView,
-                mAuthenticatorUtils.getIconResourceId());
-        if (!isLoggedIn) {
-            mStatusImageView.setColorFilter(TomahawkApp.getContext().getResources()
-                    .getColor(R.color.disabled_resolver), PorterDuff.Mode.MULTIPLY);
-        } else {
-            mStatusImageView.clearColorFilter();
-        }
+                mAuthenticatorUtils.getIconResourceId(), !isLoggedIn);
         updateButtonTexts(isLoggedIn);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(view);
@@ -292,12 +284,6 @@ public class LoginDialog extends DialogFragment {
                 mAuthenticatorUtils.getAuthenticatorUtilsName(),
                 mAuthenticatorUtils.getAuthenticatorUtilsTokenType());
         TomahawkUtils.loadDrawableIntoImageView(getActivity(), mStatusImageView,
-                mAuthenticatorUtils.getIconResourceId());
-        if (!isLoggedIn) {
-            mStatusImageView.setColorFilter(TomahawkApp.getContext().getResources()
-                    .getColor(R.color.disabled_resolver), PorterDuff.Mode.MULTIPLY);
-        } else {
-            mStatusImageView.clearColorFilter();
-        }
+                mAuthenticatorUtils.getIconResourceId(), !isLoggedIn);
     }
 }

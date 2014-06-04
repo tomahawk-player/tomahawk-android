@@ -35,7 +35,6 @@ import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -86,7 +85,7 @@ public class ScriptResolver implements Resolver {
 
     private ScriptResolverMetaData mMetaData;
 
-    private Drawable mIcon;
+    private String mIconPath;
 
     private int mWeight;
 
@@ -145,8 +144,7 @@ public class ScriptResolver implements Resolver {
                     .getAssets().open(path + "/metadata.json"));
             mMetaData = mObjectMapper.readValue(rawJsonString, ScriptResolverMetaData.class);
             mId = mMetaData.pluginName;
-            mIcon = Drawable.createFromStream(TomahawkApp.getContext().getAssets().open(path + "/" +
-                    mMetaData.manifest.icon), null);
+            mIconPath = "file:///android_asset/" + path + "/" + mMetaData.manifest.icon;
         } catch (FileNotFoundException e) {
             Log.e(TAG, "ScriptResolver: " + e.getClass() + ": " + e.getLocalizedMessage());
         } catch (JsonMappingException e) {
@@ -186,6 +184,16 @@ public class ScriptResolver implements Resolver {
     @Override
     public boolean isResolving() {
         return mReady && !mStopped;
+    }
+
+    @Override
+    public String getIconPath() {
+        return mIconPath;
+    }
+
+    @Override
+    public int getIconResId() {
+        return 0;
     }
 
     /**
@@ -573,15 +581,6 @@ public class ScriptResolver implements Resolver {
             Log.e(TAG, "getConfig: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
         return new HashMap<String, Object>();
-    }
-
-    /**
-     * @return the {@link Drawable} which has been created by loading the image the js function
-     * attribute "icon" pointed at
-     */
-    @Override
-    public Drawable getIcon() {
-        return mIcon;
     }
 
     /**

@@ -22,9 +22,7 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 
-import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -39,7 +37,7 @@ public class DataBaseResolver implements Resolver {
 
     private String mId;
 
-    private Drawable mIcon;
+    private int mIconResId;
 
     private int mWeight;
 
@@ -59,8 +57,7 @@ public class DataBaseResolver implements Resolver {
         mWeight = 100;
         mReady = false;
         mStopped = true;
-        mIcon = TomahawkApp.getContext().getResources()
-                .getDrawable(R.drawable.ic_action_sd_storage);
+        mIconResId = R.drawable.ic_action_sd_storage;
         mReady = true;
         PipeLine.getInstance().onResolverReady();
     }
@@ -81,12 +78,14 @@ public class DataBaseResolver implements Resolver {
         return mReady && !mStopped;
     }
 
-    /**
-     * @return the icon of this {@link Resolver} as a {@link Drawable}
-     */
     @Override
-    public Drawable getIcon() {
-        return mIcon;
+    public String getIconPath() {
+        return null;
+    }
+
+    @Override
+    public int getIconResId() {
+        return mIconResId;
     }
 
     /**
@@ -161,5 +160,10 @@ public class DataBaseResolver implements Resolver {
     @Override
     public int getWeight() {
         return mWeight;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

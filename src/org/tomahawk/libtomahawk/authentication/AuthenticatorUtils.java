@@ -86,6 +86,12 @@ public abstract class AuthenticatorUtils {
                 != null;
     }
 
+    public static boolean isLoggedIn(Context context, AuthenticatorUtils authenticatorUtils) {
+        return TomahawkUtils
+                .peekAuthTokenForAccount(context, authenticatorUtils.getAuthenticatorUtilsName(),
+                        authenticatorUtils.getAuthenticatorUtilsTokenType()) != null;
+    }
+
     public boolean isAuthenticating() {
         return mIsAuthenticating;
     }

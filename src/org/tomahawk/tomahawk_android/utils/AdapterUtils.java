@@ -29,6 +29,7 @@ import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.ViewHolder;
 import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
@@ -236,8 +237,8 @@ public class AdapterUtils {
         }
         if (showResolvedBy && query.getPreferredTrackResult() != null) {
             viewHolder.getImageView2().setVisibility(ImageView.VISIBLE);
-            viewHolder.getImageView2().setImageDrawable(
-                    query.getPreferredTrackResult().getResolvedBy().getIcon());
+            TomahawkUtils.loadResolverIconIntoImageView(TomahawkApp.getContext(),
+                    viewHolder.getImageView2(), query.getPreferredTrackResult().getResolvedBy());
         }
     }
 
@@ -296,8 +297,9 @@ public class AdapterUtils {
                 }
                 if (showResolvedBy && query.getPreferredTrackResult() != null) {
                     viewHolder.getImageView2().setVisibility(ImageView.VISIBLE);
-                    viewHolder.getImageView2().setImageDrawable(
-                            query.getPreferredTrackResult().getResolvedBy().getIcon());
+                    TomahawkUtils.loadResolverIconIntoImageView(TomahawkApp.getContext(),
+                            viewHolder.getImageView2(),
+                            query.getPreferredTrackResult().getResolvedBy());
                 }
             } else if (targetObject instanceof Artist || targetObject instanceof Album) {
                 String firstLine = "";
@@ -337,8 +339,9 @@ public class AdapterUtils {
                 }
                 if (showResolvedBy && query.getPreferredTrackResult() != null) {
                     viewHolder.getImageView2().setVisibility(ImageView.VISIBLE);
-                    viewHolder.getImageView2().setImageDrawable(
-                            query.getPreferredTrackResult().getResolvedBy().getIcon());
+                    TomahawkUtils.loadResolverIconIntoImageView(TomahawkApp.getContext(),
+                            viewHolder.getImageView2(),
+                            query.getPreferredTrackResult().getResolvedBy());
                 }
             } else {
                 viewHolder.getTextView1().setText(socialAction.getUser().getName() + " " + phrase

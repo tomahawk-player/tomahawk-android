@@ -17,8 +17,6 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
-import android.graphics.drawable.Drawable;
-
 /**
  * The basic {@link Resolver} interface, which is implemented by every type of {@link Resolver}
  */
@@ -30,14 +28,24 @@ public interface Resolver {
     public boolean isReady();
 
     /**
+     * @return Whether or not this {@link Resolver} is enabled
+     */
+    public boolean isEnabled();
+
+    /**
      * @return Whether or not this {@link Resolver} is currently resolving
      */
     public boolean isResolving();
 
     /**
-     * @return the icon of this {@link Resolver} as a {@link Drawable}
+     * @return the path to the icon of this {@link Resolver}
      */
-    public Drawable getIcon();
+    public String getIconPath();
+
+    /**
+     * @return the resource id of the icon of this {@link Resolver}
+     */
+    public int getIconResId();
 
     /**
      * Resolve the given {@link Query}

@@ -33,7 +33,6 @@ import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
@@ -58,7 +57,7 @@ public class SpotifyResolver implements Resolver {
 
     private String mId;
 
-    private Drawable mIcon;
+    private int mIconResId;
 
     private int mWeight = 90;
 
@@ -105,7 +104,7 @@ public class SpotifyResolver implements Resolver {
      */
     public SpotifyResolver() {
         mId = PipeLine.PLUGINNAME_SPOTIFY;
-        mIcon = TomahawkApp.getContext().getResources().getDrawable(R.drawable.spotify_icon);
+        mIconResId = R.drawable.spotify_icon;
         PipeLine.getInstance().onResolverReady();
     }
 
@@ -124,12 +123,14 @@ public class SpotifyResolver implements Resolver {
         return mAuthenticated && mInitialized;
     }
 
-    /**
-     * @return this {@link Resolver}'s icon
-     */
     @Override
-    public Drawable getIcon() {
-        return mIcon;
+    public String getIconPath() {
+        return null;
+    }
+
+    @Override
+    public int getIconResId() {
+        return mIconResId;
     }
 
     /**
@@ -237,5 +238,10 @@ public class SpotifyResolver implements Resolver {
     @Override
     public boolean isReady() {
         return mToSpotifyMessenger != null && mInitialized;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

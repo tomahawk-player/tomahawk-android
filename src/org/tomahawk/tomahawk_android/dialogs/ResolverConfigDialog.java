@@ -31,7 +31,6 @@ import org.tomahawk.tomahawk_android.ui.widgets.StringView;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.text.InputType;
@@ -49,8 +48,8 @@ import java.util.ArrayList;
 import java.util.Map;
 
 /**
- * A {@link android.support.v4.app.DialogFragment} which shows checkboxes and edittexts depending
- * on the given ScriptResolver's config. Enables the user to configure a certain ScriptResolver.
+ * A {@link android.support.v4.app.DialogFragment} which shows checkboxes and edittexts depending on
+ * the given ScriptResolver's config. Enables the user to configure a certain ScriptResolver.
  */
 public class ResolverConfigDialog extends DialogFragment {
 
@@ -168,12 +167,8 @@ public class ResolverConfigDialog extends DialogFragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mScriptResolver.setEnabled(isChecked);
 
-                if (!mScriptResolver.isEnabled()) {
-                    mStatusImageView.setColorFilter(TomahawkApp.getContext().getResources()
-                            .getColor(R.color.disabled_resolver), PorterDuff.Mode.MULTIPLY);
-                } else {
-                    mStatusImageView.clearColorFilter();
-                }
+                TomahawkUtils.loadResolverIconIntoImageView(TomahawkApp.getContext(),
+                        mStatusImageView, mScriptResolver, !mScriptResolver.isEnabled());
             }
         });
 
@@ -183,13 +178,8 @@ public class ResolverConfigDialog extends DialogFragment {
         mNegativeButton.setOnClickListener(mNegativeButtonListener);
         mStatusImageView = (ImageView) view
                 .findViewById(R.id.resolver_config_dialog_status_imageview);
-        mStatusImageView.setImageDrawable(mScriptResolver.getIcon());
-        if (!mScriptResolver.isEnabled()) {
-            mStatusImageView.setColorFilter(TomahawkApp.getContext().getResources()
-                    .getColor(R.color.disabled_resolver), PorterDuff.Mode.MULTIPLY);
-        } else {
-            mStatusImageView.clearColorFilter();
-        }
+        TomahawkUtils.loadResolverIconIntoImageView(TomahawkApp.getContext(), mStatusImageView,
+                mScriptResolver, !mScriptResolver.isEnabled());
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(view);
         return builder.create();

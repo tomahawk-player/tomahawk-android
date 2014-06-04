@@ -21,6 +21,7 @@ import com.rdio.android.api.OAuth1WebViewActivity;
 
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
@@ -32,7 +33,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.Base64;
@@ -163,13 +163,8 @@ public class RedirectConfigDialog extends DialogFragment {
         negativeButton.setOnClickListener(mNegativeButtonListener);
         ImageView statusImageView = (ImageView) view
                 .findViewById(R.id.resolver_config_dialog_status_imageview);
-        statusImageView.setImageDrawable(scriptResolver.getIcon());
-        if (!scriptResolver.isEnabled()) {
-            statusImageView.setColorFilter(TomahawkApp.getContext().getResources()
-                    .getColor(R.color.disabled_resolver), PorterDuff.Mode.MULTIPLY);
-        } else {
-            statusImageView.clearColorFilter();
-        }
+        TomahawkUtils.loadResolverIconIntoImageView(TomahawkApp.getContext(), statusImageView,
+                scriptResolver, !scriptResolver.isEnabled());
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(view);
         return builder.create();
