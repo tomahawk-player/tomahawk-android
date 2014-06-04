@@ -69,7 +69,7 @@ public class ScriptInterface {
         if (shouldReturnResult) {
             mScriptResolver.handleCallbackToJava(id, in);
         } else {
-            mScriptResolver.handleCallbackToJava(id, null);
+            mScriptResolver.handleCallbackToJava(id);
         }
     }
 
