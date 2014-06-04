@@ -87,7 +87,8 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
             that.loggedIn = true;
         }, headers, {
             method: "POST",
-            data: data
+            data: data,
+            needCookieHeader: true
         });
     },
 
@@ -136,9 +137,11 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
     },
 
     getStreamUrl: function (qid, url) {
+        Tomahawk.log("test");
         var trackId = url.replace("beatsmusic://track/", "");
         Tomahawk.asyncRequest(this.endpoint + "/api/tracks/" + trackId + "/audio?acquire=1&bitrate=highest&access_token=" + this.accessToken, function (xhr) {
             var res = JSON.parse(xhr.responseText);
+            Tomahawk.log("test2");
             Tomahawk.reportUrlTranslation(qid, res.data.location + "/?slist=" + res.data.resource);
         });
     },
