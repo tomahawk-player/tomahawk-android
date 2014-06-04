@@ -609,7 +609,7 @@ public class ScriptResolver implements Resolver {
     }
 
     public void setEnabled(boolean enabled) {
-        Log.d(TAG, this + " has been " + (enabled ? "enabled" : "disabled"));
+        Log.d(TAG, this.mId + " has been " + (enabled ? "enabled" : "disabled"));
         mEnabled = enabled;
         Map<String, Object> config = getConfig();
         config.put(ENABLED_KEY, enabled);
