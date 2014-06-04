@@ -81,8 +81,8 @@ Tomahawk.versionCompare = function (version1, version2) {
 };
 
 /**
-  * Check if this is at least specified tomahawk-api-version.
-  */
+ * Check if this is at least specified tomahawk-api-version.
+ */
 Tomahawk.atLeastVersion = function (version) {
     return (Tomahawk.versionCompare(Tomahawk.apiVersion, version) >= 0)
 };
@@ -151,9 +151,11 @@ var TomahawkResolver = {
         return {};
     },
     getUserConfig: function () {
-        return Tomahawk.resolverData().config;
+        return JSON.parse(window.localStorage[this.scriptPath()] || "{}");
     },
     saveUserConfig: function () {
+        var configJson = JSON.stringify(Tomahawk.resolverData().config);
+        window.localStorage[ this.scriptPath() ] = configJson;
         this.newConfigSaved();
     },
     newConfigSaved: function () {
@@ -204,21 +206,21 @@ var TomahawkResolver = {
  },
  resolve: function( qid, artist, album, track )
  {
-     return {
-         qid: qid,
-         results: [
-         {
-             artist: "Mokele",
-             album: "You Yourself are Me Myself and I am in Love",
-             track: "Hiding In Your Insides (php)",
-             source: "Mokele.co.uk",
-             url: "http://play.mokele.co.uk/music/Hiding%20In%20Your%20Insides.mp3",
-             bitrate: 160,
-             duration: 248,
-             size: 4971780,
-             score: 1.0,
-             extension: "mp3",
-             mimetype: "audio/mpeg"
+ return {
+ qid: qid,
+ results: [
+ {
+ artist: "Mokele",
+ album: "You Yourself are Me Myself and I am in Love",
+ track: "Hiding In Your Insides (php)",
+ source: "Mokele.co.uk",
+ url: "http://play.mokele.co.uk/music/Hiding%20In%20Your%20Insides.mp3",
+ bitrate: 160,
+ duration: 248,
+ size: 4971780,
+ score: 1.0,
+ extension: "mp3",
+ mimetype: "audio/mpeg"
  }
  ]
  };
@@ -265,7 +267,16 @@ Tomahawk.syncRequest = function (url, extraHeaders, options) {
     }
     xmlHttpRequest.send(null);
     if (xmlHttpRequest.status == 200) {
-		return xmlHttpRequest.responseText;
+        return xmlHttpRequest.responseText;
+    } else if (xmlHttpRequest.status == 302) {
+        // You know that XMLHttpRequest always follows redirects?
+        // Guess what: It does not always.
+        //
+        // Known:
+        // * If you are redirect to a different domain in QtWebkit on MacOS,
+        //   you will have to deal with 302.
+        Tomahawk.syncRequest(xmlHttpRequest.getResponseHeader('Location'),
+            extraHeaders, options);
     } else {
         Tomahawk.log("Failed to do GET request: to: " + url);
         Tomahawk.log("Status Code was: " + xmlHttpRequest.status);
@@ -298,8 +309,17 @@ Tomahawk.asyncRequest = function (url, callback, extraHeaders, options) {
     xmlHttpRequest.onreadystatechange = function () {
         if (xmlHttpRequest.readyState == 4 && xmlHttpRequest.status == 200) {
             callback.call(window, xmlHttpRequest);
+        } else if (xmlHttpRequest.readyState == 4 && xmlHttpRequest.status == 302) {
+            // You know that XMLHttpRequest always follows redirects?
+            // Guess what: It does not always.
+            //
+            // Known:
+            // * If you are redirect to a different domain in QtWebkit on MacOS,
+            //   you will have to deal with 302.
+            Tomahawk.asyncRequest(xmlHttpRequest.getResponseHeader('Location'),
+                callback, extraHeaders, options);
         } else if (xmlHttpRequest.readyState === 4) {
-            Tomahawk.log("Failed to do GET request: to: " + url);
+            Tomahawk.log("Failed to do " + method + " request: to: " + url);
             Tomahawk.log("Status Code was: " + xmlHttpRequest.status);
             if (opt.hasOwnProperty('errorHandler')) {
                 opt.errorHandler.call(window, xmlHttpRequest);
@@ -310,7 +330,14 @@ Tomahawk.asyncRequest = function (url, callback, extraHeaders, options) {
 };
 
 Tomahawk.sha256 = Tomahawk.sha256 || CryptoJS.SHA256;
+Tomahawk.md5 = Tomahawk.md5 || CryptoJS.MD5;
+// Return a HMAC (md5) signature of the input text with the desired key
+Tomahawk.hmac = function (key, message) {
+    return CryptoJS.HmacMD5(message, key);
+};
 
 // some aliases
 Tomahawk.setTimeout = Tomahawk.setTimeout || window.setTimeout;
 Tomahawk.setInterval = Tomahawk.setInterval || window.setInterval;
+Tomahawk.base64Decode = window.atob;
+Tomahawk.base64Encode = window.btoa;
