@@ -75,12 +75,6 @@ public class RemoteControllerService extends NotificationListenerService
         return super.onBind(intent);
     }
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "onStartCommand");
-        return START_NOT_STICKY;
-    }
-
     /**
      * Enables the RemoteController thus allowing us to receive metadata updates.
      */
