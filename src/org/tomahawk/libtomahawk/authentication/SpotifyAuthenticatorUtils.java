@@ -151,11 +151,13 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
         }
     }
 
+    @Override
     public void onInit() {
         mInitialized = true;
         loginWithToken();
     }
 
+    @Override
     public void onLogin(String username) {
         if (TextUtils.isEmpty(username)) {
             Log.d(TAG, "TomahawkService: Spotify user was already logged in :)");
@@ -165,6 +167,7 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
         }
     }
 
+    @Override
     public void onLoginFailed(final String message) {
         Log.d(TAG, "TomahawkService: Spotify login failed :(, Error: " + message);
         new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -176,6 +179,7 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
         mIsAuthenticating = false;
     }
 
+    @Override
     public void onLogout() {
         Log.d(TAG, "TomahawkService: Spotify user logged out");
         AuthenticatorManager.getInstance()
@@ -186,6 +190,7 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
     /**
      * Store the given blob-string, so we can relogin in a later session
      */
+    @Override
     public void onAuthTokenProvided(String username, String refreshToken,
             int refreshTokenExpiresIn, String accessToken, int accessTokenExpiresIn) {
         if (username != null && !TextUtils.isEmpty(username) && refreshToken != null

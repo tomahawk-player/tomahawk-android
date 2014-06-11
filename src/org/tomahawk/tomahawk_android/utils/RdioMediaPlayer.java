@@ -17,32 +17,22 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
-import com.rdio.android.api.OAuth1WebViewActivity;
-import com.rdio.android.api.Rdio;
-import com.rdio.android.api.RdioListener;
-
+import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
+import org.tomahawk.libtomahawk.authentication.RdioAuthenticatorUtils;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 /**
  * This class wraps a standard {@link android.media.MediaPlayer} object.
  */
-public class RdioMediaPlayer
-        implements MediaPlayerInterface, MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, RdioListener {
+public class RdioMediaPlayer implements MediaPlayerInterface, MediaPlayer.OnPreparedListener,
+        MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
     private static String TAG = RdioMediaPlayer.class.getName();
 
@@ -60,36 +50,7 @@ public class RdioMediaPlayer
 
     private Query mPreparingQuery;
 
-    public static final String RDIO_APPKEY = "Z3FiN3oyejhoNmU3ZTc2emNicTl3ZHlw";
-
-    public static final String RDIO_APPKEYSECRET = "YlhyRndVZUY5cQ==";
-
-    private Rdio mRdio;
-
     private RdioMediaPlayer() {
-        Account account = new Account("Rdio-Account",
-                TomahawkApp.getContext().getString(R.string.accounttype_string));
-        AccountManager am = AccountManager.get(TomahawkApp.getContext());
-        String accessToken = null;
-        String accessTokenSecret = null;
-        if (am != null) {
-            accessToken = am.getUserData(account, OAuth1WebViewActivity.EXTRA_TOKEN);
-            accessTokenSecret = am.getUserData(account, OAuth1WebViewActivity.EXTRA_TOKEN_SECRET);
-        }
-        try {
-            mRdio = new Rdio(new String(Base64.decode(RDIO_APPKEY, Base64.DEFAULT), "UTF-8"),
-                    new String(Base64.decode(RDIO_APPKEYSECRET, Base64.DEFAULT), "UTF-8"),
-                    accessToken, accessTokenSecret, TomahawkApp.getContext(), this);
-        } catch (UnsupportedEncodingException e) {
-            Log.e(TAG, "<init>: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
-        if (accessToken == null || accessTokenSecret == null) {
-            // If either one is null, reset both of them
-            storeTokenAndSecret(null, null);
-        } else {
-            Log.d(TAG, "Found cached credentials:");
-            mRdio.prepareForPlayback();
-        }
     }
 
     public static RdioMediaPlayer getInstance() {
@@ -166,11 +127,13 @@ public class RdioMediaPlayer
         mPreparedQuery = null;
         mPreparingQuery = query;
         release();
-        if (mRdio == null) {
+        RdioAuthenticatorUtils authUtils = (RdioAuthenticatorUtils) AuthenticatorManager
+                .getInstance().getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_RDIO);
+        if (authUtils.getRdio() == null) {
             return null;
         }
         try {
-            mMediaPlayer = mRdio.getPlayerForTrack(
+            mMediaPlayer = authUtils.getRdio().getPlayerForTrack(
                     query.getPreferredTrackResult().getPath().replace("rdio://track/", ""), null,
                     true);
         } catch (IllegalStateException e) {
@@ -250,44 +213,5 @@ public class RdioMediaPlayer
     public void onCompletion(MediaPlayer mp) {
         Log.d(TAG, "onCompletion()");
         mOnCompletionListener.onCompletion(mp);
-    }
-
-    public Rdio getRdio() {
-        return mRdio;
-    }
-
-    @Override
-    public void onRdioReadyForPlayback() {
-        Log.d(TAG, "Rdio SDK is ready for playback");
-    }
-
-    @Override
-    public void onRdioUserPlayingElsewhere() {
-        Log.d(TAG, "Tell the user that playback is stopping.");
-    }
-
-    /*
-     * Dispatched by the Rdio object once the setTokenAndSecret call has finished, and the credentials are
-     * ready to be used to make API calls.  The token & token secret are passed in so that you can
-     * save/cache them for future re-use.
-     * @see com.rdio.android.api.RdioListener#onRdioAuthorised(java.lang.String, java.lang.String)
-     */
-    @Override
-    public void onRdioAuthorised(String accessToken, String accessTokenSecret) {
-        Log.d(TAG, "Rdio Application authorised, saving access token & secret.");
-
-        storeTokenAndSecret(accessToken, accessTokenSecret);
-    }
-
-    private void storeTokenAndSecret(String accessToken, String accessTokenSecret) {
-        Account account = new Account("Rdio-Account",
-                TomahawkApp.getContext().getString(R.string.accounttype_string));
-        AccountManager am = AccountManager.get(TomahawkApp.getContext());
-        if (am != null) {
-            am.addAccountExplicitly(account, null, new Bundle());
-            am.setUserData(account, OAuth1WebViewActivity.EXTRA_TOKEN, accessToken);
-            am.setUserData(account, OAuth1WebViewActivity.EXTRA_TOKEN_SECRET,
-                    accessTokenSecret);
-        }
     }
 }

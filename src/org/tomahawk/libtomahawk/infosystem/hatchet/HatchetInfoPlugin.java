@@ -24,6 +24,7 @@ import com.google.common.collect.Multimap;
 import org.apache.http.client.ClientProtocolException;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
@@ -878,8 +879,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
         TomahawkUtils.getUserDataForAccount(mContext, data,
                 AuthenticatorUtils.AUTHENTICATOR_NAME_HATCHET);
         mUserId = data.get(HATCHET_ACCOUNTDATA_USER_ID);
-        String userName = AuthenticatorUtils.getUserName(mContext,
-                AuthenticatorUtils.AUTHENTICATOR_NAME_HATCHET);
+        String userName = AuthenticatorManager.getInstance()
+                .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET).getUserName();
         if (mUserId == null && userName != null) {
             // If we couldn't fetch the user's id from the account's userData, get it from the API.
             Multimap<String, String> params = HashMultimap.create(1, 1);

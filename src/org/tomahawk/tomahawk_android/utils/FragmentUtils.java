@@ -17,6 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
+import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
@@ -69,8 +70,9 @@ public class FragmentUtils {
         String mUserId = data.get(HatchetInfoPlugin.HATCHET_ACCOUNTDATA_USER_ID);
         FragmentTransaction ft = fragmentManager.beginTransaction();
         if (mUserId != null) {
-            String userName = AuthenticatorUtils.getUserName(context,
-                    AuthenticatorUtils.AUTHENTICATOR_NAME_HATCHET);
+            String userName = AuthenticatorManager.getInstance()
+                    .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET)
+                    .getUserName();
             User loggedInUser = User.get(mUserId);
             loggedInUser.setName(userName);
             Bundle bundle = new Bundle();

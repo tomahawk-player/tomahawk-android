@@ -78,14 +78,11 @@ public class LoginDialog extends DialogFragment {
                         mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
                     } else {
                         stopLoadingAnimation();
-                        boolean isLoggedIn = AuthenticatorUtils
-                                .isLoggedIn(getActivity().getApplicationContext(),
-                                        mAuthenticatorUtils.getAuthenticatorUtilsName(),
-                                        mAuthenticatorUtils.getAuthenticatorUtilsTokenType());
+                        boolean isLoggedIn = mAuthenticatorUtils.isLoggedIn();
                         if (isLoggedIn) {
                             dismiss();
                         } else {
-                            updateButtonTexts(isLoggedIn);
+                            updateButtonTexts(false);
                         }
                     }
                     break;
@@ -114,9 +111,7 @@ public class LoginDialog extends DialogFragment {
     private View.OnClickListener mPositiveButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (AuthenticatorUtils.isLoggedIn(getActivity().getApplicationContext(),
-                    mAuthenticatorUtils.getAuthenticatorUtilsName(),
-                    mAuthenticatorUtils.getAuthenticatorUtilsTokenType())) {
+            if (mAuthenticatorUtils.isLoggedIn()) {
                 hideSoftKeyboard();
                 getDialog().dismiss();
             } else {
@@ -128,9 +123,7 @@ public class LoginDialog extends DialogFragment {
     private View.OnClickListener mNegativeButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (AuthenticatorUtils.isLoggedIn(getActivity().getApplicationContext(),
-                    mAuthenticatorUtils.getAuthenticatorUtilsName(),
-                    mAuthenticatorUtils.getAuthenticatorUtilsTokenType())) {
+            if (mAuthenticatorUtils.isLoggedIn()) {
                 startLoadingAnimation();
                 mAuthenticatorUtils.logout();
             } else {
@@ -162,15 +155,11 @@ public class LoginDialog extends DialogFragment {
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.login_dialog, null);
-        boolean isLoggedIn = AuthenticatorUtils.isLoggedIn(getActivity().getApplicationContext(),
-                mAuthenticatorUtils.getAuthenticatorUtilsName(),
-                mAuthenticatorUtils.getAuthenticatorUtilsTokenType());
+        boolean isLoggedIn = mAuthenticatorUtils.isLoggedIn();
         mUsernameEditText = (EditText) view.findViewById(R.id.login_dialog_username_edittext);
         mUsernameEditText.setHint(mAuthenticatorUtils.getUserIdEditTextHintResId());
         mUsernameEditText.setOnEditorActionListener(mOnLoginActionListener);
-        mUsernameEditText.setText(isLoggedIn
-                ? AuthenticatorUtils.getUserName(getActivity().getApplicationContext(),
-                mAuthenticatorUtils.getAuthenticatorUtilsName()) : "");
+        mUsernameEditText.setText(isLoggedIn ? mAuthenticatorUtils.getUserName() : "");
         mPasswordEditText = (EditText) view.findViewById(R.id.login_dialog_password_edittext);
         mPasswordEditText.setTypeface(Typeface.DEFAULT);
         mPasswordEditText.setTransformationMethod(new PasswordTransformationMethod());
@@ -280,9 +269,7 @@ public class LoginDialog extends DialogFragment {
      */
     public void stopLoadingAnimation() {
         mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
-        boolean isLoggedIn = AuthenticatorUtils.isLoggedIn(getActivity().getApplicationContext(),
-                mAuthenticatorUtils.getAuthenticatorUtilsName(),
-                mAuthenticatorUtils.getAuthenticatorUtilsTokenType());
+        boolean isLoggedIn = mAuthenticatorUtils.isLoggedIn();
         TomahawkUtils.loadDrawableIntoImageView(getActivity(), mStatusImageView,
                 mAuthenticatorUtils.getIconResourceId(), !isLoggedIn);
     }

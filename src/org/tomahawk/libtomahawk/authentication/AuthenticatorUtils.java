@@ -24,8 +24,6 @@ import android.content.Context;
 
 public abstract class AuthenticatorUtils {
 
-    public static final String AUTHENTICATOR_ID = "org.tomahawk.tomahawk_android.authenticator_id";
-
     public static final String AUTHENTICATOR_NAME
             = "org.tomahawk.tomahawk_android.authenticator_name";
 
@@ -68,31 +66,35 @@ public abstract class AuthenticatorUtils {
 
     public abstract int getUserIdEditTextHintResId();
 
+    public abstract void onInit();
+
+    public abstract void onLogin(String username);
+
+    public abstract void onLoginFailed(final String message);
+
+    public abstract void onLogout();
+
+    public abstract void onAuthTokenProvided(String username, String refreshToken,
+            int refreshTokenExpiresIn, String accessToken, int accessTokenExpiresIn);
+
     public abstract void login(String email, String password);
 
     public abstract void logout();
 
-    public static String getUserName(Context context, String authenticatorName) {
-        Account account = TomahawkUtils.getAccountByName(context, authenticatorName);
-        if (account != null) {
-            return account.name;
-        }
-        return null;
-    }
-
-    public static boolean isLoggedIn(Context context, String authenticatorName,
-            String authTokenType) {
-        return TomahawkUtils.peekAuthTokenForAccount(context, authenticatorName, authTokenType)
-                != null;
-    }
-
-    public static boolean isLoggedIn(Context context, AuthenticatorUtils authenticatorUtils) {
-        return TomahawkUtils
-                .peekAuthTokenForAccount(context, authenticatorUtils.getAuthenticatorUtilsName(),
-                        authenticatorUtils.getAuthenticatorUtilsTokenType()) != null;
+    public boolean isLoggedIn() {
+        return TomahawkUtils.peekAuthTokenForAccount(mContext, getAuthenticatorUtilsName(),
+                getAuthenticatorUtilsTokenType()) != null;
     }
 
     public boolean isAuthenticating() {
         return mIsAuthenticating;
+    }
+
+    public String getUserName() {
+        Account account = TomahawkUtils.getAccountByName(mContext, getAuthenticatorUtilsName());
+        if (account != null) {
+            return account.name;
+        }
+        return null;
     }
 }

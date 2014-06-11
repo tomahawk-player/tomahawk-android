@@ -204,8 +204,7 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                 AuthenticatorUtils authenticatorUtils =
                         AuthenticatorManager.getInstance().getAuthenticatorUtils(item.getKey());
                 TomahawkUtils.loadDrawableIntoImageView(mContext, viewHolder.getImageView2(),
-                        item.getDrawableResId(),
-                        !AuthenticatorUtils.isLoggedIn(mContext, authenticatorUtils));
+                        item.getDrawableResId(), !authenticatorUtils.isLoggedIn());
             } else if (viewHolder.getViewType() == R.id.fakepreferencesadapter_viewtype_config) {
                 viewHolder.getImageView2().setVisibility(View.VISIBLE);
                 Resolver resolver = PipeLine.getInstance().getResolver(item.getKey());

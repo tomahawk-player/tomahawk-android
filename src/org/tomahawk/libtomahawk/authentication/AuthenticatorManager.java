@@ -19,6 +19,7 @@ package org.tomahawk.libtomahawk.authentication;
 
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class AuthenticatorManager {
@@ -27,6 +28,8 @@ public class AuthenticatorManager {
 
     public static final String AUTHENTICATOR_ID_HATCHET = "hatchet_auth";
 
+    public static final String AUTHENTICATOR_ID_RDIO = "rdio_auth";
+
     private static AuthenticatorManager instance;
 
     private boolean mInitialized;
@@ -34,7 +37,8 @@ public class AuthenticatorManager {
     private HashMap<String, AuthenticatorUtils> mAuthenticatorUtils
             = new HashMap<String, AuthenticatorUtils>();
 
-    private OnAuthenticatedListener mOnAuthenticatedListener;
+    private ArrayList<OnAuthenticatedListener> mOnAuthenticatedListeners
+            = new ArrayList<OnAuthenticatedListener>();
 
     public interface OnAuthenticatedListener {
 
@@ -63,6 +67,8 @@ public class AuthenticatorManager {
                     new SpotifyAuthenticatorUtils(TomahawkApp.getContext()));
             mAuthenticatorUtils.put(AUTHENTICATOR_ID_HATCHET,
                     new HatchetAuthenticatorUtils(TomahawkApp.getContext()));
+            mAuthenticatorUtils.put(AUTHENTICATOR_ID_RDIO,
+                    new RdioAuthenticatorUtils(TomahawkApp.getContext()));
         }
     }
 
@@ -70,8 +76,10 @@ public class AuthenticatorManager {
      * Authenticators should callback here, if they logged in or out
      */
     public void onLoggedInOut(String authenticatorId, boolean loggedIn) {
-        if (mOnAuthenticatedListener != null) {
-            mOnAuthenticatedListener.onLoggedInOut(authenticatorId, loggedIn);
+        for (OnAuthenticatedListener listener : mOnAuthenticatedListeners) {
+            if (listener != null) {
+                listener.onLoggedInOut(authenticatorId, loggedIn);
+            }
         }
     }
 
@@ -88,11 +96,7 @@ public class AuthenticatorManager {
         return false;
     }
 
-    public OnAuthenticatedListener getOnAuthenticatedListener() {
-        return mOnAuthenticatedListener;
-    }
-
-    public void setOnAuthenticatedListener(OnAuthenticatedListener onAuthenticatedListener) {
-        mOnAuthenticatedListener = onAuthenticatedListener;
+    public void addOnAuthenticatedListener(OnAuthenticatedListener onAuthenticatedListener) {
+        mOnAuthenticatedListeners.add(onAuthenticatedListener);
     }
 }
