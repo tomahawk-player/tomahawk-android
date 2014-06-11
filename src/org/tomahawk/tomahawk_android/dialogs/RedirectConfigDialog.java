@@ -17,11 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.dialogs;
 
-import com.rdio.android.api.OAuth1WebViewActivity;
-
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
-import org.tomahawk.libtomahawk.authentication.RdioAuthenticatorUtils;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
@@ -29,14 +26,14 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
@@ -44,8 +41,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import java.io.UnsupportedEncodingException;
 
 /**
  * A {@link android.support.v4.app.DialogFragment} which redirects the user to an external login
@@ -59,6 +54,26 @@ public class RedirectConfigDialog extends DialogFragment {
 
     private TextView mButtonText;
 
+    private RedirectConfigDialogReceiver mRedirectConfigDialogReceiver;
+
+    private class RedirectConfigDialogReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (AuthenticatorManager.AUTHENTICATOR_LOGGED_IN.equals(intent.getAction())) {
+                final boolean loggedIn = intent
+                        .getBooleanExtra(AuthenticatorManager.AUTHENTICATOR_LOGGED_IN_STATE, false);
+                String correspondingResolverId = intent
+                        .getStringExtra(AuthenticatorManager.AUTHENTICATOR_LOGGED_IN_RESOLVERID);
+                if (mResolverId.equals(correspondingResolverId)) {
+                    mButtonText.setText(loggedIn
+                            ? getString(R.string.resolver_config_redirect_button_text_log_out_of)
+                            : getString(R.string.resolver_config_redirect_button_text_log_into));
+                }
+            }
+        }
+    }
+
     private View.OnClickListener mPositiveButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -66,12 +81,42 @@ public class RedirectConfigDialog extends DialogFragment {
         }
     };
 
-    private View.OnClickListener mNegativeButtonListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            getDialog().cancel();
+    /**
+     * Initialize
+     */
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (mResolverId != null) {
+            ScriptResolver scriptResolver = (ScriptResolver) PipeLine.getInstance()
+                    .getResolver(mResolverId);
+            String authUtilsId = scriptResolver.getCorrespondingAuthUtilId();
+            boolean loggedIn = AuthenticatorManager.getInstance()
+                    .getAuthenticatorUtils(authUtilsId).isLoggedIn();
+            mButtonText.setText(loggedIn
+                    ? getString(R.string.resolver_config_redirect_button_text_log_out_of)
+                    : getString(R.string.resolver_config_redirect_button_text_log_into));
         }
-    };
+
+        if (mRedirectConfigDialogReceiver == null) {
+            mRedirectConfigDialogReceiver = new RedirectConfigDialogReceiver();
+        }
+
+        // Register intents that the BroadcastReceiver should listen to
+        getActivity().registerReceiver(mRedirectConfigDialogReceiver,
+                new IntentFilter(AuthenticatorManager.AUTHENTICATOR_LOGGED_IN));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (mRedirectConfigDialogReceiver != null) {
+            getActivity().unregisterReceiver(mRedirectConfigDialogReceiver);
+            mRedirectConfigDialogReceiver = null;
+        }
+    }
 
     /**
      * Called when this {@link android.support.v4.app.DialogFragment} is being created
@@ -79,8 +124,47 @@ public class RedirectConfigDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         if (getArguments() != null && getArguments()
-                .containsKey(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY)) {
-            mResolverId = getArguments().getString(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY);
+                .containsKey(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY)) {
+            mResolverId = getArguments().getString(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY);
+        }
+        int buttonBackgroundResId;
+        int buttonImageResId;
+        int buttonTextColor;
+        View.OnClickListener onClickListener;
+        if (mResolverId.equals(PipeLine.PLUGINNAME_RDIO)) {
+            buttonBackgroundResId = R.drawable.selectable_background_tomahawk_opaque;
+            buttonImageResId = R.drawable.logo_rdio;
+            buttonTextColor = getResources().getColor(R.color.primary_textcolor);
+            onClickListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AuthenticatorUtils authenticatorUtils = AuthenticatorManager.getInstance()
+                            .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_RDIO);
+                    boolean rdioLoggedIn = authenticatorUtils.isLoggedIn();
+                    if (rdioLoggedIn) {
+                        authenticatorUtils.logout();
+                    } else {
+                        authenticatorUtils.login(getActivity(), null, null);
+                    }
+                }
+            };
+        } else {
+            buttonBackgroundResId = R.drawable.selectable_background_tomahawk_opaque_inverted;
+            buttonImageResId = R.drawable.logo_deezer;
+            buttonTextColor = getResources().getColor(R.color.primary_textcolor_inverted);
+            onClickListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AuthenticatorUtils authenticatorUtils = AuthenticatorManager.getInstance()
+                            .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_DEEZER);
+                    boolean deezerLoggedIn = authenticatorUtils.isLoggedIn();
+                    if (deezerLoggedIn) {
+                        authenticatorUtils.logout(getActivity());
+                    } else {
+                        authenticatorUtils.login(getActivity(), null, null);
+                    }
+                }
+            };
         }
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -92,45 +176,21 @@ public class RedirectConfigDialog extends DialogFragment {
         ScriptResolver scriptResolver = (ScriptResolver) PipeLine.getInstance()
                 .getResolver(mResolverId);
         if (scriptResolver != null) {
-            boolean rdioLoggedIn = AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_RDIO).isLoggedIn();
+            String authUtilsId = scriptResolver.getCorrespondingAuthUtilId();
+            boolean loggedIn = AuthenticatorManager.getInstance()
+                    .getAuthenticatorUtils(authUtilsId).isLoggedIn();
             LinearLayout button = ((LinearLayout) buttonLayout
                     .findViewById(R.id.resolver_config_redirect_button));
+            button.setBackgroundResource(buttonBackgroundResId);
+            ImageView buttonImage = (ImageView) buttonLayout
+                    .findViewById(R.id.resolver_config_redirect_button_image);
+            buttonImage.setImageResource(buttonImageResId);
             mButtonText = (TextView) button.findViewById(R.id.resolver_config_redirect_button_text);
-            mButtonText.setText(rdioLoggedIn
+            mButtonText.setTextColor(buttonTextColor);
+            mButtonText.setText(loggedIn
                     ? getString(R.string.resolver_config_redirect_button_text_log_out_of)
                     : getString(R.string.resolver_config_redirect_button_text_log_into));
-            button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AuthenticatorUtils authenticatorUtils = AuthenticatorManager.getInstance()
-                            .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_RDIO);
-                    boolean rdioLoggedIn = authenticatorUtils.isLoggedIn();
-                    if (rdioLoggedIn) {
-                        authenticatorUtils.logout();
-                        mButtonText.setText(
-                                getString(R.string.resolver_config_redirect_button_text_log_into));
-                    } else {
-                        try {
-                            Intent myIntent = new Intent(TomahawkApp.getContext(),
-                                    OAuth1WebViewActivity.class);
-                            myIntent.putExtra(OAuth1WebViewActivity.EXTRA_CONSUMER_KEY,
-                                    new String(Base64.decode(RdioAuthenticatorUtils.RDIO_APPKEY,
-                                            Base64.DEFAULT), "UTF-8")
-                            );
-                            myIntent.putExtra(OAuth1WebViewActivity.EXTRA_CONSUMER_SECRET,
-                                    new String(
-                                            Base64.decode(RdioAuthenticatorUtils.RDIO_APPKEYSECRET,
-                                                    Base64.DEFAULT), "UTF-8")
-                            );
-                            startActivityForResult(myIntent, 1);
-                        } catch (UnsupportedEncodingException e) {
-                            Log.e(TAG, "onCreateDialog: " + e.getClass() + ": "
-                                    + e.getLocalizedMessage());
-                        }
-                    }
-                }
-            });
+            button.setOnClickListener(onClickListener);
             TextView textView = (TextView) view
                     .findViewById(R.id.resolver_config_dialog_title_textview);
             textView.setText(scriptResolver.getName());
@@ -144,7 +204,7 @@ public class RedirectConfigDialog extends DialogFragment {
         positiveButton.setOnClickListener(mPositiveButtonListener);
         TextView negativeButton = (TextView) view
                 .findViewById(R.id.resolver_config_dialog_cancel_button);
-        negativeButton.setOnClickListener(mNegativeButtonListener);
+        negativeButton.setVisibility(View.GONE);
         ImageView statusImageView = (ImageView) view
                 .findViewById(R.id.resolver_config_dialog_status_imageview);
         TomahawkUtils.loadResolverIconIntoImageView(TomahawkApp.getContext(), statusImageView,
@@ -152,36 +212,5 @@ public class RedirectConfigDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(view);
         return builder.create();
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1) {
-            RdioAuthenticatorUtils authUtils = (RdioAuthenticatorUtils) AuthenticatorManager
-                    .getInstance()
-                    .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_RDIO);
-            if (resultCode == Activity.RESULT_OK) {
-                Log.d(TAG, "Rdio access token is served and yummy");
-                if (data != null) {
-                    String accessToken = data.getStringExtra(OAuth1WebViewActivity.EXTRA_TOKEN);
-                    String accessTokenSecret =
-                            data.getStringExtra(OAuth1WebViewActivity.EXTRA_TOKEN_SECRET);
-                    authUtils.onRdioAuthorised(accessToken, accessTokenSecret);
-                    mButtonText.setText(
-                            getString(R.string.resolver_config_redirect_button_text_log_out_of));
-                    ((ScriptResolver) PipeLine.getInstance().getResolver(mResolverId))
-                            .setEnabled(true);
-                }
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                if (data != null) {
-                    String errorCode = data.getStringExtra(OAuth1WebViewActivity.EXTRA_ERROR_CODE);
-                    String errorDescription = data
-                            .getStringExtra(OAuth1WebViewActivity.EXTRA_ERROR_DESCRIPTION);
-                    authUtils.onLoginFailed(errorDescription);
-                    Log.e(TAG, "ERROR: " + errorCode + " - " + errorDescription);
-                }
-            }
-        }
     }
 }

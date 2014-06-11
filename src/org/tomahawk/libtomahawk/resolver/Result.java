@@ -21,6 +21,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.tomahawk_android.utils.DeezerMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
 import org.tomahawk.tomahawk_android.utils.RdioMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.SpotifyMediaPlayer;
@@ -93,6 +94,8 @@ public class Result {
             mMediaPlayerInterface = SpotifyMediaPlayer.getInstance();
         } else if (PipeLine.PLUGINNAME_RDIO.equals(mResolvedBy.getId())) {
             mMediaPlayerInterface = RdioMediaPlayer.getInstance();
+        } else if (PipeLine.PLUGINNAME_DEEZER.equals(mResolvedBy.getId())) {
+            mMediaPlayerInterface = DeezerMediaPlayer.getInstance();
         } else {
             mMediaPlayerInterface = VLCMediaPlayer.getInstance();
             if (PipeLine.PLUGINNAME_USERCOLLECTION.equals(mResolvedBy.getId())) {

@@ -26,6 +26,7 @@ import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.LibVlcException;
 
+import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -193,7 +194,7 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
      * Prepare the given url
      */
     @Override
-    public MediaPlayerInterface prepare(Context context, Query query,
+    public MediaPlayerInterface prepare(Application application, Query query,
             MediaPlayer.OnPreparedListener onPreparedListener,
             MediaPlayer.OnCompletionListener onCompletionListener,
             MediaPlayer.OnErrorListener onErrorListener) {

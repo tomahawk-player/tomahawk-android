@@ -125,7 +125,7 @@ public class LoginDialog extends DialogFragment {
         public void onClick(View v) {
             if (mAuthenticatorUtils.isLoggedIn()) {
                 startLoadingAnimation();
-                mAuthenticatorUtils.logout();
+                mAuthenticatorUtils.logout(getActivity());
             } else {
                 hideSoftKeyboard();
                 getDialog().cancel();
@@ -139,9 +139,9 @@ public class LoginDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         if (getArguments() != null && getArguments()
-                .containsKey(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY)) {
+                .containsKey(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY)) {
             String authenticatorId = getArguments().getString(
-                    TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY);
+                    TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY);
             mAuthenticatorUtils = AuthenticatorManager.getInstance().getAuthenticatorUtils(
                     authenticatorId);
             if (mAuthenticatorUtils.isAuthenticating()) {
@@ -228,7 +228,7 @@ public class LoginDialog extends DialogFragment {
         } else {
             hideSoftKeyboard();
             // Tell the service to login
-            mAuthenticatorUtils.login(mEmail, mPassword);
+            mAuthenticatorUtils.login(getActivity(), mEmail, mPassword);
             startLoadingAnimation();
         }
     }

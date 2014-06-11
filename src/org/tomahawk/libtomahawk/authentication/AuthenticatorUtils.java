@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.authentication;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 
 import android.accounts.Account;
+import android.app.Activity;
 import android.content.Context;
 
 public abstract class AuthenticatorUtils {
@@ -27,13 +28,9 @@ public abstract class AuthenticatorUtils {
     public static final String AUTHENTICATOR_NAME
             = "org.tomahawk.tomahawk_android.authenticator_name";
 
-    public static final String AUTHENTICATOR_NAME_SPOTIFY
-            = "org.tomahawk.tomahawk_android.authenticator_name_spotify";
 
     public static final String AUTHENTICATOR_NAME_HATCHET
             = "org.tomahawk.tomahawk_android.authenticator_name_hatchet";
-
-    public static final String AUTH_TOKEN_TYPE_SPOTIFY = "org.tomahawk.spotify.authtoken";
 
     public static final String AUTH_TOKEN_TYPE_HATCHET = "org.tomahawk.hatchet.authtoken";
 
@@ -51,6 +48,26 @@ public abstract class AuthenticatorUtils {
 
     public static final String CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET
             = "org.tomahawk.hatchet.calumetaccesstokenexpiresin";
+
+
+    public static final String AUTHENTICATOR_NAME_SPOTIFY
+            = "org.tomahawk.tomahawk_android.authenticator_name_spotify";
+
+    public static final String AUTH_TOKEN_TYPE_SPOTIFY = "org.tomahawk.spotify.authtoken";
+
+
+    public static final String AUTHENTICATOR_NAME_RDIO
+            = "org.tomahawk.tomahawk_android.authenticator_name_rdio";
+
+
+    public static final String AUTHENTICATOR_NAME_DEEZER
+            = "org.tomahawk.tomahawk_android.authenticator_name_deezer";
+
+    public static final String ACCESS_TOKEN_DEEZER
+            = "org.tomahawk.deezer.accesstoken";
+
+    public static final String ACCESS_TOKEN_EXPIRES_IN_DEEZER
+            = "org.tomahawk.deezer.accesstokenexpiresin";
 
     protected Context mContext;
 
@@ -77,9 +94,17 @@ public abstract class AuthenticatorUtils {
     public abstract void onAuthTokenProvided(String username, String refreshToken,
             int refreshTokenExpiresIn, String accessToken, int accessTokenExpiresIn);
 
-    public abstract void login(String email, String password);
+    public abstract void login(Activity activity, String email, String password);
 
-    public abstract void logout();
+    public abstract void logout(Activity activity);
+
+    public void login(String email, String password) {
+        login(null, email, password);
+    }
+
+    public void logout() {
+        logout(null);
+    }
 
     public boolean isLoggedIn() {
         return TomahawkUtils.peekAuthTokenForAccount(mContext, getAuthenticatorUtilsName(),

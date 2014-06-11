@@ -28,6 +28,7 @@ import org.tomahawk.tomahawk_android.services.SpotifyService;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -176,6 +177,8 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
                 Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
             }
         });
+        AuthenticatorManager.getInstance()
+                .onLoggedInOut(AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY, false);
         mIsAuthenticating = false;
     }
 
@@ -273,7 +276,7 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
      * Try to login to spotify with given credentials
      */
     @Override
-    public void login(String email, String password) {
+    public void login(Activity activity, String email, String password) {
         SpotifyLogin spotifyLogin = new SpotifyLogin();
         spotifyLogin.username = email;
         spotifyLogin.password = password;
@@ -339,7 +342,7 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
      * Logout spotify
      */
     @Override
-    public void logout() {
+    public void logout(Activity activity) {
         if (mToSpotifyMessenger != null) {
             if (mInitialized) {
                 mIsAuthenticating = true;

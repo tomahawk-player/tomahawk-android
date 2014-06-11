@@ -21,7 +21,7 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.RdioAuthenticatorUtils;
 import org.tomahawk.libtomahawk.resolver.Query;
 
-import android.content.Context;
+import android.app.Application;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.util.Log;
@@ -116,7 +116,7 @@ public class RdioMediaPlayer implements MediaPlayerInterface, MediaPlayer.OnPrep
      * Prepare the given url
      */
     @Override
-    public MediaPlayerInterface prepare(Context context, Query query,
+    public MediaPlayerInterface prepare(Application application, Query query,
             MediaPlayer.OnPreparedListener onPreparedListener,
             MediaPlayer.OnCompletionListener onCompletionListener,
             MediaPlayer.OnErrorListener onErrorListener) {

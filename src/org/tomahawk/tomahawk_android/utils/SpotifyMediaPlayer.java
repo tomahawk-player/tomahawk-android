@@ -22,7 +22,7 @@ import org.tomahawk.libtomahawk.resolver.spotify.SpotifyServiceUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.SpotifyService;
 
-import android.content.Context;
+import android.app.Application;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Handler;
@@ -176,7 +176,7 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
      * Prepare the given url
      */
     @Override
-    public MediaPlayerInterface prepare(Context context, Query query,
+    public MediaPlayerInterface prepare(Application application, Query query,
             MediaPlayer.OnPreparedListener onPreparedListener,
             MediaPlayer.OnCompletionListener onCompletionListener,
             MediaPlayer.OnErrorListener onErrorListener) {

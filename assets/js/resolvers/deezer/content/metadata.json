@@ -1,0 +1,18 @@
+{
+	"name": "Deezer",
+	"pluginName": "deezer",
+	"author": "Uwe and Enno",
+	"email": "uwelk@xhochy.com",
+	"version": "0.1.2",
+	"website": "http://gettomahawk.com",
+	"description": "Stream music with Deezer",
+	"type": "resolver/javascript",
+	"manifest": {
+		"main": "contents/code/deezer.js",
+		"scripts": [],
+		"icon": "contents/images/icon.png",
+		"resources": [
+			"contents/code/deezer.png"
+		]
+	}
+}

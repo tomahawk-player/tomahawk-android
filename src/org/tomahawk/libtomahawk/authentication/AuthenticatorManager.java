@@ -19,7 +19,8 @@ package org.tomahawk.libtomahawk.authentication;
 
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
-import java.util.ArrayList;
+import android.content.Intent;
+
 import java.util.HashMap;
 
 public class AuthenticatorManager {
@@ -30,21 +31,26 @@ public class AuthenticatorManager {
 
     public static final String AUTHENTICATOR_ID_RDIO = "rdio_auth";
 
+    public static final String AUTHENTICATOR_ID_DEEZER = "deezer_auth";
+
+    public static final String AUTHENTICATOR_LOGGED_IN
+            = "org.tomahawk.tomahawk_android.authenticator_logged_in";
+
+    public static final String AUTHENTICATOR_LOGGED_IN_ID
+            = "org.tomahawk.tomahawk_android.authenticator_logged_in_id";
+
+    public static final String AUTHENTICATOR_LOGGED_IN_STATE
+            = "org.tomahawk.tomahawk_android.authenticator_logged_in_state";
+
+    public static final String AUTHENTICATOR_LOGGED_IN_RESOLVERID
+            = "org.tomahawk.tomahawk_android.authenticator_logged_in_resolverid";
+
     private static AuthenticatorManager instance;
 
     private boolean mInitialized;
 
     private HashMap<String, AuthenticatorUtils> mAuthenticatorUtils
             = new HashMap<String, AuthenticatorUtils>();
-
-    private ArrayList<OnAuthenticatedListener> mOnAuthenticatedListeners
-            = new ArrayList<OnAuthenticatedListener>();
-
-    public interface OnAuthenticatedListener {
-
-        void onLoggedInOut(String authenticatorId, boolean loggedIn);
-
-    }
 
     private AuthenticatorManager() {
     }
@@ -69,6 +75,8 @@ public class AuthenticatorManager {
                     new HatchetAuthenticatorUtils(TomahawkApp.getContext()));
             mAuthenticatorUtils.put(AUTHENTICATOR_ID_RDIO,
                     new RdioAuthenticatorUtils(TomahawkApp.getContext()));
+            mAuthenticatorUtils.put(AUTHENTICATOR_ID_DEEZER,
+                    new DeezerAuthenticatorUtils(TomahawkApp.getContext()));
         }
     }
 
@@ -76,11 +84,21 @@ public class AuthenticatorManager {
      * Authenticators should callback here, if they logged in or out
      */
     public void onLoggedInOut(String authenticatorId, boolean loggedIn) {
-        for (OnAuthenticatedListener listener : mOnAuthenticatedListeners) {
-            if (listener != null) {
-                listener.onLoggedInOut(authenticatorId, loggedIn);
-            }
+        onLoggedInOut(authenticatorId, loggedIn, null);
+    }
+
+    /**
+     * Authenticators should callback here, if they logged in or out
+     */
+    public void onLoggedInOut(String authenticatorId, boolean loggedIn,
+            String correspondingResolverId) {
+        Intent i = new Intent(AUTHENTICATOR_LOGGED_IN)
+                .putExtra(AUTHENTICATOR_LOGGED_IN_STATE, loggedIn)
+                .putExtra(AUTHENTICATOR_LOGGED_IN_ID, authenticatorId);
+        if (correspondingResolverId != null) {
+            i.putExtra(AUTHENTICATOR_LOGGED_IN_RESOLVERID, correspondingResolverId);
         }
+        TomahawkApp.getContext().sendBroadcast(i);
     }
 
     public AuthenticatorUtils getAuthenticatorUtils(String authenticatorId) {
@@ -94,9 +112,5 @@ public class AuthenticatorManager {
             }
         }
         return false;
-    }
-
-    public void addOnAuthenticatedListener(OnAuthenticatedListener onAuthenticatedListener) {
-        mOnAuthenticatedListeners.add(onAuthenticatedListener);
     }
 }

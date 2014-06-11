@@ -40,6 +40,7 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.utils.AudioFocusHelper;
+import org.tomahawk.tomahawk_android.utils.DeezerMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.MediaButtonHelper;
 import org.tomahawk.tomahawk_android.utils.MediaButtonReceiver;
 import org.tomahawk.tomahawk_android.utils.MusicFocusable;
@@ -878,7 +879,7 @@ public class PlaybackService extends Service
                     public void run() {
                         if (isPlaying() && getCurrentQuery().getMediaPlayerInterface() != null) {
                             if (getCurrentQuery().getMediaPlayerInterface().prepare(
-                                    PlaybackService.this, getCurrentQuery(), PlaybackService.this,
+                                    getApplication(), getCurrentQuery(), PlaybackService.this,
                                     PlaybackService.this, PlaybackService.this) == null) {
                                 boolean isNetworkAvailable = isNetworkAvailable();
                                 if (isNetworkAvailable
@@ -1359,5 +1360,6 @@ public class PlaybackService extends Service
         VLCMediaPlayer.getInstance().release();
         SpotifyMediaPlayer.getInstance().release();
         RdioMediaPlayer.getInstance().release();
+        DeezerMediaPlayer.getInstance().release();
     }
 }
