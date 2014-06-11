@@ -62,6 +62,7 @@ import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
@@ -95,7 +96,8 @@ import java.util.Map;
 public class TomahawkMainActivity extends ActionBarActivity
         implements PlaybackServiceConnectionListener,
         LoaderManager.LoaderCallbacks<UserCollection>,
-        FragmentManager.OnBackStackChangedListener {
+        FragmentManager.OnBackStackChangedListener,
+        AuthenticatorManager.OnAuthenticatedListener {
 
     private final static String TAG = TomahawkMainActivity.class.getName();
 
@@ -252,6 +254,8 @@ public class TomahawkMainActivity extends ActionBarActivity
         InfoSystem.getInstance().ensureInit();
         AuthenticatorManager.getInstance().ensureInit();
         UserCollection.getInstance().ensureInit();
+
+        AuthenticatorManager.getInstance().addOnAuthenticatedListener(this);
 
         //Setup our services
         Intent intent = new Intent(this, PlaybackService.class);
@@ -587,6 +591,26 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @Override
     public void onLoadFinished(Loader<UserCollection> loader, UserCollection coll) {
+    }
+
+    /**
+     * Called everytime an account has been logged in or out, so that we can update the
+     * corresponding checkbox state
+     *
+     * @param authenticatorId the id of the {@link org.tomahawk.libtomahawk.resolver.Resolver},
+     *                        which account has been logged in/out
+     * @param loggedIn        true, if logged in, otherwise false
+     */
+    @Override
+    public void onLoggedInOut(String authenticatorId, final boolean loggedIn) {
+        if (AuthenticatorManager.AUTHENTICATOR_ID_HATCHET.equals(authenticatorId)) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    onHatchetLoggedInOut(loggedIn);
+                }
+            });
+        }
     }
 
     /**

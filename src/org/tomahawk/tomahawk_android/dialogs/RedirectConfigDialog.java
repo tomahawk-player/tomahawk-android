@@ -19,16 +19,16 @@ package org.tomahawk.tomahawk_android.dialogs;
 
 import com.rdio.android.api.OAuth1WebViewActivity;
 
+import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
+import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
+import org.tomahawk.libtomahawk.authentication.RdioAuthenticatorUtils;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
-import org.tomahawk.tomahawk_android.utils.RdioMediaPlayer;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -92,14 +92,8 @@ public class RedirectConfigDialog extends DialogFragment {
         ScriptResolver scriptResolver = (ScriptResolver) PipeLine.getInstance()
                 .getResolver(mResolverId);
         if (scriptResolver != null) {
-            Account account = new Account("Rdio-Account",
-                    TomahawkApp.getContext().getString(R.string.accounttype_string));
-            AccountManager am = AccountManager.get(TomahawkApp.getContext());
-            boolean rdioLoggedIn = false;
-            if (am != null && am.getUserData(account, OAuth1WebViewActivity.EXTRA_TOKEN) != null
-                    && am.getUserData(account, OAuth1WebViewActivity.EXTRA_TOKEN_SECRET) != null) {
-                rdioLoggedIn = true;
-            }
+            boolean rdioLoggedIn = AuthenticatorManager.getInstance()
+                    .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_RDIO).isLoggedIn();
             LinearLayout button = ((LinearLayout) buttonLayout
                     .findViewById(R.id.resolver_config_redirect_button));
             mButtonText = (TextView) button.findViewById(R.id.resolver_config_redirect_button_text);
@@ -109,40 +103,30 @@ public class RedirectConfigDialog extends DialogFragment {
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Account account = new Account("Rdio-Account",
-                            TomahawkApp.getContext().getString(R.string.accounttype_string));
-                    AccountManager am = AccountManager.get(TomahawkApp.getContext());
-                    boolean rdioLoggedIn = false;
-                    if (am != null
-                            && am.getUserData(account, OAuth1WebViewActivity.EXTRA_TOKEN) != null
-                            && am.getUserData(account, OAuth1WebViewActivity.EXTRA_TOKEN_SECRET)
-                            != null) {
-                        rdioLoggedIn = true;
-                    }
+                    AuthenticatorUtils authenticatorUtils = AuthenticatorManager.getInstance()
+                            .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_RDIO);
+                    boolean rdioLoggedIn = authenticatorUtils.isLoggedIn();
                     if (rdioLoggedIn) {
-                        am.removeAccount(account, null, null);
+                        authenticatorUtils.logout();
                         mButtonText.setText(
                                 getString(R.string.resolver_config_redirect_button_text_log_into));
-                        ((ScriptResolver) PipeLine.getInstance().getResolver(mResolverId))
-                                .setEnabled(false);
                     } else {
                         try {
                             Intent myIntent = new Intent(TomahawkApp.getContext(),
                                     OAuth1WebViewActivity.class);
                             myIntent.putExtra(OAuth1WebViewActivity.EXTRA_CONSUMER_KEY,
-                                    new String(Base64.decode(RdioMediaPlayer.RDIO_APPKEY,
+                                    new String(Base64.decode(RdioAuthenticatorUtils.RDIO_APPKEY,
                                             Base64.DEFAULT), "UTF-8")
                             );
                             myIntent.putExtra(OAuth1WebViewActivity.EXTRA_CONSUMER_SECRET,
-                                    new String(Base64.decode(RdioMediaPlayer.RDIO_APPKEYSECRET,
-                                            Base64.DEFAULT), "UTF-8")
+                                    new String(
+                                            Base64.decode(RdioAuthenticatorUtils.RDIO_APPKEYSECRET,
+                                                    Base64.DEFAULT), "UTF-8")
                             );
                             startActivityForResult(myIntent, 1);
                         } catch (UnsupportedEncodingException e) {
-                            Log.e(TAG,
-                                    "onCreateDialog: " + e.getClass() + ": " + e
-                                            .getLocalizedMessage()
-                            );
+                            Log.e(TAG, "onCreateDialog: " + e.getClass() + ": "
+                                    + e.getLocalizedMessage());
                         }
                     }
                 }
@@ -174,15 +158,16 @@ public class RedirectConfigDialog extends DialogFragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
+            RdioAuthenticatorUtils authUtils = (RdioAuthenticatorUtils) AuthenticatorManager
+                    .getInstance()
+                    .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_RDIO);
             if (resultCode == Activity.RESULT_OK) {
                 Log.d(TAG, "Rdio access token is served and yummy");
                 if (data != null) {
                     String accessToken = data.getStringExtra(OAuth1WebViewActivity.EXTRA_TOKEN);
                     String accessTokenSecret =
                             data.getStringExtra(OAuth1WebViewActivity.EXTRA_TOKEN_SECRET);
-                    RdioMediaPlayer.getInstance().onRdioAuthorised(accessToken, accessTokenSecret);
-                    RdioMediaPlayer.getInstance().getRdio().setTokenAndSecret(accessToken,
-                            accessTokenSecret);
+                    authUtils.onRdioAuthorised(accessToken, accessTokenSecret);
                     mButtonText.setText(
                             getString(R.string.resolver_config_redirect_button_text_log_out_of));
                     ((ScriptResolver) PipeLine.getInstance().getResolver(mResolverId))
@@ -193,10 +178,10 @@ public class RedirectConfigDialog extends DialogFragment {
                     String errorCode = data.getStringExtra(OAuth1WebViewActivity.EXTRA_ERROR_CODE);
                     String errorDescription = data
                             .getStringExtra(OAuth1WebViewActivity.EXTRA_ERROR_DESCRIPTION);
+                    authUtils.onLoginFailed(errorDescription);
                     Log.e(TAG, "ERROR: " + errorCode + " - " + errorDescription);
                 }
             }
-            RdioMediaPlayer.getInstance().getRdio().prepareForPlayback();
         }
     }
 }

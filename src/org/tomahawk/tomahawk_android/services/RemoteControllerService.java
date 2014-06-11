@@ -18,7 +18,6 @@
 package org.tomahawk.tomahawk_android.services;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
-import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -236,9 +235,8 @@ public class RemoteControllerService extends NotificationListenerService
      * listener, if the user is logged into Hatchet and we don't already have access
      */
     public static void askAccess() {
-        if (AuthenticatorUtils.isLoggedIn(TomahawkApp.getContext(),
-                AuthenticatorUtils.AUTHENTICATOR_NAME_HATCHET,
-                AuthenticatorUtils.AUTH_TOKEN_TYPE_HATCHET)
+        if (AuthenticatorManager.getInstance()
+                .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET).isLoggedIn()
                 && !isRemoteControllerServiceRunning()) {
             TomahawkApp.getContext().startActivity(
                     new Intent(TomahawkApp.getContext(), AskAccessActivity.class)

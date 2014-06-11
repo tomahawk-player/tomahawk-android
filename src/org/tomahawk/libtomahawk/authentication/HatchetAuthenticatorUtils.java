@@ -109,86 +109,77 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     private User mLoggedInUser;
 
-    // This listener handles every event regarding the login/logout methods
-    private AuthenticatorListener mAuthenticatorListener = new AuthenticatorListener() {
+    @Override
+    public void onInit() {
+    }
 
-        @Override
-        public void onInit() {
-        }
+    @Override
+    public void onLogin(String username) {
+        Log.d(TAG,
+                "TomahawkService: Hatchet user '" + username + "' logged in successfully :)");
+    }
 
-        @Override
-        public void onLogin(String username) {
-            Log.d(TAG,
-                    "TomahawkService: Hatchet user '" + username + "' logged in successfully :)");
-        }
-
-        @Override
-        public void onLoginFailed(final String error, final String errorDescription) {
-            Log.d(TAG,
-                    "TomahawkService: Hatchet login failed :(, Error: " + error + ", Description: "
-                            + errorDescription
-            );
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(mContext,
-                            TextUtils.isEmpty(errorDescription) ? error : errorDescription,
-                            Toast.LENGTH_LONG).show();
-                }
-            });
-            mIsAuthenticating = false;
-            AuthenticatorManager.getInstance()
-                    .onLoggedInOut(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET, false);
-        }
-
-        @Override
-        public void onLogout() {
-            Log.d(TAG, "TomahawkService: Hatchet user logged out");
-            mIsAuthenticating = false;
-            AuthenticatorManager.getInstance().onLoggedInOut(
-                    AuthenticatorManager.AUTHENTICATOR_ID_HATCHET, false);
-        }
-
-        @Override
-        public void onAuthTokenProvided(String username, String refreshToken,
-                int refreshTokenExpiresIn, String accessToken, int accessTokenExpiresIn) {
-            if (username != null && !TextUtils.isEmpty(username) && refreshToken != null
-                    && !TextUtils.isEmpty(refreshToken)) {
-                Log.d(TAG, "TomahawkService: Hatchet auth token is served and yummy");
-                Account account = new Account(username,
-                        mContext.getString(R.string.accounttype_string));
-                AccountManager am = AccountManager.get(mContext);
-                if (am != null) {
-                    am.addAccountExplicitly(account, null, new Bundle());
-                    am.setUserData(account, AuthenticatorUtils.AUTHENTICATOR_NAME,
-                            getAuthenticatorUtilsName());
-                    am.setAuthToken(account, AuthenticatorUtils.AUTH_TOKEN_TYPE_HATCHET,
-                            refreshToken);
-                    am.setUserData(account, AuthenticatorUtils.AUTH_TOKEN_EXPIRES_IN_HATCHET,
-                            String.valueOf(refreshTokenExpiresIn));
-                    am.setUserData(account, AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_HATCHET,
-                            accessToken);
-                    am.setUserData(account,
-                            AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
-                            String.valueOf(accessTokenExpiresIn));
-                    ensureAccessTokens();
-                }
+    @Override
+    public void onLoginFailed(final String message) {
+        Log.d(TAG, "TomahawkService: Hatchet login failed :(, Error: " + message);
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
             }
-            UserCollection.getInstance().fetchHatchetUserPlaylists();
-            UserCollection.getInstance().fetchLovedItemsUserPlaylists();
-            UserCollection.getInstance().fetchStarredArtists();
-            UserCollection.getInstance().fetchStarredAlbums();
-            InfoSystem.getInstance().resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF,
-                    null);
-            mIsAuthenticating = false;
-            AuthenticatorManager.getInstance().onLoggedInOut(
-                    AuthenticatorManager.AUTHENTICATOR_ID_HATCHET, true);
+        });
+        mIsAuthenticating = false;
+        AuthenticatorManager.getInstance()
+                .onLoggedInOut(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET, false);
+    }
+
+    @Override
+    public void onLogout() {
+        Log.d(TAG, "TomahawkService: Hatchet user logged out");
+        mIsAuthenticating = false;
+        AuthenticatorManager.getInstance().onLoggedInOut(
+                AuthenticatorManager.AUTHENTICATOR_ID_HATCHET, false);
+    }
+
+    @Override
+    public void onAuthTokenProvided(String username, String refreshToken,
+            int refreshTokenExpiresIn, String accessToken, int accessTokenExpiresIn) {
+        if (username != null && !TextUtils.isEmpty(username) && refreshToken != null
+                && !TextUtils.isEmpty(refreshToken)) {
+            Log.d(TAG, "TomahawkService: Hatchet auth token is served and yummy");
+            Account account = new Account(username,
+                    mContext.getString(R.string.accounttype_string));
+            AccountManager am = AccountManager.get(mContext);
+            if (am != null) {
+                am.addAccountExplicitly(account, null, new Bundle());
+                am.setUserData(account, AuthenticatorUtils.AUTHENTICATOR_NAME,
+                        getAuthenticatorUtilsName());
+                am.setAuthToken(account, AuthenticatorUtils.AUTH_TOKEN_TYPE_HATCHET,
+                        refreshToken);
+                am.setUserData(account, AuthenticatorUtils.AUTH_TOKEN_EXPIRES_IN_HATCHET,
+                        String.valueOf(refreshTokenExpiresIn));
+                am.setUserData(account, AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_HATCHET,
+                        accessToken);
+                am.setUserData(account,
+                        AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
+                        String.valueOf(accessTokenExpiresIn));
+                ensureAccessTokens();
+            }
         }
-    };
+        UserCollection.getInstance().fetchHatchetUserPlaylists();
+        UserCollection.getInstance().fetchLovedItemsUserPlaylists();
+        UserCollection.getInstance().fetchStarredArtists();
+        UserCollection.getInstance().fetchStarredAlbums();
+        InfoSystem.getInstance().resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF,
+                null);
+        mIsAuthenticating = false;
+        AuthenticatorManager.getInstance().onLoggedInOut(
+                AuthenticatorManager.AUTHENTICATOR_ID_HATCHET, true);
+    }
 
     public HatchetAuthenticatorUtils(Context context) {
         mContext = context;
-        mAuthenticatorListener.onInit();
+        onInit();
     }
 
     @Override
@@ -243,7 +234,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                                     errorDescription += ", URI: " + jsonObject
                                             .getString(RESPONSE_ERROR_URI);
                                 }
-                                mAuthenticatorListener.onLoginFailed(error, errorDescription);
+                                onLoginFailed(errorDescription);
                             } else if (jsonObject.has(RESPONSE_ACCESS_TOKEN) && jsonObject.has(
                                     RESPONSE_CANONICAL_USERNAME) && jsonObject
                                     .has(RESPONSE_EXPIRES_IN)
@@ -256,27 +247,27 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                                         .getInt(RESPONSE_REFRESH_TOKEN_EXPIRES_IN);
                                 String accessToken = jsonObject.getString(RESPONSE_ACCESS_TOKEN);
                                 int accessTokenExpiresIn = jsonObject.getInt(RESPONSE_EXPIRES_IN);
-                                mAuthenticatorListener.onLogin(username);
-                                mAuthenticatorListener.onAuthTokenProvided(username, refreshtoken,
+                                onLogin(username);
+                                onAuthTokenProvided(username, refreshtoken,
                                         refreshTokenExpiresIn, accessToken, accessTokenExpiresIn);
                             } else {
-                                mAuthenticatorListener.onLoginFailed("Unknown error", "");
+                                onLoginFailed("Unknown error");
                             }
                         } catch (JSONException e) {
                             Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
-                            mAuthenticatorListener.onLoginFailed(e.getMessage(), "");
+                            onLoginFailed(e.getMessage());
                         } catch (UnsupportedEncodingException e) {
                             Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
-                            mAuthenticatorListener.onLoginFailed(e.getMessage(), "");
+                            onLoginFailed(e.getMessage());
                         } catch (IOException e) {
                             Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
-                            mAuthenticatorListener.onLoginFailed(e.getMessage(), "");
+                            onLoginFailed(e.getMessage());
                         } catch (NoSuchAlgorithmException e) {
                             Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
-                            mAuthenticatorListener.onLoginFailed(e.getMessage(), "");
+                            onLoginFailed(e.getMessage());
                         } catch (KeyManagementException e) {
                             Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
-                            mAuthenticatorListener.onLoginFailed(e.getMessage(), "");
+                            onLoginFailed(e.getMessage());
                         }
                     }
                 }
@@ -292,7 +283,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
             am.removeAccount(account, null, null);
         }
         mLoggedInUser = null;
-        mAuthenticatorListener.onLogout();
+        onLogout();
     }
 
     /**
@@ -379,7 +370,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 String error = jsonObject.getString(RESPONSE_ERROR);
                 String errorDescription = "Please reenter your Hatchet credentials";
                 logout();
-                mAuthenticatorListener.onLoginFailed(error, errorDescription);
+                onLoginFailed(errorDescription);
             } else if (jsonObject.has(RESPONSE_ACCESS_TOKEN)
                     && jsonObject.has(RESPONSE_EXPIRES_IN)) {
                 Map<String, String> data = new HashMap<String, String>();
