@@ -92,8 +92,8 @@ public class TomahawkFragment extends TomahawkListFragment
     public static final String TOMAHAWK_QUERYKEYSARRAY_KEY
             = "org.tomahawk.tomahawk_android.tomahawk_querykeysarray_id";
 
-    public static final String TOMAHAWK_AUTHENTICATORID_KEY
-            = "org.tomahawk.tomahawk_android.tomahawk_authenticatorid_id";
+    public static final String TOMAHAWK_PREFERENCEID_KEY
+            = "org.tomahawk.tomahawk_android.tomahawk_preferenceid_key";
 
     public static final String TOMAHAWK_SHOWDELETE_KEY
             = "org.tomahawk.tomahawk_android.tomahawk_showdelete_key";

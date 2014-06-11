@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:padding="@dimen/padding_medium"
-            android:background="@drawable/selectable_background_tomahawk_opaque">
+            android:background="@drawable/selectable_background_tomahawk_opaque_inverted">
 
         <TextView
                 android:id="@+id/resolver_config_redirect_button_text"
@@ -40,15 +40,16 @@
                 android:layout_gravity="center_vertical"
                 android:paddingRight="@dimen/padding_verysmall"
                 android:textSize="@dimen/text_size_verylarge"
-                android:textColor="@color/primary_textcolor"
+                android:textColor="@color/primary_textcolor_inverted"
                 android:text="@string/resolver_config_redirect_button_text_log_into"/>
 
         <ImageView
+                android:id="@+id/resolver_config_redirect_button_image"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/logo_rdio"/>
+                android:src="@drawable/logo_deezer"/>
 
     </LinearLayout>
 

@@ -22,6 +22,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
@@ -160,7 +161,8 @@ public class ScriptResolver implements Resolver {
             if (PipeLine.PLUGINNAME_RDIO.equals(mId)
                     || PipeLine.PLUGINNAME_BEATSMUSIC.equals(mId)
                     || PipeLine.PLUGINNAME_BEETS.equals(mId)
-                    || PipeLine.PLUGINNAME_GMUSIC.equals(mId)) {
+                    || PipeLine.PLUGINNAME_GMUSIC.equals(mId)
+                    || PipeLine.PLUGINNAME_DEEZER.equals(mId)) {
                 setEnabled(false);
             } else {
                 setEnabled(true);
@@ -604,6 +606,10 @@ public class ScriptResolver implements Resolver {
     }
 
     public boolean isEnabled() {
+        if (getCorrespondingAuthUtilId() != null) {
+            return AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                    getCorrespondingAuthUtilId()).isLoggedIn();
+        }
         return mEnabled;
     }
 
@@ -613,5 +619,14 @@ public class ScriptResolver implements Resolver {
         Map<String, Object> config = getConfig();
         config.put(ENABLED_KEY, enabled);
         setConfig(config);
+    }
+
+    public String getCorrespondingAuthUtilId() {
+        if (mId.equals(PipeLine.PLUGINNAME_RDIO)) {
+            return AuthenticatorManager.AUTHENTICATOR_ID_RDIO;
+        } else if (mId.equals(PipeLine.PLUGINNAME_DEEZER)) {
+            return AuthenticatorManager.AUTHENTICATOR_ID_DEEZER;
+        }
+        return null;
     }
 }

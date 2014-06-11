@@ -50,6 +50,8 @@ public class PipeLine {
 
     public final static String PLUGINNAME_SPOTIFY = "spotify";
 
+    public final static String PLUGINNAME_DEEZER = "deezer";
+
     public final static String PLUGINNAME_BEATSMUSIC = "beatsmusic";
 
     public final static String PLUGINNAME_RDIO = "rdio";

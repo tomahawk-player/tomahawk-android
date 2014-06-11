@@ -28,6 +28,10 @@ import org.tomahawk.tomahawk_android.dialogs.ResolverConfigDialog;
 import org.tomahawk.tomahawk_android.services.RemoteControllerService;
 import org.tomahawk.tomahawk_android.utils.FakePreferenceGroup;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -51,8 +55,7 @@ import java.util.List;
  * android.preference.PreferenceFragment} class
  */
 public class FakePreferenceFragment extends TomahawkListFragment
-        implements OnItemClickListener, AuthenticatorManager.OnAuthenticatedListener,
-        SharedPreferences.OnSharedPreferenceChangeListener {
+        implements OnItemClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = FakePreferenceFragment.class.getName();
 
@@ -80,6 +83,23 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
     private List<FakePreferenceGroup> mFakePreferenceGroups;
 
+    private FakePreferenceFragmentReceiver mFakePreferenceFragmentReceiver;
+
+    private class FakePreferenceFragmentReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (AuthenticatorManager.AUTHENTICATOR_LOGGED_IN.equals(intent.getAction())) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((FakePreferencesAdapter) getListAdapter()).notifyDataSetChanged();
+                    }
+                });
+            }
+        }
+    }
+
     /**
      * Called, when this {@link FakePreferenceFragment}'s {@link View} has been created
      */
@@ -90,8 +110,6 @@ public class FakePreferenceFragment extends TomahawkListFragment
         // Fetch our SharedPreferences from the PreferenceManager
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
-
-        AuthenticatorManager.getInstance().addOnAuthenticatedListener(this);
 
         // Set up the set of FakePreferences to be shown in this Fragment
         mFakePreferenceGroups = new ArrayList<FakePreferenceGroup>();
@@ -169,7 +187,27 @@ public class FakePreferenceFragment extends TomahawkListFragment
     public void onResume() {
         super.onResume();
 
+        ((FakePreferencesAdapter) getListAdapter()).notifyDataSetChanged();
+
         getActivity().setTitle(getString(R.string.fakepreferencefragment_title_string));
+
+        if (mFakePreferenceFragmentReceiver == null) {
+            mFakePreferenceFragmentReceiver = new FakePreferenceFragmentReceiver();
+        }
+
+        // Register intents that the BroadcastReceiver should listen to
+        getActivity().registerReceiver(mFakePreferenceFragmentReceiver,
+                new IntentFilter(AuthenticatorManager.AUTHENTICATOR_LOGGED_IN));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (mFakePreferenceFragmentReceiver != null) {
+            getActivity().unregisterReceiver(mFakePreferenceFragmentReceiver);
+            mFakePreferenceFragmentReceiver = null;
+        }
     }
 
     /**
@@ -203,18 +241,19 @@ public class FakePreferenceFragment extends TomahawkListFragment
             // we show a LoginDialog
             LoginDialog dialog = new LoginDialog();
             Bundle args = new Bundle();
-            args.putString(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY, fakePreference.getKey());
+            args.putString(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY, fakePreference.getKey());
             dialog.setArguments(args);
             dialog.show(getFragmentManager(), null);
         } else if (fakePreference.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CONFIG) {
             DialogFragment dialog;
-            if (PipeLine.PLUGINNAME_RDIO.equals(fakePreference.getKey())) {
+            if (PipeLine.PLUGINNAME_RDIO.equals(fakePreference.getKey())
+                    || PipeLine.PLUGINNAME_DEEZER.equals(fakePreference.getKey())) {
                 dialog = new RedirectConfigDialog();
             } else {
                 dialog = new ResolverConfigDialog();
             }
             Bundle args = new Bundle();
-            args.putString(TomahawkFragment.TOMAHAWK_AUTHENTICATORID_KEY, fakePreference.getKey());
+            args.putString(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY, fakePreference.getKey());
             dialog.setArguments(args);
             dialog.show(getFragmentManager(), null);
         }
@@ -223,23 +262,5 @@ public class FakePreferenceFragment extends TomahawkListFragment
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         ((FakePreferencesAdapter) getListAdapter()).notifyDataSetChanged();
-    }
-
-    /**
-     * Called everytime an account has been logged in or out, so that we can update the
-     * corresponding checkbox state
-     *
-     * @param authenticatorId the id of the {@link org.tomahawk.libtomahawk.resolver.Resolver},
-     *                        which account has been logged in/out
-     * @param loggedIn        true, if logged in, otherwise false
-     */
-    @Override
-    public void onLoggedInOut(String authenticatorId, final boolean loggedIn) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                ((FakePreferencesAdapter) getListAdapter()).notifyDataSetChanged();
-            }
-        });
     }
 }

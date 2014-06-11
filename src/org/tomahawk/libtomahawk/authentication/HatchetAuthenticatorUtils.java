@@ -31,6 +31,7 @@ import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -208,7 +209,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     }
 
     @Override
-    public void login(final String name, final String password) {
+    public void login(Activity activity, final String name, final String password) {
         mIsAuthenticating = true;
         ThreadManager.getInstance().execute(
                 new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_AUTHENTICATING) {
@@ -275,7 +276,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     }
 
     @Override
-    public void logout() {
+    public void logout(Activity activity) {
         mIsAuthenticating = true;
         final AccountManager am = AccountManager.get(mContext);
         Account account = TomahawkUtils.getAccountByName(mContext, getAuthenticatorUtilsName());
@@ -367,7 +368,6 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
             JSONObject jsonObject = new JSONObject(jsonString);
             if (jsonObject.has(RESPONSE_ERROR) || !TomahawkUtils
                     .containsIgnoreCase(tokenType, jsonObject.getString(RESPONSE_TOKEN_TYPE))) {
-                String error = jsonObject.getString(RESPONSE_ERROR);
                 String errorDescription = "Please reenter your Hatchet credentials";
                 logout();
                 onLoginFailed(errorDescription);

@@ -18,9 +18,12 @@
  */
 package org.tomahawk.tomahawk_android.activities;
 
+import com.rdio.android.api.OAuth1WebViewActivity;
+
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
+import org.tomahawk.libtomahawk.authentication.RdioAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.CollectionLoader;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.UserCollection;
@@ -48,6 +51,7 @@ import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 
 import android.accounts.AccountManager;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -75,6 +79,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -96,8 +101,7 @@ import java.util.Map;
 public class TomahawkMainActivity extends ActionBarActivity
         implements PlaybackServiceConnectionListener,
         LoaderManager.LoaderCallbacks<UserCollection>,
-        FragmentManager.OnBackStackChangedListener,
-        AuthenticatorManager.OnAuthenticatedListener {
+        FragmentManager.OnBackStackChangedListener {
 
     private final static String TAG = TomahawkMainActivity.class.getName();
 
@@ -216,6 +220,19 @@ public class TomahawkMainActivity extends ActionBarActivity
                         }
                     }
                 }
+            } else if (AuthenticatorManager.AUTHENTICATOR_LOGGED_IN.equals(intent.getAction())) {
+                String authenticatorId = intent
+                        .getStringExtra(AuthenticatorManager.AUTHENTICATOR_LOGGED_IN_ID);
+                final boolean loggedIn = intent
+                        .getBooleanExtra(AuthenticatorManager.AUTHENTICATOR_LOGGED_IN_STATE, false);
+                if (AuthenticatorManager.AUTHENTICATOR_ID_HATCHET.equals(authenticatorId)) {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            onHatchetLoggedInOut(loggedIn);
+                        }
+                    });
+                }
             }
         }
     }
@@ -254,8 +271,6 @@ public class TomahawkMainActivity extends ActionBarActivity
         InfoSystem.getInstance().ensureInit();
         AuthenticatorManager.getInstance().ensureInit();
         UserCollection.getInstance().ensureInit();
-
-        AuthenticatorManager.getInstance().addOnAuthenticatedListener(this);
 
         //Setup our services
         Intent intent = new Intent(this, PlaybackService.class);
@@ -414,6 +429,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                 new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
         registerReceiver(mTomahawkMainReceiver,
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        registerReceiver(mTomahawkMainReceiver,
+                new IntentFilter(AuthenticatorManager.AUTHENTICATOR_LOGGED_IN));
     }
 
     @Override
@@ -438,6 +455,33 @@ public class TomahawkMainActivity extends ActionBarActivity
         }
 
         super.onDestroy();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1) {
+            RdioAuthenticatorUtils authUtils = (RdioAuthenticatorUtils) AuthenticatorManager
+                    .getInstance()
+                    .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_RDIO);
+            if (resultCode == Activity.RESULT_OK) {
+                Log.d(TAG, "Rdio access token is served and yummy");
+                if (data != null) {
+                    String accessToken = data.getStringExtra(OAuth1WebViewActivity.EXTRA_TOKEN);
+                    String accessTokenSecret =
+                            data.getStringExtra(OAuth1WebViewActivity.EXTRA_TOKEN_SECRET);
+                    authUtils.onRdioAuthorised(accessToken, accessTokenSecret);
+                }
+            } else if (resultCode == Activity.RESULT_CANCELED) {
+                if (data != null) {
+                    String errorCode = data.getStringExtra(OAuth1WebViewActivity.EXTRA_ERROR_CODE);
+                    String errorDescription = data
+                            .getStringExtra(OAuth1WebViewActivity.EXTRA_ERROR_DESCRIPTION);
+                    authUtils.onLoginFailed(errorDescription);
+                    Log.e(TAG, "ERROR: " + errorCode + " - " + errorDescription);
+                }
+            }
+        }
     }
 
     @Override
@@ -556,11 +600,6 @@ public class TomahawkMainActivity extends ActionBarActivity
                 super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
     /**
      * If the PlaybackService signals, that it is ready, this method is being called
      */
@@ -591,26 +630,6 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @Override
     public void onLoadFinished(Loader<UserCollection> loader, UserCollection coll) {
-    }
-
-    /**
-     * Called everytime an account has been logged in or out, so that we can update the
-     * corresponding checkbox state
-     *
-     * @param authenticatorId the id of the {@link org.tomahawk.libtomahawk.resolver.Resolver},
-     *                        which account has been logged in/out
-     * @param loggedIn        true, if logged in, otherwise false
-     */
-    @Override
-    public void onLoggedInOut(String authenticatorId, final boolean loggedIn) {
-        if (AuthenticatorManager.AUTHENTICATOR_ID_HATCHET.equals(authenticatorId)) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    onHatchetLoggedInOut(loggedIn);
-                }
-            });
-        }
     }
 
     /**

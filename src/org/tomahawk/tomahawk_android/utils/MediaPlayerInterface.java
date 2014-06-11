@@ -19,7 +19,7 @@ package org.tomahawk.tomahawk_android.utils;
 
 import org.tomahawk.libtomahawk.resolver.Query;
 
-import android.content.Context;
+import android.app.Application;
 import android.media.MediaPlayer;
 
 public interface MediaPlayerInterface {
@@ -32,7 +32,7 @@ public interface MediaPlayerInterface {
 
     public void seekTo(int msec);
 
-    public MediaPlayerInterface prepare(Context context, Query query,
+    public MediaPlayerInterface prepare(Application application, Query query,
             MediaPlayer.OnPreparedListener onPreparedListener,
             MediaPlayer.OnCompletionListener onCompletionListener,
             MediaPlayer.OnErrorListener onErrorListener);
