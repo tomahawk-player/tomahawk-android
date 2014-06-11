@@ -157,7 +157,7 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
     }
 
     public void onLogin(String username) {
-        if (username.isEmpty()) {
+        if (TextUtils.isEmpty(username)) {
             Log.d(TAG, "TomahawkService: Spotify user was already logged in :)");
         } else {
             Log.d(TAG,
