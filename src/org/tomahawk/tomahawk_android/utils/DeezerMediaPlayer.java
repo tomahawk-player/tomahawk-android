@@ -185,7 +185,7 @@ public class DeezerMediaPlayer
                         .getAuthenticatorUtils(
                                 AuthenticatorManager.AUTHENTICATOR_ID_DEEZER);
         try {
-            if (mPlayer == null) {
+            if (mPlayer == null || mPlayer.getPlayerState() == PlayerState.RELEASED) {
                 mPlayer = new TrackPlayer(application, authUtils.getDeezerConnect(),
                         new WifiAndMobileNetworkStateChecker());
                 mPlayer.addOnBufferErrorListener(mPlayerHandler);
