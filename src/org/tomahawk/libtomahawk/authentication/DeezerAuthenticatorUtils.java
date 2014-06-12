@@ -174,10 +174,12 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
         if (am != null) {
             am.addAccountExplicitly(account, null, new Bundle());
             String accessToken = am.getUserData(account, ACCESS_TOKEN_DEEZER);
-            long accessTokenExpiresIn = Long.valueOf(
-                    am.getUserData(account, ACCESS_TOKEN_EXPIRES_IN_DEEZER));
-            mDeezerConnect.setAccessToken(mContext, accessToken);
-            mDeezerConnect.setAccessExpires(accessTokenExpiresIn);
+            String accessTokenExpiresIn = am
+                    .getUserData(account, ACCESS_TOKEN_EXPIRES_IN_DEEZER);
+            if (accessToken != null && accessTokenExpiresIn != null) {
+                mDeezerConnect.setAccessToken(mContext, accessToken);
+                mDeezerConnect.setAccessExpires(Long.valueOf(accessTokenExpiresIn));
+            }
         }
     }
 
