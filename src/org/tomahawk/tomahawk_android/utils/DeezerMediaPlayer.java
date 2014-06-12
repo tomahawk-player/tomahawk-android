@@ -123,7 +123,7 @@ public class DeezerMediaPlayer
     @Override
     public void start() throws IllegalStateException {
         Log.d(TAG, "start()");
-        if (mPlayer != null) {
+        if (mPlayer != null && mPlayer.getPlayerState() != PlayerState.RELEASED) {
             synchronized (this) {
                 if (!isPlaying(mPreparedQuery)
                         && mPlayer.getPlayerState() != PlayerState.WAITING_FOR_DATA
@@ -140,7 +140,7 @@ public class DeezerMediaPlayer
     @Override
     public void pause() throws IllegalStateException {
         Log.d(TAG, "pause()");
-        if (mPlayer != null) {
+        if (mPlayer != null && mPlayer.getPlayerState() != PlayerState.RELEASED) {
             synchronized (this) {
                 if (isPlaying(mPreparedQuery)
                         && mPlayer.getPlayerState() != PlayerState.WAITING_FOR_DATA
@@ -158,7 +158,7 @@ public class DeezerMediaPlayer
     public void seekTo(int msec) throws IllegalStateException {
         Log.d(TAG, "seekTo() state: "
                 + (mPlayer != null ? mPlayer.getPlayerState().toString() : "null"));
-        if (mPlayer != null) {
+        if (mPlayer != null && mPlayer.getPlayerState() != PlayerState.RELEASED) {
             synchronized (this) {
                 mPlayer.seek(msec);
             }
@@ -211,7 +211,8 @@ public class DeezerMediaPlayer
         Log.d(TAG, "release()");
         mPreparedQuery = null;
         synchronized (this) {
-            if (mPlayer != null && mPlayer.getPlayerState() != PlayerState.STOPPED) {
+            if (mPlayer != null && mPlayer.getPlayerState() != PlayerState.RELEASED
+                    && mPlayer.getPlayerState() != PlayerState.STOPPED) {
                 mPlayer.stop();
             }
         }
@@ -222,7 +223,8 @@ public class DeezerMediaPlayer
      */
     @Override
     public int getPosition() {
-        if (mPlayer != null && mPreparedQuery != null) {
+        if (mPlayer != null && mPlayer.getPlayerState() != PlayerState.RELEASED
+                && mPreparedQuery != null) {
             synchronized (this) {
                 return (int) mPlayer.getPosition();
             }
