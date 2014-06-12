@@ -156,7 +156,8 @@ public class DeezerMediaPlayer
      */
     @Override
     public void seekTo(int msec) throws IllegalStateException {
-        Log.d(TAG, "seekTo()");
+        Log.d(TAG, "seekTo() state: "
+                + (mPlayer != null ? mPlayer.getPlayerState().toString() : "null"));
         if (mPlayer != null) {
             synchronized (this) {
                 mPlayer.seek(msec);
@@ -232,7 +233,8 @@ public class DeezerMediaPlayer
 
     @Override
     public boolean isPlaying(Query query) {
-        Log.d(TAG, "isPlaying: state: " + mPlayer.getPlayerState().toString());
+        Log.d(TAG, "isPlaying: state: "
+                + (mPlayer != null ? mPlayer.getPlayerState().toString() : "null"));
         synchronized (this) {
             return mPlayer != null && mPreparedQuery == query
                     && mPlayer.getPlayerState() == PlayerState.PLAYING;

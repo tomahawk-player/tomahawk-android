@@ -49,13 +49,14 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
 
     private final static String APP_ID = "138751";
 
-    private final static String[] PERMISSIONS = new String[]{};
+    private final static String[] PERMISSIONS = new String[]{"offline_access"};
 
     private DeezerConnect mDeezerConnect;
 
     public DeezerAuthenticatorUtils(Context context) {
         mContext = context;
         mDeezerConnect = new DeezerConnect(APP_ID);
+        onInit();
     }
 
     @Override
@@ -112,6 +113,7 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
     @Override
     public void onAuthTokenProvided(String username, String refreshToken,
             int refreshTokenExpiresIn, String accessToken, int accessTokenExpiresIn) {
+        Log.d(TAG, "onAuthTokenProvided");
         Account account = new Account(ACCOUNT_NAME,
                 TomahawkApp.getContext().getString(R.string.accounttype_string));
         AccountManager am = AccountManager.get(TomahawkApp.getContext());
@@ -165,6 +167,7 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
      * Try to login to deezer with stored tokens
      */
     public void loginWithToken() {
+        Log.d(TAG, "loginWithToken");
         Account account = new Account(ACCOUNT_NAME,
                 TomahawkApp.getContext().getString(R.string.accounttype_string));
         AccountManager am = AccountManager.get(TomahawkApp.getContext());
