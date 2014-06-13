@@ -446,6 +446,8 @@ public class PlaybackService extends Service
 
         startService(new Intent(this, MicroService.class));
 
+        startService(new Intent(this, RemoteControllerService.class));
+
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 
         // Initialize PhoneCallListener
