@@ -160,7 +160,12 @@ public class DeezerMediaPlayer
                 + (mPlayer != null ? mPlayer.getPlayerState().toString() : "null"));
         if (mPlayer != null && mPlayer.getPlayerState() != PlayerState.RELEASED) {
             synchronized (this) {
-                mPlayer.seek(msec);
+                try {
+                    mPlayer.seek(msec);
+                } catch (Exception e) {
+                    Log.e(TAG, "seekTo: " + e.getClass() + ": " + e.getLocalizedMessage());
+                    onError(null, 0, 0);
+                }
             }
         }
     }
