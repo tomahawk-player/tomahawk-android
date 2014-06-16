@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.10.0'
+        classpath 'com.android.tools.build:gradle:0.11.0'
     }
 }
 
@@ -44,7 +44,7 @@ def getNewVersionName = { ->
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.3"
+    buildToolsVersion "19.1.0"
 
     defaultConfig {
         minSdkVersion 9
