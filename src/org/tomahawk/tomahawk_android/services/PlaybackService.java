@@ -446,7 +446,18 @@ public class PlaybackService extends Service
 
         startService(new Intent(this, MicroService.class));
 
-        startService(new Intent(this, RemoteControllerService.class));
+        ServiceConnection connection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+            }
+        };
+
+        bindService(new Intent(this, RemoteControllerService.class), connection,
+                Context.BIND_AUTO_CREATE);
 
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 
