@@ -37,9 +37,9 @@ dependencies {
  * Gets the version name from the latest Git tag
  */
 def getNewVersionName = { ->
-      boolean isChanged = 'git diff --cached'.execute().text.length() > 0 ||
-              'git diff'.execute().text.length() > 0
-      return 'git describe --tags' + isChanged ? "_modified" : ""
+    boolean isChanged = 'git diff --cached'.execute().text.length() > 0 ||
+            'git diff'.execute().text.length() > 0
+    return 'git describe --tags'.execute().text.replace('\n', '') + (isChanged ? "_modified" : "")
 }
 
 android {
