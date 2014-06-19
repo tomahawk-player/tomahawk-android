@@ -27,7 +27,7 @@ dependencies {
     compile "com.google.guava:guava:17.0"
     compile "com.squareup.picasso:picasso:2.1.1"
     compile "com.github.castorflex.verticalviewpager:library:19.0.0"
-    compile "de.mrmaffen:vlc-android-sdk:1.0.1"
+    compile "de.mrmaffen:vlc-android-sdk:1.0.2@aar"
     compile "de.mrmaffen:rdio-android-sdk:1.0.0"
     compile "de.mrmaffen:deezer-android-sdk:1.0.0"
     compile files("libs/RemoteMetadataProvider.jar")
