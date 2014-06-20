@@ -104,6 +104,14 @@ public class ScriptResolver implements Resolver {
 
     private SharedPreferences mSharedPreferences;
 
+    private boolean mBrowsable;
+
+    private boolean mPlaylistSync;
+
+    private boolean mAccountFactory;
+
+    private boolean mUrlLookup;
+
     private static final int TIMEOUT_HANDLER_MSG = 1337;
 
     // Handler which sets the mStopped bool to true after the timeout has occured.
@@ -628,5 +636,38 @@ public class ScriptResolver implements Resolver {
             return AuthenticatorManager.AUTHENTICATOR_ID_DEEZER;
         }
         return null;
+    }
+
+    public void reportCapabilities(int in) {
+        switch (in) {
+            case 1:
+                mBrowsable = true;
+                break;
+            case 2:
+                mPlaylistSync = true;
+                break;
+            case 4:
+                mAccountFactory = true;
+                break;
+            case 8:
+                mUrlLookup = true;
+                break;
+        }
+    }
+
+    public boolean isBrowsable() {
+        return mBrowsable;
+    }
+
+    public boolean isPlaylistSync() {
+        return mPlaylistSync;
+    }
+
+    public boolean isAccountFactory() {
+        return mAccountFactory;
+    }
+
+    public boolean isUrlLookup() {
+        return mUrlLookup;
     }
 }

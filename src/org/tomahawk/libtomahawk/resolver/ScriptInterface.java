@@ -129,6 +129,7 @@ public class ScriptInterface {
      */
     @JavascriptInterface
     public void reportCapabilities(int in) {
+        mScriptResolver.reportCapabilities(in);
     }
 
     @JavascriptInterface
