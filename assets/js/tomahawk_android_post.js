@@ -24,10 +24,10 @@
  *  - password: The password for HTTP Basic Auth
  *  - errorHandler: callback called if the request was not completed
  *  - data: body data included in POST requests
- *  - needCookieHeader: boolean to indicate whether or not the request should return the "Set-Cookie" header
+ *  - needCookieHeader: boolean to indicate whether or not the request requires the "Set-Cookie" response header
  */
 Tomahawk.asyncRequest = function (url, callback, extraHeaders, options) {
-    if (options && options.needCookieHeader) {
+    if ((options && options.needCookieHeader) || (extraHeaders && 'Referer' in extraHeaders)) {
         if (!Tomahawk.idCounter) {
             Tomahawk.idCounter = 0;
         }

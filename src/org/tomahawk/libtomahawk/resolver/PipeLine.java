@@ -71,14 +71,14 @@ public class PipeLine {
     public static final String PIPELINE_RESULTSREPORTED
             = "org.tomahawk.tomahawk_android.pipeline_resultsreported";
 
-    public static final String PIPELINE_URLTRANSLATIONREPORTED
-            = "org.tomahawk.tomahawk_android.pipeline_urltranslationreported";
+    public static final String PIPELINE_STREAMURLREPORTED
+            = "org.tomahawk.tomahawk_android.pipeline_streamurlreported";
 
-    public static final String PIPELINE_URLTRANSLATIONREPORTED_URL
-            = "org.tomahawk.tomahawk_android.pipeline_urltranslationreported_url";
+    public static final String PIPELINE_STREAMURLREPORTED_URL
+            = "org.tomahawk.tomahawk_android.pipeline_streamurlreported_url";
 
-    public static final String PIPELINE_URLTRANSLATIONREPORTED_RESULTKEY
-            = "org.tomahawk.tomahawk_android.pipeline_urltranslationreported_resultkey";
+    public static final String PIPELINE_STREAMURLREPORTED_RESULTKEY
+            = "org.tomahawk.tomahawk_android.pipeline_streamurlreported_resultkey";
 
     public static final String PIPELINE_RESULTSREPORTED_QUERYKEY
             = "org.tomahawk.tomahawk_android.pipeline_resultsreported_querykey";
@@ -93,6 +93,9 @@ public class PipeLine {
             = new ConcurrentHashMap<String, Query>();
 
     private boolean mAllResolversAdded;
+
+    private ConcurrentHashMap<String, ResolverUrlHandler> mUrlHandlerMap
+            = new ConcurrentHashMap<String, ResolverUrlHandler>();
 
     private PipeLine() {
     }
@@ -266,17 +269,8 @@ public class PipeLine {
     }
 
     /**
-     * Send a broadcast containing the key of the resolved {@link org.tomahawk.libtomahawk.resolver.Result}.
-     */
-    public void sendUrlTranslationReportBroadcast(String resultKey, String url) {
-        Intent reportIntent = new Intent(PIPELINE_URLTRANSLATIONREPORTED);
-        reportIntent.putExtra(PIPELINE_URLTRANSLATIONREPORTED_RESULTKEY, resultKey);
-        reportIntent.putExtra(PIPELINE_URLTRANSLATIONREPORTED_URL, url);
-        TomahawkApp.getContext().sendBroadcast(reportIntent);
-    }
-
-    /**
-     * Send a broadcast containing the key of the resolved {@link org.tomahawk.libtomahawk.resolver.Result}.
+     * Send a broadcast containing the stream url which has previously been requested by a
+     * MediaPlayerInterface.
      */
     public void sendStreamUrlReportBroadcast(final String resultKey, final String url,
             final Map<String, String> headers) {
@@ -284,11 +278,14 @@ public class PipeLine {
             @Override
             public void run() {
                 try {
-                    String finalUrl = TomahawkUtils.getRedirectedUrl(TomahawkUtils.HTTP_METHOD_GET,
-                            url, headers);
-                    Intent reportIntent = new Intent(PIPELINE_URLTRANSLATIONREPORTED);
-                    reportIntent.putExtra(PIPELINE_URLTRANSLATIONREPORTED_RESULTKEY, resultKey);
-                    reportIntent.putExtra(PIPELINE_URLTRANSLATIONREPORTED_URL, finalUrl);
+                    String finalUrl = url;
+                    if (headers != null) {
+                        finalUrl = TomahawkUtils
+                                .getRedirectedUrl(TomahawkUtils.HTTP_METHOD_GET, url, headers);
+                    }
+                    Intent reportIntent = new Intent(PIPELINE_STREAMURLREPORTED);
+                    reportIntent.putExtra(PIPELINE_STREAMURLREPORTED_RESULTKEY, resultKey);
+                    reportIntent.putExtra(PIPELINE_STREAMURLREPORTED_URL, finalUrl);
                     TomahawkApp.getContext().sendBroadcast(reportIntent);
                 } catch (NoSuchAlgorithmException e) {
                     e.printStackTrace();
@@ -422,5 +419,29 @@ public class PipeLine {
 
     public void setAllResolversAdded(boolean allResolversAdded) {
         mAllResolversAdded = allResolversAdded;
+    }
+
+    public void addCustomUrlHandler(String protocol, Resolver resolver, String callbackFuncName) {
+        mUrlHandlerMap.put(protocol, new ResolverUrlHandler(resolver, callbackFuncName));
+    }
+
+    /**
+     * Get the corresponding url handler for the given result with which a url can be translated to
+     * an actual streaming url.
+     *
+     * @return the corresponding ResolverUrlHandler, if available. Otherwise null.
+     */
+    public ResolverUrlHandler getCustomUrlHandler(Result result) {
+        if (result != null) {
+            String path = result.getPath();
+            String[] pathParts = path.split(":");
+            String protocol = pathParts[0];
+            return getCustomUrlHandler(protocol);
+        }
+        return null;
+    }
+
+    public ResolverUrlHandler getCustomUrlHandler(String protocol) {
+        return mUrlHandlerMap.get(protocol);
     }
 }

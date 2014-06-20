@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.utils;
 
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.resolver.ResolverUrlHandler;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -32,7 +33,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
-import android.os.Handler;
 import android.util.Log;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -70,18 +70,12 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (PipeLine.PIPELINE_URLTRANSLATIONREPORTED.equals(intent.getAction())) {
+            if (PipeLine.PIPELINE_STREAMURLREPORTED.equals(intent.getAction())) {
                 String resultKey = intent
-                        .getStringExtra(PipeLine.PIPELINE_URLTRANSLATIONREPORTED_RESULTKEY);
-                String url = intent.getStringExtra(PipeLine.PIPELINE_URLTRANSLATIONREPORTED_URL);
+                        .getStringExtra(PipeLine.PIPELINE_STREAMURLREPORTED_RESULTKEY);
+                String url = intent.getStringExtra(PipeLine.PIPELINE_STREAMURLREPORTED_URL);
                 final Result result = Result.getResultByKey(resultKey);
-                mTranslatedUrls.put(Result.getResultByKey(resultKey), url);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mTranslatedUrls.remove(result);
-                    }
-                }, 300000);
+                mTranslatedUrls.put(result, url);
                 if (mPreparingQuery != null
                         && result == mPreparingQuery.getPreferredTrackResult()) {
                     prepare(mPreparingQuery);
@@ -94,7 +88,7 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
         // Initialize and register Receiver
         if (mVLCMediaPlayerReceiver == null) {
             mVLCMediaPlayerReceiver = new VLCMediaPlayerReceiver();
-            IntentFilter intentFilter = new IntentFilter(PipeLine.PIPELINE_URLTRANSLATIONREPORTED);
+            IntentFilter intentFilter = new IntentFilter(PipeLine.PIPELINE_STREAMURLREPORTED);
             TomahawkApp.getContext().registerReceiver(mVLCMediaPlayerReceiver, intentFilter);
         }
 
@@ -175,18 +169,21 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
             return null;
         }
         Result result = query.getPreferredTrackResult();
-        if (PipeLine.PLUGINNAME_BEATSMUSIC.equals(result.getResolvedBy().getId())
-                || PipeLine.PLUGINNAME_GMUSIC.equals(result.getResolvedBy().getId())) {
-            if (mTranslatedUrls.get(result) == null) {
-                ((ScriptResolver) result.getResolvedBy()).getStreamUrl(result);
-            } else {
-                mLibVLC.playMRL(LibVLC.PathToURI(mTranslatedUrls.get(result)));
-                onPrepared(null);
-            }
+        String path;
+        if (mTranslatedUrls.get(result) != null) {
+            path = mTranslatedUrls.remove(result);
         } else {
-            mLibVLC.playMRL(LibVLC.PathToURI(result.getPath()));
-            onPrepared(null);
+            ResolverUrlHandler urlHandler = PipeLine.getInstance().getCustomUrlHandler(result);
+            if (urlHandler != null) {
+                ((ScriptResolver) result.getResolvedBy())
+                        .getStreamUrl(result, urlHandler.getCallbackFunctionName());
+                return this;
+            } else {
+                path = result.getPath();
+            }
         }
+        mLibVLC.playMRL(LibVLC.PathToURI(path));
+        onPrepared(null);
         return this;
     }
 

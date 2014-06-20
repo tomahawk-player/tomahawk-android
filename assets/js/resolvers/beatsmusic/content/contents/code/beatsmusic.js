@@ -87,8 +87,7 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
             that.loggedIn = true;
         }, headers, {
             method: "POST",
-            data: data,
-            needCookieHeader: true
+            data: data
         });
     },
 
@@ -99,7 +98,7 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
 
         Tomahawk.reportCapabilities(TomahawkResolverCapability.UrlLookup);
 
-        Tomahawk.addCustomUrlTranslator("beatsmusic", "getStreamUrl", true);
+        Tomahawk.addCustomUrlHandler("beatsmusic", "getStreamUrl", true);
 
         // re-login every 50 minutes
         setInterval((function(self) { return function() { self.login(); }; })(this), 1000*60*50);
@@ -140,48 +139,57 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
         var trackId = url.replace("beatsmusic://track/", "");
         Tomahawk.asyncRequest(this.endpoint + "/api/tracks/" + trackId + "/audio?acquire=1&bitrate=highest&access_token=" + this.accessToken, function (xhr) {
             var res = JSON.parse(xhr.responseText);
-            Tomahawk.reportUrlTranslation(qid, res.data.location + "/?slist=" + res.data.resource);
+            Tomahawk.reportStreamUrl(qid, res.data.location + "/?slist=" + res.data.resource);
         });
     },
 
 	search: function (qid, searchString) {
         var that = this;
         // TODO: Search for albums and artists, too.
-        Tomahawk.asyncRequest(this.endpoint
-            + "/api/search?type=track&filters=streamable:true&limit=100&q="
-            + encodeURIComponent(searchString) + "&client_id=" + this.app_token, function (xhr) {
+        Tomahawk.asyncRequest(this.endpoint +
+            "/api/search?type=track&filters=streamable:true&limit=100&q=" +
+            encodeURIComponent(searchString) + "&client_id=" + this.app_token, function (xhr) {
             var res = JSON.parse(xhr.responseText);
             if (res.code == "OK" && res.data.length > 0) {
-                var results = [];
-                doneCounter = res.data.length;
-                for (i = 0; i < res.data.length; i++) {
-                    if (res.data[i].result_type === "track") {
-                        Tomahawk.asyncRequest(that.endpoint + "/api/tracks/" + res.data[i].id
-                            + "?fields=artist_display_name&fields=duration&fields=title&fields=id&client_id="
-                            + that.app_token, function (xhr2) {
-                            var res2 = JSON.parse(xhr2.responseText);
-                            if (res2.code == "OK") {
-                                var result = {
-                                    artist: res2.data.artist_display_name,
-                                    duration: res2.data.duration,
-                                    source: that.settings.name,
-                                    track: res2.data.title,
-                                    url: "beatsmusic://track/" + res2.data.id
-                                };
-                                results.push(result);
+                async.map(res.data, function (item, cb) {
+                    var query = that.endpoint + "/api/tracks/" + item.id;
+                    query += "?fields=artist_display_name&fields=duration";
+                    query += "&fields=title&fields=id&client_id=";
+                    query += that.app_token;
+                    Tomahawk.asyncRequest(query, function (xhr2) {
+                        var res2 = JSON.parse(xhr2.responseText);
+                        Tomahawk.log(xhr2.responseText);
+                        if (res2.code == "OK") {
+                            var result = {
+                                artist: res2.data.artist_display_name,
+                                bitrate: 320,
+                                duration: res2.data.duration,
+                                source: that.settings.name,
+                                track: res2.data.title,
+                                url: "beatsmusic://track/" + res2.data.id
+                            };
+                            if (res2.data.refs.hasOwnProperty("album")) {
+                                result.album = res2.data.refs.album.display;
                             }
-                            doneCounter -= 1;
-                            if (doneCounter === 0) {
-                                Tomahawk.addTrackResults({
-                                    results: results,
-                                    qid: qid
-                                });
-                            }
-                        });
-                    } else {
-                        doneCounter -= 1;
-                    }
-                }
+                            cb(null, result);
+                        } else {
+                            Tomahawk.log("Failed to get track metadata: " +
+                                JSON.stringify(res2));
+                            // Just skip this item instead of raising an error,
+                            // so that at least the successful results get
+                            // through.
+                            cb(null, null);
+                        }
+                    });
+                    // cb(null, item);
+                }, function (err, results) {
+                    Tomahawk.addTrackResults({
+                        results: results.filter(function (item) {
+                            return item !== null;
+                        }),
+                        qid: qid
+                    });
+                });
             } else {
                 Tomahawk.addTrackResults({
                     results: [],
