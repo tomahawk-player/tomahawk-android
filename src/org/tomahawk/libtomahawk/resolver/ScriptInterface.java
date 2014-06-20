@@ -131,27 +131,19 @@ public class ScriptInterface {
     public void reportCapabilities(int in) {
     }
 
-    /**
-     * This method is needed because the javascript script is expecting an exposed method which it
-     * can call to report its capabilities. This method is being called in tomahawk_android_pre.js
-     */
-    @JavascriptInterface
-    public void addCustomUrlTranslator(String protocol, String callbackFuncName, boolean isAsync) {
-    }
-
-    @JavascriptInterface
-    public void reportUrlTranslation(String qid, String url) {
-        mScriptResolver.handleCallbackToJava(R.id.scriptresolver_report_url_translation, qid, url);
-    }
-
     @JavascriptInterface
     public void reportStreamUrlString(String qid, String url, String stringifiedHeaders) {
-        mScriptResolver.handleCallbackToJava(R.id.scriptresolver_report_stream_url, qid, url,
-                stringifiedHeaders);
+        if (stringifiedHeaders != null) {
+            mScriptResolver.handleCallbackToJava(R.id.scriptresolver_report_stream_url, qid, url,
+                    stringifiedHeaders);
+        } else {
+            mScriptResolver.handleCallbackToJava(R.id.scriptresolver_report_stream_url, qid, url);
+        }
     }
 
     @JavascriptInterface
     public void addCustomUrlHandler(String protocol, String callbackFuncName, boolean isAsync) {
+        PipeLine.getInstance().addCustomUrlHandler(protocol, mScriptResolver, callbackFuncName);
     }
 
     @JavascriptInterface

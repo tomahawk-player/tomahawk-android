@@ -389,13 +389,12 @@ public class ScriptResolver implements Resolver {
                             }
                         }
                 );
-            } else if (id == R.id.scriptresolver_report_url_translation && jsonString != null
-                    && jsonString.length == 2) {
-                String resultKey = mQueryKeys.get(jsonString[0]);
-                PipeLine.getInstance().sendUrlTranslationReportBroadcast(resultKey, jsonString[1]);
             } else if (id == R.id.scriptresolver_report_stream_url && jsonString != null
-                    && jsonString.length == 3) {
-                Map<String, String> headers = mObjectMapper.readValue(jsonString[2], Map.class);
+                    && jsonString.length >= 2) {
+                Map<String, String> headers = null;
+                if (jsonString.length > 2) {
+                    headers = mObjectMapper.readValue(jsonString[2], Map.class);
+                }
                 String resultKey = mQueryKeys.get(jsonString[0]);
                 PipeLine.getInstance().sendStreamUrlReportBroadcast(resultKey, jsonString[1],
                         headers);
@@ -455,14 +454,15 @@ public class ScriptResolver implements Resolver {
         return mReady;
     }
 
-    public void getStreamUrl(final Result result) {
+    public void getStreamUrl(final Result result, String callbackFuncName) {
         if (result != null) {
             String resultId = TomahawkMainActivity.getSessionUniqueStringId();
             // we are using the same map as we do when resolving queries
             mQueryKeys.put(resultId, result.getCacheKey());
             final String url = "javascript:" + RESOLVER_LEGACY_CODE2
-                    + makeJSFunctionCallbackJava(R.id.scriptresolver_report_url_translation,
-                    "resolver.getStreamUrl( '" + StringEscapeUtils.escapeJavaScript(resultId)
+                    + makeJSFunctionCallbackJava(R.id.scriptresolver_report_stream_url,
+                    "resolver." + callbackFuncName + "( '"
+                            + StringEscapeUtils.escapeJavaScript(resultId)
                             + "', '" + StringEscapeUtils.escapeJavaScript(result.getPath()) + "' )",
                     true);
             new Handler(Looper.getMainLooper()).post(new Runnable() {
