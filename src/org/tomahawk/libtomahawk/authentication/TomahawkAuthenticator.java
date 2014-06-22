@@ -33,7 +33,7 @@ import android.os.IBinder;
 
 public class TomahawkAuthenticator extends AbstractAccountAuthenticator {
 
-    private static final String TAG = TomahawkAuthenticator.class.getName();
+    private static final String TAG = TomahawkAuthenticator.class.getSimpleName();
 
     private Context mContext;
 

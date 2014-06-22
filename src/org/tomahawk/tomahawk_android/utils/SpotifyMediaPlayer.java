@@ -36,7 +36,7 @@ import android.util.Log;
  */
 public class SpotifyMediaPlayer implements MediaPlayerInterface {
 
-    private static String TAG = SpotifyMediaPlayer.class.getName();
+    private static String TAG = SpotifyMediaPlayer.class.getSimpleName();
 
     private static SpotifyMediaPlayer instance;
 

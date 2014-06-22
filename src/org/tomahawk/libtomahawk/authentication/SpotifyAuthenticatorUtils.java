@@ -49,7 +49,7 @@ import java.io.IOException;
 public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
 
     // Used for debug logging
-    private final static String TAG = SpotifyAuthenticatorUtils.class.getName();
+    private final static String TAG = SpotifyAuthenticatorUtils.class.getSimpleName();
 
     // String tags used to store Spotify's preferred bitrate
     public static final String SPOTIFY_PREF_BITRATE

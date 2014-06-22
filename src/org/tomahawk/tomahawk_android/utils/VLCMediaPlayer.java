@@ -42,7 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class VLCMediaPlayer implements MediaPlayerInterface {
 
-    private static String TAG = VLCMediaPlayer.class.getName();
+    private static String TAG = VLCMediaPlayer.class.getSimpleName();
 
     private static VLCMediaPlayer instance;
 

@@ -99,7 +99,7 @@ public class PlaybackService extends Service
         implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         MediaPlayer.OnCompletionListener, MusicFocusable {
 
-    private static String TAG = PlaybackService.class.getName();
+    private static String TAG = PlaybackService.class.getSimpleName();
 
     public static final String BROADCAST_CURRENTTRACKCHANGED
             = "org.tomahawk.tomahawk_android.BROADCAST_CURRENTTRACKCHANGED";

@@ -41,7 +41,7 @@ import android.util.Log;
 public abstract class BuiltInMusicAppReceiver extends
         AbstractPlayStatusReceiver {
 
-    private static final String TAG = "SLSBuiltInMusicAppReceiver";
+    private static final String TAG = BuiltInMusicAppReceiver.class.getSimpleName();
 
     final String stop_action;
 

@@ -37,7 +37,7 @@ public class PlayerProReceiver extends AbstractPlayStatusReceiver {
 
     static final String ACTION_PLAYERPRO_PLAYBACKCOMPLETE = "com.tbig.playerpro.playbackcomplete";
 
-    static final String TAG = "PlayerProReceiver";
+    static final String TAG = PlayerProReceiver.class.getSimpleName();
 
     @Override
     protected void parseIntent(Context ctx, String action, Bundle bundle) {

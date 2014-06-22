@@ -49,7 +49,7 @@ import android.widget.TextView;
  */
 public class LoginDialog extends DialogFragment {
 
-    public final static String TAG = LoginDialog.class.getName();
+    public final static String TAG = LoginDialog.class.getSimpleName();
 
     private AuthenticatorUtils mAuthenticatorUtils;
 

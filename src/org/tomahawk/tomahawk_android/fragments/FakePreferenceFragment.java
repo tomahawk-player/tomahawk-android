@@ -57,7 +57,7 @@ import java.util.List;
 public class FakePreferenceFragment extends TomahawkListFragment
         implements OnItemClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private static final String TAG = FakePreferenceFragment.class.getName();
+    private static final String TAG = FakePreferenceFragment.class.getSimpleName();
 
     public static final String FAKEPREFERENCEFRAGMENT_ID_PREFBITRATE = "pref_bitrate";
 

@@ -28,7 +28,7 @@ import java.lang.reflect.Method;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class RemoteControlHelper {
 
-    private static final String TAG = RemoteControlHelper.class.getName();
+    private static final String TAG = RemoteControlHelper.class.getSimpleName();
 
     private static boolean sHasRemoteControlAPIs = false;
 

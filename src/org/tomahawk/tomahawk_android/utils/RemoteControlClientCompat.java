@@ -34,7 +34,7 @@ import java.lang.reflect.Method;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RemoteControlClientCompat {
 
-    private static final String TAG = RemoteControlClientCompat.class.getName();
+    private static final String TAG = RemoteControlClientCompat.class.getSimpleName();
 
     private static Class sRemoteControlClientClass;
 

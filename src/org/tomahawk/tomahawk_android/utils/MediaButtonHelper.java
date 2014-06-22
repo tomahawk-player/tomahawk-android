@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
 public class MediaButtonHelper {
 
     // Backwards compatibility code (methods available as of API Level 8)
-    private static final String TAG = MediaButtonHelper.class.getName();
+    private static final String TAG = MediaButtonHelper.class.getSimpleName();
 
     static {
         initializeStaticCompatMethods();

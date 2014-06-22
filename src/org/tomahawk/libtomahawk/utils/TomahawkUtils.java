@@ -62,7 +62,7 @@ import javax.net.ssl.SSLContext;
 
 public class TomahawkUtils {
 
-    public static String TAG = TomahawkUtils.class.getName();
+    public static String TAG = TomahawkUtils.class.getSimpleName();
 
     public static String HTTP_METHOD_POST = "POST";
 

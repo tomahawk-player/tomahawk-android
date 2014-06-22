@@ -47,7 +47,7 @@ import java.util.ArrayList;
 public class SpotifyService extends Service {
 
     // Used for debug logging
-    private static final String TAG = SpotifyService.class.getName();
+    private static final String TAG = SpotifyService.class.getSimpleName();
 
     public static final String REQUEST_SPOTIFYSERVICE
             = "org.tomahawk.tomahawk_android.request_spotifyservice";

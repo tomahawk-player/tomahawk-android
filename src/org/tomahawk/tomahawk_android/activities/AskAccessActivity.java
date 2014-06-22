@@ -31,7 +31,7 @@ import android.widget.Button;
 
 public class AskAccessActivity extends Activity {
 
-    private final static String TAG = AskAccessActivity.class.getName();
+    private final static String TAG = AskAccessActivity.class.getSimpleName();
 
     public static final String ASKED_FOR_ACCESS = "org.tomahawk.tomahawk_android.asked_for_access";
 

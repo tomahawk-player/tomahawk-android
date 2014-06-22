@@ -46,7 +46,7 @@ import java.util.List;
  */
 public class TomahawkExceptionReporter implements ReportSender {
 
-    private static final String TAG = TomahawkExceptionReporter.class.getName();
+    private static final String TAG = TomahawkExceptionReporter.class.getSimpleName();
 
     /**
      * Construct a new TomahawkExceptionReporter

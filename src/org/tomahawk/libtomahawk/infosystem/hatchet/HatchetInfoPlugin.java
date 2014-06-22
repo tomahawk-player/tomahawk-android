@@ -66,7 +66,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class HatchetInfoPlugin extends InfoPlugin {
 
-    private final static String TAG = HatchetInfoPlugin.class.getName();
+    private final static String TAG = HatchetInfoPlugin.class.getSimpleName();
 
     public static final String HATCHET_BASE_URL = "https://api.hatchet.is";
 

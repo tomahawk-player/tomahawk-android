@@ -47,7 +47,7 @@ import java.util.ArrayList;
  */
 public class SpotifyResolver implements Resolver {
 
-    private final static String TAG = SpotifyResolver.class.getName();
+    private final static String TAG = SpotifyResolver.class.getSimpleName();
 
     private Messenger mToSpotifyMessenger = null;
 

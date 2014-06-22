@@ -28,8 +28,7 @@ package org.tomahawk.tomahawk_android.receiver;
  */
 public class WinampMusicReceiver extends BuiltInMusicAppReceiver {
 
-    @SuppressWarnings("unused")
-    private static final String TAG = "SLSWinampReceiver";
+    static final String TAG = WinampMusicReceiver.class.getSimpleName();
 
     public static final String ACTION_WINAMP_START = "com.nullsoft.winamp.metachanged";
 
