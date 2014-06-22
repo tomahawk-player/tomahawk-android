@@ -28,7 +28,7 @@ import android.util.Log;
 public class SpotifyServiceUtils {
 
     // Used for debug logging
-    private static final String TAG = SpotifyServiceUtils.class.getName();
+    private static final String TAG = SpotifyServiceUtils.class.getSimpleName();
 
     public static void sendMsg(Messenger messenger, int msg) {
         try {

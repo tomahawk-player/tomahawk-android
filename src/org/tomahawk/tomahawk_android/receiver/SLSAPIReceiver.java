@@ -39,8 +39,7 @@ import android.os.Bundle;
  */
 public class SLSAPIReceiver extends AbstractPlayStatusReceiver {
 
-    @SuppressWarnings("unused")
-    private static final String TAG = "SLSAPIReceiver";
+    private static final String TAG = SLSAPIReceiver.class.getSimpleName();
 
     public static final String SLS_API_BROADCAST_INTENT = "com.adam.aslfms.notify.playstatechanged";
 

@@ -103,7 +103,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         LoaderManager.LoaderCallbacks<UserCollection>,
         FragmentManager.OnBackStackChangedListener {
 
-    private final static String TAG = TomahawkMainActivity.class.getName();
+    private final static String TAG = TomahawkMainActivity.class.getSimpleName();
 
     public static final String PLAYBACKSERVICE_READY
             = "org.tomahawk.tomahawk_android.playbackservice_ready";

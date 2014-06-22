@@ -29,7 +29,7 @@ import android.util.Log;
  */
 public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
-    public static final String TAG = TomahawkSQLiteHelper.class.getName();
+    public static final String TAG = TomahawkSQLiteHelper.class.getSimpleName();
 
     public static final String TABLE_USERPLAYLISTS = "userplaylists";
 

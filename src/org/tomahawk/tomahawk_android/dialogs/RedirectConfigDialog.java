@@ -48,7 +48,7 @@ import android.widget.TextView;
  */
 public class RedirectConfigDialog extends DialogFragment {
 
-    public final static String TAG = RedirectConfigDialog.class.getName();
+    public final static String TAG = RedirectConfigDialog.class.getSimpleName();
 
     private String mResolverId;
 

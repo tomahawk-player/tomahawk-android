@@ -34,7 +34,7 @@ import java.io.IOException;
 public class RdioMediaPlayer implements MediaPlayerInterface, MediaPlayer.OnPreparedListener,
         MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
-    private static String TAG = RdioMediaPlayer.class.getName();
+    private static String TAG = RdioMediaPlayer.class.getSimpleName();
 
     private static RdioMediaPlayer instance;
 

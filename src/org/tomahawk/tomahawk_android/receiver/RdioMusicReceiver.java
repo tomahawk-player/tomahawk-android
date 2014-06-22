@@ -36,8 +36,7 @@ import android.os.Bundle;
  */
 public class RdioMusicReceiver extends AbstractPlayStatusReceiver {
 
-    @SuppressWarnings("unused")
-    private static final String TAG = "SLSRdioReceiver";
+    static final String TAG = RdioMusicReceiver.class.getSimpleName();
 
     static final String APP_PACKAGE = "com.rdio.android.ui";
 

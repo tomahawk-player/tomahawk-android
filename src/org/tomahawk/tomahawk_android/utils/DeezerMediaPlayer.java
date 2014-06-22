@@ -40,7 +40,7 @@ public class DeezerMediaPlayer
         implements MediaPlayerInterface, MediaPlayer.OnPreparedListener,
         MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
-    private static String TAG = DeezerMediaPlayer.class.getName();
+    private static String TAG = DeezerMediaPlayer.class.getSimpleName();
 
     private static DeezerMediaPlayer instance;
 

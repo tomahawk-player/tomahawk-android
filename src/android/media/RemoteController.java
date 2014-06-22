@@ -11,7 +11,7 @@ import android.view.KeyEvent;
  */
 public class RemoteController {
 
-    private static final String TAG = "RemoteControllerShell";
+    private static final String TAG = RemoteController.class.getSimpleName();
 
     /**
      * Default playback position synchronization mode where the RemoteControlClient is not asked

@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public class InfoRequestData {
 
-    private final static String TAG = InfoRequestData.class.getName();
+    private final static String TAG = InfoRequestData.class.getSimpleName();
 
     public static final int INFOREQUESTDATA_TYPE_TRACKS = 400;
 

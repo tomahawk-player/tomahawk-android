@@ -48,7 +48,7 @@ public class LgOptimus4xReceiver extends AbstractPlayStatusReceiver {
 
     static final String ACTION_LGE_STOP = "com.lge.music.endofplayback";
 
-    static final String TAG = "SLSLgOptimus4xReceiver";
+    static final String TAG = LgOptimus4xReceiver.class.getSimpleName();
 
     @Override
     protected void parseIntent(Context ctx, String action, Bundle bundle) {

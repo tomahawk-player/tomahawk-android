@@ -25,7 +25,7 @@ import java.util.Map;
  */
 public class ScriptInterface {
 
-    private final static String TAG = ScriptInterface.class.getName();
+    private final static String TAG = ScriptInterface.class.getSimpleName();
 
     private ScriptResolver mScriptResolver;
 
@@ -106,7 +106,7 @@ public class ScriptInterface {
      */
     @JavascriptInterface
     public void log(String message) {
-        Log.d(TAG, "log: " + mScriptResolver.getScriptFilePath() + ":" + message);
+        Log.d(TAG, "log: " + mScriptResolver.getId() + ": " + message);
     }
 
     /**

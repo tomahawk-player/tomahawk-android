@@ -44,7 +44,7 @@ import java.io.UnsupportedEncodingException;
 public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioListener {
 
     // Used for debug logging
-    private final static String TAG = RdioAuthenticatorUtils.class.getName();
+    private final static String TAG = RdioAuthenticatorUtils.class.getSimpleName();
 
     public static final String ACCOUNT_NAME = "Rdio-Account";
 

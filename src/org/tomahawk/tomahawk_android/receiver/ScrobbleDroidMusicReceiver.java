@@ -38,8 +38,7 @@ import android.os.Bundle;
  */
 public class ScrobbleDroidMusicReceiver extends AbstractPlayStatusReceiver {
 
-    @SuppressWarnings("unused")
-    private static final String TAG = "SLSSDMusicReceiver";
+    private static final String TAG = ScrobbleDroidMusicReceiver.class.getSimpleName();
 
     public static final String SCROBBLE_DROID_MUSIC_STATUS
             = "net.jjc1138.android.scrobbler.action.MUSIC_STATUS";

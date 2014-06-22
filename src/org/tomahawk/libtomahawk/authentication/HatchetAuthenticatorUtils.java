@@ -49,7 +49,7 @@ import java.util.Map;
 
 public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
-    private static final String TAG = HatchetAuthenticatorUtils.class.getName();
+    private static final String TAG = HatchetAuthenticatorUtils.class.getSimpleName();
 
     public static final String AUTH_SERVER = "https://auth.hatchet.is/v1/authentication/password";
 

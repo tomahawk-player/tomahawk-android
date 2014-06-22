@@ -17,7 +17,7 @@ public class SEMCMusicReceiver extends BuiltInMusicAppReceiver {
 
     static final String ACTION_SEMC_STOP = "com.sonyericsson.music.playbackcontrol.ACTION_PAUSED";
 
-    private static final String TAG = "SEMCMusicReceiver";
+    private static final String TAG = SEMCMusicReceiver.class.getSimpleName();
 
     public SEMCMusicReceiver() {
         super(ACTION_SEMC_STOP, APP_PACKAGE, "Sony Ericsson Music Player");

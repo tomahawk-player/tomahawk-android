@@ -37,7 +37,7 @@ public class SpotifyReceiver extends AbstractPlayStatusReceiver {
     static final String ACTION_SPOTIFY_PLAYBACKSTATECHANGED
             = "com.spotify.mobile.android.playbackstatechanged";
 
-    static final String TAG = "SpotifyReceiver";
+    static final String TAG = SpotifyReceiver.class.getSimpleName();
 
     @Override
     protected void parseIntent(Context ctx, String action, Bundle bundle) {

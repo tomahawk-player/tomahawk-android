@@ -41,7 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Query implements TomahawkListItem {
 
-    public static final String TAG = Query.class.getName();
+    public static final String TAG = Query.class.getSimpleName();
 
     private static ConcurrentHashMap<String, Query> sQueries
             = new ConcurrentHashMap<String, Query>();

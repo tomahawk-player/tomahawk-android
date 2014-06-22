@@ -59,7 +59,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ScriptResolver implements Resolver {
 
-    private final static String TAG = ScriptResolver.class.getName();
+    private final static String TAG = ScriptResolver.class.getSimpleName();
 
     private final static String RESOLVER_LEGACY_CODE
             = "var resolver = Tomahawk.resolver.instance ? Tomahawk.resolver.instance : TomahawkResolver;";

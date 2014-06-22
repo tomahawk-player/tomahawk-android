@@ -26,7 +26,7 @@ import android.webkit.WebChromeClient;
  */
 public class TomahawkWebChromeClient extends WebChromeClient {
 
-    private final static String TAG = TomahawkWebChromeClient.class.getName();
+    private final static String TAG = TomahawkWebChromeClient.class.getSimpleName();
 
     @Override
     public boolean onConsoleMessage(ConsoleMessage cm) {

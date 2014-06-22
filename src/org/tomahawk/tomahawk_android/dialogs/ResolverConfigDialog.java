@@ -53,7 +53,7 @@ import java.util.Map;
  */
 public class ResolverConfigDialog extends DialogFragment {
 
-    public final static String TAG = ResolverConfigDialog.class.getName();
+    public final static String TAG = ResolverConfigDialog.class.getSimpleName();
 
     public static final String PROPERTY_CHECKED = "checked";
 

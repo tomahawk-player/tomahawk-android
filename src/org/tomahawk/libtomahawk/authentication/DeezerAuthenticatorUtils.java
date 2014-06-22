@@ -43,7 +43,7 @@ import android.widget.Toast;
 public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
 
     // Used for debug logging
-    private final static String TAG = DeezerAuthenticatorUtils.class.getName();
+    private final static String TAG = DeezerAuthenticatorUtils.class.getSimpleName();
 
     public static final String ACCOUNT_NAME = "Deezer-Account";
 
