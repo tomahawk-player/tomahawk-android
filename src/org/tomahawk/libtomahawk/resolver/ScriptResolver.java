@@ -112,6 +112,8 @@ public class ScriptResolver implements Resolver {
 
     private boolean mUrlLookup;
 
+    private FuzzyIndex mFuzzyIndex;
+
     private static final int TIMEOUT_HANDLER_MSG = 1337;
 
     // Handler which sets the mStopped bool to true after the timeout has occured.
@@ -669,5 +671,16 @@ public class ScriptResolver implements Resolver {
 
     public boolean isUrlLookup() {
         return mUrlLookup;
+    }
+
+    public FuzzyIndex getFuzzyIndex() {
+        return mFuzzyIndex;
+    }
+
+    public void setFuzzyIndex(FuzzyIndex fuzzyIndex) {
+        if (mFuzzyIndex != null) {
+            mFuzzyIndex.close();
+        }
+        mFuzzyIndex = fuzzyIndex;
     }
 }
