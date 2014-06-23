@@ -7,11 +7,13 @@ import org.json.JSONObject;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -203,5 +205,50 @@ public class ScriptInterface {
                 }
             }
         }).start();
+    }
+
+    @JavascriptInterface
+    public void createFuzzyIndexString(String stringifiedIndexList) {
+        try {
+            String filePath = TomahawkApp.getContext().getFilesDir().getAbsolutePath()
+                    + File.separator + mScriptResolver.getId() + ".lucene";
+            mScriptResolver.setFuzzyIndex(new FuzzyIndex(filePath, true));
+            ScriptResolverFuzzyIndex[] indexList = mObjectMapper
+                    .readValue(stringifiedIndexList, ScriptResolverFuzzyIndex[].class);
+            mScriptResolver.getFuzzyIndex().addScriptResolverFuzzyIndexList(indexList);
+        } catch (IOException e) {
+            Log.e(TAG, "createFuzzyIndexString: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
+    }
+
+    @JavascriptInterface
+    public String searchFuzzyIndexString(String query) {
+        double[][] results = mScriptResolver.getFuzzyIndex().search(Query.get(query, false));
+        try {
+            return mObjectMapper.writeValueAsString(results);
+        } catch (IOException e) {
+            Log.e(TAG, "searchFuzzyIndexString: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
+        return null;
+    }
+
+    @JavascriptInterface
+    public String resolveFromFuzzyIndexString(String artist, String album, String title) {
+        double[][] results = mScriptResolver.getFuzzyIndex().search(
+                Query.get(title, album, artist, false));
+        try {
+            return mObjectMapper.writeValueAsString(results);
+        } catch (IOException e) {
+            Log.e(TAG, "resolveFromFuzzyIndexString: " + e.getClass() + ": " + e
+                    .getLocalizedMessage());
+        }
+        return null;
+    }
+
+    @JavascriptInterface
+    public void deleteFuzzyIndex() {
+        if (mScriptResolver.getFuzzyIndex() != null) {
+            mScriptResolver.getFuzzyIndex().deleteIndex();
+        }
     }
 }
