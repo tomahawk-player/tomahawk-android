@@ -56,8 +56,6 @@ public class PipeLine {
 
     public final static String PLUGINNAME_RDIO = "rdio";
 
-    public final static String PLUGINNAME_EXFM = "ex.fm";
-
     public final static String PLUGINNAME_BEETS = "beets";
 
     public final static String PLUGINNAME_GMUSIC = "gmusic";
@@ -318,9 +316,7 @@ public class PipeLine {
     public void reportResults(final String queryKey, final ArrayList<Result> results,
             final String resolverId) {
         int priority;
-        if (PLUGINNAME_EXFM.equals(resolverId)) {
-            priority = TomahawkRunnable.PRIORITY_IS_REPORTING_WITH_HEADERREQUEST;
-        } else if (PLUGINNAME_USERCOLLECTION.equals(resolverId)) {
+        if (PLUGINNAME_USERCOLLECTION.equals(resolverId)) {
             priority = TomahawkRunnable.PRIORITY_IS_REPORTING_LOCALSOURCE;
         } else if (PLUGINNAME_SPOTIFY.equals(resolverId)) {
             priority = TomahawkRunnable.PRIORITY_IS_REPORTING_SUBSCRIPTION;
@@ -341,11 +337,8 @@ public class PipeLine {
                                     r.setTrackScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_TRACKS));
                                     if (r.getTrackScore() >= MINSCORE
                                             && !cleanTrackResults.contains(r)) {
-                                        if (!PLUGINNAME_EXFM.equals(resolverId)
-                                                || TomahawkUtils.httpHeaderRequest(r.getPath())) {
-                                            r.setType(Result.RESULT_TYPE_TRACK);
-                                            cleanTrackResults.add(r);
-                                        }
+                                        r.setType(Result.RESULT_TYPE_TRACK);
+                                        cleanTrackResults.add(r);
                                     }
                                     if (q.isFullTextQuery()) {
                                         r.setAlbumScore(
