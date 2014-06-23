@@ -61,12 +61,6 @@ public class ScriptResolver implements Resolver {
 
     private final static String TAG = ScriptResolver.class.getSimpleName();
 
-    private final static String RESOLVER_LEGACY_CODE
-            = "var resolver = Tomahawk.resolver.instance ? Tomahawk.resolver.instance : TomahawkResolver;";
-
-    private final static String RESOLVER_LEGACY_CODE2
-            = "var resolver = Tomahawk.resolver.instance ? Tomahawk.resolver.instance : window;";
-
     private final static String SCRIPT_INTERFACE_NAME = "Tomahawk";
 
     public final static String CONFIG = "config";
@@ -264,8 +258,8 @@ public class ScriptResolver implements Resolver {
      * This method calls the js function resolver.init().
      */
     private void resolverInit() {
-        final String url = "javascript:" + RESOLVER_LEGACY_CODE + makeJSFunctionCallbackJava(
-                R.id.scriptresolver_resolver_init, "resolver.init()", false);
+        final String url = "javascript:" + makeJSFunctionCallbackJava(
+                R.id.scriptresolver_resolver_init, "Tomahawk.resolver.instance.init()", false);
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
@@ -278,9 +272,9 @@ public class ScriptResolver implements Resolver {
      * This method tries to get the {@link Resolver}'s settings.
      */
     private void resolverSettings() {
-        final String url = "javascript:" + RESOLVER_LEGACY_CODE
+        final String url = "javascript:"
                 + makeJSFunctionCallbackJava(R.id.scriptresolver_resolver_settings,
-                "resolver.settings ? resolver.settings : getSettings() ", true);
+                "Tomahawk.resolver.instance.settings", true);
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
@@ -293,9 +287,9 @@ public class ScriptResolver implements Resolver {
      * This method tries to save the {@link Resolver}'s UserConfig.
      */
     private void resolverSaveUserConfig() {
-        final String url = "javascript:" + RESOLVER_LEGACY_CODE
+        final String url = "javascript:"
                 + makeJSFunctionCallbackJava(R.id.scriptresolver_resolver_save_userconfig,
-                "resolver.saveUserConfig()", false);
+                "Tomahawk.resolver.instance.saveUserConfig()", false);
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
@@ -308,9 +302,9 @@ public class ScriptResolver implements Resolver {
      * This method tries to get the {@link Resolver}'s UserConfig.
      */
     private void resolverGetConfigUi() {
-        final String url = "javascript:" + RESOLVER_LEGACY_CODE
+        final String url = "javascript:"
                 + makeJSFunctionCallbackJava(R.id.scriptresolver_resolver_get_config_ui,
-                "resolver.getConfigUi()", true);
+                "Tomahawk.resolver.instance.getConfigUi()", true);
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
@@ -435,20 +429,15 @@ public class ScriptResolver implements Resolver {
             String escapedQid = StringEscapeUtils.escapeJavaScript(qid);
             if (query.isFullTextQuery()) {
                 String fullTextQuery = StringEscapeUtils.escapeJavaScript(query.getFullTextQuery());
-                url = "javascript:" + RESOLVER_LEGACY_CODE
-                        + makeJSFunctionCallbackJava(R.id.scriptresolver_resolve,
-                        "(Tomahawk.resolver.instance !== undefined) ?resolver.search( '"
-                                + escapedQid + "', '" + fullTextQuery
-                                + "' ):resolve( '" + escapedQid + "', '', '', '"
-                                + fullTextQuery + "' )",
-                        false);
+                url = "javascript:" + makeJSFunctionCallbackJava(R.id.scriptresolver_resolve,
+                        "Tomahawk.resolver.instance.search( '" + escapedQid + "', '"
+                                + fullTextQuery + "' )", false);
             } else {
                 String artistName = StringEscapeUtils.escapeJavaScript(query.getArtist().getName());
                 String albumName = StringEscapeUtils.escapeJavaScript(query.getAlbum().getName());
                 String trackName = StringEscapeUtils.escapeJavaScript(query.getName());
-                url = "javascript:" + RESOLVER_LEGACY_CODE2
-                        + makeJSFunctionCallbackJava(R.id.scriptresolver_resolve,
-                        "resolver.resolve( '" + escapedQid + "', '" + artistName
+                url = "javascript:" + makeJSFunctionCallbackJava(R.id.scriptresolver_resolve,
+                        "Tomahawk.resolver.instance.resolve( '" + escapedQid + "', '" + artistName
                                 + "', '" + albumName + "', '" + trackName + "' )",
                         false);
             }
@@ -469,9 +458,9 @@ public class ScriptResolver implements Resolver {
             String resultId = TomahawkMainActivity.getSessionUniqueStringId();
             // we are using the same map as we do when resolving queries
             mQueryKeys.put(resultId, result.getCacheKey());
-            final String url = "javascript:" + RESOLVER_LEGACY_CODE2
-                    + makeJSFunctionCallbackJava(R.id.scriptresolver_report_stream_url,
-                    "resolver." + callbackFuncName + "( '"
+            final String url = "javascript:" + makeJSFunctionCallbackJava(
+                    R.id.scriptresolver_report_stream_url,
+                    "Tomahawk.resolver.instance." + callbackFuncName + "( '"
                             + StringEscapeUtils.escapeJavaScript(resultId)
                             + "', '" + StringEscapeUtils.escapeJavaScript(result.getPath()) + "' )",
                     true);
