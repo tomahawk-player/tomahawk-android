@@ -17,7 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -85,8 +85,8 @@ public class UserPlaylistsFragment extends TomahawkFragment implements OnItemCli
         getActivity().setTitle(getString(R.string.userplaylistsfragment_title_string));
 
         List<TomahawkListItem> userPlaylists = new ArrayList<TomahawkListItem>();
-        userPlaylists.addAll(UserCollection.getInstance().getLocalUserPlaylists());
-        userPlaylists.addAll(UserCollection.getInstance().getHatchetUserPlaylists());
+        userPlaylists.addAll(CollectionManager.getInstance().getLocalUserPlaylists());
+        userPlaylists.addAll(CollectionManager.getInstance().getHatchetUserPlaylists());
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
                     layoutInflater, userPlaylists);

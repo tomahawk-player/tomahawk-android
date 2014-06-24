@@ -24,9 +24,8 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.RdioAuthenticatorUtils;
-import org.tomahawk.libtomahawk.collection.CollectionLoader;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
-import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.database.TomahawkSQLiteHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
@@ -71,8 +70,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -90,7 +87,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -100,7 +96,6 @@ import java.util.Map;
  */
 public class TomahawkMainActivity extends ActionBarActivity
         implements PlaybackServiceConnectionListener,
-        LoaderManager.LoaderCallbacks<UserCollection>,
         FragmentManager.OnBackStackChangedListener {
 
     private final static String TAG = TomahawkMainActivity.class.getSimpleName();
@@ -191,8 +186,6 @@ public class TomahawkMainActivity extends ActionBarActivity
                         .getSystemService(Context.CONNECTIVITY_SERVICE);
                 sIsConnectedToWifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI) != null
                         && connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected();
-            } else if (UserCollection.COLLECTION_UPDATED.equals(intent.getAction())) {
-                onCollectionUpdated();
             } else if (PlaybackService.BROADCAST_CURRENTTRACKCHANGED.equals(intent.getAction())) {
                 if (mPlaybackService != null) {
                     updateViewVisibility();
@@ -270,7 +263,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         PipeLine.getInstance().ensureInit();
         InfoSystem.getInstance().ensureInit();
         AuthenticatorManager.getInstance().ensureInit();
-        UserCollection.getInstance().ensureInit();
+        CollectionManager.getInstance().ensureInit();
 
         //Setup our services
         Intent intent = new Intent(this, PlaybackService.class);
@@ -411,16 +404,11 @@ public class TomahawkMainActivity extends ActionBarActivity
             setNowPlayingInfo();
         }
 
-        getSupportLoaderManager().destroyLoader(0);
-        getSupportLoaderManager().initLoader(0, null, this);
-
         if (mTomahawkMainReceiver == null) {
             mTomahawkMainReceiver = new TomahawkMainReceiver();
         }
 
         // Register intents that the BroadcastReceiver should listen to
-        registerReceiver(mTomahawkMainReceiver,
-                new IntentFilter(UserCollection.COLLECTION_UPDATED));
         registerReceiver(mTomahawkMainReceiver,
                 new IntentFilter(PlaybackService.BROADCAST_CURRENTTRACKCHANGED));
         registerReceiver(mTomahawkMainReceiver,
@@ -617,26 +605,6 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public PlaybackService getPlaybackService() {
         return mPlaybackService;
-    }
-
-    @Override
-    public Loader<UserCollection> onCreateLoader(int id, Bundle args) {
-        return new CollectionLoader(this, UserCollection.getInstance());
-    }
-
-    @Override
-    public void onLoaderReset(Loader<UserCollection> loader) {
-    }
-
-    @Override
-    public void onLoadFinished(Loader<UserCollection> loader, UserCollection coll) {
-    }
-
-    /**
-     * Called when a {@link Collection} has been updated.
-     */
-    protected void onCollectionUpdated() {
-        getSupportLoaderManager().restartLoader(0, null, this);
     }
 
     public void onHatchetLoggedInOut(boolean loggedIn) {

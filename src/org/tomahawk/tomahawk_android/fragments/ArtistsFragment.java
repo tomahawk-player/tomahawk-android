@@ -103,11 +103,7 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
                 ((TomahawkListAdapter) getListAdapter()).setListItems(artists);
             }
         } else {
-            if (mIsLocal) {
-                artists.addAll(Artist.getLocalArtists());
-            } else {
-                artists.addAll(Artist.getArtists());
-            }
+            artists.addAll(mCollection.getArtists());
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
                         layoutInflater, artists);

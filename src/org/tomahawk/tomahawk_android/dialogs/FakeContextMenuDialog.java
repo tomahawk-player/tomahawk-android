@@ -19,7 +19,7 @@ package org.tomahawk.tomahawk_android.dialogs;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
@@ -277,7 +277,7 @@ public class FakeContextMenuDialog extends DialogFragment {
                     TomahawkFragment.TOMAHAWK_ARTIST_KEY, false);
         } else if (menuItemTitle.equals(getString(R.string.fake_context_menu_love_track))
                 || menuItemTitle.equals(getString(R.string.fake_context_menu_unlove_track))) {
-            UserCollection.getInstance().toggleLovedItem((Query) mTomahawkListItem);
+            CollectionManager.getInstance().toggleLovedItem((Query) mTomahawkListItem);
         }
     }
 

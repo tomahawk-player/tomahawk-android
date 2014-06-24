@@ -19,16 +19,18 @@ package org.tomahawk.tomahawk_android.utils;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
+import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.fragments.CollectionFragment;
 import org.tomahawk.tomahawk_android.fragments.FavoritesFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
 import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
-import org.tomahawk.tomahawk_android.fragments.UserCollectionFragment;
 import org.tomahawk.tomahawk_android.fragments.UserPlaylistsFragment;
 
 import android.content.Context;
@@ -83,7 +85,7 @@ public class FragmentUtils {
                     FRAGMENT_TAG);
         } else {
             ft.add(R.id.content_viewer_frame,
-                    Fragment.instantiate(context, UserCollectionFragment.class.getName(), null),
+                    Fragment.instantiate(context, CollectionFragment.class.getName(), null),
                     FRAGMENT_TAG);
         }
         ft.commit();
@@ -94,14 +96,10 @@ public class FragmentUtils {
      */
     public static void replace(Context context, FragmentManager fragmentManager, Class clss,
             String tomahawkListItemKey, String tomahawkListItemType, boolean isLocal) {
-        FragmentTransaction ft = fragmentManager.beginTransaction();
         Bundle bundle = new Bundle();
         bundle.putString(tomahawkListItemType, tomahawkListItemKey);
         bundle.putBoolean(TomahawkFragment.TOMAHAWK_LIST_ITEM_IS_LOCAL, isLocal);
-        ft.replace(R.id.content_viewer_frame, Fragment.instantiate(context, clss.getName(), bundle),
-                FRAGMENT_TAG);
-        ft.addToBackStack(FRAGMENT_TAG);
-        ft.commit();
+        replace(context, fragmentManager, clss, bundle);
     }
 
     /**
@@ -109,14 +107,10 @@ public class FragmentUtils {
      */
     public static void replace(Context context, FragmentManager fragmentManager, Class clss,
             String tomahawkListItemKey, String tomahawkListItemType, int showMode) {
-        FragmentTransaction ft = fragmentManager.beginTransaction();
         Bundle bundle = new Bundle();
         bundle.putString(tomahawkListItemType, tomahawkListItemKey);
         bundle.putInt(TomahawkFragment.SHOW_MODE, showMode);
-        ft.replace(R.id.content_viewer_frame, Fragment.instantiate(context, clss.getName(), bundle),
-                FRAGMENT_TAG);
-        ft.addToBackStack(FRAGMENT_TAG);
-        ft.commit();
+        replace(context, fragmentManager, clss, bundle);
     }
 
     /**
@@ -124,21 +118,25 @@ public class FragmentUtils {
      */
     public static void replace(Context context, FragmentManager fragmentManager, Class clss,
             String queryString) {
-        FragmentTransaction ft = fragmentManager.beginTransaction();
         Bundle bundle = new Bundle();
         bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING, queryString);
-        ft.replace(R.id.content_viewer_frame, Fragment.instantiate(context, clss.getName(), bundle),
-                FRAGMENT_TAG);
-        ft.addToBackStack(FRAGMENT_TAG);
-        ft.commit();
+        replace(context, fragmentManager, clss, bundle);
     }
 
     /**
      * Replaces the current {@link Fragment}
      */
     public static void replace(Context context, FragmentManager fragmentManager, Class clss) {
+        replace(context, fragmentManager, clss, (Bundle) null);
+    }
+
+    /**
+     * Replaces the current {@link Fragment}
+     */
+    public static void replace(Context context, FragmentManager fragmentManager, Class clss,
+            Bundle bundle) {
         FragmentTransaction ft = fragmentManager.beginTransaction();
-        ft.replace(R.id.content_viewer_frame, Fragment.instantiate(context, clss.getName()),
+        ft.replace(R.id.content_viewer_frame, Fragment.instantiate(context, clss.getName(), bundle),
                 FRAGMENT_TAG);
         ft.addToBackStack(FRAGMENT_TAG);
         ft.commit();
@@ -180,7 +178,10 @@ public class FragmentUtils {
                         SocialActionsFragment.SHOW_MODE_DASHBOARD);
                 break;
             case HUB_ID_COLLECTION:
-                replace(context, fragmentManager, UserCollectionFragment.class);
+                Bundle bundle = new Bundle();
+                bundle.putString(CollectionManager.COLLECTION_ID,
+                        PipeLine.PLUGINNAME_USERCOLLECTION);
+                replace(context, fragmentManager, CollectionFragment.class, bundle);
                 break;
             case HUB_ID_LOVEDTRACKS:
                 replace(context, fragmentManager, FavoritesFragment.class);

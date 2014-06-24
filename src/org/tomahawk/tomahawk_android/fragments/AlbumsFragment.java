@@ -162,11 +162,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
             }
             getListView().setOnItemClickListener(this);
         } else {
-            if (mIsLocal) {
-                albumsAndTopHits.addAll(Album.getLocalAlbums());
-            } else {
-                albumsAndTopHits.addAll(Album.getAlbums());
-            }
+            albumsAndTopHits.addAll(mCollection.getAlbums());
             if (getGridAdapter() == null) {
                 TomahawkGridAdapter tomahawkGridAdapter = new TomahawkGridAdapter(activity,
                         layoutInflater, albumsAndTopHits);

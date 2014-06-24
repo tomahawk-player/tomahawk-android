@@ -17,6 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.UserCollection;
@@ -360,7 +361,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                 loveButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        UserCollection.getInstance().toggleLovedItem(query);
+                        CollectionManager.getInstance().toggleLovedItem(query);
                         mContext.sendBroadcast(
                                 new Intent(PlaybackService.BROADCAST_CURRENTTRACKCHANGED));
                     }

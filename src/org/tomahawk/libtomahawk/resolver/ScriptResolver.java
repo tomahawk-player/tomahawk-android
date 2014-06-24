@@ -25,6 +25,8 @@ import org.json.JSONObject;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
+import org.tomahawk.libtomahawk.collection.ScriptResolverCollection;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.utils.StringEscapeUtils;
@@ -50,6 +52,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -80,6 +83,8 @@ public class ScriptResolver implements Resolver {
 
     private ScriptResolverMetaData mMetaData;
 
+    private ScriptResolverCollectionMetaData mCollectionMetaData;
+
     private String mIconPath;
 
     private int mWeight;
@@ -107,6 +112,12 @@ public class ScriptResolver implements Resolver {
     private boolean mUrlLookup;
 
     private FuzzyIndex mFuzzyIndex;
+
+    private static final int MAX_CALLS = 100;
+
+    private int mStartedCalls = 0;
+
+    private LinkedList<String> mWaitingCalls = new LinkedList<String>();
 
     private static final int TIMEOUT_HANDLER_MSG = 1337;
 
@@ -258,59 +269,33 @@ public class ScriptResolver implements Resolver {
      * This method calls the js function resolver.init().
      */
     private void resolverInit() {
-        final String url = "javascript:" + makeJSFunctionCallbackJava(
-                R.id.scriptresolver_resolver_init, "Tomahawk.resolver.instance.init()", false);
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                mScriptEngine.loadUrl(url);
-            }
-        });
+        loadUrl("javascript:" + makeJSFunctionCallbackJava(
+                R.id.scriptresolver_resolver_init, "Tomahawk.resolver.instance.init()", false));
     }
 
     /**
      * This method tries to get the {@link Resolver}'s settings.
      */
     private void resolverSettings() {
-        final String url = "javascript:"
+        loadUrl("javascript:"
                 + makeJSFunctionCallbackJava(R.id.scriptresolver_resolver_settings,
-                "Tomahawk.resolver.instance.settings", true);
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                mScriptEngine.loadUrl(url);
-            }
-        });
+                "Tomahawk.resolver.instance.settings", true));
     }
 
     /**
      * This method tries to save the {@link Resolver}'s UserConfig.
      */
     private void resolverSaveUserConfig() {
-        final String url = "javascript:"
-                + makeJSFunctionCallbackJava(R.id.scriptresolver_resolver_save_userconfig,
-                "Tomahawk.resolver.instance.saveUserConfig()", false);
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                mScriptEngine.loadUrl(url);
-            }
-        });
+        loadUrl("javascript: Tomahawk.resolver.instance.saveUserConfig()");
     }
 
     /**
      * This method tries to get the {@link Resolver}'s UserConfig.
      */
     private void resolverGetConfigUi() {
-        final String url = "javascript:"
+        loadUrl("javascript:"
                 + makeJSFunctionCallbackJava(R.id.scriptresolver_resolver_get_config_ui,
-                "Tomahawk.resolver.instance.getConfigUi()", true);
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                mScriptEngine.loadUrl(url);
-            }
-        });
+                "Tomahawk.resolver.instance.getConfigUi()", true));
     }
 
     public void callback(final int callbackId, final String responseText,
@@ -331,29 +316,25 @@ public class ScriptResolver implements Resolver {
         }
         try {
             String headersString = mObjectMapper.writeValueAsString(headers);
-            final String url = "javascript: Tomahawk.callback(" + callbackId + ","
+            loadUrl("javascript: Tomahawk.callback(" + callbackId + ","
                     + "'" + StringEscapeUtils.escapeJavaScript(responseText) + "',"
                     + "'" + StringEscapeUtils.escapeJavaScript(headersString) + "',"
                     + status + ","
-                    + "'" + StringEscapeUtils.escapeJavaScript(statusText) + "');";
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    mScriptEngine.loadUrl(url);
-                }
-            });
+                    + "'" + StringEscapeUtils.escapeJavaScript(statusText) + "');");
         } catch (IOException e) {
             Log.e(TAG, "callback: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
     }
 
     /**
-     * Every callback from a function inside the javascript should first call the method
-     * callbackToJava, which is exposed to javascript within the {@link ScriptInterface}. And after
-     * that this callback will be handled here.
+     * Sometimes we need the String returned by a certain javascript function. Therefore we wrap the
+     * function call in a call to "callbackToJava", which is being received by the ScriptInterface.
+     * The ScriptInterface redirects the call to this method, where we can access the returned
+     * String. Throughout this whole process we are passing an id along, which enables us to
+     * identify which call wants to return its result.
      *
      * @param id         used to identify which function did the callback
-     * @param jsonString the json-string containing the {@link Result} information. Can be null
+     * @param jsonString the json-string which is the result of the called function. Can be null.
      */
     public void handleCallbackToJava(final int id, final String... jsonString) {
         try {
@@ -369,43 +350,197 @@ public class ScriptResolver implements Resolver {
                 mConfigUi = mObjectMapper.readValue(jsonString[0], ScriptResolverConfigUi.class);
             } else if (id == R.id.scriptresolver_resolver_init) {
                 resolverSettings();
-            } else if (id == R.id.scriptresolver_add_track_results_string && jsonString != null) {
-                ThreadManager.getInstance().execute(
-                        new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_REPORTING) {
-                            @Override
-                            public void run() {
-                                ScriptResolverResult result = null;
-                                try {
-                                    result = mObjectMapper
-                                            .readValue(jsonString[0], ScriptResolverResult.class);
-                                } catch (IOException e) {
-                                    Log.e(TAG, "handleCallbackToJava: " + e.getClass() + ": " + e
-                                            .getLocalizedMessage());
-                                }
-                                if (result != null) {
-                                    ArrayList<Result> parsedResults = parseResultList(
-                                            result.results, result.qid);
-                                    PipeLine.getInstance().reportResults(mQueryKeys.get(result.qid),
-                                            parsedResults, mId);
-                                }
-                                mTimeOutHandler.removeCallbacksAndMessages(null);
-                                mStopped = true;
-                            }
-                        }
-                );
-            } else if (id == R.id.scriptresolver_report_stream_url && jsonString != null
-                    && jsonString.length >= 2) {
-                Map<String, String> headers = null;
-                if (jsonString.length > 2) {
-                    headers = mObjectMapper.readValue(jsonString[2], Map.class);
-                }
-                String resultKey = mQueryKeys.get(jsonString[0]);
-                PipeLine.getInstance().sendStreamUrlReportBroadcast(resultKey, jsonString[1],
-                        headers);
+            } else if (id == R.id.scriptresolver_resolver_collection && jsonString != null
+                    && jsonString.length == 1) {
+                mCollectionMetaData = mObjectMapper
+                        .readValue(jsonString[0], ScriptResolverCollectionMetaData.class);
+                CollectionManager.getInstance().addCollection(new ScriptResolverCollection(this));
             }
         } catch (IOException e) {
             Log.e(TAG, "handleCallbackToJava: " + e.getClass() + ": " + e
                     .getLocalizedMessage());
+        }
+    }
+
+    public void addTrackResultsString(final String results) {
+        ThreadManager.getInstance().execute(
+                new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_REPORTING) {
+                    @Override
+                    public void run() {
+                        ScriptResolverResult result = null;
+                        try {
+                            result = mObjectMapper
+                                    .readValue(results, ScriptResolverResult.class);
+                        } catch (IOException e) {
+                            Log.e(TAG, "addTrackResultsString: " + e.getClass() + ": " + e
+                                    .getLocalizedMessage());
+                        }
+                        if (result != null) {
+                            ArrayList<Result> parsedResults = parseResultList(
+                                    result.results, result.qid);
+                            PipeLine.getInstance().reportResults(mQueryKeys.get(result.qid),
+                                    parsedResults, mId);
+                        }
+                        mTimeOutHandler.removeCallbacksAndMessages(null);
+                        mStopped = true;
+                    }
+                }
+        );
+    }
+
+    public void addAlbumResultsString(final String results) {
+        ThreadManager.getInstance().execute(
+                new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_REPORTING) {
+                    @Override
+                    public void run() {
+                        onCollectionCallFinished();
+                        ScriptResolverAlbumResult result = null;
+                        try {
+                            result = mObjectMapper
+                                    .readValue(results, ScriptResolverAlbumResult.class);
+                        } catch (IOException e) {
+                            Log.e(TAG, "addAlbumResultsString: " + e.getClass() + ": " + e
+                                    .getLocalizedMessage());
+                        }
+                        if (result != null) {
+                            ScriptResolverCollection collection = (ScriptResolverCollection)
+                                    CollectionManager.getInstance().getCollection(result.qid);
+                            Artist artist = Artist.get(result.artist);
+                            for (String albumName : result.albums) {
+                                collection.addAlbum(Album.get(albumName, artist));
+                            }
+                        }
+                        mTimeOutHandler.removeCallbacksAndMessages(null);
+                        mStopped = true;
+                    }
+                }
+        );
+    }
+
+    public void addArtistResultsString(final String results) {
+        ThreadManager.getInstance().execute(
+                new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_REPORTING) {
+                    @Override
+                    public void run() {
+                        onCollectionCallFinished();
+                        ScriptResolverArtistResult result = null;
+                        try {
+                            result = mObjectMapper.readValue(results,
+                                    ScriptResolverArtistResult.class);
+                        } catch (IOException e) {
+                            Log.e(TAG, "addArtistResultsString: " + e.getClass() + ": " + e
+                                    .getLocalizedMessage());
+                        }
+                        if (result != null) {
+                            ScriptResolverCollection collection = (ScriptResolverCollection)
+                                    CollectionManager.getInstance().getCollection(result.qid);
+                            for (String artistName : result.artists) {
+                                collection.addArtist(Artist.get(artistName));
+                            }
+                        }
+                        mTimeOutHandler.removeCallbacksAndMessages(null);
+                        mStopped = true;
+                    }
+                }
+        );
+    }
+
+    public void addAlbumTrackResultsString(final String results) {
+        ThreadManager.getInstance().execute(
+                new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_REPORTING) {
+                    @Override
+                    public void run() {
+                        onCollectionCallFinished();
+                        ScriptResolverAlbumTrackResult result = null;
+                        try {
+                            result = mObjectMapper.readValue(results,
+                                    ScriptResolverAlbumTrackResult.class);
+                        } catch (IOException e) {
+                            Log.e(TAG, "addAlbumTrackResultsString: " + e.getClass() + ": " + e
+                                    .getLocalizedMessage());
+                        }
+                        if (result != null) {
+                            ScriptResolverCollection collection = (ScriptResolverCollection)
+                                    CollectionManager.getInstance().getCollection(result.qid);
+                            ArrayList<Result> parsedResults = parseResultList(
+                                    result.results, result.qid);
+                            for (Result r : parsedResults) {
+                                collection.addTrackResult(r);
+                            }
+                        }
+                        mTimeOutHandler.removeCallbacksAndMessages(null);
+                        mStopped = true;
+                    }
+                }
+        );
+    }
+
+    public void reportStreamUrl(String qid, String url, String stringifiedHeaders) {
+        try {
+            Map<String, String> headers = null;
+            if (stringifiedHeaders != null) {
+                headers = mObjectMapper.readValue(stringifiedHeaders, Map.class);
+            }
+            String resultKey = mQueryKeys.get(qid);
+            PipeLine.getInstance().sendStreamUrlReportBroadcast(resultKey, url, headers);
+        } catch (IOException e) {
+            Log.e(TAG, "reportStreamUrl: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
+    }
+
+    public void collection() {
+        loadUrl("javascript:"
+                + makeJSFunctionCallbackJava(R.id.scriptresolver_resolver_collection,
+                "Tomahawk.resolver.instance.collection()", true));
+    }
+
+    public void tracks(String qid, String artistName, String albumName) {
+        String escapedQid = StringEscapeUtils.escapeJavaScript(qid);
+        String escapedArtistName = StringEscapeUtils.escapeJavaScript(artistName);
+        String escapedAlbumName = StringEscapeUtils.escapeJavaScript(albumName);
+        loadUrlAsCollectionCall(
+                "javascript: Tomahawk.resolver.instance.tracks( '" + escapedQid + "', '"
+                        + escapedArtistName + "', '" + escapedAlbumName + "' )");
+    }
+
+    public void artists(String qid) {
+        String escapedQid = StringEscapeUtils.escapeJavaScript(qid);
+        loadUrlAsCollectionCall(
+                "javascript: Tomahawk.resolver.instance.artists( '" + escapedQid + "' )");
+    }
+
+    public void albums(String qid, String artistName) {
+        String escapedQid = StringEscapeUtils.escapeJavaScript(qid);
+        String escapedArtistName = StringEscapeUtils.escapeJavaScript(artistName);
+        loadUrlAsCollectionCall(
+                "javascript: Tomahawk.resolver.instance.albums( '" + escapedQid + "', '"
+                        + escapedArtistName + "' )");
+    }
+
+    private void onCollectionCallFinished() {
+        mStartedCalls--;
+        while (!mWaitingCalls.isEmpty() && mStartedCalls < MAX_CALLS) {
+            loadUrl(mWaitingCalls.pop());
+            mStartedCalls++;
+        }
+        Log.d("test", "onCollectionCallFinished " + mWaitingCalls.size());
+    }
+
+    public void loadUrl(final String url) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                mScriptEngine.loadUrl(url);
+            }
+        });
+    }
+
+    public void loadUrlAsCollectionCall(final String url) {
+        if (mStartedCalls >= MAX_CALLS) {
+            mWaitingCalls.add(url);
+        } else {
+            loadUrl(url);
+            mStartedCalls++;
         }
     }
 
@@ -429,26 +564,19 @@ public class ScriptResolver implements Resolver {
             String escapedQid = StringEscapeUtils.escapeJavaScript(qid);
             if (query.isFullTextQuery()) {
                 String fullTextQuery = StringEscapeUtils.escapeJavaScript(query.getFullTextQuery());
-                url = "javascript:" + makeJSFunctionCallbackJava(R.id.scriptresolver_resolve,
-                        "Tomahawk.resolver.instance.search( '" + escapedQid + "', '"
-                                + fullTextQuery + "' )", false);
+                url = "javascript: Tomahawk.resolver.instance.search( '" + escapedQid + "', '"
+                        + fullTextQuery + "' )";
             } else {
                 String artistName = StringEscapeUtils.escapeJavaScript(query.getArtist().getName());
                 String albumName = StringEscapeUtils.escapeJavaScript(query.getAlbum().getName());
                 String trackName = StringEscapeUtils.escapeJavaScript(query.getName());
-                url = "javascript:" + makeJSFunctionCallbackJava(R.id.scriptresolver_resolve,
-                        "Tomahawk.resolver.instance.resolve( '" + escapedQid + "', '" + artistName
-                                + "', '" + albumName + "', '" + trackName + "' )",
-                        false);
+                url = "javascript: Tomahawk.resolver.instance.resolve( '" + escapedQid + "', '"
+                        + artistName
+                        + "', '" + albumName + "', '" + trackName + "' )";
             }
 
             // call it
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    mScriptEngine.loadUrl(url);
-                }
-            });
+            loadUrl(url);
         }
         return mReady;
     }
@@ -458,18 +586,9 @@ public class ScriptResolver implements Resolver {
             String resultId = TomahawkMainActivity.getSessionUniqueStringId();
             // we are using the same map as we do when resolving queries
             mQueryKeys.put(resultId, result.getCacheKey());
-            final String url = "javascript:" + makeJSFunctionCallbackJava(
-                    R.id.scriptresolver_report_stream_url,
-                    "Tomahawk.resolver.instance." + callbackFuncName + "( '"
-                            + StringEscapeUtils.escapeJavaScript(resultId)
-                            + "', '" + StringEscapeUtils.escapeJavaScript(result.getPath()) + "' )",
-                    true);
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    mScriptEngine.loadUrl(url);
-                }
-            });
+            loadUrl("javascript: Tomahawk.resolver.instance." + callbackFuncName + "( '"
+                    + StringEscapeUtils.escapeJavaScript(resultId)
+                    + "', '" + StringEscapeUtils.escapeJavaScript(result.getPath()) + "' )");
         }
     }
 
@@ -550,8 +669,9 @@ public class ScriptResolver implements Resolver {
         return mId;
     }
 
-    public String getName() {
-        return mMetaData.name;
+    @Override
+    public String getCollectionName() {
+        return mCollectionMetaData.prettyname;
     }
 
     /**
@@ -633,6 +753,7 @@ public class ScriptResolver implements Resolver {
         switch (in) {
             case 1:
                 mBrowsable = true;
+                collection();
                 break;
             case 2:
                 mPlaylistSync = true;

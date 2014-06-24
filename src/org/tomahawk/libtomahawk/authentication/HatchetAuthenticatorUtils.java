@@ -20,7 +20,7 @@ package org.tomahawk.libtomahawk.authentication;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
@@ -167,10 +167,10 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 ensureAccessTokens();
             }
         }
-        UserCollection.getInstance().fetchHatchetUserPlaylists();
-        UserCollection.getInstance().fetchLovedItemsUserPlaylists();
-        UserCollection.getInstance().fetchStarredArtists();
-        UserCollection.getInstance().fetchStarredAlbums();
+        CollectionManager.getInstance().fetchHatchetUserPlaylists();
+        CollectionManager.getInstance().fetchLovedItemsUserPlaylists();
+        CollectionManager.getInstance().fetchStarredArtists();
+        CollectionManager.getInstance().fetchStarredAlbums();
         InfoSystem.getInstance().resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF,
                 null);
         mIsAuthenticating = false;

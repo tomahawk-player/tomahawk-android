@@ -18,10 +18,12 @@
 package org.tomahawk.libtomahawk.resolver;
 
 import org.json.JSONObject;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.text.TextUtils;
 
@@ -84,6 +86,11 @@ public class DataBaseResolver implements Resolver {
     }
 
     @Override
+    public String getCollectionName() {
+        return TomahawkApp.getContext().getString(R.string.local_collection_resolver_name);
+    }
+
+    @Override
     public int getIconResId() {
         return mIconResId;
     }
@@ -99,7 +106,8 @@ public class DataBaseResolver implements Resolver {
         if (mReady) {
             mStopped = false;
             ArrayList<Result> results = new ArrayList<Result>();
-            List<Query> inputList = UserCollection.getInstance().getQueries(false);
+            List<Query> inputList = CollectionManager.getInstance().getCollection(mId).getQueries(
+                    false);
 
             for (Query existingQuery : inputList) {
                 String existingTrackName = existingQuery.getName();

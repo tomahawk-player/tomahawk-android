@@ -6,7 +6,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONObject;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.text.TextUtils;
@@ -116,11 +115,26 @@ public class ScriptInterface {
      * can call to return the resolved {@link Result}s. This method is being called in
      * tomahawk_android_pre.js
      *
-     * @param in the JSONObject {@link String} containing the resolved {@link Result}s
+     * @param results the JSONObject {@link String} containing the resolved {@link Result}s
      */
     @JavascriptInterface
-    public void addTrackResultsString(String in) {
-        mScriptResolver.handleCallbackToJava(R.id.scriptresolver_add_track_results_string, in);
+    public void addTrackResultsString(String results) {
+        mScriptResolver.addTrackResultsString(results);
+    }
+
+    @JavascriptInterface
+    public void addAlbumResultsString(String results) {
+        mScriptResolver.addAlbumResultsString(results);
+    }
+
+    @JavascriptInterface
+    public void addArtistResultsString(String results) {
+        mScriptResolver.addArtistResultsString(results);
+    }
+
+    @JavascriptInterface
+    public void addAlbumTrackResultsString(String results) {
+        mScriptResolver.addAlbumTrackResultsString(results);
     }
 
     /**
@@ -136,12 +150,7 @@ public class ScriptInterface {
 
     @JavascriptInterface
     public void reportStreamUrlString(String qid, String url, String stringifiedHeaders) {
-        if (stringifiedHeaders != null) {
-            mScriptResolver.handleCallbackToJava(R.id.scriptresolver_report_stream_url, qid, url,
-                    stringifiedHeaders);
-        } else {
-            mScriptResolver.handleCallbackToJava(R.id.scriptresolver_report_stream_url, qid, url);
-        }
+        mScriptResolver.reportStreamUrl(qid, url, stringifiedHeaders);
     }
 
     @JavascriptInterface

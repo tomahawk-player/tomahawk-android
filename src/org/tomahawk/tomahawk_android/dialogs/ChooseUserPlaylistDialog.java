@@ -17,7 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.dialogs;
 
-import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -69,16 +69,17 @@ public class ChooseUserPlaylistDialog extends DialogFragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                DatabaseHelper.getInstance().addQueriesToUserPlaylist(UserCollection.getInstance()
+                DatabaseHelper.getInstance().addQueriesToUserPlaylist(
+                        CollectionManager.getInstance()
                         .getLocalUserPlaylists().get(position).getId(), queries);
                 getDialog().dismiss();
             }
         });
-        int customPlaylistCount = UserCollection.getInstance().getLocalUserPlaylists().size();
+        int customPlaylistCount = CollectionManager.getInstance().getLocalUserPlaylists().size();
         List<String> playlistNames = new ArrayList<String>();
         for (int i = 0; i < customPlaylistCount; i++) {
             playlistNames
-                    .add(UserCollection.getInstance().getLocalUserPlaylists().get(i).getName());
+                    .add(CollectionManager.getInstance().getLocalUserPlaylists().get(i).getName());
         }
         listView.setAdapter(
                 new TomahawkContextMenuAdapter(getActivity(), getActivity().getLayoutInflater(),

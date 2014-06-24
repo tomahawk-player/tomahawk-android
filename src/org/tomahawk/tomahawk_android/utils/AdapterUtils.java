@@ -19,8 +19,8 @@ package org.tomahawk.tomahawk_android.utils;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
-import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
@@ -72,7 +72,7 @@ public class AdapterUtils {
         viewHolder.getStarButton().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                UserCollection.getInstance().toggleLovedItem(album);
+                CollectionManager.getInstance().toggleLovedItem(album);
             }
         });
         viewHolder.getStarButton().setVisibility(View.VISIBLE);
@@ -103,7 +103,7 @@ public class AdapterUtils {
         viewHolder.getStarButton().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                UserCollection.getInstance().toggleLovedItem(artist);
+                CollectionManager.getInstance().toggleLovedItem(artist);
             }
         });
         viewHolder.getStarButton().setVisibility(View.VISIBLE);

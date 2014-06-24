@@ -20,8 +20,9 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Collection;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
-import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
@@ -143,6 +144,8 @@ public class TomahawkFragment extends TomahawkListFragment
 
     protected ArrayList<User> mShownUsers = new ArrayList<User>();
 
+    protected Collection mCollection;
+
     protected Album mAlbum;
 
     protected Artist mArtist;
@@ -190,7 +193,7 @@ public class TomahawkFragment extends TomahawkListFragment
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (UserCollection.COLLECTION_UPDATED.equals(intent.getAction())) {
+            if (CollectionManager.COLLECTION_UPDATED.equals(intent.getAction())) {
                 onCollectionUpdated();
             } else if (PipeLine.PIPELINE_RESULTSREPORTED.equals(intent.getAction())) {
                 String queryKey = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QUERYKEY);
@@ -279,6 +282,10 @@ public class TomahawkFragment extends TomahawkListFragment
             if (getArguments().containsKey(TOMAHAWK_LIST_ITEM_IS_LOCAL)) {
                 mIsLocal = getArguments().getBoolean(TOMAHAWK_LIST_ITEM_IS_LOCAL);
             }
+            if (getArguments().containsKey(CollectionManager.COLLECTION_ID)) {
+                mCollection = CollectionManager.getInstance()
+                        .getCollection(getArguments().getString(CollectionManager.COLLECTION_ID));
+            }
         }
 
         // Adapt to current orientation. Show different count of columns in the GridView
@@ -287,7 +294,7 @@ public class TomahawkFragment extends TomahawkListFragment
         // Initialize and register Receiver
         if (mTomahawkFragmentReceiver == null) {
             mTomahawkFragmentReceiver = new TomahawkFragmentReceiver();
-            IntentFilter intentFilter = new IntentFilter(UserCollection.COLLECTION_UPDATED);
+            IntentFilter intentFilter = new IntentFilter(CollectionManager.COLLECTION_UPDATED);
             activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED);
             activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
@@ -616,7 +623,7 @@ public class TomahawkFragment extends TomahawkListFragment
                         mUserPlaylist = DatabaseHelper.getInstance()
                                 .getUserPlaylist(mUserPlaylist.getId());
                         TomahawkApp.getContext().sendBroadcast(
-                                new Intent(UserCollection.COLLECTION_UPDATED));
+                                new Intent(CollectionManager.COLLECTION_UPDATED));
                     }
                 }
         );

@@ -28,12 +28,17 @@ Tomahawk.addTrackResults =
 
 Tomahawk.addAlbumResults =
     function (results) {
-        //TODO
+        Tomahawk.addAlbumResultsString(JSON.stringify(results));
     };
 
 Tomahawk.addArtistResults =
     function (results) {
-        //TODO
+        Tomahawk.addArtistResultsString(JSON.stringify(results));
+    };
+
+Tomahawk.addAlbumTrackResults =
+    function (results) {
+        Tomahawk.addAlbumTrackResultsString(JSON.stringify(results));
     };
 
 Tomahawk.reportStreamUrl =
