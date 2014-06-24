@@ -193,7 +193,7 @@ public class RedirectConfigDialog extends DialogFragment {
             button.setOnClickListener(onClickListener);
             TextView textView = (TextView) view
                     .findViewById(R.id.resolver_config_dialog_title_textview);
-            textView.setText(scriptResolver.getName());
+            textView.setText(scriptResolver.getCollectionName());
             CheckBox checkBox = (CheckBox) view
                     .findViewById(R.id.resolver_config_dialog_enable_checkbox);
             checkBox.setVisibility(View.GONE);

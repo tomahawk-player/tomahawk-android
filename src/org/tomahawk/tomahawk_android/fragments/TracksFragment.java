@@ -18,12 +18,14 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Collection;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Track;
-import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
+import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -126,7 +128,9 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 } else if (mUser != null) {
                     queries = mUser.getPlaybackLog();
                 } else {
-                    queries.addAll(UserCollection.getInstance().getQueries());
+                    Collection userCollection = CollectionManager.getInstance()
+                            .getCollection(PipeLine.PLUGINNAME_USERCOLLECTION);
+                    queries.addAll(userCollection.getQueries());
                 }
                 PlaybackService playbackService = activity.getPlaybackService();
                 if (playbackService != null && shouldShowPlaystate() && mQueryPositions
@@ -265,7 +269,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 }
             }
         } else {
-            queries.addAll(UserCollection.getInstance().getQueries());
+            queries.addAll(mCollection.getQueries());
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(context, layoutInflater, queries);
                 setListAdapter(tomahawkListAdapter);

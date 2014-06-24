@@ -129,6 +129,11 @@ public class SpotifyResolver implements Resolver {
     }
 
     @Override
+    public String getCollectionName() {
+        return TomahawkApp.getContext().getString(R.string.spotify_resolver_name);
+    }
+
+    @Override
     public int getIconResId() {
         return mIconResId;
     }

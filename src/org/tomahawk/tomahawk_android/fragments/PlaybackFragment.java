@@ -17,7 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -618,7 +618,7 @@ public class PlaybackFragment extends TomahawkFragment
                     loveButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            UserCollection.getInstance().toggleLovedItem(query);
+                            CollectionManager.getInstance().toggleLovedItem(query);
                             getActivity().sendBroadcast(
                                     new Intent(PlaybackService.BROADCAST_CURRENTTRACKCHANGED));
                         }

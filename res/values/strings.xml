@@ -174,4 +174,6 @@
     <string name="ask_access_activity_text1">We\'ll do that for you! Please enable our service in your system settings.</string>
     <string name="ask_access_activity_text2">(You can disable this whenever you want in Tomahawk\'s settings)</string>
     <string name="ask_access_activity_button_text">Go to Settings</string>
+    <string name="spotify_resolver_name">Spotify</string>
+    <string name="local_collection_resolver_name">Local Collection</string>
 </resources>

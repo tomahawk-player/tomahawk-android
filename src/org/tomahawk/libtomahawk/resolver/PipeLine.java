@@ -318,7 +318,10 @@ public class PipeLine {
         int priority;
         if (PLUGINNAME_USERCOLLECTION.equals(resolverId)) {
             priority = TomahawkRunnable.PRIORITY_IS_REPORTING_LOCALSOURCE;
-        } else if (PLUGINNAME_SPOTIFY.equals(resolverId)) {
+        } else if (PLUGINNAME_SPOTIFY.equals(resolverId)
+                || PLUGINNAME_DEEZER.equals(resolverId)
+                || PLUGINNAME_BEATSMUSIC.equals(resolverId)
+                || PLUGINNAME_RDIO.equals(resolverId)) {
             priority = TomahawkRunnable.PRIORITY_IS_REPORTING_SUBSCRIPTION;
         } else {
             priority = TomahawkRunnable.PRIORITY_IS_REPORTING;

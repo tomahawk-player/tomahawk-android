@@ -43,6 +43,11 @@ public interface Resolver {
     public String getIconPath();
 
     /**
+     * @return the name of this resolver's collection
+     */
+    public String getCollectionName();
+
+    /**
      * @return the resource id of the icon of this {@link Resolver}
      */
     public int getIconResId();

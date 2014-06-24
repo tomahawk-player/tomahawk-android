@@ -130,7 +130,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
         for (ScriptResolver scriptResolver : PipeLine.getInstance().getScriptResolvers()) {
             prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
                     FakePreferenceGroup.FAKEPREFERENCE_TYPE_CONFIG, scriptResolver.getId(),
-                    scriptResolver.getName(), scriptResolver.getDescription()));
+                    scriptResolver.getCollectionName(), scriptResolver.getDescription()));
         }
         mFakePreferenceGroups.add(prefGroup);
         prefGroup = new FakePreferenceGroup(getString(R.string.fakepreference_playback_header));

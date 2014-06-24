@@ -23,10 +23,10 @@ import com.squareup.picasso.Target;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticatorUtils;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.Track;
-import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
@@ -439,7 +439,7 @@ public class PlaybackService extends Service
         PipeLine.getInstance().ensureInit();
         InfoSystem.getInstance().ensureInit();
         AuthenticatorManager.getInstance().ensureInit();
-        UserCollection.getInstance().ensureInit();
+        CollectionManager.getInstance().ensureInit();
 
         bindService(new Intent(this, SpotifyService.class), mSpotifyServiceConnection,
                 Context.BIND_AUTO_CREATE);
@@ -626,8 +626,7 @@ public class PlaybackService extends Service
     private void saveState() {
         if (getCurrentPlaylist() != null) {
             long startTime = System.currentTimeMillis();
-            UserCollection userCollection = UserCollection.getInstance();
-            userCollection.setCachedUserPlaylist(UserPlaylist
+            CollectionManager.getInstance().setCachedUserPlaylist(UserPlaylist
                     .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
                             DatabaseHelper.CACHED_PLAYLIST_NAME,
                             getCurrentPlaylist().getQueries(),
@@ -643,8 +642,7 @@ public class PlaybackService extends Service
      */
     private void restoreState() {
         long startTime = System.currentTimeMillis();
-        UserCollection userCollection = UserCollection.getInstance();
-        setCurrentPlaylist(userCollection.getCachedUserPlaylist());
+        setCurrentPlaylist(CollectionManager.getInstance().getCachedUserPlaylist());
         Log.d(TAG, "Playlist loaded in " + (System.currentTimeMillis() - startTime) + "ms");
         if (getCurrentPlaylist() != null && isPlaying()) {
             pause(true);
