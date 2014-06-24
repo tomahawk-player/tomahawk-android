@@ -104,8 +104,11 @@ public class RemoteControllerService extends NotificationListenerService
      */
     public void setRemoteControllerDisabled() {
         Log.d(TAG, "setRemoteControllerDisabled");
-        ((AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE))
-                .unregisterRemoteController(mRemoteController);
+        if (mContext != null
+                && mContext.getSystemService(Context.AUDIO_SERVICE) instanceof AudioManager) {
+            ((AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE))
+                    .unregisterRemoteController(mRemoteController);
+        }
     }
 
     @Override
