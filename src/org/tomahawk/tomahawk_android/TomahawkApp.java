@@ -37,6 +37,22 @@ import android.content.Context;
         resDialogOkToast = R.string.crash_dialog_ok_toast)
 public class TomahawkApp extends Application {
 
+    public final static String PLUGINNAME_HATCHET = "hatchet";
+
+    public final static String PLUGINNAME_USERCOLLECTION = "usercollection";
+
+    public final static String PLUGINNAME_SPOTIFY = "spotify";
+
+    public final static String PLUGINNAME_DEEZER = "deezer";
+
+    public final static String PLUGINNAME_BEATSMUSIC = "beatsmusic";
+
+    public final static String PLUGINNAME_RDIO = "rdio";
+
+    public final static String PLUGINNAME_BEETS = "beets";
+
+    public final static String PLUGINNAME_GMUSIC = "gmusic";
+
     private static Context sApplicationContext;
 
     @Override

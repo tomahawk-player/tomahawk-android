@@ -152,7 +152,7 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
     public void seekTo(int msec) throws IllegalStateException {
         Log.d(TAG, "seekTo()");
         if (mLibVLC != null && mPreparedQuery != null
-                && !PipeLine.PLUGINNAME_BEATSMUSIC.equals(
+                && !TomahawkApp.PLUGINNAME_BEATSMUSIC.equals(
                 mPreparedQuery.getPreferredTrackResult().getResolvedBy().getId())) {
             mLibVLC.setTime(msec);
         }

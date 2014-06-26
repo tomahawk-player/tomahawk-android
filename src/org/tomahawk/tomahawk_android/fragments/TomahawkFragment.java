@@ -108,9 +108,6 @@ public class TomahawkFragment extends TomahawkListFragment
     public static final String TOMAHAWK_FROMPLAYBACKFRAGMENT
             = "org.tomahawk.tomahawk_android.tomahawk_fromplaybackfragment";
 
-    public static final String TOMAHAWK_LIST_ITEM_IS_LOCAL
-            = "org.tomahawk.tomahawk_list_item_is_local";
-
     public static final String TOMAHAWK_LIST_ITEM_POSITION
             = "org.tomahawk.tomahawk_android.tomahawk_list_item_position";
 
@@ -153,8 +150,6 @@ public class TomahawkFragment extends TomahawkListFragment
     protected UserPlaylist mUserPlaylist;
 
     protected User mUser;
-
-    protected boolean mIsLocal = false;
 
     private int mFirstVisibleItemLastTime = 0;
 
@@ -279,9 +274,6 @@ public class TomahawkFragment extends TomahawkListFragment
                     mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mUser));
                 }
             }
-            if (getArguments().containsKey(TOMAHAWK_LIST_ITEM_IS_LOCAL)) {
-                mIsLocal = getArguments().getBoolean(TOMAHAWK_LIST_ITEM_IS_LOCAL);
-            }
             if (getArguments().containsKey(CollectionManager.COLLECTION_ID)) {
                 mCollection = CollectionManager.getInstance()
                         .getCollection(getArguments().getString(CollectionManager.COLLECTION_ID));
@@ -368,7 +360,6 @@ public class TomahawkFragment extends TomahawkListFragment
             FakeContextMenuDialog dialog = new FakeContextMenuDialog();
             Bundle args = new Bundle();
             args.putBoolean(TOMAHAWK_SHOWDELETE_KEY, false);
-            args.putBoolean(TOMAHAWK_LIST_ITEM_IS_LOCAL, mIsLocal);
             args.putBoolean(TOMAHAWK_FROMPLAYBACKFRAGMENT, this instanceof PlaybackFragment);
             if (mAlbum != null) {
                 args.putString(TOMAHAWK_ALBUM_KEY, mAlbum.getCacheKey());
@@ -376,6 +367,9 @@ public class TomahawkFragment extends TomahawkListFragment
                 args.putString(TOMAHAWK_USERPLAYLIST_KEY, mUserPlaylist.getId());
             } else if (mArtist != null) {
                 args.putString(TOMAHAWK_ARTIST_KEY, mArtist.getCacheKey());
+            }
+            if (mCollection != null) {
+                args.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
             }
             args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY, query.getCacheKey());
             args.putString(TOMAHAWK_TOMAHAWKLISTITEM_TYPE, TOMAHAWK_QUERY_KEY);
@@ -415,7 +409,6 @@ public class TomahawkFragment extends TomahawkListFragment
         FakeContextMenuDialog dialog = new FakeContextMenuDialog();
         Bundle args = new Bundle();
         args.putBoolean(TOMAHAWK_SHOWDELETE_KEY, showDelete);
-        args.putBoolean(TOMAHAWK_LIST_ITEM_IS_LOCAL, mIsLocal);
         if (position >= 0) {
             args.putInt(TOMAHAWK_LIST_ITEM_POSITION, position);
         }
@@ -426,6 +419,9 @@ public class TomahawkFragment extends TomahawkListFragment
             args.putString(TOMAHAWK_USERPLAYLIST_KEY, mUserPlaylist.getId());
         } else if (mArtist != null) {
             args.putString(TOMAHAWK_ARTIST_KEY, mArtist.getCacheKey());
+        }
+        if (mCollection != null) {
+            args.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
         }
         if (tomahawkListItem instanceof Query) {
             args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY, tomahawkListItem.getCacheKey());

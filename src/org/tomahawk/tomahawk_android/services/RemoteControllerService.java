@@ -239,7 +239,7 @@ public class RemoteControllerService extends NotificationListenerService
      */
     public static void askAccess() {
         if (AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET).isLoggedIn()
+                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET).isLoggedIn()
                 && !isRemoteControllerServiceRunning()) {
             TomahawkApp.getContext().startActivity(
                     new Intent(TomahawkApp.getContext(), AskAccessActivity.class)

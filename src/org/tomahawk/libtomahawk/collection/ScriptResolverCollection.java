@@ -45,18 +45,17 @@ public class ScriptResolverCollection extends Collection {
 
     public void addTrackResult(Result result) {
         Query query = Query.get(result, isLocal());
-        mQueries.put(query.getCacheKey(), query);
+        addQuery(query);
         sendCollectionUpdatedBroadcast();
     }
 
-    public void addArtist(Artist artist) {
-        mArtists.put(artist.getCacheKey(), artist);
+    public void addArtistResult(Artist artist) {
+        addArtist(artist);
         mScriptResolver.albums(getId(), artist.getName());
     }
 
-    public void addAlbum(Album album) {
-        mAlbums.put(album.getCacheKey(), album);
-        album.getArtist().addAlbum(album);
+    public void addAlbumResult(Album album) {
+        addAlbum(album);
         //mScriptResolver.tracks(getId(), album.getArtist().getName(), album.getName());
     }
 }

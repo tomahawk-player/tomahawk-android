@@ -21,6 +21,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.DeezerMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
 import org.tomahawk.tomahawk_android.utils.RdioMediaPlayer;
@@ -90,15 +91,15 @@ public class Result {
     private Result(String url, Track track, Resolver resolvedBy, String queryKey) {
         setPath(url);
         mResolvedBy = resolvedBy;
-        if (PipeLine.PLUGINNAME_SPOTIFY.equals(mResolvedBy.getId())) {
+        if (TomahawkApp.PLUGINNAME_SPOTIFY.equals(mResolvedBy.getId())) {
             mMediaPlayerInterface = SpotifyMediaPlayer.getInstance();
-        } else if (PipeLine.PLUGINNAME_RDIO.equals(mResolvedBy.getId())) {
+        } else if (TomahawkApp.PLUGINNAME_RDIO.equals(mResolvedBy.getId())) {
             mMediaPlayerInterface = RdioMediaPlayer.getInstance();
-        } else if (PipeLine.PLUGINNAME_DEEZER.equals(mResolvedBy.getId())) {
+        } else if (TomahawkApp.PLUGINNAME_DEEZER.equals(mResolvedBy.getId())) {
             mMediaPlayerInterface = DeezerMediaPlayer.getInstance();
         } else {
             mMediaPlayerInterface = VLCMediaPlayer.getInstance();
-            if (PipeLine.PLUGINNAME_USERCOLLECTION.equals(mResolvedBy.getId())) {
+            if (TomahawkApp.PLUGINNAME_USERCOLLECTION.equals(mResolvedBy.getId())) {
                 mIsLocal = true;
             }
         }

@@ -103,7 +103,7 @@ public class SpotifyResolver implements Resolver {
      * Construct a new {@link SpotifyResolver}
      */
     public SpotifyResolver() {
-        mId = PipeLine.PLUGINNAME_SPOTIFY;
+        mId = TomahawkApp.PLUGINNAME_SPOTIFY;
         mIconResId = R.drawable.spotify_icon;
         PipeLine.getInstance().onResolverReady();
     }

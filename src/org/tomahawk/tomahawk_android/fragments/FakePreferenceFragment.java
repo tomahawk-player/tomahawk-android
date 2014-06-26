@@ -21,6 +21,7 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter;
 import org.tomahawk.tomahawk_android.dialogs.LoginDialog;
 import org.tomahawk.tomahawk_android.dialogs.RedirectConfigDialog;
@@ -117,20 +118,20 @@ public class FakePreferenceFragment extends TomahawkListFragment
                 getString(R.string.fakepreference_accounts_header));
         prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
                 FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH,
-                AuthenticatorManager.AUTHENTICATOR_ID_HATCHET,
+                TomahawkApp.PLUGINNAME_HATCHET,
                 getString(R.string.fakepreference_hatchetlogin_title_string),
                 getString(R.string.fakepreference_hatchetlogin_summary_string),
                 R.drawable.hatchet_icon));
         prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
                 FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH,
-                AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY,
+                TomahawkApp.PLUGINNAME_SPOTIFY,
                 getString(R.string.fakepreference_spotifylogin_title_string),
                 getString(R.string.fakepreference_spotifylogin_summary_string),
                 R.drawable.spotify_icon));
         for (ScriptResolver scriptResolver : PipeLine.getInstance().getScriptResolvers()) {
             prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
                     FakePreferenceGroup.FAKEPREFERENCE_TYPE_CONFIG, scriptResolver.getId(),
-                    scriptResolver.getCollectionName(), scriptResolver.getDescription()));
+                    scriptResolver.getName(), scriptResolver.getDescription()));
         }
         mFakePreferenceGroups.add(prefGroup);
         prefGroup = new FakePreferenceGroup(getString(R.string.fakepreference_playback_header));
@@ -246,8 +247,8 @@ public class FakePreferenceFragment extends TomahawkListFragment
             dialog.show(getFragmentManager(), null);
         } else if (fakePreference.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CONFIG) {
             DialogFragment dialog;
-            if (PipeLine.PLUGINNAME_RDIO.equals(fakePreference.getKey())
-                    || PipeLine.PLUGINNAME_DEEZER.equals(fakePreference.getKey())) {
+            if (TomahawkApp.PLUGINNAME_RDIO.equals(fakePreference.getKey())
+                    || TomahawkApp.PLUGINNAME_DEEZER.equals(fakePreference.getKey())) {
                 dialog = new RedirectConfigDialog();
             } else {
                 dialog = new ResolverConfigDialog();

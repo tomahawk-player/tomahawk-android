@@ -18,7 +18,6 @@
 package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -54,12 +53,9 @@ public class TomahawkPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        Bundle bundle;
+        Bundle bundle = null;
         if (mFragmentBundles != null && mFragmentBundles.get(position) != null) {
             bundle = mFragmentBundles.get(position);
-        } else {
-            bundle = new Bundle();
-            bundle.putBoolean(TomahawkFragment.TOMAHAWK_LIST_ITEM_IS_LOCAL, true);
         }
         return Fragment.instantiate(TomahawkApp.getContext(),
                 mFragmentClassNames.get(position), bundle);

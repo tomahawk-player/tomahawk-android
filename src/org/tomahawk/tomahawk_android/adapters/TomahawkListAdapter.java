@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
@@ -68,7 +69,7 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
 
     private RelativeLayout mContentHeaderImageFrame;
 
-    private boolean mIsOnlyLocal;
+    private Collection mCollection;
 
     private boolean mIsLandscapeMode;
 
@@ -123,25 +124,25 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
      * Album}s name, which is shown at the top of the listview, if the user browses to a particular
      * {@link Album} in his {@link org.tomahawk.libtomahawk.collection.UserCollection}.
      *
-     * @param listItem    the {@link TomahawkListItem}'s information to show in the header view
-     * @param isOnlyLocal whether or not the given listItem was given in a local context. This will
-     *                    determine whether to show the total track count, or just the count of
-     *                    local tracks in the contentHeader's textview.
+     * @param listItem   the {@link TomahawkListItem}'s information to show in the header view
+     * @param collection whether or not the given listItem was given in a local context. This will
+     *                   determine whether to show the total track count, or just the count of local
+     *                   tracks in the contentHeader's textview.
      */
-    public void showContentHeader(View rootView, TomahawkListItem listItem, boolean isOnlyLocal) {
-        showContentHeader(null, rootView, listItem, isOnlyLocal);
+    public void showContentHeader(View rootView, TomahawkListItem listItem, Collection collection) {
+        showContentHeader(null, rootView, listItem, collection);
     }
 
     public void showContentHeaderUser(FragmentManager fragmentManager, View rootView,
-            User user, boolean isOnlyLocal) {
-        showContentHeader(fragmentManager, rootView, user, isOnlyLocal);
+            User user, Collection collection) {
+        showContentHeader(fragmentManager, rootView, user, collection);
     }
 
     private void showContentHeader(FragmentManager fragmentManager, View rootView,
-            TomahawkListItem listItem, boolean isOnlyLocal) {
+            TomahawkListItem listItem, Collection collection) {
         mFragmentManager = fragmentManager;
         mContentHeaderTomahawkListItem = listItem;
-        mIsOnlyLocal = isOnlyLocal;
+        mCollection = collection;
         mIsLandscapeMode = mContext.getResources().getConfiguration().orientation
                 == Configuration.ORIENTATION_LANDSCAPE;
         mContentHeaderImageFrame = (RelativeLayout) rootView
@@ -156,13 +157,13 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
             if (mContentHeaderImageFrame.findViewById(R.id.content_header) == null) {
                 mContentHeaderImageFrame.addView(contentHeaderView);
             }
-            updateContentHeader(fragmentManager, rootView, listItem, isOnlyLocal);
+            updateContentHeader(fragmentManager, rootView, listItem, collection);
         }
         notifyDataSetChanged();
     }
 
     private void updateContentHeader(FragmentManager fragmentManager, View rootView,
-            TomahawkListItem listItem, boolean isOnlyLocal) {
+            TomahawkListItem listItem, Collection collection) {
         SquareHeightRelativeLayout frame = (SquareHeightRelativeLayout)
                 rootView.findViewById(R.id.content_header_image_frame);
         if (frame != null) {
@@ -171,12 +172,11 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
         ViewHolder viewHolder = new ViewHolder(rootView,
                 R.id.tomahawklistadapter_viewtype_contentheader);
         if (listItem instanceof Album) {
-            AdapterUtils.fillContentHeader(mContext, viewHolder, (Album) listItem, isOnlyLocal);
+            AdapterUtils.fillContentHeader(mContext, viewHolder, (Album) listItem, collection);
         } else if (listItem instanceof Artist) {
-            AdapterUtils.fillContentHeader(mContext, viewHolder, (Artist) listItem, isOnlyLocal);
+            AdapterUtils.fillContentHeader(mContext, viewHolder, (Artist) listItem, collection);
         } else if (listItem instanceof UserPlaylist) {
-            AdapterUtils
-                    .fillContentHeader(mContext, viewHolder, (UserPlaylist) listItem, isOnlyLocal);
+            AdapterUtils.fillContentHeader(mContext, viewHolder, (UserPlaylist) listItem);
         } else if (listItem instanceof User) {
             AdapterUtils.fillContentHeader(fragmentManager, mContext, viewHolder, (User) listItem);
         }
@@ -266,13 +266,13 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                     == R.id.tomahawklistadapter_viewtype_contentheader_user) {
                 if (mContentHeaderTomahawkListItem instanceof Album) {
                     AdapterUtils.fillContentHeader(mContext, viewHolder,
-                            (Album) mContentHeaderTomahawkListItem, mIsOnlyLocal);
+                            (Album) mContentHeaderTomahawkListItem, mCollection);
                 } else if (mContentHeaderTomahawkListItem instanceof Artist) {
                     AdapterUtils.fillContentHeader(mContext, viewHolder,
-                            (Artist) mContentHeaderTomahawkListItem, mIsOnlyLocal);
+                            (Artist) mContentHeaderTomahawkListItem, mCollection);
                 } else if (mContentHeaderTomahawkListItem instanceof UserPlaylist) {
                     AdapterUtils.fillContentHeader(mContext, viewHolder,
-                            (UserPlaylist) mContentHeaderTomahawkListItem, mIsOnlyLocal);
+                            (UserPlaylist) mContentHeaderTomahawkListItem);
                 } else if (mContentHeaderTomahawkListItem instanceof User) {
                     AdapterUtils.fillContentHeader(mFragmentManager, mContext, viewHolder,
                             (User) mContentHeaderTomahawkListItem);

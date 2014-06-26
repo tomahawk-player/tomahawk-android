@@ -46,20 +46,6 @@ public class PipeLine {
 
     private static PipeLine instance;
 
-    public final static String PLUGINNAME_USERCOLLECTION = "usercollection";
-
-    public final static String PLUGINNAME_SPOTIFY = "spotify";
-
-    public final static String PLUGINNAME_DEEZER = "deezer";
-
-    public final static String PLUGINNAME_BEATSMUSIC = "beatsmusic";
-
-    public final static String PLUGINNAME_RDIO = "rdio";
-
-    public final static String PLUGINNAME_BEETS = "beets";
-
-    public final static String PLUGINNAME_GMUSIC = "gmusic";
-
     public static final int PIPELINE_SEARCHTYPE_TRACKS = 0;
 
     public static final int PIPELINE_SEARCHTYPE_ARTISTS = 1;
@@ -316,12 +302,12 @@ public class PipeLine {
     public void reportResults(final String queryKey, final ArrayList<Result> results,
             final String resolverId) {
         int priority;
-        if (PLUGINNAME_USERCOLLECTION.equals(resolverId)) {
+        if (TomahawkApp.PLUGINNAME_USERCOLLECTION.equals(resolverId)) {
             priority = TomahawkRunnable.PRIORITY_IS_REPORTING_LOCALSOURCE;
-        } else if (PLUGINNAME_SPOTIFY.equals(resolverId)
-                || PLUGINNAME_DEEZER.equals(resolverId)
-                || PLUGINNAME_BEATSMUSIC.equals(resolverId)
-                || PLUGINNAME_RDIO.equals(resolverId)) {
+        } else if (TomahawkApp.PLUGINNAME_SPOTIFY.equals(resolverId)
+                || TomahawkApp.PLUGINNAME_DEEZER.equals(resolverId)
+                || TomahawkApp.PLUGINNAME_BEATSMUSIC.equals(resolverId)
+                || TomahawkApp.PLUGINNAME_RDIO.equals(resolverId)) {
             priority = TomahawkRunnable.PRIORITY_IS_REPORTING_SUBSCRIPTION;
         } else {
             priority = TomahawkRunnable.PRIORITY_IS_REPORTING;

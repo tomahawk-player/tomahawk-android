@@ -34,8 +34,6 @@ import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Author Enno Gottschalk <mrmaffen@googlemail.com> Date: 18.01.13
- *
  * This class represents a query which is passed to a resolver. It contains all the information
  * needed to enable the Resolver to resolve the results.
  */
@@ -78,7 +76,7 @@ public class Query implements TomahawkListItem {
     private boolean mIsFetchedViaHatchet;
 
     /**
-     * Constructs a new Query. ID should be generated in TomahawkApp.
+     * Constructs a new Query.
      *
      * @param fullTextQuery fulltext-query String to construct this Query with
      * @param onlyLocal     whether or not this query should be resolved locally
@@ -97,7 +95,7 @@ public class Query implements TomahawkListItem {
     }
 
     /**
-     * Constructs a new Query. ID should be generated in TomahawkApp.
+     * Constructs a new Query.
      *
      * @param trackName           track's name String
      * @param artistName          artist's name String
@@ -120,6 +118,8 @@ public class Query implements TomahawkListItem {
         if (mCacheKey == null) {
             mCacheKey = TomahawkUtils.getCacheKey(this);
         }
+        album.addQuery(this);
+        artist.addQuery(this);
     }
 
     /**
@@ -539,17 +539,10 @@ public class Query implements TomahawkListItem {
     }
 
     @Override
-    public ArrayList<Query> getQueries(boolean onlyLocal) {
-        ArrayList<Query> queries = new ArrayList<Query>();
-        if (!onlyLocal || mIsOnlyLocal) {
-            queries.add(this);
-        }
-        return queries;
-    }
-
-    @Override
     public ArrayList<Query> getQueries() {
-        return getQueries(false);
+        ArrayList<Query> queries = new ArrayList<Query>();
+        queries.add(this);
+        return queries;
     }
 
     @Override

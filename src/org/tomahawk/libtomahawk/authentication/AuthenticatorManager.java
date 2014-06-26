@@ -25,14 +25,6 @@ import java.util.HashMap;
 
 public class AuthenticatorManager {
 
-    public static final String AUTHENTICATOR_ID_SPOTIFY = "spotify_auth";
-
-    public static final String AUTHENTICATOR_ID_HATCHET = "hatchet_auth";
-
-    public static final String AUTHENTICATOR_ID_RDIO = "rdio_auth";
-
-    public static final String AUTHENTICATOR_ID_DEEZER = "deezer_auth";
-
     public static final String AUTHENTICATOR_LOGGED_IN
             = "org.tomahawk.tomahawk_android.authenticator_logged_in";
 
@@ -69,13 +61,13 @@ public class AuthenticatorManager {
     public void ensureInit() {
         if (!mInitialized) {
             mInitialized = true;
-            mAuthenticatorUtils.put(AUTHENTICATOR_ID_SPOTIFY,
+            mAuthenticatorUtils.put(TomahawkApp.PLUGINNAME_SPOTIFY,
                     new SpotifyAuthenticatorUtils(TomahawkApp.getContext()));
-            mAuthenticatorUtils.put(AUTHENTICATOR_ID_HATCHET,
+            mAuthenticatorUtils.put(TomahawkApp.PLUGINNAME_HATCHET,
                     new HatchetAuthenticatorUtils(TomahawkApp.getContext()));
-            mAuthenticatorUtils.put(AUTHENTICATOR_ID_RDIO,
+            mAuthenticatorUtils.put(TomahawkApp.PLUGINNAME_RDIO,
                     new RdioAuthenticatorUtils(TomahawkApp.getContext()));
-            mAuthenticatorUtils.put(AUTHENTICATOR_ID_DEEZER,
+            mAuthenticatorUtils.put(TomahawkApp.PLUGINNAME_DEEZER,
                     new DeezerAuthenticatorUtils(TomahawkApp.getContext()));
         }
     }
@@ -83,20 +75,12 @@ public class AuthenticatorManager {
     /**
      * Authenticators should callback here, if they logged in or out
      */
-    public void onLoggedInOut(String authenticatorId, boolean loggedIn) {
-        onLoggedInOut(authenticatorId, loggedIn, null);
-    }
-
-    /**
-     * Authenticators should callback here, if they logged in or out
-     */
-    public void onLoggedInOut(String authenticatorId, boolean loggedIn,
-            String correspondingResolverId) {
+    public void onLoggedInOut(String id, boolean loggedIn) {
         Intent i = new Intent(AUTHENTICATOR_LOGGED_IN)
                 .putExtra(AUTHENTICATOR_LOGGED_IN_STATE, loggedIn)
-                .putExtra(AUTHENTICATOR_LOGGED_IN_ID, authenticatorId);
-        if (correspondingResolverId != null) {
-            i.putExtra(AUTHENTICATOR_LOGGED_IN_RESOLVERID, correspondingResolverId);
+                .putExtra(AUTHENTICATOR_LOGGED_IN_ID, id);
+        if (id != null) {
+            i.putExtra(AUTHENTICATOR_LOGGED_IN_RESOLVERID, id);
         }
         TomahawkApp.getContext().sendBroadcast(i);
     }

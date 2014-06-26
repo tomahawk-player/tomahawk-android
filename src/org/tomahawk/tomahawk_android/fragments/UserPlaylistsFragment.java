@@ -63,7 +63,7 @@ public class UserPlaylistsFragment extends TomahawkFragment implements OnItemCli
             String key = ((UserPlaylist) getListAdapter().getItem(position)).getId();
             FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
                     TracksFragment.class, key, TomahawkFragment.TOMAHAWK_USERPLAYLIST_KEY,
-                    true);
+                    mCollection);
         } else {
             new CreateUserPlaylistDialog().show(getFragmentManager(),
                     getString(R.string.playbackactivity_create_playlist_dialog_title));

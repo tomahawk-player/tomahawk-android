@@ -19,8 +19,8 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
-import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 
@@ -46,7 +46,7 @@ import java.util.List;
  */
 public class CollectionFragment extends Fragment {
 
-    private String mCollectionId;
+    private Collection mCollection;
 
     private class NavigationListener implements ActionBar.OnNavigationListener {
 
@@ -91,7 +91,8 @@ public class CollectionFragment extends Fragment {
 
         if (getArguments() != null) {
             if (getArguments().containsKey(CollectionManager.COLLECTION_ID)) {
-                mCollectionId = getArguments().getString(CollectionManager.COLLECTION_ID);
+                mCollection = CollectionManager.getInstance()
+                        .getCollection(getArguments().getString(CollectionManager.COLLECTION_ID));
             }
         }
 
@@ -103,16 +104,19 @@ public class CollectionFragment extends Fragment {
         ArrayList<Collection> collections = CollectionManager.getInstance().getCollections();
         for (int i = 0; i < collections.size(); i++) {
             Collection collection = collections.get(i);
-            if (collection.getId().equals(PipeLine.PLUGINNAME_USERCOLLECTION)) {
-                // local collection always on top
+            if (collection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
+                // Local collection should be always on top
                 collections.add(0, collections.remove(i));
-                break;
+            } else if (collection.getId().equals(TomahawkApp.PLUGINNAME_HATCHET)) {
+                // Don't show the hatchet collection
+                collections.remove(i);
+                i--;
             }
         }
         for (int i = 0; i < collections.size(); i++) {
             Collection collection = collections.get(i);
             collectionNames.add(collection.getName());
-            if (collection.getId().equals(mCollectionId)) {
+            if (collection.equals(mCollection)) {
                 selectedSpinner = i;
             }
         }
@@ -125,21 +129,21 @@ public class CollectionFragment extends Fragment {
         getActivity().setTitle(getString(R.string.usercollectionfragment_title_string));
 
         List<String> fragmentClassNames = new ArrayList<String>();
-        if (mCollectionId.equals(PipeLine.PLUGINNAME_USERCOLLECTION)) {
+        if (mCollection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
             fragmentClassNames.add(TracksFragment.class.getName());
         }
         fragmentClassNames.add(ArtistsFragment.class.getName());
         fragmentClassNames.add(AlbumsFragment.class.getName());
         List<String> fragmentTitles = new ArrayList<String>();
-        if (mCollectionId.equals(PipeLine.PLUGINNAME_USERCOLLECTION)) {
+        if (mCollection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
             fragmentTitles.add(getString(R.string.tracksfragment_title_string));
         }
         fragmentTitles.add(getString(R.string.artistsfragment_title_string));
         fragmentTitles.add(getString(R.string.albumsfragment_title_string));
         List<Bundle> fragmentBundles = new ArrayList<Bundle>();
         Bundle bundle = new Bundle();
-        bundle.putString(CollectionManager.COLLECTION_ID, mCollectionId);
-        if (mCollectionId.equals(PipeLine.PLUGINNAME_USERCOLLECTION)) {
+        bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
+        if (mCollection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
             fragmentBundles.add(bundle);
         }
         fragmentBundles.add(bundle);

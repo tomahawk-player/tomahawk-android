@@ -134,11 +134,6 @@ public class User implements TomahawkListItem {
     }
 
     @Override
-    public ArrayList<Query> getQueries(boolean onlyLocal) {
-        return getQueries();
-    }
-
-    @Override
     public ArrayList<Query> getQueries() {
         return mPlaybackLog;
     }

@@ -24,7 +24,6 @@ import com.deezer.sdk.network.connect.event.DialogListener;
 import com.deezer.sdk.network.request.event.DeezerError;
 import com.deezer.sdk.network.request.event.OAuthException;
 
-import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -83,18 +82,14 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
                 Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
             }
         });
-        AuthenticatorManager.getInstance()
-                .onLoggedInOut(AuthenticatorManager.AUTHENTICATOR_ID_DEEZER, false,
-                        PipeLine.PLUGINNAME_DEEZER);
+        AuthenticatorManager.getInstance().onLoggedInOut(TomahawkApp.PLUGINNAME_DEEZER, false);
         mIsAuthenticating = false;
     }
 
     @Override
     public void onLogout() {
         Log.d(TAG, "TomahawkService: Deezer user logged out");
-        AuthenticatorManager.getInstance()
-                .onLoggedInOut(AuthenticatorManager.AUTHENTICATOR_ID_DEEZER, false,
-                        PipeLine.PLUGINNAME_DEEZER);
+        AuthenticatorManager.getInstance().onLoggedInOut(TomahawkApp.PLUGINNAME_DEEZER, false);
         mIsAuthenticating = false;
     }
 
@@ -125,9 +120,7 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
             am.setUserData(account, ACCESS_TOKEN_EXPIRES_IN_DEEZER,
                     String.valueOf(accessTokenExpiresIn));
         }
-        AuthenticatorManager.getInstance()
-                .onLoggedInOut(AuthenticatorManager.AUTHENTICATOR_ID_DEEZER, true,
-                        PipeLine.PLUGINNAME_DEEZER);
+        AuthenticatorManager.getInstance().onLoggedInOut(TomahawkApp.PLUGINNAME_DEEZER, true);
     }
 
     @Override

@@ -177,16 +177,14 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
                 Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
             }
         });
-        AuthenticatorManager.getInstance()
-                .onLoggedInOut(AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY, false);
+        AuthenticatorManager.getInstance().onLoggedInOut(TomahawkApp.PLUGINNAME_SPOTIFY, false);
         mIsAuthenticating = false;
     }
 
     @Override
     public void onLogout() {
         Log.d(TAG, "TomahawkService: Spotify user logged out");
-        AuthenticatorManager.getInstance()
-                .onLoggedInOut(AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY, false);
+        AuthenticatorManager.getInstance().onLoggedInOut(TomahawkApp.PLUGINNAME_SPOTIFY, false);
         mIsAuthenticating = false;
     }
 
@@ -210,8 +208,7 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
                 updateBitrate();
             }
         }
-        AuthenticatorManager.getInstance()
-                .onLoggedInOut(AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY, true);
+        AuthenticatorManager.getInstance().onLoggedInOut(TomahawkApp.PLUGINNAME_SPOTIFY, true);
         mIsAuthenticating = false;
     }
 

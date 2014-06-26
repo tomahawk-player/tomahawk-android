@@ -179,7 +179,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                         intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
                 if (!noConnectivity) {
                     AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
-                            .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
+                            .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
                     InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
                 }
                 ConnectivityManager connMgr = (ConnectivityManager) context
@@ -206,7 +206,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                                 HatchetAuthenticatorUtils authenticatorUtils
                                         = (HatchetAuthenticatorUtils) AuthenticatorManager
                                         .getInstance().getAuthenticatorUtils(
-                                                AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
+                                                TomahawkApp.PLUGINNAME_HATCHET);
                                 authenticatorUtils.setLoggedInUser((User) users.get(0));
                                 updateDrawer();
                             }
@@ -218,7 +218,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                         .getStringExtra(AuthenticatorManager.AUTHENTICATOR_LOGGED_IN_ID);
                 final boolean loggedIn = intent
                         .getBooleanExtra(AuthenticatorManager.AUTHENTICATOR_LOGGED_IN_STATE, false);
-                if (AuthenticatorManager.AUTHENTICATOR_ID_HATCHET.equals(authenticatorId)) {
+                if (TomahawkApp.PLUGINNAME_HATCHET.equals(authenticatorId)) {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
@@ -245,7 +245,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             HatchetAuthenticatorUtils authenticatorUtils
                     = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
+                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
             // Show the correct hub, and if needed, display the search editText inside the ActionBar
             FragmentUtils.showHub(TomahawkMainActivity.this, getSupportFragmentManager(),
                     (int) id, authenticatorUtils.getLoggedInUser());
@@ -450,8 +450,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
             RdioAuthenticatorUtils authUtils = (RdioAuthenticatorUtils) AuthenticatorManager
-                    .getInstance()
-                    .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_RDIO);
+                    .getInstance().getAuthenticatorUtils(TomahawkApp.PLUGINNAME_RDIO);
             if (resultCode == Activity.RESULT_OK) {
                 Log.d(TAG, "Rdio access token is served and yummy");
                 if (data != null) {
@@ -617,7 +616,7 @@ public class TomahawkMainActivity extends ActionBarActivity
     public void updateDrawer() {
         HatchetAuthenticatorUtils authenticatorUtils
                 = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
+                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         if (authenticatorUtils.getLoggedInUser() == null) {
             mCurrentRequestIds.add(InfoSystem.getInstance()
                     .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF, null));

@@ -29,6 +29,7 @@ import com.deezer.sdk.player.networkcheck.WifiAndMobileNetworkStateChecker;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.DeezerAuthenticatorUtils;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.app.Application;
 import android.media.MediaPlayer;
@@ -187,8 +188,7 @@ public class DeezerMediaPlayer
         release();
         DeezerAuthenticatorUtils authUtils =
                 (DeezerAuthenticatorUtils) AuthenticatorManager.getInstance()
-                        .getAuthenticatorUtils(
-                                AuthenticatorManager.AUTHENTICATOR_ID_DEEZER);
+                        .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_DEEZER);
         try {
             if (mPlayer == null || mPlayer.getPlayerState() == PlayerState.RELEASED) {
                 mPlayer = new TrackPlayer(application, authUtils.getDeezerConnect(),

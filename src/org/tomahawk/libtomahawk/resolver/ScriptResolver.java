@@ -23,6 +23,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
+import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
@@ -173,11 +174,11 @@ public class ScriptResolver implements Resolver {
         if (getConfig().get(ENABLED_KEY) != null) {
             mEnabled = (Boolean) getConfig().get(ENABLED_KEY);
         } else {
-            if (PipeLine.PLUGINNAME_RDIO.equals(mId)
-                    || PipeLine.PLUGINNAME_BEATSMUSIC.equals(mId)
-                    || PipeLine.PLUGINNAME_BEETS.equals(mId)
-                    || PipeLine.PLUGINNAME_GMUSIC.equals(mId)
-                    || PipeLine.PLUGINNAME_DEEZER.equals(mId)) {
+            if (TomahawkApp.PLUGINNAME_RDIO.equals(mId)
+                    || TomahawkApp.PLUGINNAME_BEATSMUSIC.equals(mId)
+                    || TomahawkApp.PLUGINNAME_BEETS.equals(mId)
+                    || TomahawkApp.PLUGINNAME_GMUSIC.equals(mId)
+                    || TomahawkApp.PLUGINNAME_DEEZER.equals(mId)) {
                 setEnabled(false);
             } else {
                 setEnabled(true);
@@ -407,7 +408,7 @@ public class ScriptResolver implements Resolver {
                                     CollectionManager.getInstance().getCollection(result.qid);
                             Artist artist = Artist.get(result.artist);
                             for (String albumName : result.albums) {
-                                collection.addAlbum(Album.get(albumName, artist));
+                                collection.addAlbumResult(Album.get(albumName, artist));
                             }
                         }
                         mTimeOutHandler.removeCallbacksAndMessages(null);
@@ -435,7 +436,7 @@ public class ScriptResolver implements Resolver {
                             ScriptResolverCollection collection = (ScriptResolverCollection)
                                     CollectionManager.getInstance().getCollection(result.qid);
                             for (String artistName : result.artists) {
-                                collection.addArtist(Artist.get(artistName));
+                                collection.addArtistResult(Artist.get(artistName));
                             }
                         }
                         mTimeOutHandler.removeCallbacksAndMessages(null);
@@ -618,7 +619,6 @@ public class ScriptResolver implements Resolver {
                 } else {
                     album = Album.get("", artist);
                 }
-                artist.addAlbum(album);
 
                 Track track = Track.get(resultEntry.track, album, artist);
                 track.setAlbumPos(resultEntry.albumpos);
@@ -637,8 +637,6 @@ public class ScriptResolver implements Resolver {
                 result.setAlbum(album);
                 result.setTrack(track);
 
-                album.addQuery(Query.get(result, false));
-                artist.addQuery(Query.get(result, false));
                 resultList.add(result);
             }
         }
@@ -667,6 +665,10 @@ public class ScriptResolver implements Resolver {
     @Override
     public String getId() {
         return mId;
+    }
+
+    public String getName() {
+        return mMetaData.name;
     }
 
     @Override
@@ -725,9 +727,9 @@ public class ScriptResolver implements Resolver {
     }
 
     public boolean isEnabled() {
-        if (getCorrespondingAuthUtilId() != null) {
-            return AuthenticatorManager.getInstance().getAuthenticatorUtils(
-                    getCorrespondingAuthUtilId()).isLoggedIn();
+        AuthenticatorUtils utils = AuthenticatorManager.getInstance().getAuthenticatorUtils(mId);
+        if (utils != null) {
+            return utils.isLoggedIn();
         }
         return mEnabled;
     }
@@ -738,15 +740,6 @@ public class ScriptResolver implements Resolver {
         Map<String, Object> config = getConfig();
         config.put(ENABLED_KEY, enabled);
         setConfig(config);
-    }
-
-    public String getCorrespondingAuthUtilId() {
-        if (mId.equals(PipeLine.PLUGINNAME_RDIO)) {
-            return AuthenticatorManager.AUTHENTICATOR_ID_RDIO;
-        } else if (mId.equals(PipeLine.PLUGINNAME_DEEZER)) {
-            return AuthenticatorManager.AUTHENTICATOR_ID_DEEZER;
-        }
-        return null;
     }
 
     public void reportCapabilities(int in) {

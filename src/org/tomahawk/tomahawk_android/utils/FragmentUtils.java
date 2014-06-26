@@ -19,12 +19,13 @@ package org.tomahawk.tomahawk_android.utils;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
+import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
-import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.CollectionFragment;
 import org.tomahawk.tomahawk_android.fragments.FavoritesFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
@@ -73,7 +74,7 @@ public class FragmentUtils {
         FragmentTransaction ft = fragmentManager.beginTransaction();
         if (mUserId != null) {
             String userName = AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET)
+                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET)
                     .getUserName();
             User loggedInUser = User.get(mUserId);
             loggedInUser.setName(userName);
@@ -95,10 +96,12 @@ public class FragmentUtils {
      * Replaces the current {@link Fragment}
      */
     public static void replace(Context context, FragmentManager fragmentManager, Class clss,
-            String tomahawkListItemKey, String tomahawkListItemType, boolean isLocal) {
+            String tomahawkListItemKey, String tomahawkListItemType, Collection collection) {
         Bundle bundle = new Bundle();
         bundle.putString(tomahawkListItemType, tomahawkListItemKey);
-        bundle.putBoolean(TomahawkFragment.TOMAHAWK_LIST_ITEM_IS_LOCAL, isLocal);
+        if (collection != null) {
+            bundle.putString(CollectionManager.COLLECTION_ID, collection.getId());
+        }
         replace(context, fragmentManager, clss, bundle);
     }
 
@@ -180,7 +183,7 @@ public class FragmentUtils {
             case HUB_ID_COLLECTION:
                 Bundle bundle = new Bundle();
                 bundle.putString(CollectionManager.COLLECTION_ID,
-                        PipeLine.PLUGINNAME_USERCOLLECTION);
+                        TomahawkApp.PLUGINNAME_USERCOLLECTION);
                 replace(context, fragmentManager, CollectionFragment.class, bundle);
                 break;
             case HUB_ID_LOVEDTRACKS:

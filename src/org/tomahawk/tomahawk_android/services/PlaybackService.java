@@ -342,11 +342,11 @@ public class PlaybackService extends Service
         @Override
         public void setToSpotifyMessenger(Messenger messenger) {
             SpotifyResolver spotifyResolver = (SpotifyResolver) PipeLine.getInstance()
-                    .getResolver(PipeLine.PLUGINNAME_SPOTIFY);
+                    .getResolver(TomahawkApp.PLUGINNAME_SPOTIFY);
             spotifyResolver.setToSpotifyMessenger(messenger);
             SpotifyAuthenticatorUtils authUtils = (SpotifyAuthenticatorUtils)
                     AuthenticatorManager.getInstance()
-                            .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY);
+                            .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_SPOTIFY);
             authUtils.setToSpotifyMessenger(messenger);
             SpotifyMediaPlayer spotifyMediaPlayer = SpotifyMediaPlayer.getInstance();
             spotifyMediaPlayer.setToSpotifyMessenger(messenger);
@@ -574,9 +574,8 @@ public class PlaybackService extends Service
                 .getPreferredTrackResult().getResolvedBy());
         if (isPlaying()) {
             InfoSystem.getInstance().sendNowPlayingPostStruct(
-                    AuthenticatorManager.getInstance()
-                            .getAuthenticatorUtils(
-                                    AuthenticatorManager.AUTHENTICATOR_ID_HATCHET),
+                    AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                            TomahawkApp.PLUGINNAME_HATCHET),
                     getCurrentQuery()
             );
         }
@@ -739,7 +738,7 @@ public class PlaybackService extends Service
                                 .isPrepared(getCurrentQuery())) {
                             InfoSystem.getInstance().sendPlaybackEntryPostStruct(
                                     AuthenticatorManager.getInstance().getAuthenticatorUtils(
-                                            AuthenticatorManager.AUTHENTICATOR_ID_HATCHET)
+                                            TomahawkApp.PLUGINNAME_HATCHET)
                             );
                             getCurrentQuery().getMediaPlayerInterface().pause();
                         }

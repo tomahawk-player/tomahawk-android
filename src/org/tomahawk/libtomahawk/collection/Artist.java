@@ -17,7 +17,6 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
-import org.tomahawk.libtomahawk.resolver.DataBaseResolver;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
@@ -41,16 +40,7 @@ public class Artist implements TomahawkListItem {
 
     private ConcurrentHashMap<String, Album> mAlbums = new ConcurrentHashMap<String, Album>();
 
-    private ConcurrentHashMap<String, Album> mLocalAlbums = new ConcurrentHashMap<String, Album>();
-
-    private ConcurrentHashMap<String, Album> mAlbumsFetchedViaHatchet
-            = new ConcurrentHashMap<String, Album>();
-
     private ConcurrentHashMap<String, Query> mQueries = new ConcurrentHashMap<String, Query>();
-
-    private ConcurrentHashMap<String, Query> mLocalQueries = new ConcurrentHashMap<String, Query>();
-
-    private ArrayList<Query> mTopHits = new ArrayList<Query>();
 
     private Image mImage;
 
@@ -111,21 +101,6 @@ public class Artist implements TomahawkListItem {
     }
 
     /**
-     * @return A {@link java.util.List} of local all {@link Artist}s
-     */
-    public static ArrayList<Artist> getLocalArtists() {
-        ArrayList<Artist> artists = new ArrayList<Artist>();
-        for (Artist artist : sArtists.values()) {
-            if (artist.hasLocalQueries()) {
-                artists.add(artist);
-            }
-        }
-        Collections.sort(artists,
-                new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
-        return artists;
-    }
-
-    /**
      * @return this object's name
      */
     @Override
@@ -171,12 +146,6 @@ public class Artist implements TomahawkListItem {
         synchronized (this) {
             if (!mQueries.containsKey(query.getCacheKey())) {
                 mQueries.put(query.getCacheKey(), query);
-                boolean isLocalQuery = query.getPreferredTrackResult() != null
-                        && query.getPreferredTrackResult()
-                        .getResolvedBy() instanceof DataBaseResolver;
-                if (isLocalQuery) {
-                    mLocalQueries.put(query.getCacheKey(), query);
-                }
             }
         }
     }
@@ -185,33 +154,16 @@ public class Artist implements TomahawkListItem {
      * @return list of all {@link org.tomahawk.libtomahawk.resolver.Query}s from this object.
      */
     @Override
-    public ArrayList<Query> getQueries(boolean onlyLocal) {
+    public ArrayList<Query> getQueries() {
         ArrayList<Query> queries;
-        if (onlyLocal) {
-            queries = new ArrayList<Query>(mLocalQueries.values());
-        } else {
-            queries = new ArrayList<Query>(mQueries.values());
-        }
+        queries = new ArrayList<Query>(mQueries.values());
         Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALPHA));
         return queries;
     }
 
     @Override
-    public ArrayList<Query> getQueries() {
-        return getQueries(false);
-    }
-
-    @Override
     public Image getImage() {
         return mImage;
-    }
-
-    public ArrayList<Query> getTopHits() {
-        return mTopHits;
-    }
-
-    public void setTopHits(ArrayList<Query> topHits) {
-        mTopHits = topHits;
     }
 
     /**
@@ -220,21 +172,9 @@ public class Artist implements TomahawkListItem {
      * @param album the {@link Album} to be added
      */
     public void addAlbum(Album album) {
-        addAlbum(album, false);
-    }
-
-    /**
-     * Add an {@link Album} to this object
-     *
-     * @param album the {@link Album} to be added
-     */
-    public void addAlbum(Album album, boolean isLocalAlbum) {
         synchronized (this) {
             if (!mAlbums.containsKey(album.getCacheKey())) {
                 mAlbums.put(album.getCacheKey(), album);
-                if (isLocalAlbum) {
-                    mLocalAlbums.put(album.getCacheKey(), album);
-                }
             }
         }
     }
@@ -245,46 +185,10 @@ public class Artist implements TomahawkListItem {
      * @return list of all {@link Album}s from this object.
      */
     public ArrayList<Album> getAlbums() {
-        if (mAlbumsFetchedViaHatchet.size() > 0) {
-            return new ArrayList<Album>(mAlbumsFetchedViaHatchet.values());
-        }
         ArrayList<Album> albums = new ArrayList<Album>(mAlbums.values());
         Collections.sort(albums,
                 new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
         return albums;
-    }
-
-    /**
-     * Get a list of all local {@link Album}s from this object.
-     *
-     * @return list of all local {@link Album}s from this object.
-     */
-    public ArrayList<Album> getLocalAlbums() {
-        ArrayList<Album> albums = new ArrayList<Album>(mLocalAlbums.values());
-        Collections.sort(albums,
-                new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
-        return albums;
-    }
-
-    public void setAlbumsFetchedViaHatchet(
-            ConcurrentHashMap<String, Album> albumsFetchedViaHatchet) {
-        mAlbumsFetchedViaHatchet = albumsFetchedViaHatchet;
-    }
-
-    /**
-     * @return whether or not this {@link org.tomahawk.libtomahawk.collection.Artist} has local
-     * queries
-     */
-    public boolean hasLocalQueries() {
-        return mLocalQueries.size() > 0;
-    }
-
-    /**
-     * @return whether or not this {@link org.tomahawk.libtomahawk.collection.Artist} has albums
-     * which have been fetched via Hatchet
-     */
-    public boolean hasAlbumsFetchedViaHatchet() {
-        return mAlbumsFetchedViaHatchet.size() > 0;
     }
 
     public void setImage(Image image) {

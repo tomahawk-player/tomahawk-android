@@ -88,12 +88,10 @@ public class RedirectConfigDialog extends DialogFragment {
     public void onResume() {
         super.onResume();
 
-        if (mResolverId != null) {
-            ScriptResolver scriptResolver = (ScriptResolver) PipeLine.getInstance()
-                    .getResolver(mResolverId);
-            String authUtilsId = scriptResolver.getCorrespondingAuthUtilId();
-            boolean loggedIn = AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(authUtilsId).isLoggedIn();
+        AuthenticatorUtils utils = AuthenticatorManager.getInstance()
+                .getAuthenticatorUtils(mResolverId);
+        if (utils != null) {
+            boolean loggedIn = utils.isLoggedIn();
             mButtonText.setText(loggedIn
                     ? getString(R.string.resolver_config_redirect_button_text_log_out_of)
                     : getString(R.string.resolver_config_redirect_button_text_log_into));
@@ -131,7 +129,7 @@ public class RedirectConfigDialog extends DialogFragment {
         int buttonImageResId;
         int buttonTextColor;
         View.OnClickListener onClickListener;
-        if (mResolverId.equals(PipeLine.PLUGINNAME_RDIO)) {
+        if (mResolverId.equals(TomahawkApp.PLUGINNAME_RDIO)) {
             buttonBackgroundResId = R.drawable.selectable_background_tomahawk_opaque;
             buttonImageResId = R.drawable.logo_rdio;
             buttonTextColor = getResources().getColor(R.color.primary_textcolor);
@@ -139,7 +137,7 @@ public class RedirectConfigDialog extends DialogFragment {
                 @Override
                 public void onClick(View v) {
                     AuthenticatorUtils authenticatorUtils = AuthenticatorManager.getInstance()
-                            .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_RDIO);
+                            .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_RDIO);
                     boolean rdioLoggedIn = authenticatorUtils.isLoggedIn();
                     if (rdioLoggedIn) {
                         authenticatorUtils.logout();
@@ -156,7 +154,7 @@ public class RedirectConfigDialog extends DialogFragment {
                 @Override
                 public void onClick(View v) {
                     AuthenticatorUtils authenticatorUtils = AuthenticatorManager.getInstance()
-                            .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_DEEZER);
+                            .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_DEEZER);
                     boolean deezerLoggedIn = authenticatorUtils.isLoggedIn();
                     if (deezerLoggedIn) {
                         authenticatorUtils.logout(getActivity());
@@ -175,10 +173,10 @@ public class RedirectConfigDialog extends DialogFragment {
         frame.addView(buttonLayout);
         ScriptResolver scriptResolver = (ScriptResolver) PipeLine.getInstance()
                 .getResolver(mResolverId);
-        if (scriptResolver != null) {
-            String authUtilsId = scriptResolver.getCorrespondingAuthUtilId();
-            boolean loggedIn = AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(authUtilsId).isLoggedIn();
+        AuthenticatorUtils utils = AuthenticatorManager.getInstance()
+                .getAuthenticatorUtils(mResolverId);
+        if (utils != null) {
+            boolean loggedIn = utils.isLoggedIn();
             LinearLayout button = ((LinearLayout) buttonLayout
                     .findViewById(R.id.resolver_config_redirect_button));
             button.setBackgroundResource(buttonBackgroundResId);
@@ -193,7 +191,7 @@ public class RedirectConfigDialog extends DialogFragment {
             button.setOnClickListener(onClickListener);
             TextView textView = (TextView) view
                     .findViewById(R.id.resolver_config_dialog_title_textview);
-            textView.setText(scriptResolver.getCollectionName());
+            textView.setText(scriptResolver.getName());
             CheckBox checkBox = (CheckBox) view
                     .findViewById(R.id.resolver_config_dialog_enable_checkbox);
             checkBox.setVisibility(View.GONE);

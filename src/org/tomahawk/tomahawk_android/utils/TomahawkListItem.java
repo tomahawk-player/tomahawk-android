@@ -52,11 +52,6 @@ public interface TomahawkListItem {
     /**
      * @return the corresponding list of {@link org.tomahawk.libtomahawk.resolver.Query}s
      */
-    public ArrayList<Query> getQueries(boolean onlyLocal);
-
-    /**
-     * @return the corresponding list of {@link org.tomahawk.libtomahawk.resolver.Query}s
-     */
     public ArrayList<Query> getQueries();
 
     /**

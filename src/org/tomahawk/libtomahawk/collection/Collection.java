@@ -22,9 +22,11 @@ import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.Intent;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Collection {
@@ -35,11 +37,20 @@ public class Collection {
 
     private boolean mIsLocal;
 
-    protected ConcurrentHashMap<String, Album> mAlbums = new ConcurrentHashMap<String, Album>();
+    private ConcurrentHashMap<String, Album> mAlbums = new ConcurrentHashMap<String, Album>();
 
-    protected ConcurrentHashMap<String, Artist> mArtists = new ConcurrentHashMap<String, Artist>();
+    private ConcurrentHashMap<String, Artist> mArtists = new ConcurrentHashMap<String, Artist>();
 
-    protected ConcurrentHashMap<String, Query> mQueries = new ConcurrentHashMap<String, Query>();
+    private ConcurrentHashMap<String, Query> mQueries = new ConcurrentHashMap<String, Query>();
+
+    private ConcurrentHashMap<Album, List<Query>> mAlbumTracks
+            = new ConcurrentHashMap<Album, List<Query>>();
+
+    private ConcurrentHashMap<Artist, List<Query>> mArtistTracks
+            = new ConcurrentHashMap<Artist, List<Query>>();
+
+    private ConcurrentHashMap<Artist, List<Album>> mArtistAlbums
+            = new ConcurrentHashMap<Artist, List<Album>>();
 
     protected Collection(String id, String name, boolean isLocal) {
         mId = id;
@@ -65,6 +76,32 @@ public class Collection {
         TomahawkApp.getContext().sendBroadcast(intent);
     }
 
+    public void wipe() {
+        mQueries = new ConcurrentHashMap<String, Query>();
+        mArtists = new ConcurrentHashMap<String, Artist>();
+        mAlbums = new ConcurrentHashMap<String, Album>();
+        mAlbumTracks = new ConcurrentHashMap<Album, List<Query>>();
+        mArtistTracks = new ConcurrentHashMap<Artist, List<Query>>();
+        mArtistAlbums = new ConcurrentHashMap<Artist, List<Album>>();
+    }
+
+    public void addQuery(Query query) {
+        if (!TextUtils.isEmpty(query.getName()) && !mQueries.contains(query)) {
+            mQueries.put(query.getCacheKey(), query);
+            if (mArtistTracks.get(query.getArtist()) == null) {
+                mArtistTracks.put(query.getArtist(), new ArrayList<Query>());
+            }
+            mArtistTracks.get(query.getArtist()).add(query);
+        }
+    }
+
+    public void addAlbumTrack(Album album, Query query) {
+        if (mAlbumTracks.get(album) == null) {
+            mAlbumTracks.put(album, new ArrayList<Query>());
+        }
+        mAlbumTracks.get(album).add(query);
+    }
+
     /**
      * @return A {@link java.util.List} of all {@link Track}s in this {@link Collection}
      */
@@ -81,6 +118,26 @@ public class Collection {
             Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALPHA));
         }
         return queries;
+    }
+
+    /**
+     * @return A {@link java.util.List} of all {@link Track}s from the given Album.
+     */
+    public ArrayList<Query> getAlbumTracks(Album album, boolean sorted) {
+        ArrayList<Query> queries = new ArrayList<Query>();
+        if (mAlbumTracks.get(album) != null) {
+            queries.addAll(mAlbumTracks.get(album));
+        }
+        if (sorted) {
+            Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
+        }
+        return queries;
+    }
+
+    public void addArtist(Artist artist) {
+        if (!TextUtils.isEmpty(artist.getName()) && !mArtists.contains(artist)) {
+            mArtists.put(artist.getCacheKey(), artist);
+        }
     }
 
     /**
@@ -102,6 +159,45 @@ public class Collection {
                     new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
         }
         return artists;
+    }
+
+    /**
+     * @return A {@link java.util.List} of all {@link Album}s by the given Artist.
+     */
+    public ArrayList<Album> getArtistAlbums(Artist artist, boolean sorted) {
+        ArrayList<Album> albums = new ArrayList<Album>();
+        if (mArtistAlbums.get(artist) != null) {
+            albums.addAll(mArtistAlbums.get(artist));
+        }
+        if (sorted) {
+            Collections.sort(albums, new TomahawkListItemComparator(QueryComparator.COMPARE_ALPHA));
+        }
+        return albums;
+    }
+
+    /**
+     * @return A {@link java.util.List} of all {@link Track}s from the given Artist.
+     */
+    public ArrayList<Query> getArtistTracks(Artist artist, boolean sorted) {
+        ArrayList<Query> queries = new ArrayList<Query>();
+        if (mArtistTracks.get(artist) != null) {
+            queries.addAll(mArtistTracks.get(artist));
+        }
+        if (sorted) {
+            Collections
+                    .sort(queries, new TomahawkListItemComparator(QueryComparator.COMPARE_ALPHA));
+        }
+        return queries;
+    }
+
+    public void addAlbum(Album album) {
+        if (!TextUtils.isEmpty(album.getName()) && !mAlbums.contains(album)) {
+            mAlbums.put(album.getCacheKey(), album);
+            if (mArtistAlbums.get(album.getArtist()) == null) {
+                mArtistAlbums.put(album.getArtist(), new ArrayList<Album>());
+            }
+            mArtistAlbums.get(album.getArtist()).add(album);
+        }
     }
 
     /**

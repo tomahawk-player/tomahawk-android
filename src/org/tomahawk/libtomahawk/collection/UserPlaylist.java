@@ -160,11 +160,6 @@ public class UserPlaylist extends Playlist implements TomahawkListItem {
     }
 
     @Override
-    public ArrayList<Query> getQueries(boolean onlyLocal) {
-        return getQueries();
-    }
-
-    @Override
     public Image getImage() {
         for (Artist artist : mContentHeaderArtists) {
             if (artist.getImage() != null && !TextUtils.isEmpty(artist.getImage().getImagePath())) {

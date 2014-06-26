@@ -111,11 +111,6 @@ public class SocialAction implements TomahawkListItem {
     }
 
     @Override
-    public ArrayList<Query> getQueries(boolean onlyLocal) {
-        return getQueries();
-    }
-
-    @Override
     public ArrayList<Query> getQueries() {
         ArrayList<Query> queries = new ArrayList<Query>();
         queries.add(mQuery);

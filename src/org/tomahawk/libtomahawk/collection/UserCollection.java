@@ -52,8 +52,8 @@ public class UserCollection extends Collection {
     };
 
     public UserCollection() {
-        super(PipeLine.PLUGINNAME_USERCOLLECTION,
-                PipeLine.getInstance().getResolver(PipeLine.PLUGINNAME_USERCOLLECTION)
+        super(TomahawkApp.PLUGINNAME_USERCOLLECTION,
+                PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_USERCOLLECTION)
                         .getCollectionName(), true);
 
         //This ContentObserver watches for changes in the Media db.
@@ -81,7 +81,7 @@ public class UserCollection extends Collection {
      */
     private void initializeCollection() {
         Resolver userCollectionResolver = PipeLine.getInstance().getResolver(
-                PipeLine.PLUGINNAME_USERCOLLECTION);
+                TomahawkApp.PLUGINNAME_USERCOLLECTION);
         if (userCollectionResolver == null) {
             return;
         }
@@ -138,20 +138,10 @@ public class UserCollection extends Collection {
             result.setTrackScore(1f);
             query.addTrackResult(result);
 
-            artist.addQuery(query);
-            artist.addAlbum(album, true);
-
-            album.addQuery(query);
-
-            if (!mQueries.containsKey(query.getCacheKey())) {
-                mQueries.put(query.getCacheKey(), query);
-            }
-            if (!mAlbums.containsKey(album.getCacheKey())) {
-                mAlbums.put(album.getCacheKey(), album);
-            }
-            if (!mArtists.containsKey(artist.getCacheKey())) {
-                mArtists.put(artist.getCacheKey(), artist);
-            }
+            addQuery(query);
+            addAlbum(album);
+            addArtist(artist);
+            addAlbumTrack(album, query);
         }
 
         if (cursor != null) {
