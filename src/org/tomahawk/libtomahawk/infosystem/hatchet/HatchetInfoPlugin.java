@@ -29,6 +29,8 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Collection;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoPlugin;
@@ -39,6 +41,7 @@ import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
@@ -474,6 +477,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
      * basically converts the Hatchet-specific java objects into tomahawk-android specific objects.
      */
     private void convertParsedItem(InfoRequestData infoRequestData) {
+        Collection hatchetCollection = CollectionManager.getInstance()
+                .getCollection(TomahawkApp.PLUGINNAME_HATCHET);
         Map<String, List> convertedResultMap = new HashMap<String, List>();
         if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS) {
             HatchetPlaylists playlists = (HatchetPlaylists) infoRequestData.getInfoResult();
@@ -546,8 +551,10 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                 if (albumInfo.images != null && albumInfo.images.size() > 0) {
                                     image = imageMap.get(albumInfo.images.get(0));
                                 }
-                                albums.add(InfoSystemUtils.convertToAlbum(albumInfo,
-                                        artistInfoMap.get(albumInfo.artist).name, null, image));
+                                Album album = InfoSystemUtils.convertToAlbum(albumInfo,
+                                        artistInfoMap.get(albumInfo.artist).name, null, image);
+                                albums.add(album);
+                                hatchetCollection.addAlbum(album);
                             }
                         } else if (HATCHET_SEARCHITEM_TYPE_ARTIST.equals(searchItem.type)) {
                             HatchetArtistInfo artistInfo = artistInfoMap.get(searchItem.artist);
@@ -556,7 +563,9 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                 if (artistInfo.images != null && artistInfo.images.size() > 0) {
                                     image = imageMap.get(artistInfo.images.get(0));
                                 }
-                                artists.add(InfoSystemUtils.convertToArtist(artistInfo, image));
+                                Artist artist = InfoSystemUtils.convertToArtist(artistInfo, image);
+                                artists.add(artist);
+                                hatchetCollection.addArtist(artist);
                             }
                         } else if (HATCHET_SEARCHITEM_TYPE_USER.equals(searchItem.type)) {
                             HatchetUserInfo userInfo = userInfoMap.get(searchItem.user);
@@ -622,6 +631,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                 .convertToAlbum(albumInfo, artistInfoMap.get(albumInfo.artist).name,
                                         null, null);
                         convertedAlbums.add(album);
+                        hatchetCollection.addAlbum(album);
                     }
                 }
                 convertedResultMap.put(HATCHET_ALBUMS, convertedAlbums);
@@ -642,6 +652,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         HatchetArtistInfo artistInfo = artistInfoMap.get(relationship.targetArtist);
                         Artist artist = InfoSystemUtils.convertToArtist(artistInfo, null);
                         convertedArtists.add(artist);
+                        hatchetCollection.addArtist(artist);
                     }
                 }
                 convertedResultMap.put(HATCHET_ARTISTS, convertedArtists);
@@ -669,15 +680,21 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                 .get(infoRequestData.getRequestId());
                         InfoSystemUtils
                                 .fillArtist(artist, artists.artists.get(0), image);
+                        hatchetCollection.addArtist(artist);
                     }
                 }
             } else if (infoRequestData.getType()
                     == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS) {
                 if (infoRequestData.getInfoResultMap() != null) {
                     Artist artist = (Artist) mItemsToBeFilled.get(infoRequestData.getRequestId());
-                    InfoSystemUtils.fillArtist(artist,
+                    List<Album> albums = InfoSystemUtils.convertToAlbumList(artist,
                             infoRequestData.getInfoResultMap().get(HATCHET_TRACKS),
                             infoRequestData.getInfoResultMap().get(HATCHET_IMAGES));
+                    for (Album album : albums) {
+                        artist.addAlbum(album);
+                        hatchetCollection.addAlbum(album);
+                    }
+                    hatchetCollection.addArtist(artist);
                 }
             } else if (infoRequestData.getType()
                     == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
@@ -685,6 +702,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     Artist artist = (Artist) mItemsToBeFilled.get(infoRequestData.getRequestId());
                     InfoSystemUtils.fillArtist(artist,
                             infoRequestData.getInfoResultMap().get(HATCHET_TRACKS));
+                    hatchetCollection.addArtist(artist);
                 }
             } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS) {
                 if (infoRequestData.getInfoResultMap() != null) {
@@ -704,6 +722,10 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         InfoSystemUtils.fillAlbum(album, albumInfo, image);
                         if (tracks != null) {
                             InfoSystemUtils.fillAlbum(album, tracks.tracks);
+                        }
+                        hatchetCollection.addAlbum(album);
+                        for (Query query : album.getQueries()) {
+                            hatchetCollection.addAlbumTrack(album, query);
                         }
                     }
                 }
@@ -880,7 +902,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 AuthenticatorUtils.AUTHENTICATOR_NAME_HATCHET);
         mUserId = data.get(HATCHET_ACCOUNTDATA_USER_ID);
         String userName = AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET).getUserName();
+                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET).getUserName();
         if (mUserId == null && userName != null) {
             // If we couldn't fetch the user's id from the account's userData, get it from the API.
             Multimap<String, String> params = HashMultimap.create(1, 1);

@@ -201,6 +201,7 @@ public class CollectionManager {
             mInitialized = true;
 
             addCollection(new UserCollection());
+            addCollection(new HatchetCollection());
 
             updateLovedItemsUserPlaylist();
             updateUserPlaylists();
@@ -285,7 +286,7 @@ public class CollectionManager {
         DatabaseHelper.getInstance().setLovedItem(query, doSweetSweetLovin);
         TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
         AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
+                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         InfoSystem.getInstance().sendSocialActionPostStruct(hatchetAuthUtils, query,
                 HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE, doSweetSweetLovin);
     }
@@ -295,7 +296,7 @@ public class CollectionManager {
         DatabaseHelper.getInstance().setLovedItem(artist, doSweetSweetLovin);
         TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
         AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
+                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         InfoSystem.getInstance().sendSocialActionPostStruct(hatchetAuthUtils, artist,
                 HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE, doSweetSweetLovin);
     }
@@ -305,7 +306,7 @@ public class CollectionManager {
         DatabaseHelper.getInstance().setLovedItem(album, doSweetSweetLovin);
         TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
         AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
+                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         InfoSystem.getInstance().sendSocialActionPostStruct(hatchetAuthUtils, album,
                 HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE, doSweetSweetLovin);
     }
@@ -337,7 +338,7 @@ public class CollectionManager {
                     InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS, null));
         } else {
             AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
+                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
             InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
         }
     }
@@ -352,7 +353,7 @@ public class CollectionManager {
             mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveStarredArtists(null));
         } else {
             AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
+                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
             InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
         }
     }
@@ -367,7 +368,7 @@ public class CollectionManager {
             mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveStarredAlbums(null));
         } else {
             AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET);
+                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
             InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
         }
     }

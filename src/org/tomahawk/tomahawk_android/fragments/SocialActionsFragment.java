@@ -108,11 +108,11 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
             } else if (item instanceof Album) {
                 FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
                         TracksFragment.class, item.getCacheKey(),
-                        TomahawkFragment.TOMAHAWK_ALBUM_KEY, false);
+                        TomahawkFragment.TOMAHAWK_ALBUM_KEY, mCollection);
             } else if (item instanceof Artist) {
                 FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
                         AlbumsFragment.class, item.getCacheKey(),
-                        TomahawkFragment.TOMAHAWK_ARTIST_KEY, false);
+                        TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
             } else if (item instanceof User) {
                 FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
                         SocialActionsFragment.class, ((User) item).getId(),
@@ -157,14 +157,16 @@ public class SocialActionsFragment extends TomahawkFragment implements OnItemCli
                 tomahawkListAdapter.setShowCategoryHeaders(true);
                 if (mShowMode != SHOW_MODE_DASHBOARD) {
                     tomahawkListAdapter.showContentHeaderUser(
-                            getActivity().getSupportFragmentManager(), rootView, mUser, mIsLocal);
+                            getActivity().getSupportFragmentManager(), rootView, mUser,
+                            mCollection);
                 }
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListItems(socialActions);
                 if (mShowMode != SHOW_MODE_DASHBOARD) {
                     ((TomahawkListAdapter) getListAdapter()).showContentHeaderUser(
-                            getActivity().getSupportFragmentManager(), rootView, mUser, mIsLocal);
+                            getActivity().getSupportFragmentManager(), rootView, mUser,
+                            mCollection);
                 }
             }
 

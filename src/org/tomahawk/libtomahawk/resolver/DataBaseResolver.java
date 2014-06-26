@@ -55,7 +55,7 @@ public class DataBaseResolver implements Resolver {
      * Construct this {@link DataBaseResolver}
      */
     public DataBaseResolver() {
-        mId = PipeLine.PLUGINNAME_USERCOLLECTION;
+        mId = TomahawkApp.PLUGINNAME_USERCOLLECTION;
         mWeight = 100;
         mReady = false;
         mStopped = true;

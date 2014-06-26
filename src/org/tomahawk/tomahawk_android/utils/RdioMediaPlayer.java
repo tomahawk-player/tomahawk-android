@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.utils;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.RdioAuthenticatorUtils;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.app.Application;
 import android.media.AudioManager;
@@ -128,7 +129,7 @@ public class RdioMediaPlayer implements MediaPlayerInterface, MediaPlayer.OnPrep
         mPreparingQuery = query;
         release();
         RdioAuthenticatorUtils authUtils = (RdioAuthenticatorUtils) AuthenticatorManager
-                .getInstance().getAuthenticatorUtils(AuthenticatorManager.AUTHENTICATOR_ID_RDIO);
+                .getInstance().getAuthenticatorUtils(TomahawkApp.PLUGINNAME_RDIO);
         if (authUtils.getRdio() == null) {
             return null;
         }

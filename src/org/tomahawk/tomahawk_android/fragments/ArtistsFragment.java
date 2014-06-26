@@ -69,7 +69,7 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
         if (getListAdapter().getItem(position) instanceof Artist) {
             FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
                     AlbumsFragment.class, ((Artist) item).getCacheKey(),
-                    TomahawkFragment.TOMAHAWK_ARTIST_KEY, mIsLocal);
+                    TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
         }
     }
 
@@ -107,7 +107,7 @@ public class ArtistsFragment extends TomahawkFragment implements OnItemClickList
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
                         layoutInflater, artists);
-                tomahawkListAdapter.setShowArtistAsSingleLine(mIsLocal);
+                tomahawkListAdapter.setShowArtistAsSingleLine(mCollection != null);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListItems(artists);

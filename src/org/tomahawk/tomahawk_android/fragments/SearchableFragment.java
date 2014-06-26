@@ -136,11 +136,11 @@ public class SearchableFragment extends TomahawkFragment
         } else if (item instanceof Album) {
             FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
                     TracksFragment.class, ((Album) item).getCacheKey(),
-                    TomahawkFragment.TOMAHAWK_ALBUM_KEY, false);
+                    TomahawkFragment.TOMAHAWK_ALBUM_KEY, mCollection);
         } else if (item instanceof Artist) {
             FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
                     AlbumsFragment.class, ((Artist) item).getCacheKey(),
-                    TomahawkFragment.TOMAHAWK_ARTIST_KEY, false);
+                    TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
         } else if (item instanceof User) {
             FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
                     SocialActionsFragment.class, ((User) item).getId(),

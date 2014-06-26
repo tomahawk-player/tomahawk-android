@@ -21,7 +21,6 @@ import com.rdio.android.api.OAuth1WebViewActivity;
 import com.rdio.android.api.Rdio;
 import com.rdio.android.api.RdioListener;
 
-import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -83,18 +82,14 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
                 Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
             }
         });
-        AuthenticatorManager.getInstance()
-                .onLoggedInOut(AuthenticatorManager.AUTHENTICATOR_ID_RDIO, false,
-                        PipeLine.PLUGINNAME_RDIO);
+        AuthenticatorManager.getInstance().onLoggedInOut(TomahawkApp.PLUGINNAME_RDIO, false);
         mIsAuthenticating = false;
     }
 
     @Override
     public void onLogout() {
         Log.d(TAG, "TomahawkService: Rdio user logged out");
-        AuthenticatorManager.getInstance()
-                .onLoggedInOut(AuthenticatorManager.AUTHENTICATOR_ID_RDIO, false,
-                        PipeLine.PLUGINNAME_RDIO);
+        AuthenticatorManager.getInstance().onLoggedInOut(TomahawkApp.PLUGINNAME_RDIO, false);
         mIsAuthenticating = false;
     }
 
@@ -116,9 +111,7 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
                     accessToken);
         }
         mRdio.prepareForPlayback();
-        AuthenticatorManager.getInstance()
-                .onLoggedInOut(AuthenticatorManager.AUTHENTICATOR_ID_RDIO, true,
-                        PipeLine.PLUGINNAME_RDIO);
+        AuthenticatorManager.getInstance().onLoggedInOut(TomahawkApp.PLUGINNAME_RDIO, true);
     }
 
     @Override

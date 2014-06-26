@@ -137,11 +137,6 @@ public class Track implements TomahawkListItem {
     }
 
     @Override
-    public ArrayList<Query> getQueries(boolean onlyLocal) {
-        return null;
-    }
-
-    @Override
     public ArrayList<Query> getQueries() {
         return null;
     }

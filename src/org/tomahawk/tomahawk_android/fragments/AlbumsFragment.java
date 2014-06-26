@@ -26,6 +26,7 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
+import org.tomahawk.tomahawk_android.utils.AdapterUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
@@ -96,7 +97,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
         } else if (item instanceof Album) {
             FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
                     TracksFragment.class, ((Album) item).getCacheKey(),
-                    TomahawkFragment.TOMAHAWK_ALBUM_KEY, mIsLocal);
+                    TomahawkFragment.TOMAHAWK_ALBUM_KEY, mCollection);
         }
     }
 
@@ -116,12 +117,13 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
         View rootView = getView();
         if (mArtist != null) {
             activity.setTitle(mArtist.getName());
-            if (mIsLocal) {
-                albumsAndTopHits.addAll(mArtist.getLocalAlbums());
+            if (mCollection != null) {
+                albumsAndTopHits.addAll(mCollection.getArtistAlbums(mArtist, true));
             } else {
-                albumsAndTopHits.addAll(mArtist.getTopHits());
-                albumsAndTopHits.addAll(mArtist.getAlbums());
-                mShownQueries = mArtist.getTopHits();
+                ArrayList<Query> topHits = AdapterUtils.getArtistTopHits(mArtist);
+                albumsAndTopHits.addAll(topHits);
+                albumsAndTopHits.addAll(AdapterUtils.getArtistAlbums(mArtist, null));
+                mShownQueries = topHits;
                 int precedingItemCount = 0;
                 if (getListAdapter() != null
                         && ((TomahawkListAdapter) getListAdapter()).isShowingContentHeader()) {
@@ -138,13 +140,13 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                 tomahawkListAdapter
                         .setShowCategoryHeaders(true,
                                 TomahawkListAdapter.SHOW_QUERIES_AS_TOPHITS);
-                tomahawkListAdapter.showContentHeader(rootView, mArtist, mIsLocal);
+                tomahawkListAdapter.showContentHeader(rootView, mArtist, mCollection);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListItems(albumsAndTopHits);
                 ((TomahawkListAdapter) getListAdapter())
-                        .showContentHeader(rootView, mArtist, mIsLocal);
+                        .showContentHeader(rootView, mArtist, mCollection);
             }
             getListView().setOnItemClickListener(this);
         } else if (mShowMode == SHOW_MODE_STARREDALBUMS) {

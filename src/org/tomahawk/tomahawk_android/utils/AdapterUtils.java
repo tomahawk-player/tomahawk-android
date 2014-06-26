@@ -19,7 +19,9 @@ package org.tomahawk.tomahawk_android.utils;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
+import org.tomahawk.libtomahawk.collection.HatchetCollection;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
@@ -52,14 +54,14 @@ import java.util.concurrent.TimeUnit;
 public class AdapterUtils {
 
     public static void fillContentHeader(Context context, ViewHolder viewHolder,
-            final Album album, boolean isOnlyLocal) {
+            final Album album, Collection collection) {
         if (viewHolder.getTextView1() != null) {
             viewHolder.getTextView1().setText(album.getName());
         }
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
                 album.getImage(), Image.getLargeImageSize());
-        int tracksCount = album.getQueries(isOnlyLocal).size();
+        int tracksCount = getAlbumTracks(album, collection).size();
         String s = album.getArtist().getName() + ", " + tracksCount + " "
                 + context.getString(R.string.category_header_track) + (tracksCount == 1 ? ""
                 : "s");
@@ -79,7 +81,7 @@ public class AdapterUtils {
     }
 
     public static void fillContentHeader(Context context, ViewHolder viewHolder,
-            final Artist artist, boolean isOnlyLocal) {
+            final Artist artist, Collection collection) {
         if (viewHolder.getTextView1() != null) {
             viewHolder.getTextView1().setText(artist.getName());
         }
@@ -87,9 +89,13 @@ public class AdapterUtils {
         TomahawkUtils
                 .loadImageIntoImageView(context, viewHolder.getImageView1(), artist.getImage(),
                         Image.getLargeImageSize());
-        int topHitsCount = artist.getArtist().getTopHits().size();
-        int albumsCount = isOnlyLocal ? artist.getLocalAlbums().size() : artist.getAlbums().size();
-        String s = (isOnlyLocal ? "" : (topHitsCount + " "
+        int topHitsCount = 0;
+        ArrayList<Query> topHits = AdapterUtils.getArtistTopHits(artist);
+        if (topHits != null) {
+            topHitsCount = topHits.size();
+        }
+        int albumsCount = getArtistAlbums(artist, collection).size();
+        String s = (collection != null ? "" : (topHitsCount + " "
                 + context.getString(R.string.category_header_tophit)
                 + (topHitsCount == 1 ? "" : "s") + ", ")) + albumsCount + " "
                 + context.getString(R.string.category_header_album)
@@ -110,12 +116,12 @@ public class AdapterUtils {
     }
 
     public static void fillContentHeader(Context context, ViewHolder viewHolder,
-            UserPlaylist userPlaylist, boolean isOnlyLocal) {
+            UserPlaylist userPlaylist) {
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         if (viewHolder.getTextView1() != null) {
             viewHolder.getTextView1().setText(userPlaylist.getName());
         }
-        int tracksCount = userPlaylist.getQueries(isOnlyLocal).size();
+        int tracksCount = userPlaylist.getQueries().size();
         String s = tracksCount + " " + context.getString(R.string.category_header_track)
                 + (tracksCount == 1 ? "" : "s");
         viewHolder.getTextView2().setText(s);
@@ -442,5 +448,41 @@ public class AdapterUtils {
         animation.setInterpolator(new LinearInterpolator());
         animation.setRepeatCount(RotateAnimation.INFINITE);
         return animation;
+    }
+
+    public static ArrayList<Album> getArtistAlbums(Artist artist, Collection collection) {
+        if (collection != null) {
+            return collection.getArtistAlbums(artist, false);
+        } else {
+            HatchetCollection hatchetCollection = (HatchetCollection) CollectionManager
+                    .getInstance().getCollection(TomahawkApp.PLUGINNAME_HATCHET);
+            return hatchetCollection.getArtistAlbums(artist, false);
+        }
+    }
+
+    public static ArrayList<Query> getArtistTracks(Artist artist, Collection collection) {
+        if (collection != null) {
+            return collection.getArtistTracks(artist, false);
+        } else {
+            HatchetCollection hatchetCollection = (HatchetCollection) CollectionManager
+                    .getInstance().getCollection(TomahawkApp.PLUGINNAME_HATCHET);
+            return hatchetCollection.getArtistTracks(artist, false);
+        }
+    }
+
+    public static ArrayList<Query> getAlbumTracks(Album album, Collection collection) {
+        if (collection != null) {
+            return collection.getAlbumTracks(album, false);
+        } else {
+            HatchetCollection hatchetCollection = (HatchetCollection) CollectionManager
+                    .getInstance().getCollection(TomahawkApp.PLUGINNAME_HATCHET);
+            return hatchetCollection.getAlbumTracks(album, false);
+        }
+    }
+
+    public static ArrayList<Query> getArtistTopHits(Artist artist) {
+        HatchetCollection hatchetCollection = (HatchetCollection) CollectionManager
+                .getInstance().getCollection(TomahawkApp.PLUGINNAME_HATCHET);
+        return hatchetCollection.getArtistTopHits(artist);
     }
 }

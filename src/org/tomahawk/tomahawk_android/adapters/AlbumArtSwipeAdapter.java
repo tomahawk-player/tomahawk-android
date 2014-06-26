@@ -20,7 +20,6 @@ package org.tomahawk.tomahawk_android.adapters;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
-import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
@@ -320,7 +319,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                             public void onClick(View v) {
                                 FragmentUtils.replace(mContext, mFragmentManager,
                                         AlbumsFragment.class, query.getArtist().getCacheKey(),
-                                        TomahawkFragment.TOMAHAWK_ARTIST_KEY, false);
+                                        TomahawkFragment.TOMAHAWK_ARTIST_KEY, null);
                             }
                         });
                     }
@@ -337,7 +336,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                             public void onClick(View v) {
                                 FragmentUtils.replace(mContext, mFragmentManager,
                                         TracksFragment.class, query.getAlbum().getCacheKey(),
-                                        TomahawkFragment.TOMAHAWK_ALBUM_KEY, false);
+                                        TomahawkFragment.TOMAHAWK_ALBUM_KEY, null);
                             }
                         });
                     }

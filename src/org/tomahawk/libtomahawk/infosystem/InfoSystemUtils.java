@@ -22,6 +22,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
+import org.tomahawk.libtomahawk.collection.HatchetCollection;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetAlbumInfo;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetArtistInfo;
@@ -37,6 +39,7 @@ import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetTrackInfo;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetTracks;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetUserInfo;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.text.TextUtils;
 
@@ -44,7 +47,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class InfoSystemUtils {
 
@@ -140,21 +142,20 @@ public class InfoSystemUtils {
     /**
      * Fill the given artist's albums with the given list of albums
      */
-    public static Artist fillArtist(Artist artist, Map<HatchetAlbumInfo, HatchetTracks> tracksMap,
+    public static List<Album> convertToAlbumList(Artist artist,
+            Map<HatchetAlbumInfo, HatchetTracks> tracksMap,
             Map<HatchetAlbumInfo, HatchetImage> imageMap) {
-        ConcurrentHashMap<String, Album> albumMap = new ConcurrentHashMap<String, Album>();
-        if (tracksMap != null && imageMap != null && !artist.hasAlbumsFetchedViaHatchet()) {
+        ArrayList<Album> albums = new ArrayList<Album>();
+        if (tracksMap != null && imageMap != null) {
             for (HatchetAlbumInfo albumInfo : tracksMap.keySet()) {
                 HatchetImage image = imageMap.get(albumInfo);
                 List<HatchetTrackInfo> trackInfos = tracksMap.get(albumInfo).tracks;
                 Album album = convertToAlbum(albumInfo, artist.getName(), trackInfos,
                         image);
-                albumMap.put(album.getCacheKey(), album);
-                artist.addAlbum(album);
+                albums.add(album);
             }
         }
-        artist.setAlbumsFetchedViaHatchet(albumMap);
-        return artist;
+        return albums;
     }
 
     /**
@@ -162,7 +163,9 @@ public class InfoSystemUtils {
      */
     public static Artist fillArtist(Artist artist,
             Map<HatchetChartItem, HatchetTrackInfo> trackInfoMap) {
-        if (trackInfoMap != null && artist.getTopHits().size() == 0) {
+        HatchetCollection hatchetCollection = (HatchetCollection) CollectionManager
+                .getInstance().getCollection(TomahawkApp.PLUGINNAME_HATCHET);
+        if (trackInfoMap != null) {
             ArrayList<Query> tophits = new ArrayList<Query>();
             for (HatchetChartItem chartItem : trackInfoMap.keySet()) {
                 HatchetTrackInfo trackInfos = trackInfoMap.get(chartItem);
@@ -170,7 +173,7 @@ public class InfoSystemUtils {
                         .get(trackInfos.name, "", artist.getName(), false, true);
                 tophits.add(query);
             }
-            artist.setTopHits(tophits);
+            hatchetCollection.addArtistTopHits(artist, tophits);
         }
         return artist;
     }
@@ -200,7 +203,7 @@ public class InfoSystemUtils {
      * Fill the given album's tracks with the given list of trackinfos
      */
     public static Album fillAlbum(Album album, List<HatchetTrackInfo> trackInfos) {
-        if (trackInfos != null && !album.hasQueriesFetchedViaHatchet()) {
+        if (trackInfos != null) {
             ArrayList<Query> queries = new ArrayList<Query>();
             for (HatchetTrackInfo trackInfo : trackInfos) {
                 Query query = Query.get(trackInfo.name, album.getName(),
@@ -208,7 +211,6 @@ public class InfoSystemUtils {
                 album.addQuery(query);
                 queries.add(query);
             }
-            album.setQueriesFetchedViaHatchet(queries);
         }
         return album;
     }

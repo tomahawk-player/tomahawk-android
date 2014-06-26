@@ -231,14 +231,14 @@ public class PlaybackFragment extends TomahawkFragment
                     FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
                             AlbumsFragment.class,
                             playbackService.getCurrentQuery().getArtist().getCacheKey(),
-                            TomahawkFragment.TOMAHAWK_ARTIST_KEY, false);
+                            TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
                 }
             } else if (item.getItemId() == R.id.action_gotoalbum_item) {
                 if (playbackService.getCurrentQuery() != null) {
                     FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
                             TracksFragment.class,
                             playbackService.getCurrentQuery().getAlbum().getCacheKey(),
-                            TomahawkFragment.TOMAHAWK_ALBUM_KEY, false);
+                            TomahawkFragment.TOMAHAWK_ALBUM_KEY, mCollection);
                 }
             }
             ((TomahawkMainActivity) getActivity()).closeDrawer();
@@ -560,7 +560,7 @@ public class PlaybackFragment extends TomahawkFragment
                                     FragmentUtils.replace(getActivity(),
                                             getActivity().getSupportFragmentManager(),
                                             AlbumsFragment.class, query.getArtist().getCacheKey(),
-                                            TomahawkFragment.TOMAHAWK_ARTIST_KEY, false);
+                                            TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
                                 }
                             });
                         }
@@ -578,7 +578,7 @@ public class PlaybackFragment extends TomahawkFragment
                                     FragmentUtils.replace(getActivity(),
                                             getActivity().getSupportFragmentManager(),
                                             TracksFragment.class, query.getAlbum().getCacheKey(),
-                                            TomahawkFragment.TOMAHAWK_ALBUM_KEY, false);
+                                            TomahawkFragment.TOMAHAWK_ALBUM_KEY, mCollection);
                                 }
                             });
                         }

@@ -24,6 +24,7 @@ import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.FakePreferenceGroup;
 
 import android.content.Context;
@@ -73,8 +74,7 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                 editor.commit();
                 SpotifyAuthenticatorUtils authUtils
                         = (SpotifyAuthenticatorUtils) AuthenticatorManager
-                        .getInstance().getAuthenticatorUtils(
-                                AuthenticatorManager.AUTHENTICATOR_ID_SPOTIFY);
+                        .getInstance().getAuthenticatorUtils(TomahawkApp.PLUGINNAME_SPOTIFY);
                 authUtils.setBitrate(position);
             }
         }

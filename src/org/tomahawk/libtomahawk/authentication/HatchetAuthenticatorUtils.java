@@ -26,6 +26,7 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
@@ -131,7 +132,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
         });
         mIsAuthenticating = false;
         AuthenticatorManager.getInstance()
-                .onLoggedInOut(AuthenticatorManager.AUTHENTICATOR_ID_HATCHET, false);
+                .onLoggedInOut(TomahawkApp.PLUGINNAME_HATCHET, false);
     }
 
     @Override
@@ -139,7 +140,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
         Log.d(TAG, "TomahawkService: Hatchet user logged out");
         mIsAuthenticating = false;
         AuthenticatorManager.getInstance().onLoggedInOut(
-                AuthenticatorManager.AUTHENTICATOR_ID_HATCHET, false);
+                TomahawkApp.PLUGINNAME_HATCHET, false);
     }
 
     @Override
@@ -175,7 +176,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 null);
         mIsAuthenticating = false;
         AuthenticatorManager.getInstance().onLoggedInOut(
-                AuthenticatorManager.AUTHENTICATOR_ID_HATCHET, true);
+                TomahawkApp.PLUGINNAME_HATCHET, true);
     }
 
     public HatchetAuthenticatorUtils(Context context) {
