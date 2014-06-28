@@ -693,6 +693,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     for (Album album : albums) {
                         artist.addAlbum(album);
                         hatchetCollection.addAlbum(album);
+                        hatchetCollection.addArtistAlbum(artist, album);
                     }
                     hatchetCollection.addArtist(artist);
                 }
@@ -722,11 +723,15 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         InfoSystemUtils.fillAlbum(album, albumInfo, image);
                         if (tracks != null) {
                             InfoSystemUtils.fillAlbum(album, tracks.tracks);
+                            List<Query> queries = new ArrayList<Query>();
+                            for (HatchetTrackInfo trackInfo : tracks.tracks) {
+                                Query query = Query.get(trackInfo.name, album.getName(),
+                                        album.getArtist().getName(), false, true);
+                                queries.add(query);
+                            }
+                            hatchetCollection.addAlbumTracks(album, queries);
                         }
                         hatchetCollection.addAlbum(album);
-                        for (Query query : album.getQueries()) {
-                            hatchetCollection.addAlbumTrack(album, query);
-                        }
                     }
                 }
             } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS) {

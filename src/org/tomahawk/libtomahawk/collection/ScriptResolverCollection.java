@@ -21,6 +21,11 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 
+import android.text.TextUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This class represents a Collection which contains tracks/albums/artists retrieved by a
  * ScriptResolver.
@@ -43,19 +48,44 @@ public class ScriptResolverCollection extends Collection {
         mScriptResolver.artists(getId());
     }
 
-    public void addTrackResult(Result result) {
-        Query query = Query.get(result, isLocal());
-        addQuery(query);
+    public void addAlbumTrackResults(Album album, List<Result> results) {
+        ArrayList<Query> queries = new ArrayList<Query>();
+        for (Result r : results) {
+            r.setTrackScore(1f);
+            Query query = Query.get(r, isLocal());
+            query.addTrackResult(r);
+            queries.add(query);
+            addQuery(query);
+        }
+        addAlbumTracks(album, queries);
         sendCollectionUpdatedBroadcast();
     }
 
-    public void addArtistResult(Artist artist) {
-        addArtist(artist);
-        mScriptResolver.albums(getId(), artist.getName());
+    public void addArtistResults(List<Artist> artists) {
+        for (Artist artist : artists) {
+            if (!TextUtils.isEmpty(artist.getName())) {
+                addArtist(artist);
+                mScriptResolver.albums(getId(), artist.getName());
+            }
+        }
     }
 
-    public void addAlbumResult(Album album) {
-        addAlbum(album);
-        //mScriptResolver.tracks(getId(), album.getArtist().getName(), album.getName());
+    public void addAlbumResults(List<Album> albums) {
+        for (Album album : albums) {
+            if (!TextUtils.isEmpty(album.getName())) {
+                addAlbum(album);
+                addArtistAlbum(album.getArtist(), album);
+            }
+        }
+    }
+
+    @Override
+    public ArrayList<Query> getAlbumTracks(Album album, boolean sorted) {
+        if (mAlbumTracks.get(album) != null) {
+            return super.getAlbumTracks(album, sorted);
+        } else {
+            mScriptResolver.tracks(getId(), album.getArtist().getName(), album.getName());
+            return new ArrayList<Query>();
+        }
     }
 }

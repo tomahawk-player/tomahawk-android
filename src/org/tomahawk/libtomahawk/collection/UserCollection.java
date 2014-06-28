@@ -32,7 +32,9 @@ import android.os.HandlerThread;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * This class represents a user's local {@link UserCollection}.
@@ -100,6 +102,7 @@ public class UserCollection extends Collection {
                 .query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, selection, null,
                         null);
         HashMap<Long, Album> idAlbumsMap = new HashMap<Long, Album>();
+        HashMap<Album, List<Query>> albumTracksMap = new HashMap<Album, List<Query>>();
 
         // Go through the complete set of data in the MediaStore
         while (cursor != null && cursor.moveToNext()) {
@@ -141,7 +144,15 @@ public class UserCollection extends Collection {
             addQuery(query);
             addAlbum(album);
             addArtist(artist);
-            addAlbumTrack(album, query);
+            addArtistTracks(artist, query);
+            addArtistAlbum(artist, album);
+            if (albumTracksMap.get(album) == null) {
+                albumTracksMap.put(album, new ArrayList<Query>());
+            }
+            albumTracksMap.get(album).add(query);
+        }
+        for (Album album : albumTracksMap.keySet()) {
+            addAlbumTracks(album, albumTracksMap.get(album));
         }
 
         if (cursor != null) {

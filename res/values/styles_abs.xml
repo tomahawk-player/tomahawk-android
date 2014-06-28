@@ -71,8 +71,8 @@
     </style>
 
     <style name="tomahawk_DropDownNav" parent="@style/Widget.AppCompat.Spinner.DropDown.ActionBar">
-        <item name="background">@drawable/spinner_background_ab_tomahawk</item>
-        <item name="android:background">@drawable/spinner_background_ab_tomahawk</item>
+        <item name="background">@drawable/spinner_background_ab_tomahawk_inverted</item>
+        <item name="android:background">@drawable/spinner_background_ab_tomahawk_inverted</item>
         <item name="android:popupBackground">@drawable/menu_dropdown_panel_tomahawk</item>
         <item name="android:dropDownSelector">@drawable/selectable_background_tomahawk</item>
     </style>
