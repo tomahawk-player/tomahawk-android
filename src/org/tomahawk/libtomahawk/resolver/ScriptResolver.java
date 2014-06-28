@@ -53,7 +53,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -113,12 +112,6 @@ public class ScriptResolver implements Resolver {
     private boolean mUrlLookup;
 
     private FuzzyIndex mFuzzyIndex;
-
-    private static final int MAX_CALLS = 100;
-
-    private int mStartedCalls = 0;
-
-    private LinkedList<String> mWaitingCalls = new LinkedList<String>();
 
     private static final int TIMEOUT_HANDLER_MSG = 1337;
 
@@ -394,7 +387,6 @@ public class ScriptResolver implements Resolver {
                 new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_REPORTING) {
                     @Override
                     public void run() {
-                        onCollectionCallFinished();
                         ScriptResolverAlbumResult result = null;
                         try {
                             result = mObjectMapper
@@ -407,9 +399,11 @@ public class ScriptResolver implements Resolver {
                             ScriptResolverCollection collection = (ScriptResolverCollection)
                                     CollectionManager.getInstance().getCollection(result.qid);
                             Artist artist = Artist.get(result.artist);
+                            ArrayList<Album> albums = new ArrayList<Album>();
                             for (String albumName : result.albums) {
-                                collection.addAlbumResult(Album.get(albumName, artist));
+                                albums.add(Album.get(albumName, artist));
                             }
+                            collection.addAlbumResults(albums);
                         }
                         mTimeOutHandler.removeCallbacksAndMessages(null);
                         mStopped = true;
@@ -423,7 +417,6 @@ public class ScriptResolver implements Resolver {
                 new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_REPORTING) {
                     @Override
                     public void run() {
-                        onCollectionCallFinished();
                         ScriptResolverArtistResult result = null;
                         try {
                             result = mObjectMapper.readValue(results,
@@ -435,9 +428,11 @@ public class ScriptResolver implements Resolver {
                         if (result != null) {
                             ScriptResolverCollection collection = (ScriptResolverCollection)
                                     CollectionManager.getInstance().getCollection(result.qid);
+                            ArrayList<Artist> artists = new ArrayList<Artist>();
                             for (String artistName : result.artists) {
-                                collection.addArtistResult(Artist.get(artistName));
+                                artists.add(Artist.get(artistName));
                             }
+                            collection.addArtistResults(artists);
                         }
                         mTimeOutHandler.removeCallbacksAndMessages(null);
                         mStopped = true;
@@ -451,7 +446,6 @@ public class ScriptResolver implements Resolver {
                 new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_REPORTING) {
                     @Override
                     public void run() {
-                        onCollectionCallFinished();
                         ScriptResolverAlbumTrackResult result = null;
                         try {
                             result = mObjectMapper.readValue(results,
@@ -465,9 +459,9 @@ public class ScriptResolver implements Resolver {
                                     CollectionManager.getInstance().getCollection(result.qid);
                             ArrayList<Result> parsedResults = parseResultList(
                                     result.results, result.qid);
-                            for (Result r : parsedResults) {
-                                collection.addTrackResult(r);
-                            }
+                            Artist artist = Artist.get(result.artist);
+                            Album album = Album.get(result.album, artist);
+                            collection.addAlbumTrackResults(album, parsedResults);
                         }
                         mTimeOutHandler.removeCallbacksAndMessages(null);
                         mStopped = true;
@@ -499,32 +493,20 @@ public class ScriptResolver implements Resolver {
         String escapedQid = StringEscapeUtils.escapeJavaScript(qid);
         String escapedArtistName = StringEscapeUtils.escapeJavaScript(artistName);
         String escapedAlbumName = StringEscapeUtils.escapeJavaScript(albumName);
-        loadUrlAsCollectionCall(
-                "javascript: Tomahawk.resolver.instance.tracks( '" + escapedQid + "', '"
-                        + escapedArtistName + "', '" + escapedAlbumName + "' )");
+        loadUrl("javascript: Tomahawk.resolver.instance.tracks( '" + escapedQid + "', '"
+                + escapedArtistName + "', '" + escapedAlbumName + "' )");
     }
 
     public void artists(String qid) {
         String escapedQid = StringEscapeUtils.escapeJavaScript(qid);
-        loadUrlAsCollectionCall(
-                "javascript: Tomahawk.resolver.instance.artists( '" + escapedQid + "' )");
+        loadUrl("javascript: Tomahawk.resolver.instance.artists( '" + escapedQid + "' )");
     }
 
     public void albums(String qid, String artistName) {
         String escapedQid = StringEscapeUtils.escapeJavaScript(qid);
         String escapedArtistName = StringEscapeUtils.escapeJavaScript(artistName);
-        loadUrlAsCollectionCall(
-                "javascript: Tomahawk.resolver.instance.albums( '" + escapedQid + "', '"
-                        + escapedArtistName + "' )");
-    }
-
-    private void onCollectionCallFinished() {
-        mStartedCalls--;
-        while (!mWaitingCalls.isEmpty() && mStartedCalls < MAX_CALLS) {
-            loadUrl(mWaitingCalls.pop());
-            mStartedCalls++;
-        }
-        Log.d("test", "onCollectionCallFinished " + mWaitingCalls.size());
+        loadUrl("javascript: Tomahawk.resolver.instance.albums( '" + escapedQid + "', '"
+                + escapedArtistName + "' )");
     }
 
     public void loadUrl(final String url) {
@@ -534,15 +516,6 @@ public class ScriptResolver implements Resolver {
                 mScriptEngine.loadUrl(url);
             }
         });
-    }
-
-    public void loadUrlAsCollectionCall(final String url) {
-        if (mStartedCalls >= MAX_CALLS) {
-            mWaitingCalls.add(url);
-        } else {
-            loadUrl(url);
-            mStartedCalls++;
-        }
     }
 
     /**
