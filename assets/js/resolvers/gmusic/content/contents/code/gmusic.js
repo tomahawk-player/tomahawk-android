@@ -108,7 +108,8 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
                     that._getData(function (response) {
                         if (response.data) {
                             that.trackCount = response.data.items.length;
-                            Tomahawk.log("Reporting collection");
+                            Tomahawk.log("Reporting collection with " + that.trackCount
+                                + " tracks");
                             Tomahawk.reportCapabilities(TomahawkResolverCapability.Browsable);
                         }
                     });
@@ -162,7 +163,8 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
             callback(this.cachedRequest.response);
         } else {
             var that = this;
-            var url =  this._baseURL + 'trackfeed';
+            var url = this._baseURL
+                + 'trackfeed?fields=data/items(id,nid,artist,album,title,year,trackNumber,discNumber,estimatedSize,durationMillis)';
             Tomahawk.asyncRequest(url, function (request) {
                 var oldMD5 = "";
                 if (that.hasOwnProperty('cachedRequest')) {
@@ -194,10 +196,11 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
 
                 callback(that.cachedRequest.response);
             }, {
-                'Content-type': 'application/x-www-form-urlencoded',
+                'Content-Type': 'application/json',
                 'Authorization': 'GoogleLogin auth=' + this._token
             }, {
-                method: 'POST'
+                method: 'POST',
+                data: JSON.stringify({'max-results': 20000})
             });
         }
     },
@@ -460,11 +463,9 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
                 }
             }, {
                 'Content-type': 'application/x-www-form-urlencoded',
-                'Authorization': 'GoogleLogin auth=' + this._token,
-                'Content-Type': 'application/json'
+                'Authorization': 'GoogleLogin auth=' + this._token
             }, {
-                method: 'POST',
-                body: JSON.stringify({ 'sessionId': '' })
+                method: 'POST'
             }
         );
     },
