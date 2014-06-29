@@ -61,6 +61,8 @@ public class FuzzyIndex {
             try {
                 File indexDirFile = new File(mLucenePath);
                 Directory dir = FSDirectory.open(indexDirFile);
+                beginIndexing();
+                endIndexing();
                 mSearcherManager = new SearcherManager(dir, new SearcherFactory());
             } catch (IOException e) {
                 Log.e(TAG, "FuzzyIndex<init>: " + e.getClass() + ": " + e.getLocalizedMessage());
@@ -68,8 +70,6 @@ public class FuzzyIndex {
             if (wipe) {
                 deleteIndex();
             }
-            beginIndexing();
-            endIndexing();
         }
     }
 
@@ -77,8 +77,10 @@ public class FuzzyIndex {
         deleteIndex();
         endIndexing();
         try {
-            mSearcherManager.close();
-            mSearcherManager = null;
+            if (mSearcherManager != null) {
+                mSearcherManager.close();
+                mSearcherManager = null;
+            }
         } catch (IOException e) {
             Log.e(TAG, "close: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
