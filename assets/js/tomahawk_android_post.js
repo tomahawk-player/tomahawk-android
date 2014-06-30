@@ -69,15 +69,6 @@ Tomahawk.asyncRequest = function (url, callback, extraHeaders, options) {
         xmlHttpRequest.onreadystatechange = function () {
             if (xmlHttpRequest.readyState == 4 && xmlHttpRequest.status == 200) {
                 callback.call(window, xmlHttpRequest);
-            } else if (xmlHttpRequest.readyState == 4 && xmlHttpRequest.status == 302) {
-                // You know that XMLHttpRequest always follows redirects?
-                // Guess what: It does not always.
-                //
-                // Known:
-                // * If you are redirect to a different domain in QtWebkit on MacOS,
-                //   you will have to deal with 302.
-                Tomahawk.asyncRequest(xmlHttpRequest.getResponseHeader('Location'),
-                    callback, extraHeaders, options);
             } else if (xmlHttpRequest.readyState === 4) {
                 Tomahawk.log("Failed to do " + method + " request: to: " + url);
                 Tomahawk.log("Status Code was: " + xmlHttpRequest.status);
