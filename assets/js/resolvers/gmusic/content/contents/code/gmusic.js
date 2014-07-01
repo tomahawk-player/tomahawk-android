@@ -230,7 +230,7 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
             var response = JSON.parse(request.responseText);
             if (response.data) {
                 results = results.concat(response.data.items);
-                Tomahawk.log("Received chunk containing" + results.length + " tracks");
+                Tomahawk.log("Received chunk of tracks, tracks total: " + results.length);
             }
             if (response.nextPageToken) {
                 options = {
