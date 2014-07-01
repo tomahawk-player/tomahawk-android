@@ -133,20 +133,24 @@ public class CollectionFragment extends Fragment {
             fragmentClassNames.add(TracksFragment.class.getName());
         }
         fragmentClassNames.add(ArtistsFragment.class.getName());
-        fragmentClassNames.add(AlbumsFragment.class.getName());
+        if (mCollection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
+            fragmentClassNames.add(AlbumsFragment.class.getName());
+        }
         List<String> fragmentTitles = new ArrayList<String>();
         if (mCollection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
             fragmentTitles.add(getString(R.string.tracksfragment_title_string));
         }
         fragmentTitles.add(getString(R.string.artistsfragment_title_string));
-        fragmentTitles.add(getString(R.string.albumsfragment_title_string));
+        if (mCollection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
+            fragmentTitles.add(getString(R.string.albumsfragment_title_string));
+        }
         List<Bundle> fragmentBundles = new ArrayList<Bundle>();
         Bundle bundle = new Bundle();
         bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
         if (mCollection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
             fragmentBundles.add(bundle);
+            fragmentBundles.add(bundle);
         }
-        fragmentBundles.add(bundle);
         fragmentBundles.add(bundle);
         TomahawkPagerAdapter adapter = new TomahawkPagerAdapter(getChildFragmentManager(),
                 fragmentClassNames, fragmentTitles, fragmentBundles);

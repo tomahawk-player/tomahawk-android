@@ -65,7 +65,6 @@ public class ScriptResolverCollection extends Collection {
         for (Artist artist : artists) {
             if (!TextUtils.isEmpty(artist.getName())) {
                 addArtist(artist);
-                mScriptResolver.albums(getId(), artist.getName());
             }
         }
     }
@@ -75,6 +74,7 @@ public class ScriptResolverCollection extends Collection {
             if (!TextUtils.isEmpty(album.getName())) {
                 addAlbum(album);
                 addArtistAlbum(album.getArtist(), album);
+                sendCollectionUpdatedBroadcast();
             }
         }
     }
@@ -86,6 +86,16 @@ public class ScriptResolverCollection extends Collection {
         } else {
             mScriptResolver.tracks(getId(), album.getArtist().getName(), album.getName());
             return new ArrayList<Query>();
+        }
+    }
+
+    @Override
+    public ArrayList<Album> getArtistAlbums(Artist artist, boolean sorted) {
+        if (mArtistAlbums.get(artist) != null) {
+            return super.getArtistAlbums(artist, sorted);
+        } else {
+            mScriptResolver.albums(getId(), artist.getName());
+            return new ArrayList<Album>();
         }
     }
 }
