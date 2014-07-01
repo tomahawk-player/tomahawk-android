@@ -456,8 +456,10 @@ public class PlaybackService extends Service
             }
         };
 
-        bindService(new Intent(this, RemoteControllerService.class), connection,
-                Context.BIND_AUTO_CREATE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            bindService(new Intent(this, RemoteControllerService.class), connection,
+                    Context.BIND_AUTO_CREATE);
+        }
 
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 
