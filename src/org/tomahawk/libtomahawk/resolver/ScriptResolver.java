@@ -50,6 +50,7 @@ import android.util.Log;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -113,6 +114,8 @@ public class ScriptResolver implements Resolver {
     private boolean mUrlLookup;
 
     private FuzzyIndex mFuzzyIndex;
+
+    private String mFuzzyIndexPath;
 
     private static final int TIMEOUT_HANDLER_MSG = 1337;
 
@@ -179,6 +182,15 @@ public class ScriptResolver implements Resolver {
             } else {
                 setEnabled(true);
             }
+        }
+        mFuzzyIndexPath = TomahawkApp.getContext().getFilesDir().getAbsolutePath()
+                + File.separator + getId() + ".lucene";
+        FuzzyIndex fuzzyIndex = new FuzzyIndex();
+        if (fuzzyIndex.create(mFuzzyIndexPath, false)) {
+            Log.d(TAG, "Found a fuzzy index at: " + mFuzzyIndexPath);
+            mFuzzyIndex = fuzzyIndex;
+        } else {
+            Log.d(TAG, "Didn't find a fuzzy index");
         }
 
         init();
@@ -252,8 +264,8 @@ public class ScriptResolver implements Resolver {
     }
 
     /**
-     * This method is being called, when the {@link ScriptWebViewClient} has completely loaded the given
-     * .js script.
+     * This method is being called, when the {@link ScriptWebViewClient} has completely loaded the
+     * given .js script.
      */
     public void onWebViewClientReady() {
         resolverInit();
@@ -755,14 +767,21 @@ public class ScriptResolver implements Resolver {
         return mUrlLookup;
     }
 
+    public boolean hasFuzzyIndex() {
+        return mFuzzyIndex != null;
+    }
+
     public FuzzyIndex getFuzzyIndex() {
         return mFuzzyIndex;
     }
 
-    public void setFuzzyIndex(FuzzyIndex fuzzyIndex) {
+    public void createFuzzyIndex() {
         if (mFuzzyIndex != null) {
             mFuzzyIndex.close();
         }
-        mFuzzyIndex = fuzzyIndex;
+        FuzzyIndex fuzzyIndex = new FuzzyIndex();
+        if (fuzzyIndex.create(mFuzzyIndexPath, true)) {
+            mFuzzyIndex = fuzzyIndex;
+        }
     }
 }

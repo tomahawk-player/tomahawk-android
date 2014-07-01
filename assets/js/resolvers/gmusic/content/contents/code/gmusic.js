@@ -70,6 +70,7 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
     invalidateCache: function() {
         Tomahawk.log("Invalidating cache");
         delete this.cachedRequest;
+        window.localStorage.removeItem(this.localStorageKey);
         Tomahawk.deleteFuzzyIndex();
     },
 
@@ -169,8 +170,17 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
         this._isRequesting = false;
     },
 
+    localStorageKey: "gmusic_cached_request",
+
     _getData: function (callback) {
         var that = this;
+        if (!that.cachedRequest) {
+            var persistedRequest = window.localStorage.getItem(that.localStorageKey);
+            if (persistedRequest) {
+                that.cachedRequest = JSON.parse(persistedRequest);
+                that._ensureFuzzyIndex();
+            }
+        }
         var url = that._baseURL
             + 'trackfeed?fields=nextPageToken,'
             + 'data/items(id,nid,artist,album,title,year,trackNumber,discNumber,estimatedSize,durationMillis)';
@@ -196,18 +206,9 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
                             response: results,
                             time: Date.now()
                         };
-                        var indexList = [];
-                        for (var idx = 0; idx < that.cachedRequest.response.length; idx++) {
-                            var entry = that.cachedRequest.response[ idx ];
-                            indexList.push({
-                                id: idx,
-                                artist: entry.artist,
-                                album: entry.album,
-                                track: entry.title
-                            });
-                        }
-                        Tomahawk.log("Creating fuzzy index, count: " + indexList.length);
-                        Tomahawk.createFuzzyIndex(indexList);
+                        window.localStorage.setItem(that.localStorageKey,
+                            JSON.stringify(that.cachedRequest));
+                        that._createFuzzyIndex(that.cachedRequest.response);
                         Tomahawk.log("Updated cache in " + (Date.now() - time) + "ms");
                     } else {
                         Tomahawk.log("Collection doesn't need to be updated");
@@ -218,6 +219,27 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
                 that._callAllWaitingCallbacks();
             }
         }
+    },
+
+    _ensureFuzzyIndex: function () {
+        if (!Tomahawk.hasFuzzyIndex() && this.cachedRequest) {
+            this._createFuzzyIndex(this.cachedRequest.response);
+        }
+    },
+
+    _createFuzzyIndex: function (results) {
+        var indexList = [];
+        for (var idx = 0; idx < results.length; idx++) {
+            var entry = results[ idx ];
+            indexList.push({
+                id: idx,
+                artist: entry.artist,
+                album: entry.album,
+                track: entry.title
+            });
+        }
+        Tomahawk.log("Creating fuzzy index, count: " + indexList.length);
+        Tomahawk.createFuzzyIndex(indexList);
     },
 
     _paginatedRequest: function (results, url, callback, options) {
