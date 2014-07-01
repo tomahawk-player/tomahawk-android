@@ -215,7 +215,7 @@ public class ScriptResolver implements Resolver {
      * appropriate base URL.
      */
     private void init() {
-        final String baseurl = "file://fake.bla.blu";
+        final String baseurl = "file:///android_asset/test.html";
         String data = "<!DOCTYPE html>" + "<html><body>"
                 + "<script src=\"file:///android_asset/js/cryptojs-core.js"
                 + "\" type=\"text/javascript\"></script>";
