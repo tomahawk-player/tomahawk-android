@@ -1,16 +1,21 @@
 package org.tomahawk.libtomahawk.resolver;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONObject;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -277,5 +282,58 @@ public class ScriptInterface {
         if (mScriptResolver.getFuzzyIndex() != null) {
             mScriptResolver.getFuzzyIndex().deleteIndex();
         }
+    }
+
+    @JavascriptInterface
+    public void setItem(String key, String value) {
+        String dirPath = TomahawkApp.getContext().getFilesDir().getAbsolutePath()
+                + File.separator + "TomahawkWebViewStorage";
+        new File(dirPath).mkdirs();
+        try {
+            Files.write(value, new File(dirPath + File.separator + key), Charsets.UTF_8);
+        } catch (IOException e) {
+            Log.e(TAG, "setItem: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
+    }
+
+    @JavascriptInterface
+    public String getItem(String key) {
+        String dirPath = TomahawkApp.getContext().getFilesDir().getAbsolutePath()
+                + File.separator + "TomahawkWebViewStorage";
+        new File(dirPath).mkdirs();
+        try {
+            return Files.toString(new File(dirPath + File.separator + key), Charsets.UTF_8);
+        } catch (IOException e) {
+            Log.e(TAG, "getItem: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
+        return null;
+    }
+
+    @JavascriptInterface
+    public void removeItem(String key) {
+        String path = TomahawkApp.getContext().getFilesDir().getAbsolutePath()
+                + File.separator + "TomahawkWebViewStorage" + File.separator + key;
+        new File(path).delete();
+    }
+
+    @JavascriptInterface
+    public String[] keys() {
+        String path = TomahawkApp.getContext().getFilesDir().getAbsolutePath()
+                + File.separator + "TomahawkWebViewStorage";
+        String[] keys = new File(path).list();
+        if (keys == null) {
+            keys = new String[]{};
+        }
+        return keys;
+    }
+
+    @JavascriptInterface
+    public String[] values() {
+        String[] keys = keys();
+        String[] values = new String[keys.length];
+        for (int i = 0; i < keys.length; i++) {
+            values[i] = getItem(keys[i]);
+        }
+        return values;
     }
 }
