@@ -6,13 +6,11 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONObject;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
-import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -217,11 +215,31 @@ public class ScriptInterface {
     }
 
     @JavascriptInterface
+    public boolean hasFuzzyIndex() {
+        return mScriptResolver.hasFuzzyIndex();
+    }
+
+    @JavascriptInterface
+    public void addToFuzzyIndexString(String stringifiedIndexList) {
+        if (mScriptResolver.hasFuzzyIndex()) {
+            try {
+                ScriptResolverFuzzyIndex[] indexList = mObjectMapper
+                        .readValue(stringifiedIndexList, ScriptResolverFuzzyIndex[].class);
+                mScriptResolver.getFuzzyIndex().addScriptResolverFuzzyIndexList(indexList);
+            } catch (IOException e) {
+                Log.e(TAG,
+                        "addToFuzzyIndexString: " + e.getClass() + ": " + e.getLocalizedMessage());
+            }
+        } else {
+            Log.e(TAG,
+                    "addToFuzzyIndexString: Couldn't add indexList to fuzzy index, no fuzzy index available");
+        }
+    }
+
+    @JavascriptInterface
     public void createFuzzyIndexString(String stringifiedIndexList) {
         try {
-            String filePath = TomahawkApp.getContext().getFilesDir().getAbsolutePath()
-                    + File.separator + mScriptResolver.getId() + ".lucene";
-            mScriptResolver.setFuzzyIndex(new FuzzyIndex(filePath, true));
+            mScriptResolver.createFuzzyIndex();
             ScriptResolverFuzzyIndex[] indexList = mObjectMapper
                     .readValue(stringifiedIndexList, ScriptResolverFuzzyIndex[].class);
             mScriptResolver.getFuzzyIndex().addScriptResolverFuzzyIndexList(indexList);

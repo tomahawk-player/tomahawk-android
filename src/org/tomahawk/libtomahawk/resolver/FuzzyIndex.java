@@ -55,21 +55,30 @@ public class FuzzyIndex {
 
     private SearcherManager mSearcherManager;
 
-    public FuzzyIndex(String fileName, boolean wipe) {
+    /**
+     * Tries to create a new fuzzy index
+     *
+     * @param fileName the path to the folder where the fuzzy index should be created
+     * @param wipe     whether or not to wipe any previously existing index
+     * @return whether or not the creation has been successful
+     */
+    public boolean create(String fileName, boolean wipe) {
         synchronized (this) {
             mLucenePath = fileName;
-            try {
-                File indexDirFile = new File(mLucenePath);
-                Directory dir = FSDirectory.open(indexDirFile);
-                beginIndexing();
-                endIndexing();
-                mSearcherManager = new SearcherManager(dir, new SearcherFactory());
-            } catch (IOException e) {
-                Log.e(TAG, "FuzzyIndex<init>: " + e.getClass() + ": " + e.getLocalizedMessage());
-            }
             if (wipe) {
                 deleteIndex();
             }
+            try {
+                File indexDirFile = new File(mLucenePath);
+                Directory dir = FSDirectory.open(indexDirFile);
+                beginIndexing(wipe);
+                endIndexing();
+                mSearcherManager = new SearcherManager(dir, new SearcherFactory());
+            } catch (IOException e) {
+                Log.d(TAG, "FuzzyIndex<init>: " + e.getClass() + ": " + e.getLocalizedMessage());
+                return false;
+            }
+            return true;
         }
     }
 
@@ -89,7 +98,7 @@ public class FuzzyIndex {
     public void addScriptResolverFuzzyIndexList(ScriptResolverFuzzyIndex[] indexList) {
         synchronized (this) {
             try {
-                beginIndexing();
+                beginIndexing(true);
                 for (ScriptResolverFuzzyIndex index : indexList) {
                     Document document = new Document();
                     document.add(new IntField("id", index.id, Field.Store.YES));
@@ -98,7 +107,6 @@ public class FuzzyIndex {
                     document.add(new StringField("track", index.track, Field.Store.YES));
                     mLuceneWriter.addDocument(document);
                 }
-                endIndexing();
             } catch (IOException e) {
                 Log.e(TAG, "addScriptResolverFuzzyIndexList: " + e.getClass() + ": " + e
                         .getLocalizedMessage());
@@ -164,18 +172,23 @@ public class FuzzyIndex {
         }
     }
 
-    private void beginIndexing() {
-        try {
-            endIndexing();
-            File indexDirFile = new File(mLucenePath);
-            Directory dir = FSDirectory.open(indexDirFile);
-            Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_47);
-            IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_47, analyzer);
+    /**
+     * Initializes the IndexWriter to be able to add entries to the index.
+     *
+     * @param createIfNeeded whether or not to create the index, if it didn't exist before
+     */
+    private void beginIndexing(boolean createIfNeeded) throws IOException {
+        endIndexing();
+        File indexDirFile = new File(mLucenePath);
+        Directory dir = FSDirectory.open(indexDirFile);
+        Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_47);
+        IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_47, analyzer);
+        if (createIfNeeded) {
             iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
-            mLuceneWriter = new IndexWriter(dir, iwc);
-        } catch (IOException e) {
-            Log.e(TAG, "beginIndexing: " + e.getClass() + ": " + e.getLocalizedMessage());
+        } else {
+            iwc.setOpenMode(IndexWriterConfig.OpenMode.APPEND);
         }
+        mLuceneWriter = new IndexWriter(dir, iwc);
     }
 
     private void endIndexing() {
