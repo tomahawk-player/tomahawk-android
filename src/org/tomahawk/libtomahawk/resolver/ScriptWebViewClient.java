@@ -23,15 +23,15 @@ import android.webkit.WebViewClient;
 /**
  * Basic WebViewClient, which is being used to determine, when our javascript file has been loaded
  */
-public class ScriptEngine extends WebViewClient {
+public class ScriptWebViewClient extends WebViewClient {
 
     private ScriptResolver mScriptResolver;
 
-    public ScriptEngine(ScriptResolver scriptResolver) {
+    public ScriptWebViewClient(ScriptResolver scriptResolver) {
         mScriptResolver = scriptResolver;
     }
 
     public void onPageFinished(WebView view, String url) {
-        mScriptResolver.onScriptEngineReady();
+        mScriptResolver.onWebViewClientReady();
     }
 }

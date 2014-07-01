@@ -77,7 +77,7 @@ public class ScriptResolver implements Resolver {
 
     private String mId;
 
-    private WebView mScriptEngine;
+    private WebView mWebView;
 
     private String mPath;
 
@@ -137,17 +137,17 @@ public class ScriptResolver implements Resolver {
         mPath = path;
         mReady = false;
         mStopped = true;
-        mScriptEngine = new WebView(TomahawkApp.getContext());
-        WebSettings settings = mScriptEngine.getSettings();
+        mWebView = new WebView(TomahawkApp.getContext());
+        WebSettings settings = mWebView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDatabaseEnabled(true);
         settings.setDomStorageEnabled(true);
-        mScriptEngine.setWebChromeClient(new TomahawkWebChromeClient());
-        mScriptEngine.setWebViewClient(new ScriptEngine(this));
+        mWebView.setWebChromeClient(new TomahawkWebChromeClient());
+        mWebView.setWebViewClient(new ScriptWebViewClient(this));
         final ScriptInterface scriptInterface = new ScriptInterface(this);
-        mScriptEngine.addJavascriptInterface(scriptInterface, SCRIPT_INTERFACE_NAME);
+        mWebView.addJavascriptInterface(scriptInterface, SCRIPT_INTERFACE_NAME);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            mScriptEngine.getSettings().setAllowUniversalAccessFromFileURLs(true);
+            mWebView.getSettings().setAllowUniversalAccessFromFileURLs(true);
         }
         try {
             String rawJsonString = TomahawkUtils.inputStreamToString(TomahawkApp.getContext()
@@ -243,17 +243,16 @@ public class ScriptResolver implements Resolver {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                mScriptEngine.loadDataWithBaseURL(baseurl, finalData, "text/html", null, null);
+                mWebView.loadDataWithBaseURL(baseurl, finalData, "text/html", null, null);
             }
         });
     }
 
     /**
-     * This method is being called, when the {@link ScriptEngine} has completely loaded the given
+     * This method is being called, when the {@link ScriptWebViewClient} has completely loaded the given
      * .js script.
      */
-
-    public void onScriptEngineReady() {
+    public void onWebViewClientReady() {
         resolverInit();
         mReady = true;
         PipeLine.getInstance().onResolverReady();
@@ -517,7 +516,7 @@ public class ScriptResolver implements Resolver {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                mScriptEngine.loadUrl(url);
+                mWebView.loadUrl(url);
             }
         });
     }
