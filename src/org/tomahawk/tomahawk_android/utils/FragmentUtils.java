@@ -85,8 +85,11 @@ public class FragmentUtils {
                     Fragment.instantiate(context, SocialActionsFragment.class.getName(), bundle),
                     FRAGMENT_TAG);
         } else {
+            Bundle bundle = new Bundle();
+            bundle.putString(CollectionManager.COLLECTION_ID,
+                    TomahawkApp.PLUGINNAME_USERCOLLECTION);
             ft.add(R.id.content_viewer_frame,
-                    Fragment.instantiate(context, CollectionFragment.class.getName(), null),
+                    Fragment.instantiate(context, CollectionFragment.class.getName(), bundle),
                     FRAGMENT_TAG);
         }
         ft.commit();
