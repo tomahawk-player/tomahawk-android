@@ -38,6 +38,7 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Handler;
@@ -141,6 +142,8 @@ public class ScriptResolver implements Resolver {
         WebSettings settings = mWebView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDatabaseEnabled(true);
+        settings.setDatabasePath(
+                TomahawkApp.getContext().getDir("databases", Context.MODE_PRIVATE).getPath());
         settings.setDomStorageEnabled(true);
         mWebView.setWebChromeClient(new TomahawkWebChromeClient());
         mWebView.setWebViewClient(new ScriptWebViewClient(this));
