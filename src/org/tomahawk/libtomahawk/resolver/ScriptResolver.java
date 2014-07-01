@@ -398,12 +398,14 @@ public class ScriptResolver implements Resolver {
                         if (result != null) {
                             ScriptResolverCollection collection = (ScriptResolverCollection)
                                     CollectionManager.getInstance().getCollection(result.qid);
-                            Artist artist = Artist.get(result.artist);
-                            ArrayList<Album> albums = new ArrayList<Album>();
-                            for (String albumName : result.albums) {
-                                albums.add(Album.get(albumName, artist));
+                            if (collection != null) {
+                                Artist artist = Artist.get(result.artist);
+                                ArrayList<Album> albums = new ArrayList<Album>();
+                                for (String albumName : result.albums) {
+                                    albums.add(Album.get(albumName, artist));
+                                }
+                                collection.addAlbumResults(albums);
                             }
-                            collection.addAlbumResults(albums);
                         }
                         mTimeOutHandler.removeCallbacksAndMessages(null);
                         mStopped = true;
@@ -428,11 +430,13 @@ public class ScriptResolver implements Resolver {
                         if (result != null) {
                             ScriptResolverCollection collection = (ScriptResolverCollection)
                                     CollectionManager.getInstance().getCollection(result.qid);
-                            ArrayList<Artist> artists = new ArrayList<Artist>();
-                            for (String artistName : result.artists) {
-                                artists.add(Artist.get(artistName));
+                            if (collection != null) {
+                                ArrayList<Artist> artists = new ArrayList<Artist>();
+                                for (String artistName : result.artists) {
+                                    artists.add(Artist.get(artistName));
+                                }
+                                collection.addArtistResults(artists);
                             }
-                            collection.addArtistResults(artists);
                         }
                         mTimeOutHandler.removeCallbacksAndMessages(null);
                         mStopped = true;
