@@ -31,7 +31,6 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -52,8 +51,8 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
 
     private DeezerConnect mDeezerConnect;
 
-    public DeezerAuthenticatorUtils(Context context) {
-        mContext = context;
+    public DeezerAuthenticatorUtils(String prettyName) {
+        super(prettyName);
         mDeezerConnect = new DeezerConnect(APP_ID);
         onInit();
     }
@@ -79,7 +78,7 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
+                Toast.makeText(TomahawkApp.getContext(), message, Toast.LENGTH_LONG).show();
             }
         });
         AuthenticatorManager.getInstance().onLoggedInOut(TomahawkApp.PLUGINNAME_DEEZER, false);
@@ -170,7 +169,7 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
             String accessTokenExpiresIn = am
                     .getUserData(account, ACCESS_TOKEN_EXPIRES_IN_DEEZER);
             if (accessToken != null && accessTokenExpiresIn != null) {
-                mDeezerConnect.setAccessToken(mContext, accessToken);
+                mDeezerConnect.setAccessToken(TomahawkApp.getContext(), accessToken);
                 mDeezerConnect.setAccessExpires(Long.valueOf(accessTokenExpiresIn));
             }
         }
@@ -182,8 +181,8 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
     @Override
     public void logout(Activity activity) {
         mDeezerConnect.logout(activity);
-        final AccountManager am = AccountManager.get(mContext);
-        Account account = TomahawkUtils.getAccountByName(mContext, getAuthenticatorUtilsName());
+        final AccountManager am = AccountManager.get(TomahawkApp.getContext());
+        Account account = TomahawkUtils.getAccountByName(getAuthenticatorUtilsName());
         if (am != null && account != null) {
             am.removeAccount(account, null, null);
         }

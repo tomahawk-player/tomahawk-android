@@ -119,13 +119,13 @@ public class FakePreferenceFragment extends TomahawkListFragment
         prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
                 FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH,
                 TomahawkApp.PLUGINNAME_HATCHET,
-                getString(R.string.fakepreference_hatchetlogin_title_string),
+                getString(R.string.hatchet_pretty_name),
                 getString(R.string.fakepreference_hatchetlogin_summary_string),
                 R.drawable.hatchet_icon));
         prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
                 FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH,
                 TomahawkApp.PLUGINNAME_SPOTIFY,
-                getString(R.string.fakepreference_spotifylogin_title_string),
+                getString(R.string.spotify_pretty_name),
                 getString(R.string.fakepreference_spotifylogin_summary_string),
                 R.drawable.spotify_icon));
         for (ScriptResolver scriptResolver : PipeLine.getInstance().getScriptResolvers()) {

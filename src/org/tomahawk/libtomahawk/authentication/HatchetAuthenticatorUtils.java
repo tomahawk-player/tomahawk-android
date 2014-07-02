@@ -33,7 +33,6 @@ import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -111,6 +110,11 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     private User mLoggedInUser;
 
+    public HatchetAuthenticatorUtils(String prettyName) {
+        super(prettyName);
+        onInit();
+    }
+
     @Override
     public void onInit() {
     }
@@ -127,7 +131,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
+                Toast.makeText(TomahawkApp.getContext(), message, Toast.LENGTH_LONG).show();
             }
         });
         mIsAuthenticating = false;
@@ -150,8 +154,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 && !TextUtils.isEmpty(refreshToken)) {
             Log.d(TAG, "TomahawkService: Hatchet auth token is served and yummy");
             Account account = new Account(username,
-                    mContext.getString(R.string.accounttype_string));
-            AccountManager am = AccountManager.get(mContext);
+                    TomahawkApp.getContext().getString(R.string.accounttype_string));
+            AccountManager am = AccountManager.get(TomahawkApp.getContext());
             if (am != null) {
                 am.addAccountExplicitly(account, null, new Bundle());
                 am.setUserData(account, AuthenticatorUtils.AUTHENTICATOR_NAME,
@@ -177,11 +181,6 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
         mIsAuthenticating = false;
         AuthenticatorManager.getInstance().onLoggedInOut(
                 TomahawkApp.PLUGINNAME_HATCHET, true);
-    }
-
-    public HatchetAuthenticatorUtils(Context context) {
-        mContext = context;
-        onInit();
     }
 
     @Override
@@ -279,8 +278,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     @Override
     public void logout(Activity activity) {
         mIsAuthenticating = true;
-        final AccountManager am = AccountManager.get(mContext);
-        Account account = TomahawkUtils.getAccountByName(mContext, getAuthenticatorUtilsName());
+        final AccountManager am = AccountManager.get(TomahawkApp.getContext());
+        Account account = TomahawkUtils.getAccountByName(getAuthenticatorUtilsName());
         if (am != null && account != null) {
             am.removeAccount(account, null, null);
         }
@@ -302,7 +301,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
         userData.put(AuthenticatorUtils.CALUMET_ACCESS_TOKEN_HATCHET, null);
         userData.put(AuthenticatorUtils.CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET, null);
         userData = TomahawkUtils
-                .getUserDataForAccount(mContext, userData, getAuthenticatorUtilsName());
+                .getUserDataForAccount(userData, getAuthenticatorUtilsName());
         String mandellaAccessToken = userData.get(AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_HATCHET);
         int mandellaExpirationTime = -1;
         String mandellaExpirationTimeString =
@@ -319,7 +318,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
         }
         int currentTime = (int) (System.currentTimeMillis() / 1000);
         String refreshToken = TomahawkUtils
-                .peekAuthTokenForAccount(mContext, getAuthenticatorUtilsName(),
+                .peekAuthTokenForAccount(getAuthenticatorUtilsName(),
                         getAuthenticatorUtilsTokenType());
         if (refreshToken != null && (mandellaAccessToken == null
                 || currentTime > mandellaExpirationTime - EXPIRING_LIMIT)) {
@@ -390,7 +389,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                     data.put(AuthenticatorUtils.CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
                             String.valueOf(expirationTime));
                 }
-                TomahawkUtils.setUserDataForAccount(mContext, data, getAuthenticatorUtilsName());
+                TomahawkUtils.setUserDataForAccount(data, getAuthenticatorUtilsName());
             }
         } catch (JSONException e) {
             Log.e(TAG,

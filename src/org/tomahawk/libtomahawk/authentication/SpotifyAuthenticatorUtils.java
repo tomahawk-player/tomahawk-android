@@ -118,8 +118,8 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
         }
     }
 
-    public SpotifyAuthenticatorUtils(Context context) {
-        mContext = context;
+    public SpotifyAuthenticatorUtils(String prettyName) {
+        super(prettyName);
 
         mObjectMapper = InfoSystemUtils.constructObjectMapper();
     }
@@ -174,7 +174,7 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
+                Toast.makeText(TomahawkApp.getContext(), message, Toast.LENGTH_LONG).show();
             }
         });
         AuthenticatorManager.getInstance().onLoggedInOut(TomahawkApp.PLUGINNAME_SPOTIFY, false);
@@ -198,8 +198,8 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
                 && !TextUtils.isEmpty(refreshToken)) {
             Log.d(TAG, "TomahawkService: Spotify blob is served and yummy");
             Account account = new Account(username,
-                    mContext.getString(R.string.accounttype_string));
-            AccountManager am = AccountManager.get(mContext);
+                    TomahawkApp.getContext().getString(R.string.accounttype_string));
+            AccountManager am = AccountManager.get(TomahawkApp.getContext());
             if (am != null) {
                 am.addAccountExplicitly(account, null, new Bundle());
                 am.setUserData(account, AuthenticatorUtils.AUTHENTICATOR_NAME,
@@ -240,7 +240,8 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
             mIsCached = true;
             mCachedAction = SpotifyService.MSG_SETBITRATE;
             mCachedBitrate = bitrate;
-            mContext.sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
+            TomahawkApp.getContext().sendBroadcast(
+                    new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
         }
     }
 
@@ -293,7 +294,8 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
             mIsCached = true;
             mCachedAction = SpotifyService.MSG_LOGIN;
             mCachedLoginData = spotifyLogin;
-            mContext.sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
+            TomahawkApp.getContext().sendBroadcast(
+                    new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
         }
     }
 
@@ -303,11 +305,9 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
     public void loginWithToken() {
         if (mToSpotifyMessenger != null) {
             if (mInitialized) {
-                Account account = TomahawkUtils
-                        .getAccountByName(mContext, getAuthenticatorUtilsName());
+                Account account = TomahawkUtils.getAccountByName(getAuthenticatorUtilsName());
                 if (account != null) {
-                    String blob = TomahawkUtils.peekAuthTokenForAccount(mContext,
-                            getAuthenticatorUtilsName(),
+                    String blob = TomahawkUtils.peekAuthTokenForAccount(getAuthenticatorUtilsName(),
                             getAuthenticatorUtilsTokenType());
                     String email = account.name;
                     if (email != null && blob != null) {
@@ -331,7 +331,8 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
             mIsCached = true;
             mCachedAction = SpotifyService.MSG_LOGIN;
             mCachedLoginData = null;
-            mContext.sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
+            TomahawkApp.getContext().sendBroadcast(
+                    new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
         }
     }
 
@@ -343,19 +344,19 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
         if (mToSpotifyMessenger != null) {
             if (mInitialized) {
                 mIsAuthenticating = true;
-                final AccountManager am = AccountManager.get(mContext);
-                Account account = TomahawkUtils
-                        .getAccountByName(mContext, getAuthenticatorUtilsName());
+                final AccountManager am = AccountManager.get(TomahawkApp.getContext());
+                Account account = TomahawkUtils.getAccountByName(getAuthenticatorUtilsName());
                 if (am != null && account != null) {
-                    am.removeAccount(TomahawkUtils.getAccountByName(mContext,
-                            getAuthenticatorUtilsName()), null, null);
+                    am.removeAccount(TomahawkUtils.getAccountByName(getAuthenticatorUtilsName()),
+                            null, null);
                 }
                 SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_LOGOUT);
             }
         } else {
             mIsCached = true;
             mCachedAction = SpotifyService.MSG_LOGOUT;
-            mContext.sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
+            TomahawkApp.getContext().sendBroadcast(
+                    new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
         }
     }
 }

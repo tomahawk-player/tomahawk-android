@@ -28,7 +28,6 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -53,8 +52,8 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
 
     private Rdio mRdio;
 
-    public RdioAuthenticatorUtils(Context context) {
-        mContext = context;
+    public RdioAuthenticatorUtils(String prettyName) {
+        super(prettyName);
         onInit();
     }
 
@@ -79,7 +78,7 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
+                Toast.makeText(TomahawkApp.getContext(), message, Toast.LENGTH_LONG).show();
             }
         });
         AuthenticatorManager.getInstance().onLoggedInOut(TomahawkApp.PLUGINNAME_RDIO, false);
@@ -93,9 +92,6 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
         mIsAuthenticating = false;
     }
 
-    /**
-     * Store the given blob-string, so we can relogin in a later session
-     */
     @Override
     public void onAuthTokenProvided(String username, String refreshToken,
             int refreshTokenExpiresIn, String accessToken, int accessTokenExpiresIn) {
@@ -110,8 +106,15 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
             am.setUserData(account, OAuth1WebViewActivity.EXTRA_TOKEN_SECRET,
                     accessToken);
         }
-        mRdio.prepareForPlayback();
-        AuthenticatorManager.getInstance().onLoggedInOut(TomahawkApp.PLUGINNAME_RDIO, true);
+        try {
+            mRdio = new Rdio(new String(Base64.decode(RDIO_APPKEY, Base64.DEFAULT), "UTF-8"),
+                    new String(Base64.decode(RDIO_APPKEYSECRET, Base64.DEFAULT), "UTF-8"),
+                    refreshToken, accessToken, TomahawkApp.getContext(), this);
+            mRdio.prepareForPlayback();
+            AuthenticatorManager.getInstance().onLoggedInOut(TomahawkApp.PLUGINNAME_RDIO, true);
+        } catch (UnsupportedEncodingException e) {
+            Log.e(TAG, "onAuthTokenProvided: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
     }
 
     @Override
@@ -177,14 +180,16 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
             accessTokenSecret = am.getUserData(account, OAuth1WebViewActivity.EXTRA_TOKEN_SECRET);
         }
         try {
-            mRdio = new Rdio(new String(Base64.decode(RDIO_APPKEY, Base64.DEFAULT), "UTF-8"),
-                    new String(Base64.decode(RDIO_APPKEYSECRET, Base64.DEFAULT), "UTF-8"),
-                    accessToken, accessTokenSecret, TomahawkApp.getContext(), this);
             if (accessToken == null || accessTokenSecret == null) {
                 // If either one is null, reset both of them
-                onRdioAuthorised(null, null);
+                if (am != null) {
+                    am.removeAccount(account, null, null);
+                }
             } else {
                 Log.d(TAG, "Found cached credentials:");
+                mRdio = new Rdio(new String(Base64.decode(RDIO_APPKEY, Base64.DEFAULT), "UTF-8"),
+                        new String(Base64.decode(RDIO_APPKEYSECRET, Base64.DEFAULT), "UTF-8"),
+                        accessToken, accessTokenSecret, TomahawkApp.getContext(), this);
                 mRdio.prepareForPlayback();
             }
         } catch (UnsupportedEncodingException e) {
@@ -197,8 +202,8 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
      */
     @Override
     public void logout(Activity activity) {
-        final AccountManager am = AccountManager.get(mContext);
-        Account account = TomahawkUtils.getAccountByName(mContext, getAuthenticatorUtilsName());
+        final AccountManager am = AccountManager.get(TomahawkApp.getContext());
+        Account account = TomahawkUtils.getAccountByName(getAuthenticatorUtilsName());
         if (am != null && account != null) {
             am.removeAccount(account, null, null);
         }

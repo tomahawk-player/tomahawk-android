@@ -68,16 +68,23 @@
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
-    <string name="authenticationdialog_text_string">Authenticating&#8230;</string>
-    <string name="authenticationactivity_invalid_credentials_string">Username or password
-        incorrect
+    <string name="auth_loginfailed_invalid_credentials_string">Username or password
+        incorrect.
     </string>
+    <string name="auth_loginfailed_communication_error">Unable to authenticate. Please check
+        your connection.
+    </string>
+    <string name="auth_logged_in">Logged into</string>
+    <string name="auth_logged_out">Logged out of</string>
+    <string name="local_collection_pretty_name">Local Collection</string>
+    <string name="hatchet_pretty_name">Hatchet</string>
+    <string name="spotify_pretty_name">Spotify</string>
+    <string name="rdio_pretty_name">Rdio</string>
+    <string name="deezer_pretty_name">Deezer</string>
     <string name="fakepreferencefragment_title_string">Settings</string>
     <string name="fakepreference_accounts_header">SERVICES</string>
-    <string name="fakepreference_hatchetlogin_title_string">Hatchet</string>
     <string name="fakepreference_hatchetlogin_summary_string">Sync your data with Hatchet.
     </string>
-    <string name="fakepreference_spotifylogin_title_string">Spotify</string>
     <string name="fakepreference_spotifylogin_summary_string">Play your music from Spotify. Requires
         a Premium account.
     </string>
@@ -170,10 +177,14 @@
     <string name="configuration">Configuration</string>
     <string name="resolver_config_redirect_button_text_log_into">Log into</string>
     <string name="resolver_config_redirect_button_text_log_out_of">Log out of</string>
-    <string name="ask_access_activity_header">Want to automatically scrobble all tracks you play to Hatchet?</string>
-    <string name="ask_access_activity_text1">We\'ll do that for you! Please enable our service in your system settings.</string>
-    <string name="ask_access_activity_text2">(You can disable this whenever you want in Tomahawk\'s settings)</string>
+    <string name="ask_access_activity_header">Want to automatically scrobble all tracks you play to
+        Hatchet?
+    </string>
+    <string name="ask_access_activity_text1">We\'ll do that for you! Please enable our service in
+        your system settings.
+    </string>
+    <string name="ask_access_activity_text2">(You can disable this whenever you want in Tomahawk\'s
+        settings)
+    </string>
     <string name="ask_access_activity_button_text">Go to Settings</string>
-    <string name="spotify_resolver_name">Spotify</string>
-    <string name="local_collection_resolver_name">Local Collection</string>
 </resources>
