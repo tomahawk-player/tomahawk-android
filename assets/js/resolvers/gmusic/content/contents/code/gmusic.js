@@ -289,8 +289,8 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
                     results.tracks.push(that._convertTrack(entry));
                 }
             }
-            Tomahawk.log("Searched Locker for " + (Date.now() - time) + "ms and found "
-                + results.tracks.length + " tracks");
+            Tomahawk.log("Locker: Searched with query '" + query + "' for " + (Date.now() - time)
+                + "ms and found "+ results.tracks.length + " track results");
             callback.call( window, results );
         });
     },
@@ -335,8 +335,8 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
                         break;
                 }
             }
-            Tomahawk.log("Searched All Access for " + (Date.now() - time) + "ms and found "
-                + results.tracks.length + " tracks");
+            Tomahawk.log("All Access: Searched with query '" + query + "' for "
+                + (Date.now() - time) + "ms and found " + results.tracks.length + " track results");
             callback.call( window, results );
         }, {
             'Authorization': 'GoogleLogin auth=' + this._token
@@ -387,7 +387,6 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
                 query += ' - ' + album;
             }
             query += ' - ' + title;
-            Tomahawk.log(query);
             this._execSearchAllAccess(query, function (results) {
                 if (results.tracks.length > 0) {
                     Tomahawk.addTrackResults({
@@ -414,7 +413,9 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
         this._getData(function (response) {
             var time = Date.now();
             var resultIds = Tomahawk.resolveFromFuzzyIndex(artist, album, title);
+            var resolveTarget = "";
             if (resultIds.length > 0) {
+                resolveTarget = "Locker";
                 Tomahawk.addTrackResults({
                     'qid': qid,
                     'results': [
@@ -422,10 +423,12 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
                     ]
                 });
             } else {
+                resolveTarget = "All Access";
                 that._resolveAllAccess(qid, artist, album, title);
             }
-            Tomahawk.log("Resolved Locker for " + (Date.now() - time) + "ms and found "
-                + resultIds.length.length + " tracks");
+            Tomahawk.log(resolveTarget + ": Resolved track '" + artist + " - " + title + " - "
+                + album + "' for " + (Date.now() - time) + "ms and found " + resultIds.length
+                + " track results");
         });
     },
 
@@ -440,14 +443,16 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
     },
 
     getStreamUrl: function (qid, urn) {
-        if (!this._ready) return;
-        Tomahawk.log( "getting stream for '" + urn + "'" );
-
-        urn = this._parseUrn( urn );
-        if (!urn || 'track' != urn.type)
+        if (!this._ready) {
+            Tomahawk.log("Failed to get stream for '" + urn + "', resolver wasn't ready");
             return;
-
-        Tomahawk.log( "track ID is '" + urn.id + "'" );
+        }
+        urn = this._parseUrn( urn );
+        if (!urn || 'track' != urn.type) {
+            Tomahawk.log( "Failed to get stream. Couldn't parse '" + urn + "'" );
+            return;
+        }
+        Tomahawk.log("Getting stream for '" + urn + "', track ID is '" + urn.id + "'");
 
         var salt = util.salt(13);
         var sig = CryptoJS.HmacSHA1(urn.id + salt, this._key).toString(util.Base64)
@@ -499,14 +504,9 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
 
                 if (device) {
                     that._deviceId = device.id.slice( 2 );
-                    Tomahawk.log(that._deviceId);
-
-                    Tomahawk.log( that.settings.name
-                            + " using device ID from "
-                            + device.carrier + " "
-                            + device.manufacturer + " "
-                            + device.model
-                        );
+                    Tomahawk.log(that.settings.name + " using device ID '" + that._deviceId
+                        + "' from " + device.carrier + " " + device.manufacturer + " "
+                        + device.model);
 
                     callback.call( window );
                 } else {
