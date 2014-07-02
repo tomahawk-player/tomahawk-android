@@ -59,19 +59,16 @@ public class FuzzyIndex {
      * Tries to create a new fuzzy index
      *
      * @param fileName the path to the folder where the fuzzy index should be created
-     * @param wipe     whether or not to wipe any previously existing index
+     * @param recreate whether or not to wipe any previously existing index
      * @return whether or not the creation has been successful
      */
-    public boolean create(String fileName, boolean wipe) {
+    public boolean create(String fileName, boolean recreate) {
         synchronized (this) {
-            mLucenePath = fileName;
-            if (wipe) {
-                deleteIndex();
-            }
             try {
+                mLucenePath = fileName;
                 File indexDirFile = new File(mLucenePath);
                 Directory dir = FSDirectory.open(indexDirFile);
-                beginIndexing(wipe);
+                beginIndexing(recreate);
                 endIndexing();
                 mSearcherManager = new SearcherManager(dir, new SearcherFactory());
             } catch (IOException e) {
@@ -83,7 +80,6 @@ public class FuzzyIndex {
     }
 
     public void close() {
-        deleteIndex();
         endIndexing();
         try {
             if (mSearcherManager != null) {
@@ -107,6 +103,7 @@ public class FuzzyIndex {
                     document.add(new StringField("track", index.track, Field.Store.YES));
                     mLuceneWriter.addDocument(document);
                 }
+                endIndexing();
             } catch (IOException e) {
                 Log.e(TAG, "addScriptResolverFuzzyIndexList: " + e.getClass() + ": " + e
                         .getLocalizedMessage());
@@ -175,16 +172,16 @@ public class FuzzyIndex {
     /**
      * Initializes the IndexWriter to be able to add entries to the index.
      *
-     * @param createIfNeeded whether or not to create the index, if it didn't exist before
+     * @param recreate whether or not to wipe any previously existing index
      */
-    private void beginIndexing(boolean createIfNeeded) throws IOException {
+    private void beginIndexing(boolean recreate) throws IOException {
         endIndexing();
         File indexDirFile = new File(mLucenePath);
         Directory dir = FSDirectory.open(indexDirFile);
         Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_47);
         IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_47, analyzer);
-        if (createIfNeeded) {
-            iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
+        if (recreate) {
+            iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
         } else {
             iwc.setOpenMode(IndexWriterConfig.OpenMode.APPEND);
         }
