@@ -87,7 +87,7 @@ public class DataBaseResolver implements Resolver {
 
     @Override
     public String getCollectionName() {
-        return TomahawkApp.getContext().getString(R.string.local_collection_resolver_name);
+        return TomahawkApp.getContext().getString(R.string.local_collection_pretty_name);
     }
 
     @Override

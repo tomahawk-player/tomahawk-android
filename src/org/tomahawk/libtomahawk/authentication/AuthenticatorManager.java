@@ -17,9 +17,14 @@
  */
 package org.tomahawk.libtomahawk.authentication;
 
+import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
+import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
+import android.widget.Toast;
 
 import java.util.HashMap;
 
@@ -62,20 +67,24 @@ public class AuthenticatorManager {
         if (!mInitialized) {
             mInitialized = true;
             mAuthenticatorUtils.put(TomahawkApp.PLUGINNAME_SPOTIFY,
-                    new SpotifyAuthenticatorUtils(TomahawkApp.getContext()));
+                    new SpotifyAuthenticatorUtils(
+                            TomahawkApp.getContext().getString(R.string.spotify_pretty_name)));
             mAuthenticatorUtils.put(TomahawkApp.PLUGINNAME_HATCHET,
-                    new HatchetAuthenticatorUtils(TomahawkApp.getContext()));
+                    new HatchetAuthenticatorUtils(TomahawkApp.getContext().getString(
+                            R.string.hatchet_pretty_name)));
             mAuthenticatorUtils.put(TomahawkApp.PLUGINNAME_RDIO,
-                    new RdioAuthenticatorUtils(TomahawkApp.getContext()));
+                    new RdioAuthenticatorUtils(TomahawkApp.getContext().getString(
+                            R.string.rdio_pretty_name)));
             mAuthenticatorUtils.put(TomahawkApp.PLUGINNAME_DEEZER,
-                    new DeezerAuthenticatorUtils(TomahawkApp.getContext()));
+                    new DeezerAuthenticatorUtils(TomahawkApp.getContext().getString(
+                            R.string.deezer_pretty_name)));
         }
     }
 
     /**
      * Authenticators should callback here, if they logged in or out
      */
-    public void onLoggedInOut(String id, boolean loggedIn) {
+    public void onLoggedInOut(final String id, final boolean loggedIn) {
         Intent i = new Intent(AUTHENTICATOR_LOGGED_IN)
                 .putExtra(AUTHENTICATOR_LOGGED_IN_STATE, loggedIn)
                 .putExtra(AUTHENTICATOR_LOGGED_IN_ID, id);
@@ -83,6 +92,16 @@ public class AuthenticatorManager {
             i.putExtra(AUTHENTICATOR_LOGGED_IN_RESOLVERID, id);
         }
         TomahawkApp.getContext().sendBroadcast(i);
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                Context context = TomahawkApp.getContext();
+                String message = loggedIn ? context.getString(R.string.auth_logged_in)
+                        : context.getString(R.string.auth_logged_out);
+                message += " " + getAuthenticatorUtils(id).getPrettyName();
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     public AuthenticatorUtils getAuthenticatorUtils(String authenticatorId) {

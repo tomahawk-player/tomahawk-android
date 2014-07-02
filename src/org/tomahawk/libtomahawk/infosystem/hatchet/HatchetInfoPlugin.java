@@ -903,8 +903,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
     private void getUserid() throws IOException, NoSuchAlgorithmException, KeyManagementException {
         Map<String, String> data = new HashMap<String, String>();
         data.put(HATCHET_ACCOUNTDATA_USER_ID, null);
-        TomahawkUtils.getUserDataForAccount(mContext, data,
-                AuthenticatorUtils.AUTHENTICATOR_NAME_HATCHET);
+        TomahawkUtils.getUserDataForAccount(data, AuthenticatorUtils.AUTHENTICATOR_NAME_HATCHET);
         mUserId = data.get(HATCHET_ACCOUNTDATA_USER_ID);
         String userName = AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET).getUserName();
@@ -920,8 +919,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 mUserId = users.users.get(0).id;
                 data = new HashMap<String, String>();
                 data.put(HATCHET_ACCOUNTDATA_USER_ID, mUserId);
-                TomahawkUtils.setUserDataForAccount(mContext, data,
-                        AuthenticatorUtils.AUTHENTICATOR_NAME_HATCHET);
+                TomahawkUtils
+                        .setUserDataForAccount(data, AuthenticatorUtils.AUTHENTICATOR_NAME_HATCHET);
             }
         }
     }

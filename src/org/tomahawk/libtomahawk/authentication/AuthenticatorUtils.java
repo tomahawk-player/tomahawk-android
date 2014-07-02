@@ -21,7 +21,6 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 
 import android.accounts.Account;
 import android.app.Activity;
-import android.content.Context;
 
 public abstract class AuthenticatorUtils {
 
@@ -69,9 +68,17 @@ public abstract class AuthenticatorUtils {
     public static final String ACCESS_TOKEN_EXPIRES_IN_DEEZER
             = "org.tomahawk.deezer.accesstokenexpiresin";
 
-    protected Context mContext;
+    protected String mPrettyName;
 
     protected boolean mIsAuthenticating;
+
+    protected AuthenticatorUtils(String prettyName) {
+        mPrettyName = prettyName;
+    }
+
+    public String getPrettyName() {
+        return mPrettyName;
+    }
 
     public abstract int getTitleResourceId();
 
@@ -107,7 +114,7 @@ public abstract class AuthenticatorUtils {
     }
 
     public boolean isLoggedIn() {
-        return TomahawkUtils.peekAuthTokenForAccount(mContext, getAuthenticatorUtilsName(),
+        return TomahawkUtils.peekAuthTokenForAccount(getAuthenticatorUtilsName(),
                 getAuthenticatorUtilsTokenType()) != null;
     }
 
@@ -116,7 +123,7 @@ public abstract class AuthenticatorUtils {
     }
 
     public String getUserName() {
-        Account account = TomahawkUtils.getAccountByName(mContext, getAuthenticatorUtilsName());
+        Account account = TomahawkUtils.getAccountByName(getAuthenticatorUtilsName());
         if (account != null) {
             return account.name;
         }
