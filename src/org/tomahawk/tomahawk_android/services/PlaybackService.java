@@ -1347,7 +1347,7 @@ public class PlaybackService extends Service
     }
 
     private void onPipeLineResultsReported(String queryKey) {
-        if (mCurrentPlaylist != null
+        if (getCurrentQuery() != null
                 && getCurrentQuery().getCacheKey().equals(queryKey)) {
             if (mIsRunningInForeground) {
                 updatePlayingNotification();
