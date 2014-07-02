@@ -401,20 +401,20 @@ public class PlaybackFragment extends TomahawkFragment
                 && mTomahawkVerticalViewPager.getCurrentItem() == 0) {
             item.setIcon(R.drawable.ic_action_collections_view_as_list);
             item.setTitle(R.string.menu_item_show_playlist);
-            final PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
-                    .getPlaybackService();
-            if (playbackService != null && playbackService.getCurrentPlaylist() != null
-                    && getListView() != null) {
-                getListView().clearFocus();
-                getListView().post(new Runnable() {
-                    @Override
-                    public void run() {
+            getListView().post(new Runnable() {
+                @Override
+                public void run() {
+                    PlaybackService playbackService =
+                            ((TomahawkMainActivity) getActivity()).getPlaybackService();
+                    if (playbackService != null && playbackService.getCurrentPlaylist() != null
+                            && getListView() != null) {
+                        getListView().clearFocus();
                         getListView().setSelection(
                                 playbackService.getCurrentPlaylist().getCurrentQueryIndex());
                         getListView().requestFocus();
                     }
-                });
-            }
+                }
+            });
         } else {
             item.setIcon(R.drawable.ic_action_up);
             item.setTitle(R.string.menu_item_show_album_cover);
