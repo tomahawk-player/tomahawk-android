@@ -721,7 +721,7 @@ public class PlaybackService extends Service
             try {
                 switch (mPlayState) {
                     case PLAYBACKSERVICE_PLAYSTATE_PLAYING:
-                        if (!mWakeLock.isHeld()) {
+                        if (mWakeLock != null && mWakeLock.isHeld()) {
                             mWakeLock.acquire();
                         }
                         if (getCurrentQuery().getMediaPlayerInterface()
@@ -744,7 +744,7 @@ public class PlaybackService extends Service
                             );
                             getCurrentQuery().getMediaPlayerInterface().pause();
                         }
-                        if (mWakeLock.isHeld()) {
+                        if (mWakeLock != null && mWakeLock.isHeld()) {
                             mWakeLock.release();
                         }
                         break;
@@ -755,9 +755,11 @@ public class PlaybackService extends Service
                                 + " , preparing=" + isPreparing()
                 );
             }
-            mKillTimerHandler.removeCallbacksAndMessages(null);
-            Message msg = mKillTimerHandler.obtainMessage();
-            mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
+            if (mKillTimerHandler != null) {
+                mKillTimerHandler.removeCallbacksAndMessages(null);
+                Message msg = mKillTimerHandler.obtainMessage();
+                mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
+            }
         } else {
             Log.d(TAG, "handlePlayState couldn't do anything, isPreparing" + isPreparing());
         }
