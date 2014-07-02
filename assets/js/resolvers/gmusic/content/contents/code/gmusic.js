@@ -306,15 +306,6 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
 
         var time = Date.now();
         Tomahawk.asyncRequest(url, function (request) {
-            if (200 != request.status) {
-                Tomahawk.log(
-                        "Google Music search '" + query + "' failed:\n"
-                        + request.status + " "
-                        + request.statusText.trim() + "\n"
-                        + request.responseText.trim()
-                    );
-                return;
-            }
             var response = JSON.parse( request.responseText );
 
             // entries member is missing when there are no results
@@ -350,7 +341,14 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
         }, {
             'Authorization': 'GoogleLogin auth=' + this._token
         }, {
-            method: 'GET'
+            method: 'GET',
+            errorHandler: function (request) {
+                Tomahawk.log("Google Music search '" + query + "' failed:\n"
+                        + request.status + " "
+                        + request.statusText.trim() + "\n"
+                        + request.responseText.trim()
+                );
+            }
         });
     },
 
@@ -476,15 +474,6 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
                     + 'services/loadsettings?u=0&xt='
                     + encodeURIComponent( that._xt ),
             function (request) {
-                if (200 != request.status) {
-                    Tomahawk.log(
-                            "settings request failed:\n"
-                            + request.status + " "
-                            + request.statusText.trim()
-                        );
-                    return;
-                }
-
                 var response = JSON.parse( request.responseText );
                 if (!response.settings) {
                     Tomahawk.log( "settings request failed:\n"
@@ -534,7 +523,14 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
                 'Content-type': 'application/x-www-form-urlencoded',
                 'Authorization': 'GoogleLogin auth=' + this._token
             }, {
-                method: 'POST'
+                method: 'POST',
+                errorHandler: function (request) {
+                    Tomahawk.log(
+                            "Settings request failed:\n"
+                            + request.status + " "
+                            + request.statusText.trim()
+                    );
+                }
             }
         );
     },
@@ -543,28 +539,25 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
         var that = this;
         Tomahawk.asyncRequest(that._webURL + 'listen',
             function (request) {
-                if (200 != request.status) {
-                    Tomahawk.log( "request for xt cookie failed:"
-                            + request.status + " "
-                            + request.statusText.trim()
-                        );
-                    return;
-                }
-
-                var match = request.getResponseHeader( 'Set-Cookie' )
-                                .match( /^xt=([^;]+)(?:;|$)/m );
+                var match = request.getResponseHeader('Set-Cookie')
+                    .match(/^xt=([^;]+)(?:;|$)/m);
                 if (match) {
                     that._xt = match[ 1 ];
-                    callback.call( window );
+                    callback.call(window);
                 } else {
-                    Tomahawk.log( "xt cookie missing" );
-                    return;
+                    Tomahawk.log("xt cookie missing");
                 }
             }, {
                 'Authorization': 'GoogleLogin auth=' + this._token
             }, {
                 method: 'HEAD',
-                needCookieHeader: true
+                needCookieHeader: true,
+                errorHandler: function (request) {
+                    Tomahawk.log("Request for xt cookie failed:"
+                            + request.status + " "
+                            + request.statusText.trim()
+                    );
+                }
             }
         );
     },
@@ -596,30 +589,34 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
         var name = this.settings.name;
         Tomahawk.asyncRequest('https://www.google.com/accounts/ClientLogin',
             function (request) {
-                if (200 == request.status) {
-                    that._token = request.responseText
-                            .match( /^Auth=(.*)$/m )[ 1 ];
-                    that._loginLock = false;
+                that._token = request.responseText
+                    .match(/^Auth=(.*)$/m)[ 1 ];
 
-                    Tomahawk.log( name + " logged in successfully" );
+                Tomahawk.log(name + " logged in successfully");
 
-                    for (var idx = 0; idx < that._loginCallbacks.length; idx++) {
-                        that._loginCallbacks[ idx ].call( window );
-                    }
-                    that._loginCallbacks = null;
-                } else {
-                    Tomahawk.log(name + " login failed:\n"
-                            + request.status + " "
-                            + request.statusText.trim() + "\n"
-                            + request.responseText.trim());
+                for (var idx = 0; idx < that._loginCallbacks.length; idx++) {
+                    that._loginCallbacks[ idx ].call(window);
                 }
+                that._loginCallbacks = null;
+                that._loginLock = false;
             }, {
                 'Content-type': 'application/x-www-form-urlencoded'
             }, {
                 method: 'POST',
                 data: "accountType=HOSTED_OR_GOOGLE&Email=" + that._email.trim()
                     + "&Passwd=" + that._password.trim() + "&service=sj&source=tomahawk-gmusic-"
-                    + that._version
+                    + that._version,
+                errorHandler: function (request) {
+                    Tomahawk.log(name + " login failed:\n"
+                        + request.status + " "
+                        + request.statusText.trim() + "\n"
+                        + request.responseText.trim());
+                    for (var idx = 0; idx < that._loginCallbacks.length; idx++) {
+                        that._loginCallbacks[ idx ].call(window);
+                    }
+                    that._loginCallbacks = null;
+                    that._loginLock = false;
+                }
             }
         );
     },
