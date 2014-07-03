@@ -225,7 +225,7 @@ public class TomahawkUtils {
     public static String getRedirectedUrl(String method, String urlString,
             Map<String, String> extraHeaders)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
-        return httpRequest(method, urlString, extraHeaders, null, null, null, null, null, false);
+        return httpRequest(method, urlString, extraHeaders, null, null, null, null, false);
     }
 
     /**
@@ -244,33 +244,30 @@ public class TomahawkUtils {
             Map<String, String> extraHeaders, final String username, final String password,
             String data)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
-        return httpRequest(method, urlString, extraHeaders, username, password, data, null, null,
+        return httpRequest(method, urlString, extraHeaders, username, password, data, null,
                 true);
     }
 
     /**
      * Does a HTTP or HTTPS request (convenience method)
      *
-     * @param method        the method that should be used ("GET" or "POST"), defaults to "GET"
-     *                      (optional)
-     * @param urlString     the complete url string to do the request with
-     * @param extraHeaders  extra headers that should be added to the request (optional)
-     * @param username      the username for HTTP Basic Auth (optional)
-     * @param password      the password for HTTP Basic Auth (optional)
-     * @param data          the body data included in POST requests (optional)
-     * @param callback      a ScriptInterface.JsCallback that should be called if this request has
-     *                      been successful (optional)
-     * @param errorCallback a ScriptInterface.JsCallback that should be called if this request has
-     *                      failed (optional)
+     * @param method       the method that should be used ("GET" or "POST"), defaults to "GET"
+     *                     (optional)
+     * @param urlString    the complete url string to do the request with
+     * @param extraHeaders extra headers that should be added to the request (optional)
+     * @param username     the username for HTTP Basic Auth (optional)
+     * @param password     the password for HTTP Basic Auth (optional)
+     * @param data         the body data included in POST requests (optional)
+     * @param callback     a ScriptInterface.JsCallback that should be called if this request has
+     *                     been successful (optional)
      * @return a String containing the response of this request
      */
     public static String httpRequest(String method, String urlString,
             Map<String, String> extraHeaders, final String username, final String password,
-            String data, ScriptInterface.JsCallback callback,
-            ScriptInterface.JsCallback errorCallback)
+            String data, ScriptInterface.JsCallback callback)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         return httpRequest(method, urlString, extraHeaders, username, password, data, callback,
-                errorCallback, true);
+                true);
     }
 
     /**
@@ -285,8 +282,6 @@ public class TomahawkUtils {
      * @param data            the body data included in POST requests (optional)
      * @param callback        a ScriptInterface.JsCallback that should be called if this request has
      *                        been successful (optional)
-     * @param errorCallback   a ScriptInterface.JsCallback that should be called if this request has
-     *                        failed (optional)
      * @param followRedirects whether or not to follow redirects (also defines what is being
      *                        returned)
      * @return a String containing the response of this request, if followRedirects is false,
@@ -294,8 +289,7 @@ public class TomahawkUtils {
      */
     private static String httpRequest(String method, String urlString,
             Map<String, String> extraHeaders, final String username, final String password,
-            String data, ScriptInterface.JsCallback callback,
-            ScriptInterface.JsCallback errorCallback, boolean followRedirects)
+            String data, ScriptInterface.JsCallback callback, boolean followRedirects)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         String responseText = null;
         HttpURLConnection connection = null;
@@ -367,18 +361,11 @@ public class TomahawkUtils {
             if (followRedirects) {
                 // Read response text and response Headers and call callbacks if possible
                 responseText = inputStreamToString(connection.getInputStream());
-                if (connection.getResponseCode() / 100 == 2) {
-                    // Status code is 2xx, we're good, call back
-                    if (callback != null) {
-                        callback.call(responseText, connection.getHeaderFields(),
-                                connection.getResponseCode(), connection.getResponseMessage());
-                    }
-                } else {
-                    // Status code isn't 2xx, try to call error callback and throw IOException
-                    if (errorCallback != null) {
-                        errorCallback.call(responseText, connection.getHeaderFields(),
-                                connection.getResponseCode(), connection.getResponseMessage());
-                    }
+                if (callback != null) {
+                    callback.call(responseText, connection.getHeaderFields(),
+                            connection.getResponseCode(), connection.getResponseMessage());
+                }
+                if (connection.getResponseCode() / 100 != 2) {
                     throw new IOException("HttpsURLConnection (url:'" + urlString
                             + "') didn't return with status code 2xx, instead it returned "
                             + connection.getResponseCode());

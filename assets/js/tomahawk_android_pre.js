@@ -66,3 +66,28 @@ Tomahawk.resolveFromFuzzyIndex =
     function (artist, album, title) {
         return JSON.parse(Tomahawk.resolveFromFuzzyIndexString(artist, album, title));
     };
+
+Tomahawk.nativeAsyncRequest =
+    function (reqId, url, extraHeaders, options) {
+        Tomahawk.nativeAsyncRequestString(reqId, url, JSON.stringify(extraHeaders),
+            JSON.stringify(options));
+    };
+
+function FakeXHR(responseText, responseHeaders, status, statusText) {
+    this.responseHeaders = JSON.parse(responseHeaders);
+    this.responseText = responseText;
+    this.readyState = 4;
+    this.status = status;
+    this.statusText = statusText;
+    this.getAllResponseHeaders = function () {
+        return this.responseHeaders;
+    };
+    this.getResponseHeader = function (header) {
+        return this.responseHeaders[header];
+    };
+}
+
+Tomahawk.callback = function (reqId, responseText, responseHeaders, status, statusText) {
+    Tomahawk.nativeAsyncRequestDone(reqId,
+        new FakeXHR(responseText, responseHeaders, status, statusText));
+};
