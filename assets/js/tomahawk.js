@@ -4,7 +4,7 @@
  *   Copyright 2011-2012, Leo Franchi <lfranchi@kde.org>
  *   Copyright 2011,      Thierry Goeckel
  *   Copyright 2013,      Teo Mrnjavac <teo@kde.org>
- *   Copyright 2013,      Uwe L. Korn <uwelk@xhochy.com>
+ *   Copyright 2013-2014,  Uwe L. Korn <uwelk@xhochy.com>
  *
  *   Permission is hereby granted, free of charge, to any person obtaining a copy
  *   of this software and associated documentation files (the "Software"), to deal
@@ -268,15 +268,6 @@ Tomahawk.syncRequest = function (url, extraHeaders, options) {
     xmlHttpRequest.send(null);
     if (xmlHttpRequest.status == 200) {
         return xmlHttpRequest.responseText;
-    } else if (xmlHttpRequest.status == 302) {
-        // You know that XMLHttpRequest always follows redirects?
-        // Guess what: It does not always.
-        //
-        // Known:
-        // * If you are redirect to a different domain in QtWebkit on MacOS,
-        //   you will have to deal with 302.
-        Tomahawk.syncRequest(xmlHttpRequest.getResponseHeader('Location'),
-            extraHeaders, options);
     } else {
         Tomahawk.log("Failed to do GET request: to: " + url);
         Tomahawk.log("Status Code was: " + xmlHttpRequest.status);
@@ -287,37 +278,156 @@ Tomahawk.syncRequest = function (url, extraHeaders, options) {
 };
 
 /**
+ * Internal counter used to identify retrievedMetadata call back from native
+ * code.
+ */
+Tomahawk.retrieveMetadataIdCounter = 0;
+/**
+ * Internal map used to map metadataIds to the respective JavaScript callbacks.
+ */
+Tomahawk.retrieveMetadataCallbacks = {};
+
+/**
+ * Retrieve metadata for a media stream.
+ *
+ * @param url String The URL which should be scanned for metadata.
+ * @param mimetype String The mimetype of the stream, e.g. application/ogg
+ * @param sizehint Size in bytes if not supplied possibly the whole file needs
+ *          to be downloaded
+ * @param options Object Map to specify various parameters related to the media
+ *          URL. This includes:
+ *          * headers: Object of HTTP(S) headers that should be set on doing the
+ *                     request.
+ *          * method: String HTTP verb to be used (default: GET)
+ *          * username: Username when using authentication
+ *          * password: Password when using authentication
+ * @param callback Function(Object,String) This function is called on completeion.
+ *          If an error occured, error is set to the corresponding message else
+ *          null.
+ */
+Tomahawk.retrieveMetadata = function (url, mimetype, sizehint, options, callback) {
+    var metadataId = Tomahawk.retrieveMetadataIdCounter;
+    Tomahawk.retrieveMetadataIdCounter++;
+    Tomahawk.retrieveMetadataCallbacks[metadataId] = callback;
+    Tomahawk.nativeRetrieveMetadata(metadataId, url, mimetype, sizehint, options);
+};
+
+/**
+ * Pass the natively retrieved metadata back to the JavaScript callback.
+ *
+ * Internal use only!
+ */
+Tomahawk.retrievedMetadata = function(metadataId, metadata, error) {
+    // Check we have a matching callback stored.
+    if (!Tomahawk.retrieveMetadataCallbacks.hasOwnProperty(metadataId)) {
+        return;
+    }
+
+    // Call the real callback
+    if (Tomahawk.retrieveMetadataCallbacks.hasOwnProperty(metadataId)) {
+        Tomahawk.retrieveMetadataCallbacks[metadataId](metadata, error);
+    }
+
+    // Callback are only used once.
+    delete Tomahawk.retrieveMetadataCallbacks[metadataId];
+};
+
+/**
+ * Internal counter used to identify asyncRequest callback from native code.
+ */
+Tomahawk.asyncRequestIdCounter = 0;
+/**
+ * Internal map used to map asyncRequestIds to the respective javascript
+ * callback functions.
+ */
+Tomahawk.asyncRequestCallbacks = {};
+
+/**
+ * Pass the natively retrived reply back to the javascript callback
+ * and augment the fake XMLHttpRequest object.
+ *
+ * Internal use only!
+ */
+Tomahawk.nativeAsyncRequestDone = function (reqId, xhr) {
+    // Check that we have a matching callback stored.
+    if (!Tomahawk.asyncRequestCallbacks.hasOwnProperty(reqId)) {
+        return;
+    }
+
+    if (xhr.readyState == 4 && xhr.status == 200) {
+        // Call the real callback
+        if (Tomahawk.asyncRequestCallbacks[reqId].callback) {
+            Tomahawk.asyncRequestCallbacks[reqId].callback(xhr);
+        }
+    } else if (xmlHttpRequest.readyState === 4) {
+        Tomahawk.log("Failed to do nativeAsyncRequest");
+        Tomahawk.log("Status Code was: " + xhr.status);
+        if (Tomahawk.asyncRequestCallbacks[reqId].errorHandler) {
+            Tomahawk.asyncRequestCallbacks[reqId].errorHandler(xhr);
+        }
+    }
+
+    // Callbacks are only used once.
+    delete Tomahawk.asyncRequestCallbacks[reqId];
+};
+
+/**
  * Possible options:
  *  - method: The HTTP request method (default: GET)
  *  - username: The username for HTTP Basic Auth
  *  - password: The password for HTTP Basic Auth
  *  - errorHandler: callback called if the request was not completed
  *  - data: body data included in POST requests
+ *  - needCookieHeader: boolean indicating whether or not the request needs to be able to get the
+ *                      "Set-Cookie" response header
  */
 Tomahawk.asyncRequest = function (url, callback, extraHeaders, options) {
     // unpack options
     var opt = options || {};
     var method = opt.method || 'GET';
-
-    var xmlHttpRequest = new XMLHttpRequest();
-    xmlHttpRequest.open(method, url, true, opt.username, opt.password);
-    if (extraHeaders) {
-        for (var headerName in extraHeaders) {
-            xmlHttpRequest.setRequestHeader(headerName, extraHeaders[headerName]);
-        }
-    }
-    xmlHttpRequest.onreadystatechange = function () {
-        if (xmlHttpRequest.readyState == 4 && xmlHttpRequest.status == 200) {
-            callback.call(window, xmlHttpRequest);
-        } else if (xmlHttpRequest.readyState === 4) {
-            Tomahawk.log("Failed to do " + method + " request: to: " + url);
-            Tomahawk.log("Status Code was: " + xmlHttpRequest.status);
-            if (opt.hasOwnProperty('errorHandler')) {
-                opt.errorHandler.call(window, xmlHttpRequest);
+    if (shouldDoNativeRequest(url, callback, extraHeaders, options)) {
+        // Assign a request Id to the callback so we can use it when we are
+        // returning from the native call.
+        var reqId = Tomahawk.asyncRequestIdCounter;
+        Tomahawk.asyncRequestIdCounter++;
+        Tomahawk.asyncRequestCallbacks[reqId] = {
+            callback: callback,
+            errorHandler: opt.errorHandler
+        };
+        Tomahawk.nativeAsyncRequest(reqId, url, extraHeaders, options);
+    } else {
+        var xmlHttpRequest = new XMLHttpRequest();
+        xmlHttpRequest.open(method, url, true, opt.username, opt.password);
+        if (extraHeaders) {
+            for (var headerName in extraHeaders) {
+                xmlHttpRequest.setRequestHeader(headerName, extraHeaders[headerName]);
             }
         }
-    };
-    xmlHttpRequest.send(opt.data || null);
+        xmlHttpRequest.onreadystatechange = function () {
+            if (xmlHttpRequest.readyState == 4 && xmlHttpRequest.status == 200) {
+                callback.call(window, xmlHttpRequest);
+            } else if (xmlHttpRequest.readyState === 4) {
+                Tomahawk.log("Failed to do " + method + " request: to: " + url);
+                Tomahawk.log("Status Code was: " + xmlHttpRequest.status);
+                if (opt.hasOwnProperty('errorHandler')) {
+                    opt.errorHandler.call(window, xmlHttpRequest);
+                }
+            }
+        };
+        xmlHttpRequest.send(opt.data || null);
+    }
+};
+
+/**
+ * This method is externalized from Tomahawk.asyncRequest, so that other clients
+ * (like tomahawk-android) can inject their own logic that determines whether or not to do a request
+ * natively.
+ *
+ * @returns boolean indicating whether or not to do a request with the given parameters natively
+ */
+shouldDoNativeRequest = function (url, callback, extraHeaders, options) {
+    return (extraHeaders && (extraHeaders.hasOwnProperty("Referer")
+        || extraHeaders.hasOwnProperty("referer")));
 };
 
 Tomahawk.sha256 = Tomahawk.sha256 || CryptoJS.SHA256;
