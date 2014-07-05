@@ -20,7 +20,9 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
+import org.tomahawk.tomahawk_android.services.PlaybackService;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -28,6 +30,9 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -66,6 +71,7 @@ public class TomahawkListFragment extends Fragment {
         }
     };
 
+
     /**
      * Get a stored list scroll position, if present
      */
@@ -79,6 +85,8 @@ public class TomahawkListFragment extends Fragment {
                         TOMAHAWK_LIST_SCROLL_POSITION);
             }
         }
+
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -227,4 +235,6 @@ public class TomahawkListFragment extends Fragment {
     public void setRestoreScrollPosition(boolean restoreScrollPosition) {
         this.restoreScrollPosition = restoreScrollPosition;
     }
+
+
 }

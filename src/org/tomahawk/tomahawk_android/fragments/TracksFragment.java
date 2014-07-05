@@ -49,9 +49,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.TreeMap;
 
 /**
@@ -73,6 +75,9 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             menu.findItem(R.id.action_gotoartist_item).setVisible(true);
         }
 
+        final MenuItem shuffleItem = menu.findItem(R.id.action_shuffle);
+        shuffleItem.setVisible(true);
+
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -82,10 +87,25 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item != null) {
-            if (item.getItemId() == R.id.action_gotoartist_item) {
-                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                        AlbumsFragment.class, mAlbum.getArtist().getCacheKey(),
-                        TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
+            switch (item.getItemId()) {
+                case R.id.action_gotoartist_item: {
+                    FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                            AlbumsFragment.class, mAlbum.getArtist().getCacheKey(),
+                            TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
+                    break;
+                }
+
+                case R.id.action_shuffle: {
+                    mUserPlaylist.setShuffled(true);
+
+                    // maybe not the best way to do it....
+                    int randomPosition = (int) (Math.random() * getListAdapter().getCount());
+                    View randomChild = getListAdapter().getView(randomPosition, new View(getListView().getContext()), null);
+
+                    this.onItemClick(null, randomChild, randomPosition, randomChild.getId());
+
+                    break;
+                }
             }
             ((TomahawkMainActivity) getActivity()).closeDrawer();
         }
@@ -330,4 +350,6 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             }
         }
     }
+
+
 }
