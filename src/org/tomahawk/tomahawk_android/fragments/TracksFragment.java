@@ -96,13 +96,15 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 }
 
                 case R.id.action_shuffle: {
-                    mUserPlaylist.setShuffled(true);
-
                     // maybe not the best way to do it....
                     int randomPosition = (int) (Math.random() * getListAdapter().getCount());
                     View randomChild = getListAdapter().getView(randomPosition, new View(getListView().getContext()), null);
 
-                    this.onItemClick(null, randomChild, randomPosition, randomChild.getId());
+                    if (randomChild != null) {
+                        this.onItemClick(null, randomChild, randomPosition, randomChild.getId());
+                        mUserPlaylist.setShuffled(true);
+                    }
+
 
                     break;
                 }
