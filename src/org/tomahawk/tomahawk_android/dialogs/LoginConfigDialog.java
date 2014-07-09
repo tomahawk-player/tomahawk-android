@@ -107,9 +107,9 @@ public class LoginConfigDialog extends ConfigDialog {
             if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS) {
                 dismiss();
             } else if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_LOGOUT) {
-                stopLoadingAnimation(false);
                 updateButtonTexts(false);
             }
+            stopLoadingAnimation(false);
         }
     }
 
