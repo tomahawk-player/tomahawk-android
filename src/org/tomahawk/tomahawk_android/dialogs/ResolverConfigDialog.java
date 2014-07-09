@@ -34,6 +34,7 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -71,7 +72,8 @@ public class ResolverConfigDialog extends ConfigDialog {
         }
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        boolean showSoftKeyboard = false;
+        EditText showKeyboardEditText = null;
+        EditText lastEditText = null;
         if (mScriptResolver.getConfigUi() != null && mScriptResolver.getConfigUi().fields != null) {
             for (ScriptResolverConfigUiField field : mScriptResolver.getConfigUi().fields) {
                 Map<String, Object> config = mScriptResolver.getConfig();
@@ -105,7 +107,10 @@ public class ResolverConfigDialog extends ConfigDialog {
                         editText.setTransformationMethod(new PasswordTransformationMethod());
                     }
                     addViewToFrame(textLayout);
-                    showSoftKeyboard = true;
+                    if (showKeyboardEditText == null) {
+                        showKeyboardEditText = editText;
+                    }
+                    lastEditText = editText;
                 } else if (PROPERTY_VALUE.equals(field.property)) {
                     LinearLayout numberpickerLayout = (LinearLayout) inflater
                             .inflate(R.layout.config_numberpicker, null);
@@ -121,12 +126,18 @@ public class ResolverConfigDialog extends ConfigDialog {
                         editText.setText(String.valueOf(config.get(field.name)));
                     }
                     addViewToFrame(numberpickerLayout);
-                    showSoftKeyboard = true;
+                    if (showKeyboardEditText == null) {
+                        showKeyboardEditText = editText;
+                    }
+                    lastEditText = editText;
                 }
             }
         }
-        if (showSoftKeyboard) {
-            showSoftKeyboard();
+        if (lastEditText != null) {
+            lastEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
+        }
+        if (showKeyboardEditText != null) {
+            showSoftKeyboard(showKeyboardEditText);
         }
         setDialogTitle(mScriptResolver.getName());
         if (mScriptResolver.isConfigTestable()) {

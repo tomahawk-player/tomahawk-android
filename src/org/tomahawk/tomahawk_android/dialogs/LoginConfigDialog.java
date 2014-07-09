@@ -25,7 +25,6 @@ import org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -33,7 +32,6 @@ import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
@@ -57,8 +55,6 @@ public class LoginConfigDialog extends ConfigDialog {
      */
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        showSoftKeyboard();
-
         if (getArguments() != null && getArguments()
                 .containsKey(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY)) {
             String authenticatorId = getArguments().getString(
@@ -67,16 +63,11 @@ public class LoginConfigDialog extends ConfigDialog {
                     authenticatorId);
         }
 
-        InputMethodManager imm = (InputMethodManager) getActivity()
-                .getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-
         LayoutInflater inflater = getActivity().getLayoutInflater();
         boolean isLoggedIn = mAuthenticatorUtils.isLoggedIn();
         LinearLayout usernameLayout = (LinearLayout) inflater.inflate(R.layout.config_text, null);
         mUsernameEditText = (ConfigEdittext) usernameLayout.findViewById(R.id.config_edittext);
         mUsernameEditText.setHint(mAuthenticatorUtils.getUserIdEditTextHintResId());
-        mUsernameEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
         mUsernameEditText.setText(isLoggedIn ? mAuthenticatorUtils.getUserName() : "");
         addViewToFrame(usernameLayout);
         LinearLayout passwordLayout = (LinearLayout) inflater.inflate(R.layout.config_text, null);
@@ -86,6 +77,8 @@ public class LoginConfigDialog extends ConfigDialog {
         mPasswordEditText.setTransformationMethod(new PasswordTransformationMethod());
         mPasswordEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
         addViewToFrame(passwordLayout);
+
+        showSoftKeyboard(mUsernameEditText);
 
         hideEnabledCheckbox();
         setDialogTitle(mAuthenticatorUtils.getPrettyName() + getString(R.string.login));

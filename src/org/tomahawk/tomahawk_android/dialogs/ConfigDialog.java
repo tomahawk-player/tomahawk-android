@@ -37,6 +37,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -50,6 +51,8 @@ public abstract class ConfigDialog extends DialogFragment {
     public final static String TAG = ConfigDialog.class.getSimpleName();
 
     private View mDialogView;
+
+    private View mShowKeyboardView;
 
     private CheckBox mEnabledCheckbox;
 
@@ -183,8 +186,6 @@ public abstract class ConfigDialog extends DialogFragment {
     public void onPause() {
         super.onPause();
 
-        hideSoftKeyboard();
-
         mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
         if (mConfigDialogReceiver != null) {
             getActivity().unregisterReceiver(mConfigDialogReceiver);
@@ -214,6 +215,10 @@ public abstract class ConfigDialog extends DialogFragment {
 
     protected void hideEnabledCheckbox() {
         mEnabledCheckbox.setVisibility(View.GONE);
+    }
+
+    protected void hideStatusImage() {
+        mStatusImageView.setVisibility(View.GONE);
     }
 
     protected void setStatusImage(int statusImageResId, boolean enabled) {
@@ -252,17 +257,22 @@ public abstract class ConfigDialog extends DialogFragment {
         }
     }
 
-    protected void showSoftKeyboard() {
-        InputMethodManager imm = (InputMethodManager) getActivity()
-                .getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(mDialogView, InputMethodManager.SHOW_IMPLICIT);
-    }
-
-    protected void hideSoftKeyboard() {
-        InputMethodManager imm = (InputMethodManager) getActivity()
-                .getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromInputMethod(mDialogView.getWindowToken(),
-                InputMethodManager.HIDE_IMPLICIT_ONLY);
+    protected void showSoftKeyboard(final EditText editText) {
+        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, final boolean hasFocus) {
+                editText.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        InputMethodManager imm = (InputMethodManager) getActivity()
+                                .getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+                    }
+                });
+                editText.setOnFocusChangeListener(null);
+            }
+        });
+        editText.requestFocus();
     }
 
     /**
