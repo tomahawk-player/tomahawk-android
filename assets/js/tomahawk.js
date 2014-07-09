@@ -5,6 +5,7 @@
  *   Copyright 2011,      Thierry Goeckel
  *   Copyright 2013,      Teo Mrnjavac <teo@kde.org>
  *   Copyright 2013-2014,  Uwe L. Korn <uwelk@xhochy.com>
+ *   Copyright 2014,      Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Permission is hereby granted, free of charge, to any person obtaining a copy
  *   of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +37,7 @@ if ((typeof Tomahawk === "undefined") || (Tomahawk === null)) {
     };
 }
 
-Tomahawk.apiVersion = "0.2.1";
+Tomahawk.apiVersion = "0.2.2";
 
 /**
  * Compares versions strings
@@ -135,6 +136,17 @@ var TomahawkUrlType = {
     Track: 2,
     Album: 4,
     Artist: 8
+};
+
+var TomahawkConfigTestResultType = {
+    Other: 0,
+    Success: 1,
+    Logout: 2,
+    CommunicationError: 3,
+    InvalidCredentials: 4,
+    InvalidAccount: 5,
+    PlayingElsewhere: 6,
+    AccountExpired: 7
 };
 
 

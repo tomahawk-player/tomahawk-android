@@ -15,33 +15,44 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomahawk.libtomahawk.resolver;
+package org.tomahawk.libtomahawk.authentication;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+public class HatchetAuthResponse {
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class ScriptResolverMetaData {
+    public String access_token;
 
-    public String name;
-
-    public String pluginName;
-
-    public String author;
+    public String canonical_username;
 
     public String email;
 
-    public String version;
+    public String error;
 
-    public String website;
+    public String error_description;
 
-    public String description;
+    public String error_uri;
 
-    public String type;
+    public long expires_in;
 
-    public ScriptResolverMetaDataManifest manifest;
+    public String message;
 
-    public String[] staticCapabilities;
+    public String passwordresettoken;
 
-    public ScriptResolverMetaData() {
+    public String refresh_token;
+
+    public long refresh_token_expires_in;
+
+    public String socialaccesstoken;
+
+    public long socialaccesstokenexpiration;
+
+    public String socialaccesstokensecret;
+
+    public String socialauthurl;
+
+    public String token_type;
+
+    public boolean verified;
+
+    public HatchetAuthResponse() {
     }
 }

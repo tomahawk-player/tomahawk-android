@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -48,9 +47,9 @@ public class ScriptInterface {
             mReqId = reqId;
         }
 
-        public void call(String responseText, Map<String, List<String>> responseHeaders, int status,
-                String statusText) {
-            mScriptResolver.callback(mReqId, responseText, responseHeaders, status, statusText);
+        public void call(TomahawkUtils.HttpResponse response) {
+            mScriptResolver.callback(mReqId, response.mResponseText, response.mResponseHeaders,
+                    response.mStatus, response.mStatusText);
         }
     }
 
@@ -201,13 +200,16 @@ public class ScriptInterface {
                             callback);
                 } catch (NoSuchAlgorithmException e) {
                     Log.e(TAG,
-                            "nativeAsyncRequestString: " + e.getClass() + ": " + e.getLocalizedMessage());
+                            "nativeAsyncRequestString: " + e.getClass() + ": " + e
+                                    .getLocalizedMessage());
                 } catch (KeyManagementException e) {
                     Log.e(TAG,
-                            "nativeAsyncRequestString: " + e.getClass() + ": " + e.getLocalizedMessage());
+                            "nativeAsyncRequestString: " + e.getClass() + ": " + e
+                                    .getLocalizedMessage());
                 } catch (IOException e) {
                     Log.e(TAG,
-                            "nativeAsyncRequestString: " + e.getClass() + ": " + e.getLocalizedMessage());
+                            "nativeAsyncRequestString: " + e.getClass() + ": " + e
+                                    .getLocalizedMessage());
                 }
             }
         }).start();
@@ -329,5 +331,15 @@ public class ScriptInterface {
             values[i] = getItem(keys[i]);
         }
         return values;
+    }
+
+    @JavascriptInterface
+    public void onConfigTestResult(int type) {
+        mScriptResolver.onConfigTestResult(type, "");
+    }
+
+    @JavascriptInterface
+    public void onConfigTestResult(int type, String message) {
+        mScriptResolver.onConfigTestResult(type, message);
     }
 }

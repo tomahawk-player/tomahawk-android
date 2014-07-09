@@ -68,7 +68,9 @@ public class FragmentUtils {
     public static void addRootFragment(Context context, FragmentManager fragmentManager) {
         Map<String, String> data = new HashMap<String, String>();
         data.put(HatchetInfoPlugin.HATCHET_ACCOUNTDATA_USER_ID, null);
-        TomahawkUtils.getUserDataForAccount(data, AuthenticatorUtils.AUTHENTICATOR_NAME_HATCHET);
+        AuthenticatorUtils utils = AuthenticatorManager.getInstance()
+                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+        TomahawkUtils.getUserDataForAccount(data, utils.getAccountName());
         String mUserId = data.get(HatchetInfoPlugin.HATCHET_ACCOUNTDATA_USER_ID);
         FragmentTransaction ft = fragmentManager.beginTransaction();
         if (mUserId != null) {

@@ -35,7 +35,7 @@ import java.util.List;
  * Fetches {@link Track}s from the local {@link UserCollection}. Can also be used to resolve from
  * remote {@link UserCollection}s.
  */
-public class DataBaseResolver implements Resolver {
+public class DataBaseResolver extends Resolver {
 
     private String mId;
 
@@ -54,7 +54,9 @@ public class DataBaseResolver implements Resolver {
     /**
      * Construct this {@link DataBaseResolver}
      */
-    public DataBaseResolver() {
+    public DataBaseResolver(String prettyName) {
+        super(prettyName);
+
         mId = TomahawkApp.PLUGINNAME_USERCOLLECTION;
         mWeight = 100;
         mReady = false;

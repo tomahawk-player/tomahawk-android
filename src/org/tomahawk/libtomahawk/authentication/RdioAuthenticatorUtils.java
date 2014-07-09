@@ -30,12 +30,9 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
 
@@ -44,7 +41,7 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
     // Used for debug logging
     private final static String TAG = RdioAuthenticatorUtils.class.getSimpleName();
 
-    public static final String ACCOUNT_NAME = "Rdio-Account";
+    public static final String ACCOUNT_PRETTY_NAME = "Rdio-Account";
 
     public static final String RDIO_APPKEY = "Z3FiN3oyejhoNmU3ZTc2emNicTl3ZHlw";
 
@@ -52,8 +49,9 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
 
     private Rdio mRdio;
 
-    public RdioAuthenticatorUtils(String prettyName) {
-        super(prettyName);
+    public RdioAuthenticatorUtils(String id, String prettyName) {
+        super(id, prettyName);
+
         onInit();
     }
 
@@ -63,45 +61,20 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
     }
 
     @Override
-    public void onLogin(String username) {
+    public void onLogin(String username, String refreshToken,
+            long refreshTokenExpiresIn, String accessToken, long accessTokenExpiresIn) {
         if (TextUtils.isEmpty(username)) {
-            Log.d(TAG, "TomahawkService: Rdio user was already logged in :)");
+            Log.d(TAG, "Rdio user was already logged in :)");
         } else {
-            Log.d(TAG,
-                    "TomahawkService: Rdio user '" + username + "' logged in successfully :)");
+            Log.d(TAG, "Rdio user '" + username + "' logged in successfully :)");
         }
-    }
-
-    @Override
-    public void onLoginFailed(final String message) {
-        Log.d(TAG, "TomahawkService: Rdio login failed :(, Error: " + message);
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(TomahawkApp.getContext(), message, Toast.LENGTH_LONG).show();
-            }
-        });
-        AuthenticatorManager.getInstance().onLoggedInOut(TomahawkApp.PLUGINNAME_RDIO, false);
-        mIsAuthenticating = false;
-    }
-
-    @Override
-    public void onLogout() {
-        Log.d(TAG, "TomahawkService: Rdio user logged out");
-        AuthenticatorManager.getInstance().onLoggedInOut(TomahawkApp.PLUGINNAME_RDIO, false);
-        mIsAuthenticating = false;
-    }
-
-    @Override
-    public void onAuthTokenProvided(String username, String refreshToken,
-            int refreshTokenExpiresIn, String accessToken, int accessTokenExpiresIn) {
-        Account account = new Account(ACCOUNT_NAME,
+        Account account = new Account(ACCOUNT_PRETTY_NAME,
                 TomahawkApp.getContext().getString(R.string.accounttype_string));
         AccountManager am = AccountManager.get(TomahawkApp.getContext());
         if (am != null) {
             am.addAccountExplicitly(account, null, new Bundle());
-            am.setUserData(account, AuthenticatorUtils.AUTHENTICATOR_NAME,
-                    getAuthenticatorUtilsName());
+            am.setUserData(account, AuthenticatorUtils.ACCOUNT_NAME,
+                    getAccountName());
             am.setUserData(account, OAuth1WebViewActivity.EXTRA_TOKEN, refreshToken);
             am.setUserData(account, OAuth1WebViewActivity.EXTRA_TOKEN_SECRET,
                     accessToken);
@@ -111,30 +84,35 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
                     new String(Base64.decode(RDIO_APPKEYSECRET, Base64.DEFAULT), "UTF-8"),
                     refreshToken, accessToken, TomahawkApp.getContext(), this);
             mRdio.prepareForPlayback();
-            AuthenticatorManager.getInstance().onLoggedInOut(TomahawkApp.PLUGINNAME_RDIO, true);
+            AuthenticatorManager.broadcastConfigTestResult(getId(),
+                    AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS,
+                    AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS);
         } catch (UnsupportedEncodingException e) {
             Log.e(TAG, "onAuthTokenProvided: " + e.getClass() + ": " + e.getLocalizedMessage());
+            onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
+                    e.getClass() + ": " + e.getLocalizedMessage());
         }
     }
 
     @Override
-    public int getTitleResourceId() {
-        return 0;
+    public void onLoginFailed(int type, String message) {
+        Log.d(TAG, "Rdio login failed :(, Type:" + type + ", Error: " + message);
+        AuthenticatorManager.broadcastConfigTestResult(getId(),
+                AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS, type,
+                message);
+    }
+
+    @Override
+    public void onLogout() {
+        Log.d(TAG, "Rdio user logged out");
+        AuthenticatorManager.broadcastConfigTestResult(getId(),
+                AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS,
+                AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_LOGOUT);
     }
 
     @Override
     public int getIconResourceId() {
         return 0;
-    }
-
-    @Override
-    public String getAuthenticatorUtilsName() {
-        return AUTHENTICATOR_NAME_RDIO;
-    }
-
-    @Override
-    public String getAuthenticatorUtilsTokenType() {
-        return null;
     }
 
     @Override
@@ -155,9 +133,8 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
                             Base64.DEFAULT), "UTF-8")
             );
             myIntent.putExtra(OAuth1WebViewActivity.EXTRA_CONSUMER_SECRET,
-                    new String(
-                            Base64.decode(RdioAuthenticatorUtils.RDIO_APPKEYSECRET,
-                                    Base64.DEFAULT), "UTF-8")
+                    new String(Base64.decode(RdioAuthenticatorUtils.RDIO_APPKEYSECRET,
+                            Base64.DEFAULT), "UTF-8")
             );
             activity.startActivityForResult(myIntent, 1);
         } catch (UnsupportedEncodingException e) {
@@ -170,7 +147,7 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
      * Try to login to rdio with stored credentials
      */
     public void loginWithToken() {
-        Account account = new Account(ACCOUNT_NAME,
+        Account account = new Account(ACCOUNT_PRETTY_NAME,
                 TomahawkApp.getContext().getString(R.string.accounttype_string));
         AccountManager am = AccountManager.get(TomahawkApp.getContext());
         String accessToken = null;
@@ -203,7 +180,7 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
     @Override
     public void logout(Activity activity) {
         final AccountManager am = AccountManager.get(TomahawkApp.getContext());
-        Account account = TomahawkUtils.getAccountByName(getAuthenticatorUtilsName());
+        Account account = TomahawkUtils.getAccountByName(getAccountName());
         if (am != null && account != null) {
             am.removeAccount(account, null, null);
         }
@@ -212,7 +189,7 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
 
     @Override
     public boolean isLoggedIn() {
-        Account account = new Account(ACCOUNT_NAME,
+        Account account = new Account(ACCOUNT_PRETTY_NAME,
                 TomahawkApp.getContext().getString(R.string.accounttype_string));
         AccountManager am = AccountManager.get(TomahawkApp.getContext());
         return am != null && am.getUserData(account, OAuth1WebViewActivity.EXTRA_TOKEN) != null
@@ -226,7 +203,10 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
 
     @Override
     public void onRdioUserPlayingElsewhere() {
-        Log.d(TAG, "Tell the user that playback is stopping.");
+        Log.d(TAG, "onRdioUserPlayingElsewhere()");
+        AuthenticatorManager.broadcastConfigTestResult(getId(),
+                AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS,
+                AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_PLAYINGELSEWHERE);
     }
 
     /*
@@ -239,7 +219,7 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
     public void onRdioAuthorised(String accessToken, String accessTokenSecret) {
         Log.d(TAG, "Rdio Application authorised, saving access token & secret.");
 
-        onAuthTokenProvided(ACCOUNT_NAME, accessToken, 0, accessTokenSecret, 0);
+        onLogin(ACCOUNT_PRETTY_NAME, accessToken, 0, accessTokenSecret, 0);
     }
 
     public Rdio getRdio() {

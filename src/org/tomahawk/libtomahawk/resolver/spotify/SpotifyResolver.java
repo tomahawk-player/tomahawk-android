@@ -45,7 +45,7 @@ import java.util.ArrayList;
  * A {@link Resolver} which resolves {@link org.tomahawk.libtomahawk.collection.Track}s via
  * libspotify
  */
-public class SpotifyResolver implements Resolver {
+public class SpotifyResolver extends Resolver {
 
     private final static String TAG = SpotifyResolver.class.getSimpleName();
 
@@ -102,7 +102,9 @@ public class SpotifyResolver implements Resolver {
     /**
      * Construct a new {@link SpotifyResolver}
      */
-    public SpotifyResolver() {
+    public SpotifyResolver(String prettyName) {
+        super(prettyName);
+
         mId = TomahawkApp.PLUGINNAME_SPOTIFY;
         mIconResId = R.drawable.spotify_icon;
         PipeLine.getInstance().onResolverReady();
