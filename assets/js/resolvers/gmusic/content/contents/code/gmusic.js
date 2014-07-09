@@ -2,6 +2,7 @@
  *
  * Written in 2013 by Sam Hanes <sam@maltera.com>
  * Extensive modifications in 2014 by Lalit Maganti
+ * Further modifications in 2014 by Enno Gottschalk <mrmaffen@googlemail.com>
  *
  * To the extent possible under law, the author(s) have dedicated all
  * copyright and related and neighboring rights to this software to
@@ -473,7 +474,7 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
         });
     },
 
-    _loadSettings: function (callback) {
+    _loadSettings: function (callback, doConfigTest) {
         var that = this;
         Tomahawk.asyncRequest(that._webURL
                     + 'services/loadsettings?u=0&xt='
@@ -484,6 +485,10 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
                     Tomahawk.log( "settings request failed:\n"
                             + request.responseText.trim()
                         );
+                    if (doConfigTest) {
+                        Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Other,
+                            "Wasn't able to get resolver settings");
+                    }
                     return;
                 }
 
@@ -510,6 +515,11 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
 
                     callback.call( window );
                 } else {
+                    if (doConfigTest) {
+                        Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Other,
+                                "No Android devices associated with Google account."
+                                + " Please open the 'Play Music' App, log in and play a song");
+                    }
                     Tomahawk.log( that.settings.name
                             + ": there aren't any Android devices"
                             + " associated with your Google account."
@@ -525,6 +535,13 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
             }, {
                 method: 'POST',
                 errorHandler: function (request) {
+                    if (doConfigTest) {
+                        if (request.status == 403) {
+                            Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.InvalidAccount);
+                        } else {
+                            Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.CommunicationError);
+                        }
+                    }
                     Tomahawk.log(
                             "Settings request failed:\n"
                             + request.status + " "
@@ -535,7 +552,7 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
         );
     },
 
-    _loadWebToken: function (callback) {
+    _loadWebToken: function (callback, doConfigTest) {
         var that = this;
         Tomahawk.asyncRequest(that._webURL + 'listen',
             function (request) {
@@ -545,6 +562,10 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
                     that._xt = match[ 1 ];
                     callback.call(window);
                 } else {
+                    if (doConfigTest) {
+                        Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Other,
+                            "Wasn't able to get xt cookie");
+                    }
                     Tomahawk.log("xt cookie missing");
                 }
             }, {
@@ -553,6 +574,13 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
                 method: 'HEAD',
                 needCookieHeader: true,
                 errorHandler: function (request) {
+                    if (doConfigTest) {
+                        if (request.status == 403) {
+                            Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.InvalidAccount);
+                        } else {
+                            Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.CommunicationError);
+                        }
+                    }
                     Tomahawk.log("Request for xt cookie failed:"
                             + request.status + " "
                             + request.statusText.trim()
@@ -572,18 +600,26 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
      * to run when it is complete.
      *
      * @param {loginCB} [callback] a function to be called on completion
+     * @param doConfigTest boolean indicating whether or not to call the configTest callbacks
      */
-    _login: function (callback) {
+    _login: function (callback, doConfigTest) {
         this._token = null;
 
+        if (!this._loginCallbacks) {
+            this._loginCallbacks = [];
+        }
+        if (callback) {
+            this._loginCallbacks.push(callback);
+        }
+        if (doConfigTest){
+            this.doConfigTest = true;
+        }
         // if a login is already in progress just queue the callback
         if (this._loginLock) {
-            this._loginCallbacks.push( callback );
             return;
         }
 
         this._loginLock = true;
-        this._loginCallbacks = [ callback ];
 
         var that = this;
         var name = this.settings.name;
@@ -614,11 +650,33 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
                     for (var idx = 0; idx < that._loginCallbacks.length; idx++) {
                         that._loginCallbacks[ idx ].call(window);
                     }
+                    if (that.doConfigTest) {
+                        that.doConfigTest = false;
+                        if (request.status == 403) {
+                            Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.InvalidCredentials);
+                        } else if (request.status == 404) {
+                            Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.CommunicationError);
+                        } else {
+                            Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Other,
+                                request.responseText.trim());
+                        }
+                    }
                     that._loginCallbacks = null;
                     that._loginLock = false;
                 }
             }
         );
+    },
+
+    configTest: function () {
+        var that = this;
+        this._login(function () {
+            that._loadWebToken(function () {
+                that._loadSettings(function () {
+                    Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Success);
+                }, true);
+            }, true);
+        }, true);
     },
 
     containsObject: function (obj, list) {
