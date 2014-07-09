@@ -53,11 +53,14 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
     },
 
 
-    login: function() {
+    login: function(doConfigTest) {
         var userConfig = this.getUserConfig();
         if (!userConfig.user || !userConfig.password) {
             Tomahawk.log("Beats Music Resolver not properly configured!");
             this.loggedIn = false;
+            if (doConfigTest) {
+                Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.InvalidCredentials);
+            }
             return;
         }
 
@@ -82,13 +85,34 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
 
         var that = this;
         Tomahawk.asyncRequest("https://partner.api.beatsmusic.com/api/o/oauth2/approval", function (xhr) {
-            var res = JSON.parse(xhr.responseText);
-            that.accessToken = res.access_token;
-            that.loggedIn = true;
+            try {
+                var res = JSON.parse(xhr.responseText);
+                that.accessToken = res.access_token;
+                that.loggedIn = true;
+                if (doConfigTest) {
+                    Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Success);
+                }
+            } catch (e) {
+                if (doConfigTest) {
+                    Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.InvalidCredentials);
+                }
+            }
         }, headers, {
             method: "POST",
-            data: data
+            data: data,
+            errorHandler: function (xhr) {
+                if (xhr.status == 404) {
+                    Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.CommunicationError);
+                } else {
+                    Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Other,
+                        xhr.statusText.trim());
+                }
+            }
         });
+    },
+
+    configTest: function () {
+        this.login(true);
     },
 
     spell: function(a){magic=function(b){return(b=(b)?b:this).split("").map(function(d){if(!d.match(/[A-Za-z]/)){return d}c=d.charCodeAt(0)>=96;k=(d.toLowerCase().charCodeAt(0)-96+12)%26+1;return String.fromCharCode(k+(c?96:64))}).join("")};return magic(a)},

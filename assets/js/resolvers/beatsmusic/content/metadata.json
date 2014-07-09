@@ -3,7 +3,7 @@
 	"pluginName": "beatsmusic",
 	"author": "Uwe L. Korn",
 	"email": "uwelk@xhochy.com",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"website": "http://gettomahawk.com",
 	"description": "Stream music from Beats.",
 	"type": "resolver/javascript",
@@ -18,5 +18,8 @@
 			"contents/code/beatsmusic.png",
             "contents/code/beatsmusic-wide.png"
 		]
-	}
+    },
+    "staticCapabilities": [
+        "configTestable"
+    ]
 }
