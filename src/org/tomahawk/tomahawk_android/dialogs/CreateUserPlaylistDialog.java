@@ -20,52 +20,32 @@ package org.tomahawk.tomahawk_android.dialogs;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
-import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
+import org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.TextView;
-
-import java.util.ArrayList;
+import android.widget.LinearLayout;
 
 /**
  * A {@link DialogFragment} which is presented for the user so that he can choose a name for the
  * {@link UserPlaylist} he intends to create
  */
-public class CreateUserPlaylistDialog extends DialogFragment {
+public class CreateUserPlaylistDialog extends ConfigDialog {
 
     private Playlist mUserPlaylist;
 
-    /**
-     * Called when this {@link android.support.v4.app.DialogFragment} is being created
-     */
+    private EditText mNameEditText;
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        //show soft keyboard
-        InputMethodManager imm = (InputMethodManager) getActivity()
-                .getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-
-        //we can use the provided AlertDialog.Builder because we need a pretty basic Dialog,
-        //nothing fancy here so to speak
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.playlist_dialog, null);
-
         // Check if there is a playlist key in the provided arguments
         if (getArguments() != null && getArguments()
                 .containsKey(TomahawkFragment.TOMAHAWK_USERPLAYLIST_KEY)) {
@@ -77,46 +57,23 @@ public class CreateUserPlaylistDialog extends DialogFragment {
         }
 
         //set the proper flags for our edittext
-        EditText editText = (EditText) view.findViewById(R.id.playlist_dialog_name_textview);
-        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (event == null || actionId == EditorInfo.IME_ACTION_SEARCH
-                        || actionId == EditorInfo.IME_ACTION_DONE
-                        || event.getAction() == KeyEvent.ACTION_DOWN
-                        && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-                    hideSoftKeyboard();
-                    savePlaylist();
-                    dismiss();
-                }
-                return false;
-            }
-        });
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        LinearLayout textLayout = (LinearLayout) inflater.inflate(R.layout.config_text, null);
+        mNameEditText = (ConfigEdittext) textLayout.findViewById(R.id.config_edittext);
+        mNameEditText.setHint(R.string.playbackactivity_playlist_dialog_name_hint);
+        mNameEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
+        addViewToFrame(textLayout);
 
-        //Set the textview's text to the proper title, depending on whether we are saving or
-        //creating a playlist
-        TextView textView = (TextView) view.findViewById(R.id.playlist_dialog_title_textview);
-        if (mUserPlaylist != null) {
-            textView.setText(R.string.playbackactivity_save_playlist_dialog_title);
-        } else {
-            textView.setText(R.string.playbackactivity_create_playlist_dialog_title);
-        }
+        showSoftKeyboard(mNameEditText);
 
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                hideSoftKeyboard();
-                savePlaylist();
-            }
-        });
+        //Set the textview's text to the proper title
+        setDialogTitle(getString(R.string.playbackactivity_save_playlist_dialog_title));
 
-        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                hideSoftKeyboard();
-                getDialog().cancel();
-            }
-        });
-        builder.setView(view);
+        hideEnabledCheckbox();
+        hideStatusImage();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setView(getDialogView());
         return builder.create();
     }
 
@@ -125,27 +82,32 @@ public class CreateUserPlaylistDialog extends DialogFragment {
      * org.tomahawk.libtomahawk.collection.UserPlaylist} in our database
      */
     private void savePlaylist() {
-        EditText editText = (EditText) getDialog().findViewById(R.id.playlist_dialog_name_textview);
-        String playlistName = TextUtils.isEmpty(editText.getText().toString()) ? getString(
-                R.string.playbackplaylistfragment_title_string) : editText.getText().toString();
+        String playlistName = TextUtils.isEmpty(mNameEditText.getText().toString())
+                ? getString(R.string.playbackplaylistfragment_title_string)
+                : mNameEditText.getText().toString();
         if (mUserPlaylist != null) {
             DatabaseHelper.getInstance().storeUserPlaylist(UserPlaylist
                     .fromQueryList(TomahawkMainActivity.getLifetimeUniqueStringId(), playlistName,
                             mUserPlaylist.getQueries()));
-        } else {
-            DatabaseHelper.getInstance().storeUserPlaylist(UserPlaylist.fromQueryList(
-                    TomahawkMainActivity.getLifetimeUniqueStringId(), playlistName,
-                    new ArrayList<Query>()));
         }
     }
 
-    /**
-     * Hide the soft keyboard
-     */
-    private void hideSoftKeyboard() {
-        EditText editText = (EditText) getDialog().findViewById(R.id.playlist_dialog_name_textview);
-        InputMethodManager imm = (InputMethodManager) getActivity()
-                .getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+    @Override
+    protected void onEnabledCheckedChange(boolean checked) {
+    }
+
+    @Override
+    protected void onConfigTestResult(String componentId, int type, String message) {
+    }
+
+    @Override
+    protected void onPositiveAction() {
+        savePlaylist();
+        dismiss();
+    }
+
+    @Override
+    protected void onNegativeAction() {
+        dismiss();
     }
 }
