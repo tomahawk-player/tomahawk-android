@@ -2,6 +2,7 @@
  *
  *   Copyright 2012, Adrian Sampson <adrian@radbox.org>
  *   Copyright 2013, Uwe L. Korn <uwelk@xhochy.com>
+ *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -188,6 +189,28 @@ var BeetsResolver = Tomahawk.extend(TomahawkResolver, {
                 Tomahawk.reportCapabilities(TomahawkResolverCapability.NullCapability);
             });
         });
+    },
+
+    configTest: function () {
+        Tomahawk.asyncRequest(this.baseUrl(),
+            function (xhr) {
+                Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Success);
+            }, {}, {
+                method: 'HEAD',
+                username: this.username,
+                password: this.password,
+                errorHandler: function (xhr) {
+                    if (xhr.status == 403) {
+                        Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.InvalidCredentials);
+                    } else if (xhr.status == 404 || xhr.status == 0) {
+                        Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.CommunicationError);
+                    } else {
+                        Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Other,
+                            xhr.responseText.trim());
+                    }
+                }
+            }
+        );
     },
 
     // Script Collection Support
