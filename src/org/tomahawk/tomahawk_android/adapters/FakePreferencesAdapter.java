@@ -208,8 +208,13 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
             } else if (viewHolder.getViewType() == R.id.fakepreferencesadapter_viewtype_config) {
                 viewHolder.getImageView2().setVisibility(View.VISIBLE);
                 Resolver resolver = PipeLine.getInstance().getResolver(item.getKey());
-                TomahawkUtils.loadResolverIconIntoImageView(mContext, viewHolder.getImageView2(),
-                        resolver, !resolver.isEnabled());
+                if (resolver.getIconPath() != null) {
+                    TomahawkUtils.loadDrawableIntoImageView(mContext, viewHolder.getImageView2(),
+                            resolver.getIconPath(), !resolver.isEnabled());
+                } else {
+                    TomahawkUtils.loadDrawableIntoImageView(mContext, viewHolder.getImageView2(),
+                            resolver.getIconResId(), !resolver.isEnabled());
+                }
             } else if (viewHolder.getViewType() == R.id.fakepreferencesadapter_viewtype_spinner) {
                 String key = item.getStorageKey();
                 viewHolder.getSpinner().setSelection(mSharedPreferences

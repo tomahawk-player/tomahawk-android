@@ -20,52 +20,65 @@ package org.tomahawk.libtomahawk.resolver;
 /**
  * The basic {@link Resolver} interface, which is implemented by every type of {@link Resolver}
  */
-public interface Resolver {
+public abstract class Resolver {
+
+    private String mPrettyName;
+
+    public Resolver(String prettyName){
+        mPrettyName = prettyName;
+    }
 
     /**
      * @return Whether or not this {@link Resolver} is ready
      */
-    public boolean isReady();
+    public abstract boolean isReady();
 
     /**
      * @return Whether or not this {@link Resolver} is enabled
      */
-    public boolean isEnabled();
+    public abstract boolean isEnabled();
 
     /**
      * @return Whether or not this {@link Resolver} is currently resolving
      */
-    public boolean isResolving();
+    public abstract boolean isResolving();
 
     /**
      * @return the path to the icon of this {@link Resolver}
      */
-    public String getIconPath();
+    public abstract String getIconPath();
+
+    /**
+     * @return the pretty name of this resolver
+     */
+    public String getPrettyName(){
+        return mPrettyName;
+    }
 
     /**
      * @return the name of this resolver's collection
      */
-    public String getCollectionName();
+    public abstract String getCollectionName();
 
     /**
      * @return the resource id of the icon of this {@link Resolver}
      */
-    public int getIconResId();
+    public abstract int getIconResId();
 
     /**
      * Resolve the given {@link Query}
      *
      * @return whether or not the Resolver is ready to resolve
      */
-    public boolean resolve(Query query);
+    public abstract boolean resolve(Query query);
 
     /**
      * @return this {@link Resolver}'s id
      */
-    public String getId();
+    public abstract String getId();
 
     /**
      * @return this {@link Resolver}'s weight
      */
-    public int getWeight();
+    public abstract int getWeight();
 }

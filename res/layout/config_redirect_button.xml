@@ -25,7 +25,7 @@
              android:padding="@dimen/padding_medium">
 
     <LinearLayout
-            android:id="@+id/resolver_config_redirect_button"
+            android:id="@+id/config_redirect_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -33,7 +33,7 @@
             android:background="@drawable/selectable_background_tomahawk_opaque_inverted">
 
         <TextView
-                android:id="@+id/resolver_config_redirect_button_text"
+                android:id="@+id/config_redirect_button_text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -44,7 +44,7 @@
                 android:text="@string/resolver_config_redirect_button_text_log_into"/>
 
         <ImageView
-                android:id="@+id/resolver_config_redirect_button_image"
+                android:id="@+id/config_redirect_button_image"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
