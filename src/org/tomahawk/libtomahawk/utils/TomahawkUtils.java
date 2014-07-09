@@ -378,7 +378,14 @@ public class TomahawkUtils {
             // configure whether or not to follow redirects
             connection.setInstanceFollowRedirects(followRedirects);
 
-            response.mResponseText = inputStreamToString(connection.getInputStream());
+            try {
+                response.mResponseText = inputStreamToString(connection.getInputStream());
+            } catch (IOException e) {
+                InputStream stream = connection.getErrorStream();
+                if (stream != null) {
+                    response.mResponseText = inputStreamToString(stream);
+                }
+            }
             response.mResponseHeaders = connection.getHeaderFields();
             response.mStatus = connection.getResponseCode();
             response.mStatusText = connection.getResponseMessage();
