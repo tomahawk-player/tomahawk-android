@@ -49,6 +49,7 @@ import android.webkit.WebView;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -730,23 +731,22 @@ public class ScriptResolver extends Resolver {
     }
 
     public void reportCapabilities(int in) {
-        switch (in) {
-            case 1:
-                mBrowsable = true;
-                collection();
-                break;
-            case 2:
-                mPlaylistSync = true;
-                break;
-            case 4:
-                mAccountFactory = true;
-                break;
-            case 8:
-                mUrlLookup = true;
-                break;
-            case 16:
-                mConfigTestable = true;
-                break;
+        BigInteger bigInt = BigInteger.valueOf(in);
+        if (bigInt.testBit(0)) {
+            mBrowsable = true;
+            collection();
+        }
+        if (bigInt.testBit(1)) {
+            mPlaylistSync = true;
+        }
+        if (bigInt.testBit(2)) {
+            mAccountFactory = true;
+        }
+        if (bigInt.testBit(3)) {
+            mUrlLookup = true;
+        }
+        if (bigInt.testBit(4)) {
+            mConfigTestable = true;
         }
     }
 
