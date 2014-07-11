@@ -26,6 +26,7 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.ui.widgets.ConfigCheckbox;
 import org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext;
+import org.tomahawk.tomahawk_android.ui.widgets.ConfigNumberEdittext;
 import org.tomahawk.tomahawk_android.ui.widgets.StringView;
 
 import android.app.AlertDialog;
@@ -117,7 +118,7 @@ public class ResolverConfigDialog extends ConfigDialog {
                     TextView textView = (TextView) numberpickerLayout
                             .findViewById(R.id.config_textview);
                     textView.setText(field.name);
-                    ConfigEdittext editText = (ConfigEdittext) numberpickerLayout
+                    ConfigNumberEdittext editText = (ConfigNumberEdittext) numberpickerLayout
                             .findViewById(R.id.config_edittext);
                     editText.mFieldName = field.name;
                     editText.setHint(field.name);
