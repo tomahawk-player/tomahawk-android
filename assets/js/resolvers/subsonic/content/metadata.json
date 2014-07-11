@@ -1,0 +1,26 @@
+{
+    "name": "Subsonic",
+    "pluginName": "subsonic",
+    "author": "mack_t, Teo and Enno",
+    "email": "teo@kde.org",
+    "version": "0.6.0",
+    "website": "http://gettomahawk.com",
+    "description": "Searches your Subsonic server for music to play",
+    "platform": "any",
+    "tomahawkVersion": "0.6.99",
+    "type": "resolver/javascript",
+    "manifest": {
+        "main": "contents/code/subsonic.js",
+        "scripts": [],
+        "icon": "contents/images/icon.png",
+        "resources": [
+            "contents/code/config.ui",
+            "contents/code/runnersid-icon.png",
+            "contents/code/subsonic-icon.png",
+            "contents/code/subsonic.png"
+        ]
+    },
+    "staticCapabilities": [
+        "configTestable"
+    ]
+}
