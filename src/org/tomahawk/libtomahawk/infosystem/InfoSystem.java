@@ -32,6 +32,7 @@ import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaybackLogPostStruct;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetSocialAction;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetSocialActionPostStruct;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.utils.TomahawkSearchQueryStringParser;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
@@ -118,6 +119,17 @@ public class InfoSystem {
     public String resolve(String keyword) {
         Multimap<String, String> params = HashMultimap.create(1, 1);
         params.put(PARAM_TERM, keyword);
+        return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES, params);
+    }
+
+    public String resolve(TomahawkSearchQueryStringParser.SearchQuery searchQuery) {
+        Multimap<String, String> params = HashMultimap.create(1, 1);
+        params.put(PARAM_TERM, searchQuery.getUntagedQueryString());
+
+        if (searchQuery.getArtist() != null && !searchQuery.getArtist().isEmpty()) {
+            params.put(PARAM_ARTIST_NAME, searchQuery.getArtist());
+        }
+
         return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES, params);
     }
 

@@ -25,6 +25,7 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.utils.TomahawkSearchQueryStringParser;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -34,6 +35,7 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -45,6 +47,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * {@link TomahawkFragment} which offers both local and non-local search functionality to the user.
@@ -248,9 +252,12 @@ public class SearchableFragment extends TomahawkFragment
                 .findViewById(R.id.search_onlinesources_checkbox);
         String queryId = PipeLine.getInstance().resolve(fullTextQuery,
                 !onlineSourcesCheckBox.isChecked());
+
+        TomahawkSearchQueryStringParser.SearchQuery searcQuery = TomahawkSearchQueryStringParser.parse(fullTextQuery);
+
         if (onlineSourcesCheckBox.isChecked()) {
             mCurrentRequestIds.clear();
-            String requestId = InfoSystem.getInstance().resolve(fullTextQuery);
+            String requestId = InfoSystem.getInstance().resolve(searcQuery);
             mCurrentRequestIds.add(requestId);
         } else {
             mShownArtists.clear();
