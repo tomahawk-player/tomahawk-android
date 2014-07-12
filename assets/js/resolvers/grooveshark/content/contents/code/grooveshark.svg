@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg2440"
+   sodipodi:version="0.32"
+   inkscape:version="0.46"
+   width="200"
+   height="200"
+   version="1.0"
+   sodipodi:docname="Grooveshark Logo.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+  <metadata
+     id="metadata2445">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs2443">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective2447" />
+  </defs>
+  <sodipodi:namedview
+     inkscape:window-height="667"
+     inkscape:window-width="640"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     guidetolerance="10.0"
+     gridtolerance="10.0"
+     objecttolerance="10.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     showgrid="false"
+     inkscape:zoom="0.5775"
+     inkscape:cx="185.72005"
+     inkscape:cy="68.690583"
+     inkscape:window-x="88"
+     inkscape:window-y="99"
+     inkscape:current-layer="svg2440" />
+  <path
+     style="fill:#000000"
+     d="M 82.894345,194.51172 C 45.235671,187.35649 15.766844,159.17213 6.2805442,121.23731 C 3.9509682,111.92156 3.9509682,88.078443 6.2805442,78.762688 C 11.078512,59.576063 20.398404,43.494377 34.318808,30.382024 C 82.251653,-14.768416 159.95667,0.69693421 187.21426,60.812257 C 195.3307,78.712686 197.68697,102.70402 193.15565,121.30698 C 185.98887,150.72962 168.18642,173.08758 141.63796,186.0077 C 136.06208,188.72127 127.675,191.87838 123,193.0235 C 111.79185,195.76889 93.151438,196.46059 82.894345,194.51172 z M 168.03273,119.48307 C 172.84574,116.99417 174.35776,112.82566 174.81322,100.7899 C 175.31519,87.525074 173.46663,78.42701 167.95284,67.025202 C 158.37908,47.227871 142.34734,33.507536 121,26.841863 C 114.51897,24.81817 111.53,24.50959 99,24.570583 C 85.925532,24.634228 83.7135,24.909984 76.5,27.375474 C 64.794731,31.3762 55.61397,37.202542 46.5,46.414228 C 34.748757,58.291462 28.140976,70.680302 25.418646,85.939376 C 22.804583,100.5916 23.960232,110.24436 28.784445,114.05281 C 35.248063,119.15548 48.592327,113.75211 56.987469,102.63282 C 64.578709,92.578297 67.66742,78.886674 66.605062,60 C 66.249287,53.675 65.677002,47.437336 65.333317,46.138526 C 64.743062,43.907908 64.896606,43.816832 68.104217,44.494942 C 74.409583,45.827939 86.250375,51.279667 93.897638,56.370727 C 104.45066,63.396254 120.55103,79.879231 133.22578,96.633457 C 145.38605,112.70761 150.70682,117.55301 158.9416,120.05177 C 162.89414,121.25113 164.85032,121.12876 168.03273,119.48307 z"
+     id="path2451" />
+</svg>
