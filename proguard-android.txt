@@ -98,6 +98,14 @@
 }
 
 
+##################
+#Lucene specifics#
+##################
+-keep class org.apache.lucene.** {
+    *;
+}
+
+
 ################
 #ACRA specifics#
 ################
