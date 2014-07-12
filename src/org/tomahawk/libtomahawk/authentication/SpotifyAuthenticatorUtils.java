@@ -36,13 +36,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.IOException;
 
@@ -95,10 +93,12 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
                         onInit();
                         break;
                     case SpotifyService.MSG_ONLOGIN:
-                        onLogin(msg.getData().getString(SpotifyService.STRING_KEY));
+                        onLogin(msg.getData().getString(SpotifyService.STRING_KEY), null, 0, null,
+                                0);
                         break;
                     case SpotifyService.MSG_ONLOGINFAILED:
-                        onLoginFailed(msg.getData().getString(SpotifyService.STRING_KEY));
+                        onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
+                                msg.getData().getString(SpotifyService.STRING_KEY));
                         break;
                     case SpotifyService.MSG_ONLOGOUT:
                         onLogout();
@@ -107,7 +107,7 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
                         SpotifyLogin spotifyLogin = mObjectMapper
                                 .readValue(msg.getData().getString(SpotifyService.STRING_KEY),
                                         SpotifyLogin.class);
-                        onAuthTokenProvided(spotifyLogin.username, spotifyLogin.blob, 0, null, 0);
+                        onLogin(spotifyLogin.username, spotifyLogin.blob, 0, null, 0);
                         break;
                     default:
                         super.handleMessage(msg);
@@ -118,8 +118,8 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
         }
     }
 
-    public SpotifyAuthenticatorUtils(String prettyName) {
-        super(prettyName);
+    public SpotifyAuthenticatorUtils(String id, String prettyName) {
+        super(id, prettyName);
 
         mObjectMapper = InfoSystemUtils.constructObjectMapper();
     }
@@ -159,57 +159,47 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
     }
 
     @Override
-    public void onLogin(String username) {
+    public void onLogin(String username, String refreshToken,
+            long refreshTokenExpiresIn, String accessToken, long accessTokenExpiresIn) {
         if (TextUtils.isEmpty(username)) {
-            Log.d(TAG, "TomahawkService: Spotify user was already logged in :)");
+            Log.d(TAG, "Spotify user was already logged in :)");
         } else {
-            Log.d(TAG,
-                    "TomahawkService: Spotify user '" + username + "' logged in successfully :)");
+            Log.d(TAG, "Spotify user '" + username + "' logged in successfully :)");
         }
-    }
-
-    @Override
-    public void onLoginFailed(final String message) {
-        Log.d(TAG, "TomahawkService: Spotify login failed :(, Error: " + message);
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(TomahawkApp.getContext(), message, Toast.LENGTH_LONG).show();
-            }
-        });
-        AuthenticatorManager.getInstance().onLoggedInOut(TomahawkApp.PLUGINNAME_SPOTIFY, false);
-        mIsAuthenticating = false;
-    }
-
-    @Override
-    public void onLogout() {
-        Log.d(TAG, "TomahawkService: Spotify user logged out");
-        AuthenticatorManager.getInstance().onLoggedInOut(TomahawkApp.PLUGINNAME_SPOTIFY, false);
-        mIsAuthenticating = false;
-    }
-
-    /**
-     * Store the given blob-string, so we can relogin in a later session
-     */
-    @Override
-    public void onAuthTokenProvided(String username, String refreshToken,
-            int refreshTokenExpiresIn, String accessToken, int accessTokenExpiresIn) {
         if (username != null && !TextUtils.isEmpty(username) && refreshToken != null
                 && !TextUtils.isEmpty(refreshToken)) {
-            Log.d(TAG, "TomahawkService: Spotify blob is served and yummy");
+            Log.d(TAG, "Spotify blob is served and yummy");
             Account account = new Account(username,
                     TomahawkApp.getContext().getString(R.string.accounttype_string));
             AccountManager am = AccountManager.get(TomahawkApp.getContext());
             if (am != null) {
                 am.addAccountExplicitly(account, null, new Bundle());
-                am.setUserData(account, AuthenticatorUtils.AUTHENTICATOR_NAME,
-                        getAuthenticatorUtilsName());
-                am.setAuthToken(account, getAuthenticatorUtilsTokenType(), refreshToken);
+                am.setUserData(account, AuthenticatorUtils.ACCOUNT_NAME,
+                        getAccountName());
+                am.setAuthToken(account, getAuthTokenName(), refreshToken);
                 updateBitrate();
             }
         }
-        AuthenticatorManager.getInstance().onLoggedInOut(TomahawkApp.PLUGINNAME_SPOTIFY, true);
-        mIsAuthenticating = false;
+        AuthenticatorManager.broadcastConfigTestResult(getId(),
+                AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS,
+                AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS);
+    }
+
+    @Override
+    public void onLoginFailed(int type, String message) {
+        Log.d(TAG,
+                "Spotify login failed :(, Type:" + type + ", Error: " + message);
+        AuthenticatorManager.broadcastConfigTestResult(getId(),
+                AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS, type,
+                message);
+    }
+
+    @Override
+    public void onLogout() {
+        Log.d(TAG, "Spotify user logged out");
+        AuthenticatorManager.broadcastConfigTestResult(getId(),
+                AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS,
+                AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_LOGOUT);
     }
 
     public void updateBitrate() {
@@ -246,23 +236,8 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
     }
 
     @Override
-    public int getTitleResourceId() {
-        return R.string.authenticator_title_spotify;
-    }
-
-    @Override
     public int getIconResourceId() {
         return R.drawable.spotify_icon;
-    }
-
-    @Override
-    public String getAuthenticatorUtilsName() {
-        return AuthenticatorUtils.AUTHENTICATOR_NAME_SPOTIFY;
-    }
-
-    @Override
-    public String getAuthenticatorUtilsTokenType() {
-        return AuthenticatorUtils.AUTH_TOKEN_TYPE_SPOTIFY;
     }
 
     @Override
@@ -280,14 +255,14 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
         spotifyLogin.password = password;
         if (mToSpotifyMessenger != null) {
             if (mInitialized && spotifyLogin.username != null && spotifyLogin.password != null) {
-                mIsAuthenticating = true;
                 try {
                     String jsonString = mObjectMapper.writeValueAsString(spotifyLogin);
                     SpotifyServiceUtils
                             .sendMsg(mToSpotifyMessenger, SpotifyService.MSG_LOGIN, jsonString);
                 } catch (IOException e) {
                     Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
-                    mIsAuthenticating = false;
+                    onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
+                            e.getClass() + ": " + e.getLocalizedMessage());
                 }
             }
         } else {
@@ -305,16 +280,15 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
     public void loginWithToken() {
         if (mToSpotifyMessenger != null) {
             if (mInitialized) {
-                Account account = TomahawkUtils.getAccountByName(getAuthenticatorUtilsName());
+                Account account = TomahawkUtils.getAccountByName(getAccountName());
                 if (account != null) {
-                    String blob = TomahawkUtils.peekAuthTokenForAccount(getAuthenticatorUtilsName(),
-                            getAuthenticatorUtilsTokenType());
+                    String blob = TomahawkUtils.peekAuthTokenForAccount(getAccountName(),
+                            getAuthTokenName());
                     String email = account.name;
                     if (email != null && blob != null) {
                         SpotifyLogin spotifyLogin = new SpotifyLogin();
                         spotifyLogin.username = email;
                         spotifyLogin.blob = blob;
-                        mIsAuthenticating = true;
                         try {
                             String jsonString = mObjectMapper.writeValueAsString(spotifyLogin);
                             SpotifyServiceUtils.sendMsg(mToSpotifyMessenger,
@@ -322,7 +296,9 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
                         } catch (IOException e) {
                             Log.e(TAG, "loginWithToken: " + e.getClass() + ": "
                                     + e.getLocalizedMessage());
-                            mIsAuthenticating = false;
+                            onLoginFailed(
+                                    AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
+                                    e.getClass() + ": " + e.getLocalizedMessage());
                         }
                     }
                 }
@@ -343,11 +319,10 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
     public void logout(Activity activity) {
         if (mToSpotifyMessenger != null) {
             if (mInitialized) {
-                mIsAuthenticating = true;
                 final AccountManager am = AccountManager.get(TomahawkApp.getContext());
-                Account account = TomahawkUtils.getAccountByName(getAuthenticatorUtilsName());
+                Account account = TomahawkUtils.getAccountByName(getAccountName());
                 if (am != null && account != null) {
-                    am.removeAccount(TomahawkUtils.getAccountByName(getAuthenticatorUtilsName()),
+                    am.removeAccount(TomahawkUtils.getAccountByName(getAccountName()),
                             null, null);
                 }
                 SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_LOGOUT);

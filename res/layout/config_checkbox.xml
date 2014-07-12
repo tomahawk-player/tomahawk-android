@@ -27,7 +27,7 @@
               android:background="@drawable/selectable_background_tomahawk">
 
     <TextView
-            android:id="@+id/resolver_config_textview"
+            android:id="@+id/config_textview"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -36,13 +36,10 @@
             android:textColor="@color/primary_textcolor_inverted"
             android:textSize="@dimen/text_size_large"/>
 
-    <org.tomahawk.tomahawk_android.ui.widgets.ConfigNumberEdittext
-            android:id="@+id/resolver_config_edittext"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:imeOptions="flagNoExtractUi"
-            android:singleLine="true"
-            android:inputType="number"/>
+    <org.tomahawk.tomahawk_android.ui.widgets.ConfigCheckbox
+            android:id="@+id/config_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"/>
 
 </LinearLayout>

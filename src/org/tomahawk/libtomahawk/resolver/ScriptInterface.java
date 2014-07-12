@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,16 +41,15 @@ public class ScriptInterface {
      */
     public class JsCallback {
 
-        private int mCallbackId;
+        private int mReqId;
 
-        public JsCallback(int callbackId) {
-            mCallbackId = callbackId;
+        public JsCallback(int reqId) {
+            mReqId = reqId;
         }
 
-        public void call(String responseText, Map<String, List<String>> responseHeaders, int status,
-                String statusText) {
-            mScriptResolver
-                    .callback(mCallbackId, responseText, responseHeaders, status, statusText);
+        public void call(TomahawkUtils.HttpResponse response) {
+            mScriptResolver.callback(mReqId, response.mResponseText, response.mResponseHeaders,
+                    response.mStatus, response.mStatusText);
         }
     }
 
@@ -169,9 +167,8 @@ public class ScriptInterface {
     }
 
     @JavascriptInterface
-    public void javaAsyncRequest(final String url, final int callbackId,
-            final String stringifiedExtraHeaders, final String stringifiedOptions,
-            final int errorHandlerId) {
+    public void nativeAsyncRequestString(final int reqId, final String url,
+            final String stringifiedExtraHeaders, final String stringifiedOptions) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -186,34 +183,33 @@ public class ScriptInterface {
                                 ScriptInterfaceRequestOptions.class);
                     }
                     JsCallback callback = null;
-                    if (callbackId >= 0) {
-                        callback = new JsCallback(callbackId);
+                    if (reqId >= 0) {
+                        callback = new JsCallback(reqId);
                     }
                     String method = null;
                     String username = null;
                     String password = null;
                     String data = null;
-                    JsCallback errorHandler = null;
                     if (options != null) {
                         method = options.method;
                         username = options.username;
                         password = options.password;
                         data = options.data;
-                        if (errorHandlerId >= 0) {
-                            errorHandler = new JsCallback(errorHandlerId);
-                        }
                     }
                     TomahawkUtils.httpRequest(method, url, extraHeaders, username, password, data,
-                            callback, errorHandler);
+                            callback);
                 } catch (NoSuchAlgorithmException e) {
                     Log.e(TAG,
-                            "javaAsyncRequest: " + e.getClass() + ": " + e.getLocalizedMessage());
+                            "nativeAsyncRequestString: " + e.getClass() + ": " + e
+                                    .getLocalizedMessage());
                 } catch (KeyManagementException e) {
                     Log.e(TAG,
-                            "javaAsyncRequest: " + e.getClass() + ": " + e.getLocalizedMessage());
+                            "nativeAsyncRequestString: " + e.getClass() + ": " + e
+                                    .getLocalizedMessage());
                 } catch (IOException e) {
                     Log.e(TAG,
-                            "javaAsyncRequest: " + e.getClass() + ": " + e.getLocalizedMessage());
+                            "nativeAsyncRequestString: " + e.getClass() + ": " + e
+                                    .getLocalizedMessage());
                 }
             }
         }).start();
@@ -335,5 +331,15 @@ public class ScriptInterface {
             values[i] = getItem(keys[i]);
         }
         return values;
+    }
+
+    @JavascriptInterface
+    public void onConfigTestResult(int type) {
+        mScriptResolver.onConfigTestResult(type, "");
+    }
+
+    @JavascriptInterface
+    public void onConfigTestResult(int type, String message) {
+        mScriptResolver.onConfigTestResult(type, message);
     }
 }

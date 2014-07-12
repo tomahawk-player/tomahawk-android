@@ -17,30 +17,25 @@
  */
 package org.tomahawk.tomahawk_android.dialogs;
 
+import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.resolver.ScriptResolverConfigUiField;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.ui.widgets.ConfigCheckbox;
 import org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext;
+import org.tomahawk.tomahawk_android.ui.widgets.ConfigNumberEdittext;
 import org.tomahawk.tomahawk_android.ui.widgets.StringView;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.ImageView;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -51,7 +46,7 @@ import java.util.Map;
  * A {@link android.support.v4.app.DialogFragment} which shows checkboxes and edittexts depending on
  * the given ScriptResolver's config. Enables the user to configure a certain ScriptResolver.
  */
-public class ResolverConfigDialog extends DialogFragment {
+public class ResolverConfigDialog extends ConfigDialog {
 
     public final static String TAG = ResolverConfigDialog.class.getSimpleName();
 
@@ -63,30 +58,7 @@ public class ResolverConfigDialog extends DialogFragment {
 
     private ScriptResolver mScriptResolver;
 
-    private TextView mPositiveButton;
-
-    private TextView mNegativeButton;
-
-    private ImageView mStatusImageView;
-
     private ArrayList<StringView> mStringViews = new ArrayList<StringView>();
-
-    private View.OnClickListener mPositiveButtonListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            saveConfig();
-            hideSoftKeyboard();
-            getDialog().cancel();
-        }
-    };
-
-    private View.OnClickListener mNegativeButtonListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            hideSoftKeyboard();
-            getDialog().cancel();
-        }
-    };
 
     /**
      * Called when this {@link android.support.v4.app.DialogFragment} is being created
@@ -101,30 +73,30 @@ public class ResolverConfigDialog extends DialogFragment {
         }
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.resolver_config_dialog, null);
-        LinearLayout frame = (LinearLayout) view.findViewById(R.id.resolver_config_dialog_frame);
+        EditText showKeyboardEditText = null;
+        EditText lastEditText = null;
         if (mScriptResolver.getConfigUi() != null && mScriptResolver.getConfigUi().fields != null) {
             for (ScriptResolverConfigUiField field : mScriptResolver.getConfigUi().fields) {
                 Map<String, Object> config = mScriptResolver.getConfig();
                 if (PROPERTY_CHECKED.equals(field.property)) {
                     LinearLayout checkboxLayout = (LinearLayout) inflater
-                            .inflate(R.layout.resolver_config_checkbox, null);
+                            .inflate(R.layout.config_checkbox, null);
                     TextView textView = (TextView) checkboxLayout
-                            .findViewById(R.id.resolver_config_textview);
+                            .findViewById(R.id.config_textview);
                     textView.setText(field.name);
                     ConfigCheckbox checkBox = (ConfigCheckbox) checkboxLayout
-                            .findViewById(R.id.resolver_config_checkbox);
+                            .findViewById(R.id.config_checkbox);
                     checkBox.mFieldName = field.name;
                     mStringViews.add(checkBox);
                     if (config.get(field.name) != null) {
                         checkBox.setChecked((Boolean) config.get(field.name));
                     }
-                    frame.addView(checkboxLayout);
+                    addViewToFrame(checkboxLayout);
                 } else if (PROPERTY_TEXT.equals(field.property)) {
                     LinearLayout textLayout = (LinearLayout) inflater
-                            .inflate(R.layout.resolver_config_text, null);
+                            .inflate(R.layout.config_text, null);
                     ConfigEdittext editText = (ConfigEdittext) textLayout
-                            .findViewById(R.id.resolver_config_edittext);
+                            .findViewById(R.id.config_edittext);
                     editText.mFieldName = field.name;
                     editText.setHint(field.name);
                     mStringViews.add(editText);
@@ -135,53 +107,53 @@ public class ResolverConfigDialog extends DialogFragment {
                         editText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
                         editText.setTransformationMethod(new PasswordTransformationMethod());
                     }
-                    frame.addView(textLayout);
-                    showSoftKeyboard(textLayout);
+                    addViewToFrame(textLayout);
+                    if (showKeyboardEditText == null) {
+                        showKeyboardEditText = editText;
+                    }
+                    lastEditText = editText;
                 } else if (PROPERTY_VALUE.equals(field.property)) {
                     LinearLayout numberpickerLayout = (LinearLayout) inflater
-                            .inflate(R.layout.resolver_config_numberpicker, null);
+                            .inflate(R.layout.config_numberpicker, null);
                     TextView textView = (TextView) numberpickerLayout
-                            .findViewById(R.id.resolver_config_textview);
+                            .findViewById(R.id.config_textview);
                     textView.setText(field.name);
-                    ConfigEdittext editText = (ConfigEdittext) numberpickerLayout
-                            .findViewById(R.id.resolver_config_edittext);
+                    ConfigNumberEdittext editText = (ConfigNumberEdittext) numberpickerLayout
+                            .findViewById(R.id.config_edittext);
                     editText.mFieldName = field.name;
                     editText.setHint(field.name);
                     mStringViews.add(editText);
                     if (config.get(field.name) != null) {
                         editText.setText(String.valueOf(config.get(field.name)));
                     }
-                    frame.addView(numberpickerLayout);
-                    showSoftKeyboard(numberpickerLayout);
+                    addViewToFrame(numberpickerLayout);
+                    if (showKeyboardEditText == null) {
+                        showKeyboardEditText = editText;
+                    }
+                    lastEditText = editText;
                 }
             }
         }
-        TextView textView = (TextView) view
-                .findViewById(R.id.resolver_config_dialog_title_textview);
-        textView.setText(mScriptResolver.getName());
-        CheckBox checkBox = (CheckBox) view
-                .findViewById(R.id.resolver_config_dialog_enable_checkbox);
-        checkBox.setChecked(mScriptResolver.isEnabled());
-        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mScriptResolver.setEnabled(isChecked);
+        if (lastEditText != null) {
+            lastEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
+        }
+        if (showKeyboardEditText != null) {
+            showSoftKeyboard(showKeyboardEditText);
+        }
+        setDialogTitle(mScriptResolver.getName());
+        if (mScriptResolver.isConfigTestable()) {
+            hideEnabledCheckbox();
+        } else {
+            setEnabledCheckboxState(mScriptResolver.isEnabled());
+        }
 
-                TomahawkUtils.loadResolverIconIntoImageView(TomahawkApp.getContext(),
-                        mStatusImageView, mScriptResolver, !mScriptResolver.isEnabled());
-            }
-        });
-
-        mPositiveButton = (TextView) view.findViewById(R.id.resolver_config_dialog_ok_button);
-        mPositiveButton.setOnClickListener(mPositiveButtonListener);
-        mNegativeButton = (TextView) view.findViewById(R.id.resolver_config_dialog_cancel_button);
-        mNegativeButton.setOnClickListener(mNegativeButtonListener);
-        mStatusImageView = (ImageView) view
-                .findViewById(R.id.resolver_config_dialog_status_imageview);
-        TomahawkUtils.loadResolverIconIntoImageView(TomahawkApp.getContext(), mStatusImageView,
-                mScriptResolver, !mScriptResolver.isEnabled());
+        if (mScriptResolver.getIconPath() != null) {
+            setStatusImage(mScriptResolver.getIconPath(), mScriptResolver.isEnabled());
+        } else {
+            setStatusImage(mScriptResolver.getIconResId(), mScriptResolver.isEnabled());
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setView(view);
+        builder.setView(getDialogView());
         return builder.create();
     }
 
@@ -194,22 +166,49 @@ public class ResolverConfigDialog extends DialogFragment {
             config.put(stringView.getFieldName(), stringView.getValue());
         }
         mScriptResolver.setConfig(config);
-    }
-
-    private void showSoftKeyboard(View view) {
-        InputMethodManager imm = (InputMethodManager) getActivity()
-                .getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(view, 0);
-    }
-
-    /**
-     * Hide the soft keyboard
-     */
-    private void hideSoftKeyboard() {
-        if (getActivity() != null) {
-            InputMethodManager imm = (InputMethodManager) getActivity()
-                    .getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+        if (mScriptResolver.isConfigTestable()) {
+            mScriptResolver.configTest();
         }
+    }
+
+    @Override
+    protected void onEnabledCheckedChange(boolean checked) {
+        if (mScriptResolver.isEnabled() != checked) {
+            mScriptResolver.setEnabled(checked);
+
+            if (mScriptResolver.getIconPath() != null) {
+                setStatusImage(mScriptResolver.getIconPath(), mScriptResolver.isEnabled());
+            } else {
+                setStatusImage(mScriptResolver.getIconResId(), mScriptResolver.isEnabled());
+            }
+        }
+    }
+
+    @Override
+    protected void onConfigTestResult(String componentId, int type, String message) {
+        if (mScriptResolver.isConfigTestable() && componentId.equals(mScriptResolver.getId())) {
+            if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS) {
+                mScriptResolver.setEnabled(true);
+                dismiss();
+            } else {
+                mScriptResolver.setEnabled(false);
+            }
+            stopLoadingAnimation(false);
+        }
+    }
+
+    @Override
+    protected void onPositiveAction() {
+        saveConfig();
+        if (mScriptResolver.isConfigTestable()) {
+            startLoadingAnimation();
+        } else {
+            dismiss();
+        }
+    }
+
+    @Override
+    protected void onNegativeAction() {
+        dismiss();
     }
 }

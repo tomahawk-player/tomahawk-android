@@ -211,8 +211,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
         if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS) {
             rawJsonString = TomahawkUtils.httpGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS,
-                            infoRequestData.getParams())
-            );
+                            infoRequestData.getParams())).mResponseText;
             infoRequestData
                     .setInfoResult(mObjectMapper.readValue(rawJsonString, HatchetUsers.class));
             return true;
@@ -222,7 +221,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
             }
             params.put(HATCHET_PARAM_IDARRAY, mUserId);
             rawJsonString = TomahawkUtils.httpGet(buildQuery(
-                    InfoRequestData.INFOREQUESTDATA_TYPE_USERS, params));
+                    InfoRequestData.INFOREQUESTDATA_TYPE_USERS, params)).mResponseText;
             infoRequestData
                     .setInfoResult(mObjectMapper.readValue(rawJsonString, HatchetUsers.class));
             return true;
@@ -233,7 +232,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
             }
             params.put(HATCHET_PARAM_ID, mUserId);
             rawJsonString = TomahawkUtils.httpGet(
-                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS, params));
+                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS,
+                            params)).mResponseText;
             infoRequestData
                     .setInfoResult(mObjectMapper.readValue(rawJsonString, HatchetPlaylists.class));
             return true;
@@ -241,8 +241,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES) {
             rawJsonString = TomahawkUtils.httpGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES,
-                            infoRequestData.getParams())
-            );
+                            infoRequestData.getParams())).mResponseText;
             infoRequestData.setInfoResult(mObjectMapper
                     .readValue(rawJsonString, HatchetPlaylistEntries.class));
             return true;
@@ -255,7 +254,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     = new HashMap<HatchetPlaylistInfo, HatchetPlaylistEntries>();
             params.put(HATCHET_PARAM_ID, mUserId);
             rawJsonString = TomahawkUtils.httpGet(
-                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS, params));
+                    buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS,
+                            params)).mResponseText;
             HatchetPlaylistEntries playlistEntries = mObjectMapper
                     .readValue(rawJsonString, HatchetPlaylistEntries.class);
             playlistEntriesMap.put(playlistEntries.playlist, playlistEntries);
@@ -266,8 +266,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS) {
             rawJsonString = TomahawkUtils.httpGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS,
-                            infoRequestData.getParams())
-            );
+                            infoRequestData.getParams())).mResponseText;
             infoRequestData.setInfoResult(
                     mObjectMapper.readValue(rawJsonString, HatchetSocialActionResponse.class));
             return true;
@@ -275,8 +274,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FRIENDSFEED) {
             rawJsonString = TomahawkUtils.httpGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FRIENDSFEED,
-                            infoRequestData.getParams())
-            );
+                            infoRequestData.getParams())).mResponseText;
             infoRequestData.setInfoResult(
                     mObjectMapper.readValue(rawJsonString, HatchetSocialActionResponse.class));
             return true;
@@ -284,16 +282,14 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYBACKLOG) {
             rawJsonString = TomahawkUtils.httpGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYBACKLOG,
-                            infoRequestData.getParams())
-            );
+                            infoRequestData.getParams())).mResponseText;
             infoRequestData.setInfoResult(
                     mObjectMapper.readValue(rawJsonString, HatchetPlaybackLogsResponse.class));
             return true;
         } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS) {
             rawJsonString = TomahawkUtils.httpGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS,
-                            infoRequestData.getParams())
-            );
+                            infoRequestData.getParams())).mResponseText;
             infoRequestData.setInfoResult(
                     mObjectMapper.readValue(rawJsonString, HatchetArtists.class));
             return true;
@@ -301,8 +297,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS) {
             rawJsonString = TomahawkUtils.httpGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS,
-                            infoRequestData.getParams())
-            );
+                            infoRequestData.getParams())).mResponseText;
             HatchetArtists artists = mObjectMapper.readValue(rawJsonString, HatchetArtists.class);
 
             if (artists.artists != null && artists.artists.size() > 0) {
@@ -313,8 +308,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 params.put(HATCHET_PARAM_ID, artists.artists.get(0).id);
                 rawJsonString = TomahawkUtils.httpGet(
                         buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS,
-                                params)
-                );
+                                params)).mResponseText;
                 HatchetCharts charts = mObjectMapper.readValue(rawJsonString, HatchetCharts.class);
                 Map<String, HatchetImage> chartImageMap = new HashMap<String, HatchetImage>();
                 if (charts.images != null) {
@@ -334,8 +328,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                             }
                             rawJsonString = TomahawkUtils.httpGet(
                                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_TRACKS,
-                                            params)
-                            );
+                                            params)).mResponseText;
                             HatchetTracks tracks = mObjectMapper
                                     .readValue(rawJsonString, HatchetTracks.class);
                             tracksMap.put(albumInfo, tracks);
@@ -351,8 +344,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
             rawJsonString = TomahawkUtils.httpGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS,
-                            infoRequestData.getParams())
-            );
+                            infoRequestData.getParams())).mResponseText;
             HatchetArtists artists = mObjectMapper.readValue(rawJsonString, HatchetArtists.class);
 
             if (artists.artists != null && artists.artists.size() > 0) {
@@ -361,8 +353,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 params.put(HATCHET_PARAM_ID, artists.artists.get(0).id);
                 rawJsonString = TomahawkUtils.httpGet(
                         buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS,
-                                params)
-                );
+                                params)).mResponseText;
                 HatchetCharts charts = mObjectMapper.readValue(rawJsonString, HatchetCharts.class);
                 Map<String, HatchetTrackInfo> trackInfoMap
                         = new HashMap<String, HatchetTrackInfo>();
@@ -383,8 +374,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
         } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS) {
             rawJsonString = TomahawkUtils.httpGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS,
-                            infoRequestData.getParams())
-            );
+                            infoRequestData.getParams())).mResponseText;
             HatchetAlbums albums = mObjectMapper.readValue(rawJsonString, HatchetAlbums.class);
             if (albums.albums != null && albums.albums.size() > 0) {
                 HatchetAlbumInfo albumInfo = albums.albums.get(0);
@@ -402,7 +392,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         params.put(HATCHET_PARAM_IDARRAY, trackId);
                     }
                     rawJsonString = TomahawkUtils.httpGet(
-                            buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_TRACKS, params));
+                            buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_TRACKS,
+                                    params)).mResponseText;
                     HatchetTracks tracks = mObjectMapper
                             .readValue(rawJsonString, HatchetTracks.class);
                     tracksMap.put(albumInfo, tracks);
@@ -416,8 +407,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
         } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES) {
             rawJsonString = TomahawkUtils.httpGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES,
-                            infoRequestData.getParams())
-            );
+                            infoRequestData.getParams())).mResponseText;
             infoRequestData
                     .setInfoResult(mObjectMapper.readValue(rawJsonString, HatchetSearch.class));
             return true;
@@ -427,8 +417,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWINGS) {
             rawJsonString = TomahawkUtils.httpGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS,
-                            infoRequestData.getParams())
-            );
+                            infoRequestData.getParams())).mResponseText;
             HatchetRelationshipsStruct relationshipsStruct = mObjectMapper
                     .readValue(rawJsonString, HatchetRelationshipsStruct.class);
             for (HatchetRelationshipStruct relationship : relationshipsStruct.relationships) {
@@ -442,7 +431,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 params.put(HATCHET_PARAM_IDARRAY, userId);
             }
             rawJsonString = TomahawkUtils
-                    .httpGet(buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS, params));
+                    .httpGet(buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS,
+                            params)).mResponseText;
             HatchetUsers hatchetUsers = mObjectMapper
                     .readValue(rawJsonString, HatchetUsers.class);
             infoRequestData.setInfoResult(hatchetUsers);
@@ -456,8 +446,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
             }
             rawJsonString = TomahawkUtils.httpGet(
                     buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS,
-                            infoRequestData.getParams())
-            );
+                            infoRequestData.getParams())).mResponseText;
             HatchetRelationshipsStruct relationshipsStruct = mObjectMapper
                     .readValue(rawJsonString, HatchetRelationshipsStruct.class);
             if (relationshipsStruct.relationships.isEmpty()) {
@@ -903,7 +892,9 @@ public class HatchetInfoPlugin extends InfoPlugin {
     private void getUserid() throws IOException, NoSuchAlgorithmException, KeyManagementException {
         Map<String, String> data = new HashMap<String, String>();
         data.put(HATCHET_ACCOUNTDATA_USER_ID, null);
-        TomahawkUtils.getUserDataForAccount(data, AuthenticatorUtils.AUTHENTICATOR_NAME_HATCHET);
+        AuthenticatorUtils utils = AuthenticatorManager.getInstance()
+                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+        TomahawkUtils.getUserDataForAccount(data, utils.getAccountName());
         mUserId = data.get(HATCHET_ACCOUNTDATA_USER_ID);
         String userName = AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET).getUserName();
@@ -913,14 +904,13 @@ public class HatchetInfoPlugin extends InfoPlugin {
             params.put(HATCHET_PARAM_NAME, userName);
             String query = buildQuery(InfoRequestData.INFOREQUESTDATA_TYPE_USERS,
                     params);
-            String rawJsonString = TomahawkUtils.httpGet(query);
+            String rawJsonString = TomahawkUtils.httpGet(query).mResponseText;
             HatchetUsers users = mObjectMapper.readValue(rawJsonString, HatchetUsers.class);
             if (users.users != null && users.users.size() > 0) {
                 mUserId = users.users.get(0).id;
                 data = new HashMap<String, String>();
                 data.put(HATCHET_ACCOUNTDATA_USER_ID, mUserId);
-                TomahawkUtils
-                        .setUserDataForAccount(data, AuthenticatorUtils.AUTHENTICATOR_NAME_HATCHET);
+                TomahawkUtils.setUserDataForAccount(data, utils.getAccountName());
             }
         }
     }

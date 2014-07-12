@@ -14,87 +14,13 @@
  */
 
 /**
- * This function overrides the standard implementation in tomahawk.js in order to be able to process
- * the request on the java side and not directly in js. This way we can avoid the typical js
- * limitations.
+ * This method is externalized from Tomahawk.asyncRequest, so that we can inject our own logic that
+ * determines whether or not to do a request natively.
  *
- * Possible options:
- *  - method: The HTTP request method (default: GET)
- *  - username: The username for HTTP Basic Auth
- *  - password: The password for HTTP Basic Auth
- *  - errorHandler: callback called if the request was not completed
- *  - data: body data included in POST requests
- *  - needCookieHeader: boolean to indicate whether or not the request requires the "Set-Cookie" response header
+ * @returns boolean indicating whether or not to do a request with the given parameters natively
  */
-Tomahawk.asyncRequest = function (url, callback, extraHeaders, options) {
-    if ((options && options.needCookieHeader) || (extraHeaders && 'Referer' in extraHeaders)) {
-        if (!Tomahawk.idCounter) {
-            Tomahawk.idCounter = 0;
-        }
-        if (!Tomahawk.callbackMap) {
-            Tomahawk.callbackMap = {};
-        }
-        var callbackId = -1;
-        if (callback) {
-            callbackId = Tomahawk.idCounter++;
-            Tomahawk.callbackMap[callbackId] = callback;
-        }
-        var errorHandlerId = -1;
-        if (options && options.errorHandler) {
-            errorHandlerId = Tomahawk.idCounter++;
-            Tomahawk.callbackMap[errorHandlerId] = options.errorHandler;
-        }
-        var extraHeadersString = null;
-        if (extraHeaders) {
-            extraHeadersString = JSON.stringify(extraHeaders);
-        }
-        var optionsString = null;
-        if (options) {
-            optionsString = JSON.stringify(options);
-        }
-        Tomahawk.javaAsyncRequest(url, callbackId, extraHeadersString, optionsString,
-            errorHandlerId);
-    } else {
-        // unpack options
-        var opt = options || {};
-        var method = opt.method || 'GET';
-
-        var xmlHttpRequest = new XMLHttpRequest();
-        xmlHttpRequest.open(method, url, true, opt.username, opt.password);
-        if (extraHeaders) {
-            for (var headerName in extraHeaders) {
-                xmlHttpRequest.setRequestHeader(headerName, extraHeaders[headerName]);
-            }
-        }
-        xmlHttpRequest.onreadystatechange = function () {
-            if (xmlHttpRequest.readyState == 4 && xmlHttpRequest.status == 200) {
-                callback.call(window, xmlHttpRequest);
-            } else if (xmlHttpRequest.readyState === 4) {
-                Tomahawk.log("Failed to do " + method + " request: to: " + url);
-                Tomahawk.log("Status Code was: " + xmlHttpRequest.status);
-                if (opt.hasOwnProperty('errorHandler')) {
-                    opt.errorHandler.call(window, xmlHttpRequest);
-                }
-            }
-        };
-        xmlHttpRequest.send(opt.data || null);
-    }
-};
-
-function FakeXHR(responseText, responseHeaders, status, statusText) {
-    this.responseHeaders = JSON.parse(responseHeaders);
-    this.responseText = responseText;
-    this.status = status;
-    this.statusText = statusText;
-    this.getAllResponseHeaders = function () {
-        return this.responseHeaders;
-    };
-    this.getResponseHeader = function (header) {
-        return this.responseHeaders[header];
-    };
-}
-
-Tomahawk.callback = function (callbackId, responseText, responseHeaders, status, statusText) {
-    Tomahawk.callbackMap[callbackId](new FakeXHR(responseText, responseHeaders, status,
-        statusText));
+shouldDoNativeRequest = function (url, callback, extraHeaders, options) {
+    return ((options && options.needCookieHeader)
+        || (extraHeaders && (extraHeaders.hasOwnProperty("Referer")
+            || extraHeaders.hasOwnProperty("referer"))) );
 };

@@ -27,7 +27,7 @@
               android:background="@drawable/selectable_background_tomahawk">
 
     <org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext
-            android:id="@+id/resolver_config_edittext"
+            android:id="@+id/config_edittext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:imeOptions="flagNoExtractUi"

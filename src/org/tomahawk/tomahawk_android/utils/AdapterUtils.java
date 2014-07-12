@@ -29,6 +29,7 @@ import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -243,8 +244,14 @@ public class AdapterUtils {
         }
         if (showResolvedBy && query.getPreferredTrackResult() != null) {
             viewHolder.getImageView2().setVisibility(ImageView.VISIBLE);
-            TomahawkUtils.loadResolverIconIntoImageView(TomahawkApp.getContext(),
-                    viewHolder.getImageView2(), query.getPreferredTrackResult().getResolvedBy());
+            Resolver resolver = query.getPreferredTrackResult().getResolvedBy();
+            if (resolver.getIconPath() != null) {
+                TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                        viewHolder.getImageView2(), resolver.getIconPath(), false);
+            } else {
+                TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                        viewHolder.getImageView2(), resolver.getIconResId(), false);
+            }
         }
     }
 
@@ -303,9 +310,14 @@ public class AdapterUtils {
                 }
                 if (showResolvedBy && query.getPreferredTrackResult() != null) {
                     viewHolder.getImageView2().setVisibility(ImageView.VISIBLE);
-                    TomahawkUtils.loadResolverIconIntoImageView(TomahawkApp.getContext(),
-                            viewHolder.getImageView2(),
-                            query.getPreferredTrackResult().getResolvedBy());
+                    Resolver resolver = query.getPreferredTrackResult().getResolvedBy();
+                    if (resolver.getIconPath() != null) {
+                        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                                viewHolder.getImageView2(), resolver.getIconPath(), false);
+                    } else {
+                        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                                viewHolder.getImageView2(), resolver.getIconResId(), false);
+                    }
                 }
             } else if (targetObject instanceof Artist || targetObject instanceof Album) {
                 String firstLine = "";
@@ -345,9 +357,14 @@ public class AdapterUtils {
                 }
                 if (showResolvedBy && query.getPreferredTrackResult() != null) {
                     viewHolder.getImageView2().setVisibility(ImageView.VISIBLE);
-                    TomahawkUtils.loadResolverIconIntoImageView(TomahawkApp.getContext(),
-                            viewHolder.getImageView2(),
-                            query.getPreferredTrackResult().getResolvedBy());
+                    Resolver resolver = query.getPreferredTrackResult().getResolvedBy();
+                    if (resolver.getIconPath() != null) {
+                        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                                viewHolder.getImageView2(), resolver.getIconPath(), false);
+                    } else {
+                        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                                viewHolder.getImageView2(), resolver.getIconResId(), false);
+                    }
                 }
             } else {
                 viewHolder.getTextView1().setText(socialAction.getUser().getName() + " " + phrase

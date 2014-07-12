@@ -16,7 +16,6 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptInterface;
 import org.tomahawk.tomahawk_android.R;
@@ -58,6 +57,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -74,6 +74,21 @@ public class TomahawkUtils {
     public static String HTTP_CONTENT_TYPE_JSON = "application/json; charset=utf-8";
 
     public static String HTTP_CONTENT_TYPE_FORM = "application/x-www-form-urlencoded";
+
+    public static class HttpResponse {
+
+        public HttpResponse() {
+            mResponseHeaders = new HashMap<String, List<String>>();
+        }
+
+        public String mResponseText;
+
+        public Map<String, List<String>> mResponseHeaders;
+
+        public int mStatus;
+
+        public String mStatusText;
+    }
 
     /**
      * Author: Chas Emerick (source: http://mrfoo.de/archiv/1176-Levenshtein-Distance-in-Java.html)
@@ -220,12 +235,18 @@ public class TomahawkUtils {
      *                     (optional)
      * @param urlString    the complete url string to do the request with
      * @param extraHeaders extra headers that should be added to the request (optional)
-     * @return a String containing the url that this request has been redirected to
+     * @return a String containing the url that this request has been redirected to, otherwise null
      */
     public static String getRedirectedUrl(String method, String urlString,
             Map<String, String> extraHeaders)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
-        return httpRequest(method, urlString, extraHeaders, null, null, null, null, null, false);
+        HttpResponse response =
+                httpRequest(method, urlString, extraHeaders, null, null, null, null, false);
+        List<String> responseHeaders = response.mResponseHeaders.get("Location");
+        if (responseHeaders != null && !responseHeaders.isEmpty()) {
+            return response.mResponseHeaders.get("Location").get(0);
+        }
+        return null;
     }
 
     /**
@@ -238,39 +259,36 @@ public class TomahawkUtils {
      * @param username     the username for HTTP Basic Auth (optional)
      * @param password     the password for HTTP Basic Auth (optional)
      * @param data         the body data included in POST requests (optional)
-     * @return a String containing the response of this request
+     * @return a HttpResponse containing the response (similar to a XMLHttpRequest in javascript)
      */
-    private static String httpRequest(String method, String urlString,
+    private static HttpResponse httpRequest(String method, String urlString,
             Map<String, String> extraHeaders, final String username, final String password,
             String data)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
-        return httpRequest(method, urlString, extraHeaders, username, password, data, null, null,
+        return httpRequest(method, urlString, extraHeaders, username, password, data, null,
                 true);
     }
 
     /**
      * Does a HTTP or HTTPS request (convenience method)
      *
-     * @param method        the method that should be used ("GET" or "POST"), defaults to "GET"
-     *                      (optional)
-     * @param urlString     the complete url string to do the request with
-     * @param extraHeaders  extra headers that should be added to the request (optional)
-     * @param username      the username for HTTP Basic Auth (optional)
-     * @param password      the password for HTTP Basic Auth (optional)
-     * @param data          the body data included in POST requests (optional)
-     * @param callback      a ScriptInterface.JsCallback that should be called if this request has
-     *                      been successful (optional)
-     * @param errorCallback a ScriptInterface.JsCallback that should be called if this request has
-     *                      failed (optional)
-     * @return a String containing the response of this request
+     * @param method       the method that should be used ("GET" or "POST"), defaults to "GET"
+     *                     (optional)
+     * @param urlString    the complete url string to do the request with
+     * @param extraHeaders extra headers that should be added to the request (optional)
+     * @param username     the username for HTTP Basic Auth (optional)
+     * @param password     the password for HTTP Basic Auth (optional)
+     * @param data         the body data included in POST requests (optional)
+     * @param callback     a ScriptInterface.JsCallback that should be called if this request has
+     *                     been successful (optional)
+     * @return a HttpResponse containing the response (similar to a XMLHttpRequest in javascript)
      */
-    public static String httpRequest(String method, String urlString,
+    public static HttpResponse httpRequest(String method, String urlString,
             Map<String, String> extraHeaders, final String username, final String password,
-            String data, ScriptInterface.JsCallback callback,
-            ScriptInterface.JsCallback errorCallback)
+            String data, ScriptInterface.JsCallback callback)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         return httpRequest(method, urlString, extraHeaders, username, password, data, callback,
-                errorCallback, true);
+                true);
     }
 
     /**
@@ -285,19 +303,15 @@ public class TomahawkUtils {
      * @param data            the body data included in POST requests (optional)
      * @param callback        a ScriptInterface.JsCallback that should be called if this request has
      *                        been successful (optional)
-     * @param errorCallback   a ScriptInterface.JsCallback that should be called if this request has
-     *                        failed (optional)
      * @param followRedirects whether or not to follow redirects (also defines what is being
      *                        returned)
-     * @return a String containing the response of this request, if followRedirects is false,
-     * otherwise the url that this request has been redirected to
+     * @return a HttpResponse containing the response (similar to a XMLHttpRequest in javascript)
      */
-    private static String httpRequest(String method, String urlString,
+    private static HttpResponse httpRequest(String method, String urlString,
             Map<String, String> extraHeaders, final String username, final String password,
-            String data, ScriptInterface.JsCallback callback,
-            ScriptInterface.JsCallback errorCallback, boolean followRedirects)
+            String data, ScriptInterface.JsCallback callback, boolean followRedirects)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
-        String responseText = null;
+        HttpResponse response = new HttpResponse();
         HttpURLConnection connection = null;
         try {
             // Establish correct HTTP/HTTPS connection
@@ -364,28 +378,20 @@ public class TomahawkUtils {
             // configure whether or not to follow redirects
             connection.setInstanceFollowRedirects(followRedirects);
 
-            if (followRedirects) {
-                // Read response text and response Headers and call callbacks if possible
-                responseText = inputStreamToString(connection.getInputStream());
-                if (connection.getResponseCode() / 100 == 2) {
-                    // Status code is 2xx, we're good, call back
-                    if (callback != null) {
-                        callback.call(responseText, connection.getHeaderFields(),
-                                connection.getResponseCode(), connection.getResponseMessage());
-                    }
-                } else {
-                    // Status code isn't 2xx, try to call error callback and throw IOException
-                    if (errorCallback != null) {
-                        errorCallback.call(responseText, connection.getHeaderFields(),
-                                connection.getResponseCode(), connection.getResponseMessage());
-                    }
-                    throw new IOException("HttpsURLConnection (url:'" + urlString
-                            + "') didn't return with status code 2xx, instead it returned "
-                            + connection.getResponseCode());
+            try {
+                response.mResponseText = inputStreamToString(connection.getInputStream());
+            } catch (IOException e) {
+                InputStream stream = connection.getErrorStream();
+                if (stream != null) {
+                    response.mResponseText = inputStreamToString(stream);
                 }
-            } else {
-                connection.connect();
-                responseText = connection.getHeaderField("Location");
+            }
+            response.mResponseHeaders = connection.getHeaderFields();
+            response.mStatus = connection.getResponseCode();
+            response.mStatusText = connection.getResponseMessage();
+
+            if (callback != null) {
+                callback.call(response);
             }
         } finally {
             // Always disconnect connection to avoid leaks
@@ -394,7 +400,7 @@ public class TomahawkUtils {
             }
         }
 
-        return responseText;
+        return response;
     }
 
     /**
@@ -403,10 +409,10 @@ public class TomahawkUtils {
      * @param urlString    the complete url string to do the request with
      * @param extraHeaders extra headers that should be added to the request (optional)
      * @param data         the body data included in POST requests (optional)
-     * @return a String containing the response of this request
+     * @return a HttpResponse containing the response (similar to a XMLHttpRequest in javascript)
      */
-    public static String httpPost(String urlString, Map<String, String> extraHeaders, String data,
-            String contentType)
+    public static HttpResponse httpPost(String urlString, Map<String, String> extraHeaders,
+            String data, String contentType)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         if (extraHeaders == null) {
             extraHeaders = new HashMap<String, String>();
@@ -421,9 +427,9 @@ public class TomahawkUtils {
      *
      * @param urlString    the complete url string to do the request with
      * @param extraHeaders extra headers that should be added to the request (optional)
-     * @return a String containing the response of this request
+     * @return a HttpResponse containing the response (similar to a XMLHttpRequest in javascript)
      */
-    public static String httpGet(String urlString, Map<String, String> extraHeaders)
+    public static HttpResponse httpGet(String urlString, Map<String, String> extraHeaders)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         if (extraHeaders == null) {
             extraHeaders = new HashMap<String, String>();
@@ -436,9 +442,9 @@ public class TomahawkUtils {
      * Does a HTTP/HTTPS GET request (convenience method)
      *
      * @param urlString the complete url string to do the request with
-     * @return a String containing the response of this request
+     * @return a HttpResponse containing the response (similar to a XMLHttpRequest in javascript)
      */
-    public static String httpGet(String urlString)
+    public static HttpResponse httpGet(String urlString)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         return httpGet(urlString, null);
     }
@@ -625,34 +631,16 @@ public class TomahawkUtils {
      * @param context   the context needed for fetching resources
      * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
      *                  android.graphics.Bitmap}
-     * @param resolver  the Resolver of which to load icon
-     */
-    public static void loadResolverIconIntoImageView(Context context, ImageView imageView,
-            Resolver resolver) {
-        loadResolverIconIntoImageView(context, imageView, resolver, false);
-    }
-
-    /**
-     * Load a {@link android.graphics.Bitmap} asynchronously
-     *
-     * @param context   the context needed for fetching resources
-     * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
-     *                  android.graphics.Bitmap}
-     * @param resolver  the Resolver of which to load icon
+     * @param path      the path to the image
      * @param grayOut   whether or not to gray out the resolver icon
      */
-    public static void loadResolverIconIntoImageView(Context context, ImageView imageView,
-            Resolver resolver, boolean grayOut) {
-        RequestCreator creator;
-        if (resolver.getIconPath() != null) {
-            creator = Picasso.with(context).load(resolver.getIconPath());
-        } else {
-            creator = Picasso.with(context).load(resolver.getIconResId());
-        }
+    public static void loadDrawableIntoImageView(Context context, ImageView imageView,
+            String path, boolean grayOut) {
+        RequestCreator creator = Picasso.with(context).load(path);
         if (grayOut) {
             creator.transform(new GrayOutTransformation());
         }
-        creator.error(R.drawable.ic_resolver_default).into(imageView);
+        creator.error(R.drawable.no_album_art_placeholder).into(imageView);
     }
 
     /**
@@ -813,7 +801,7 @@ public class TomahawkUtils {
             if (accounts != null) {
                 for (Account account : accounts) {
                     if (accountName.equals(am.getUserData(account,
-                            AuthenticatorUtils.AUTHENTICATOR_NAME))) {
+                            AuthenticatorUtils.ACCOUNT_NAME))) {
                         return account;
                     }
                 }

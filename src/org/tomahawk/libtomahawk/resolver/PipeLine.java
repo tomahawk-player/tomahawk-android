@@ -17,8 +17,13 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
@@ -27,6 +32,7 @@ import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -100,16 +106,34 @@ public class PipeLine {
             mInitialized = true;
             try {
                 String[] plugins = TomahawkApp.getContext().getAssets().list("js/resolvers");
+                ObjectMapper objectMapper = InfoSystemUtils.constructObjectMapper();
                 for (String plugin : plugins) {
-                    ScriptResolver scriptResolver =
-                            new ScriptResolver("js/resolvers/" + plugin + "/content");
-                    mResolvers.add(scriptResolver);
+                    String path = "js/resolvers/" + plugin + "/content";
+                    try {
+                        String rawJsonString = TomahawkUtils
+                                .inputStreamToString(TomahawkApp.getContext()
+                                        .getAssets().open(path + "/metadata.json"));
+                        ScriptResolverMetaData metaData = objectMapper
+                                .readValue(rawJsonString, ScriptResolverMetaData.class);
+                        ScriptResolver scriptResolver = new ScriptResolver(metaData, path);
+                        mResolvers.add(scriptResolver);
+                    } catch (FileNotFoundException e) {
+                        Log.e(TAG, "PipeLine: " + e.getClass() + ": " + e.getLocalizedMessage());
+                    } catch (JsonMappingException e) {
+                        Log.e(TAG, "PipeLine: " + e.getClass() + ": " + e.getLocalizedMessage());
+                    } catch (JsonParseException e) {
+                        Log.e(TAG, "PipeLine: " + e.getClass() + ": " + e.getLocalizedMessage());
+                    } catch (IOException e) {
+                        Log.e(TAG, "PipeLine: " + e.getClass() + ": " + e.getLocalizedMessage());
+                    }
                 }
             } catch (IOException e) {
                 Log.e(TAG, "ensureInit: " + e.getClass() + ": " + e.getLocalizedMessage());
             }
-            mResolvers.add(new DataBaseResolver());
-            SpotifyResolver spotifyResolver = new SpotifyResolver();
+            mResolvers.add(new DataBaseResolver(
+                    TomahawkApp.getContext().getString(R.string.local_collection_pretty_name)));
+            SpotifyResolver spotifyResolver = new SpotifyResolver(
+                    TomahawkApp.getContext().getString(R.string.spotify_pretty_name));
             mResolvers.add(spotifyResolver);
             setAllResolversAdded(true);
         }

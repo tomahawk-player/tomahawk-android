@@ -24,14 +24,19 @@ import android.app.Activity;
 
 public abstract class AuthenticatorUtils {
 
-    public static final String AUTHENTICATOR_NAME
+    public static final String ACCOUNT_NAME
             = "org.tomahawk.tomahawk_android.authenticator_name";
 
+    public static final String ACCOUNT_NAME_PREFIX
+            = "org.tomahawk.tomahawk_android.authenticator_name_";
 
-    public static final String AUTHENTICATOR_NAME_HATCHET
-            = "org.tomahawk.tomahawk_android.authenticator_name_hatchet";
+    public static final String PACKAGE_PREFIX = "org.tomahawk.";
 
-    public static final String AUTH_TOKEN_TYPE_HATCHET = "org.tomahawk.hatchet.authtoken";
+    public static final String AUTH_TOKEN_SUFFIX = ".authtoken";
+
+    public static final String ACCESS_TOKEN_SUFFIX = ".accesstoken";
+
+    public static final String ACCESS_TOKEN_EXPIRES_IN_SUFFIX = ".accesstokenexpiresin";
 
     public static final String AUTH_TOKEN_EXPIRES_IN_HATCHET
             = "org.tomahawk.hatchet.authtokenexpiresin";
@@ -48,31 +53,12 @@ public abstract class AuthenticatorUtils {
     public static final String CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET
             = "org.tomahawk.hatchet.calumetaccesstokenexpiresin";
 
+    private String mPrettyName;
 
-    public static final String AUTHENTICATOR_NAME_SPOTIFY
-            = "org.tomahawk.tomahawk_android.authenticator_name_spotify";
+    private String mId;
 
-    public static final String AUTH_TOKEN_TYPE_SPOTIFY = "org.tomahawk.spotify.authtoken";
-
-
-    public static final String AUTHENTICATOR_NAME_RDIO
-            = "org.tomahawk.tomahawk_android.authenticator_name_rdio";
-
-
-    public static final String AUTHENTICATOR_NAME_DEEZER
-            = "org.tomahawk.tomahawk_android.authenticator_name_deezer";
-
-    public static final String ACCESS_TOKEN_DEEZER
-            = "org.tomahawk.deezer.accesstoken";
-
-    public static final String ACCESS_TOKEN_EXPIRES_IN_DEEZER
-            = "org.tomahawk.deezer.accesstokenexpiresin";
-
-    protected String mPrettyName;
-
-    protected boolean mIsAuthenticating;
-
-    protected AuthenticatorUtils(String prettyName) {
+    protected AuthenticatorUtils(String id, String prettyName) {
+        mId = id;
         mPrettyName = prettyName;
     }
 
@@ -80,26 +66,38 @@ public abstract class AuthenticatorUtils {
         return mPrettyName;
     }
 
-    public abstract int getTitleResourceId();
+    public String getId() {
+        return mId;
+    }
 
     public abstract int getIconResourceId();
 
-    public abstract String getAuthenticatorUtilsName();
+    public String getAccountName() {
+        return ACCOUNT_NAME_PREFIX + getId();
+    }
 
-    public abstract String getAuthenticatorUtilsTokenType();
+    public String getAuthTokenName() {
+        return PACKAGE_PREFIX + getId() + AUTH_TOKEN_SUFFIX;
+    }
+
+    public String getAccessTokenName() {
+        return PACKAGE_PREFIX + getId() + ACCESS_TOKEN_SUFFIX;
+    }
+
+    public String getAccessTokenExpiresInName() {
+        return PACKAGE_PREFIX + getId() + ACCESS_TOKEN_EXPIRES_IN_SUFFIX;
+    }
 
     public abstract int getUserIdEditTextHintResId();
 
     public abstract void onInit();
 
-    public abstract void onLogin(String username);
+    public abstract void onLogin(String username, String refreshToken,
+            long refreshTokenExpiresIn, String accessToken, long accessTokenExpiresIn);
 
-    public abstract void onLoginFailed(final String message);
+    public abstract void onLoginFailed(int type, String message);
 
     public abstract void onLogout();
-
-    public abstract void onAuthTokenProvided(String username, String refreshToken,
-            int refreshTokenExpiresIn, String accessToken, int accessTokenExpiresIn);
 
     public abstract void login(Activity activity, String email, String password);
 
@@ -114,16 +112,11 @@ public abstract class AuthenticatorUtils {
     }
 
     public boolean isLoggedIn() {
-        return TomahawkUtils.peekAuthTokenForAccount(getAuthenticatorUtilsName(),
-                getAuthenticatorUtilsTokenType()) != null;
-    }
-
-    public boolean isAuthenticating() {
-        return mIsAuthenticating;
+        return TomahawkUtils.peekAuthTokenForAccount(getAccountName(), getAuthTokenName()) != null;
     }
 
     public String getUserName() {
-        Account account = TomahawkUtils.getAccountByName(getAuthenticatorUtilsName());
+        Account account = TomahawkUtils.getAccountByName(getAccountName());
         if (account != null) {
             return account.name;
         }

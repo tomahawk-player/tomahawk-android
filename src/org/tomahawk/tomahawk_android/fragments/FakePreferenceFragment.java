@@ -23,7 +23,7 @@ import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter;
-import org.tomahawk.tomahawk_android.dialogs.LoginDialog;
+import org.tomahawk.tomahawk_android.dialogs.LoginConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.RedirectConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.ResolverConfigDialog;
 import org.tomahawk.tomahawk_android.services.RemoteControllerService;
@@ -90,7 +90,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (AuthenticatorManager.AUTHENTICATOR_LOGGED_IN.equals(intent.getAction())) {
+            if (AuthenticatorManager.CONFIG_TEST_RESULT.equals(intent.getAction())) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
@@ -198,7 +198,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
         // Register intents that the BroadcastReceiver should listen to
         getActivity().registerReceiver(mFakePreferenceFragmentReceiver,
-                new IntentFilter(AuthenticatorManager.AUTHENTICATOR_LOGGED_IN));
+                new IntentFilter(AuthenticatorManager.CONFIG_TEST_RESULT));
     }
 
     @Override
@@ -240,7 +240,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
         } else if (fakePreference.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH) {
             // if a FakePreference of type "FAKEPREFERENCE_TYPE_AUTH" has been clicked,
             // we show a LoginDialog
-            LoginDialog dialog = new LoginDialog();
+            LoginConfigDialog dialog = new LoginConfigDialog();
             Bundle args = new Bundle();
             args.putString(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY, fakePreference.getKey());
             dialog.setArguments(args);

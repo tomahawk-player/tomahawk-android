@@ -213,16 +213,20 @@ public class TomahawkMainActivity extends ActionBarActivity
                         }
                     }
                 }
-            } else if (AuthenticatorManager.AUTHENTICATOR_LOGGED_IN.equals(intent.getAction())) {
+            } else if (AuthenticatorManager.CONFIG_TEST_RESULT
+                    .equals(intent.getAction())) {
                 String authenticatorId = intent
-                        .getStringExtra(AuthenticatorManager.AUTHENTICATOR_LOGGED_IN_ID);
-                final boolean loggedIn = intent
-                        .getBooleanExtra(AuthenticatorManager.AUTHENTICATOR_LOGGED_IN_STATE, false);
-                if (TomahawkApp.PLUGINNAME_HATCHET.equals(authenticatorId)) {
+                        .getStringExtra(AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINNAME);
+                final int type = intent
+                        .getIntExtra(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE, 0);
+                if (TomahawkApp.PLUGINNAME_HATCHET.equals(authenticatorId)
+                        && (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS
+                        || type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_LOGOUT)) {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
-                            onHatchetLoggedInOut(loggedIn);
+                            onHatchetLoggedInOut(type
+                                    == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS);
                         }
                     });
                 }
@@ -418,7 +422,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         registerReceiver(mTomahawkMainReceiver,
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         registerReceiver(mTomahawkMainReceiver,
-                new IntentFilter(AuthenticatorManager.AUTHENTICATOR_LOGGED_IN));
+                new IntentFilter(AuthenticatorManager.CONFIG_TEST_RESULT));
     }
 
     @Override
@@ -464,7 +468,9 @@ public class TomahawkMainActivity extends ActionBarActivity
                     String errorCode = data.getStringExtra(OAuth1WebViewActivity.EXTRA_ERROR_CODE);
                     String errorDescription = data
                             .getStringExtra(OAuth1WebViewActivity.EXTRA_ERROR_DESCRIPTION);
-                    authUtils.onLoginFailed(errorDescription);
+                    authUtils.onLoginFailed(
+                            AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
+                            "Rdio authentication cancelled");
                     Log.e(TAG, "ERROR: " + errorCode + " - " + errorDescription);
                 }
             }

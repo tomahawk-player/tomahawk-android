@@ -31,12 +31,12 @@
             android:layout_marginRight="@dimen/padding_large">
 
         <CheckBox
-                android:id="@+id/resolver_config_dialog_enable_checkbox"
+                android:id="@+id/config_dialog_enable_checkbox"
                 android:layout_width="@dimen/row_height_verylarge"
                 android:layout_height="@dimen/row_height_verylarge"/>
 
         <TextView
-                android:id="@+id/resolver_config_dialog_title_textview"
+                android:id="@+id/config_dialog_title_textview"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -45,7 +45,7 @@
                 android:gravity="center_vertical"/>
 
         <ImageView
-                android:id="@+id/resolver_config_dialog_status_imageview"
+                android:id="@+id/config_dialog_status_imageview"
                 android:layout_width="@dimen/row_height_medium"
                 android:layout_height="@dimen/row_height_verylarge"/>
 
@@ -65,7 +65,7 @@
                 android:orientation="vertical">
 
             <LinearLayout
-                    android:id="@+id/resolver_config_dialog_frame"
+                    android:id="@+id/config_dialog_frame"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
@@ -82,7 +82,7 @@
                     android:layout_height="@dimen/row_height_large">
 
                 <TextView
-                        android:id="@+id/resolver_config_dialog_cancel_button"
+                        android:id="@+id/config_dialog_negative_button"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
@@ -98,7 +98,7 @@
                         android:background="@color/divider"/>
 
                 <TextView
-                        android:id="@+id/resolver_config_dialog_ok_button"
+                        android:id="@+id/config_dialog_positive_button"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="1"

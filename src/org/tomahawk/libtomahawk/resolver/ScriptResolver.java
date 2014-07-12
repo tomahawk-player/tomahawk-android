@@ -17,8 +17,6 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -31,7 +29,6 @@ import org.tomahawk.libtomahawk.collection.ScriptResolverCollection;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.utils.StringEscapeUtils;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -51,8 +48,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -62,7 +59,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * This class represents a javascript resolver.
  */
-public class ScriptResolver implements Resolver {
+public class ScriptResolver extends Resolver {
 
     private final static String TAG = ScriptResolver.class.getSimpleName();
 
@@ -113,6 +110,8 @@ public class ScriptResolver implements Resolver {
 
     private boolean mUrlLookup;
 
+    private boolean mConfigTestable;
+
     private FuzzyIndex mFuzzyIndex;
 
     private String mFuzzyIndexPath;
@@ -132,12 +131,23 @@ public class ScriptResolver implements Resolver {
     /**
      * Construct a new {@link ScriptResolver}
      *
-     * @param path {@link String} containing the path to this js resolver's "content"-folder
+     * @param metaData this resolver's metadata (parsed from metadata.json)
+     * @param path     {@link String} containing the path to this js resolver's "content"-folder
      */
-    public ScriptResolver(String path) {
+    public ScriptResolver(ScriptResolverMetaData metaData, String path) {
+        super(metaData.name);
+
         mObjectMapper = InfoSystemUtils.constructObjectMapper();
         mSharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(TomahawkApp.getContext());
+        mMetaData = metaData;
+        if (mMetaData.staticCapabilities != null) {
+            for (String capability : mMetaData.staticCapabilities) {
+                if (capability.equals("configTestable")) {
+                    mConfigTestable = true;
+                }
+            }
+        }
         mPath = path;
         mReady = false;
         mStopped = true;
@@ -155,21 +165,8 @@ public class ScriptResolver implements Resolver {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             mWebView.getSettings().setAllowUniversalAccessFromFileURLs(true);
         }
-        try {
-            String rawJsonString = TomahawkUtils.inputStreamToString(TomahawkApp.getContext()
-                    .getAssets().open(path + "/metadata.json"));
-            mMetaData = mObjectMapper.readValue(rawJsonString, ScriptResolverMetaData.class);
-            mId = mMetaData.pluginName;
-            mIconPath = "file:///android_asset/" + path + "/" + mMetaData.manifest.icon;
-        } catch (FileNotFoundException e) {
-            Log.e(TAG, "ScriptResolver: " + e.getClass() + ": " + e.getLocalizedMessage());
-        } catch (JsonMappingException e) {
-            Log.e(TAG, "ScriptResolver: " + e.getClass() + ": " + e.getLocalizedMessage());
-        } catch (JsonParseException e) {
-            Log.e(TAG, "ScriptResolver: " + e.getClass() + ": " + e.getLocalizedMessage());
-        } catch (IOException e) {
-            Log.e(TAG, "ScriptResolver: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
+        mId = mMetaData.pluginName;
+        mIconPath = "file:///android_asset/" + path + "/" + mMetaData.manifest.icon;
         if (getConfig().get(ENABLED_KEY) != null) {
             mEnabled = (Boolean) getConfig().get(ENABLED_KEY);
         } else {
@@ -734,20 +731,22 @@ public class ScriptResolver implements Resolver {
     }
 
     public void reportCapabilities(int in) {
-        switch (in) {
-            case 1:
-                mBrowsable = true;
-                collection();
-                break;
-            case 2:
-                mPlaylistSync = true;
-                break;
-            case 4:
-                mAccountFactory = true;
-                break;
-            case 8:
-                mUrlLookup = true;
-                break;
+        BigInteger bigInt = BigInteger.valueOf(in);
+        if (bigInt.testBit(0)) {
+            mBrowsable = true;
+            collection();
+        }
+        if (bigInt.testBit(1)) {
+            mPlaylistSync = true;
+        }
+        if (bigInt.testBit(2)) {
+            mAccountFactory = true;
+        }
+        if (bigInt.testBit(3)) {
+            mUrlLookup = true;
+        }
+        if (bigInt.testBit(4)) {
+            mConfigTestable = true;
         }
     }
 
@@ -767,6 +766,10 @@ public class ScriptResolver implements Resolver {
         return mUrlLookup;
     }
 
+    public boolean isConfigTestable() {
+        return mConfigTestable;
+    }
+
     public boolean hasFuzzyIndex() {
         return mFuzzyIndex != null;
     }
@@ -783,5 +786,17 @@ public class ScriptResolver implements Resolver {
         if (fuzzyIndex.create(mFuzzyIndexPath, true)) {
             mFuzzyIndex = fuzzyIndex;
         }
+    }
+
+    public void configTest() {
+        loadUrl("javascript: Tomahawk.resolver.instance.configTest()");
+    }
+
+    public void onConfigTestResult(final int type, final String message) {
+        Log.d(TAG, getName() + ": Config test result received. type: " + type + ", message:"
+                + message);
+        AuthenticatorManager.broadcastConfigTestResult(getId(),
+                AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_RESOLVER, type,
+                message, null);
     }
 }

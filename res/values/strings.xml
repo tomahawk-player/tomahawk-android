@@ -63,18 +63,16 @@
     <string name="logindialog_username_label_string">Username</string>
     <string name="logindialog_password_label_string">Password</string>
     <string name="accounttype_string">org.tomahawk</string>
-    <string name="authenticator_title_spotify">Spotify login</string>
-    <string name="authenticator_title_hatchet">Hatchet login</string>
-    <string name="error_invalid_email">This email address is invalid</string>
-    <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
-    <string name="auth_loginfailed_invalid_credentials_string">Username or password
-        incorrect.
-    </string>
+    <string name="config_test_result_type_invalid_credentials">Username or password incorrect.</string>
+    <string name="auth_loginfailed_invalid_account">Account rejected by server.</string>
     <string name="auth_loginfailed_communication_error">Unable to authenticate. Please check
         your connection.
     </string>
+    <string name="auth_loginfailed_playing_elsewhere">Action not allowed, account is in use
+        elsewhere.
+    </string>
+    <string name="auth_loginfailed_account_expired">Your account has expired.</string>
     <string name="auth_logged_in">Logged into</string>
     <string name="auth_logged_out">Logged out of</string>
     <string name="local_collection_pretty_name">Local Collection</string>
