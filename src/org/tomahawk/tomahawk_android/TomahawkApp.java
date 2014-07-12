@@ -53,6 +53,10 @@ public class TomahawkApp extends Application {
 
     public final static String PLUGINNAME_GMUSIC = "gmusic";
 
+    public final static String PLUGINNAME_SUBSONIC = "subsonic";
+
+    public final static String PLUGINNAME_GROOVESHARK = "grooveshark";
+
     private static Context sApplicationContext;
 
     @Override

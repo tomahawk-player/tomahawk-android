@@ -174,7 +174,9 @@ public class ScriptResolver extends Resolver {
                     || TomahawkApp.PLUGINNAME_BEATSMUSIC.equals(mId)
                     || TomahawkApp.PLUGINNAME_BEETS.equals(mId)
                     || TomahawkApp.PLUGINNAME_GMUSIC.equals(mId)
-                    || TomahawkApp.PLUGINNAME_DEEZER.equals(mId)) {
+                    || TomahawkApp.PLUGINNAME_DEEZER.equals(mId)
+                    || TomahawkApp.PLUGINNAME_GROOVESHARK.equals(mId)
+                    || TomahawkApp.PLUGINNAME_SUBSONIC.equals(mId)) {
                 setEnabled(false);
             } else {
                 setEnabled(true);
