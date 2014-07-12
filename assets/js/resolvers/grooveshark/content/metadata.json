@@ -1,0 +1,24 @@
+{
+    "name": "Grooveshark",
+    "pluginName": "grooveshark",
+    "author": "Leo Franchi and Enno",
+    "email": "lfranchi@kde.org",
+    "version": "0.7.0",
+    "website": "http://gettomahawk.com",
+    "description": "Searches Grooveshark for playable tracks, requires premium account",
+    "type": "resolver/javascript",
+    "manifest": {
+        "main": "contents/code/grooveshark.js",
+        "scripts": [],
+        "icon": "contents/images/icon.png",
+        "resources": [
+            "contents/code/config.ui",
+            "contents/code/grooveshark.png",
+            "contents/code/grooveshark.svg",
+            "contents/code/grooveshark-icon.png"
+        ]
+    },
+    "staticCapabilities": [
+        "configTestable"
+    ]
+}
