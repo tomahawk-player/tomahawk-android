@@ -143,7 +143,8 @@ var SubsonicResolver = Tomahawk.extend(TomahawkResolver, {
         if (!this.host) {
             this.host = "http://localhost";
         } else {
-            if (this.host.indexOf("http://") < 0) {
+            if (this.host.search(".*:\/\/") < 0) {
+                // couldn't find a proper protocol, so we default to "http://"
                 this.host = "http://" + this.host;
             }
             this.host = this.host.trim();
