@@ -442,11 +442,15 @@ shouldDoNativeRequest = function (url, callback, extraHeaders, options) {
         || extraHeaders.hasOwnProperty("referer")));
 };
 
-Tomahawk.sha256 = Tomahawk.sha256 || CryptoJS.SHA256;
-Tomahawk.md5 = Tomahawk.md5 || CryptoJS.MD5;
+Tomahawk.sha256 = Tomahawk.sha256 || function(message) {
+  return CryptoJS.SHA256(message).toString(CryptoJS.enc.Hex);
+};
+Tomahawk.md5 = Tomahawk.md5 || function(message) {
+  return CryptoJS.MD5(message).toString(CryptoJS.enc.Hex);
+};
 // Return a HMAC (md5) signature of the input text with the desired key
 Tomahawk.hmac = function (key, message) {
-    return CryptoJS.HmacMD5(message, key);
+    return CryptoJS.HmacMD5(message, key).toString(CryptoJS.enc.Hex);
 };
 
 // some aliases
