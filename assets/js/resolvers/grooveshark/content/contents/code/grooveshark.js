@@ -190,9 +190,15 @@ var GroovesharkResolver = Tomahawk.extend(TomahawkResolver, {
 
     authenticate: function (doConfigTest) {
         Tomahawk.log("Grooveshark resolver authenticating with username: " + this.username);
+        var hashString;
+        if (typeof CryptoJS.MD5 == "function") {
+            hashString = CryptoJS.MD5(this.password).toString(CryptoJS.enc.Hex);
+        } else {
+            hashString = Tomahawk.md5(this.password);
+        }
         var params = {
             login: this.username,
-            password: Tomahawk.md5(this.password).toString(CryptoJS.enc.Hex)
+            password: hashString
         };
         var errorHandler;
         if (doConfigTest){
@@ -306,7 +312,12 @@ var GroovesharkResolver = Tomahawk.extend(TomahawkResolver, {
         payload.parameters = args;
 
         var data = JSON.stringify(payload);
-        var sig = Tomahawk.hmac(this.secret, data);
+        var sig;
+        if (typeof CryptoJS.HmacMD5 == "function") {
+            sig = CryptoJS.HmacMD5(data, this.secret).toString(CryptoJS.enc.Hex);
+        } else {
+            sig = Tomahawk.hmac(this.secret, data);
+        }
         var url = "https://api.grooveshark.com/ws/3.0/?sig=" + sig;
 
         var headers = {
