@@ -49,13 +49,11 @@ public class TomahawkApp extends Application {
 
     public final static String PLUGINNAME_RDIO = "rdio";
 
-    public final static String PLUGINNAME_BEETS = "beets";
+    public final static String PLUGINNAME_JAMENDO = "jamendo";
 
-    public final static String PLUGINNAME_GMUSIC = "gmusic";
+    public final static String PLUGINNAME_OFFICIALFM = "officialfm";
 
-    public final static String PLUGINNAME_SUBSONIC = "subsonic";
-
-    public final static String PLUGINNAME_GROOVESHARK = "grooveshark";
+    public final static String PLUGINNAME_SOUNDCLOUD = "soundcloud";
 
     private static Context sApplicationContext;
 

@@ -170,16 +170,12 @@ public class ScriptResolver extends Resolver {
         if (getConfig().get(ENABLED_KEY) != null) {
             mEnabled = (Boolean) getConfig().get(ENABLED_KEY);
         } else {
-            if (TomahawkApp.PLUGINNAME_RDIO.equals(mId)
-                    || TomahawkApp.PLUGINNAME_BEATSMUSIC.equals(mId)
-                    || TomahawkApp.PLUGINNAME_BEETS.equals(mId)
-                    || TomahawkApp.PLUGINNAME_GMUSIC.equals(mId)
-                    || TomahawkApp.PLUGINNAME_DEEZER.equals(mId)
-                    || TomahawkApp.PLUGINNAME_GROOVESHARK.equals(mId)
-                    || TomahawkApp.PLUGINNAME_SUBSONIC.equals(mId)) {
-                setEnabled(false);
-            } else {
+            if (TomahawkApp.PLUGINNAME_JAMENDO.equals(mId)
+                    || TomahawkApp.PLUGINNAME_OFFICIALFM.equals(mId)
+                    || TomahawkApp.PLUGINNAME_SOUNDCLOUD.equals(mId)) {
                 setEnabled(true);
+            } else {
+                setEnabled(false);
             }
         }
         mFuzzyIndexPath = TomahawkApp.getContext().getFilesDir().getAbsolutePath()
