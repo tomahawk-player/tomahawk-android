@@ -34,6 +34,7 @@ dependencies {
     compile "org.apache.lucene:lucene-core:4.7.2"
     compile "org.apache.lucene:lucene-analyzers-common:4.7.2"
     compile "org.apache.lucene:lucene-queryparser:4.7.2"
+    compile "net.sourceforge.findbugs:jsr305:1.3.7"
 }
 
 /*
