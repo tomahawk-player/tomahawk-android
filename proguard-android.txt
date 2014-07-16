@@ -1,24 +1,7 @@
-# This is a configuration file for ProGuard.
-# http://proguard.sourceforge.net/index.html#manual/usage.html
-
-# Optimizations: If you don't want to optimize, use the
-# proguard-android.txt configuration file instead of this one, which
-# turns off the optimization flags.  Adding optimization introduces
-# certain risks, since for example not all optimizations performed by
-# ProGuard works on all versions of Dalvik.  The following flags turn
-# off various optimizations known to have issues, but the list may not
-# be complete or up to date. (The "arithmetic" optimization can be
-# used if you are only targeting Android 2.0 or later.)  Make sure you
-# test thoroughly if you go this route.
 -optimizations !code/simplification/arithmetic,!code/simplification/cast,!field/*,!class/merging/*,!code/allocation/variable
 -optimizationpasses 5
 -allowaccessmodification
 -dontpreverify
-
-# The remainder of this file is identical to the non-optimized version
-# of the Proguard configuration file (except that the other file has
-# flags to turn off optimization).
-
 -dontobfuscate
 -dontusemixedcaseclassnames
 -dontskipnonpubliclibraryclasses
@@ -32,41 +15,42 @@
 -keepclasseswithmembernames class * {
     native <methods>;
 }
--keep class org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper {
-    public <methods>;
-}
--keep class org.videolan.libvlc.LibVLC {
-    public <methods>;
-    private <methods>;
-}
-
 # keep setters in Views so that animations can still work.
 # see http://proguard.sourceforge.net/manual/examples.html#beans
 -keepclassmembers public class * extends android.view.View {
    void set*(***);
    *** get*();
 }
-
 # We want to keep methods in Activity that could be used in the XML attribute onClick
 -keepclassmembers class * extends android.app.Activity {
    public void *(android.view.View);
 }
-
 # For enumeration classes, see http://proguard.sourceforge.net/manual/examples.html#enumerations
 -keepclassmembers enum * {
     public static **[] values();
     public static ** valueOf(java.lang.String);
 }
-
 -keep class * implements android.os.Parcelable {
   public static final android.os.Parcelable$Creator *;
 }
-
 -keepclassmembers class **.R$* {
     public static <fields>;
 }
 
--dontwarn
+######################
+#LibSpotify specifics#
+######################
+-keep class org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper {
+    public <methods>;
+}
+
+######################
+#LibVLC specifics#
+######################
+-keep class org.videolan.libvlc.LibVLC {
+    public <methods>;
+    private <methods>;
+}
 
 ################################
 #Javascript Interface specifics#
@@ -74,7 +58,6 @@
 -keepclassmembers class * {
     @android.webkit.JavascriptInterface <methods>;
 }
-
 
 ###########################
 #Support library specifics#
@@ -85,6 +68,8 @@
 -keep interface android.support.v7.** {
     *;
 }
+-dontwarn android.support.v4.**
+-dontwarn android.support.v7.**
 
 
 ###################
@@ -96,15 +81,49 @@
 -keepclassmembers public class * {
     public <init>(...);
 }
+-dontwarn org.joda.time.**
+-dontwarn org.w3c.dom.bootstrap.**
 
+#################
+#Guava specifics#
+#################
+-dontwarn sun.misc.Unsafe
+-dontwarn com.google.common.collect.MinMaxPriorityQueue
+-keepclasseswithmembers public class * {
+    public static void main(java.lang.String[]);
+}
+
+###################
+#Picasso specifics#
+###################
+-dontwarn com.squareup.okhttp.**
 
 ##################
 #Lucene specifics#
 ##################
--keep class org.apache.lucene.** {
-    *;
-}
+-dontwarn org.apache.regexp.**
+-dontwarn org.apache.commons.codec.binary.**
+-dontwarn java.lang.management.**
+-keep class org.apache.lucene.codecs.Codec
+-keep class * extends org.apache.lucene.codecs.Codec
+-keep class org.apache.lucene.codecs.PostingsFormat
+-keep class * extends org.apache.lucene.codecs.PostingsFormat
+-keep class org.apache.lucene.codecs.DocValuesFormat
+-keep class * extends org.apache.lucene.codecs.DocValuesFormat
+-keep class org.apache.lucene.search.MaxNonCompetitiveBoostAttribute
+-keep class * implements org.apache.lucene.search.MaxNonCompetitiveBoostAttribute
+-keep class org.apache.lucene.analysis.tokenattributes.**
 
+###################################
+#UnifiedMetaDataProvider specifics#
+###################################
+-dontwarn android.media.IRemoteControlDisplay**
+-dontwarn android.media.AudioManager
+
+####################
+#Signpost specifics#
+####################
+-dontwarn oauth.signpost.**
 
 ################
 #ACRA specifics#
@@ -112,36 +131,28 @@
 # Restore some Source file names and restore approximate line numbers in the stack traces,
 # otherwise the stack traces are pretty useless
 -keepattributes SourceFile,LineNumberTable
-
 # keep this class so that logging will show 'ACRA' and not a obfuscated name like 'a'.
 # Note: if you are removing log messages elsewhere in this file then this isn't necessary
 -keep class org.acra.ACRA {
     *;
 }
-
 # keep this around for some enums that ACRA needs
 -keep class org.acra.ReportingInteractionMode {
     *;
 }
-
 -keepnames class org.acra.sender.HttpSender$** {
     *;
 }
-
 -keepnames class org.acra.ReportField {
     *;
 }
-
 # keep this otherwise it is removed by ProGuard
--keep public class org.acra.ErrorReporter
-{
+-keep public class org.acra.ErrorReporter {
     public void addCustomData(java.lang.String,java.lang.String);
     public void putCustomData(java.lang.String,java.lang.String);
     public void removeCustomData(java.lang.String);
 }
-
 # keep this otherwise it is removed by ProGuard
--keep public class org.acra.ErrorReporter
-{
+-keep public class org.acra.ErrorReporter {
     public void handleSilentException(java.lang.Throwable);
 }
