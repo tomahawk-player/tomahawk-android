@@ -53,8 +53,8 @@ android {
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 19
-        versionName '0.55'
-        versionCode 0550
+        versionName '0.60'
+        versionCode 600
         ndk {
             moduleName "libspotifywrapper"
             stl "stlport_static"
