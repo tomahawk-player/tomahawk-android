@@ -119,6 +119,8 @@
 ###################################
 -dontwarn android.media.IRemoteControlDisplay**
 -dontwarn android.media.AudioManager
+-keep class org.electricwisdom.** { *; }
+-keep interface org.electricwisdom.** { *; }
 
 ####################
 #Signpost specifics#
