@@ -128,6 +128,8 @@ public class PlaybackFragment extends TomahawkFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.playback_fragment, container, false);
+
+
     }
 
     @Override
