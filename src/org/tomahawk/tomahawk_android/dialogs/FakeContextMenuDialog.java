@@ -21,7 +21,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
-import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -62,7 +62,7 @@ public class FakeContextMenuDialog extends DialogFragment {
 
     private Artist mArtist;
 
-    private UserPlaylist mUserPlaylist;
+    private Playlist mPlaylist;
 
     private boolean mFromPlaybackFragment;
 
@@ -83,10 +83,10 @@ public class FakeContextMenuDialog extends DialogFragment {
                 if (mAlbum == null) {
                     dismiss();
                 }
-            } else if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_USERPLAYLIST_KEY)) {
-                mUserPlaylist = UserPlaylist.getUserPlaylistById(getArguments()
-                        .getString(TomahawkFragment.TOMAHAWK_USERPLAYLIST_KEY));
-                if (mUserPlaylist == null) {
+            } else if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY)) {
+                mPlaylist = Playlist.getPlaylistById(getArguments()
+                        .getString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY));
+                if (mPlaylist == null) {
                     dismiss();
                 }
             } else if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_ARTIST_KEY)) {
@@ -114,8 +114,8 @@ public class FakeContextMenuDialog extends DialogFragment {
                 if (TomahawkFragment.TOMAHAWK_ALBUM_KEY.equals(type)) {
                     mTomahawkListItem = Album.getAlbumByKey(getArguments()
                             .getString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY));
-                } else if (TomahawkFragment.TOMAHAWK_USERPLAYLIST_KEY.equals(type)) {
-                    mTomahawkListItem = UserPlaylist.getUserPlaylistById(getArguments()
+                } else if (TomahawkFragment.TOMAHAWK_PLAYLIST_KEY.equals(type)) {
+                    mTomahawkListItem = Playlist.getPlaylistById(getArguments()
                             .getString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY));
                 } else if (TomahawkFragment.TOMAHAWK_ARTIST_KEY.equals(type)) {
                     mTomahawkListItem = Artist.getArtistByKey(getArguments()
@@ -170,10 +170,10 @@ public class FakeContextMenuDialog extends DialogFragment {
             mTomahawkListItem = ((SocialAction) mTomahawkListItem).getTargetObject();
         }
         if (menuItemTitle.equals(getString(R.string.fake_context_menu_delete))) {
-            if (mTomahawkListItem instanceof UserPlaylist) {
-                dataSource.deleteUserPlaylist(((UserPlaylist) mTomahawkListItem).getId());
-            } else if (mTomahawkListItem instanceof Query && mUserPlaylist != null) {
-                dataSource.deleteQueryInUserPlaylist(mUserPlaylist.getId(), mListItemPosition);
+            if (mTomahawkListItem instanceof Playlist) {
+                dataSource.deletePlaylist(((Playlist) mTomahawkListItem).getId());
+            } else if (mTomahawkListItem instanceof Query && mPlaylist != null) {
+                dataSource.deleteQueryInPlaylist(mPlaylist.getId(), mListItemPosition);
             } else if (playbackService != null && mFromPlaybackFragment
                     && mTomahawkListItem instanceof Query) {
                 if (playbackService.getCurrentTrack().getCacheKey()
@@ -211,25 +211,25 @@ public class FakeContextMenuDialog extends DialogFragment {
                     }
                 }
             } else {
-                UserPlaylist playlist;
+                Playlist playlist;
                 if (mTomahawkListItem instanceof Query) {
                     if (mAlbum != null) {
                         queries = AdapterUtils.getAlbumTracks(mAlbum, mCollection);
                     } else if (mArtist != null) {
                         queries = AdapterUtils.getArtistTracks(mArtist, mCollection);
-                    } else if (mUserPlaylist != null) {
-                        queries = mUserPlaylist.getQueries();
+                    } else if (mPlaylist != null) {
+                        queries = mPlaylist.getQueries();
                     } else {
                         queries.add((Query) mTomahawkListItem);
                     }
-                    playlist = UserPlaylist
+                    playlist = Playlist
                             .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
                                     DatabaseHelper.CACHED_PLAYLIST_NAME, queries,
                                     mListItemPosition);
-                } else if (mTomahawkListItem instanceof UserPlaylist) {
-                    playlist = (UserPlaylist) mTomahawkListItem;
+                } else if (mTomahawkListItem instanceof Playlist) {
+                    playlist = (Playlist) mTomahawkListItem;
                 } else {
-                    playlist = UserPlaylist
+                    playlist = Playlist
                             .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
                                     DatabaseHelper.CACHED_PLAYLIST_NAME,
                                     mTomahawkListItem.getQueries());
@@ -289,7 +289,7 @@ public class FakeContextMenuDialog extends DialogFragment {
             for (Query query : queries) {
                 queryKeys.add(query.getCacheKey());
             }
-            ChooseUserPlaylistDialog dialog = new ChooseUserPlaylistDialog();
+            ChoosePlaylistDialog dialog = new ChoosePlaylistDialog();
             Bundle args = new Bundle();
             args.putStringArrayList(TomahawkFragment.TOMAHAWK_QUERYKEYSARRAY_KEY, queryKeys);
             dialog.setArguments(args);

@@ -18,7 +18,7 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.CollectionManager;
-import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
@@ -27,7 +27,7 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.AlbumArtSwipeAdapter;
 import org.tomahawk.tomahawk_android.adapters.PlaybackPagerAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
-import org.tomahawk.tomahawk_android.dialogs.CreateUserPlaylistDialog;
+import org.tomahawk.tomahawk_android.dialogs.CreatePlaylistDialog;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
@@ -210,12 +210,12 @@ public class PlaybackFragment extends TomahawkFragment
         PlaybackService playbackService = activity.getPlaybackService();
         if (playbackService != null && item != null) {
             if (item.getItemId() == R.id.action_saveplaylist_item) {
-                UserPlaylist userPlaylist = UserPlaylist
+                Playlist playlist = Playlist
                         .fromQueryList(TomahawkMainActivity.getLifetimeUniqueStringId(), "",
                                 playbackService.getCurrentPlaylist().getQueries());
-                CreateUserPlaylistDialog dialog = new CreateUserPlaylistDialog();
+                CreatePlaylistDialog dialog = new CreatePlaylistDialog();
                 Bundle args = new Bundle();
-                args.putString(TomahawkFragment.TOMAHAWK_USERPLAYLIST_KEY, userPlaylist.getId());
+                args.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY, playlist.getId());
                 dialog.setArguments(args);
                 dialog.show(getFragmentManager(), null);
                 return true;

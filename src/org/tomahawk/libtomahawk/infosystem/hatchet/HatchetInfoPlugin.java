@@ -31,7 +31,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
-import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoPlugin;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
@@ -470,12 +470,12 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 .getCollection(TomahawkApp.PLUGINNAME_HATCHET);
         Map<String, List> convertedResultMap = new HashMap<String, List>();
         if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS) {
-            HatchetPlaylists playlists = (HatchetPlaylists) infoRequestData.getInfoResult();
-            List<UserPlaylist> userPlaylists = new ArrayList<UserPlaylist>();
-            for (HatchetPlaylistInfo playlistInfo : playlists.playlists) {
-                userPlaylists.add(InfoSystemUtils.convertToUserPlaylist(playlistInfo));
+            HatchetPlaylists hatchetPlaylists = (HatchetPlaylists) infoRequestData.getInfoResult();
+            List<Playlist> playlists = new ArrayList<Playlist>();
+            for (HatchetPlaylistInfo playlistInfo : hatchetPlaylists.playlists) {
+                playlists.add(InfoSystemUtils.convertToPlaylist(playlistInfo));
             }
-            convertedResultMap.put(HATCHET_PLAYLISTS, userPlaylists);
+            convertedResultMap.put(HATCHET_PLAYLISTS, playlists);
         } else if (infoRequestData.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
             Map<HatchetPlaylistInfo, HatchetPlaylistEntries> playlistInfoMap = infoRequestData
@@ -486,13 +486,13 @@ public class HatchetInfoPlugin extends InfoPlugin {
             if (playlistInfos.size() > 0) {
                 HatchetPlaylistInfo playlistInfo = playlistInfos.get(0);
                 playlistInfo.id = DatabaseHelper.LOVEDITEMS_PLAYLIST_ID;
-                List<UserPlaylist> userPlaylists = new ArrayList<UserPlaylist>();
-                UserPlaylist userPlaylist = InfoSystemUtils
-                        .convertToUserPlaylist(playlistInfo);
-                userPlaylist = InfoSystemUtils.fillUserPlaylist(userPlaylist,
+                List<Playlist> playlists = new ArrayList<Playlist>();
+                Playlist playlist = InfoSystemUtils
+                        .convertToPlaylist(playlistInfo);
+                playlist = InfoSystemUtils.fillPlaylist(playlist,
                         playlistInfoMap.get(playlistInfo));
-                userPlaylists.add(userPlaylist);
-                convertedResultMap.put(HATCHET_PLAYLISTS, userPlaylists);
+                playlists.add(playlist);
+                convertedResultMap.put(HATCHET_PLAYLISTS, playlists);
             }
         } else if (infoRequestData.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES) {

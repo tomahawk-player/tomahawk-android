@@ -23,7 +23,6 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
-import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
@@ -65,7 +64,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
  * The base class for {@link AlbumsFragment}, {@link TracksFragment}, {@link ArtistsFragment},
- * {@link UserPlaylistsFragment} and {@link SearchableFragment}. Provides all sorts of functionality
+ * {@link PlaylistsFragment} and {@link SearchableFragment}. Provides all sorts of functionality
  * to those classes, related to displaying {@link TomahawkListItem}s in whichever needed way.
  */
 public class TomahawkFragment extends TomahawkListFragment
@@ -78,8 +77,8 @@ public class TomahawkFragment extends TomahawkListFragment
     public static final String TOMAHAWK_ARTIST_KEY
             = "org.tomahawk.tomahawk_android.tomahawk_artist_id";
 
-    public static final String TOMAHAWK_USERPLAYLIST_KEY
-            = "org.tomahawk.tomahawk_android.tomahawk_userplaylist_id";
+    public static final String TOMAHAWK_PLAYLIST_KEY
+            = "org.tomahawk.tomahawk_android.tomahawk_playlist_id";
 
     public static final String TOMAHAWK_USER_ID
             = "org.tomahawk.tomahawk_android.tomahawk_user_id";
@@ -147,7 +146,7 @@ public class TomahawkFragment extends TomahawkListFragment
 
     protected Artist mArtist;
 
-    protected UserPlaylist mUserPlaylist;
+    protected Playlist mPlaylist;
 
     protected User mUser;
 
@@ -219,10 +218,10 @@ public class TomahawkFragment extends TomahawkListFragment
                     mResolveQueriesHandler.removeCallbacksAndMessages(null);
                     mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
                 }
-            } else if (DatabaseHelper.USERPLAYLISTSDATASOURCE_RESULTSREPORTED
+            } else if (DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED
                     .equals(intent.getAction())) {
-                if (mUserPlaylist != null) {
-                    refreshCurrentUserPlaylist();
+                if (mPlaylist != null) {
+                    refreshCurrentPlaylist();
                 }
             }
         }
@@ -243,14 +242,14 @@ public class TomahawkFragment extends TomahawkListFragment
                     mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mAlbum));
                 }
             }
-            if (getArguments().containsKey(TOMAHAWK_USERPLAYLIST_KEY) && !TextUtils.isEmpty(
-                    getArguments().getString(TOMAHAWK_USERPLAYLIST_KEY))) {
-                mUserPlaylist = UserPlaylist
-                        .getUserPlaylistById(getArguments().getString(TOMAHAWK_USERPLAYLIST_KEY));
-                if (mUserPlaylist == null) {
+            if (getArguments().containsKey(TOMAHAWK_PLAYLIST_KEY) && !TextUtils.isEmpty(
+                    getArguments().getString(TOMAHAWK_PLAYLIST_KEY))) {
+                mPlaylist = Playlist
+                        .getPlaylistById(getArguments().getString(TOMAHAWK_PLAYLIST_KEY));
+                if (mPlaylist == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
                 } else {
-                    refreshCurrentUserPlaylist();
+                    refreshCurrentPlaylist();
                 }
             }
             if (getArguments().containsKey(TOMAHAWK_ARTIST_KEY) && !TextUtils
@@ -302,7 +301,7 @@ public class TomahawkFragment extends TomahawkListFragment
             activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
             activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
-            intentFilter = new IntentFilter(DatabaseHelper.USERPLAYLISTSDATASOURCE_RESULTSREPORTED);
+            intentFilter = new IntentFilter(DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED);
             activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
         }
         StickyListHeadersListView list = getListView();
@@ -363,8 +362,8 @@ public class TomahawkFragment extends TomahawkListFragment
             args.putBoolean(TOMAHAWK_FROMPLAYBACKFRAGMENT, this instanceof PlaybackFragment);
             if (mAlbum != null) {
                 args.putString(TOMAHAWK_ALBUM_KEY, mAlbum.getCacheKey());
-            } else if (mUserPlaylist != null) {
-                args.putString(TOMAHAWK_USERPLAYLIST_KEY, mUserPlaylist.getId());
+            } else if (mPlaylist != null) {
+                args.putString(TOMAHAWK_PLAYLIST_KEY, mPlaylist.getId());
             } else if (mArtist != null) {
                 args.putString(TOMAHAWK_ARTIST_KEY, mArtist.getCacheKey());
             }
@@ -392,13 +391,13 @@ public class TomahawkFragment extends TomahawkListFragment
             return false;
         }
         boolean showDelete = false;
-        if (tomahawkListItem instanceof UserPlaylist
-                && !((UserPlaylist) tomahawkListItem).isHatchetPlaylist()) {
+        if (tomahawkListItem instanceof Playlist
+                && !((Playlist) tomahawkListItem).isHatchetPlaylist()) {
             showDelete = true;
         } else if (!(this instanceof PlaybackFragment)) {
-            if (!(mUserPlaylist == null || mUserPlaylist.isHatchetPlaylist()
+            if (!(mPlaylist == null || mPlaylist.isHatchetPlaylist()
                     || DatabaseHelper.LOVEDITEMS_PLAYLIST_ID
-                    .equals(mUserPlaylist.getId()))) {
+                    .equals(mPlaylist.getId()))) {
                 showDelete = true;
             }
         } else if (tomahawkListItem instanceof Query
@@ -415,8 +414,8 @@ public class TomahawkFragment extends TomahawkListFragment
         args.putBoolean(TOMAHAWK_FROMPLAYBACKFRAGMENT, this instanceof PlaybackFragment);
         if (mAlbum != null) {
             args.putString(TOMAHAWK_ALBUM_KEY, mAlbum.getCacheKey());
-        } else if (mUserPlaylist != null) {
-            args.putString(TOMAHAWK_USERPLAYLIST_KEY, mUserPlaylist.getId());
+        } else if (mPlaylist != null) {
+            args.putString(TOMAHAWK_PLAYLIST_KEY, mPlaylist.getId());
         } else if (mArtist != null) {
             args.putString(TOMAHAWK_ARTIST_KEY, mArtist.getCacheKey());
         }
@@ -432,10 +431,10 @@ public class TomahawkFragment extends TomahawkListFragment
         } else if (tomahawkListItem instanceof Artist) {
             args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY, tomahawkListItem.getCacheKey());
             args.putString(TOMAHAWK_TOMAHAWKLISTITEM_TYPE, TOMAHAWK_ARTIST_KEY);
-        } else if (tomahawkListItem instanceof UserPlaylist) {
+        } else if (tomahawkListItem instanceof Playlist) {
             args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY,
-                    ((UserPlaylist) tomahawkListItem).getId());
-            args.putString(TOMAHAWK_TOMAHAWKLISTITEM_TYPE, TOMAHAWK_USERPLAYLIST_KEY);
+                    ((Playlist) tomahawkListItem).getId());
+            args.putString(TOMAHAWK_TOMAHAWKLISTITEM_TYPE, TOMAHAWK_PLAYLIST_KEY);
         } else if (tomahawkListItem instanceof SocialAction) {
             args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY,
                     ((SocialAction) tomahawkListItem).getId());
@@ -611,13 +610,13 @@ public class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    protected void refreshCurrentUserPlaylist() {
+    protected void refreshCurrentPlaylist() {
         ThreadManager.getInstance().execute(
                 new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
                     @Override
                     public void run() {
-                        mUserPlaylist = DatabaseHelper.getInstance()
-                                .getUserPlaylist(mUserPlaylist.getId());
+                        mPlaylist = DatabaseHelper.getInstance()
+                                .getPlaylist(mPlaylist.getId());
                         TomahawkApp.getContext().sendBroadcast(
                                 new Intent(CollectionManager.COLLECTION_UPDATED));
                     }

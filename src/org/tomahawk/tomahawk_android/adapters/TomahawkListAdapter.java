@@ -21,7 +21,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.Track;
-import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -175,8 +175,8 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
             AdapterUtils.fillContentHeader(mContext, viewHolder, (Album) listItem, collection);
         } else if (listItem instanceof Artist) {
             AdapterUtils.fillContentHeader(mContext, viewHolder, (Artist) listItem, collection);
-        } else if (listItem instanceof UserPlaylist) {
-            AdapterUtils.fillContentHeader(mContext, viewHolder, (UserPlaylist) listItem);
+        } else if (listItem instanceof Playlist) {
+            AdapterUtils.fillContentHeader(mContext, viewHolder, (Playlist) listItem);
         } else if (listItem instanceof User) {
             AdapterUtils.fillContentHeader(fragmentManager, mContext, viewHolder, (User) listItem);
         }
@@ -270,9 +270,9 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                 } else if (mContentHeaderTomahawkListItem instanceof Artist) {
                     AdapterUtils.fillContentHeader(mContext, viewHolder,
                             (Artist) mContentHeaderTomahawkListItem, mCollection);
-                } else if (mContentHeaderTomahawkListItem instanceof UserPlaylist) {
+                } else if (mContentHeaderTomahawkListItem instanceof Playlist) {
                     AdapterUtils.fillContentHeader(mContext, viewHolder,
-                            (UserPlaylist) mContentHeaderTomahawkListItem);
+                            (Playlist) mContentHeaderTomahawkListItem);
                 } else if (mContentHeaderTomahawkListItem instanceof User) {
                     AdapterUtils.fillContentHeader(mFragmentManager, mContext, viewHolder,
                             (User) mContentHeaderTomahawkListItem);
@@ -385,15 +385,15 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                 TomahawkUtils.loadDrawableIntoImageView(mContext,
                         viewHolder.getImageView1(), R.drawable.ic_action_album);
                 viewHolder.getTextView1().setText(R.string.albumsfragment_title_string);
-            } else if (item instanceof UserPlaylist) {
+            } else if (item instanceof Playlist) {
                 TomahawkUtils.loadDrawableIntoImageView(mContext,
                         viewHolder.getImageView1(), R.drawable.ic_action_playlist);
-                if (((UserPlaylist) item).isHatchetPlaylist()) {
+                if (((Playlist) item).isHatchetPlaylist()) {
                     viewHolder.getTextView1()
-                            .setText(R.string.hatchet_userplaylists_categoryheaders_string);
+                            .setText(R.string.hatchet_playlists_categoryheaders_string);
                 } else {
                     viewHolder.getTextView1()
-                            .setText(R.string.userplaylists_categoryheaders_string);
+                            .setText(R.string.playlists_categoryheaders_string);
                 }
             } else if (item instanceof User) {
                 TomahawkUtils.loadDrawableIntoImageView(mContext,
@@ -434,8 +434,8 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
             return 5;
         } else if (item instanceof Track) {
             return 6;
-        } else if (item instanceof UserPlaylist) {
-            if (((UserPlaylist) item).isHatchetPlaylist()) {
+        } else if (item instanceof Playlist) {
+            if (((Playlist) item).isHatchetPlaylist()) {
                 return 7;
             } else {
                 return 8;
@@ -463,7 +463,7 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
             } else {
                 return R.id.tomahawklistadapter_viewtype_contentheader;
             }
-        } else if (item instanceof UserPlaylist || (item instanceof Artist
+        } else if (item instanceof Playlist || (item instanceof Artist
                 && mShowArtistAsSingleLine)) {
             return R.id.tomahawklistadapter_viewtype_singlelinelistitem;
         } else if (isHighlighted) {

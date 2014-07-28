@@ -19,7 +19,7 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
@@ -124,7 +124,7 @@ public class SearchableFragment extends TomahawkFragment
                     == position) {
                 playbackService.playPause();
             } else {
-                UserPlaylist playlist = UserPlaylist.fromQueryList(
+                Playlist playlist = Playlist.fromQueryList(
                         TomahawkMainActivity.getLifetimeUniqueStringId(), mCurrentQueryString,
                         mShownQueries,
                         mQueryPositions.keyAt(mQueryPositions.indexOfValue(position)));

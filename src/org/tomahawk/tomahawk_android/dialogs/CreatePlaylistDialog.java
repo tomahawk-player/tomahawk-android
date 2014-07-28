@@ -18,7 +18,6 @@
 package org.tomahawk.tomahawk_android.dialogs;
 
 import org.tomahawk.libtomahawk.collection.Playlist;
-import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -36,11 +35,11 @@ import android.widget.LinearLayout;
 
 /**
  * A {@link DialogFragment} which is presented for the user so that he can choose a name for the
- * {@link UserPlaylist} he intends to create
+ * {@link org.tomahawk.libtomahawk.collection.Playlist} he intends to create
  */
-public class CreateUserPlaylistDialog extends ConfigDialog {
+public class CreatePlaylistDialog extends ConfigDialog {
 
-    private Playlist mUserPlaylist;
+    private Playlist mPlaylist;
 
     private EditText mNameEditText;
 
@@ -48,10 +47,10 @@ public class CreateUserPlaylistDialog extends ConfigDialog {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Check if there is a playlist key in the provided arguments
         if (getArguments() != null && getArguments()
-                .containsKey(TomahawkFragment.TOMAHAWK_USERPLAYLIST_KEY)) {
-            mUserPlaylist = UserPlaylist.getUserPlaylistById(
-                    getArguments().getString(TomahawkFragment.TOMAHAWK_USERPLAYLIST_KEY));
-            if (mUserPlaylist == null) {
+                .containsKey(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY)) {
+            mPlaylist = Playlist.getPlaylistById(
+                    getArguments().getString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY));
+            if (mPlaylist == null) {
                 dismiss();
             }
         }
@@ -79,16 +78,16 @@ public class CreateUserPlaylistDialog extends ConfigDialog {
 
     /**
      * Persist a {@link org.tomahawk.libtomahawk.collection.Playlist} as a {@link
-     * org.tomahawk.libtomahawk.collection.UserPlaylist} in our database
+     * org.tomahawk.libtomahawk.collection.Playlist} in our database
      */
     private void savePlaylist() {
         String playlistName = TextUtils.isEmpty(mNameEditText.getText().toString())
                 ? getString(R.string.playbackplaylistfragment_title_string)
                 : mNameEditText.getText().toString();
-        if (mUserPlaylist != null) {
-            DatabaseHelper.getInstance().storeUserPlaylist(UserPlaylist
+        if (mPlaylist != null) {
+            DatabaseHelper.getInstance().storePlaylist(Playlist
                     .fromQueryList(TomahawkMainActivity.getLifetimeUniqueStringId(), playlistName,
-                            mUserPlaylist.getQueries()));
+                            mPlaylist.getQueries()));
         }
     }
 

@@ -31,23 +31,23 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     public static final String TAG = TomahawkSQLiteHelper.class.getSimpleName();
 
-    public static final String TABLE_USERPLAYLISTS = "userplaylists";
+    public static final String TABLE_PLAYLISTS = "userplaylists";
 
-    public static final String USERPLAYLISTS_COLUMN_ID = "id";
+    public static final String PLAYLISTS_COLUMN_ID = "id";
 
-    public static final String USERPLAYLISTS_COLUMN_ISHATCHETPLAYLIST = "ishatchetplaylist";
+    public static final String PLAYLISTS_COLUMN_ISHATCHETPLAYLIST = "ishatchetplaylist";
 
-    public static final String USERPLAYLISTS_COLUMN_NAME = "name";
+    public static final String PLAYLISTS_COLUMN_NAME = "name";
 
-    public static final String USERPLAYLISTS_COLUMN_CURRENTTRACKINDEX = "currenttrackindex";
+    public static final String PLAYLISTS_COLUMN_CURRENTTRACKINDEX = "currenttrackindex";
 
-    public static final String USERPLAYLISTS_COLUMN_CURRENTREVISION = "currentrevision";
+    public static final String PLAYLISTS_COLUMN_CURRENTREVISION = "currentrevision";
 
     public static final String TABLE_TRACKS = "tracks";
 
     public static final String TRACKS_COLUMN_ID = "id";
 
-    public static final String TRACKS_COLUMN_IDUSERPLAYLISTS = "id_userplaylists";
+    public static final String TRACKS_COLUMN_IDPLAYLISTS = "id_userplaylists";
 
     public static final String TRACKS_COLUMN_TRACKNAME = "trackname";
 
@@ -97,25 +97,25 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 9;
 
     // Database creation sql statements
-    private static final String CREATE_TABLE_USERPLAYLISTS =
-            "CREATE TABLE `" + TABLE_USERPLAYLISTS + "` (  `"
-                    + USERPLAYLISTS_COLUMN_ID + "` TEXT PRIMARY KEY ,  `"
-                    + USERPLAYLISTS_COLUMN_ISHATCHETPLAYLIST + "` INTEGER , `"
-                    + USERPLAYLISTS_COLUMN_NAME + "` TEXT , `"
-                    + USERPLAYLISTS_COLUMN_CURRENTTRACKINDEX + "` INTEGER , `"
-                    + USERPLAYLISTS_COLUMN_CURRENTREVISION + "` TEXT );";
+    private static final String CREATE_TABLE_PLAYLISTS =
+            "CREATE TABLE `" + TABLE_PLAYLISTS + "` (  `"
+                    + PLAYLISTS_COLUMN_ID + "` TEXT PRIMARY KEY ,  `"
+                    + PLAYLISTS_COLUMN_ISHATCHETPLAYLIST + "` INTEGER , `"
+                    + PLAYLISTS_COLUMN_NAME + "` TEXT , `"
+                    + PLAYLISTS_COLUMN_CURRENTTRACKINDEX + "` INTEGER , `"
+                    + PLAYLISTS_COLUMN_CURRENTREVISION + "` TEXT );";
 
     private static final String CREATE_TABLE_TRACKS =
             "CREATE TABLE `" + TABLE_TRACKS + "` (  `"
                     + TRACKS_COLUMN_ID + "` INTEGER PRIMARY KEY AUTOINCREMENT, `"
-                    + TRACKS_COLUMN_IDUSERPLAYLISTS + "` TEXT ,  `"
+                    + TRACKS_COLUMN_IDPLAYLISTS + "` TEXT ,  `"
                     + TRACKS_COLUMN_TRACKNAME + "` TEXT ,`"
                     + TRACKS_COLUMN_ARTISTNAME + "` TEXT ,`"
                     + TRACKS_COLUMN_ALBUMNAME + "` TEXT ,`"
                     + TRACKS_COLUMN_RESULTHINT + "` TEXT ,`"
                     + TRACKS_COLUMN_ISFETCHEDVIAHATCHET + "` INTEGER ,"
-                    + " FOREIGN KEY (`" + TRACKS_COLUMN_IDUSERPLAYLISTS + "`)"
-                    + " REFERENCES `" + TABLE_USERPLAYLISTS + "` (`" + USERPLAYLISTS_COLUMN_ID
+                    + " FOREIGN KEY (`" + TRACKS_COLUMN_IDPLAYLISTS + "`)"
+                    + " REFERENCES `" + TABLE_PLAYLISTS + "` (`" + PLAYLISTS_COLUMN_ID
                     + "`));";
 
     private static final String CREATE_TABLE_SEARCHHISTORY =
@@ -150,7 +150,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onCreate(SQLiteDatabase database) {
-        database.execSQL(CREATE_TABLE_USERPLAYLISTS);
+        database.execSQL(CREATE_TABLE_PLAYLISTS);
         database.execSQL(CREATE_TABLE_TRACKS);
         database.execSQL(CREATE_TABLE_SEARCHHISTORY);
         database.execSQL(CREATE_TABLE_INFOSYSTEMOPLOG);
@@ -171,7 +171,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
         } else {
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ALBUMS + "`;");
-            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_USERPLAYLISTS + "`;");
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_PLAYLISTS + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_SEARCHHISTORY + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_INFOSYSTEMOPLOG + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_LOVED_ALBUMS + "`;");

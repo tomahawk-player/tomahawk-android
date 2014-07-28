@@ -59,7 +59,7 @@ public class FavoritesFragment extends Fragment {
         fragmentTitles.add(getString(R.string.starred_artists));
         List<Bundle> fragmentBundles = new ArrayList<Bundle>();
         Bundle bundle = new Bundle();
-        bundle.putString(UserPlaylistsFragment.TOMAHAWK_USERPLAYLIST_KEY,
+        bundle.putString(PlaylistsFragment.TOMAHAWK_PLAYLIST_KEY,
                 DatabaseHelper.LOVEDITEMS_PLAYLIST_ID);
         fragmentBundles.add(bundle);
         bundle = new Bundle();

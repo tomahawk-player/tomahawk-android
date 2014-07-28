@@ -116,8 +116,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 ensureAccessTokens();
             }
         }
-        CollectionManager.getInstance().fetchHatchetUserPlaylists();
-        CollectionManager.getInstance().fetchLovedItemsUserPlaylists();
+        CollectionManager.getInstance().fetchHatchetPlaylists();
+        CollectionManager.getInstance().fetchLovedItemsPlaylist();
         CollectionManager.getInstance().fetchStarredArtists();
         CollectionManager.getInstance().fetchStarredAlbums();
         InfoSystem.getInstance().resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF,
