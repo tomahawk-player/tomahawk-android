@@ -24,7 +24,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.HatchetCollection;
-import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetAlbumInfo;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetArtistInfo;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetChartItem;
@@ -69,15 +69,15 @@ public class InfoSystemUtils {
     }
 
     /**
-     * Convert the given playlist entry data, add it to a UserPlaylist object and return that.
+     * Convert the given playlist entry data, add it to a Playlist object and return that.
      *
-     * @param userPlaylist    the UserPlaylist to fill with entries(queries)
+     * @param playlist    the Playlist to fill with entries(queries)
      * @param playlistEntries Object containing info about each entry of the playlist
-     * @return the filled UserPlaylist object
+     * @return the filled Playlist object
      */
-    public static UserPlaylist fillUserPlaylist(UserPlaylist userPlaylist,
+    public static Playlist fillPlaylist(Playlist playlist,
             HatchetPlaylistEntries playlistEntries) {
-        if (userPlaylist != null && playlistEntries != null) {
+        if (playlist != null && playlistEntries != null) {
             ArrayList<Query> queries = new ArrayList<Query>();
             // Convert our Lists to Maps containing the id as the key, so we can efficiently build the
             // list of Queries afterwards
@@ -107,20 +107,20 @@ public class InfoSystemUtils {
                     queries.add(convertToQuery(trackInfo, albumInfo, artistInfo));
                 }
             }
-            userPlaylist.setQueries(queries);
+            playlist.setQueries(queries);
         }
-        return userPlaylist;
+        return playlist;
     }
 
     /**
-     * Convert the given data into a UserPlaylist object and return that.
+     * Convert the given data into a Playlist object and return that.
      *
      * @param playlistInfo Object containing basic playlist info like title etc...
-     * @return the converted UserPlaylist object
+     * @return the converted Playlist object
      */
-    public static UserPlaylist convertToUserPlaylist(HatchetPlaylistInfo playlistInfo) {
+    public static Playlist convertToPlaylist(HatchetPlaylistInfo playlistInfo) {
         if (playlistInfo != null) {
-            return UserPlaylist.fromQueryList(playlistInfo.id, playlistInfo.title,
+            return Playlist.fromQueryList(playlistInfo.id, playlistInfo.title,
                     playlistInfo.currentrevision, new ArrayList<Query>());
         }
         return null;

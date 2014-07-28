@@ -20,7 +20,7 @@ package org.tomahawk.libtomahawk.infosystem;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
-import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
@@ -45,7 +45,7 @@ public class SocialAction implements TomahawkListItem {
 
     private Date mTimeStamp;
 
-    private UserPlaylist mUserPlaylist;
+    private Playlist mPlaylist;
 
     private User mTarget;
 
@@ -139,8 +139,8 @@ public class SocialAction implements TomahawkListItem {
             return mAlbum;
         } else if (mQuery != null) {
             return mQuery;
-        } else if (mUserPlaylist != null) {
-            return mUserPlaylist;
+        } else if (mPlaylist != null) {
+            return mPlaylist;
         }
         return null;
     }
@@ -181,12 +181,12 @@ public class SocialAction implements TomahawkListItem {
         mTimeStamp = timeStamp;
     }
 
-    public UserPlaylist getUserPlaylist() {
-        return mUserPlaylist;
+    public Playlist getPlaylist() {
+        return mPlaylist;
     }
 
-    public void setUserPlaylist(UserPlaylist userPlaylist) {
-        mUserPlaylist = userPlaylist;
+    public void setPlaylist(Playlist playlist) {
+        mPlaylist = playlist;
     }
 
     public User getTarget() {

@@ -27,7 +27,6 @@ import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.Track;
-import org.tomahawk.libtomahawk.collection.UserPlaylist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
@@ -622,12 +621,12 @@ public class PlaybackService extends Service
     }
 
     /**
-     * Save the current playlist in the UserPlaylists Database
+     * Save the current playlist in the Playlists Database
      */
     private void saveState() {
         if (getCurrentPlaylist() != null) {
             long startTime = System.currentTimeMillis();
-            CollectionManager.getInstance().setCachedUserPlaylist(UserPlaylist
+            CollectionManager.getInstance().setCachedPlaylist(Playlist
                     .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
                             DatabaseHelper.CACHED_PLAYLIST_NAME,
                             getCurrentPlaylist().getQueries(),
@@ -637,13 +636,13 @@ public class PlaybackService extends Service
     }
 
     /**
-     * Restore the current playlist from the UserPlaylists Database. Do this by storing it in the
+     * Restore the current playlist from the Playlists Database. Do this by storing it in the
      * {@link org.tomahawk.libtomahawk.collection.UserCollection} first, and then retrieving the
      * playlist from there.
      */
     private void restoreState() {
         long startTime = System.currentTimeMillis();
-        setCurrentPlaylist(CollectionManager.getInstance().getCachedUserPlaylist());
+        setCurrentPlaylist(CollectionManager.getInstance().getCachedPlaylist());
         Log.d(TAG, "Playlist loaded in " + (System.currentTimeMillis() - startTime) + "ms");
         if (getCurrentPlaylist() != null && isPlaying()) {
             pause(true);
@@ -982,7 +981,7 @@ public class PlaybackService extends Service
     public void addQueriesToCurrentPlaylist(ArrayList<Query> queries) {
         Log.d(TAG, "addQueriesToCurrentPlaylist count: " + queries.size());
         if (mCurrentPlaylist == null) {
-            mCurrentPlaylist = UserPlaylist
+            mCurrentPlaylist = Playlist
                     .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
                             DatabaseHelper.CACHED_PLAYLIST_NAME,
                             new ArrayList<Query>());
@@ -999,7 +998,7 @@ public class PlaybackService extends Service
         Log.d(TAG, "addQueriesToCurrentPlaylist at position " + position + " count: " + queries
                 .size());
         if (mCurrentPlaylist == null) {
-            mCurrentPlaylist = UserPlaylist
+            mCurrentPlaylist = Playlist
                     .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
                             DatabaseHelper.CACHED_PLAYLIST_NAME,
                             new ArrayList<Query>());

@@ -18,10 +18,10 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.CollectionManager;
-import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
-import org.tomahawk.tomahawk_android.dialogs.CreateUserPlaylistDialog;
+import org.tomahawk.tomahawk_android.dialogs.CreatePlaylistDialog;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
@@ -35,10 +35,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@link TomahawkFragment} which shows a set of {@link UserPlaylist}s inside its {@link
+ * {@link TomahawkFragment} which shows a set of {@link org.tomahawk.libtomahawk.collection.Playlist}s inside its {@link
  * se.emilsjolander.stickylistheaders.StickyListHeadersListView}
  */
-public class UserPlaylistsFragment extends TomahawkFragment implements OnItemClickListener {
+public class PlaylistsFragment extends TomahawkFragment implements OnItemClickListener {
 
     @Override
     public void onResume() {
@@ -59,13 +59,13 @@ public class UserPlaylistsFragment extends TomahawkFragment implements OnItemCli
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (getListAdapter().getItem(position) instanceof UserPlaylist) {
-            String key = ((UserPlaylist) getListAdapter().getItem(position)).getId();
+        if (getListAdapter().getItem(position) instanceof Playlist) {
+            String key = ((Playlist) getListAdapter().getItem(position)).getId();
             FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                    TracksFragment.class, key, TomahawkFragment.TOMAHAWK_USERPLAYLIST_KEY,
+                    TracksFragment.class, key, TomahawkFragment.TOMAHAWK_PLAYLIST_KEY,
                     mCollection);
         } else {
-            new CreateUserPlaylistDialog().show(getFragmentManager(),
+            new CreatePlaylistDialog().show(getFragmentManager(),
                     getString(R.string.playbackactivity_create_playlist_dialog_title));
         }
     }
@@ -82,18 +82,18 @@ public class UserPlaylistsFragment extends TomahawkFragment implements OnItemCli
         Context context = getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
-        getActivity().setTitle(getString(R.string.userplaylistsfragment_title_string));
+        getActivity().setTitle(getString(R.string.playlistsfragment_title_string));
 
-        List<TomahawkListItem> userPlaylists = new ArrayList<TomahawkListItem>();
-        userPlaylists.addAll(CollectionManager.getInstance().getLocalUserPlaylists());
-        userPlaylists.addAll(CollectionManager.getInstance().getHatchetUserPlaylists());
+        List<TomahawkListItem> playlists = new ArrayList<TomahawkListItem>();
+        playlists.addAll(CollectionManager.getInstance().getLocalPlaylists());
+        playlists.addAll(CollectionManager.getInstance().getHatchetPlaylists());
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
-                    layoutInflater, userPlaylists);
+                    layoutInflater, playlists);
             setListAdapter(tomahawkListAdapter);
             tomahawkListAdapter.setShowCategoryHeaders(true);
         } else {
-            ((TomahawkListAdapter) getListAdapter()).setListItems(userPlaylists);
+            ((TomahawkListAdapter) getListAdapter()).setListItems(playlists);
         }
 
         getListView().setOnItemClickListener(this);

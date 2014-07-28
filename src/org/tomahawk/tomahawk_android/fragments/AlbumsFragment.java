@@ -18,7 +18,7 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Album;
-import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -85,7 +85,7 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                     == position) {
                 playbackService.playPause();
             } else {
-                UserPlaylist playlist = UserPlaylist
+                Playlist playlist = Playlist
                         .fromQueryList(TomahawkMainActivity.getLifetimeUniqueStringId(), "",
                                 mShownQueries,
                                 mQueryPositions.keyAt(mQueryPositions.indexOfValue(position)));

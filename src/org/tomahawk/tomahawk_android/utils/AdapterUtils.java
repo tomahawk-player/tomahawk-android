@@ -23,7 +23,7 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.HatchetCollection;
 import org.tomahawk.libtomahawk.collection.Image;
-import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
@@ -117,19 +117,19 @@ public class AdapterUtils {
     }
 
     public static void fillContentHeader(Context context, ViewHolder viewHolder,
-            UserPlaylist userPlaylist) {
+            Playlist playlist) {
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         if (viewHolder.getTextView1() != null) {
-            viewHolder.getTextView1().setText(userPlaylist.getName());
+            viewHolder.getTextView1().setText(playlist.getName());
         }
-        int tracksCount = userPlaylist.getQueries().size();
+        int tracksCount = playlist.getQueries().size();
         String s = tracksCount + " " + context.getString(R.string.category_header_track)
                 + (tracksCount == 1 ? "" : "s");
         viewHolder.getTextView2().setText(s);
-        if (userPlaylist.getContentHeaderArtists().size() > 0) {
+        if (playlist.getContentHeaderArtists().size() > 0) {
             ArrayList<Artist> artistsWithImage = new ArrayList<Artist>();
-            synchronized (userPlaylist) {
-                ArrayList<Artist> artists = userPlaylist.getContentHeaderArtists();
+            synchronized (playlist) {
+                ArrayList<Artist> artists = playlist.getContentHeaderArtists();
                 for (Artist artist : artists) {
                     if (artist.getImage() != null) {
                         artistsWithImage.add(artist);

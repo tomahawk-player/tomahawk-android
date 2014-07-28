@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class User implements TomahawkListItem {
 
-    public static final String USERPLAYLIST_PLAYBACKLOG_ID = "_playbackLog";
+    public static final String PLAYLIST_PLAYBACKLOG_ID = "_playbackLog";
 
     private static ConcurrentHashMap<String, User> sUsers
             = new ConcurrentHashMap<String, User>();

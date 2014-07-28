@@ -64,8 +64,8 @@ public class CollectionManager {
     private ConcurrentHashMap<String, Collection> mCollections
             = new ConcurrentHashMap<String, Collection>();
 
-    private ConcurrentHashMap<String, UserPlaylist> mUserPlaylists
-            = new ConcurrentHashMap<String, UserPlaylist>();
+    private ConcurrentHashMap<String, Playlist> mPlaylists
+            = new ConcurrentHashMap<String, Playlist>();
 
     private HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
 
@@ -93,38 +93,38 @@ public class CollectionManager {
                                             .removeInfoRequestById(requestId);
                                     if (data.getType()
                                             == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS) {
-                                        ArrayList<UserPlaylist> storedLists
+                                        ArrayList<Playlist> storedLists
                                                 = DatabaseHelper.getInstance()
-                                                .getHatchetUserPlaylists();
-                                        HashMap<String, UserPlaylist> storedListsMap
-                                                = new HashMap<String, UserPlaylist>();
-                                        for (UserPlaylist storedList : storedLists) {
+                                                .getHatchetPlaylists();
+                                        HashMap<String, Playlist> storedListsMap
+                                                = new HashMap<String, Playlist>();
+                                        for (Playlist storedList : storedLists) {
                                             storedListsMap.put(storedList.getId(), storedList);
                                         }
-                                        List<UserPlaylist> fetchedLists = data
+                                        List<Playlist> fetchedLists = data
                                                 .getConvertedResultMap()
                                                 .get(HatchetInfoPlugin.HATCHET_PLAYLISTS);
-                                        for (UserPlaylist fetchedList : fetchedLists) {
-                                            UserPlaylist storedList = storedListsMap
+                                        for (Playlist fetchedList : fetchedLists) {
+                                            Playlist storedList = storedListsMap
                                                     .remove(fetchedList.getId());
                                             if (storedList == null) {
-                                                DatabaseHelper.getInstance().storeUserPlaylist(
+                                                DatabaseHelper.getInstance().storePlaylist(
                                                         fetchedList);
-                                                fetchHatchetUserPlaylist(fetchedList.getId());
+                                                fetchHatchetPlaylistEntries(fetchedList.getId());
                                             } else if (!storedList.getCurrentRevision()
                                                     .equals(fetchedList.getCurrentRevision())
                                                     || DatabaseHelper.getInstance()
-                                                    .getUserPlaylistTrackCount(storedList.getId())
+                                                    .getPlaylistTrackCount(storedList.getId())
                                                     == 0) {
-                                                fetchHatchetUserPlaylist(storedList.getId());
+                                                fetchHatchetPlaylistEntries(storedList.getId());
                                             } else if (!storedList.getName()
                                                     .equals(fetchedList.getName())) {
-                                                DatabaseHelper.getInstance().renameUserPlaylist(
+                                                DatabaseHelper.getInstance().renamePlaylist(
                                                         storedList, fetchedList.getName());
                                             }
                                         }
-                                        for (UserPlaylist storedList : storedListsMap.values()) {
-                                            DatabaseHelper.getInstance().deleteUserPlaylist(
+                                        for (Playlist storedList : storedListsMap.values()) {
+                                            DatabaseHelper.getInstance().deletePlaylist(
                                                     storedList.getId());
                                         }
                                     } else if (data.getType()
@@ -132,22 +132,22 @@ public class CollectionManager {
                                         HatchetPlaylistEntries
                                                 playlistEntries = (HatchetPlaylistEntries) data
                                                 .getInfoResult();
-                                        UserPlaylist playlist = mUserPlaylists
+                                        Playlist playlist = mPlaylists
                                                 .get(mRequestIdPlaylistMap.get(requestId));
                                         if (playlist != null && playlistEntries != null) {
                                             playlist = InfoSystemUtils
-                                                    .fillUserPlaylist(playlist,
+                                                    .fillPlaylist(playlist,
                                                             playlistEntries);
                                             DatabaseHelper.getInstance()
-                                                    .storeUserPlaylist(playlist);
+                                                    .storePlaylist(playlist);
                                         }
                                     } else if (data.getType()
                                             == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
-                                        List<UserPlaylist> fetchedLists = data
+                                        List<Playlist> fetchedLists = data
                                                 .getConvertedResultMap()
                                                 .get(HatchetInfoPlugin.HATCHET_PLAYLISTS);
                                         if (fetchedLists.size() > 0) {
-                                            DatabaseHelper.getInstance().storeUserPlaylist(
+                                            DatabaseHelper.getInstance().storePlaylist(
                                                     fetchedLists.get(0));
                                         }
                                     } else if (data.getType()
@@ -172,12 +172,12 @@ public class CollectionManager {
                     );
                 }
             } else if (InfoSystem.INFOSYSTEM_OPLOGISEMPTIED.equals(intent.getAction())) {
-                CollectionManager.this.fetchLovedItemsUserPlaylists();
+                CollectionManager.this.fetchLovedItemsPlaylist();
                 CollectionManager.this.fetchStarredAlbums();
                 CollectionManager.this.fetchStarredArtists();
-            } else if (DatabaseHelper.USERPLAYLISTSDATASOURCE_RESULTSREPORTED
+            } else if (DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED
                     .equals(intent.getAction())) {
-                CollectionManager.this.updateUserPlaylists();
+                CollectionManager.this.updatePlaylists();
             }
         }
     }
@@ -203,9 +203,9 @@ public class CollectionManager {
             addCollection(new UserCollection());
             addCollection(new HatchetCollection());
 
-            updateLovedItemsUserPlaylist();
-            updateUserPlaylists();
-            fetchHatchetUserPlaylists();
+            updateLovedItemsPlaylist();
+            updatePlaylists();
+            fetchHatchetPlaylists();
             fetchStarredAlbums();
             fetchStarredArtists();
 
@@ -215,7 +215,7 @@ public class CollectionManager {
             TomahawkApp.getContext().registerReceiver(mCollectionManagerReceiver,
                     new IntentFilter(InfoSystem.INFOSYSTEM_OPLOGISEMPTIED));
             TomahawkApp.getContext().registerReceiver(mCollectionManagerReceiver,
-                    new IntentFilter(DatabaseHelper.USERPLAYLISTSDATASOURCE_RESULTSREPORTED));
+                    new IntentFilter(DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED));
         }
     }
 
@@ -232,53 +232,53 @@ public class CollectionManager {
     }
 
     /**
-     * @return A {@link java.util.List} of all {@link org.tomahawk.libtomahawk.collection.UserPlaylist}s
+     * @return A {@link java.util.List} of all {@link Playlist}s
      * in this {@link org.tomahawk.libtomahawk.collection.CollectionManager}
      */
-    public ArrayList<UserPlaylist> getLocalUserPlaylists() {
-        ArrayList<UserPlaylist> userPlaylists = new ArrayList<UserPlaylist>();
-        for (UserPlaylist userPlaylist : mUserPlaylists.values()) {
-            if (!userPlaylist.isHatchetPlaylist()) {
-                userPlaylists.add(userPlaylist);
+    public ArrayList<Playlist> getLocalPlaylists() {
+        ArrayList<Playlist> playlists = new ArrayList<Playlist>();
+        for (Playlist playlist : mPlaylists.values()) {
+            if (!playlist.isHatchetPlaylist()) {
+                playlists.add(playlist);
             }
         }
-        Collections.sort(userPlaylists,
+        Collections.sort(playlists,
                 new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
-        return userPlaylists;
+        return playlists;
     }
 
     /**
-     * @return A {@link java.util.List} of all {@link org.tomahawk.libtomahawk.collection.UserPlaylist}s
+     * @return A {@link java.util.List} of all {@link Playlist}s
      * in this {@link org.tomahawk.libtomahawk.collection.CollectionManager}
      */
-    public ArrayList<UserPlaylist> getHatchetUserPlaylists() {
-        ArrayList<UserPlaylist> userPlaylists = new ArrayList<UserPlaylist>();
-        for (UserPlaylist userPlaylist : mUserPlaylists.values()) {
-            if (userPlaylist.isHatchetPlaylist()) {
-                userPlaylists.add(userPlaylist);
+    public ArrayList<Playlist> getHatchetPlaylists() {
+        ArrayList<Playlist> playlists = new ArrayList<Playlist>();
+        for (Playlist playlist : mPlaylists.values()) {
+            if (playlist.isHatchetPlaylist()) {
+                playlists.add(playlist);
             }
         }
-        Collections.sort(userPlaylists,
+        Collections.sort(playlists,
                 new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
-        return userPlaylists;
+        return playlists;
     }
 
     /**
      * Store the PlaybackService's currentPlaylist
      */
-    public void setCachedUserPlaylist(UserPlaylist userPlaylist) {
-        DatabaseHelper.getInstance().storeUserPlaylist(userPlaylist);
+    public void setCachedPlaylist(Playlist playlist) {
+        DatabaseHelper.getInstance().storePlaylist(playlist);
     }
 
     /**
-     * @return the previously cached {@link org.tomahawk.libtomahawk.collection.UserPlaylist}
+     * @return the previously cached {@link Playlist}
      */
-    public UserPlaylist getCachedUserPlaylist() {
-        return DatabaseHelper.getInstance().getCachedUserPlaylist();
+    public Playlist getCachedPlaylist() {
+        return DatabaseHelper.getInstance().getCachedPlaylist();
     }
 
     /**
-     * Remove or add a lovedItem-query from the LovedItems-UserPlaylist, depending on whether or not
+     * Remove or add a lovedItem-query from the LovedItems-Playlist, depending on whether or not
      * it is already a lovedItem
      */
     public void toggleLovedItem(Query query) {
@@ -314,13 +314,13 @@ public class CollectionManager {
     /**
      * Update the loved items user-playlist and the contained queries.
      */
-    private void updateLovedItemsUserPlaylist() {
-        UserPlaylist lovedItemsPlayList = DatabaseHelper.getInstance().getLovedItemsUserPlaylist();
+    private void updateLovedItemsPlaylist() {
+        Playlist lovedItemsPlayList = DatabaseHelper.getInstance().getLovedItemsPlaylist();
         if (lovedItemsPlayList == null) {
-            // If we don't yet have a UserPlaylist to store loved items, we create and store an
-            // empty UserPlaylist here
-            DatabaseHelper.getInstance().storeUserPlaylist(
-                    UserPlaylist.fromQueryList(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID,
+            // If we don't yet have a Playlist to store loved items, we create and store an
+            // empty Playlist here
+            DatabaseHelper.getInstance().storePlaylist(
+                    Playlist.fromQueryList(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID,
                             DatabaseHelper.LOVEDITEMS_PLAYLIST_NAME,
                             new ArrayList<Query>())
             );
@@ -328,11 +328,11 @@ public class CollectionManager {
     }
 
     /**
-     * Fetch the lovedItems UserPlaylist from the Hatchet API and store it in the local db, if the
+     * Fetch the lovedItems Playlist from the Hatchet API and store it in the local db, if the
      * log of pending operations is empty. Meaning if every love/unlove has already been delivered
      * to the API.
      */
-    public void fetchLovedItemsUserPlaylists() {
+    public void fetchLovedItemsPlaylist() {
         if (DatabaseHelper.getInstance().getLoggedOps().isEmpty()) {
             mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(
                     InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS, null));
@@ -374,28 +374,28 @@ public class CollectionManager {
     }
 
     /**
-     * Fetch all user {@link org.tomahawk.libtomahawk.collection.UserPlaylist} from the app's
+     * Fetch all user {@link Playlist} from the app's
      * database via our helper class {@link org.tomahawk.libtomahawk.database.DatabaseHelper}
      */
-    private void updateUserPlaylists() {
+    private void updatePlaylists() {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 synchronized (DatabaseHelper.getInstance()) {
-                    ArrayList<UserPlaylist> localPlaylists = DatabaseHelper.getInstance()
-                            .getLocalUserPlaylists();
-                    for (UserPlaylist userPlaylist : localPlaylists) {
-                        mUserPlaylists.put(userPlaylist.getId(), userPlaylist);
+                    ArrayList<Playlist> localPlaylists = DatabaseHelper.getInstance()
+                            .getLocalPlaylists();
+                    for (Playlist playlist : localPlaylists) {
+                        mPlaylists.put(playlist.getId(), playlist);
                     }
-                    ArrayList<UserPlaylist> hatchetPlaylists = DatabaseHelper.getInstance()
-                            .getHatchetUserPlaylists();
-                    for (UserPlaylist userPlaylist : hatchetPlaylists) {
-                        mUserPlaylists.put(userPlaylist.getId(), userPlaylist);
+                    ArrayList<Playlist> hatchetPlaylists = DatabaseHelper.getInstance()
+                            .getHatchetPlaylists();
+                    for (Playlist playlist : hatchetPlaylists) {
+                        mPlaylists.put(playlist.getId(), playlist);
                     }
-                    for (UserPlaylist userPlaylist : mUserPlaylists.values()) {
-                        if (!localPlaylists.contains(userPlaylist) && !hatchetPlaylists
-                                .contains(userPlaylist)) {
-                            mUserPlaylists.remove(userPlaylist.getId());
+                    for (Playlist playlist : mPlaylists.values()) {
+                        if (!localPlaylists.contains(playlist) && !hatchetPlaylists
+                                .contains(playlist)) {
+                            mPlaylists.remove(playlist.getId());
                         }
                     }
                     TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
@@ -405,22 +405,22 @@ public class CollectionManager {
     }
 
     /**
-     * Fetch the UserPlaylists from the Hatchet API and store it in the local db.
+     * Fetch the Playlists from the Hatchet API and store it in the local db.
      */
-    public void fetchHatchetUserPlaylists() {
+    public void fetchHatchetPlaylists() {
         mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(
                 InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS, null));
     }
 
     /**
-     * Fetch the UserPlaylist entries from the Hatchet API and store them in the local db.
+     * Fetch the Playlist entries from the Hatchet API and store them in the local db.
      */
-    public void fetchHatchetUserPlaylist(String userPlaylistId) {
+    public void fetchHatchetPlaylistEntries(String playlistId) {
         Multimap<String, String> params = HashMultimap.create(1, 1);
-        params.put(HatchetInfoPlugin.HATCHET_PARAM_ID, userPlaylistId);
+        params.put(HatchetInfoPlugin.HATCHET_PARAM_ID, playlistId);
         String requestid = InfoSystem.getInstance()
                 .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES, params);
         mCorrespondingRequestIds.add(requestid);
-        mRequestIdPlaylistMap.put(requestid, userPlaylistId);
+        mRequestIdPlaylistMap.put(requestid, playlistId);
     }
 }

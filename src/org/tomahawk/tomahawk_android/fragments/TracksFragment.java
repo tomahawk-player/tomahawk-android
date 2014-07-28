@@ -21,7 +21,7 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Track;
-import org.tomahawk.libtomahawk.collection.UserPlaylist;
+import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
@@ -124,8 +124,8 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                     queries = AdapterUtils.getAlbumTracks(mAlbum, mCollection);
                 } else if (mArtist != null) {
                     queries = AdapterUtils.getArtistTracks(mArtist, mCollection);
-                } else if (mUserPlaylist != null) {
-                    queries = mUserPlaylist.getQueries();
+                } else if (mPlaylist != null) {
+                    queries = mPlaylist.getQueries();
                 } else if (mUser != null) {
                     queries = mUser.getPlaybackLog();
                 } else {
@@ -139,7 +139,7 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                         == position) {
                     playbackService.playPause();
                 } else {
-                    UserPlaylist playlist = UserPlaylist.fromQueryList(
+                    Playlist playlist = Playlist.fromQueryList(
                             DatabaseHelper.CACHED_PLAYLIST_ID,
                             DatabaseHelper.CACHED_PLAYLIST_NAME, queries,
                             mQueryPositions.keyAt(mQueryPositions.indexOfValue(position)));
@@ -197,23 +197,23 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                 ((TomahawkListAdapter) getListAdapter())
                         .showContentHeader(rootView, mArtist, mCollection);
             }
-        } else if (mUserPlaylist != null) {
+        } else if (mPlaylist != null) {
             ThreadManager.getInstance().execute(
                     new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_MEDIUM) {
                         @Override
                         public void run() {
-                            getUserPlaylistArtists(mUserPlaylist);
+                            getPlaylistArtists(mPlaylist);
                         }
                     }
             );
-            if (!mUserPlaylist.isFilled()) {
-                mUserPlaylist.setFilled(true);
+            if (!mPlaylist.isFilled()) {
+                mPlaylist.setFilled(true);
                 ThreadManager.getInstance().execute(
                         new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_HIGH) {
                             @Override
                             public void run() {
-                                mUserPlaylist = DatabaseHelper.getInstance()
-                                        .getUserPlaylist(mUserPlaylist.getId());
+                                mPlaylist = DatabaseHelper.getInstance()
+                                        .getPlaylist(mPlaylist.getId());
                                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                                     @Override
                                     public void run() {
@@ -224,19 +224,19 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                         }
                 );
             } else {
-                if (!mUserPlaylist.getId().equals(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID)) {
-                    activity.setTitle(mUserPlaylist.getName());
+                if (!mPlaylist.getId().equals(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID)) {
+                    activity.setTitle(mPlaylist.getName());
                 }
-                queries.addAll(mUserPlaylist.getQueries());
+                queries.addAll(mPlaylist.getQueries());
                 if (getListAdapter() == null) {
                     tomahawkListAdapter = new TomahawkListAdapter(context, layoutInflater, queries);
                     tomahawkListAdapter.setShowResolvedBy(true);
-                    tomahawkListAdapter.showContentHeader(rootView, mUserPlaylist, mCollection);
+                    tomahawkListAdapter.showContentHeader(rootView, mPlaylist, mCollection);
                     setListAdapter(tomahawkListAdapter);
                 } else {
                     ((TomahawkListAdapter) getListAdapter()).setListItems(queries);
                     ((TomahawkListAdapter) getListAdapter()).showContentHeader(rootView,
-                            mUserPlaylist, mCollection);
+                            mPlaylist, mCollection);
                 }
             }
         } else if (mUser != null) {
@@ -244,14 +244,14 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
                     R.string.users_playbacklog_suffix);
             activity.setTitle(playlistTitle);
             if (mUser.getPlaybackLog() != null) {
-                final UserPlaylist playbackLog = UserPlaylist
-                        .fromQueryList(mUser.getId() + User.USERPLAYLIST_PLAYBACKLOG_ID,
+                final Playlist playbackLog = Playlist
+                        .fromQueryList(mUser.getId() + User.PLAYLIST_PLAYBACKLOG_ID,
                                 playlistTitle, mUser.getPlaybackLog());
                 ThreadManager.getInstance().execute(
                         new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_MEDIUM) {
                             @Override
                             public void run() {
-                                getUserPlaylistArtists(playbackLog);
+                                getPlaylistArtists(playbackLog);
                             }
                         }
                 );
@@ -296,10 +296,10 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
         updateShowPlaystate();
     }
 
-    private void getUserPlaylistArtists(UserPlaylist userPlaylist) {
-        if (userPlaylist.getContentHeaderArtists().size() < 6) {
+    private void getPlaylistArtists(Playlist playlist) {
+        if (playlist.getContentHeaderArtists().size() < 6) {
             final HashMap<Artist, Integer> countMap = new HashMap<Artist, Integer>();
-            for (Query query : userPlaylist.getQueries()) {
+            for (Query query : playlist.getQueries()) {
                 Artist artist = query.getArtist();
                 if (countMap.containsKey(artist)) {
                     countMap.put(artist, countMap.get(artist) + 1);
@@ -317,14 +317,14 @@ public class TracksFragment extends TomahawkFragment implements OnItemClickListe
             );
             sortedCountMap.putAll(countMap);
             for (Artist artist : sortedCountMap.keySet()) {
-                synchronized (userPlaylist) {
-                    userPlaylist.addContentHeaderArtists(artist);
+                synchronized (playlist) {
+                    playlist.addContentHeaderArtists(artist);
                 }
                 ArrayList<String> requestIds = InfoSystem.getInstance().resolve(artist, true);
                 for (String requestId : requestIds) {
                     mCurrentRequestIds.add(requestId);
                 }
-                if (userPlaylist.getContentHeaderArtists().size() == 6) {
+                if (playlist.getContentHeaderArtists().size() == 6) {
                     break;
                 }
             }

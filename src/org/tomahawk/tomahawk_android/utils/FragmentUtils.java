@@ -29,10 +29,10 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.CollectionFragment;
 import org.tomahawk.tomahawk_android.fragments.FavoritesFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
+import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
 import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
-import org.tomahawk.tomahawk_android.fragments.UserPlaylistsFragment;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -194,7 +194,7 @@ public class FragmentUtils {
                 replace(context, fragmentManager, FavoritesFragment.class);
                 break;
             case HUB_ID_PLAYLISTS:
-                replace(context, fragmentManager, UserPlaylistsFragment.class);
+                replace(context, fragmentManager, PlaylistsFragment.class);
                 break;
             case HUB_ID_PLAYBACK:
                 replace(context, fragmentManager, PlaybackFragment.class);

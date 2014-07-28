@@ -1,6 +1,5 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2012, Christopher Reichert <creichert07@gmail.com>
  *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
@@ -19,16 +18,18 @@
 package org.tomahawk.libtomahawk.collection;
 
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import android.text.TextUtils;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * This class represents an abstract {@link Playlist}.
+ * A {@link Playlist} is a {@link org.tomahawk.libtomahawk.collection.Playlist} created by the user
+ * and stored in the database
  */
-public abstract class Playlist {
+public class Playlist implements TomahawkListItem {
 
     private String mName;
 
@@ -42,30 +43,117 @@ public abstract class Playlist {
 
     private boolean mRepeating;
 
-    /**
-     * Create a {@link Playlist} with a list of empty {@link Query}s.
-     */
-    protected Playlist() {
-        mShuffled = false;
-        mRepeating = false;
-        setQueries(new ArrayList<Query>());
-    }
+    private static ConcurrentHashMap<String, Playlist> sPlaylists
+            = new ConcurrentHashMap<String, Playlist>();
+
+    private String mId;
+
+    private String mCurrentRevision;
+
+    private boolean mIsHatchetPlaylist;
+
+    private ArrayList<Artist> mContentHeaderArtists = new ArrayList<Artist>();
+
+    private boolean mIsFilled;
 
     /**
-     * Create a {@link Playlist} with a list of empty {@link Query}s.
-     *
-     * @param name {@link String} containing the name of the to be created {@link Playlist}
+     * Construct a new empty {@link Playlist}.
      */
-    protected Playlist(String name) {
+    private Playlist(String id, String name, String currentRevision,
+            boolean isHatchetPlaylist) {
         mName = name;
         mShuffled = false;
         mRepeating = false;
         setQueries(new ArrayList<Query>());
+        mId = id;
+        mCurrentRevision = currentRevision;
+        mIsHatchetPlaylist = isHatchetPlaylist;
+    }
+
+    /**
+     * Create a {@link Playlist} from a list of {@link org.tomahawk.libtomahawk.resolver.Query}s.
+     *
+     * @return a reference to the constructed {@link Playlist}
+     */
+    public static Playlist fromQueryList(String id, String name, String currentRevision,
+            boolean isHatchetPlaylist, ArrayList<Query> queries, int currentQueryIndex) {
+        if (id == null) {
+            id = "";
+        }
+        if (currentRevision == null) {
+            currentRevision = "";
+        }
+        Playlist pl = new Playlist(id, name, currentRevision, isHatchetPlaylist);
+        pl.setQueries(queries);
+        pl.setCurrentQueryIndex(currentQueryIndex);
+        sPlaylists.put(id, pl);
+        return sPlaylists.get(id);
+    }
+
+    /**
+     * Create a {@link Playlist} from a list of {@link org.tomahawk.libtomahawk.resolver.Query}s.
+     *
+     * @return a reference to the constructed {@link Playlist}
+     */
+    public static Playlist fromQueryList(String id, String name, String currentRevision,
+            ArrayList<Query> queries) {
+        return Playlist.fromQueryList(id, name, currentRevision, true, queries, 0);
+    }
+
+    /**
+     * Create a {@link Playlist} from a list of {@link org.tomahawk.libtomahawk.resolver.Query}s.
+     *
+     * @return a reference to the constructed {@link Playlist}
+     */
+    public static Playlist fromQueryList(String id, String name, ArrayList<Query> queries,
+            int currentQueryIndex) {
+        return Playlist.fromQueryList(id, name, null, false, queries, currentQueryIndex);
+    }
+
+    /**
+     * Create a {@link Playlist} from a list of {@link org.tomahawk.libtomahawk.resolver.Query}s.
+     *
+     * @return a reference to the constructed {@link Playlist}
+     */
+    public static Playlist fromQueryList(String id, String name, ArrayList<Query> queries) {
+        return Playlist.fromQueryList(id, name, null, false, queries, 0);
+    }
+
+    /**
+     * Get the {@link org.tomahawk.libtomahawk.collection.Playlist} by providing its cache key
+     */
+    public static Playlist getPlaylistById(String key) {
+        return sPlaylists.get(key);
+    }
+
+    public String getCacheKey() {
+        return mId;
+    }
+
+    public String getId() {
+        return mId;
+    }
+
+    public String getCurrentRevision() {
+        return mCurrentRevision;
+    }
+
+    public boolean isHatchetPlaylist() {
+        return mIsHatchetPlaylist;
+    }
+
+    public ArrayList<Artist> getContentHeaderArtists() {
+        return mContentHeaderArtists;
+    }
+
+    public void addContentHeaderArtists(Artist artist) {
+        mContentHeaderArtists.add(artist);
     }
 
     /**
      * @return this object' name
      */
+    @Override
     public String getName() {
         return mName;
     }
@@ -82,7 +170,7 @@ public abstract class Playlist {
     /**
      * Set this {@link Playlist}'s {@link Query}s
      */
-    public void setQueries(Collection<Query> queries) {
+    public void setQueries(java.util.Collection<Query> queries) {
         mQueries = (ArrayList<Query>) queries;
         mCurrentQueryIndex = 0;
     }
@@ -344,5 +432,39 @@ public abstract class Playlist {
         if (mCurrentQueryIndex > (mShuffled ? mShuffledQueries : mQueries).size()) {
             mCurrentQueryIndex--;
         }
+    }
+
+    /**
+     * @return always null. This method needed to comply to the {@link TomahawkListItem} interface.
+     */
+    @Override
+    public Artist getArtist() {
+        return null;
+    }
+
+    /**
+     * @return always null. This method needed to comply to the {@link TomahawkListItem} interface.
+     */
+    @Override
+    public Album getAlbum() {
+        return null;
+    }
+
+    @Override
+    public Image getImage() {
+        for (Artist artist : mContentHeaderArtists) {
+            if (artist.getImage() != null && !TextUtils.isEmpty(artist.getImage().getImagePath())) {
+                return artist.getImage();
+            }
+        }
+        return null;
+    }
+
+    public boolean isFilled() {
+        return mIsFilled;
+    }
+
+    public void setFilled(boolean isFilled) {
+        mIsFilled = isFilled;
     }
 }
