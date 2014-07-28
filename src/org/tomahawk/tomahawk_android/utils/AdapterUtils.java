@@ -386,6 +386,10 @@ public class AdapterUtils {
                 .equals(socialAction.getType())) {
             String phrase = resources.getString(R.string.socialaction_type_createplaylist);
             viewHolder.getTextView1().setText(socialAction.getUser().getName() + " " + phrase);
+        } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_DELETEPLAYLIST
+                .equals(socialAction.getType())) {
+            String phrase = resources.getString(R.string.socialaction_type_deletedplaylist);
+            viewHolder.getTextView1().setText(socialAction.getUser().getName() + " " + phrase);
         } else {
             // Fallback, if no view is set yet
             viewHolder.getTextView1().setText("!FIXME! type: " + socialAction.getType()

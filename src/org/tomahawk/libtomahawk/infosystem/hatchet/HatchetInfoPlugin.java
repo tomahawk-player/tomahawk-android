@@ -119,6 +119,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
     public static final String HATCHET_SOCIALACTION_TYPE_CREATEPLAYLIST = "createplaylist";
 
+    public static final String HATCHET_SOCIALACTION_TYPE_DELETEPLAYLIST = "deleteplaylist";
+
     public static final String HATCHET_FRIENDSFEED = "friendsFeed";
 
     public static final String HATCHET_LOVEDITEMS = "lovedItems";
