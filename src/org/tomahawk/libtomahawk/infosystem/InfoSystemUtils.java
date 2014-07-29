@@ -71,7 +71,7 @@ public class InfoSystemUtils {
     /**
      * Convert the given playlist entry data, add it to a Playlist object and return that.
      *
-     * @param playlist    the Playlist to fill with entries(queries)
+     * @param playlist        the Playlist to fill with entries(queries)
      * @param playlistEntries Object containing info about each entry of the playlist
      * @return the filled Playlist object
      */
@@ -286,7 +286,8 @@ public class InfoSystemUtils {
             HatchetSocialAction hatchetSocialAction, Map<String, HatchetTrackInfo> trackInfoMap,
             Map<String, HatchetArtistInfo> artistInfoMap,
             Map<String, HatchetAlbumInfo> albumInfoMap,
-            Map<String, HatchetUserInfo> userInfoMap) {
+            Map<String, HatchetUserInfo> userInfoMap,
+            Map<String, HatchetPlaylistInfo> playlistInfoMap) {
         if (hatchetSocialAction != null) {
             socialAction.setAction(hatchetSocialAction.action);
             socialAction.setDate(hatchetSocialAction.date);
@@ -314,6 +315,11 @@ public class InfoSystemUtils {
                 HatchetUserInfo userInfo = userInfoMap.get(hatchetSocialAction.target);
                 socialAction.setTarget(convertToUser(userInfo, trackInfoMap, artistInfoMap, null));
             }
+            if (hatchetSocialAction.playlist != null) {
+                HatchetPlaylistInfo playlistInfo = playlistInfoMap
+                        .get(hatchetSocialAction.playlist);
+                socialAction.setPlaylist(convertToPlaylist(playlistInfo));
+            }
         }
         return socialAction;
     }
@@ -325,10 +331,11 @@ public class InfoSystemUtils {
             Map<String, HatchetTrackInfo> trackInfoMap,
             Map<String, HatchetArtistInfo> artistInfoMap,
             Map<String, HatchetAlbumInfo> albumInfoMap,
-            Map<String, HatchetUserInfo> userInfoMap) {
+            Map<String, HatchetUserInfo> userInfoMap,
+            Map<String, HatchetPlaylistInfo> playlistInfoMap) {
         SocialAction socialAction = SocialAction.get(hatchetSocialAction.id);
         fillSocialAction(socialAction, hatchetSocialAction, trackInfoMap, artistInfoMap,
-                albumInfoMap, userInfoMap);
+                albumInfoMap, userInfoMap, playlistInfoMap);
         return socialAction;
     }
 

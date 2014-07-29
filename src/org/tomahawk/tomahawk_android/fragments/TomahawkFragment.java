@@ -386,7 +386,8 @@ public class TomahawkFragment extends TomahawkListFragment
         Adapter adapter = isShowGridView() ? getGridAdapter() : getListAdapter();
         TomahawkListItem tomahawkListItem = ((TomahawkListItem) adapter.getItem(position));
         if ((tomahawkListItem instanceof SocialAction
-                && ((SocialAction) tomahawkListItem).getTargetObject() instanceof User)
+                && (((SocialAction) tomahawkListItem).getTargetObject() instanceof User
+                || ((SocialAction) tomahawkListItem).getTargetObject() instanceof Playlist))
                 || tomahawkListItem instanceof User) {
             return false;
         }

@@ -791,11 +791,18 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                 userInfoMap.put(userInfo.id, userInfo);
                             }
                         }
+                        Map<String, HatchetPlaylistInfo> playlistInfoMap
+                                = new HashMap<String, HatchetPlaylistInfo>();
+                        if (response.playlists != null) {
+                            for (HatchetPlaylistInfo playlistInfo : response.playlists) {
+                                playlistInfoMap.put(playlistInfo.id, playlistInfo);
+                            }
+                        }
                         ArrayList<SocialAction> socialActions = new ArrayList<SocialAction>();
                         for (HatchetSocialAction hatchetSocialAction : response.socialActions) {
-                            socialActions.add(InfoSystemUtils
-                                    .convertToSocialAction(hatchetSocialAction, trackInfoMap,
-                                            artistInfoMap, albumInfoMap, userInfoMap));
+                            socialActions.add(InfoSystemUtils.convertToSocialAction(
+                                    hatchetSocialAction, trackInfoMap, artistInfoMap, albumInfoMap,
+                                    userInfoMap, playlistInfoMap));
                         }
                         if (infoRequestData.getType()
                                 == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS) {

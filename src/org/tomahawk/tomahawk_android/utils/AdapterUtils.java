@@ -385,7 +385,10 @@ public class AdapterUtils {
         } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_CREATEPLAYLIST
                 .equals(socialAction.getType())) {
             String phrase = resources.getString(R.string.socialaction_type_createplaylist);
-            viewHolder.getTextView1().setText(socialAction.getUser().getName() + " " + phrase);
+            viewHolder.getTextView1()
+                    .setText(socialAction.getUser().getName() + " " + phrase + ":");
+            viewHolder.getTextView2().setVisibility(View.VISIBLE);
+            viewHolder.getTextView2().setText(socialAction.getPlaylist().getName());
         } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_DELETEPLAYLIST
                 .equals(socialAction.getType())) {
             String phrase = resources.getString(R.string.socialaction_type_deletedplaylist);
