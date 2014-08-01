@@ -18,17 +18,13 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
-import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
+import org.tomahawk.libtomahawk.infosystem.QueryParams;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
-import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaylistEntries;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
@@ -89,84 +85,9 @@ public class CollectionManager {
                             new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
                                 @Override
                                 public void run() {
-                                    InfoRequestData data = InfoSystem.getInstance()
-                                            .removeInfoRequestById(requestId);
-                                    if (data.getType()
-                                            == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS) {
-                                        ArrayList<Playlist> storedLists
-                                                = DatabaseHelper.getInstance()
-                                                .getHatchetPlaylists();
-                                        HashMap<String, Playlist> storedListsMap
-                                                = new HashMap<String, Playlist>();
-                                        for (Playlist storedList : storedLists) {
-                                            storedListsMap.put(storedList.getId(), storedList);
-                                        }
-                                        List<Playlist> fetchedLists = data
-                                                .getConvertedResultMap()
-                                                .get(HatchetInfoPlugin.HATCHET_PLAYLISTS);
-                                        for (Playlist fetchedList : fetchedLists) {
-                                            Playlist storedList = storedListsMap
-                                                    .remove(fetchedList.getId());
-                                            if (storedList == null) {
-                                                DatabaseHelper.getInstance().storePlaylist(
-                                                        fetchedList);
-                                                fetchHatchetPlaylistEntries(fetchedList.getId());
-                                            } else if (!storedList.getCurrentRevision()
-                                                    .equals(fetchedList.getCurrentRevision())
-                                                    || DatabaseHelper.getInstance()
-                                                    .getPlaylistTrackCount(storedList.getId())
-                                                    == 0) {
-                                                fetchHatchetPlaylistEntries(storedList.getId());
-                                            } else if (!storedList.getName()
-                                                    .equals(fetchedList.getName())) {
-                                                DatabaseHelper.getInstance().renamePlaylist(
-                                                        storedList, fetchedList.getName());
-                                            }
-                                        }
-                                        for (Playlist storedList : storedListsMap.values()) {
-                                            DatabaseHelper.getInstance().deletePlaylist(
-                                                    storedList.getId());
-                                        }
-                                    } else if (data.getType()
-                                            == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES) {
-                                        HatchetPlaylistEntries
-                                                playlistEntries = (HatchetPlaylistEntries) data
-                                                .getInfoResult();
-                                        Playlist playlist = mPlaylists
-                                                .get(mRequestIdPlaylistMap.get(requestId));
-                                        if (playlist != null && playlistEntries != null) {
-                                            playlist = InfoSystemUtils
-                                                    .fillPlaylist(playlist,
-                                                            playlistEntries);
-                                            DatabaseHelper.getInstance()
-                                                    .storePlaylist(playlist);
-                                        }
-                                    } else if (data.getType()
-                                            == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
-                                        List<Playlist> fetchedLists = data
-                                                .getConvertedResultMap()
-                                                .get(HatchetInfoPlugin.HATCHET_PLAYLISTS);
-                                        if (fetchedLists.size() > 0) {
-                                            DatabaseHelper.getInstance().storePlaylist(
-                                                    fetchedLists.get(0));
-                                        }
-                                    } else if (data.getType()
-                                            == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS) {
-                                        List<Album> fetchedAlbums = data.getConvertedResultMap()
-                                                .get(HatchetInfoPlugin.HATCHET_ALBUMS);
-                                        if (fetchedAlbums.size() > 0) {
-                                            DatabaseHelper.getInstance()
-                                                    .storeStarredAlbums(fetchedAlbums);
-                                        }
-                                    } else if (data.getType()
-                                            == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDARTISTS) {
-                                        List<Artist> fetchedArtists = data.getConvertedResultMap()
-                                                .get(HatchetInfoPlugin.HATCHET_ARTISTS);
-                                        if (fetchedArtists.size() > 0) {
-                                            DatabaseHelper.getInstance()
-                                                    .storeStarredArtists(fetchedArtists);
-                                        }
-                                    }
+                                    InfoRequestData infoRequestData =
+                                            InfoSystem.getInstance().getInfoRequestById(requestId);
+                                    handleHatchetPlaylistResponse(infoRequestData);
                                 }
                             }
                     );
@@ -206,6 +127,7 @@ public class CollectionManager {
             updateLovedItemsPlaylist();
             updatePlaylists();
             fetchHatchetPlaylists();
+            fetchLovedItemsPlaylist();
             fetchStarredAlbums();
             fetchStarredArtists();
 
@@ -232,8 +154,8 @@ public class CollectionManager {
     }
 
     /**
-     * @return A {@link java.util.List} of all {@link Playlist}s
-     * in this {@link org.tomahawk.libtomahawk.collection.CollectionManager}
+     * @return A {@link java.util.List} of all {@link Playlist}s in this {@link
+     * org.tomahawk.libtomahawk.collection.CollectionManager}
      */
     public ArrayList<Playlist> getLocalPlaylists() {
         ArrayList<Playlist> playlists = new ArrayList<Playlist>();
@@ -248,8 +170,8 @@ public class CollectionManager {
     }
 
     /**
-     * @return A {@link java.util.List} of all {@link Playlist}s
-     * in this {@link org.tomahawk.libtomahawk.collection.CollectionManager}
+     * @return A {@link java.util.List} of all {@link Playlist}s in this {@link
+     * org.tomahawk.libtomahawk.collection.CollectionManager}
      */
     public ArrayList<Playlist> getHatchetPlaylists() {
         ArrayList<Playlist> playlists = new ArrayList<Playlist>();
@@ -278,8 +200,8 @@ public class CollectionManager {
     }
 
     /**
-     * Remove or add a lovedItem-query from the LovedItems-Playlist, depending on whether or not
-     * it is already a lovedItem
+     * Remove or add a lovedItem-query from the LovedItems-Playlist, depending on whether or not it
+     * is already a lovedItem
      */
     public void toggleLovedItem(Query query) {
         boolean doSweetSweetLovin = !DatabaseHelper.getInstance().isItemLoved(query);
@@ -328,9 +250,9 @@ public class CollectionManager {
     }
 
     /**
-     * Fetch the lovedItems Playlist from the Hatchet API and store it in the local db, if the
-     * log of pending operations is empty. Meaning if every love/unlove has already been delivered
-     * to the API.
+     * Fetch the lovedItems Playlist from the Hatchet API and store it in the local db, if the log
+     * of pending operations is empty. Meaning if every love/unlove has already been delivered to
+     * the API.
      */
     public void fetchLovedItemsPlaylist() {
         if (DatabaseHelper.getInstance().getLoggedOps().isEmpty()) {
@@ -374,8 +296,8 @@ public class CollectionManager {
     }
 
     /**
-     * Fetch all user {@link Playlist} from the app's
-     * database via our helper class {@link org.tomahawk.libtomahawk.database.DatabaseHelper}
+     * Fetch all user {@link Playlist} from the app's database via our helper class {@link
+     * org.tomahawk.libtomahawk.database.DatabaseHelper}
      */
     private void updatePlaylists() {
         new Thread(new Runnable() {
@@ -415,12 +337,60 @@ public class CollectionManager {
     /**
      * Fetch the Playlist entries from the Hatchet API and store them in the local db.
      */
-    public void fetchHatchetPlaylistEntries(String playlistId) {
-        Multimap<String, String> params = HashMultimap.create(1, 1);
-        params.put(HatchetInfoPlugin.HATCHET_PARAM_ID, playlistId);
+    public void fetchHatchetPlaylistEntries(Playlist playlist) {
+        QueryParams params = new QueryParams();
+        params.playlist_id = playlist.getId();
         String requestid = InfoSystem.getInstance()
-                .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES, params);
+                .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES, params, playlist);
         mCorrespondingRequestIds.add(requestid);
-        mRequestIdPlaylistMap.put(requestid, playlistId);
+        mRequestIdPlaylistMap.put(requestid, playlist.getId());
+    }
+
+    public void handleHatchetPlaylistResponse(InfoRequestData data) {
+        if (data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS) {
+            ArrayList<Playlist> storedLists = DatabaseHelper.getInstance().getHatchetPlaylists();
+            HashMap<String, Playlist> storedListsMap = new HashMap<String, Playlist>();
+            for (Playlist storedList : storedLists) {
+                storedListsMap.put(storedList.getId(), storedList);
+            }
+            List<Object> fetchedLists = data.getResultListMap().get(Playlist.class);
+            for (Object object : fetchedLists) {
+                Playlist fetchedList = (Playlist) object;
+                Playlist storedList = storedListsMap.remove(fetchedList.getId());
+                if (storedList == null) {
+                    DatabaseHelper.getInstance().storePlaylist(fetchedList);
+                    fetchHatchetPlaylistEntries(fetchedList);
+                } else if (!storedList.getCurrentRevision().equals(fetchedList.getCurrentRevision())
+                        || DatabaseHelper.getInstance().getPlaylistTrackCount(storedList.getId())
+                        == 0) {
+                    fetchHatchetPlaylistEntries(storedList);
+                } else if (!storedList.getName().equals(fetchedList.getName())) {
+                    DatabaseHelper.getInstance().renamePlaylist(storedList, fetchedList.getName());
+                }
+            }
+            for (Playlist storedList : storedListsMap.values()) {
+                DatabaseHelper.getInstance().deletePlaylist(storedList.getId());
+            }
+        } else if (data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES) {
+            Object filledList = data.getResultMap().get(Playlist.class);
+            DatabaseHelper.getInstance().storePlaylist((Playlist) filledList);
+        } else if (data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
+            Object fetchedList = data.getResultMap().get(Playlist.class);
+            DatabaseHelper.getInstance().storePlaylist((Playlist) fetchedList);
+        } else if (data.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS) {
+            List<Album> fetchedAlbums = new ArrayList<Album>();
+            for (Object object : data.getResultListMap().get(Album.class)) {
+                fetchedAlbums.add((Album) object);
+            }
+            DatabaseHelper.getInstance().storeStarredAlbums(fetchedAlbums);
+        } else if (data.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDARTISTS) {
+            List<Artist> fetchedArtists = new ArrayList<Artist>();
+            for (Object object : data.getResultListMap().get(Artist.class)) {
+                fetchedArtists.add((Artist) object);
+            }
+            DatabaseHelper.getInstance().storeStarredArtists(fetchedArtists);
+        }
     }
 }

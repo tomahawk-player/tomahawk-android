@@ -17,12 +17,9 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-
 import java.util.List;
 import java.util.Map;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ScriptResolverConfigUi {
 
     public String widget;

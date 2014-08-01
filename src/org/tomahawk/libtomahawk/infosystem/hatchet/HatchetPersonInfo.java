@@ -19,11 +19,9 @@ package org.tomahawk.libtomahawk.infosystem.hatchet;
 
 import java.util.List;
 
-public class HatchetPersonInfo {
+public class HatchetPersonInfo extends Mappable {
 
     public String disambiguation;
-
-    public String id;
 
     public List<HatchetImage> images;
 

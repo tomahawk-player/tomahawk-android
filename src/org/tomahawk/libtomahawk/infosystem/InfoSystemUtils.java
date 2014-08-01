@@ -17,9 +17,10 @@
  */
 package org.tomahawk.libtomahawk.infosystem;
 
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
@@ -30,43 +31,24 @@ import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetArtistInfo;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetChartItem;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetImage;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaybackItemResponse;
-import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaybackLogResponse;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaybackLogsResponse;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaylistEntries;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaylistEntryInfo;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaylistInfo;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetSocialAction;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetTrackInfo;
-import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetTracks;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetUserInfo;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.utils.ISO8601DateFormat;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.text.TextUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class InfoSystemUtils {
-
-    public static Query convertToQuery(HatchetTrackInfo trackInfo, HatchetAlbumInfo albumInfo,
-            HatchetArtistInfo artistInfo) {
-        String trackName;
-        String artistName = "";
-        String albumName = "";
-        if (trackInfo != null) {
-            trackName = trackInfo.name;
-            if (artistInfo != null) {
-                artistName = artistInfo.name;
-            }
-            if (albumInfo != null) {
-                albumName = albumInfo.name;
-            }
-            return Query.get(trackName, albumName, artistName, false, true);
-        }
-        return null;
-    }
 
     /**
      * Convert the given playlist entry data, add it to a Playlist object and return that.
@@ -79,32 +61,15 @@ public class InfoSystemUtils {
             HatchetPlaylistEntries playlistEntries) {
         if (playlist != null && playlistEntries != null) {
             ArrayList<Query> queries = new ArrayList<Query>();
-            // Convert our Lists to Maps containing the id as the key, so we can efficiently build the
-            // list of Queries afterwards
-            Map<String, HatchetTrackInfo> trackInfoMap = new HashMap<String, HatchetTrackInfo>();
-            if (playlistEntries.tracks != null) {
-                for (HatchetTrackInfo trackInfo : playlistEntries.tracks) {
-                    trackInfoMap.put(trackInfo.id, trackInfo);
-                }
-            }
-            Map<String, HatchetArtistInfo> artistInfoMap = new HashMap<String, HatchetArtistInfo>();
-            if (playlistEntries.artists != null) {
-                for (HatchetArtistInfo artistInfo : playlistEntries.artists) {
-                    artistInfoMap.put(artistInfo.id, artistInfo);
-                }
-            }
-            Map<String, HatchetAlbumInfo> albumInfoMap = new HashMap<String, HatchetAlbumInfo>();
-            if (playlistEntries.albums != null) {
-                for (HatchetAlbumInfo albumInfo : playlistEntries.albums) {
-                    albumInfoMap.put(albumInfo.id, albumInfo);
-                }
-            }
             for (HatchetPlaylistEntryInfo playlistEntryInfo : playlistEntries.playlistEntries) {
-                HatchetTrackInfo trackInfo = trackInfoMap.get(playlistEntryInfo.track);
+                HatchetTrackInfo trackInfo = playlistEntries.tracks.get(playlistEntryInfo.track);
                 if (trackInfo != null) {
-                    HatchetArtistInfo artistInfo = artistInfoMap.get(trackInfo.artist);
-                    HatchetAlbumInfo albumInfo = albumInfoMap.get(playlistEntryInfo.album);
-                    queries.add(convertToQuery(trackInfo, albumInfo, artistInfo));
+                    HatchetArtistInfo artistInfo = playlistEntries.artists.get(trackInfo.artist);
+                    String albumName = null;
+                    if (playlistEntries.albums != null && playlistEntryInfo.album != null) {
+                        albumName = playlistEntries.albums.get(playlistEntryInfo.album).name;
+                    }
+                    queries.add(Query.get(trackInfo.name, albumName, artistInfo.name, false));
                 }
             }
             playlist.setQueries(queries);
@@ -130,8 +95,7 @@ public class InfoSystemUtils {
      * Fill the given artist with the given artistinfo, without overriding any values that have
      * already been set
      */
-    public static Artist fillArtist(Artist artist, HatchetArtistInfo artistInfo,
-            HatchetImage image) {
+    public static Artist fillArtist(Artist artist, HatchetImage image) {
         if (artist.getImage() == null && image != null && !TextUtils.isEmpty(image.squareurl)) {
             artist.setImage(org.tomahawk.libtomahawk.collection.Image.get(image.squareurl, true,
                     image.width, image.height));
@@ -140,35 +104,16 @@ public class InfoSystemUtils {
     }
 
     /**
-     * Fill the given artist's albums with the given list of albums
-     */
-    public static List<Album> convertToAlbumList(Artist artist,
-            Map<HatchetAlbumInfo, HatchetTracks> tracksMap,
-            Map<HatchetAlbumInfo, HatchetImage> imageMap) {
-        ArrayList<Album> albums = new ArrayList<Album>();
-        if (tracksMap != null && imageMap != null) {
-            for (HatchetAlbumInfo albumInfo : tracksMap.keySet()) {
-                HatchetImage image = imageMap.get(albumInfo);
-                List<HatchetTrackInfo> trackInfos = tracksMap.get(albumInfo).tracks;
-                Album album = convertToAlbum(albumInfo, artist.getName(), trackInfos,
-                        image);
-                albums.add(album);
-            }
-        }
-        return albums;
-    }
-
-    /**
      * Fill the given artist with the given list of top-hit tracks
      */
-    public static Artist fillArtist(Artist artist,
-            Map<HatchetChartItem, HatchetTrackInfo> trackInfoMap) {
+    public static Artist fillArtist(Artist artist, List<HatchetChartItem> chartItems,
+            Map<String, HatchetTrackInfo> tracks) {
         HatchetCollection hatchetCollection = (HatchetCollection) CollectionManager
                 .getInstance().getCollection(TomahawkApp.PLUGINNAME_HATCHET);
-        if (trackInfoMap != null) {
+        if (tracks != null) {
             ArrayList<Query> tophits = new ArrayList<Query>();
-            for (HatchetChartItem chartItem : trackInfoMap.keySet()) {
-                HatchetTrackInfo trackInfos = trackInfoMap.get(chartItem);
+            for (HatchetChartItem chartItem : chartItems) {
+                HatchetTrackInfo trackInfos = tracks.get(chartItem.track);
                 Query query = Query
                         .get(trackInfos.name, "", artist.getName(), false, true);
                 tophits.add(query);
@@ -183,7 +128,7 @@ public class InfoSystemUtils {
      */
     public static Artist convertToArtist(HatchetArtistInfo artistInfo, HatchetImage image) {
         Artist artist = Artist.get(artistInfo.name);
-        fillArtist(artist, artistInfo, image);
+        fillArtist(artist, image);
         return artist;
     }
 
@@ -191,7 +136,7 @@ public class InfoSystemUtils {
      * Fill the given album with the given albuminfo, without overriding any values that have
      * already been set
      */
-    public static Album fillAlbum(Album album, HatchetAlbumInfo albumInfo, HatchetImage image) {
+    public static Album fillAlbum(Album album, HatchetImage image) {
         if (album.getImage() == null && image != null && !TextUtils.isEmpty(image.squareurl)) {
             album.setImage(org.tomahawk.libtomahawk.collection.Image.get(image.squareurl, true,
                     image.width, image.height));
@@ -202,14 +147,12 @@ public class InfoSystemUtils {
     /**
      * Fill the given album's tracks with the given list of trackinfos
      */
-    public static Album fillAlbum(Album album, List<HatchetTrackInfo> trackInfos) {
-        if (trackInfos != null) {
-            ArrayList<Query> queries = new ArrayList<Query>();
-            for (HatchetTrackInfo trackInfo : trackInfos) {
+    public static Album fillAlbum(Album album, List<HatchetTrackInfo> tracks) {
+        if (tracks != null) {
+            for (HatchetTrackInfo trackInfo : tracks) {
                 Query query = Query.get(trackInfo.name, album.getName(),
                         album.getArtist().getName(), false, true);
                 album.addQuery(query);
-                queries.add(query);
             }
         }
         return album;
@@ -221,7 +164,7 @@ public class InfoSystemUtils {
     public static Album convertToAlbum(HatchetAlbumInfo albumInfo, String artistName,
             List<HatchetTrackInfo> trackInfos, HatchetImage image) {
         Album album = Album.get(albumInfo.name, Artist.get(artistName));
-        fillAlbum(album, albumInfo, image);
+        fillAlbum(album, image);
         fillAlbum(album, trackInfos);
         return album;
     }
@@ -229,22 +172,11 @@ public class InfoSystemUtils {
     /**
      * Fill the given User with the given HatchetUserInfo
      */
-    public static User fillUser(User user, HatchetUserInfo userInfo,
-            Map<String, HatchetTrackInfo> trackInfoMap,
-            Map<String, HatchetArtistInfo> artistInfoMap,
-            Map<String, HatchetImage> imageMap) {
+    public static User fillUser(User user, HatchetUserInfo userInfo, HatchetTrackInfo track,
+            HatchetArtistInfo artist, HatchetImage image) {
         if (userInfo != null) {
-            HatchetImage image = null;
-            if (imageMap != null && userInfo.images != null && userInfo.images.size() > 0) {
-                image = imageMap.get(userInfo.images.get(0));
-            }
-            if (userInfo.nowplaying != null) {
-                HatchetTrackInfo trackInfo = trackInfoMap.get(userInfo.nowplaying);
-                if (trackInfo != null) {
-                    HatchetArtistInfo artistInfo = artistInfoMap.get(trackInfo.artist);
-                    Query nowPlayingQuery = convertToQuery(trackInfo, null, artistInfo);
-                    user.setNowPlaying(nowPlayingQuery);
-                }
+            if (track != null && artist != null) {
+                user.setNowPlaying(Query.get(track.name, null, artist.name, false));
             }
             if (userInfo.about != null) {
                 user.setAbout(userInfo.about);
@@ -271,11 +203,10 @@ public class InfoSystemUtils {
     /**
      * Convert the given HatchetUserInfo into a User object
      */
-    public static User convertToUser(HatchetUserInfo userInfo,
-            Map<String, HatchetTrackInfo> trackInfoMap,
-            Map<String, HatchetArtistInfo> artistInfoMap, Map<String, HatchetImage> imageMap) {
+    public static User convertToUser(HatchetUserInfo userInfo, HatchetTrackInfo track,
+            HatchetArtistInfo artist, HatchetImage image) {
         User user = User.get(userInfo.id);
-        fillUser(user, userInfo, trackInfoMap, artistInfoMap, imageMap);
+        fillUser(user, userInfo, track, artist, image);
         return user;
     }
 
@@ -283,42 +214,31 @@ public class InfoSystemUtils {
      * Fill the given SocialAction with the given HatchetSocialAction
      */
     public static SocialAction fillSocialAction(SocialAction socialAction,
-            HatchetSocialAction hatchetSocialAction, Map<String, HatchetTrackInfo> trackInfoMap,
-            Map<String, HatchetArtistInfo> artistInfoMap,
-            Map<String, HatchetAlbumInfo> albumInfoMap,
-            Map<String, HatchetUserInfo> userInfoMap,
-            Map<String, HatchetPlaylistInfo> playlistInfoMap) {
+            HatchetSocialAction hatchetSocialAction, HatchetTrackInfo track,
+            HatchetArtistInfo artist, HatchetAlbumInfo album, HatchetUserInfo user,
+            HatchetUserInfo target, HatchetPlaylistInfo playlist) {
         if (hatchetSocialAction != null) {
             socialAction.setAction(hatchetSocialAction.action);
             socialAction.setDate(hatchetSocialAction.date);
             socialAction.setTimeStamp(hatchetSocialAction.timestamp);
             socialAction.setType(hatchetSocialAction.type);
             if (hatchetSocialAction.track != null) {
-                HatchetTrackInfo trackInfo = trackInfoMap.get(hatchetSocialAction.track);
-                HatchetArtistInfo artistInfo = artistInfoMap.get(trackInfo.artist);
-                socialAction.setQuery(convertToQuery(trackInfo, null, artistInfo));
+                socialAction.setQuery(Query.get(track.name, null, artist.name, false));
             }
             if (hatchetSocialAction.artist != null) {
-                HatchetArtistInfo artistInfo = artistInfoMap.get(hatchetSocialAction.artist);
-                socialAction.setArtist(convertToArtist(artistInfo, null));
+                socialAction.setArtist(convertToArtist(artist, null));
             }
             if (hatchetSocialAction.album != null) {
-                HatchetAlbumInfo albumInfo = albumInfoMap.get(hatchetSocialAction.album);
-                socialAction.setAlbum(convertToAlbum(albumInfo,
-                        artistInfoMap.get(albumInfo.artist).name, null, null));
+                socialAction.setAlbum(convertToAlbum(album, artist.name, null, null));
             }
             if (hatchetSocialAction.user != null) {
-                HatchetUserInfo userInfo = userInfoMap.get(hatchetSocialAction.user);
-                socialAction.setUser(convertToUser(userInfo, trackInfoMap, artistInfoMap, null));
+                socialAction.setUser(convertToUser(user, null, null, null));
             }
             if (hatchetSocialAction.target != null) {
-                HatchetUserInfo userInfo = userInfoMap.get(hatchetSocialAction.target);
-                socialAction.setTarget(convertToUser(userInfo, trackInfoMap, artistInfoMap, null));
+                socialAction.setTarget(convertToUser(target, null, null, null));
             }
             if (hatchetSocialAction.playlist != null) {
-                HatchetPlaylistInfo playlistInfo = playlistInfoMap
-                        .get(hatchetSocialAction.playlist);
-                socialAction.setPlaylist(convertToPlaylist(playlistInfo));
+                socialAction.setPlaylist(convertToPlaylist(playlist));
             }
         }
         return socialAction;
@@ -328,30 +248,25 @@ public class InfoSystemUtils {
      * Convert the given HatchetSocialAction into a SocialAction object
      */
     public static SocialAction convertToSocialAction(HatchetSocialAction hatchetSocialAction,
-            Map<String, HatchetTrackInfo> trackInfoMap,
-            Map<String, HatchetArtistInfo> artistInfoMap,
-            Map<String, HatchetAlbumInfo> albumInfoMap,
-            Map<String, HatchetUserInfo> userInfoMap,
-            Map<String, HatchetPlaylistInfo> playlistInfoMap) {
+            HatchetTrackInfo track, HatchetArtistInfo artist, HatchetAlbumInfo album,
+            HatchetUserInfo user, HatchetUserInfo target, HatchetPlaylistInfo playlist) {
         SocialAction socialAction = SocialAction.get(hatchetSocialAction.id);
-        fillSocialAction(socialAction, hatchetSocialAction, trackInfoMap, artistInfoMap,
-                albumInfoMap, userInfoMap, playlistInfoMap);
+        fillSocialAction(socialAction, hatchetSocialAction, track, artist, album, user, target,
+                playlist);
         return socialAction;
     }
 
     /**
      * Convert the given HatchetPlaybackLogResponse into a List of Queries
      */
-    public static ArrayList<Query> convertToQueryList(HatchetPlaybackLogResponse playbackLog,
-            Map<String, HatchetPlaybackItemResponse> playbackitemMap,
-            Map<String, HatchetTrackInfo> trackInfoMap,
-            Map<String, HatchetArtistInfo> artistInfoMap) {
+    public static ArrayList<Query> convertToQueryList(HatchetPlaybackLogsResponse playbackLogs) {
         ArrayList<Query> queries = new ArrayList<Query>();
-        for (String playbackItemId : playbackLog.playbackLogEntries) {
-            HatchetPlaybackItemResponse playbackitem = playbackitemMap.get(playbackItemId);
-            HatchetTrackInfo trackInfo = trackInfoMap.get(playbackitem.track);
-            HatchetArtistInfo artistInfo = artistInfoMap.get(trackInfo.artist);
-            Query q = Query.get(trackInfo.name, "", artistInfo.name, false, true);
+        for (String playbackItemId : playbackLogs.playbackLog.playbackLogEntries) {
+            HatchetPlaybackItemResponse playbackitem =
+                    playbackLogs.playbackLogEntries.get(playbackItemId);
+            HatchetTrackInfo trackInfo = playbackLogs.tracks.get(playbackitem.track);
+            HatchetArtistInfo artistInfo = playbackLogs.artists.get(trackInfo.artist);
+            Query q = Query.get(trackInfo.name, null, artistInfo.name, false, true);
             queries.add(q);
         }
         return queries;
@@ -359,9 +274,9 @@ public class InfoSystemUtils {
 
     public static ObjectMapper constructObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS, false);
-        objectMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.setDateFormat(new org.tomahawk.libtomahawk.utils.ISO8601DateFormat());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.setDateFormat(new ISO8601DateFormat());
         return objectMapper;
     }
 }

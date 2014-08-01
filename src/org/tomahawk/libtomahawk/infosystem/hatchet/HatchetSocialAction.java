@@ -17,12 +17,12 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet;
 
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.util.Date;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-public class HatchetSocialAction {
+public class HatchetSocialAction extends Mappable {
 
     public String action;
 
@@ -37,8 +37,6 @@ public class HatchetSocialAction {
     public Date date;
 
     public Date timestamp;
-
-    public String id;
 
     public String playlist;
 

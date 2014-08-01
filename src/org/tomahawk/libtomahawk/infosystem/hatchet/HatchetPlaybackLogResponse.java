@@ -17,14 +17,12 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet;
 
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.util.List;
 
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-public class HatchetPlaybackLogResponse {
-
-    public String id;
+public class HatchetPlaybackLogResponse extends Mappable {
 
     public String user;
 

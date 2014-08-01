@@ -17,25 +17,43 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import org.tomahawk.libtomahawk.infosystem.deserializer.AlbumsDeserializer;
+import org.tomahawk.libtomahawk.infosystem.deserializer.ArtistsDeserializer;
+import org.tomahawk.libtomahawk.infosystem.deserializer.ImagesDeserializer;
+import org.tomahawk.libtomahawk.infosystem.deserializer.PlaylistsDeserializer;
+import org.tomahawk.libtomahawk.infosystem.deserializer.SearchesDeserializer;
+import org.tomahawk.libtomahawk.infosystem.deserializer.TracksDeserializer;
+import org.tomahawk.libtomahawk.infosystem.deserializer.UsersDeserializer;
+
 import java.util.List;
+import java.util.Map;
 
 public class HatchetSearch {
 
-    public List<HatchetAlbumInfo> albums;
-
-    public List<HatchetArtistInfo> artists;
-
-    public List<HatchetImage> images;
-
-    public List<HatchetPlaylistInfo> playlists;
-
     public List<HatchetSearchItem> searchResults;
 
-    public List<HatchetSearches> searches;
+    @JsonDeserialize(using = AlbumsDeserializer.class)
+    public Map<String, HatchetAlbumInfo> albums;
 
-    public List<HatchetTrackInfo> tracks;
+    @JsonDeserialize(using = ArtistsDeserializer.class)
+    public Map<String, HatchetArtistInfo> artists;
 
-    public List<HatchetUserInfo> users;
+    @JsonDeserialize(using = ImagesDeserializer.class)
+    public Map<String, HatchetImage> images;
+
+    @JsonDeserialize(using = PlaylistsDeserializer.class)
+    public Map<String, HatchetPlaylistInfo> playlists;
+
+    @JsonDeserialize(using = SearchesDeserializer.class)
+    public Map<String, HatchetSearches> searches;
+
+    @JsonDeserialize(using = TracksDeserializer.class)
+    public Map<String, HatchetTrackInfo> tracks;
+
+    @JsonDeserialize(using = UsersDeserializer.class)
+    public Map<String, HatchetUserInfo> users;
 
     public HatchetSearch() {
     }

@@ -19,11 +19,9 @@ package org.tomahawk.libtomahawk.infosystem.hatchet;
 
 import java.util.List;
 
-public class HatchetSearches {
+public class HatchetSearches extends Mappable {
 
     public int count;
-
-    public String id;
 
     public List<String> searchResults;
 

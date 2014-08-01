@@ -31,7 +31,6 @@ import org.tomahawk.libtomahawk.database.TomahawkSQLiteHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
-import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
@@ -88,8 +87,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 
 /**
  * The main Tomahawk activity
@@ -199,18 +196,12 @@ public class TomahawkMainActivity extends ActionBarActivity
                     InfoRequestData data = InfoSystem.getInstance().getInfoRequestById(requestId);
                     if (data != null
                             && data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF) {
-                        Map<String, List> convertedResultMap = data.getConvertedResultMap();
-                        if (convertedResultMap != null) {
-                            List users = convertedResultMap.get(HatchetInfoPlugin.HATCHET_USERS);
-                            if (users != null && users.size() > 0) {
-                                HatchetAuthenticatorUtils authenticatorUtils
-                                        = (HatchetAuthenticatorUtils) AuthenticatorManager
-                                        .getInstance().getAuthenticatorUtils(
-                                                TomahawkApp.PLUGINNAME_HATCHET);
-                                authenticatorUtils.setLoggedInUser((User) users.get(0));
-                                updateDrawer();
-                            }
-                        }
+                        User user = (User) data.getResultMap().get(User.class);
+                        HatchetAuthenticatorUtils authenticatorUtils
+                                = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+                        authenticatorUtils.setLoggedInUser(user);
+                        updateDrawer();
                     }
                 }
             } else if (AuthenticatorManager.CONFIG_TEST_RESULT

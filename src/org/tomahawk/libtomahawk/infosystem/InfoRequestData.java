@@ -17,8 +17,6 @@
  */
 package org.tomahawk.libtomahawk.infosystem;
 
-import com.google.common.collect.Multimap;
-
 import android.util.Log;
 
 import java.io.IOException;
@@ -81,32 +79,26 @@ public class InfoRequestData {
 
     private int mType;
 
-    private Multimap<String, String> mParams;
+    private QueryParams mQueryParams;
 
     private String mJsonStringToSend;
 
     private int mOpLogId;
 
     /**
-     * Storage member-variable. Used if a single Info object is the result.
+     * Storage member-variable. Used if a single object is the result.
      */
-    private Object mInfoResult;
+    private Map<Class, Object> mResultMap;
 
     /**
-     * A Map of several Info objects.
+     * Storage member-variable. Used if one or several list of objects are the result.
      */
-    private Map<String, Map> mInfoResultMap;
+    private Map<Class, List<Object>> mResultListMap;
 
-    /**
-     * In the case, that we search for a given keyword, we are directly converting the results
-     * inside the InfoSystem and storing them in this Map
-     */
-    private Map<String, List> mConvertedResultMap;
-
-    public InfoRequestData(String requestId, int type, Multimap<String, String> params) {
+    public InfoRequestData(String requestId, int type, QueryParams queryParams) {
         mRequestId = requestId;
         mType = type;
-        mParams = params;
+        mQueryParams = queryParams;
     }
 
     public InfoRequestData(String requestId, int hatchetSpecificType, Object objectToSend) {
@@ -137,32 +129,24 @@ public class InfoRequestData {
         return mType;
     }
 
-    public Object getInfoResult() {
-        return mInfoResult;
+    public Map<Class, Object> getResultMap() {
+        return mResultMap;
     }
 
-    public void setInfoResult(Object infoResult) {
-        mInfoResult = infoResult;
+    public void setResultMap(Map<Class, Object> resultMap) {
+        mResultMap = resultMap;
     }
 
-    public Map<String, Map> getInfoResultMap() {
-        return mInfoResultMap;
+    public Map<Class, List<Object>> getResultListMap() {
+        return mResultListMap;
     }
 
-    public void setInfoResultMap(Map<String, Map> infoResultMap) {
-        mInfoResultMap = infoResultMap;
+    public void setResultListMap(Map<Class, List<Object>> resultListMap) {
+        mResultListMap = resultListMap;
     }
 
-    public Map<String, List> getConvertedResultMap() {
-        return mConvertedResultMap;
-    }
-
-    public void setConvertedResultMap(Map<String, List> convertedResultMap) {
-        mConvertedResultMap = convertedResultMap;
-    }
-
-    public Multimap<String, String> getParams() {
-        return mParams;
+    public QueryParams getQueryParams() {
+        return mQueryParams;
     }
 
     public String getJsonStringToSend() {

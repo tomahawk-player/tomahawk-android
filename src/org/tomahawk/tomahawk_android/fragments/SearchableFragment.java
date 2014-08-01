@@ -20,9 +20,9 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
-import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
@@ -43,8 +43,6 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * {@link TomahawkFragment} which offers both local and non-local search functionality to the user.
@@ -168,25 +166,18 @@ public class SearchableFragment extends TomahawkFragment
     }
 
     public void getInfoResults(String requestId) {
-        Map<String, List> convertedResultMap = InfoSystem.getInstance().getInfoRequestById(
-                requestId)
-                .getConvertedResultMap();
-        if (convertedResultMap != null) {
-            ArrayList<Artist> artists = (ArrayList<Artist>) convertedResultMap
-                    .get(HatchetInfoPlugin.HATCHET_ARTISTS);
-            if (artists != null) {
-                mShownArtists = artists;
-            }
-            ArrayList<Album> albums = (ArrayList<Album>) convertedResultMap
-                    .get(HatchetInfoPlugin.HATCHET_ALBUMS);
-            if (albums != null) {
-                mShownAlbums = albums;
-            }
-            ArrayList<User> users = (ArrayList<User>) convertedResultMap
-                    .get(HatchetInfoPlugin.HATCHET_USERS);
-            if (users != null) {
-                mShownUsers = users;
-            }
+        InfoRequestData data = InfoSystem.getInstance().getInfoRequestById(requestId);
+        mShownAlbums.clear();
+        mShownArtists.clear();
+        mShownUsers.clear();
+        for (Object object : data.getResultListMap().get(Album.class)) {
+            mShownAlbums.add((Album) object);
+        }
+        for (Object object : data.getResultListMap().get(Artist.class)) {
+            mShownArtists.add((Artist) object);
+        }
+        for (Object object : data.getResultListMap().get(User.class)) {
+            mShownUsers.add((User) object);
         }
     }
 

@@ -20,11 +20,9 @@ package org.tomahawk.libtomahawk.infosystem.hatchet;
 import java.util.List;
 import java.util.Map;
 
-public class HatchetAlbumInfo {
+public class HatchetAlbumInfo extends Mappable {
 
     public String artist;
-
-    public String id;
 
     public List<String> images;
 

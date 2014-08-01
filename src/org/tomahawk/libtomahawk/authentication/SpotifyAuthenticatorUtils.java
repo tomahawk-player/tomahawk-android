@@ -17,7 +17,8 @@
  */
 package org.tomahawk.libtomahawk.authentication;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyLogin;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyServiceUtils;

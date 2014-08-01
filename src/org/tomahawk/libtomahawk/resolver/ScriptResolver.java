@@ -17,7 +17,8 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;

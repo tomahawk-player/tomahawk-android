@@ -19,11 +19,9 @@ package org.tomahawk.libtomahawk.infosystem.hatchet;
 
 import java.util.List;
 
-public class HatchetChart {
+public class HatchetChart extends Mappable {
 
     public List<String> chartItems;
-
-    public String id;
 
     public HatchetChart() {
     }

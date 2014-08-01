@@ -17,9 +17,7 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet;
 
-public class HatchetMemberInfo {
-
-    public String id;
+public class HatchetMemberInfo extends Mappable {
 
     public String n;
 

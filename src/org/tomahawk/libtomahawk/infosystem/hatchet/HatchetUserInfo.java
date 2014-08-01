@@ -21,15 +21,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class HatchetUserInfo {
+public class HatchetUserInfo extends Mappable {
 
     public String about;
 
     public int followCount = -1;
 
     public int followersCount = -1;
-
-    public String id;
 
     public List<String> images;
 
