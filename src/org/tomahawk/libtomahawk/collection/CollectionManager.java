@@ -255,7 +255,7 @@ public class CollectionManager {
      * the API.
      */
     public void fetchLovedItemsPlaylist() {
-        if (DatabaseHelper.getInstance().getLoggedOps().isEmpty()) {
+        if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(
                     InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS, null));
         } else {
@@ -271,7 +271,7 @@ public class CollectionManager {
      * API.
      */
     public void fetchStarredArtists() {
-        if (DatabaseHelper.getInstance().getLoggedOps().isEmpty()) {
+        if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveStarredArtists(null));
         } else {
             AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
@@ -286,7 +286,7 @@ public class CollectionManager {
      * API.
      */
     public void fetchStarredAlbums() {
-        if (DatabaseHelper.getInstance().getLoggedOps().isEmpty()) {
+        if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveStarredAlbums(null));
         } else {
             AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()

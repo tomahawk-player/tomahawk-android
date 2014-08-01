@@ -51,6 +51,8 @@ public class InfoSystem {
 
     public static final String INFOSYSTEM_RESULTSREPORTED = "infosystem_resultsreported";
 
+    public static final String INFOSYSTEM_REQUESTFAILED = "infosystem_requestfailed";
+
     public static final String INFOSYSTEM_OPLOGISEMPTIED = "infosystem_oplogisempty";
 
     public static final String INFOSYSTEM_RESULTSREPORTED_REQUESTID
@@ -69,8 +71,11 @@ public class InfoSystem {
     private ConcurrentHashMap<String, InfoRequestData> mRequests
             = new ConcurrentHashMap<String, InfoRequestData>();
 
-    private ConcurrentHashMap<String, InfoRequestData> mSentLoggedOps
+    private ConcurrentHashMap<String, InfoRequestData> mSentRequests
             = new ConcurrentHashMap<String, InfoRequestData>();
+
+    private ConcurrentHashMap<Integer, InfoRequestData> mLoggedOpsMap
+            = new ConcurrentHashMap<Integer, InfoRequestData>();
 
     /**
      * The below HashSets are used to mark the included objects as "already done before"
@@ -448,9 +453,11 @@ public class InfoSystem {
         List<String> requestIds = new ArrayList<String>();
         List<InfoRequestData> loggedOps = DatabaseHelper.getInstance().getLoggedOps();
         for (InfoRequestData loggedOp : loggedOps) {
-            requestIds.add(loggedOp.getRequestId());
-            mSentLoggedOps.put(loggedOp.getRequestId(), loggedOp);
-            send(loggedOp, authenticatorUtils);
+            if (!mLoggedOpsMap.containsKey(loggedOp.getOpLogId())) {
+                mLoggedOpsMap.put(loggedOp.getOpLogId(), loggedOp);
+                requestIds.add(loggedOp.getRequestId());
+                send(loggedOp, authenticatorUtils);
+            }
         }
         return requestIds;
     }
@@ -463,7 +470,7 @@ public class InfoSystem {
      *                           tokens
      */
     private void send(InfoRequestData infoRequestData, AuthenticatorUtils authenticatorUtils) {
-        mRequests.put(infoRequestData.getRequestId(), infoRequestData);
+        mSentRequests.put(infoRequestData.getRequestId(), infoRequestData);
         for (InfoPlugin infoPlugin : mInfoPlugins) {
             infoPlugin.send(infoRequestData, authenticatorUtils);
         }
@@ -479,8 +486,8 @@ public class InfoSystem {
     /**
      * Get the InfoRequestData with the given Id
      */
-    public InfoRequestData removeInfoRequestById(String requestId) {
-        return mRequests.remove(requestId);
+    public InfoRequestData getSentLoggedOpById(String requestId) {
+        return mSentRequests.get(requestId);
     }
 
     /**
@@ -489,14 +496,30 @@ public class InfoSystem {
      */
     public void reportResults(ArrayList<String> doneRequestsIds) {
         for (String doneRequestId : doneRequestsIds) {
-            if (mSentLoggedOps.containsKey(doneRequestId)) {
-                InfoRequestData loggedOp = mSentLoggedOps.get(doneRequestId);
-                DatabaseHelper.getInstance().removeOpFromInfoSystemOpLog(loggedOp.getOpLogId());
-                if (DatabaseHelper.getInstance().getLoggedOps().isEmpty()) {
-                    sendOpLogIsEmptiedBroadcast();
-                }
-            }
             sendReportResultsBroadcast(doneRequestId);
+        }
+    }
+
+    public void requestFailed(ArrayList<String> doneRequestsIds) {
+        for (String doneRequestId : doneRequestsIds) {
+            sendRequestFailedBroadcast(doneRequestId);
+        }
+    }
+
+    public void onLoggedOpsSent(ArrayList<String> doneRequestsIds, boolean success) {
+        List<InfoRequestData> loggedOps = new ArrayList<InfoRequestData>();
+        for (String doneRequestId : doneRequestsIds) {
+            if (mSentRequests.containsKey(doneRequestId)) {
+                InfoRequestData loggedOp = mSentRequests.get(doneRequestId);
+                loggedOps.add(loggedOp);
+                mLoggedOpsMap.remove(loggedOp.getOpLogId());
+            }
+        }
+        if (success) {
+            DatabaseHelper.getInstance().removeOpsFromInfoSystemOpLog(loggedOps);
+            if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
+                sendOpLogIsEmptiedBroadcast();
+            }
         }
     }
 
@@ -505,6 +528,15 @@ public class InfoSystem {
      */
     private void sendReportResultsBroadcast(String requestId) {
         Intent reportIntent = new Intent(INFOSYSTEM_RESULTSREPORTED);
+        reportIntent.putExtra(INFOSYSTEM_RESULTSREPORTED_REQUESTID, requestId);
+        TomahawkApp.getContext().sendBroadcast(reportIntent);
+    }
+
+    /**
+     * Send a broadcast indicating that the request failed
+     */
+    private void sendRequestFailedBroadcast(String requestId) {
+        Intent reportIntent = new Intent(INFOSYSTEM_REQUESTFAILED);
         reportIntent.putExtra(INFOSYSTEM_RESULTSREPORTED_REQUESTID, requestId);
         TomahawkApp.getContext().sendBroadcast(reportIntent);
     }
