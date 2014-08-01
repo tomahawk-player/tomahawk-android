@@ -333,13 +333,7 @@ public class DatabaseHelper {
                 columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
                 new String[]{playlistId}, null, null, null);
         if (playlistsCursor.moveToFirst()) {
-            ConcurrentHashMap<Integer, Long> queryIdMap = new ConcurrentHashMap<Integer, Long>();
-            columns = new String[]{TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME,
-                    TomahawkSQLiteHelper.TRACKS_COLUMN_ARTISTNAME,
-                    TomahawkSQLiteHelper.TRACKS_COLUMN_ALBUMNAME,
-                    TomahawkSQLiteHelper.TRACKS_COLUMN_RESULTHINT,
-                    TomahawkSQLiteHelper.TRACKS_COLUMN_ISFETCHEDVIAHATCHET,
-                    TomahawkSQLiteHelper.TRACKS_COLUMN_ID};
+            columns = new String[]{TomahawkSQLiteHelper.TRACKS_COLUMN_ID};
             Cursor tracksCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_TRACKS, columns,
                     TomahawkSQLiteHelper.TRACKS_COLUMN_IDPLAYLISTS + " = ?",
                     new String[]{playlistId}, null, null, null);
@@ -710,6 +704,22 @@ public class DatabaseHelper {
     /**
      * Remove the operation with the given id from the InfoSystem-OpLog table
      *
+     * @param loggedOps a list of all the operations to remove from the InfoSystem-OpLog table
+     */
+    public void removeOpsFromInfoSystemOpLog(List<InfoRequestData> loggedOps) {
+        mDatabase.beginTransaction();
+        for (InfoRequestData loggedOp : loggedOps) {
+            mDatabase.delete(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG,
+                    TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_ID + " = " + loggedOp.getOpLogId(),
+                    null);
+        }
+        mDatabase.setTransactionSuccessful();
+        mDatabase.endTransaction();
+    }
+
+    /**
+     * Remove the operation with the given id from the InfoSystem-OpLog table
+     *
      * @param opLogId the id of the operation to remove from the InfoSystem-OpLog table
      */
     public void removeOpFromInfoSystemOpLog(int opLogId) {
@@ -744,8 +754,20 @@ public class DatabaseHelper {
     }
 
     /**
-     * Send a broadcast indicating that playlists have been changed in the database and should
-     * be refetched
+     * @return the count of all logged ops that should be delivered to the API
+     */
+    public int getLoggedOpsCount() {
+        String[] columns = new String[]{TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_ID};
+        Cursor opLogCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG,
+                columns, null, null, null, null, null);
+        int count = opLogCursor.getCount();
+        opLogCursor.close();
+        return count;
+    }
+
+    /**
+     * Send a broadcast indicating that playlists have been changed in the database and should be
+     * refetched
      */
     private void sendReportResultsBroadcast() {
         Intent reportIntent = new Intent(PLAYLISTSDATASOURCE_RESULTSREPORTED);
