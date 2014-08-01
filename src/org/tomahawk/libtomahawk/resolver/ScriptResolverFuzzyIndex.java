@@ -17,9 +17,6 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ScriptResolverFuzzyIndex {
 
     public int id;

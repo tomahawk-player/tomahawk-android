@@ -19,9 +19,7 @@ package org.tomahawk.libtomahawk.infosystem.hatchet;
 
 import java.util.List;
 
-public class HatchetLabel {
-
-    public int Id;
+public class HatchetLabel extends Mappable {
 
     public String name;
 

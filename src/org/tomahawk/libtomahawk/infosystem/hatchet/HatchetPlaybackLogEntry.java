@@ -17,7 +17,7 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet;
 
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.util.Date;
 

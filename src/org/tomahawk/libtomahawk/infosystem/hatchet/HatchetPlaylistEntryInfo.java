@@ -17,11 +17,9 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet;
 
-public class HatchetPlaylistEntryInfo {
+public class HatchetPlaylistEntryInfo extends Mappable {
 
     public String album;
-
-    public String id;
 
     public String track;
 

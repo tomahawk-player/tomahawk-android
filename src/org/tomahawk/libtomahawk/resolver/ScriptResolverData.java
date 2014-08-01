@@ -17,11 +17,8 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-
 import java.util.Map;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ScriptResolverData {
 
     public String scriptPath;

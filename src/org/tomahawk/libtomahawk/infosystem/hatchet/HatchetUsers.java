@@ -17,15 +17,25 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import org.tomahawk.libtomahawk.infosystem.deserializer.ArtistsDeserializer;
+import org.tomahawk.libtomahawk.infosystem.deserializer.ImagesDeserializer;
+import org.tomahawk.libtomahawk.infosystem.deserializer.TracksDeserializer;
+
 import java.util.List;
+import java.util.Map;
 
 public class HatchetUsers {
 
-    public List<HatchetArtistInfo> artists;
+    @JsonDeserialize(using = ArtistsDeserializer.class)
+    public Map<String, HatchetArtistInfo> artists;
 
-    public List<HatchetImage> images;
+    @JsonDeserialize(using = ImagesDeserializer.class)
+    public Map<String, HatchetImage> images;
 
-    public List<HatchetTrackInfo> tracks;
+    @JsonDeserialize(using = TracksDeserializer.class)
+    public Map<String, HatchetTrackInfo> tracks;
 
     public List<HatchetUserInfo> users;
 

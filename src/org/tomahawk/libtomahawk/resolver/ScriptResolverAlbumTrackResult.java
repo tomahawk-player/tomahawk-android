@@ -17,11 +17,8 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-
 import java.util.ArrayList;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ScriptResolverAlbumTrackResult {
 
     public String qid;

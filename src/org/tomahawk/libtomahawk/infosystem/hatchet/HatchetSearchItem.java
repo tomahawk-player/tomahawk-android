@@ -17,13 +17,11 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet;
 
-public class HatchetSearchItem {
+public class HatchetSearchItem extends Mappable {
 
     public String album;
 
     public String artist;
-
-    public String id;
 
     public String playlist;
 

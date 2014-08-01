@@ -17,9 +17,7 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet;
 
-public class HatchetRelationshipStruct {
-
-    public String id;
+public class HatchetRelationshipStruct extends Mappable {
 
     public String targetAlbum;
 

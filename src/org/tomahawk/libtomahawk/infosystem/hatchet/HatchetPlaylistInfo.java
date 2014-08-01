@@ -20,13 +20,11 @@ package org.tomahawk.libtomahawk.infosystem.hatchet;
 import java.util.List;
 import java.util.Map;
 
-public class HatchetPlaylistInfo {
+public class HatchetPlaylistInfo extends Mappable {
 
     public String created;
 
     public String currentrevision;
-
-    public String id;
 
     public List<String> playlistEntries;
 

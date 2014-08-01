@@ -20,13 +20,11 @@ package org.tomahawk.libtomahawk.infosystem.hatchet;
 import java.util.List;
 import java.util.Map;
 
-public class HatchetTrackInfo {
+public class HatchetTrackInfo extends Mappable {
 
     public String artist;
 
     public int duration;
-
-    public String id;
 
     public Map<String, String> links;
 

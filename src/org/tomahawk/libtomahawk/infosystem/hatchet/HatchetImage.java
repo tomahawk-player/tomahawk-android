@@ -17,11 +17,9 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet;
 
-public class HatchetImage {
+public class HatchetImage extends Mappable {
 
     public int height;
-
-    public String id;
 
     public String squareurl;
 

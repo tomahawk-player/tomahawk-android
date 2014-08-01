@@ -54,6 +54,8 @@ import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -828,5 +830,27 @@ public class TomahawkUtils {
             }
         }
         return ret && path.delete();
+    }
+
+    public static <T> ArrayList<T> constructArrayList(T... elements) {
+        ArrayList<T> list = new ArrayList<T>();
+        list.addAll(Arrays.asList(elements));
+        return list;
+    }
+
+    public static <T> T carelessGet(List<T> list, int position) {
+        if (list == null || position >= list.size()) {
+            return null;
+        } else {
+            return list.get(position);
+        }
+    }
+
+    public static <T> T carelessGet(Map<String, T> map, String key) {
+        if (map == null || key == null) {
+            return null;
+        } else {
+            return map.get(key);
+        }
     }
 }

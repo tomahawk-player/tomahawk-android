@@ -17,9 +17,6 @@
  */
 package org.tomahawk.libtomahawk.infosystem;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
@@ -37,6 +34,7 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.Intent;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -106,7 +104,7 @@ public class InfoSystem {
     public void ensureInit() {
         if (!mInitialized) {
             mInitialized = true;
-            mInfoPlugins.add(new HatchetInfoPlugin(TomahawkApp.getContext()));
+            mInfoPlugins.add(new HatchetInfoPlugin());
         }
     }
 
@@ -116,8 +114,8 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolve(String keyword) {
-        Multimap<String, String> params = HashMultimap.create(1, 1);
-        params.put(PARAM_TERM, keyword);
+        QueryParams params = new QueryParams();
+        params.term = keyword;
         return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES, params);
     }
 
@@ -131,26 +129,22 @@ public class InfoSystem {
     public ArrayList<String> resolve(Artist artist, boolean justImage) {
         ArrayList<String> requestIds = new ArrayList<String>();
         if (artist != null) {
+            QueryParams params = new QueryParams();
+            params.name = artist.getName();
             if (!mArtistHashSet.contains(artist)) {
                 mArtistHashSet.add(artist);
-                Multimap<String, String> params = HashMultimap.create(1, 1);
-                params.put(PARAM_NAME, artist.getName());
                 String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params,
                         artist);
                 requestIds.add(requestId);
             }
             if (!mArtistTopHitsHashSet.contains(artist) && !justImage) {
                 mArtistTopHitsHashSet.add(artist);
-                Multimap<String, String> params = HashMultimap.create(1, 1);
-                params.put(PARAM_NAME, artist.getName());
                 String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS,
                         params, artist);
                 requestIds.add(requestId);
             }
             if (!mArtistAlbumsHashSet.contains(artist) && !justImage) {
                 mArtistAlbumsHashSet.add(artist);
-                Multimap<String, String> params = HashMultimap.create(1, 1);
-                params.put(PARAM_NAME, artist.getName());
                 String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS,
                         params, artist);
                 requestIds.add(requestId);
@@ -166,11 +160,12 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolve(Album album) {
-        if (album != null && !mAlbumHashSet.contains(album)) {
+        if (album != null && !TextUtils.isEmpty(album.getName())
+                && !mAlbumHashSet.contains(album)) {
             mAlbumHashSet.add(album);
-            Multimap<String, String> params = HashMultimap.create(2, 1);
-            params.put(PARAM_NAME, album.getName());
-            params.put(PARAM_ARTIST_NAME, album.getArtist().getName());
+            QueryParams params = new QueryParams();
+            params.name = album.getName();
+            params.artistname = album.getArtist().getName();
             return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS, params, album);
         }
         return null;
@@ -184,8 +179,9 @@ public class InfoSystem {
      */
     public String resolve(User user) {
         if (user != null) {
-            Multimap<String, String> params = HashMultimap.create(1, 1);
-            params.put(HatchetInfoPlugin.HATCHET_PARAM_IDARRAY, user.getId());
+            QueryParams params = new QueryParams();
+            params.ids = new ArrayList<String>();
+            params.ids.add(user.getId());
             return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS, params, user);
         }
         return null;
@@ -199,8 +195,8 @@ public class InfoSystem {
      */
     public String resolveSocialActions(User user) {
         if (user != null) {
-            Multimap<String, String> params = HashMultimap.create(1, 1);
-            params.put(HatchetInfoPlugin.HATCHET_PARAM_ID, user.getId());
+            QueryParams params = new QueryParams();
+            params.userid = user.getId();
             return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS,
                     params, user);
         }
@@ -215,8 +211,8 @@ public class InfoSystem {
      */
     public String resolveFriendsFeed(User user) {
         if (user != null) {
-            Multimap<String, String> params = HashMultimap.create(1, 1);
-            params.put(HatchetInfoPlugin.HATCHET_PARAM_ID, user.getId());
+            QueryParams params = new QueryParams();
+            params.userid = user.getId();
             return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FRIENDSFEED,
                     params, user);
         }
@@ -231,8 +227,8 @@ public class InfoSystem {
      */
     public String resolvePlaybackLog(User user) {
         if (user != null) {
-            Multimap<String, String> params = HashMultimap.create(1, 1);
-            params.put(HatchetInfoPlugin.HATCHET_PARAM_ID, user.getId());
+            QueryParams params = new QueryParams();
+            params.userid = user.getId();
             return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYBACKLOG,
                     params, user);
         }
@@ -247,10 +243,9 @@ public class InfoSystem {
      */
     public String resolveFollowings(User user) {
         if (user != null) {
-            Multimap<String, String> params = HashMultimap.create(2, 1);
-            params.put(HatchetInfoPlugin.HATCHET_PARAM_USERID, user.getId());
-            params.put(HatchetInfoPlugin.HATCHET_PARAM_TYPE,
-                    HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_FOLLOW);
+            QueryParams params = new QueryParams();
+            params.userid = user.getId();
+            params.type = HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_FOLLOW;
             return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWINGS,
                     params, user);
         }
@@ -265,10 +260,9 @@ public class InfoSystem {
      */
     public String resolveFollowers(User user) {
         if (user != null) {
-            Multimap<String, String> params = HashMultimap.create(2, 1);
-            params.put(HatchetInfoPlugin.HATCHET_PARAM_TARGETUSERID, user.getId());
-            params.put(HatchetInfoPlugin.HATCHET_PARAM_TYPE,
-                    HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_FOLLOW);
+            QueryParams params = new QueryParams();
+            params.targetuserid = user.getId();
+            params.type = HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_FOLLOW;
             return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWERS,
                     params, user);
         }
@@ -281,14 +275,12 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolveStarredAlbums(User user) {
-        Multimap<String, String> params = HashMultimap.create(3, 1);
+        QueryParams params = new QueryParams();
         if (user != null) {
-            params.put(HatchetInfoPlugin.HATCHET_PARAM_USERID, user.getId());
+            params.userid = user.getId();
         }
-        params.put(HatchetInfoPlugin.HATCHET_PARAM_TYPE,
-                HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_LOVE);
-        params.put(HatchetInfoPlugin.HATCHET_PARAM_TARGETTYPE,
-                HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TARGETTYPE_ALBUM);
+        params.type = HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_LOVE;
+        params.targettype = HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TARGETTYPE_ALBUM;
         return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS,
                 params, user);
     }
@@ -299,14 +291,12 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolveStarredArtists(User user) {
-        Multimap<String, String> params = HashMultimap.create(3, 1);
+        QueryParams params = new QueryParams();
         if (user != null) {
-            params.put(HatchetInfoPlugin.HATCHET_PARAM_USERID, user.getId());
+            params.userid = user.getId();
         }
-        params.put(HatchetInfoPlugin.HATCHET_PARAM_TYPE,
-                HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_LOVE);
-        params.put(HatchetInfoPlugin.HATCHET_PARAM_TARGETTYPE,
-                HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TARGETTYPE_ARTIST);
+        params.type = HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_LOVE;
+        params.targettype = HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TARGETTYPE_ARTIST;
         return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDARTISTS,
                 params, user);
     }
@@ -315,10 +305,10 @@ public class InfoSystem {
      * Build an InfoRequestData object with the given data and order results
      *
      * @param type   the type of the InfoRequestData object
-     * @param params a MultiMap of all parameters to be given to the InfoPlugin
+     * @param params all parameters to be given to the InfoPlugin
      * @return the created InfoRequestData's requestId
      */
-    public String resolve(int type, Multimap<String, String> params) {
+    public String resolve(int type, QueryParams params) {
         String requestId = TomahawkMainActivity.getSessionUniqueStringId();
         InfoRequestData infoRequestData = new InfoRequestData(requestId, type, params);
         resolve(infoRequestData);
@@ -329,12 +319,12 @@ public class InfoSystem {
      * Build an InfoRequestData object with the given data and order results
      *
      * @param type           the type of the InfoRequestData object
-     * @param params         a MultiMap of all parameters to be given to the InfoPlugin
+     * @param params         all parameters to be given to the InfoPlugin
      * @param itemToBeFilled the item to automatically be filled after the InfoPlugin fetched the
      *                       results from its source
      * @return the created InfoRequestData's requestId
      */
-    public String resolve(int type, Multimap<String, String> params,
+    public String resolve(int type, QueryParams params,
             TomahawkListItem itemToBeFilled) {
         String requestId = TomahawkMainActivity.getSessionUniqueStringId();
         InfoRequestData infoRequestData = new InfoRequestData(requestId, type, params);
