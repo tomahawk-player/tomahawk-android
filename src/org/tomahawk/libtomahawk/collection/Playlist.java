@@ -52,8 +52,6 @@ public class Playlist implements TomahawkListItem {
 
     private String mCurrentRevision;
 
-    private boolean mIsHatchetPlaylist;
-
     private ArrayList<Artist> mContentHeaderArtists = new ArrayList<Artist>();
 
     private boolean mIsFilled;
@@ -61,15 +59,13 @@ public class Playlist implements TomahawkListItem {
     /**
      * Construct a new empty {@link Playlist}.
      */
-    private Playlist(String id, String name, String currentRevision,
-            boolean isHatchetPlaylist) {
+    private Playlist(String id, String name, String currentRevision) {
         mName = name;
         mShuffled = false;
         mRepeating = false;
         setQueries(new ArrayList<Query>());
         mId = id;
         mCurrentRevision = currentRevision;
-        mIsHatchetPlaylist = isHatchetPlaylist;
     }
 
     /**
@@ -78,14 +74,14 @@ public class Playlist implements TomahawkListItem {
      * @return a reference to the constructed {@link Playlist}
      */
     public static Playlist fromQueryList(String id, String name, String currentRevision,
-            boolean isHatchetPlaylist, ArrayList<Query> queries, int currentQueryIndex) {
+            ArrayList<Query> queries, int currentQueryIndex) {
         if (id == null) {
             id = "";
         }
         if (currentRevision == null) {
             currentRevision = "";
         }
-        Playlist pl = new Playlist(id, name, currentRevision, isHatchetPlaylist);
+        Playlist pl = new Playlist(id, name, currentRevision);
         pl.setQueries(queries);
         pl.setCurrentQueryIndex(currentQueryIndex);
         sPlaylists.put(id, pl);
@@ -99,7 +95,7 @@ public class Playlist implements TomahawkListItem {
      */
     public static Playlist fromQueryList(String id, String name, String currentRevision,
             ArrayList<Query> queries) {
-        return Playlist.fromQueryList(id, name, currentRevision, true, queries, 0);
+        return Playlist.fromQueryList(id, name, currentRevision, queries, 0);
     }
 
     /**
@@ -109,7 +105,7 @@ public class Playlist implements TomahawkListItem {
      */
     public static Playlist fromQueryList(String id, String name, ArrayList<Query> queries,
             int currentQueryIndex) {
-        return Playlist.fromQueryList(id, name, null, false, queries, currentQueryIndex);
+        return Playlist.fromQueryList(id, name, null, queries, currentQueryIndex);
     }
 
     /**
@@ -118,7 +114,7 @@ public class Playlist implements TomahawkListItem {
      * @return a reference to the constructed {@link Playlist}
      */
     public static Playlist fromQueryList(String id, String name, ArrayList<Query> queries) {
-        return Playlist.fromQueryList(id, name, null, false, queries, 0);
+        return Playlist.fromQueryList(id, name, null, queries, 0);
     }
 
     /**
@@ -138,10 +134,6 @@ public class Playlist implements TomahawkListItem {
 
     public String getCurrentRevision() {
         return mCurrentRevision;
-    }
-
-    public boolean isHatchetPlaylist() {
-        return mIsHatchetPlaylist;
     }
 
     public ArrayList<Artist> getContentHeaderArtists() {

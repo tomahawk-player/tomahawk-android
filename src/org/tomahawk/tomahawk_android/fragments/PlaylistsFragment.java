@@ -85,8 +85,7 @@ public class PlaylistsFragment extends TomahawkFragment implements OnItemClickLi
         getActivity().setTitle(getString(R.string.playlistsfragment_title_string));
 
         List<TomahawkListItem> playlists = new ArrayList<TomahawkListItem>();
-        playlists.addAll(CollectionManager.getInstance().getLocalPlaylists());
-        playlists.addAll(CollectionManager.getInstance().getHatchetPlaylists());
+        playlists.addAll(CollectionManager.getInstance().getPlaylists());
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
                     layoutInflater, playlists);

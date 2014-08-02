@@ -386,7 +386,7 @@ public class InfoSystem {
                     InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES,
                     playbackLogPostStruct);
             DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
-                    (int) (timeStamp / 1000));
+                    (int) (timeStamp / 1000), DatabaseHelper.REQUESTTYPE_POST);
             sendLoggedOps(authenticatorUtils);
         }
     }
@@ -428,7 +428,7 @@ public class InfoSystem {
         InfoRequestData infoRequestData = new InfoRequestData(requestId,
                 InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS, socialActionPostStruct);
         DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
-                (int) (timeStamp / 1000));
+                (int) (timeStamp / 1000), DatabaseHelper.REQUESTTYPE_POST);
         sendLoggedOps(authenticatorUtils);
     }
 
@@ -447,6 +447,36 @@ public class InfoSystem {
             String type, boolean action) {
         sendSocialActionPostStruct(authenticatorUtils, null, album.getArtist().getName(),
                 album.getName(), type, action);
+    }
+
+    public void createPlaylist(AuthenticatorUtils authenticatorUtils, String playlistId) {
+        long timeStamp = System.currentTimeMillis();
+        String requestId = TomahawkMainActivity.getLifetimeUniqueStringId();
+        InfoRequestData infoRequestData = new InfoRequestData(requestId,
+                InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS, playlistId);
+        DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
+                (int) (timeStamp / 1000), DatabaseHelper.REQUESTTYPE_DELETE);
+        sendLoggedOps(authenticatorUtils);
+    }
+
+    public void deletePlaylist(AuthenticatorUtils authenticatorUtils, String playlistId) {
+        long timeStamp = System.currentTimeMillis();
+        String requestId = TomahawkMainActivity.getLifetimeUniqueStringId();
+        InfoRequestData infoRequestData = new InfoRequestData(requestId,
+                InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS, playlistId);
+        DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
+                (int) (timeStamp / 1000), DatabaseHelper.REQUESTTYPE_DELETE);
+        sendLoggedOps(authenticatorUtils);
+    }
+
+    public void addQueryToPlaylist(AuthenticatorUtils authenticatorUtils, String playlistId,
+            Query query) {
+
+    }
+
+    public void deleteQueryInPlaylist(AuthenticatorUtils authenticatorUtils, String playlistId,
+            String entryId) {
+
     }
 
     public List<String> sendLoggedOps(AuthenticatorUtils authenticatorUtils) {

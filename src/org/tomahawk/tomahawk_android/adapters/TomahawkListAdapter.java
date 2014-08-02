@@ -388,13 +388,8 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
             } else if (item instanceof Playlist) {
                 TomahawkUtils.loadDrawableIntoImageView(mContext,
                         viewHolder.getImageView1(), R.drawable.ic_action_playlist);
-                if (((Playlist) item).isHatchetPlaylist()) {
-                    viewHolder.getTextView1()
-                            .setText(R.string.hatchet_playlists_categoryheaders_string);
-                } else {
-                    viewHolder.getTextView1()
-                            .setText(R.string.playlists_categoryheaders_string);
-                }
+                viewHolder.getTextView1()
+                        .setText(R.string.playlists_categoryheaders_string);
             } else if (item instanceof User) {
                 TomahawkUtils.loadDrawableIntoImageView(mContext,
                         viewHolder.getImageView1(), R.drawable.ic_action_friends);
@@ -435,11 +430,7 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
         } else if (item instanceof Track) {
             return 6;
         } else if (item instanceof Playlist) {
-            if (((Playlist) item).isHatchetPlaylist()) {
-                return 7;
-            } else {
-                return 8;
-            }
+            return 7;
         } else {
             return 0;
         }

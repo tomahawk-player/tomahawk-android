@@ -64,8 +64,8 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
  * The base class for {@link AlbumsFragment}, {@link TracksFragment}, {@link ArtistsFragment},
- * {@link PlaylistsFragment} and {@link SearchableFragment}. Provides all sorts of functionality
- * to those classes, related to displaying {@link TomahawkListItem}s in whichever needed way.
+ * {@link PlaylistsFragment} and {@link SearchableFragment}. Provides all sorts of functionality to
+ * those classes, related to displaying {@link TomahawkListItem}s in whichever needed way.
  */
 public class TomahawkFragment extends TomahawkListFragment
         implements AdapterView.OnItemLongClickListener, AbsListView.OnScrollListener,
@@ -392,13 +392,11 @@ public class TomahawkFragment extends TomahawkListFragment
             return false;
         }
         boolean showDelete = false;
-        if (tomahawkListItem instanceof Playlist
-                && !((Playlist) tomahawkListItem).isHatchetPlaylist()) {
+        if (tomahawkListItem instanceof Playlist) {
             showDelete = true;
         } else if (!(this instanceof PlaybackFragment)) {
-            if (!(mPlaylist == null || mPlaylist.isHatchetPlaylist()
-                    || DatabaseHelper.LOVEDITEMS_PLAYLIST_ID
-                    .equals(mPlaylist.getId()))) {
+            if (!(mPlaylist == null
+                    || DatabaseHelper.LOVEDITEMS_PLAYLIST_ID.equals(mPlaylist.getId()))) {
                 showDelete = true;
             }
         } else if (tomahawkListItem instanceof Query
