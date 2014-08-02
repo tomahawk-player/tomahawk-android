@@ -17,11 +17,18 @@
  */
 package org.tomahawk.libtomahawk.database;
 
+import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is a helper class to declare the different column names inside our database, and to create
@@ -31,11 +38,9 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     public static final String TAG = TomahawkSQLiteHelper.class.getSimpleName();
 
-    public static final String TABLE_PLAYLISTS = "userplaylists";
+    public static final String TABLE_PLAYLISTS = "playlists";
 
     public static final String PLAYLISTS_COLUMN_ID = "id";
-
-    public static final String PLAYLISTS_COLUMN_ISHATCHETPLAYLIST = "ishatchetplaylist";
 
     public static final String PLAYLISTS_COLUMN_NAME = "name";
 
@@ -47,7 +52,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     public static final String TRACKS_COLUMN_ID = "id";
 
-    public static final String TRACKS_COLUMN_IDPLAYLISTS = "id_userplaylists";
+    public static final String TRACKS_COLUMN_PLAYLISTID = "playlistid";
 
     public static final String TRACKS_COLUMN_TRACKNAME = "trackname";
 
@@ -58,6 +63,8 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
     public static final String TRACKS_COLUMN_RESULTHINT = "resulthint";
 
     public static final String TRACKS_COLUMN_ISFETCHEDVIAHATCHET = "isfetchedviahatchet";
+
+    public static final String TRACKS_COLUMN_PLAYLISTENTRYID = "playlistentryid";
 
     public static final String TABLE_SEARCHHISTORY = "searchhistory";
 
@@ -70,6 +77,8 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
     public static final String INFOSYSTEMOPLOG_COLUMN_ID = "id";
 
     public static final String INFOSYSTEMOPLOG_COLUMN_TYPE = "type";
+
+    public static final String INFOSYSTEMOPLOG_COLUMN_REQUESTTYPE = "requesttype";
 
     public static final String INFOSYSTEMOPLOG_COLUMN_JSONSTRING = "jsonstring";
 
@@ -94,13 +103,12 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "userplaylists.db";
 
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
 
     // Database creation sql statements
     private static final String CREATE_TABLE_PLAYLISTS =
             "CREATE TABLE `" + TABLE_PLAYLISTS + "` (  `"
                     + PLAYLISTS_COLUMN_ID + "` TEXT PRIMARY KEY ,  `"
-                    + PLAYLISTS_COLUMN_ISHATCHETPLAYLIST + "` INTEGER , `"
                     + PLAYLISTS_COLUMN_NAME + "` TEXT , `"
                     + PLAYLISTS_COLUMN_CURRENTTRACKINDEX + "` INTEGER , `"
                     + PLAYLISTS_COLUMN_CURRENTREVISION + "` TEXT );";
@@ -108,13 +116,14 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
     private static final String CREATE_TABLE_TRACKS =
             "CREATE TABLE `" + TABLE_TRACKS + "` (  `"
                     + TRACKS_COLUMN_ID + "` INTEGER PRIMARY KEY AUTOINCREMENT, `"
-                    + TRACKS_COLUMN_IDPLAYLISTS + "` TEXT ,  `"
+                    + TRACKS_COLUMN_PLAYLISTID + "` TEXT ,  `"
                     + TRACKS_COLUMN_TRACKNAME + "` TEXT ,`"
                     + TRACKS_COLUMN_ARTISTNAME + "` TEXT ,`"
                     + TRACKS_COLUMN_ALBUMNAME + "` TEXT ,`"
                     + TRACKS_COLUMN_RESULTHINT + "` TEXT ,`"
-                    + TRACKS_COLUMN_ISFETCHEDVIAHATCHET + "` INTEGER ,"
-                    + " FOREIGN KEY (`" + TRACKS_COLUMN_IDPLAYLISTS + "`)"
+                    + TRACKS_COLUMN_ISFETCHEDVIAHATCHET + "` INTEGER ,`"
+                    + TRACKS_COLUMN_PLAYLISTENTRYID + "` INTEGER ,"
+                    + " FOREIGN KEY (`" + TRACKS_COLUMN_PLAYLISTID + "`)"
                     + " REFERENCES `" + TABLE_PLAYLISTS + "` (`" + PLAYLISTS_COLUMN_ID
                     + "`));";
 
@@ -127,6 +136,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
             "CREATE TABLE `" + TABLE_INFOSYSTEMOPLOG + "` (  `"
                     + INFOSYSTEMOPLOG_COLUMN_ID + "` INTEGER PRIMARY KEY AUTOINCREMENT, `"
                     + INFOSYSTEMOPLOG_COLUMN_TYPE + "` INTEGER, `"
+                    + INFOSYSTEMOPLOG_COLUMN_REQUESTTYPE + "` INTEGER, `"
                     + INFOSYSTEMOPLOG_COLUMN_JSONSTRING + "` TEXT, `"
                     + INFOSYSTEMOPLOG_COLUMN_TIMESTAMP + "` INTEGER);";
 
@@ -158,16 +168,45 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
         database.execSQL(CREATE_TABLE_LOVED_ARTISTS);
     }
 
-    /**
-     * Drops all tables and creates them again
-     */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.d(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion
                 + ", which might destroy all old data");
-        if (oldVersion == 8 && newVersion == 9) {
-            db.execSQL(CREATE_TABLE_LOVED_ALBUMS);
-            db.execSQL(CREATE_TABLE_LOVED_ARTISTS);
+        if (oldVersion == 8 || oldVersion == 9) {
+            if (oldVersion == 8) {
+                db.execSQL(CREATE_TABLE_LOVED_ALBUMS);
+                db.execSQL(CREATE_TABLE_LOVED_ARTISTS);
+            }
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_PLAYLISTS + "`;");
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
+            db.execSQL(CREATE_TABLE_PLAYLISTS);
+            db.execSQL(CREATE_TABLE_TRACKS);
+            // get all logged ops and their timestamps, so we can safely drop the table
+            List<InfoRequestData> loggedOps = new ArrayList<InfoRequestData>();
+            List<Integer> timeStamps = new ArrayList<Integer>();
+            String[] columns = new String[]{TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_ID,
+                    TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TYPE,
+                    TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_JSONSTRING,
+                    TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TIMESTAMP};
+            Cursor opLogCursor = db.query(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG,
+                    columns, null, null, null, null, null);
+            opLogCursor.moveToFirst();
+            while (!opLogCursor.isAfterLast()) {
+                String requestId = TomahawkMainActivity.getSessionUniqueStringId();
+                InfoRequestData infoRequestData = new InfoRequestData(requestId,
+                        opLogCursor.getInt(0), opLogCursor.getInt(1), opLogCursor.getString(2));
+                loggedOps.add(infoRequestData);
+                timeStamps.add(opLogCursor.getInt(3));
+                opLogCursor.moveToNext();
+            }
+            opLogCursor.close();
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_INFOSYSTEMOPLOG + "`;");
+            db.execSQL(CREATE_TABLE_INFOSYSTEMOPLOG);
+            // now repopulate the table with the old data
+            for (int i = 0; i < loggedOps.size(); i++) {
+                DatabaseHelper.getInstance().addOpToInfoSystemOpLog(loggedOps.get(i),
+                        timeStamps.get(i), DatabaseHelper.REQUESTTYPE_POST);
+            }
         } else {
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ALBUMS + "`;");

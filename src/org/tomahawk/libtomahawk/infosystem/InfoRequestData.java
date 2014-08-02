@@ -67,6 +67,10 @@ public class InfoRequestData {
 
     public static final int INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES = 1000;
 
+    public static final int INFOREQUESTDATA_TYPE_PLAYLISTS = 1001;
+
+    public static final int INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES = 1002;
+
     public static final int INFOREQUESTDATA_TYPE_SEARCHES = 1100;
 
     public static final int INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES = 1200;

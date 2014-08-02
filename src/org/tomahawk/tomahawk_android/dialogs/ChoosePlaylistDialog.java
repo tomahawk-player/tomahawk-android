@@ -71,15 +71,15 @@ public class ChoosePlaylistDialog extends DialogFragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 DatabaseHelper.getInstance().addQueriesToPlaylist(
                         CollectionManager.getInstance()
-                                .getLocalPlaylists().get(position).getId(), queries);
+                                .getPlaylists().get(position).getId(), queries);
                 getDialog().dismiss();
             }
         });
-        int customPlaylistCount = CollectionManager.getInstance().getLocalPlaylists().size();
+        int customPlaylistCount = CollectionManager.getInstance().getPlaylists().size();
         List<String> playlistNames = new ArrayList<String>();
         for (int i = 0; i < customPlaylistCount; i++) {
             playlistNames
-                    .add(CollectionManager.getInstance().getLocalPlaylists().get(i).getName());
+                    .add(CollectionManager.getInstance().getPlaylists().get(i).getName());
         }
         listView.setAdapter(
                 new TomahawkContextMenuAdapter(getActivity(), getActivity().getLayoutInflater(),

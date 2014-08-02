@@ -35,8 +35,7 @@
     <string name="artistsfragment_title_string">Artists</string>
     <string name="playlistsfragment_title_string">Playlists</string>
     <string name="userfragment_title_string">Users</string>
-    <string name="playlists_categoryheaders_string">Local Playlists</string>
-    <string name="hatchet_playlists_categoryheaders_string">Hatchet Playlists</string>
+    <string name="playlists_categoryheaders_string">Playlists</string>
     <string name="tophits_categoryheaders_string">Top Hits</string>
     <string name="recentlyplayed_categoryheaders_string">Recently Played</string>
     <string name="searchfragment_title_string">Search</string>

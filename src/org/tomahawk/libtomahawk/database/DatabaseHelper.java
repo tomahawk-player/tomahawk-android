@@ -58,12 +58,16 @@ public class DatabaseHelper {
 
     public static final int TRUE = 1;
 
+    public static final int REQUESTTYPE_POST = 0;
+
+    public static final int REQUESTTYPE_PUT = 1;
+
+    public static final int REQUESTTYPE_DELETE = 2;
+
     private boolean mInitialized;
 
     // Database fields
     private SQLiteDatabase mDatabase;
-
-    private TomahawkSQLiteHelper mDbHelper;
 
     private ConcurrentHashMap<String, ConcurrentHashMap<Integer, Long>> mPlaylistPosToIdMap
             = new ConcurrentHashMap<String, ConcurrentHashMap<Integer, Long>>();
@@ -85,9 +89,9 @@ public class DatabaseHelper {
     public void ensureInit() {
         if (!mInitialized) {
             mInitialized = true;
-            mDbHelper = new TomahawkSQLiteHelper(TomahawkApp.getContext());
-            mDbHelper.close();
-            mDatabase = mDbHelper.getWritableDatabase();
+            TomahawkSQLiteHelper dbHelper = new TomahawkSQLiteHelper(TomahawkApp.getContext());
+            dbHelper.close();
+            mDatabase = dbHelper.getWritableDatabase();
         }
     }
 
@@ -106,15 +110,8 @@ public class DatabaseHelper {
                     values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTTRACKINDEX,
                             playlist.getCurrentQueryIndex());
                     String insertId = playlist.getId();
-                    if (!playlist.isHatchetPlaylist()) {
-                        values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ISHATCHETPLAYLIST,
-                                FALSE);
-                    } else {
-                        values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
-                                playlist.getCurrentRevision());
-                        values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ISHATCHETPLAYLIST,
-                                TRUE);
-                    }
+                    values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
+                            playlist.getCurrentRevision());
                     values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID, insertId);
                     mDatabase.beginTransaction();
                     mDatabase.insertWithOnConflict(TomahawkSQLiteHelper.TABLE_PLAYLISTS, null,
@@ -122,7 +119,7 @@ public class DatabaseHelper {
                             SQLiteDatabase.CONFLICT_REPLACE);
                     // Delete every already associated Track entry
                     mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
-                            TomahawkSQLiteHelper.TRACKS_COLUMN_IDPLAYLISTS + " = \"" + insertId
+                            TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = \"" + insertId
                                     + "\"",
                             null
                     );
@@ -130,7 +127,7 @@ public class DatabaseHelper {
                     // by storing the playlists's id with it
                     for (Query query : playlist.getQueries()) {
                         values.clear();
-                        values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_IDPLAYLISTS, insertId);
+                        values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID, insertId);
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME,
                                 query.getBasicTrack().getName());
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ARTISTNAME,
@@ -172,15 +169,8 @@ public class DatabaseHelper {
                     values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTTRACKINDEX,
                             playlist.getCurrentQueryIndex());
                     String insertId = playlist.getId();
-                    if (!playlist.isHatchetPlaylist()) {
-                        values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ISHATCHETPLAYLIST,
-                                FALSE);
-                    } else {
-                        values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
-                                playlist.getCurrentRevision());
-                        values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ISHATCHETPLAYLIST,
-                                TRUE);
-                    }
+                    values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
+                            playlist.getCurrentRevision());
                     values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID, insertId);
                     mDatabase.beginTransaction();
                     mDatabase.insertWithOnConflict(TomahawkSQLiteHelper.TABLE_PLAYLISTS, null,
@@ -209,27 +199,16 @@ public class DatabaseHelper {
         return getPlaylist(LOVEDITEMS_PLAYLIST_ID);
     }
 
-    public ArrayList<Playlist> getLocalPlaylists() {
-        return getPlaylists(true);
-    }
-
-    public ArrayList<Playlist> getHatchetPlaylists() {
-        return getPlaylists(false);
-    }
-
     /**
      * @return every stored {@link org.tomahawk.libtomahawk.collection.Playlist} in the database
      */
-    private ArrayList<Playlist> getPlaylists(boolean localPlaylists) {
+    public ArrayList<Playlist> getPlaylists() {
         ArrayList<Playlist> playListList = new ArrayList<Playlist>();
         String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID};
         Cursor playlistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
-                columns,
-                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ISHATCHETPLAYLIST + " = ? AND "
-                        + TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " != ? AND "
+                columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " != ? AND "
                         + TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " != ?",
-                new String[]{String.valueOf(localPlaylists ? FALSE : TRUE),
-                        CACHED_PLAYLIST_ID, LOVEDITEMS_PLAYLIST_ID}, null, null, null
+                new String[]{CACHED_PLAYLIST_ID, LOVEDITEMS_PLAYLIST_ID}, null, null, null
         );
         playlistsCursor.moveToFirst();
         while (!playlistsCursor.isAfterLast()) {
@@ -248,15 +227,14 @@ public class DatabaseHelper {
      */
     public Playlist getEmptyPlaylist(String playlistId) {
         String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME,
-                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
-                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ISHATCHETPLAYLIST};
+                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION};
         Cursor playlistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
                 columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
                 new String[]{playlistId}, null, null, null);
         if (playlistsCursor.moveToFirst()) {
             Playlist playlist = Playlist.fromQueryList(playlistId,
                     playlistsCursor.getString(0), playlistsCursor.getString(1),
-                    playlistsCursor.getInt(2) == TRUE, new ArrayList<Query>(), 0);
+                    new ArrayList<Query>(), 0);
             playlistsCursor.close();
             return playlist;
         }
@@ -273,7 +251,6 @@ public class DatabaseHelper {
         ArrayList<Query> queries;
         String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME,
                 TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
-                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ISHATCHETPLAYLIST,
                 TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTTRACKINDEX};
         Cursor playlistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
                 columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
@@ -287,7 +264,7 @@ public class DatabaseHelper {
                     TomahawkSQLiteHelper.TRACKS_COLUMN_ISFETCHEDVIAHATCHET,
                     TomahawkSQLiteHelper.TRACKS_COLUMN_ID};
             Cursor tracksCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_TRACKS, columns,
-                    TomahawkSQLiteHelper.TRACKS_COLUMN_IDPLAYLISTS + " = ?",
+                    TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = ?",
                     new String[]{playlistId}, null, null, null);
             queries = new ArrayList<Query>();
             tracksCursor.moveToFirst();
@@ -304,11 +281,8 @@ public class DatabaseHelper {
                 tracksCursor.moveToNext();
             }
             mPlaylistPosToIdMap.put(playlistId, queryIdMap);
-            Playlist playlist = Playlist
-                    .fromQueryList(playlistId, playlistsCursor.getString(0),
-                            playlistsCursor.getString(1),
-                            playlistsCursor.getInt(2) == TRUE, queries,
-                            playlistsCursor.getInt(3));
+            Playlist playlist = Playlist.fromQueryList(playlistId, playlistsCursor.getString(0),
+                    playlistsCursor.getString(1), queries, playlistsCursor.getInt(2));
             playlist.setFilled(true);
             tracksCursor.close();
             playlistsCursor.close();
@@ -327,7 +301,6 @@ public class DatabaseHelper {
         int count = 0;
         String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME,
                 TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
-                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ISHATCHETPLAYLIST,
                 TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTTRACKINDEX};
         Cursor playlistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
                 columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
@@ -335,7 +308,7 @@ public class DatabaseHelper {
         if (playlistsCursor.moveToFirst()) {
             columns = new String[]{TomahawkSQLiteHelper.TRACKS_COLUMN_ID};
             Cursor tracksCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_TRACKS, columns,
-                    TomahawkSQLiteHelper.TRACKS_COLUMN_IDPLAYLISTS + " = ?",
+                    TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = ?",
                     new String[]{playlistId}, null, null, null);
             count = tracksCursor.getCount();
             tracksCursor.close();
@@ -357,7 +330,7 @@ public class DatabaseHelper {
                 synchronized (this) {
                     mDatabase.beginTransaction();
                     mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
-                            TomahawkSQLiteHelper.TRACKS_COLUMN_IDPLAYLISTS + " = \""
+                            TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = \""
                                     + playlistId + "\"", null
                     );
                     mDatabase.delete(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
@@ -384,7 +357,7 @@ public class DatabaseHelper {
                     Long id = mPlaylistPosToIdMap.get(playlistId).get(position);
                     mDatabase.beginTransaction();
                     mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
-                            TomahawkSQLiteHelper.TRACKS_COLUMN_IDPLAYLISTS + " = \""
+                            TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = \""
                                     + playlistId + "\""
                                     + " and " + TomahawkSQLiteHelper.TRACKS_COLUMN_ID + " = " + id,
                             null
@@ -411,7 +384,7 @@ public class DatabaseHelper {
                     // by storing the playlists's id with it
                     for (Query query : queries) {
                         ContentValues values = new ContentValues();
-                        values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_IDPLAYLISTS,
+                        values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID,
                                 playlistId);
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME,
                                 query.getBasicTrack().getName());
@@ -448,7 +421,7 @@ public class DatabaseHelper {
         String[] columns = new String[]{TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME,
                 TomahawkSQLiteHelper.TRACKS_COLUMN_ARTISTNAME};
         Cursor tracksCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_TRACKS, columns,
-                TomahawkSQLiteHelper.TRACKS_COLUMN_IDPLAYLISTS + " = ?",
+                TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = ?",
                 new String[]{LOVEDITEMS_PLAYLIST_ID}, null, null, null
         );
         tracksCursor.moveToFirst();
@@ -517,7 +490,7 @@ public class DatabaseHelper {
         } else {
             mDatabase.beginTransaction();
             mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
-                    TomahawkSQLiteHelper.TRACKS_COLUMN_IDPLAYLISTS
+                    TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID
                             + " = \"" + LOVEDITEMS_PLAYLIST_ID + "\""
                             + " AND " + TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME
                             + " = \"" + query.getName() + "\""
@@ -684,15 +657,17 @@ public class DatabaseHelper {
      * Add an operation to the log. This operation log is being used to store pending operations, so
      * that this operation can be executed, if we have the opportunity to do so.
      *
-     * @param opToLog   InfoRequestData object containing the type of the operation, which
-     *                  determines where and how to send the data to the API. Contains also the
-     *                  JSON-String which contains the data to send.
-     * @param timeStamp a timestamp indicating when this operation has been added to the oplog
+     * @param opToLog     InfoRequestData object containing the type of the operation, which
+     *                    determines where and how to send the data to the API. Contains also the
+     *                    JSON-String which contains the data to send.
+     * @param timeStamp   a timestamp indicating when this operation has been added to the oplog
+     * @param requestType the type of the request (post, put, delete)
      */
-    public void addOpToInfoSystemOpLog(InfoRequestData opToLog, int timeStamp) {
+    public void addOpToInfoSystemOpLog(InfoRequestData opToLog, int timeStamp, int requestType) {
         ContentValues values = new ContentValues();
         mDatabase.beginTransaction();
         values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TYPE, opToLog.getType());
+        values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_REQUESTTYPE, requestType);
         values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_JSONSTRING,
                 opToLog.getJsonStringToSend());
         values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TIMESTAMP, timeStamp);
