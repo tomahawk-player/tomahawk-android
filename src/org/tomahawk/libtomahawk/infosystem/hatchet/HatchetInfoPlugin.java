@@ -614,8 +614,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         }
                         success = true;
                     } catch (RetrofitError error) {
-                        Log.d(TAG, "Request to " + error.getUrl() + " failed with status " + error
-                                .getResponse().getStatus());
+                        Log.d(TAG, "Request to " + error.getUrl() + " failed");
                     }
                 }
                 InfoSystem.getInstance().onLoggedOpsSent(doneRequestsIds, success);
