@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.adapters;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -119,7 +120,10 @@ public class TomahawkContextMenuAdapter extends BaseAdapter {
         if (item instanceof SocialAction) {
             item = ((SocialAction) item).getTargetObject();
             showDelete = false;
+        } else if (item instanceof PlaylistEntry) {
+            item = ((PlaylistEntry) item).getQuery();
         }
+
         if (item instanceof Playlist) {
             menuItems.add(mContext.getString(R.string.fake_context_menu_play));
             menuItems.add(mContext.getString(R.string.fake_context_menu_playaftercurrenttrack));

@@ -122,7 +122,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
                     + TRACKS_COLUMN_ALBUMNAME + "` TEXT ,`"
                     + TRACKS_COLUMN_RESULTHINT + "` TEXT ,`"
                     + TRACKS_COLUMN_ISFETCHEDVIAHATCHET + "` INTEGER ,`"
-                    + TRACKS_COLUMN_PLAYLISTENTRYID + "` INTEGER ,"
+                    + TRACKS_COLUMN_PLAYLISTENTRYID + "` TEXT ,"
                     + " FOREIGN KEY (`" + TRACKS_COLUMN_PLAYLISTID + "`)"
                     + " REFERENCES `" + TABLE_PLAYLISTS + "` (`" + PLAYLISTS_COLUMN_ID
                     + "`));";

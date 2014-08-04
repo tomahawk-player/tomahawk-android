@@ -26,6 +26,7 @@ import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
@@ -598,7 +599,7 @@ public class PlaybackService extends Service
         }
         Log.e(TAG, "onError - " + whatString);
         giveUpAudioFocus();
-        if (mCurrentPlaylist != null && mCurrentPlaylist.peekNextQuery() != null) {
+        if (mCurrentPlaylist != null && mCurrentPlaylist.peekNextEntry() != null) {
             next();
         } else {
             pause();
@@ -613,7 +614,7 @@ public class PlaybackService extends Service
     @Override
     public void onCompletion(MediaPlayer mp) {
         Log.d(TAG, "onCompletion");
-        if (mCurrentPlaylist != null && mCurrentPlaylist.peekNextQuery() != null) {
+        if (mCurrentPlaylist != null && mCurrentPlaylist.peekNextEntry() != null) {
             next();
         } else {
             pause();
@@ -636,9 +637,9 @@ public class PlaybackService extends Service
     }
 
     /**
-     * Restore the current playlist from the Playlists Database. Do this by storing it in the
-     * {@link org.tomahawk.libtomahawk.collection.UserCollection} first, and then retrieving the
-     * playlist from there.
+     * Restore the current playlist from the Playlists Database. Do this by storing it in the {@link
+     * org.tomahawk.libtomahawk.collection.UserCollection} first, and then retrieving the playlist
+     * from there.
      */
     private void restoreState() {
         long startTime = System.currentTimeMillis();
@@ -774,9 +775,9 @@ public class PlaybackService extends Service
             Query query = null;
             int maxCount = mCurrentPlaylist.getCount();
             int counter = 0;
-            while (mCurrentPlaylist.hasNextQuery() && counter++ < maxCount && (query == null
+            while (mCurrentPlaylist.hasNextEntry() && counter++ < maxCount && (query == null
                     || !query.isPlayable())) {
-                query = mCurrentPlaylist.getNextQuery();
+                query = mCurrentPlaylist.getNextEntry().getQuery();
                 sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
                 onTrackChanged();
             }
@@ -794,9 +795,9 @@ public class PlaybackService extends Service
             Query query = null;
             int maxCount = mCurrentPlaylist.getCount();
             int counter = 0;
-            while (mCurrentPlaylist.hasPreviousQuery() && counter++ < maxCount && (query == null
+            while (mCurrentPlaylist.hasPreviousEntry() && counter++ < maxCount && (query == null
                     || !query.isPlayable())) {
-                query = mCurrentPlaylist.getPreviousQuery();
+                query = mCurrentPlaylist.getPreviousEntry().getQuery();
                 sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
                 onTrackChanged();
             }
@@ -844,7 +845,7 @@ public class PlaybackService extends Service
         if (mCurrentPlaylist == null) {
             return null;
         }
-        return mCurrentPlaylist.getCurrentQuery();
+        return mCurrentPlaylist.getCurrentEntry().getQuery();
     }
 
     /**
@@ -920,6 +921,15 @@ public class PlaybackService extends Service
                 next();
             }
         }
+    }
+
+    public void setCurrentEntry(String entryId) {
+        Log.d(TAG, "setCurrentEntry to " + entryId);
+        releaseAllPlayers();
+        getCurrentPlaylist().setCurrentEntry(entryId);
+        handlePlayState();
+        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+        onTrackChanged();
     }
 
     public void setCurrentQueryIndex(int queryIndex) {
@@ -1012,23 +1022,11 @@ public class PlaybackService extends Service
     }
 
     /**
-     * Remove query at given position from current playlist
+     * Remove entry at given position from current playlist
      */
-    public void deleteQueryAtPos(int position) {
-        Log.d(TAG, "deleteQueryAtPos at position " + position);
-        mCurrentPlaylist.deleteQueryAtPos(position);
-        if (mCurrentPlaylist.getCount() == 0) {
-            pause(true);
-        }
-        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
-    }
-
-    /**
-     * Remove query at given position from current playlist
-     */
-    public void deleteQuery(Query query) {
-        Log.d(TAG, "deleteQuery");
-        mCurrentPlaylist.deleteQuery(query);
+    public void deleteEntry(PlaylistEntry entry) {
+        Log.d(TAG, "deleteEntry");
+        mCurrentPlaylist.deleteEntry(entry);
         if (mCurrentPlaylist.getCount() == 0) {
             pause(true);
         }
@@ -1266,10 +1264,10 @@ public class PlaybackService extends Service
 
                     int flags = RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
                             RemoteControlClient.FLAG_KEY_MEDIA_PAUSE;
-                    if (getCurrentPlaylist().hasNextQuery()) {
+                    if (getCurrentPlaylist().hasNextEntry()) {
                         flags |= RemoteControlClient.FLAG_KEY_MEDIA_NEXT;
                     }
-                    if (getCurrentPlaylist().hasPreviousQuery()) {
+                    if (getCurrentPlaylist().hasPreviousEntry()) {
                         flags |= RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS;
                     }
                     mRemoteControlClientCompat.setTransportControlFlags(flags);
@@ -1335,7 +1333,7 @@ public class PlaybackService extends Service
         ArrayList<Query> qs = new ArrayList<Query>();
         for (int i = start; i < end; i++) {
             if (i >= 0 && i < mCurrentPlaylist.getQueries().size()) {
-                Query q = mCurrentPlaylist.peekQueryAtPos(i);
+                Query q = mCurrentPlaylist.peekEntryAtPos(i).getQuery();
                 if (!mCorrespondingQueryKeys.contains(q.getCacheKey())) {
                     qs.add(q);
                 }

@@ -21,6 +21,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
@@ -286,6 +287,9 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                     == R.id.tomahawklistadapter_viewtype_listitemhighlighted) {
                 if (item instanceof Query) {
                     AdapterUtils.fillView(mContext, viewHolder, (Query) item,
+                            mHighlightedItemIsPlaying && shouldBeHighlighted, mShowResolvedBy);
+                } else if (item instanceof PlaylistEntry) {
+                    AdapterUtils.fillView(mContext, viewHolder, ((PlaylistEntry) item).getQuery(),
                             mHighlightedItemIsPlaying && shouldBeHighlighted, mShowResolvedBy);
                 } else if (item instanceof Album) {
                     AdapterUtils.fillView(mContext, viewHolder, (Album) item);

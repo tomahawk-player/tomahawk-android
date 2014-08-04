@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -68,8 +69,6 @@ public class FakeContextMenuDialog extends DialogFragment {
 
     protected Collection mCollection;
 
-    private int mListItemPosition;
-
     /**
      * Called when this {@link DialogFragment} is being created
      */
@@ -99,10 +98,6 @@ public class FakeContextMenuDialog extends DialogFragment {
             if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_SHOWDELETE_KEY)) {
                 showDelete = getArguments().getBoolean(TomahawkFragment.TOMAHAWK_SHOWDELETE_KEY);
             }
-            if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_LIST_ITEM_POSITION)) {
-                mListItemPosition = getArguments().getInt(
-                        TomahawkFragment.TOMAHAWK_LIST_ITEM_POSITION);
-            }
             if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_FROMPLAYBACKFRAGMENT)) {
                 mFromPlaybackFragment = getArguments()
                         .getBoolean(TomahawkFragment.TOMAHAWK_FROMPLAYBACKFRAGMENT);
@@ -125,6 +120,9 @@ public class FakeContextMenuDialog extends DialogFragment {
                             .getString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY));
                 } else if (TomahawkFragment.TOMAHAWK_SOCIALACTION_ID.equals(type)) {
                     mTomahawkListItem = SocialAction.getSocialActionById(getArguments()
+                            .getString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY));
+                } else if (TomahawkFragment.TOMAHAWK_PLAYLISTENTRY_ID.equals(type)) {
+                    mTomahawkListItem = PlaylistEntry.getPlaylistEntryByKey(getArguments()
                             .getString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY));
                 }
                 if (mTomahawkListItem == null) {
@@ -172,41 +170,43 @@ public class FakeContextMenuDialog extends DialogFragment {
         if (menuItemTitle.equals(getString(R.string.fake_context_menu_delete))) {
             if (mTomahawkListItem instanceof Playlist) {
                 dataSource.deletePlaylist(((Playlist) mTomahawkListItem).getId());
-            } else if (mTomahawkListItem instanceof Query && mPlaylist != null) {
-                dataSource.deleteQueryInPlaylist(mPlaylist.getId(), mListItemPosition);
+            } else if (mTomahawkListItem instanceof PlaylistEntry && mPlaylist != null) {
+                dataSource.deleteEntryInPlaylist(mPlaylist.getId(),
+                        ((PlaylistEntry) mTomahawkListItem).getId());
             } else if (playbackService != null && mFromPlaybackFragment
-                    && mTomahawkListItem instanceof Query) {
+                    && mTomahawkListItem instanceof PlaylistEntry) {
                 if (playbackService.getCurrentTrack().getCacheKey()
                         .equals(mTomahawkListItem.getCacheKey())) {
                     boolean wasPlaying = playbackService.isPlaying();
                     if (wasPlaying) {
                         playbackService.pause();
                     }
-                    if (playbackService.getCurrentPlaylist().peekNextQuery() != null) {
+                    if (playbackService.getCurrentPlaylist().peekNextEntry() != null) {
                         playbackService.next();
                         if (wasPlaying) {
                             playbackService.start();
                         }
-                    } else if (playbackService.getCurrentPlaylist().peekPreviousQuery() != null) {
+                    } else if (playbackService.getCurrentPlaylist().peekPreviousEntry() != null) {
                         playbackService.previous();
                         if (wasPlaying) {
                             playbackService.start();
                         }
                     }
                 }
-                playbackService.deleteQuery((Query) mTomahawkListItem);
+                playbackService.deleteEntry((PlaylistEntry) mTomahawkListItem);
             }
         } else if (menuItemTitle.equals(getString(R.string.fake_context_menu_play))) {
             if (mFromPlaybackFragment) {
-                if (playbackService != null && mTomahawkListItem instanceof Query
-                        && playbackService.getCurrentPlaylist().getCurrentQuery() != null) {
-                    if (playbackService.getCurrentPlaylist().getCurrentQuery().getCacheKey()
+                if (playbackService != null && mTomahawkListItem instanceof PlaylistEntry
+                        && playbackService.getCurrentPlaylist().getCurrentEntry() != null) {
+                    if (playbackService.getCurrentPlaylist().getCurrentEntry().getCacheKey()
                             .equals(mTomahawkListItem.getCacheKey())) {
                         if (!playbackService.isPlaying()) {
                             playbackService.start();
                         }
                     } else {
-                        playbackService.setCurrentQueryIndex(mListItemPosition);
+                        playbackService
+                                .setCurrentEntry(((PlaylistEntry) mTomahawkListItem).getId());
                         playbackService.start();
                     }
                 }
@@ -225,7 +225,15 @@ public class FakeContextMenuDialog extends DialogFragment {
                     playlist = Playlist
                             .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
                                     DatabaseHelper.CACHED_PLAYLIST_NAME, queries,
-                                    mListItemPosition);
+                                    mTomahawkListItem.getCacheKey());
+                } else if (mTomahawkListItem instanceof PlaylistEntry) {
+                    ArrayList<PlaylistEntry> playlistEntries = new ArrayList<PlaylistEntry>();
+                    if (mPlaylist != null) {
+                        playlistEntries = mPlaylist.getEntries();
+                    }
+                    playlist = Playlist.fromEntriesList(DatabaseHelper.CACHED_PLAYLIST_ID,
+                            DatabaseHelper.CACHED_PLAYLIST_NAME, null, playlistEntries,
+                            ((PlaylistEntry) mTomahawkListItem).getId());
                 } else if (mTomahawkListItem instanceof Playlist) {
                     playlist = (Playlist) mTomahawkListItem;
                 } else {

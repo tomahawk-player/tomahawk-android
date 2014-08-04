@@ -124,6 +124,16 @@ public class FragmentUtils {
      * Replaces the current {@link Fragment}
      */
     public static void replace(Context context, FragmentManager fragmentManager, Class clss,
+            String tomahawkListItemKey, String tomahawkListItemType) {
+        Bundle bundle = new Bundle();
+        bundle.putString(tomahawkListItemType, tomahawkListItemKey);
+        replace(context, fragmentManager, clss, bundle);
+    }
+
+    /**
+     * Replaces the current {@link Fragment}
+     */
+    public static void replace(Context context, FragmentManager fragmentManager, Class clss,
             String queryString) {
         Bundle bundle = new Bundle();
         bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING, queryString);

@@ -104,9 +104,9 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         if (mPlaylist != null && mPlaylist.getCount() > 0) {
             Query query;
             if (mPlaylist.isRepeating()) {
-                query = mPlaylist.peekQueryAtPos((position) % mPlaylist.getCount());
+                query = mPlaylist.peekEntryAtPos((position) % mPlaylist.getCount()).getQuery();
             } else {
-                query = mPlaylist.peekQueryAtPos(position);
+                query = mPlaylist.peekEntryAtPos(position).getQuery();
             }
             refreshTrackInfo(view, query);
         } else {

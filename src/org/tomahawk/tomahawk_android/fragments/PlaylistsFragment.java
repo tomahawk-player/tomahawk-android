@@ -35,8 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@link TomahawkFragment} which shows a set of {@link org.tomahawk.libtomahawk.collection.Playlist}s inside its {@link
- * se.emilsjolander.stickylistheaders.StickyListHeadersListView}
+ * {@link TomahawkFragment} which shows a set of {@link org.tomahawk.libtomahawk.collection.Playlist}s
+ * inside its {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}
  */
 public class PlaylistsFragment extends TomahawkFragment implements OnItemClickListener {
 
@@ -62,8 +62,7 @@ public class PlaylistsFragment extends TomahawkFragment implements OnItemClickLi
         if (getListAdapter().getItem(position) instanceof Playlist) {
             String key = ((Playlist) getListAdapter().getItem(position)).getId();
             FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                    TracksFragment.class, key, TomahawkFragment.TOMAHAWK_PLAYLIST_KEY,
-                    mCollection);
+                    PlaylistEntriesFragment.class, key, TomahawkFragment.TOMAHAWK_PLAYLIST_KEY);
         } else {
             new CreatePlaylistDialog().show(getFragmentManager(),
                     getString(R.string.playbackactivity_create_playlist_dialog_title));

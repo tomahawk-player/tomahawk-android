@@ -34,9 +34,8 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.ViewHolder;
-import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
+import org.tomahawk.tomahawk_android.fragments.PlaylistEntriesFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
-import org.tomahawk.tomahawk_android.fragments.TracksFragment;
 import org.tomahawk.tomahawk_android.fragments.UsersFragment;
 
 import android.content.Context;
@@ -188,10 +187,12 @@ public class AdapterUtils {
         viewHolder.getButton1().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragmentUtils.replace(context, fragmentManager,
-                        TracksFragment.class, user.getCacheKey(),
-                        TomahawkFragment.TOMAHAWK_USER_ID,
-                        SocialActionsFragment.SHOW_MODE_DASHBOARD);
+                String playlistTitle = user.getName() + TomahawkApp.getContext().getString(
+                        R.string.users_playbacklog_suffix);
+                Playlist playbackLog = Playlist.fromQueryList(user.getId()
+                        + User.PLAYLIST_PLAYBACKLOG_ID, playlistTitle, user.getPlaybackLog());
+                FragmentUtils.replace(context, fragmentManager, PlaylistEntriesFragment.class,
+                        user.getCacheKey(), playbackLog.getId());
             }
         });
         viewHolder.getButton2().setOnClickListener(new View.OnClickListener() {

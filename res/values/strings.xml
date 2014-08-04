@@ -169,6 +169,7 @@
     <string name="users_playbacklog_suffix">\'s recently played</string>
     <string name="users_followings_suffix">is following</string>
     <string name="users_followers_suffix">is followed by</string>
+    <string name="users_lovedtracks_suffix">\'s loved tracks</string>
     <string name="loved_tracks">Loved Tracks</string>
     <string name="starred_albums">Starred Albums</string>
     <string name="starred_artists">Starred Artists</string>

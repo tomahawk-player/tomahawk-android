@@ -18,6 +18,7 @@
 package org.tomahawk.libtomahawk.collection;
 
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.text.TextUtils;
@@ -35,9 +36,9 @@ public class Playlist implements TomahawkListItem {
 
     private String mName;
 
-    private ArrayList<Query> mQueries;
+    private ArrayList<PlaylistEntry> mEntries;
 
-    private ArrayList<Query> mShuffledQueries;
+    private ArrayList<PlaylistEntry> mShuffledEntries;
 
     private int mCurrentQueryIndex;
 
@@ -63,9 +64,49 @@ public class Playlist implements TomahawkListItem {
         mName = name;
         mShuffled = false;
         mRepeating = false;
-        setQueries(new ArrayList<Query>());
+        setEntries(new ArrayList<PlaylistEntry>());
         mId = id;
         mCurrentRevision = currentRevision;
+    }
+
+    /**
+     * Returns the {@link Playlist} with the given parameters. If none exists in our static {@link
+     * ConcurrentHashMap} yet, construct and add it.
+     *
+     * @return {@link Playlist} with the given parameters
+     */
+    public static Playlist get(String id, String name, String currentRevision) {
+        Playlist playlist = new Playlist(id, name, currentRevision);
+        return ensureCache(playlist);
+    }
+
+    /**
+     * If PlaylistEntry is already in our cache, return that. Otherwise add it to the cache.
+     */
+    private static Playlist ensureCache(Playlist playlist) {
+        if (!sPlaylists.containsKey(playlist.getCacheKey())) {
+            sPlaylists.put(playlist.getCacheKey(), playlist);
+        }
+        return sPlaylists.get(playlist.getCacheKey());
+    }
+
+    /**
+     * Create a {@link Playlist} from a list of {@link PlaylistEntry}s.
+     *
+     * @return a reference to the constructed {@link Playlist}
+     */
+    public static Playlist fromEntriesList(String id, String name, String currentRevision,
+            ArrayList<PlaylistEntry> playlistEntries, String currentEntryId) {
+        if (id == null) {
+            id = "";
+        }
+        if (currentRevision == null) {
+            currentRevision = "";
+        }
+        Playlist pl = Playlist.get(id, name, currentRevision);
+        pl.setEntries(playlistEntries);
+        pl.setCurrentEntry(currentEntryId);
+        return pl;
     }
 
     /**
@@ -81,11 +122,15 @@ public class Playlist implements TomahawkListItem {
         if (currentRevision == null) {
             currentRevision = "";
         }
-        Playlist pl = new Playlist(id, name, currentRevision);
-        pl.setQueries(queries);
+        Playlist pl = Playlist.get(id, name, currentRevision);
+        ArrayList<PlaylistEntry> playlistEntries = new ArrayList<PlaylistEntry>();
+        for (Query query : queries) {
+            playlistEntries.add(PlaylistEntry.get(pl, query,
+                    TomahawkMainActivity.getLifetimeUniqueStringId()));
+        }
+        pl.setEntries(playlistEntries);
         pl.setCurrentQueryIndex(currentQueryIndex);
-        sPlaylists.put(id, pl);
-        return sPlaylists.get(id);
+        return pl;
     }
 
     /**
@@ -93,9 +138,11 @@ public class Playlist implements TomahawkListItem {
      *
      * @return a reference to the constructed {@link Playlist}
      */
-    public static Playlist fromQueryList(String id, String name, String currentRevision,
-            ArrayList<Query> queries) {
-        return Playlist.fromQueryList(id, name, currentRevision, queries, 0);
+    public static Playlist fromQueryList(String id, String name, ArrayList<Query> queries,
+            String currentQueryCacheKey) {
+        Playlist playlist = Playlist.fromQueryList(id, name, null, queries, 0);
+        playlist.setCurrentQuery(currentQueryCacheKey);
+        return playlist;
     }
 
     /**
@@ -164,9 +211,35 @@ public class Playlist implements TomahawkListItem {
     /**
      * Set this {@link Playlist}'s {@link Query}s
      */
-    public void setQueries(java.util.Collection<Query> queries) {
-        mQueries = (ArrayList<Query>) queries;
+    public void setEntries(ArrayList<PlaylistEntry> entries) {
+        mEntries = entries;
         mCurrentQueryIndex = 0;
+    }
+
+    /**
+     * Set the current entry
+     *
+     * @param entryId the Entry's id
+     */
+    public void setCurrentEntry(String entryId) {
+        for (int i = 0; i < (mShuffled ? mShuffledEntries.size() : mEntries.size()); i++) {
+            if (peekEntryAtPos(i).getId().equals(entryId)) {
+                mCurrentQueryIndex = i;
+            }
+        }
+    }
+
+    /**
+     * Set the current query
+     *
+     * @param queryKey the Queries id
+     */
+    public void setCurrentQuery(String queryKey) {
+        for (int i = 0; i < (mShuffled ? mShuffledEntries.size() : mEntries.size()); i++) {
+            if (peekEntryAtPos(i).getQuery().getCacheKey().equals(queryKey)) {
+                mCurrentQueryIndex = i;
+            }
+        }
     }
 
     /**
@@ -179,17 +252,6 @@ public class Playlist implements TomahawkListItem {
     }
 
     /**
-     * @return the current {@link Query}
-     */
-    public Query getCurrentQuery() {
-        List<Query> querys = mShuffled ? mShuffledQueries : mQueries;
-        if (querys != null && mCurrentQueryIndex >= 0 && mCurrentQueryIndex < querys.size()) {
-            return querys.get(mCurrentQueryIndex);
-        }
-        return null;
-    }
-
-    /**
      * @return the current {@link Query}'s index
      */
     public int getCurrentQueryIndex() {
@@ -197,17 +259,29 @@ public class Playlist implements TomahawkListItem {
     }
 
     /**
+     * @return the current {@link org.tomahawk.libtomahawk.collection.PlaylistEntry}
+     */
+    public PlaylistEntry getCurrentEntry() {
+        List<PlaylistEntry> playlistEntries = mShuffled ? mShuffledEntries : mEntries;
+        if (playlistEntries != null && mCurrentQueryIndex >= 0
+                && mCurrentQueryIndex < playlistEntries.size()) {
+            return playlistEntries.get(mCurrentQueryIndex);
+        }
+        return null;
+    }
+
+    /**
      * @return the next {@link Query}
      */
-    public Query getNextQuery() {
-        List<Query> querys = mShuffled ? mShuffledQueries : mQueries;
-        if (mCurrentQueryIndex + 1 < querys.size()) {
-            Query query = querys.get(mCurrentQueryIndex + 1);
+    public PlaylistEntry getNextEntry() {
+        List<PlaylistEntry> playlistEntries = mShuffled ? mShuffledEntries : mEntries;
+        if (mCurrentQueryIndex + 1 < playlistEntries.size()) {
+            PlaylistEntry entry = playlistEntries.get(mCurrentQueryIndex + 1);
             mCurrentQueryIndex = mCurrentQueryIndex + 1;
-            return query;
+            return entry;
         } else if (mRepeating) {
             mCurrentQueryIndex = 0;
-            return getFirstQuery();
+            return getFirstEntry();
         }
         return null;
     }
@@ -215,51 +289,40 @@ public class Playlist implements TomahawkListItem {
     /**
      * @return the previous {@link Query}
      */
-    public Query getPreviousQuery() {
-        List<Query> querys = mShuffled ? mShuffledQueries : mQueries;
+    public PlaylistEntry getPreviousEntry() {
+        List<PlaylistEntry> playlistEntries = mShuffled ? mShuffledEntries : mEntries;
         if (mCurrentQueryIndex - 1 >= 0) {
-            Query query = querys.get(mCurrentQueryIndex - 1);
+            PlaylistEntry entry = playlistEntries.get(mCurrentQueryIndex - 1);
             mCurrentQueryIndex = mCurrentQueryIndex - 1;
-            return query;
+            return entry;
         } else if (mRepeating) {
-            mCurrentQueryIndex = querys.size() - 1;
-            return getLastQuery();
+            mCurrentQueryIndex = playlistEntries.size() - 1;
+            return getLastEntry();
         }
         return null;
     }
 
     /**
-     * Get the {@link Query} at the given position
+     * @return the first {@link PlaylistEntry} of this playlist
      */
-    public Query getQueryAtPos(int i) {
-        if (i >= 0 && i < (mShuffled ? mShuffledQueries.size() : mQueries.size())) {
-            mCurrentQueryIndex = i;
-            return mShuffled ? mShuffledQueries.get(i) : mQueries.get(i);
-        }
-        return null;
-    }
-
-    /**
-     * @return the first {@link Query} of this playlist
-     */
-    public Query getFirstQuery() {
-        if (mShuffled ? mShuffledQueries.isEmpty() : mQueries.isEmpty()) {
+    public PlaylistEntry getFirstEntry() {
+        if (mShuffled ? mShuffledEntries.isEmpty() : mEntries.isEmpty()) {
             return null;
         }
 
-        return mShuffled ? mShuffledQueries.get(0) : mQueries.get(0);
+        return mShuffled ? mShuffledEntries.get(0) : mEntries.get(0);
     }
 
     /**
-     * @return the last {@link Query} of this playlist
+     * @return the last {@link PlaylistEntry} of this playlist
      */
-    public Query getLastQuery() {
-        if (mShuffled ? mShuffledQueries.isEmpty() : mQueries.isEmpty()) {
+    public PlaylistEntry getLastEntry() {
+        if (mShuffled ? mShuffledEntries.isEmpty() : mEntries.isEmpty()) {
             return null;
         }
 
-        return mShuffled ? mShuffledQueries.get(mShuffledQueries.size() - 1)
-                : mQueries.get(mQueries.size() - 1);
+        return mShuffled ? mShuffledEntries.get(mShuffledEntries.size() - 1)
+                : mEntries.get(mEntries.size() - 1);
     }
 
     /**
@@ -271,30 +334,31 @@ public class Playlist implements TomahawkListItem {
     }
 
     /**
-     * @return true, if the {@link Playlist} has a next {@link Query}, otherwise false
+     * @return true, if the {@link Playlist} has a next {@link PlaylistEntry}, otherwise false
      */
-    public boolean hasNextQuery() {
-        return peekNextQuery() != null;
+    public boolean hasNextEntry() {
+        return peekNextEntry() != null;
     }
 
     /**
-     * @return true, if the {@link Playlist} has a previous {@link Query}, otherwise false
+     * @return true, if the {@link Playlist} has a previous {@link PlaylistEntry}, otherwise false
      */
-    public boolean hasPreviousQuery() {
-        return peekPreviousQuery() != null;
+    public boolean hasPreviousEntry() {
+        return peekPreviousEntry() != null;
     }
 
     /**
-     * Returns the next {@link Query} but does not update the internal {@link Query} iterator.
+     * Returns the next {@link PlaylistEntry} but does not update the internal {@link PlaylistEntry}
+     * iterator.
      *
-     * @return Returns next {@link Query}. Returns null if there is none.
+     * @return Returns next {@link PlaylistEntry}. Returns null if there is none.
      */
-    public Query peekNextQuery() {
-        List<Query> querys = mShuffled ? mShuffledQueries : mQueries;
-        if (mCurrentQueryIndex + 1 < querys.size()) {
-            return querys.get(mCurrentQueryIndex + 1);
+    public PlaylistEntry peekNextEntry() {
+        List<PlaylistEntry> playlistEntries = mShuffled ? mShuffledEntries : mEntries;
+        if (mCurrentQueryIndex + 1 < playlistEntries.size()) {
+            return playlistEntries.get(mCurrentQueryIndex + 1);
         } else if (mRepeating) {
-            return getFirstQuery();
+            return getFirstEntry();
         }
         return null;
     }
@@ -304,25 +368,26 @@ public class Playlist implements TomahawkListItem {
      *
      * @return Returns previous {@link Query}. Returns null if there is none.
      */
-    public Query peekPreviousQuery() {
+    public PlaylistEntry peekPreviousEntry() {
         if (mCurrentQueryIndex - 1 >= 0) {
-            List<Query> querys = mShuffled ? mShuffledQueries : mQueries;
-            return querys.get(mCurrentQueryIndex - 1);
+            List<PlaylistEntry> playlistEntries = mShuffled ? mShuffledEntries : mEntries;
+            return playlistEntries.get(mCurrentQueryIndex - 1);
         } else if (mRepeating) {
-            return getLastQuery();
+            return getLastEntry();
         }
         return null;
     }
 
     /**
-     * Returns the {@link Query} at the given position but does not update the internal {@link
-     * Query} iterator.
+     * Returns the {@link PlaylistEntry} at the given position but does not update the internal
+     * {@link PlaylistEntry} iterator.
      *
-     * @return Returns the {@link Query} at the given position. Returns null if there is none.
+     * @return Returns the {@link PlaylistEntry} at the given position. Returns null if there is
+     * none.
      */
-    public Query peekQueryAtPos(int i) {
-        if (i >= 0 && i < (mShuffled ? mShuffledQueries.size() : mQueries.size())) {
-            return mShuffled ? mShuffledQueries.get(i) : mQueries.get(i);
+    public PlaylistEntry peekEntryAtPos(int i) {
+        if (i >= 0 && i < (mShuffled ? mShuffledEntries.size() : mEntries.size())) {
+            return mShuffled ? mShuffledEntries.get(i) : mEntries.get(i);
         }
         return null;
     }
@@ -332,20 +397,20 @@ public class Playlist implements TomahawkListItem {
      */
     @SuppressWarnings("unchecked")
     public void setShuffled(boolean shuffled) {
-        Query oldCurrentQuery = getCurrentQuery();
+        PlaylistEntry oldCurrentPlaylistEntry = getCurrentEntry();
         mShuffled = shuffled;
         int i = 0;
 
         if (shuffled) {
-            mShuffledQueries = (ArrayList<Query>) mQueries.clone();
-            Collections.shuffle(mShuffledQueries);
+            mShuffledEntries = (ArrayList<PlaylistEntry>) mEntries.clone();
+            Collections.shuffle(mShuffledEntries);
         } else {
-            mShuffledQueries = null;
+            mShuffledEntries = null;
         }
 
-        List<Query> querys = mShuffled ? mShuffledQueries : mQueries;
+        List<PlaylistEntry> querys = mShuffled ? mShuffledEntries : mEntries;
         while (i < querys.size()) {
-            if (oldCurrentQuery == querys.get(i)) {
+            if (oldCurrentPlaylistEntry == querys.get(i)) {
                 mCurrentQueryIndex = i;
                 break;
             }
@@ -378,39 +443,60 @@ public class Playlist implements TomahawkListItem {
      * Return the current count of querys in the {@link Playlist}
      */
     public int getCount() {
-        return mQueries.size();
+        return mEntries.size();
     }
 
     /**
-     * Return all querys in the {@link Playlist}
+     * Return all PlaylistEntries in the {@link Playlist}
+     */
+    public ArrayList<PlaylistEntry> getEntries() {
+        return mShuffled ? mShuffledEntries : mEntries;
+    }
+
+    /**
+     * Return all queries in the {@link Playlist}
      */
     public ArrayList<Query> getQueries() {
-        return mShuffled ? mShuffledQueries : mQueries;
+        ArrayList<Query> queries = new ArrayList<Query>();
+        for (PlaylistEntry entry : mShuffled ? mShuffledEntries : mEntries) {
+            queries.add(entry.getQuery());
+        }
+        return queries;
     }
 
     /**
      * Add an {@link ArrayList} of {@link Query}s at the given position
      */
-    public void addQueries(int position, ArrayList<Query> querys) {
-        (mShuffled ? mShuffledQueries : mQueries).addAll(position, querys);
+    public void addQueries(int position, ArrayList<Query> queries) {
+        ArrayList<PlaylistEntry> playlistEntries = new ArrayList<PlaylistEntry>();
+        for (Query query : queries) {
+            playlistEntries.add(PlaylistEntry.get(this, query,
+                    TomahawkMainActivity.getLifetimeUniqueStringId()));
+        }
+        (mShuffled ? mShuffledEntries : mEntries).addAll(position, playlistEntries);
     }
 
     /**
      * Append an {@link ArrayList} of {@link Query}s at the end of this playlist
      */
-    public void addQueries(ArrayList<Query> querys) {
-        (mShuffled ? mShuffledQueries : mQueries).addAll(querys);
+    public void addQueries(ArrayList<Query> queries) {
+        ArrayList<PlaylistEntry> playlistEntries = new ArrayList<PlaylistEntry>();
+        for (Query query : queries) {
+            playlistEntries.add(PlaylistEntry.get(this, query,
+                    TomahawkMainActivity.getLifetimeUniqueStringId()));
+        }
+        (mShuffled ? mShuffledEntries : mEntries).addAll(playlistEntries);
     }
 
     /**
-     * Remove the {@link Query} at the given position from this playlist
+     * Remove the {@link PlaylistEntry} at the given position from this playlist
      */
-    public void deleteQueryAtPos(int position) {
-        if (mShuffledQueries != null) {
-            mShuffledQueries.remove((mShuffled ? mShuffledQueries : mQueries).get(position));
+    public void deleteEntryAtPos(int position) {
+        if (mShuffledEntries != null) {
+            mShuffledEntries.remove((mShuffled ? mShuffledEntries : mEntries).get(position));
         }
-        (mShuffled ? mShuffledQueries : mQueries).remove(position);
-        if (mCurrentQueryIndex > (mShuffled ? mShuffledQueries : mQueries).size()) {
+        (mShuffled ? mShuffledEntries : mEntries).remove(position);
+        if (mCurrentQueryIndex > (mShuffled ? mShuffledEntries : mEntries).size()) {
             mCurrentQueryIndex--;
         }
     }
@@ -418,12 +504,12 @@ public class Playlist implements TomahawkListItem {
     /**
      * Remove the given {@link Query} from this playlist
      */
-    public void deleteQuery(Query query) {
-        if (mShuffledQueries != null) {
-            mShuffledQueries.remove(query);
+    public void deleteEntry(PlaylistEntry entry) {
+        if (mShuffledEntries != null) {
+            mShuffledEntries.remove(entry);
         }
-        (mShuffled ? mShuffledQueries : mQueries).remove(query);
-        if (mCurrentQueryIndex > (mShuffled ? mShuffledQueries : mQueries).size()) {
+        (mShuffled ? mShuffledEntries : mEntries).remove(entry);
+        if (mCurrentQueryIndex > (mShuffled ? mShuffledEntries : mEntries).size()) {
             mCurrentQueryIndex--;
         }
     }

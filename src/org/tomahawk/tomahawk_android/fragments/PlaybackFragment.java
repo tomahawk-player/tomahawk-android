@@ -297,7 +297,7 @@ public class PlaybackFragment extends TomahawkFragment
         TomahawkListAdapter tomahawkListAdapter = (TomahawkListAdapter) getListAdapter();
         if (tomahawkListAdapter != null && playbackService != null
                 && playbackService.getCurrentPlaylist() != null
-                && playbackService.getCurrentPlaylist().getCurrentQuery() != null) {
+                && playbackService.getCurrentPlaylist().getCurrentEntry() != null) {
             if (mMenu != null) {
                 handlePageSelect();
             }
