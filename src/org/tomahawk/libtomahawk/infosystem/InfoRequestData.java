@@ -133,16 +133,24 @@ public class InfoRequestData {
         return mType;
     }
 
-    public Map<Class, Object> getResultMap() {
-        return mResultMap;
+    public <T> T getResult(Class<T> clss) {
+        Object object = mResultMap.get(clss);
+        if (object.getClass() == clss) {
+            return (T) object;
+        }
+        return null;
     }
 
     public void setResultMap(Map<Class, Object> resultMap) {
         mResultMap = resultMap;
     }
 
-    public Map<Class, List<Object>> getResultListMap() {
-        return mResultListMap;
+    public <T> List<T> getResultList(Class<T> clss) {
+        List<Object> objects = mResultListMap.get(clss);
+        if (objects.size() > 0 && objects.get(0).getClass() == clss) {
+            return (List<T>) objects;
+        }
+        return null;
     }
 
     public void setResultListMap(Map<Class, List<Object>> resultListMap) {

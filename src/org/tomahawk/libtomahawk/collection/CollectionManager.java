@@ -316,9 +316,8 @@ public class CollectionManager {
             for (Playlist storedList : storedLists) {
                 storedListsMap.put(storedList.getId(), storedList);
             }
-            List<Object> fetchedLists = data.getResultListMap().get(Playlist.class);
-            for (Object object : fetchedLists) {
-                Playlist fetchedList = (Playlist) object;
+            List<Playlist> fetchedLists = data.getResultList(Playlist.class);
+            for (Playlist fetchedList : fetchedLists) {
                 Playlist storedList = storedListsMap.remove(fetchedList.getId());
                 if (storedList == null) {
                     DatabaseHelper.getInstance().storePlaylist(fetchedList);
@@ -335,24 +334,18 @@ public class CollectionManager {
                 DatabaseHelper.getInstance().deletePlaylist(storedList.getId());
             }
         } else if (data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES) {
-            Object filledList = data.getResultMap().get(Playlist.class);
-            DatabaseHelper.getInstance().storePlaylist((Playlist) filledList);
+            Playlist filledList = data.getResult(Playlist.class);
+            DatabaseHelper.getInstance().storePlaylist(filledList);
         } else if (data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
-            Object fetchedList = data.getResultMap().get(Playlist.class);
-            DatabaseHelper.getInstance().storePlaylist((Playlist) fetchedList);
+            Playlist fetchedList = data.getResult(Playlist.class);
+            DatabaseHelper.getInstance().storePlaylist(fetchedList);
         } else if (data.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS) {
-            List<Album> fetchedAlbums = new ArrayList<Album>();
-            for (Object object : data.getResultListMap().get(Album.class)) {
-                fetchedAlbums.add((Album) object);
-            }
+            List<Album> fetchedAlbums = data.getResultList(Album.class);
             DatabaseHelper.getInstance().storeStarredAlbums(fetchedAlbums);
         } else if (data.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDARTISTS) {
-            List<Artist> fetchedArtists = new ArrayList<Artist>();
-            for (Object object : data.getResultListMap().get(Artist.class)) {
-                fetchedArtists.add((Artist) object);
-            }
+            List<Artist> fetchedArtists = data.getResultList(Artist.class);
             DatabaseHelper.getInstance().storeStarredArtists(fetchedArtists);
         }
     }
