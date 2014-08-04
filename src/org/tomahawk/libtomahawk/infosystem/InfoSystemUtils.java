@@ -26,6 +26,7 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.HatchetCollection;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetAlbumInfo;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetArtistInfo;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetChartItem;
@@ -60,7 +61,7 @@ public class InfoSystemUtils {
     public static Playlist fillPlaylist(Playlist playlist,
             HatchetPlaylistEntries playlistEntries) {
         if (playlist != null && playlistEntries != null) {
-            ArrayList<Query> queries = new ArrayList<Query>();
+            ArrayList<PlaylistEntry> queries = new ArrayList<PlaylistEntry>();
             for (HatchetPlaylistEntryInfo playlistEntryInfo : playlistEntries.playlistEntries) {
                 HatchetTrackInfo trackInfo = playlistEntries.tracks.get(playlistEntryInfo.track);
                 if (trackInfo != null) {
@@ -69,10 +70,11 @@ public class InfoSystemUtils {
                     if (playlistEntries.albums != null && playlistEntryInfo.album != null) {
                         albumName = playlistEntries.albums.get(playlistEntryInfo.album).name;
                     }
-                    queries.add(Query.get(trackInfo.name, albumName, artistInfo.name, false));
+                    Query query = Query.get(trackInfo.name, albumName, artistInfo.name, false);
+                    queries.add(PlaylistEntry.get(playlist, query, playlistEntryInfo.id));
                 }
             }
-            playlist.setQueries(queries);
+            playlist.setEntries(queries);
         }
         return playlist;
     }
@@ -86,7 +88,7 @@ public class InfoSystemUtils {
     public static Playlist convertToPlaylist(HatchetPlaylistInfo playlistInfo) {
         if (playlistInfo != null) {
             return Playlist.fromQueryList(playlistInfo.id, playlistInfo.title,
-                    playlistInfo.currentrevision, new ArrayList<Query>());
+                    playlistInfo.currentrevision, new ArrayList<Query>(), 0);
         }
         return null;
     }

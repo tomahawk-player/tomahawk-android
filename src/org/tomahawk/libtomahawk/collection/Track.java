@@ -61,9 +61,7 @@ public class Track implements TomahawkListItem {
         }
         mAlbum = album;
         mArtist = artist;
-        if (mCacheKey == null) {
-            mCacheKey = TomahawkUtils.getCacheKey(this);
-        }
+        mCacheKey = TomahawkUtils.getCacheKey(this);
     }
 
     /**

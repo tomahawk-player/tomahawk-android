@@ -23,6 +23,7 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
@@ -86,6 +87,9 @@ public class TomahawkFragment extends TomahawkListFragment
     public static final String TOMAHAWK_SOCIALACTION_ID
             = "org.tomahawk.tomahawk_android.tomahawk_socialaction_id";
 
+    public static final String TOMAHAWK_PLAYLISTENTRY_ID
+            = "org.tomahawk.tomahawk_android.tomahawk_playlistentry_id";
+
     public static final String TOMAHAWK_QUERY_KEY
             = "org.tomahawk.tomahawk_android.tomahawk_query_id";
 
@@ -139,6 +143,8 @@ public class TomahawkFragment extends TomahawkListFragment
     protected ArrayList<Artist> mShownArtists = new ArrayList<Artist>();
 
     protected ArrayList<User> mShownUsers = new ArrayList<User>();
+
+    protected ArrayList<PlaylistEntry> mShownPlaylistEntries = new ArrayList<PlaylistEntry>();
 
     protected Collection mCollection;
 
@@ -407,9 +413,6 @@ public class TomahawkFragment extends TomahawkListFragment
         FakeContextMenuDialog dialog = new FakeContextMenuDialog();
         Bundle args = new Bundle();
         args.putBoolean(TOMAHAWK_SHOWDELETE_KEY, showDelete);
-        if (position >= 0) {
-            args.putInt(TOMAHAWK_LIST_ITEM_POSITION, position);
-        }
         args.putBoolean(TOMAHAWK_FROMPLAYBACKFRAGMENT, this instanceof PlaybackFragment);
         if (mAlbum != null) {
             args.putString(TOMAHAWK_ALBUM_KEY, mAlbum.getCacheKey());
@@ -438,6 +441,9 @@ public class TomahawkFragment extends TomahawkListFragment
             args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY,
                     ((SocialAction) tomahawkListItem).getId());
             args.putString(TOMAHAWK_TOMAHAWKLISTITEM_TYPE, TOMAHAWK_SOCIALACTION_ID);
+        } else if (tomahawkListItem instanceof PlaylistEntry) {
+            args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY, tomahawkListItem.getCacheKey());
+            args.putString(TOMAHAWK_TOMAHAWKLISTITEM_TYPE, TOMAHAWK_PLAYLISTENTRY_ID);
         }
         dialog.setArguments(args);
         dialog.show(getFragmentManager(), null);
@@ -531,11 +537,13 @@ public class TomahawkFragment extends TomahawkListFragment
             Playlist playlist = playbackService.getCurrentPlaylist();
             if (playlist != null && playlist.getCount() == mShownQueries.size()) {
                 for (int i = 0; i < playlist.getCount(); i++) {
-                    if (!playlist.peekQueryAtPos(i).getBasicTrack().getName()
+                    if (!playlist.peekEntryAtPos(i).getQuery().getBasicTrack().getName()
                             .equals(mShownQueries.get(i).getBasicTrack().getName())
-                            || !playlist.peekQueryAtPos(i).getBasicTrack().getArtist().getName()
+                            || !playlist.peekEntryAtPos(i).getQuery().getBasicTrack().getArtist()
+                            .getName()
                             .equals(mShownQueries.get(i).getBasicTrack().getArtist().getName())
-                            || !playlist.peekQueryAtPos(i).getBasicTrack().getAlbum().getName()
+                            || !playlist.peekEntryAtPos(i).getQuery().getBasicTrack().getAlbum()
+                            .getName()
                             .equals(mShownQueries.get(i).getBasicTrack().getAlbum().getName())) {
                         return false;
                     }

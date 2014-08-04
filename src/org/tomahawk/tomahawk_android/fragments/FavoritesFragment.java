@@ -50,7 +50,7 @@ public class FavoritesFragment extends Fragment {
         getActivity().setTitle(getString(R.string.favoritesfragment_title_string));
 
         List<String> fragmentClassNames = new ArrayList<String>();
-        fragmentClassNames.add(TracksFragment.class.getName());
+        fragmentClassNames.add(PlaylistEntriesFragment.class.getName());
         fragmentClassNames.add(AlbumsFragment.class.getName());
         fragmentClassNames.add(ArtistsFragment.class.getName());
         List<String> fragmentTitles = new ArrayList<String>();

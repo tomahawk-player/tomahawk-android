@@ -14,6 +14,7 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
+import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
@@ -217,6 +218,9 @@ public class TomahawkUtils {
             } else {
                 return getCacheKey(query.getBasicTrack().getCacheKey(), query.getResultHint());
             }
+        } else if (tomahawkListItem instanceof PlaylistEntry) {
+            PlaylistEntry playlistEntry = ((PlaylistEntry) tomahawkListItem);
+            return getCacheKey(playlistEntry.getId(), playlistEntry.getPlaylist().getCacheKey());
         }
         return "";
     }

@@ -69,9 +69,6 @@ public class DatabaseHelper {
     // Database fields
     private SQLiteDatabase mDatabase;
 
-    private ConcurrentHashMap<String, ConcurrentHashMap<Integer, Long>> mPlaylistPosToIdMap
-            = new ConcurrentHashMap<String, ConcurrentHashMap<Integer, Long>>();
-
     private DatabaseHelper() {
     }
 
@@ -232,9 +229,8 @@ public class DatabaseHelper {
                 columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
                 new String[]{playlistId}, null, null, null);
         if (playlistsCursor.moveToFirst()) {
-            Playlist playlist = Playlist.fromQueryList(playlistId,
-                    playlistsCursor.getString(0), playlistsCursor.getString(1),
-                    new ArrayList<Query>(), 0);
+            Playlist playlist = Playlist.get(playlistId,
+                    playlistsCursor.getString(0), playlistsCursor.getString(1));
             playlistsCursor.close();
             return playlist;
         }
@@ -280,7 +276,6 @@ public class DatabaseHelper {
                 queries.add(query);
                 tracksCursor.moveToNext();
             }
-            mPlaylistPosToIdMap.put(playlistId, queryIdMap);
             Playlist playlist = Playlist.fromQueryList(playlistId, playlistsCursor.getString(0),
                     playlistsCursor.getString(1), queries, playlistsCursor.getInt(2));
             playlist.setFilled(true);
@@ -346,22 +341,20 @@ public class DatabaseHelper {
     }
 
     /**
-     * Delete the {@link org.tomahawk.libtomahawk.resolver.Query} with the given key in the {@link
-     * org.tomahawk.libtomahawk.collection.Playlist} with the given playlistId
+     * Delete the {@link org.tomahawk.libtomahawk.collection.PlaylistEntry} with the given key in
+     * the {@link org.tomahawk.libtomahawk.collection.Playlist} with the given playlistId
      */
-    public void deleteQueryInPlaylist(final String playlistId, final int position) {
+    public void deleteEntryInPlaylist(final String playlistId, final String entryId) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 synchronized (this) {
-                    Long id = mPlaylistPosToIdMap.get(playlistId).get(position);
                     mDatabase.beginTransaction();
                     mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
-                            TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = \""
-                                    + playlistId + "\""
-                                    + " and " + TomahawkSQLiteHelper.TRACKS_COLUMN_ID + " = " + id,
-                            null
-                    );
+                            TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID
+                                    + " = \"" + playlistId + "\"" + " and "
+                                    + TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTENTRYID
+                                    + " = " + entryId, null);
                     mDatabase.setTransactionSuccessful();
                     mDatabase.endTransaction();
                     sendReportResultsBroadcast();

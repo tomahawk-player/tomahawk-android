@@ -39,6 +39,7 @@ import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
@@ -228,6 +229,10 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     playlistEntries.playlist.id = DatabaseHelper.LOVEDITEMS_PLAYLIST_ID;
                     Playlist playlist = InfoSystemUtils.convertToPlaylist(playlistEntries.playlist);
                     playlist = InfoSystemUtils.fillPlaylist(playlist, playlistEntries);
+                    String userName = AuthenticatorManager.getInstance()
+                            .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET).getUserName();
+                    playlist.setName(userName + TomahawkApp.getContext()
+                            .getString(R.string.users_lovedtracks_suffix));
                     resultMap.put(Playlist.class, playlist);
                 }
 

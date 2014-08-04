@@ -23,10 +23,8 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
-import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.infosystem.QueryParams;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
-import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaylistEntries;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
@@ -66,10 +64,6 @@ public class CollectionManager {
             = new ConcurrentHashMap<String, Playlist>();
 
     private HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
-
-    private HashMap<String, String> mRequestIdPlaylistMap = new HashMap<String, String>();
-
-    private CollectionManagerReceiver mCollectionManagerReceiver;
 
     /**
      * Handles incoming broadcasts.
@@ -133,12 +127,12 @@ public class CollectionManager {
             fetchStarredAlbums();
             fetchStarredArtists();
 
-            mCollectionManagerReceiver = new CollectionManagerReceiver();
-            TomahawkApp.getContext().registerReceiver(mCollectionManagerReceiver,
+            CollectionManagerReceiver collectionManagerReceiver = new CollectionManagerReceiver();
+            TomahawkApp.getContext().registerReceiver(collectionManagerReceiver,
                     new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
-            TomahawkApp.getContext().registerReceiver(mCollectionManagerReceiver,
+            TomahawkApp.getContext().registerReceiver(collectionManagerReceiver,
                     new IntentFilter(InfoSystem.INFOSYSTEM_OPLOGISEMPTIED));
-            TomahawkApp.getContext().registerReceiver(mCollectionManagerReceiver,
+            TomahawkApp.getContext().registerReceiver(collectionManagerReceiver,
                     new IntentFilter(DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED));
         }
     }
@@ -276,37 +270,6 @@ public class CollectionManager {
         }
     }
 
-    private void storePlaylistEntries(Playlist playlist, HatchetPlaylistEntries playlistEntries) {
-        if (playlist != null && playlistEntries != null) {
-            playlist = InfoSystemUtils.fillPlaylist(playlist, playlistEntries);
-            DatabaseHelper.getInstance().storePlaylist(playlist);
-        }
-    }
-
-    private void storePlaylists(List<Playlist> fetchedLists) {
-        ArrayList<Playlist> storedLists = DatabaseHelper.getInstance().getPlaylists();
-        HashMap<String, Playlist> storedListsMap = new HashMap<String, Playlist>();
-        for (Playlist storedList : storedLists) {
-            storedListsMap.put(storedList.getId(), storedList);
-        }
-        for (Playlist fetchedList : fetchedLists) {
-            Playlist storedList = storedListsMap.remove(fetchedList.getId());
-            if (storedList == null) {
-                DatabaseHelper.getInstance().storePlaylist(fetchedList);
-                fetchHatchetPlaylistEntries(fetchedList);
-            } else if (!storedList.getCurrentRevision().equals(fetchedList.getCurrentRevision())
-                    || DatabaseHelper.getInstance().getPlaylistTrackCount(storedList.getId())
-                    == 0) {
-                fetchHatchetPlaylistEntries(storedList);
-            } else if (!storedList.getName().equals(fetchedList.getName())) {
-                DatabaseHelper.getInstance().renamePlaylist(storedList, fetchedList.getName());
-            }
-        }
-        for (Playlist storedList : storedListsMap.values()) {
-            DatabaseHelper.getInstance().deletePlaylist(storedList.getId());
-        }
-    }
-
     /**
      * Fetch all user {@link Playlist} from the app's database via our helper class {@link
      * org.tomahawk.libtomahawk.database.DatabaseHelper}
@@ -344,7 +307,6 @@ public class CollectionManager {
         String requestid = InfoSystem.getInstance()
                 .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES, params, playlist);
         mCorrespondingRequestIds.add(requestid);
-        mRequestIdPlaylistMap.put(requestid, playlist.getId());
     }
 
     public void handleHatchetPlaylistResponse(InfoRequestData data) {
