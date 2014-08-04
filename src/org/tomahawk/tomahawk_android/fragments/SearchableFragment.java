@@ -170,14 +170,14 @@ public class SearchableFragment extends TomahawkFragment
         mShownAlbums.clear();
         mShownArtists.clear();
         mShownUsers.clear();
-        for (Object object : data.getResultListMap().get(Album.class)) {
-            mShownAlbums.add((Album) object);
+        for (Album album : data.getResultList(Album.class)) {
+            mShownAlbums.add(album);
         }
-        for (Object object : data.getResultListMap().get(Artist.class)) {
-            mShownArtists.add((Artist) object);
+        for (Artist artist : data.getResultList(Artist.class)) {
+            mShownArtists.add(artist);
         }
-        for (Object object : data.getResultListMap().get(User.class)) {
-            mShownUsers.add((User) object);
+        for (User user : data.getResultList(User.class)) {
+            mShownUsers.add(user);
         }
     }
 

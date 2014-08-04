@@ -196,7 +196,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                     InfoRequestData data = InfoSystem.getInstance().getInfoRequestById(requestId);
                     if (data != null
                             && data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF) {
-                        User user = (User) data.getResultMap().get(User.class);
+                        User user = data.getResult(User.class);
                         HatchetAuthenticatorUtils authenticatorUtils
                                 = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
