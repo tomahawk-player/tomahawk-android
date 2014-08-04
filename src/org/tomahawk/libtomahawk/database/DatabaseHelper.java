@@ -46,6 +46,9 @@ public class DatabaseHelper {
     public static final String PLAYLISTSDATASOURCE_RESULTSREPORTED
             = "org.tomahawk.tomahawk_android.playlistsdatasource_resultsreported";
 
+    public static final String PLAYLISTSDATASOURCE_RESULTSREPORTED_PLAYLISTID
+            = "org.tomahawk.tomahawk_android.playlistsdatasource_resultsreported_playlistid";
+
     public static final String CACHED_PLAYLIST_NAME = "Last used playlist";
 
     public static final String CACHED_PLAYLIST_ID = "cached_playlist_id";
@@ -144,7 +147,7 @@ public class DatabaseHelper {
                     }
                     mDatabase.setTransactionSuccessful();
                     mDatabase.endTransaction();
-                    sendReportResultsBroadcast();
+                    sendReportResultsBroadcast(playlist.getId());
                 }
             }
         }).start();
@@ -174,7 +177,7 @@ public class DatabaseHelper {
                             values, SQLiteDatabase.CONFLICT_REPLACE);
                     mDatabase.setTransactionSuccessful();
                     mDatabase.endTransaction();
-                    sendReportResultsBroadcast();
+                    sendReportResultsBroadcast(playlist.getId());
                 }
             }
         }).start();
@@ -334,7 +337,7 @@ public class DatabaseHelper {
                     );
                     mDatabase.setTransactionSuccessful();
                     mDatabase.endTransaction();
-                    sendReportResultsBroadcast();
+                    sendReportResultsBroadcast(playlistId);
                 }
             }
         }).start();
@@ -357,7 +360,7 @@ public class DatabaseHelper {
                                     + " = " + entryId, null);
                     mDatabase.setTransactionSuccessful();
                     mDatabase.endTransaction();
-                    sendReportResultsBroadcast();
+                    sendReportResultsBroadcast(playlistId);
                 }
             }
         }).start();
@@ -398,7 +401,7 @@ public class DatabaseHelper {
                     }
                     mDatabase.setTransactionSuccessful();
                     mDatabase.endTransaction();
-                    sendReportResultsBroadcast();
+                    sendReportResultsBroadcast(playlistId);
                 }
             }
         }).start();
@@ -569,7 +572,7 @@ public class DatabaseHelper {
                     }
                     mDatabase.setTransactionSuccessful();
                     mDatabase.endTransaction();
-                    sendReportResultsBroadcast();
+                    sendReportResultsBroadcast(null);
                 }
             }
         }).start();
@@ -592,7 +595,7 @@ public class DatabaseHelper {
                     }
                     mDatabase.setTransactionSuccessful();
                     mDatabase.endTransaction();
-                    sendReportResultsBroadcast();
+                    sendReportResultsBroadcast(null);
                 }
             }
         }).start();
@@ -737,8 +740,11 @@ public class DatabaseHelper {
      * Send a broadcast indicating that playlists have been changed in the database and should be
      * refetched
      */
-    private void sendReportResultsBroadcast() {
+    private void sendReportResultsBroadcast(String playlistId) {
         Intent reportIntent = new Intent(PLAYLISTSDATASOURCE_RESULTSREPORTED);
+        if (playlistId != null) {
+            reportIntent.putExtra(PLAYLISTSDATASOURCE_RESULTSREPORTED_PLAYLISTID, playlistId);
+        }
         TomahawkApp.getContext().sendBroadcast(reportIntent);
     }
 }
