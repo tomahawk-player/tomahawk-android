@@ -89,9 +89,18 @@ public class CollectionManager {
                     );
                 }
             } else if (InfoSystem.INFOSYSTEM_OPLOGISEMPTIED.equals(intent.getAction())) {
-                CollectionManager.this.fetchLovedItemsPlaylist();
-                CollectionManager.this.fetchStarredAlbums();
-                CollectionManager.this.fetchStarredArtists();
+                int whatchanged = intent
+                        .getIntExtra(InfoSystem.INFOSYSTEM_OPLOGISEMPTIED_REQUESTTYPES, -1);
+                if (whatchanged
+                        == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
+                    CollectionManager.this.fetchLovedItemsPlaylist();
+                } else if (whatchanged
+                        == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS) {
+                    CollectionManager.this.fetchStarredAlbums();
+                } else if (whatchanged
+                        == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDARTISTS) {
+                    CollectionManager.this.fetchStarredArtists();
+                }
             } else if (DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED
                     .equals(intent.getAction())) {
                 CollectionManager.this.updatePlaylists();

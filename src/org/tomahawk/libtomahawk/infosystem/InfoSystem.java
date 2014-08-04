@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.infosystem;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetNowPlaying;
@@ -51,18 +52,18 @@ public class InfoSystem {
 
     public static final String INFOSYSTEM_RESULTSREPORTED = "infosystem_resultsreported";
 
+    public static final String INFOSYSTEM_RESULTSREPORTED_REQUESTID
+            = "infosystem_resultsreported_requestid";
+
     public static final String INFOSYSTEM_REQUESTFAILED = "infosystem_requestfailed";
 
     public static final String INFOSYSTEM_OPLOGISEMPTIED = "infosystem_oplogisempty";
 
-    public static final String INFOSYSTEM_RESULTSREPORTED_REQUESTID
-            = "infosystem_resultsreported_requestid";
+    public static final String INFOSYSTEM_OPLOGISEMPTIED_IDS
+            = "infosystem_oplogisempty_ids";
 
-    public static final String PARAM_NAME = "name";
-
-    public static final String PARAM_ARTIST_NAME = "artist_name";
-
-    public static final String PARAM_TERM = "term";
+    public static final String INFOSYSTEM_OPLOGISEMPTIED_REQUESTTYPES
+            = "infosystem_oplogisempty_requesttype";
 
     private boolean mInitialized;
 
@@ -538,17 +539,34 @@ public class InfoSystem {
 
     public void onLoggedOpsSent(ArrayList<String> doneRequestsIds, boolean success) {
         List<InfoRequestData> loggedOps = new ArrayList<InfoRequestData>();
+        HashSet<Integer> requestTypes = new HashSet<Integer>();
+        HashSet<String> playlistIds = new HashSet<String>();
         for (String doneRequestId : doneRequestsIds) {
             if (mSentRequests.containsKey(doneRequestId)) {
                 InfoRequestData loggedOp = mSentRequests.get(doneRequestId);
                 loggedOps.add(loggedOp);
                 mLoggedOpsMap.remove(loggedOp.getOpLogId());
+                requestTypes.add(loggedOp.getType());
+                if (loggedOp.getType()
+                        == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES
+                        || loggedOp.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS) {
+                    playlistIds.add(loggedOp.getResult(Playlist.class).getId());
+                }
             }
         }
         if (success) {
             DatabaseHelper.getInstance().removeOpsFromInfoSystemOpLog(loggedOps);
             if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
-                sendOpLogIsEmptiedBroadcast();
+                if (!requestTypes.isEmpty()) {
+                    Intent reportIntent = new Intent(INFOSYSTEM_OPLOGISEMPTIED);
+                    reportIntent.putIntegerArrayListExtra(INFOSYSTEM_OPLOGISEMPTIED_REQUESTTYPES,
+                            new ArrayList<Integer>(requestTypes));
+                    if (!playlistIds.isEmpty()) {
+                        reportIntent.putStringArrayListExtra(INFOSYSTEM_OPLOGISEMPTIED_IDS,
+                                new ArrayList<String>(playlistIds));
+                    }
+                    TomahawkApp.getContext().sendBroadcast(reportIntent);
+                }
             }
         }
     }
@@ -568,14 +586,6 @@ public class InfoSystem {
     private void sendRequestFailedBroadcast(String requestId) {
         Intent reportIntent = new Intent(INFOSYSTEM_REQUESTFAILED);
         reportIntent.putExtra(INFOSYSTEM_RESULTSREPORTED_REQUESTID, requestId);
-        TomahawkApp.getContext().sendBroadcast(reportIntent);
-    }
-
-    /**
-     * Send a broadcast indicating that the operation log has been emptied
-     */
-    private void sendOpLogIsEmptiedBroadcast() {
-        Intent reportIntent = new Intent(INFOSYSTEM_OPLOGISEMPTIED);
         TomahawkApp.getContext().sendBroadcast(reportIntent);
     }
 }

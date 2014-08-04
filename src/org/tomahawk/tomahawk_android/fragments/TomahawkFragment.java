@@ -226,7 +226,9 @@ public class TomahawkFragment extends TomahawkListFragment
                 }
             } else if (DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED
                     .equals(intent.getAction())) {
-                if (mPlaylist != null) {
+                if (mPlaylist != null
+                        && mPlaylist.getId().equals(intent.getStringExtra(
+                        DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED_PLAYLISTID))) {
                     refreshCurrentPlaylist();
                 }
             }
