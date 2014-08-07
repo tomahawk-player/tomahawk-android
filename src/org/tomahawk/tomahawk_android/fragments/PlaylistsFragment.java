@@ -44,6 +44,8 @@ public class PlaylistsFragment extends TomahawkFragment implements OnItemClickLi
     public void onResume() {
         super.onResume();
 
+        CollectionManager.getInstance().fetchPlaylists();
+
         updateAdapter();
     }
 

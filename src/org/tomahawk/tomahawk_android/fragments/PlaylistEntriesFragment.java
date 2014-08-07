@@ -18,6 +18,7 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
@@ -52,6 +53,8 @@ public class PlaylistEntriesFragment extends TomahawkFragment implements OnItemC
     @Override
     public void onResume() {
         super.onResume();
+
+        CollectionManager.getInstance().fetchPlaylists();
 
         updateAdapter();
     }
