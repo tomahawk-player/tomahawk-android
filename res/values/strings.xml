@@ -28,6 +28,7 @@
     <string name="cancel">Cancel</string>
     <string name="login">Login</string>
     <string name="logout">Logout</string>
+    <string name="register">Register</string>
     <string name="usercollectionfragment_title_string">"Collection"</string>
     <string name="favoritesfragment_title_string">"Favorites"</string>
     <string name="tracksfragment_title_string">Tracks</string>
@@ -60,8 +61,11 @@
     <string name="logindialog_emailorusername_label_string">E-Mail/Username</string>
     <string name="logindialog_username_label_string">Username</string>
     <string name="logindialog_password_label_string">Password</string>
+    <string name="logindialog_password_confirmation_label_string">Password confirmation</string>
+    <string name="logindialog_email_label_string">E-Mail (optional)</string>
     <string name="accounttype_string">org.tomahawk</string>
     <string name="error_field_required">This field is required</string>
+    <string name="error_passwords_dont_match">Passwords don\'t match</string>
     <string name="config_test_result_type_invalid_credentials">Username or password incorrect.</string>
     <string name="auth_loginfailed_invalid_account">Account rejected by server.</string>
     <string name="auth_loginfailed_communication_error">Unable to authenticate. Please check

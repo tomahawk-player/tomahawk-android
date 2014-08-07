@@ -119,6 +119,10 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
         return 0;
     }
 
+    @Override
+    public void register(final String name, final String password, final String email) {
+    }
+
     /**
      * Try to login to deezer
      */

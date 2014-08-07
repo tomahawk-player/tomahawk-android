@@ -240,6 +240,10 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
         return R.string.logindialog_emailorusername_label_string;
     }
 
+    @Override
+    public void register(final String name, final String password, final String email) {
+    }
+
     /**
      * Try to login to spotify with given credentials
      */

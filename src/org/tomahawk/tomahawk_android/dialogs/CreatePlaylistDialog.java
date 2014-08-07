@@ -26,6 +26,7 @@ import org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -42,6 +43,7 @@ public class CreatePlaylistDialog extends ConfigDialog {
 
     private EditText mNameEditText;
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Check if there is a playlist key in the provided arguments

@@ -68,6 +68,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     public HatchetAuthenticatorUtils(String id, String prettyName) {
         super(id, prettyName);
 
+        mAllowRegistration = true;
+
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setLogLevel(RestAdapter.LogLevel.BASIC)
                 .setEndpoint(HATCHET_AUTH_BASE_URL)
@@ -145,6 +147,45 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     @Override
     public int getUserIdEditTextHintResId() {
         return R.string.logindialog_username_label_string;
+    }
+
+    @Override
+    public void register(final String name, final String password, final String email) {
+        ThreadManager.getInstance().execute(
+                new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_AUTHENTICATING) {
+                    @Override
+                    public void run() {
+                        try {
+                            HatchetAuthResponse authResponse =
+                                    mHatchetAuth.registerDirectly(name, password, email);
+                            if (authResponse != null) {
+                                onLogin(name,
+                                        authResponse.refresh_token,
+                                        authResponse.refresh_token_expires_in,
+                                        authResponse.access_token,
+                                        authResponse.expires_in);
+                            } else {
+                                onLoginFailed(
+                                        AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_COMMERROR, "");
+                            }
+                        } catch (RetrofitError e) {
+                            Log.d(TAG,
+                                    "register: " + e.getClass() + ": " + e.getLocalizedMessage());
+                            HatchetAuthResponse authResponse =
+                                    (HatchetAuthResponse) e.getBodyAs(HatchetAuthResponse.class);
+                            if (authResponse.error != null &&
+                                    authResponse.error.equals(RESPONSE_ERROR_INVALID_REQUEST)) {
+                                onLoginFailed(
+                                        AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
+                                        authResponse.error_description);
+                            } else {
+                                onLoginFailed(
+                                        AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_COMMERROR, "");
+                            }
+                        }
+                    }
+                }
+        );
     }
 
     @Override

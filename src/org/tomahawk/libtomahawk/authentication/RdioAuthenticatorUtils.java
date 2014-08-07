@@ -120,6 +120,10 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
         return 0;
     }
 
+    @Override
+    public void register(final String name, final String password, final String email) {
+    }
+
     /**
      * NOP, because we can only log into rdio via its OAuth1WebViewActivity.
      */

@@ -47,4 +47,12 @@ public interface HatchetAuth {
             @Path("tokentype") String tokentype
     );
 
+    @FormUrlEncoded
+    @POST("/registration/direct")
+    HatchetAuthResponse registerDirectly(
+            @Field("username") String username,
+            @Field("password") String password,
+            @Field("email") String email
+    );
+
 }

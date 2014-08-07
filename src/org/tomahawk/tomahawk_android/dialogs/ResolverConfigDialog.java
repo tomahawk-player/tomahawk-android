@@ -32,6 +32,7 @@ import org.tomahawk.tomahawk_android.ui.widgets.StringView;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
@@ -63,6 +64,7 @@ public class ResolverConfigDialog extends ConfigDialog {
     /**
      * Called when this {@link android.support.v4.app.DialogFragment} is being created
      */
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         if (getArguments() != null && getArguments()
