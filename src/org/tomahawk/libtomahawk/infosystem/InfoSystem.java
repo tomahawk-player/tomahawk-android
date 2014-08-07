@@ -574,31 +574,6 @@ public class InfoSystem {
         sendLoggedOps(authenticatorUtils);
     }
 
-
-    public List<String> sendLoggedOps(AuthenticatorUtils authenticatorUtils) {
-        List<String> requestIds = new ArrayList<String>();
-        List<InfoRequestData> loggedOps = DatabaseHelper.getInstance().getLoggedOps();
-        for (InfoRequestData loggedOp : loggedOps) {
-            if (!mLoggedOpsMap.containsKey(loggedOp.getLoggedOpId())) {
-                mLoggedOpsMap.put(loggedOp.getLoggedOpId(), loggedOp);
-                if (loggedOp.getType()
-                        == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES
-                        || (loggedOp.getHttpType() == InfoRequestData.HTTPTYPE_DELETE
-                        && loggedOp.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS)) {
-                    mQueuedLoggedOps.add(loggedOp);
-                } else {
-                    if (loggedOp.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS) {
-                        mPlaylistsLoggedOpsMap.put(loggedOp.getLoggedOpId(), loggedOp);
-                    }
-                    send(loggedOp, authenticatorUtils);
-                }
-                requestIds.add(loggedOp.getRequestId());
-            }
-        }
-        trySendingQueuedOps();
-        return requestIds;
-    }
-
     /**
      * Send the given InfoRequestData's data out to every service that can handle it
      *
@@ -641,6 +616,31 @@ public class InfoSystem {
         for (String doneRequestId : doneRequestsIds) {
             sendRequestFailedBroadcast(doneRequestId);
         }
+    }
+
+
+    public List<String> sendLoggedOps(AuthenticatorUtils authenticatorUtils) {
+        List<String> requestIds = new ArrayList<String>();
+        List<InfoRequestData> loggedOps = DatabaseHelper.getInstance().getLoggedOps();
+        for (InfoRequestData loggedOp : loggedOps) {
+            if (!mLoggedOpsMap.containsKey(loggedOp.getLoggedOpId())) {
+                mLoggedOpsMap.put(loggedOp.getLoggedOpId(), loggedOp);
+                if (loggedOp.getType()
+                        == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES
+                        || (loggedOp.getHttpType() == InfoRequestData.HTTPTYPE_DELETE
+                        && loggedOp.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS)) {
+                    mQueuedLoggedOps.add(loggedOp);
+                } else {
+                    if (loggedOp.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS) {
+                        mPlaylistsLoggedOpsMap.put(loggedOp.getLoggedOpId(), loggedOp);
+                    }
+                    send(loggedOp, authenticatorUtils);
+                }
+                requestIds.add(loggedOp.getRequestId());
+            }
+        }
+        trySendingQueuedOps();
+        return requestIds;
     }
 
     public void onLoggedOpsSent(ArrayList<String> doneRequestsIds, boolean success) {
@@ -694,11 +694,24 @@ public class InfoSystem {
                 InfoRequestData queuedLoggedOp = mQueuedLoggedOps.remove(0);
                 QueryParams params = queuedLoggedOp.getQueryParams();
                 Playlist playlist = Playlist.getPlaylistById(params.playlist_local_id);
-                params.playlist_id = playlist.getHatchetId();
-                send(queuedLoggedOp, AuthenticatorManager.getInstance().getAuthenticatorUtils(
-                        TomahawkApp.PLUGINNAME_HATCHET));
+                if (playlist != null) {
+                    params.playlist_id = playlist.getHatchetId();
+                    send(queuedLoggedOp, AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                            TomahawkApp.PLUGINNAME_HATCHET));
+                } else {
+                    Log.e(TAG, "Hatchet sync - Couldn't send queued logged op, because the stored "
+                            + "local playlist id was no longer valid");
+                    discardLoggedOp(queuedLoggedOp);
+                }
             }
         }
+    }
+
+    private void discardLoggedOp(InfoRequestData loggedOp){
+        mSentRequests.put(loggedOp.getRequestId(), loggedOp);
+        ArrayList<String> doneRequestsIds = new ArrayList<String>();
+        doneRequestsIds.add(loggedOp.getRequestId());
+        InfoSystem.getInstance().onLoggedOpsSent(doneRequestsIds, true);
     }
 
     /**
