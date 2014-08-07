@@ -19,7 +19,7 @@ package org.tomahawk.tomahawk_android.dialogs;
 
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
-import org.tomahawk.libtomahawk.database.DatabaseHelper;
+import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -29,6 +29,7 @@ import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,13 +41,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A {@link DialogFragment} which shows a list of all {@link org.tomahawk.libtomahawk.collection.Playlist}s to choose from.
+ * A {@link DialogFragment} which shows a list of all {@link org.tomahawk.libtomahawk.collection.Playlist}s
+ * to choose from.
  */
 public class ChoosePlaylistDialog extends DialogFragment {
 
     /**
      * Called when this {@link DialogFragment} is being created
      */
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -65,34 +68,34 @@ public class ChoosePlaylistDialog extends DialogFragment {
             }
         }
 
+        final ArrayList<Playlist> playlists = CollectionManager.getInstance().getPlaylists();
+
         ListView listView = (ListView) view.findViewById(R.id.playlist_dialog_playlists_listview);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                DatabaseHelper.getInstance().addQueriesToPlaylist(
-                        CollectionManager.getInstance()
-                                .getPlaylists().get(position).getId(), queries);
+                ArrayList<PlaylistEntry> entries = new ArrayList<PlaylistEntry>();
+                Playlist playlist = playlists.get(position);
+                for (Query query : queries) {
+                    entries.add(PlaylistEntry.get(playlist.getId(), query,
+                            TomahawkMainActivity.getLifetimeUniqueStringId()));
+                }
+                CollectionManager.getInstance().addPlaylistEntries(playlist.getId(), entries);
                 getDialog().dismiss();
             }
         });
-        int customPlaylistCount = CollectionManager.getInstance().getPlaylists().size();
         List<String> playlistNames = new ArrayList<String>();
-        for (int i = 0; i < customPlaylistCount; i++) {
-            playlistNames
-                    .add(CollectionManager.getInstance().getPlaylists().get(i).getName());
+        for (Playlist playlist : playlists) {
+            playlistNames.add(playlist.getName());
         }
-        listView.setAdapter(
-                new TomahawkContextMenuAdapter(getActivity(), getActivity().getLayoutInflater(),
-                        playlistNames)
-        );
+        listView.setAdapter(new TomahawkContextMenuAdapter(getActivity(),
+                getActivity().getLayoutInflater(), playlistNames));
         LinearLayout linearLayout = (LinearLayout) view
                 .findViewById(R.id.playlist_dialog_addplaylist_layout);
         linearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Playlist playlist = Playlist
-                        .fromQueryList(TomahawkMainActivity.getLifetimeUniqueStringId(), "",
-                                queries);
+                Playlist playlist = Playlist.fromQueryList("", queries);
                 CreatePlaylistDialog dialog = new CreatePlaylistDialog();
                 Bundle args = new Bundle();
                 args.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY, playlist.getId());

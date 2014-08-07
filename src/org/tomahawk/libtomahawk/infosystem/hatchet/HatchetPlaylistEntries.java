@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.tomahawk.libtomahawk.infosystem.deserializer.AlbumsDeserializer;
 import org.tomahawk.libtomahawk.infosystem.deserializer.ArtistsDeserializer;
-import org.tomahawk.libtomahawk.infosystem.deserializer.PlaylistsDeserializer;
 import org.tomahawk.libtomahawk.infosystem.deserializer.TracksDeserializer;
 
 import java.util.List;
@@ -39,8 +38,7 @@ public class HatchetPlaylistEntries {
     @JsonDeserialize(using = ArtistsDeserializer.class)
     public Map<String, HatchetArtistInfo> artists;
 
-    @JsonDeserialize(using = PlaylistsDeserializer.class)
-    public Map<String, HatchetPlaylistInfo> playlists;
+    public List<HatchetPlaylistInfo> playlists;
 
     @JsonDeserialize(using = TracksDeserializer.class)
     public Map<String, HatchetTrackInfo> tracks;

@@ -17,10 +17,9 @@
  */
 package org.tomahawk.tomahawk_android.dialogs;
 
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
-import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext;
 
@@ -85,9 +84,8 @@ public class CreatePlaylistDialog extends ConfigDialog {
                 ? getString(R.string.playbackplaylistfragment_title_string)
                 : mNameEditText.getText().toString();
         if (mPlaylist != null) {
-            DatabaseHelper.getInstance().storePlaylist(Playlist
-                    .fromQueryList(TomahawkMainActivity.getLifetimeUniqueStringId(), playlistName,
-                            mPlaylist.getQueries()));
+            CollectionManager.getInstance().createPlaylist(Playlist.fromQueryList(playlistName,
+                    mPlaylist.getQueries()));
         }
     }
 

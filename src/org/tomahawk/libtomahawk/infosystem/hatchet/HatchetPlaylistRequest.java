@@ -17,9 +17,13 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet;
 
+import java.util.List;
+
 public class HatchetPlaylistRequest {
 
+    public String title;
 
+    public List<String> playlistEntries;
 
     public HatchetPlaylistRequest() {
     }

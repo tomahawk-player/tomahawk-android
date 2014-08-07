@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,27 +17,18 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet;
 
-import java.util.List;
-import java.util.Map;
+public class HatchetPlaylistEntryRequest {
 
-public class HatchetPlaylistInfo extends Mappable {
+    public String albumString;
 
-    public String created;
+    public String artistString;
 
-    public String currentrevision;
+    public String playlist;
 
-    public List<String> playlistEntries;
+    public String track;
 
-    public List<String> revisions;
+    public String trackString;
 
-    public Map<String, String> links;
-
-    public String title;
-
-    public String user;
-
-    public boolean isFull;
-
-    public HatchetPlaylistInfo() {
+    public HatchetPlaylistEntryRequest() {
     }
 }

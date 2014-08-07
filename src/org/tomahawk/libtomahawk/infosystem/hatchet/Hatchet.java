@@ -21,9 +21,11 @@ import java.util.List;
 
 import retrofit.client.Response;
 import retrofit.http.Body;
+import retrofit.http.DELETE;
 import retrofit.http.GET;
 import retrofit.http.Header;
 import retrofit.http.POST;
+import retrofit.http.PUT;
 import retrofit.http.Path;
 import retrofit.http.Query;
 import retrofit.mime.TypedInput;
@@ -31,7 +33,7 @@ import retrofit.mime.TypedInput;
 public interface Hatchet {
 
     @GET("/users")
-    HatchetUsers users(
+    HatchetUsers getUsers(
             @Query("ids[]") List<String> ids,
             @Query("name") String name,
             @Query("random") String random,
@@ -39,94 +41,81 @@ public interface Hatchet {
     );
 
     @GET("/users/{user-id}/playlists")
-    HatchetPlaylists usersPlaylists(
+    HatchetPlaylistEntries getUsersPlaylists(
             @Path("user-id") String user_id
     );
 
     @GET("/users/{user-id}/lovedItems")
-    HatchetPlaylistEntries usersLovedItems(
+    HatchetPlaylistEntries getUsersLovedItems(
             @Path("user-id") String user_id
     );
 
     @GET("/users/{user-id}/socialActions")
-    HatchetSocialActionResponse usersSocialActions(
+    HatchetSocialActionResponse getUsersSocialActions(
             @Path("user-id") String user_id,
             @Query("offset") String offset,
             @Query("limit") String limit
     );
 
     @GET("/users/{user-id}/friendsFeed")
-    HatchetSocialActionResponse usersFriendsFeed(
+    HatchetSocialActionResponse getUsersFriendsFeed(
             @Path("user-id") String user_id,
             @Query("offset") String offset,
             @Query("limit") String limit
     );
 
     @GET("/users/{user-id}/playbackLog")
-    HatchetPlaybackLogsResponse usersPlaybackLog(
+    HatchetPlaybackLogsResponse getUsersPlaybackLog(
             @Path("user-id") String user_id
     );
 
     @GET("/playlists/{playlist-id}/entries")
-    HatchetPlaylistEntries playlistsEntries(
+    HatchetPlaylistEntries getPlaylistsEntries(
+            @Path("playlist-id") String playlist_id
+    );
+
+    @GET("/playlists/{playlist-id}")
+    HatchetPlaylistEntries getPlaylists(
             @Path("playlist-id") String playlist_id
     );
 
     @GET("/artists")
-    HatchetArtists artists(
+    HatchetArtists getArtists(
             @Query("ids[]") List<String> ids,
             @Query("name") String name
     );
 
     @GET("/artists/{artist-id}/albums")
-    HatchetCharts artistsAlbums(
+    HatchetCharts getArtistsAlbums(
             @Path("artist-id") String artist_id
     );
 
     @GET("/artists/{artist-id}/topHits")
-    HatchetCharts artistsTopHits(
+    HatchetCharts getArtistsTopHits(
             @Path("artist-id") String artist_id
     );
 
     @GET("/tracks")
-    HatchetTracks tracks(
+    HatchetTracks getTracks(
             @Query("ids[]") List<String> ids,
             @Query("name") String name,
             @Query("artist_name") String artist_name
     );
 
     @GET("/albums")
-    HatchetAlbums albums(
+    HatchetAlbums getAlbums(
             @Query("ids[]") List<String> ids,
             @Query("name") String name,
             @Query("artist_name") String artist_name
     );
 
     @GET("/searches")
-    HatchetSearch searches(
+    HatchetSearch getSearches(
             @Query("term") String term
     );
 
-    @POST("/playbackLogEntries")
-    Response playbackLogEntries(
-            @Header("Authorization") String accesstoken,
-            @Body TypedInput rawBody
-    );
-
-    @POST("/playbackLogEntries/nowplaying")
-    Response playbackLogEntriesNowPlaying(
-            @Header("Authorization") String accesstoken,
-            @Body TypedInput rawBody
-    );
-
-    @POST("/socialActions")
-    Response socialActions(
-            @Header("Authorization") String accesstoken,
-            @Body TypedInput rawBody
-    );
-
     @GET("/relationships")
-    HatchetRelationshipsStruct relationships(
+    HatchetRelationshipsStruct getRelationships(
             @Query("ids[]") List<String> ids,
             @Query("user_id") String user_id,
             @Query("target_type") String target_type,
@@ -135,6 +124,57 @@ public interface Hatchet {
             @Query("target_album_id") String target_album_id,
             @Query("filter") String filter,
             @Query("type") String type
+    );
+
+    @POST("/playbackLogEntries")
+    Response postPlaybackLogEntries(
+            @Header("Authorization") String accesstoken,
+            @Body TypedInput rawBody
+    );
+
+    @POST("/playbackLogEntries/nowplaying")
+    Response postPlaybackLogEntriesNowPlaying(
+            @Header("Authorization") String accesstoken,
+            @Body TypedInput rawBody
+    );
+
+    @POST("/socialActions")
+    Response postSocialActions(
+            @Header("Authorization") String accesstoken,
+            @Body TypedInput rawBody
+    );
+
+    @POST("/playlists")
+    HatchetPlaylistEntries postPlaylists(
+            @Header("Authorization") String accesstoken,
+            @Body TypedInput rawBody
+    );
+
+    @POST("/playlists/{playlist-id}/playlistEntries")
+    HatchetPlaylistEntries postPlaylistsPlaylistEntries(
+            @Header("Authorization") String accesstoken,
+            @Path("playlist-id") String playlist_id,
+            @Body TypedInput rawBody
+    );
+
+    @PUT("/playlists/{playlist-id}")
+    Response putPlaylists(
+            @Header("Authorization") String accesstoken,
+            @Path("playlist-id") String playlist_id,
+            @Body TypedInput rawBody
+    );
+
+    @DELETE("/playlists/{playlist-id}")
+    Response deletePlaylists(
+            @Header("Authorization") String accesstoken,
+            @Path("playlist-id") String playlist_id
+    );
+
+    @DELETE("/playlists/{playlist-id}/playlistEntries/{entry-id}")
+    Response deletePlaylistsPlaylistEntries(
+            @Header("Authorization") String accesstoken,
+            @Path("playlist-id") String playlist_id,
+            @Path("entry-id") String entry_id
     );
 
 }

@@ -17,11 +17,16 @@
  */
 package org.tomahawk.libtomahawk.database;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
+import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
+import org.tomahawk.libtomahawk.infosystem.QueryParams;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -30,16 +35,19 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class provides a way of storing user created {@link org.tomahawk.libtomahawk.collection.Playlist}s
  * in the database
  */
 public class DatabaseHelper {
+
+    private static final String TAG = DatabaseHelper.class.getSimpleName();
 
     private static DatabaseHelper instance;
 
@@ -60,12 +68,6 @@ public class DatabaseHelper {
     public static final int FALSE = 0;
 
     public static final int TRUE = 1;
-
-    public static final int REQUESTTYPE_POST = 0;
-
-    public static final int REQUESTTYPE_PUT = 1;
-
-    public static final int REQUESTTYPE_DELETE = 2;
 
     private boolean mInitialized;
 
@@ -109,40 +111,42 @@ public class DatabaseHelper {
                     values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME, playlist.getName());
                     values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTTRACKINDEX,
                             playlist.getCurrentQueryIndex());
-                    String insertId = playlist.getId();
                     values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
                             playlist.getCurrentRevision());
-                    values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID, insertId);
+                    values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID, playlist.getId());
+                    values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID,
+                            playlist.getHatchetId());
                     mDatabase.beginTransaction();
                     mDatabase.insertWithOnConflict(TomahawkSQLiteHelper.TABLE_PLAYLISTS, null,
                             values,
                             SQLiteDatabase.CONFLICT_REPLACE);
                     // Delete every already associated Track entry
                     mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
-                            TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = \"" + insertId
-                                    + "\"",
-                            null
-                    );
+                            TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = ?",
+                            new String[]{playlist.getId()});
+
                     // Store every single Track in the database and store the relationship
                     // by storing the playlists's id with it
-                    for (Query query : playlist.getQueries()) {
+                    for (PlaylistEntry entry : playlist.getEntries()) {
                         values.clear();
-                        values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID, insertId);
+                        values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID, playlist.getId());
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME,
-                                query.getBasicTrack().getName());
+                                entry.getQuery().getBasicTrack().getName());
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ARTISTNAME,
-                                query.getBasicTrack().getArtist().getName());
+                                entry.getQuery().getBasicTrack().getArtist().getName());
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ALBUMNAME,
-                                query.getBasicTrack().getAlbum().getName());
+                                entry.getQuery().getBasicTrack().getAlbum().getName());
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_RESULTHINT,
-                                query.getTopTrackResultKey());
-                        if (query.isFetchedViaHatchet()) {
+                                entry.getQuery().getTopTrackResultKey());
+                        if (entry.getQuery().isFetchedViaHatchet()) {
                             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ISFETCHEDVIAHATCHET,
                                     TRUE);
                         } else {
                             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ISFETCHEDVIAHATCHET,
                                     FALSE);
                         }
+                        values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTENTRYID,
+                                entry.getId());
                         mDatabase.insert(TomahawkSQLiteHelper.TABLE_TRACKS, null, values);
                     }
                     mDatabase.setTransactionSuccessful();
@@ -213,7 +217,9 @@ public class DatabaseHelper {
         playlistsCursor.moveToFirst();
         while (!playlistsCursor.isAfterLast()) {
             Playlist playlist = getEmptyPlaylist(playlistsCursor.getString(0));
-            playListList.add(playlist);
+            if (playlist != null) {
+                playListList.add(playlist);
+            }
             playlistsCursor.moveToNext();
         }
         playlistsCursor.close();
@@ -227,13 +233,15 @@ public class DatabaseHelper {
      */
     public Playlist getEmptyPlaylist(String playlistId) {
         String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME,
-                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION};
+                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
+                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID};
         Cursor playlistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
                 columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
                 new String[]{playlistId}, null, null, null);
         if (playlistsCursor.moveToFirst()) {
             Playlist playlist = Playlist.get(playlistId,
                     playlistsCursor.getString(0), playlistsCursor.getString(1));
+            playlist.setHatchetId(playlistsCursor.getString(2));
             playlistsCursor.close();
             return playlist;
         }
@@ -247,27 +255,25 @@ public class DatabaseHelper {
      * its id
      */
     public Playlist getPlaylist(String playlistId) {
-        ArrayList<Query> queries;
         String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME,
                 TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
-                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTTRACKINDEX};
+                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTTRACKINDEX,
+                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID};
         Cursor playlistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
                 columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
                 new String[]{playlistId}, null, null, null);
         if (playlistsCursor.moveToFirst()) {
-            ConcurrentHashMap<Integer, Long> queryIdMap = new ConcurrentHashMap<Integer, Long>();
             columns = new String[]{TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME,
                     TomahawkSQLiteHelper.TRACKS_COLUMN_ARTISTNAME,
                     TomahawkSQLiteHelper.TRACKS_COLUMN_ALBUMNAME,
                     TomahawkSQLiteHelper.TRACKS_COLUMN_RESULTHINT,
                     TomahawkSQLiteHelper.TRACKS_COLUMN_ISFETCHEDVIAHATCHET,
-                    TomahawkSQLiteHelper.TRACKS_COLUMN_ID};
+                    TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTENTRYID};
             Cursor tracksCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_TRACKS, columns,
                     TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = ?",
                     new String[]{playlistId}, null, null, null);
-            queries = new ArrayList<Query>();
+            ArrayList<PlaylistEntry> queries = new ArrayList<PlaylistEntry>();
             tracksCursor.moveToFirst();
-            int positionCounter = 0;
             while (!tracksCursor.isAfterLast()) {
                 String trackName = tracksCursor.getString(0);
                 String artistName = tracksCursor.getString(1);
@@ -275,12 +281,15 @@ public class DatabaseHelper {
                 String resultHint = tracksCursor.getString(3);
                 Query query = Query.get(trackName, albumName, artistName, resultHint, false,
                         tracksCursor.getInt(4) == TRUE);
-                queryIdMap.put(positionCounter++, tracksCursor.getLong(5));
-                queries.add(query);
+                PlaylistEntry entry =
+                        PlaylistEntry.get(playlistId, query, tracksCursor.getString(5));
+                queries.add(entry);
                 tracksCursor.moveToNext();
             }
-            Playlist playlist = Playlist.fromQueryList(playlistId, playlistsCursor.getString(0),
+            Playlist playlist = Playlist.fromEntriesList(playlistsCursor.getString(0),
                     playlistsCursor.getString(1), queries, playlistsCursor.getInt(2));
+            playlist.setId(playlistId);
+            playlist.setHatchetId(playlistsCursor.getString(3));
             playlist.setFilled(true);
             tracksCursor.close();
             playlistsCursor.close();
@@ -328,13 +337,11 @@ public class DatabaseHelper {
                 synchronized (this) {
                     mDatabase.beginTransaction();
                     mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
-                            TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = \""
-                                    + playlistId + "\"", null
-                    );
+                            TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = ?",
+                            new String[]{playlistId});
                     mDatabase.delete(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
-                            TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = \"" + playlistId
-                                    + "\"", null
-                    );
+                            TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
+                            new String[]{playlistId});
                     mDatabase.setTransactionSuccessful();
                     mDatabase.endTransaction();
                     sendReportResultsBroadcast(playlistId);
@@ -354,10 +361,9 @@ public class DatabaseHelper {
                 synchronized (this) {
                     mDatabase.beginTransaction();
                     mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
-                            TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID
-                                    + " = \"" + playlistId + "\"" + " and "
+                            TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = ? AND "
                                     + TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTENTRYID
-                                    + " = " + entryId, null);
+                                    + " = ?", new String[]{playlistId, entryId});
                     mDatabase.setTransactionSuccessful();
                     mDatabase.endTransaction();
                     sendReportResultsBroadcast(playlistId);
@@ -397,6 +403,50 @@ public class DatabaseHelper {
                             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ISFETCHEDVIAHATCHET,
                                     FALSE);
                         }
+                        mDatabase.insert(TomahawkSQLiteHelper.TABLE_TRACKS, null, values);
+                    }
+                    mDatabase.setTransactionSuccessful();
+                    mDatabase.endTransaction();
+                    sendReportResultsBroadcast(playlistId);
+                }
+            }
+        }).start();
+    }
+
+    /**
+     * Add the given {@link ArrayList} of {@link Track}s to the {@link
+     * org.tomahawk.libtomahawk.collection.Playlist} with the given playlistId
+     */
+    public void addEntriesToPlaylist(final String playlistId,
+            final ArrayList<PlaylistEntry> entries) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    mDatabase.beginTransaction();
+                    // Store every single Track in the database and store the relationship
+                    // by storing the playlists's id with it
+                    for (PlaylistEntry entry : entries) {
+                        ContentValues values = new ContentValues();
+                        values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID,
+                                playlistId);
+                        values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME,
+                                entry.getQuery().getBasicTrack().getName());
+                        values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ARTISTNAME,
+                                entry.getQuery().getBasicTrack().getArtist().getName());
+                        values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ALBUMNAME,
+                                entry.getQuery().getBasicTrack().getAlbum().getName());
+                        values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_RESULTHINT,
+                                entry.getQuery().getTopTrackResultKey());
+                        if (entry.getQuery().isFetchedViaHatchet()) {
+                            values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ISFETCHEDVIAHATCHET,
+                                    TRUE);
+                        } else {
+                            values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ISFETCHEDVIAHATCHET,
+                                    FALSE);
+                        }
+                        values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTENTRYID,
+                                entry.getId());
                         mDatabase.insert(TomahawkSQLiteHelper.TABLE_TRACKS, null, values);
                     }
                     mDatabase.setTransactionSuccessful();
@@ -486,13 +536,11 @@ public class DatabaseHelper {
         } else {
             mDatabase.beginTransaction();
             mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
-                    TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID
-                            + " = \"" + LOVEDITEMS_PLAYLIST_ID + "\""
-                            + " AND " + TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME
-                            + " = \"" + query.getName() + "\""
-                            + " AND " + TomahawkSQLiteHelper.TRACKS_COLUMN_ARTISTNAME
-                            + " = \"" + query.getArtist().getName() + "\"", null
-            );
+                    TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = ? AND "
+                            + TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME + " = ? AND "
+                            + TomahawkSQLiteHelper.TRACKS_COLUMN_ARTISTNAME + " = ?",
+                    new String[]{LOVEDITEMS_PLAYLIST_ID, query.getName(),
+                            query.getArtist().getName()});
             mDatabase.setTransactionSuccessful();
             mDatabase.endTransaction();
         }
@@ -514,9 +562,8 @@ public class DatabaseHelper {
                         mDatabase.insert(TomahawkSQLiteHelper.TABLE_LOVED_ARTISTS, null, values);
                     } else {
                         mDatabase.delete(TomahawkSQLiteHelper.TABLE_LOVED_ARTISTS,
-                                TomahawkSQLiteHelper.LOVED_ARTISTS_COLUMN_ARTISTNAME
-                                        + " = \"" + artist.getName() + "\"", null
-                        );
+                                TomahawkSQLiteHelper.LOVED_ARTISTS_COLUMN_ARTISTNAME + " = ?",
+                                new String[]{artist.getName()});
                     }
                     mDatabase.setTransactionSuccessful();
                     mDatabase.endTransaction();
@@ -543,12 +590,10 @@ public class DatabaseHelper {
                         mDatabase.insert(TomahawkSQLiteHelper.TABLE_LOVED_ALBUMS, null, values);
                     } else {
                         mDatabase.delete(TomahawkSQLiteHelper.TABLE_LOVED_ALBUMS,
-                                TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ALBUMNAME
-                                        + " = \"" + album.getName() + "\""
-                                        + " AND "
+                                TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ALBUMNAME + " = ? AND "
                                         + TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ARTISTNAME
-                                        + " = \"" + album.getArtist().getName() + "\"", null
-                        );
+                                        + " = ?",
+                                new String[]{album.getName(), album.getArtist().getName()});
                     }
                     mDatabase.setTransactionSuccessful();
                     mDatabase.endTransaction();
@@ -653,20 +698,32 @@ public class DatabaseHelper {
      * Add an operation to the log. This operation log is being used to store pending operations, so
      * that this operation can be executed, if we have the opportunity to do so.
      *
-     * @param opToLog     InfoRequestData object containing the type of the operation, which
-     *                    determines where and how to send the data to the API. Contains also the
-     *                    JSON-String which contains the data to send.
-     * @param timeStamp   a timestamp indicating when this operation has been added to the oplog
-     * @param requestType the type of the request (post, put, delete)
+     * @param opToLog   InfoRequestData object containing the type of the operation, which
+     *                  determines where and how to send the data to the API. Contains also the
+     *                  JSON-String which contains the data to send.
+     * @param timeStamp a timestamp indicating when this operation has been added to the oplog
      */
-    public void addOpToInfoSystemOpLog(InfoRequestData opToLog, int timeStamp, int requestType) {
+    public void addOpToInfoSystemOpLog(InfoRequestData opToLog, int timeStamp) {
         ContentValues values = new ContentValues();
         mDatabase.beginTransaction();
         values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TYPE, opToLog.getType());
-        values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_REQUESTTYPE, requestType);
-        values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_JSONSTRING,
-                opToLog.getJsonStringToSend());
+        values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_HTTPTYPE, opToLog.getHttpType());
         values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TIMESTAMP, timeStamp);
+        if (opToLog.getJsonStringToSend() != null) {
+            values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_JSONSTRING,
+                    opToLog.getJsonStringToSend());
+        }
+        if (opToLog.getQueryParams() != null) {
+            String paramsJsonString = null;
+            try {
+                paramsJsonString = InfoSystemUtils.getObjectMapper()
+                        .writeValueAsString(opToLog.getQueryParams());
+            } catch (JsonProcessingException e) {
+                Log.e(TAG,
+                        "addOpToInfoSystemOpLog: " + e.getClass() + ": " + e.getLocalizedMessage());
+            }
+            values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_PARAMS, paramsJsonString);
+        }
         mDatabase.insert(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG, null, values);
         mDatabase.setTransactionSuccessful();
         mDatabase.endTransaction();
@@ -681,8 +738,8 @@ public class DatabaseHelper {
         mDatabase.beginTransaction();
         for (InfoRequestData loggedOp : loggedOps) {
             mDatabase.delete(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG,
-                    TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_ID + " = " + loggedOp.getOpLogId(),
-                    null);
+                    TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_ID + " = ?",
+                    new String[]{String.valueOf(loggedOp.getLoggedOpId())});
         }
         mDatabase.setTransactionSuccessful();
         mDatabase.endTransaction();
@@ -696,7 +753,8 @@ public class DatabaseHelper {
     public void removeOpFromInfoSystemOpLog(int opLogId) {
         mDatabase.beginTransaction();
         mDatabase.delete(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG,
-                TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_ID + " = " + opLogId, null);
+                TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_ID + " = ?",
+                new String[]{String.valueOf(opLogId)});
         mDatabase.setTransactionSuccessful();
         mDatabase.endTransaction();
     }
@@ -708,15 +766,27 @@ public class DatabaseHelper {
         List<InfoRequestData> loggedOps = new ArrayList<InfoRequestData>();
         String[] columns = new String[]{TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_ID,
                 TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TYPE,
-                TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_JSONSTRING};
+                TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_HTTPTYPE,
+                TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_JSONSTRING,
+                TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_PARAMS};
         Cursor opLogCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG,
                 columns, null, null, null, null,
                 TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TIMESTAMP + " DESC");
         opLogCursor.moveToFirst();
         while (!opLogCursor.isAfterLast()) {
             String requestId = TomahawkMainActivity.getSessionUniqueStringId();
-            InfoRequestData infoRequestData = new InfoRequestData(requestId, opLogCursor.getInt(0),
-                    opLogCursor.getInt(1), opLogCursor.getString(2));
+            String paramJsonString = opLogCursor.getString(4);
+            QueryParams params = null;
+            if (paramJsonString != null) {
+                try {
+                    params = InfoSystemUtils.getObjectMapper()
+                            .readValue(paramJsonString, QueryParams.class);
+                } catch (IOException e) {
+                    Log.e(TAG, "getLoggedOps: " + e.getClass() + ": " + e.getLocalizedMessage());
+                }
+            }
+            InfoRequestData infoRequestData = new InfoRequestData(requestId, opLogCursor.getInt(1),
+                    params, opLogCursor.getInt(0), opLogCursor.getInt(2), opLogCursor.getString(3));
             loggedOps.add(infoRequestData);
             opLogCursor.moveToNext();
         }

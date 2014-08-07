@@ -17,9 +17,7 @@
  */
 package org.tomahawk.libtomahawk.infosystem;
 
-import android.util.Log;
-
-import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -79,15 +77,25 @@ public class InfoRequestData {
 
     public static final int INFOREQUESTDATA_TYPE_SOCIALACTIONS = 1300;
 
+    public static final int HTTPTYPE_GET = 0;
+
+    public static final int HTTPTYPE_POST = 1;
+
+    public static final int HTTPTYPE_PUT = 2;
+
+    public static final int HTTPTYPE_DELETE = 3;
+
     private String mRequestId;
 
     private int mType;
+
+    private int mHttpType;
 
     private QueryParams mQueryParams;
 
     private String mJsonStringToSend;
 
-    private int mOpLogId;
+    private int mLoggedOpId;
 
     /**
      * Storage member-variable. Used if a single object is the result.
@@ -99,29 +107,55 @@ public class InfoRequestData {
      */
     private Map<Class, List<Object>> mResultListMap;
 
-    public InfoRequestData(String requestId, int type, QueryParams queryParams) {
+    /**
+     * Constructor to be used for an InfoRequestData object in a "resolve" InfoSystem request
+     *
+     * @param requestId the id of the to be constructed InfoRequestData
+     * @param type      the type which specifies the request inside an InfoPlugin
+     * @param params    optional parameters to the request
+     */
+    public InfoRequestData(String requestId, int type, QueryParams params) {
         mRequestId = requestId;
         mType = type;
-        mQueryParams = queryParams;
+        mQueryParams = params;
+        mHttpType = HTTPTYPE_GET;
     }
 
-    public InfoRequestData(String requestId, int hatchetSpecificType, Object objectToSend) {
+    /**
+     * Constructor to be used for an InfoRequestData object in a "send" InfoSystem request
+     *
+     * @param requestId        the id of the to be constructed InfoRequestData
+     * @param type             the type which specifies the request inside an InfoPlugin
+     * @param params           optional parameters to the request
+     * @param loggedOpId       the id of the stored loggedOp
+     * @param httpType         the http type (get, put, post, delete)
+     * @param jsonStringToSend the json string which will be sent via an InfoPlugin
+     */
+    public InfoRequestData(String requestId, int type, QueryParams params, int loggedOpId,
+            int httpType, String jsonStringToSend) {
         mRequestId = requestId;
-        mType = hatchetSpecificType;
-        try {
-            mJsonStringToSend = InfoSystemUtils.constructObjectMapper()
-                    .writeValueAsString(objectToSend);
-        } catch (IOException e) {
-            Log.e(TAG, "InfoRequestData<constructor>: " + e.getClass() + ": " + e
-                    .getLocalizedMessage());
-        }
+        mType = type;
+        mQueryParams = params;
+        mLoggedOpId = loggedOpId;
+        mHttpType = httpType;
+        mJsonStringToSend = jsonStringToSend;
     }
 
-    public InfoRequestData(String requestId, int opLogId, int hatchetSpecificType,
+    /**
+     * Constructor to be used for an InfoRequestData object in a "send" InfoSystem request
+     *
+     * @param requestId        the id of the to be constructed InfoRequestData
+     * @param type             the type which specifies the request inside an InfoPlugin
+     * @param params           optional parameters to the request
+     * @param httpType         the http type (get, put, post, delete)
+     * @param jsonStringToSend the json string which will be sent via an InfoPlugin
+     */
+    public InfoRequestData(String requestId, int type, QueryParams params, int httpType,
             String jsonStringToSend) {
         mRequestId = requestId;
-        mOpLogId = opLogId;
-        mType = hatchetSpecificType;
+        mType = type;
+        mQueryParams = params;
+        mHttpType = httpType;
         mJsonStringToSend = jsonStringToSend;
     }
 
@@ -133,28 +167,44 @@ public class InfoRequestData {
         return mType;
     }
 
+    public int getHttpType() {
+        return mHttpType;
+    }
+
     public <T> T getResult(Class<T> clss) {
-        Object object = mResultMap.get(clss);
-        if (object.getClass() == clss) {
-            return (T) object;
+        if (mResultMap != null) {
+            Object object = mResultMap.get(clss);
+            if (object.getClass() == clss) {
+                return (T) object;
+            }
         }
         return null;
     }
 
-    public void setResultMap(Map<Class, Object> resultMap) {
-        mResultMap = resultMap;
+    public void setResult(Object object) {
+        if (mResultMap == null) {
+            mResultMap = new HashMap<Class, Object>();
+        }
+        mResultMap.put(object.getClass(), object);
     }
 
     public <T> List<T> getResultList(Class<T> clss) {
-        List<Object> objects = mResultListMap.get(clss);
-        if (objects.size() > 0 && objects.get(0).getClass() == clss) {
-            return (List<T>) objects;
+        if (mResultListMap != null) {
+            List<Object> objects = mResultListMap.get(clss);
+            if (objects.size() > 0 && objects.get(0).getClass() == clss) {
+                return (List<T>) objects;
+            }
         }
         return null;
     }
 
-    public void setResultListMap(Map<Class, List<Object>> resultListMap) {
-        mResultListMap = resultListMap;
+    public void setResultList(List<Object> objects) {
+        if (mResultListMap == null) {
+            mResultListMap = new HashMap<Class, List<Object>>();
+        }
+        if (objects.size() > 0) {
+            mResultListMap.put(objects.get(0).getClass(), objects);
+        }
     }
 
     public QueryParams getQueryParams() {
@@ -165,7 +215,7 @@ public class InfoRequestData {
         return mJsonStringToSend;
     }
 
-    public int getOpLogId() {
-        return mOpLogId;
+    public int getLoggedOpId() {
+        return mLoggedOpId;
     }
 }

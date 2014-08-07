@@ -39,13 +39,13 @@ public class PlaylistEntry implements TomahawkListItem {
 
     private Query mQuery;
 
-    private Playlist mPlaylist;
+    private String mPlaylistId;
 
     /**
      * Construct a new {@link org.tomahawk.libtomahawk.collection.PlaylistEntry}
      */
-    private PlaylistEntry(Playlist playlist, Query query, String entryId) {
-        mPlaylist = playlist;
+    private PlaylistEntry(String playlistId, Query query, String entryId) {
+        mPlaylistId = playlistId;
         mQuery = query;
         mId = entryId;
         mCacheKey = TomahawkUtils.getCacheKey(this);
@@ -57,8 +57,8 @@ public class PlaylistEntry implements TomahawkListItem {
      *
      * @return {@link PlaylistEntry} with the given parameters
      */
-    public static PlaylistEntry get(Playlist playlist, Query query, String entryId) {
-        PlaylistEntry entry = new PlaylistEntry(playlist, query, entryId);
+    public static PlaylistEntry get(String playlistId, Query query, String entryId) {
+        PlaylistEntry entry = new PlaylistEntry(playlistId, query, entryId);
         return ensureCache(entry);
     }
 
@@ -113,8 +113,8 @@ public class PlaylistEntry implements TomahawkListItem {
         return mId;
     }
 
-    public Playlist getPlaylist() {
-        return mPlaylist;
+    public String getPlaylistId() {
+        return mPlaylistId;
     }
 
     public Query getQuery() {

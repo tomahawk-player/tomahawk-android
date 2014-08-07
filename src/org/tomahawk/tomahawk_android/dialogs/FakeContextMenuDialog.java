@@ -159,7 +159,6 @@ public class FakeContextMenuDialog extends DialogFragment {
      * If the user clicks on a fakeContextItem, handle what should be done here
      */
     private void onFakeContextItemSelected(int position) {
-        DatabaseHelper dataSource = DatabaseHelper.getInstance();
         ArrayList<Query> queries = new ArrayList<Query>();
         PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
                 .getPlaybackService();
@@ -169,9 +168,10 @@ public class FakeContextMenuDialog extends DialogFragment {
         }
         if (menuItemTitle.equals(getString(R.string.fake_context_menu_delete))) {
             if (mTomahawkListItem instanceof Playlist) {
-                dataSource.deletePlaylist(((Playlist) mTomahawkListItem).getId());
+                CollectionManager.getInstance().deletePlaylist(
+                        ((Playlist) mTomahawkListItem).getId());
             } else if (mTomahawkListItem instanceof PlaylistEntry && mPlaylist != null) {
-                dataSource.deleteEntryInPlaylist(mPlaylist.getId(),
+                CollectionManager.getInstance().deletePlaylistEntry(mPlaylist.getId(),
                         ((PlaylistEntry) mTomahawkListItem).getId());
             } else if (playbackService != null && mFromPlaybackFragment
                     && mTomahawkListItem instanceof PlaylistEntry) {
@@ -222,25 +222,23 @@ public class FakeContextMenuDialog extends DialogFragment {
                     } else {
                         queries.add((Query) mTomahawkListItem);
                     }
-                    playlist = Playlist
-                            .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
-                                    DatabaseHelper.CACHED_PLAYLIST_NAME, queries,
-                                    mTomahawkListItem.getCacheKey());
+                    playlist = Playlist.fromQueryList(DatabaseHelper.CACHED_PLAYLIST_NAME, queries,
+                            mTomahawkListItem.getCacheKey());
+                    playlist.setId(DatabaseHelper.CACHED_PLAYLIST_ID);
                 } else if (mTomahawkListItem instanceof PlaylistEntry) {
                     ArrayList<PlaylistEntry> playlistEntries = new ArrayList<PlaylistEntry>();
                     if (mPlaylist != null) {
                         playlistEntries = mPlaylist.getEntries();
                     }
-                    playlist = Playlist.fromEntriesList(DatabaseHelper.CACHED_PLAYLIST_ID,
-                            DatabaseHelper.CACHED_PLAYLIST_NAME, null, playlistEntries,
-                            ((PlaylistEntry) mTomahawkListItem).getId());
+                    playlist = Playlist.fromEntriesList(DatabaseHelper.CACHED_PLAYLIST_NAME, null,
+                            playlistEntries, ((PlaylistEntry) mTomahawkListItem).getId());
+                    playlist.setId(DatabaseHelper.CACHED_PLAYLIST_ID);
                 } else if (mTomahawkListItem instanceof Playlist) {
                     playlist = (Playlist) mTomahawkListItem;
                 } else {
-                    playlist = Playlist
-                            .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
-                                    DatabaseHelper.CACHED_PLAYLIST_NAME,
-                                    mTomahawkListItem.getQueries());
+                    playlist = Playlist.fromQueryList(DatabaseHelper.CACHED_PLAYLIST_NAME,
+                            mTomahawkListItem.getQueries());
+                    playlist.setId(DatabaseHelper.CACHED_PLAYLIST_ID);
                 }
                 if (playbackService != null) {
                     playbackService.setCurrentPlaylist(playlist);

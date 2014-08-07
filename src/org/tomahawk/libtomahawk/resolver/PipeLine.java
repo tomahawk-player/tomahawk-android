@@ -19,7 +19,6 @@ package org.tomahawk.libtomahawk.resolver;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
@@ -107,14 +106,13 @@ public class PipeLine {
             mInitialized = true;
             try {
                 String[] plugins = TomahawkApp.getContext().getAssets().list("js/resolvers");
-                ObjectMapper objectMapper = InfoSystemUtils.constructObjectMapper();
                 for (String plugin : plugins) {
                     String path = "js/resolvers/" + plugin + "/content";
                     try {
                         String rawJsonString = TomahawkUtils
                                 .inputStreamToString(TomahawkApp.getContext()
                                         .getAssets().open(path + "/metadata.json"));
-                        ScriptResolverMetaData metaData = objectMapper
+                        ScriptResolverMetaData metaData = InfoSystemUtils.getObjectMapper()
                                 .readValue(rawJsonString, ScriptResolverMetaData.class);
                         ScriptResolver scriptResolver = new ScriptResolver(metaData, path);
                         mResolvers.add(scriptResolver);

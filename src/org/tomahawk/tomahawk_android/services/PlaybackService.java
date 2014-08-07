@@ -991,10 +991,9 @@ public class PlaybackService extends Service
     public void addQueriesToCurrentPlaylist(ArrayList<Query> queries) {
         Log.d(TAG, "addQueriesToCurrentPlaylist count: " + queries.size());
         if (mCurrentPlaylist == null) {
-            mCurrentPlaylist = Playlist
-                    .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
-                            DatabaseHelper.CACHED_PLAYLIST_NAME,
-                            new ArrayList<Query>());
+            mCurrentPlaylist = Playlist.fromQueryList(DatabaseHelper.CACHED_PLAYLIST_NAME,
+                    new ArrayList<Query>());
+            mCurrentPlaylist.setId(DatabaseHelper.CACHED_PLAYLIST_ID);
         }
         mCurrentPlaylist.addQueries(queries);
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
@@ -1008,10 +1007,9 @@ public class PlaybackService extends Service
         Log.d(TAG, "addQueriesToCurrentPlaylist at position " + position + " count: " + queries
                 .size());
         if (mCurrentPlaylist == null) {
-            mCurrentPlaylist = Playlist
-                    .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
-                            DatabaseHelper.CACHED_PLAYLIST_NAME,
-                            new ArrayList<Query>());
+            mCurrentPlaylist = Playlist.fromQueryList(DatabaseHelper.CACHED_PLAYLIST_NAME,
+                    new ArrayList<Query>());
+            mCurrentPlaylist.setId(DatabaseHelper.CACHED_PLAYLIST_ID);
         }
         if (position < mCurrentPlaylist.getCount()) {
             mCurrentPlaylist.addQueries(position, queries);

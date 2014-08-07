@@ -210,9 +210,8 @@ public class PlaybackFragment extends TomahawkFragment
         PlaybackService playbackService = activity.getPlaybackService();
         if (playbackService != null && item != null) {
             if (item.getItemId() == R.id.action_saveplaylist_item) {
-                Playlist playlist = Playlist
-                        .fromQueryList(TomahawkMainActivity.getLifetimeUniqueStringId(), "",
-                                playbackService.getCurrentPlaylist().getQueries());
+                Playlist playlist = Playlist.fromQueryList("",
+                        playbackService.getCurrentPlaylist().getQueries());
                 CreatePlaylistDialog dialog = new CreatePlaylistDialog();
                 Bundle args = new Bundle();
                 args.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY, playlist.getId());

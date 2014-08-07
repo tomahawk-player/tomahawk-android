@@ -51,6 +51,8 @@ import java.util.Map;
 
 public class InfoSystemUtils {
 
+    private static ObjectMapper sObjectMapper;
+
     /**
      * Convert the given playlist entry data, add it to a Playlist object and return that.
      *
@@ -71,7 +73,7 @@ public class InfoSystemUtils {
                         albumName = playlistEntries.albums.get(playlistEntryInfo.album).name;
                     }
                     Query query = Query.get(trackInfo.name, albumName, artistInfo.name, false);
-                    queries.add(PlaylistEntry.get(playlist, query, playlistEntryInfo.id));
+                    queries.add(PlaylistEntry.get(playlist.getId(), query, playlistEntryInfo.id));
                 }
             }
             playlist.setEntries(queries);
@@ -87,8 +89,10 @@ public class InfoSystemUtils {
      */
     public static Playlist convertToPlaylist(HatchetPlaylistInfo playlistInfo) {
         if (playlistInfo != null) {
-            return Playlist.fromQueryList(playlistInfo.id, playlistInfo.title,
-                    playlistInfo.currentrevision, new ArrayList<Query>(), 0);
+            Playlist playlist = Playlist.fromQueryList(playlistInfo.title,
+                playlistInfo.currentrevision, new ArrayList<Query>(), 0);
+            playlist.setHatchetId(playlistInfo.id);
+            return playlist;
         }
         return null;
     }
@@ -274,11 +278,13 @@ public class InfoSystemUtils {
         return queries;
     }
 
-    public static ObjectMapper constructObjectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.setDateFormat(new ISO8601DateFormat());
-        return objectMapper;
+    public static ObjectMapper getObjectMapper() {
+        if (sObjectMapper == null) {
+            sObjectMapper = new ObjectMapper();
+            sObjectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+            sObjectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            sObjectMapper.setDateFormat(new ISO8601DateFormat());
+        }
+        return sObjectMapper;
     }
 }

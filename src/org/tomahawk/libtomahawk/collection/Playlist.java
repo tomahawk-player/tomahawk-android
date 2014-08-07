@@ -36,7 +36,7 @@ public class Playlist implements TomahawkListItem {
 
     private String mName;
 
-    private ArrayList<PlaylistEntry> mEntries;
+    private ArrayList<PlaylistEntry> mEntries = new ArrayList<PlaylistEntry>();
 
     private ArrayList<PlaylistEntry> mShuffledEntries;
 
@@ -51,6 +51,8 @@ public class Playlist implements TomahawkListItem {
 
     private String mId;
 
+    private String mHatchetId;
+
     private String mCurrentRevision;
 
     private ArrayList<Artist> mContentHeaderArtists = new ArrayList<Artist>();
@@ -64,7 +66,6 @@ public class Playlist implements TomahawkListItem {
         mName = name;
         mShuffled = false;
         mRepeating = false;
-        setEntries(new ArrayList<PlaylistEntry>());
         mId = id;
         mCurrentRevision = currentRevision;
     }
@@ -95,11 +96,9 @@ public class Playlist implements TomahawkListItem {
      *
      * @return a reference to the constructed {@link Playlist}
      */
-    public static Playlist fromEntriesList(String id, String name, String currentRevision,
+    public static Playlist fromEntriesList(String name, String currentRevision,
             ArrayList<PlaylistEntry> playlistEntries, String currentEntryId) {
-        if (id == null) {
-            id = "";
-        }
+        String id = TomahawkMainActivity.getLifetimeUniqueStringId();
         if (currentRevision == null) {
             currentRevision = "";
         }
@@ -110,22 +109,37 @@ public class Playlist implements TomahawkListItem {
     }
 
     /**
+     * Create a {@link Playlist} from a list of {@link PlaylistEntry}s.
+     *
+     * @return a reference to the constructed {@link Playlist}
+     */
+    public static Playlist fromEntriesList(String name, String currentRevision,
+            ArrayList<PlaylistEntry> playlistEntries, int currentQueryIndex) {
+        String id = TomahawkMainActivity.getLifetimeUniqueStringId();
+        if (currentRevision == null) {
+            currentRevision = "";
+        }
+        Playlist pl = Playlist.get(id, name, currentRevision);
+        pl.setEntries(playlistEntries);
+        pl.setCurrentQueryIndex(currentQueryIndex);
+        return pl;
+    }
+
+    /**
      * Create a {@link Playlist} from a list of {@link org.tomahawk.libtomahawk.resolver.Query}s.
      *
      * @return a reference to the constructed {@link Playlist}
      */
-    public static Playlist fromQueryList(String id, String name, String currentRevision,
+    public static Playlist fromQueryList(String name, String currentRevision,
             ArrayList<Query> queries, int currentQueryIndex) {
-        if (id == null) {
-            id = "";
-        }
+        String id = TomahawkMainActivity.getLifetimeUniqueStringId();
         if (currentRevision == null) {
             currentRevision = "";
         }
         Playlist pl = Playlist.get(id, name, currentRevision);
         ArrayList<PlaylistEntry> playlistEntries = new ArrayList<PlaylistEntry>();
         for (Query query : queries) {
-            playlistEntries.add(PlaylistEntry.get(pl, query,
+            playlistEntries.add(PlaylistEntry.get(id, query,
                     TomahawkMainActivity.getLifetimeUniqueStringId()));
         }
         pl.setEntries(playlistEntries);
@@ -138,9 +152,9 @@ public class Playlist implements TomahawkListItem {
      *
      * @return a reference to the constructed {@link Playlist}
      */
-    public static Playlist fromQueryList(String id, String name, ArrayList<Query> queries,
+    public static Playlist fromQueryList(String name, ArrayList<Query> queries,
             String currentQueryCacheKey) {
-        Playlist playlist = Playlist.fromQueryList(id, name, null, queries, 0);
+        Playlist playlist = Playlist.fromQueryList(name, null, queries, 0);
         playlist.setCurrentQuery(currentQueryCacheKey);
         return playlist;
     }
@@ -150,9 +164,9 @@ public class Playlist implements TomahawkListItem {
      *
      * @return a reference to the constructed {@link Playlist}
      */
-    public static Playlist fromQueryList(String id, String name, ArrayList<Query> queries,
+    public static Playlist fromQueryList(String name, ArrayList<Query> queries,
             int currentQueryIndex) {
-        return Playlist.fromQueryList(id, name, null, queries, currentQueryIndex);
+        return Playlist.fromQueryList(name, null, queries, currentQueryIndex);
     }
 
     /**
@@ -160,8 +174,8 @@ public class Playlist implements TomahawkListItem {
      *
      * @return a reference to the constructed {@link Playlist}
      */
-    public static Playlist fromQueryList(String id, String name, ArrayList<Query> queries) {
-        return Playlist.fromQueryList(id, name, null, queries, 0);
+    public static Playlist fromQueryList(String name, ArrayList<Query> queries) {
+        return Playlist.fromQueryList(name, null, queries, 0);
     }
 
     /**
@@ -177,6 +191,24 @@ public class Playlist implements TomahawkListItem {
 
     public String getId() {
         return mId;
+    }
+
+    public void setId(String id) {
+        sPlaylists.remove(getCacheKey());
+        mId = id;
+        ensureCache(this);
+    }
+
+    public String getHatchetId() {
+        return mHatchetId;
+    }
+
+    public void setHatchetId(String hatchetId) {
+        mHatchetId = hatchetId;
+    }
+
+    public void setCurrentRevision(String currentRevision) {
+        mCurrentRevision = currentRevision;
     }
 
     public String getCurrentRevision() {
@@ -470,7 +502,7 @@ public class Playlist implements TomahawkListItem {
     public void addQueries(int position, ArrayList<Query> queries) {
         ArrayList<PlaylistEntry> playlistEntries = new ArrayList<PlaylistEntry>();
         for (Query query : queries) {
-            playlistEntries.add(PlaylistEntry.get(this, query,
+            playlistEntries.add(PlaylistEntry.get(mId, query,
                     TomahawkMainActivity.getLifetimeUniqueStringId()));
         }
         (mShuffled ? mShuffledEntries : mEntries).addAll(position, playlistEntries);
@@ -482,7 +514,7 @@ public class Playlist implements TomahawkListItem {
     public void addQueries(ArrayList<Query> queries) {
         ArrayList<PlaylistEntry> playlistEntries = new ArrayList<PlaylistEntry>();
         for (Query query : queries) {
-            playlistEntries.add(PlaylistEntry.get(this, query,
+            playlistEntries.add(PlaylistEntry.get(mId, query,
                     TomahawkMainActivity.getLifetimeUniqueStringId()));
         }
         (mShuffled ? mShuffledEntries : mEntries).addAll(playlistEntries);
