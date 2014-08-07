@@ -419,20 +419,24 @@ public class CollectionManager {
             }
         } else if (data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES) {
             Playlist filledList = data.getResult(Playlist.class);
-            Log.d(TAG, "Hatchet sync - received entry list for playlist \"" + filledList.getName()
-                    + "\", hatchetId: " + filledList.getHatchetId()
-                    + ", count: " + filledList.getEntries().size());
-            DatabaseHelper.getInstance().storePlaylist(filledList);
+            if (filledList != null) {
+                Log.d(TAG, "Hatchet sync - received entry list for playlist \""
+                        + filledList.getName() + "\", hatchetId: " + filledList.getHatchetId()
+                        + ", count: " + filledList.getEntries().size());
+                DatabaseHelper.getInstance().storePlaylist(filledList);
+            }
         } else if (data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
             Playlist fetchedList = data.getResult(Playlist.class);
-            String userName = AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET).getUserName();
-            fetchedList.setName(userName + TomahawkApp.getContext()
-                    .getString(R.string.users_lovedtracks_suffix));
-            fetchedList.setId(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID);
-            Log.d(TAG, "Hatchet sync - received list of loved tracks, count: "
-                    + fetchedList.getEntries().size());
-            DatabaseHelper.getInstance().storePlaylist(fetchedList);
+            if (fetchedList != null) {
+                String userName = AuthenticatorManager.getInstance()
+                        .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET).getUserName();
+                fetchedList.setName(userName + TomahawkApp.getContext()
+                        .getString(R.string.users_lovedtracks_suffix));
+                fetchedList.setId(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID);
+                Log.d(TAG, "Hatchet sync - received list of loved tracks, count: "
+                        + fetchedList.getEntries().size());
+                DatabaseHelper.getInstance().storePlaylist(fetchedList);
+            }
         } else if (data.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS) {
             List<Album> fetchedAlbums = data.getResultList(Album.class);

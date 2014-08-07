@@ -17,6 +17,7 @@
  */
 package org.tomahawk.libtomahawk.infosystem;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -174,7 +175,7 @@ public class InfoRequestData {
     public <T> T getResult(Class<T> clss) {
         if (mResultMap != null) {
             Object object = mResultMap.get(clss);
-            if (object.getClass() == clss) {
+            if (object != null && object.getClass() == clss) {
                 return (T) object;
             }
         }
@@ -191,11 +192,11 @@ public class InfoRequestData {
     public <T> List<T> getResultList(Class<T> clss) {
         if (mResultListMap != null) {
             List<Object> objects = mResultListMap.get(clss);
-            if (objects.size() > 0 && objects.get(0).getClass() == clss) {
+            if (objects != null && objects.size() > 0 && objects.get(0).getClass() == clss) {
                 return (List<T>) objects;
             }
         }
-        return null;
+        return new ArrayList<T>();
     }
 
     public void setResultList(List<Object> objects) {
