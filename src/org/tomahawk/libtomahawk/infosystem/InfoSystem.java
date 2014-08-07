@@ -17,6 +17,9 @@
  */
 package org.tomahawk.libtomahawk.infosystem;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
@@ -27,6 +30,11 @@ import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetNowPlaying;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetNowPlayingPostStruct;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaybackLogEntry;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaybackLogPostStruct;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaylistEntries;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaylistEntryPostStruct;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaylistEntryRequest;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaylistPostStruct;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaylistRequest;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetSocialAction;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetSocialActionPostStruct;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -36,6 +44,7 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.Intent;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,6 +56,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * The InfoSystem resolves metadata for artists and albums like album covers and artist images.
  */
 public class InfoSystem {
+
+    private static final String TAG = InfoSystem.class.getSimpleName();
 
     private static InfoSystem instance;
 
@@ -77,6 +88,15 @@ public class InfoSystem {
 
     private ConcurrentHashMap<Integer, InfoRequestData> mLoggedOpsMap
             = new ConcurrentHashMap<Integer, InfoRequestData>();
+
+    // We store "create playlists"-loggedOps separately, because we need to check whether or not all
+    // "create playlists"-loggedOps have been pushed to Hatchet before sending the corresponding
+    // playlist entries
+    private ConcurrentHashMap<Integer, InfoRequestData> mPlaylistsLoggedOpsMap
+            = new ConcurrentHashMap<Integer, InfoRequestData>();
+
+    // LoggedOps waiting to be sent as soon as mPlaylistsLoggedOpsMap is empty
+    private ArrayList<InfoRequestData> mQueuedLoggedOps = new ArrayList<InfoRequestData>();
 
     /**
      * The below HashSets are used to mark the included objects as "already done before"
@@ -383,12 +403,19 @@ public class InfoSystem {
             playbackLogPostStruct.playbackLogEntry = playbackLogEntry;
 
             String requestId = TomahawkMainActivity.getSessionUniqueStringId();
-            InfoRequestData infoRequestData = new InfoRequestData(requestId,
-                    InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES,
-                    playbackLogPostStruct);
-            DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
-                    (int) (timeStamp / 1000), DatabaseHelper.REQUESTTYPE_POST);
-            sendLoggedOps(authenticatorUtils);
+            try {
+                String jsonString = InfoSystemUtils.getObjectMapper()
+                        .writeValueAsString(playbackLogPostStruct);
+                InfoRequestData infoRequestData = new InfoRequestData(requestId,
+                        InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES, null,
+                        InfoRequestData.HTTPTYPE_POST, jsonString);
+                DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
+                        (int) (timeStamp / 1000));
+                sendLoggedOps(authenticatorUtils);
+            } catch (JsonProcessingException e) {
+                Log.e(TAG, "sendPlaybackEntryPostStruct: " + e.getClass() + ": "
+                        + e.getLocalizedMessage());
+            }
         }
     }
 
@@ -404,10 +431,17 @@ public class InfoSystem {
             nowPlayingPostStruct.nowPlaying = nowPlaying;
 
             String requestId = TomahawkMainActivity.getSessionUniqueStringId();
-            InfoRequestData infoRequestData = new InfoRequestData(requestId,
-                    InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES_NOWPLAYING,
-                    nowPlayingPostStruct);
-            send(infoRequestData, authenticatorUtils);
+            try {
+                String jsonString = InfoSystemUtils.getObjectMapper()
+                        .writeValueAsString(nowPlayingPostStruct);
+                InfoRequestData infoRequestData = new InfoRequestData(requestId,
+                        InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES_NOWPLAYING, null,
+                        InfoRequestData.HTTPTYPE_POST, jsonString);
+                send(infoRequestData, authenticatorUtils);
+            } catch (JsonProcessingException e) {
+                Log.e(TAG, "sendNowPlayingPostStruct: " + e.getClass() + ": "
+                        + e.getLocalizedMessage());
+            }
         }
     }
 
@@ -426,11 +460,19 @@ public class InfoSystem {
         socialActionPostStruct.socialAction = socialAction;
 
         String requestId = TomahawkMainActivity.getSessionUniqueStringId();
-        InfoRequestData infoRequestData = new InfoRequestData(requestId,
-                InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS, socialActionPostStruct);
-        DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
-                (int) (timeStamp / 1000), DatabaseHelper.REQUESTTYPE_POST);
-        sendLoggedOps(authenticatorUtils);
+        try {
+            String jsonString = InfoSystemUtils.getObjectMapper()
+                    .writeValueAsString(socialActionPostStruct);
+            InfoRequestData infoRequestData = new InfoRequestData(requestId,
+                    InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS, null,
+                    InfoRequestData.HTTPTYPE_POST, jsonString);
+            DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
+                    (int) (timeStamp / 1000));
+            sendLoggedOps(authenticatorUtils);
+        } catch (JsonProcessingException e) {
+            Log.e(TAG, "sendSocialActionPostStruct: " + e.getClass() + ": "
+                    + e.getLocalizedMessage());
+        }
     }
 
     public void sendSocialActionPostStruct(AuthenticatorUtils authenticatorUtils, Query query,
@@ -450,46 +492,110 @@ public class InfoSystem {
                 album.getName(), type, action);
     }
 
-    public void createPlaylist(AuthenticatorUtils authenticatorUtils, String playlistId) {
+    public void sendPlaylistPostStruct(AuthenticatorUtils authenticatorUtils, String localId,
+            String title) {
+        long timeStamp = System.currentTimeMillis();
+        HatchetPlaylistRequest request = new HatchetPlaylistRequest();
+        request.title = title;
+        HatchetPlaylistPostStruct struct = new HatchetPlaylistPostStruct();
+        struct.playlist = request;
+
+        String requestId = TomahawkMainActivity.getSessionUniqueStringId();
+        try {
+            String jsonString = InfoSystemUtils.getObjectMapper()
+                    .writeValueAsString(struct);
+            QueryParams params = new QueryParams();
+            params.playlist_local_id = localId;
+            InfoRequestData infoRequestData = new InfoRequestData(requestId,
+                    InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS, params,
+                    InfoRequestData.HTTPTYPE_POST, jsonString);
+            DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
+                    (int) (timeStamp / 1000));
+            sendLoggedOps(authenticatorUtils);
+        } catch (JsonProcessingException e) {
+            Log.e(TAG, "sendPlaylistPostStruct: " + e.getClass() + ": "
+                    + e.getLocalizedMessage());
+        }
+    }
+
+    public void sendPlaylistEntriesPostStruct(AuthenticatorUtils authenticatorUtils,
+            String localPlaylistId, String trackName, String artistName, String albumName) {
+        long timeStamp = System.currentTimeMillis();
+        HatchetPlaylistEntryRequest request = new HatchetPlaylistEntryRequest();
+        request.trackString = trackName;
+        request.artistString = artistName;
+        request.albumString = albumName;
+        HatchetPlaylistEntryPostStruct struct = new HatchetPlaylistEntryPostStruct();
+        struct.playlistEntry = request;
+
+        String requestId = TomahawkMainActivity.getSessionUniqueStringId();
+        try {
+            String jsonString = InfoSystemUtils.getObjectMapper()
+                    .writeValueAsString(struct);
+            QueryParams params = new QueryParams();
+            params.playlist_local_id = localPlaylistId;
+            InfoRequestData infoRequestData = new InfoRequestData(requestId,
+                    InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES, params,
+                    InfoRequestData.HTTPTYPE_POST, jsonString);
+            DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
+                    (int) (timeStamp / 1000));
+            sendLoggedOps(authenticatorUtils);
+        } catch (JsonProcessingException e) {
+            Log.e(TAG, "sendPlaylistEntriesPostStruct: " + e.getClass() + ": "
+                    + e.getLocalizedMessage());
+        }
+    }
+
+    public void deletePlaylist(AuthenticatorUtils authenticatorUtils, String localPlaylistId) {
         long timeStamp = System.currentTimeMillis();
         String requestId = TomahawkMainActivity.getLifetimeUniqueStringId();
+        QueryParams params = new QueryParams();
+        params.playlist_local_id = localPlaylistId;
         InfoRequestData infoRequestData = new InfoRequestData(requestId,
-                InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS, playlistId);
+                InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS, params,
+                InfoRequestData.HTTPTYPE_DELETE, null);
         DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
-                (int) (timeStamp / 1000), DatabaseHelper.REQUESTTYPE_DELETE);
+                (int) (timeStamp / 1000));
         sendLoggedOps(authenticatorUtils);
     }
 
-    public void deletePlaylist(AuthenticatorUtils authenticatorUtils, String playlistId) {
-        long timeStamp = System.currentTimeMillis();
-        String requestId = TomahawkMainActivity.getLifetimeUniqueStringId();
-        InfoRequestData infoRequestData = new InfoRequestData(requestId,
-                InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS, playlistId);
-        DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
-                (int) (timeStamp / 1000), DatabaseHelper.REQUESTTYPE_DELETE);
-        sendLoggedOps(authenticatorUtils);
-    }
-
-    public void addQueryToPlaylist(AuthenticatorUtils authenticatorUtils, String playlistId,
-            Query query) {
-
-    }
-
-    public void deleteQueryInPlaylist(AuthenticatorUtils authenticatorUtils, String playlistId,
+    public void deletePlaylistEntry(AuthenticatorUtils authenticatorUtils, String localPlaylistId,
             String entryId) {
-
+        long timeStamp = System.currentTimeMillis();
+        String requestId = TomahawkMainActivity.getLifetimeUniqueStringId();
+        QueryParams params = new QueryParams();
+        params.playlist_local_id = localPlaylistId;
+        params.entry_id = entryId;
+        InfoRequestData infoRequestData = new InfoRequestData(requestId,
+                InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES, params,
+                InfoRequestData.HTTPTYPE_DELETE, null);
+        DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
+                (int) (timeStamp / 1000));
+        sendLoggedOps(authenticatorUtils);
     }
+
 
     public List<String> sendLoggedOps(AuthenticatorUtils authenticatorUtils) {
         List<String> requestIds = new ArrayList<String>();
         List<InfoRequestData> loggedOps = DatabaseHelper.getInstance().getLoggedOps();
         for (InfoRequestData loggedOp : loggedOps) {
-            if (!mLoggedOpsMap.containsKey(loggedOp.getOpLogId())) {
-                mLoggedOpsMap.put(loggedOp.getOpLogId(), loggedOp);
+            if (!mLoggedOpsMap.containsKey(loggedOp.getLoggedOpId())) {
+                mLoggedOpsMap.put(loggedOp.getLoggedOpId(), loggedOp);
+                if (loggedOp.getType()
+                        == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES
+                        || (loggedOp.getHttpType() == InfoRequestData.HTTPTYPE_DELETE
+                        && loggedOp.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS)) {
+                    mQueuedLoggedOps.add(loggedOp);
+                } else {
+                    if (loggedOp.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS) {
+                        mPlaylistsLoggedOpsMap.put(loggedOp.getLoggedOpId(), loggedOp);
+                    }
+                    send(loggedOp, authenticatorUtils);
+                }
                 requestIds.add(loggedOp.getRequestId());
-                send(loggedOp, authenticatorUtils);
             }
         }
+        trySendingQueuedOps();
         return requestIds;
     }
 
@@ -545,16 +651,27 @@ public class InfoSystem {
             if (mSentRequests.containsKey(doneRequestId)) {
                 InfoRequestData loggedOp = mSentRequests.get(doneRequestId);
                 loggedOps.add(loggedOp);
-                mLoggedOpsMap.remove(loggedOp.getOpLogId());
                 requestTypes.add(loggedOp.getType());
                 if (loggedOp.getType()
-                        == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES
-                        || loggedOp.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS) {
-                    playlistIds.add(loggedOp.getResult(Playlist.class).getId());
+                        == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES) {
+                    playlistIds.add(loggedOp.getQueryParams().playlist_local_id);
+                } else if (loggedOp.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS) {
+                    HatchetPlaylistEntries entries =
+                            loggedOp.getResult(HatchetPlaylistEntries.class);
+                    if (entries != null && entries.playlists.size() > 0) {
+                        playlistIds.add(entries.playlists.get(0).id);
+                        Playlist.getPlaylistById(loggedOp.getQueryParams().playlist_local_id)
+                                .setHatchetId(entries.playlists.get(0).id);
+                    }
                 }
+                mLoggedOpsMap.remove(loggedOp.getLoggedOpId());
             }
         }
         if (success) {
+            for (InfoRequestData loggedOp : loggedOps) {
+                mPlaylistsLoggedOpsMap.remove(loggedOp.getLoggedOpId());
+            }
+            trySendingQueuedOps();
             DatabaseHelper.getInstance().removeOpsFromInfoSystemOpLog(loggedOps);
             if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
                 if (!requestTypes.isEmpty()) {
@@ -567,6 +684,19 @@ public class InfoSystem {
                     }
                     TomahawkApp.getContext().sendBroadcast(reportIntent);
                 }
+            }
+        }
+    }
+
+    private void trySendingQueuedOps() {
+        if (mPlaylistsLoggedOpsMap.isEmpty()) {
+            for (int i = 0; i < mQueuedLoggedOps.size(); i++) {
+                InfoRequestData queuedLoggedOp = mQueuedLoggedOps.remove(0);
+                QueryParams params = queuedLoggedOp.getQueryParams();
+                Playlist playlist = Playlist.getPlaylistById(params.playlist_local_id);
+                params.playlist_id = playlist.getHatchetId();
+                send(queuedLoggedOp, AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                        TomahawkApp.PLUGINNAME_HATCHET));
             }
         }
     }

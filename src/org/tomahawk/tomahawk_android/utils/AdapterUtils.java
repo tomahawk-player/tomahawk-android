@@ -189,8 +189,8 @@ public class AdapterUtils {
             public void onClick(View v) {
                 String playlistTitle = user.getName() + TomahawkApp.getContext().getString(
                         R.string.users_playbacklog_suffix);
-                Playlist playbackLog = Playlist.fromQueryList(user.getId()
-                        + User.PLAYLIST_PLAYBACKLOG_ID, playlistTitle, user.getPlaybackLog());
+                Playlist playbackLog = Playlist.fromQueryList(playlistTitle, user.getPlaybackLog());
+                playbackLog.setId(user.getId() + User.PLAYLIST_PLAYBACKLOG_ID);
                 FragmentUtils.replace(context, fragmentManager, PlaylistEntriesFragment.class,
                         user.getCacheKey(), playbackLog.getId());
             }

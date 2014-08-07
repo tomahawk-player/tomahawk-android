@@ -138,7 +138,7 @@ public class ScriptResolver extends Resolver {
     public ScriptResolver(ScriptResolverMetaData metaData, String path) {
         super(metaData.name);
 
-        mObjectMapper = InfoSystemUtils.constructObjectMapper();
+        mObjectMapper = InfoSystemUtils.getObjectMapper();
         mSharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(TomahawkApp.getContext());
         mMetaData = metaData;

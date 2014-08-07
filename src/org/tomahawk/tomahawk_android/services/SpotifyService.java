@@ -17,8 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyLogin;
@@ -107,8 +105,6 @@ public class SpotifyService extends Service {
 
     private WifiManager.WifiLock mWifiLock;
 
-    private ObjectMapper mObjectMapper = InfoSystemUtils.constructObjectMapper();
-
     /**
      * Handler of incoming messages from clients.
      */
@@ -128,7 +124,7 @@ public class SpotifyService extends Service {
                         destroy();
                         break;
                     case MSG_LOGIN:
-                        SpotifyLogin spotifyLogin = mObjectMapper
+                        SpotifyLogin spotifyLogin = InfoSystemUtils.getObjectMapper()
                                 .readValue(msg.getData().getString(SpotifyService.STRING_KEY),
                                         SpotifyLogin.class);
                         login(spotifyLogin.username, spotifyLogin.password, spotifyLogin.blob);
@@ -137,7 +133,7 @@ public class SpotifyService extends Service {
                         logout();
                         break;
                     case MSG_RESOLVE:
-                        SpotifyQuery spotifyQuery = mObjectMapper
+                        SpotifyQuery spotifyQuery = InfoSystemUtils.getObjectMapper()
                                 .readValue(msg.getData().getString(SpotifyService.STRING_KEY),
                                         SpotifyQuery.class);
                         resolve(spotifyQuery.queryKey, spotifyQuery.queryString);
@@ -413,7 +409,8 @@ public class SpotifyService extends Service {
         spotifyResults.count = count;
         spotifyResults.results = results;
         try {
-            String jsonString = mObjectMapper.writeValueAsString(spotifyResults);
+            String jsonString = InfoSystemUtils.getObjectMapper()
+                    .writeValueAsString(spotifyResults);
             sendMsg(MSG_ONRESOLVED, jsonString);
         } catch (IOException e) {
             Log.e(TAG, "onResolved: " + e.getClass() + ": " + e.getLocalizedMessage());
@@ -461,7 +458,7 @@ public class SpotifyService extends Service {
         spotifyLogin.username = username;
         spotifyLogin.blob = blob;
         try {
-            String jsonString = mObjectMapper.writeValueAsString(spotifyLogin);
+            String jsonString = InfoSystemUtils.getObjectMapper().writeValueAsString(spotifyLogin);
             sendMsg(MSG_ONCREDBLOBUPDATED, jsonString);
         } catch (IOException e) {
             Log.e(TAG,

@@ -220,7 +220,7 @@ public class TomahawkUtils {
             }
         } else if (tomahawkListItem instanceof PlaylistEntry) {
             PlaylistEntry playlistEntry = ((PlaylistEntry) tomahawkListItem);
-            return getCacheKey(playlistEntry.getId(), playlistEntry.getPlaylist().getCacheKey());
+            return getCacheKey(playlistEntry.getPlaylistId(), playlistEntry.getId());
         }
         return "";
     }

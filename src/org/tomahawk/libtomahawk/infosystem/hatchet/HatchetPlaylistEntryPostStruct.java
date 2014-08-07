@@ -17,12 +17,10 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet;
 
-import java.util.List;
+public class HatchetPlaylistEntryPostStruct {
 
-public class HatchetPlaylists {
+    public HatchetPlaylistEntryRequest playlistEntry;
 
-    public List<HatchetPlaylistInfo> playlists;
-
-    public HatchetPlaylists() {
+    public HatchetPlaylistEntryPostStruct() {
     }
 }

@@ -18,8 +18,6 @@
  */
 package org.tomahawk.libtomahawk.authentication;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
@@ -170,8 +168,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                             TomahawkUtils.HttpResponse response =
                                     TomahawkUtils.httpPost(AUTH_SERVER, null, data,
                                             TomahawkUtils.HTTP_CONTENT_TYPE_FORM);
-                            ObjectMapper objectMapper = InfoSystemUtils.constructObjectMapper();
-                            HatchetAuthResponse authResponse = objectMapper
+                            HatchetAuthResponse authResponse = InfoSystemUtils.getObjectMapper()
                                     .readValue(response.mResponseText, HatchetAuthResponse.class);
                             if (authResponse != null) {
                                 if (authResponse.error != null &&
@@ -300,8 +297,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 responseText = TomahawkUtils.httpGet(TOKEN_SERVER + RESPONSE_TOKEN_TYPE_CALUMET,
                         params).mResponseText;
             }
-            ObjectMapper objectMapper = InfoSystemUtils.constructObjectMapper();
-            HatchetAuthResponse authResponse = objectMapper
+            HatchetAuthResponse authResponse = InfoSystemUtils.getObjectMapper()
                     .readValue(responseText, HatchetAuthResponse.class);
             if (authResponse.error != null || !TomahawkUtils
                     .containsIgnoreCase(tokenType, authResponse.token_type)) {

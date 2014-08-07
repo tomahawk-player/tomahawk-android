@@ -17,8 +17,6 @@
  */
 package org.tomahawk.libtomahawk.resolver.spotify;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
@@ -54,8 +52,6 @@ public class SpotifyResolver extends Resolver {
 
     private final Messenger mFromSpotifyMessenger = new Messenger(new FromSpotifyHandler());
 
-    private ObjectMapper mObjectMapper = InfoSystemUtils.constructObjectMapper();
-
     private String mId;
 
     private int mIconResId;
@@ -83,7 +79,7 @@ public class SpotifyResolver extends Resolver {
                         resolveWaitingQueries();
                         break;
                     case SpotifyService.MSG_ONRESOLVED:
-                        SpotifyResults spotifyResults = mObjectMapper
+                        SpotifyResults spotifyResults = InfoSystemUtils.getObjectMapper()
                                 .readValue(msg.getData().getString(SpotifyService.STRING_KEY),
                                         SpotifyResults.class);
                         onResolved(spotifyResults);
@@ -181,7 +177,7 @@ public class SpotifyResolver extends Resolver {
                 spotifyQuery.queryString = query.getArtist().getName() + " " + query
                         .getName();
             }
-            String jsonString = mObjectMapper.writeValueAsString(spotifyQuery);
+            String jsonString = InfoSystemUtils.getObjectMapper().writeValueAsString(spotifyQuery);
             SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_RESOLVE,
                     jsonString);
         } catch (IOException e) {

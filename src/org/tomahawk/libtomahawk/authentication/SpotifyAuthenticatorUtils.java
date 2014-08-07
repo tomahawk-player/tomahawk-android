@@ -17,8 +17,6 @@
  */
 package org.tomahawk.libtomahawk.authentication;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyLogin;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyServiceUtils;
@@ -64,8 +62,6 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
 
     private final Messenger mFromSpotifyMessenger = new Messenger(new FromSpotifyHandler());
 
-    private ObjectMapper mObjectMapper;
-
     private boolean mInitialized;
 
     /**
@@ -105,7 +101,7 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
                         onLogout();
                         break;
                     case SpotifyService.MSG_ONCREDBLOBUPDATED:
-                        SpotifyLogin spotifyLogin = mObjectMapper
+                        SpotifyLogin spotifyLogin = InfoSystemUtils.getObjectMapper()
                                 .readValue(msg.getData().getString(SpotifyService.STRING_KEY),
                                         SpotifyLogin.class);
                         onLogin(spotifyLogin.username, spotifyLogin.blob, 0, null, 0);
@@ -121,8 +117,6 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
 
     public SpotifyAuthenticatorUtils(String id, String prettyName) {
         super(id, prettyName);
-
-        mObjectMapper = InfoSystemUtils.constructObjectMapper();
     }
 
     public void setToSpotifyMessenger(Messenger toSpotifyMessenger) {
@@ -257,7 +251,8 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
         if (mToSpotifyMessenger != null) {
             if (mInitialized && spotifyLogin.username != null && spotifyLogin.password != null) {
                 try {
-                    String jsonString = mObjectMapper.writeValueAsString(spotifyLogin);
+                    String jsonString =
+                            InfoSystemUtils.getObjectMapper().writeValueAsString(spotifyLogin);
                     SpotifyServiceUtils
                             .sendMsg(mToSpotifyMessenger, SpotifyService.MSG_LOGIN, jsonString);
                 } catch (IOException e) {
@@ -291,7 +286,9 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
                         spotifyLogin.username = email;
                         spotifyLogin.blob = blob;
                         try {
-                            String jsonString = mObjectMapper.writeValueAsString(spotifyLogin);
+                            String jsonString =
+                                    InfoSystemUtils.getObjectMapper().writeValueAsString(
+                                            spotifyLogin);
                             SpotifyServiceUtils.sendMsg(mToSpotifyMessenger,
                                     SpotifyService.MSG_LOGIN, jsonString);
                         } catch (IOException e) {

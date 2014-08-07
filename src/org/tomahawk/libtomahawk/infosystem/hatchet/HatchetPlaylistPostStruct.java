@@ -19,7 +19,7 @@ package org.tomahawk.libtomahawk.infosystem.hatchet;
 
 public class HatchetPlaylistPostStruct {
 
-    public HatchetPlaybackLogEntry playbackLogEntry;
+    public HatchetPlaylistRequest playlist;
 
     public HatchetPlaylistPostStruct() {
     }

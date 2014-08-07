@@ -21,4 +21,8 @@ public class QueryParams {
     public String term = null;
 
     public String type = null;
+
+    public String entry_id = null;
+
+    public String playlist_local_id = null;
 }

@@ -5,7 +5,6 @@ import com.google.common.io.Files;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.json.JSONObject;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
@@ -32,8 +31,6 @@ public class ScriptInterface {
     private final static String TAG = ScriptInterface.class.getSimpleName();
 
     private ScriptResolver mScriptResolver;
-
-    private ObjectMapper mObjectMapper;
 
     /**
      * Class to make a callback on the javascript side of this ScriptInterface. The callback is
@@ -84,16 +81,13 @@ public class ScriptInterface {
      */
     @JavascriptInterface
     public String resolverDataString() {
-        if (mObjectMapper == null) {
-            mObjectMapper = InfoSystemUtils.constructObjectMapper();
-        }
         Map<String, Object> config = mScriptResolver.getConfig();
         ScriptResolverData data = new ScriptResolverData();
         data.scriptPath = mScriptResolver.getScriptFilePath();
         data.config = config;
         String jsonString = "";
         try {
-            jsonString = mObjectMapper.writeValueAsString(data);
+            jsonString = InfoSystemUtils.getObjectMapper().writeValueAsString(data);
         } catch (JsonMappingException e) {
             Log.e(TAG, "resolverDataString: " + e.getClass() + ": " + e.getLocalizedMessage());
         } catch (JsonGenerationException e) {
@@ -176,11 +170,12 @@ public class ScriptInterface {
                 try {
                     Map<String, String> extraHeaders = new HashMap<String, String>();
                     if (!TextUtils.isEmpty(stringifiedExtraHeaders)) {
-                        extraHeaders = mObjectMapper.readValue(stringifiedExtraHeaders, Map.class);
+                        extraHeaders = InfoSystemUtils.getObjectMapper().readValue(
+                                stringifiedExtraHeaders, Map.class);
                     }
                     ScriptInterfaceRequestOptions options = null;
                     if (!TextUtils.isEmpty(stringifiedOptions)) {
-                        options = mObjectMapper.readValue(stringifiedOptions,
+                        options = InfoSystemUtils.getObjectMapper().readValue(stringifiedOptions,
                                 ScriptInterfaceRequestOptions.class);
                     }
                     JsCallback callback = null;
@@ -225,7 +220,7 @@ public class ScriptInterface {
     public void addToFuzzyIndexString(String stringifiedIndexList) {
         if (mScriptResolver.hasFuzzyIndex()) {
             try {
-                ScriptResolverFuzzyIndex[] indexList = mObjectMapper
+                ScriptResolverFuzzyIndex[] indexList = InfoSystemUtils.getObjectMapper()
                         .readValue(stringifiedIndexList, ScriptResolverFuzzyIndex[].class);
                 mScriptResolver.getFuzzyIndex().addScriptResolverFuzzyIndexList(indexList);
             } catch (IOException e) {
@@ -242,7 +237,7 @@ public class ScriptInterface {
     public void createFuzzyIndexString(String stringifiedIndexList) {
         try {
             mScriptResolver.createFuzzyIndex();
-            ScriptResolverFuzzyIndex[] indexList = mObjectMapper
+            ScriptResolverFuzzyIndex[] indexList = InfoSystemUtils.getObjectMapper()
                     .readValue(stringifiedIndexList, ScriptResolverFuzzyIndex[].class);
             mScriptResolver.getFuzzyIndex().addScriptResolverFuzzyIndexList(indexList);
         } catch (IOException e) {
@@ -254,7 +249,7 @@ public class ScriptInterface {
     public String searchFuzzyIndexString(String query) {
         double[][] results = mScriptResolver.getFuzzyIndex().search(Query.get(query, false));
         try {
-            return mObjectMapper.writeValueAsString(results);
+            return InfoSystemUtils.getObjectMapper().writeValueAsString(results);
         } catch (IOException e) {
             Log.e(TAG, "searchFuzzyIndexString: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
@@ -266,7 +261,7 @@ public class ScriptInterface {
         double[][] results = mScriptResolver.getFuzzyIndex().search(
                 Query.get(title, album, artist, false));
         try {
-            return mObjectMapper.writeValueAsString(results);
+            return InfoSystemUtils.getObjectMapper().writeValueAsString(results);
         } catch (IOException e) {
             Log.e(TAG, "resolveFromFuzzyIndexString: " + e.getClass() + ": " + e
                     .getLocalizedMessage());
