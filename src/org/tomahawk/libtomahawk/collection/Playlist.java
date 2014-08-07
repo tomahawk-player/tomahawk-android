@@ -53,7 +53,7 @@ public class Playlist implements TomahawkListItem {
 
     private String mHatchetId;
 
-    private String mCurrentRevision;
+    private String mCurrentRevision = "";
 
     private ArrayList<Artist> mContentHeaderArtists = new ArrayList<Artist>();
 
@@ -67,7 +67,9 @@ public class Playlist implements TomahawkListItem {
         mShuffled = false;
         mRepeating = false;
         mId = id;
-        mCurrentRevision = currentRevision;
+        if (currentRevision != null) {
+            mCurrentRevision = currentRevision;
+        }
     }
 
     /**
@@ -208,7 +210,11 @@ public class Playlist implements TomahawkListItem {
     }
 
     public void setCurrentRevision(String currentRevision) {
-        mCurrentRevision = currentRevision;
+        if (currentRevision != null) {
+            mCurrentRevision = currentRevision;
+        } else {
+            mCurrentRevision = "";
+        }
     }
 
     public String getCurrentRevision() {
