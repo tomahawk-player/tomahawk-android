@@ -57,6 +57,8 @@ public abstract class AuthenticatorUtils {
 
     private String mId;
 
+    protected boolean mAllowRegistration;
+
     protected AuthenticatorUtils(String id, String prettyName) {
         mId = id;
         mPrettyName = prettyName;
@@ -99,6 +101,8 @@ public abstract class AuthenticatorUtils {
 
     public abstract void onLogout();
 
+    public abstract void register(String name, String password, String email);
+
     public abstract void login(Activity activity, String email, String password);
 
     public abstract void logout(Activity activity);
@@ -121,5 +125,9 @@ public abstract class AuthenticatorUtils {
             return account.name;
         }
         return null;
+    }
+
+    public boolean doesAllowRegistration() {
+        return mAllowRegistration;
     }
 }

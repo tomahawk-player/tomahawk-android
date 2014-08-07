@@ -28,6 +28,7 @@ import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -45,7 +46,7 @@ public class RedirectConfigDialog extends ConfigDialog {
 
     private String mResolverId;
 
-    private TextView mRedirectButton;
+    private TextView mRedirectButtonTextView;
 
     private class RedirectButtonListener implements View.OnClickListener {
 
@@ -71,6 +72,7 @@ public class RedirectConfigDialog extends ConfigDialog {
     /**
      * Called when this {@link android.support.v4.app.DialogFragment} is being created
      */
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         if (getArguments() != null && getArguments()
@@ -108,10 +110,10 @@ public class RedirectConfigDialog extends ConfigDialog {
         ImageView buttonImage = (ImageView) buttonLayout
                 .findViewById(R.id.config_redirect_button_image);
         buttonImage.setImageResource(buttonImageResId);
-        mRedirectButton = (TextView) button
+        mRedirectButtonTextView = (TextView) button
                 .findViewById(R.id.config_redirect_button_text);
-        mRedirectButton.setTextColor(buttonTextColor);
-        mRedirectButton.setText(loggedIn
+        mRedirectButtonTextView.setTextColor(buttonTextColor);
+        mRedirectButtonTextView.setText(loggedIn
                 ? getString(R.string.resolver_config_redirect_button_text_log_out_of)
                 : getString(R.string.resolver_config_redirect_button_text_log_into));
         button.setOnClickListener(onClickListener);
@@ -139,7 +141,7 @@ public class RedirectConfigDialog extends ConfigDialog {
                 .getAuthenticatorUtils(mResolverId);
         if (utils != null) {
             boolean loggedIn = utils.isLoggedIn();
-            mRedirectButton.setText(loggedIn
+            mRedirectButtonTextView.setText(loggedIn
                     ? getString(R.string.resolver_config_redirect_button_text_log_out_of)
                     : getString(R.string.resolver_config_redirect_button_text_log_into));
         }
@@ -154,10 +156,10 @@ public class RedirectConfigDialog extends ConfigDialog {
     protected void onConfigTestResult(String componentId, int type, String message) {
         if (mResolverId.equals(componentId)) {
             if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS) {
-                mRedirectButton.setText(
+                mRedirectButtonTextView.setText(
                         getString(R.string.resolver_config_redirect_button_text_log_out_of));
             } else if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_LOGOUT) {
-                mRedirectButton.setText(
+                mRedirectButtonTextView.setText(
                         getString(R.string.resolver_config_redirect_button_text_log_into));
             }
         }

@@ -28,23 +28,20 @@ import android.app.Dialog;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 /**
- * A {@link org.tomahawk.tomahawk_android.dialogs.ConfigDialog} which shows a textfield to enter a
- * username and password, and provides button for cancel/logout and ok/login, depending on whether
- * or not the user is logged in.
+ * A {@link ConfigDialog} which shows a textfield to enter a username and password, and provides
+ * button for cancel/logout and ok/login, depending on whether or not the user is logged in.
  */
-public class LoginConfigDialog extends ConfigDialog {
+public class RegisterConfigDialog extends ConfigDialog {
 
-    public final static String TAG = LoginConfigDialog.class.getSimpleName();
+    public final static String TAG = RegisterConfigDialog.class.getSimpleName();
 
     private AuthenticatorUtils mAuthenticatorUtils;
 
@@ -52,21 +49,12 @@ public class LoginConfigDialog extends ConfigDialog {
 
     private EditText mPasswordEditText;
 
-    private class RegisterButtonListener implements View.OnClickListener {
+    private EditText mPasswordConfirmationEditText;
 
-        @Override
-        public void onClick(View v) {
-            dismiss();
-            RegisterConfigDialog dialog = new RegisterConfigDialog();
-            Bundle args = new Bundle();
-            args.putString(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY, mAuthenticatorUtils.getId());
-            dialog.setArguments(args);
-            dialog.show(getFragmentManager(), null);
-        }
-    }
+    private EditText mMailEditText;
 
     /**
-     * Called when this {@link DialogFragment} is being created
+     * Called when this {@link android.support.v4.app.DialogFragment} is being created
      */
     @NonNull
     @Override
@@ -91,23 +79,29 @@ public class LoginConfigDialog extends ConfigDialog {
         mPasswordEditText.setHint(R.string.logindialog_password_label_string);
         mPasswordEditText.setTypeface(Typeface.DEFAULT);
         mPasswordEditText.setTransformationMethod(new PasswordTransformationMethod());
-        mPasswordEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
         addViewToFrame(passwordLayout);
-        if (mAuthenticatorUtils.doesAllowRegistration()) {
-            FrameLayout buttonLayout =
-                    (FrameLayout) inflater.inflate(R.layout.config_register_button, null);
-            addViewToFrame(buttonLayout);
-            LinearLayout button =
-                    (LinearLayout) buttonLayout.findViewById(R.id.config_register_button);
-            button.setOnClickListener(new RegisterButtonListener());
-        }
+        LinearLayout passwordConfirmationLayout =
+                (LinearLayout) inflater.inflate(R.layout.config_text, null);
+        mPasswordConfirmationEditText =
+                (ConfigEdittext) passwordConfirmationLayout.findViewById(R.id.config_edittext);
+        mPasswordConfirmationEditText.setHint(
+                R.string.logindialog_password_confirmation_label_string);
+        mPasswordConfirmationEditText.setTypeface(Typeface.DEFAULT);
+        mPasswordConfirmationEditText.setTransformationMethod(new PasswordTransformationMethod());
+        addViewToFrame(passwordConfirmationLayout);
+        LinearLayout emailLayout = (LinearLayout) inflater.inflate(R.layout.config_text, null);
+        mMailEditText = (ConfigEdittext) emailLayout.findViewById(R.id.config_edittext);
+        mMailEditText.setHint(R.string.logindialog_email_label_string);
+        mMailEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
+        addViewToFrame(emailLayout);
 
         showSoftKeyboard(mUsernameEditText);
 
         hideEnabledCheckbox();
-        setDialogTitle(mAuthenticatorUtils.getPrettyName() + " " + getString(R.string.login));
+        setDialogTitle(mAuthenticatorUtils.getPrettyName() + " " + getString(R.string.register));
         setStatusImage(mAuthenticatorUtils.getIconResourceId(), isLoggedIn);
-        updateButtonTexts(isLoggedIn);
+        setPositiveButtonText(R.string.register);
+        setNegativeButtonText(R.string.cancel);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());
         return builder.create();
@@ -123,8 +117,6 @@ public class LoginConfigDialog extends ConfigDialog {
         if (componentId.equals(mAuthenticatorUtils.getId())) {
             if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS) {
                 dismiss();
-            } else if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_LOGOUT) {
-                updateButtonTexts(false);
             }
             stopLoadingAnimation(false);
         }
@@ -132,21 +124,12 @@ public class LoginConfigDialog extends ConfigDialog {
 
     @Override
     protected void onPositiveAction() {
-        if (mAuthenticatorUtils.isLoggedIn()) {
-            dismiss();
-        } else {
-            attemptLogin();
-        }
+        attemptRegister();
     }
 
     @Override
     protected void onNegativeAction() {
-        if (mAuthenticatorUtils.isLoggedIn()) {
-            startLoadingAnimation();
-            mAuthenticatorUtils.logout(getActivity());
-        } else {
-            dismiss();
-        }
+        dismiss();
     }
 
     /**
@@ -154,53 +137,58 @@ public class LoginConfigDialog extends ConfigDialog {
      * errors (invalid email, missing fields, etc.), the errors are presented and no actual login
      * attempt is made.
      */
-    private void attemptLogin() {
+    private void attemptRegister() {
         // Reset errors.
         mUsernameEditText.setError(null);
         mPasswordEditText.setError(null);
+        mPasswordConfirmationEditText.setError(null);
 
         // Store values at the time of the login attempt.
-        String mEmail = mUsernameEditText.getText().toString();
-        String mPassword = mPasswordEditText.getText().toString();
+        String username = mUsernameEditText.getText().toString();
+        String password = mPasswordEditText.getText().toString();
+        String passwordConfirmation = mPasswordConfirmationEditText.getText().toString();
+        String email = null;
+        if (!TextUtils.isEmpty(mMailEditText.getText().toString())) {
+            email = mMailEditText.getText().toString();
+        }
 
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(mEmail)) {
+        // Check for a valid username
+        if (TextUtils.isEmpty(username)) {
             mUsernameEditText.setError(getString(R.string.error_field_required));
             focusView = mUsernameEditText;
             cancel = true;
         }
 
         // Check for a valid password.
-        if (TextUtils.isEmpty(mPassword)) {
+        if (TextUtils.isEmpty(password)) {
             mPasswordEditText.setError(getString(R.string.error_field_required));
             focusView = mPasswordEditText;
             cancel = true;
         }
 
+        // Check for a valid password confirmation.
+        if (TextUtils.isEmpty(passwordConfirmation)) {
+            mPasswordConfirmationEditText.setError(getString(R.string.error_field_required));
+            focusView = mPasswordConfirmationEditText;
+            cancel = true;
+        }
+        if (!password.equals(passwordConfirmation)) {
+            mPasswordConfirmationEditText.setError(getString(R.string.error_passwords_dont_match));
+            focusView = mPasswordConfirmationEditText;
+            cancel = true;
+        }
+
         if (cancel) {
-            // There was an error; don't attempt login and focus the first
+            // There was an error; don't attempt register and focus the first
             // form field with an error.
             focusView.requestFocus();
         } else {
-            // Tell the service to login
-            mAuthenticatorUtils.login(getActivity(), mEmail, mPassword);
+            // Tell the service to register
+            mAuthenticatorUtils.register(username, password, email);
             startLoadingAnimation();
-        }
-    }
-
-    /**
-     * Update the texts of all buttons. Depends on whether or not the user is logged in.
-     */
-    private void updateButtonTexts(boolean isLoggedIn) {
-        if (isLoggedIn) {
-            setPositiveButtonText(R.string.ok);
-            setNegativeButtonText(R.string.logout);
-        } else {
-            setPositiveButtonText(R.string.login);
-            setNegativeButtonText(R.string.cancel);
         }
     }
 }

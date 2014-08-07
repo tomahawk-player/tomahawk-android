@@ -40,6 +40,7 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -72,6 +73,7 @@ public class FakeContextMenuDialog extends DialogFragment {
     /**
      * Called when this {@link DialogFragment} is being created
      */
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         boolean showDelete = false;

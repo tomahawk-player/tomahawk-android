@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+ *
+ *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
+ *
+ *   Tomahawk is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Tomahawk is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:orientation="vertical">
+
+    <LinearLayout
+            android:id="@+id/config_register_button"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/row_height_large"
+            android:orientation="vertical"
+            android:background="@drawable/selectable_background_tomahawk">
+
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/divider_height_thin"
+                android:background="@color/divider"/>
+
+        <TextView
+                android:id="@+id/config_register_button_text"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:padding="@dimen/padding_medium"
+                android:textSize="@dimen/text_size_small"
+                android:textColor="@color/primary_textcolor_inverted"
+                android:text="@string/register"/>
+
+    </LinearLayout>
+
+</FrameLayout>
