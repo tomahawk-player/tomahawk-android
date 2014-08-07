@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
+import org.tomahawk.libtomahawk.infosystem.JacksonConverter;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -36,37 +37,21 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
 
 public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     private static final String TAG = HatchetAuthenticatorUtils.class.getSimpleName();
 
-    public static final String AUTH_SERVER = "https://auth.hatchet.is/v1/authentication/password";
-
-    public static final String REFRESH_TOKEN_SERVER
-            = "https://auth.hatchet.is/v1/tokens/refresh/bearer";
-
-    public static final String TOKEN_SERVER = "https://auth.hatchet.is/v1/tokens/fetch/";
-
-    public static final String PARAMS_GRANT_TYPE = "grant_type";
+    public static final String HATCHET_AUTH_BASE_URL = "https://auth.hatchet.is/v1";
 
     public static final String PARAMS_GRANT_TYPE_PASSWORD = "password";
 
     public static final String PARAMS_GRANT_TYPE_REFRESHTOKEN = "refresh_token";
-
-    public static final String PARAMS_AUTHORIZATION = "authorization";
-
-    public static final String PARAMS_USERNAME = "username";
-
-    public static final String PARAMS_PASSWORD = "password";
-
-    public static final String PARAMS_REFRESHTOKEN = "refresh_token";
 
     public static final String RESPONSE_TOKEN_TYPE_BEARER = "bearer";
 
@@ -78,8 +63,17 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     private User mLoggedInUser;
 
+    private HatchetAuth mHatchetAuth;
+
     public HatchetAuthenticatorUtils(String id, String prettyName) {
         super(id, prettyName);
+
+        RestAdapter restAdapter = new RestAdapter.Builder()
+                .setLogLevel(RestAdapter.LogLevel.BASIC)
+                .setEndpoint(HATCHET_AUTH_BASE_URL)
+                .setConverter(new JacksonConverter(InfoSystemUtils.getObjectMapper()))
+                .build();
+        mHatchetAuth = restAdapter.create(HatchetAuth.class);
 
         onInit();
     }
@@ -159,50 +153,32 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_AUTHENTICATING) {
                     @Override
                     public void run() {
-                        Map<String, String> dataMap = new HashMap<String, String>();
-                        dataMap.put(PARAMS_PASSWORD, password);
-                        dataMap.put(PARAMS_USERNAME, name);
-                        dataMap.put(PARAMS_GRANT_TYPE, PARAMS_GRANT_TYPE_PASSWORD);
-                        String data = TomahawkUtils.paramsListToString(dataMap);
                         try {
-                            TomahawkUtils.HttpResponse response =
-                                    TomahawkUtils.httpPost(AUTH_SERVER, null, data,
-                                            TomahawkUtils.HTTP_CONTENT_TYPE_FORM);
-                            HatchetAuthResponse authResponse = InfoSystemUtils.getObjectMapper()
-                                    .readValue(response.mResponseText, HatchetAuthResponse.class);
+                            HatchetAuthResponse authResponse = mHatchetAuth
+                                    .login(name, password, PARAMS_GRANT_TYPE_PASSWORD);
                             if (authResponse != null) {
-                                if (authResponse.error != null &&
-                                        authResponse.error.equals(RESPONSE_ERROR_INVALID_REQUEST)) {
-                                    onLoginFailed(
-                                            AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_INVALIDCREDS,
-                                            authResponse.error_description);
-                                } else {
-                                    onLogin(authResponse.canonical_username,
-                                            authResponse.refresh_token,
-                                            authResponse.refresh_token_expires_in,
-                                            authResponse.access_token,
-                                            authResponse.expires_in);
-                                }
+                                onLogin(authResponse.canonical_username,
+                                        authResponse.refresh_token,
+                                        authResponse.refresh_token_expires_in,
+                                        authResponse.access_token,
+                                        authResponse.expires_in);
                             } else {
                                 onLoginFailed(
-                                        AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_COMMERROR,
-                                        "");
+                                        AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_COMMERROR, "");
                             }
-                        } catch (NoSuchAlgorithmException e) {
-                            Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
-                            onLoginFailed(
-                                    AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
-                                    e.getClass() + ": " + e.getLocalizedMessage());
-                        } catch (IOException e) {
-                            Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
-                            onLoginFailed(
-                                    AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
-                                    e.getClass() + ": " + e.getLocalizedMessage());
-                        } catch (KeyManagementException e) {
-                            Log.e(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
-                            onLoginFailed(
-                                    AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
-                                    e.getClass() + ": " + e.getLocalizedMessage());
+                        } catch (RetrofitError e) {
+                            Log.d(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
+                            HatchetAuthResponse authResponse =
+                                    (HatchetAuthResponse) e.getBodyAs(HatchetAuthResponse.class);
+                            if (authResponse.error != null &&
+                                    authResponse.error.equals(RESPONSE_ERROR_INVALID_REQUEST)) {
+                                onLoginFailed(
+                                        AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_INVALIDCREDS,
+                                        authResponse.error_description);
+                            } else {
+                                onLoginFailed(
+                                        AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_COMMERROR, "");
+                            }
                         }
                     }
                 }
@@ -283,34 +259,19 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     public String fetchAccessToken(String tokenType, String token) {
         String accessToken = null;
         try {
-            String responseText;
+            HatchetAuthResponse authResponse;
             if (tokenType.equals(RESPONSE_TOKEN_TYPE_BEARER)) {
-                Map<String, String> dataMap = new HashMap<String, String>();
-                dataMap.put(PARAMS_REFRESHTOKEN, token);
-                dataMap.put(PARAMS_GRANT_TYPE, PARAMS_GRANT_TYPE_REFRESHTOKEN);
-                String data = TomahawkUtils.paramsListToString(dataMap);
-                responseText = TomahawkUtils.httpPost(REFRESH_TOKEN_SERVER, null, data,
-                        TomahawkUtils.HTTP_CONTENT_TYPE_FORM).mResponseText;
+                authResponse = mHatchetAuth.getBearerAccessToken(token,
+                        PARAMS_GRANT_TYPE_REFRESHTOKEN);
             } else {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put(PARAMS_AUTHORIZATION, RESPONSE_TOKEN_TYPE_BEARER + " " + token);
-                responseText = TomahawkUtils.httpGet(TOKEN_SERVER + RESPONSE_TOKEN_TYPE_CALUMET,
-                        params).mResponseText;
+                authResponse = mHatchetAuth.getAccessToken(RESPONSE_TOKEN_TYPE_BEARER + " " + token,
+                        tokenType);
             }
-            HatchetAuthResponse authResponse = InfoSystemUtils.getObjectMapper()
-                    .readValue(responseText, HatchetAuthResponse.class);
-            if (authResponse.error != null || !TomahawkUtils
-                    .containsIgnoreCase(tokenType, authResponse.token_type)) {
-                logout();
-                onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
-                        "Please reenter your Hatchet credentials");
-            } else if (authResponse.access_token != null) {
-                Map<String, String> data = new HashMap<String, String>();
+            if (authResponse.access_token != null) {
                 int currentTime = (int) (System.currentTimeMillis() / 1000);
                 long expirationTime = currentTime + authResponse.expires_in;
                 accessToken = authResponse.access_token;
-                Log.d(TAG, "Access token fetched, current time: '" + currentTime +
-                        "', expiration time: '" + expirationTime + "'");
+                Map<String, String> data = new HashMap<String, String>();
                 if (TomahawkUtils.containsIgnoreCase(tokenType, RESPONSE_TOKEN_TYPE_BEARER)) {
                     data.put(AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_HATCHET, accessToken);
                     data.put(AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
@@ -321,27 +282,24 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                             String.valueOf(expirationTime));
                 }
                 TomahawkUtils.setUserDataForAccount(data, getAccountName());
+                Log.d(TAG, "Access token fetched, current time: '" + currentTime +
+                        "', expiration time: '" + expirationTime + "'");
+            } else {
+                onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
+                        "Couldn't fetch access token");
             }
-        } catch (UnsupportedEncodingException e) {
-            Log.e(TAG,
-                    "fetchAccessToken: " + e.getClass() + ": " + e.getLocalizedMessage());
-            onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
-                    e.getClass() + ": " + e.getLocalizedMessage());
-        } catch (IOException e) {
-            Log.e(TAG,
-                    "fetchAccessToken: " + e.getClass() + ": " + e.getLocalizedMessage());
-            onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
-                    e.getClass() + ": " + e.getLocalizedMessage());
-        } catch (NoSuchAlgorithmException e) {
-            Log.e(TAG,
-                    "fetchAccessToken: " + e.getClass() + ": " + e.getLocalizedMessage());
-            onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
-                    e.getClass() + ": " + e.getLocalizedMessage());
-        } catch (KeyManagementException e) {
-            Log.e(TAG,
-                    "fetchAccessToken: " + e.getClass() + ": " + e.getLocalizedMessage());
-            onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
-                    e.getClass() + ": " + e.getLocalizedMessage());
+        } catch (RetrofitError e) {
+            Log.e(TAG, "fetchAccessToken: " + e.getClass() + ": " + e.getLocalizedMessage());
+            HatchetAuthResponse authResponse =
+                    (HatchetAuthResponse) e.getBodyAs(HatchetAuthResponse.class);
+            if (authResponse.error != null
+                    || !TomahawkUtils.containsIgnoreCase(tokenType, authResponse.token_type)) {
+                logout();
+                onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
+                        "Please reenter your Hatchet credentials");
+            } else {
+                onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_COMMERROR, "");
+            }
         }
         return accessToken;
     }
