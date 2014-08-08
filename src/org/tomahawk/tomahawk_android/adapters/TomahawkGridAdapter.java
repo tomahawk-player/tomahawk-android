@@ -83,11 +83,11 @@ public class TomahawkGridAdapter extends BaseAdapter {
                 view = convertView;
             } else {
                 view = mLayoutInflater.inflate(R.layout.album_art_grid_item, parent, false);
-                viewHolder = new ViewHolder(view, R.id.tomahawklistadapter_viewtype_griditem);
+                viewHolder = new ViewHolder(view, R.layout.album_art_grid_item);
                 view.setTag(viewHolder);
             }
 
-            if (viewHolder.getViewType() == R.id.tomahawklistadapter_viewtype_griditem) {
+            if (viewHolder.getLayoutId() == R.layout.album_art_grid_item) {
                 viewHolder.getTextView1().setText(item.getName());
                 viewHolder.getTextView2().setVisibility(View.VISIBLE);
                 viewHolder.getTextView2().setText(item.getArtist().getName());

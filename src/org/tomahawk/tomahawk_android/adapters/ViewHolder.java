@@ -29,7 +29,7 @@ import android.widget.TextView;
 
 public class ViewHolder {
 
-    private int mViewType;
+    private int mLayoutId;
 
     private ImageView mRoundedImage;
 
@@ -65,17 +65,17 @@ public class ViewHolder {
 
     private ImageButton mStarButton;
 
-    public ViewHolder(View rootView, int viewType) {
-        this(null, rootView, viewType);
+    public ViewHolder(View rootView, int layoutId) {
+        this(null, rootView, layoutId);
     }
 
-    public ViewHolder(View listItemView, View rootView, int viewType) {
-        mViewType = viewType;
-        if (viewType == R.id.tomahawklistadapter_viewtype_singlelinelistitem) {
+    public ViewHolder(View listItemView, View rootView, int layoutId) {
+        mLayoutId = layoutId;
+        if (layoutId == R.layout.single_line_list_item) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.single_line_list_textview);
-        } else if (viewType == R.id.tomahawklistadapter_viewtype_contentheader
-                || viewType == R.id.tomahawklistadapter_viewtype_contentheader_user) {
+        } else if (layoutId == R.layout.content_header
+                || layoutId == R.layout.content_header_user) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.content_header_textview);
             mTextView2 = (TextView) rootView
@@ -110,15 +110,15 @@ public class ViewHolder {
                     .findViewById(R.id.content_header_button3);
             mStarButton = (ImageButton) rootView
                     .findViewById(R.id.star_button);
-        } else if (viewType == R.id.tomahawklistadapter_viewtype_contentheader_user_navdrawer) {
+        } else if (layoutId == R.layout.content_header_user_navdrawer) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.content_header_textview_user_navdrawer);
             mRoundedImage = (ImageView) rootView
                     .findViewById(R.id.content_header_roundedimage_user_navdrawer);
             mImageView1 = (ImageView) rootView
                     .findViewById(R.id.content_header_image_user_navdrawer);
-        } else if (viewType == R.id.tomahawklistadapter_viewtype_listitem
-                || viewType == R.id.tomahawklistadapter_viewtype_listitemhighlighted) {
+        } else if (layoutId == R.layout.list_item
+                || layoutId == R.layout.list_item_highlighted) {
             mImageView1 = (ImageView) rootView
                     .findViewById(R.id.double_line_list_imageview);
             mImageView2 = (ImageView) rootView
@@ -135,42 +135,41 @@ public class ViewHolder {
                     .findViewById(R.id.double_line_list_textview4);
             mTextView5 = (TextView) rootView
                     .findViewById(R.id.double_line_list_textview5);
-        } else if (viewType == R.id.tomahawklistadapter_viewtype_header) {
+        } else if (layoutId == R.layout.single_line_list_header) {
             mImageView1 = (ImageView) rootView
                     .findViewById(R.id.single_line_list_header_icon_imageview);
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.single_line_list_header_textview);
-        } else if (viewType == R.id.fakepreferencesadapter_viewtype_plain) {
+        } else if (layoutId == R.layout.fake_preferences_plain) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview);
             mTextView2 = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview2);
-        } else if (viewType == R.id.fakepreferencesadapter_viewtype_checkbox) {
+        } else if (layoutId == R.layout.fake_preferences_checkbox) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview);
             mTextView2 = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview2);
             mCheckBox = (CheckBox) rootView
                     .findViewById(R.id.fake_preferences_checkbox);
-        } else if (viewType == R.id.fakepreferencesadapter_viewtype_spinner) {
+        } else if (layoutId == R.layout.fake_preferences_spinner) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview);
             mTextView2 = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview2);
             mSpinner = (Spinner) rootView
                     .findViewById(R.id.fake_preferences_spinner);
-        } else if (viewType == R.id.fakepreferencesadapter_viewtype_auth
-                || viewType == R.id.fakepreferencesadapter_viewtype_config) {
+        } else if (layoutId == R.layout.fake_preferences_configauth) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview);
             mTextView2 = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview2);
             mImageView2 = (ImageView) rootView
                     .findViewById(R.id.fake_preferences_logo);
-        } else if (viewType == R.id.fakepreferencesadapter_viewtype_header) {
+        } else if (layoutId == R.layout.fake_preferences_header) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.fake_preferences_header_textview);
-        } else if (viewType == R.id.tomahawklistadapter_viewtype_griditem) {
+        } else if (layoutId == R.layout.album_art_grid_item) {
             mImageView1 = (ImageView) rootView
                     .findViewById(R.id.album_art_grid_image);
             mTextView1 = (TextView) rootView
@@ -180,8 +179,8 @@ public class ViewHolder {
         }
     }
 
-    public int getViewType() {
-        return mViewType;
+    public int getLayoutId() {
+        return mLayoutId;
     }
 
     public ImageView getRoundedImage() {

@@ -170,8 +170,7 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
         if (frame != null) {
             frame.setVisibility(SquareHeightRelativeLayout.VISIBLE);
         }
-        ViewHolder viewHolder = new ViewHolder(rootView,
-                R.id.tomahawklistadapter_viewtype_contentheader);
+        ViewHolder viewHolder = new ViewHolder(rootView, R.layout.content_header);
         if (listItem instanceof Album) {
             AdapterUtils.fillContentHeader(mContext, viewHolder, (Album) listItem, collection);
         } else if (listItem instanceof Artist) {
@@ -233,25 +232,15 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                 view = convertView;
             }
             int viewType = getViewType(item, shouldBeHighlighted);
-            if (viewHolder == null || viewHolder.getViewType() != viewType) {
+            if (viewHolder == null || viewHolder.getLayoutId() != viewType) {
                 // If the viewHolder is null or the old viewType is different than the new one,
                 // we need to inflate a new view and construct a new viewHolder,
                 // which we set as the view's tag
-                if (viewType == R.id.tomahawklistadapter_viewtype_listitem) {
-                    view = mLayoutInflater.inflate(R.layout.list_item, parent, false);
-                } else if (viewType == R.id.tomahawklistadapter_viewtype_listitemhighlighted) {
-                    view = mLayoutInflater.inflate(R.layout.list_item_highlighted, parent, false);
-                } else if (viewType == R.id.tomahawklistadapter_viewtype_contentheader_user) {
-                    view = mLayoutInflater.inflate(R.layout.content_header_user, parent, false);
-                } else if (viewType == R.id.tomahawklistadapter_viewtype_contentheader) {
-                    view = mLayoutInflater.inflate(R.layout.content_header, parent, false);
-                } else {
-                    view = mLayoutInflater.inflate(R.layout.single_line_list_item, parent, false);
-                }
+                view = mLayoutInflater.inflate(viewType, parent, false);
                 viewHolder = new ViewHolder(mContentHeaderImageFrame, view, viewType);
                 view.setTag(viewHolder);
-            } else if (viewType == R.id.tomahawklistadapter_viewtype_listitem
-                    || viewType == R.id.tomahawklistadapter_viewtype_listitemhighlighted) {
+            } else if (viewType == R.layout.list_item
+                    || viewType == R.layout.list_item_highlighted) {
                 viewHolder.getImageView1().setVisibility(View.GONE);
                 viewHolder.getImageView2().setVisibility(View.GONE);
                 viewHolder.getTextView2().setVisibility(View.GONE);
@@ -262,9 +251,8 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
 
             // After we've setup the correct view and viewHolder, we now can fill the View's
             // components with the correct data
-            if (viewHolder.getViewType() == R.id.tomahawklistadapter_viewtype_contentheader
-                    || viewHolder.getViewType()
-                    == R.id.tomahawklistadapter_viewtype_contentheader_user) {
+            if (viewHolder.getLayoutId() == R.layout.content_header
+                    || viewHolder.getLayoutId() == R.layout.content_header_user) {
                 if (mContentHeaderTomahawkListItem instanceof Album) {
                     AdapterUtils.fillContentHeader(mContext, viewHolder,
                             (Album) mContentHeaderTomahawkListItem, mCollection);
@@ -278,13 +266,10 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                     AdapterUtils.fillContentHeader(mFragmentManager, mContext, viewHolder,
                             (User) mContentHeaderTomahawkListItem);
                 }
-            } else if (viewHolder.getViewType()
-                    == R.id.tomahawklistadapter_viewtype_singlelinelistitem) {
+            } else if (viewHolder.getLayoutId() == R.layout.single_line_list_item) {
                 viewHolder.getTextView1().setText(item.getName());
-            } else if (viewHolder.getViewType()
-                    == R.id.tomahawklistadapter_viewtype_listitem
-                    || viewHolder.getViewType()
-                    == R.id.tomahawklistadapter_viewtype_listitemhighlighted) {
+            } else if (viewHolder.getLayoutId() == R.layout.list_item
+                    || viewHolder.getLayoutId() == R.layout.list_item_highlighted) {
                 if (item instanceof Query) {
                     AdapterUtils.fillView(mContext, viewHolder, (Query) item,
                             mHighlightedItemIsPlaying && shouldBeHighlighted, mShowResolvedBy);
@@ -359,10 +344,10 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                 viewHolder = (ViewHolder) convertView.getTag();
                 view = convertView;
             }
-            int viewType = R.id.tomahawklistadapter_viewtype_header;
-            if (viewHolder == null || viewHolder.getViewType() != viewType) {
+            if (viewHolder == null
+                    || viewHolder.getLayoutId() != R.layout.single_line_list_header) {
                 view = mLayoutInflater.inflate(R.layout.single_line_list_header, null);
-                viewHolder = new ViewHolder(view, viewType);
+                viewHolder = new ViewHolder(view, R.layout.single_line_list_header);
                 view.setTag(viewHolder);
             }
 
@@ -454,17 +439,17 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
     private int getViewType(TomahawkListItem item, boolean isHighlighted) {
         if (item == mContentHeaderTomahawkListItem) {
             if (item instanceof User) {
-                return R.id.tomahawklistadapter_viewtype_contentheader_user;
+                return R.layout.content_header_user;
             } else {
-                return R.id.tomahawklistadapter_viewtype_contentheader;
+                return R.layout.content_header;
             }
         } else if (item instanceof Playlist || (item instanceof Artist
                 && mShowArtistAsSingleLine)) {
-            return R.id.tomahawklistadapter_viewtype_singlelinelistitem;
+            return R.layout.single_line_list_item;
         } else if (isHighlighted) {
-            return R.id.tomahawklistadapter_viewtype_listitemhighlighted;
+            return R.layout.list_item_highlighted;
         } else {
-            return R.id.tomahawklistadapter_viewtype_listitem;
+            return R.layout.list_item;
         }
     }
 }

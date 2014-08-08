@@ -1,20 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <item name="tomahawklistadapter_viewtype_header" type="id"/>
-    <item name="tomahawklistadapter_viewtype_contentheader" type="id"/>
-    <item name="tomahawklistadapter_viewtype_contentheader_user" type="id"/>
-    <item name="tomahawklistadapter_viewtype_contentheader_user_navdrawer" type="id"/>
-    <item name="tomahawklistadapter_viewtype_singlelinelistitem" type="id"/>
-    <item name="tomahawklistadapter_viewtype_listitem" type="id"/>
-    <item name="tomahawklistadapter_viewtype_listitemhighlighted" type="id"/>
-    <item name="tomahawklistadapter_viewtype_griditem" type="id"/>
-    <item name="fakepreferencesadapter_viewtype_header" type="id"/>
-    <item name="fakepreferencesadapter_viewtype_plain" type="id"/>
-    <item name="fakepreferencesadapter_viewtype_checkbox" type="id"/>
-    <item name="fakepreferencesadapter_viewtype_auth" type="id"/>
-    <item name="fakepreferencesadapter_viewtype_spinner" type="id"/>
-    <item name="fakepreferencesadapter_viewtype_config" type="id"/>
     <item name="scriptresolver_resolver_init" type="id"/>
     <item name="scriptresolver_resolver_settings" type="id"/>
     <item name="scriptresolver_resolver_get_config_ui" type="id"/>

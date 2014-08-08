@@ -228,8 +228,7 @@ public class AdapterUtils {
             viewHolder.getTextView5().setText(context.getString(
                     R.string.playbackactivity_seekbar_completion_time_string));
         }
-        boolean isHighlighted =
-                viewHolder.getViewType() == R.id.tomahawklistadapter_viewtype_listitemhighlighted;
+        boolean isHighlighted = viewHolder.getLayoutId() == R.layout.list_item_highlighted;
         setTextViewEnabled(viewHolder.getTextView1(), query.isPlayable(), false, isHighlighted);
         viewHolder.getTextView4().setVisibility(View.VISIBLE);
         setTextViewEnabled(viewHolder.getTextView4(), query.isPlayable(), true, isHighlighted);
