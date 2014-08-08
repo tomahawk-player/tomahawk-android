@@ -191,7 +191,7 @@ var GroovesharkResolver = Tomahawk.extend(TomahawkResolver, {
     authenticate: function (doConfigTest) {
         Tomahawk.log("Grooveshark resolver authenticating with username: " + this.username);
         var hashString;
-        if (typeof CryptoJS.MD5 == "function") {
+        if (typeof CryptoJS !== "undefined" && typeof CryptoJS.MD5 == "function") {
             hashString = CryptoJS.MD5(this.password).toString(CryptoJS.enc.Hex);
         } else {
             hashString = Tomahawk.md5(this.password);
@@ -313,7 +313,7 @@ var GroovesharkResolver = Tomahawk.extend(TomahawkResolver, {
 
         var data = JSON.stringify(payload);
         var sig;
-        if (typeof CryptoJS.HmacMD5 == "function") {
+        if (typeof CryptoJS !== "undefined" && typeof CryptoJS.HmacMD5 == "function") {
             sig = CryptoJS.HmacMD5(data, this.secret).toString(CryptoJS.enc.Hex);
         } else {
             sig = Tomahawk.hmac(this.secret, data);
@@ -323,11 +323,40 @@ var GroovesharkResolver = Tomahawk.extend(TomahawkResolver, {
         var headers = {
             "Content-Type": "application/json"
         };
-        Tomahawk.asyncRequest(url, callback, headers, {
+        this.asyncRequest(url, callback, headers, {
             method: 'POST',
             data: data,
             errorHandler: errorHandler
         });
+    },
+
+    /**
+     * We can't use Tomahawk.asyncRequest, because it is only capable of sending body data in a POST
+     * request since Jan 26, 2014 and we need to ensure backwards compatibility.
+     */
+    asyncRequest: function (url, callback, extraHeaders, options) {
+        // unpack options
+        var opt = options || {};
+        var method = opt.method || 'GET';
+        var xmlHttpRequest = new XMLHttpRequest();
+        xmlHttpRequest.open(method, url, true, opt.username, opt.password);
+        if (extraHeaders) {
+            for (var headerName in extraHeaders) {
+                xmlHttpRequest.setRequestHeader(headerName, extraHeaders[headerName]);
+            }
+        }
+        xmlHttpRequest.onreadystatechange = function () {
+            if (xmlHttpRequest.readyState == 4 && xmlHttpRequest.status == 200) {
+                callback.call(window, xmlHttpRequest);
+            } else if (xmlHttpRequest.readyState === 4) {
+                Tomahawk.log("Failed to do " + method + " request: to: " + url);
+                Tomahawk.log("Status Code was: " + xmlHttpRequest.status);
+                if (opt.hasOwnProperty('errorHandler')) {
+                    opt.errorHandler.call(window, xmlHttpRequest);
+                }
+            }
+        };
+        xmlHttpRequest.send(opt.data || null);
     },
 
     apiCallWithCountryId: function (methodName, args, callback) {
