@@ -55,6 +55,7 @@
             android:id="@+id/fake_preferences_logo"
             android:layout_width="@dimen/row_height_large"
             android:layout_height="@dimen/row_height_large"
+            android:padding="@dimen/padding_verysmall"
             android:layout_gravity="center"/>
 
 </LinearLayout>
