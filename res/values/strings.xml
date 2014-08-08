@@ -66,7 +66,8 @@
     <string name="accounttype_string">org.tomahawk</string>
     <string name="error_field_required">This field is required</string>
     <string name="error_passwords_dont_match">Passwords don\'t match</string>
-    <string name="config_test_result_type_invalid_credentials">Username or password incorrect.</string>
+    <string name="config_test_result_type_invalid_credentials">Username or password incorrect.
+    </string>
     <string name="auth_loginfailed_invalid_account">Account rejected by server.</string>
     <string name="auth_loginfailed_communication_error">Unable to authenticate. Please check
         your connection.
@@ -136,9 +137,9 @@
     <string name="hub_title_stations">Stations</string>
     <string name="hub_title_friends">Friends</string>
     <string name="hub_title_playback">Playback</string>
-    <string name="fake_preferences_bitrate_low">Normal quality</string>
-    <string name="fake_preferences_bitrate_medium">Good quality</string>
-    <string name="fake_preferences_bitrate_high">Best quality</string>
+    <string name="fake_preferences_bitrate_low">Normal</string>
+    <string name="fake_preferences_bitrate_medium">Good</string>
+    <string name="fake_preferences_bitrate_high">Best</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="category_header_track">Track</string>
