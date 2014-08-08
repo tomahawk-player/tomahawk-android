@@ -160,30 +160,13 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
                 view = convertView;
             }
             int viewType = getViewType(item);
-            if (viewHolder == null || viewHolder.getViewType() != viewType) {
+            if (viewHolder == null || viewHolder.getLayoutId() != viewType) {
                 // If the viewHolder is null or the old viewType is different than the new one,
                 // we need to inflate a new view and construct a new viewHolder,
                 // which we set as the view's tag
-                if (viewType == R.id.fakepreferencesadapter_viewtype_plain) {
-                    view = mLayoutInflater.inflate(R.layout.fake_preferences_plain, parent, false);
-                    viewHolder = new ViewHolder(view, viewType);
-                    view.setTag(viewHolder);
-                } else if (viewType == R.id.fakepreferencesadapter_viewtype_checkbox) {
-                    view = mLayoutInflater
-                            .inflate(R.layout.fake_preferences_checkbox, parent, false);
-                    viewHolder = new ViewHolder(view, viewType);
-                    view.setTag(viewHolder);
-                } else if (viewType == R.id.fakepreferencesadapter_viewtype_auth ||
-                        viewType == R.id.fakepreferencesadapter_viewtype_config) {
-                    view = mLayoutInflater.inflate(R.layout.fake_preferences_auth, parent, false);
-                    viewHolder = new ViewHolder(view, viewType);
-                    view.setTag(viewHolder);
-                } else if (viewType == R.id.fakepreferencesadapter_viewtype_spinner) {
-                    view = mLayoutInflater
-                            .inflate(R.layout.fake_preferences_spinner, parent, false);
-                    viewHolder = new ViewHolder(view, viewType);
-                    view.setTag(viewHolder);
-                }
+                view = mLayoutInflater.inflate(viewType, parent, false);
+                viewHolder = new ViewHolder(view, viewType);
+                view.setTag(viewHolder);
             } else {
                 if (viewHolder.getImageView1() != null) {
                     viewHolder.getImageView1().setVisibility(View.GONE);
@@ -195,27 +178,31 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
 
             // After we've set up the correct view and viewHolder, we now can fill the View's
             // components with the correct data
-            if (viewHolder.getViewType() == R.id.fakepreferencesadapter_viewtype_checkbox) {
+            if (viewHolder.getLayoutId() == R.layout.fake_preferences_checkbox) {
                 boolean preferenceState = mSharedPreferences
                         .getBoolean(item.getStorageKey(), false);
                 viewHolder.getCheckBox().setChecked(preferenceState);
-            } else if (viewHolder.getViewType() == R.id.fakepreferencesadapter_viewtype_auth) {
-                viewHolder.getImageView2().setVisibility(View.VISIBLE);
-                AuthenticatorUtils authenticatorUtils =
-                        AuthenticatorManager.getInstance().getAuthenticatorUtils(item.getKey());
-                TomahawkUtils.loadDrawableIntoImageView(mContext, viewHolder.getImageView2(),
-                        item.getDrawableResId(), !authenticatorUtils.isLoggedIn());
-            } else if (viewHolder.getViewType() == R.id.fakepreferencesadapter_viewtype_config) {
-                viewHolder.getImageView2().setVisibility(View.VISIBLE);
-                Resolver resolver = PipeLine.getInstance().getResolver(item.getKey());
-                if (resolver.getIconPath() != null) {
+            } else if (viewHolder.getLayoutId() == R.layout.fake_preferences_configauth) {
+                if (item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH) {
+                    viewHolder.getImageView2().setVisibility(View.VISIBLE);
+                    AuthenticatorUtils authenticatorUtils =
+                            AuthenticatorManager.getInstance().getAuthenticatorUtils(item.getKey());
                     TomahawkUtils.loadDrawableIntoImageView(mContext, viewHolder.getImageView2(),
-                            resolver.getIconPath(), !resolver.isEnabled());
-                } else {
-                    TomahawkUtils.loadDrawableIntoImageView(mContext, viewHolder.getImageView2(),
-                            resolver.getIconResId(), !resolver.isEnabled());
+                            item.getDrawableResId(), !authenticatorUtils.isLoggedIn());
+                } else if (item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CONFIG) {
+                    viewHolder.getImageView2().setVisibility(View.VISIBLE);
+                    Resolver resolver = PipeLine.getInstance().getResolver(item.getKey());
+                    if (resolver.getIconPath() != null) {
+                        TomahawkUtils.loadDrawableIntoImageView(mContext,
+                                viewHolder.getImageView2(), resolver.getIconPath(),
+                                !resolver.isEnabled());
+                    } else {
+                        TomahawkUtils.loadDrawableIntoImageView(mContext,
+                                viewHolder.getImageView2(), resolver.getIconResId(),
+                                !resolver.isEnabled());
+                    }
                 }
-            } else if (viewHolder.getViewType() == R.id.fakepreferencesadapter_viewtype_spinner) {
+            } else if (viewHolder.getLayoutId() == R.layout.fake_preferences_spinner) {
                 String key = item.getStorageKey();
                 viewHolder.getSpinner().setSelection(mSharedPreferences
                         .getInt(key, SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE_MODE_MEDIUM));
@@ -247,7 +234,7 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
             view = convertView;
         } else {
             view = mLayoutInflater.inflate(R.layout.fake_preferences_header, parent, false);
-            viewHolder = new ViewHolder(view, R.id.fakepreferencesadapter_viewtype_header);
+            viewHolder = new ViewHolder(view, R.layout.fake_preferences_header);
             view.setTag(viewHolder);
         }
 
@@ -290,15 +277,14 @@ public class FakePreferencesAdapter extends BaseAdapter implements StickyListHea
 
     private int getViewType(FakePreferenceGroup.FakePreference item) {
         if (item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX) {
-            return R.id.fakepreferencesadapter_viewtype_checkbox;
-        } else if (item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH) {
-            return R.id.fakepreferencesadapter_viewtype_auth;
+            return R.layout.fake_preferences_checkbox;
+        } else if (item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH
+                || item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CONFIG) {
+            return R.layout.fake_preferences_configauth;
         } else if (item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_SPINNER) {
-            return R.id.fakepreferencesadapter_viewtype_spinner;
-        } else if (item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CONFIG) {
-            return R.id.fakepreferencesadapter_viewtype_config;
+            return R.layout.fake_preferences_spinner;
         }
-        return R.id.fakepreferencesadapter_viewtype_plain;
+        return R.layout.fake_preferences_plain;
     }
 
 }

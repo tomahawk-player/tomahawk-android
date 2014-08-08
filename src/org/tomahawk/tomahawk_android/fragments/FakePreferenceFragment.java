@@ -233,7 +233,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
                     .getBoolean(fakePreference.getStorageKey(), false);
             editor.putBoolean(fakePreference.getStorageKey(), !preferenceState);
             editor.commit();
-            if (fakePreference.getKey() == FAKEPREFERENCEFRAGMENT_ID_SCROBBLEEVERYTHING
+            if (fakePreference.getKey().equals(FAKEPREFERENCEFRAGMENT_ID_SCROBBLEEVERYTHING)
                     && !preferenceState && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 RemoteControllerService.askAccess();
             }

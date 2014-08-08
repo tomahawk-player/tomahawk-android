@@ -161,11 +161,10 @@ public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeader
     public View getView(int position, View convertView, ViewGroup parent) {
         Object item = getItem(position);
         if (item instanceof User) {
-            View contentHeaderView = mLayoutInflater
-                    .inflate(R.layout.content_header_user_navdrawer,
-                            null);
+            View contentHeaderView = mLayoutInflater.inflate(R.layout.content_header_user_navdrawer,
+                    null);
             ViewHolder viewHolder = new ViewHolder(contentHeaderView,
-                    R.id.tomahawklistadapter_viewtype_contentheader_user_navdrawer);
+                    R.layout.content_header_user_navdrawer);
             AdapterUtils.fillContentHeaderSmall(mActivity, viewHolder, mUser);
             return contentHeaderView;
         } else if (item instanceof ResourceHolder) {
