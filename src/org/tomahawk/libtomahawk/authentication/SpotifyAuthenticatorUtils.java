@@ -232,7 +232,7 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
 
     @Override
     public int getIconResourceId() {
-        return R.drawable.spotify_icon;
+        return R.drawable.ic_spotify;
     }
 
     @Override

@@ -103,7 +103,7 @@ public class SpotifyResolver extends Resolver {
         super(prettyName);
 
         mId = TomahawkApp.PLUGINNAME_SPOTIFY;
-        mIconResId = R.drawable.spotify_icon;
+        mIconResId = R.drawable.ic_spotify;
         PipeLine.getInstance().onResolverReady();
     }
 
