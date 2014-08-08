@@ -141,7 +141,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     @Override
     public int getIconResourceId() {
-        return R.drawable.hatchet_icon;
+        return R.drawable.ic_hatchet;
     }
 
     @Override

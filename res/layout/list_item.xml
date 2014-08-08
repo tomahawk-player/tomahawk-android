@@ -33,7 +33,6 @@
             android:layout_gravity="center"
             android:padding="@dimen/padding_small"
             android:visibility="gone"
-            android:adjustViewBounds="true"
             android:scaleType="centerCrop"/>
 
     <LinearLayout
@@ -118,6 +117,5 @@
             android:layout_gravity="center"
             android:visibility="gone"
             android:padding="@dimen/padding_small"
-            android:adjustViewBounds="true"
             android:scaleType="centerCrop"/>
 </LinearLayout>
