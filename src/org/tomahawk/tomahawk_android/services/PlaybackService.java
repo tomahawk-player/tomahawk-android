@@ -1147,7 +1147,7 @@ public class PlaybackService extends Service
 
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(
                         PlaybackService.this)
-                        .setSmallIcon(R.drawable.ic_launcher).setContentTitle(artistName)
+                        .setSmallIcon(R.drawable.ic_notification).setContentTitle(artistName)
                         .setContentText(query.getName()).setOngoing(true).setPriority(
                                 NotificationCompat.PRIORITY_MAX).setContent(smallNotificationView);
                 if (mNotificationBitmap != null && !mNotificationBitmap.isRecycled()
