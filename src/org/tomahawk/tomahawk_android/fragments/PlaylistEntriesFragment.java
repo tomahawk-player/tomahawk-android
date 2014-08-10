@@ -32,8 +32,6 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -53,6 +51,9 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
         super.onResume();
 
         CollectionManager.getInstance().fetchPlaylists();
+        if (mUser != null) {
+            mCurrentRequestIds.add(InfoSystem.getInstance().resolvePlaybackLog(mUser));
+        }
 
         updateAdapter();
     }
@@ -118,21 +119,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
             );
             if (!mPlaylist.isFilled()) {
                 mPlaylist.setFilled(true);
-                ThreadManager.getInstance().execute(
-                        new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_HIGH) {
-                            @Override
-                            public void run() {
-                                mPlaylist = DatabaseHelper.getInstance()
-                                        .getPlaylist(mPlaylist.getId());
-                                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        updateAdapter();
-                                    }
-                                });
-                            }
-                        }
-                );
+                refreshCurrentPlaylist();
             } else {
                 if (!mPlaylist.getId().equals(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID)) {
                     activity.setTitle(mPlaylist.getName());

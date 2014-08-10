@@ -29,7 +29,6 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.PlaylistEntriesFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.fragments.UsersFragment;
@@ -41,6 +40,7 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -342,15 +342,13 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                     viewHolder.getButton1().setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            String playlistTitle = user.getName() + TomahawkApp.getContext()
-                                    .getString(
-                                            R.string.users_playbacklog_suffix);
-                            Playlist playbackLog = Playlist
-                                    .fromQueryList(playlistTitle, user.getPlaybackLog());
-                            playbackLog.setId(user.getId() + User.PLAYLIST_PLAYBACKLOG_ID);
+                            Bundle bundle = new Bundle();
+                            bundle.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY,
+                                    user.getPlaybackLog().getCacheKey());
+                            bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID,
+                                    user.getCacheKey());
                             FragmentUtils.replace(mContext, mFragmentManager,
-                                    PlaylistEntriesFragment.class,
-                                    user.getCacheKey(), playbackLog.getId());
+                                    PlaylistEntriesFragment.class, bundle);
                         }
                     });
                     viewHolder.getButton2().setOnClickListener(new View.OnClickListener() {

@@ -558,8 +558,11 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
                     @Override
                     public void run() {
-                        mPlaylist = DatabaseHelper.getInstance()
-                                .getPlaylist(mPlaylist.getId());
+                        Playlist playlist =
+                                DatabaseHelper.getInstance().getPlaylist(mPlaylist.getId());
+                        if (playlist != null) {
+                            mPlaylist = playlist;
+                        }
                         TomahawkApp.getContext().sendBroadcast(
                                 new Intent(CollectionManager.COLLECTION_UPDATED));
                     }
