@@ -60,6 +60,10 @@ public class LoginConfigDialog extends ConfigDialog {
             RegisterConfigDialog dialog = new RegisterConfigDialog();
             Bundle args = new Bundle();
             args.putString(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY, mAuthenticatorUtils.getId());
+            args.putString(TomahawkFragment.TOMAHAWK_USERNAME_STRING,
+                    mUsernameEditText.getText().toString());
+            args.putString(TomahawkFragment.TOMAHAWK_PASSWORD_STRING,
+                    mPasswordEditText.getText().toString());
             dialog.setArguments(args);
             dialog.show(getFragmentManager(), null);
         }
@@ -93,7 +97,7 @@ public class LoginConfigDialog extends ConfigDialog {
         mPasswordEditText.setTransformationMethod(new PasswordTransformationMethod());
         mPasswordEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
         addViewToFrame(passwordLayout);
-        if (mAuthenticatorUtils.doesAllowRegistration()) {
+        if (mAuthenticatorUtils.doesAllowRegistration() && !mAuthenticatorUtils.isLoggedIn()) {
             FrameLayout buttonLayout =
                     (FrameLayout) inflater.inflate(R.layout.config_register_button, null);
             addViewToFrame(buttonLayout);
@@ -105,7 +109,7 @@ public class LoginConfigDialog extends ConfigDialog {
         showSoftKeyboard(mUsernameEditText);
 
         hideEnabledCheckbox();
-        setDialogTitle(mAuthenticatorUtils.getPrettyName() + " " + getString(R.string.login));
+        setDialogTitle(mAuthenticatorUtils.getPrettyName() + ": " + getString(R.string.login));
         setStatusImage(mAuthenticatorUtils.getIconResourceId(), isLoggedIn);
         updateButtonTexts(isLoggedIn);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

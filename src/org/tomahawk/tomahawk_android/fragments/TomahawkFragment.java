@@ -106,8 +106,11 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     public static final String TOMAHAWK_FROMPLAYBACKFRAGMENT
             = "org.tomahawk.tomahawk_android.tomahawk_fromplaybackfragment";
 
-    public static final String TOMAHAWK_LIST_ITEM_POSITION
-            = "org.tomahawk.tomahawk_android.tomahawk_list_item_position";
+    public static final String TOMAHAWK_USERNAME_STRING
+            = "org.tomahawk.tomahawk_android.tomahawk_username_string";
+
+    public static final String TOMAHAWK_PASSWORD_STRING
+            = "org.tomahawk.tomahawk_android.tomahawk_password_string";
 
     public static final String SHOW_MODE
             = "org.tomahawk.tomahawk_android.show_mode";
