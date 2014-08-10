@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.collection;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
+import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
@@ -97,14 +98,17 @@ public class CollectionManager {
                         InfoSystem.INFOSYSTEM_OPLOGISEMPTIED_REQUESTTYPES);
                 for (Integer requestType : requestTypes) {
                     if (requestType
-                            == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
+                            == InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS) {
+                        CollectionManager.this.fetchStarredArtists();
+                        CollectionManager.this.fetchStarredAlbums();
                         CollectionManager.this.fetchLovedItemsPlaylist();
                     } else if (requestType
-                            == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS) {
-                        CollectionManager.this.fetchStarredAlbums();
-                    } else if (requestType
-                            == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDARTISTS) {
-                        CollectionManager.this.fetchStarredArtists();
+                            == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES) {
+                        HatchetAuthenticatorUtils hatchetAuthUtils =
+                                (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                                        .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+                        InfoSystem.getInstance()
+                                .resolvePlaybackLog(hatchetAuthUtils.getLoggedInUser());
                     } else if (requestType
                             == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS) {
                         CollectionManager.this.fetchPlaylists();
