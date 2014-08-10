@@ -281,8 +281,13 @@ public class DatabaseHelper {
                 String resultHint = tracksCursor.getString(3);
                 Query query = Query.get(trackName, albumName, artistName, resultHint, false,
                         tracksCursor.getInt(4) == TRUE);
-                PlaylistEntry entry =
-                        PlaylistEntry.get(playlistId, query, tracksCursor.getString(5));
+                String entryId;
+                if (tracksCursor.getString(5) != null) {
+                    entryId = tracksCursor.getString(5);
+                } else {
+                    entryId = TomahawkMainActivity.getLifetimeUniqueStringId();
+                }
+                PlaylistEntry entry = PlaylistEntry.get(playlistId, query, entryId);
                 queries.add(entry);
                 tracksCursor.moveToNext();
             }
