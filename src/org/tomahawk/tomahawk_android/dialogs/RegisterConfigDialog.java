@@ -59,12 +59,21 @@ public class RegisterConfigDialog extends ConfigDialog {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        if (getArguments() != null && getArguments()
-                .containsKey(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY)) {
-            String authenticatorId = getArguments().getString(
-                    TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY);
-            mAuthenticatorUtils = AuthenticatorManager.getInstance().getAuthenticatorUtils(
-                    authenticatorId);
+        String username = "";
+        String password = "";
+        if (getArguments() != null) {
+            if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY)) {
+                String authenticatorId = getArguments().getString(
+                        TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY);
+                mAuthenticatorUtils = AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                        authenticatorId);
+            }
+            if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_USERNAME_STRING)) {
+                username = getArguments().getString(TomahawkFragment.TOMAHAWK_USERNAME_STRING);
+            }
+            if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_PASSWORD_STRING)) {
+                password = getArguments().getString(TomahawkFragment.TOMAHAWK_PASSWORD_STRING);
+            }
         }
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -72,13 +81,14 @@ public class RegisterConfigDialog extends ConfigDialog {
         LinearLayout usernameLayout = (LinearLayout) inflater.inflate(R.layout.config_text, null);
         mUsernameEditText = (ConfigEdittext) usernameLayout.findViewById(R.id.config_edittext);
         mUsernameEditText.setHint(mAuthenticatorUtils.getUserIdEditTextHintResId());
-        mUsernameEditText.setText(isLoggedIn ? mAuthenticatorUtils.getUserName() : "");
+        mUsernameEditText.setText(username);
         addViewToFrame(usernameLayout);
         LinearLayout passwordLayout = (LinearLayout) inflater.inflate(R.layout.config_text, null);
         mPasswordEditText = (ConfigEdittext) passwordLayout.findViewById(R.id.config_edittext);
         mPasswordEditText.setHint(R.string.logindialog_password_label_string);
         mPasswordEditText.setTypeface(Typeface.DEFAULT);
         mPasswordEditText.setTransformationMethod(new PasswordTransformationMethod());
+        mPasswordEditText.setText(password);
         addViewToFrame(passwordLayout);
         LinearLayout passwordConfirmationLayout =
                 (LinearLayout) inflater.inflate(R.layout.config_text, null);
@@ -98,7 +108,7 @@ public class RegisterConfigDialog extends ConfigDialog {
         showSoftKeyboard(mUsernameEditText);
 
         hideEnabledCheckbox();
-        setDialogTitle(mAuthenticatorUtils.getPrettyName() + " " + getString(R.string.register));
+        setDialogTitle(mAuthenticatorUtils.getPrettyName() + ": " + getString(R.string.register));
         setStatusImage(mAuthenticatorUtils.getIconResourceId(), isLoggedIn);
         setPositiveButtonText(R.string.register);
         setNegativeButtonText(R.string.cancel);
