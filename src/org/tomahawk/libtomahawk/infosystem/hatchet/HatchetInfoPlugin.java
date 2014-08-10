@@ -480,7 +480,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     User userToBeFilled = (User) mItemsToBeFilled
                             .get(infoRequestData.getRequestId());
                     HatchetUsers users = mHatchet.getUsers(userIds, params.name, null, null);
-                    if (users != null) {
+                    if (users != null && users.users != null) {
                         ArrayList<User> convertedUsers = new ArrayList<User>();
                         for (HatchetUserInfo user : users.users) {
                             HatchetTrackInfo track =
