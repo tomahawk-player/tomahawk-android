@@ -22,7 +22,6 @@ import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
-import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -85,10 +84,6 @@ public class TracksFragment extends TomahawkFragment {
     public void onResume() {
         super.onResume();
 
-        if (mUser != null) {
-            mCurrentRequestIds.add(InfoSystem.getInstance().resolvePlaybackLog(mUser));
-        }
-
         updateAdapter();
     }
 
@@ -108,8 +103,6 @@ public class TracksFragment extends TomahawkFragment {
                     queries = AdapterUtils.getAlbumTracks(mAlbum, mCollection);
                 } else if (mArtist != null) {
                     queries = AdapterUtils.getArtistTracks(mArtist, mCollection);
-                } else if (mUser != null) {
-                    queries = mUser.getPlaybackLog();
                 } else {
                     Collection userCollection = CollectionManager.getInstance()
                             .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);

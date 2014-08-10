@@ -20,8 +20,11 @@ package org.tomahawk.libtomahawk.infosystem;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
+import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.TomahawkListItemComparator;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import java.util.ArrayList;
@@ -58,7 +61,7 @@ public class User implements TomahawkListItem {
 
     private ArrayList<SocialAction> mFriendsFeed = new ArrayList<SocialAction>();
 
-    private ArrayList<Query> mPlaybackLog = new ArrayList<Query>();
+    private Playlist mPlaybackLog;
 
     private ArrayList<User> mFollowings = new ArrayList<User>();
 
@@ -69,6 +72,8 @@ public class User implements TomahawkListItem {
      */
     private User(String id) {
         mId = id;
+        mPlaybackLog = Playlist.get(id, "", "");
+        mPlaybackLog.setId(id + User.PLAYLIST_PLAYBACKLOG_ID);
     }
 
     /**
@@ -135,7 +140,7 @@ public class User implements TomahawkListItem {
 
     @Override
     public ArrayList<Query> getQueries() {
-        return mPlaybackLog;
+        return mPlaybackLog.getQueries();
     }
 
     @Override
@@ -153,6 +158,8 @@ public class User implements TomahawkListItem {
 
     public void setName(String name) {
         mName = name;
+        mPlaybackLog.setName(
+                mName + TomahawkApp.getContext().getString(R.string.users_playbacklog_suffix));
     }
 
     public String getAbout() {
@@ -219,12 +226,8 @@ public class User implements TomahawkListItem {
         mFriendsFeed = friendsFeed;
     }
 
-    public ArrayList<Query> getPlaybackLog() {
+    public Playlist getPlaybackLog() {
         return mPlaybackLog;
-    }
-
-    public void setPlaybackLog(ArrayList<Query> playbackLog) {
-        mPlaybackLog = playbackLog;
     }
 
     public ArrayList<User> getFollowings() {

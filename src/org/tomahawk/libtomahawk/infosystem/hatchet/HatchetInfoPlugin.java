@@ -28,6 +28,7 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.infosystem.InfoPlugin;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
@@ -39,6 +40,7 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
@@ -289,13 +291,18 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYBACKLOG) {
                 HatchetPlaybackLogsResponse response = mHatchet.getUsersPlaybackLog(params.userid);
                 if (response != null) {
-                    User userToBeFilled = (User) mItemsToBeFilled
-                            .get(infoRequestData.getRequestId());
+                    User userToBeFilled =
+                            (User) mItemsToBeFilled.get(infoRequestData.getRequestId());
                     if (response.playbackLogEntries != null
                             && response.playbackLogEntries.size() > 0) {
-                        ArrayList<Query> playbackItems = InfoSystemUtils
-                                .convertToQueryList(response);
-                        userToBeFilled.setPlaybackLog(playbackItems);
+                        ArrayList<Query> playbackItems =
+                                InfoSystemUtils.convertToQueryList(response);
+                        ArrayList<PlaylistEntry> entries = new ArrayList<PlaylistEntry>();
+                        for (Query query : playbackItems) {
+                            entries.add(PlaylistEntry.get(userToBeFilled.getPlaybackLog().getId(),
+                                    query, TomahawkMainActivity.getLifetimeUniqueStringId()));
+                        }
+                        userToBeFilled.getPlaybackLog().setEntries(entries);
                     }
                     infoRequestData.setResult(userToBeFilled);
                     return true;
