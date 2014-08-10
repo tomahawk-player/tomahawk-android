@@ -69,6 +69,8 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     public static final String TRACKS_COLUMN_PLAYLISTENTRYID = "playlistentryid";
 
+    public static final String TRACKS_COLUMN_PLAYLISTENTRYINDEX = "playlistentryindex";
+
     public static final String TABLE_SEARCHHISTORY = "searchhistory";
 
     public static final String SEARCHHISTORY_COLUMN_ID = BaseColumns._ID;
@@ -108,7 +110,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "userplaylists.db";
 
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 11;
 
     // Database creation sql statements
     private static final String CREATE_TABLE_PLAYLISTS =
@@ -128,7 +130,8 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
                     + TRACKS_COLUMN_ALBUMNAME + "` TEXT ,`"
                     + TRACKS_COLUMN_RESULTHINT + "` TEXT ,`"
                     + TRACKS_COLUMN_ISFETCHEDVIAHATCHET + "` INTEGER ,`"
-                    + TRACKS_COLUMN_PLAYLISTENTRYID + "` TEXT ,"
+                    + TRACKS_COLUMN_PLAYLISTENTRYID + "` TEXT ,`"
+                    + TRACKS_COLUMN_PLAYLISTENTRYINDEX + "` INTEGER ,"
                     + " FOREIGN KEY (`" + TRACKS_COLUMN_PLAYLISTID + "`)"
                     + " REFERENCES `" + TABLE_PLAYLISTS + "` (`" + PLAYLISTS_COLUMN_ID
                     + "`));";
@@ -179,54 +182,61 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.d(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion
                 + ", which might destroy all old data");
-        if (oldVersion == 8 || oldVersion == 9) {
+        if (oldVersion == 8 || oldVersion == 9 || oldVersion == 10) {
             if (oldVersion == 8) {
                 db.execSQL(CREATE_TABLE_LOVED_ALBUMS);
                 db.execSQL(CREATE_TABLE_LOVED_ARTISTS);
+            }
+            if (oldVersion == 9) {
+                db.execSQL("DROP TABLE IF EXISTS `" + TABLE_PLAYLISTS + "`;");
+                db.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
+                db.execSQL(CREATE_TABLE_PLAYLISTS);
+                db.execSQL(CREATE_TABLE_TRACKS);
+                // get all logged ops and their timestamps, so we can safely drop the table
+                List<InfoRequestData> loggedOps = new ArrayList<InfoRequestData>();
+                List<Integer> timeStamps = new ArrayList<Integer>();
+                String[] columns = new String[]{TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_ID,
+                        TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TYPE,
+                        TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_JSONSTRING,
+                        TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TIMESTAMP};
+                Cursor opLogCursor = db.query(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG,
+                        columns, null, null, null, null, null);
+                opLogCursor.moveToFirst();
+                while (!opLogCursor.isAfterLast()) {
+                    String requestId = TomahawkMainActivity.getSessionUniqueStringId();
+                    InfoRequestData infoRequestData = new InfoRequestData(requestId,
+                            opLogCursor.getInt(1), null, opLogCursor.getInt(0),
+                            InfoRequestData.HTTPTYPE_POST, opLogCursor.getString(2));
+                    loggedOps.add(infoRequestData);
+                    timeStamps.add(opLogCursor.getInt(3));
+                    opLogCursor.moveToNext();
+                }
+                opLogCursor.close();
+                db.execSQL("DROP TABLE IF EXISTS `" + TABLE_INFOSYSTEMOPLOG + "`;");
+                db.execSQL(CREATE_TABLE_INFOSYSTEMOPLOG);
+                // now repopulate the table with the old data
+                ContentValues values = new ContentValues();
+                db.beginTransaction();
+                for (int i = 0; i < loggedOps.size(); i++) {
+                    InfoRequestData loggedOp = loggedOps.get(i);
+                    values.clear();
+                    values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TYPE,
+                            loggedOp.getType());
+                    values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_HTTPTYPE,
+                            loggedOp.getHttpType());
+                    values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_JSONSTRING,
+                            loggedOp.getJsonStringToSend());
+                    values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TIMESTAMP,
+                            timeStamps.get(i));
+                    db.insert(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG, null, values);
+                }
+                db.setTransactionSuccessful();
+                db.endTransaction();
             }
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_PLAYLISTS + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
             db.execSQL(CREATE_TABLE_PLAYLISTS);
             db.execSQL(CREATE_TABLE_TRACKS);
-            // get all logged ops and their timestamps, so we can safely drop the table
-            List<InfoRequestData> loggedOps = new ArrayList<InfoRequestData>();
-            List<Integer> timeStamps = new ArrayList<Integer>();
-            String[] columns = new String[]{TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_ID,
-                    TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TYPE,
-                    TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_JSONSTRING,
-                    TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TIMESTAMP};
-            Cursor opLogCursor = db.query(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG,
-                    columns, null, null, null, null, null);
-            opLogCursor.moveToFirst();
-            while (!opLogCursor.isAfterLast()) {
-                String requestId = TomahawkMainActivity.getSessionUniqueStringId();
-                InfoRequestData infoRequestData = new InfoRequestData(requestId,
-                        opLogCursor.getInt(1), null, opLogCursor.getInt(0),
-                        InfoRequestData.HTTPTYPE_POST, opLogCursor.getString(2));
-                loggedOps.add(infoRequestData);
-                timeStamps.add(opLogCursor.getInt(3));
-                opLogCursor.moveToNext();
-            }
-            opLogCursor.close();
-            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_INFOSYSTEMOPLOG + "`;");
-            db.execSQL(CREATE_TABLE_INFOSYSTEMOPLOG);
-            // now repopulate the table with the old data
-            ContentValues values = new ContentValues();
-            db.beginTransaction();
-            for (int i = 0; i < loggedOps.size(); i++) {
-                InfoRequestData loggedOp = loggedOps.get(i);
-                values.clear();
-                values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TYPE, loggedOp.getType());
-                values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_HTTPTYPE,
-                        loggedOp.getHttpType());
-                values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_JSONSTRING,
-                        loggedOp.getJsonStringToSend());
-                values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TIMESTAMP,
-                        timeStamps.get(i));
-                db.insert(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG, null, values);
-            }
-            db.setTransactionSuccessful();
-            db.endTransaction();
         } else {
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ALBUMS + "`;");
