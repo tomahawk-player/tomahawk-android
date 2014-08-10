@@ -400,11 +400,6 @@ public class CollectionManager {
                     Log.d(TAG, "Hatchet sync - revision differed for playlist \""
                             + fetchedList.getName() + "\" ... fetching entries");
                     fetchHatchetPlaylistEntries(storedList);
-                } else if (DatabaseHelper.getInstance().getPlaylistTrackCount(storedList.getId())
-                        == 0) {
-                    Log.d(TAG, "Hatchet sync - playlist \"" + fetchedList.getName()
-                            + "\" was empty ... fetching entries");
-                    fetchHatchetPlaylistEntries(storedList);
                 } else if (!storedList.getName().equals(fetchedList.getName())) {
                     Log.d(TAG, "Hatchet sync - title differed for playlist \""
                             + storedList.getName() + "\", new name: \"" + fetchedList.getName()
