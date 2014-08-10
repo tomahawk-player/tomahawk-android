@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.Context;
@@ -45,14 +46,17 @@ public class TomahawkGridAdapter extends BaseAdapter {
 
     private List<TomahawkListItem> mListItems;
 
+    private MultiColumnClickListener mClickListener;
+
     /**
      * Constructs a new {@link TomahawkGridAdapter}
      */
     public TomahawkGridAdapter(Context context, LayoutInflater layoutInflater,
-            List<TomahawkListItem> listItems) {
+            List<TomahawkListItem> listItems, MultiColumnClickListener clickListener) {
         mContext = context;
         mLayoutInflater = layoutInflater;
         mListItems = listItems;
+        mClickListener = clickListener;
     }
 
     /**
@@ -97,7 +101,12 @@ public class TomahawkGridAdapter extends BaseAdapter {
                             item.getImage(), Image.getSmallImageSize());
                 }
             }
+            viewHolder.getMainClickArea()
+                    .setOnClickListener(new ClickListener(item, mClickListener));
+            viewHolder.getMainClickArea()
+                    .setOnLongClickListener(new ClickListener(item, mClickListener));
         }
+
         return view;
     }
 

@@ -33,8 +33,6 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +41,7 @@ import java.util.List;
  * {@link TomahawkFragment} which shows a set of {@link Album}s inside its {@link
  * se.emilsjolander.stickylistheaders.StickyListHeadersListView}
  */
-public class AlbumsFragment extends TomahawkFragment implements OnItemClickListener {
+public class AlbumsFragment extends TomahawkFragment {
 
     public static final int SHOW_MODE_STARREDALBUMS = 1;
 
@@ -60,43 +58,33 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
     }
 
     /**
-     * Called every time an item inside the {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}
-     * is clicked
+     * Called every time an item inside a ListView or GridView is clicked
      *
-     * @param parent   The AdapterView where the click happened.
-     * @param view     The view within the AdapterView that was clicked (this will be a view
-     *                 provided by the adapter)
-     * @param position The position of the view in the adapter.
-     * @param id       The row id of the item that was clicked.
+     * @param item the TomahawkListItem which corresponds to the click
      */
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Object item;
+    public void onItemClick(TomahawkListItem item) {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        if (!isShowGridView()) {
-            item = getListAdapter().getItem(position);
-        } else {
-            item = getGridAdapter().getItem(position);
-        }
-        if (item instanceof Query && ((Query) item).isPlayable()) {
-            PlaybackService playbackService = activity.getPlaybackService();
-            if (playbackService != null && shouldShowPlaystate() && mQueryPositions.get(
-                    playbackService.getCurrentPlaylist().getCurrentQueryIndex())
-                    == position) {
-                playbackService.playPause();
-            } else {
-                Playlist playlist = Playlist
-                        .fromQueryList(TomahawkMainActivity.getLifetimeUniqueStringId(), "",
-                                mShownQueries,
-                                mQueryPositions.keyAt(mQueryPositions.indexOfValue(position)));
-                if (playbackService != null) {
-                    playbackService.setCurrentPlaylist(playlist);
-                    playbackService.start();
+        if (item instanceof Query) {
+            Query query = ((Query) item);
+            if (query.isPlayable()) {
+                PlaybackService playbackService = activity.getPlaybackService();
+                if (playbackService != null
+                        && playbackService.getCurrentQuery() == query) {
+                    playbackService.playPause();
+                } else {
+                    Playlist playlist = Playlist.fromQueryList(
+                            TomahawkMainActivity.getLifetimeUniqueStringId(), mShownQueries,
+                            query.getCacheKey());
+                    if (playbackService != null) {
+                        playbackService.setCurrentPlaylist(playlist);
+                        playbackService.start();
+                    }
                 }
             }
         } else if (item instanceof Album) {
             FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                    TracksFragment.class, ((Album) item).getCacheKey(),
+                    TracksFragment.class, item.getCacheKey(),
                     TomahawkFragment.TOMAHAWK_ALBUM_KEY, mCollection);
         }
     }
@@ -124,19 +112,10 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                 albumsAndTopHits.addAll(topHits);
                 albumsAndTopHits.addAll(AdapterUtils.getArtistAlbums(mArtist, null));
                 mShownQueries = topHits;
-                int precedingItemCount = 0;
-                if (getListAdapter() != null
-                        && ((TomahawkListAdapter) getListAdapter()).isShowingContentHeader()) {
-                    precedingItemCount++;
-                }
-                mQueryPositions.clear();
-                for (int i = 0; i < mShownQueries.size(); i++) {
-                    mQueryPositions.put(i, i + precedingItemCount);
-                }
             }
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
-                        layoutInflater, albumsAndTopHits);
+                        layoutInflater, albumsAndTopHits, this);
                 tomahawkListAdapter
                         .setShowCategoryHeaders(true,
                                 TomahawkListAdapter.SHOW_QUERIES_AS_TOPHITS);
@@ -148,7 +127,6 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
                 ((TomahawkListAdapter) getListAdapter())
                         .showContentHeader(rootView, mArtist, mCollection);
             }
-            getListView().setOnItemClickListener(this);
         } else if (mShowMode == SHOW_MODE_STARREDALBUMS) {
             ArrayList<Album> albums = DatabaseHelper.getInstance().getStarredAlbums();
             for (Album album : albums) {
@@ -157,22 +135,20 @@ public class AlbumsFragment extends TomahawkFragment implements OnItemClickListe
             albumsAndTopHits.addAll(albums);
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
-                        layoutInflater, albumsAndTopHits);
+                        layoutInflater, albumsAndTopHits, this);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListItems(albumsAndTopHits);
             }
-            getListView().setOnItemClickListener(this);
         } else {
             albumsAndTopHits.addAll(mCollection.getAlbums());
             if (getGridAdapter() == null) {
                 TomahawkGridAdapter tomahawkGridAdapter = new TomahawkGridAdapter(activity,
-                        layoutInflater, albumsAndTopHits);
+                        layoutInflater, albumsAndTopHits, this);
                 setGridAdapter(tomahawkGridAdapter);
             } else {
                 getGridAdapter().setListArray(albumsAndTopHits);
             }
-            getGridView().setOnItemClickListener(this);
             adaptColumnCount();
         }
 

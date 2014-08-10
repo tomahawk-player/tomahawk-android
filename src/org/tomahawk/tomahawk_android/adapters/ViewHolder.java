@@ -65,6 +65,10 @@ public class ViewHolder {
 
     private ImageButton mStarButton;
 
+    private View mMainClickArea;
+
+    private View mClickArea1;
+
     public ViewHolder(View rootView, int layoutId) {
         this(null, rootView, layoutId);
     }
@@ -135,6 +139,10 @@ public class ViewHolder {
                     .findViewById(R.id.double_line_list_textview4);
             mTextView5 = (TextView) rootView
                     .findViewById(R.id.double_line_list_textview5);
+            mMainClickArea = rootView
+                    .findViewById(R.id.double_line_list_container);
+            mClickArea1 = rootView
+                    .findViewById(R.id.double_line_list_clickarea1);
         } else if (layoutId == R.layout.single_line_list_header) {
             mImageView1 = (ImageView) rootView
                     .findViewById(R.id.single_line_list_header_icon_imageview);
@@ -176,6 +184,9 @@ public class ViewHolder {
                     .findViewById(R.id.album_art_grid_textView);
             mTextView2 = (TextView) rootView
                     .findViewById(R.id.album_art_grid_textView2);
+        }
+        if (mMainClickArea == null) {
+            mMainClickArea = rootView;
         }
     }
 
@@ -249,5 +260,13 @@ public class ViewHolder {
 
     public ImageButton getStarButton() {
         return mStarButton;
+    }
+
+    public View getMainClickArea() {
+        return mMainClickArea;
+    }
+
+    public View getClickArea1() {
+        return mClickArea1;
     }
 }

@@ -199,10 +199,10 @@ public class FakeContextMenuDialog extends DialogFragment {
             }
         } else if (menuItemTitle.equals(getString(R.string.fake_context_menu_play))) {
             if (mFromPlaybackFragment) {
-                if (playbackService != null && mTomahawkListItem instanceof PlaylistEntry
-                        && playbackService.getCurrentPlaylist().getCurrentEntry() != null) {
-                    if (playbackService.getCurrentPlaylist().getCurrentEntry().getCacheKey()
-                            .equals(mTomahawkListItem.getCacheKey())) {
+                if (playbackService != null && mTomahawkListItem instanceof PlaylistEntry) {
+                    if (playbackService.getCurrentEntry() != null && playbackService
+                            .getCurrentEntry().getCacheKey().equals(
+                                    mTomahawkListItem.getCacheKey())) {
                         if (!playbackService.isPlaying()) {
                             playbackService.start();
                         }

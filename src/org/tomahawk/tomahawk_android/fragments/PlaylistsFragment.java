@@ -27,9 +27,6 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +35,7 @@ import java.util.List;
  * {@link TomahawkFragment} which shows a set of {@link org.tomahawk.libtomahawk.collection.Playlist}s
  * inside its {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}
  */
-public class PlaylistsFragment extends TomahawkFragment implements OnItemClickListener {
+public class PlaylistsFragment extends TomahawkFragment {
 
     @Override
     public void onResume() {
@@ -50,19 +47,14 @@ public class PlaylistsFragment extends TomahawkFragment implements OnItemClickLi
     }
 
     /**
-     * Called every time an item inside the {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}
-     * is clicked
+     * Called every time an item inside a ListView or GridView is clicked
      *
-     * @param parent   The AdapterView where the click happened.
-     * @param view     The view within the AdapterView that was clicked (this will be a view
-     *                 provided by the adapter)
-     * @param position The position of the view in the adapter.
-     * @param id       The row id of the item that was clicked.
+     * @param item the TomahawkListItem which corresponds to the click
      */
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (getListAdapter().getItem(position) instanceof Playlist) {
-            String key = ((Playlist) getListAdapter().getItem(position)).getId();
+    public void onItemClick(TomahawkListItem item) {
+        if (item instanceof Playlist) {
+            String key = ((Playlist) item).getId();
             FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
                     PlaylistEntriesFragment.class, key, TomahawkFragment.TOMAHAWK_PLAYLIST_KEY);
         } else {
@@ -89,13 +81,11 @@ public class PlaylistsFragment extends TomahawkFragment implements OnItemClickLi
         playlists.addAll(CollectionManager.getInstance().getPlaylists());
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
-                    layoutInflater, playlists);
+                    layoutInflater, playlists, this);
             setListAdapter(tomahawkListAdapter);
             tomahawkListAdapter.setShowCategoryHeaders(true);
         } else {
             ((TomahawkListAdapter) getListAdapter()).setListItems(playlists);
         }
-
-        getListView().setOnItemClickListener(this);
     }
 }

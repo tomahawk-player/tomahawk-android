@@ -30,12 +30,12 @@ import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.FakeContextMenuDialog;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
+import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
@@ -50,11 +50,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
-import android.util.SparseIntArray;
-import android.view.View;
 import android.widget.AbsListView;
-import android.widget.Adapter;
-import android.widget.AdapterView;
 import android.widget.GridView;
 
 import java.util.ArrayList;
@@ -68,9 +64,8 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
  * {@link PlaylistsFragment} and {@link SearchableFragment}. Provides all sorts of functionality to
  * those classes, related to displaying {@link TomahawkListItem}s in whichever needed way.
  */
-public class TomahawkFragment extends TomahawkListFragment
-        implements AdapterView.OnItemLongClickListener, AbsListView.OnScrollListener,
-        View.OnLongClickListener {
+public abstract class TomahawkFragment extends TomahawkListFragment
+        implements MultiColumnClickListener, AbsListView.OnScrollListener {
 
     public static final String TOMAHAWK_ALBUM_KEY
             = "org.tomahawk.tomahawk_android.tomahawk_album_id";
@@ -133,8 +128,6 @@ public class TomahawkFragment extends TomahawkListFragment
 
     protected ConcurrentSkipListSet<String> mCorrespondingQueryIds
             = new ConcurrentSkipListSet<String>();
-
-    protected SparseIntArray mQueryPositions = new SparseIntArray();
 
     protected ArrayList<Query> mShownQueries = new ArrayList<Query>();
 
@@ -313,17 +306,11 @@ public class TomahawkFragment extends TomahawkListFragment
         }
         StickyListHeadersListView list = getListView();
         if (list != null) {
-            list.setOnItemLongClickListener(this);
             list.setOnScrollListener(this);
         }
         GridView grid = getGridView();
         if (grid != null) {
-            grid.setOnItemLongClickListener(this);
             grid.setOnScrollListener(this);
-        }
-        View contentHeaderFrame = getView().findViewById(R.id.content_header_image_frame);
-        if (contentHeaderFrame != null) {
-            contentHeaderFrame.setOnLongClickListener(this);
         }
 
         onPlaylistChanged();
@@ -357,58 +344,31 @@ public class TomahawkFragment extends TomahawkListFragment
     }
 
     @Override
-    public boolean onLongClick(View view) {
-        if (view == getView().findViewById(R.id.content_header_image_frame)) {
-            return onItemLongClick(null, view, -1, 0);
-        } else { //assume click on PlaybackFragment's albumart viewpager
-            Query query = ((TomahawkMainActivity) getActivity()).getPlaybackService()
-                    .getCurrentQuery();
-            FakeContextMenuDialog dialog = new FakeContextMenuDialog();
-            Bundle args = new Bundle();
-            args.putBoolean(TOMAHAWK_SHOWDELETE_KEY, false);
-            args.putBoolean(TOMAHAWK_FROMPLAYBACKFRAGMENT, this instanceof PlaybackFragment);
-            if (mAlbum != null) {
-                args.putString(TOMAHAWK_ALBUM_KEY, mAlbum.getCacheKey());
-            } else if (mPlaylist != null) {
-                args.putString(TOMAHAWK_PLAYLIST_KEY, mPlaylist.getId());
-            } else if (mArtist != null) {
-                args.putString(TOMAHAWK_ARTIST_KEY, mArtist.getCacheKey());
-            }
-            if (mCollection != null) {
-                args.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
-            }
-            args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY, query.getCacheKey());
-            args.putString(TOMAHAWK_TOMAHAWKLISTITEM_TYPE, TOMAHAWK_QUERY_KEY);
-            dialog.setArguments(args);
-            dialog.show(getFragmentManager(), null);
-        }
-        return true;
-    }
+    public abstract void onItemClick(TomahawkListItem item);
 
     /**
-     * Insert our FakeContextMenuDialog initialization here
+     * Called every time an item inside a ListView or GridView is long-clicked
+     *
+     * @param item the TomahawkListItem which corresponds to the long-click
      */
     @Override
-    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        Adapter adapter = isShowGridView() ? getGridAdapter() : getListAdapter();
-        TomahawkListItem tomahawkListItem = ((TomahawkListItem) adapter.getItem(position));
-        if ((tomahawkListItem instanceof SocialAction
-                && (((SocialAction) tomahawkListItem).getTargetObject() instanceof User
-                || ((SocialAction) tomahawkListItem).getTargetObject() instanceof Playlist))
-                || tomahawkListItem instanceof User) {
+    public boolean onItemLongClick(TomahawkListItem item) {
+        if ((item instanceof SocialAction
+                && (((SocialAction) item).getTargetObject() instanceof User
+                || ((SocialAction) item).getTargetObject() instanceof Playlist))
+                || item instanceof User) {
             return false;
         }
         boolean showDelete = false;
-        if (tomahawkListItem instanceof Playlist) {
+        if (item instanceof Playlist) {
             showDelete = true;
         } else if (!(this instanceof PlaybackFragment)) {
             if (!(mPlaylist == null
                     || DatabaseHelper.LOVEDITEMS_PLAYLIST_ID.equals(mPlaylist.getId()))) {
                 showDelete = true;
             }
-        } else if (tomahawkListItem instanceof Query
-                && !(tomahawkListItem == ((TomahawkMainActivity) getActivity())
-                .getPlaybackService().getCurrentQuery())) {
+        } else if (item instanceof Query && item !=
+                ((TomahawkMainActivity) getActivity()).getPlaybackService().getCurrentQuery()) {
             showDelete = true;
         }
         FakeContextMenuDialog dialog = new FakeContextMenuDialog();
@@ -425,25 +385,25 @@ public class TomahawkFragment extends TomahawkListFragment
         if (mCollection != null) {
             args.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
         }
-        if (tomahawkListItem instanceof Query) {
-            args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY, tomahawkListItem.getCacheKey());
+        if (item instanceof Query) {
+            args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY, item.getCacheKey());
             args.putString(TOMAHAWK_TOMAHAWKLISTITEM_TYPE, TOMAHAWK_QUERY_KEY);
-        } else if (tomahawkListItem instanceof Album) {
-            args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY, tomahawkListItem.getCacheKey());
+        } else if (item instanceof Album) {
+            args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY, item.getCacheKey());
             args.putString(TOMAHAWK_TOMAHAWKLISTITEM_TYPE, TOMAHAWK_ALBUM_KEY);
-        } else if (tomahawkListItem instanceof Artist) {
-            args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY, tomahawkListItem.getCacheKey());
+        } else if (item instanceof Artist) {
+            args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY, item.getCacheKey());
             args.putString(TOMAHAWK_TOMAHAWKLISTITEM_TYPE, TOMAHAWK_ARTIST_KEY);
-        } else if (tomahawkListItem instanceof Playlist) {
+        } else if (item instanceof Playlist) {
             args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY,
-                    ((Playlist) tomahawkListItem).getId());
+                    ((Playlist) item).getId());
             args.putString(TOMAHAWK_TOMAHAWKLISTITEM_TYPE, TOMAHAWK_PLAYLIST_KEY);
-        } else if (tomahawkListItem instanceof SocialAction) {
+        } else if (item instanceof SocialAction) {
             args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY,
-                    ((SocialAction) tomahawkListItem).getId());
+                    ((SocialAction) item).getId());
             args.putString(TOMAHAWK_TOMAHAWKLISTITEM_TYPE, TOMAHAWK_SOCIALACTION_ID);
-        } else if (tomahawkListItem instanceof PlaylistEntry) {
-            args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY, tomahawkListItem.getCacheKey());
+        } else if (item instanceof PlaylistEntry) {
+            args.putString(TOMAHAWK_TOMAHAWKLISTITEM_KEY, item.getCacheKey());
             args.putString(TOMAHAWK_TOMAHAWKLISTITEM_TYPE, TOMAHAWK_PLAYLISTENTRY_ID);
         }
         dialog.setArguments(args);
@@ -480,8 +440,7 @@ public class TomahawkFragment extends TomahawkListFragment
     /**
      * Update this {@link TomahawkFragment}'s {@link TomahawkListAdapter} content
      */
-    protected void updateAdapter() {
-    }
+    protected abstract void updateAdapter();
 
     /**
      * If the PlaybackService signals, that it is ready, this method is being called
@@ -531,40 +490,16 @@ public class TomahawkFragment extends TomahawkListFragment
         updateShowPlaystate();
     }
 
-    public boolean shouldShowPlaystate() {
-        PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
-                .getPlaybackService();
-        if (playbackService != null) {
-            Playlist playlist = playbackService.getCurrentPlaylist();
-            if (playlist != null && playlist.getCount() == mShownQueries.size()) {
-                for (int i = 0; i < playlist.getCount(); i++) {
-                    if (!playlist.peekEntryAtPos(i).getQuery().getBasicTrack().getName()
-                            .equals(mShownQueries.get(i).getBasicTrack().getName())
-                            || !playlist.peekEntryAtPos(i).getQuery().getBasicTrack().getArtist()
-                            .getName()
-                            .equals(mShownQueries.get(i).getBasicTrack().getArtist().getName())
-                            || !playlist.peekEntryAtPos(i).getQuery().getBasicTrack().getAlbum()
-                            .getName()
-                            .equals(mShownQueries.get(i).getBasicTrack().getAlbum().getName())) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        }
-        return false;
-    }
-
     protected void updateShowPlaystate() {
         PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
                 .getPlaybackService();
         if (getListAdapter() instanceof TomahawkListAdapter) {
             TomahawkListAdapter tomahawkListAdapter = (TomahawkListAdapter) getListAdapter();
-            if (shouldShowPlaystate() && playbackService != null
-                    && playbackService.getCurrentPlaylist() != null) {
+            if (playbackService != null && playbackService.getCurrentPlaylist() != null) {
                 tomahawkListAdapter.setShowPlaystate(true);
-                tomahawkListAdapter.setHighlightedItem(playbackService.isPlaying(), mQueryPositions
-                        .get(playbackService.getCurrentPlaylist().getCurrentQueryIndex()));
+                tomahawkListAdapter.setHighlightedItemIsPlaying(playbackService.isPlaying());
+                tomahawkListAdapter.setHighlightedEntry(playbackService.getCurrentEntry());
+                tomahawkListAdapter.setHighlightedQuery(playbackService.getCurrentQuery());
             } else {
                 tomahawkListAdapter.setShowPlaystate(false);
             }
