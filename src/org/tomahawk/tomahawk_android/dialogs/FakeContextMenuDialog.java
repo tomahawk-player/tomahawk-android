@@ -312,7 +312,15 @@ public class FakeContextMenuDialog extends DialogFragment {
                     TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
         } else if (menuItemTitle.equals(getString(R.string.fake_context_menu_love_track))
                 || menuItemTitle.equals(getString(R.string.fake_context_menu_unlove_track))) {
-            CollectionManager.getInstance().toggleLovedItem((Query) mTomahawkListItem);
+            Query query = null;
+            if (mTomahawkListItem instanceof Query) {
+                query = (Query) mTomahawkListItem;
+            } else if (mTomahawkListItem instanceof PlaylistEntry) {
+                query = ((PlaylistEntry) mTomahawkListItem).getQuery();
+            }
+            if (query != null) {
+                CollectionManager.getInstance().toggleLovedItem(query);
+            }
         }
     }
 
