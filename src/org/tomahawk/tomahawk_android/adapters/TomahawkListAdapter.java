@@ -372,12 +372,17 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                 }
             } else if (viewHolder.getLayoutId() == R.layout.list_item
                     || viewHolder.getLayoutId() == R.layout.list_item_highlighted) {
-                if (item instanceof SocialAction) {
-                    SocialAction socialAction = (SocialAction) item;
+                if (item instanceof SocialAction || item instanceof User) {
+                    User user;
+                    if (item instanceof SocialAction) {
+                        user = ((SocialAction) item).getUser();
+                    } else {
+                        user = (User) item;
+                    }
                     viewHolder.getClickArea1().setOnClickListener(
-                            new ClickListener(socialAction.getUser(), mClickListener));
+                            new ClickListener(user, mClickListener));
                     viewHolder.getClickArea1().setOnLongClickListener(
-                            new ClickListener(socialAction.getUser(), mClickListener));
+                            new ClickListener(user, mClickListener));
                 }
             }
             viewHolder.getMainClickArea()
