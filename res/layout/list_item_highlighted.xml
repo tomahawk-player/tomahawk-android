@@ -21,6 +21,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
+              android:minHeight="@dimen/row_height_verylarge"
               android:baselineAligned="false"
               android:orientation="horizontal"
               android:background="@color/tomahawk_red"
@@ -44,7 +45,7 @@
 
     <LinearLayout android:id="@+id/double_line_list_container"
                   android:layout_width="0dp"
-                  android:layout_height="wrap_content"
+                  android:layout_height="match_parent"
                   android:layout_weight="1"
                   android:baselineAligned="false"
                   android:orientation="horizontal"
