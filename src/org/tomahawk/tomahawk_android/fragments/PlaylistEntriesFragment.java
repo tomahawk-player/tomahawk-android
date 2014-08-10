@@ -36,8 +36,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -48,7 +46,7 @@ import java.util.TreeMap;
  * {@link org.tomahawk.tomahawk_android.fragments.TomahawkFragment} which shows a set of {@link
  * org.tomahawk.libtomahawk.collection.Track}s inside its {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}
  */
-public class PlaylistEntriesFragment extends TomahawkFragment implements OnItemClickListener {
+public class PlaylistEntriesFragment extends TomahawkFragment {
 
     @Override
     public void onResume() {
@@ -60,35 +58,28 @@ public class PlaylistEntriesFragment extends TomahawkFragment implements OnItemC
     }
 
     /**
-     * Called every time an item inside the {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}
-     * is clicked
+     * Called every time an item inside a ListView or GridView is clicked
      *
-     * @param parent   The AdapterView where the click happened.
-     * @param view     The view within the AdapterView that was clicked (this will be a view
-     *                 provided by the adapter)
-     * @param position The position of the view in the adapter.
-     * @param id       The row id of the item that was clicked.
+     * @param item the TomahawkListItem which corresponds to the click
      */
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (getListAdapter().getItem(position) instanceof PlaylistEntry) {
-            PlaylistEntry entry = (PlaylistEntry) getListAdapter().getItem(position);
+    public void onItemClick(TomahawkListItem item) {
+        if (item instanceof PlaylistEntry) {
+            PlaylistEntry entry = (PlaylistEntry) item;
             if (entry.getQuery().isPlayable()) {
-                ArrayList<Query> queries = new ArrayList<Query>();
+                ArrayList<PlaylistEntry> entries = new ArrayList<PlaylistEntry>();
                 if (mPlaylist != null) {
-                    queries = mPlaylist.getQueries();
+                    entries = mPlaylist.getEntries();
                 }
                 PlaybackService playbackService =
                         ((TomahawkMainActivity) getActivity()).getPlaybackService();
-                if (playbackService != null && shouldShowPlaystate() && mQueryPositions
-                        .get(playbackService.getCurrentPlaylist().getCurrentQueryIndex())
-                        == position) {
+                if (playbackService != null && playbackService.getCurrentEntry() == entry) {
                     playbackService.playPause();
                 } else {
-                    Playlist playlist = Playlist.fromQueryList(
-                            DatabaseHelper.CACHED_PLAYLIST_ID,
-                            DatabaseHelper.CACHED_PLAYLIST_NAME, queries,
-                            mQueryPositions.keyAt(mQueryPositions.indexOfValue(position)));
+                    Playlist playlist =
+                            Playlist.fromEntriesList(DatabaseHelper.CACHED_PLAYLIST_NAME, "",
+                                    entries, entry.getId());
+                    playlist.setId(DatabaseHelper.CACHED_PLAYLIST_ID);
                     if (playbackService != null) {
                         playbackService.setCurrentPlaylist(playlist);
                         playbackService.start();
@@ -149,7 +140,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment implements OnItemC
                 playlistEntries.addAll(mPlaylist.getEntries());
                 if (getListAdapter() == null) {
                     tomahawkListAdapter = new TomahawkListAdapter(context, layoutInflater,
-                            playlistEntries);
+                            playlistEntries, this);
                     tomahawkListAdapter.setShowResolvedBy(true);
                     tomahawkListAdapter.showContentHeader(rootView, mPlaylist, mCollection);
                     setListAdapter(tomahawkListAdapter);
@@ -161,21 +152,12 @@ public class PlaylistEntriesFragment extends TomahawkFragment implements OnItemC
             }
         }
 
-        int precedingItemCount = 0;
-        if (getListAdapter() != null
-                && ((TomahawkListAdapter) getListAdapter()).isShowingContentHeader()) {
-            precedingItemCount++;
-        }
         mShownQueries.clear();
         mShownPlaylistEntries.clear();
-        mQueryPositions.clear();
-        for (int i = 0; i < playlistEntries.size(); i++) {
-            mShownQueries.add(((PlaylistEntry) playlistEntries.get(i)).getQuery());
-            mShownPlaylistEntries.add((PlaylistEntry) playlistEntries.get(i));
-            mQueryPositions.put(i, i + precedingItemCount);
+        for (TomahawkListItem playlistEntry : playlistEntries) {
+            mShownQueries.add(((PlaylistEntry) playlistEntry).getQuery());
+            mShownPlaylistEntries.add((PlaylistEntry) playlistEntry);
         }
-
-        getListView().setOnItemClickListener(this);
 
         updateShowPlaystate();
     }

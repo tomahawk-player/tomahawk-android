@@ -29,6 +29,7 @@ import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.fragments.TracksFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 
 import android.content.Context;
 import android.content.Intent;
@@ -68,7 +69,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
 
     private ViewPager mViewPager;
 
-    private View.OnLongClickListener mOnLongClickListener;
+    private MultiColumnClickListener mClickListener;
 
     private PlaybackService mPlaybackService;
 
@@ -83,12 +84,12 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      */
     public AlbumArtSwipeAdapter(Context context, FragmentManager fragmentManager,
             LayoutInflater layoutInflater, ViewPager viewPager,
-            View.OnLongClickListener onLongClickListener) {
+            MultiColumnClickListener clickListener) {
         mContext = context;
         mLayoutInflater = layoutInflater;
         mFragmentManager = fragmentManager;
         mViewPager = viewPager;
-        mOnLongClickListener = onLongClickListener;
+        mClickListener = clickListener;
         mByUser = true;
         mSwiped = false;
     }
@@ -101,8 +102,8 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     public Object instantiateItem(ViewGroup container, int position) {
         View view = mLayoutInflater.inflate(
                 org.tomahawk.tomahawk_android.R.layout.album_art_view_pager_item, container, false);
+        Query query = null;
         if (mPlaylist != null && mPlaylist.getCount() > 0) {
-            Query query;
             if (mPlaylist.isRepeating()) {
                 query = mPlaylist.peekEntryAtPos((position) % mPlaylist.getCount()).getQuery();
             } else {
@@ -113,7 +114,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
             refreshTrackInfo(view, null);
         }
         if (view != null) {
-            view.setOnLongClickListener(mOnLongClickListener);
+            view.setOnLongClickListener(new ClickListener(query, mClickListener));
             container.addView(view);
         }
         return view;

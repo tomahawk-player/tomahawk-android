@@ -34,13 +34,9 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.ViewHolder;
-import org.tomahawk.tomahawk_android.fragments.PlaylistEntriesFragment;
-import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
-import org.tomahawk.tomahawk_android.fragments.UsersFragment;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
@@ -71,12 +67,6 @@ public class AdapterUtils {
         } else {
             viewHolder.getStarButton().setImageResource(R.drawable.ic_action_notstarred);
         }
-        viewHolder.getStarButton().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CollectionManager.getInstance().toggleLovedItem(album);
-            }
-        });
         viewHolder.getStarButton().setVisibility(View.VISIBLE);
     }
 
@@ -106,12 +96,6 @@ public class AdapterUtils {
         } else {
             viewHolder.getStarButton().setImageResource(R.drawable.ic_action_notstarred);
         }
-        viewHolder.getStarButton().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CollectionManager.getInstance().toggleLovedItem(artist);
-            }
-        });
         viewHolder.getStarButton().setVisibility(View.VISIBLE);
     }
 
@@ -166,8 +150,8 @@ public class AdapterUtils {
         viewHolder.getRoundedImage().setVisibility(View.VISIBLE);
     }
 
-    public static void fillContentHeader(final FragmentManager fragmentManager,
-            final Context context, ViewHolder viewHolder, final User user) {
+    public static void fillContentHeader(final Context context, ViewHolder viewHolder,
+            final User user) {
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils.loadDrawableIntoImageView(context, viewHolder.getImageView1(),
                 R.drawable.no_album_art_placeholder);
@@ -184,35 +168,6 @@ public class AdapterUtils {
         viewHolder.getTextView3().setText("" + user.getTotalPlays());
         viewHolder.getTextView4().setText("" + user.getFollowCount());
         viewHolder.getTextView5().setText("" + user.getFollowersCount());
-        viewHolder.getButton1().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String playlistTitle = user.getName() + TomahawkApp.getContext().getString(
-                        R.string.users_playbacklog_suffix);
-                Playlist playbackLog = Playlist.fromQueryList(playlistTitle, user.getPlaybackLog());
-                playbackLog.setId(user.getId() + User.PLAYLIST_PLAYBACKLOG_ID);
-                FragmentUtils.replace(context, fragmentManager, PlaylistEntriesFragment.class,
-                        user.getCacheKey(), playbackLog.getId());
-            }
-        });
-        viewHolder.getButton2().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FragmentUtils.replace(context, fragmentManager,
-                        UsersFragment.class, user.getCacheKey(),
-                        TomahawkFragment.TOMAHAWK_USER_ID,
-                        UsersFragment.SHOW_MODE_TYPE_FOLLOWINGS);
-            }
-        });
-        viewHolder.getButton3().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FragmentUtils.replace(context, fragmentManager,
-                        UsersFragment.class, user.getCacheKey(),
-                        TomahawkFragment.TOMAHAWK_USER_ID,
-                        UsersFragment.SHOW_MODE_TYPE_FOLLOWERS);
-            }
-        });
     }
 
     public static void fillView(Context context, ViewHolder viewHolder, Query query,

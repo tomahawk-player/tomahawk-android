@@ -839,10 +839,20 @@ public class PlaybackService extends Service
     }
 
     /**
+     * Get the current PlaylistEntry
+     */
+    public PlaylistEntry getCurrentEntry() {
+        if (mCurrentPlaylist == null) {
+            return null;
+        }
+        return mCurrentPlaylist.getCurrentEntry();
+    }
+
+    /**
      * Get the current Query
      */
     public Query getCurrentQuery() {
-        if (mCurrentPlaylist == null) {
+        if (mCurrentPlaylist == null || mCurrentPlaylist.getCurrentEntry() == null) {
             return null;
         }
         return mCurrentPlaylist.getCurrentEntry().getQuery();

@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
@@ -46,7 +47,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -59,8 +59,7 @@ import java.util.List;
  * play/stop/pause. It is being shown as the topmost fragment in the {@link PlaybackFragment}'s
  * {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}.
  */
-public class PlaybackFragment extends TomahawkFragment
-        implements AdapterView.OnItemClickListener {
+public class PlaybackFragment extends TomahawkFragment {
 
     private AlbumArtSwipeAdapter mAlbumArtSwipeAdapter;
 
@@ -208,7 +207,8 @@ public class PlaybackFragment extends TomahawkFragment
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
 
         PlaybackService playbackService = activity.getPlaybackService();
-        if (playbackService != null && item != null) {
+        if (playbackService != null && playbackService.getCurrentPlaylist() != null
+                && item != null) {
             if (item.getItemId() == R.id.action_saveplaylist_item) {
                 Playlist playlist = Playlist.fromQueryList("",
                         playbackService.getCurrentPlaylist().getQueries());
@@ -245,19 +245,25 @@ public class PlaybackFragment extends TomahawkFragment
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Called every time an item inside a ListView or GridView is clicked
+     *
+     * @param item the TomahawkListItem which corresponds to the click
+     */
     @Override
-    public void onItemClick(AdapterView<?> arg0, View arg1, int idx, long arg3) {
+    public void onItemClick(TomahawkListItem item) {
         PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
                 .getPlaybackService();
-        TomahawkListAdapter tomahawkListAdapter = (TomahawkListAdapter) getListAdapter();
-        if (playbackService != null && tomahawkListAdapter != null) {
-            Object obj = tomahawkListAdapter.getItem(idx);
-            if (obj instanceof Query && ((Query) obj).isPlayable()) {
-                // if the user clicked on an already playing track
-                if (playbackService.getCurrentPlaylist().getCurrentQueryIndex() == idx) {
-                    playbackService.playPause();
-                } else {
-                    playbackService.setCurrentQueryIndex(idx);
+        if (playbackService != null) {
+            if (item instanceof PlaylistEntry) {
+                PlaylistEntry entry = (PlaylistEntry) item;
+                if (entry.getQuery().isPlayable()) {
+                    // if the user clicked on an already playing track
+                    if (playbackService.getCurrentEntry() == entry) {
+                        playbackService.playPause();
+                    } else {
+                        playbackService.setCurrentEntry(entry.getId());
+                    }
                 }
             }
         }
@@ -295,8 +301,7 @@ public class PlaybackFragment extends TomahawkFragment
                 .getPlaybackService();
         TomahawkListAdapter tomahawkListAdapter = (TomahawkListAdapter) getListAdapter();
         if (tomahawkListAdapter != null && playbackService != null
-                && playbackService.getCurrentPlaylist() != null
-                && playbackService.getCurrentPlaylist().getCurrentEntry() != null) {
+                && playbackService.getCurrentEntry() != null) {
             if (mMenu != null) {
                 handlePageSelect();
             }
@@ -369,26 +374,17 @@ public class PlaybackFragment extends TomahawkFragment
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         PlaybackService playbackService = activity.getPlaybackService();
         if (playbackService != null && playbackService.getCurrentPlaylist() != null) {
-            List<TomahawkListItem> tracks
-                    = new ArrayList<TomahawkListItem>();
-            tracks.addAll(playbackService.getCurrentPlaylist().getQueries());
+            List<TomahawkListItem> entries = new ArrayList<TomahawkListItem>();
+            entries.addAll(playbackService.getCurrentPlaylist().getEntries());
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
-                        layoutInflater, tracks);
+                        layoutInflater, entries, this);
                 tomahawkListAdapter.setShowPlaystate(true);
                 tomahawkListAdapter.setShowResolvedBy(true);
-                tomahawkListAdapter.setHighlightedItem(playbackService.isPlaying(),
-                        playbackService.getCurrentPlaylist().getCurrentQueryIndex());
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setListItems(tracks);
+                ((TomahawkListAdapter) getListAdapter()).setListItems(entries);
             }
-
-            for (int i = 0; i < tracks.size(); i++) {
-                mQueryPositions.put(i, i);
-            }
-
-            getListView().setOnItemClickListener(this);
         }
 
         updateShowPlaystate();
