@@ -60,23 +60,30 @@ public class InfoSystemUtils {
      * @param playlistEntries Object containing info about each entry of the playlist
      * @return the filled Playlist object
      */
-    public static Playlist fillPlaylist(Playlist playlist,
-            HatchetPlaylistEntries playlistEntries) {
+    public static Playlist fillPlaylist(Playlist playlist, HatchetPlaylistEntries playlistEntries,
+            boolean reverseEntries) {
         if (playlist != null && playlistEntries != null) {
-            ArrayList<PlaylistEntry> queries = new ArrayList<PlaylistEntry>();
-            for (HatchetPlaylistEntryInfo playlistEntryInfo : playlistEntries.playlistEntries) {
-                HatchetTrackInfo trackInfo = playlistEntries.tracks.get(playlistEntryInfo.track);
+            ArrayList<PlaylistEntry> entries = new ArrayList<PlaylistEntry>();
+            List<HatchetPlaylistEntryInfo> entryInfos = playlistEntries.playlistEntries;
+            for (int i = 0; i < entryInfos.size(); i++) {
+                HatchetPlaylistEntryInfo entryInfo;
+                if (reverseEntries) {
+                    entryInfo = entryInfos.get(entryInfos.size() - 1 - i);
+                } else {
+                    entryInfo = entryInfos.get(i);
+                }
+                HatchetTrackInfo trackInfo = playlistEntries.tracks.get(entryInfo.track);
                 if (trackInfo != null) {
                     HatchetArtistInfo artistInfo = playlistEntries.artists.get(trackInfo.artist);
                     String albumName = null;
-                    if (playlistEntries.albums != null && playlistEntryInfo.album != null) {
-                        albumName = playlistEntries.albums.get(playlistEntryInfo.album).name;
+                    if (playlistEntries.albums != null && entryInfo.album != null) {
+                        albumName = playlistEntries.albums.get(entryInfo.album).name;
                     }
                     Query query = Query.get(trackInfo.name, albumName, artistInfo.name, false);
-                    queries.add(PlaylistEntry.get(playlist.getId(), query, playlistEntryInfo.id));
+                    entries.add(PlaylistEntry.get(playlist.getId(), query, entryInfo.id));
                 }
             }
-            playlist.setEntries(queries);
+            playlist.setEntries(entries);
         }
         return playlist;
     }
@@ -90,7 +97,7 @@ public class InfoSystemUtils {
     public static Playlist convertToPlaylist(HatchetPlaylistInfo playlistInfo) {
         if (playlistInfo != null) {
             Playlist playlist = Playlist.fromQueryList(playlistInfo.title,
-                playlistInfo.currentrevision, new ArrayList<Query>(), 0);
+                    playlistInfo.currentrevision, new ArrayList<Query>(), 0);
             playlist.setHatchetId(playlistInfo.id);
             return playlist;
         }

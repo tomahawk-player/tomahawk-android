@@ -214,7 +214,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     Playlist playlistToBeFilled =
                             (Playlist) mItemsToBeFilled.get(infoRequestData.getRequestId());
                     playlistToBeFilled = InfoSystemUtils
-                            .fillPlaylist(playlistToBeFilled, playlistEntries);
+                            .fillPlaylist(playlistToBeFilled, playlistEntries, false);
                     playlistToBeFilled
                             .setCurrentRevision(playlistEntries.playlists.get(0).currentrevision);
                     infoRequestData.setResult(playlistToBeFilled);
@@ -229,7 +229,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 HatchetPlaylistEntries playlistEntries = mHatchet.getUsersLovedItems(mUserId);
                 if (playlistEntries != null) {
                     Playlist playlist = InfoSystemUtils.convertToPlaylist(playlistEntries.playlist);
-                    playlist = InfoSystemUtils.fillPlaylist(playlist, playlistEntries);
+                    playlist = InfoSystemUtils.fillPlaylist(playlist, playlistEntries, true);
                     infoRequestData.setResult(playlist);
                     return true;
                 }

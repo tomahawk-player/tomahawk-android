@@ -249,7 +249,8 @@ public class CollectionManager {
      * Update the loved items user-playlist and the contained queries.
      */
     private void ensureLovedItemsPlaylist() {
-        Playlist lovedItemsPlayList = DatabaseHelper.getInstance().getLovedItemsPlaylist();
+        Playlist lovedItemsPlayList =
+                DatabaseHelper.getInstance().getPlaylist(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID);
         if (lovedItemsPlayList == null) {
             // If we don't yet have a Playlist to store loved items, we create and store an
             // empty Playlist here

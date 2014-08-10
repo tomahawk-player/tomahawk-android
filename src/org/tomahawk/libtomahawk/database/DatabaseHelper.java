@@ -127,7 +127,9 @@ public class DatabaseHelper {
 
                     // Store every single Track in the database and store the relationship
                     // by storing the playlists's id with it
-                    for (PlaylistEntry entry : playlist.getEntries()) {
+                    ArrayList<PlaylistEntry> entries = playlist.getEntries();
+                    for (int i = 0; i < entries.size(); i++) {
+                        PlaylistEntry entry = entries.get(i);
                         values.clear();
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID, playlist.getId());
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME,
@@ -138,6 +140,7 @@ public class DatabaseHelper {
                                 entry.getQuery().getBasicTrack().getAlbum().getName());
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_RESULTHINT,
                                 entry.getQuery().getTopTrackResultKey());
+                        values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTENTRYINDEX, i);
                         if (entry.getQuery().isFetchedViaHatchet()) {
                             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ISFETCHEDVIAHATCHET,
                                     TRUE);
@@ -196,14 +199,6 @@ public class DatabaseHelper {
     }
 
     /**
-     * @return the stored {@link org.tomahawk.libtomahawk.collection.Playlist} with
-     * LOVEDITEMS_PLAYLIST_ID as its id
-     */
-    public Playlist getLovedItemsPlaylist() {
-        return getPlaylist(LOVEDITEMS_PLAYLIST_ID);
-    }
-
-    /**
      * @return every stored {@link org.tomahawk.libtomahawk.collection.Playlist} in the database
      */
     public ArrayList<Playlist> getPlaylists() {
@@ -255,6 +250,19 @@ public class DatabaseHelper {
      * its id
      */
     public Playlist getPlaylist(String playlistId) {
+        if (playlistId.equals(LOVEDITEMS_PLAYLIST_ID)) {
+            return getPlaylist(playlistId, true);
+        } else {
+            return getPlaylist(playlistId, false);
+        }
+    }
+
+    /**
+     * @param playlistId the id by which to get the correct {@link org.tomahawk.libtomahawk.collection.Playlist}
+     * @return the stored {@link org.tomahawk.libtomahawk.collection.Playlist} with playlistId as
+     * its id
+     */
+    public Playlist getPlaylist(String playlistId, boolean reverseEntries) {
         String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME,
                 TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
                 TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTTRACKINDEX,
@@ -271,7 +279,9 @@ public class DatabaseHelper {
                     TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTENTRYID};
             Cursor tracksCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_TRACKS, columns,
                     TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = ?",
-                    new String[]{playlistId}, null, null, null);
+                    new String[]{playlistId}, null, null,
+                    TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTENTRYINDEX + (reverseEntries
+                            ? " DESC" : " ASC"));
             ArrayList<PlaylistEntry> queries = new ArrayList<PlaylistEntry>();
             tracksCursor.moveToFirst();
             while (!tracksCursor.isAfterLast()) {
@@ -386,10 +396,12 @@ public class DatabaseHelper {
             @Override
             public void run() {
                 synchronized (this) {
+                    int trackCount = getPlaylistTrackCount(playlistId);
                     mDatabase.beginTransaction();
                     // Store every single Track in the database and store the relationship
                     // by storing the playlists's id with it
-                    for (Query query : queries) {
+                    for (int i = 0; i < queries.size(); i++) {
+                        Query query = queries.get(i);
                         ContentValues values = new ContentValues();
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID,
                                 playlistId);
@@ -401,6 +413,8 @@ public class DatabaseHelper {
                                 query.getBasicTrack().getAlbum().getName());
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_RESULTHINT,
                                 query.getTopTrackResultKey());
+                        values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTENTRYINDEX,
+                                trackCount + i);
                         if (query.isFetchedViaHatchet()) {
                             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ISFETCHEDVIAHATCHET,
                                     TRUE);
@@ -428,10 +442,12 @@ public class DatabaseHelper {
             @Override
             public void run() {
                 synchronized (this) {
+                    int trackCount = getPlaylistTrackCount(playlistId);
                     mDatabase.beginTransaction();
                     // Store every single Track in the database and store the relationship
                     // by storing the playlists's id with it
-                    for (PlaylistEntry entry : entries) {
+                    for (int i = 0; i < entries.size(); i++) {
+                        PlaylistEntry entry = entries.get(i);
                         ContentValues values = new ContentValues();
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID,
                                 playlistId);
@@ -443,6 +459,8 @@ public class DatabaseHelper {
                                 entry.getQuery().getBasicTrack().getAlbum().getName());
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_RESULTHINT,
                                 entry.getQuery().getTopTrackResultKey());
+                        values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTENTRYINDEX,
+                                trackCount + i);
                         if (entry.getQuery().isFetchedViaHatchet()) {
                             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ISFETCHEDVIAHATCHET,
                                     TRUE);
@@ -537,7 +555,7 @@ public class DatabaseHelper {
         if (isLoved) {
             ArrayList<Query> queries = new ArrayList<Query>();
             queries.add(query);
-            addQueriesToPlaylist(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID, queries);
+            addQueriesToPlaylist(LOVEDITEMS_PLAYLIST_ID, queries);
         } else {
             mDatabase.beginTransaction();
             mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
@@ -548,6 +566,7 @@ public class DatabaseHelper {
                             query.getArtist().getName()});
             mDatabase.setTransactionSuccessful();
             mDatabase.endTransaction();
+            sendReportResultsBroadcast(LOVEDITEMS_PLAYLIST_ID);
         }
     }
 
