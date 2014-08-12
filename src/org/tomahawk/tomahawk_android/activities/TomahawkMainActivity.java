@@ -86,8 +86,8 @@ import java.util.HashSet;
  * The main Tomahawk activity
  */
 public class TomahawkMainActivity extends ActionBarActivity
-        implements PlaybackServiceConnectionListener,
-        FragmentManager.OnBackStackChangedListener {
+        implements PlaybackServiceConnectionListener, FragmentManager.OnBackStackChangedListener,
+        SlidingUpPanelLayout.PanelSlideListener {
 
     private final static String TAG = TomahawkMainActivity.class.getSimpleName();
 
@@ -96,6 +96,12 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public static final String SHOW_PLAYBACKFRAGMENT_ON_STARTUP
             = "org.tomahawk.tomahawk_android.show_playbackfragment_on_startup";
+
+    public static final String SLIDING_LAYOUT_COLLAPSED
+            = "org.tomahawk.tomahawk_android.sliding_layout_collapsed";
+
+    public static final String SLIDING_LAYOUT_EXPANDED
+            = "org.tomahawk.tomahawk_android.sliding_layout_expanded";
 
     public static final String FRAGMENT_TAG = "the_ultimate_tag";
 
@@ -266,6 +272,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         mSlidingUpPanelLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+        mSlidingUpPanelLayout.setPanelSlideListener(this);
 
         if (mDrawerLayout != null) {
             mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer,
@@ -635,5 +642,27 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public static String getLifetimeUniqueStringId() {
         return String.valueOf(System.currentTimeMillis()) + getSessionUniqueStringId();
+    }
+
+    @Override
+    public void onPanelSlide(View view, float v) {
+    }
+
+    @Override
+    public void onPanelCollapsed(View view) {
+        TomahawkApp.getContext().sendBroadcast(new Intent(SLIDING_LAYOUT_COLLAPSED));
+    }
+
+    @Override
+    public void onPanelExpanded(View view) {
+        TomahawkApp.getContext().sendBroadcast(new Intent(SLIDING_LAYOUT_EXPANDED));
+    }
+
+    @Override
+    public void onPanelAnchored(View view) {
+    }
+
+    @Override
+    public void onPanelHidden(View view) {
     }
 }

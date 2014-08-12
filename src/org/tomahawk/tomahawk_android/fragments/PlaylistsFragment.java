@@ -88,4 +88,13 @@ public class PlaylistsFragment extends TomahawkFragment {
             ((TomahawkListAdapter) getListAdapter()).setListItems(playlists);
         }
     }
+
+    @Override
+    public void onPanelCollapsed() {
+        getActivity().setTitle(getString(R.string.playlistsfragment_title_string));
+    }
+
+    @Override
+    public void onPanelExpanded() {
+    }
 }

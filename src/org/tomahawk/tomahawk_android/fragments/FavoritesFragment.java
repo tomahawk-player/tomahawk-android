@@ -22,7 +22,6 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,7 +30,7 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FavoritesFragment extends Fragment {
+public class FavoritesFragment extends SlidingPanelFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -72,5 +71,14 @@ public class FavoritesFragment extends Fragment {
                 fragmentClassNames, fragmentTitles, fragmentBundles);
         ViewPager fragmentPager = (ViewPager) getActivity().findViewById(R.id.fragmentpager);
         fragmentPager.setAdapter(adapter);
+    }
+
+    @Override
+    public void onPanelCollapsed() {
+        getActivity().setTitle(getString(R.string.favoritesfragment_title_string));
+    }
+
+    @Override
+    public void onPanelExpanded() {
     }
 }

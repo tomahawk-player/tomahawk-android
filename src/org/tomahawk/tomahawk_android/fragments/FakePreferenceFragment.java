@@ -264,4 +264,13 @@ public class FakePreferenceFragment extends TomahawkListFragment
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         ((FakePreferencesAdapter) getListAdapter()).notifyDataSetChanged();
     }
+
+    @Override
+    public void onPanelCollapsed() {
+        getActivity().setTitle(getString(R.string.fakepreferencefragment_title_string));
+    }
+
+    @Override
+    public void onPanelExpanded() {
+    }
 }

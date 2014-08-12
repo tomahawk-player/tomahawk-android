@@ -26,7 +26,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,7 +38,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 /**
  * More customizable implementation of {@link android.app.ListFragment}
  */
-public class TomahawkListFragment extends Fragment {
+public abstract class TomahawkListFragment extends SlidingPanelFragment {
 
     public static final String TOMAHAWK_LIST_SCROLL_POSITION
             = "org.tomahawk.tomahawk_android.tomahawk_list_scroll_position";

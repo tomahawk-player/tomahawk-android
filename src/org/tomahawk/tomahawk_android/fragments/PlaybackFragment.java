@@ -62,8 +62,7 @@ import java.util.List;
  * play/stop/pause. It is being shown as the topmost fragment in the {@link PlaybackFragment}'s
  * {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}.
  */
-public class PlaybackFragment extends TomahawkFragment implements
-        SlidingUpPanelLayout.PanelSlideListener {
+public class PlaybackFragment extends TomahawkFragment {
 
     private AlbumArtSwipeAdapter mAlbumArtSwipeAdapter;
 
@@ -153,8 +152,6 @@ public class PlaybackFragment extends TomahawkFragment implements
 
         onPlaylistChanged();
 
-        getActivity().setTitle(getString(R.string.playbackfragment_title_string));
-
         PlaybackService playbackService = activity.getPlaybackService();
         FrameLayout viewPagerFrame = (FrameLayout) activity.getLayoutInflater()
                 .inflate(R.layout.album_art_view_pager, null);
@@ -162,7 +159,6 @@ public class PlaybackFragment extends TomahawkFragment implements
                 (SlidingUpPanelLayout) activity.findViewById(R.id.sliding_layout);
         slidingLayout.setEnableDragViewTouchEvents(true);
         slidingLayout.setDragView(viewPagerFrame.findViewById(R.id.sliding_layout_drag_view));
-        slidingLayout.setPanelSlideListener(this);
         ViewPager viewPager = (ViewPager) viewPagerFrame.findViewById(R.id.album_art_view_pager);
         mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter(activity,
                 activity.getSupportFragmentManager(), activity.getLayoutInflater(), viewPager,
@@ -721,12 +717,7 @@ public class PlaybackFragment extends TomahawkFragment implements
     }
 
     @Override
-    public void onPanelSlide(View view, float v) {
-
-    }
-
-    @Override
-    public void onPanelCollapsed(View view) {
+    public void onPanelCollapsed() {
         mAlbumArtSwipeAdapter.notifyDataSetChanged();
         mMenu.findItem(R.id.action_show_playlist_item).setVisible(false);
         mMenu.findItem(R.id.action_saveplaylist_item).setVisible(false);
@@ -735,21 +726,12 @@ public class PlaybackFragment extends TomahawkFragment implements
     }
 
     @Override
-    public void onPanelExpanded(View view) {
+    public void onPanelExpanded() {
         mAlbumArtSwipeAdapter.notifyDataSetChanged();
         mMenu.findItem(R.id.action_show_playlist_item).setVisible(true);
         mMenu.findItem(R.id.action_saveplaylist_item).setVisible(true);
         mMenu.findItem(R.id.action_gotoartist_item).setVisible(true);
         mMenu.findItem(R.id.action_gotoalbum_item).setVisible(true);
-    }
-
-    @Override
-    public void onPanelAnchored(View view) {
-
-    }
-
-    @Override
-    public void onPanelHidden(View view) {
-
+        getActivity().setTitle(getString(R.string.playbackfragment_title_string));
     }
 }
