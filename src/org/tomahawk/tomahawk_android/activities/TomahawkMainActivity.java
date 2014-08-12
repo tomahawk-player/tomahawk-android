@@ -19,6 +19,7 @@
 package org.tomahawk.tomahawk_android.activities;
 
 import com.rdio.android.api.OAuth1WebViewActivity;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
@@ -127,6 +128,8 @@ public class TomahawkMainActivity extends ActionBarActivity
     private Drawable mProgressDrawable;
 
     private Handler mAnimationHandler;
+
+    private SlidingUpPanelLayout mSlidingUpPanelLayout;
 
     public static boolean sIsConnectedToWifi;
 
@@ -264,6 +267,8 @@ public class TomahawkMainActivity extends ActionBarActivity
         mTitle = mDrawerTitle = getTitle();
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        mSlidingUpPanelLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.add(R.id.playback_fragment_frame,
@@ -587,6 +592,18 @@ public class TomahawkMainActivity extends ActionBarActivity
         if (mDrawerLayout != null) {
             mDrawerLayout.closeDrawer(mDrawerList);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mSlidingUpPanelLayout.isEnabled()
+                && (mSlidingUpPanelLayout.isPanelExpanded()
+                || mSlidingUpPanelLayout.isPanelAnchored())) {
+            mSlidingUpPanelLayout.collapsePanel();
+        } else {
+            super.onBackPressed();
+        }
+
     }
 
     @Override
