@@ -67,7 +67,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -97,8 +96,6 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public static final String SHOW_PLAYBACKFRAGMENT_ON_STARTUP
             = "org.tomahawk.tomahawk_android.show_playbackfragment_on_startup";
-
-    public static final String ID_COUNTER = "org.tomahawk.tomahawk_android.id_counter";
 
     public static final String FRAGMENT_TAG = "the_ultimate_tag";
 
@@ -270,12 +267,6 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         mSlidingUpPanelLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
 
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.add(R.id.playback_fragment_frame,
-                Fragment.instantiate(this, PlaybackFragment.class.getName(), null),
-                null);
-        ft.commit();
-
         if (mDrawerLayout != null) {
             mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer,
                     R.string.drawer_open, R.string.drawer_close) {
@@ -307,6 +298,9 @@ public class TomahawkMainActivity extends ActionBarActivity
         actionBar.setDisplayShowCustomEnabled(true);
 
         if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().add(R.id.playback_fragment_frame,
+                    Fragment.instantiate(this, PlaybackFragment.class.getName(), null),
+                    null).commit();
             FragmentUtils.addRootFragment(TomahawkMainActivity.this, getSupportFragmentManager());
         }
         getSupportFragmentManager().addOnBackStackChangedListener(this);
