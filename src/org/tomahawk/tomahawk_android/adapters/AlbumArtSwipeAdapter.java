@@ -47,7 +47,8 @@ import android.widget.TextView;
  * {@link PagerAdapter} which provides functionality to swipe an AlbumArt image. Used in {@link
  * org.tomahawk.tomahawk_android.fragments.PlaybackFragment}
  */
-public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPageChangeListener {
+public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPageChangeListener,
+        SlidingUpPanelLayout.PanelSlideListener {
 
     //Used to provide fake infinite swiping behaviour, if current Playlist is repeating
     private static final int FAKE_INFINITY_COUNT = 20000;
@@ -90,6 +91,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         mViewPager = viewPager;
         mClickListener = clickListener;
         mSlidingUpPanelLayout = slidingUpPanelLayout;
+        mSlidingUpPanelLayout.setPanelSlideListener(this);
         mByUser = true;
         mSwiped = false;
     }
@@ -300,33 +302,39 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     private void refreshTrackInfo(View view, final Query query) {
         TextView artistTextView = (TextView) view.findViewById(R.id.now_playing_artist);
         TextView titleTextView = (TextView) view.findViewById(R.id.now_playing_title);
+        ImageButton playPauseButton = (ImageButton) view.findViewById(R.id.now_playing_button1);
         ImageButton loveButton = (ImageButton) view.findViewById(R.id.now_playing_button2);
         ImageView imageView = (ImageView) view.findViewById(R.id.album_art_image);
         View clickView = view.findViewById(R.id.sliding_layout_click_view);
+        ImageView nowPlayingAlbumArt = (ImageView) view.findViewById(R.id.now_playing_album_art);
         if (query != null) {
+            mSlidingUpPanelLayout.showPanel();
             boolean landscapeMode = mContext.getResources().getConfiguration().orientation
                     == Configuration.ORIENTATION_LANDSCAPE;
             TomahawkUtils.loadImageIntoImageView(mContext, imageView, query.getImage(),
                     Image.getLargeImageSize(), landscapeMode);
-            ImageView nowPlayingAlbumArt =
-                    (ImageView) view.findViewById(R.id.now_playing_album_art);
             TomahawkUtils.loadImageIntoImageView(mContext, nowPlayingAlbumArt, query.getImage(),
                     Image.getSmallImageSize());
-            ImageButton playPauseButton =
-                    (ImageButton) view.findViewById(R.id.now_playing_button1);
-            if (mPlaybackService.isPlaying()) {
-                TomahawkUtils.loadDrawableIntoImageView(mContext, playPauseButton,
-                        R.drawable.ic_player_pause);
-            } else {
-                TomahawkUtils.loadDrawableIntoImageView(mContext, playPauseButton,
-                        R.drawable.ic_player_play);
-            }
-            playPauseButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mPlaybackService.playPause();
+            if (!mSlidingUpPanelLayout.isPanelExpanded()) {
+                playPauseButton.setEnabled(true);
+                playPauseButton.setVisibility(View.VISIBLE);
+                if (mPlaybackService.isPlaying()) {
+                    TomahawkUtils.loadDrawableIntoImageView(mContext, playPauseButton,
+                            R.drawable.ic_player_pause);
+                } else {
+                    TomahawkUtils.loadDrawableIntoImageView(mContext, playPauseButton,
+                            R.drawable.ic_player_play);
                 }
-            });
+                playPauseButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mPlaybackService.playPause();
+                    }
+                });
+            } else {
+                playPauseButton.setEnabled(false);
+                playPauseButton.setVisibility(View.GONE);
+            }
 
             // Update all relevant TextViews
             if (artistTextView != null) {
@@ -374,6 +382,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                 }
             });
         } else {
+            mSlidingUpPanelLayout.hidePanel();
             //No track has been given, so we update the view state accordingly
             // Update all relevant TextViews
 
@@ -389,4 +398,28 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         }
     }
 
+    @Override
+    public void onPanelSlide(View view, float v) {
+
+    }
+
+    @Override
+    public void onPanelCollapsed(View view) {
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public void onPanelExpanded(View view) {
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public void onPanelAnchored(View view) {
+
+    }
+
+    @Override
+    public void onPanelHidden(View view) {
+
+    }
 }
