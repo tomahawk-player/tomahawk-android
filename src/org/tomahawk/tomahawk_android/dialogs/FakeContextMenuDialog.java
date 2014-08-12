@@ -246,8 +246,8 @@ public class FakeContextMenuDialog extends DialogFragment {
                     playbackService.setCurrentPlaylist(playlist);
                     playbackService.start();
                 }
-                FragmentUtils.showHub(getActivity(), getActivity().getSupportFragmentManager(),
-                        FragmentUtils.HUB_ID_PLAYBACK);
+                FragmentUtils.showHub((TomahawkMainActivity) getActivity(),
+                        getActivity().getSupportFragmentManager(), FragmentUtils.HUB_ID_PLAYBACK);
             }
         } else if (menuItemTitle
                 .equals(getString(R.string.fake_context_menu_playaftercurrenttrack))) {
@@ -303,12 +303,14 @@ public class FakeContextMenuDialog extends DialogFragment {
             dialog.setArguments(args);
             dialog.show(getActivity().getSupportFragmentManager(), null);
         } else if (menuItemTitle.equals(getString(R.string.menu_item_go_to_album))) {
-            FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                    TracksFragment.class, mTomahawkListItem.getAlbum().getCacheKey(),
-                    TomahawkFragment.TOMAHAWK_ALBUM_KEY, mCollection);
+            FragmentUtils.replace((TomahawkMainActivity) getActivity(),
+                    getActivity().getSupportFragmentManager(), TracksFragment.class,
+                    mTomahawkListItem.getAlbum().getCacheKey(), TomahawkFragment.TOMAHAWK_ALBUM_KEY,
+                    mCollection);
         } else if (menuItemTitle.equals(getActivity().getString(R.string.menu_item_go_to_artist))) {
-            FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                    AlbumsFragment.class, mTomahawkListItem.getArtist().getCacheKey(),
+            FragmentUtils.replace((TomahawkMainActivity) getActivity(),
+                    getActivity().getSupportFragmentManager(), AlbumsFragment.class,
+                    mTomahawkListItem.getArtist().getCacheKey(),
                     TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
         } else if (menuItemTitle.equals(getString(R.string.fake_context_menu_love_track))
                 || menuItemTitle.equals(getString(R.string.fake_context_menu_unlove_track))) {

@@ -32,7 +32,6 @@ import org.tomahawk.tomahawk_android.utils.AdapterUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -71,9 +70,10 @@ public class TracksFragment extends TomahawkFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item != null) {
             if (item.getItemId() == R.id.action_gotoartist_item) {
-                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                        AlbumsFragment.class, mAlbum.getArtist().getCacheKey(),
-                        TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
+                FragmentUtils.replace((TomahawkMainActivity) getActivity(),
+                        getActivity().getSupportFragmentManager(), AlbumsFragment.class,
+                        mAlbum.getArtist().getCacheKey(), TomahawkFragment.TOMAHAWK_ARTIST_KEY,
+                        mCollection);
             }
             ((TomahawkMainActivity) getActivity()).closeDrawer();
         }
@@ -138,14 +138,13 @@ public class TracksFragment extends TomahawkFragment {
         ArrayList<TomahawkListItem> queries = new ArrayList<TomahawkListItem>();
         TomahawkListAdapter tomahawkListAdapter;
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        Context context = getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         View rootView = getView();
         if (mAlbum != null) {
             activity.setTitle(mAlbum.getName());
             queries.addAll(AdapterUtils.getAlbumTracks(mAlbum, mCollection));
             if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(context, layoutInflater, queries,
+                tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, queries,
                         this);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true);
@@ -160,7 +159,7 @@ public class TracksFragment extends TomahawkFragment {
             activity.setTitle(mArtist.getName());
             queries.addAll(AdapterUtils.getArtistTracks(mArtist, mCollection));
             if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(context, layoutInflater, queries,
+                tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, queries,
                         this);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true);
@@ -174,7 +173,7 @@ public class TracksFragment extends TomahawkFragment {
         } else {
             queries.addAll(mCollection.getQueries());
             if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(context, layoutInflater, queries,
+                tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, queries,
                         this);
                 setListAdapter(tomahawkListAdapter);
             } else {

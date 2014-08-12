@@ -25,7 +25,6 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 
 import java.util.ArrayList;
@@ -66,9 +65,9 @@ public class UsersFragment extends TomahawkFragment {
     @Override
     public void onItemClick(TomahawkListItem item) {
         if (item instanceof User) {
-            FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                    SocialActionsFragment.class, ((User) item).getId(),
-                    TomahawkFragment.TOMAHAWK_USER_ID,
+            FragmentUtils.replace((TomahawkMainActivity) getActivity(),
+                    getActivity().getSupportFragmentManager(), SocialActionsFragment.class,
+                    ((User) item).getId(), TomahawkFragment.TOMAHAWK_USER_ID,
                     SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
         }
     }
@@ -84,7 +83,6 @@ public class UsersFragment extends TomahawkFragment {
         }
 
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        Context context = getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
         List<TomahawkListItem> users = new ArrayList<TomahawkListItem>();
@@ -100,7 +98,7 @@ public class UsersFragment extends TomahawkFragment {
             }
         }
         if (getListAdapter() == null) {
-            TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
+            TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
                     layoutInflater, users, this);
             setListAdapter(tomahawkListAdapter);
         } else {

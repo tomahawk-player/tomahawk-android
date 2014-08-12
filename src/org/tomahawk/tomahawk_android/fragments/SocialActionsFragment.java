@@ -31,7 +31,6 @@ import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -74,10 +73,10 @@ public class SocialActionsFragment extends TomahawkFragment {
      */
     @Override
     public void onItemClick(TomahawkListItem item) {
+        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         if (item instanceof SocialAction) {
             SocialAction socialAction = (SocialAction) item;
             TomahawkListItem target = socialAction.getTargetObject();
-            TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
             if (target instanceof Query && ((Query) target).isPlayable()) {
                 Query query = (Query) target;
                 ArrayList<Query> queries = new ArrayList<Query>();
@@ -94,21 +93,21 @@ public class SocialActionsFragment extends TomahawkFragment {
                     }
                 }
             } else if (target instanceof Album) {
-                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
                         TracksFragment.class, target.getCacheKey(),
                         TomahawkFragment.TOMAHAWK_ALBUM_KEY, mCollection);
             } else if (target instanceof Artist) {
-                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
                         AlbumsFragment.class, target.getCacheKey(),
                         TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
             } else if (target instanceof User) {
-                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+                FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
                         SocialActionsFragment.class, ((User) target).getId(),
                         TomahawkFragment.TOMAHAWK_USER_ID,
                         SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
             }
         } else if (item instanceof User) {
-            FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+            FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
                     SocialActionsFragment.class, ((User) item).getId(),
                     TomahawkFragment.TOMAHAWK_USER_ID,
                     SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
@@ -124,7 +123,7 @@ public class SocialActionsFragment extends TomahawkFragment {
             return;
         }
 
-        Context context = getActivity();
+        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         View rootView = getActivity().findViewById(android.R.id.content);
         if (mUser != null) {
@@ -144,7 +143,7 @@ public class SocialActionsFragment extends TomahawkFragment {
             TomahawkListAdapter tomahawkListAdapter;
             getActivity().setTitle(mUser.getName());
             if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(context, layoutInflater,
+                tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater,
                         socialActions, this);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true);

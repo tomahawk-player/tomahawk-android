@@ -281,7 +281,6 @@ public class TomahawkMainActivity extends ActionBarActivity
                 /** Called when a drawer has settled in a completely closed state. */
                 public void onDrawerClosed(View view) {
                     getSupportActionBar().setTitle(mTitle);
-                    supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
                 }
 
                 /** Called when a drawer has settled in a completely open state. */
@@ -290,7 +289,6 @@ public class TomahawkMainActivity extends ActionBarActivity
                     if (mSearchItem != null) {
                         MenuItemCompat.collapseActionView(mSearchItem);
                     }
-                    supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
                 }
             };
             // Set the drawer toggle as the DrawerListener
@@ -664,5 +662,9 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @Override
     public void onPanelHidden(View view) {
+    }
+
+    public void collapsePanel() {
+        mSlidingUpPanelLayout.collapsePanel();
     }
 }

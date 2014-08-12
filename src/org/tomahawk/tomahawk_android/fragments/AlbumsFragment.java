@@ -30,7 +30,6 @@ import org.tomahawk.tomahawk_android.utils.AdapterUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -83,7 +82,7 @@ public class AlbumsFragment extends TomahawkFragment {
                 }
             }
         } else if (item instanceof Album) {
-            FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+            FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
                     TracksFragment.class, item.getCacheKey(),
                     TomahawkFragment.TOMAHAWK_ALBUM_KEY, mCollection);
         }
@@ -100,7 +99,6 @@ public class AlbumsFragment extends TomahawkFragment {
 
         List<TomahawkListItem> albumsAndTopHits = new ArrayList<TomahawkListItem>();
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        Context context = getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         View rootView = getView();
         if (mArtist != null) {
@@ -114,7 +112,7 @@ public class AlbumsFragment extends TomahawkFragment {
                 mShownQueries = topHits;
             }
             if (getListAdapter() == null) {
-                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
+                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
                         layoutInflater, albumsAndTopHits, this);
                 tomahawkListAdapter
                         .setShowCategoryHeaders(true,
@@ -134,7 +132,7 @@ public class AlbumsFragment extends TomahawkFragment {
             }
             albumsAndTopHits.addAll(albums);
             if (getListAdapter() == null) {
-                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
+                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
                         layoutInflater, albumsAndTopHits, this);
                 setListAdapter(tomahawkListAdapter);
             } else {

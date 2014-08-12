@@ -126,7 +126,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 }
                 playlistEntries.addAll(mPlaylist.getEntries());
                 if (getListAdapter() == null) {
-                    tomahawkListAdapter = new TomahawkListAdapter(context, layoutInflater,
+                    tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater,
                             playlistEntries, this);
                     tomahawkListAdapter.setShowResolvedBy(true);
                     tomahawkListAdapter.showContentHeader(rootView, mPlaylist, mCollection);
