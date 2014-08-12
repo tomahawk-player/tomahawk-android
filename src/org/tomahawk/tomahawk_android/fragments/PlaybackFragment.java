@@ -62,7 +62,8 @@ import java.util.List;
  * play/stop/pause. It is being shown as the topmost fragment in the {@link PlaybackFragment}'s
  * {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}.
  */
-public class PlaybackFragment extends TomahawkFragment {
+public class PlaybackFragment extends TomahawkFragment implements
+        SlidingUpPanelLayout.PanelSlideListener {
 
     private AlbumArtSwipeAdapter mAlbumArtSwipeAdapter;
 
@@ -161,6 +162,7 @@ public class PlaybackFragment extends TomahawkFragment {
                 (SlidingUpPanelLayout) activity.findViewById(R.id.sliding_layout);
         slidingLayout.setEnableDragViewTouchEvents(true);
         slidingLayout.setDragView(viewPagerFrame.findViewById(R.id.sliding_layout_drag_view));
+        slidingLayout.setPanelSlideListener(this);
         ViewPager viewPager = (ViewPager) viewPagerFrame.findViewById(R.id.album_art_view_pager);
         mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter(activity,
                 activity.getSupportFragmentManager(), activity.getLayoutInflater(), viewPager,
@@ -196,11 +198,6 @@ public class PlaybackFragment extends TomahawkFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         mMenu = menu;
-
-        mMenu.findItem(R.id.action_show_playlist_item).setVisible(true);
-        mMenu.findItem(R.id.action_saveplaylist_item).setVisible(true);
-        mMenu.findItem(R.id.action_gotoartist_item).setVisible(true);
-        mMenu.findItem(R.id.action_gotoalbum_item).setVisible(true);
 
         onTrackChanged();
 
@@ -721,5 +718,38 @@ public class PlaybackFragment extends TomahawkFragment {
                 }
             }
         }
+    }
+
+    @Override
+    public void onPanelSlide(View view, float v) {
+
+    }
+
+    @Override
+    public void onPanelCollapsed(View view) {
+        mAlbumArtSwipeAdapter.notifyDataSetChanged();
+        mMenu.findItem(R.id.action_show_playlist_item).setVisible(false);
+        mMenu.findItem(R.id.action_saveplaylist_item).setVisible(false);
+        mMenu.findItem(R.id.action_gotoartist_item).setVisible(false);
+        mMenu.findItem(R.id.action_gotoalbum_item).setVisible(false);
+    }
+
+    @Override
+    public void onPanelExpanded(View view) {
+        mAlbumArtSwipeAdapter.notifyDataSetChanged();
+        mMenu.findItem(R.id.action_show_playlist_item).setVisible(true);
+        mMenu.findItem(R.id.action_saveplaylist_item).setVisible(true);
+        mMenu.findItem(R.id.action_gotoartist_item).setVisible(true);
+        mMenu.findItem(R.id.action_gotoalbum_item).setVisible(true);
+    }
+
+    @Override
+    public void onPanelAnchored(View view) {
+
+    }
+
+    @Override
+    public void onPanelHidden(View view) {
+
     }
 }

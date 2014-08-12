@@ -47,8 +47,7 @@ import android.widget.TextView;
  * {@link PagerAdapter} which provides functionality to swipe an AlbumArt image. Used in {@link
  * org.tomahawk.tomahawk_android.fragments.PlaybackFragment}
  */
-public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPageChangeListener,
-        SlidingUpPanelLayout.PanelSlideListener {
+public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPageChangeListener {
 
     //Used to provide fake infinite swiping behaviour, if current Playlist is repeating
     private static final int FAKE_INFINITY_COUNT = 20000;
@@ -91,7 +90,6 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         mViewPager = viewPager;
         mClickListener = clickListener;
         mSlidingUpPanelLayout = slidingUpPanelLayout;
-        mSlidingUpPanelLayout.setPanelSlideListener(this);
         mByUser = true;
         mSwiped = false;
     }
@@ -396,30 +394,5 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                 loveButton.setImageResource(R.drawable.ic_action_notloved);
             }
         }
-    }
-
-    @Override
-    public void onPanelSlide(View view, float v) {
-
-    }
-
-    @Override
-    public void onPanelCollapsed(View view) {
-        notifyDataSetChanged();
-    }
-
-    @Override
-    public void onPanelExpanded(View view) {
-        notifyDataSetChanged();
-    }
-
-    @Override
-    public void onPanelAnchored(View view) {
-
-    }
-
-    @Override
-    public void onPanelHidden(View view) {
-
     }
 }
