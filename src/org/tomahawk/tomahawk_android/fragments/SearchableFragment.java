@@ -253,4 +253,15 @@ public class SearchableFragment extends TomahawkFragment
             updateAdapter();
         }
     }
+
+    @Override
+    public void onPanelCollapsed() {
+        if (mCurrentQueryString != null) {
+            getActivity().setTitle(mCurrentQueryString);
+        }
+    }
+
+    @Override
+    public void onPanelExpanded() {
+    }
 }

@@ -107,4 +107,19 @@ public class UsersFragment extends TomahawkFragment {
             ((TomahawkListAdapter) getListAdapter()).setListItems(users);
         }
     }
+
+    @Override
+    public void onPanelCollapsed() {
+        if (mShowMode == SHOW_MODE_TYPE_FOLLOWERS) {
+            getActivity()
+                    .setTitle(mUser.getName() + " " + getString(R.string.users_followers_suffix));
+        } else {
+            getActivity()
+                    .setTitle(mUser.getName() + " " + getString(R.string.users_followings_suffix));
+        }
+    }
+
+    @Override
+    public void onPanelExpanded() {
+    }
 }

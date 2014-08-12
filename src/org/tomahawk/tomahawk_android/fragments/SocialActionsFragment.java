@@ -173,4 +173,15 @@ public class SocialActionsFragment extends TomahawkFragment {
             updateShowPlaystate();
         }
     }
+
+    @Override
+    public void onPanelCollapsed() {
+        if (mUser != null) {
+            getActivity().setTitle(mUser.getName());
+        }
+    }
+
+    @Override
+    public void onPanelExpanded() {
+    }
 }

@@ -183,4 +183,15 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
             }
         }
     }
+
+    @Override
+    public void onPanelCollapsed() {
+        if (mPlaylist != null && !mPlaylist.getId().equals(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID)) {
+            getActivity().setTitle(mPlaylist.getName());
+        }
+    }
+
+    @Override
+    public void onPanelExpanded() {
+    }
 }

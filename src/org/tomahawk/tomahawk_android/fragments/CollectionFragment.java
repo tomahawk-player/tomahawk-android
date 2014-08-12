@@ -25,7 +25,6 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -44,7 +43,7 @@ import java.util.List;
  * ArtistsFragment}, which display the {@link org.tomahawk.libtomahawk.collection.UserCollection}'s
  * content to the user.
  */
-public class CollectionFragment extends Fragment {
+public class CollectionFragment extends SlidingPanelFragment {
 
     private Collection mCollection;
 
@@ -96,37 +95,7 @@ public class CollectionFragment extends Fragment {
             }
         }
 
-        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        actionBar.setDisplayShowTitleEnabled(false);
-        ArrayList<CharSequence> collectionNames = new ArrayList<CharSequence>();
-        int selectedSpinner = 0;
-        ArrayList<Collection> collections = CollectionManager.getInstance().getCollections();
-        for (int i = 0; i < collections.size(); i++) {
-            Collection collection = collections.get(i);
-            if (collection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
-                // Local collection should be always on top
-                collections.add(0, collections.remove(i));
-            } else if (collection.getId().equals(TomahawkApp.PLUGINNAME_HATCHET)) {
-                // Don't show the hatchet collection
-                collections.remove(i);
-                i--;
-            }
-        }
-        for (int i = 0; i < collections.size(); i++) {
-            Collection collection = collections.get(i);
-            collectionNames.add(collection.getName());
-            if (collection.equals(mCollection)) {
-                selectedSpinner = i;
-            }
-        }
-        SpinnerAdapter spinnerAdapter = new ArrayAdapter<CharSequence>(getActivity(),
-                android.R.layout.simple_spinner_dropdown_item, collectionNames);
-        NavigationListener navigationListener = new NavigationListener(collections);
-        actionBar.setListNavigationCallbacks(spinnerAdapter, navigationListener);
-        actionBar.setSelectedNavigationItem(selectedSpinner);
-
-        getActivity().setTitle(getString(R.string.usercollectionfragment_title_string));
+        setupActionbar();
 
         List<String> fragmentClassNames = new ArrayList<String>();
         if (mCollection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
@@ -165,5 +134,49 @@ public class CollectionFragment extends Fragment {
         ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
+    }
+
+    @Override
+    public void onPanelCollapsed() {
+        setupActionbar();
+    }
+
+    @Override
+    public void onPanelExpanded() {
+        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+        actionBar.setDisplayShowTitleEnabled(true);
+    }
+
+    private void setupActionbar() {
+        ActionBar actionBar = ((ActionBarActivity) getActivity()).getSupportActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        actionBar.setDisplayShowTitleEnabled(false);
+        ArrayList<CharSequence> collectionNames = new ArrayList<CharSequence>();
+        int selectedSpinner = 0;
+        ArrayList<Collection> collections = CollectionManager.getInstance().getCollections();
+        for (int i = 0; i < collections.size(); i++) {
+            Collection collection = collections.get(i);
+            if (collection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
+                // Local collection should be always on top
+                collections.add(0, collections.remove(i));
+            } else if (collection.getId().equals(TomahawkApp.PLUGINNAME_HATCHET)) {
+                // Don't show the hatchet collection
+                collections.remove(i);
+                i--;
+            }
+        }
+        for (int i = 0; i < collections.size(); i++) {
+            Collection collection = collections.get(i);
+            collectionNames.add(collection.getName());
+            if (collection.equals(mCollection)) {
+                selectedSpinner = i;
+            }
+        }
+        SpinnerAdapter spinnerAdapter = new ArrayAdapter<CharSequence>(getActivity(),
+                android.R.layout.simple_spinner_dropdown_item, collectionNames);
+        NavigationListener navigationListener = new NavigationListener(collections);
+        actionBar.setListNavigationCallbacks(spinnerAdapter, navigationListener);
+        actionBar.setSelectedNavigationItem(selectedSpinner);
     }
 }

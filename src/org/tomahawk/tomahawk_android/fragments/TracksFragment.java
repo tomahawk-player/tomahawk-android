@@ -189,4 +189,17 @@ public class TracksFragment extends TomahawkFragment {
 
         updateShowPlaystate();
     }
+
+    @Override
+    public void onPanelCollapsed() {
+        if (mAlbum != null) {
+            getActivity().setTitle(mAlbum.getName());
+        } else if (mArtist != null) {
+            getActivity().setTitle(mArtist.getName());
+        }
+    }
+
+    @Override
+    public void onPanelExpanded() {
+    }
 }
