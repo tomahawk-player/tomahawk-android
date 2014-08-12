@@ -622,15 +622,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         return String.valueOf(getSessionUniqueId());
     }
 
-    public static long getLifetimeUniqueId() {
-        SharedPreferences sharedPreferences = PreferenceManager
-                .getDefaultSharedPreferences(TomahawkApp.getContext());
-        long id = sharedPreferences.getLong(ID_COUNTER, 0);
-        sharedPreferences.edit().putLong(ID_COUNTER, id + 1).commit();
-        return id;
-    }
-
     public static String getLifetimeUniqueStringId() {
-        return String.valueOf(getLifetimeUniqueId());
+        return String.valueOf(System.currentTimeMillis()) + getSessionUniqueStringId();
     }
 }
