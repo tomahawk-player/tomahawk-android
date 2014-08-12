@@ -17,6 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
@@ -47,6 +49,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -152,18 +155,23 @@ public class PlaybackFragment extends TomahawkFragment {
         getActivity().setTitle(getString(R.string.playbackfragment_title_string));
 
         PlaybackService playbackService = activity.getPlaybackService();
-        ViewPager viewPager = (ViewPager) activity.getLayoutInflater()
+        FrameLayout viewPagerFrame = (FrameLayout) activity.getLayoutInflater()
                 .inflate(R.layout.album_art_view_pager, null);
+        SlidingUpPanelLayout slidingLayout =
+                (SlidingUpPanelLayout) activity.findViewById(R.id.sliding_layout);
+        slidingLayout.setEnableDragViewTouchEvents(true);
+        slidingLayout.setDragView(viewPagerFrame.findViewById(R.id.sliding_layout_drag_view));
+        ViewPager viewPager = (ViewPager) viewPagerFrame.findViewById(R.id.album_art_view_pager);
         mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter(activity,
                 activity.getSupportFragmentManager(), activity.getLayoutInflater(), viewPager,
-                this);
+                this, slidingLayout);
         mAlbumArtSwipeAdapter.setPlaybackService(playbackService);
         viewPager.setAdapter(mAlbumArtSwipeAdapter);
         viewPager.setOnPageChangeListener(mAlbumArtSwipeAdapter);
 
         mTomahawkVerticalViewPager = (TomahawkVerticalViewPager) getView()
                 .findViewById(R.id.playback_view_pager);
-        mPlaybackPagerAdapter = new PlaybackPagerAdapter(viewPager, getListView());
+        mPlaybackPagerAdapter = new PlaybackPagerAdapter(viewPagerFrame, getListView());
         mTomahawkVerticalViewPager.setAdapter(mPlaybackPagerAdapter);
         mTomahawkVerticalViewPager.setStickyListHeadersListView(getListView());
         mTomahawkVerticalViewPager.setOnPageChangeListener(mOnPageChangeListener);
@@ -339,9 +347,6 @@ public class PlaybackFragment extends TomahawkFragment {
         } else {
             updateAdapter();
         }
-        if (mAlbumArtSwipeAdapter != null) {
-            mAlbumArtSwipeAdapter.updatePlaylist();
-        }
         refreshRepeatButtonState();
         refreshShuffleButtonState();
     }
@@ -357,6 +362,9 @@ public class PlaybackFragment extends TomahawkFragment {
         refreshPlayPauseButtonState();
         if (mPlaybackSeekBar != null) {
             mPlaybackSeekBar.updateSeekBarPosition();
+        }
+        if (mAlbumArtSwipeAdapter != null) {
+            mAlbumArtSwipeAdapter.updatePlaylist();
         }
     }
 
@@ -542,7 +550,6 @@ public class PlaybackFragment extends TomahawkFragment {
                     }
                     mAlbumArtSwipeAdapter.setByUser(true);
                 }
-                mAlbumArtSwipeAdapter.setSwiped(false);
 
                 // Update the textViews, if available (in other words, if in landscape mode)
                 if (artistTextView != null) {
