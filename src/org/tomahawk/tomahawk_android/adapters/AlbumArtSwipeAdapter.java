@@ -17,6 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
@@ -24,11 +26,7 @@ import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
-import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
-import org.tomahawk.tomahawk_android.fragments.TracksFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
-import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 
 import android.content.Context;
@@ -38,7 +36,6 @@ import android.os.Parcelable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,6 +68,8 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
 
     private MultiColumnClickListener mClickListener;
 
+    private SlidingUpPanelLayout mSlidingUpPanelLayout;
+
     private PlaybackService mPlaybackService;
 
     private Playlist mPlaylist;
@@ -84,12 +83,13 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      */
     public AlbumArtSwipeAdapter(Context context, FragmentManager fragmentManager,
             LayoutInflater layoutInflater, ViewPager viewPager,
-            MultiColumnClickListener clickListener) {
+            MultiColumnClickListener clickListener, SlidingUpPanelLayout slidingUpPanelLayout) {
         mContext = context;
         mLayoutInflater = layoutInflater;
         mFragmentManager = fragmentManager;
         mViewPager = viewPager;
         mClickListener = clickListener;
+        mSlidingUpPanelLayout = slidingUpPanelLayout;
         mByUser = true;
         mSwiped = false;
     }
@@ -114,7 +114,6 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
             refreshTrackInfo(view, null);
         }
         if (view != null) {
-            view.setOnLongClickListener(new ClickListener(query, mClickListener));
             container.addView(view);
         }
         return view;
@@ -179,16 +178,16 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      * swiped to
      */
     @Override
-    public void onPageSelected(int arg0) {
+    public void onPageSelected(int position) {
         if (mPlaybackService != null && isByUser()) {
             setSwiped(true);
-            if (arg0 == mCurrentViewPage - 1) {
+            if (position == mCurrentViewPage - 1) {
                 mPlaybackService.previous();
-            } else if (arg0 == mCurrentViewPage + 1) {
+            } else if (position == mCurrentViewPage + 1) {
                 mPlaybackService.next();
             }
         }
-        mCurrentViewPage = arg0;
+        mCurrentViewPage = position;
     }
 
     @Override
@@ -299,50 +298,42 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     }
 
     private void refreshTrackInfo(View view, final Query query) {
-        TextView artistTextView = (TextView) view.findViewById(R.id.textView_artist);
-        TextView albumTextView = (TextView) view.findViewById(R.id.textView_album);
-        TextView titleTextView = (TextView) view.findViewById(R.id.textView_title);
-        ImageButton loveButton = (ImageButton) view.findViewById(R.id.love_button);
+        TextView artistTextView = (TextView) view.findViewById(R.id.now_playing_artist);
+        TextView titleTextView = (TextView) view.findViewById(R.id.now_playing_title);
+        ImageButton loveButton = (ImageButton) view.findViewById(R.id.now_playing_button2);
+        ImageView imageView = (ImageView) view.findViewById(R.id.album_art_image);
+        View clickView = view.findViewById(R.id.sliding_layout_click_view);
         if (query != null) {
-            ImageView imageView = (ImageView) view.findViewById(R.id.album_art_image);
             boolean landscapeMode = mContext.getResources().getConfiguration().orientation
                     == Configuration.ORIENTATION_LANDSCAPE;
             TomahawkUtils.loadImageIntoImageView(mContext, imageView, query.getImage(),
                     Image.getLargeImageSize(), landscapeMode);
+            ImageView nowPlayingAlbumArt =
+                    (ImageView) view.findViewById(R.id.now_playing_album_art);
+            TomahawkUtils.loadImageIntoImageView(mContext, nowPlayingAlbumArt, query.getImage(),
+                    Image.getSmallImageSize());
+            ImageButton playPauseButton =
+                    (ImageButton) view.findViewById(R.id.now_playing_button1);
+            if (mPlaybackService.isPlaying()) {
+                TomahawkUtils.loadDrawableIntoImageView(mContext, playPauseButton,
+                        R.drawable.ic_player_pause);
+            } else {
+                TomahawkUtils.loadDrawableIntoImageView(mContext, playPauseButton,
+                        R.drawable.ic_player_play);
+            }
+            playPauseButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mPlaybackService.playPause();
+                }
+            });
 
             // Update all relevant TextViews
             if (artistTextView != null) {
                 if (query.getArtist() != null && query.getArtist().getName() != null) {
                     artistTextView.setText(query.getArtist().toString());
-                    if (!TextUtils.isEmpty(query.getArtist().getName())) {
-                        artistTextView.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                FragmentUtils.replace(mContext, mFragmentManager,
-                                        AlbumsFragment.class, query.getArtist().getCacheKey(),
-                                        TomahawkFragment.TOMAHAWK_ARTIST_KEY, null);
-                            }
-                        });
-                    }
                 } else {
                     artistTextView.setText(R.string.playbackactivity_unknown_string);
-                }
-            }
-            if (albumTextView != null) {
-                if (query.getAlbum() != null && query.getAlbum().getName() != null) {
-                    albumTextView.setText(query.getAlbum().toString());
-                    if (!TextUtils.isEmpty(query.getAlbum().getName())) {
-                        albumTextView.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                FragmentUtils.replace(mContext, mFragmentManager,
-                                        TracksFragment.class, query.getAlbum().getCacheKey(),
-                                        TomahawkFragment.TOMAHAWK_ALBUM_KEY, null);
-                            }
-                        });
-                    }
-                } else {
-                    albumTextView.setText(R.string.playbackactivity_unknown_string);
                 }
             }
             if (titleTextView != null) {
@@ -367,17 +358,27 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                     }
                 });
             }
+            imageView.setOnLongClickListener(new ClickListener(query, mClickListener));
+            clickView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!mSlidingUpPanelLayout.isEnabled()) {
+                        return;
+                    }
+                    if (!mSlidingUpPanelLayout.isPanelExpanded()
+                            && !mSlidingUpPanelLayout.isPanelAnchored()) {
+                        mSlidingUpPanelLayout.expandPanel(mSlidingUpPanelLayout.getAnchorPoint());
+                    } else {
+                        mSlidingUpPanelLayout.collapsePanel();
+                    }
+                }
+            });
         } else {
             //No track has been given, so we update the view state accordingly
             // Update all relevant TextViews
 
             if (artistTextView != null) {
                 artistTextView.setText("");
-                artistTextView.setOnClickListener(null);
-            }
-            if (albumTextView != null) {
-                albumTextView.setText("");
-                albumTextView.setOnClickListener(null);
             }
             if (titleTextView != null) {
                 titleTextView.setText(R.string.playbackactivity_no_track);

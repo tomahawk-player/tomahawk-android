@@ -21,6 +21,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
@@ -31,19 +32,19 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
  */
 public class PlaybackPagerAdapter extends PagerAdapter {
 
-    private ViewPager mViewPager;
+    private FrameLayout mViewPagerFrame;
 
     private StickyListHeadersListView mListView;
 
     /**
      * Constructs a new PlaybackPagerAdapter.
      *
-     * @param viewPager ViewPager to display as the first item of this adapter
-     * @param listView  listview showing the current playback list
+     * @param viewPagerFrame ViewPager frame to display as the first item of this adapter
+     * @param listView       listview showing the current playback list
      */
-    public PlaybackPagerAdapter(ViewPager viewPager,
+    public PlaybackPagerAdapter(FrameLayout viewPagerFrame,
             StickyListHeadersListView listView) {
-        mViewPager = viewPager;
+        mViewPagerFrame = viewPagerFrame;
         mListView = listView;
     }
 
@@ -54,7 +55,7 @@ public class PlaybackPagerAdapter extends PagerAdapter {
     public Object instantiateItem(ViewGroup container, int position) {
         View view;
         if (position == 0) {
-            view = mViewPager;
+            view = mViewPagerFrame;
         } else {
             view = mListView;
         }

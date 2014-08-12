@@ -25,15 +25,12 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.RdioAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
-import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.database.TomahawkSQLiteHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
-import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
@@ -69,6 +66,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -80,11 +78,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import java.util.HashSet;
 
@@ -129,8 +123,6 @@ public class TomahawkMainActivity extends ActionBarActivity
     private CharSequence mDrawerTitle;
 
     private TomahawkMainReceiver mTomahawkMainReceiver;
-
-    private View mNowPlayingFrame;
 
     private Drawable mProgressDrawable;
 
@@ -187,8 +179,6 @@ public class TomahawkMainActivity extends ActionBarActivity
                 if (mPlaybackService != null) {
                     updateViewVisibility();
                 }
-            } else if (PlaybackService.BROADCAST_PLAYSTATECHANGED.equals(intent.getAction())) {
-                updateNowPlayingButtons();
             } else if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
                 String requestId = intent.getStringExtra(
                         InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
@@ -275,44 +265,11 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-        mNowPlayingFrame = findViewById(R.id.now_playing_frame);
-        mNowPlayingFrame.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FragmentUtils.showHub(TomahawkMainActivity.this, getSupportFragmentManager(),
-                        FragmentUtils.HUB_ID_PLAYBACK);
-            }
-        });
-        ImageButton previousButton = (ImageButton) mNowPlayingFrame
-                .findViewById(R.id.now_playing_button_previous);
-        previousButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mPlaybackService != null) {
-                    mPlaybackService.previous();
-                }
-            }
-        });
-        ImageButton playPauseButton = (ImageButton) mNowPlayingFrame
-                .findViewById(R.id.now_playing_button_playpause);
-        playPauseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mPlaybackService != null) {
-                    mPlaybackService.playPause(true);
-                }
-            }
-        });
-        ImageButton nextButton = (ImageButton) mNowPlayingFrame
-                .findViewById(R.id.now_playing_button_next);
-        nextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mPlaybackService != null) {
-                    mPlaybackService.next();
-                }
-            }
-        });
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.add(R.id.playback_fragment_frame,
+                Fragment.instantiate(this, PlaybackFragment.class.getName(), null),
+                null);
+        ft.commit();
 
         if (mDrawerLayout != null) {
             mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer,
@@ -393,10 +350,6 @@ public class TomahawkMainActivity extends ActionBarActivity
         }
         if (getIntent().hasExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)) {
             FragmentUtils.replace(this, getSupportFragmentManager(), FakePreferenceFragment.class);
-        }
-
-        if (mPlaybackService != null) {
-            setNowPlayingInfo();
         }
 
         if (mTomahawkMainReceiver == null) {
@@ -590,7 +543,6 @@ public class TomahawkMainActivity extends ActionBarActivity
     @Override
     public void onPlaybackServiceReady() {
         updateViewVisibility();
-        setNowPlayingInfo();
         sendBroadcast(new Intent(PLAYBACKSERVICE_READY));
     }
 
@@ -637,51 +589,6 @@ public class TomahawkMainActivity extends ActionBarActivity
         }
     }
 
-    /**
-     * Sets the playback information
-     */
-    public void setNowPlayingInfo() {
-        Query query = null;
-        if (mPlaybackService != null) {
-            query = mPlaybackService.getCurrentQuery();
-        }
-        if (mNowPlayingFrame != null) {
-            ImageView nowPlayingInfoAlbumArt = (ImageView) mNowPlayingFrame
-                    .findViewById(R.id.now_playing_album_art);
-            TextView nowPlayingInfoArtist = (TextView) mNowPlayingFrame
-                    .findViewById(R.id.now_playing_artist);
-            TextView nowPlayingInfoTitle = (TextView) mNowPlayingFrame
-                    .findViewById(R.id.now_playing_title);
-
-            if (query != null) {
-                if (nowPlayingInfoAlbumArt != null && nowPlayingInfoArtist != null
-                        && nowPlayingInfoTitle != null) {
-                    if (query.getAlbum() != null) {
-                        TomahawkUtils.loadImageIntoImageView(this, nowPlayingInfoAlbumArt,
-                                query.getImage(), Image.getSmallImageSize());
-                    }
-                    nowPlayingInfoArtist.setText(query.getArtist().toString());
-                    nowPlayingInfoTitle.setText(query.getName());
-                }
-            }
-            updateNowPlayingButtons();
-        }
-    }
-
-    public void updateNowPlayingButtons() {
-        ImageButton playPauseButton = (ImageButton) mNowPlayingFrame
-                .findViewById(R.id.now_playing_button_playpause);
-        if (mPlaybackService != null) {
-            if (mPlaybackService.isPlaying()) {
-                TomahawkUtils.loadDrawableIntoImageView(this, playPauseButton,
-                        R.drawable.ic_player_pause);
-            } else {
-                TomahawkUtils.loadDrawableIntoImageView(this, playPauseButton,
-                        R.drawable.ic_player_play);
-            }
-        }
-    }
-
     @Override
     public void onBackStackChanged() {
         updateViewVisibility();
@@ -689,12 +596,6 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public void updateViewVisibility() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
-        if (fragment instanceof PlaybackFragment
-                || mPlaybackService == null || mPlaybackService.getCurrentQuery() == null) {
-            setNowPlayingInfoVisibility(false);
-        } else {
-            setNowPlayingInfoVisibility(true);
-        }
         if (fragment instanceof SearchableFragment) {
             setSearchPanelVisibility(true);
         } else {
@@ -710,21 +611,6 @@ public class TomahawkMainActivity extends ActionBarActivity
             } else {
                 searchPanel.setVisibility(View.GONE);
             }
-        }
-    }
-
-    public void setNowPlayingInfoVisibility(boolean enabled) {
-        if (enabled) {
-            mNowPlayingFrame.setLayoutParams(new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT));
-            mNowPlayingFrame.setVisibility(View.VISIBLE);
-            if (mPlaybackService != null) {
-                setNowPlayingInfo();
-            }
-        } else {
-            mNowPlayingFrame.setLayoutParams(new LinearLayout.LayoutParams(0, 0));
-            mNowPlayingFrame.setVisibility(View.GONE);
         }
     }
 
