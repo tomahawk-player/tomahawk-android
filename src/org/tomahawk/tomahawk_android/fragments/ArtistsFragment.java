@@ -20,11 +20,11 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 
 import java.util.ArrayList;
@@ -58,9 +58,9 @@ public class ArtistsFragment extends TomahawkFragment {
     @Override
     public void onItemClick(TomahawkListItem item) {
         if (item instanceof Artist) {
-            FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                    AlbumsFragment.class, item.getCacheKey(),
-                    TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
+            FragmentUtils.replace((TomahawkMainActivity) getActivity(),
+                    getActivity().getSupportFragmentManager(), AlbumsFragment.class,
+                    item.getCacheKey(), TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
         }
     }
 
@@ -73,7 +73,6 @@ public class ArtistsFragment extends TomahawkFragment {
             return;
         }
 
-        Context context = getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
         List<TomahawkListItem> artists = new ArrayList<TomahawkListItem>();
@@ -87,8 +86,8 @@ public class ArtistsFragment extends TomahawkFragment {
             }
             artists.addAll(starredArtists);
             if (getListAdapter() == null) {
-                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
-                        layoutInflater, artists, this);
+                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(
+                        (TomahawkMainActivity) getActivity(), layoutInflater, artists, this);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListItems(artists);
@@ -96,8 +95,8 @@ public class ArtistsFragment extends TomahawkFragment {
         } else {
             artists.addAll(mCollection.getArtists());
             if (getListAdapter() == null) {
-                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
-                        layoutInflater, artists, this);
+                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(
+                        (TomahawkMainActivity) getActivity(), layoutInflater, artists, this);
                 tomahawkListAdapter.setShowArtistAsSingleLine(mCollection != null);
                 setListAdapter(tomahawkListAdapter);
             } else {

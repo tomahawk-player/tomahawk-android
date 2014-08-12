@@ -32,7 +32,6 @@ import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.widget.CheckBox;
@@ -120,15 +119,15 @@ public class SearchableFragment extends TomahawkFragment
                 }
             }
         } else if (item instanceof Album) {
-            FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+            FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
                     TracksFragment.class, item.getCacheKey(),
                     TomahawkFragment.TOMAHAWK_ALBUM_KEY, mCollection);
         } else if (item instanceof Artist) {
-            FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+            FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
                     AlbumsFragment.class, item.getCacheKey(),
                     TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
         } else if (item instanceof User) {
-            FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
+            FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
                     SocialActionsFragment.class, ((User) item).getId(),
                     TomahawkFragment.TOMAHAWK_USER_ID,
                     SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
@@ -178,7 +177,7 @@ public class SearchableFragment extends TomahawkFragment
             return;
         }
 
-        Context context = getActivity();
+        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         ArrayList<TomahawkListItem> listItems = new ArrayList<TomahawkListItem>();
         if (!mShownArtists.isEmpty()) {
@@ -194,7 +193,7 @@ public class SearchableFragment extends TomahawkFragment
             listItems.addAll(mShownQueries);
         }
         if (getListAdapter() == null) {
-            TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
+            TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
                     layoutInflater, listItems, this);
             tomahawkListAdapter.setShowCategoryHeaders(true);
             tomahawkListAdapter.setShowResolvedBy(true);

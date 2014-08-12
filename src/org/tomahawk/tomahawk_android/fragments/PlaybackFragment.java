@@ -37,7 +37,6 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 import org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -228,15 +227,15 @@ public class PlaybackFragment extends TomahawkFragment {
                 return true;
             } else if (item.getItemId() == R.id.action_gotoartist_item) {
                 if (playbackService.getCurrentQuery() != null) {
-                    FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                            AlbumsFragment.class,
+                    FragmentUtils.replace((TomahawkMainActivity) getActivity(),
+                            getActivity().getSupportFragmentManager(), AlbumsFragment.class,
                             playbackService.getCurrentQuery().getArtist().getCacheKey(),
                             TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
                 }
             } else if (item.getItemId() == R.id.action_gotoalbum_item) {
                 if (playbackService.getCurrentQuery() != null) {
-                    FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                            TracksFragment.class,
+                    FragmentUtils.replace((TomahawkMainActivity) getActivity(),
+                            getActivity().getSupportFragmentManager(), TracksFragment.class,
                             playbackService.getCurrentQuery().getAlbum().getCacheKey(),
                             TomahawkFragment.TOMAHAWK_ALBUM_KEY, mCollection);
                 }
@@ -371,14 +370,13 @@ public class PlaybackFragment extends TomahawkFragment {
         }
 
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        Context context = getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         PlaybackService playbackService = activity.getPlaybackService();
         if (playbackService != null && playbackService.getCurrentPlaylist() != null) {
             List<TomahawkListItem> entries = new ArrayList<TomahawkListItem>();
             entries.addAll(playbackService.getCurrentPlaylist().getEntries());
             if (getListAdapter() == null) {
-                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
+                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
                         layoutInflater, entries, this);
                 tomahawkListAdapter.setShowPlaystate(true);
                 tomahawkListAdapter.setShowResolvedBy(true);
@@ -524,7 +522,7 @@ public class PlaybackFragment extends TomahawkFragment {
             TextView artistTextView = (TextView) getView().findViewById(R.id.textView_artist);
             TextView albumTextView = (TextView) getView().findViewById(R.id.textView_album);
             TextView titleTextView = (TextView) getView().findViewById(R.id.textView_title);
-            TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+            final TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
             final PlaybackService playbackService = activity.getPlaybackService();
             if (query != null && playbackService != null) {
                 /*
@@ -552,7 +550,7 @@ public class PlaybackFragment extends TomahawkFragment {
                             artistTextView.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    FragmentUtils.replace(getActivity(),
+                                    FragmentUtils.replace(activity,
                                             getActivity().getSupportFragmentManager(),
                                             AlbumsFragment.class, query.getArtist().getCacheKey(),
                                             TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
@@ -570,7 +568,7 @@ public class PlaybackFragment extends TomahawkFragment {
                             albumTextView.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    FragmentUtils.replace(getActivity(),
+                                    FragmentUtils.replace(activity,
                                             getActivity().getSupportFragmentManager(),
                                             TracksFragment.class, query.getAlbum().getCacheKey(),
                                             TomahawkFragment.TOMAHAWK_ALBUM_KEY, mCollection);

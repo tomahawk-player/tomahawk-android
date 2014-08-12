@@ -26,6 +26,7 @@ import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.CollectionFragment;
 import org.tomahawk.tomahawk_android.fragments.FavoritesFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
@@ -34,7 +35,6 @@ import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
 import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -65,7 +65,8 @@ public class FragmentUtils {
 
     public static final String FRAGMENT_TAG = "the_ultimate_tag";
 
-    public static void addRootFragment(Context context, FragmentManager fragmentManager) {
+    public static void addRootFragment(TomahawkMainActivity activity,
+            FragmentManager fragmentManager) {
         Map<String, String> data = new HashMap<String, String>();
         data.put(HatchetInfoPlugin.HATCHET_ACCOUNTDATA_USER_ID, null);
         AuthenticatorUtils utils = AuthenticatorManager.getInstance()
@@ -83,14 +84,14 @@ public class FragmentUtils {
             bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUserId);
             bundle.putInt(TomahawkFragment.SHOW_MODE, SocialActionsFragment.SHOW_MODE_DASHBOARD);
             ft.add(R.id.content_viewer_frame,
-                    Fragment.instantiate(context, SocialActionsFragment.class.getName(), bundle),
+                    Fragment.instantiate(activity, SocialActionsFragment.class.getName(), bundle),
                     FRAGMENT_TAG);
         } else {
             Bundle bundle = new Bundle();
             bundle.putString(CollectionManager.COLLECTION_ID,
                     TomahawkApp.PLUGINNAME_USERCOLLECTION);
             ft.add(R.id.content_viewer_frame,
-                    Fragment.instantiate(context, CollectionFragment.class.getName(), bundle),
+                    Fragment.instantiate(activity, CollectionFragment.class.getName(), bundle),
                     FRAGMENT_TAG);
         }
         ft.commit();
@@ -99,64 +100,68 @@ public class FragmentUtils {
     /**
      * Replaces the current {@link Fragment}
      */
-    public static void replace(Context context, FragmentManager fragmentManager, Class clss,
-            String tomahawkListItemKey, String tomahawkListItemType, Collection collection) {
+    public static void replace(TomahawkMainActivity activity, FragmentManager fragmentManager,
+            Class clss, String tomahawkListItemKey, String tomahawkListItemType,
+            Collection collection) {
         Bundle bundle = new Bundle();
         bundle.putString(tomahawkListItemType, tomahawkListItemKey);
         if (collection != null) {
             bundle.putString(CollectionManager.COLLECTION_ID, collection.getId());
         }
-        replace(context, fragmentManager, clss, bundle);
+        replace(activity, fragmentManager, clss, bundle);
     }
 
     /**
      * Replaces the current {@link Fragment}
      */
-    public static void replace(Context context, FragmentManager fragmentManager, Class clss,
-            String tomahawkListItemKey, String tomahawkListItemType, int showMode) {
+    public static void replace(TomahawkMainActivity activity, FragmentManager fragmentManager,
+            Class clss, String tomahawkListItemKey, String tomahawkListItemType, int showMode) {
         Bundle bundle = new Bundle();
         bundle.putString(tomahawkListItemType, tomahawkListItemKey);
         bundle.putInt(TomahawkFragment.SHOW_MODE, showMode);
-        replace(context, fragmentManager, clss, bundle);
+        replace(activity, fragmentManager, clss, bundle);
     }
 
     /**
      * Replaces the current {@link Fragment}
      */
-    public static void replace(Context context, FragmentManager fragmentManager, Class clss,
-            String tomahawkListItemKey, String tomahawkListItemType) {
+    public static void replace(TomahawkMainActivity activity, FragmentManager fragmentManager,
+            Class clss, String tomahawkListItemKey, String tomahawkListItemType) {
         Bundle bundle = new Bundle();
         bundle.putString(tomahawkListItemType, tomahawkListItemKey);
-        replace(context, fragmentManager, clss, bundle);
+        replace(activity, fragmentManager, clss, bundle);
     }
 
     /**
      * Replaces the current {@link Fragment}
      */
-    public static void replace(Context context, FragmentManager fragmentManager, Class clss,
-            String queryString) {
+    public static void replace(TomahawkMainActivity activity, FragmentManager fragmentManager,
+            Class clss, String queryString) {
         Bundle bundle = new Bundle();
         bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING, queryString);
-        replace(context, fragmentManager, clss, bundle);
+        replace(activity, fragmentManager, clss, bundle);
     }
 
     /**
      * Replaces the current {@link Fragment}
      */
-    public static void replace(Context context, FragmentManager fragmentManager, Class clss) {
-        replace(context, fragmentManager, clss, (Bundle) null);
+    public static void replace(TomahawkMainActivity activity, FragmentManager fragmentManager,
+            Class clss) {
+        replace(activity, fragmentManager, clss, (Bundle) null);
     }
 
     /**
      * Replaces the current {@link Fragment}
      */
-    public static void replace(Context context, FragmentManager fragmentManager, Class clss,
-            Bundle bundle) {
+    public static void replace(TomahawkMainActivity activity, FragmentManager fragmentManager,
+            Class clss, Bundle bundle) {
         FragmentTransaction ft = fragmentManager.beginTransaction();
-        ft.replace(R.id.content_viewer_frame, Fragment.instantiate(context, clss.getName(), bundle),
+        ft.replace(R.id.content_viewer_frame,
+                Fragment.instantiate(activity, clss.getName(), bundle),
                 FRAGMENT_TAG);
         ft.addToBackStack(FRAGMENT_TAG);
         ft.commit();
+        activity.collapsePanel();
     }
 
     /**
@@ -164,8 +169,9 @@ public class FragmentUtils {
      *
      * @param hubToShow the id of the hub which should be shown
      */
-    public static void showHub(Context context, FragmentManager fragmentManager, int hubToShow) {
-        showHub(context, fragmentManager, hubToShow, null);
+    public static void showHub(TomahawkMainActivity activity, FragmentManager fragmentManager,
+            int hubToShow) {
+        showHub(activity, fragmentManager, hubToShow, null);
     }
 
     /**
@@ -173,14 +179,14 @@ public class FragmentUtils {
      *
      * @param hubToShow the id of the hub which should be shown
      */
-    public static void showHub(Context context, FragmentManager fragmentManager, int hubToShow,
-            User loggedInUser) {
+    public static void showHub(TomahawkMainActivity activity, FragmentManager fragmentManager,
+            int hubToShow, User loggedInUser) {
         switch (hubToShow) {
             case HUB_ID_HOME:
                 if (loggedInUser == null) {
                     return;
                 }
-                replace(context, fragmentManager, SocialActionsFragment.class,
+                replace(activity, fragmentManager, SocialActionsFragment.class,
                         loggedInUser.getId(),
                         TomahawkFragment.TOMAHAWK_USER_ID,
                         SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
@@ -189,7 +195,7 @@ public class FragmentUtils {
                 if (loggedInUser == null) {
                     return;
                 }
-                replace(context, fragmentManager, SocialActionsFragment.class,
+                replace(activity, fragmentManager, SocialActionsFragment.class,
                         loggedInUser.getId(),
                         TomahawkFragment.TOMAHAWK_USER_ID,
                         SocialActionsFragment.SHOW_MODE_DASHBOARD);
@@ -198,16 +204,16 @@ public class FragmentUtils {
                 Bundle bundle = new Bundle();
                 bundle.putString(CollectionManager.COLLECTION_ID,
                         TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                replace(context, fragmentManager, CollectionFragment.class, bundle);
+                replace(activity, fragmentManager, CollectionFragment.class, bundle);
                 break;
             case HUB_ID_LOVEDTRACKS:
-                replace(context, fragmentManager, FavoritesFragment.class);
+                replace(activity, fragmentManager, FavoritesFragment.class);
                 break;
             case HUB_ID_PLAYLISTS:
-                replace(context, fragmentManager, PlaylistsFragment.class);
+                replace(activity, fragmentManager, PlaylistsFragment.class);
                 break;
             case HUB_ID_PLAYBACK:
-                replace(context, fragmentManager, PlaybackFragment.class);
+                replace(activity, fragmentManager, PlaybackFragment.class);
                 break;
         }
     }

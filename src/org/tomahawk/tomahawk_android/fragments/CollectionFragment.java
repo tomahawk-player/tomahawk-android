@@ -21,6 +21,7 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 
@@ -67,8 +68,9 @@ public class CollectionFragment extends SlidingPanelFragment {
                 Bundle bundle = new Bundle();
                 bundle.putString(CollectionManager.COLLECTION_ID,
                         mCollections.get(position).getId());
-                FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                        CollectionFragment.class, bundle);
+                FragmentUtils.replace((TomahawkMainActivity) getActivity(),
+                        getActivity().getSupportFragmentManager(), CollectionFragment.class,
+                        bundle);
                 return true;
             }
             return false;

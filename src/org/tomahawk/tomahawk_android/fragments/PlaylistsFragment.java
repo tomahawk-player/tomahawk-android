@@ -20,12 +20,12 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.CreatePlaylistDialog;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 
 import java.util.ArrayList;
@@ -55,8 +55,9 @@ public class PlaylistsFragment extends TomahawkFragment {
     public void onItemClick(TomahawkListItem item) {
         if (item instanceof Playlist) {
             String key = ((Playlist) item).getId();
-            FragmentUtils.replace(getActivity(), getActivity().getSupportFragmentManager(),
-                    PlaylistEntriesFragment.class, key, TomahawkFragment.TOMAHAWK_PLAYLIST_KEY);
+            FragmentUtils.replace((TomahawkMainActivity) getActivity(),
+                    getActivity().getSupportFragmentManager(), PlaylistEntriesFragment.class, key,
+                    TomahawkFragment.TOMAHAWK_PLAYLIST_KEY);
         } else {
             new CreatePlaylistDialog().show(getFragmentManager(),
                     getString(R.string.playbackactivity_create_playlist_dialog_title));
@@ -72,7 +73,6 @@ public class PlaylistsFragment extends TomahawkFragment {
             return;
         }
 
-        Context context = getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
         getActivity().setTitle(getString(R.string.playlistsfragment_title_string));
@@ -80,7 +80,8 @@ public class PlaylistsFragment extends TomahawkFragment {
         List<TomahawkListItem> playlists = new ArrayList<TomahawkListItem>();
         playlists.addAll(CollectionManager.getInstance().getPlaylists());
         if (getListAdapter() == null) {
-            TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(context,
+            TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(
+                    (TomahawkMainActivity) getActivity(),
                     layoutInflater, playlists, this);
             setListAdapter(tomahawkListAdapter);
             tomahawkListAdapter.setShowCategoryHeaders(true);
