@@ -73,10 +73,10 @@ public class AlbumsFragment extends TomahawkFragment {
                     playbackService.playPause();
                 } else {
                     Playlist playlist = Playlist.fromQueryList(
-                            TomahawkMainActivity.getLifetimeUniqueStringId(), mShownQueries,
-                            query.getCacheKey());
+                            TomahawkMainActivity.getLifetimeUniqueStringId(), mShownQueries);
                     if (playbackService != null) {
-                        playbackService.setCurrentPlaylist(playlist);
+                        playbackService.setPlaylist(playlist);
+                        playbackService.setCurrentEntry(playlist.getEntryWithQuery(query));
                         playbackService.start();
                     }
                 }

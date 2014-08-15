@@ -39,6 +39,8 @@ public class TomahawkVerticalViewPager extends VerticalViewPager {
 
     private GestureDetector mGestureDetector;
 
+    private boolean mPagingEnabled = true;
+
     /**
      * Class to extend a {@link android.view.GestureDetector.SimpleOnGestureListener}, so that we
      * can apply our logic to manually solve the TouchEvent conflict.
@@ -68,18 +70,26 @@ public class TomahawkVerticalViewPager extends VerticalViewPager {
         mGestureDetector = new GestureDetector(context, new ShouldSwipeDetector());
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return mPagingEnabled && super.onTouchEvent(event);
+    }
+
     /**
      * Intercept the TouchEvent, so that we can manually control, when to allow swiping upwards in
      * our vertical ViewPager
      */
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-        boolean result = super.onInterceptTouchEvent(event);
-        if (getCurrentItem() == 0) {
-            return result;
-        } else {
-            return isListViewScrolledUp() && mGestureDetector.onTouchEvent(event);
+        if (mPagingEnabled) {
+            boolean result = super.onInterceptTouchEvent(event);
+            if (getCurrentItem() == 0) {
+                return result;
+            } else {
+                return isListViewScrolledUp() && mGestureDetector.onTouchEvent(event);
+            }
         }
+        return false;
     }
 
     public void setStickyListHeadersListView(StickyListHeadersListView stickyListHeadersListView) {
@@ -93,5 +103,13 @@ public class TomahawkVerticalViewPager extends VerticalViewPager {
                     && mStickyListHeadersListView.getListChildAt(0).getTop() >= 0;
         }
         return false;
+    }
+
+    public void setPagingEnabled(boolean pagingEnabled) {
+        mPagingEnabled = pagingEnabled;
+    }
+
+    public boolean isPagingEnabled() {
+        return mPagingEnabled;
     }
 }

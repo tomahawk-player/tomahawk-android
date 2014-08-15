@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+ *
+ *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
+ *
+ *   Tomahawk is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Tomahawk is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <LinearLayout android:id="@+id/button_open_queue"
+                  android:layout_width="match_parent"
+                  android:layout_height="32dp"
+                  android:orientation="vertical"
+                  android:clickable="true"
+                  android:focusable="false">
+
+        <ImageView android:layout_width="match_parent"
+                   android:layout_height="4dp"
+                   android:src="@drawable/above_shadow"/>
+
+        <TextView android:layout_width="match_parent"
+                  android:layout_height="24dp"
+                  android:gravity="center"
+                  android:background="@color/primary_transparent"
+                  android:textColor="@color/primary_textcolor"
+                  android:textSize="@dimen/text_size_medium"
+                  android:text="@string/button_open_queue_text"/>
+
+    </LinearLayout>
+
+    <FrameLayout android:id="@+id/listview_frame"
+                 android:layout_width="match_parent"
+                 android:layout_height="0dp"
+                 android:layout_weight="1"/>
+
+</LinearLayout>

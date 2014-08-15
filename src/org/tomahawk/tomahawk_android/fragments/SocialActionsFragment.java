@@ -86,9 +86,10 @@ public class SocialActionsFragment extends TomahawkFragment {
                     playbackService.playPause();
                 } else {
                     Playlist playlist = Playlist.fromQueryList(DatabaseHelper.CACHED_PLAYLIST_NAME,
-                            queries, query.getCacheKey());
+                            queries);
                     if (playbackService != null) {
-                        playbackService.setCurrentPlaylist(playlist);
+                        playbackService.setPlaylist(playlist);
+                        playbackService.setCurrentEntry(playlist.getEntryWithQuery(query));
                         playbackService.start();
                     }
                 }

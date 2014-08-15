@@ -22,6 +22,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
@@ -42,6 +43,8 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
 
 /**
  * {@link PagerAdapter} which provides functionality to swipe an AlbumArt image. Used in {@link
@@ -72,7 +75,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
 
     private PlaybackService mPlaybackService;
 
-    private Playlist mPlaylist;
+    private ArrayList<PlaylistEntry> mEntries;
 
     private int mCurrentViewPage = 0;
 
@@ -102,13 +105,11 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     public Object instantiateItem(ViewGroup container, int position) {
         View view = mLayoutInflater.inflate(
                 org.tomahawk.tomahawk_android.R.layout.album_art_view_pager_item, container, false);
-        Query query = null;
-        if (mPlaylist != null && mPlaylist.getCount() > 0) {
-            if (mPlaylist.isRepeating()) {
-                query = mPlaylist.peekEntryAtPos((position) % mPlaylist.getCount()).getQuery();
-            } else {
-                query = mPlaylist.peekEntryAtPos(position).getQuery();
+        if (mPlaybackService != null && mEntries.size() > 0) {
+            if (mPlaybackService.isRepeating()) {
+                position = position % mPlaybackService.getPlaylist().size();
             }
+            Query query = mEntries.get(position).getQuery();
             refreshTrackInfo(view, query);
         } else {
             refreshTrackInfo(view, null);
@@ -125,21 +126,13 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      */
     @Override
     public int getCount() {
-        if (mPlaylist == null || mPlaylist.getCount() == 0) {
+        if (mPlaybackService == null || mEntries.size() == 0) {
             return 1;
         }
-        if (mPlaylist.isRepeating()) {
+        if (mPlaybackService.isRepeating()) {
             return FAKE_INFINITY_COUNT;
         }
-        return mPlaylist.getCount();
-    }
-
-    /**
-     * @return the offset by which the position should be shifted, when {@link Playlist} is
-     * repeating
-     */
-    public int getFakeInfinityOffset() {
-        return mFakeInfinityOffset;
+        return mEntries.size();
     }
 
     /**
@@ -199,19 +192,25 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     }
 
     /**
-     * @param position     to set the current item to
+     * @param entry        to set the current item to
      * @param smoothScroll boolean to determine whether or not to show a scrolling animation
      */
-    public void setCurrentItem(int position, boolean smoothScroll) {
+    public void setCurrentItem(PlaylistEntry entry, boolean smoothScroll) {
+        int position = mEntries.indexOf(entry);
+        if (mPlaybackService.isRepeating()) {
+            position += mFakeInfinityOffset;
+        }
         if (position != mCurrentViewPage) {
-            if (mPlaylist.isRepeating()) {
-                if (position == (mCurrentViewPage % mPlaylist.getCount()) + 1 || (
-                        (mCurrentViewPage % mPlaylist.getCount()) == mPlaylist.getCount() - 1
-                                && position == 0)) {
+            if (mPlaybackService.isRepeating()) {
+                if (position
+                        == (mCurrentViewPage % mPlaybackService.getPlaylist().size()) + 1
+                        || ((mCurrentViewPage % mPlaybackService.getPlaylist().size())
+                        == mPlaybackService.getPlaylist().size() - 1 && position == 0)) {
                     setCurrentToNextItem(smoothScroll);
-                } else if (position == (mCurrentViewPage % mPlaylist.getCount()) - 1 || (
-                        (mCurrentViewPage % mPlaylist.getCount()) == 0
-                                && position == mPlaylist.getCount() - 1)) {
+                } else if (position
+                        == (mCurrentViewPage % mPlaybackService.getPlaylist().size()) - 1
+                        || ((mCurrentViewPage % mPlaybackService.getPlaylist().size()) == 0
+                        && position == mPlaybackService.getPlaylist().size() - 1)) {
                     setCurrentToPreviousItem(smoothScroll);
                 } else {
                     mViewPager.setCurrentItem(position, false);
@@ -243,19 +242,22 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      */
     public void updatePlaylist() {
         if (mPlaybackService != null) {
-            mPlaylist = mPlaybackService.getCurrentPlaylist();
-            notifyDataSetChanged();
-        }
-        if (mPlaylist != null && mPlaylist.getCount() > 0) {
-            mFakeInfinityOffset = mPlaylist.getCount() * ((FAKE_INFINITY_COUNT / 2) / mPlaylist
-                    .getCount());
-            setByUser(false);
-            if (mPlaylist.isRepeating()) {
-                setCurrentItem(mPlaylist.getCurrentQueryIndex() + getFakeInfinityOffset(), false);
-            } else {
-                setCurrentItem(mPlaylist.getCurrentQueryIndex(), false);
+            Playlist playlist = mPlaybackService.getPlaylist();
+            mEntries = new ArrayList<PlaylistEntry>();
+            for (PlaylistEntry entry : playlist.getEntries()) {
+                mEntries.add(entry);
+                if (entry == mPlaybackService.getLastPlaylistEntry()) {
+                    mEntries.addAll(mPlaybackService.getQueue().getEntries());
+                }
             }
-            setByUser(true);
+            notifyDataSetChanged();
+            int size = playlist.size();
+            if (size > 0) {
+                mFakeInfinityOffset = size * ((FAKE_INFINITY_COUNT / 2) / size);
+                setByUser(false);
+                setCurrentItem(mPlaybackService.getCurrentEntry(), false);
+                setByUser(true);
+            }
         }
     }
 

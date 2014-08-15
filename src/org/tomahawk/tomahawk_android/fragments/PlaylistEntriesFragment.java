@@ -77,12 +77,12 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 if (playbackService != null && playbackService.getCurrentEntry() == entry) {
                     playbackService.playPause();
                 } else {
-                    Playlist playlist =
-                            Playlist.fromEntriesList(DatabaseHelper.CACHED_PLAYLIST_NAME, "",
-                                    entries, entry.getId());
+                    Playlist playlist = Playlist.fromEntriesList(
+                            DatabaseHelper.CACHED_PLAYLIST_NAME, "", entries);
                     playlist.setId(DatabaseHelper.CACHED_PLAYLIST_ID);
                     if (playbackService != null) {
-                        playbackService.setCurrentPlaylist(playlist);
+                        playbackService.setPlaylist(playlist);
+                        playbackService.setCurrentEntry(entry);
                         playbackService.start();
                     }
                 }

@@ -61,6 +61,10 @@ public class DatabaseHelper {
 
     public static final String CACHED_PLAYLIST_ID = "cached_playlist_id";
 
+    public static final String QUEUE_NAME = "Queue";
+
+    public static final String QUEUE_ID = "queue_id";
+
     public static final String LOVEDITEMS_PLAYLIST_NAME = "My loved tracks";
 
     public static final String LOVEDITEMS_PLAYLIST_ID = "loveditems_playlist_id";
@@ -109,8 +113,6 @@ public class DatabaseHelper {
                 synchronized (this) {
                     ContentValues values = new ContentValues();
                     values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME, playlist.getName());
-                    values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTTRACKINDEX,
-                            playlist.getCurrentQueryIndex());
                     values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
                             playlist.getCurrentRevision());
                     values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID, playlist.getId());
@@ -173,8 +175,6 @@ public class DatabaseHelper {
                 synchronized (this) {
                     ContentValues values = new ContentValues();
                     values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME, newName);
-                    values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTTRACKINDEX,
-                            playlist.getCurrentQueryIndex());
                     String insertId = playlist.getId();
                     values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
                             playlist.getCurrentRevision());
@@ -265,7 +265,6 @@ public class DatabaseHelper {
     public Playlist getPlaylist(String playlistId, boolean reverseEntries) {
         String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME,
                 TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
-                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTTRACKINDEX,
                 TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID};
         Cursor playlistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
                 columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
@@ -302,9 +301,9 @@ public class DatabaseHelper {
                 tracksCursor.moveToNext();
             }
             Playlist playlist = Playlist.fromEntriesList(playlistsCursor.getString(0),
-                    playlistsCursor.getString(1), queries, playlistsCursor.getInt(2));
+                    playlistsCursor.getString(1), queries);
             playlist.setId(playlistId);
-            playlist.setHatchetId(playlistsCursor.getString(3));
+            playlist.setHatchetId(playlistsCursor.getString(2));
             playlist.setFilled(true);
             tracksCursor.close();
             playlistsCursor.close();

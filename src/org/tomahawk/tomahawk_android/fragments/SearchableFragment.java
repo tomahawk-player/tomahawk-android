@@ -111,10 +111,10 @@ public class SearchableFragment extends TomahawkFragment
             if (playbackService != null && playbackService.getCurrentQuery() == item) {
                 playbackService.playPause();
             } else {
-                Playlist playlist = Playlist.fromQueryList(mCurrentQueryString, mShownQueries,
-                        query.getCacheKey());
+                Playlist playlist = Playlist.fromQueryList(mCurrentQueryString, mShownQueries);
                 if (playbackService != null) {
-                    playbackService.setCurrentPlaylist(playlist);
+                    playbackService.setPlaylist(playlist);
+                    playbackService.setCurrentEntry(playlist.getEntryWithQuery(query));
                     playbackService.start();
                 }
             }
