@@ -27,10 +27,20 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
-    <View android:id="@+id/sliding_layout_drag_view"
-          android:layout_width="match_parent"
-          android:layout_height="@dimen/row_height_verylarge"
-          android:clickable="true"
-          android:focusable="false"/>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="@dimen/row_height_verylarge">
+
+        <View android:id="@+id/sliding_layout_drag_view"
+              android:layout_width="0dp"
+              android:layout_height="match_parent"
+              android:layout_weight="1"/>
+
+        <View android:layout_width="@dimen/row_height_large"
+              android:layout_height="match_parent"/>
+
+        <View android:layout_width="@dimen/row_height_large"
+              android:layout_height="match_parent"/>
+
+    </LinearLayout>
 
 </FrameLayout>
