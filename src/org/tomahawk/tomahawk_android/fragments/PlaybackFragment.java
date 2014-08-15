@@ -213,8 +213,7 @@ public class PlaybackFragment extends TomahawkFragment {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
 
         PlaybackService playbackService = activity.getPlaybackService();
-        if (playbackService != null && playbackService.getPlaylist() != null
-                && item != null) {
+        if (playbackService != null && item != null) {
             if (item.getItemId() == R.id.action_saveplaylist_item) {
                 Playlist playlist = Playlist.fromQueryList("",
                         playbackService.getPlaylist().getQueries());
@@ -362,7 +361,7 @@ public class PlaybackFragment extends TomahawkFragment {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         PlaybackService playbackService = activity.getPlaybackService();
-        if (playbackService != null && playbackService.getQueue() != null) {
+        if (playbackService != null) {
             List<TomahawkListItem> entries = new ArrayList<TomahawkListItem>();
             entries.addAll(playbackService.getQueue().getEntries());
             if (getListAdapter() == null) {

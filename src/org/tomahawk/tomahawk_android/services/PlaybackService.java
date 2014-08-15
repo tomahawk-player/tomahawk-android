@@ -138,6 +138,10 @@ public class PlaybackService extends Service
     public static final String ACTION_EXIT
             = "org.tomahawk.tomahawk_android.ACTION_EXIT";
 
+    public static final String MERGED_PLAYLIST_ID = "merged_playlist_id";
+
+    public static final String SHUFFLED_PLAYLIST_ID = "shuffled_playlist_id";
+
     private static Bitmap sPlaceHolder = null;
 
     // The volume we set the media player to when we lose audio focus, but are allowed to reduce
@@ -163,11 +167,15 @@ public class PlaybackService extends Service
 
     private Playlist mPlaylist;
 
+    private Playlist mShuffledPlaylist;
+
     private Playlist mQueue;
 
-    private PlaylistEntry mCurrentEntry;
+    private Playlist mMergedPlaylist;
 
-    private PlaylistEntry mLastPlaylistEntry;
+    private int mQueueStartPos = -1;
+
+    private PlaylistEntry mCurrentEntry;
 
     private PowerManager.WakeLock mWakeLock;
 
@@ -188,8 +196,6 @@ public class PlaybackService extends Service
     private boolean mIsBindingToSpotifyService;
 
     private boolean mShuffled;
-
-    private Playlist mShuffledPlaylist;
 
     private boolean mRepeating;
 
@@ -524,6 +530,10 @@ public class PlaybackService extends Service
         mQueue = Playlist.fromEntriesList(DatabaseHelper.QUEUE_NAME, "",
                 new ArrayList<PlaylistEntry>());
         mQueue.setId(DatabaseHelper.QUEUE_ID);
+        mShuffledPlaylist = Playlist.fromEntriesList("", "", new ArrayList<PlaylistEntry>());
+        mShuffledPlaylist.setId(SHUFFLED_PLAYLIST_ID);
+        mMergedPlaylist = Playlist.fromEntriesList("", "", new ArrayList<PlaylistEntry>());
+        mMergedPlaylist.setId(MERGED_PLAYLIST_ID);
         restoreState();
         Log.d(TAG, "PlaybackService has been created");
     }
@@ -621,8 +631,7 @@ public class PlaybackService extends Service
         }
         Log.e(TAG, "onError - " + whatString);
         giveUpAudioFocus();
-        Playlist playlist = mShuffled ? mShuffledPlaylist : mPlaylist;
-        if (playlist != null && playlist.hasNextEntry(mLastPlaylistEntry)) {
+        if (hasNextEntry()) {
             next();
         } else {
             pause();
@@ -637,8 +646,7 @@ public class PlaybackService extends Service
     @Override
     public void onCompletion(MediaPlayer mp) {
         Log.d(TAG, "onCompletion");
-        Playlist playlist = mShuffled ? mShuffledPlaylist : mPlaylist;
-        if (playlist != null && playlist.hasNextEntry(mLastPlaylistEntry)) {
+        if (hasNextEntry()) {
             next();
         } else {
             pause();
@@ -797,34 +805,16 @@ public class PlaybackService extends Service
     public void next() {
         Log.d(TAG, "next");
         releaseAllPlayers();
-        mQueue.deleteEntry(mCurrentEntry);
-        if (mQueue != null && mQueue.getEntries().size() > 0) {
-            for (PlaylistEntry entry : mQueue.getEntries()) {
-                if (entry != null && entry.getQuery().isPlayable()) {
-                    mLastPlaylistEntry = mCurrentEntry;
-                    mCurrentEntry = entry;
-                    sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
-                    onTrackChanged();
-                    handlePlayState();
-                    return;
-                }
-            }
-        }
         int counter = 0;
-        Playlist playlist = mShuffled ? mShuffledPlaylist : mPlaylist;
-        if (playlist != null) {
-            int maxCount = playlist.size();
-            PlaylistEntry entry = mLastPlaylistEntry;
-            while (playlist.hasNextEntry(entry) && counter++ < maxCount) {
-                entry = playlist.getNextEntry(entry);
-                if (entry != null && entry.getQuery().isPlayable()) {
-                    mCurrentEntry = entry;
-                    mLastPlaylistEntry = entry;
-                    sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
-                    onTrackChanged();
-                    handlePlayState();
-                    return;
-                }
+        while (hasNextEntry() && counter++ < mMergedPlaylist.size()) {
+            if (getNextEntry().getQuery().isPlayable()) {
+                PlaylistEntry entry = getNextEntry();
+                deleteQueryInQueue(mCurrentEntry);
+                mCurrentEntry = entry;
+                sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+                onTrackChanged();
+                handlePlayState();
+                return;
             }
         }
     }
@@ -835,24 +825,19 @@ public class PlaybackService extends Service
     public void previous() {
         Log.d(TAG, "previous");
         releaseAllPlayers();
-        Playlist playlist = mShuffled ? mShuffledPlaylist : mPlaylist;
-        if (playlist != null) {
-            int maxCount = playlist.size();
-            int counter = 0;
-            PlaylistEntry entry = mLastPlaylistEntry;
-            while (playlist.hasPreviousEntry(entry) && counter++ < maxCount) {
-                entry = playlist.getPreviousEntry(entry);
-                if (entry != null && entry.getQuery().isPlayable()) {
-                    mCurrentEntry = entry;
-                    mLastPlaylistEntry = entry;
-                    sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
-                    onTrackChanged();
-                    handlePlayState();
-                    return;
-                }
+        int counter = 0;
+        while (hasPreviousEntry() && counter++ < mMergedPlaylist.size()) {
+            if (getPreviousEntry().getQuery().isPlayable()) {
+                PlaylistEntry entry = getPreviousEntry();
+                deleteQueryInQueue(entry);
+                mCurrentEntry = entry;
+                sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+                onTrackChanged();
+                handlePlayState();
+                return;
             }
-            handlePlayState();
         }
+        handlePlayState();
     }
 
     public boolean isShuffled() {
@@ -866,32 +851,33 @@ public class PlaybackService extends Service
         Log.d(TAG, "setShuffled to " + shuffled);
         mShuffled = shuffled;
         if (shuffled) {
-            mShuffledPlaylist = shufflePlaylist(mPlaylist);
+            mShuffledPlaylist.setEntries(getShuffledPlaylistEntries());
+            mMergedPlaylist.setEntries(getMergedPlaylistEntries());
         }
 
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
     }
 
-    private Playlist shufflePlaylist(Playlist playlist) {
-        ArrayList<PlaylistEntry> shuffledEntries = new ArrayList<PlaylistEntry>();
+    private ArrayList<PlaylistEntry> getShuffledPlaylistEntries() {
+        ArrayList<PlaylistEntry> entries = mPlaylist.getEntries();
         Map<Artist, List<PlaylistEntry>> artistMap = new HashMap<Artist, List<PlaylistEntry>>();
-        for (PlaylistEntry entry : playlist.getEntries()) {
+        for (PlaylistEntry entry : entries) {
             if (artistMap.get(entry.getArtist()) == null) {
                 artistMap.put(entry.getArtist(), new ArrayList<PlaylistEntry>());
             }
             artistMap.get(entry.getArtist()).add(entry);
         }
-        for (int i = playlist.getEntries().size(); i >= 0; i--) {
+        ArrayList<PlaylistEntry> shuffledEntries = new ArrayList<PlaylistEntry>();
+        for (int i = entries.size(); i >= 0; i--) {
             int pos = (int) (Math.random() * i);
             for (Artist key : artistMap.keySet()) {
-                List<PlaylistEntry> entries = artistMap.get(key);
-                if (entries.size() > pos) {
-                    shuffledEntries.add(entries.remove(pos));
+                List<PlaylistEntry> artistEntries = artistMap.get(key);
+                if (artistEntries.size() > pos) {
+                    shuffledEntries.add(artistEntries.remove(pos));
                 }
             }
         }
-        return Playlist.fromEntriesList(playlist.getName(), playlist.getCurrentRevision(),
-                shuffledEntries);
+        return shuffledEntries;
     }
 
     public boolean isRepeating() {
@@ -929,18 +915,36 @@ public class PlaybackService extends Service
         return mCurrentEntry;
     }
 
-    public PlaylistEntry getLastPlaylistEntry() {
-        return mLastPlaylistEntry;
+    public PlaylistEntry getNextEntry() {
+        PlaylistEntry entry = mMergedPlaylist.getNextEntry(mCurrentEntry);
+        if (entry == null && mRepeating) {
+            entry = mMergedPlaylist.getFirstEntry();
+        }
+        return entry;
     }
 
     public boolean hasNextEntry() {
-        Playlist playlist = mShuffled ? mShuffledPlaylist : mPlaylist;
-        return playlist.hasNextEntry(mLastPlaylistEntry);
+        boolean result = mMergedPlaylist.hasNextEntry(mCurrentEntry);
+        if (!result && mRepeating) {
+            result = mMergedPlaylist.size() > 0;
+        }
+        return result;
+    }
+
+    public PlaylistEntry getPreviousEntry() {
+        PlaylistEntry entry = mMergedPlaylist.getPreviousEntry(mCurrentEntry);
+        if (entry == null && mRepeating) {
+            entry = mMergedPlaylist.getLastEntry();
+        }
+        return entry;
     }
 
     public boolean hasPreviousEntry() {
-        Playlist playlist = mShuffled ? mShuffledPlaylist : mPlaylist;
-        return playlist.hasPreviousEntry(mLastPlaylistEntry);
+        boolean result = mMergedPlaylist.hasPreviousEntry(mCurrentEntry);
+        if (!result && mRepeating) {
+            result = mMergedPlaylist.size() > 0;
+        }
+        return result;
     }
 
     /**
@@ -1032,7 +1036,6 @@ public class PlaybackService extends Service
         Log.d(TAG, "setCurrentEntry to " + entry.getId());
         releaseAllPlayers();
         mCurrentEntry = entry;
-        mLastPlaylistEntry = entry;
         handlePlayState();
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
         onTrackChanged();
@@ -1042,9 +1045,8 @@ public class PlaybackService extends Service
         Log.d(TAG, "onTrackChanged");
         sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
         if (getCurrentQuery() != null) {
-            Playlist playlist = mShuffled ? mShuffledPlaylist : mPlaylist;
-            int index = playlist.getEntries().indexOf(mLastPlaylistEntry);
-            resolveQueriesFromTo(playlist.getEntries(), index, index + 10);
+            int index = mMergedPlaylist.getIndexOfEntry(mCurrentEntry);
+            resolveQueriesFromTo(mMergedPlaylist.getEntries(), index, index + 10);
             resolveQueriesFromTo(mQueue.getEntries(), index, index + 10);
             if (mIsRunningInForeground) {
                 updatePlayingNotification();
@@ -1067,7 +1069,7 @@ public class PlaybackService extends Service
      * Get the current Playlist
      */
     public Playlist getPlaylist() {
-        return mShuffled ? mShuffledPlaylist : mPlaylist;
+        return mMergedPlaylist;
     }
 
     /**
@@ -1081,23 +1083,29 @@ public class PlaybackService extends Service
      * Set the current Playlist to playlist and set the current Track to the Playlist's current
      * Track.
      */
-    public void setPlaylist(Playlist playlist) {
-        setCurrentPlaylist(playlist, playlist.getFirstEntry());
-    }
-
-    /**
-     * Set the current Playlist to playlist and set the current Track to the Playlist's current
-     * Track.
-     */
-    public void setCurrentPlaylist(Playlist playlist, PlaylistEntry currentEntry) {
+    public void setPlaylist(Playlist playlist, PlaylistEntry currentEntry) {
         Log.d(TAG, "setPlaylist");
         releaseAllPlayers();
         mPlaylist = playlist;
         mCurrentEntry = currentEntry;
-        mLastPlaylistEntry = currentEntry;
+        mMergedPlaylist.setEntries(getMergedPlaylistEntries());
+
         handlePlayState();
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
         onTrackChanged();
+    }
+
+    private ArrayList<PlaylistEntry> getMergedPlaylistEntries() {
+        ArrayList<PlaylistEntry> entries = new ArrayList<PlaylistEntry>();
+        entries.addAll(mShuffled ? mShuffledPlaylist.getEntries() : mPlaylist.getEntries());
+        int insertPos = entries.indexOf(mCurrentEntry);
+        if (insertPos > 0) {
+            entries.addAll(insertPos + 1, mQueue.getEntries());
+            mQueueStartPos = insertPos;
+        } else if (mQueueStartPos > 0) {
+            entries.addAll(mQueueStartPos + 1, mQueue.getEntries());
+        }
+        return entries;
     }
 
     /**
@@ -1106,6 +1114,7 @@ public class PlaybackService extends Service
     public void addQueriesToQueue(ArrayList<Query> queries) {
         Log.d(TAG, "addQueriesToQueue count: " + queries.size());
         mQueue.addQueries(queries);
+        mMergedPlaylist.setEntries(getMergedPlaylistEntries());
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
         onTrackChanged();
     }
@@ -1115,11 +1124,10 @@ public class PlaybackService extends Service
      */
     public void deleteQueryInQueue(PlaylistEntry entry) {
         Log.d(TAG, "deleteQueryInQueue");
-        if (mQueue != null) {
-            mQueue.deleteEntry(entry);
-            sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
-            onTrackChanged();
-        }
+        mQueue.deleteEntry(entry);
+        mMergedPlaylist.setEntries(getMergedPlaylistEntries());
+        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+        onTrackChanged();
     }
 
     /**
@@ -1353,10 +1361,10 @@ public class PlaybackService extends Service
 
                     int flags = RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
                             RemoteControlClient.FLAG_KEY_MEDIA_PAUSE;
-                    if (getPlaylist().hasNextEntry(mLastPlaylistEntry)) {
+                    if (hasNextEntry()) {
                         flags |= RemoteControlClient.FLAG_KEY_MEDIA_NEXT;
                     }
-                    if (getPlaylist().hasPreviousEntry(mLastPlaylistEntry)) {
+                    if (hasPreviousEntry()) {
                         flags |= RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS;
                     }
                     mRemoteControlClientCompat.setTransportControlFlags(flags);
@@ -1446,9 +1454,7 @@ public class PlaybackService extends Service
     }
 
     private void onInfoSystemResultsReported(String requestId) {
-        Playlist playlist = mShuffled ? mShuffledPlaylist : mPlaylist;
-        if (playlist != null && getCurrentQuery().getCacheKey()
-                .equals(mCorrespondingInfoDataIds.get(requestId))) {
+        if (getCurrentQuery().getCacheKey().equals(mCorrespondingInfoDataIds.get(requestId))) {
             if (mIsRunningInForeground) {
                 updatePlayingNotification();
             }

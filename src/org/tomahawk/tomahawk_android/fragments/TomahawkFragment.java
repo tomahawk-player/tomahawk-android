@@ -498,7 +498,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 .getPlaybackService();
         if (getListAdapter() instanceof TomahawkListAdapter) {
             TomahawkListAdapter tomahawkListAdapter = (TomahawkListAdapter) getListAdapter();
-            if (playbackService != null && playbackService.getPlaylist() != null) {
+            if (playbackService != null) {
                 tomahawkListAdapter.setShowPlaystate(true);
                 tomahawkListAdapter.setHighlightedItemIsPlaying(playbackService.isPlaying());
                 tomahawkListAdapter.setHighlightedEntry(playbackService.getCurrentEntry());
