@@ -116,8 +116,7 @@ public class TracksFragment extends TomahawkFragment {
                             queries);
                     playlist.setId(DatabaseHelper.CACHED_PLAYLIST_ID);
                     if (playbackService != null) {
-                        playbackService.setPlaylist(playlist);
-                        playbackService.setCurrentEntry(playlist.getEntryWithQuery(query));
+                        playbackService.setPlaylist(playlist, playlist.getEntryWithQuery(query));
                         playbackService.start();
                     }
                 }

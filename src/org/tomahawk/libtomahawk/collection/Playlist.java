@@ -279,15 +279,17 @@ public class Playlist implements TomahawkListItem {
     }
 
     /**
-     * Add an {@link ArrayList} of {@link Query}s at the given position
+     * Add an {@link ArrayList} of {@link PlaylistEntry}s at the given position
      */
-    public void addQueries(int position, ArrayList<Query> queries) {
-        ArrayList<PlaylistEntry> playlistEntries = new ArrayList<PlaylistEntry>();
-        for (Query query : queries) {
-            playlistEntries.add(PlaylistEntry.get(mId, query,
-                    TomahawkMainActivity.getLifetimeUniqueStringId()));
-        }
-        mEntries.addAll(position, playlistEntries);
+    public void addEntries(int position, ArrayList<PlaylistEntry> entries) {
+        mEntries.addAll(position, entries);
+    }
+
+    /**
+     * Add an {@link ArrayList} of {@link PlaylistEntry}s at the given position
+     */
+    public void addEntries(ArrayList<PlaylistEntry> entries) {
+        mEntries.addAll(entries);
     }
 
     /**
@@ -373,5 +375,9 @@ public class Playlist implements TomahawkListItem {
             return mEntries.get(position);
         }
         return null;
+    }
+
+    public int getIndexOfEntry(PlaylistEntry entry) {
+        return mEntries.indexOf(entry);
     }
 }

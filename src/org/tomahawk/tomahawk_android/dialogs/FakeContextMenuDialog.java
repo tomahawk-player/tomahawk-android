@@ -228,7 +228,7 @@ public class FakeContextMenuDialog extends DialogFragment {
                     playlist.setId(DatabaseHelper.CACHED_PLAYLIST_ID);
                 }
                 if (playbackService != null) {
-                    playbackService.setCurrentPlaylist(playlist, currentEntry);
+                    playbackService.setPlaylist(playlist, currentEntry);
                     playbackService.start();
                 }
                 FragmentUtils.showHub((TomahawkMainActivity) getActivity(),

@@ -88,8 +88,7 @@ public class SocialActionsFragment extends TomahawkFragment {
                     Playlist playlist = Playlist.fromQueryList(DatabaseHelper.CACHED_PLAYLIST_NAME,
                             queries);
                     if (playbackService != null) {
-                        playbackService.setPlaylist(playlist);
-                        playbackService.setCurrentEntry(playlist.getEntryWithQuery(query));
+                        playbackService.setPlaylist(playlist, playlist.getEntryWithQuery(query));
                         playbackService.start();
                     }
                 }

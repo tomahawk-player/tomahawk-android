@@ -44,8 +44,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-
 /**
  * {@link PagerAdapter} which provides functionality to swipe an AlbumArt image. Used in {@link
  * org.tomahawk.tomahawk_android.fragments.PlaybackFragment}
@@ -75,8 +73,6 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
 
     private PlaybackService mPlaybackService;
 
-    private ArrayList<PlaylistEntry> mEntries;
-
     private int mCurrentViewPage = 0;
 
     /**
@@ -105,11 +101,11 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     public Object instantiateItem(ViewGroup container, int position) {
         View view = mLayoutInflater.inflate(
                 org.tomahawk.tomahawk_android.R.layout.album_art_view_pager_item, container, false);
-        if (mPlaybackService != null && mEntries.size() > 0) {
+        if (mPlaybackService != null && mPlaybackService.getPlaylist().size() > 0) {
             if (mPlaybackService.isRepeating()) {
                 position = position % mPlaybackService.getPlaylist().size();
             }
-            Query query = mEntries.get(position).getQuery();
+            Query query = mPlaybackService.getPlaylist().getEntries().get(position).getQuery();
             refreshTrackInfo(view, query);
         } else {
             refreshTrackInfo(view, null);
@@ -126,13 +122,13 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      */
     @Override
     public int getCount() {
-        if (mPlaybackService == null || mEntries.size() == 0) {
+        if (mPlaybackService == null || mPlaybackService.getPlaylist().size() == 0) {
             return 1;
         }
         if (mPlaybackService.isRepeating()) {
             return FAKE_INFINITY_COUNT;
         }
-        return mEntries.size();
+        return mPlaybackService.getPlaylist().size();
     }
 
     /**
@@ -196,7 +192,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      * @param smoothScroll boolean to determine whether or not to show a scrolling animation
      */
     public void setCurrentItem(PlaylistEntry entry, boolean smoothScroll) {
-        int position = mEntries.indexOf(entry);
+        int position = mPlaybackService.getPlaylist().getIndexOfEntry(entry);
         if (mPlaybackService.isRepeating()) {
             position += mFakeInfinityOffset;
         }
@@ -243,15 +239,8 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     public void updatePlaylist() {
         if (mPlaybackService != null) {
             Playlist playlist = mPlaybackService.getPlaylist();
-            mEntries = new ArrayList<PlaylistEntry>();
-            for (PlaylistEntry entry : playlist.getEntries()) {
-                mEntries.add(entry);
-                if (entry == mPlaybackService.getLastPlaylistEntry()) {
-                    mEntries.addAll(mPlaybackService.getQueue().getEntries());
-                }
-            }
-            notifyDataSetChanged();
             int size = playlist.size();
+            notifyDataSetChanged();
             if (size > 0) {
                 mFakeInfinityOffset = size * ((FAKE_INFINITY_COUNT / 2) / size);
                 setByUser(false);
