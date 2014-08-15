@@ -19,10 +19,8 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
-import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
-import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -37,12 +35,10 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 import org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager;
 
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -479,9 +475,6 @@ public class PlaybackFragment extends TomahawkFragment {
      */
     protected void refreshTrackInfo(final Query query) {
         if (getView() != null) {
-            TextView artistTextView = (TextView) getView().findViewById(R.id.textView_artist);
-            TextView albumTextView = (TextView) getView().findViewById(R.id.textView_album);
-            TextView titleTextView = (TextView) getView().findViewById(R.id.textView_title);
             final TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
             final PlaybackService playbackService = activity.getPlaybackService();
             if (query != null && playbackService != null) {
@@ -507,51 +500,6 @@ public class PlaybackFragment extends TomahawkFragment {
                     mAlbumArtSwipeAdapter.setByUser(true);
                 }
 
-                // Update the textViews, if available (in other words, if in landscape mode)
-                if (artistTextView != null) {
-                    if (query.getArtist() != null && query.getArtist().getName() != null) {
-                        artistTextView.setText(query.getArtist().toString());
-                        if (!TextUtils.isEmpty(query.getArtist().getName())) {
-                            artistTextView.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    FragmentUtils.replace(activity,
-                                            getActivity().getSupportFragmentManager(),
-                                            AlbumsFragment.class, query.getArtist().getCacheKey(),
-                                            TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
-                                }
-                            });
-                        }
-                    } else {
-                        artistTextView.setText(R.string.playbackactivity_unknown_string);
-                    }
-                }
-                if (albumTextView != null) {
-                    if (query.getAlbum() != null && query.getAlbum().getName() != null) {
-                        albumTextView.setText(query.getAlbum().toString());
-                        if (!TextUtils.isEmpty(query.getAlbum().getName())) {
-                            albumTextView.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    FragmentUtils.replace(activity,
-                                            getActivity().getSupportFragmentManager(),
-                                            TracksFragment.class, query.getAlbum().getCacheKey(),
-                                            TomahawkFragment.TOMAHAWK_ALBUM_KEY, mCollection);
-                                }
-                            });
-                        }
-                    } else {
-                        albumTextView.setText(R.string.playbackactivity_unknown_string);
-                    }
-                }
-                if (titleTextView != null) {
-                    if (query.getName() != null) {
-                        titleTextView.setText(query.getName());
-                    } else {
-                        titleTextView.setText(R.string.playbackactivity_unknown_string);
-                    }
-                }
-
                 // Make all buttons clickable
                 getView().findViewById(R.id.imageButton_playpause).setClickable(true);
                 getView().findViewById(R.id.imageButton_next).setClickable(true);
@@ -566,37 +514,7 @@ public class PlaybackFragment extends TomahawkFragment {
                 mPlaybackSeekBar.updateSeekBarPosition();
                 mPlaybackSeekBar.updateTextViewCompleteTime();
 
-                ImageButton loveButton = (ImageButton) getView().findViewById(R.id.love_button);
-                if (loveButton != null) {
-                    if (DatabaseHelper.getInstance().isItemLoved(query)) {
-                        loveButton.setImageResource(R.drawable.ic_action_loved);
-                    } else {
-                        loveButton.setImageResource(R.drawable.ic_action_notloved);
-                    }
-                    loveButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            CollectionManager.getInstance().toggleLovedItem(query);
-                            getActivity().sendBroadcast(
-                                    new Intent(PlaybackService.BROADCAST_CURRENTTRACKCHANGED));
-                        }
-                    });
-                }
             } else {
-                //No track has been given, so we update the view state accordingly
-
-                if (artistTextView != null) {
-                    artistTextView.setText("");
-                    artistTextView.setOnClickListener(null);
-                }
-                if (albumTextView != null) {
-                    albumTextView.setText("");
-                    albumTextView.setOnClickListener(null);
-                }
-                if (titleTextView != null) {
-                    titleTextView.setText(R.string.playbackactivity_no_track);
-                }
-
                 // Make all buttons not clickable
                 getView().findViewById(R.id.imageButton_playpause).setClickable(false);
                 getView().findViewById(R.id.imageButton_next).setClickable(false);
