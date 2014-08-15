@@ -115,8 +115,7 @@
     </string>
     <string name="crash_dialog_ok_toast">Thank you !</string>
     <string name="fake_context_menu_play">Play</string>
-    <string name="fake_context_menu_playaftercurrenttrack">Play after current track</string>
-    <string name="fake_context_menu_appendtoplaybacklist">Append to playback list</string>
+    <string name="fake_context_menu_addtoqueue">Add to queue</string>
     <string name="fake_context_menu_addtoplaylist">Add to playlist</string>
     <string name="fake_context_menu_love_track">Love track</string>
     <string name="fake_context_menu_unlove_track">Unlove track</string>
@@ -191,4 +190,5 @@
         settings)
     </string>
     <string name="ask_access_activity_button_text">Go to Settings</string>
+    <string name="button_open_queue_text">QUEUE</string>
 </resources>

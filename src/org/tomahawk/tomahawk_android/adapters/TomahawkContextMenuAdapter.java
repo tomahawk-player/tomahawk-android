@@ -126,8 +126,7 @@ public class TomahawkContextMenuAdapter extends BaseAdapter {
 
         if (item instanceof Playlist) {
             menuItems.add(mContext.getString(R.string.fake_context_menu_play));
-            menuItems.add(mContext.getString(R.string.fake_context_menu_playaftercurrenttrack));
-            menuItems.add(mContext.getString(R.string.fake_context_menu_appendtoplaybacklist));
+            menuItems.add(mContext.getString(R.string.fake_context_menu_addtoqueue));
             menuItems.add(mContext.getString(R.string.fake_context_menu_addtoplaylist));
             if (showDelete) {
                 menuItems.add(mContext.getString(R.string.fake_context_menu_delete));
@@ -137,8 +136,7 @@ public class TomahawkContextMenuAdapter extends BaseAdapter {
             if (query.isPlayable()) {
                 menuItems.add(mContext.getString(R.string.fake_context_menu_play));
                 menuItems
-                        .add(mContext.getString(R.string.fake_context_menu_playaftercurrenttrack));
-                menuItems.add(mContext.getString(R.string.fake_context_menu_appendtoplaybacklist));
+                        .add(mContext.getString(R.string.fake_context_menu_addtoqueue));
                 menuItems.add(mContext.getString(R.string.fake_context_menu_addtoplaylist));
             }
             menuItems.add(mContext.getString(R.string.menu_item_go_to_artist));
@@ -153,13 +151,11 @@ public class TomahawkContextMenuAdapter extends BaseAdapter {
             }
         } else if (item instanceof Artist) {
             menuItems.add(mContext.getString(R.string.fake_context_menu_play));
-            menuItems.add(mContext.getString(R.string.fake_context_menu_playaftercurrenttrack));
-            menuItems.add(mContext.getString(R.string.fake_context_menu_appendtoplaybacklist));
+            menuItems.add(mContext.getString(R.string.fake_context_menu_addtoqueue));
             menuItems.add(mContext.getString(R.string.fake_context_menu_addtoplaylist));
         } else if (item instanceof Album) {
             menuItems.add(mContext.getString(R.string.fake_context_menu_play));
-            menuItems.add(mContext.getString(R.string.fake_context_menu_playaftercurrenttrack));
-            menuItems.add(mContext.getString(R.string.fake_context_menu_appendtoplaybacklist));
+            menuItems.add(mContext.getString(R.string.fake_context_menu_addtoqueue));
             menuItems.add(mContext.getString(R.string.fake_context_menu_addtoplaylist));
             menuItems.add(mContext.getString(R.string.menu_item_go_to_artist));
         }

@@ -97,7 +97,7 @@ public class InfoSystemUtils {
     public static Playlist convertToPlaylist(HatchetPlaylistInfo playlistInfo) {
         if (playlistInfo != null) {
             Playlist playlist = Playlist.fromQueryList(playlistInfo.title,
-                    playlistInfo.currentrevision, new ArrayList<Query>(), 0);
+                    playlistInfo.currentrevision, new ArrayList<Query>());
             playlist.setHatchetId(playlistInfo.id);
             return playlist;
         }

@@ -22,16 +22,15 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent">
 
+    <android.support.v4.view.ViewPager
+            android:id="@+id/album_art_view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
     <View android:id="@+id/sliding_layout_drag_view"
           android:layout_width="match_parent"
           android:layout_height="@dimen/row_height_verylarge"
           android:clickable="true"
           android:focusable="false"/>
-
-    <android.support.v4.view.ViewPager
-            android:id="@+id/album_art_view_pager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-    </android.support.v4.view.ViewPager>
 
 </FrameLayout>

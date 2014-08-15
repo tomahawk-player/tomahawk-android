@@ -161,11 +161,10 @@ public class TomahawkUtils {
      *
      * @param dp      A value in dp(Device independent pixels) unit. Which we need to convert into
      *                pixels
-     * @param context Context to get resources and device specific display metrics
      * @return A float value to represent Pixels equivalent to dp according to device
      */
-    public static int convertDpToPixel(int dp, Context context) {
-        Resources resources = context.getResources();
+    public static int convertDpToPixel(int dp) {
+        Resources resources = TomahawkApp.getContext().getResources();
         DisplayMetrics metrics = resources.getDisplayMetrics();
         return (int) (dp * (metrics.densityDpi / 160f));
     }

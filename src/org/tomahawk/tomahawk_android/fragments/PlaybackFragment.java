@@ -69,27 +69,13 @@ public class PlaybackFragment extends TomahawkFragment {
 
     private TomahawkVerticalViewPager mTomahawkVerticalViewPager;
 
+    private View mQueueButton;
+
     private Menu mMenu;
 
     private PlaybackSeekBar mPlaybackSeekBar;
 
     private Toast mToast;
-
-    private ViewPager.OnPageChangeListener mOnPageChangeListener
-            = new ViewPager.OnPageChangeListener() {
-        @Override
-        public void onPageScrolled(int i, float v, int i2) {
-        }
-
-        @Override
-        public void onPageSelected(int i) {
-            handlePageSelect();
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int i) {
-        }
-    };
 
     /**
      * This listener handles our button clicks
@@ -152,8 +138,8 @@ public class PlaybackFragment extends TomahawkFragment {
         onPlaylistChanged();
 
         PlaybackService playbackService = activity.getPlaybackService();
-        FrameLayout viewPagerFrame = (FrameLayout) activity.getLayoutInflater()
-                .inflate(R.layout.album_art_view_pager, null);
+        View viewPagerFrame =
+                activity.getLayoutInflater().inflate(R.layout.album_art_view_pager, null);
         SlidingUpPanelLayout slidingLayout =
                 (SlidingUpPanelLayout) activity.findViewById(R.id.sliding_layout);
         slidingLayout.setEnableDragViewTouchEvents(true);
@@ -166,15 +152,29 @@ public class PlaybackFragment extends TomahawkFragment {
         viewPager.setAdapter(mAlbumArtSwipeAdapter);
         viewPager.setOnPageChangeListener(mAlbumArtSwipeAdapter);
 
+        View queueView =
+                activity.getLayoutInflater().inflate(R.layout.listview_with_queue_button, null);
+        mQueueButton = queueView.findViewById(R.id.button_open_queue);
+        mQueueButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mTomahawkVerticalViewPager.getCurrentItem() == 0) {
+                    mTomahawkVerticalViewPager.setCurrentItem(1, true);
+                } else {
+                    mTomahawkVerticalViewPager.setCurrentItem(0, true);
+                }
+            }
+        });
+        FrameLayout listViewFrame = (FrameLayout) queueView.findViewById(R.id.listview_frame);
+        listViewFrame.addView(getListView(), new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        mPlaybackPagerAdapter = new PlaybackPagerAdapter(viewPagerFrame, queueView);
         mTomahawkVerticalViewPager = (TomahawkVerticalViewPager) getView()
                 .findViewById(R.id.playback_view_pager);
-        mPlaybackPagerAdapter = new PlaybackPagerAdapter(viewPagerFrame, getListView());
         mTomahawkVerticalViewPager.setAdapter(mPlaybackPagerAdapter);
         mTomahawkVerticalViewPager.setStickyListHeadersListView(getListView());
-        mTomahawkVerticalViewPager.setOnPageChangeListener(mOnPageChangeListener);
-        if (mMenu != null) {
-            handlePageSelect();
-        }
+        mTomahawkVerticalViewPager.setPageMargin(TomahawkUtils.convertDpToPixel(-28));
 
         mPlaybackSeekBar = (PlaybackSeekBar) getView().findViewById(R.id.seekBar_track);
         mPlaybackSeekBar.setTextViewCurrentTime((TextView) getView().findViewById(
@@ -207,23 +207,16 @@ public class PlaybackFragment extends TomahawkFragment {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
 
         PlaybackService playbackService = activity.getPlaybackService();
-        if (playbackService != null && playbackService.getCurrentPlaylist() != null
+        if (playbackService != null && playbackService.getPlaylist() != null
                 && item != null) {
             if (item.getItemId() == R.id.action_saveplaylist_item) {
                 Playlist playlist = Playlist.fromQueryList("",
-                        playbackService.getCurrentPlaylist().getQueries());
+                        playbackService.getPlaylist().getQueries());
                 CreatePlaylistDialog dialog = new CreatePlaylistDialog();
                 Bundle args = new Bundle();
                 args.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY, playlist.getId());
                 dialog.setArguments(args);
                 dialog.show(getFragmentManager(), null);
-                return true;
-            } else if (item.getItemId() == R.id.action_show_playlist_item) {
-                if (mTomahawkVerticalViewPager.getCurrentItem() == 0) {
-                    mTomahawkVerticalViewPager.setCurrentItem(1, true);
-                } else {
-                    mTomahawkVerticalViewPager.setCurrentItem(0, true);
-                }
                 return true;
             } else if (item.getItemId() == R.id.action_gotoartist_item) {
                 if (playbackService.getCurrentQuery() != null) {
@@ -262,7 +255,7 @@ public class PlaybackFragment extends TomahawkFragment {
                     if (playbackService.getCurrentEntry() == entry) {
                         playbackService.playPause();
                     } else {
-                        playbackService.setCurrentEntry(entry.getId());
+                        playbackService.setCurrentEntry(entry);
                     }
                 }
             }
@@ -297,15 +290,6 @@ public class PlaybackFragment extends TomahawkFragment {
     public void onTrackChanged() {
         super.onTrackChanged();
 
-        PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
-                .getPlaybackService();
-        TomahawkListAdapter tomahawkListAdapter = (TomahawkListAdapter) getListAdapter();
-        if (tomahawkListAdapter != null && playbackService != null
-                && playbackService.getCurrentEntry() != null) {
-            if (mMenu != null) {
-                handlePageSelect();
-            }
-        }
         refreshTrackInfo();
     }
 
@@ -321,18 +305,15 @@ public class PlaybackFragment extends TomahawkFragment {
                 .getPlaybackService();
         TomahawkListAdapter tomahawkListAdapter = (TomahawkListAdapter) getListAdapter();
 
-        if (playbackService != null
-                && playbackService.getCurrentPlaylist() != null
-                && playbackService.getCurrentPlaylist().getCount() > 0) {
-            mShownQueries = playbackService.getCurrentPlaylist().getQueries();
+        if (playbackService != null) {
+            mShownQueries = playbackService.getQueue().getQueries();
             mResolveQueriesHandler.removeCallbacksAndMessages(null);
             mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
         }
         if (tomahawkListAdapter != null) {
-            if (playbackService != null && playbackService.getCurrentPlaylist() != null
-                    && playbackService.getCurrentPlaylist().getCount() > 0) {
+            if (playbackService != null) {
                 ArrayList<TomahawkListItem> tracks = new ArrayList<TomahawkListItem>();
-                tracks.addAll(playbackService.getCurrentPlaylist().getQueries());
+                tracks.addAll(playbackService.getQueue().getQueries());
                 tomahawkListAdapter.setListItems(tracks);
                 tomahawkListAdapter.notifyDataSetChanged();
             }
@@ -341,6 +322,9 @@ public class PlaybackFragment extends TomahawkFragment {
         }
         refreshRepeatButtonState();
         refreshShuffleButtonState();
+        if (mAlbumArtSwipeAdapter != null) {
+            mAlbumArtSwipeAdapter.updatePlaylist();
+        }
     }
 
     /**
@@ -372,9 +356,9 @@ public class PlaybackFragment extends TomahawkFragment {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         PlaybackService playbackService = activity.getPlaybackService();
-        if (playbackService != null && playbackService.getCurrentPlaylist() != null) {
+        if (playbackService != null && playbackService.getQueue() != null) {
             List<TomahawkListItem> entries = new ArrayList<TomahawkListItem>();
-            entries.addAll(playbackService.getCurrentPlaylist().getEntries());
+            entries.addAll(playbackService.getQueue().getEntries());
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
                         layoutInflater, entries, this);
@@ -387,32 +371,6 @@ public class PlaybackFragment extends TomahawkFragment {
         }
 
         updateShowPlaystate();
-    }
-
-    private void handlePageSelect() {
-        MenuItem item = mMenu.findItem(R.id.action_show_playlist_item);
-        if (mTomahawkVerticalViewPager != null
-                && mTomahawkVerticalViewPager.getCurrentItem() == 0) {
-            item.setIcon(R.drawable.ic_action_collections_view_as_list);
-            item.setTitle(R.string.menu_item_show_playlist);
-            getListView().post(new Runnable() {
-                @Override
-                public void run() {
-                    PlaybackService playbackService =
-                            ((TomahawkMainActivity) getActivity()).getPlaybackService();
-                    if (playbackService != null && playbackService.getCurrentPlaylist() != null
-                            && getListView() != null) {
-                        getListView().clearFocus();
-                        getListView().setSelection(
-                                playbackService.getCurrentPlaylist().getCurrentQueryIndex());
-                        getListView().requestFocus();
-                    }
-                }
-            });
-        } else {
-            item.setIcon(R.drawable.ic_action_up);
-            item.setTitle(R.string.menu_item_show_album_cover);
-        }
     }
 
     /**
@@ -461,18 +419,14 @@ public class PlaybackFragment extends TomahawkFragment {
         final PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
                 .getPlaybackService();
         if (playbackService != null) {
-            playbackService.setShuffled(!playbackService.getCurrentPlaylist().isShuffled());
+            playbackService.setShuffled(!playbackService.isShuffled());
 
             if (mToast != null) {
                 mToast.cancel();
             }
-            mToast = Toast.makeText(getActivity(), getString(
-                            playbackService.getCurrentPlaylist().isShuffled()
-                                    ? R.string.playbackactivity_toastshuffleon_string
-                                    : R.string.playbackactivity_toastshuffleoff_string
-                    ),
-                    Toast.LENGTH_SHORT
-            );
+            mToast = Toast.makeText(getActivity(), getString(playbackService.isShuffled()
+                    ? R.string.playbackactivity_toastshuffleon_string
+                    : R.string.playbackactivity_toastshuffleoff_string), Toast.LENGTH_SHORT);
             mToast.show();
         }
     }
@@ -484,16 +438,14 @@ public class PlaybackFragment extends TomahawkFragment {
         final PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
                 .getPlaybackService();
         if (playbackService != null) {
-            playbackService.setRepeating(!playbackService.getCurrentPlaylist().isRepeating());
+            playbackService.setRepeating(!playbackService.isRepeating());
 
             if (mToast != null) {
                 mToast.cancel();
             }
-            mToast = Toast.makeText(getActivity(), getString(
-                    playbackService.getCurrentPlaylist().isRepeating()
-                            ? R.string.playbackactivity_toastrepeaton_string
-                            : R.string.playbackactivity_toastrepeatoff_string
-            ), Toast.LENGTH_SHORT);
+            mToast = Toast.makeText(getActivity(), getString(playbackService.isRepeating()
+                    ? R.string.playbackactivity_toastrepeaton_string
+                    : R.string.playbackactivity_toastrepeatoff_string), Toast.LENGTH_SHORT);
             mToast.show();
         }
     }
@@ -525,6 +477,14 @@ public class PlaybackFragment extends TomahawkFragment {
             final TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
             final PlaybackService playbackService = activity.getPlaybackService();
             if (query != null && playbackService != null) {
+                if (playbackService.getQueue().size() > 0) {
+                    mQueueButton.setVisibility(View.VISIBLE);
+                    mTomahawkVerticalViewPager.setPagingEnabled(true);
+                } else if (mTomahawkVerticalViewPager.isPagingEnabled()) {
+                    mTomahawkVerticalViewPager.setCurrentItem(0);
+                    mQueueButton.setVisibility(View.GONE);
+                    mTomahawkVerticalViewPager.setPagingEnabled(false);
+                }
                 /*
                 This logic makes sure, that if a track is being skipped by the user, it doesn't do this
                 for eternity. Because a press of the next button would cause the AlbumArtSwipeAdapter
@@ -535,10 +495,7 @@ public class PlaybackFragment extends TomahawkFragment {
                 mAlbumArtSwipeAdapter.setPlaybackService(playbackService);
                 if (!mAlbumArtSwipeAdapter.isSwiped()) {
                     mAlbumArtSwipeAdapter.setByUser(false);
-                    if (playbackService.getCurrentPlaylist().getCurrentQueryIndex() >= 0) {
-                        mAlbumArtSwipeAdapter.setCurrentItem(
-                                playbackService.getCurrentPlaylist().getCurrentQueryIndex(), true);
-                    }
+                    mAlbumArtSwipeAdapter.setCurrentItem(playbackService.getCurrentEntry(), true);
                     mAlbumArtSwipeAdapter.setByUser(true);
                 }
 
@@ -680,8 +637,7 @@ public class PlaybackFragment extends TomahawkFragment {
             if (imageButton != null && imageButton.getDrawable() != null) {
                 PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
                         .getPlaybackService();
-                if (playbackService != null && playbackService.getCurrentPlaylist() != null
-                        && playbackService.getCurrentPlaylist().isRepeating()) {
+                if (playbackService != null && playbackService.isRepeating()) {
                     imageButton.getDrawable()
                             .setColorFilter(getResources().getColor(R.color.tomahawk_red),
                                     PorterDuff.Mode.SRC_IN);
@@ -702,8 +658,7 @@ public class PlaybackFragment extends TomahawkFragment {
             if (imageButton != null && imageButton.getDrawable() != null) {
                 PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
                         .getPlaybackService();
-                if (playbackService != null && playbackService.getCurrentPlaylist() != null
-                        && playbackService.getCurrentPlaylist().isShuffled()) {
+                if (playbackService != null && playbackService.isShuffled()) {
                     imageButton.getDrawable()
                             .setColorFilter(getResources().getColor(R.color.tomahawk_red),
                                     PorterDuff.Mode.SRC_IN);
@@ -717,7 +672,6 @@ public class PlaybackFragment extends TomahawkFragment {
     @Override
     public void onPanelCollapsed() {
         mAlbumArtSwipeAdapter.notifyDataSetChanged();
-        mMenu.findItem(R.id.action_show_playlist_item).setVisible(false);
         mMenu.findItem(R.id.action_saveplaylist_item).setVisible(false);
         mMenu.findItem(R.id.action_gotoartist_item).setVisible(false);
         mMenu.findItem(R.id.action_gotoalbum_item).setVisible(false);
@@ -726,7 +680,6 @@ public class PlaybackFragment extends TomahawkFragment {
     @Override
     public void onPanelExpanded() {
         mAlbumArtSwipeAdapter.notifyDataSetChanged();
-        mMenu.findItem(R.id.action_show_playlist_item).setVisible(true);
         mMenu.findItem(R.id.action_saveplaylist_item).setVisible(true);
         mMenu.findItem(R.id.action_gotoartist_item).setVisible(true);
         mMenu.findItem(R.id.action_gotoalbum_item).setVisible(true);

@@ -21,9 +21,6 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-
-import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
  * {@link android.support.v4.view.PagerAdapter} which provides functionality to swipe vertically
@@ -32,9 +29,9 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
  */
 public class PlaybackPagerAdapter extends PagerAdapter {
 
-    private FrameLayout mViewPagerFrame;
+    private View mViewPagerFrame;
 
-    private StickyListHeadersListView mListView;
+    private View mListView;
 
     /**
      * Constructs a new PlaybackPagerAdapter.
@@ -42,8 +39,7 @@ public class PlaybackPagerAdapter extends PagerAdapter {
      * @param viewPagerFrame ViewPager frame to display as the first item of this adapter
      * @param listView       listview showing the current playback list
      */
-    public PlaybackPagerAdapter(FrameLayout viewPagerFrame,
-            StickyListHeadersListView listView) {
+    public PlaybackPagerAdapter(View viewPagerFrame, View listView) {
         mViewPagerFrame = viewPagerFrame;
         mListView = listView;
     }
