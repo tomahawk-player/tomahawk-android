@@ -41,6 +41,9 @@
         <View android:layout_width="@dimen/row_height_large"
               android:layout_height="match_parent"/>
 
+        <View android:layout_width="@dimen/row_height_large"
+              android:layout_height="match_parent"/>
+
     </LinearLayout>
 
 </FrameLayout>

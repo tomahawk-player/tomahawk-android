@@ -90,10 +90,14 @@ public class CollectionFragment extends SlidingPanelFragment {
     public void onResume() {
         super.onResume();
 
+        int initialPage = -1;
         if (getArguments() != null) {
             if (getArguments().containsKey(CollectionManager.COLLECTION_ID)) {
                 mCollection = CollectionManager.getInstance()
                         .getCollection(getArguments().getString(CollectionManager.COLLECTION_ID));
+            }
+            if (getArguments().containsKey(TomahawkFragment.CONTAINER_FRAGMENT_PAGE)) {
+                initialPage = getArguments().getInt(TomahawkFragment.CONTAINER_FRAGMENT_PAGE);
             }
         }
 
@@ -116,17 +120,24 @@ public class CollectionFragment extends SlidingPanelFragment {
             fragmentTitles.add(getString(R.string.albumsfragment_title_string));
         }
         List<Bundle> fragmentBundles = new ArrayList<Bundle>();
-        Bundle bundle = new Bundle();
-        bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
         if (mCollection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
+            Bundle bundle = new Bundle();
+            bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
             fragmentBundles.add(bundle);
+            bundle = new Bundle();
+            bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
             fragmentBundles.add(bundle);
         }
+        Bundle bundle = new Bundle();
+        bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
         fragmentBundles.add(bundle);
         TomahawkPagerAdapter adapter = new TomahawkPagerAdapter(getChildFragmentManager(),
-                fragmentClassNames, fragmentTitles, fragmentBundles);
+                fragmentClassNames, fragmentTitles, fragmentBundles, ((Object) this).getClass());
         ViewPager fragmentPager = (ViewPager) getActivity().findViewById(R.id.fragmentpager);
         fragmentPager.setAdapter(adapter);
+        if (initialPage >= 0) {
+            fragmentPager.setCurrentItem(initialPage);
+        }
     }
 
     @Override

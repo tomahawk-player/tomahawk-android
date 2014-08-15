@@ -46,6 +46,13 @@ public class FavoritesFragment extends SlidingPanelFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        int initialPage = -1;
+        if (getArguments() != null) {
+            if (getArguments().containsKey(TomahawkFragment.CONTAINER_FRAGMENT_PAGE)) {
+                initialPage = getArguments().getInt(TomahawkFragment.CONTAINER_FRAGMENT_PAGE);
+            }
+        }
+
         getActivity().setTitle(getString(R.string.favoritesfragment_title_string));
 
         List<String> fragmentClassNames = new ArrayList<String>();
@@ -68,9 +75,12 @@ public class FavoritesFragment extends SlidingPanelFragment {
         bundle.putInt(TomahawkFragment.SHOW_MODE, ArtistsFragment.SHOW_MODE_STARREDARTISTS);
         fragmentBundles.add(bundle);
         TomahawkPagerAdapter adapter = new TomahawkPagerAdapter(getChildFragmentManager(),
-                fragmentClassNames, fragmentTitles, fragmentBundles);
+                fragmentClassNames, fragmentTitles, fragmentBundles, ((Object) this).getClass());
         ViewPager fragmentPager = (ViewPager) getActivity().findViewById(R.id.fragmentpager);
         fragmentPager.setAdapter(adapter);
+        if (initialPage >= 0) {
+            fragmentPager.setCurrentItem(initialPage);
+        }
     }
 
     @Override

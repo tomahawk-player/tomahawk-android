@@ -27,10 +27,11 @@ import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
+import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Parcelable;
@@ -53,7 +54,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     //Used to provide fake infinite swiping behaviour, if current Playlist is repeating
     private static final int FAKE_INFINITY_COUNT = 20000;
 
-    private Context mContext;
+    private TomahawkMainActivity mActivity;
 
     private LayoutInflater mLayoutInflater;
 
@@ -80,10 +81,10 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      *
      * @param viewPager ViewPager which this adapter has been connected with
      */
-    public AlbumArtSwipeAdapter(Context context, FragmentManager fragmentManager,
+    public AlbumArtSwipeAdapter(TomahawkMainActivity activity, FragmentManager fragmentManager,
             LayoutInflater layoutInflater, ViewPager viewPager,
             MultiColumnClickListener clickListener, SlidingUpPanelLayout slidingUpPanelLayout) {
-        mContext = context;
+        mActivity = activity;
         mLayoutInflater = layoutInflater;
         mFragmentManager = fragmentManager;
         mViewPager = viewPager;
@@ -293,24 +294,25 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         TextView titleTextView = (TextView) view.findViewById(R.id.now_playing_title);
         ImageButton playPauseButton = (ImageButton) view.findViewById(R.id.now_playing_button1);
         ImageButton loveButton = (ImageButton) view.findViewById(R.id.now_playing_button2);
+        ImageButton returnButton = (ImageButton) view.findViewById(R.id.now_playing_button3);
         ImageView imageView = (ImageView) view.findViewById(R.id.album_art_image);
         ImageView nowPlayingAlbumArt = (ImageView) view.findViewById(R.id.now_playing_album_art);
         if (query != null) {
             mSlidingUpPanelLayout.showPanel();
-            boolean landscapeMode = mContext.getResources().getConfiguration().orientation
+            boolean landscapeMode = mActivity.getResources().getConfiguration().orientation
                     == Configuration.ORIENTATION_LANDSCAPE;
-            TomahawkUtils.loadImageIntoImageView(mContext, imageView, query.getImage(),
+            TomahawkUtils.loadImageIntoImageView(mActivity, imageView, query.getImage(),
                     Image.getLargeImageSize(), landscapeMode);
-            TomahawkUtils.loadImageIntoImageView(mContext, nowPlayingAlbumArt, query.getImage(),
+            TomahawkUtils.loadImageIntoImageView(mActivity, nowPlayingAlbumArt, query.getImage(),
                     Image.getSmallImageSize());
             if (!mSlidingUpPanelLayout.isPanelExpanded()) {
                 playPauseButton.setEnabled(true);
                 playPauseButton.setVisibility(View.VISIBLE);
                 if (mPlaybackService.isPlaying()) {
-                    TomahawkUtils.loadDrawableIntoImageView(mContext, playPauseButton,
+                    TomahawkUtils.loadDrawableIntoImageView(mActivity, playPauseButton,
                             R.drawable.ic_player_pause);
                 } else {
-                    TomahawkUtils.loadDrawableIntoImageView(mContext, playPauseButton,
+                    TomahawkUtils.loadDrawableIntoImageView(mActivity, playPauseButton,
                             R.drawable.ic_player_play);
                 }
                 playPauseButton.setOnClickListener(new View.OnClickListener() {
@@ -349,11 +351,22 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                     @Override
                     public void onClick(View v) {
                         CollectionManager.getInstance().toggleLovedItem(query);
-                        mContext.sendBroadcast(
+                        mActivity.sendBroadcast(
                                 new Intent(PlaybackService.BROADCAST_CURRENTTRACKCHANGED));
                     }
                 });
             }
+            returnButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mSlidingUpPanelLayout.isPanelExpanded()) {
+                        mSlidingUpPanelLayout.collapsePanel();
+                    }
+                    FragmentUtils.replace(mActivity, mFragmentManager,
+                            mPlaybackService.getReturnFragmentClass(),
+                            mPlaybackService.getReturnFragmentArgs());
+                }
+            });
             imageView.setOnLongClickListener(new ClickListener(query, mClickListener));
         } else {
             mSlidingUpPanelLayout.hidePanel();
