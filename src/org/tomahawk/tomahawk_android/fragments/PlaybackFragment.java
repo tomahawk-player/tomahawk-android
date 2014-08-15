@@ -38,6 +38,7 @@ import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 import org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
@@ -180,7 +181,9 @@ public class PlaybackFragment extends TomahawkFragment {
                 .findViewById(R.id.playback_view_pager);
         mTomahawkVerticalViewPager.setAdapter(mPlaybackPagerAdapter);
         mTomahawkVerticalViewPager.setStickyListHeadersListView(getListView());
-        mTomahawkVerticalViewPager.setPageMargin(TomahawkUtils.convertDpToPixel(-28));
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            mTomahawkVerticalViewPager.setPageMargin(TomahawkUtils.convertDpToPixel(-24));
+        }
 
         mPlaybackSeekBar = (PlaybackSeekBar) getView().findViewById(R.id.seekBar_track);
         mPlaybackSeekBar.setTextViewCurrentTime((TextView) getView().findViewById(
