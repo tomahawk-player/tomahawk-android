@@ -82,6 +82,9 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                     playlist.setId(DatabaseHelper.CACHED_PLAYLIST_ID);
                     if (playbackService != null) {
                         playbackService.setPlaylist(playlist, entry);
+                        Class clss = mContainerFragmentClass != null ? mContainerFragmentClass
+                                : ((Object) this).getClass();
+                        playbackService.setReturnFragment(clss, getArguments());
                         playbackService.start();
                     }
                 }

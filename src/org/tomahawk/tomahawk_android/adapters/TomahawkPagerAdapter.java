@@ -18,6 +18,7 @@
 package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -28,6 +29,8 @@ import java.util.List;
 
 public class TomahawkPagerAdapter extends FragmentPagerAdapter {
 
+    private Class mContainerFragmentClass;
+
     private List<String> mFragmentClassNames;
 
     private List<String> mFragmentTitles;
@@ -35,28 +38,27 @@ public class TomahawkPagerAdapter extends FragmentPagerAdapter {
     private List<Bundle> mFragmentBundles;
 
     public TomahawkPagerAdapter(FragmentManager fragmentManager, List<String> fragmentClassNames,
-            List<String> fragmentTitles, List<Bundle> fragmentBundles) {
+            List<String> fragmentTitles, List<Bundle> fragmentBundles,
+            Class containerFragmentClass) {
         super(fragmentManager);
 
         mFragmentClassNames = fragmentClassNames;
         mFragmentTitles = fragmentTitles;
         mFragmentBundles = fragmentBundles;
-    }
-
-    public TomahawkPagerAdapter(FragmentManager fragmentManager, List<String> fragmentClassNames,
-            List<String> fragmentTitles) {
-        super(fragmentManager);
-
-        mFragmentClassNames = fragmentClassNames;
-        mFragmentTitles = fragmentTitles;
+        mContainerFragmentClass = containerFragmentClass;
     }
 
     @Override
     public Fragment getItem(int position) {
-        Bundle bundle = null;
+        Bundle bundle;
         if (mFragmentBundles != null && mFragmentBundles.get(position) != null) {
             bundle = mFragmentBundles.get(position);
+        } else {
+            bundle = new Bundle();
         }
+        bundle.putString(TomahawkFragment.CONTAINER_FRAGMENT_NAME,
+                mContainerFragmentClass.getName());
+        bundle.putInt(TomahawkFragment.CONTAINER_FRAGMENT_PAGE, position);
         return Fragment.instantiate(TomahawkApp.getContext(),
                 mFragmentClassNames.get(position), bundle);
     }

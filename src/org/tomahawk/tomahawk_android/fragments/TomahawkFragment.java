@@ -115,6 +115,12 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     public static final String SHOW_MODE
             = "org.tomahawk.tomahawk_android.show_mode";
 
+    public static final String CONTAINER_FRAGMENT_PAGE
+            = "org.tomahawk.tomahawk_android.container_fragment_page";
+
+    public static final String CONTAINER_FRAGMENT_NAME
+            = "org.tomahawk.tomahawk_android.container_fragment_name";
+
     protected static final int RESOLVE_QUERIES_REPORTER_MSG = 1336;
 
     protected static final long RESOLVE_QUERIES_REPORTER_DELAY = 100;
@@ -157,6 +163,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     private int mVisibleItemCount = 0;
 
     protected int mShowMode;
+
+    protected Class mContainerFragmentClass;
 
     protected final Handler mResolveQueriesHandler = new Handler() {
         @Override
@@ -279,6 +287,14 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             if (getArguments().containsKey(CollectionManager.COLLECTION_ID)) {
                 mCollection = CollectionManager.getInstance()
                         .getCollection(getArguments().getString(CollectionManager.COLLECTION_ID));
+            }
+            if (getArguments().containsKey(CONTAINER_FRAGMENT_NAME)) {
+                String fragmentName = getArguments().getString(CONTAINER_FRAGMENT_NAME);
+                if (fragmentName.equals(FavoritesFragment.class.getName())) {
+                    mContainerFragmentClass = FavoritesFragment.class;
+                } else if (fragmentName.equals(CollectionFragment.class.getName())) {
+                    mContainerFragmentClass = CollectionFragment.class;
+                }
             }
         }
 

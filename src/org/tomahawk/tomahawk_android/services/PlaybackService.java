@@ -199,6 +199,10 @@ public class PlaybackService extends Service
 
     private boolean mRepeating;
 
+    private Class mReturnFragmentClass;
+
+    private Bundle mReturnFragmentArgs;
+
     // our RemoteControlClient object, which will use remote control APIs available in
     // SDK level >= 14, if they're available.
     RemoteControlClientCompat mRemoteControlClientCompat;
@@ -1096,6 +1100,19 @@ public class PlaybackService extends Service
         handlePlayState();
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
         onTrackChanged();
+    }
+
+    public void setReturnFragment(Class clss, Bundle args) {
+        mReturnFragmentClass = clss;
+        mReturnFragmentArgs = args;
+    }
+
+    public Class getReturnFragmentClass() {
+        return mReturnFragmentClass;
+    }
+
+    public Bundle getReturnFragmentArgs() {
+        return mReturnFragmentArgs;
     }
 
     private ArrayList<PlaylistEntry> getMergedPlaylistEntries() {

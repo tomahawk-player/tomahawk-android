@@ -114,6 +114,9 @@ public class SearchableFragment extends TomahawkFragment
                 Playlist playlist = Playlist.fromQueryList(mCurrentQueryString, mShownQueries);
                 if (playbackService != null) {
                     playbackService.setPlaylist(playlist, playlist.getEntryWithQuery(query));
+                    Class clss = mContainerFragmentClass != null ? mContainerFragmentClass
+                            : ((Object) this).getClass();
+                    playbackService.setReturnFragment(clss, getArguments());
                     playbackService.start();
                 }
             }
