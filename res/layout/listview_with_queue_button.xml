@@ -24,26 +24,16 @@
               android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <LinearLayout android:id="@+id/button_open_queue"
-                  android:layout_width="match_parent"
-                  android:layout_height="32dp"
-                  android:orientation="vertical"
-                  android:clickable="true"
-                  android:focusable="false">
-
-        <ImageView android:layout_width="match_parent"
-                   android:layout_height="4dp"
-                   android:src="@drawable/above_shadow"/>
-
-        <TextView android:layout_width="match_parent"
-                  android:layout_height="24dp"
-                  android:gravity="center"
-                  android:background="@color/primary_transparent"
-                  android:textColor="@color/primary_textcolor"
-                  android:textSize="@dimen/text_size_medium"
-                  android:text="@string/button_open_queue_text"/>
-
-    </LinearLayout>
+    <TextView android:id="@+id/button_open_queue"
+              android:layout_width="match_parent"
+              android:layout_height="24dp"
+              android:gravity="center"
+              android:background="@color/primary_transparent"
+              android:textColor="@color/primary_textcolor"
+              android:textSize="@dimen/text_size_medium"
+              android:text="@string/button_open_queue_text"
+              android:clickable="true"
+              android:focusable="false"/>
 
     <FrameLayout android:id="@+id/listview_frame"
                  android:layout_width="match_parent"

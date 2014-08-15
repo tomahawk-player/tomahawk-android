@@ -1035,6 +1035,7 @@ public class PlaybackService extends Service
     public void setCurrentEntry(PlaylistEntry entry) {
         Log.d(TAG, "setCurrentEntry to " + entry.getId());
         releaseAllPlayers();
+        deleteQueryInQueue(mCurrentEntry);
         mCurrentEntry = entry;
         handlePlayState();
         sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
@@ -1087,6 +1088,8 @@ public class PlaybackService extends Service
         Log.d(TAG, "setPlaylist");
         releaseAllPlayers();
         mPlaylist = playlist;
+        mQueueStartPos = -1;
+        deleteQueryInQueue(mCurrentEntry);
         mCurrentEntry = currentEntry;
         mMergedPlaylist.setEntries(getMergedPlaylistEntries());
 
