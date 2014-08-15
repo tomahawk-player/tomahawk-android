@@ -305,7 +305,6 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         ImageButton playPauseButton = (ImageButton) view.findViewById(R.id.now_playing_button1);
         ImageButton loveButton = (ImageButton) view.findViewById(R.id.now_playing_button2);
         ImageView imageView = (ImageView) view.findViewById(R.id.album_art_image);
-        View clickView = view.findViewById(R.id.sliding_layout_click_view);
         ImageView nowPlayingAlbumArt = (ImageView) view.findViewById(R.id.now_playing_album_art);
         if (query != null) {
             mSlidingUpPanelLayout.showPanel();
@@ -367,20 +366,6 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                 });
             }
             imageView.setOnLongClickListener(new ClickListener(query, mClickListener));
-            clickView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!mSlidingUpPanelLayout.isEnabled()) {
-                        return;
-                    }
-                    if (!mSlidingUpPanelLayout.isPanelExpanded()
-                            && !mSlidingUpPanelLayout.isPanelAnchored()) {
-                        mSlidingUpPanelLayout.expandPanel(mSlidingUpPanelLayout.getAnchorPoint());
-                    } else {
-                        mSlidingUpPanelLayout.collapsePanel();
-                    }
-                }
-            });
         } else {
             mSlidingUpPanelLayout.hidePanel();
             //No track has been given, so we update the view state accordingly

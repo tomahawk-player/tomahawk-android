@@ -71,6 +71,10 @@ public class PlaybackFragment extends TomahawkFragment {
 
     private View mQueueButton;
 
+    private View mViewPagerFrame;
+
+    private View mListViewFrame;
+
     private Menu mMenu;
 
     private PlaybackSeekBar mPlaybackSeekBar;
@@ -127,6 +131,13 @@ public class PlaybackFragment extends TomahawkFragment {
         view.findViewById(R.id.imageButton_playpause).setOnClickListener(mButtonClickListener);
         view.findViewById(R.id.imageButton_next).setOnClickListener(mButtonClickListener);
         view.findViewById(R.id.imageButton_repeat).setOnClickListener(mButtonClickListener);
+        mViewPagerFrame = getActivity().getLayoutInflater()
+                .inflate(R.layout.album_art_view_pager, null);
+        mListViewFrame = getActivity().getLayoutInflater()
+                .inflate(R.layout.listview_with_queue_button, null);
+        FrameLayout listViewFrame = (FrameLayout) mListViewFrame.findViewById(R.id.listview_frame);
+        listViewFrame.addView(getListView(), new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
     @Override
@@ -134,17 +145,17 @@ public class PlaybackFragment extends TomahawkFragment {
         super.onResume();
 
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+        PlaybackService playbackService = activity.getPlaybackService();
 
         onPlaylistChanged();
 
-        PlaybackService playbackService = activity.getPlaybackService();
-        View viewPagerFrame =
-                activity.getLayoutInflater().inflate(R.layout.album_art_view_pager, null);
+        //Setup SlidingUpPanelLayout
         SlidingUpPanelLayout slidingLayout =
                 (SlidingUpPanelLayout) activity.findViewById(R.id.sliding_layout);
-        slidingLayout.setEnableDragViewTouchEvents(true);
-        slidingLayout.setDragView(viewPagerFrame.findViewById(R.id.sliding_layout_drag_view));
-        ViewPager viewPager = (ViewPager) viewPagerFrame.findViewById(R.id.album_art_view_pager);
+        View dragView = mViewPagerFrame.findViewById(R.id.sliding_layout_drag_view);
+        slidingLayout.setDragView(dragView);
+
+        ViewPager viewPager = (ViewPager) mViewPagerFrame.findViewById(R.id.album_art_view_pager);
         mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter(activity,
                 activity.getSupportFragmentManager(), activity.getLayoutInflater(), viewPager,
                 this, slidingLayout);
@@ -152,9 +163,7 @@ public class PlaybackFragment extends TomahawkFragment {
         viewPager.setAdapter(mAlbumArtSwipeAdapter);
         viewPager.setOnPageChangeListener(mAlbumArtSwipeAdapter);
 
-        View queueView =
-                activity.getLayoutInflater().inflate(R.layout.listview_with_queue_button, null);
-        mQueueButton = queueView.findViewById(R.id.button_open_queue);
+        mQueueButton = mListViewFrame.findViewById(R.id.button_open_queue);
         mQueueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -165,11 +174,8 @@ public class PlaybackFragment extends TomahawkFragment {
                 }
             }
         });
-        FrameLayout listViewFrame = (FrameLayout) queueView.findViewById(R.id.listview_frame);
-        listViewFrame.addView(getListView(), new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
-        mPlaybackPagerAdapter = new PlaybackPagerAdapter(viewPagerFrame, queueView);
+        mPlaybackPagerAdapter = new PlaybackPagerAdapter(mViewPagerFrame, mListViewFrame);
         mTomahawkVerticalViewPager = (TomahawkVerticalViewPager) getView()
                 .findViewById(R.id.playback_view_pager);
         mTomahawkVerticalViewPager.setAdapter(mPlaybackPagerAdapter);

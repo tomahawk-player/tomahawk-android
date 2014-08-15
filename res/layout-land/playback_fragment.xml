@@ -81,17 +81,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/row_height_verylarge">
 
-            <ImageButton
-                    android:id="@+id/imageButton_shuffle"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="bottom"
-                    android:layout_weight="0.8"
-                    android:adjustViewBounds="true"
-                    android:background="@drawable/selectable_background_playback_small_tomahawk"
-                    android:padding="15dip"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/ic_player_shuffle"/>
+            <FrameLayout android:layout_width="match_parent"
+                         android:layout_height="match_parent"
+                         android:layout_gravity="bottom"
+                         android:layout_weight="0.8">
+
+                <ImageButton
+                        android:id="@+id/imageButton_shuffle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:adjustViewBounds="true"
+                        android:background="@drawable/selectable_background_playback_small_tomahawk"
+                        android:padding="15dip"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_player_shuffle"/>
+
+            </FrameLayout>
 
             <ImageButton
                     android:id="@+id/imageButton_previous"
@@ -135,17 +141,22 @@
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_player_next"/>
 
-            <ImageButton
-                    android:id="@+id/imageButton_repeat"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="bottom"
-                    android:layout_weight="0.8"
-                    android:adjustViewBounds="true"
-                    android:background="@drawable/selectable_background_playback_small_tomahawk"
-                    android:padding="15dip"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/ic_player_repeat"/>
+            <FrameLayout android:layout_width="match_parent"
+                         android:layout_height="match_parent"
+                         android:layout_gravity="bottom"
+                         android:layout_weight="0.8">
+
+                <ImageButton
+                        android:id="@+id/imageButton_repeat"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:background="@drawable/selectable_background_playback_small_tomahawk"
+                        android:padding="15dip"
+                        android:src="@drawable/ic_player_repeat"/>
+
+            </FrameLayout>
+
         </LinearLayout>
 
     </LinearLayout>
