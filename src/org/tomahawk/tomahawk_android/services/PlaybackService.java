@@ -1474,7 +1474,8 @@ public class PlaybackService extends Service
     }
 
     private void onInfoSystemResultsReported(String requestId) {
-        if (getCurrentQuery().getCacheKey().equals(mCorrespondingInfoDataIds.get(requestId))) {
+        if (getCurrentEntry() != null && getCurrentQuery().getCacheKey()
+                .equals(mCorrespondingInfoDataIds.get(requestId))) {
             if (mIsRunningInForeground) {
                 updatePlayingNotification();
             }
