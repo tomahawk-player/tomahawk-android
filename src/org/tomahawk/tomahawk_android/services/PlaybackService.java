@@ -811,16 +811,16 @@ public class PlaybackService extends Service
         releaseAllPlayers();
         int counter = 0;
         while (hasNextEntry() && counter++ < mMergedPlaylist.size()) {
-            if (getNextEntry().getQuery().isPlayable()) {
-                PlaylistEntry entry = getNextEntry();
-                deleteQueryInQueue(mCurrentEntry);
-                mCurrentEntry = entry;
+            PlaylistEntry entry = getNextEntry();
+            deleteQueryInQueue(mCurrentEntry);
+            mCurrentEntry = entry;
+            if (mCurrentEntry.getQuery().isPlayable()) {
                 sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
                 onTrackChanged();
-                handlePlayState();
-                return;
+                break;
             }
         }
+        handlePlayState();
     }
 
     /**
@@ -831,14 +831,13 @@ public class PlaybackService extends Service
         releaseAllPlayers();
         int counter = 0;
         while (hasPreviousEntry() && counter++ < mMergedPlaylist.size()) {
-            if (getPreviousEntry().getQuery().isPlayable()) {
-                PlaylistEntry entry = getPreviousEntry();
-                deleteQueryInQueue(entry);
-                mCurrentEntry = entry;
+            PlaylistEntry entry = getPreviousEntry();
+            deleteQueryInQueue(entry);
+            mCurrentEntry = entry;
+            if (mCurrentEntry.getQuery().isPlayable()) {
                 sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
                 onTrackChanged();
-                handlePlayState();
-                return;
+                break;
             }
         }
         handlePlayState();
