@@ -28,12 +28,14 @@ import org.tomahawk.tomahawk_android.views.CircularImageTransformation;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.Notification;
 import android.content.Context;
 import android.content.res.Resources;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.RemoteViews;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -159,8 +161,8 @@ public class TomahawkUtils {
     /**
      * This method converts dp unit to equivalent device specific value in pixels.
      *
-     * @param dp      A value in dp(Device independent pixels) unit. Which we need to convert into
-     *                pixels
+     * @param dp A value in dp(Device independent pixels) unit. Which we need to convert into
+     *           pixels
      * @return A float value to represent Pixels equivalent to dp according to device
      */
     public static int convertDpToPixel(int dp) {
@@ -703,6 +705,34 @@ public class TomahawkUtils {
                     .error(R.drawable.no_album_art_placeholder)
                     .resize(width, width)
                     .into(target);
+        }
+    }
+
+    /**
+     * Load a {@link android.graphics.Bitmap} asynchronously
+     *
+     * @param context the context needed for fetching resources
+     * @param image   the path to load the image from
+     * @param width   the width in pixels to scale the image down to
+     */
+    public static void loadImageIntoNotification(Context context, Image image,
+            RemoteViews remoteViews, int viewId, int notificationId, Notification notification,
+            int width) {
+        if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
+            String imagePath = buildImagePath(context, image, width);
+            Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
+                    .skipMemoryCache()
+                    .placeholder(R.drawable.no_album_art_placeholder)
+                    .error(R.drawable.no_album_art_placeholder)
+                    .resize(width, width)
+                    .into(remoteViews, viewId, notificationId, notification);
+        } else {
+            Picasso.with(context).load(R.drawable.no_album_art_placeholder)
+                    .skipMemoryCache()
+                    .placeholder(R.drawable.no_album_art_placeholder)
+                    .error(R.drawable.no_album_art_placeholder)
+                    .resize(width, width)
+                    .into(remoteViews, viewId, notificationId, notification);
         }
     }
 
