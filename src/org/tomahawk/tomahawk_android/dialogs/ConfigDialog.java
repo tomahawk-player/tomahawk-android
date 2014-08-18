@@ -264,9 +264,11 @@ public abstract class ConfigDialog extends DialogFragment {
                 editText.post(new Runnable() {
                     @Override
                     public void run() {
-                        InputMethodManager imm = (InputMethodManager) getActivity()
-                                .getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+                        if (getActivity() != null) {
+                            InputMethodManager imm = (InputMethodManager) getActivity()
+                                    .getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+                        }
                     }
                 });
                 editText.setOnFocusChangeListener(null);
