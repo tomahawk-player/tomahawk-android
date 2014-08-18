@@ -44,6 +44,7 @@ import org.tomahawk.tomahawk_android.utils.AudioFocusHelper;
 import org.tomahawk.tomahawk_android.utils.DeezerMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.MediaButtonHelper;
 import org.tomahawk.tomahawk_android.utils.MediaButtonReceiver;
+import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
 import org.tomahawk.tomahawk_android.utils.MusicFocusable;
 import org.tomahawk.tomahawk_android.utils.RdioMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.RemoteControlClientCompat;
@@ -219,6 +220,8 @@ public class PlaybackService extends Service
     }
 
     AudioFocus mAudioFocus = AudioFocus.NoFocusNoDuck;
+
+    private List<MediaPlayerInterface> mMediaPlayers = new ArrayList<MediaPlayerInterface>();
 
     private SpotifyService.SpotifyServiceConnection mSpotifyServiceConnection
             = new SpotifyService.SpotifyServiceConnection(new SpotifyServiceConnectionListener());
@@ -449,6 +452,11 @@ public class PlaybackService extends Service
         AuthenticatorManager.getInstance().ensureInit();
         CollectionManager.getInstance().ensureInit();
 
+        mMediaPlayers.add(VLCMediaPlayer.getInstance());
+        mMediaPlayers.add(DeezerMediaPlayer.getInstance());
+        mMediaPlayers.add(SpotifyMediaPlayer.getInstance());
+        mMediaPlayers.add(RdioMediaPlayer.getInstance());
+
         bindService(new Intent(this, SpotifyService.class), mSpotifyServiceConnection,
                 Context.BIND_AUTO_CREATE);
 
@@ -591,14 +599,26 @@ public class PlaybackService extends Service
                 + getCurrentQuery().getArtist().getName()
                 + "' resolved by Resolver " + getCurrentQuery()
                 .getPreferredTrackResult().getResolvedBy());
-        if (isPlaying()) {
-            InfoSystem.getInstance().sendNowPlayingPostStruct(
-                    AuthenticatorManager.getInstance().getAuthenticatorUtils(
-                            TomahawkApp.PLUGINNAME_HATCHET),
-                    getCurrentQuery()
-            );
+        boolean allPlayersReleased = true;
+        for (MediaPlayerInterface mediaPlayer : mMediaPlayers) {
+            if (!mediaPlayer.isPrepared(getCurrentQuery())) {
+                mediaPlayer.release();
+            } else {
+                allPlayersReleased = false;
+            }
         }
-        handlePlayState();
+        if (allPlayersReleased) {
+            prepareCurrentQuery();
+        } else {
+            if (isPlaying()) {
+                InfoSystem.getInstance().sendNowPlayingPostStruct(
+                        AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                                TomahawkApp.PLUGINNAME_HATCHET),
+                        getCurrentQuery()
+                );
+            }
+            handlePlayState();
+        }
     }
 
     /**
