@@ -248,12 +248,14 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
         if (item != null) {
             boolean shouldBeHighlighted = false;
             if (item instanceof SocialAction) {
-                shouldBeHighlighted = mShowPlaystate
+                shouldBeHighlighted = mShowPlaystate && mHighlightedQuery != null
                         && ((SocialAction) item).getQuery() == mHighlightedQuery;
             } else if (item instanceof PlaylistEntry) {
-                shouldBeHighlighted = mShowPlaystate && item == mHighlightedPlaylistEntry;
+                shouldBeHighlighted = mShowPlaystate && mHighlightedPlaylistEntry != null
+                        && item == mHighlightedPlaylistEntry;
             } else if (item instanceof Query) {
-                shouldBeHighlighted = mShowPlaystate && item == mHighlightedQuery;
+                shouldBeHighlighted = mShowPlaystate && mHighlightedQuery != null
+                        && item == mHighlightedQuery;
             }
 
             ViewHolder viewHolder = null;
