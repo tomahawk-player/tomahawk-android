@@ -30,6 +30,12 @@
             tomahawk:queryHint="@string/searchfragment_title_string"/>
 
     <item
+            android:id="@+id/action_share_item"
+            tomahawk:showAsAction="ifRoom"
+            android:title="@string/menu_item_share"
+            tomahawk:actionProviderClass="android.support.v7.widget.ShareActionProvider"/>
+
+    <item
             android:id="@+id/action_saveplaylist_item"
             android:icon="@drawable/ic_action_saveplaylist"
             tomahawk:showAsAction="ifRoom"

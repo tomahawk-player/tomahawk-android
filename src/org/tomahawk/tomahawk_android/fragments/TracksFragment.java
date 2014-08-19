@@ -30,9 +30,12 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.AdapterUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.utils.ShareUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -57,7 +60,13 @@ public class TracksFragment extends TomahawkFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         if (mAlbum != null) {
-            menu.findItem(R.id.action_gotoartist_item).setVisible(true);
+            MenuItem goToArtistItem = menu.findItem(R.id.action_gotoartist_item);
+            goToArtistItem.setVisible(true);
+            MenuItem shareItem = menu.findItem(R.id.action_share_item);
+            shareItem.setVisible(true);
+            ShareActionProvider provider =
+                    (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
+            provider.setShareIntent(ShareUtils.generateShareIntent(mAlbum));
         }
 
         super.onCreateOptionsMenu(menu, inflater);

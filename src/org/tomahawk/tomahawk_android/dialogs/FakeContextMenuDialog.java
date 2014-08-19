@@ -35,6 +35,7 @@ import org.tomahawk.tomahawk_android.fragments.TracksFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.AdapterUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.utils.ShareUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.app.AlertDialog;
@@ -267,6 +268,8 @@ public class FakeContextMenuDialog extends DialogFragment {
             args.putStringArrayList(TomahawkFragment.TOMAHAWK_QUERYKEYSARRAY_KEY, queryKeys);
             dialog.setArguments(args);
             dialog.show(getActivity().getSupportFragmentManager(), null);
+        } else if (menuItemTitle.equals(getString(R.string.menu_item_share))) {
+            startActivity(ShareUtils.generateShareIntent(mTomahawkListItem));
         } else if (menuItemTitle.equals(getString(R.string.menu_item_go_to_album))) {
             FragmentUtils.replace((TomahawkMainActivity) getActivity(),
                     getActivity().getSupportFragmentManager(), TracksFragment.class,
