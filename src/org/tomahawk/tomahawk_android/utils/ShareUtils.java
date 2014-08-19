@@ -1,0 +1,132 @@
+/* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+ *
+ *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
+ *
+ *   Tomahawk is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Tomahawk is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.tomahawk.tomahawk_android.utils;
+
+import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
+
+import android.content.Intent;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+
+public class ShareUtils {
+
+    private static String sHatchetBaseUrl = "https://hatchet.is/music/";
+
+    public static Intent generateShareIntent(TomahawkListItem item) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        if (item instanceof Album) {
+            shareIntent.putExtra(Intent.EXTRA_TEXT, ShareUtils.generateShareMsg((Album) item));
+            return shareIntent;
+        } else if (item instanceof Artist) {
+            shareIntent.putExtra(Intent.EXTRA_TEXT, ShareUtils.generateShareMsg((Artist) item));
+            return shareIntent;
+        } else if (item instanceof Query) {
+            shareIntent.putExtra(Intent.EXTRA_TEXT, ShareUtils.generateShareMsg((Query) item));
+            return shareIntent;
+        } else {
+            return null;
+        }
+    }
+
+    public static String generateLink(Album album) {
+        if (album != null) {
+            String urlStr = sHatchetBaseUrl + album.getArtist().getName() + "/" + album.getName();
+            try {
+                URL url = new URL(urlStr);
+                URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(),
+                        url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+                return uri.toURL().toString();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public static String generateShareMsg(Album album) {
+        if (album != null) {
+            return TomahawkApp.getContext().getString(R.string.share_album_prefix)
+                    + " \"" + album.getName() + "\" "
+                    + TomahawkApp.getContext().getString(R.string.album_by_artist)
+                    + " \"" + album.getArtist().getName() + "\": " + generateLink(album);
+        }
+        return null;
+    }
+
+    public static String generateLink(Artist artist) {
+        if (artist != null) {
+            String urlStr = sHatchetBaseUrl + artist.getName();
+            try {
+                URL url = new URL(urlStr);
+                URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(),
+                        url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+                return uri.toURL().toString();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public static String generateShareMsg(Artist artist) {
+        if (artist != null) {
+            return TomahawkApp.getContext().getString(R.string.share_artist_prefix)
+                    + " \"" + artist.getName() + "\": " + generateLink(artist);
+        }
+        return null;
+    }
+
+    public static String generateLink(Query query) {
+        if (query != null) {
+            String urlStr = sHatchetBaseUrl + query.getArtist().getName() + "/_/" + query.getName();
+            try {
+                URL url = new URL(urlStr);
+                URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(),
+                        url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+                return uri.toURL().toString();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public static String generateShareMsg(Query query) {
+        if (query != null) {
+            return TomahawkApp.getContext().getString(R.string.share_track_prefix)
+                    + " \"" + query.getName() + "\" "
+                    + TomahawkApp.getContext().getString(R.string.album_by_artist)
+                    + " \"" + query.getArtist().getName() + "\": " + generateLink(query);
+        }
+        return null;
+    }
+}

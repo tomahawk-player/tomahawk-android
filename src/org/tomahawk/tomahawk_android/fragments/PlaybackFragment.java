@@ -31,6 +31,7 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.CreatePlaylistDialog;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.utils.ShareUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 import org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager;
@@ -38,7 +39,9 @@ import org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -601,6 +604,7 @@ public class PlaybackFragment extends TomahawkFragment {
         mMenu.findItem(R.id.action_saveplaylist_item).setVisible(false);
         mMenu.findItem(R.id.action_gotoartist_item).setVisible(false);
         mMenu.findItem(R.id.action_gotoalbum_item).setVisible(false);
+        mMenu.findItem(R.id.action_share_item).setVisible(false);
     }
 
     @Override
@@ -609,6 +613,16 @@ public class PlaybackFragment extends TomahawkFragment {
         mMenu.findItem(R.id.action_saveplaylist_item).setVisible(true);
         mMenu.findItem(R.id.action_gotoartist_item).setVisible(true);
         mMenu.findItem(R.id.action_gotoalbum_item).setVisible(true);
+        PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
+                .getPlaybackService();
+        if (playbackService != null && playbackService.getCurrentQuery() != null) {
+            MenuItem shareItem = mMenu.findItem(R.id.action_share_item);
+            shareItem.setVisible(true);
+            ShareActionProvider provider =
+                    (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
+            provider.setShareIntent(
+                    ShareUtils.generateShareIntent(playbackService.getCurrentQuery()));
+        }
         getActivity().setTitle(getString(R.string.playbackfragment_title_string));
     }
 }

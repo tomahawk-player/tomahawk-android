@@ -139,6 +139,7 @@ public class TomahawkContextMenuAdapter extends BaseAdapter {
                         .add(mContext.getString(R.string.fake_context_menu_addtoqueue));
                 menuItems.add(mContext.getString(R.string.fake_context_menu_addtoplaylist));
             }
+            menuItems.add(mContext.getString(R.string.menu_item_share));
             menuItems.add(mContext.getString(R.string.menu_item_go_to_artist));
             menuItems.add(mContext.getString(R.string.menu_item_go_to_album));
             if (DatabaseHelper.getInstance().isItemLoved(query)) {
@@ -153,10 +154,12 @@ public class TomahawkContextMenuAdapter extends BaseAdapter {
             menuItems.add(mContext.getString(R.string.fake_context_menu_play));
             menuItems.add(mContext.getString(R.string.fake_context_menu_addtoqueue));
             menuItems.add(mContext.getString(R.string.fake_context_menu_addtoplaylist));
+            menuItems.add(mContext.getString(R.string.menu_item_share));
         } else if (item instanceof Album) {
             menuItems.add(mContext.getString(R.string.fake_context_menu_play));
             menuItems.add(mContext.getString(R.string.fake_context_menu_addtoqueue));
             menuItems.add(mContext.getString(R.string.fake_context_menu_addtoplaylist));
+            menuItems.add(mContext.getString(R.string.menu_item_share));
             menuItems.add(mContext.getString(R.string.menu_item_go_to_artist));
         }
         return menuItems;
