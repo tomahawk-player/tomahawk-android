@@ -91,3 +91,8 @@ Tomahawk.callback = function (reqId, responseText, responseHeaders, status, stat
     Tomahawk.nativeAsyncRequestDone(reqId,
         new FakeXHR(responseText, responseHeaders, status, statusText));
 };
+
+Tomahawk.addUrlResult =
+    function (url, result) {
+        Tomahawk.addUrlResultString(url, JSON.stringify(result));
+    };
