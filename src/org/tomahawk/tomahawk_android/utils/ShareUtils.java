@@ -24,6 +24,7 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.Intent;
+import android.util.Log;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -31,6 +32,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 public class ShareUtils {
+
+    private final static String TAG = ShareUtils.class.getSimpleName();
 
     private static String sHatchetBaseUrl = "https://hatchet.is/music/";
 
@@ -60,9 +63,9 @@ public class ShareUtils {
                         url.getPort(), url.getPath(), url.getQuery(), url.getRef());
                 return uri.toURL().toString();
             } catch (MalformedURLException e) {
-                e.printStackTrace();
+                Log.e(TAG, "generateLink: " + e.getClass() + ": " + e.getLocalizedMessage());
             } catch (URISyntaxException e) {
-                e.printStackTrace();
+                Log.e(TAG, "generateLink: " + e.getClass() + ": " + e.getLocalizedMessage());
             }
         }
         return null;
@@ -87,9 +90,9 @@ public class ShareUtils {
                         url.getPort(), url.getPath(), url.getQuery(), url.getRef());
                 return uri.toURL().toString();
             } catch (MalformedURLException e) {
-                e.printStackTrace();
+                Log.e(TAG, "generateLink: " + e.getClass() + ": " + e.getLocalizedMessage());
             } catch (URISyntaxException e) {
-                e.printStackTrace();
+                Log.e(TAG, "generateLink: " + e.getClass() + ": " + e.getLocalizedMessage());
             }
         }
         return null;
@@ -112,9 +115,9 @@ public class ShareUtils {
                         url.getPort(), url.getPath(), url.getQuery(), url.getRef());
                 return uri.toURL().toString();
             } catch (MalformedURLException e) {
-                e.printStackTrace();
+                Log.e(TAG, "generateLink: " + e.getClass() + ": " + e.getLocalizedMessage());
             } catch (URISyntaxException e) {
-                e.printStackTrace();
+                Log.e(TAG, "generateLink: " + e.getClass() + ": " + e.getLocalizedMessage());
             }
         }
         return null;

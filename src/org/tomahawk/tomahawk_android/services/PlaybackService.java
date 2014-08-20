@@ -251,12 +251,6 @@ public class PlaybackService extends Service
     private Target mLockscreenTarget = new Target() {
         @Override
         public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
-            Log.d("test", "lockscreen onBitmapLoaded: bitmap is "
-                    + (bitmap != null ? "not null" : "null"));
-            Log.d("test", "mLoadingLockscreenImage " + (mLoadingLockscreenImage != null
-                    ? mLoadingLockscreenImage.getImagePath() : "null"));
-            Log.d("test", "mLockscreenBitmap is "
-                    + (mLockscreenBitmap != null ? "not null" : "null"));
             mLoadedLockscreenImage = mLoadingLockscreenImage;
             mLoadingLockscreenImage = null;
             mLockscreenBitmap = bitmap;
@@ -265,11 +259,6 @@ public class PlaybackService extends Service
 
         @Override
         public void onBitmapFailed(Drawable drawable) {
-            Log.d("test", "lockscreen onBitmapFailed");
-            Log.d("test", "mLoadingLockscreenImage " + (mLoadingLockscreenImage != null
-                    ? mLoadingLockscreenImage.getImagePath() : "null"));
-            Log.d("test", "mLockscreenBitmap is "
-                    + (mLockscreenBitmap != null ? "not null" : "null"));
             mLoadingLockscreenImage = null;
             mLoadedLockscreenImage = null;
         }
