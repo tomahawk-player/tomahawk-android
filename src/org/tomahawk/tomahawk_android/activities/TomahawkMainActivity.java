@@ -344,7 +344,6 @@ public class TomahawkMainActivity extends ActionBarActivity
                     .commit();
         }
 
-        Log.d("lookup", "oncreate");
         handleIntent(getIntent());
     }
 
@@ -362,16 +361,10 @@ public class TomahawkMainActivity extends ActionBarActivity
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        Log.d("lookup", "onnewintent");
         handleIntent(intent);
     }
 
     private void handleIntent(Intent intent) {
-        if (intent == null) {
-            Log.d("lookup", "intent null");
-        } else {
-            Log.d("lookup", "intent: " + intent);
-        }
         if (SHOW_PLAYBACKFRAGMENT_ON_STARTUP.equals(intent.getAction())) {
             // if this Activity is being shown after the user clicked the notification
             FragmentUtils.showHub(TomahawkMainActivity.this, getSupportFragmentManager(),
@@ -382,7 +375,6 @@ public class TomahawkMainActivity extends ActionBarActivity
         }
 
         if (intent.getData() != null) {
-            Log.d("lookup", "lookup " + intent.getData().toString());
             PipeLine.getInstance().lookupUrl(intent.getData().toString());
         }
     }

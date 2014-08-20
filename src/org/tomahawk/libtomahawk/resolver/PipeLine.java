@@ -403,8 +403,10 @@ public class PipeLine {
 
     public void lookupUrl(String url) {
         if (!isEveryResolverReady()) {
+            Log.d(TAG, "lookupUrl - enqueuing url: " + url);
             mWaitingUrlLookups.add(url);
         } else {
+            Log.d(TAG, "lookupUrl - looking up url: " + url);
             for (Resolver resolver : mResolvers) {
                 if (resolver instanceof ScriptResolver) {
                     ScriptResolver scriptResolver = (ScriptResolver) resolver;
@@ -417,6 +419,7 @@ public class PipeLine {
     }
 
     public void reportUrlResult(String url, ScriptResolverUrlResult result) {
+        Log.d(TAG, "reportUrlResult - url: " + url);
         mUrlLookupMap.put(url, result);
         Intent reportIntent = new Intent(PIPELINE_URLLOOKUPFINISHED);
         reportIntent.putExtra(PIPELINE_URLLOOKUPFINISHED_URL, url);
