@@ -22,15 +22,23 @@ import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.AdapterUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.utils.ShareUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -43,6 +51,37 @@ import java.util.List;
 public class AlbumsFragment extends TomahawkFragment {
 
     public static final int SHOW_MODE_STARREDALBUMS = 1;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if (mArtist != null) {
+            MenuItem shareItem = menu.findItem(R.id.action_share_item);
+            shareItem.setVisible(true);
+            ShareActionProvider provider =
+                    (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
+            provider.setShareIntent(ShareUtils.generateShareIntent(mArtist));
+        }
+
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    /**
+     * If the user clicks on a menuItem, handle what should be done here
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item != null) {
+            ((TomahawkMainActivity) getActivity()).closeDrawer();
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     public void onResume() {
