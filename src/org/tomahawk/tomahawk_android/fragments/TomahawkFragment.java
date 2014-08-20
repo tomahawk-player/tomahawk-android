@@ -158,6 +158,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     protected User mUser;
 
+    protected Query mQuery;
+
     private int mFirstVisibleItemLastTime = 0;
 
     private int mVisibleItemCount = 0;
@@ -287,6 +289,19 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             if (getArguments().containsKey(CollectionManager.COLLECTION_ID)) {
                 mCollection = CollectionManager.getInstance()
                         .getCollection(getArguments().getString(CollectionManager.COLLECTION_ID));
+            }
+            if (getArguments().containsKey(TOMAHAWK_QUERY_KEY) && !TextUtils
+                    .isEmpty(getArguments().getString(TOMAHAWK_QUERY_KEY))) {
+                mQuery = Query.getQueryByKey(getArguments().getString(TOMAHAWK_QUERY_KEY));
+                if (mQuery == null) {
+                    getActivity().getSupportFragmentManager().popBackStack();
+                } else {
+                    ArrayList<String> requestIds =
+                            InfoSystem.getInstance().resolve(mQuery.getArtist(), true);
+                    for (String requestId : requestIds) {
+                        mCurrentRequestIds.add(requestId);
+                    }
+                }
             }
             if (getArguments().containsKey(CONTAINER_FRAGMENT_NAME)) {
                 String fragmentName = getArguments().getString(CONTAINER_FRAGMENT_NAME);

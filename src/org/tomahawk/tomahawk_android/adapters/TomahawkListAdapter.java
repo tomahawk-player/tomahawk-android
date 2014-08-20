@@ -191,6 +191,8 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
             AdapterUtils.fillContentHeader(mActivity, viewHolder, (Playlist) listItem);
         } else if (listItem instanceof User) {
             AdapterUtils.fillContentHeader(mActivity, viewHolder, (User) listItem);
+        } else if (listItem instanceof Query) {
+            AdapterUtils.fillContentHeader(mActivity, viewHolder, (Query) listItem);
         }
     }
 
@@ -263,7 +265,8 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                 viewHolder = (ViewHolder) convertView.getTag();
                 view = convertView;
             }
-            int viewType = getViewType(item, shouldBeHighlighted);
+            int viewType = getViewType(item, shouldBeHighlighted,
+                    item == mContentHeaderTomahawkListItem && position == 0);
             if (viewHolder == null || viewHolder.getLayoutId() != viewType) {
                 // If the viewHolder is null or the old viewType is different than the new one,
                 // we need to inflate a new view and construct a new viewHolder,
@@ -297,6 +300,9 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                 } else if (mContentHeaderTomahawkListItem instanceof User) {
                     AdapterUtils.fillContentHeader(mActivity, viewHolder,
                             (User) mContentHeaderTomahawkListItem);
+                } else if (mContentHeaderTomahawkListItem instanceof Query) {
+                    AdapterUtils.fillContentHeader(mActivity, viewHolder,
+                            (Query) mContentHeaderTomahawkListItem);
                 }
             } else if (viewHolder.getLayoutId() == R.layout.single_line_list_item) {
                 viewHolder.getTextView1().setText(item.getName());
@@ -324,7 +330,7 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
             if (viewHolder.getLayoutId() == R.layout.content_header
                     || viewHolder.getLayoutId() == R.layout.content_header_user) {
                 if (mContentHeaderTomahawkListItem instanceof Album) {
-                    viewHolder.getStarButton().setOnClickListener(new View.OnClickListener() {
+                    viewHolder.getStarLoveButton().setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             CollectionManager.getInstance().toggleLovedItem(
@@ -332,11 +338,19 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                         }
                     });
                 } else if (mContentHeaderTomahawkListItem instanceof Artist) {
-                    viewHolder.getStarButton().setOnClickListener(new View.OnClickListener() {
+                    viewHolder.getStarLoveButton().setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             CollectionManager.getInstance().toggleLovedItem(
                                     (Artist) mContentHeaderTomahawkListItem);
+                        }
+                    });
+                } else if (mContentHeaderTomahawkListItem instanceof Query) {
+                    viewHolder.getStarLoveButton().setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            CollectionManager.getInstance().toggleLovedItem(
+                                    (Query) mContentHeaderTomahawkListItem);
                         }
                     });
                 } else if (mContentHeaderTomahawkListItem instanceof User) {
@@ -540,8 +554,9 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
         return !mIsLandscapeMode && mContentHeaderTomahawkListItem != null;
     }
 
-    private int getViewType(TomahawkListItem item, boolean isHighlighted) {
-        if (item == mContentHeaderTomahawkListItem) {
+    private int getViewType(TomahawkListItem item, boolean isHighlighted,
+            boolean isContentHeaderItem) {
+        if (isContentHeaderItem) {
             if (item instanceof User) {
                 return R.layout.content_header_user;
             } else {

@@ -63,7 +63,7 @@ public class ViewHolder {
 
     private LinearLayout mButton3;
 
-    private ImageButton mStarButton;
+    private ImageButton mStarLoveButton;
 
     private View mMainClickArea;
 
@@ -112,8 +112,8 @@ public class ViewHolder {
                     .findViewById(R.id.content_header_button2);
             mButton3 = (LinearLayout) rootView
                     .findViewById(R.id.content_header_button3);
-            mStarButton = (ImageButton) rootView
-                    .findViewById(R.id.star_button);
+            mStarLoveButton = (ImageButton) rootView
+                    .findViewById(R.id.star_love_button);
         } else if (layoutId == R.layout.content_header_user_navdrawer) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.content_header_textview_user_navdrawer);
@@ -258,8 +258,8 @@ public class ViewHolder {
         return mButton3;
     }
 
-    public ImageButton getStarButton() {
-        return mStarButton;
+    public ImageButton getStarLoveButton() {
+        return mStarLoveButton;
     }
 
     public View getMainClickArea() {

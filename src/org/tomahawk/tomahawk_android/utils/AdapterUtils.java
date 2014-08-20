@@ -63,11 +63,11 @@ public class AdapterUtils {
                 : "s");
         viewHolder.getTextView2().setText(s);
         if (DatabaseHelper.getInstance().isItemLoved(album)) {
-            viewHolder.getStarButton().setImageResource(R.drawable.ic_action_starred);
+            viewHolder.getStarLoveButton().setImageResource(R.drawable.ic_action_starred);
         } else {
-            viewHolder.getStarButton().setImageResource(R.drawable.ic_action_notstarred);
+            viewHolder.getStarLoveButton().setImageResource(R.drawable.ic_action_notstarred);
         }
-        viewHolder.getStarButton().setVisibility(View.VISIBLE);
+        viewHolder.getStarLoveButton().setVisibility(View.VISIBLE);
     }
 
     public static void fillContentHeader(Context context, ViewHolder viewHolder,
@@ -92,11 +92,11 @@ public class AdapterUtils {
                 + (albumsCount == 1 ? "" : "s");
         viewHolder.getTextView2().setText(s);
         if (DatabaseHelper.getInstance().isItemLoved(artist)) {
-            viewHolder.getStarButton().setImageResource(R.drawable.ic_action_starred);
+            viewHolder.getStarLoveButton().setImageResource(R.drawable.ic_action_starred);
         } else {
-            viewHolder.getStarButton().setImageResource(R.drawable.ic_action_notstarred);
+            viewHolder.getStarLoveButton().setImageResource(R.drawable.ic_action_notstarred);
         }
-        viewHolder.getStarButton().setVisibility(View.VISIBLE);
+        viewHolder.getStarLoveButton().setVisibility(View.VISIBLE);
     }
 
     public static void fillContentHeader(Context context, ViewHolder viewHolder,
@@ -168,6 +168,22 @@ public class AdapterUtils {
         viewHolder.getTextView3().setText("" + user.getTotalPlays());
         viewHolder.getTextView4().setText("" + user.getFollowCount());
         viewHolder.getTextView5().setText("" + user.getFollowersCount());
+    }
+
+    public static void fillContentHeader(Context context, ViewHolder viewHolder, Query query) {
+        if (viewHolder.getTextView1() != null) {
+            viewHolder.getTextView1().setText(query.getName());
+        }
+        viewHolder.getImageView1().setVisibility(View.VISIBLE);
+        TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(), query.getImage(),
+                Image.getLargeImageSize());
+        viewHolder.getTextView2().setText(query.getArtist().getName());
+        if (DatabaseHelper.getInstance().isItemLoved(query)) {
+            viewHolder.getStarLoveButton().setImageResource(R.drawable.ic_action_loved);
+        } else {
+            viewHolder.getStarLoveButton().setImageResource(R.drawable.ic_action_notloved);
+        }
+        viewHolder.getStarLoveButton().setVisibility(View.VISIBLE);
     }
 
     public static void fillView(Context context, ViewHolder viewHolder, Query query,

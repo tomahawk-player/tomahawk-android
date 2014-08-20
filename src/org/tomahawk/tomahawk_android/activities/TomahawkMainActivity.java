@@ -34,6 +34,7 @@ import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
+import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.ScriptResolverUrlResult;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -236,6 +237,12 @@ public class TomahawkMainActivity extends ActionBarActivity
                     FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
                             TracksFragment.class, Album.get(result.name, artist).getCacheKey(),
                             TomahawkFragment.TOMAHAWK_ALBUM_KEY, CollectionManager.getInstance()
+                                    .getCollection(TomahawkApp.PLUGINNAME_HATCHET));
+                } else if (result.type.equals(PipeLine.URL_TYPE_TRACK)) {
+                    FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
+                            TracksFragment.class,
+                            Query.get(result.title, "", result.artist, false).getCacheKey(),
+                            TomahawkFragment.TOMAHAWK_QUERY_KEY, CollectionManager.getInstance()
                                     .getCollection(TomahawkApp.PLUGINNAME_HATCHET));
                 }
             }
