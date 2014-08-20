@@ -70,10 +70,10 @@ public class ShareUtils {
 
     public static String generateShareMsg(Album album) {
         if (album != null) {
-            return TomahawkApp.getContext().getString(R.string.share_album_prefix)
+            return TomahawkApp.getContext().getString(R.string.share_default_prefix)
                     + " \"" + album.getName() + "\" "
                     + TomahawkApp.getContext().getString(R.string.album_by_artist)
-                    + " \"" + album.getArtist().getName() + "\": " + generateLink(album);
+                    + " " + album.getArtist().getName() + " - " + generateLink(album);
         }
         return null;
     }
@@ -97,8 +97,8 @@ public class ShareUtils {
 
     public static String generateShareMsg(Artist artist) {
         if (artist != null) {
-            return TomahawkApp.getContext().getString(R.string.share_artist_prefix)
-                    + " \"" + artist.getName() + "\": " + generateLink(artist);
+            return TomahawkApp.getContext().getString(R.string.share_default_prefix)
+                    + " " + artist.getName() + " - " + generateLink(artist);
         }
         return null;
     }
@@ -122,10 +122,10 @@ public class ShareUtils {
 
     public static String generateShareMsg(Query query) {
         if (query != null) {
-            return TomahawkApp.getContext().getString(R.string.share_track_prefix)
+            return TomahawkApp.getContext().getString(R.string.share_default_prefix)
                     + " \"" + query.getName() + "\" "
                     + TomahawkApp.getContext().getString(R.string.album_by_artist)
-                    + " \"" + query.getArtist().getName() + "\": " + generateLink(query);
+                    + " " + query.getArtist().getName() + " - " + generateLink(query);
         }
         return null;
     }
