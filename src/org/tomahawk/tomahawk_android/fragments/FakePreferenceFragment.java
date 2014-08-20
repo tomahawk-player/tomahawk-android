@@ -129,9 +129,11 @@ public class FakePreferenceFragment extends TomahawkListFragment
                 getString(R.string.fakepreference_spotifylogin_summary_string),
                 R.drawable.ic_spotify));
         for (ScriptResolver scriptResolver : PipeLine.getInstance().getScriptResolvers()) {
-            prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
-                    FakePreferenceGroup.FAKEPREFERENCE_TYPE_CONFIG, scriptResolver.getId(),
-                    scriptResolver.getName(), scriptResolver.getDescription()));
+            if (!scriptResolver.getId().contains("-metadata")) {
+                prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
+                        FakePreferenceGroup.FAKEPREFERENCE_TYPE_CONFIG, scriptResolver.getId(),
+                        scriptResolver.getName(), scriptResolver.getDescription()));
+            }
         }
         mFakePreferenceGroups.add(prefGroup);
         prefGroup = new FakePreferenceGroup(getString(R.string.fakepreference_playback_header));
