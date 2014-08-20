@@ -19,6 +19,8 @@ package org.tomahawk.tomahawk_android.utils;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.PlaylistEntry;
+import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -40,6 +42,12 @@ public class ShareUtils {
     public static Intent generateShareIntent(TomahawkListItem item) {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
+        if (item instanceof PlaylistEntry) {
+            item = ((PlaylistEntry) item).getQuery();
+        } else if (item instanceof SocialAction) {
+            item = ((SocialAction) item).getTarget();
+        }
+
         if (item instanceof Album) {
             shareIntent.putExtra(Intent.EXTRA_TEXT, ShareUtils.generateShareMsg((Album) item));
             return shareIntent;
