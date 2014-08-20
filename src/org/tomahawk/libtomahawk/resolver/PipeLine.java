@@ -94,6 +94,9 @@ public class PipeLine {
     private ConcurrentHashMap<String, Query> mWaitingQueries
             = new ConcurrentHashMap<String, Query>();
 
+    private HashSet<String> mWaitingUrlLookups
+            = new HashSet<String>();
+
     private boolean mAllResolversAdded;
 
     private ConcurrentHashMap<String, ResolverUrlHandler> mUrlHandlerMap
@@ -399,11 +402,15 @@ public class PipeLine {
     }
 
     public void lookupUrl(String url) {
-        for (Resolver resolver : mResolvers) {
-            if (resolver instanceof ScriptResolver) {
-                ScriptResolver scriptResolver = (ScriptResolver) resolver;
-                if (scriptResolver.hasUrlLookup()) {
-                    scriptResolver.lookupUrl(url);
+        if (!isEveryResolverReady()) {
+            mWaitingUrlLookups.add(url);
+        } else {
+            for (Resolver resolver : mResolvers) {
+                if (resolver instanceof ScriptResolver) {
+                    ScriptResolver scriptResolver = (ScriptResolver) resolver;
+                    if (scriptResolver.hasUrlLookup()) {
+                        scriptResolver.lookupUrl(url);
+                    }
                 }
             }
         }
@@ -455,6 +462,10 @@ public class PipeLine {
             for (Query query : mWaitingQueries.values()) {
                 mWaitingQueries.remove(query.getCacheKey());
                 resolve(query);
+            }
+            for (String url : mWaitingUrlLookups) {
+                mWaitingUrlLookups.remove(url);
+                lookupUrl(url);
             }
         }
     }

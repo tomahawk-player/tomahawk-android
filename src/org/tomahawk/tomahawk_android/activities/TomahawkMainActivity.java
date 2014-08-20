@@ -230,20 +230,17 @@ public class TomahawkMainActivity extends ActionBarActivity
                 if (result.type.equals(PipeLine.URL_TYPE_ARTIST)) {
                     FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
                             AlbumsFragment.class, Artist.get(result.name).getCacheKey(),
-                            TomahawkFragment.TOMAHAWK_ARTIST_KEY, CollectionManager.getInstance()
-                                    .getCollection(TomahawkApp.PLUGINNAME_HATCHET));
+                            TomahawkFragment.TOMAHAWK_ARTIST_KEY);
                 } else if (result.type.equals(PipeLine.URL_TYPE_ALBUM)) {
                     Artist artist = Artist.get(result.artist);
                     FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
                             TracksFragment.class, Album.get(result.name, artist).getCacheKey(),
-                            TomahawkFragment.TOMAHAWK_ALBUM_KEY, CollectionManager.getInstance()
-                                    .getCollection(TomahawkApp.PLUGINNAME_HATCHET));
+                            TomahawkFragment.TOMAHAWK_ALBUM_KEY);
                 } else if (result.type.equals(PipeLine.URL_TYPE_TRACK)) {
                     FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
                             TracksFragment.class,
                             Query.get(result.title, "", result.artist, false).getCacheKey(),
-                            TomahawkFragment.TOMAHAWK_QUERY_KEY, CollectionManager.getInstance()
-                                    .getCollection(TomahawkApp.PLUGINNAME_HATCHET));
+                            TomahawkFragment.TOMAHAWK_QUERY_KEY);
                 }
             }
         }
@@ -346,6 +343,9 @@ public class TomahawkMainActivity extends ActionBarActivity
                     FakePreferenceFragment.FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING, true)
                     .commit();
         }
+
+        Log.d("lookup", "oncreate");
+        handleIntent(getIntent());
     }
 
     @Override
@@ -362,7 +362,29 @@ public class TomahawkMainActivity extends ActionBarActivity
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        setIntent(intent);
+        Log.d("lookup", "onnewintent");
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (intent == null) {
+            Log.d("lookup", "intent null");
+        } else {
+            Log.d("lookup", "intent: " + intent);
+        }
+        if (SHOW_PLAYBACKFRAGMENT_ON_STARTUP.equals(intent.getAction())) {
+            // if this Activity is being shown after the user clicked the notification
+            FragmentUtils.showHub(TomahawkMainActivity.this, getSupportFragmentManager(),
+                    FragmentUtils.HUB_ID_PLAYBACK);
+        }
+        if (intent.hasExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)) {
+            FragmentUtils.replace(this, getSupportFragmentManager(), FakePreferenceFragment.class);
+        }
+
+        if (intent.getData() != null) {
+            Log.d("lookup", "lookup " + intent.getData().toString());
+            PipeLine.getInstance().lookupUrl(intent.getData().toString());
+        }
     }
 
     @Override
@@ -374,19 +396,6 @@ public class TomahawkMainActivity extends ActionBarActivity
         mAnimationHandler = new Handler();
         mShouldShowAnimationHandler = new Handler();
         mShouldShowAnimationHandler.post(mShouldShowAnimationRunnable);
-
-        if (SHOW_PLAYBACKFRAGMENT_ON_STARTUP.equals(getIntent().getAction())) {
-            // if this Activity is being shown after the user clicked the notification
-            FragmentUtils.showHub(TomahawkMainActivity.this, getSupportFragmentManager(),
-                    FragmentUtils.HUB_ID_PLAYBACK);
-        }
-        if (getIntent().hasExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)) {
-            FragmentUtils.replace(this, getSupportFragmentManager(), FakePreferenceFragment.class);
-        }
-
-        if (getIntent().getData() != null) {
-            PipeLine.getInstance().lookupUrl(getIntent().getData().toString());
-        }
 
         if (mTomahawkMainReceiver == null) {
             mTomahawkMainReceiver = new TomahawkMainReceiver();

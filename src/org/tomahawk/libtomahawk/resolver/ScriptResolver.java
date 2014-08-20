@@ -489,25 +489,24 @@ public class ScriptResolver extends Resolver {
     }
 
     public void addUrlResultString(final String url, final String resultString) {
-        ThreadManager.getInstance().execute(
-                new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
-                    @Override
-                    public void run() {
-                        ScriptResolverUrlResult result = null;
-                        try {
-                            result = mObjectMapper.readValue(resultString,
-                                    ScriptResolverUrlResult.class);
-                        } catch (IOException e) {
-                            Log.e(TAG, "addUrlResultString: " + e.getClass() + ": " + e
-                                    .getLocalizedMessage());
-                        }
-                        if (result != null) {
-                            PipeLine.getInstance().reportUrlResult(url, result);
-                        }
-                        mStopped = true;
-                    }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ScriptResolverUrlResult result = null;
+                try {
+                    result = mObjectMapper.readValue(resultString,
+                            ScriptResolverUrlResult.class);
+                } catch (IOException e) {
+                    Log.e(TAG, "addUrlResultString: " + e.getClass() + ": " + e
+                            .getLocalizedMessage());
                 }
-        );
+                if (result != null) {
+                    PipeLine.getInstance().reportUrlResult(url, result);
+                }
+                mStopped = true;
+            }
+        }
+        ).start();
     }
 
     public void reportStreamUrl(String qid, String url, String stringifiedHeaders) {
