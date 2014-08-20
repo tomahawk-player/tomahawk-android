@@ -58,6 +58,12 @@ public class PipeLine {
 
     public static final int PIPELINE_SEARCHTYPE_ALBUMS = 2;
 
+    public static final String URL_TYPE_TRACK = "track";
+
+    public static final String URL_TYPE_ALBUM = "album";
+
+    public static final String URL_TYPE_ARTIST = "artist";
+
     public static final String PIPELINE_RESULTSREPORTED
             = "org.tomahawk.tomahawk_android.pipeline_resultsreported";
 
@@ -73,6 +79,12 @@ public class PipeLine {
     public static final String PIPELINE_RESULTSREPORTED_QUERYKEY
             = "org.tomahawk.tomahawk_android.pipeline_resultsreported_querykey";
 
+    public static final String PIPELINE_URLLOOKUPFINISHED
+            = "org.tomahawk.tomahawk_android.pipeline_urllookupfinished";
+
+    public static final String PIPELINE_URLLOOKUPFINISHED_URL
+            = "org.tomahawk.tomahawk_android.pipeline_urllookupfinished_url";
+
     private static final float MINSCORE = 0.5F;
 
     private boolean mInitialized;
@@ -86,6 +98,9 @@ public class PipeLine {
 
     private ConcurrentHashMap<String, ResolverUrlHandler> mUrlHandlerMap
             = new ConcurrentHashMap<String, ResolverUrlHandler>();
+
+    private ConcurrentHashMap<String, ScriptResolverUrlResult> mUrlLookupMap
+            = new ConcurrentHashMap<String, ScriptResolverUrlResult>();
 
     private PipeLine() {
     }
@@ -381,6 +396,28 @@ public class PipeLine {
                     }
                 }
         );
+    }
+
+    public void lookupUrl(String url) {
+        for (Resolver resolver : mResolvers) {
+            if (resolver instanceof ScriptResolver) {
+                ScriptResolver scriptResolver = (ScriptResolver) resolver;
+                if (scriptResolver.hasUrlLookup()) {
+                    scriptResolver.lookupUrl(url);
+                }
+            }
+        }
+    }
+
+    public void reportUrlResult(String url, ScriptResolverUrlResult result) {
+        mUrlLookupMap.put(url, result);
+        Intent reportIntent = new Intent(PIPELINE_URLLOOKUPFINISHED);
+        reportIntent.putExtra(PIPELINE_URLLOOKUPFINISHED_URL, url);
+        TomahawkApp.getContext().sendBroadcast(reportIntent);
+    }
+
+    public ScriptResolverUrlResult getUrlResult(String url) {
+        return mUrlLookupMap.get(url);
     }
 
     /**

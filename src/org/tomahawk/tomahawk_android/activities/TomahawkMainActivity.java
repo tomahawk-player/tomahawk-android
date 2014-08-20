@@ -25,6 +25,8 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.RdioAuthenticatorUtils;
+import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.database.TomahawkSQLiteHelper;
@@ -32,13 +34,17 @@ import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
+import org.tomahawk.libtomahawk.resolver.ScriptResolverUrlResult;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
+import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
+import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
+import org.tomahawk.tomahawk_android.fragments.TracksFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
@@ -217,6 +223,21 @@ public class TomahawkMainActivity extends ActionBarActivity
                         }
                     });
                 }
+            } else if (PipeLine.PIPELINE_URLLOOKUPFINISHED.equals(intent.getAction())) {
+                String url = intent.getStringExtra(PipeLine.PIPELINE_URLLOOKUPFINISHED_URL);
+                ScriptResolverUrlResult result = PipeLine.getInstance().getUrlResult(url);
+                if (result.type.equals(PipeLine.URL_TYPE_ARTIST)) {
+                    FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
+                            AlbumsFragment.class, Artist.get(result.name).getCacheKey(),
+                            TomahawkFragment.TOMAHAWK_ARTIST_KEY, CollectionManager.getInstance()
+                                    .getCollection(TomahawkApp.PLUGINNAME_HATCHET));
+                } else if (result.type.equals(PipeLine.URL_TYPE_ALBUM)) {
+                    Artist artist = Artist.get(result.artist);
+                    FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
+                            TracksFragment.class, Album.get(result.name, artist).getCacheKey(),
+                            TomahawkFragment.TOMAHAWK_ALBUM_KEY, CollectionManager.getInstance()
+                                    .getCollection(TomahawkApp.PLUGINNAME_HATCHET));
+                }
             }
         }
     }
@@ -356,6 +377,10 @@ public class TomahawkMainActivity extends ActionBarActivity
             FragmentUtils.replace(this, getSupportFragmentManager(), FakePreferenceFragment.class);
         }
 
+        if (getIntent().getData() != null) {
+            PipeLine.getInstance().lookupUrl(getIntent().getData().toString());
+        }
+
         if (mTomahawkMainReceiver == null) {
             mTomahawkMainReceiver = new TomahawkMainReceiver();
         }
@@ -371,6 +396,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         registerReceiver(mTomahawkMainReceiver,
                 new IntentFilter(AuthenticatorManager.CONFIG_TEST_RESULT));
+        registerReceiver(mTomahawkMainReceiver,
+                new IntentFilter(PipeLine.PIPELINE_URLLOOKUPFINISHED));
     }
 
     @Override

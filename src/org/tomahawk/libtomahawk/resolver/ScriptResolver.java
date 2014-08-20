@@ -484,6 +484,32 @@ public class ScriptResolver extends Resolver {
         );
     }
 
+    public void lookupUrl(String url) {
+        loadUrl("javascript: Tomahawk.resolver.instance.lookupUrl('" + url + "')");
+    }
+
+    public void addUrlResultString(final String url, final String resultString) {
+        ThreadManager.getInstance().execute(
+                new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
+                    @Override
+                    public void run() {
+                        ScriptResolverUrlResult result = null;
+                        try {
+                            result = mObjectMapper.readValue(resultString,
+                                    ScriptResolverUrlResult.class);
+                        } catch (IOException e) {
+                            Log.e(TAG, "addUrlResultString: " + e.getClass() + ": " + e
+                                    .getLocalizedMessage());
+                        }
+                        if (result != null) {
+                            PipeLine.getInstance().reportUrlResult(url, result);
+                        }
+                        mStopped = true;
+                    }
+                }
+        );
+    }
+
     public void reportStreamUrl(String qid, String url, String stringifiedHeaders) {
         try {
             Map<String, String> headers = null;
@@ -761,7 +787,7 @@ public class ScriptResolver extends Resolver {
         return mAccountFactory;
     }
 
-    public boolean isUrlLookup() {
+    public boolean hasUrlLookup() {
         return mUrlLookup;
     }
 

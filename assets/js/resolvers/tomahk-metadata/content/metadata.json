@@ -1,0 +1,18 @@
+{
+	"name": "toma.hk Metadata",
+	"pluginName": "tomahk-metadata",
+	"author": "Uwe L. Korn",
+	"email": "uwelk@xhochy.com",
+	"version": "0.1.0",
+	"website": "http://gettomahawk.com",
+	"description": "Supports loading/drag'n'drop of toma.hk URLs.",
+	"type": "resolver/javascript",
+	"manifest": {
+		"main": "contents/code/tomahk-metadata.js",
+		"scripts": [],
+		"icon": "contents/images/icon.png",
+		"resources": [
+			"contents/code/tomahk-metadata.png"
+		]
+	}
+}

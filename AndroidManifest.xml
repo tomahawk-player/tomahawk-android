@@ -50,11 +50,109 @@
 
         <activity
                 android:name=".activities.TomahawkMainActivity"
-                android:label="@string/mainactivity_title_string">
+                android:label="@string/mainactivity_title_string"
+                android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.APP_MUSIC"/>
+                <data android:scheme="https"/>
+                <data android:scheme="http"/>
+                <data android:host="www.hatchet.is"/>
+                <data android:host="hatchet.is"/>
+                <data android:pathPattern="/music/.*"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.APP_MUSIC"/>
+                <data android:scheme="https"/>
+                <data android:scheme="http"/>
+                <data android:host="listen.beatsmusic.com"/>
+                <data android:host="on.beatsmusic.com"/>
+                <data android:pathPattern="/albums/.*"/>
+                <data android:pathPattern="/artists/.*"/>
+                <data android:pathPattern="/tracks/.*"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.APP_MUSIC"/>
+                <data android:scheme="https"/>
+                <data android:scheme="http"/>
+                <data android:host="www.deezer.com"/>
+                <data android:host="deezer.com"/>
+                <data android:pathPattern="/album/.*"/>
+                <data android:pathPattern="/artist/.*"/>
+                <data android:pathPattern="/track/.*"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.APP_MUSIC"/>
+                <data android:scheme="https"/>
+                <data android:scheme="http"/>
+                <data android:host="www.rdio.com"/>
+                <data android:host="rdio.com"/>
+                <data android:pathPattern="/artist/.*"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.APP_MUSIC"/>
+                <data android:scheme="https"/>
+                <data android:scheme="http"/>
+                <data android:host="www.soundcloud.com"/>
+                <data android:host="m.soundcloud.com"/>
+                <data android:host="soundcloud.com"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.APP_MUSIC"/>
+                <data android:scheme="https"/>
+                <data android:scheme="http"/>
+                <data android:host="www.toma.hk"/>
+                <data android:host="toma.hk"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.APP_MUSIC"/>
+                <data android:scheme="https"/>
+                <data android:scheme="http"/>
+                <data android:host="play.spotify.com"/>
+                <data android:host="open.spotify.com"/>
+                <data android:host="spotify.com"/>
+                <data android:pathPattern="/artist/.*"/>
+                <data android:pathPattern="/album/.*"/>
+                <data android:pathPattern="/track/.*"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.APP_MUSIC"/>
+                <data android:scheme="tomahawk"/>
+                <data android:host="play"/>
+                <data android:host="queue"/>
+                <data android:host="view"/>
+                <data android:pathPattern="/track.*"/>
+                <data android:pathPattern="/add/track.*"/>
+                <data android:pathPattern="/artist.*"/>
+                <data android:pathPattern="/album.*"/>
             </intent-filter>
         </activity>
 

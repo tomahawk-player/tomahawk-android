@@ -1,0 +1,18 @@
+{
+	"name": "tomahawk Metadata",
+	"pluginName": "tomahawk-metadata",
+	"author": "Enno Gottschalk",
+	"email": "mrmaffen@googlemail.com",
+	"version": "0.1.0",
+	"website": "http://gettomahawk.com",
+	"description": "Supports loading/drag'n'drop of tomahawk:// URLs.",
+	"type": "resolver/javascript",
+	"manifest": {
+		"main": "contents/code/tomahawk-metadata.js",
+		"scripts": [],
+		"icon": "contents/images/icon.png",
+		"resources": [
+			"contents/code/tomahawk-metadata.png"
+		]
+	}
+}

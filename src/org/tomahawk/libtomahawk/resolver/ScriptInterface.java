@@ -338,4 +338,9 @@ public class ScriptInterface {
     public void onConfigTestResult(int type, String message) {
         mScriptResolver.onConfigTestResult(type, message);
     }
+
+    @JavascriptInterface
+    public void addUrlResultString(String url, String resultString) {
+        mScriptResolver.addUrlResultString(url, resultString);
+    }
 }
