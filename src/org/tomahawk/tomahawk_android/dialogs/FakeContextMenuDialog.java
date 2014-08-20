@@ -40,6 +40,7 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -269,7 +270,10 @@ public class FakeContextMenuDialog extends DialogFragment {
             dialog.setArguments(args);
             dialog.show(getActivity().getSupportFragmentManager(), null);
         } else if (menuItemTitle.equals(getString(R.string.menu_item_share))) {
-            startActivity(ShareUtils.generateShareIntent(mTomahawkListItem));
+            Intent shareIntent = ShareUtils.generateShareIntent(mTomahawkListItem);
+            if (shareIntent != null) {
+                startActivity(shareIntent);
+            }
         } else if (menuItemTitle.equals(getString(R.string.menu_item_go_to_album))) {
             FragmentUtils.replace((TomahawkMainActivity) getActivity(),
                     getActivity().getSupportFragmentManager(), TracksFragment.class,
