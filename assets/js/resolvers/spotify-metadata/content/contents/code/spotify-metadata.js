@@ -40,7 +40,7 @@ var SpotifyMetadataResolver = Tomahawk.extend(TomahawkResolver, {
         case TomahawkUrlType.Artist:
             return /spotify:artist:/.test(url) || /https?:\/\/(play|open)\.spotify\.[^\/]+\/artist\//.test(url);
         case TomahawkUrlType.Playlist:
-            return /spotify:user:[0-9]*:playlist:/.test(url);
+            return /spotify:user:[^:]*:playlist:/.test(url);
         case TomahawkUrlType.Track:
             return /spotify:track:/.test(url) || /https?:\/\/(play|open)\.spotify\.[^\/]+\/track\//.test(url);
         // case TomahawkUrlType.Any:
@@ -52,7 +52,7 @@ var SpotifyMetadataResolver = Tomahawk.extend(TomahawkResolver, {
     lookupUrl: function (url) {
         var that = this;
         var match = url.match(/spotify:(album|artist|track):(.*)/);
-        var playlistmatch = url.match(/spotify:user:[0-9]*:playlist:(.*)/);
+        var playlistmatch = url.match(/spotify:user:[^:]*:playlist:(.*)/);
         if (match == null) {
             match = url.match(/https?:\/\/(play|open)\.spotify\.[^\/]+\/(album|artist|track)\/([^\/\?]*)/);
             if (match != null) match.splice(1, 1);

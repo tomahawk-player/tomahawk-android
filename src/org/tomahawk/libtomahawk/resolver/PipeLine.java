@@ -64,6 +64,8 @@ public class PipeLine {
 
     public static final String URL_TYPE_ARTIST = "artist";
 
+    public static final String URL_TYPE_PLAYLIST = "playlist";
+
     public static final String PIPELINE_RESULTSREPORTED
             = "org.tomahawk.tomahawk_android.pipeline_resultsreported";
 
@@ -84,6 +86,9 @@ public class PipeLine {
 
     public static final String PIPELINE_URLLOOKUPFINISHED_URL
             = "org.tomahawk.tomahawk_android.pipeline_urllookupfinished_url";
+
+    public static final String PIPELINE_URLLOOKUPFINISHED_RESOLVERID
+            = "org.tomahawk.tomahawk_android.pipeline_urllookupfinished_resolverid";
 
     private static final float MINSCORE = 0.5F;
 
@@ -418,11 +423,12 @@ public class PipeLine {
         }
     }
 
-    public void reportUrlResult(String url, ScriptResolverUrlResult result) {
+    public void reportUrlResult(String url, Resolver resolver, ScriptResolverUrlResult result) {
         Log.d(TAG, "reportUrlResult - url: " + url);
         mUrlLookupMap.put(url, result);
         Intent reportIntent = new Intent(PIPELINE_URLLOOKUPFINISHED);
         reportIntent.putExtra(PIPELINE_URLLOOKUPFINISHED_URL, url);
+        reportIntent.putExtra(PIPELINE_URLLOOKUPFINISHED_RESOLVERID, resolver.getId());
         TomahawkApp.getContext().sendBroadcast(reportIntent);
     }
 

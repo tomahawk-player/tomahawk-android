@@ -29,6 +29,16 @@ public class ScriptResolverUrlResult {
 
     public String artist;
 
+    public String guid;
+
+    public String info;
+
+    public String creator;
+
+    public String hint;
+
+    public ScriptResolverUrlResult[] tracks;
+
     public ScriptResolverUrlResult() {
     }
 }
