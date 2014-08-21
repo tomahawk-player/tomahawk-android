@@ -80,6 +80,7 @@
                 <data android:pathPattern="/albums/.*"/>
                 <data android:pathPattern="/artists/.*"/>
                 <data android:pathPattern="/tracks/.*"/>
+                <data android:pathPattern="/playlists/.*"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
@@ -93,6 +94,7 @@
                 <data android:pathPattern="/album/.*"/>
                 <data android:pathPattern="/artist/.*"/>
                 <data android:pathPattern="/track/.*"/>
+                <data android:pathPattern="/playlist/.*"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
@@ -104,6 +106,7 @@
                 <data android:host="www.rdio.com"/>
                 <data android:host="rdio.com"/>
                 <data android:pathPattern="/artist/.*"/>
+                <data android:pathPattern="/people/.*"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
@@ -139,6 +142,13 @@
                 <data android:pathPattern="/artist/.*"/>
                 <data android:pathPattern="/album/.*"/>
                 <data android:pathPattern="/track/.*"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.APP_MUSIC"/>
+                <data android:scheme="spotify"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>

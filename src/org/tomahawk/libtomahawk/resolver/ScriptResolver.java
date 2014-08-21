@@ -501,7 +501,7 @@ public class ScriptResolver extends Resolver {
                             .getLocalizedMessage());
                 }
                 if (result != null) {
-                    PipeLine.getInstance().reportUrlResult(url, result);
+                    PipeLine.getInstance().reportUrlResult(url, ScriptResolver.this, result);
                 }
                 mStopped = true;
             }

@@ -28,6 +28,7 @@ import org.tomahawk.libtomahawk.authentication.RdioAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
+import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.database.TomahawkSQLiteHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
@@ -35,6 +36,8 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.resolver.Resolver;
+import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptResolverUrlResult;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -43,6 +46,7 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
+import org.tomahawk.tomahawk_android.fragments.PlaylistEntriesFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.fragments.TracksFragment;
@@ -87,6 +91,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 /**
@@ -226,6 +231,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                 }
             } else if (PipeLine.PIPELINE_URLLOOKUPFINISHED.equals(intent.getAction())) {
                 String url = intent.getStringExtra(PipeLine.PIPELINE_URLLOOKUPFINISHED_URL);
+                Resolver resolver = PipeLine.getInstance().getResolver(
+                        intent.getStringExtra(PipeLine.PIPELINE_URLLOOKUPFINISHED_RESOLVERID));
                 ScriptResolverUrlResult result = PipeLine.getInstance().getUrlResult(url);
                 if (result.type.equals(PipeLine.URL_TYPE_ARTIST)) {
                     FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
@@ -241,6 +248,20 @@ public class TomahawkMainActivity extends ActionBarActivity
                             TracksFragment.class,
                             Query.get(result.title, "", result.artist, false).getCacheKey(),
                             TomahawkFragment.TOMAHAWK_QUERY_KEY);
+                } else if (result.type.equals(PipeLine.URL_TYPE_PLAYLIST)) {
+                    ArrayList<Query> queries = new ArrayList<Query>();
+                    for (ScriptResolverUrlResult track : result.tracks) {
+                        Query query = Query.get(track.title, "", track.artist, false);
+                        if (resolver != null && resolver.isEnabled() && track.hint != null) {
+                            query.addTrackResult(Result.get(track.hint, query.getBasicTrack(),
+                                    resolver, query.getCacheKey()));
+                        }
+                        queries.add(query);
+                    }
+                    Playlist playlist = Playlist.fromQueryList(result.guid, queries);
+                    FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
+                            PlaylistEntriesFragment.class, playlist.getId(),
+                            TomahawkFragment.TOMAHAWK_PLAYLIST_KEY);
                 }
             }
         }
