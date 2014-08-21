@@ -69,7 +69,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.media.MediaMetadataRetriever;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -93,6 +95,7 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * The main Tomahawk activity
@@ -396,7 +399,45 @@ public class TomahawkMainActivity extends ActionBarActivity
         }
 
         if (intent.getData() != null) {
-            PipeLine.getInstance().lookupUrl(intent.getData().toString());
+            Uri data = intent.getData();
+            List<String> pathSegments = data.getPathSegments();
+            String host = data.getHost();
+            if (host.contains("hatchet.is") || host.contains("toma.hk") || host.contains("spotify")
+                    || host.contains("tomahawk") || host.contains("beatsmusic.com")
+                    || host.contains("deezer.com") || host.contains("rdio.com")
+                    || host.contains("soundcloud.com")) {
+                PipeLine.getInstance().lookupUrl(data.toString());
+            } else {
+                String albumName = null;
+                String trackName = null;
+                String artistName = null;
+                try {
+                    MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+                    retriever.setDataSource(this, data);
+                    albumName =
+                            retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+                    artistName =
+                            retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
+                    trackName =
+                            retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+                    retriever.release();
+                } catch (IllegalArgumentException e) {
+                    Log.e(TAG, "handleIntent: " + e.getClass() + ": " + e.getLocalizedMessage());
+                }
+                if (TextUtils.isEmpty(trackName)) {
+                    trackName = pathSegments.get(pathSegments.size() - 1);
+                }
+                Query query = Query.get(trackName, albumName, artistName, false);
+                Resolver resolver =
+                        PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_USERCOLLECTION);
+                if (resolver != null) {
+                    query.addTrackResult(Result.get(data.toString(), query.getBasicTrack(),
+                            resolver, query.getCacheKey()));
+                    FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
+                            TracksFragment.class, query.getCacheKey(),
+                            TomahawkFragment.TOMAHAWK_QUERY_KEY);
+                }
+            }
         }
     }
 

@@ -52,7 +52,7 @@ android {
     buildToolsVersion "20.0.0"
 
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion 10
         targetSdkVersion 19
         versionName '0.60'
         versionCode 600
