@@ -44,8 +44,6 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
 
     private TextView mTextViewCompletionTime;
 
-    private int mUpdateInterval;
-
     private static final int MSG_UPDATE_PROGRESS = 0x1;
 
     /**
@@ -104,17 +102,6 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
     }
 
     /**
-     * Set the interval in which to update the seekbar position
-     */
-    public void setUpdateInterval() {
-        if (mPlaybackService != null) {
-            mUpdateInterval = (int) (mPlaybackService.getCurrentTrack().getDuration() / 300);
-            mUpdateInterval = Math.min(mUpdateInterval, 250);
-            mUpdateInterval = Math.max(mUpdateInterval, 20);
-        }
-    }
-
-    /**
      * Updates the position on seekbar and the related textviews
      */
     public void updateSeekBarPosition() {
@@ -125,6 +112,8 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
                 setEnabled(false);
             } else {
                 setEnabled(true);
+                mUiHandler.removeMessages(MSG_UPDATE_PROGRESS);
+                mUiHandler.sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS, 500);
             }
             if (mPlaybackService != null && !mPlaybackService.isPreparing()) {
                 setProgress(mPlaybackService.getPosition());
@@ -134,8 +123,10 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
                 updateTextViewCurrentTime(0);
             }
         }
+    }
+
+    public void stopUpdates() {
         mUiHandler.removeMessages(MSG_UPDATE_PROGRESS);
-        mUiHandler.sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS, mUpdateInterval);
     }
 
     /**
