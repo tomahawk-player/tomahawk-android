@@ -197,7 +197,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         if (mPlaybackService.isRepeating()) {
             position += mFakeInfinityOffset;
         }
-        if (position != mCurrentViewPage) {
+        if (position != mViewPager.getCurrentItem()) {
             if (mPlaybackService.isRepeating()) {
                 if (position
                         == (mCurrentViewPage % mPlaybackService.getPlaylist().size()) + 1
