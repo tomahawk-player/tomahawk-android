@@ -344,7 +344,13 @@ public class PlaybackFragment extends TomahawkFragment {
 
         refreshPlayPauseButtonState();
         if (mPlaybackSeekBar != null) {
-            mPlaybackSeekBar.updateSeekBarPosition();
+            PlaybackService playbackService =
+                    ((TomahawkMainActivity) getActivity()).getPlaybackService();
+            if (playbackService != null && playbackService.isPlaying()) {
+                mPlaybackSeekBar.updateSeekBarPosition();
+            } else {
+                mPlaybackSeekBar.stopUpdates();
+            }
         }
         if (mAlbumArtSwipeAdapter != null) {
             mAlbumArtSwipeAdapter.updatePlaylist();
@@ -513,7 +519,6 @@ public class PlaybackFragment extends TomahawkFragment {
                 // Update the PlaybackSeekBar
                 mPlaybackSeekBar.setPlaybackService(playbackService);
                 mPlaybackSeekBar.setMax();
-                mPlaybackSeekBar.setUpdateInterval();
                 mPlaybackSeekBar.updateSeekBarPosition();
                 mPlaybackSeekBar.updateTextViewCompleteTime();
 
@@ -601,6 +606,7 @@ public class PlaybackFragment extends TomahawkFragment {
     @Override
     public void onPanelCollapsed() {
         mAlbumArtSwipeAdapter.notifyDataSetChanged();
+        mPlaybackSeekBar.stopUpdates();
         mMenu.findItem(R.id.action_saveplaylist_item).setVisible(false);
         mMenu.findItem(R.id.action_gotoartist_item).setVisible(false);
         mMenu.findItem(R.id.action_gotoalbum_item).setVisible(false);
@@ -610,6 +616,7 @@ public class PlaybackFragment extends TomahawkFragment {
     @Override
     public void onPanelExpanded() {
         mAlbumArtSwipeAdapter.notifyDataSetChanged();
+        mPlaybackSeekBar.updateSeekBarPosition();
         mMenu.findItem(R.id.action_saveplaylist_item).setVisible(true);
         mMenu.findItem(R.id.action_gotoartist_item).setVisible(true);
         mMenu.findItem(R.id.action_gotoalbum_item).setVisible(true);
