@@ -314,7 +314,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        mProgressDrawable = getResources().getDrawable(R.drawable.progress_indeterminate_tomahawk);
+        mProgressDrawable = getResources().getDrawable(R.drawable.tomahawk_progress_indeterminate_circular_holo_light);
 
         mTitle = mDrawerTitle = getTitle();
 
@@ -558,7 +558,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         searchAutoComplete.setDropDownBackgroundResource(R.drawable.menu_dropdown_panel_tomahawk);
         View searchEditText = searchView
                 .findViewById(android.support.v7.appcompat.R.id.search_plate);
-        searchEditText.setBackgroundResource(R.drawable.textfield_searchview_holo_dark);
+        searchEditText.setBackgroundResource(R.drawable.tomahawk_textfield_activated_holo_light);
         searchView.setQueryHint(getString(R.string.searchfragment_title_string));
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override

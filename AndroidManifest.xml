@@ -45,7 +45,7 @@
             android:name="org.tomahawk.tomahawk_android.TomahawkApp"
             android:icon="@drawable/ic_launcher"
             android:label="@string/appname_string"
-            android:theme="@style/Theme.tomahawk.nativeandroid"
+            android:theme="@style/Theme.Tomahawk"
             android:allowBackup="true">
 
         <activity

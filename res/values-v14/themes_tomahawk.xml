@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Generated with http://android-holo-colors.com -->
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="Theme.Tomahawk" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+
+        <item name="android:editTextBackground">@drawable/tomahawk_edit_text_holo_light</item>
+
+        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewTomahawk</item>
+
+        <item name="android:listChoiceIndicatorMultiple">@drawable/tomahawk_btn_check_holo_light
+        </item>
+
+        <item name="android:dropDownSpinnerStyle">@style/SpinnerTomahawk</item>
+
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarTomahawk</item>
+
+        <item name="android:listChoiceBackgroundIndicator">
+            @drawable/tomahawk_list_selector_holo_light
+        </item>
+
+        <item name="android:activatedBackgroundIndicator">
+            @drawable/tomahawk_activated_background_holo_light
+        </item>
+
+        <item name="android:fastScrollThumbDrawable">@drawable/tomahawk_fastscroll_thumb_holo</item>
+        <item name="android:actionBarItemBackground">@drawable/selectable_background_tomahawk</item>
+        <item name="android:popupMenuStyle">@style/PopupMenu.Tomahawk</item>
+        <item name="android:dropDownListViewStyle">@style/DropDownListView.Tomahawk</item>
+        <item name="android:actionBarTabStyle">@style/ActionBarTabStyle.Tomahawk</item>
+        <item name="android:actionDropDownStyle">@style/DropDownNav.Tomahawk</item>
+        <item name="android:actionBarStyle">@style/ActionBar.Solid.Tomahawk</item>
+        <item name="android:actionModeBackground">@drawable/cab_background_top_tomahawk</item>
+        <item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_tomahawk
+        </item>
+        <item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Tomahawk
+        </item>
+
+        <!-- Light.DarkActionBar specific -->
+        <item name="android:actionBarWidgetTheme">@style/Theme.Tomahawk.Widget</item>
+
+    </style>
+
+</resources>
