@@ -1,21 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
 
     <dimen name="padding_verysmall">4dp</dimen>
     <dimen name="padding_small">8dp</dimen>
     <dimen name="padding_medium">12dp</dimen>
     <dimen name="padding_large">16dp</dimen>
-    <dimen name="padding_verylarge">32dp</dimen>
-
     <dimen name="row_height_small">16dp</dimen>
     <dimen name="row_height_medium">32dp</dimen>
     <dimen name="row_height_large">48dp</dimen>
     <dimen name="row_height_verylarge">64dp</dimen>
-    <dimen name="row_height_superlarge">96dp</dimen>
-
     <dimen name="menu_item_height">48dp</dimen>
 
     <dimen name="header_clear_space">400dp</dimen>
-    <dimen name="header_clear_space_user">288dp</dimen>
     <dimen name="header_clear_space_user_navdrawer">32dp</dimen>
     <dimen name="header_height_large">448dp</dimen>
     <dimen name="header_height_large_navdrawer">128dp</dimen>
@@ -25,14 +21,10 @@
     <dimen name="divider_height_thin">1dp</dimen>
     <dimen name="divider_height_thick">2dp</dimen>
 
-    <dimen name="breadcrumbitem_maxwidth">96dp</dimen>
-
     <dimen name="text_size_micro">12sp</dimen>
     <dimen name="text_size_small">14sp</dimen>
     <dimen name="text_size_medium">16sp</dimen>
     <dimen name="text_size_large">18sp</dimen>
     <dimen name="text_size_verylarge">22sp</dimen>
 
-    <dimen name="list_padding">10dp</dimen>
-
-</resources>
+    </resources>

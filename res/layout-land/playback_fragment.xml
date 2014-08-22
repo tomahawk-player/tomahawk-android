@@ -52,7 +52,7 @@
 
             <org.tomahawk.tomahawk_android.views.PlaybackSeekBar
                     android:id="@+id/seekBar_track"
-                    style="@style/tomahawk_ProgressBar"
+                    style="@style/ProgressBarTomahawk"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"

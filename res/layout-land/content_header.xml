@@ -80,7 +80,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/row_height_medium"
             android:orientation="horizontal"
-            android:background="@drawable/gradient_reverse">
+            android:background="@drawable/below_shadow_darker">
 
         <TextView
                 android:id="@+id/content_header_textview2"

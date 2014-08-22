@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- File created by the Android Action Bar Style Generator
 
+     Copyright (C) 2011 The Android Open Source Project
      Copyright (C) 2012 readyState Software Ltd
 
      Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,10 +19,10 @@
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_enabled="false"
-          android:drawable="@drawable/spinner_ab_disabled_tomahawk"/>
+        android:drawable="@drawable/spinner_ab_disabled_tomahawk" />
     <item android:state_pressed="true"
-          android:drawable="@drawable/spinner_ab_pressed_tomahawk"/>
+        android:drawable="@drawable/spinner_ab_pressed_tomahawk" />
     <item android:state_pressed="false" android:state_focused="true"
-          android:drawable="@drawable/spinner_ab_focused_tomahawk"/>
-    <item android:drawable="@drawable/spinner_ab_default_tomahawk"/>
+        android:drawable="@drawable/spinner_ab_focused_tomahawk" />
+    <item android:drawable="@drawable/spinner_ab_default_tomahawk" />
 </selector>

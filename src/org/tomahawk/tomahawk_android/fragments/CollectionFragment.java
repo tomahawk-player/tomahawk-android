@@ -186,8 +186,8 @@ public class CollectionFragment extends SlidingPanelFragment {
                 selectedSpinner = i;
             }
         }
-        SpinnerAdapter spinnerAdapter = new ArrayAdapter<CharSequence>(getActivity(),
-                android.R.layout.simple_spinner_dropdown_item, collectionNames);
+        SpinnerAdapter spinnerAdapter = new ArrayAdapter<CharSequence>(actionBar.getThemedContext(),
+                R.layout.actionbar_spinner_item, collectionNames);
         NavigationListener navigationListener = new NavigationListener(collections);
         actionBar.setListNavigationCallbacks(spinnerAdapter, navigationListener);
         actionBar.setSelectedNavigationItem(selectedSpinner);

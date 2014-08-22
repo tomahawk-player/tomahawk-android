@@ -58,7 +58,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:paddingLeft="@dimen/padding_medium"
-            android:background="@drawable/spinner_background_ab_tomahawk"
+            android:background="@drawable/tomahawk_spinner_background_holo_light"
             android:entries="@array/fake_preferences_items_bitrate"/>
 
 </LinearLayout>

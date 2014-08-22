@@ -164,7 +164,7 @@ public abstract class ConfigDialog extends DialogFragment {
                 .findViewById(R.id.config_dialog_negative_button);
         mNegativeButton.setOnClickListener(mNegativeButtonListener);
         mProgressDrawable = getResources()
-                .getDrawable(R.drawable.progress_indeterminate_tomahawk);
+                .getDrawable(R.drawable.tomahawk_progress_indeterminate_circular_holo_light);
         mStatusImageView = (ImageView) mDialogView
                 .findViewById(R.id.config_dialog_status_imageview);
     }

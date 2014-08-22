@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <!--
 /*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
@@ -18,18 +18,15 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
--->
-<resources>
+--><resources>
     <string name="appname_string">Tomahawk</string>
     <string name="scrobblingservice_string">Tomahawk Scrobbling-Service</string>
-    <string name="nodata_string">No data</string>
     <string name="mainactivity_title_string">Tomahawk</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="login">Login</string>
     <string name="logout">Logout</string>
     <string name="register">Register</string>
-    <string name="usercollectionfragment_title_string">"Collection"</string>
     <string name="favoritesfragment_title_string">"Favorites"</string>
     <string name="tracksfragment_title_string">Tracks</string>
     <string name="albumsfragment_title_string">Albums</string>
@@ -41,7 +38,6 @@
     <string name="recentlyplayed_categoryheaders_string">Recently Played</string>
     <string name="searchfragment_title_string">Search</string>
     <string name="searchfragment_searchforonlinesources">Also search online</string>
-    <string name="searchfragment_searchtype">Search for</string>
     <string name="playbackfragment_title_string">Playback</string>
     <string name="playbackplaylistfragment_title_string">Playlist</string>
     <string name="playbackactivity_seekbar_completion_time_string">-:--</string>
@@ -50,14 +46,11 @@
     <string name="playbackactivity_toastshuffleoff_string">"Shuffle is off"</string>
     <string name="playbackactivity_toastrepeaton_string">"Repeat is on"</string>
     <string name="playbackactivity_toastrepeatoff_string">"Repeat is off"</string>
-    <string name="playbackactivity_unknown_string">"&#60;unknown&#62;"</string>
-    <string name="playbackactivity_no_track">"&#60;no track&#62;"</string>
+    <string name="playbackactivity_unknown_string">"&lt;unknown&gt;"</string>
+    <string name="playbackactivity_no_track">"&lt;no track&gt;"</string>
     <string name="playbackactivity_save_playlist_dialog_title">"Save the current playlist"</string>
-    <string name="playbackactivity_choose_playlist_dialog_title">"Choose a playlist"</string>
     <string name="playbackactivity_create_playlist_dialog_title">"Create a new playlist"</string>
     <string name="playbackactivity_playlist_dialog_name_hint">"Name"</string>
-    <string name="playbackservice_label_string">PlaybackService</string>
-    <string name="spotifyservice_label_string">PlaybackService</string>
     <string name="logindialog_emailorusername_label_string">E-Mail/Username</string>
     <string name="logindialog_username_label_string">Username</string>
     <string name="logindialog_password_label_string">Password</string>
@@ -121,23 +114,15 @@
     <string name="fake_context_menu_unlove_track">Unlove track</string>
     <string name="fake_context_menu_delete">Delete</string>
     <string name="menu_item_save_playlist">Save playlist</string>
-    <string name="menu_item_show_album_cover">Show album cover</string>
-    <string name="menu_item_show_playlist">Show playlist</string>
-    <string name="menu_item_clear_playlist">Clear playlist</string>
     <string name="menu_item_go_to_artist">Go to artist</string>
     <string name="menu_item_go_to_album">Go to album</string>
     <string name="menu_item_settings">Settings</string>
     <string name="menu_item_share">Share</string>
     <string name="share_default_prefix">#musthear</string>
-    <string name="hub_title_home">Home</string>
-    <string name="hub_title_search">Search</string>
     <string name="hub_title_dashboard">Dashboard</string>
     <string name="hub_title_collection">Collection</string>
     <string name="hub_title_playlists">Playlists</string>
     <string name="hub_title_lovedtracks">Favorites</string>
-    <string name="hub_title_stations">Stations</string>
-    <string name="hub_title_friends">Friends</string>
-    <string name="hub_title_playback">Playback</string>
     <string name="fake_preferences_bitrate_low">Normal</string>
     <string name="fake_preferences_bitrate_medium">Good</string>
     <string name="fake_preferences_bitrate_high">Best</string>
@@ -152,7 +137,6 @@
     <string name="content_header_followers">FOLLOWERS</string>
     <string name="content_header_nowplaying">Now Playing:</string>
     <string name="socialaction_type_follow_true">is now following</string>
-    <string name="socialaction_type_follow_false">is no longer following</string>
     <string name="socialaction_type_love_track_true">loved a track:</string>
     <string name="socialaction_type_love_track_false">is all out of love for</string>
     <string name="socialaction_type_starred_true">starred</string>
@@ -168,7 +152,6 @@
     <string name="time_aminute">a minute</string>
     <string name="time_anhour">an hour</string>
     <string name="time_aday">a day</string>
-    <string name="time_seconds">seconds</string>
     <string name="time_minutes">minutes</string>
     <string name="time_hours">hours</string>
     <string name="time_days">days</string>
@@ -179,7 +162,6 @@
     <string name="loved_tracks">Loved Tracks</string>
     <string name="starred_albums">Starred Albums</string>
     <string name="starred_artists">Starred Artists</string>
-    <string name="configuration">Configuration</string>
     <string name="resolver_config_redirect_button_text_log_into">Log into</string>
     <string name="resolver_config_redirect_button_text_log_out_of">Log out of</string>
     <string name="ask_access_activity_header">Want to automatically scrobble all tracks you play to

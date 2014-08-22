@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Generated with http://android-holo-colors.com -->
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="EditTextTomahawk" parent="android:Widget.EditText">
+        <item name="android:background">@drawable/tomahawk_edit_text_holo_light</item>
+        <item name="android:textColor">#000000</item>
+    </style>
+
+    <style name="AutoCompleteTextViewTomahawk" parent="android:Widget.AutoCompleteTextView">
+        <item name="android:dropDownSelector">@drawable/tomahawk_list_selector_holo_light</item>
+        <item name="android:background">@drawable/tomahawk_edit_text_holo_light</item>
+        <item name="android:textColor">#000000</item>
+    </style>
+
+    <style name="CheckBoxTomahawk" parent="android:Widget.CompoundButton.CheckBox">
+        <item name="android:button">@drawable/tomahawk_btn_check_holo_light</item>
+    </style>
+
+    <style name="SpinnerTomahawk" parent="android:Widget.Spinner">
+        <item name="android:background">@drawable/tomahawk_spinner_background_holo_light</item>
+        <item name="android:dropDownSelector">@drawable/tomahawk_list_selector_holo_light</item>
+    </style>
+
+    <style name="SpinnerDropDownItemTomahawk" parent="android:Widget.DropDownItem.Spinner">
+        <item name="android:checkMark">@drawable/tomahawk_btn_radio_holo_light</item>
+    </style>
+    <style name="ProgressBarTomahawk" parent="android:Widget.ProgressBar.Horizontal">
+        <item name="android:progressDrawable">@drawable/tomahawk_progress_horizontal_holo_light
+        </item>
+        <item name="android:indeterminateDrawable">
+            @drawable/tomahawk_progress_indeterminate_horizontal_holo_light
+        </item>
+        <item name="android:minHeight">16dip</item>
+        <item name="android:maxHeight">16dip</item>
+    </style>
+
+    <style name="ListViewTomahawk" parent="android:Widget.ListView">
+        <item name="android:listSelector">@drawable/tomahawk_list_selector_holo_light</item>
+    </style>
+
+    <style name="ListViewTomahawk.White" parent="android:Widget.ListView.White">
+        <item name="android:listSelector">@drawable/tomahawk_list_selector_holo_light</item>
+    </style>
+
+    <style name="SpinnerItemTomahawk" parent="android:TextAppearance.Widget.TextView.SpinnerItem">
+        <item name="android:textColor">#000000</item>
+    </style>
+
+    <style name="ActionBar.Solid.Tomahawk"
+           parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="background">@drawable/ab_solid_tomahawk</item>
+        <item name="backgroundStacked">@drawable/ab_stacked_solid_tomahawk</item>
+        <item name="backgroundSplit">@drawable/ab_bottom_solid_tomahawk</item>
+        <item name="progressBarStyle">@style/ProgressBar.Tomahawk</item>
+    </style>
+
+    <style name="ActionBar.Transparent.Tomahawk" parent="@style/Widget.AppCompat.ActionBar">
+        <item name="background">@drawable/ab_transparent_tomahawk</item>
+        <item name="progressBarStyle">@style/ProgressBar.Tomahawk</item>
+    </style>
+
+    <style name="PopupMenu.Tomahawk" parent="@style/Widget.AppCompat.PopupMenu">
+        <item name="android:popupBackground">@drawable/menu_dropdown_panel_tomahawk</item>
+    </style>
+
+    <style name="DropDownListView.Tomahawk" parent="@style/Widget.AppCompat.ListView.DropDown">
+        <item name="android:listSelector">@drawable/selectable_background_tomahawk</item>
+    </style>
+
+    <style name="ActionBarTabStyle.Tomahawk" parent="@style/Widget.AppCompat.ActionBar.TabView">
+        <item name="android:background">@drawable/tab_indicator_ab_tomahawk</item>
+    </style>
+
+    <style name="DropDownNav.Tomahawk" parent="@style/Widget.AppCompat.Spinner.DropDown.ActionBar">
+        <item name="android:background">@drawable/spinner_background_ab_tomahawk</item>
+        <item name="android:popupBackground">@drawable/menu_dropdown_panel_tomahawk</item>
+        <item name="android:dropDownSelector">@drawable/selectable_background_tomahawk</item>
+    </style>
+
+    <style name="ProgressBar.Tomahawk" parent="@style/Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="android:progressDrawable">@drawable/progress_horizontal_tomahawk</item>
+    </style>
+
+    <style name="ActionButton.CloseMode.Tomahawk"
+           parent="@style/Widget.AppCompat.ActionButton.CloseMode">
+        <item name="android:background">@drawable/btn_cab_done_tomahawk</item>
+    </style>
+
+    <!-- this style is only referenced in a Light.DarkActionBar based theme -->
+    <style name="Theme.Tomahawk.Widget" parent="@style/Theme.AppCompat">
+        <item name="popupMenuStyle">@style/PopupMenu.Tomahawk</item>
+        <item name="dropDownListViewStyle">@style/DropDownListView.Tomahawk</item>
+    </style>
+
+</resources>
