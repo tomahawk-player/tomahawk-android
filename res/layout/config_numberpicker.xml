@@ -33,7 +33,7 @@
             android:layout_weight="1"
             android:layout_gravity="bottom"
             android:singleLine="true"
-            android:textColor="@color/primary_textcolor_inverted"
+            android:textColor="@color/primary_textcolor"
             android:textSize="@dimen/text_size_large"/>
 
     <org.tomahawk.tomahawk_android.ui.widgets.ConfigNumberEdittext

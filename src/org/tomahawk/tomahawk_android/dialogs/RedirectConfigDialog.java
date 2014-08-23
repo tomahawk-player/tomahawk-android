@@ -31,7 +31,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -84,20 +83,19 @@ public class RedirectConfigDialog extends ConfigDialog {
         int buttonTextColor;
         View.OnClickListener onClickListener;
         if (mResolverId.equals(TomahawkApp.PLUGINNAME_RDIO)) {
-            buttonBackgroundResId = R.drawable.selectable_background_tomahawk_opaque;
+            buttonBackgroundResId = R.drawable.selectable_background_tomahawk;
             buttonImageResId = R.drawable.logo_rdio;
             buttonTextColor = getResources().getColor(R.color.primary_textcolor);
             onClickListener = new RedirectButtonListener(TomahawkApp.PLUGINNAME_RDIO);
         } else {
-            buttonBackgroundResId = R.drawable.selectable_background_tomahawk_opaque_inverted;
+            buttonBackgroundResId = R.drawable.selectable_background_tomahawk_inverted;
             buttonImageResId = R.drawable.logo_deezer;
             buttonTextColor = getResources().getColor(R.color.primary_textcolor_inverted);
             onClickListener = new RedirectButtonListener(TomahawkApp.PLUGINNAME_DEEZER);
         }
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        FrameLayout buttonLayout = (FrameLayout) inflater
-                .inflate(R.layout.config_redirect_button, null);
+        View buttonLayout = inflater.inflate(R.layout.config_redirect_button, null);
         addViewToFrame(buttonLayout);
         ScriptResolver scriptResolver = (ScriptResolver) PipeLine.getInstance()
                 .getResolver(mResolverId);
