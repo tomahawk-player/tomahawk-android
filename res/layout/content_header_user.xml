@@ -51,6 +51,14 @@
                       android:descendantFocusability="afterDescendants"
                       android:layout_alignParentBottom="true">
 
+            <Button android:id="@+id/content_header_button4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    style="@style/ButtonTomahawk"
+                    android:clickable="true"
+                    android:text="@string/content_header_follow"/>
+
             <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/row_height_large"

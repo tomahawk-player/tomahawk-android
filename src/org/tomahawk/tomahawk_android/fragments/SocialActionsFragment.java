@@ -17,20 +17,26 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
+import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
+import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -49,6 +55,95 @@ public class SocialActionsFragment extends TomahawkFragment {
 
     private HashSet<User> mResolvedUsers = new HashSet<User>();
 
+    private MultiColumnClickListener mButton1Listener = new MultiColumnClickListener() {
+        @Override
+        public void onItemClick(View view, TomahawkListItem item) {
+            if (item instanceof User) {
+                final User user = (User) item;
+                Bundle bundle = new Bundle();
+                bundle.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY,
+                        user.getPlaybackLog().getCacheKey());
+                bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID,
+                        user.getCacheKey());
+                FragmentUtils.replace((TomahawkMainActivity) getActivity(),
+                        getActivity().getSupportFragmentManager(), PlaylistEntriesFragment.class,
+                        bundle);
+            }
+        }
+
+        @Override
+        public boolean onItemLongClick(View view, TomahawkListItem item) {
+            return false;
+        }
+    };
+
+    private MultiColumnClickListener mButton2Listener = new MultiColumnClickListener() {
+        @Override
+        public void onItemClick(View view, TomahawkListItem item) {
+            if (item instanceof User) {
+                final User user = (User) item;
+                FragmentUtils.replace((TomahawkMainActivity) getActivity(),
+                        getActivity().getSupportFragmentManager(),
+                        UsersFragment.class, user.getCacheKey(),
+                        TomahawkFragment.TOMAHAWK_USER_ID,
+                        UsersFragment.SHOW_MODE_TYPE_FOLLOWINGS);
+            }
+        }
+
+        @Override
+        public boolean onItemLongClick(View view, TomahawkListItem item) {
+            return false;
+        }
+    };
+
+    private MultiColumnClickListener mButton3Listener = new MultiColumnClickListener() {
+        @Override
+        public void onItemClick(View view, TomahawkListItem item) {
+            if (item instanceof User) {
+                final User user = (User) item;
+                FragmentUtils.replace((TomahawkMainActivity) getActivity(),
+                        getActivity().getSupportFragmentManager(),
+                        UsersFragment.class, user.getCacheKey(),
+                        TomahawkFragment.TOMAHAWK_USER_ID,
+                        UsersFragment.SHOW_MODE_TYPE_FOLLOWERS);
+            }
+        }
+
+        @Override
+        public boolean onItemLongClick(View view, TomahawkListItem item) {
+            return false;
+        }
+    };
+
+    private MultiColumnClickListener mButton4Listener = new MultiColumnClickListener() {
+        @Override
+        public void onItemClick(View view, TomahawkListItem item) {
+            if (item instanceof User) {
+                final User user = (User) item;
+                HatchetAuthenticatorUtils authUtils =
+                        (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+                if (authUtils.getLoggedInUser().getFollowings().containsKey(user)) {
+                    String relationshipId =
+                            authUtils.getLoggedInUser().getFollowings().get(user);
+                    mCurrentRequestIds.add(InfoSystem.getInstance()
+                            .deleteRelationship(authUtils, relationshipId));
+                    ((TomahawkListAdapter) getListAdapter()).setShowFakeNotFollowing(true);
+                } else {
+                    mCurrentRequestIds.add(InfoSystem.getInstance()
+                            .sendRelationshipPostStruct(authUtils, user));
+                    ((TomahawkListAdapter) getListAdapter()).setShowFakeFollowing(true);
+                }
+                ((TomahawkListAdapter) getListAdapter()).notifyDataSetChanged();
+            }
+        }
+
+        @Override
+        public boolean onItemLongClick(View view, TomahawkListItem item) {
+            return false;
+        }
+    };
+
     @Override
     public void onResume() {
         super.onResume();
@@ -60,6 +155,11 @@ public class SocialActionsFragment extends TomahawkFragment {
                     mCurrentRequestIds.add(InfoSystem.getInstance().resolveFriendsFeed(mUser));
                 } else {
                     mCurrentRequestIds.add(InfoSystem.getInstance().resolveSocialActions(mUser));
+                    HatchetAuthenticatorUtils authUtils = (HatchetAuthenticatorUtils)
+                            AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                                    TomahawkApp.PLUGINNAME_HATCHET);
+                    mCurrentRequestIds.add(InfoSystem.getInstance()
+                            .resolveFollowings(authUtils.getLoggedInUser()));
                 }
             }
         }
@@ -69,10 +169,11 @@ public class SocialActionsFragment extends TomahawkFragment {
     /**
      * Called every time an item inside a ListView or GridView is clicked
      *
+     * @param view the clicked view
      * @param item the TomahawkListItem which corresponds to the click
      */
     @Override
-    public void onItemClick(TomahawkListItem item) {
+    public void onItemClick(View view, TomahawkListItem item) {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         if (item instanceof SocialAction) {
             SocialAction socialAction = (SocialAction) item;
@@ -153,7 +254,8 @@ public class SocialActionsFragment extends TomahawkFragment {
                 if (mShowMode != SHOW_MODE_DASHBOARD) {
                     tomahawkListAdapter.showContentHeaderUser(
                             getActivity().getSupportFragmentManager(), rootView, mUser,
-                            mCollection);
+                            mCollection, mButton1Listener, mButton2Listener, mButton3Listener,
+                            mButton4Listener);
                 }
                 setListAdapter(tomahawkListAdapter);
             } else {
@@ -161,7 +263,8 @@ public class SocialActionsFragment extends TomahawkFragment {
                 if (mShowMode != SHOW_MODE_DASHBOARD) {
                     ((TomahawkListAdapter) getListAdapter()).showContentHeaderUser(
                             getActivity().getSupportFragmentManager(), rootView, mUser,
-                            mCollection);
+                            mCollection, mButton1Listener, mButton2Listener, mButton3Listener,
+                            mButton4Listener);
                 }
             }
 
@@ -185,5 +288,28 @@ public class SocialActionsFragment extends TomahawkFragment {
 
     @Override
     public void onPanelExpanded() {
+    }
+
+    @Override
+    protected void onInfoSystemResultsReported(String requestId) {
+        super.onInfoSystemResultsReported(requestId);
+
+        InfoRequestData infoRequestData = InfoSystem.getInstance().getSentLoggedOpById(requestId);
+        if (infoRequestData != null && infoRequestData.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS
+                && (infoRequestData.getHttpType() == InfoRequestData.HTTPTYPE_DELETE
+                || infoRequestData.getHttpType() == InfoRequestData.HTTPTYPE_POST)) {
+            HatchetAuthenticatorUtils authUtils
+                    = (HatchetAuthenticatorUtils) AuthenticatorManager
+                    .getInstance().getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+            mCurrentRequestIds.add(
+                    InfoSystem.getInstance().resolveFollowings(authUtils.getLoggedInUser()));
+        }
+        infoRequestData = InfoSystem.getInstance().getInfoRequestById(requestId);
+        if (infoRequestData != null && infoRequestData.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWINGS) {
+            ((TomahawkListAdapter) getListAdapter()).setShowFakeFollowing(false);
+            ((TomahawkListAdapter) getListAdapter()).setShowFakeNotFollowing(false);
+        }
     }
 }

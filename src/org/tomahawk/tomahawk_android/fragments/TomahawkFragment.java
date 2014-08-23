@@ -50,6 +50,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.AbsListView;
 import android.widget.GridView;
 
@@ -167,6 +168,24 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     protected int mShowMode;
 
     protected Class mContainerFragmentClass;
+
+    protected MultiColumnClickListener mStarLoveButtonListener = new MultiColumnClickListener() {
+        @Override
+        public void onItemClick(View view, TomahawkListItem item) {
+            if (item instanceof Artist) {
+                CollectionManager.getInstance().toggleLovedItem((Artist) item);
+            } else if (item instanceof Album) {
+                CollectionManager.getInstance().toggleLovedItem((Album) item);
+            } else if (item instanceof Query) {
+                CollectionManager.getInstance().toggleLovedItem((Query) item);
+            }
+        }
+
+        @Override
+        public boolean onItemLongClick(View view, TomahawkListItem item) {
+            return false;
+        }
+    };
 
     protected final Handler mResolveQueriesHandler = new Handler() {
         @Override
@@ -378,7 +397,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     }
 
     @Override
-    public abstract void onItemClick(TomahawkListItem item);
+    public abstract void onItemClick(View view, TomahawkListItem item);
 
     /**
      * Called every time an item inside a ListView or GridView is long-clicked
@@ -386,7 +405,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
      * @param item the TomahawkListItem which corresponds to the long-click
      */
     @Override
-    public boolean onItemLongClick(TomahawkListItem item) {
+    public boolean onItemLongClick(View view, TomahawkListItem item) {
         if ((item instanceof SocialAction
                 && (((SocialAction) item).getTargetObject() instanceof User
                 || ((SocialAction) item).getTargetObject() instanceof Playlist))

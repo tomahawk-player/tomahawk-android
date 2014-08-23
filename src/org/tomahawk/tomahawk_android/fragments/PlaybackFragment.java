@@ -248,10 +248,11 @@ public class PlaybackFragment extends TomahawkFragment {
     /**
      * Called every time an item inside a ListView or GridView is clicked
      *
+     * @param view the clicked view
      * @param item the TomahawkListItem which corresponds to the click
      */
     @Override
-    public void onItemClick(TomahawkListItem item) {
+    public void onItemClick(View view, TomahawkListItem item) {
         PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
                 .getPlaybackService();
         if (playbackService != null) {

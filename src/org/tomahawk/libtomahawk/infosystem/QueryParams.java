@@ -25,4 +25,6 @@ public class QueryParams {
     public String entry_id = null;
 
     public String playlist_local_id = null;
+
+    public String relationship_id = null;
 }

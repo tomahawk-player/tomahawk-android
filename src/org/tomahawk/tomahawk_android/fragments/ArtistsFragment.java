@@ -26,6 +26,7 @@ import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.view.LayoutInflater;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,10 +54,11 @@ public class ArtistsFragment extends TomahawkFragment {
     /**
      * Called every time an item inside a ListView or GridView is clicked
      *
+     * @param view the clicked view
      * @param item the TomahawkListItem which corresponds to the click
      */
     @Override
-    public void onItemClick(TomahawkListItem item) {
+    public void onItemClick(View view, TomahawkListItem item) {
         if (item instanceof Artist) {
             FragmentUtils.replace((TomahawkMainActivity) getActivity(),
                     getActivity().getSupportFragmentManager(), AlbumsFragment.class,

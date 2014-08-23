@@ -468,18 +468,20 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         params.userid, params.targettype, params.targetuserid, null, null, null,
                         params.type);
                 if (relationshipsStruct != null) {
-                    ArrayList<String> userIds = new ArrayList<String>();
+                    Map<String, String> relationShipIds = new HashMap<String, String>();
                     for (HatchetRelationshipStruct relationship : relationshipsStruct.relationships) {
                         if (infoRequestData.getType()
                                 == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWERS) {
-                            userIds.add(relationship.user);
+                            relationShipIds.put(relationship.user, relationship.id);
                         } else {
-                            userIds.add(relationship.targetUser);
+                            relationShipIds.put(relationship.targetUser, relationship.id);
                         }
                     }
                     User userToBeFilled = (User) mItemsToBeFilled
                             .get(infoRequestData.getRequestId());
-                    HatchetUsers users = mHatchet.getUsers(userIds, params.name, null, null);
+                    HatchetUsers users = mHatchet.getUsers(
+                            new ArrayList<String>(relationShipIds.keySet()), params.name, null,
+                            null);
                     if (users != null && users.users != null) {
                         ArrayList<User> convertedUsers = new ArrayList<User>();
                         for (HatchetUserInfo user : users.users) {
@@ -495,11 +497,15 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                         user, track, artist, image));
                             }
                         }
+                        Map<User, String> relationships = new HashMap<User, String>();
+                        for (User user : convertedUsers) {
+                            relationships.put(user, relationShipIds.get(user.getId()));
+                        }
                         if (infoRequestData.getType()
                                 == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWERS) {
-                            userToBeFilled.setFollowers(convertedUsers);
+                            userToBeFilled.setFollowers(relationships);
                         } else {
-                            userToBeFilled.setFollowings(convertedUsers);
+                            userToBeFilled.setFollowings(relationships);
                         }
                         infoRequestData.setResult(userToBeFilled);
                         return true;
@@ -647,6 +653,18 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                 mHatchet.deletePlaylistsPlaylistEntries(accessToken,
                                         infoRequestData.getQueryParams().playlist_id,
                                         infoRequestData.getQueryParams().entry_id);
+                            }
+                        } else if (infoRequestData.getType()
+                                == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS) {
+                            if (infoRequestData.getHttpType()
+                                    == InfoRequestData.HTTPTYPE_POST) {
+                                mHatchet.postRelationship(accessToken,
+                                        new TypedByteArray("application/json; charset=utf-8",
+                                                data.getBytes(Charsets.UTF_8)));
+                            } else if (infoRequestData.getHttpType()
+                                    == InfoRequestData.HTTPTYPE_DELETE) {
+                                mHatchet.deleteRelationShip(accessToken,
+                                        infoRequestData.getQueryParams().relationship_id);
                             }
                         }
                         success = true;

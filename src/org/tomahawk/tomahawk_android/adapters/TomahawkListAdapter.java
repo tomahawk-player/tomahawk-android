@@ -17,10 +17,11 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
+import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
+import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
-import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.Track;
@@ -29,18 +30,14 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.fragments.PlaylistEntriesFragment;
-import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
-import org.tomahawk.tomahawk_android.fragments.UsersFragment;
 import org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout;
 import org.tomahawk.tomahawk_android.utils.AdapterUtils;
-import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.res.Configuration;
-import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,6 +66,16 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
 
     private MultiColumnClickListener mClickListener;
 
+    private MultiColumnClickListener mStarLoveButtonListener;
+
+    private MultiColumnClickListener mButton1Listener;
+
+    private MultiColumnClickListener mButton2Listener;
+
+    private MultiColumnClickListener mButton3Listener;
+
+    private MultiColumnClickListener mButton4Listener;
+
     private LayoutInflater mLayoutInflater;
 
     private boolean mShowCategoryHeaders = false;
@@ -94,6 +101,10 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
     private boolean mShowResolvedBy = false;
 
     private boolean mShowArtistAsSingleLine = false;
+
+    private boolean mShowFakeFollowing = false;
+
+    private boolean mShowFakeNotFollowing = false;
 
     /**
      * Constructs a new {@link TomahawkListAdapter}.
@@ -142,12 +153,20 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
      *                   determine whether to show the total track count, or just the count of local
      *                   tracks in the contentHeader's textview.
      */
-    public void showContentHeader(View rootView, TomahawkListItem listItem, Collection collection) {
+    public void showContentHeader(View rootView, TomahawkListItem listItem, Collection collection,
+            MultiColumnClickListener starLoveButtonListener) {
+        mStarLoveButtonListener = starLoveButtonListener;
         showContentHeader(null, rootView, listItem, collection);
     }
 
-    public void showContentHeaderUser(FragmentManager fragmentManager, View rootView,
-            User user, Collection collection) {
+    public void showContentHeaderUser(FragmentManager fragmentManager, View rootView, User user,
+            Collection collection, MultiColumnClickListener button1Listener,
+            MultiColumnClickListener button2Listener, MultiColumnClickListener button3Listener,
+            MultiColumnClickListener button4Listener) {
+        mButton1Listener = button1Listener;
+        mButton2Listener = button2Listener;
+        mButton3Listener = button3Listener;
+        mButton4Listener = button4Listener;
         showContentHeader(fragmentManager, rootView, user, collection);
     }
 
@@ -190,7 +209,16 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
         } else if (listItem instanceof Playlist) {
             AdapterUtils.fillContentHeader(mActivity, viewHolder, (Playlist) listItem);
         } else if (listItem instanceof User) {
-            AdapterUtils.fillContentHeader(mActivity, viewHolder, (User) listItem);
+            HatchetAuthenticatorUtils authUtils =
+                    (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                            .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+            boolean showFollowing = listItem != authUtils.getLoggedInUser() && (mShowFakeFollowing
+                    || authUtils.getLoggedInUser().getFollowings().containsKey(listItem));
+            boolean showNotFollowing = listItem != authUtils.getLoggedInUser()
+                    && (mShowFakeNotFollowing || !authUtils.getLoggedInUser().getFollowings()
+                    .containsKey(listItem));
+            AdapterUtils.fillContentHeader(mActivity, viewHolder, (User) listItem, showFollowing,
+                    showNotFollowing);
         } else if (listItem instanceof Query) {
             AdapterUtils.fillContentHeader(mActivity, viewHolder, (Query) listItem);
         }
@@ -298,8 +326,21 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                     AdapterUtils.fillContentHeader(mActivity, viewHolder,
                             (Playlist) mContentHeaderTomahawkListItem);
                 } else if (mContentHeaderTomahawkListItem instanceof User) {
+                    HatchetAuthenticatorUtils authUtils =
+                            (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+                    boolean showFollowing =
+                            mContentHeaderTomahawkListItem != authUtils.getLoggedInUser()
+                                    && (mShowFakeFollowing
+                                    || authUtils.getLoggedInUser().getFollowings()
+                                    .containsKey(mContentHeaderTomahawkListItem));
+                    boolean showNotFollowing =
+                            mContentHeaderTomahawkListItem != authUtils.getLoggedInUser()
+                                    && (mShowFakeNotFollowing
+                                    || !authUtils.getLoggedInUser().getFollowings()
+                                    .containsKey(mContentHeaderTomahawkListItem));
                     AdapterUtils.fillContentHeader(mActivity, viewHolder,
-                            (User) mContentHeaderTomahawkListItem);
+                            (User) mContentHeaderTomahawkListItem, showFollowing, showNotFollowing);
                 } else if (mContentHeaderTomahawkListItem instanceof Query) {
                     AdapterUtils.fillContentHeader(mActivity, viewHolder,
                             (Query) mContentHeaderTomahawkListItem);
@@ -329,62 +370,37 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
             //Set up the click listeners
             if (viewHolder.getLayoutId() == R.layout.content_header
                     || viewHolder.getLayoutId() == R.layout.content_header_user) {
-                if (mContentHeaderTomahawkListItem instanceof Album) {
-                    viewHolder.getStarLoveButton().setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            CollectionManager.getInstance().toggleLovedItem(
-                                    (Album) mContentHeaderTomahawkListItem);
-                        }
-                    });
-                } else if (mContentHeaderTomahawkListItem instanceof Artist) {
-                    viewHolder.getStarLoveButton().setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            CollectionManager.getInstance().toggleLovedItem(
-                                    (Artist) mContentHeaderTomahawkListItem);
-                        }
-                    });
-                } else if (mContentHeaderTomahawkListItem instanceof Query) {
-                    viewHolder.getStarLoveButton().setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            CollectionManager.getInstance().toggleLovedItem(
-                                    (Query) mContentHeaderTomahawkListItem);
-                        }
-                    });
-                } else if (mContentHeaderTomahawkListItem instanceof User) {
-                    final User user = (User) mContentHeaderTomahawkListItem;
-                    viewHolder.getButton1().setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Bundle bundle = new Bundle();
-                            bundle.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY,
-                                    user.getPlaybackLog().getCacheKey());
-                            bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID,
-                                    user.getCacheKey());
-                            FragmentUtils.replace(mActivity, mFragmentManager,
-                                    PlaylistEntriesFragment.class, bundle);
-                        }
-                    });
-                    viewHolder.getButton2().setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            FragmentUtils.replace(mActivity, mFragmentManager,
-                                    UsersFragment.class, user.getCacheKey(),
-                                    TomahawkFragment.TOMAHAWK_USER_ID,
-                                    UsersFragment.SHOW_MODE_TYPE_FOLLOWINGS);
-                        }
-                    });
-                    viewHolder.getButton3().setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            FragmentUtils.replace(mActivity, mFragmentManager,
-                                    UsersFragment.class, user.getCacheKey(),
-                                    TomahawkFragment.TOMAHAWK_USER_ID,
-                                    UsersFragment.SHOW_MODE_TYPE_FOLLOWERS);
-                        }
-                    });
+                if (mStarLoveButtonListener != null) {
+                    viewHolder.getStarLoveButton().setOnClickListener(
+                            new ClickListener(mContentHeaderTomahawkListItem,
+                                    mStarLoveButtonListener));
+                    viewHolder.getStarLoveButton().setOnLongClickListener(
+                            new ClickListener(mContentHeaderTomahawkListItem,
+                                    mStarLoveButtonListener));
+                }
+                if (mButton1Listener != null) {
+                    viewHolder.getButton1().setOnClickListener(
+                            new ClickListener(mContentHeaderTomahawkListItem, mButton1Listener));
+                    viewHolder.getButton1().setOnLongClickListener(
+                            new ClickListener(mContentHeaderTomahawkListItem, mButton1Listener));
+                }
+                if (mButton2Listener != null) {
+                    viewHolder.getButton2().setOnClickListener(
+                            new ClickListener(mContentHeaderTomahawkListItem, mButton2Listener));
+                    viewHolder.getButton2().setOnLongClickListener(
+                            new ClickListener(mContentHeaderTomahawkListItem, mButton2Listener));
+                }
+                if (mButton3Listener != null) {
+                    viewHolder.getButton3().setOnClickListener(
+                            new ClickListener(mContentHeaderTomahawkListItem, mButton3Listener));
+                    viewHolder.getButton3().setOnLongClickListener(
+                            new ClickListener(mContentHeaderTomahawkListItem, mButton3Listener));
+                }
+                if (mButton4Listener != null) {
+                    viewHolder.getButton4().setOnClickListener(
+                            new ClickListener(mContentHeaderTomahawkListItem, mButton4Listener));
+                    viewHolder.getButton4().setOnLongClickListener(
+                            new ClickListener(mContentHeaderTomahawkListItem, mButton4Listener));
                 }
             } else if (viewHolder.getLayoutId() == R.layout.list_item
                     || viewHolder.getLayoutId() == R.layout.list_item_highlighted) {
@@ -570,5 +586,13 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
         } else {
             return R.layout.list_item;
         }
+    }
+
+    public void setShowFakeNotFollowing(boolean showFakeNotFollowing) {
+        mShowFakeNotFollowing = showFakeNotFollowing;
+    }
+
+    public void setShowFakeFollowing(boolean showFakeFollowing) {
+        mShowFakeFollowing = showFakeFollowing;
     }
 }

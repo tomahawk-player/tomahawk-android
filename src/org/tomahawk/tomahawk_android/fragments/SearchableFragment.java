@@ -34,6 +34,7 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -100,10 +101,11 @@ public class SearchableFragment extends TomahawkFragment
     /**
      * Called every time an item inside a ListView or GridView is clicked
      *
+     * @param view the clicked view
      * @param item the TomahawkListItem which corresponds to the click
      */
     @Override
-    public void onItemClick(TomahawkListItem item) {
+    public void onItemClick(View view, TomahawkListItem item) {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         if (item instanceof Query) {
             Query query = (Query) item;

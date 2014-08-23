@@ -151,7 +151,7 @@ public class AdapterUtils {
     }
 
     public static void fillContentHeader(final Context context, ViewHolder viewHolder,
-            final User user) {
+            final User user, boolean showFollowing, boolean showNotFollowing) {
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils.loadDrawableIntoImageView(context, viewHolder.getImageView1(),
                 R.drawable.no_album_art_placeholder);
@@ -168,6 +168,13 @@ public class AdapterUtils {
         viewHolder.getTextView3().setText("" + user.getTotalPlays());
         viewHolder.getTextView4().setText("" + user.getFollowCount());
         viewHolder.getTextView5().setText("" + user.getFollowersCount());
+        if (showFollowing){
+            viewHolder.getButton4().setText(R.string.content_header_unfollow);
+        } else if (showNotFollowing){
+            viewHolder.getButton4().setText(R.string.content_header_follow);
+        } else {
+            viewHolder.getButton4().setVisibility(View.GONE);
+        }
     }
 
     public static void fillContentHeader(Context context, ViewHolder viewHolder, Query query) {
