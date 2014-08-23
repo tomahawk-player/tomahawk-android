@@ -17,19 +17,23 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
+import android.view.View;
+
 public interface MultiColumnClickListener {
 
     /**
      * Called every time an item inside a ListView or GridView is clicked
      *
+     * @param view the clicked view
      * @param item the TomahawkListItem which corresponds to the click
      */
-    void onItemClick(TomahawkListItem item);
+    void onItemClick(View view, TomahawkListItem item);
 
     /**
      * Called every time an item inside a ListView or GridView is long-clicked
      *
+     * @param view the clicked view
      * @param item the TomahawkListItem which corresponds to the long-click
      */
-    boolean onItemLongClick(TomahawkListItem item);
+    boolean onItemLongClick(View view, TomahawkListItem item);
 }

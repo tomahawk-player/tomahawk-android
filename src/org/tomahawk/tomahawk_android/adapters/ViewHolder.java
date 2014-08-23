@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.adapters;
 import org.tomahawk.tomahawk_android.R;
 
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -62,6 +63,8 @@ public class ViewHolder {
     private LinearLayout mButton2;
 
     private LinearLayout mButton3;
+
+    private Button mButton4;
 
     private ImageButton mStarLoveButton;
 
@@ -114,6 +117,8 @@ public class ViewHolder {
                     .findViewById(R.id.content_header_button3);
             mStarLoveButton = (ImageButton) rootView
                     .findViewById(R.id.star_love_button);
+            mButton4 = (Button) rootView
+                    .findViewById(R.id.content_header_button4);
         } else if (layoutId == R.layout.content_header_user_navdrawer) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.content_header_textview_user_navdrawer);
@@ -256,6 +261,10 @@ public class ViewHolder {
 
     public LinearLayout getButton3() {
         return mButton3;
+    }
+
+    public Button getButton4() {
+        return mButton4;
     }
 
     public ImageButton getStarLoveButton() {

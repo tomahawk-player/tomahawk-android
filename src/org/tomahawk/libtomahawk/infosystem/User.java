@@ -30,6 +30,8 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class User implements TomahawkListItem {
@@ -63,9 +65,9 @@ public class User implements TomahawkListItem {
 
     private Playlist mPlaybackLog;
 
-    private ArrayList<User> mFollowings = new ArrayList<User>();
+    private Map<User, String> mFollowings = new HashMap<User, String>();
 
-    private ArrayList<User> mFollowers = new ArrayList<User>();
+    private Map<User, String> mFollowers = new HashMap<User, String>();
 
     /**
      * Construct a new {@link User} with the given id
@@ -230,19 +232,19 @@ public class User implements TomahawkListItem {
         return mPlaybackLog;
     }
 
-    public ArrayList<User> getFollowings() {
+    public Map<User, String> getFollowings() {
         return mFollowings;
     }
 
-    public void setFollowings(ArrayList<User> followings) {
+    public void setFollowings(Map<User, String> followings) {
         mFollowings = followings;
     }
 
-    public ArrayList<User> getFollowers() {
+    public Map<User, String> getFollowers() {
         return mFollowers;
     }
 
-    public void setFollowers(ArrayList<User> followers) {
+    public void setFollowers(Map<User, String> followers) {
         mFollowers = followers;
     }
 }

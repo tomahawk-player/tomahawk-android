@@ -15,31 +15,12 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomahawk.tomahawk_android.adapters;
+package org.tomahawk.libtomahawk.infosystem.hatchet;
 
-import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
+public class HatchetRelationshipPostStruct {
 
-import android.view.View;
+    public HatchetRelationshipStruct relationShip;
 
-public class ClickListener implements View.OnClickListener, View.OnLongClickListener {
-
-    private TomahawkListItem mItem;
-
-    private MultiColumnClickListener mListener;
-
-    public ClickListener(TomahawkListItem item, MultiColumnClickListener listener) {
-        mItem = item;
-        mListener = listener;
-    }
-
-    @Override
-    public void onClick(View view) {
-        mListener.onItemClick(view, mItem);
-    }
-
-    @Override
-    public boolean onLongClick(View view) {
-        return mListener.onItemLongClick(view, mItem);
+    public HatchetRelationshipPostStruct() {
     }
 }

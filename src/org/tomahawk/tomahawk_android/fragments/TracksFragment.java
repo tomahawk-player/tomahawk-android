@@ -99,10 +99,11 @@ public class TracksFragment extends TomahawkFragment {
     /**
      * Called every time an item inside a ListView or GridView is clicked
      *
+     * @param view the clicked view
      * @param item the TomahawkListItem which corresponds to the click
      */
     @Override
-    public void onItemClick(TomahawkListItem item) {
+    public void onItemClick(View view, TomahawkListItem item) {
         if (item instanceof Query) {
             Query query = (Query) item;
             if (query.isPlayable()) {
@@ -162,12 +163,13 @@ public class TracksFragment extends TomahawkFragment {
                         this);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true);
-                tomahawkListAdapter.showContentHeader(rootView, mAlbum, mCollection);
+                tomahawkListAdapter
+                        .showContentHeader(rootView, mAlbum, mCollection, mStarLoveButtonListener);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListItems(queries);
                 ((TomahawkListAdapter) getListAdapter())
-                        .showContentHeader(rootView, mAlbum, mCollection);
+                        .showContentHeader(rootView, mAlbum, mCollection, mStarLoveButtonListener);
             }
         } else if (mArtist != null) {
             activity.setTitle(mArtist.getName());
@@ -177,12 +179,13 @@ public class TracksFragment extends TomahawkFragment {
                         this);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true);
-                tomahawkListAdapter.showContentHeader(rootView, mArtist, mCollection);
+                tomahawkListAdapter
+                        .showContentHeader(rootView, mArtist, mCollection, mStarLoveButtonListener);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListItems(queries);
                 ((TomahawkListAdapter) getListAdapter())
-                        .showContentHeader(rootView, mArtist, mCollection);
+                        .showContentHeader(rootView, mArtist, mCollection, mStarLoveButtonListener);
             }
         } else if (mQuery != null) {
             activity.setTitle(mQuery.getName());
@@ -192,12 +195,13 @@ public class TracksFragment extends TomahawkFragment {
                         this);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 tomahawkListAdapter.setShowCategoryHeaders(true);
-                tomahawkListAdapter.showContentHeader(rootView, mQuery, mCollection);
+                tomahawkListAdapter
+                        .showContentHeader(rootView, mQuery, mCollection, mStarLoveButtonListener);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListItems(queries);
                 ((TomahawkListAdapter) getListAdapter())
-                        .showContentHeader(rootView, mQuery, mCollection);
+                        .showContentHeader(rootView, mQuery, mCollection, mStarLoveButtonListener);
             }
         } else {
             queries.addAll(mCollection.getQueries());

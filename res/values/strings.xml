@@ -136,6 +136,8 @@
     <string name="content_header_following">FOLLOWING</string>
     <string name="content_header_followers">FOLLOWERS</string>
     <string name="content_header_nowplaying">Now Playing:</string>
+    <string name="content_header_follow">Follow</string>
+    <string name="content_header_unfollow">Unfollow</string>
     <string name="socialaction_type_follow_true">is now following</string>
     <string name="socialaction_type_love_track_true">loved a track:</string>
     <string name="socialaction_type_love_track_false">is all out of love for</string>

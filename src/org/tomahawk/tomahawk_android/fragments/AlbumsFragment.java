@@ -98,10 +98,11 @@ public class AlbumsFragment extends TomahawkFragment {
     /**
      * Called every time an item inside a ListView or GridView is clicked
      *
+     * @param view the clicked view
      * @param item the TomahawkListItem which corresponds to the click
      */
     @Override
-    public void onItemClick(TomahawkListItem item) {
+    public void onItemClick(View view, TomahawkListItem item) {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         if (item instanceof Query) {
             Query query = ((Query) item);
@@ -158,13 +159,14 @@ public class AlbumsFragment extends TomahawkFragment {
                 tomahawkListAdapter
                         .setShowCategoryHeaders(true,
                                 TomahawkListAdapter.SHOW_QUERIES_AS_TOPHITS);
-                tomahawkListAdapter.showContentHeader(rootView, mArtist, mCollection);
+                tomahawkListAdapter
+                        .showContentHeader(rootView, mArtist, mCollection, mStarLoveButtonListener);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 ((TomahawkListAdapter) getListAdapter()).setListItems(albumsAndTopHits);
                 ((TomahawkListAdapter) getListAdapter())
-                        .showContentHeader(rootView, mArtist, mCollection);
+                        .showContentHeader(rootView, mArtist, mCollection, mStarLoveButtonListener);
             }
         } else if (mShowMode == SHOW_MODE_STARREDALBUMS) {
             ArrayList<Album> albums = DatabaseHelper.getInstance().getStarredAlbums();

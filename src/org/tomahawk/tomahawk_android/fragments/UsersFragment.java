@@ -26,6 +26,7 @@ import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.view.LayoutInflater;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,10 +61,11 @@ public class UsersFragment extends TomahawkFragment {
     /**
      * Called every time an item inside a ListView or GridView is clicked
      *
+     * @param view the clicked view
      * @param item the TomahawkListItem which corresponds to the click
      */
     @Override
-    public void onItemClick(TomahawkListItem item) {
+    public void onItemClick(View view, TomahawkListItem item) {
         if (item instanceof User) {
             FragmentUtils.replace((TomahawkMainActivity) getActivity(),
                     getActivity().getSupportFragmentManager(), SocialActionsFragment.class,
@@ -89,12 +91,12 @@ public class UsersFragment extends TomahawkFragment {
         if (mShowMode == SHOW_MODE_TYPE_FOLLOWERS) {
             activity.setTitle(mUser.getName() + " " + getString(R.string.users_followers_suffix));
             if (mUser.getFollowers() != null && mUser.getFollowers().size() > 0) {
-                users.addAll(mUser.getFollowers());
+                users.addAll(mUser.getFollowers().keySet());
             }
         } else {
             activity.setTitle(mUser.getName() + " " + getString(R.string.users_followings_suffix));
             if (mUser.getFollowings() != null && mUser.getFollowings().size() > 0) {
-                users.addAll(mUser.getFollowings());
+                users.addAll(mUser.getFollowings().keySet());
             }
         }
         if (getListAdapter() == null) {

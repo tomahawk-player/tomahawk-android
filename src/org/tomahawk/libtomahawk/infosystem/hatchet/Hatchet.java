@@ -157,6 +157,12 @@ public interface Hatchet {
             @Body TypedInput rawBody
     );
 
+    @POST("/relationships")
+    HatchetPlaylistEntries postRelationship(
+            @Header("Authorization") String accesstoken,
+            @Body TypedInput rawBody
+    );
+
     @PUT("/playlists/{playlist-id}")
     Response putPlaylists(
             @Header("Authorization") String accesstoken,
@@ -175,6 +181,12 @@ public interface Hatchet {
             @Header("Authorization") String accesstoken,
             @Path("playlist-id") String playlist_id,
             @Path("entry-id") String entry_id
+    );
+
+    @DELETE("/relationships/{relationship-id}")
+    Response deleteRelationShip(
+            @Header("Authorization") String accesstoken,
+            @Path("relationship-id") String relationship_id
     );
 
 }

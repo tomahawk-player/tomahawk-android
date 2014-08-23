@@ -88,6 +88,17 @@
         <item name="android:background">@drawable/btn_cab_done_tomahawk</item>
     </style>
 
+    <style name="ButtonTomahawk" parent="android:Widget.Button">
+        <item name="android:background">@drawable/tomahawk_btn_default_holo_light</item>
+        <item name="android:minHeight">48dip</item>
+        <item name="android:minWidth">64dip</item>
+        <item name="android:textColor">#fff</item>
+    </style>
+
+    <style name="ImageButtonTomahawk" parent="android:Widget.ImageButton">
+        <item name="android:background">@drawable/tomahawk_btn_default_holo_light</item>
+    </style>
+
     <!-- this style is only referenced in a Light.DarkActionBar based theme -->
     <style name="Theme.Tomahawk.Widget" parent="@style/Theme.AppCompat">
         <item name="popupMenuStyle">@style/PopupMenu.Tomahawk</item>

@@ -61,10 +61,11 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
     /**
      * Called every time an item inside a ListView or GridView is clicked
      *
+     * @param view the clicked view
      * @param item the TomahawkListItem which corresponds to the click
      */
     @Override
-    public void onItemClick(TomahawkListItem item) {
+    public void onItemClick(View view, TomahawkListItem item) {
         if (item instanceof PlaylistEntry) {
             PlaylistEntry entry = (PlaylistEntry) item;
             if (entry.getQuery().isPlayable()) {
@@ -131,12 +132,13 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                     tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater,
                             playlistEntries, this);
                     tomahawkListAdapter.setShowResolvedBy(true);
-                    tomahawkListAdapter.showContentHeader(rootView, mPlaylist, mCollection);
+                    tomahawkListAdapter.showContentHeader(rootView, mPlaylist, mCollection,
+                            mStarLoveButtonListener);
                     setListAdapter(tomahawkListAdapter);
                 } else {
                     ((TomahawkListAdapter) getListAdapter()).setListItems(playlistEntries);
                     ((TomahawkListAdapter) getListAdapter()).showContentHeader(rootView,
-                            mPlaylist, mCollection);
+                            mPlaylist, mCollection, mStarLoveButtonListener);
                 }
             }
         }

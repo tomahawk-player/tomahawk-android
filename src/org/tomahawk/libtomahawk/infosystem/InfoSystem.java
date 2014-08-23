@@ -35,6 +35,8 @@ import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaylistEntryPostStruc
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaylistEntryRequest;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaylistPostStruct;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetPlaylistRequest;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetRelationshipPostStruct;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetRelationshipStruct;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetSocialAction;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetSocialActionPostStruct;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -574,6 +576,42 @@ public class InfoSystem {
         sendLoggedOps(authenticatorUtils);
     }
 
+    public String sendRelationshipPostStruct(AuthenticatorUtils authenticatorUtils,
+            User targetUser) {
+        HatchetRelationshipStruct relationship = new HatchetRelationshipStruct();
+        relationship.targetUser = targetUser.getId();
+        relationship.type = "follow";
+        HatchetRelationshipPostStruct struct = new HatchetRelationshipPostStruct();
+        struct.relationShip = relationship;
+
+        String requestId = TomahawkMainActivity.getSessionUniqueStringId();
+
+        try {
+            String jsonString = InfoSystemUtils.getObjectMapper()
+                    .writeValueAsString(struct);
+            InfoRequestData infoRequestData = new InfoRequestData(requestId,
+                    InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS, null,
+                    InfoRequestData.HTTPTYPE_POST, jsonString);
+            send(infoRequestData, authenticatorUtils);
+            return infoRequestData.getRequestId();
+        } catch (JsonProcessingException e) {
+            Log.e(TAG, "sendRelationshipPostStruct: " + e.getClass() + ": "
+                    + e.getLocalizedMessage());
+        }
+        return null;
+    }
+
+    public String deleteRelationship(AuthenticatorUtils authenticatorUtils, String relationshipId) {
+        String requestId = TomahawkMainActivity.getSessionUniqueStringId();
+        QueryParams params = new QueryParams();
+        params.relationship_id = relationshipId;
+        InfoRequestData infoRequestData = new InfoRequestData(requestId,
+                InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS, params,
+                InfoRequestData.HTTPTYPE_DELETE, null);
+        send(infoRequestData, authenticatorUtils);
+        return infoRequestData.getRequestId();
+    }
+
     /**
      * Send the given InfoRequestData's data out to every service that can handle it
      *
@@ -707,7 +745,7 @@ public class InfoSystem {
         }
     }
 
-    private void discardLoggedOp(InfoRequestData loggedOp){
+    private void discardLoggedOp(InfoRequestData loggedOp) {
         mSentRequests.put(loggedOp.getRequestId(), loggedOp);
         ArrayList<String> doneRequestsIds = new ArrayList<String>();
         doneRequestsIds.add(loggedOp.getRequestId());
