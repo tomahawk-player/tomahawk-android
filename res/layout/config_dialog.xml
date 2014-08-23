@@ -90,7 +90,7 @@
                         android:background="@drawable/selectable_background_tomahawk"
                         android:text="@string/cancel"
                         android:textSize="@dimen/text_size_small"
-                        android:textColor="@color/primary_textcolor_inverted"
+                        android:textColor="@color/primary_textcolor"
                         android:gravity="center"/>
                 <View
                         android:layout_width="@dimen/divider_height_thin"
@@ -106,7 +106,7 @@
                         android:background="@drawable/selectable_background_tomahawk"
                         android:text="@string/ok"
                         android:textSize="@dimen/text_size_small"
-                        android:textColor="@color/primary_textcolor_inverted"
+                        android:textColor="@color/primary_textcolor"
                         android:gravity="center"/>
 
             </LinearLayout>
