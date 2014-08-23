@@ -732,7 +732,7 @@ public class InfoSystem {
                 InfoRequestData queuedLoggedOp = mQueuedLoggedOps.remove(0);
                 QueryParams params = queuedLoggedOp.getQueryParams();
                 Playlist playlist = Playlist.getPlaylistById(params.playlist_local_id);
-                if (playlist != null) {
+                if (playlist != null && playlist.getHatchetId() != null) {
                     params.playlist_id = playlist.getHatchetId();
                     send(queuedLoggedOp, AuthenticatorManager.getInstance().getAuthenticatorUtils(
                             TomahawkApp.PLUGINNAME_HATCHET));
