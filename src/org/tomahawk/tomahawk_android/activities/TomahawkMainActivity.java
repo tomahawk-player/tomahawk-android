@@ -589,9 +589,14 @@ public class TomahawkMainActivity extends ActionBarActivity
                             getBaseContext(), R.layout.searchview_dropdown_item,
                             cursor, columns, columnTextId, 0);
 
+                    if (searchView.getSuggestionsAdapter() != null
+                            && searchView.getSuggestionsAdapter().getCursor() != null) {
+                        searchView.getSuggestionsAdapter().getCursor().close();
+                    }
                     searchView.setSuggestionsAdapter(simple);
                     return true;
                 } else {
+                    cursor.close();
                     return false;
                 }
             }
