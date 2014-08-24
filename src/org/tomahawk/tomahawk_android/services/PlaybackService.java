@@ -79,6 +79,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.PowerManager;
@@ -1203,14 +1204,15 @@ public class PlaybackService extends Service
                 .getService(PlaybackService.this, 0, intent,
                         PendingIntent.FLAG_UPDATE_CURRENT);
 
-        RemoteViews smallNotificationView;
+        RemoteViews remoteViews;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            smallNotificationView = new RemoteViews(getPackageName(),
+            remoteViews = new RemoteViews(getPackageName(),
                     R.layout.notification_small);
         } else {
-            smallNotificationView = new RemoteViews(getPackageName(),
+            remoteViews = new RemoteViews(getPackageName(),
                     R.layout.notification_small_compat);
         }
+        final RemoteViews smallNotificationView = remoteViews;
         smallNotificationView
                 .setTextViewText(R.id.notification_small_textview, query.getName());
         if (TextUtils.isEmpty(albumName)) {
@@ -1254,10 +1256,10 @@ public class PlaybackService extends Service
                         PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(resultPendingIntent);
 
-        Notification notification = builder.build();
+        final Notification notification = builder.build();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            RemoteViews largeNotificationView = new RemoteViews(getPackageName(),
+            final RemoteViews largeNotificationView = new RemoteViews(getPackageName(),
                     R.layout.notification_large);
             largeNotificationView.setTextViewText(R.id.notification_large_textview,
                     query.getName());
@@ -1288,16 +1290,21 @@ public class PlaybackService extends Service
                             exitPendingIntent);
             notification.bigContentView = largeNotificationView;
 
-            TomahawkUtils.loadImageIntoNotification(TomahawkApp.getContext(),
-                    getCurrentQuery().getImage(), smallNotificationView,
-                    R.id.notification_small_imageview_albumart,
-                    PLAYBACKSERVICE_NOTIFICATION_ID,
-                    notification, Image.getSmallImageSize());
-            TomahawkUtils.loadImageIntoNotification(TomahawkApp.getContext(),
-                    getCurrentQuery().getImage(), largeNotificationView,
-                    R.id.notification_large_imageview_albumart,
-                    PLAYBACKSERVICE_NOTIFICATION_ID,
-                    notification, Image.getSmallImageSize());
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    TomahawkUtils.loadImageIntoNotification(TomahawkApp.getContext(),
+                            getCurrentQuery().getImage(), smallNotificationView,
+                            R.id.notification_small_imageview_albumart,
+                            PLAYBACKSERVICE_NOTIFICATION_ID,
+                            notification, Image.getSmallImageSize());
+                    TomahawkUtils.loadImageIntoNotification(TomahawkApp.getContext(),
+                            getCurrentQuery().getImage(), largeNotificationView,
+                            R.id.notification_large_imageview_albumart,
+                            PLAYBACKSERVICE_NOTIFICATION_ID,
+                            notification, Image.getSmallImageSize());
+                }
+            });
         }
         mIsRunningInForeground = true;
         startForeground(PLAYBACKSERVICE_NOTIFICATION_ID, notification);
