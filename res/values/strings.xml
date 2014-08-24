@@ -18,7 +18,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
---><resources>
+-->
+<resources>
     <string name="appname_string">Tomahawk</string>
     <string name="scrobblingservice_string">Tomahawk Scrobbling-Service</string>
     <string name="mainactivity_title_string">Tomahawk</string>
@@ -38,6 +39,7 @@
     <string name="recentlyplayed_categoryheaders_string">Recently Played</string>
     <string name="searchfragment_title_string">Search</string>
     <string name="searchfragment_searchforonlinesources">Also search online</string>
+    <string name="searchfragment_searchtype">Search for</string>
     <string name="playbackfragment_title_string">Playback</string>
     <string name="playbackplaylistfragment_title_string">Playlist</string>
     <string name="playbackactivity_seekbar_completion_time_string">-:--</string>
@@ -118,6 +120,7 @@
     <string name="menu_item_go_to_album">Go to album</string>
     <string name="menu_item_settings">Settings</string>
     <string name="menu_item_share">Share</string>
+    <string name="menu_item_playshuffled">Play shuffled</string>
     <string name="share_default_prefix">#musthear</string>
     <string name="hub_title_dashboard">Dashboard</string>
     <string name="hub_title_collection">Collection</string>

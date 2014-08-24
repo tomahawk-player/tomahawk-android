@@ -550,6 +550,8 @@ public class TomahawkMainActivity extends ActionBarActivity
         goToAlbumItem.setVisible(false);
         final MenuItem shareItem = menu.findItem(R.id.action_share_item);
         shareItem.setVisible(false);
+        final MenuItem shuffleItem = menu.findItem(R.id.action_playshuffled_item);
+        shuffleItem.setVisible(false);
         // customize the searchView
         mSearchItem = menu.findItem(R.id.action_search);
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(mSearchItem);
