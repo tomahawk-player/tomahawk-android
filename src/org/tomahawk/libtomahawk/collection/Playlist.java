@@ -314,8 +314,8 @@ public class Playlist implements TomahawkListItem {
     /**
      * Remove the given {@link Query} from this playlist
      */
-    public void deleteEntry(PlaylistEntry entry) {
-        mEntries.remove(entry);
+    public boolean deleteEntry(PlaylistEntry entry) {
+        return mEntries.remove(entry);
     }
 
     /**
