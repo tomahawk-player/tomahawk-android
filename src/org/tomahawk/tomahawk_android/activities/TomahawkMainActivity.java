@@ -314,7 +314,8 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        mProgressDrawable = getResources().getDrawable(R.drawable.tomahawk_progress_indeterminate_circular_holo_light);
+        mProgressDrawable = getResources()
+                .getDrawable(R.drawable.tomahawk_progress_indeterminate_circular_holo_light);
 
         mTitle = mDrawerTitle = getTitle();
 
@@ -585,8 +586,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                     int[] columnTextId = new int[]{android.R.id.text1};
 
                     SuggestionSimpleCursorAdapter simple = new SuggestionSimpleCursorAdapter(
-                            getBaseContext(), android.R.layout.simple_list_item_1, cursor, columns,
-                            columnTextId, 0);
+                            getBaseContext(), R.layout.searchview_dropdown_item,
+                            cursor, columns, columnTextId, 0);
 
                     searchView.setSuggestionsAdapter(simple);
                     return true;
