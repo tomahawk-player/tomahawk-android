@@ -693,16 +693,10 @@ public class TomahawkUtils {
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
             String imagePath = buildImagePath(context, image, width);
             Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
-                    .skipMemoryCache()
-                    .placeholder(R.drawable.no_album_art_placeholder)
-                    .error(R.drawable.no_album_art_placeholder)
                     .resize(width, width)
                     .into(target);
         } else {
             Picasso.with(context).load(R.drawable.no_album_art_placeholder)
-                    .skipMemoryCache()
-                    .placeholder(R.drawable.no_album_art_placeholder)
-                    .error(R.drawable.no_album_art_placeholder)
                     .resize(width, width)
                     .into(target);
         }
@@ -721,19 +715,28 @@ public class TomahawkUtils {
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
             String imagePath = buildImagePath(context, image, width);
             Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
-                    .skipMemoryCache()
                     .placeholder(R.drawable.no_album_art_placeholder)
                     .error(R.drawable.no_album_art_placeholder)
                     .resize(width, width)
                     .into(remoteViews, viewId, notificationId, notification);
         } else {
             Picasso.with(context).load(R.drawable.no_album_art_placeholder)
-                    .skipMemoryCache()
                     .placeholder(R.drawable.no_album_art_placeholder)
                     .error(R.drawable.no_album_art_placeholder)
                     .resize(width, width)
                     .into(remoteViews, viewId, notificationId, notification);
         }
+    }
+
+    /**
+     * Load a {@link android.graphics.Bitmap} asynchronously
+     *
+     * @param context the context needed for fetching resources
+     * @param resId   the resource id of the image
+     */
+    public static void loadDrawableIntoNotification(Context context, int resId,
+            RemoteViews remoteViews, int viewId, int notificationId, Notification notification) {
+        Picasso.with(context).load(resId).into(remoteViews, viewId, notificationId, notification);
     }
 
     public static String preparePathForPicasso(String path) {
