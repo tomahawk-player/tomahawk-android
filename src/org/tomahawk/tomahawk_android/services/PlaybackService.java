@@ -859,6 +859,11 @@ public class PlaybackService extends Service
                 mShuffledPlaylist.setEntries(getShuffledPlaylistEntries());
             }
             mMergedPlaylist.setEntries(getMergedPlaylistEntries());
+            if (getCurrentEntry() != null) {
+                int index = mMergedPlaylist.getIndexOfEntry(mCurrentEntry);
+                resolveQueriesFromTo(mMergedPlaylist.getEntries(), index, index + 10);
+                resolveQueriesFromTo(mQueue.getEntries(), index, index + 10);
+            }
 
             sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
         }
@@ -1045,10 +1050,10 @@ public class PlaybackService extends Service
     private void onTrackChanged() {
         Log.d(TAG, "onTrackChanged");
         sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
-        if (getCurrentQuery() != null) {
+        if (getCurrentEntry() != null) {
             int index = mMergedPlaylist.getIndexOfEntry(mCurrentEntry);
-            resolveQueriesFromTo(mMergedPlaylist.getEntries(), index, index + 10);
-            resolveQueriesFromTo(mQueue.getEntries(), index, index + 10);
+            resolveQueriesFromTo(mMergedPlaylist.getEntries(), index - 2, index + 10);
+            resolveQueriesFromTo(mQueue.getEntries(), index, index - 2 + 10);
             updateNotification();
             updateLockscreenControls();
         }
