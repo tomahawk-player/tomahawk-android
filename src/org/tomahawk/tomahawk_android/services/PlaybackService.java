@@ -1466,6 +1466,7 @@ public class PlaybackService extends Service
             updateNotification();
             updateLockscreenControls();
             sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
+            prepareCurrentQuery();
         }
     }
 
