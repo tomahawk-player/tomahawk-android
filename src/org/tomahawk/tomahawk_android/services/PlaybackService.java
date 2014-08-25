@@ -852,14 +852,16 @@ public class PlaybackService extends Service
      * Set whether or not to enable shuffle mode on the current playlist.
      */
     public void setShuffled(boolean shuffled) {
-        Log.d(TAG, "setShuffled to " + shuffled);
-        mShuffled = shuffled;
-        if (shuffled) {
-            mShuffledPlaylist.setEntries(getShuffledPlaylistEntries());
+        Log.d(TAG, "setShuffled from " + mShuffled + " to " + shuffled);
+        if (mShuffled != shuffled) {
+            mShuffled = shuffled;
+            if (shuffled) {
+                mShuffledPlaylist.setEntries(getShuffledPlaylistEntries());
+            }
             mMergedPlaylist.setEntries(getMergedPlaylistEntries());
-        }
 
-        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+            sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+        }
     }
 
     private ArrayList<PlaylistEntry> getShuffledPlaylistEntries() {
@@ -1083,6 +1085,8 @@ public class PlaybackService extends Service
     public void setPlaylist(Playlist playlist, PlaylistEntry currentEntry) {
         Log.d(TAG, "setPlaylist");
         releaseAllPlayers();
+        mShuffled = false;
+        mRepeating = false;
         mPlaylist = playlist;
         mQueueStartPos = -1;
         deleteQueryInQueue(mCurrentEntry);
