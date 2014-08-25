@@ -161,6 +161,8 @@ public class PlaybackService extends Service
 
     private static final int DELAY_TO_KILL = 300000;
 
+    private boolean mShowingNotification;
+
     protected HashSet<String> mCorrespondingQueryKeys = new HashSet<String>();
 
     protected ConcurrentHashMap<String, String> mCorrespondingInfoDataIds
@@ -714,8 +716,9 @@ public class PlaybackService extends Service
         mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
         sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
         handlePlayState();
-        updateNotificationPlayState();
 
+        mShowingNotification = true;
+        updateNotificationPlayState();
         tryToGetAudioFocus();
         updateLockscreenPlayState();
     }
@@ -738,6 +741,7 @@ public class PlaybackService extends Service
         sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
         handlePlayState();
         if (dismissNotificationOnPause) {
+            mShowingNotification = false;
             stopForeground(true);
             giveUpAudioFocus();
         } else {
@@ -1169,159 +1173,163 @@ public class PlaybackService extends Service
      * Create or update an ongoing notification
      */
     public void updateNotification() {
-        Log.d(TAG, "updateNotification");
+        if (mShowingNotification) {
+            Log.d(TAG, "updateNotification");
 
-        String albumName = "";
-        String artistName = "";
-        if (getCurrentQuery().getAlbum() != null) {
-            albumName = getCurrentQuery().getAlbum().getName();
-        }
-        if (getCurrentQuery().getArtist() != null) {
-            artistName = getCurrentQuery().getArtist().getName();
-        }
+            String albumName = "";
+            String artistName = "";
+            if (getCurrentQuery().getAlbum() != null) {
+                albumName = getCurrentQuery().getAlbum().getName();
+            }
+            if (getCurrentQuery().getArtist() != null) {
+                artistName = getCurrentQuery().getArtist().getName();
+            }
 
-        Intent intent = new Intent(ACTION_PREVIOUS, null, PlaybackService.this,
-                PlaybackService.class);
-        PendingIntent previousPendingIntent = PendingIntent
-                .getService(PlaybackService.this, 0, intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
-        intent = new Intent(ACTION_PLAYPAUSE, null, PlaybackService.this,
-                PlaybackService.class);
-        PendingIntent playPausePendingIntent = PendingIntent
-                .getService(PlaybackService.this, 0, intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
-        intent = new Intent(ACTION_NEXT, null, PlaybackService.this, PlaybackService.class);
-        PendingIntent nextPendingIntent = PendingIntent
-                .getService(PlaybackService.this, 0, intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
-        intent = new Intent(ACTION_EXIT, null, PlaybackService.this, PlaybackService.class);
-        PendingIntent exitPendingIntent = PendingIntent
-                .getService(PlaybackService.this, 0, intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
+            Intent intent = new Intent(ACTION_PREVIOUS, null, PlaybackService.this,
+                    PlaybackService.class);
+            PendingIntent previousPendingIntent = PendingIntent
+                    .getService(PlaybackService.this, 0, intent,
+                            PendingIntent.FLAG_UPDATE_CURRENT);
+            intent = new Intent(ACTION_PLAYPAUSE, null, PlaybackService.this,
+                    PlaybackService.class);
+            PendingIntent playPausePendingIntent = PendingIntent
+                    .getService(PlaybackService.this, 0, intent,
+                            PendingIntent.FLAG_UPDATE_CURRENT);
+            intent = new Intent(ACTION_NEXT, null, PlaybackService.this, PlaybackService.class);
+            PendingIntent nextPendingIntent = PendingIntent
+                    .getService(PlaybackService.this, 0, intent,
+                            PendingIntent.FLAG_UPDATE_CURRENT);
+            intent = new Intent(ACTION_EXIT, null, PlaybackService.this, PlaybackService.class);
+            PendingIntent exitPendingIntent = PendingIntent
+                    .getService(PlaybackService.this, 0, intent,
+                            PendingIntent.FLAG_UPDATE_CURRENT);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            mSmallNotificationView = new RemoteViews(getPackageName(),
-                    R.layout.notification_small);
-        } else {
-            mSmallNotificationView = new RemoteViews(getPackageName(),
-                    R.layout.notification_small_compat);
-        }
-        mSmallNotificationView
-                .setTextViewText(R.id.notification_small_textview, getCurrentQuery().getName());
-        if (TextUtils.isEmpty(albumName)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                mSmallNotificationView = new RemoteViews(getPackageName(),
+                        R.layout.notification_small);
+            } else {
+                mSmallNotificationView = new RemoteViews(getPackageName(),
+                        R.layout.notification_small_compat);
+            }
             mSmallNotificationView
-                    .setTextViewText(R.id.notification_small_textview2, artistName);
-        } else {
-            mSmallNotificationView.setTextViewText(R.id.notification_small_textview2,
-                    artistName + " - " + albumName);
-        }
-        if (isPlaying()) {
-            mSmallNotificationView
-                    .setImageViewResource(R.id.notification_small_imageview_playpause,
-                            R.drawable.ic_player_pause_light);
-        } else {
-            mSmallNotificationView
-                    .setImageViewResource(R.id.notification_small_imageview_playpause,
-                            R.drawable.ic_player_play_light);
-        }
-        mSmallNotificationView
-                .setOnClickPendingIntent(R.id.notification_small_imageview_playpause,
-                        playPausePendingIntent);
-        mSmallNotificationView
-                .setOnClickPendingIntent(R.id.notification_small_imageview_next,
-                        nextPendingIntent);
-        mSmallNotificationView
-                .setOnClickPendingIntent(R.id.notification_small_imageview_exit,
-                        exitPendingIntent);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(
-                PlaybackService.this)
-                .setSmallIcon(R.drawable.ic_notification).setContentTitle(artistName)
-                .setContentText(getCurrentQuery().getName()).setOngoing(true).setPriority(
-                        NotificationCompat.PRIORITY_MAX).setContent(mSmallNotificationView);
-
-        Intent notificationIntent = new Intent(PlaybackService.this,
-                TomahawkMainActivity.class);
-        intent.setAction(TomahawkMainActivity.SHOW_PLAYBACKFRAGMENT_ON_STARTUP);
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent resultPendingIntent = PendingIntent
-                .getActivity(PlaybackService.this, 0, notificationIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
-        builder.setContentIntent(resultPendingIntent);
-
-        mNotification = builder.build();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            mLargeNotificationView = new RemoteViews(getPackageName(),
-                    R.layout.notification_large);
-            mLargeNotificationView.setTextViewText(R.id.notification_large_textview,
-                    getCurrentQuery().getName());
-            mLargeNotificationView
-                    .setTextViewText(R.id.notification_large_textview2, artistName);
-            mLargeNotificationView
-                    .setTextViewText(R.id.notification_large_textview3, albumName);
+                    .setTextViewText(R.id.notification_small_textview, getCurrentQuery().getName());
+            if (TextUtils.isEmpty(albumName)) {
+                mSmallNotificationView
+                        .setTextViewText(R.id.notification_small_textview2, artistName);
+            } else {
+                mSmallNotificationView.setTextViewText(R.id.notification_small_textview2,
+                        artistName + " - " + albumName);
+            }
             if (isPlaying()) {
-                mLargeNotificationView
-                        .setImageViewResource(R.id.notification_large_imageview_playpause,
+                mSmallNotificationView
+                        .setImageViewResource(R.id.notification_small_imageview_playpause,
                                 R.drawable.ic_player_pause_light);
             } else {
-                mLargeNotificationView
-                        .setImageViewResource(R.id.notification_large_imageview_playpause,
+                mSmallNotificationView
+                        .setImageViewResource(R.id.notification_small_imageview_playpause,
                                 R.drawable.ic_player_play_light);
             }
-            mLargeNotificationView
-                    .setOnClickPendingIntent(R.id.notification_large_imageview_previous,
-                            previousPendingIntent);
-            mLargeNotificationView
-                    .setOnClickPendingIntent(R.id.notification_large_imageview_playpause,
+            mSmallNotificationView
+                    .setOnClickPendingIntent(R.id.notification_small_imageview_playpause,
                             playPausePendingIntent);
-            mLargeNotificationView
-                    .setOnClickPendingIntent(R.id.notification_large_imageview_next,
+            mSmallNotificationView
+                    .setOnClickPendingIntent(R.id.notification_small_imageview_next,
                             nextPendingIntent);
-            mLargeNotificationView
-                    .setOnClickPendingIntent(R.id.notification_large_imageview_exit,
+            mSmallNotificationView
+                    .setOnClickPendingIntent(R.id.notification_small_imageview_exit,
                             exitPendingIntent);
-            mNotification.bigContentView = mLargeNotificationView;
 
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    TomahawkUtils.loadImageIntoNotification(TomahawkApp.getContext(),
-                            getCurrentQuery().getImage(), mSmallNotificationView,
-                            R.id.notification_small_imageview_albumart,
-                            PLAYBACKSERVICE_NOTIFICATION_ID,
-                            mNotification, Image.getSmallImageSize());
-                    TomahawkUtils.loadImageIntoNotification(TomahawkApp.getContext(),
-                            getCurrentQuery().getImage(), mLargeNotificationView,
-                            R.id.notification_large_imageview_albumart,
-                            PLAYBACKSERVICE_NOTIFICATION_ID,
-                            mNotification, Image.getSmallImageSize());
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(
+                    PlaybackService.this)
+                    .setSmallIcon(R.drawable.ic_notification).setContentTitle(artistName)
+                    .setContentText(getCurrentQuery().getName()).setOngoing(true).setPriority(
+                            NotificationCompat.PRIORITY_MAX).setContent(mSmallNotificationView);
+
+            Intent notificationIntent = new Intent(PlaybackService.this,
+                    TomahawkMainActivity.class);
+            intent.setAction(TomahawkMainActivity.SHOW_PLAYBACKFRAGMENT_ON_STARTUP);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            PendingIntent resultPendingIntent = PendingIntent
+                    .getActivity(PlaybackService.this, 0, notificationIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.setContentIntent(resultPendingIntent);
+
+            mNotification = builder.build();
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                mLargeNotificationView = new RemoteViews(getPackageName(),
+                        R.layout.notification_large);
+                mLargeNotificationView.setTextViewText(R.id.notification_large_textview,
+                        getCurrentQuery().getName());
+                mLargeNotificationView
+                        .setTextViewText(R.id.notification_large_textview2, artistName);
+                mLargeNotificationView
+                        .setTextViewText(R.id.notification_large_textview3, albumName);
+                if (isPlaying()) {
+                    mLargeNotificationView
+                            .setImageViewResource(R.id.notification_large_imageview_playpause,
+                                    R.drawable.ic_player_pause_light);
+                } else {
+                    mLargeNotificationView
+                            .setImageViewResource(R.id.notification_large_imageview_playpause,
+                                    R.drawable.ic_player_play_light);
                 }
-            });
+                mLargeNotificationView
+                        .setOnClickPendingIntent(R.id.notification_large_imageview_previous,
+                                previousPendingIntent);
+                mLargeNotificationView
+                        .setOnClickPendingIntent(R.id.notification_large_imageview_playpause,
+                                playPausePendingIntent);
+                mLargeNotificationView
+                        .setOnClickPendingIntent(R.id.notification_large_imageview_next,
+                                nextPendingIntent);
+                mLargeNotificationView
+                        .setOnClickPendingIntent(R.id.notification_large_imageview_exit,
+                                exitPendingIntent);
+                mNotification.bigContentView = mLargeNotificationView;
+
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        TomahawkUtils.loadImageIntoNotification(TomahawkApp.getContext(),
+                                getCurrentQuery().getImage(), mSmallNotificationView,
+                                R.id.notification_small_imageview_albumart,
+                                PLAYBACKSERVICE_NOTIFICATION_ID,
+                                mNotification, Image.getSmallImageSize());
+                        TomahawkUtils.loadImageIntoNotification(TomahawkApp.getContext(),
+                                getCurrentQuery().getImage(), mLargeNotificationView,
+                                R.id.notification_large_imageview_albumart,
+                                PLAYBACKSERVICE_NOTIFICATION_ID,
+                                mNotification, Image.getSmallImageSize());
+                    }
+                });
+            }
+            startForeground(PLAYBACKSERVICE_NOTIFICATION_ID, mNotification);
         }
-        startForeground(PLAYBACKSERVICE_NOTIFICATION_ID, mNotification);
     }
 
     /**
      * Create or update an ongoing notification
      */
     public void updateNotificationPlayState() {
-        Log.d(TAG, "updateNotificationPlayState()");
-        int resId;
-        if (isPlaying()) {
-            resId = R.drawable.ic_player_pause_light;
-        } else {
-            resId = R.drawable.ic_player_play_light;
-        }
-        if (mLargeNotificationView != null) {
-            TomahawkUtils.loadDrawableIntoNotification(TomahawkApp.getContext(), resId,
-                    mLargeNotificationView, R.id.notification_large_imageview_playpause,
-                    PLAYBACKSERVICE_NOTIFICATION_ID, mNotification);
-        }
-        if (mSmallNotificationView != null) {
-            TomahawkUtils.loadDrawableIntoNotification(TomahawkApp.getContext(), resId,
-                    mSmallNotificationView, R.id.notification_small_imageview_playpause,
-                    PLAYBACKSERVICE_NOTIFICATION_ID, mNotification);
+        if (mShowingNotification) {
+            Log.d(TAG, "updateNotificationPlayState()");
+            int resId;
+            if (isPlaying()) {
+                resId = R.drawable.ic_player_pause_light;
+            } else {
+                resId = R.drawable.ic_player_play_light;
+            }
+            if (mLargeNotificationView != null) {
+                TomahawkUtils.loadDrawableIntoNotification(TomahawkApp.getContext(), resId,
+                        mLargeNotificationView, R.id.notification_large_imageview_playpause,
+                        PLAYBACKSERVICE_NOTIFICATION_ID, mNotification);
+            }
+            if (mSmallNotificationView != null) {
+                TomahawkUtils.loadDrawableIntoNotification(TomahawkApp.getContext(), resId,
+                        mSmallNotificationView, R.id.notification_small_imageview_playpause,
+                        PLAYBACKSERVICE_NOTIFICATION_ID, mNotification);
+            }
         }
     }
 
