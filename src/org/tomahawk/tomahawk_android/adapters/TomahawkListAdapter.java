@@ -42,7 +42,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
@@ -51,12 +50,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
-
 /**
  * This class is used to populate a {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}.
  */
-public class TomahawkListAdapter extends BaseAdapter implements StickyListHeadersAdapter {
+public class TomahawkListAdapter extends StickyBaseAdapter {
 
     private TomahawkMainActivity mActivity;
 

@@ -312,19 +312,18 @@ public class PlaybackFragment extends TomahawkFragment {
 
         PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
                 .getPlaybackService();
-        TomahawkListAdapter tomahawkListAdapter = (TomahawkListAdapter) getListAdapter();
 
         if (playbackService != null) {
             mShownQueries = playbackService.getQueue().getQueries();
             mResolveQueriesHandler.removeCallbacksAndMessages(null);
             mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
         }
-        if (tomahawkListAdapter != null) {
+        if (getListAdapter() != null) {
             if (playbackService != null) {
                 ArrayList<TomahawkListItem> tracks = new ArrayList<TomahawkListItem>();
                 tracks.addAll(playbackService.getQueue().getQueries());
-                tomahawkListAdapter.setSegments(new Segment(tracks));
-                tomahawkListAdapter.notifyDataSetChanged();
+                getListAdapter().setSegments(new Segment(tracks));
+                getListAdapter().notifyDataSetChanged();
             }
         } else {
             updateAdapter();
@@ -382,7 +381,7 @@ public class PlaybackFragment extends TomahawkFragment {
                 tomahawkListAdapter.setShowResolvedBy(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setSegments(segment);
+                getListAdapter().setSegments(segment);
             }
         }
 

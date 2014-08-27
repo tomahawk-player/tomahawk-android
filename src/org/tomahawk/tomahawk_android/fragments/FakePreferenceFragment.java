@@ -94,7 +94,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        ((FakePreferencesAdapter) getListAdapter()).notifyDataSetChanged();
+                        getListAdapter().notifyDataSetChanged();
                     }
                 });
             }
@@ -190,7 +190,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
     public void onResume() {
         super.onResume();
 
-        ((FakePreferencesAdapter) getListAdapter()).notifyDataSetChanged();
+        getListAdapter().notifyDataSetChanged();
 
         getActivity().setTitle(getString(R.string.fakepreferencefragment_title_string));
 
@@ -264,7 +264,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        ((FakePreferencesAdapter) getListAdapter()).notifyDataSetChanged();
+        getListAdapter().notifyDataSetChanged();
     }
 
     @Override

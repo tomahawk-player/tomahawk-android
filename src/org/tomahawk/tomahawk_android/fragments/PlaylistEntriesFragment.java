@@ -191,8 +191,8 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                             mStarLoveButtonListener);
                     setListAdapter(tomahawkListAdapter);
                 } else {
-                    ((TomahawkListAdapter) getListAdapter()).setSegments(segment);
-                    ((TomahawkListAdapter) getListAdapter()).showContentHeader(rootView,
+                    getListAdapter().setSegments(segment);
+                    getListAdapter().showContentHeader(rootView,
                             mPlaylist, mCollection, mStarLoveButtonListener);
                 }
             }

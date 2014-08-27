@@ -94,7 +94,7 @@ public class ArtistsFragment extends TomahawkFragment {
                                 layoutInflater, new Segment(artists), this);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setSegments(new Segment(artists));
+                getListAdapter().setSegments(new Segment(artists));
             }
         } else {
             artists.addAll(mCollection.getArtists());
@@ -106,7 +106,7 @@ public class ArtistsFragment extends TomahawkFragment {
                 tomahawkListAdapter.setShowArtistAsSingleLine(mCollection != null);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setSegments(segment);
+                getListAdapter().setSegments(segment);
             }
         }
     }

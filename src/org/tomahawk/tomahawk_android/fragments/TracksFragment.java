@@ -168,8 +168,8 @@ public class TracksFragment extends TomahawkFragment {
                         .showContentHeader(rootView, mAlbum, mCollection, mStarLoveButtonListener);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setSegments(segment);
-                ((TomahawkListAdapter) getListAdapter())
+                getListAdapter().setSegments(segment);
+                getListAdapter()
                         .showContentHeader(rootView, mAlbum, mCollection, mStarLoveButtonListener);
             }
         } else if (mArtist != null) {
@@ -184,8 +184,8 @@ public class TracksFragment extends TomahawkFragment {
                         .showContentHeader(rootView, mArtist, mCollection, mStarLoveButtonListener);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setSegments(segment);
-                ((TomahawkListAdapter) getListAdapter())
+                getListAdapter().setSegments(segment);
+                getListAdapter()
                         .showContentHeader(rootView, mArtist, mCollection, mStarLoveButtonListener);
             }
         } else if (mQuery != null) {
@@ -200,8 +200,8 @@ public class TracksFragment extends TomahawkFragment {
                         .showContentHeader(rootView, mQuery, mCollection, mStarLoveButtonListener);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setSegments(segment);
-                ((TomahawkListAdapter) getListAdapter())
+                getListAdapter().setSegments(segment);
+                getListAdapter()
                         .showContentHeader(rootView, mQuery, mCollection, mStarLoveButtonListener);
             }
         } else {
@@ -212,7 +212,7 @@ public class TracksFragment extends TomahawkFragment {
                         this);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setSegments(segment);
+                getListAdapter().setSegments(segment);
             }
         }
 

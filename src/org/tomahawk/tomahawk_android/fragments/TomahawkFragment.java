@@ -51,6 +51,7 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.BaseAdapter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -127,6 +128,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     protected static final int PIPELINE_RESULT_REPORTER_MSG = 1337;
 
     protected static final long PIPELINE_RESULT_REPORTER_DELAY = 1000;
+
+    private TomahawkListAdapter mTomahawkListAdapter;
 
     private TomahawkFragmentReceiver mTomahawkFragmentReceiver;
 
@@ -451,6 +454,21 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     }
 
     /**
+     * Get the {@link BaseAdapter} associated with this activity's ListView.
+     */
+    public TomahawkListAdapter getListAdapter() {
+        return mTomahawkListAdapter;
+    }
+
+    /**
+     * Set the {@link BaseAdapter} associated with this activity's ListView.
+     */
+    public void setListAdapter(TomahawkListAdapter adapter) {
+        super.setListAdapter(adapter);
+        mTomahawkListAdapter = adapter;
+    }
+
+    /**
      * Update this {@link TomahawkFragment}'s {@link TomahawkListAdapter} content
      */
     protected abstract void updateAdapter();
@@ -506,17 +524,16 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     protected void updateShowPlaystate() {
         PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
                 .getPlaybackService();
-        if (getListAdapter() instanceof TomahawkListAdapter) {
-            TomahawkListAdapter tomahawkListAdapter = (TomahawkListAdapter) getListAdapter();
+        if (getListAdapter() != null) {
             if (playbackService != null) {
-                tomahawkListAdapter.setShowPlaystate(true);
-                tomahawkListAdapter.setHighlightedItemIsPlaying(playbackService.isPlaying());
-                tomahawkListAdapter.setHighlightedEntry(playbackService.getCurrentEntry());
-                tomahawkListAdapter.setHighlightedQuery(playbackService.getCurrentQuery());
+                getListAdapter().setShowPlaystate(true);
+                getListAdapter().setHighlightedItemIsPlaying(playbackService.isPlaying());
+                getListAdapter().setHighlightedEntry(playbackService.getCurrentEntry());
+                getListAdapter().setHighlightedQuery(playbackService.getCurrentQuery());
             } else {
-                tomahawkListAdapter.setShowPlaystate(false);
+                getListAdapter().setShowPlaystate(false);
             }
-            tomahawkListAdapter.notifyDataSetChanged();
+            getListAdapter().notifyDataSetChanged();
         }
     }
 

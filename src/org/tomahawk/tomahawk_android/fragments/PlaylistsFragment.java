@@ -88,7 +88,7 @@ public class PlaylistsFragment extends TomahawkFragment {
                     (TomahawkMainActivity) getActivity(), layoutInflater, segment, this);
             setListAdapter(tomahawkListAdapter);
         } else {
-            ((TomahawkListAdapter) getListAdapter()).setSegments(segment);
+            getListAdapter().setSegments(segment);
         }
     }
 

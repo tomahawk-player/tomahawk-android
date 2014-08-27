@@ -28,19 +28,16 @@ import android.content.res.TypedArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
-
 /**
  * This class populates the listview inside the navigation drawer
  */
-public class TomahawkMenuAdapter extends BaseAdapter implements StickyListHeadersAdapter {
+public class TomahawkMenuAdapter extends StickyBaseAdapter {
 
     private final Activity mActivity;
 

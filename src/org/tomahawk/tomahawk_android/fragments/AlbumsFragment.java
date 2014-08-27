@@ -168,8 +168,8 @@ public class AlbumsFragment extends TomahawkFragment {
                 tomahawkListAdapter.setShowResolvedBy(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setSegments(segments);
-                ((TomahawkListAdapter) getListAdapter())
+                getListAdapter().setSegments(segments);
+                getListAdapter()
                         .showContentHeader(rootView, mArtist, mCollection, mStarLoveButtonListener);
             }
         } else if (mShowMode == SHOW_MODE_STARREDALBUMS) {
@@ -185,7 +185,7 @@ public class AlbumsFragment extends TomahawkFragment {
                         layoutInflater, segments, this);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setSegments(segments);
+                getListAdapter().setSegments(segments);
             }
         } else {
             ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
@@ -197,7 +197,7 @@ public class AlbumsFragment extends TomahawkFragment {
                         layoutInflater, segments, this);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setSegments(segments);
+                getListAdapter().setSegments(segments);
             }
         }
 
