@@ -20,7 +20,6 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -30,7 +29,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.GridView;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
@@ -45,13 +43,7 @@ public abstract class TomahawkListFragment extends SlidingPanelFragment {
 
     private StickyListHeadersAdapter mTomahawkListAdapter;
 
-    private TomahawkGridAdapter mTomahawkGridAdapter;
-
-    private boolean mShowGridView;
-
     private StickyListHeadersListView mList;
-
-    private GridView mGrid;
 
     private Parcelable mListState = null;
 
@@ -61,7 +53,7 @@ public abstract class TomahawkListFragment extends SlidingPanelFragment {
 
     final private Runnable mRequestFocus = new Runnable() {
         public void run() {
-            (mShowGridView ? mGrid : mList).focusableViewAvailable((mShowGridView ? mGrid : mList));
+            mList.focusableViewAvailable(mList);
         }
     };
 
@@ -97,7 +89,6 @@ public abstract class TomahawkListFragment extends SlidingPanelFragment {
     public void onDestroyView() {
         mHandler.removeCallbacks(mRequestFocus);
         mList = null;
-        mGrid = null;
         super.onDestroyView();
     }
 
@@ -120,18 +111,10 @@ public abstract class TomahawkListFragment extends SlidingPanelFragment {
     }
 
     /**
-     * Get this {@link TomahawkListFragment}'s {@link GridView}
-     */
-    public GridView getGridView() {
-        ensureList();
-        return mGrid;
-    }
-
-    /**
      * Set mList/mGrid to the listview/gridview layout element and catch possible exceptions.
      */
     private void ensureList() {
-        if (((mShowGridView) ? mGrid : mList) != null) {
+        if (mList != null) {
             return;
         }
         View root = getView();
@@ -140,29 +123,16 @@ public abstract class TomahawkListFragment extends SlidingPanelFragment {
         if (root == null || layoutInflater == null) {
             return;
         }
-        if (!mShowGridView) {
-            View container = root
-                    .findViewById(R.id.fragmentLayout_listLayout_frameLayout);
-            mList = (StickyListHeadersListView) layoutInflater
-                    .inflate(R.layout.stickylistheaderslistview, (ViewGroup) container,
-                            false);
-            if (container instanceof FrameLayout) {
-                ((FrameLayout) container).addView(mList);
-            }
-            if (mTomahawkListAdapter != null) {
-                setListAdapter(mTomahawkListAdapter);
-            }
-        } else {
-            View container = root
-                    .findViewById(R.id.fragmentLayout_gridLayout_frameLayout);
-            mGrid = (GridView) layoutInflater
-                    .inflate(R.layout.gridview, (ViewGroup) container, false);
-            if (container instanceof FrameLayout) {
-                ((FrameLayout) container).addView(mGrid);
-            }
-            if (mTomahawkGridAdapter != null) {
-                setGridAdapter(mTomahawkGridAdapter);
-            }
+        View container = root
+                .findViewById(R.id.fragmentLayout_listLayout_frameLayout);
+        mList = (StickyListHeadersListView) layoutInflater
+                .inflate(R.layout.stickylistheaderslistview, (ViewGroup) container,
+                        false);
+        if (container instanceof FrameLayout) {
+            ((FrameLayout) container).addView(mList);
+        }
+        if (mTomahawkListAdapter != null) {
+            setListAdapter(mTomahawkListAdapter);
         }
         mHandler.post(mRequestFocus);
     }
@@ -171,9 +141,6 @@ public abstract class TomahawkListFragment extends SlidingPanelFragment {
      * @return the current scrolling position of the list- or gridView
      */
     public Parcelable getListState() {
-        if (mShowGridView) {
-            return getGridView().onSaveInstanceState();
-        }
         return getListView().getWrappedList().onSaveInstanceState();
     }
 
@@ -186,41 +153,15 @@ public abstract class TomahawkListFragment extends SlidingPanelFragment {
     }
 
     /**
-     * Get the {@link org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter} associated with
-     * this activity's GridView.
-     */
-    public TomahawkGridAdapter getGridAdapter() {
-        return mTomahawkGridAdapter;
-    }
-
-    /**
      * Set the {@link org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter} associated with
      * this activity's ListView.
      */
     public void setListAdapter(StickyListHeadersAdapter adapter) {
         mTomahawkListAdapter = adapter;
-        mShowGridView = false;
         getListView().setAdapter(adapter);
         if (restoreScrollPosition && mListState != null) {
             getListView().getWrappedList().onRestoreInstanceState(mListState);
         }
-    }
-
-    /**
-     * Set the {@link org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter} associated with
-     * this activity's GridView.
-     */
-    public void setGridAdapter(TomahawkGridAdapter adapter) {
-        mTomahawkGridAdapter = adapter;
-        mShowGridView = true;
-        getGridView().setAdapter(adapter);
-        if (restoreScrollPosition && mListState != null) {
-            getGridView().onRestoreInstanceState(mListState);
-        }
-    }
-
-    public boolean isShowGridView() {
-        return mShowGridView;
     }
 
     public void setRestoreScrollPosition(boolean restoreScrollPosition) {

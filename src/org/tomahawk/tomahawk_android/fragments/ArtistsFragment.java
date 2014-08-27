@@ -21,6 +21,7 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
@@ -88,21 +89,24 @@ public class ArtistsFragment extends TomahawkFragment {
             }
             artists.addAll(starredArtists);
             if (getListAdapter() == null) {
-                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(
-                        (TomahawkMainActivity) getActivity(), layoutInflater, artists, this);
+                TomahawkListAdapter tomahawkListAdapter =
+                        new TomahawkListAdapter((TomahawkMainActivity) getActivity(),
+                                layoutInflater, new Segment(artists), this);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setListItems(artists);
+                ((TomahawkListAdapter) getListAdapter()).setSegments(new Segment(artists));
             }
         } else {
             artists.addAll(mCollection.getArtists());
+            Segment segment = new Segment(artists);
             if (getListAdapter() == null) {
-                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(
-                        (TomahawkMainActivity) getActivity(), layoutInflater, artists, this);
+                TomahawkListAdapter tomahawkListAdapter =
+                        new TomahawkListAdapter((TomahawkMainActivity) getActivity(),
+                                layoutInflater, segment, this);
                 tomahawkListAdapter.setShowArtistAsSingleLine(mCollection != null);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setListItems(artists);
+                ((TomahawkListAdapter) getListAdapter()).setSegments(segment);
             }
         }
     }

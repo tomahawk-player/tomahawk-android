@@ -44,7 +44,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -52,7 +51,6 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AbsListView;
-import android.widget.GridView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -332,9 +330,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             }
         }
 
-        // Adapt to current orientation. Show different count of columns in the GridView
-        adaptColumnCount();
-
         // Initialize and register Receiver
         if (mTomahawkFragmentReceiver == null) {
             mTomahawkFragmentReceiver = new TomahawkFragmentReceiver();
@@ -361,10 +356,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         if (list != null) {
             list.setOnScrollListener(this);
         }
-        GridView grid = getGridView();
-        if (grid != null) {
-            grid.setOnScrollListener(this);
-        }
 
         onPlaylistChanged();
 
@@ -389,11 +380,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
 
         mIsResumed = false;
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        adaptColumnCount();
     }
 
     @Override
@@ -462,32 +448,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         dialog.setArguments(args);
         dialog.show(getFragmentManager(), null);
         return true;
-    }
-
-    /**
-     * Adjust the column count so it fits to the current screen configuration
-     */
-    public void adaptColumnCount() {
-        if (getGridView() != null) {
-            int screenLayout = getResources().getConfiguration().screenLayout;
-            screenLayout &= Configuration.SCREENLAYOUT_SIZE_MASK;
-            if (getResources().getConfiguration().orientation
-                    == Configuration.ORIENTATION_LANDSCAPE) {
-                if (screenLayout == Configuration.SCREENLAYOUT_SIZE_LARGE
-                        || screenLayout == 4) {
-                    getGridView().setNumColumns(4);
-                } else {
-                    getGridView().setNumColumns(3);
-                }
-            } else {
-                if (screenLayout == Configuration.SCREENLAYOUT_SIZE_LARGE
-                        || screenLayout == 4) {
-                    getGridView().setNumColumns(3);
-                } else {
-                    getGridView().setNumColumns(2);
-                }
-            }
-        }
     }
 
     /**

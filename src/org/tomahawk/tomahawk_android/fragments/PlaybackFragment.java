@@ -27,6 +27,7 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.AlbumArtSwipeAdapter;
 import org.tomahawk.tomahawk_android.adapters.PlaybackPagerAdapter;
+import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.CreatePlaylistDialog;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
@@ -322,7 +323,7 @@ public class PlaybackFragment extends TomahawkFragment {
             if (playbackService != null) {
                 ArrayList<TomahawkListItem> tracks = new ArrayList<TomahawkListItem>();
                 tracks.addAll(playbackService.getQueue().getQueries());
-                tomahawkListAdapter.setListItems(tracks);
+                tomahawkListAdapter.setSegments(new Segment(tracks));
                 tomahawkListAdapter.notifyDataSetChanged();
             }
         } else {
@@ -373,14 +374,15 @@ public class PlaybackFragment extends TomahawkFragment {
         if (playbackService != null) {
             List<TomahawkListItem> entries = new ArrayList<TomahawkListItem>();
             entries.addAll(playbackService.getQueue().getEntries());
+            Segment segment = new Segment(entries);
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
-                        layoutInflater, entries, this);
+                        layoutInflater, segment, this);
                 tomahawkListAdapter.setShowPlaystate(true);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setListItems(entries);
+                ((TomahawkListAdapter) getListAdapter()).setSegments(segment);
             }
         }
 

@@ -30,6 +30,7 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
@@ -246,23 +247,20 @@ public class SocialActionsFragment extends TomahawkFragment {
             }
             TomahawkListAdapter tomahawkListAdapter;
             getActivity().setTitle(mUser.getName());
+            Segment segment = new Segment(socialActions);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater,
-                        socialActions, this);
+                        segment, this);
                 tomahawkListAdapter.setShowResolvedBy(true);
-                tomahawkListAdapter.setShowCategoryHeaders(true);
                 if (mShowMode != SHOW_MODE_DASHBOARD) {
-                    tomahawkListAdapter.showContentHeaderUser(
-                            getActivity().getSupportFragmentManager(), rootView, mUser,
-                            mCollection, mButton1Listener, mButton2Listener, mButton3Listener,
-                            mButton4Listener);
+                    tomahawkListAdapter.showContentHeaderUser(rootView, mUser, mCollection,
+                            mButton1Listener, mButton2Listener, mButton3Listener, mButton4Listener);
                 }
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setListItems(socialActions);
+                ((TomahawkListAdapter) getListAdapter()).setSegments(segment);
                 if (mShowMode != SHOW_MODE_DASHBOARD) {
-                    ((TomahawkListAdapter) getListAdapter()).showContentHeaderUser(
-                            getActivity().getSupportFragmentManager(), rootView, mUser,
+                    ((TomahawkListAdapter) getListAdapter()).showContentHeaderUser(rootView, mUser,
                             mCollection, mButton1Listener, mButton2Listener, mButton3Listener,
                             mButton4Listener);
                 }

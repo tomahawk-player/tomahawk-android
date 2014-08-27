@@ -34,9 +34,11 @@
     <string name="artistsfragment_title_string">Artists</string>
     <string name="playlistsfragment_title_string">Playlists</string>
     <string name="userfragment_title_string">Users</string>
-    <string name="playlists_categoryheaders_string">Playlists</string>
-    <string name="tophits_categoryheaders_string">Top Hits</string>
-    <string name="recentlyplayed_categoryheaders_string">Recently Played</string>
+    <string name="segmentheader_tophits">TOP HITS</string>
+    <string name="segmentheader_topalbums">TOP ALBUMS</string>
+    <string name="segmentheader_recentlyplayed">RECENTLY PLAYED</string>
+    <string name="segmentheader_playlist">PLAYLIST DETAILS</string>
+    <string name="segmentheader_album">ALBUM DETAILS</string>
     <string name="searchfragment_title_string">Search</string>
     <string name="searchfragment_searchforonlinesources">Also search online</string>
     <string name="searchfragment_searchtype">Search for</string>

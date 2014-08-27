@@ -24,7 +24,7 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.adapters.TomahawkGridAdapter;
+import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.AdapterUtils;
@@ -139,32 +139,36 @@ public class AlbumsFragment extends TomahawkFragment {
             return;
         }
 
-        List<TomahawkListItem> albumsAndTopHits = new ArrayList<TomahawkListItem>();
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         View rootView = getView();
+        List<Segment> segments = new ArrayList<Segment>();
         if (mArtist != null) {
             activity.setTitle(mArtist.getName());
             if (mCollection != null) {
-                albumsAndTopHits.addAll(mCollection.getArtistAlbums(mArtist, true));
+                ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
+                items.addAll(mCollection.getArtistAlbums(mArtist, true));
+                segments.add(new Segment(items));
             } else {
+                ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
+                items.addAll(AdapterUtils.getArtistAlbums(mArtist, null));
+                segments.add(new Segment(R.string.segmentheader_topalbums, items, 2,
+                        R.dimen.padding_megalarge, R.dimen.padding_superlarge));
                 ArrayList<Query> topHits = AdapterUtils.getArtistTopHits(mArtist);
-                albumsAndTopHits.addAll(topHits);
-                albumsAndTopHits.addAll(AdapterUtils.getArtistAlbums(mArtist, null));
+                items = new ArrayList<TomahawkListItem>();
+                items.addAll(topHits);
+                segments.add(new Segment(R.string.segmentheader_tophits, items));
                 mShownQueries = topHits;
             }
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
-                        layoutInflater, albumsAndTopHits, this);
-                tomahawkListAdapter
-                        .setShowCategoryHeaders(true,
-                                TomahawkListAdapter.SHOW_QUERIES_AS_TOPHITS);
+                        layoutInflater, segments, this);
                 tomahawkListAdapter
                         .showContentHeader(rootView, mArtist, mCollection, mStarLoveButtonListener);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setListItems(albumsAndTopHits);
+                ((TomahawkListAdapter) getListAdapter()).setSegments(segments);
                 ((TomahawkListAdapter) getListAdapter())
                         .showContentHeader(rootView, mArtist, mCollection, mStarLoveButtonListener);
             }
@@ -173,24 +177,28 @@ public class AlbumsFragment extends TomahawkFragment {
             for (Album album : albums) {
                 mCurrentRequestIds.add(InfoSystem.getInstance().resolve(album));
             }
-            albumsAndTopHits.addAll(albums);
+            ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
+            items.addAll(albums);
+            segments.add(new Segment(items));
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
-                        layoutInflater, albumsAndTopHits, this);
+                        layoutInflater, segments, this);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setListItems(albumsAndTopHits);
+                ((TomahawkListAdapter) getListAdapter()).setSegments(segments);
             }
         } else {
-            albumsAndTopHits.addAll(mCollection.getAlbums());
-            if (getGridAdapter() == null) {
-                TomahawkGridAdapter tomahawkGridAdapter = new TomahawkGridAdapter(activity,
-                        layoutInflater, albumsAndTopHits, this);
-                setGridAdapter(tomahawkGridAdapter);
+            ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
+            items.addAll(mCollection.getAlbums());
+            segments.add(new Segment(items, 2, R.dimen.padding_megalarge,
+                    R.dimen.padding_superlarge));
+            if (getListAdapter() == null) {
+                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
+                        layoutInflater, segments, this);
+                setListAdapter(tomahawkListAdapter);
             } else {
-                getGridAdapter().setListArray(albumsAndTopHits);
+                ((TomahawkListAdapter) getListAdapter()).setSegments(segments);
             }
-            adaptColumnCount();
         }
 
         updateShowPlaystate();

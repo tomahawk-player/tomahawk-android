@@ -52,16 +52,11 @@ public class AdapterUtils {
     public static void fillContentHeader(Context context, ViewHolder viewHolder,
             final Album album, Collection collection) {
         if (viewHolder.getTextView1() != null) {
-            viewHolder.getTextView1().setText(album.getName());
+            viewHolder.getTextView1().setText(album.getName().toUpperCase());
         }
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
                 album.getImage(), Image.getLargeImageSize());
-        int tracksCount = getAlbumTracks(album, collection).size();
-        String s = album.getArtist().getName() + ", " + tracksCount + " "
-                + context.getString(R.string.category_header_track) + (tracksCount == 1 ? ""
-                : "s");
-        viewHolder.getTextView2().setText(s);
         if (DatabaseHelper.getInstance().isItemLoved(album)) {
             viewHolder.getStarLoveButton().setImageResource(R.drawable.ic_action_starred);
         } else {
@@ -73,24 +68,11 @@ public class AdapterUtils {
     public static void fillContentHeader(Context context, ViewHolder viewHolder,
             final Artist artist, Collection collection) {
         if (viewHolder.getTextView1() != null) {
-            viewHolder.getTextView1().setText(artist.getName());
+            viewHolder.getTextView1().setText(artist.getName().toUpperCase());
         }
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
-        TomahawkUtils
-                .loadImageIntoImageView(context, viewHolder.getImageView1(), artist.getImage(),
-                        Image.getLargeImageSize());
-        int topHitsCount = 0;
-        ArrayList<Query> topHits = AdapterUtils.getArtistTopHits(artist);
-        if (topHits != null) {
-            topHitsCount = topHits.size();
-        }
-        int albumsCount = getArtistAlbums(artist, collection).size();
-        String s = (collection != null ? "" : (topHitsCount + " "
-                + context.getString(R.string.category_header_tophit)
-                + (topHitsCount == 1 ? "" : "s") + ", ")) + albumsCount + " "
-                + context.getString(R.string.category_header_album)
-                + (albumsCount == 1 ? "" : "s");
-        viewHolder.getTextView2().setText(s);
+        TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(), artist.getImage(),
+                Image.getLargeImageSize());
         if (DatabaseHelper.getInstance().isItemLoved(artist)) {
             viewHolder.getStarLoveButton().setImageResource(R.drawable.ic_action_starred);
         } else {
@@ -103,12 +85,8 @@ public class AdapterUtils {
             Playlist playlist) {
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         if (viewHolder.getTextView1() != null) {
-            viewHolder.getTextView1().setText(playlist.getName());
+            viewHolder.getTextView1().setText(playlist.getName().toUpperCase());
         }
-        int tracksCount = playlist.getQueries().size();
-        String s = tracksCount + " " + context.getString(R.string.category_header_track)
-                + (tracksCount == 1 ? "" : "s");
-        viewHolder.getTextView2().setText(s);
         if (playlist.getContentHeaderArtists().size() > 0) {
             ArrayList<Artist> artistsWithImage = new ArrayList<Artist>();
             synchronized (playlist) {
@@ -168,9 +146,9 @@ public class AdapterUtils {
         viewHolder.getTextView3().setText("" + user.getTotalPlays());
         viewHolder.getTextView4().setText("" + user.getFollowCount());
         viewHolder.getTextView5().setText("" + user.getFollowersCount());
-        if (showFollowing){
+        if (showFollowing) {
             viewHolder.getButton4().setText(R.string.content_header_unfollow);
-        } else if (showNotFollowing){
+        } else if (showNotFollowing) {
             viewHolder.getButton4().setText(R.string.content_header_follow);
         } else {
             viewHolder.getButton4().setVisibility(View.GONE);
@@ -179,12 +157,11 @@ public class AdapterUtils {
 
     public static void fillContentHeader(Context context, ViewHolder viewHolder, Query query) {
         if (viewHolder.getTextView1() != null) {
-            viewHolder.getTextView1().setText(query.getName());
+            viewHolder.getTextView1().setText(query.getName().toUpperCase());
         }
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(), query.getImage(),
                 Image.getLargeImageSize());
-        viewHolder.getTextView2().setText(query.getArtist().getName());
         if (DatabaseHelper.getInstance().isItemLoved(query)) {
             viewHolder.getStarLoveButton().setImageResource(R.drawable.ic_action_loved);
         } else {
