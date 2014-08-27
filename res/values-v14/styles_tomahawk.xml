@@ -12,7 +12,7 @@
     </style>
 
     <style name="ActionBar.Transparent.Tomahawk" parent="@style/Widget.AppCompat.ActionBar">
-        <item name="android:background">@drawable/ab_transparent_tomahawk</item>
+        <item name="android:background">@android:color/transparent</item>
         <item name="android:progressBarStyle">@style/ProgressBar.Tomahawk</item>
     </style>
 
