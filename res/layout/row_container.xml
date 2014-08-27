@@ -18,14 +18,10 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<GridView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/gridview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fastScrollEnabled="true"
-        android:horizontalSpacing="@dimen/divider_height_thick"
-        android:listSelector="@android:color/transparent"
-        android:numColumns="auto_fit"
-        android:scrollbars="none"
-        android:verticalSpacing="@dimen/divider_height_thick"/>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:descendantFocusability="afterDescendants"
+              android:background="@color/primary_background">
+
+</LinearLayout>

@@ -26,6 +26,7 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
@@ -181,15 +182,16 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                     activity.setTitle(mPlaylist.getName());
                 }
                 playlistEntries.addAll(mPlaylist.getEntries());
+                Segment segment = new Segment(R.string.segmentheader_playlist, playlistEntries);
                 if (getListAdapter() == null) {
                     tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater,
-                            playlistEntries, this);
+                            segment, this);
                     tomahawkListAdapter.setShowResolvedBy(true);
                     tomahawkListAdapter.showContentHeader(rootView, mPlaylist, mCollection,
                             mStarLoveButtonListener);
                     setListAdapter(tomahawkListAdapter);
                 } else {
-                    ((TomahawkListAdapter) getListAdapter()).setListItems(playlistEntries);
+                    ((TomahawkListAdapter) getListAdapter()).setSegments(segment);
                     ((TomahawkListAdapter) getListAdapter()).showContentHeader(rootView,
                             mPlaylist, mCollection, mStarLoveButtonListener);
                 }

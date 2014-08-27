@@ -18,63 +18,39 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/content_header"
-              android:layout_width="match_parent"
-              android:layout_height="@dimen/header_height_large"
-              android:orientation="vertical">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:id="@+id/content_header"
+             android:layout_width="match_parent"
+             android:layout_height="@dimen/header_height_large"
+             android:orientation="vertical">
 
     <View android:layout_width="match_parent"
           android:layout_height="@dimen/header_clear_space"/>
 
-    <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="@drawable/above_shadow_darker">
+    <TextView
+            android:id="@+id/content_header_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:ellipsize="marquee"
+            android:singleLine="true"
+            android:textColor="@color/primary_textcolor_inverted"
+            android:textSize="@dimen/text_size_verylarge"
+            android:paddingTop="@dimen/padding_medium"
+            android:paddingBottom="@dimen/padding_medium"
+            android:paddingRight="@dimen/padding_large"
+            android:paddingLeft="@dimen/padding_large"
+            android:background="@color/tertiary_transparent"/>
 
-        <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="vertical">
+    <ImageButton
+            android:id="@+id/star_love_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:visibility="gone"
+            android:padding="@dimen/padding_medium"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_action_notstarred"/>
 
-            <TextView
-                    android:id="@+id/content_header_textview"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:gravity="center|left"
-                    android:ellipsize="marquee"
-                    android:singleLine="true"
-                    android:textColor="@color/primary_textcolor_inverted"
-                    android:textSize="@dimen/text_size_large"
-                    android:paddingLeft="@dimen/padding_small"/>
-
-            <TextView
-                    android:id="@+id/content_header_textview2"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:gravity="center|left"
-                    android:ellipsize="marquee"
-                    android:singleLine="true"
-                    android:textColor="@color/secondary_textcolor_inverted"
-                    android:textSize="@dimen/text_size_small"
-                    android:paddingLeft="@dimen/padding_small"/>
-
-        </LinearLayout>
-
-        <ImageButton
-                android:id="@+id/star_love_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="gone"
-                android:paddingRight="@dimen/padding_medium"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_action_notstarred"/>
-
-    </LinearLayout>
-
-</LinearLayout>
+</FrameLayout>

@@ -22,9 +22,14 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:minHeight="@dimen/row_height_verylarge"
+              android:paddingLeft="@dimen/padding_superlarge"
+              android:paddingRight="@dimen/padding_superlarge"
+              android:paddingTop="@dimen/padding_small"
+              android:paddingBottom="@dimen/padding_small"
               android:baselineAligned="false"
               android:orientation="horizontal"
-              android:descendantFocusability="afterDescendants">
+              android:descendantFocusability="afterDescendants"
+              android:background="@color/primary_background">
 
     <FrameLayout android:id="@+id/double_line_list_clickarea1"
                  android:layout_width="wrap_content"

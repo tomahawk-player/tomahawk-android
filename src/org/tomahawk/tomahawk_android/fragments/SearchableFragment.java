@@ -27,6 +27,7 @@ import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
@@ -198,12 +199,11 @@ public class SearchableFragment extends TomahawkFragment
         }
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
-                    layoutInflater, listItems, this);
-            tomahawkListAdapter.setShowCategoryHeaders(true);
+                    layoutInflater, new Segment(listItems), this);
             tomahawkListAdapter.setShowResolvedBy(true);
             setListAdapter(tomahawkListAdapter);
         } else {
-            ((TomahawkListAdapter) getListAdapter()).setListItems(listItems);
+            ((TomahawkListAdapter) getListAdapter()).setSegments(new Segment(listItems));
         }
 
         updateShowPlaystate();

@@ -26,6 +26,7 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.AdapterUtils;
@@ -158,59 +159,60 @@ public class TracksFragment extends TomahawkFragment {
         if (mAlbum != null) {
             activity.setTitle(mAlbum.getName());
             queries.addAll(AdapterUtils.getAlbumTracks(mAlbum, mCollection));
+            Segment segment = new Segment(R.string.segmentheader_album, queries);
             if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, queries,
+                tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
                 tomahawkListAdapter.setShowResolvedBy(true);
-                tomahawkListAdapter.setShowCategoryHeaders(true);
                 tomahawkListAdapter
                         .showContentHeader(rootView, mAlbum, mCollection, mStarLoveButtonListener);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setListItems(queries);
+                ((TomahawkListAdapter) getListAdapter()).setSegments(segment);
                 ((TomahawkListAdapter) getListAdapter())
                         .showContentHeader(rootView, mAlbum, mCollection, mStarLoveButtonListener);
             }
         } else if (mArtist != null) {
             activity.setTitle(mArtist.getName());
             queries.addAll(AdapterUtils.getArtistTracks(mArtist, mCollection));
+            Segment segment = new Segment(queries);
             if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, queries,
+                tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
                 tomahawkListAdapter.setShowResolvedBy(true);
-                tomahawkListAdapter.setShowCategoryHeaders(true);
                 tomahawkListAdapter
                         .showContentHeader(rootView, mArtist, mCollection, mStarLoveButtonListener);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setListItems(queries);
+                ((TomahawkListAdapter) getListAdapter()).setSegments(segment);
                 ((TomahawkListAdapter) getListAdapter())
                         .showContentHeader(rootView, mArtist, mCollection, mStarLoveButtonListener);
             }
         } else if (mQuery != null) {
             activity.setTitle(mQuery.getName());
             queries.add(mQuery);
+            Segment segment = new Segment(queries);
             if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, queries,
+                tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
                 tomahawkListAdapter.setShowResolvedBy(true);
-                tomahawkListAdapter.setShowCategoryHeaders(true);
                 tomahawkListAdapter
                         .showContentHeader(rootView, mQuery, mCollection, mStarLoveButtonListener);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setListItems(queries);
+                ((TomahawkListAdapter) getListAdapter()).setSegments(segment);
                 ((TomahawkListAdapter) getListAdapter())
                         .showContentHeader(rootView, mQuery, mCollection, mStarLoveButtonListener);
             }
         } else {
             queries.addAll(mCollection.getQueries());
+            Segment segment = new Segment(queries);
             if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, queries,
+                tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setListItems(queries);
+                ((TomahawkListAdapter) getListAdapter()).setSegments(segment);
             }
         }
 

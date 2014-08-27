@@ -21,52 +21,27 @@
 <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/row_height_medium"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:paddingTop="@dimen/padding_superlarge"
+        android:paddingLeft="@dimen/padding_superlarge"
+        android:paddingRight="@dimen/padding_superlarge"
         android:background="@color/primary_background">
 
-    <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/divider_height_thick"
-            android:background="@color/secondary_transparent"/>
-
-    <LinearLayout
+    <TextView
+            android:id="@+id/single_line_list_header_textview"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
-            android:orientation="horizontal"
-            android:layout_gravity="center"
-            android:paddingBottom="1dip"
-            android:paddingLeft="1dip"
-            android:paddingTop="1dip">
-
-        <org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout
-                android:id="@+id/single_line_list_header_icon_layout"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent">
-
-            <ImageView
-                    android:id="@+id/single_line_list_header_icon_imageview"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:adjustViewBounds="false"
-                    android:scaleType="centerCrop"/>
-        </org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout>
-
-        <TextView
-                android:id="@+id/single_line_list_header_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:ellipsize="marquee"
-                android:paddingLeft="2dp"
-                android:singleLine="true"
-                android:textColor="@color/primary_textcolor"
-                android:textSize="@dimen/text_size_micro"/>
-
-    </LinearLayout>
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingBottom="@dimen/padding_verysmall"
+            android:ellipsize="marquee"
+            android:singleLine="true"
+            android:textColor="@color/secondary_textcolor"
+            android:textSize="@dimen/text_size_micro"/>
 
     <View
             android:layout_width="match_parent"
-            android:layout_height="@dimen/divider_height_thick"
-            android:background="@color/secondary_transparent"/>
+            android:layout_height="1px"
+            android:background="@color/secondary_background"/>
+
 </LinearLayout>

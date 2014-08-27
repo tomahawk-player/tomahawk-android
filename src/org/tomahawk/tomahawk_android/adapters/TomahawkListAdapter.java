@@ -22,9 +22,9 @@ import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
+import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
-import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -38,14 +38,18 @@ import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.res.Configuration;
-import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
@@ -54,15 +58,13 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
  */
 public class TomahawkListAdapter extends BaseAdapter implements StickyListHeadersAdapter {
 
-    public static final int SHOW_QUERIES_AS_TOPHITS = 0;
-
-    public static final int SHOW_QUERIES_AS_RECENTLYPLAYED = 1;
-
     private TomahawkMainActivity mActivity;
 
-    private FragmentManager mFragmentManager;
+    private Map<View, List<ViewHolder>> mViewHolderMap = new HashMap<View, List<ViewHolder>>();
 
-    private List<TomahawkListItem> mListItems;
+    private List<Segment> mSegments;
+
+    private int mRowCount;
 
     private MultiColumnClickListener mClickListener;
 
@@ -77,10 +79,6 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
     private MultiColumnClickListener mButton4Listener;
 
     private LayoutInflater mLayoutInflater;
-
-    private boolean mShowCategoryHeaders = false;
-
-    private int mShowQueriesAs = -1;
 
     private TomahawkListItem mContentHeaderTomahawkListItem;
 
@@ -110,36 +108,45 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
      * Constructs a new {@link TomahawkListAdapter}.
      */
     public TomahawkListAdapter(TomahawkMainActivity activity, LayoutInflater layoutInflater,
-            List<TomahawkListItem> listItems, MultiColumnClickListener clickListener) {
+            List<Segment> segments, MultiColumnClickListener clickListener) {
         mActivity = activity;
         mLayoutInflater = layoutInflater;
-        mListItems = listItems;
         mClickListener = clickListener;
+        setSegments(segments);
     }
 
     /**
-     * Set the complete list of lists
+     * Constructs a new {@link TomahawkListAdapter}.
      */
-    public void setListItems(List<TomahawkListItem> listItems) {
-        mListItems = listItems;
+    public TomahawkListAdapter(TomahawkMainActivity activity, LayoutInflater layoutInflater,
+            Segment segment, MultiColumnClickListener clickListener) {
+        mActivity = activity;
+        mLayoutInflater = layoutInflater;
+        mClickListener = clickListener;
+        setSegments(segment);
+    }
+
+    /**
+     * Set the complete list of {@link Segment}
+     */
+    public void setSegments(List<Segment> segments) {
+        mSegments = segments;
+        mRowCount = 0;
+        for (Segment segment : mSegments) {
+            mRowCount += segment.size();
+        }
         notifyDataSetChanged();
     }
 
     /**
-     * Set whether or not a header should be shown above each "category". Like "Albums", "Tracks"
-     * etc.
+     * Set the complete list of {@link Segment}
      */
-    public void setShowCategoryHeaders(boolean showCategoryHeaders) {
-        mShowCategoryHeaders = showCategoryHeaders;
-    }
-
-    /**
-     * Set whether or not a header should be shown above each "category". Like "Albums", "Tracks"
-     * etc.
-     */
-    public void setShowCategoryHeaders(boolean showCategoryHeaders, int showQueriesAs) {
-        mShowCategoryHeaders = showCategoryHeaders;
-        mShowQueriesAs = showQueriesAs;
+    public void setSegments(Segment segment) {
+        ArrayList<Segment> segments = new ArrayList<Segment>();
+        segments.add(segment);
+        mSegments = segments;
+        mRowCount = segment.size();
+        notifyDataSetChanged();
     }
 
     /**
@@ -156,23 +163,21 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
     public void showContentHeader(View rootView, TomahawkListItem listItem, Collection collection,
             MultiColumnClickListener starLoveButtonListener) {
         mStarLoveButtonListener = starLoveButtonListener;
-        showContentHeader(null, rootView, listItem, collection);
+        showContentHeader(rootView, listItem, collection);
     }
 
-    public void showContentHeaderUser(FragmentManager fragmentManager, View rootView, User user,
-            Collection collection, MultiColumnClickListener button1Listener,
-            MultiColumnClickListener button2Listener, MultiColumnClickListener button3Listener,
-            MultiColumnClickListener button4Listener) {
+    public void showContentHeaderUser(View rootView, User user, Collection collection,
+            MultiColumnClickListener button1Listener, MultiColumnClickListener button2Listener,
+            MultiColumnClickListener button3Listener, MultiColumnClickListener button4Listener) {
         mButton1Listener = button1Listener;
         mButton2Listener = button2Listener;
         mButton3Listener = button3Listener;
         mButton4Listener = button4Listener;
-        showContentHeader(fragmentManager, rootView, user, collection);
+        showContentHeader(rootView, user, collection);
     }
 
-    private void showContentHeader(FragmentManager fragmentManager, View rootView,
-            TomahawkListItem listItem, Collection collection) {
-        mFragmentManager = fragmentManager;
+    private void showContentHeader(View rootView, TomahawkListItem listItem,
+            Collection collection) {
         mContentHeaderTomahawkListItem = listItem;
         mCollection = collection;
         mIsLandscapeMode = mActivity.getResources().getConfiguration().orientation
@@ -273,154 +278,216 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = null;
-        final TomahawkListItem item = (TomahawkListItem) getItem(position);
+        final Object o = getItem(position);
 
-        if (item != null) {
+        if (o != null) {
             boolean shouldBeHighlighted = false;
-            if (item instanceof SocialAction) {
+            if (o instanceof SocialAction) {
                 shouldBeHighlighted = mShowPlaystate && mHighlightedQuery != null
-                        && ((SocialAction) item).getQuery() == mHighlightedQuery;
-            } else if (item instanceof PlaylistEntry) {
+                        && ((SocialAction) o).getQuery() == mHighlightedQuery;
+            } else if (o instanceof PlaylistEntry) {
                 shouldBeHighlighted = mShowPlaystate && mHighlightedPlaylistEntry != null
-                        && item == mHighlightedPlaylistEntry;
-            } else if (item instanceof Query) {
+                        && o == mHighlightedPlaylistEntry;
+            } else if (o instanceof Query) {
                 shouldBeHighlighted = mShowPlaystate && mHighlightedQuery != null
-                        && item == mHighlightedQuery;
+                        && o == mHighlightedQuery;
             }
 
-            ViewHolder viewHolder = null;
+            List<ViewHolder> viewHolders = new ArrayList<ViewHolder>();
             if (convertView != null) {
-                viewHolder = (ViewHolder) convertView.getTag();
+                viewHolders = mViewHolderMap.get(convertView);
                 view = convertView;
             }
-            int viewType = getViewType(item, shouldBeHighlighted,
-                    item == mContentHeaderTomahawkListItem && position == 0);
-            if (viewHolder == null || viewHolder.getLayoutId() != viewType) {
+            int viewType = getViewType(o, shouldBeHighlighted,
+                    o == mContentHeaderTomahawkListItem && position == 0);
+            int expectedViewHoldersCount = o instanceof List ? ((List) o).size() : 1;
+            if (viewHolders.size() != expectedViewHoldersCount
+                    || viewHolders.get(0).getLayoutId() != viewType) {
                 // If the viewHolder is null or the old viewType is different than the new one,
                 // we need to inflate a new view and construct a new viewHolder,
                 // which we set as the view's tag
-                view = mLayoutInflater.inflate(viewType, parent, false);
-                viewHolder = new ViewHolder(mContentHeaderImageFrame, view, viewType);
-                view.setTag(viewHolder);
+                viewHolders = new ArrayList<ViewHolder>();
+                if (o instanceof List) {
+                    LinearLayout rowContainer = (LinearLayout) mLayoutInflater
+                            .inflate(R.layout.row_container, parent, false);
+                    int horizontalPadding = getSegment(position).getHorizontalPadding() / 2;
+                    rowContainer.setPadding(0, 0, 0, horizontalPadding);
+                    for (int i = 0; i < ((List) o).size(); i++) {
+                        View gridItem = mLayoutInflater.inflate(viewType, rowContainer, false);
+                        int verticalPadding = getSegment(position).getVerticalPadding();
+                        int leftPadding = verticalPadding / 2;
+                        if (i == 0) {
+                            leftPadding = verticalPadding;
+                        }
+                        int rightPadding = verticalPadding / 2;
+                        if (i == ((List) o).size() - 1) {
+                            rightPadding = verticalPadding;
+                        }
+                        gridItem.setPadding(leftPadding, verticalPadding / 2, rightPadding,
+                                verticalPadding / 2);
+                        ViewHolder viewHolder =
+                                new ViewHolder(mContentHeaderImageFrame, gridItem, viewType);
+                        rowContainer.addView(gridItem);
+                        viewHolders.add(viewHolder);
+                    }
+                    view = rowContainer;
+                } else {
+                    view = mLayoutInflater.inflate(viewType, parent, false);
+                    ViewHolder viewHolder =
+                            new ViewHolder(mContentHeaderImageFrame, view, viewType);
+                    viewHolders.add(viewHolder);
+                }
+                mViewHolderMap.put(view, viewHolders);
             } else if (viewType == R.layout.list_item
                     || viewType == R.layout.list_item_highlighted) {
-                viewHolder.getImageView1().setVisibility(View.GONE);
-                viewHolder.getImageView2().setVisibility(View.GONE);
-                viewHolder.getTextView2().setVisibility(View.GONE);
-                viewHolder.getTextView3().setVisibility(View.GONE);
-                viewHolder.getTextView4().setVisibility(View.GONE);
-                viewHolder.getTextView5().setVisibility(View.GONE);
+                for (ViewHolder viewHolder : viewHolders) {
+                    viewHolder.getImageView1().setVisibility(View.GONE);
+                    viewHolder.getImageView2().setVisibility(View.GONE);
+                    viewHolder.getTextView2().setVisibility(View.GONE);
+                    viewHolder.getTextView3().setVisibility(View.GONE);
+                    viewHolder.getTextView4().setVisibility(View.GONE);
+                    viewHolder.getTextView5().setVisibility(View.GONE);
+                }
             }
 
             // After we've setup the correct view and viewHolder, we now can fill the View's
             // components with the correct data
-            if (viewHolder.getLayoutId() == R.layout.content_header
-                    || viewHolder.getLayoutId() == R.layout.content_header_user) {
-                if (mContentHeaderTomahawkListItem instanceof Album) {
-                    AdapterUtils.fillContentHeader(mActivity, viewHolder,
-                            (Album) mContentHeaderTomahawkListItem, mCollection);
-                } else if (mContentHeaderTomahawkListItem instanceof Artist) {
-                    AdapterUtils.fillContentHeader(mActivity, viewHolder,
-                            (Artist) mContentHeaderTomahawkListItem, mCollection);
-                } else if (mContentHeaderTomahawkListItem instanceof Playlist) {
-                    AdapterUtils.fillContentHeader(mActivity, viewHolder,
-                            (Playlist) mContentHeaderTomahawkListItem);
-                } else if (mContentHeaderTomahawkListItem instanceof User) {
-                    HatchetAuthenticatorUtils authUtils =
-                            (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-                    boolean showFollowing =
-                            mContentHeaderTomahawkListItem != authUtils.getLoggedInUser()
-                                    && (mShowFakeFollowing
-                                    || authUtils.getLoggedInUser().getFollowings()
-                                    .containsKey(mContentHeaderTomahawkListItem));
-                    boolean showNotFollowing =
-                            mContentHeaderTomahawkListItem != authUtils.getLoggedInUser()
-                                    && (mShowFakeNotFollowing
-                                    || !authUtils.getLoggedInUser().getFollowings()
-                                    .containsKey(mContentHeaderTomahawkListItem));
-                    AdapterUtils.fillContentHeader(mActivity, viewHolder,
-                            (User) mContentHeaderTomahawkListItem, showFollowing, showNotFollowing);
-                } else if (mContentHeaderTomahawkListItem instanceof Query) {
-                    AdapterUtils.fillContentHeader(mActivity, viewHolder,
-                            (Query) mContentHeaderTomahawkListItem);
-                }
-            } else if (viewHolder.getLayoutId() == R.layout.single_line_list_item) {
-                viewHolder.getTextView1().setText(item.getName());
-            } else if (viewHolder.getLayoutId() == R.layout.list_item
-                    || viewHolder.getLayoutId() == R.layout.list_item_highlighted) {
-                if (item instanceof Query) {
-                    AdapterUtils.fillView(mActivity, viewHolder, (Query) item,
-                            mHighlightedItemIsPlaying && shouldBeHighlighted, mShowResolvedBy);
-                } else if (item instanceof PlaylistEntry) {
-                    AdapterUtils.fillView(mActivity, viewHolder, ((PlaylistEntry) item).getQuery(),
-                            mHighlightedItemIsPlaying && shouldBeHighlighted, mShowResolvedBy);
-                } else if (item instanceof Album) {
-                    AdapterUtils.fillView(mActivity, viewHolder, (Album) item);
-                } else if (item instanceof Artist) {
-                    AdapterUtils.fillView(mActivity, viewHolder, (Artist) item);
-                } else if (item instanceof User) {
-                    AdapterUtils.fillView(mActivity, viewHolder, (User) item);
-                } else if (item instanceof SocialAction) {
-                    AdapterUtils.fillView(mActivity, viewHolder, (SocialAction) item,
-                            mHighlightedItemIsPlaying && shouldBeHighlighted, mShowResolvedBy);
-                }
-            }
-
-            //Set up the click listeners
-            if (viewHolder.getLayoutId() == R.layout.content_header
-                    || viewHolder.getLayoutId() == R.layout.content_header_user) {
-                if (mStarLoveButtonListener != null) {
-                    viewHolder.getStarLoveButton().setOnClickListener(
-                            new ClickListener(mContentHeaderTomahawkListItem,
-                                    mStarLoveButtonListener));
-                    viewHolder.getStarLoveButton().setOnLongClickListener(
-                            new ClickListener(mContentHeaderTomahawkListItem,
-                                    mStarLoveButtonListener));
-                }
-                if (mButton1Listener != null) {
-                    viewHolder.getButton1().setOnClickListener(
-                            new ClickListener(mContentHeaderTomahawkListItem, mButton1Listener));
-                    viewHolder.getButton1().setOnLongClickListener(
-                            new ClickListener(mContentHeaderTomahawkListItem, mButton1Listener));
-                }
-                if (mButton2Listener != null) {
-                    viewHolder.getButton2().setOnClickListener(
-                            new ClickListener(mContentHeaderTomahawkListItem, mButton2Listener));
-                    viewHolder.getButton2().setOnLongClickListener(
-                            new ClickListener(mContentHeaderTomahawkListItem, mButton2Listener));
-                }
-                if (mButton3Listener != null) {
-                    viewHolder.getButton3().setOnClickListener(
-                            new ClickListener(mContentHeaderTomahawkListItem, mButton3Listener));
-                    viewHolder.getButton3().setOnLongClickListener(
-                            new ClickListener(mContentHeaderTomahawkListItem, mButton3Listener));
-                }
-                if (mButton4Listener != null) {
-                    viewHolder.getButton4().setOnClickListener(
-                            new ClickListener(mContentHeaderTomahawkListItem, mButton4Listener));
-                    viewHolder.getButton4().setOnLongClickListener(
-                            new ClickListener(mContentHeaderTomahawkListItem, mButton4Listener));
-                }
-            } else if (viewHolder.getLayoutId() == R.layout.list_item
-                    || viewHolder.getLayoutId() == R.layout.list_item_highlighted) {
-                if (item instanceof SocialAction || item instanceof User) {
-                    User user;
-                    if (item instanceof SocialAction) {
-                        user = ((SocialAction) item).getUser();
-                    } else {
-                        user = (User) item;
+            for (int i = 0; i < viewHolders.size(); i++) {
+                ViewHolder viewHolder = viewHolders.get(i);
+                TomahawkListItem item = o instanceof List ? (TomahawkListItem) ((List) o).get(i)
+                        : (TomahawkListItem) o;
+                if (viewHolder.getLayoutId() == R.layout.album_art_grid_item) {
+                    viewHolder.getTextView1().setText(item.getName());
+                    viewHolder.getTextView2().setVisibility(View.VISIBLE);
+                    viewHolder.getTextView2().setText(item.getArtist()
+                            .getName());
+                    if (item instanceof Album || item instanceof Artist) {
+                        TomahawkUtils.loadImageIntoImageView(mActivity,
+                                viewHolder.getImageView1(),
+                                item.getImage(),
+                                Image.getSmallImageSize());
                     }
-                    viewHolder.getClickArea1().setOnClickListener(
-                            new ClickListener(user, mClickListener));
-                    viewHolder.getClickArea1().setOnLongClickListener(
-                            new ClickListener(user, mClickListener));
                 }
+                if (viewHolder.getLayoutId() == R.layout.content_header
+                        || viewHolder.getLayoutId() == R.layout.content_header_user) {
+                    if (mContentHeaderTomahawkListItem instanceof Album) {
+                        AdapterUtils.fillContentHeader(mActivity, viewHolder,
+                                (Album) mContentHeaderTomahawkListItem, mCollection);
+                    } else if (mContentHeaderTomahawkListItem instanceof Artist) {
+                        AdapterUtils.fillContentHeader(mActivity, viewHolder,
+                                (Artist) mContentHeaderTomahawkListItem, mCollection);
+                    } else if (mContentHeaderTomahawkListItem instanceof Playlist) {
+                        AdapterUtils.fillContentHeader(mActivity, viewHolder,
+                                (Playlist) mContentHeaderTomahawkListItem);
+                    } else if (mContentHeaderTomahawkListItem instanceof User) {
+                        HatchetAuthenticatorUtils authUtils =
+                                (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                                        .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+                        boolean showFollowing =
+                                mContentHeaderTomahawkListItem != authUtils.getLoggedInUser()
+                                        && (mShowFakeFollowing
+                                        || authUtils.getLoggedInUser().getFollowings()
+                                        .containsKey(mContentHeaderTomahawkListItem));
+                        boolean showNotFollowing =
+                                mContentHeaderTomahawkListItem != authUtils.getLoggedInUser()
+                                        && (mShowFakeNotFollowing
+                                        || !authUtils.getLoggedInUser().getFollowings()
+                                        .containsKey(mContentHeaderTomahawkListItem));
+                        AdapterUtils.fillContentHeader(mActivity, viewHolder,
+                                (User) mContentHeaderTomahawkListItem, showFollowing,
+                                showNotFollowing);
+                    } else if (mContentHeaderTomahawkListItem instanceof Query) {
+                        AdapterUtils.fillContentHeader(mActivity, viewHolder,
+                                (Query) mContentHeaderTomahawkListItem);
+                    }
+                } else if (viewHolder.getLayoutId() == R.layout.single_line_list_item) {
+                    viewHolder.getTextView1().setText(item.getName());
+                } else if (viewHolder.getLayoutId() == R.layout.list_item
+                        || viewHolder.getLayoutId() == R.layout.list_item_highlighted) {
+                    if (item instanceof Query) {
+                        AdapterUtils.fillView(mActivity, viewHolder, (Query) item,
+                                mHighlightedItemIsPlaying && shouldBeHighlighted, mShowResolvedBy);
+                    } else if (item instanceof PlaylistEntry) {
+                        AdapterUtils
+                                .fillView(mActivity, viewHolder,
+                                        ((PlaylistEntry) item).getQuery(),
+                                        mHighlightedItemIsPlaying && shouldBeHighlighted,
+                                        mShowResolvedBy);
+                    } else if (item instanceof Album) {
+                        AdapterUtils.fillView(mActivity, viewHolder, (Album) item);
+                    } else if (item instanceof Artist) {
+                        AdapterUtils.fillView(mActivity, viewHolder, (Artist) item);
+                    } else if (item instanceof User) {
+                        AdapterUtils.fillView(mActivity, viewHolder, (User) item);
+                    } else if (item instanceof SocialAction) {
+                        AdapterUtils.fillView(mActivity, viewHolder, (SocialAction) item,
+                                mHighlightedItemIsPlaying && shouldBeHighlighted, mShowResolvedBy);
+                    }
+                }
+
+                //Set up the click listeners
+                if (viewHolder.getLayoutId() == R.layout.content_header
+                        || viewHolder.getLayoutId() == R.layout.content_header_user) {
+                    if (mStarLoveButtonListener != null) {
+                        viewHolder.getStarLoveButton().setOnClickListener(
+                                new ClickListener(mContentHeaderTomahawkListItem,
+                                        mStarLoveButtonListener));
+                        viewHolder.getStarLoveButton().setOnLongClickListener(
+                                new ClickListener(mContentHeaderTomahawkListItem,
+                                        mStarLoveButtonListener));
+                    }
+                    if (mButton1Listener != null) {
+                        viewHolder.getButton1().setOnClickListener(
+                                new ClickListener(mContentHeaderTomahawkListItem,
+                                        mButton1Listener));
+                        viewHolder.getButton1().setOnLongClickListener(
+                                new ClickListener(mContentHeaderTomahawkListItem,
+                                        mButton1Listener));
+                    }
+                    if (mButton2Listener != null) {
+                        viewHolder.getButton2().setOnClickListener(
+                                new ClickListener(mContentHeaderTomahawkListItem,
+                                        mButton2Listener));
+                        viewHolder.getButton2().setOnLongClickListener(
+                                new ClickListener(mContentHeaderTomahawkListItem,
+                                        mButton2Listener));
+                    }
+                    if (mButton3Listener != null) {
+                        viewHolder.getButton3().setOnClickListener(
+                                new ClickListener(mContentHeaderTomahawkListItem,
+                                        mButton3Listener));
+                        viewHolder.getButton3().setOnLongClickListener(
+                                new ClickListener(mContentHeaderTomahawkListItem,
+                                        mButton3Listener));
+                    }
+                    if (mButton4Listener != null) {
+                        viewHolder.getButton4().setOnClickListener(
+                                new ClickListener(mContentHeaderTomahawkListItem,
+                                        mButton4Listener));
+                        viewHolder.getButton4().setOnLongClickListener(
+                                new ClickListener(mContentHeaderTomahawkListItem,
+                                        mButton4Listener));
+                    }
+                } else if (viewHolder.getLayoutId() == R.layout.list_item
+                        || viewHolder.getLayoutId() == R.layout.list_item_highlighted) {
+                    if (item instanceof SocialAction || item instanceof User) {
+                        User user;
+                        if (item instanceof SocialAction) {
+                            user = ((SocialAction) item).getUser();
+                        } else {
+                            user = (User) item;
+                        }
+                        viewHolder.getClickArea1().setOnClickListener(
+                                new ClickListener(user, mClickListener));
+                        viewHolder.getClickArea1().setOnLongClickListener(
+                                new ClickListener(user, mClickListener));
+                    }
+                }
+                viewHolder.getMainClickArea().setOnClickListener(
+                        new ClickListener(item, mClickListener));
+                viewHolder.getMainClickArea().setOnLongClickListener(
+                        new ClickListener(item, mClickListener));
             }
-            viewHolder.getMainClickArea()
-                    .setOnClickListener(new ClickListener(item, mClickListener));
-            viewHolder.getMainClickArea()
-                    .setOnLongClickListener(new ClickListener(item, mClickListener));
         }
         return view;
     }
@@ -434,7 +501,7 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
         if (!mIsLandscapeMode && mContentHeaderTomahawkListItem != null) {
             correction = 1;
         }
-        return mListItems.size() + correction;
+        return mRowCount + correction;
     }
 
     /**
@@ -448,7 +515,34 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
         if (position < 0) {
             return mContentHeaderTomahawkListItem;
         }
-        return mListItems.get(position);
+        int counter = 0;
+        int correctedPos = position;
+        for (Segment segment : mSegments) {
+            counter += segment.size();
+            if (position < counter) {
+                return segment.get(correctedPos);
+            } else {
+                correctedPos -= counter;
+            }
+        }
+        return null;
+    }
+
+    public Segment getSegment(int position) {
+        if (!mIsLandscapeMode && mContentHeaderTomahawkListItem != null) {
+            position--;
+        }
+        if (position < 0) {
+            return null;
+        }
+        int counter = 0;
+        for (Segment segment : mSegments) {
+            counter += segment.size();
+            if (position < counter) {
+                return segment;
+            }
+        }
+        return null;
     }
 
     /**
@@ -470,8 +564,8 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
      */
     @Override
     public View getHeaderView(int position, View convertView, ViewGroup parent) {
-        TomahawkListItem item = (TomahawkListItem) getItem(position);
-        if (mShowCategoryHeaders && item != null && item != mContentHeaderTomahawkListItem) {
+        int headerStringResId = (int) getHeaderId(position);
+        if (headerStringResId > 0) {
             View view = null;
             ViewHolder viewHolder = null;
             if (convertView != null) {
@@ -485,45 +579,11 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
                 view.setTag(viewHolder);
             }
 
-            if (item instanceof Track || item instanceof Query) {
-                if (mShowQueriesAs == SHOW_QUERIES_AS_TOPHITS) {
-                    TomahawkUtils.loadDrawableIntoImageView(mActivity,
-                            viewHolder.getImageView1(), R.drawable.ic_action_tophits);
-                    viewHolder.getTextView1().setText(R.string.tophits_categoryheaders_string);
-                } else if (mShowQueriesAs == SHOW_QUERIES_AS_RECENTLYPLAYED) {
-                    TomahawkUtils.loadDrawableIntoImageView(mActivity,
-                            viewHolder.getImageView1(), R.drawable.ic_action_time);
-                    viewHolder.getTextView1()
-                            .setText(R.string.recentlyplayed_categoryheaders_string);
-                } else {
-                    TomahawkUtils.loadDrawableIntoImageView(mActivity,
-                            viewHolder.getImageView1(), R.drawable.ic_action_track);
-                    viewHolder.getTextView1().setText(R.string.tracksfragment_title_string);
-                }
-            } else if (item instanceof Artist) {
-                TomahawkUtils.loadDrawableIntoImageView(mActivity,
-                        viewHolder.getImageView1(), R.drawable.ic_action_artist);
-                viewHolder.getTextView1().setText(R.string.artistsfragment_title_string);
-            } else if (item instanceof Album) {
-                TomahawkUtils.loadDrawableIntoImageView(mActivity,
-                        viewHolder.getImageView1(), R.drawable.ic_action_album);
-                viewHolder.getTextView1().setText(R.string.albumsfragment_title_string);
-            } else if (item instanceof Playlist) {
-                TomahawkUtils.loadDrawableIntoImageView(mActivity,
-                        viewHolder.getImageView1(), R.drawable.ic_action_playlist);
-                viewHolder.getTextView1()
-                        .setText(R.string.playlists_categoryheaders_string);
-            } else if (item instanceof User) {
-                TomahawkUtils.loadDrawableIntoImageView(mActivity,
-                        viewHolder.getImageView1(), R.drawable.ic_action_friends);
-                viewHolder.getTextView1().setText(R.string.userfragment_title_string);
-            } else if (item instanceof SocialAction) {
-                TomahawkUtils.loadDrawableIntoImageView(mActivity,
-                        viewHolder.getImageView1(), R.drawable.ic_action_trending);
-                viewHolder.getTextView1().setText(R.string.category_header_activityfeed);
-            }
+            viewHolder.getTextView1().setText(headerStringResId);
+            Log.d("test", "getHeaderView - pos: " + position + " returned non-empty view");
             return view;
         } else {
+            Log.d("test", "getHeaderView - pos: " + position + " returned empty view");
             return new View(mActivity);
         }
     }
@@ -537,41 +597,22 @@ public class TomahawkListAdapter extends BaseAdapter implements StickyListHeader
      */
     @Override
     public long getHeaderId(int position) {
-        Object item = getItem(position);
-        if (item == mContentHeaderTomahawkListItem) {
-            return 9;
-        } else if (item instanceof Album) {
-            return 1;
-        } else if (item instanceof Artist) {
-            return 2;
-        } else if (item instanceof Query) {
-            return 3;
-        } else if (item instanceof SocialAction) {
-            return 4;
-        } else if (item instanceof User) {
-            return 5;
-        } else if (item instanceof Track) {
-            return 6;
-        } else if (item instanceof Playlist) {
-            return 7;
+        Segment segment = getSegment(position);
+        if (segment != null) {
+            Log.d("test", "getHeaderId - pos: " + position + ", id: " + getSegment(position)
+                    .getHeaderStringResId());
+            return getSegment(position).getHeaderStringResId();
         } else {
             return 0;
         }
     }
 
-    /**
-     * @return the {@link TomahawkListItem} shown in the content header
-     */
-    public TomahawkListItem getContentHeaderTomahawkListItem() {
-        return mContentHeaderTomahawkListItem;
-    }
-
-    public boolean isShowingContentHeader() {
-        return !mIsLandscapeMode && mContentHeaderTomahawkListItem != null;
-    }
-
-    private int getViewType(TomahawkListItem item, boolean isHighlighted,
+    private int getViewType(Object item, boolean isHighlighted,
             boolean isContentHeaderItem) {
+        if (item instanceof List) {
+            //We have a grid item
+            return R.layout.album_art_grid_item;
+        }
         if (isContentHeaderItem) {
             if (item instanceof User) {
                 return R.layout.content_header_user;

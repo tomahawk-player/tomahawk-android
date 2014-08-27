@@ -18,44 +18,59 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical"
+              android:layout_weight="1">
 
-    <ImageView
-            android:id="@+id/album_art_grid_image"
+    <org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"/>
+            android:layout_height="wrap_content">
+
+        <ImageView
+                android:id="@+id/album_art_grid_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"/>
+
+    </org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout>
 
     <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/row_height_large"
-            android:layout_alignParentBottom="true"
-            android:background="@drawable/selectable_background_tomahawk_griditem"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/padding_small"
+            android:paddingBottom="@dimen/padding_small"
+            android:background="@drawable/selectable_background_tomahawk"
             android:gravity="center_vertical"
             android:orientation="vertical">
 
-        <TextView
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/album_art_grid_textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="marquee"
-                android:singleLine="true"
-                android:textColor="@color/primary_textcolor"
-                android:textSize="@dimen/text_size_large"/>
+        <TextView android:id="@+id/album_art_grid_textView"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:ellipsize="marquee"
+                  android:singleLine="true"
+                  android:textColor="@color/primary_textcolor"
+                  android:textSize="@dimen/text_size_medium"
+                  android:textStyle="bold"/>
 
-        <TextView
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/album_art_grid_textView2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="marquee"
-                android:singleLine="true"
-                android:textColor="@color/secondary_textcolor"
-                android:textSize="@dimen/text_size_small"/>
+        <TextView android:id="@+id/album_art_grid_textView2"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:ellipsize="marquee"
+                  android:singleLine="true"
+                  android:textColor="@color/primary_textcolor"
+                  android:textSize="@dimen/text_size_micro"/>
+
+        <TextView android:id="@+id/album_art_grid_textView3"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:ellipsize="marquee"
+                  android:singleLine="true"
+                  android:textColor="@color/secondary_textcolor"
+                  android:textSize="@dimen/text_size_micro"
+                  android:text="10 Songs"/>
+
     </LinearLayout>
 
-</org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout>
+</LinearLayout>

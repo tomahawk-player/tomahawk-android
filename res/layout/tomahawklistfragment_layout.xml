@@ -103,17 +103,6 @@
             android:id="@+id/fragmentLayout_listLayout_frameLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true">
-    </FrameLayout>
-
-    <FrameLayout
-            android:id="@+id/fragmentLayout_gridLayout_frameLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:paddingLeft="@dimen/padding_large"
-            android:paddingRight="@dimen/padding_large"
-            android:layout_alignParentStart="true">
-    </FrameLayout>
+            android:layout_alignParentStart="true"/>
 
 </RelativeLayout>

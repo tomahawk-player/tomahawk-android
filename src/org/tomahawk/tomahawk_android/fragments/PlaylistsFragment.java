@@ -21,6 +21,7 @@ import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.CreatePlaylistDialog;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
@@ -81,14 +82,13 @@ public class PlaylistsFragment extends TomahawkFragment {
 
         List<TomahawkListItem> playlists = new ArrayList<TomahawkListItem>();
         playlists.addAll(CollectionManager.getInstance().getPlaylists());
+        Segment segment = new Segment(playlists);
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(
-                    (TomahawkMainActivity) getActivity(),
-                    layoutInflater, playlists, this);
+                    (TomahawkMainActivity) getActivity(), layoutInflater, segment, this);
             setListAdapter(tomahawkListAdapter);
-            tomahawkListAdapter.setShowCategoryHeaders(true);
         } else {
-            ((TomahawkListAdapter) getListAdapter()).setListItems(playlists);
+            ((TomahawkListAdapter) getListAdapter()).setSegments(segment);
         }
     }
 

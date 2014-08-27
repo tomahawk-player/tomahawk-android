@@ -149,8 +149,6 @@ public class ViewHolder {
             mClickArea1 = rootView
                     .findViewById(R.id.double_line_list_clickarea1);
         } else if (layoutId == R.layout.single_line_list_header) {
-            mImageView1 = (ImageView) rootView
-                    .findViewById(R.id.single_line_list_header_icon_imageview);
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.single_line_list_header_textview);
         } else if (layoutId == R.layout.fake_preferences_plain) {
