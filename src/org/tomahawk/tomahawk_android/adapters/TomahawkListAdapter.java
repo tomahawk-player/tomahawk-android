@@ -297,7 +297,15 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
             }
             int viewType = getViewType(o, shouldBeHighlighted,
                     o == mContentHeaderTomahawkListItem && position == 0);
-            int expectedViewHoldersCount = o instanceof List ? ((List) o).size() : 1;
+            int expectedViewHoldersCount = 1;
+            if (o instanceof List) {
+                expectedViewHoldersCount = 0;
+                for (Object object : (List) o) {
+                    if (object != null) {
+                        expectedViewHoldersCount++;
+                    }
+                }
+            }
             if (viewHolders.size() != expectedViewHoldersCount
                     || viewHolders.get(0).getLayoutId() != viewType) {
                 // If the viewHolder is null or the old viewType is different than the new one,
@@ -310,22 +318,27 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
                     int horizontalPadding = getSegment(position).getHorizontalPadding() / 2;
                     rowContainer.setPadding(0, 0, 0, horizontalPadding);
                     for (int i = 0; i < ((List) o).size(); i++) {
-                        View gridItem = mLayoutInflater.inflate(viewType, rowContainer, false);
-                        int verticalPadding = getSegment(position).getVerticalPadding();
-                        int leftPadding = verticalPadding / 2;
-                        if (i == 0) {
-                            leftPadding = verticalPadding;
+                        if (((List) o).get(i) != null) {
+                            View gridItem = mLayoutInflater.inflate(viewType, rowContainer, false);
+                            int verticalPadding = getSegment(position).getVerticalPadding();
+                            int leftPadding = verticalPadding / 2;
+                            if (i == 0) {
+                                leftPadding = verticalPadding;
+                            }
+                            int rightPadding = verticalPadding / 2;
+                            if (i == ((List) o).size() - 1) {
+                                rightPadding = verticalPadding;
+                            }
+                            gridItem.setPadding(leftPadding, verticalPadding / 2, rightPadding,
+                                    verticalPadding / 2);
+                            ViewHolder viewHolder =
+                                    new ViewHolder(mContentHeaderImageFrame, gridItem, viewType);
+                            rowContainer.addView(gridItem);
+                            viewHolders.add(viewHolder);
+                        } else {
+                            rowContainer.addView(mLayoutInflater
+                                    .inflate(R.layout.row_container_spacer, rowContainer, false));
                         }
-                        int rightPadding = verticalPadding / 2;
-                        if (i == ((List) o).size() - 1) {
-                            rightPadding = verticalPadding;
-                        }
-                        gridItem.setPadding(leftPadding, verticalPadding / 2, rightPadding,
-                                verticalPadding / 2);
-                        ViewHolder viewHolder =
-                                new ViewHolder(mContentHeaderImageFrame, gridItem, viewType);
-                        rowContainer.addView(gridItem);
-                        viewHolders.add(viewHolder);
                     }
                     view = rowContainer;
                 } else {

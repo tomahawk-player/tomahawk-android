@@ -56,8 +56,12 @@ public class Segment {
         mVerticalPadding = resources.getDimensionPixelSize(verticalPaddingResId);
         for (int i = 0; i < listItems.size(); i += columnCount) {
             List<TomahawkListItem> row = new ArrayList<TomahawkListItem>();
-            for (int j = 0; j < columnCount && i + j < listItems.size(); j++) {
-                row.add(listItems.get(i + j));
+            for (int j = 0; j < columnCount; j++) {
+                if (i + j < listItems.size()) {
+                    row.add(listItems.get(i + j));
+                } else {
+                    row.add(null);
+                }
             }
             mGridItems.add(row);
         }
