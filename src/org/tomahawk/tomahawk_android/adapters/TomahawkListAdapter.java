@@ -198,8 +198,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
 
     private void updateContentHeader(View rootView, TomahawkListItem listItem,
             Collection collection) {
-        SquareHeightRelativeLayout frame = (SquareHeightRelativeLayout)
-                rootView.findViewById(R.id.content_header_image_frame);
+        View frame = rootView.findViewById(R.id.content_header_image_frame);
         if (frame != null) {
             frame.setVisibility(SquareHeightRelativeLayout.VISIBLE);
         }
