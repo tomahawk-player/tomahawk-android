@@ -34,11 +34,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 
 import java.util.List;
-
-import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
 /**
  * Since {@link android.preference.PreferenceFragment} is not supported with the official support
@@ -46,7 +43,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
  * org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment} with our own {@link
  * FakePreferencesAdapter}
  */
-public class FakePreferencesAdapter extends BaseAdapter implements StickyListHeadersAdapter {
+public class FakePreferencesAdapter extends StickyBaseAdapter {
 
     private Context mContext;
 

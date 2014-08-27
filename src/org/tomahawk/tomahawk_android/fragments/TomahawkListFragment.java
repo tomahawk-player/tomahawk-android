@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.adapters.StickyBaseAdapter;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -28,9 +29,9 @@ import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 
-import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
@@ -41,7 +42,7 @@ public abstract class TomahawkListFragment extends SlidingPanelFragment {
     public static final String TOMAHAWK_LIST_SCROLL_POSITION
             = "org.tomahawk.tomahawk_android.tomahawk_list_scroll_position";
 
-    private StickyListHeadersAdapter mTomahawkListAdapter;
+    private StickyBaseAdapter mStickyBaseAdapter;
 
     private StickyListHeadersListView mList;
 
@@ -131,8 +132,8 @@ public abstract class TomahawkListFragment extends SlidingPanelFragment {
         if (container instanceof FrameLayout) {
             ((FrameLayout) container).addView(mList);
         }
-        if (mTomahawkListAdapter != null) {
-            setListAdapter(mTomahawkListAdapter);
+        if (mStickyBaseAdapter != null) {
+            setListAdapter(mStickyBaseAdapter);
         }
         mHandler.post(mRequestFocus);
     }
@@ -145,19 +146,17 @@ public abstract class TomahawkListFragment extends SlidingPanelFragment {
     }
 
     /**
-     * Get the {@link se.emilsjolander.stickylistheaders.StickyListHeadersAdapter} associated with
-     * this activity's ListView.
+     * Get the {@link BaseAdapter} associated with this activity's ListView.
      */
-    public StickyListHeadersAdapter getListAdapter() {
-        return mTomahawkListAdapter;
+    public StickyBaseAdapter getListAdapter() {
+        return mStickyBaseAdapter;
     }
 
     /**
-     * Set the {@link org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter} associated with
-     * this activity's ListView.
+     * Set the {@link BaseAdapter} associated with this activity's ListView.
      */
-    public void setListAdapter(StickyListHeadersAdapter adapter) {
-        mTomahawkListAdapter = adapter;
+    public void setListAdapter(StickyBaseAdapter adapter) {
+        mStickyBaseAdapter = adapter;
         getListView().setAdapter(adapter);
         if (restoreScrollPosition && mListState != null) {
             getListView().getWrappedList().onRestoreInstanceState(mListState);

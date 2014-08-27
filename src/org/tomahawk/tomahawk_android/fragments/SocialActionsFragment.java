@@ -129,13 +129,13 @@ public class SocialActionsFragment extends TomahawkFragment {
                             authUtils.getLoggedInUser().getFollowings().get(user);
                     mCurrentRequestIds.add(InfoSystem.getInstance()
                             .deleteRelationship(authUtils, relationshipId));
-                    ((TomahawkListAdapter) getListAdapter()).setShowFakeNotFollowing(true);
+                    getListAdapter().setShowFakeNotFollowing(true);
                 } else {
                     mCurrentRequestIds.add(InfoSystem.getInstance()
                             .sendRelationshipPostStruct(authUtils, user));
-                    ((TomahawkListAdapter) getListAdapter()).setShowFakeFollowing(true);
+                    getListAdapter().setShowFakeFollowing(true);
                 }
-                ((TomahawkListAdapter) getListAdapter()).notifyDataSetChanged();
+                getListAdapter().notifyDataSetChanged();
             }
         }
 
@@ -258,9 +258,9 @@ public class SocialActionsFragment extends TomahawkFragment {
                 }
                 setListAdapter(tomahawkListAdapter);
             } else {
-                ((TomahawkListAdapter) getListAdapter()).setSegments(segment);
+                getListAdapter().setSegments(segment);
                 if (mShowMode != SHOW_MODE_DASHBOARD) {
-                    ((TomahawkListAdapter) getListAdapter()).showContentHeaderUser(rootView, mUser,
+                    getListAdapter().showContentHeaderUser(rootView, mUser,
                             mCollection, mButton1Listener, mButton2Listener, mButton3Listener,
                             mButton4Listener);
                 }
@@ -306,8 +306,8 @@ public class SocialActionsFragment extends TomahawkFragment {
         infoRequestData = InfoSystem.getInstance().getInfoRequestById(requestId);
         if (infoRequestData != null && infoRequestData.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWINGS) {
-            ((TomahawkListAdapter) getListAdapter()).setShowFakeFollowing(false);
-            ((TomahawkListAdapter) getListAdapter()).setShowFakeNotFollowing(false);
+            getListAdapter().setShowFakeFollowing(false);
+            getListAdapter().setShowFakeNotFollowing(false);
         }
     }
 }

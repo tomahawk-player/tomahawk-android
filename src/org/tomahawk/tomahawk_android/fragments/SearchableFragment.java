@@ -203,7 +203,7 @@ public class SearchableFragment extends TomahawkFragment
             tomahawkListAdapter.setShowResolvedBy(true);
             setListAdapter(tomahawkListAdapter);
         } else {
-            ((TomahawkListAdapter) getListAdapter()).setSegments(new Segment(listItems));
+            getListAdapter().setSegments(new Segment(listItems));
         }
 
         updateShowPlaystate();
