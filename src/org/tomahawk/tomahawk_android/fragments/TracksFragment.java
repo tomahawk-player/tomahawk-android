@@ -164,14 +164,12 @@ public class TracksFragment extends TomahawkFragment {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
                 tomahawkListAdapter.setShowResolvedBy(true);
-                tomahawkListAdapter
-                        .showContentHeader(rootView, mAlbum, mCollection, mStarLoveButtonListener);
+                showContentHeader(mUser);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment);
-                getListAdapter()
-                        .showContentHeader(rootView, mAlbum, mCollection, mStarLoveButtonListener);
             }
+            showContentHeader(mAlbum);
         } else if (mArtist != null) {
             activity.setTitle(mArtist.getName());
             queries.addAll(AdapterUtils.getArtistTracks(mArtist, mCollection));
@@ -180,14 +178,11 @@ public class TracksFragment extends TomahawkFragment {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
                 tomahawkListAdapter.setShowResolvedBy(true);
-                tomahawkListAdapter
-                        .showContentHeader(rootView, mArtist, mCollection, mStarLoveButtonListener);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment);
-                getListAdapter()
-                        .showContentHeader(rootView, mArtist, mCollection, mStarLoveButtonListener);
             }
+            showContentHeader(mArtist);
         } else if (mQuery != null) {
             activity.setTitle(mQuery.getName());
             queries.add(mQuery);
@@ -196,14 +191,11 @@ public class TracksFragment extends TomahawkFragment {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
                 tomahawkListAdapter.setShowResolvedBy(true);
-                tomahawkListAdapter
-                        .showContentHeader(rootView, mQuery, mCollection, mStarLoveButtonListener);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment);
-                getListAdapter()
-                        .showContentHeader(rootView, mQuery, mCollection, mStarLoveButtonListener);
             }
+            showContentHeader(mQuery);
         } else {
             queries.addAll(mCollection.getQueries());
             Segment segment = new Segment(queries);

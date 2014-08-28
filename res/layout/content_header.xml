@@ -21,11 +21,12 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:id="@+id/content_header"
              android:layout_width="match_parent"
-             android:layout_height="@dimen/header_height_large"
+             android:layout_height="wrap_content"
              android:orientation="vertical">
 
-    <View android:layout_width="match_parent"
-          android:layout_height="@dimen/header_clear_space"/>
+    <org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
     <TextView
             android:id="@+id/content_header_textview"

@@ -19,10 +19,14 @@
  */
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:id="@+id/content_header"
+             android:id="@+id/content_header_user"
              android:layout_width="match_parent"
-             android:layout_height="@dimen/header_height_large"
+             android:layout_height="wrap_content"
              android:descendantFocusability="afterDescendants">
+
+    <org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
     <RelativeLayout android:layout_width="match_parent"
                     android:layout_height="match_parent">

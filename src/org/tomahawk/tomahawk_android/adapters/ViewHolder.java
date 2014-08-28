@@ -73,10 +73,6 @@ public class ViewHolder {
     private View mClickArea1;
 
     public ViewHolder(View rootView, int layoutId) {
-        this(null, rootView, layoutId);
-    }
-
-    public ViewHolder(View listItemView, View rootView, int layoutId) {
         mLayoutId = layoutId;
         if (layoutId == R.layout.single_line_list_item) {
             mTextView1 = (TextView) rootView
@@ -95,19 +91,15 @@ public class ViewHolder {
                     .findViewById(R.id.content_header_textview5);
             mRoundedImage = (ImageView) rootView
                     .findViewById(R.id.content_header_roundedimage);
-            View view = rootView;
-            if (listItemView != null) {
-                view = listItemView;
-            }
-            mImageView1 = (ImageView) view
+            mImageView1 = (ImageView) rootView
                     .findViewById(R.id.content_header_image);
-            mImageView2 = (ImageView) view
+            mImageView2 = (ImageView) rootView
                     .findViewById(R.id.content_header_image2);
-            mImageView3 = (ImageView) view
+            mImageView3 = (ImageView) rootView
                     .findViewById(R.id.content_header_image3);
-            mImageView4 = (ImageView) view
+            mImageView4 = (ImageView) rootView
                     .findViewById(R.id.content_header_image4);
-            mImageViewFrame = (LinearLayout) view
+            mImageViewFrame = (LinearLayout) rootView
                     .findViewById(R.id.content_header_image_frame2);
             mButton1 = (LinearLayout) rootView
                     .findViewById(R.id.content_header_button1);

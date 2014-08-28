@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
 
+    <dimen name="padding_supersmall">2dp</dimen>
     <dimen name="padding_verysmall">4dp</dimen>
     <dimen name="padding_small">8dp</dimen>
     <dimen name="padding_medium">12dp</dimen>
@@ -15,7 +16,7 @@
 
     <dimen name="header_clear_space">262dp</dimen>
     <dimen name="header_clear_space_user_navdrawer">32dp</dimen>
-    <dimen name="header_height_large">304dp</dimen>
+    <dimen name="header_height_large">208dp</dimen>
     <dimen name="header_height_large_navdrawer">128dp</dimen>
     <dimen name="header_roundedimage_height">128dp</dimen>
     <dimen name="header_roundedimage_height_navdrawer">96dp</dimen>
@@ -28,5 +29,8 @@
     <dimen name="text_size_medium">16sp</dimen>
     <dimen name="text_size_large">18sp</dimen>
     <dimen name="text_size_verylarge">22sp</dimen>
+
+    <dimen name="sticky_header_top_offset">112dp</dimen>
+    <dimen name="actionbar_height">48dp</dimen>
 
     </resources>

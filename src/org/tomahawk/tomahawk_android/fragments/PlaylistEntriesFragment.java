@@ -33,7 +33,6 @@ import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -162,9 +161,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
         ArrayList<TomahawkListItem> playlistEntries = new ArrayList<TomahawkListItem>();
         TomahawkListAdapter tomahawkListAdapter;
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        Context context = getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-        View rootView = getView();
         if (mPlaylist != null) {
             ThreadManager.getInstance().execute(
                     new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_MEDIUM) {
@@ -187,14 +184,11 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                     tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater,
                             segment, this);
                     tomahawkListAdapter.setShowResolvedBy(true);
-                    tomahawkListAdapter.showContentHeader(rootView, mPlaylist, mCollection,
-                            mStarLoveButtonListener);
                     setListAdapter(tomahawkListAdapter);
                 } else {
                     getListAdapter().setSegments(segment);
-                    getListAdapter().showContentHeader(rootView,
-                            mPlaylist, mCollection, mStarLoveButtonListener);
                 }
+                showContentHeader(mPlaylist);
             }
         }
 
