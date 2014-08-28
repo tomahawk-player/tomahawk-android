@@ -129,13 +129,13 @@ public class SocialActionsFragment extends TomahawkFragment {
                             authUtils.getLoggedInUser().getFollowings().get(user);
                     mCurrentRequestIds.add(InfoSystem.getInstance()
                             .deleteRelationship(authUtils, relationshipId));
-                    getListAdapter().setShowFakeNotFollowing(true);
+                    setShowFakeNotFollowing(true);
                 } else {
                     mCurrentRequestIds.add(InfoSystem.getInstance()
                             .sendRelationshipPostStruct(authUtils, user));
-                    getListAdapter().setShowFakeFollowing(true);
+                    setShowFakeFollowing(true);
                 }
-                getListAdapter().notifyDataSetChanged();
+                updateAdapter();
             }
         }
 
@@ -253,16 +253,13 @@ public class SocialActionsFragment extends TomahawkFragment {
                         segment, this);
                 tomahawkListAdapter.setShowResolvedBy(true);
                 if (mShowMode != SHOW_MODE_DASHBOARD) {
-                    tomahawkListAdapter.showContentHeaderUser(rootView, mUser, mCollection,
-                            mButton1Listener, mButton2Listener, mButton3Listener, mButton4Listener);
+                    showContentHeader(mUser);
                 }
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment);
                 if (mShowMode != SHOW_MODE_DASHBOARD) {
-                    getListAdapter().showContentHeaderUser(rootView, mUser,
-                            mCollection, mButton1Listener, mButton2Listener, mButton3Listener,
-                            mButton4Listener);
+                    showContentHeader(mUser);
                 }
             }
 
@@ -306,8 +303,8 @@ public class SocialActionsFragment extends TomahawkFragment {
         infoRequestData = InfoSystem.getInstance().getInfoRequestById(requestId);
         if (infoRequestData != null && infoRequestData.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWINGS) {
-            getListAdapter().setShowFakeFollowing(false);
-            getListAdapter().setShowFakeNotFollowing(false);
+            setShowFakeFollowing(false);
+            setShowFakeNotFollowing(false);
         }
     }
 }

@@ -81,40 +81,23 @@ public class AdapterUtils {
         viewHolder.getStarLoveButton().setVisibility(View.VISIBLE);
     }
 
-    public static void fillContentHeader(Context context, ViewHolder viewHolder,
-            Playlist playlist) {
-        viewHolder.getImageView1().setVisibility(View.VISIBLE);
+    public static void fillContentHeader(Context context, ViewHolder viewHolder, Playlist playlist,
+            ArrayList<Image> images) {
         if (viewHolder.getTextView1() != null) {
             viewHolder.getTextView1().setText(playlist.getName().toUpperCase());
         }
-        if (playlist.getContentHeaderArtists().size() > 0) {
-            ArrayList<Artist> artistsWithImage = new ArrayList<Artist>();
-            synchronized (playlist) {
-                ArrayList<Artist> artists = playlist.getContentHeaderArtists();
-                for (Artist artist : artists) {
-                    if (artist.getImage() != null) {
-                        artistsWithImage.add(artist);
-                    }
-                }
-            }
-            if (artistsWithImage.size() > 3) {
-                viewHolder.getImageViewFrame().setVisibility(View.VISIBLE);
-
-                TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
-                        artistsWithImage.get(0).getImage(), Image.getSmallImageSize());
-                viewHolder.getImageView2().setVisibility(ImageView.VISIBLE);
-                TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView2(),
-                        artistsWithImage.get(1).getImage(), Image.getSmallImageSize());
-                viewHolder.getImageView3().setVisibility(ImageView.VISIBLE);
-                TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView3(),
-                        artistsWithImage.get(2).getImage(), Image.getSmallImageSize());
-                viewHolder.getImageView4().setVisibility(ImageView.VISIBLE);
-                TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView4(),
-                        artistsWithImage.get(3).getImage(), Image.getSmallImageSize());
-            } else if (artistsWithImage.size() > 0) {
-                TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
-                        artistsWithImage.get(0).getImage(), Image.getLargeImageSize());
-            }
+        if (images.size() > 3) {
+            TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
+                    images.get(0), Image.getSmallImageSize());
+            TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView2(),
+                    images.get(1), Image.getSmallImageSize());
+            TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView3(),
+                    images.get(2), Image.getSmallImageSize());
+            TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView4(),
+                    images.get(3), Image.getSmallImageSize());
+        } else if (images.size() > 0) {
+            TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
+                    images.get(0), Image.getLargeImageSize());
         }
     }
 

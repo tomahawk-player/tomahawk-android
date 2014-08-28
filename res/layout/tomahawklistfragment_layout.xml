@@ -18,91 +18,34 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/fragment_layout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:id="@+id/fragment_layout"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:orientation="vertical">
 
-    <org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout
-            android:id="@+id/content_header_image_frame"
+    <FrameLayout android:id="@+id/content_header_image_frame"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"/>
+
+    <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-        <LinearLayout android:layout_width="match_parent"
-                      android:layout_height="match_parent"
-                      android:orientation="vertical">
-
-            <LinearLayout android:layout_width="match_parent"
-                          android:layout_height="match_parent"
-                          android:layout_weight="1">
-
-                <ImageView
-                        android:id="@+id/content_header_image"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:visibility="gone"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/no_album_art_placeholder"/>
-                <ImageView
-                        android:id="@+id/content_header_image2"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:visibility="gone"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/no_album_art_placeholder"/>
-
-            </LinearLayout>
-
-            <LinearLayout android:id="@+id/content_header_image_frame2"
-                          android:layout_width="match_parent"
-                          android:layout_height="match_parent"
-                          android:layout_weight="1"
-                          android:visibility="gone">
-
-                <ImageView
-                        android:id="@+id/content_header_image3"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:visibility="gone"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/no_album_art_placeholder"/>
-                <ImageView
-                        android:id="@+id/content_header_image4"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:visibility="gone"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/no_album_art_placeholder"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout>
-
-    <LinearLayout android:layout_width="match_parent"
-                  android:layout_height="match_parent"
-                  android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
         <View android:layout_width="match_parent"
-              android:layout_height="@dimen/header_height_large"/>
+              android:layout_height="@dimen/sticky_header_top_offset"/>
 
-        <View android:layout_width="match_parent"
-              android:layout_height="0dp"
-              android:layout_weight="1"
-              android:background="@color/primary_background"/>
+        <FrameLayout
+                android:id="@+id/fragmentLayout_listLayout_frameLayout"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
 
     </LinearLayout>
 
-    <FrameLayout
-            android:id="@+id/fragmentLayout_listLayout_frameLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"/>
+    <FrameLayout android:id="@+id/content_header_frame"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"/>
 
-</RelativeLayout>
+</FrameLayout>
