@@ -108,7 +108,7 @@ public class ViewHolder {
             mButton3 = (LinearLayout) rootView
                     .findViewById(R.id.content_header_button3);
             mStarLoveButton = (ImageButton) rootView
-                    .findViewById(R.id.star_love_button);
+                    .findViewById(R.id.content_header_star_love_button);
             mButton4 = (Button) rootView
                     .findViewById(R.id.content_header_button4);
         } else if (layoutId == R.layout.content_header_user_navdrawer) {

@@ -55,6 +55,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -64,7 +65,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
@@ -188,6 +188,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     protected Class mContainerFragmentClass;
 
     private ValueAnimator mTextViewAnim;
+
+    private ValueAnimator mButtonAnim;
 
     private ValueAnimator mImageViewAnim;
 
@@ -668,6 +670,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             View header = inflater.inflate(layoutId, headerFrame, false);
             headerFrame.addView(header);
             setupTextViewAnimation(header);
+            setupButtonAnimation(header);
         }
 
         //Now we fill the added views with data
@@ -695,6 +698,16 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         } else if (item instanceof Query) {
             AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Query) item);
         }
+
+        //Add a spacer to the top of the listview
+        FrameLayout listFrame = (FrameLayout) view.findViewById(
+                R.id.fragmentLayout_listLayout_frameLayout);
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) listFrame.getLayoutParams();
+        int offset = getResources().getDimensionPixelSize(R.dimen.sticky_header_top_offset);
+        params.setMargins(0, offset, 0, 0);
+        listFrame.setLayoutParams(params);
+        getListAdapter().setShowContentHeaderSpacer(true);
+        getListAdapter().notifyDataSetChanged();
     }
 
     private void setupTextViewAnimation(View view) {
@@ -704,13 +717,33 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 Resources resources = TomahawkApp.getContext().getResources();
                 int smallPadding = resources.getDimensionPixelSize(R.dimen.padding_small);
                 int x = resources.getDimensionPixelSize(R.dimen.padding_superlarge);
-                int actionBarHeight = resources.getDimensionPixelSize(R.dimen.actionbar_height);
+                final TypedArray styledAttributes = TomahawkApp.getContext().getTheme()
+                        .obtainStyledAttributes(new int[]{R.attr.actionBarSize});
+                int actionBarHeight = (int) styledAttributes.getDimension(0, 0);
+                styledAttributes.recycle();
                 int y = actionBarHeight + smallPadding;
                 PropertyValuesHolder pvhX = PropertyValuesHolder.ofFloat("x", x);
                 PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat("y", y);
                 mTextViewAnim = ObjectAnimator.ofPropertyValuesHolder(textView, pvhX, pvhY)
                         .setDuration(10000);
-                mTextViewAnim.setInterpolator(new AccelerateDecelerateInterpolator());
+                mTextViewAnim.setInterpolator(new LinearInterpolator());
+            }
+        }
+    }
+
+    private void setupButtonAnimation(View view) {
+        if (view != null) {
+            View buttonView = view.findViewById(R.id.content_header_star_love_button);
+            if (buttonView != null) {
+                Resources resources = TomahawkApp.getContext().getResources();
+                int smallPadding = resources.getDimensionPixelSize(R.dimen.padding_small);
+                final TypedArray styledAttributes = TomahawkApp.getContext().getTheme()
+                        .obtainStyledAttributes(new int[]{R.attr.actionBarSize});
+                int actionBarHeight = (int) styledAttributes.getDimension(0, 0);
+                styledAttributes.recycle();
+                int y = actionBarHeight + smallPadding;
+                mButtonAnim = ObjectAnimator.ofFloat(buttonView, "y", y).setDuration(10000);
+                mButtonAnim.setInterpolator(new LinearInterpolator());
             }
         }
     }
@@ -732,6 +765,9 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     public void animateContentHeader(int position) {
         if (mTextViewAnim != null && position != mTextViewAnim.getCurrentPlayTime()) {
             mTextViewAnim.setCurrentPlayTime(position);
+        }
+        if (mButtonAnim != null && position != mButtonAnim.getCurrentPlayTime()) {
+            mButtonAnim.setCurrentPlayTime(position);
         }
         if (mImageViewAnim != null && position != mImageViewAnim.getCurrentPlayTime()) {
             mImageViewAnim.setCurrentPlayTime(position);

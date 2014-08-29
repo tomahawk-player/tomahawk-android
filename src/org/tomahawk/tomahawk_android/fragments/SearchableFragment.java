@@ -85,7 +85,6 @@ public class SearchableFragment extends TomahawkFragment
         // results again
         if (mCurrentQueryString != null) {
             resolveFullTextQuery(mCurrentQueryString);
-            getActivity().setTitle(mCurrentQueryString);
         }
         updateAdapter();
     }
@@ -259,9 +258,6 @@ public class SearchableFragment extends TomahawkFragment
 
     @Override
     public void onPanelCollapsed() {
-        if (mCurrentQueryString != null) {
-            getActivity().setTitle(mCurrentQueryString);
-        }
     }
 
     @Override

@@ -19,7 +19,6 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
-import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -90,12 +89,10 @@ public class UsersFragment extends TomahawkFragment {
 
         List<TomahawkListItem> users = new ArrayList<TomahawkListItem>();
         if (mShowMode == SHOW_MODE_TYPE_FOLLOWERS) {
-            activity.setTitle(mUser.getName() + " " + getString(R.string.users_followers_suffix));
             if (mUser.getFollowers() != null && mUser.getFollowers().size() > 0) {
                 users.addAll(mUser.getFollowers().keySet());
             }
         } else {
-            activity.setTitle(mUser.getName() + " " + getString(R.string.users_followings_suffix));
             if (mUser.getFollowings() != null && mUser.getFollowings().size() > 0) {
                 users.addAll(mUser.getFollowings().keySet());
             }
@@ -112,13 +109,6 @@ public class UsersFragment extends TomahawkFragment {
 
     @Override
     public void onPanelCollapsed() {
-        if (mShowMode == SHOW_MODE_TYPE_FOLLOWERS) {
-            getActivity()
-                    .setTitle(mUser.getName() + " " + getString(R.string.users_followers_suffix));
-        } else {
-            getActivity()
-                    .setTitle(mUser.getName() + " " + getString(R.string.users_followings_suffix));
-        }
     }
 
     @Override

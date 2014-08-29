@@ -157,21 +157,18 @@ public class TracksFragment extends TomahawkFragment {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         View rootView = getView();
         if (mAlbum != null) {
-            activity.setTitle(mAlbum.getName());
             queries.addAll(AdapterUtils.getAlbumTracks(mAlbum, mCollection));
             Segment segment = new Segment(R.string.segmentheader_album, queries);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
                 tomahawkListAdapter.setShowResolvedBy(true);
-                showContentHeader(mUser);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment);
             }
             showContentHeader(mAlbum);
         } else if (mArtist != null) {
-            activity.setTitle(mArtist.getName());
             queries.addAll(AdapterUtils.getArtistTracks(mArtist, mCollection));
             Segment segment = new Segment(queries);
             if (getListAdapter() == null) {
@@ -184,7 +181,6 @@ public class TracksFragment extends TomahawkFragment {
             }
             showContentHeader(mArtist);
         } else if (mQuery != null) {
-            activity.setTitle(mQuery.getName());
             queries.add(mQuery);
             Segment segment = new Segment(queries);
             if (getListAdapter() == null) {
@@ -218,11 +214,6 @@ public class TracksFragment extends TomahawkFragment {
 
     @Override
     public void onPanelCollapsed() {
-        if (mAlbum != null) {
-            getActivity().setTitle(mAlbum.getName());
-        } else if (mArtist != null) {
-            getActivity().setTitle(mArtist.getName());
-        }
     }
 
     @Override

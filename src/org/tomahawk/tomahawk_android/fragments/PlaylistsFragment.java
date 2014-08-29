@@ -78,8 +78,6 @@ public class PlaylistsFragment extends TomahawkFragment {
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
-        getActivity().setTitle(getString(R.string.playlistsfragment_title_string));
-
         List<TomahawkListItem> playlists = new ArrayList<TomahawkListItem>();
         playlists.addAll(CollectionManager.getInstance().getPlaylists());
         Segment segment = new Segment(playlists);
@@ -94,7 +92,6 @@ public class PlaylistsFragment extends TomahawkFragment {
 
     @Override
     public void onPanelCollapsed() {
-        getActivity().setTitle(getString(R.string.playlistsfragment_title_string));
     }
 
     @Override
