@@ -18,20 +18,52 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<android.support.v4.view.ViewPager
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/fragmentpager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:id="@+id/fragment_layout"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
 
-    <android.support.v4.view.PagerTitleStrip
-            android:id="@+id/pager_title_strip"
+    <FrameLayout android:id="@+id/content_header_image_frame"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"/>
+
+    <org.tomahawk.tomahawk_android.views.TomahawkScrollView
+            android:id="@+id/scrollview"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top"
-            android:background="@color/secondary_background"
-            android:textColor="@color/primary_textcolor"
-            android:paddingTop="4dp"
-            android:paddingBottom="4dp"/>
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/sticky_header_top_offset"
+            android:fillViewport="true"
+            android:overScrollMode="never">
 
-</android.support.v4.view.ViewPager>
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="vertical">
+
+            <include layout="@layout/content_header_spacer"/>
+
+            <android.support.v4.view.ViewPager
+                    android:id="@+id/fragmentpager"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                <android.support.v4.view.PagerTitleStrip
+                        android:id="@+id/pager_title_strip"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top"
+                        android:background="@color/secondary_background"
+                        android:textColor="@color/primary_textcolor"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"/>
+
+            </android.support.v4.view.ViewPager>
+
+        </LinearLayout>
+
+    </org.tomahawk.tomahawk_android.views.TomahawkScrollView>
+
+    <FrameLayout android:id="@+id/content_header_frame"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"/>
+
+</FrameLayout>
