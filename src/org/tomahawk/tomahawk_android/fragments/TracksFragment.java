@@ -163,11 +163,12 @@ public class TracksFragment extends TomahawkFragment {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
                 tomahawkListAdapter.setShowResolvedBy(true);
+                tomahawkListAdapter.setShowContentHeaderSpacer(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment);
             }
-            showContentHeader(mAlbum);
+            showContentHeader(mAlbum, mCollection);
         } else if (mArtist != null) {
             queries.addAll(AdapterUtils.getArtistTracks(mArtist, mCollection));
             Segment segment = new Segment(queries);
@@ -175,11 +176,12 @@ public class TracksFragment extends TomahawkFragment {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
                 tomahawkListAdapter.setShowResolvedBy(true);
+                tomahawkListAdapter.setShowContentHeaderSpacer(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment);
             }
-            showContentHeader(mArtist);
+            showContentHeader(mArtist, mCollection);
         } else if (mQuery != null) {
             queries.add(mQuery);
             Segment segment = new Segment(queries);
@@ -187,11 +189,12 @@ public class TracksFragment extends TomahawkFragment {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
                 tomahawkListAdapter.setShowResolvedBy(true);
+                tomahawkListAdapter.setShowContentHeaderSpacer(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment);
             }
-            showContentHeader(mQuery);
+            showContentHeader(mQuery, mCollection);
         } else {
             queries.addAll(mCollection.getQueries());
             Segment segment = new Segment(queries);

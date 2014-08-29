@@ -163,11 +163,12 @@ public class AlbumsFragment extends TomahawkFragment {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
                         layoutInflater, segments, this);
                 tomahawkListAdapter.setShowResolvedBy(true);
+                tomahawkListAdapter.setShowContentHeaderSpacer(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segments);
             }
-            showContentHeader(mArtist);
+            showContentHeader(mArtist, mCollection);
         } else if (mShowMode == SHOW_MODE_STARREDALBUMS) {
             ArrayList<Album> albums = DatabaseHelper.getInstance().getStarredAlbums();
             for (Album album : albums) {

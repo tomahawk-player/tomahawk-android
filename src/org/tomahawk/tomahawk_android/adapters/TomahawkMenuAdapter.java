@@ -203,4 +203,9 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
     public long getHeaderId(int position) {
         return 0;
     }
+
+    @Override
+    public void setShowContentHeaderSpacer(boolean showContentHeaderSpacer) {
+
+    }
 }

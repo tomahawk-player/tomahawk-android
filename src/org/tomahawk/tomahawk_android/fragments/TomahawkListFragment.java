@@ -29,6 +29,7 @@ import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 
@@ -37,7 +38,8 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 /**
  * More customizable implementation of {@link android.app.ListFragment}
  */
-public abstract class TomahawkListFragment extends SlidingPanelFragment {
+public abstract class TomahawkListFragment extends ContentHeaderFragment implements
+        AbsListView.OnScrollListener {
 
     public static final String TOMAHAWK_LIST_SCROLL_POSITION
             = "org.tomahawk.tomahawk_android.tomahawk_list_scroll_position";
@@ -80,6 +82,15 @@ public abstract class TomahawkListFragment extends SlidingPanelFragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        if (getListView() != null) {
+            getListView().setOnScrollListener(this);
+        }
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
 
@@ -101,6 +112,23 @@ public abstract class TomahawkListFragment extends SlidingPanelFragment {
         super.onSaveInstanceState(out);
 
         out.putParcelable(TOMAHAWK_LIST_SCROLL_POSITION, mListState);
+    }
+
+    @Override
+    public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+    }
+
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
+            int totalItemCount) {
+        if (firstVisibleItem == 0 && getListView().getListChildAt(0) != null) {
+            float delta = getListView().getListChildAt(0).getBottom() - getListView().getTop();
+            animateContentHeader(
+                    (int) (10000f - delta / getListView().getListChildAt(0).getHeight() * 10000f));
+        } else {
+            animateContentHeader(10000);
+        }
     }
 
     /**

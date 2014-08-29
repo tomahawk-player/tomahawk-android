@@ -17,14 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
-import android.widget.BaseAdapter;
+public interface ContentHeaderAdapter {
 
-import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
-
-/**
- * This class is used to populate a {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}.
- */
-public abstract class StickyBaseAdapter extends BaseAdapter
-        implements StickyListHeadersAdapter, ContentHeaderAdapter {
+    public void setShowContentHeaderSpacer(boolean showContentHeaderSpacer);
 
 }
