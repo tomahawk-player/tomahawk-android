@@ -32,7 +32,6 @@ import org.tomahawk.tomahawk_android.utils.AdapterUtils;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -407,10 +406,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
             }
 
             viewHolder.getTextView1().setText(headerStringResId);
-            Log.d("test", "getHeaderView - pos: " + position + " returned non-empty view");
             return view;
         } else {
-            Log.d("test", "getHeaderView - pos: " + position + " returned empty view");
             return new View(mActivity);
         }
     }
@@ -426,8 +423,6 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
     public long getHeaderId(int position) {
         Segment segment = getSegment(position);
         if (segment != null) {
-            Log.d("test", "getHeaderId - pos: " + position + ", id: " + getSegment(position)
-                    .getHeaderStringResId());
             return getSegment(position).getHeaderStringResId();
         } else {
             return 0;

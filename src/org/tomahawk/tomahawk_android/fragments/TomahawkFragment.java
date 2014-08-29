@@ -358,6 +358,9 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     mContainerFragmentClass = CollectionFragment.class;
                 }
             }
+            if (getArguments().containsKey(CONTAINER_FRAGMENT_PAGE)) {
+                getListView().setTag(getArguments().getInt(CONTAINER_FRAGMENT_PAGE));
+            }
         }
 
         // Initialize and register Receiver

@@ -20,12 +20,16 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
+import org.tomahawk.tomahawk_android.views.TomahawkScrollView;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,8 +78,23 @@ public class FavoritesFragment extends SlidingPanelFragment {
         fragmentBundles.add(bundle);
         TomahawkPagerAdapter adapter = new TomahawkPagerAdapter(getChildFragmentManager(),
                 fragmentClassNames, fragmentTitles, fragmentBundles, ((Object) this).getClass());
-        ViewPager fragmentPager = (ViewPager) getActivity().findViewById(R.id.fragmentpager);
+        final ViewPager fragmentPager = (ViewPager) getActivity().findViewById(R.id.fragmentpager);
         fragmentPager.setAdapter(adapter);
+        final TomahawkScrollView scrollView =
+                (TomahawkScrollView) getView().findViewById(R.id.scrollview);
+        scrollView.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        fragmentPager.setLayoutParams(new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT, scrollView.getHeight()));
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                            scrollView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        } else {
+                            scrollView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                        }
+                    }
+                });
         if (initialPage >= 0) {
             fragmentPager.setCurrentItem(initialPage);
         }
