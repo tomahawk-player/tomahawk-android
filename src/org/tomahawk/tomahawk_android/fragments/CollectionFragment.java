@@ -22,21 +22,13 @@ import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
-import org.tomahawk.tomahawk_android.views.TomahawkScrollView;
 
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
 import android.widget.SpinnerAdapter;
 
 import java.util.ArrayList;
@@ -48,7 +40,7 @@ import java.util.List;
  * ArtistsFragment}, which display the {@link org.tomahawk.libtomahawk.collection.UserCollection}'s
  * content to the user.
  */
-public class CollectionFragment extends SlidingPanelFragment {
+public class CollectionFragment extends PagerFragment {
 
     private Collection mCollection;
 
@@ -79,12 +71,6 @@ public class CollectionFragment extends SlidingPanelFragment {
             }
             return false;
         }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.pagerfragment_layout, container, false);
     }
 
     /**
@@ -135,28 +121,8 @@ public class CollectionFragment extends SlidingPanelFragment {
         Bundle bundle = new Bundle();
         bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
         fragmentBundles.add(bundle);
-        TomahawkPagerAdapter adapter = new TomahawkPagerAdapter(getChildFragmentManager(),
-                fragmentClassNames, fragmentTitles, fragmentBundles, ((Object) this).getClass());
-        final ViewPager fragmentPager = (ViewPager) getView().findViewById(R.id.fragmentpager);
-        fragmentPager.setAdapter(adapter);
-        final TomahawkScrollView scrollView =
-                (TomahawkScrollView) getView().findViewById(R.id.scrollview);
-        scrollView.getViewTreeObserver().addOnGlobalLayoutListener(
-                new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        fragmentPager.setLayoutParams(new LinearLayout.LayoutParams(
-                                LinearLayout.LayoutParams.MATCH_PARENT, scrollView.getHeight()));
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                            scrollView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        } else {
-                            scrollView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                        }
-                    }
-                });
-        if (initialPage >= 0) {
-            fragmentPager.setCurrentItem(initialPage);
-        }
+
+        setupPager(fragmentClassNames, fragmentTitles, fragmentBundles, initialPage);
     }
 
     @Override

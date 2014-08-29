@@ -284,4 +284,9 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
         return R.layout.fake_preferences_plain;
     }
 
+    @Override
+    public void setShowContentHeaderSpacer(boolean showContentHeaderSpacer) {
+
+    }
+
 }

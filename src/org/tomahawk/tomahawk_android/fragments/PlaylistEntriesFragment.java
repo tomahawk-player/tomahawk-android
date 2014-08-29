@@ -181,11 +181,12 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                     tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater,
                             segment, this);
                     tomahawkListAdapter.setShowResolvedBy(true);
+                    tomahawkListAdapter.setShowContentHeaderSpacer(true);
                     setListAdapter(tomahawkListAdapter);
                 } else {
                     getListAdapter().setSegments(segment);
                 }
-                showContentHeader(mPlaylist);
+                showContentHeader(mPlaylist, mCollection);
             }
         }
 

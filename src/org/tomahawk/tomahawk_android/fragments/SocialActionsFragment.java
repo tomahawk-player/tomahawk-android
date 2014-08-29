@@ -251,12 +251,13 @@ public class SocialActionsFragment extends TomahawkFragment {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater,
                         segment, this);
                 tomahawkListAdapter.setShowResolvedBy(true);
+                tomahawkListAdapter.setShowContentHeaderSpacer(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment);
             }
             if (mShowMode != SHOW_MODE_DASHBOARD) {
-                showContentHeader(mUser);
+                showContentHeader(mUser, mCollection);
             }
 
             mShownQueries.clear();
