@@ -45,12 +45,13 @@
             android:background="@color/tertiary_transparent"/>
 
     <ImageButton
-            android:id="@+id/star_love_button"
+            android:id="@+id/content_header_star_love_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|right"
             android:visibility="gone"
             android:padding="@dimen/padding_medium"
+            android:layout_marginBottom="38dp"
             android:background="@android:color/transparent"
             android:src="@drawable/ic_action_notstarred"/>
 

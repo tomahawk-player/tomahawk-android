@@ -246,21 +246,17 @@ public class SocialActionsFragment extends TomahawkFragment {
                 }
             }
             TomahawkListAdapter tomahawkListAdapter;
-            getActivity().setTitle(mUser.getName());
             Segment segment = new Segment(socialActions);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater,
                         segment, this);
                 tomahawkListAdapter.setShowResolvedBy(true);
-                if (mShowMode != SHOW_MODE_DASHBOARD) {
-                    showContentHeader(mUser);
-                }
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment);
-                if (mShowMode != SHOW_MODE_DASHBOARD) {
-                    showContentHeader(mUser);
-                }
+            }
+            if (mShowMode != SHOW_MODE_DASHBOARD) {
+                showContentHeader(mUser);
             }
 
             mShownQueries.clear();
@@ -276,9 +272,6 @@ public class SocialActionsFragment extends TomahawkFragment {
 
     @Override
     public void onPanelCollapsed() {
-        if (mUser != null) {
-            getActivity().setTitle(mUser.getName());
-        }
     }
 
     @Override

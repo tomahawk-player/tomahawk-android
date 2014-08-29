@@ -26,4 +26,5 @@
         android:dividerHeight="0px"
         android:drawSelectorOnTop="false"
         android:fastScrollEnabled="true"
-        android:listSelector="@android:color/transparent"/>
+        android:listSelector="@android:color/transparent"
+        android:overScrollMode="never"/>

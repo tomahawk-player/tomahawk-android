@@ -175,9 +175,6 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 mPlaylist.setFilled(true);
                 refreshCurrentPlaylist();
             } else {
-                if (!mPlaylist.getId().equals(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID)) {
-                    activity.setTitle(mPlaylist.getName());
-                }
                 playlistEntries.addAll(mPlaylist.getEntries());
                 Segment segment = new Segment(R.string.segmentheader_playlist, playlistEntries);
                 if (getListAdapter() == null) {
@@ -239,9 +236,6 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
 
     @Override
     public void onPanelCollapsed() {
-        if (mPlaylist != null && !mPlaylist.getId().equals(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID)) {
-            getActivity().setTitle(mPlaylist.getName());
-        }
     }
 
     @Override

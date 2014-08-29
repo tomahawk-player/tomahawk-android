@@ -16,6 +16,11 @@
         <item name="android:progressBarStyle">@style/ProgressBar.Tomahawk</item>
     </style>
 
+    <style name="OverFlow" parent="@android:style/Widget.Holo.ActionButton.Overflow">
+        <item name="android:src">@drawable/ic_action_core_overflow</item>
+    </style>
+
+
     <!-- this style is only referenced in a Light.DarkActionBar based theme -->
     <style name="Theme.Tomahawk.Widget" parent="@style/Theme.AppCompat">
         <item name="android:popupMenuStyle">@style/PopupMenu.Tomahawk</item>

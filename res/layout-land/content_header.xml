@@ -95,7 +95,7 @@
                 android:paddingLeft="@dimen/padding_small"/>
 
         <ImageButton
-                android:id="@+id/star_love_button"
+                android:id="@+id/content_header_star_love_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="gone"

@@ -192,8 +192,6 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
         getListAdapter().notifyDataSetChanged();
 
-        getActivity().setTitle(getString(R.string.fakepreferencefragment_title_string));
-
         if (mFakePreferenceFragmentReceiver == null) {
             mFakePreferenceFragmentReceiver = new FakePreferenceFragmentReceiver();
         }
@@ -269,7 +267,6 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
     @Override
     public void onPanelCollapsed() {
-        getActivity().setTitle(getString(R.string.fakepreferencefragment_title_string));
     }
 
     @Override

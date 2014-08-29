@@ -632,6 +632,5 @@ public class PlaybackFragment extends TomahawkFragment {
             provider.setShareIntent(
                     ShareUtils.generateShareIntent(playbackService.getCurrentQuery()));
         }
-        getActivity().setTitle(getString(R.string.playbackfragment_title_string));
     }
 }

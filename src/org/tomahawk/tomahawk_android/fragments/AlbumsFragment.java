@@ -144,7 +144,6 @@ public class AlbumsFragment extends TomahawkFragment {
         View rootView = getView();
         List<Segment> segments = new ArrayList<Segment>();
         if (mArtist != null) {
-            activity.setTitle(mArtist.getName());
             if (mCollection != null) {
                 ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
                 items.addAll(mCollection.getArtistAlbums(mArtist, true));
@@ -203,9 +202,6 @@ public class AlbumsFragment extends TomahawkFragment {
 
     @Override
     public void onPanelCollapsed() {
-        if (mArtist != null) {
-            getActivity().setTitle(mArtist.getName());
-        }
     }
 
     @Override

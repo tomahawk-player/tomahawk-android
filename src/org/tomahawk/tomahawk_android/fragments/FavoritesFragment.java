@@ -53,8 +53,6 @@ public class FavoritesFragment extends SlidingPanelFragment {
             }
         }
 
-        getActivity().setTitle(getString(R.string.favoritesfragment_title_string));
-
         List<String> fragmentClassNames = new ArrayList<String>();
         fragmentClassNames.add(PlaylistEntriesFragment.class.getName());
         fragmentClassNames.add(AlbumsFragment.class.getName());
@@ -85,7 +83,6 @@ public class FavoritesFragment extends SlidingPanelFragment {
 
     @Override
     public void onPanelCollapsed() {
-        getActivity().setTitle(getString(R.string.favoritesfragment_title_string));
     }
 
     @Override

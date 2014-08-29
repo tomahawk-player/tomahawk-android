@@ -72,6 +72,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
 
     private boolean mShowArtistAsSingleLine = false;
 
+    private boolean mShowContentHeaderSpacer = false;
+
     /**
      * Constructs a new {@link TomahawkListAdapter}.
      */
@@ -115,6 +117,10 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
         mSegments = segments;
         mRowCount = segment.size();
         notifyDataSetChanged();
+    }
+
+    public void setShowContentHeaderSpacer(boolean showContentHeaderSpacer) {
+        mShowContentHeaderSpacer = showContentHeaderSpacer;
     }
 
     /**
@@ -185,7 +191,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
             viewHolders = mViewHolderMap.get(convertView);
             view = convertView;
         }
-        int viewType = getViewType(o, shouldBeHighlighted, position == 0);
+        int viewType = getViewType(o, shouldBeHighlighted,
+                mShowContentHeaderSpacer && position == 0);
         int expectedViewHoldersCount = 1;
         if (o instanceof List) {
             expectedViewHoldersCount = 0;
@@ -319,7 +326,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
      */
     @Override
     public int getCount() {
-        return mRowCount + 1;
+        return mRowCount + (mShowContentHeaderSpacer ? 1 : 0);
     }
 
     /**
@@ -327,10 +334,13 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
      */
     @Override
     public Object getItem(int position) {
-        if (position == 0) {
-            return null;
+        if (mShowContentHeaderSpacer) {
+            if (position == 0) {
+                return null;
+            } else {
+                position--;
+            }
         }
-        position--;
         int counter = 0;
         int correctedPos = position;
         for (Segment segment : mSegments) {
@@ -345,10 +355,13 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
     }
 
     public Segment getSegment(int position) {
-        if (position == 0) {
-            return null;
+        if (mShowContentHeaderSpacer) {
+            if (position == 0) {
+                return null;
+            } else {
+                position--;
+            }
         }
-        position--;
         int counter = 0;
         for (Segment segment : mSegments) {
             counter += segment.size();

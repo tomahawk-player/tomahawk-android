@@ -124,8 +124,6 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
 
-    private CharSequence mTitle;
-
     private PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(
             this);
 
@@ -317,7 +315,8 @@ public class TomahawkMainActivity extends ActionBarActivity
         mProgressDrawable = getResources()
                 .getDrawable(R.drawable.tomahawk_progress_indeterminate_circular_holo_light);
 
-        mTitle = mDrawerTitle = getTitle();
+        mDrawerTitle = getTitle();
+        getSupportActionBar().setTitle("");
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
@@ -330,7 +329,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
                 /** Called when a drawer has settled in a completely closed state. */
                 public void onDrawerClosed(View view) {
-                    getSupportActionBar().setTitle(mTitle);
+                    getSupportActionBar().setTitle("");
                 }
 
                 /** Called when a drawer has settled in a completely open state. */
@@ -530,12 +529,6 @@ public class TomahawkMainActivity extends ActionBarActivity
         if (mDrawerToggle != null) {
             mDrawerToggle.onConfigurationChanged(newConfig);
         }
-    }
-
-    @Override
-    public void setTitle(CharSequence title) {
-        mTitle = title;
-        getSupportActionBar().setTitle(mTitle);
     }
 
     @Override
@@ -749,10 +742,14 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @Override
     public void onPanelSlide(View view, float v) {
+        if (getSupportActionBar().isShowing()) {
+            getSupportActionBar().hide();
+        }
     }
 
     @Override
     public void onPanelCollapsed(View view) {
+        getSupportActionBar().show();
         TomahawkApp.getContext().sendBroadcast(new Intent(SLIDING_LAYOUT_COLLAPSED));
     }
 

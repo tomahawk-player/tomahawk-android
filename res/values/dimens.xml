@@ -31,6 +31,5 @@
     <dimen name="text_size_verylarge">22sp</dimen>
 
     <dimen name="sticky_header_top_offset">112dp</dimen>
-    <dimen name="actionbar_height">48dp</dimen>
 
     </resources>
