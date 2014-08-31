@@ -38,6 +38,8 @@ public class Artist implements TomahawkListItem {
 
     private String mName;
 
+    private ListItemString mBio;
+
     private ConcurrentHashMap<String, Album> mAlbums = new ConcurrentHashMap<String, Album>();
 
     private ConcurrentHashMap<String, Query> mQueries = new ConcurrentHashMap<String, Query>();
@@ -193,5 +195,13 @@ public class Artist implements TomahawkListItem {
 
     public void setImage(Image image) {
         mImage = image;
+    }
+
+    public ListItemString getBio() {
+        return mBio;
+    }
+
+    public void setBio(ListItemString bio) {
+        mBio = bio;
     }
 }
