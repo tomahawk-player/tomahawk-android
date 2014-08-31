@@ -62,7 +62,7 @@ public class ArtistsFragment extends TomahawkFragment {
     public void onItemClick(View view, TomahawkListItem item) {
         if (item instanceof Artist) {
             FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                    getActivity().getSupportFragmentManager(), AlbumsFragment.class,
+                    getActivity().getSupportFragmentManager(), ArtistPagerFragment.class,
                     item.getCacheKey(), TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
         }
     }

@@ -169,6 +169,9 @@
     <string name="loved_tracks">Loved Tracks</string>
     <string name="starred_albums">Starred Albums</string>
     <string name="starred_artists">Starred Artists</string>
+    <string name="music">Music</string>
+    <string name="biography">Biography</string>
+    <string name="similar">Similar</string>
     <string name="resolver_config_redirect_button_text_log_into">Log into</string>
     <string name="resolver_config_redirect_button_text_log_out_of">Log out of</string>
     <string name="ask_access_activity_header">Want to automatically scrobble all tracks you play to

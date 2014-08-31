@@ -38,8 +38,8 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.os.Build;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -56,6 +56,8 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
 
     private ValueAnimator mImageViewAnim;
 
+    private ValueAnimator mPageIndicatorAnim;
+
     private boolean mShowFakeFollowing = false;
 
     private boolean mShowFakeNotFollowing = false;
@@ -70,12 +72,11 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
      * @param item the {@link org.tomahawk.tomahawk_android.utils.TomahawkListItem}'s information to
      *             show in the header view
      */
-    protected void showContentHeader(TomahawkListItem item, Collection collection) {
+    protected void showContentHeader(FrameLayout imageFrame, FrameLayout headerFrame,
+            TomahawkListItem item, Collection collection) {
         //Inflate views and add them into our frames
         LayoutInflater inflater = (LayoutInflater)
                 TomahawkApp.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        final View view = getView();
-        FrameLayout imageFrame = (FrameLayout) view.findViewById(R.id.content_header_image_frame);
         ArrayList<Image> artistImages = new ArrayList<Image>();
         if (item instanceof Playlist) {
             synchronized (item) {
@@ -117,7 +118,6 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
                         }
                     });
         }
-        FrameLayout headerFrame = (FrameLayout) view.findViewById(R.id.content_header_frame);
         int layoutId;
         int viewId;
         if (item instanceof User) {
@@ -133,10 +133,11 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
             headerFrame.addView(header);
             setupTextViewAnimation(header);
             setupButtonAnimation(header);
+            setupPageIndicatorAnimation(header);
         }
 
         //Now we fill the added views with data
-        ViewHolder viewHolder = new ViewHolder(view, layoutId);
+        ViewHolder viewHolder = new ViewHolder(imageFrame, headerFrame, layoutId);
         if (item instanceof Album) {
             AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Album) item,
                     collection);
@@ -160,14 +161,6 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
         } else if (item instanceof Query) {
             AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Query) item);
         }
-
-        //Add a spacer to the top of the listview
-        FrameLayout listFrame = (FrameLayout) view.findViewById(
-                R.id.fragmentLayout_listLayout_frameLayout);
-        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) listFrame.getLayoutParams();
-        int offset = getResources().getDimensionPixelSize(R.dimen.sticky_header_top_offset);
-        params.setMargins(0, offset, 0, 0);
-        listFrame.setLayoutParams(params);
     }
 
     private void setupTextViewAnimation(View view) {
@@ -177,10 +170,12 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
                 Resources resources = TomahawkApp.getContext().getResources();
                 int smallPadding = resources.getDimensionPixelSize(R.dimen.padding_small);
                 int x = resources.getDimensionPixelSize(R.dimen.padding_superlarge);
-                final TypedArray styledAttributes = TomahawkApp.getContext().getTheme()
-                        .obtainStyledAttributes(new int[]{R.attr.actionBarSize});
-                int actionBarHeight = (int) styledAttributes.getDimension(0, 0);
-                styledAttributes.recycle();
+                int actionBarHeight = 0;
+                TypedValue tv = new TypedValue();
+                if (getActivity().getTheme().resolveAttribute(R.attr.actionBarSize, tv, true)) {
+                    actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,
+                            getResources().getDisplayMetrics());
+                }
                 int y = actionBarHeight + smallPadding;
                 PropertyValuesHolder pvhX = PropertyValuesHolder.ofFloat("x", x);
                 PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat("y", y);
@@ -197,10 +192,12 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
             if (buttonView != null) {
                 Resources resources = TomahawkApp.getContext().getResources();
                 int smallPadding = resources.getDimensionPixelSize(R.dimen.padding_small);
-                final TypedArray styledAttributes = TomahawkApp.getContext().getTheme()
-                        .obtainStyledAttributes(new int[]{R.attr.actionBarSize});
-                int actionBarHeight = (int) styledAttributes.getDimension(0, 0);
-                styledAttributes.recycle();
+                int actionBarHeight = 0;
+                TypedValue tv = new TypedValue();
+                if (getActivity().getTheme().resolveAttribute(R.attr.actionBarSize, tv, true)) {
+                    actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,
+                            getResources().getDisplayMetrics());
+                }
                 int y = actionBarHeight + smallPadding;
                 mButtonAnim = ObjectAnimator.ofFloat(buttonView, "y", y).setDuration(10000);
                 mButtonAnim.setInterpolator(new LinearInterpolator());
@@ -222,6 +219,19 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
         }
     }
 
+    private void setupPageIndicatorAnimation(View view) {
+        if (view != null) {
+            View imageView = view.findViewById(R.id.page_indicator_container);
+            if (imageView != null) {
+                Resources resources = TomahawkApp.getContext().getResources();
+                int offset = resources.getDimensionPixelSize(R.dimen.header_clear_space);
+                mPageIndicatorAnim = ObjectAnimator.ofFloat(imageView, "y", offset)
+                        .setDuration(10000);
+                mPageIndicatorAnim.setInterpolator(new LinearInterpolator());
+            }
+        }
+    }
+
     public void animateContentHeader(int position) {
         if (mTextViewAnim != null && position != mTextViewAnim.getCurrentPlayTime()) {
             mTextViewAnim.setCurrentPlayTime(position);
@@ -231,6 +241,9 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
         }
         if (mImageViewAnim != null && position != mImageViewAnim.getCurrentPlayTime()) {
             mImageViewAnim.setCurrentPlayTime(position);
+        }
+        if (mPageIndicatorAnim != null && position != mPageIndicatorAnim.getCurrentPlayTime()) {
+            mPageIndicatorAnim.setCurrentPlayTime(position);
         }
     }
 

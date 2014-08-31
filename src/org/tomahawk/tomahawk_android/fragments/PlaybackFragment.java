@@ -229,7 +229,7 @@ public class PlaybackFragment extends TomahawkFragment {
             } else if (item.getItemId() == R.id.action_gotoartist_item) {
                 if (playbackService.getCurrentQuery() != null) {
                     FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                            getActivity().getSupportFragmentManager(), AlbumsFragment.class,
+                            getActivity().getSupportFragmentManager(), ArtistPagerFragment.class,
                             playbackService.getCurrentQuery().getArtist().getCacheKey(),
                             TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
                 }

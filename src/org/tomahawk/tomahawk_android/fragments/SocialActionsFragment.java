@@ -203,7 +203,7 @@ public class SocialActionsFragment extends TomahawkFragment {
                         TomahawkFragment.TOMAHAWK_ALBUM_KEY, mCollection);
             } else if (target instanceof Artist) {
                 FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
-                        AlbumsFragment.class, target.getCacheKey(),
+                        ArtistPagerFragment.class, target.getCacheKey(),
                         TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
             } else if (target instanceof User) {
                 FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),

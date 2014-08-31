@@ -29,7 +29,7 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkContextMenuAdapter;
-import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
+import org.tomahawk.tomahawk_android.fragments.ArtistPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.fragments.TracksFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
@@ -281,7 +281,7 @@ public class FakeContextMenuDialog extends DialogFragment {
                     mCollection);
         } else if (menuItemTitle.equals(getActivity().getString(R.string.menu_item_go_to_artist))) {
             FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                    getActivity().getSupportFragmentManager(), AlbumsFragment.class,
+                    getActivity().getSupportFragmentManager(), ArtistPagerFragment.class,
                     mTomahawkListItem.getArtist().getCacheKey(),
                     TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
         } else if (menuItemTitle.equals(getString(R.string.fake_context_menu_love_track))

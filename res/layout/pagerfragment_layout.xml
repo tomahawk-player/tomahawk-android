@@ -23,7 +23,7 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent">
 
-    <FrameLayout android:id="@+id/content_header_image_frame"
+    <FrameLayout android:id="@+id/content_header_image_frame_pager"
                  android:layout_width="match_parent"
                  android:layout_height="match_parent"/>
 
@@ -31,7 +31,6 @@
             android:id="@+id/scrollview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/sticky_header_top_offset"
             android:fillViewport="true"
             android:overScrollMode="never">
 
@@ -39,30 +38,20 @@
                       android:layout_height="wrap_content"
                       android:orientation="vertical">
 
-            <include layout="@layout/content_header_spacer"/>
+            <FrameLayout android:id="@+id/content_header"
+                         android:layout_width="match_parent"
+                         android:layout_height="@dimen/header_height_large"/>
 
             <android.support.v4.view.ViewPager
                     android:id="@+id/fragmentpager"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                <android.support.v4.view.PagerTitleStrip
-                        android:id="@+id/pager_title_strip"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="top"
-                        android:background="@color/secondary_background"
-                        android:textColor="@color/primary_textcolor"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp"/>
-
-            </android.support.v4.view.ViewPager>
+                    android:layout_height="wrap_content"/>
 
         </LinearLayout>
 
     </org.tomahawk.tomahawk_android.views.TomahawkScrollView>
 
-    <FrameLayout android:id="@+id/content_header_frame"
+    <FrameLayout android:id="@+id/content_header_frame_pager"
                  android:layout_width="match_parent"
                  android:layout_height="match_parent"/>
 

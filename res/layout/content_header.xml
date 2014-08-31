@@ -55,4 +55,25 @@
             android:background="@android:color/transparent"
             android:src="@drawable/ic_action_notstarred"/>
 
+    <LinearLayout android:id="@+id/page_indicator_container"
+                  android:layout_width="match_parent"
+                  android:layout_height="@dimen/pager_indicator_height"
+                  android:orientation="vertical"
+                  android:visibility="gone">
+
+        <org.tomahawk.tomahawk_android.views.PageIndicator
+                android:id="@+id/page_indicator"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:paddingLeft="@dimen/padding_superlarge"
+                android:paddingRight="@dimen/padding_superlarge"
+                android:paddingBottom="@dimen/padding_small"/>
+
+        <View android:layout_width="match_parent"
+              android:layout_height="@dimen/divider_height_thick"
+              android:background="@drawable/above_shadow"/>
+
+    </LinearLayout>
+
 </FrameLayout>
