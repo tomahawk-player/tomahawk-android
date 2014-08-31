@@ -91,6 +91,7 @@ public class TomahawkScrollView extends ScrollView {
             View view = viewPager.findViewWithTag(viewPager.getCurrentItem());
             if (view instanceof StickyListHeadersListView) {
                 StickyListHeadersListView listView = (StickyListHeadersListView) view;
+                //TODO fix np if listchild null
                 return listView.getFirstVisiblePosition() == 0
                         && listView.getListChildAt(0).getTop() >= 0;
             }

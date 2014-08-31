@@ -77,40 +77,6 @@ public class ViewHolder {
         if (layoutId == R.layout.single_line_list_item) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.single_line_list_textview);
-        } else if (layoutId == R.layout.content_header
-                || layoutId == R.layout.content_header_user) {
-            mTextView1 = (TextView) rootView
-                    .findViewById(R.id.content_header_textview);
-            mTextView2 = (TextView) rootView
-                    .findViewById(R.id.content_header_textview2);
-            mTextView3 = (TextView) rootView
-                    .findViewById(R.id.content_header_textview3);
-            mTextView4 = (TextView) rootView
-                    .findViewById(R.id.content_header_textview4);
-            mTextView5 = (TextView) rootView
-                    .findViewById(R.id.content_header_textview5);
-            mRoundedImage = (ImageView) rootView
-                    .findViewById(R.id.content_header_roundedimage);
-            mImageView1 = (ImageView) rootView
-                    .findViewById(R.id.content_header_image);
-            mImageView2 = (ImageView) rootView
-                    .findViewById(R.id.content_header_image2);
-            mImageView3 = (ImageView) rootView
-                    .findViewById(R.id.content_header_image3);
-            mImageView4 = (ImageView) rootView
-                    .findViewById(R.id.content_header_image4);
-            mImageViewFrame = (LinearLayout) rootView
-                    .findViewById(R.id.content_header_image_frame2);
-            mButton1 = (LinearLayout) rootView
-                    .findViewById(R.id.content_header_button1);
-            mButton2 = (LinearLayout) rootView
-                    .findViewById(R.id.content_header_button2);
-            mButton3 = (LinearLayout) rootView
-                    .findViewById(R.id.content_header_button3);
-            mStarLoveButton = (ImageButton) rootView
-                    .findViewById(R.id.content_header_star_love_button);
-            mButton4 = (Button) rootView
-                    .findViewById(R.id.content_header_button4);
         } else if (layoutId == R.layout.content_header_user_navdrawer) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.content_header_textview_user_navdrawer);
@@ -182,6 +148,48 @@ public class ViewHolder {
         }
         if (mMainClickArea == null) {
             mMainClickArea = rootView;
+        }
+    }
+
+    public ViewHolder(View imageFrame, View headerFrame, int layoutId) {
+        mLayoutId = layoutId;
+        if (layoutId == R.layout.content_header
+                || layoutId == R.layout.content_header_user) {
+            mTextView1 = (TextView) headerFrame
+                    .findViewById(R.id.content_header_textview);
+            mTextView2 = (TextView) headerFrame
+                    .findViewById(R.id.content_header_textview2);
+            mTextView3 = (TextView) headerFrame
+                    .findViewById(R.id.content_header_textview3);
+            mTextView4 = (TextView) headerFrame
+                    .findViewById(R.id.content_header_textview4);
+            mTextView5 = (TextView) headerFrame
+                    .findViewById(R.id.content_header_textview5);
+            mRoundedImage = (ImageView) headerFrame
+                    .findViewById(R.id.content_header_roundedimage);
+            mImageView1 = (ImageView) imageFrame
+                    .findViewById(R.id.content_header_image);
+            mImageView2 = (ImageView) imageFrame
+                    .findViewById(R.id.content_header_image2);
+            mImageView3 = (ImageView) imageFrame
+                    .findViewById(R.id.content_header_image3);
+            mImageView4 = (ImageView) imageFrame
+                    .findViewById(R.id.content_header_image4);
+            mImageViewFrame = (LinearLayout) imageFrame
+                    .findViewById(R.id.content_header_image_frame2);
+            mButton1 = (LinearLayout) headerFrame
+                    .findViewById(R.id.content_header_button1);
+            mButton2 = (LinearLayout) headerFrame
+                    .findViewById(R.id.content_header_button2);
+            mButton3 = (LinearLayout) headerFrame
+                    .findViewById(R.id.content_header_button3);
+            mStarLoveButton = (ImageButton) headerFrame
+                    .findViewById(R.id.content_header_star_love_button);
+            mButton4 = (Button) headerFrame
+                    .findViewById(R.id.content_header_button4);
+        }
+        if (mMainClickArea == null) {
+            mMainClickArea = headerFrame;
         }
     }
 

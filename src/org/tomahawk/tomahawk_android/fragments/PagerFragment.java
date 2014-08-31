@@ -17,8 +17,11 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
+import org.tomahawk.tomahawk_android.views.PageIndicator;
 import org.tomahawk.tomahawk_android.views.TomahawkScrollView;
 
 import android.os.Build;
@@ -28,6 +31,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import java.util.List;
@@ -40,12 +44,36 @@ public class PagerFragment extends ContentHeaderFragment {
         return inflater.inflate(R.layout.pagerfragment_layout, container, false);
     }
 
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        //Add a spacer to the top of the scrollView
+        TomahawkScrollView scrollView =
+                (TomahawkScrollView) view.findViewById(R.id.scrollview);
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) scrollView.getLayoutParams();
+        int offset = getResources().getDimensionPixelSize(R.dimen.header_clear_space);
+        int indicatorHeight = getResources().getDimensionPixelSize(R.dimen.pager_indicator_height);
+        params.setMargins(0, offset + indicatorHeight, 0, 0);
+        scrollView.setLayoutParams(params);
+    }
+
     protected void setupPager(List<String> fragmentClassNames, List<String> fragmentTitles,
             List<Bundle> fragmentBundles, int initialPage) {
         TomahawkPagerAdapter adapter = new TomahawkPagerAdapter(getChildFragmentManager(),
                 fragmentClassNames, fragmentTitles, fragmentBundles, ((Object) this).getClass());
         final ViewPager fragmentPager = (ViewPager) getView().findViewById(R.id.fragmentpager);
         fragmentPager.setAdapter(adapter);
+        LinearLayout pageIndicatorContainer =
+                (LinearLayout) getView().findViewById(R.id.page_indicator_container);
+        FrameLayout.LayoutParams params =
+                (FrameLayout.LayoutParams) pageIndicatorContainer.getLayoutParams();
+        int margin = getResources().getDimensionPixelSize(R.dimen.header_height_large)
+                + getResources().getDimensionPixelSize(R.dimen.header_clear_space);
+        params.setMargins(0, margin, 0, 0);
+        pageIndicatorContainer.setLayoutParams(params);
+        pageIndicatorContainer.setVisibility(View.VISIBLE);
+        PageIndicator pageIndicator =
+                (PageIndicator) pageIndicatorContainer.findViewById(R.id.page_indicator);
+        pageIndicator.setViewPager(fragmentPager);
         final TomahawkScrollView scrollView =
                 (TomahawkScrollView) getView().findViewById(R.id.scrollview);
         scrollView.getViewTreeObserver().addOnGlobalLayoutListener(
@@ -61,15 +89,28 @@ public class PagerFragment extends ContentHeaderFragment {
                         }
                     }
                 });
-        scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
-            @Override
-            public void onScrollChanged() {
-
-            }
-        });
+        scrollView.getViewTreeObserver()
+                .addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+                    @Override
+                    public void onScrollChanged() {
+                        if (getView() != null) {
+                            int offset = getResources()
+                                    .getDimensionPixelSize(R.dimen.header_height_large);
+                            float delta = getView().findViewById(R.id.scrollview).getScrollY();
+                            animateContentHeader((int) (delta / offset * 10000f));
+                        }
+                    }
+                });
         if (initialPage >= 0) {
             fragmentPager.setCurrentItem(initialPage);
         }
+    }
+
+    protected void showContentHeader(TomahawkListItem item, Collection collection) {
+        super.showContentHeader(
+                (FrameLayout) getView().findViewById(R.id.content_header_image_frame_pager),
+                (FrameLayout) getView().findViewById(R.id.content_header_frame_pager), item,
+                collection);
     }
 
     @Override

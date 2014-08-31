@@ -81,7 +81,7 @@ public class TracksFragment extends TomahawkFragment {
         if (item != null) {
             if (item.getItemId() == R.id.action_gotoartist_item) {
                 FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                        getActivity().getSupportFragmentManager(), AlbumsFragment.class,
+                        getActivity().getSupportFragmentManager(), ArtistPagerFragment.class,
                         mAlbum.getArtist().getCacheKey(), TomahawkFragment.TOMAHAWK_ARTIST_KEY,
                         mCollection);
             }

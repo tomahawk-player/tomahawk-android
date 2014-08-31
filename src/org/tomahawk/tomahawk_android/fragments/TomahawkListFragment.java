@@ -18,9 +18,11 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.StickyBaseAdapter;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -129,6 +131,20 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         } else {
             animateContentHeader(10000);
         }
+    }
+
+    protected void showContentHeader(TomahawkListItem item, Collection collection) {
+        super.showContentHeader(
+                (FrameLayout) getView().findViewById(R.id.content_header_image_frame),
+                (FrameLayout) getView().findViewById(R.id.content_header_frame), item, collection);
+
+        //Add a spacer to the top of the listview
+        FrameLayout listFrame = (FrameLayout) getView().findViewById(
+                R.id.fragmentLayout_listLayout_frameLayout);
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) listFrame.getLayoutParams();
+        int offset = getResources().getDimensionPixelSize(R.dimen.header_clear_space);
+        params.setMargins(0, offset, 0, 0);
+        listFrame.setLayoutParams(params);
     }
 
     /**

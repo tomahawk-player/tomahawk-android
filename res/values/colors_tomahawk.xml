@@ -33,8 +33,8 @@
     <color name="disabled_resolver">#33FFFFFF</color>
     <color name="primary_textcolor">#FF222222</color>
     <color name="secondary_textcolor">#FF777777</color>
-    <color name="primary_textcolor_inverted">#FFdddddd</color>
-    <color name="secondary_textcolor_inverted">#FFcccccc</color>
+    <color name="primary_textcolor_inverted">#FFffffff</color>
+    <color name="secondary_textcolor_inverted">#FF777777</color>
 
     <color name="menu_icon_background_dashboard">#FF63b2dc</color>
     <color name="menu_icon_background_collection">#FF707be1</color>
