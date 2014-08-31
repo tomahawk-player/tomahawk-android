@@ -319,7 +319,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         if (artistInfo != null) {
                             String imageId = TomahawkUtils.carelessGet(artistInfo.images, 0);
                             HatchetImage image = TomahawkUtils.carelessGet(artists.images, imageId);
-                            InfoSystemUtils.fillArtist(artistToBeFilled, image);
+                            InfoSystemUtils
+                                    .fillArtist(artistToBeFilled, image, artistInfo.wikiabstract);
                             hatchetCollection.addArtist(artistToBeFilled);
                         }
                     }

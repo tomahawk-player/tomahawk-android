@@ -25,6 +25,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.HatchetCollection;
+import org.tomahawk.libtomahawk.collection.ListItemString;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetAlbumInfo;
@@ -108,10 +109,13 @@ public class InfoSystemUtils {
      * Fill the given artist with the given artistinfo, without overriding any values that have
      * already been set
      */
-    public static Artist fillArtist(Artist artist, HatchetImage image) {
+    public static Artist fillArtist(Artist artist, HatchetImage image, String wikiabstract) {
         if (artist.getImage() == null && image != null && !TextUtils.isEmpty(image.squareurl)) {
             artist.setImage(org.tomahawk.libtomahawk.collection.Image.get(image.squareurl, true,
                     image.width, image.height));
+        }
+        if (wikiabstract != null) {
+            artist.setBio(new ListItemString(wikiabstract));
         }
         return artist;
     }
@@ -141,7 +145,7 @@ public class InfoSystemUtils {
      */
     public static Artist convertToArtist(HatchetArtistInfo artistInfo, HatchetImage image) {
         Artist artist = Artist.get(artistInfo.name);
-        fillArtist(artist, image);
+        fillArtist(artist, image, artistInfo.wikiabstract);
         return artist;
     }
 

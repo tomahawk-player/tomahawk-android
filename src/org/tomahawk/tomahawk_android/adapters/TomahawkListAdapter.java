@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.adapters;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
+import org.tomahawk.libtomahawk.collection.ListItemString;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
@@ -273,6 +274,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
             }
             if (viewHolder.getLayoutId() == R.layout.single_line_list_item) {
                 viewHolder.getTextView1().setText(item.getName());
+            } else if (viewHolder.getLayoutId() == R.layout.list_item_text) {
+                AdapterUtils.fillView(mActivity, viewHolder, (ListItemString) item);
             } else if (viewHolder.getLayoutId() == R.layout.list_item
                     || viewHolder.getLayoutId() == R.layout.list_item_highlighted) {
                 if (item instanceof Query) {
@@ -442,6 +445,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
             return R.layout.single_line_list_item;
         } else if (isHighlighted) {
             return R.layout.list_item_highlighted;
+        } else if (item instanceof ListItemString) {
+            return R.layout.list_item_text;
         } else {
             return R.layout.list_item;
         }

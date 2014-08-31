@@ -110,7 +110,7 @@ public class ArtistPagerFragment extends PagerFragment {
 
         List<String> fragmentClassNames = new ArrayList<String>();
         fragmentClassNames.add(AlbumsFragment.class.getName());
-        fragmentClassNames.add(AlbumsFragment.class.getName());
+        fragmentClassNames.add(BiographyFragment.class.getName());
         fragmentClassNames.add(AlbumsFragment.class.getName());
         List<String> fragmentTitles = new ArrayList<String>();
         fragmentTitles.add(getString(R.string.music));

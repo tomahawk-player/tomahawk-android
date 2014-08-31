@@ -77,6 +77,8 @@ public class ViewHolder {
         if (layoutId == R.layout.single_line_list_item) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.single_line_list_textview);
+        } else if (layoutId == R.layout.list_item_text) {
+            mTextView1 = (TextView) rootView;
         } else if (layoutId == R.layout.content_header_user_navdrawer) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.content_header_textview_user_navdrawer);

@@ -23,6 +23,7 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.HatchetCollection;
 import org.tomahawk.libtomahawk.collection.Image;
+import org.tomahawk.libtomahawk.collection.ListItemString;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
@@ -215,6 +216,11 @@ public class AdapterUtils {
         viewHolder.getTextView4().setVisibility(View.VISIBLE);
         viewHolder.getTextView4().setText(album.getArtist().getName());
     }
+
+    public static void fillView(Context context, ViewHolder viewHolder, ListItemString string) {
+        viewHolder.getTextView1().setText(string.getName());
+    }
+
 
     public static void fillView(Context context, ViewHolder viewHolder, SocialAction socialAction,
             boolean showAsPlaying, boolean showResolvedBy) {
