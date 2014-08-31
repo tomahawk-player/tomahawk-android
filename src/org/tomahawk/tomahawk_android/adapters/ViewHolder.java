@@ -84,8 +84,6 @@ public class ViewHolder {
                     .findViewById(R.id.content_header_textview_user_navdrawer);
             mRoundedImage = (ImageView) rootView
                     .findViewById(R.id.content_header_roundedimage_user_navdrawer);
-            mImageView1 = (ImageView) rootView
-                    .findViewById(R.id.content_header_image_user_navdrawer);
         } else if (layoutId == R.layout.list_item
                 || layoutId == R.layout.list_item_highlighted) {
             mImageView1 = (ImageView) rootView

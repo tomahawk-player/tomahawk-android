@@ -124,10 +124,10 @@
     <string name="menu_item_share">Share</string>
     <string name="menu_item_playshuffled">Play shuffled</string>
     <string name="share_default_prefix">#musthear</string>
-    <string name="hub_title_dashboard">Dashboard</string>
-    <string name="hub_title_collection">Collection</string>
-    <string name="hub_title_playlists">Playlists</string>
-    <string name="hub_title_lovedtracks">Favorites</string>
+    <string name="hub_title_feed">FEED</string>
+    <string name="hub_title_collection">COLLECTION</string>
+    <string name="hub_title_playlists">PLAYLISTS</string>
+    <string name="hub_title_lovedtracks">FAVORITES</string>
     <string name="fake_preferences_bitrate_low">Normal</string>
     <string name="fake_preferences_bitrate_medium">Good</string>
     <string name="fake_preferences_bitrate_high">Best</string>

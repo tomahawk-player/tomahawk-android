@@ -20,8 +20,11 @@
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
-              android:layout_height="@dimen/menu_item_height"
+              android:layout_height="wrap_content"
               android:orientation="horizontal"
+              android:paddingLeft="@dimen/padding_superlarge"
+              android:paddingTop="@dimen/padding_large"
+              android:paddingBottom="@dimen/padding_large"
               android:background="@drawable/selectable_background_tomahawk">
 
     <org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout
@@ -44,10 +47,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
+            android:paddingLeft="@dimen/padding_superlarge"
             android:ellipsize="marquee"
-            android:padding="@dimen/padding_small"
             android:singleLine="true"
-            android:textColor="@color/primary_textcolor"
+            android:textColor="@color/primary_textcolor_inverted"
             android:textSize="@dimen/text_size_large"/>
 
 </LinearLayout>

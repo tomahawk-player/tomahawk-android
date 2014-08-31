@@ -104,9 +104,6 @@ public class AdapterUtils {
 
     public static void fillContentHeaderSmall(Context context, ViewHolder viewHolder, User user) {
         viewHolder.getTextView1().setText(user.getName());
-        viewHolder.getImageView1().setVisibility(View.VISIBLE);
-        TomahawkUtils.loadDrawableIntoImageView(context, viewHolder.getImageView1(),
-                R.drawable.no_album_art_placeholder);
         TomahawkUtils.loadRoundedImageIntoImageView(context, viewHolder.getRoundedImage(),
                 user.getImage(), Image.getLargeImageSize());
         viewHolder.getRoundedImage().setVisibility(View.VISIBLE);

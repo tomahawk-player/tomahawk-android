@@ -81,12 +81,11 @@
 
     <!-- The navigation drawer -->
     <ListView android:id="@+id/left_drawer"
-              android:layout_width="240dp"
+              android:layout_width="304dp"
               android:layout_height="match_parent"
               android:layout_gravity="start"
               android:choiceMode="singleChoice"
-              android:divider="@color/listview_divider"
-              android:dividerHeight="1px"
-              android:background="@color/primary_background"/>
+              android:dividerHeight="0px"
+              android:background="@color/navdrawer_background"/>
 
 </android.support.v4.widget.DrawerLayout>

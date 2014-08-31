@@ -54,8 +54,6 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
         String title;
 
         int icon;
-
-        int color;
     }
 
     /**
@@ -65,18 +63,14 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
      * @param stringArray Array of {@link String}s containing every menu entry text
      * @param iconArray   {@link TypedArray} containing an array of resource ids to be used to show
      *                    an icon left to every menu entry text
-     * @param colorArray  {@link TypedArray} containing an array of resource ids to be used to show
-     *                    the appropriately colored background (fancy stuff :>)
      */
-    public TomahawkMenuAdapter(Activity activity, String[] stringArray, TypedArray iconArray,
-            TypedArray colorArray) {
+    public TomahawkMenuAdapter(Activity activity, String[] stringArray, TypedArray iconArray) {
         mActivity = activity;
         mLayoutInflater = activity.getLayoutInflater();
         for (int i = 0; i < stringArray.length; i++) {
             ResourceHolder holder = new ResourceHolder();
             holder.title = stringArray[i];
             holder.icon = iconArray.getResourceId(i, 0);
-            holder.color = mActivity.getResources().getColor(colorArray.getResourceId(i, 0));
             mItems.add(holder);
         }
     }
@@ -171,7 +165,6 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
             ResourceHolder holder = (ResourceHolder) item;
             textView.setText(holder.title);
             TomahawkUtils.loadDrawableIntoImageView(mActivity, imageView, holder.icon);
-            imageView.setBackgroundColor(holder.color);
             return view;
         } else {
             return new View(null);
