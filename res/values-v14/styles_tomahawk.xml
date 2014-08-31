@@ -14,6 +14,11 @@
     <style name="ActionBar.Transparent.Tomahawk" parent="@style/Widget.AppCompat.ActionBar">
         <item name="android:background">@android:color/transparent</item>
         <item name="android:progressBarStyle">@style/ProgressBar.Tomahawk</item>
+        <item name="android:titleTextStyle">@style/TitleBarTextColor</item>
+    </style>
+
+    <style name="TitleBarTextColor" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/primary_textcolor_inverted</item>
     </style>
 
     <style name="OverFlow" parent="@android:style/Widget.Holo.ActionButton.Overflow">

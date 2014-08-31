@@ -23,13 +23,8 @@
              android:layout_width="match_parent"
              android:layout_height="wrap_content">
 
-    <ImageView android:id="@+id/content_header_image_user_navdrawer"
-               android:layout_width="match_parent"
-               android:layout_height="@dimen/header_height_large_navdrawer"
-               android:scaleType="centerCrop"/>
-
     <LinearLayout android:layout_width="match_parent"
-                  android:layout_height="@dimen/header_height_large_navdrawer"
+                  android:layout_height="wrap_content"
                   android:orientation="vertical">
 
         <View android:layout_width="match_parent"
@@ -37,36 +32,30 @@
 
         <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:orientation="horizontal"
-                android:background="@drawable/above_shadow_darker">
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
             <ImageView
                     android:id="@+id/content_header_roundedimage_user_navdrawer"
                     android:layout_width="@dimen/header_roundedimage_height_navdrawer"
                     android:layout_height="@dimen/header_roundedimage_height_navdrawer"
-                    android:src="@drawable/no_album_art_placeholder"/>
+                    android:src="@drawable/no_album_art_placeholder"
+                    android:layout_marginLeft="@dimen/padding_superlarge"/>
 
-            <LinearLayout
+            <TextView
+                    android:id="@+id/content_header_textview_user_navdrawer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_gravity="bottom">
+                    android:ellipsize="marquee"
+                    android:singleLine="true"
+                    android:textColor="@color/primary_textcolor_inverted"
+                    android:textSize="@dimen/text_size_large"
+                    android:paddingLeft="@dimen/padding_superlarge"
+                    android:paddingBottom="@dimen/padding_small"
+                    android:text="mrmaffen"/>
 
-                <TextView
-                        android:id="@+id/content_header_textview_user_navdrawer"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center|left"
-                        android:ellipsize="marquee"
-                        android:singleLine="true"
-                        android:textColor="@color/primary_textcolor_inverted"
-                        android:textSize="@dimen/text_size_large"
-                        android:padding="@dimen/padding_small"/>
-
-            </LinearLayout>
         </LinearLayout>
+
     </LinearLayout>
 
 </FrameLayout>

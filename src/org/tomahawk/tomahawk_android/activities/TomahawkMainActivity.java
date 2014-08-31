@@ -676,8 +676,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
         TomahawkMenuAdapter slideMenuAdapter = new TomahawkMenuAdapter(this,
                 getResources().getStringArray(R.array.slide_menu_items),
-                getResources().obtainTypedArray(R.array.slide_menu_items_icons),
-                getResources().obtainTypedArray(R.array.slide_menu_items_colors));
+                getResources().obtainTypedArray(R.array.slide_menu_items_icons));
         slideMenuAdapter.setShowHatchetMenu(true);
         slideMenuAdapter.setUser(authenticatorUtils.getLoggedInUser());
         mDrawerList.setAdapter(slideMenuAdapter);
