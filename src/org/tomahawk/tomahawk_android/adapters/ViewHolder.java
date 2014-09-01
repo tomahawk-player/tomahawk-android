@@ -178,8 +178,6 @@ public class ViewHolder {
                     .findViewById(R.id.content_header_image3);
             mImageView4 = (ImageView) imageFrame
                     .findViewById(R.id.content_header_image4);
-            mImageViewFrame = (LinearLayout) imageFrame
-                    .findViewById(R.id.content_header_image_frame2);
             mButton1 = (LinearLayout) headerFrame
                     .findViewById(R.id.content_header_button1);
             mButton2 = (LinearLayout) headerFrame
