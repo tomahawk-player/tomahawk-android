@@ -445,7 +445,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
         if (segment != null) {
             return mSegments.indexOf(segment);
         } else {
-            return 0;
+            return -1;
         }
     }
 
