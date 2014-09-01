@@ -46,6 +46,8 @@ public class PagerFragment extends ContentHeaderFragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
         //Add a spacer to the top of the scrollView
         TomahawkScrollView scrollView =
                 (TomahawkScrollView) view.findViewById(R.id.scrollview);

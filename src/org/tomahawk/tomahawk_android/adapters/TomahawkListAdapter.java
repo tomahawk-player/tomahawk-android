@@ -28,6 +28,7 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.AdapterUtils;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
@@ -36,6 +37,7 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
@@ -393,22 +395,37 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
      */
     @Override
     public View getHeaderView(int position, View convertView, ViewGroup parent) {
-        int headerStringResId = (int) getHeaderId(position);
-        if (headerStringResId > 0) {
+        Segment segment = getSegment(position);
+        if (segment != null && segment.getHeaderStringResId() > 0) {
             View view = null;
             ViewHolder viewHolder = null;
             if (convertView != null) {
                 viewHolder = (ViewHolder) convertView.getTag();
                 view = convertView;
             }
-            if (viewHolder == null
-                    || viewHolder.getLayoutId() != R.layout.single_line_list_header) {
-                view = mLayoutInflater.inflate(R.layout.single_line_list_header, null);
-                viewHolder = new ViewHolder(view, R.layout.single_line_list_header);
+            int layoutId = getHeaderViewType(segment);
+            if (viewHolder == null || viewHolder.getLayoutId() != layoutId) {
+                view = mLayoutInflater.inflate(layoutId, null);
+                viewHolder = new ViewHolder(view, layoutId);
                 view.setTag(viewHolder);
             }
 
-            viewHolder.getTextView1().setText(headerStringResId);
+            if (layoutId == R.layout.dropdown_header) {
+                ArrayList<CharSequence> list = new ArrayList<CharSequence>();
+                for (int resId : segment.getHeaderStringResIds()) {
+                    list.add(TomahawkApp.getContext().getString(resId));
+                }
+                ArrayAdapter<CharSequence> adapter =
+                        new ArrayAdapter<CharSequence>(TomahawkApp.getContext(),
+                                R.layout.dropdown_header_textview, list);
+                adapter.setDropDownViewResource(R.layout.dropdown_header_dropdown_textview);
+                viewHolder.getSpinner().setAdapter(adapter);
+                viewHolder.getSpinner().setSelection(segment.getInitialPos());
+                viewHolder.getSpinner()
+                        .setOnItemSelectedListener(segment.getSpinnerClickListener());
+            } else if (layoutId == R.layout.single_line_list_header) {
+                viewHolder.getTextView1().setText(segment.getHeaderStringResId());
+            }
             return view;
         } else {
             return new View(mActivity);
@@ -426,7 +443,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
     public long getHeaderId(int position) {
         Segment segment = getSegment(position);
         if (segment != null) {
-            return getSegment(position).getHeaderStringResId();
+            return mSegments.indexOf(segment);
         } else {
             return 0;
         }
@@ -449,6 +466,14 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
             return R.layout.list_item_text;
         } else {
             return R.layout.list_item;
+        }
+    }
+
+    private int getHeaderViewType(Segment segment) {
+        if (segment.isSpinnerSegment()) {
+            return R.layout.dropdown_header;
+        } else {
+            return R.layout.single_line_list_header;
         }
     }
 }

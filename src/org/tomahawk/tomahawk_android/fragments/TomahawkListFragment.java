@@ -28,6 +28,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -144,6 +145,20 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) listFrame.getLayoutParams();
         int offset = getResources().getDimensionPixelSize(R.dimen.header_clear_space);
         params.setMargins(0, offset, 0, 0);
+        listFrame.setLayoutParams(params);
+    }
+
+    protected void setActionBarOffset(){
+        FrameLayout listFrame =
+                (FrameLayout) getView().findViewById(R.id.fragmentLayout_listLayout_frameLayout);
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) listFrame.getLayoutParams();
+        int actionBarHeight = 0;
+        TypedValue tv = new TypedValue();
+        if (getActivity().getTheme().resolveAttribute(R.attr.actionBarSize, tv, true)) {
+            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,
+                    getResources().getDisplayMetrics());
+        }
+        params.setMargins(0, actionBarHeight, 0, 0);
         listFrame.setLayoutParams(params);
     }
 

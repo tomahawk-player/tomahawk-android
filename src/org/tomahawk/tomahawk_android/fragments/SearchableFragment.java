@@ -86,6 +86,7 @@ public class SearchableFragment extends TomahawkFragment
         if (mCurrentQueryString != null) {
             resolveFullTextQuery(mCurrentQueryString);
         }
+        setActionBarOffset();
         updateAdapter();
     }
 

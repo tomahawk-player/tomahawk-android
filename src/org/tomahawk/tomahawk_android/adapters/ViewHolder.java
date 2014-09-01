@@ -109,6 +109,9 @@ public class ViewHolder {
         } else if (layoutId == R.layout.single_line_list_header) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.single_line_list_header_textview);
+        } else if (layoutId == R.layout.dropdown_header) {
+            mSpinner = (Spinner) rootView
+                    .findViewById(R.id.single_line_list_dropdown_header_spinner);
         } else if (layoutId == R.layout.fake_preferences_plain) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.fake_preferences_textview);

@@ -21,6 +21,7 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.res.Resources;
+import android.widget.AdapterView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +34,13 @@ public class Segment {
 
     private int mVerticalPadding;
 
-    private int mHeaderStringResId = -1;
+    private boolean mSpinnerSegment;
+
+    private AdapterView.OnItemSelectedListener mSpinnerClickListener;
+
+    private int mInitialPos;
+
+    private List<Integer> mHeaderStringResId = new ArrayList<Integer>();
 
     private List<TomahawkListItem> mListItems = new ArrayList<TomahawkListItem>();
 
@@ -45,7 +52,17 @@ public class Segment {
 
     public Segment(int headerStringResId, List<TomahawkListItem> listItems) {
         this(listItems);
-        mHeaderStringResId = headerStringResId;
+        mHeaderStringResId.add(headerStringResId);
+    }
+
+    public Segment(int initialPos, List<Integer> headerStringResIds,
+            AdapterView.OnItemSelectedListener spinnerClickListener,
+            List<TomahawkListItem> listItems) {
+        this(listItems);
+        mInitialPos = initialPos;
+        mHeaderStringResId.addAll(headerStringResIds);
+        mSpinnerClickListener = spinnerClickListener;
+        mSpinnerSegment = true;
     }
 
     public Segment(List<TomahawkListItem> listItems, int columnCount, int horizontalPaddingResId,
@@ -70,11 +87,41 @@ public class Segment {
     public Segment(int headerStringResId, List<TomahawkListItem> listItems, int columnCount,
             int horizontalPaddingResId, int verticalPaddingResId) {
         this(listItems, columnCount, horizontalPaddingResId, verticalPaddingResId);
-        mHeaderStringResId = headerStringResId;
+        mHeaderStringResId.add(headerStringResId);
+    }
+
+    public Segment(int initialPos, List<Integer> headerStringResIds,
+            AdapterView.OnItemSelectedListener spinnerClickListener,
+            List<TomahawkListItem> listItems, int columnCount, int horizontalPaddingResId,
+            int verticalPaddingResId) {
+        this(listItems, columnCount, horizontalPaddingResId, verticalPaddingResId);
+        mInitialPos = initialPos;
+        mHeaderStringResId.addAll(headerStringResIds);
+        mSpinnerClickListener = spinnerClickListener;
+        mSpinnerSegment = true;
+    }
+
+    public int getInitialPos() {
+        return mInitialPos;
     }
 
     public int getHeaderStringResId() {
+        if (mHeaderStringResId.isEmpty()) {
+            return 0;
+        }
+        return mHeaderStringResId.get(0);
+    }
+
+    public List<Integer> getHeaderStringResIds() {
         return mHeaderStringResId;
+    }
+
+    public boolean isSpinnerSegment() {
+        return mSpinnerSegment;
+    }
+
+    public AdapterView.OnItemSelectedListener getSpinnerClickListener() {
+        return mSpinnerClickListener;
     }
 
     public int size() {

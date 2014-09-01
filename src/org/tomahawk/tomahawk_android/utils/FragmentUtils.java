@@ -21,6 +21,7 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
@@ -28,8 +29,8 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.CollectionFragment;
-import org.tomahawk.tomahawk_android.fragments.FavoritesFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
+import org.tomahawk.tomahawk_android.fragments.PlaylistEntriesFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
 import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
@@ -87,11 +88,8 @@ public class FragmentUtils {
                     Fragment.instantiate(activity, SocialActionsFragment.class.getName(), bundle),
                     FRAGMENT_TAG);
         } else {
-            Bundle bundle = new Bundle();
-            bundle.putString(CollectionManager.COLLECTION_ID,
-                    TomahawkApp.PLUGINNAME_USERCOLLECTION);
             ft.add(R.id.content_viewer_frame,
-                    Fragment.instantiate(activity, CollectionFragment.class.getName(), bundle),
+                    Fragment.instantiate(activity, CollectionFragment.class.getName()),
                     FRAGMENT_TAG);
         }
         ft.commit();
@@ -201,13 +199,13 @@ public class FragmentUtils {
                         SocialActionsFragment.SHOW_MODE_DASHBOARD);
                 break;
             case HUB_ID_COLLECTION:
-                Bundle bundle = new Bundle();
-                bundle.putString(CollectionManager.COLLECTION_ID,
-                        TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                replace(activity, fragmentManager, CollectionFragment.class, bundle);
+                replace(activity, fragmentManager, CollectionFragment.class);
                 break;
             case HUB_ID_LOVEDTRACKS:
-                replace(activity, fragmentManager, FavoritesFragment.class);
+                Bundle bundle = new Bundle();
+                bundle.putString(PlaylistsFragment.TOMAHAWK_PLAYLIST_KEY,
+                        DatabaseHelper.LOVEDITEMS_PLAYLIST_ID);
+                replace(activity, fragmentManager, PlaylistEntriesFragment.class, bundle);
                 break;
             case HUB_ID_PLAYLISTS:
                 replace(activity, fragmentManager, PlaylistsFragment.class);

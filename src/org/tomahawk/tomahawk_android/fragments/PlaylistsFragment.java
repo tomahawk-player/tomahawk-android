@@ -45,6 +45,7 @@ public class PlaylistsFragment extends TomahawkFragment {
 
         CollectionManager.getInstance().fetchPlaylists();
 
+        setActionBarOffset();
         updateAdapter();
     }
 

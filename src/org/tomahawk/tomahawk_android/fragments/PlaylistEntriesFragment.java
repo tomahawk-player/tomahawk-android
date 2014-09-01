@@ -108,6 +108,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
             mCurrentRequestIds.add(InfoSystem.getInstance().resolvePlaybackLog(mUser));
         }
 
+        setActionBarOffset();
         updateAdapter();
     }
 
