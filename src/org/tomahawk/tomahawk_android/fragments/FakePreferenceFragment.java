@@ -108,6 +108,8 @@ public class FakePreferenceFragment extends TomahawkListFragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        setActionBarOffset();
+
         // Fetch our SharedPreferences from the PreferenceManager
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);

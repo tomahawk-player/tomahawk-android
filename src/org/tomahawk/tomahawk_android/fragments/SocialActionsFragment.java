@@ -164,6 +164,7 @@ public class SocialActionsFragment extends TomahawkFragment {
                 }
             }
         }
+        setActionBarOffset();
         updateAdapter();
     }
 
@@ -251,7 +252,9 @@ public class SocialActionsFragment extends TomahawkFragment {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater,
                         segment, this);
                 tomahawkListAdapter.setShowResolvedBy(true);
-                tomahawkListAdapter.setShowContentHeaderSpacer(true);
+                if (mShowMode != SHOW_MODE_DASHBOARD) {
+                    tomahawkListAdapter.setShowContentHeaderSpacer(true);
+                }
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment);

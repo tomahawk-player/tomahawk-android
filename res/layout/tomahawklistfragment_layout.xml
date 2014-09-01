@@ -24,6 +24,11 @@
              android:layout_height="match_parent"
              android:orientation="vertical">
 
+    <View android:id="@+id/action_bar_background"
+          android:layout_width="match_parent"
+          android:layout_height="?attr/actionBarSize"
+          android:background="@color/primary_background_inverted"/>
+
     <FrameLayout android:id="@+id/content_header_image_frame"
                  android:layout_width="match_parent"
                  android:layout_height="match_parent"/>

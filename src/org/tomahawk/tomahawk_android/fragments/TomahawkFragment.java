@@ -324,8 +324,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 String fragmentName = getArguments().getString(CONTAINER_FRAGMENT_NAME);
                 if (fragmentName.equals(FavoritesFragment.class.getName())) {
                     mContainerFragmentClass = FavoritesFragment.class;
-                } else if (fragmentName.equals(CollectionFragment.class.getName())) {
-                    mContainerFragmentClass = CollectionFragment.class;
+                } else if (fragmentName.equals(OldCollectionFragment.class.getName())) {
+                    mContainerFragmentClass = OldCollectionFragment.class;
                 }
             }
             if (getArguments().containsKey(CONTAINER_FRAGMENT_PAGE)) {

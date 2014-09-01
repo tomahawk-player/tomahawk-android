@@ -28,7 +28,9 @@ public class TomahawkListItemComparator
         implements Comparator<TomahawkListItem> {
 
     //Modes which determine with which method are compared
-    public static final int COMPARE_ALPHA = 1;
+    public static final int COMPARE_ALPHA = 0;
+
+    public static final int COMPARE_ARTIST_ALPHA = 1;
 
     //Flag containing the current mode to be used
     private static int mFlag = COMPARE_ALPHA;
@@ -51,11 +53,12 @@ public class TomahawkListItemComparator
      * @param a2 Second {@link TomahawkListItem} Object
      * @return int containing comparison score
      */
-    public int compare(TomahawkListItem a1,
-            TomahawkListItem a2) {
+    public int compare(TomahawkListItem a1, TomahawkListItem a2) {
         switch (mFlag) {
             case COMPARE_ALPHA:
                 return a1.getName().compareTo(a2.getName());
+            case COMPARE_ARTIST_ALPHA:
+                return a1.getArtist().getName().compareTo(a2.getArtist().getName());
         }
         return 0;
     }

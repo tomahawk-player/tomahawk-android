@@ -55,6 +55,7 @@ public class UsersFragment extends TomahawkFragment {
                 }
             }
         }
+        setActionBarOffset();
         updateAdapter();
     }
 

@@ -74,6 +74,10 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
      */
     protected void showContentHeader(FrameLayout imageFrame, FrameLayout headerFrame,
             TomahawkListItem item, Collection collection) {
+        View actionBarBg = getView().findViewById(R.id.action_bar_background);
+        if (actionBarBg != null) {
+            actionBarBg.setVisibility(View.GONE);
+        }
         //Inflate views and add them into our frames
         LayoutInflater inflater = (LayoutInflater)
                 TomahawkApp.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
