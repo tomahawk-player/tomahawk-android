@@ -49,6 +49,9 @@ public class ArtistsFragment extends TomahawkFragment {
                 mShowMode = getArguments().getInt(SHOW_MODE);
             }
         }
+        if (mContainerFragmentClass == null) {
+            getActivity().setTitle("");
+        }
         updateAdapter();
     }
 
@@ -95,6 +98,17 @@ public class ArtistsFragment extends TomahawkFragment {
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(new Segment(artists));
+            }
+        } else if (mSearchArtists != null) {
+            ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
+            items.addAll(mSearchArtists);
+            if (getListAdapter() == null) {
+                TomahawkListAdapter tomahawkListAdapter =
+                        new TomahawkListAdapter((TomahawkMainActivity) getActivity(),
+                                layoutInflater, new Segment(items), this);
+                setListAdapter(tomahawkListAdapter);
+            } else {
+                getListAdapter().setSegments(new Segment(items));
             }
         } else {
             artists.addAll(mCollection.getArtists());

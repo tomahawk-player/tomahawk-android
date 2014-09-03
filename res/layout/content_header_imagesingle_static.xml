@@ -18,14 +18,17 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:id="@+id/content_header"
-             android:layout_width="match_parent"
-             android:layout_height="@dimen/header_clear_space_scrollable">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/content_header_imagesingle_static"
+              android:layout_width="match_parent"
+              android:layout_height="@dimen/header_clear_space_nonscrollable_static"
+              android:orientation="vertical">
 
-    <View android:layout_width="match_parent"
-          android:layout_height="@dimen/divider_height_thick"
-          android:background="@drawable/above_shadow"
-          android:layout_gravity="bottom"/>
+    <ImageView android:id="@+id/content_header_image"
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:scaleType="centerCrop"
+               android:adjustViewBounds="true"
+               android:src="@drawable/no_album_art_placeholder"/>
 
-</FrameLayout>
+</LinearLayout>

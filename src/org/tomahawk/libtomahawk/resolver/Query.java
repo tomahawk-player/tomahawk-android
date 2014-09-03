@@ -522,6 +522,9 @@ public class Query implements TomahawkListItem {
 
     @Override
     public String getName() {
+        if (isFullTextQuery()) {
+            return mFullTextQuery;
+        }
         return getPreferredTrack().getName();
     }
 

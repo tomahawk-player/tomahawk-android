@@ -47,43 +47,9 @@
             sothree:panelHeight="@dimen/row_height_verylarge"
             sothree:shadowHeight="4dp">
 
-        <LinearLayout
-                android:id="@+id/content_frame"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-            <LinearLayout
-                    android:id="@+id/search_panel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_gravity="center_horizontal">
-
-                <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text="@string/searchfragment_searchforonlinesources"
-                        android:textSize="@dimen/text_size_small"
-                        android:textColor="@color/primary_textcolor"
-                        android:padding="@dimen/padding_verysmall"/>
-
-                <CheckBox
-                        android:id="@+id/search_onlinesources_checkbox"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:checked="true"/>
-            </LinearLayout>
-
-            <FrameLayout
-                    android:id="@+id/content_viewer_frame"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"/>
-
-        </LinearLayout>
+        <FrameLayout android:id="@+id/content_viewer_frame"
+                     android:layout_width="match_parent"
+                     android:layout_height="match_parent"/>
 
         <FrameLayout android:id="@+id/playback_fragment_frame"
                      android:layout_width="match_parent"

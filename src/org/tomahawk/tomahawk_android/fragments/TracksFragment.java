@@ -94,6 +94,9 @@ public class TracksFragment extends TomahawkFragment {
     public void onResume() {
         super.onResume();
 
+        if (mContainerFragmentClass == null) {
+            getActivity().setTitle("");
+        }
         updateAdapter();
     }
 
@@ -141,7 +144,8 @@ public class TracksFragment extends TomahawkFragment {
     }
 
     /**
-     * Update this {@link TomahawkFragment}'s {@link TomahawkListAdapter} content
+     * Update this {@link TomahawkFragment}'s {@link org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter}
+     * content
      */
     @Override
     protected void updateAdapter() {
@@ -195,6 +199,15 @@ public class TracksFragment extends TomahawkFragment {
                 getListAdapter().setSegments(segment);
             }
             showContentHeader(mQuery, mCollection);
+        } else if (mSearchSongs != null) {
+            queries.addAll(mSearchSongs);
+            if (getListAdapter() == null) {
+                tomahawkListAdapter = new TomahawkListAdapter((TomahawkMainActivity) getActivity(),
+                        layoutInflater, new Segment(queries), this);
+                setListAdapter(tomahawkListAdapter);
+            } else {
+                getListAdapter().setSegments(new Segment(queries));
+            }
         } else {
             queries.addAll(mCollection.getQueries());
             Segment segment = new Segment(queries);

@@ -35,6 +35,9 @@ public class BiographyFragment extends TomahawkFragment {
     public void onResume() {
         super.onResume();
 
+        if (mContainerFragmentClass == null) {
+            getActivity().setTitle("");
+        }
         updateAdapter();
     }
 

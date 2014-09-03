@@ -24,6 +24,7 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.GrayOutTransformation;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
+import org.tomahawk.tomahawk_android.views.BlurTransformation;
 import org.tomahawk.tomahawk_android.views.CircularImageTransformation;
 
 import android.accounts.Account;
@@ -569,6 +570,31 @@ public class TomahawkUtils {
     public static void loadImageIntoImageView(Context context, ImageView imageView, Image image,
             int width) {
         loadImageIntoImageView(context, imageView, image, width, true);
+    }
+
+    /**
+     * Load a {@link android.graphics.Bitmap} asynchronously
+     *
+     * @param context   the context needed for fetching resources
+     * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
+     *                  android.graphics.Bitmap}
+     * @param image     the path to load the image from
+     * @param width     the width in density independent pixels to scale the image down to
+     */
+    public static void loadBlurredImageIntoImageView(Context context, ImageView imageView,
+            Image image, int width) {
+        if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
+            String imagePath = buildImagePath(context, image, width);
+            RequestCreator creator = Picasso.with(context).load(
+                    TomahawkUtils.preparePathForPicasso(imagePath)).resize(width, width);
+            creator.transform(new BlurTransformation());
+            creator.into(imageView);
+        } else {
+            RequestCreator creator = Picasso.with(context).load(R.drawable.no_album_art_placeholder)
+                    .resize(width, width);
+            creator.transform(new BlurTransformation());
+            creator.into(imageView);
+        }
     }
 
     /**

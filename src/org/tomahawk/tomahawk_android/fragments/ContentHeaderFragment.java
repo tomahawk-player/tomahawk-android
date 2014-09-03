@@ -34,7 +34,6 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.ViewHolder;
 import org.tomahawk.tomahawk_android.utils.AdapterUtils;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -73,7 +72,7 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
      *             show in the header view
      */
     protected void showContentHeader(FrameLayout imageFrame, FrameLayout headerFrame,
-            TomahawkListItem item, Collection collection) {
+            Object item, Collection collection, boolean dynamic) {
         View actionBarBg = getView().findViewById(R.id.action_bar_background);
         if (actionBarBg != null) {
             actionBarBg.setVisibility(View.GONE);
@@ -93,20 +92,32 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
             }
         }
         View headerImage = null;
+        int layoutId;
+        int viewId;
         if (artistImages.size() > 3) {
-            if (imageFrame.findViewById(R.id.content_header_imagegrid) == null) {
-                imageFrame.removeAllViews();
-                headerImage = inflater
-                        .inflate(R.layout.content_header_imagegrid, imageFrame, false);
-                imageFrame.addView(headerImage);
+            if (dynamic) {
+                layoutId = R.layout.content_header_imagegrid;
+                viewId = R.id.content_header_imagegrid;
+            } else {
+                layoutId = R.layout.content_header_imagegrid_static;
+                viewId = R.id.content_header_imagegrid_static;
             }
-        } else if (imageFrame.findViewById(R.id.content_header_imagesingle) == null) {
+        } else {
+            if (dynamic) {
+                layoutId = R.layout.content_header_imagesingle;
+                viewId = R.id.content_header_imagesingle;
+            } else {
+                layoutId = R.layout.content_header_imagesingle_static;
+                viewId = R.id.content_header_imagesingle_static;
+            }
+        }
+        if (imageFrame.findViewById(viewId) == null) {
             imageFrame.removeAllViews();
-            headerImage = inflater.inflate(R.layout.content_header_imagesingle, imageFrame, false);
+            headerImage = inflater.inflate(layoutId, imageFrame, false);
             imageFrame.addView(headerImage);
         }
         final View finalHeaderImage = headerImage;
-        if (finalHeaderImage != null) {
+        if (finalHeaderImage != null && dynamic) {
             headerImage.getViewTreeObserver().addOnGlobalLayoutListener(
                     new ViewTreeObserver.OnGlobalLayoutListener() {
                         @Override
@@ -122,48 +133,60 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
                         }
                     });
         }
-        int layoutId;
-        int viewId;
+
         if (item instanceof User) {
             layoutId = R.layout.content_header_user;
             viewId = R.id.content_header_user;
         } else {
-            layoutId = R.layout.content_header;
-            viewId = R.id.content_header;
+            if (dynamic) {
+                layoutId = R.layout.content_header;
+                viewId = R.id.content_header;
+            } else {
+                layoutId = R.layout.content_header_static;
+                viewId = R.id.content_header_static;
+            }
         }
         if (headerFrame.findViewById(viewId) == null) {
             headerFrame.removeAllViews();
             View header = inflater.inflate(layoutId, headerFrame, false);
             headerFrame.addView(header);
-            setupTextViewAnimation(header);
-            setupButtonAnimation(header);
-            setupPageIndicatorAnimation(header);
+            if (dynamic) {
+                setupTextViewAnimation(header);
+                setupButtonAnimation(header);
+                setupPageIndicatorAnimation(header);
+            }
         }
 
         //Now we fill the added views with data
         ViewHolder viewHolder = new ViewHolder(imageFrame, headerFrame, layoutId);
-        if (item instanceof Album) {
-            AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Album) item,
-                    collection);
-        } else if (item instanceof Artist) {
-            AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Artist) item,
-                    collection);
-        } else if (item instanceof Playlist) {
-            AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Playlist) item,
-                    artistImages);
-        } else if (item instanceof User) {
-            HatchetAuthenticatorUtils authUtils =
-                    (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                            .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-            boolean showFollowing = item != authUtils.getLoggedInUser() && (mShowFakeFollowing
-                    || authUtils.getLoggedInUser().getFollowings().containsKey(item));
-            boolean showNotFollowing = item != authUtils.getLoggedInUser()
-                    && (mShowFakeNotFollowing || !authUtils.getLoggedInUser().getFollowings()
-                    .containsKey(item));
-            AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (User) item,
-                    showFollowing, showNotFollowing);
-        } else if (item instanceof Query) {
-            AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Query) item);
+        if (dynamic) {
+            if (item instanceof Album) {
+                AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Album) item,
+                        collection);
+            } else if (item instanceof Artist) {
+                AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Artist) item,
+                        collection);
+            } else if (item instanceof Playlist) {
+                AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder,
+                        (Playlist) item, artistImages);
+            } else if (item instanceof User) {
+                HatchetAuthenticatorUtils authUtils =
+                        (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+                boolean showFollowing = item != authUtils.getLoggedInUser() && (mShowFakeFollowing
+                        || authUtils.getLoggedInUser().getFollowings().containsKey(item));
+                boolean showNotFollowing = item != authUtils.getLoggedInUser()
+                        && (mShowFakeNotFollowing || !authUtils.getLoggedInUser().getFollowings()
+                        .containsKey(item));
+                AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (User) item,
+                        showFollowing, showNotFollowing);
+            } else if (item instanceof Query) {
+                AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Query) item);
+            }
+        } else {
+            if (item instanceof Image) {
+                AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Image) item);
+            }
         }
     }
 
@@ -225,11 +248,13 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
 
     private void setupPageIndicatorAnimation(View view) {
         if (view != null) {
-            View imageView = view.findViewById(R.id.page_indicator_container);
-            if (imageView != null) {
+            View indicatorView = view.findViewById(R.id.page_indicator_container);
+            if (indicatorView != null) {
                 Resources resources = TomahawkApp.getContext().getResources();
-                int offset = resources.getDimensionPixelSize(R.dimen.header_clear_space);
-                mPageIndicatorAnim = ObjectAnimator.ofFloat(imageView, "y", offset)
+                int offset =
+                        resources.getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable)
+                                - resources.getDimensionPixelSize(R.dimen.pager_indicator_height);
+                mPageIndicatorAnim = ObjectAnimator.ofFloat(indicatorView, "y", offset)
                         .setDuration(10000);
                 mPageIndicatorAnim.setInterpolator(new LinearInterpolator());
             }

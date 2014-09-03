@@ -266,7 +266,7 @@ public class FakeContextMenuDialog extends DialogFragment {
             }
             ChoosePlaylistDialog dialog = new ChoosePlaylistDialog();
             Bundle args = new Bundle();
-            args.putStringArrayList(TomahawkFragment.TOMAHAWK_QUERYKEYSARRAY_KEY, queryKeys);
+            args.putStringArrayList(TomahawkFragment.TOMAHAWK_QUERYARRAY_KEY, queryKeys);
             dialog.setArguments(args);
             dialog.show(getActivity().getSupportFragmentManager(), null);
         } else if (menuItemTitle.equals(getString(R.string.menu_item_share))) {

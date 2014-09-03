@@ -92,6 +92,9 @@ public class AlbumsFragment extends TomahawkFragment {
                 mShowMode = getArguments().getInt(SHOW_MODE);
             }
         }
+        if (mContainerFragmentClass == null) {
+            getActivity().setTitle("");
+        }
         updateAdapter();
     }
 
@@ -174,6 +177,17 @@ public class AlbumsFragment extends TomahawkFragment {
             }
             ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
             items.addAll(albums);
+            segments.add(new Segment(items));
+            if (getListAdapter() == null) {
+                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
+                        layoutInflater, segments, this);
+                setListAdapter(tomahawkListAdapter);
+            } else {
+                getListAdapter().setSegments(segments);
+            }
+        } else if (mSearchAlbums != null) {
+            ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
+            items.addAll(mSearchAlbums);
             segments.add(new Segment(items));
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,

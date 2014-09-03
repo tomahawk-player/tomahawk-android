@@ -38,9 +38,9 @@
                       android:layout_height="wrap_content"
                       android:orientation="vertical">
 
-            <FrameLayout android:id="@+id/content_header"
-                         android:layout_width="match_parent"
-                         android:layout_height="@dimen/header_height_large"/>
+            <View android:id="@+id/pager_clear_space"
+                  android:layout_width="match_parent"
+                  android:layout_height="0dp"/>
 
             <android.support.v4.view.ViewPager
                     android:id="@+id/fragmentpager"

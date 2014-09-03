@@ -22,18 +22,12 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 public class ArtistPagerFragment extends PagerFragment {
@@ -42,28 +36,11 @@ public class ArtistPagerFragment extends PagerFragment {
 
     private Collection mCollection;
 
-    protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
-
-    private ArtistPagerFragmentReceiver mArtistPagerFragmentReceiver;
-
-    /**
-     * Handles incoming broadcasts.
-     */
-    private class ArtistPagerFragmentReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
-                String requestId = intent.getStringExtra(
-                        InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
-                onInfoSystemResultsReported(requestId);
-            }
-        }
-    }
-
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mHasScrollableHeader = true;
     }
 
     /**
@@ -74,8 +51,9 @@ public class ArtistPagerFragment extends PagerFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        getActivity().setTitle("");
+
         int initialPage = -1;
-        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         if (getArguments() != null) {
             if (getArguments().containsKey(TomahawkFragment.CONTAINER_FRAGMENT_PAGE)) {
                 initialPage = getArguments().getInt(TomahawkFragment.CONTAINER_FRAGMENT_PAGE);
@@ -97,13 +75,6 @@ public class ArtistPagerFragment extends PagerFragment {
                 mCollection = CollectionManager.getInstance()
                         .getCollection(getArguments().getString(CollectionManager.COLLECTION_ID));
             }
-        }
-
-        // Initialize and register Receiver
-        if (mArtistPagerFragmentReceiver == null) {
-            mArtistPagerFragmentReceiver = new ArtistPagerFragmentReceiver();
-            IntentFilter intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
-            activity.registerReceiver(mArtistPagerFragmentReceiver, intentFilter);
         }
 
         showContentHeader(mArtist, mCollection);
@@ -129,10 +100,13 @@ public class ArtistPagerFragment extends PagerFragment {
         setupPager(fragmentClassNames, fragmentTitles, fragmentBundles, initialPage);
     }
 
+    @Override
+    protected void onPipeLineResultsReported(String key) {
+    }
+
+    @Override
     protected void onInfoSystemResultsReported(String requestId) {
-        if (mCurrentRequestIds.contains(requestId)) {
-            showContentHeader(mArtist, mCollection);
-        }
+        showContentHeader(mArtist, mCollection);
     }
 
     @Override

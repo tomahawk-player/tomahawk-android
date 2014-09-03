@@ -47,7 +47,7 @@ import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaylistEntriesFragment;
-import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
+import org.tomahawk.tomahawk_android.fragments.SearchFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.fragments.TracksFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
@@ -79,7 +79,6 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -101,8 +100,7 @@ import java.util.List;
  * The main Tomahawk activity
  */
 public class TomahawkMainActivity extends ActionBarActivity
-        implements PlaybackServiceConnectionListener, FragmentManager.OnBackStackChangedListener,
-        SlidingUpPanelLayout.PanelSlideListener {
+        implements PlaybackServiceConnectionListener, SlidingUpPanelLayout.PanelSlideListener {
 
     private final static String TAG = TomahawkMainActivity.class.getSimpleName();
 
@@ -136,6 +134,8 @@ public class TomahawkMainActivity extends ActionBarActivity
     private ListView mDrawerList;
 
     private ActionBarDrawerToggle mDrawerToggle;
+
+    private CharSequence mTitle;
 
     private CharSequence mDrawerTitle;
 
@@ -194,10 +194,6 @@ public class TomahawkMainActivity extends ActionBarActivity
                         .getSystemService(Context.CONNECTIVITY_SERVICE);
                 sIsConnectedToWifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI) != null
                         && connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected();
-            } else if (PlaybackService.BROADCAST_CURRENTTRACKCHANGED.equals(intent.getAction())) {
-                if (mPlaybackService != null) {
-                    updateViewVisibility();
-                }
             } else if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
                 String requestId = intent.getStringExtra(
                         InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
@@ -315,7 +311,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         mProgressDrawable = getResources()
                 .getDrawable(R.drawable.tomahawk_progress_indeterminate_circular_holo_light);
 
-        mDrawerTitle = getTitle();
+        mTitle = mDrawerTitle = getTitle();
         getSupportActionBar().setTitle("");
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -329,7 +325,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
                 /** Called when a drawer has settled in a completely closed state. */
                 public void onDrawerClosed(View view) {
-                    getSupportActionBar().setTitle("");
+                    getSupportActionBar().setTitle(mTitle);
                 }
 
                 /** Called when a drawer has settled in a completely open state. */
@@ -357,7 +353,6 @@ public class TomahawkMainActivity extends ActionBarActivity
                     null).commit();
             FragmentUtils.addRootFragment(TomahawkMainActivity.this, getSupportFragmentManager());
         }
-        getSupportFragmentManager().addOnBackStackChangedListener(this);
 
         // Set default preferences
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -562,7 +557,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                 if (query != null && !TextUtils.isEmpty(query)) {
                     DatabaseHelper.getInstance().addEntryToSearchHistory(query);
                     FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
-                            SearchableFragment.class, query);
+                            SearchFragment.class, query);
                     if (mSearchItem != null) {
                         MenuItemCompat.collapseActionView(mSearchItem);
                     }
@@ -639,12 +634,17 @@ public class TomahawkMainActivity extends ActionBarActivity
                 super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void setTitle(CharSequence title) {
+        mTitle = title;
+        getSupportActionBar().setTitle(mTitle);
+    }
+
     /**
      * If the PlaybackService signals, that it is ready, this method is being called
      */
     @Override
     public void onPlaybackServiceReady() {
-        updateViewVisibility();
         sendBroadcast(new Intent(PLAYBACKSERVICE_READY));
     }
 
@@ -698,32 +698,6 @@ public class TomahawkMainActivity extends ActionBarActivity
             mSlidingUpPanelLayout.collapsePanel();
         } else {
             super.onBackPressed();
-        }
-
-    }
-
-    @Override
-    public void onBackStackChanged() {
-        updateViewVisibility();
-    }
-
-    public void updateViewVisibility() {
-        Fragment fragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
-        if (fragment instanceof SearchableFragment) {
-            setSearchPanelVisibility(true);
-        } else {
-            setSearchPanelVisibility(false);
-        }
-    }
-
-    public void setSearchPanelVisibility(boolean enabled) {
-        View searchPanel = findViewById(R.id.search_panel);
-        if (searchPanel != null) {
-            if (enabled) {
-                searchPanel.setVisibility(View.VISIBLE);
-            } else {
-                searchPanel.setVisibility(View.GONE);
-            }
         }
     }
 

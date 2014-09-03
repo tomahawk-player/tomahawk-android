@@ -28,6 +28,7 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
@@ -153,8 +154,14 @@ public class SocialActionsFragment extends TomahawkFragment {
             if (getArguments().containsKey(SHOW_MODE)) {
                 mShowMode = getArguments().getInt(SHOW_MODE);
                 if (mShowMode == SHOW_MODE_DASHBOARD) {
+                    if (mContainerFragmentClass == null) {
+                        getActivity().setTitle(R.string.hub_title_feed);
+                    }
                     mCurrentRequestIds.add(InfoSystem.getInstance().resolveFriendsFeed(mUser));
                 } else {
+                    if (mContainerFragmentClass == null) {
+                        getActivity().setTitle("");
+                    }
                     mCurrentRequestIds.add(InfoSystem.getInstance().resolveSocialActions(mUser));
                     HatchetAuthenticatorUtils authUtils = (HatchetAuthenticatorUtils)
                             AuthenticatorManager.getInstance().getAuthenticatorUtils(
