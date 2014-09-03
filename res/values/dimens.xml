@@ -13,11 +13,11 @@
     <dimen name="row_height_large">48dp</dimen>
     <dimen name="row_height_verylarge">64dp</dimen>
     <dimen name="menu_item_height">32dp</dimen>
+    <dimen name="menu_item_height_userprofile">48dp</dimen>
     <dimen name="header_spinner_height">48dp</dimen>
 
     <dimen name="header_clear_space_nonscrollable_static">96dp</dimen>
     <dimen name="header_clear_space_nonscrollable">144dp</dimen>
-    <dimen name="header_clear_space_nonscrollable_usernavdrawer">48dp</dimen>
     <dimen name="header_clear_space_scrollable">208dp</dimen>
     <dimen name="header_roundedimage_height">128dp</dimen>
     <dimen name="header_roundedimage_height_navdrawer">72dp</dimen>
