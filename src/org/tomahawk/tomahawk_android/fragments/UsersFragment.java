@@ -55,7 +55,9 @@ public class UsersFragment extends TomahawkFragment {
                 }
             }
         }
-        setActionBarOffset();
+        if (mContainerFragmentClass == null) {
+            getActivity().setTitle("");
+        }
         updateAdapter();
     }
 
@@ -93,10 +95,11 @@ public class UsersFragment extends TomahawkFragment {
             if (mUser.getFollowers() != null && mUser.getFollowers().size() > 0) {
                 users.addAll(mUser.getFollowers().keySet());
             }
-        } else {
-            if (mUser.getFollowings() != null && mUser.getFollowings().size() > 0) {
-                users.addAll(mUser.getFollowings().keySet());
-            }
+            setActionBarOffset();
+        } else if (mSearchUsers != null) {
+            users.addAll(mSearchUsers);
+        } else if (mUser.getFollowings() != null && mUser.getFollowings().size() > 0) {
+            users.addAll(mUser.getFollowings().keySet());
         }
         Segment segment = new Segment(users);
         if (getListAdapter() == null) {

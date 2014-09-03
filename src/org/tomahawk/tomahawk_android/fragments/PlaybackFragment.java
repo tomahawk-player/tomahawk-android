@@ -126,6 +126,10 @@ public class PlaybackFragment extends TomahawkFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        if (mContainerFragmentClass == null) {
+            getActivity().setTitle("");
+        }
+
         //Set listeners on our buttons
         view.findViewById(R.id.imageButton_shuffle).setOnClickListener(mButtonClickListener);
         view.findViewById(R.id.imageButton_previous).setOnClickListener(mButtonClickListener);

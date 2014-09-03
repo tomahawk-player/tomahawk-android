@@ -151,6 +151,11 @@ public class AdapterUtils {
         viewHolder.getStarLoveButton().setVisibility(View.VISIBLE);
     }
 
+    public static void fillContentHeader(Context context, ViewHolder viewHolder, Image image) {
+        TomahawkUtils.loadBlurredImageIntoImageView(context, viewHolder.getImageView1(), image,
+                Image.getSmallImageSize());
+    }
+
     public static void fillView(Context context, ViewHolder viewHolder, Query query,
             boolean showAsPlaying, boolean showResolvedBy) {
         viewHolder.getTextView1().setText(query.getName());

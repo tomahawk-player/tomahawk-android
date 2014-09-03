@@ -157,7 +157,8 @@ public class ViewHolder {
     public ViewHolder(View imageFrame, View headerFrame, int layoutId) {
         mLayoutId = layoutId;
         if (layoutId == R.layout.content_header
-                || layoutId == R.layout.content_header_user) {
+                || layoutId == R.layout.content_header_user
+                || layoutId == R.layout.content_header_static) {
             mTextView1 = (TextView) headerFrame
                     .findViewById(R.id.content_header_textview);
             mTextView2 = (TextView) headerFrame

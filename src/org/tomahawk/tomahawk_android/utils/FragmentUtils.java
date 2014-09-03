@@ -32,7 +32,7 @@ import org.tomahawk.tomahawk_android.fragments.CollectionFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaylistEntriesFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
-import org.tomahawk.tomahawk_android.fragments.SearchableFragment;
+import org.tomahawk.tomahawk_android.fragments.SearchFragment;
 import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 
@@ -136,7 +136,7 @@ public class FragmentUtils {
     public static void replace(TomahawkMainActivity activity, FragmentManager fragmentManager,
             Class clss, String queryString) {
         Bundle bundle = new Bundle();
-        bundle.putString(SearchableFragment.SEARCHABLEFRAGMENT_QUERY_STRING, queryString);
+        bundle.putString(SearchFragment.SEARCHABLEFRAGMENT_QUERY_STRING, queryString);
         replace(activity, fragmentManager, clss, bundle);
     }
 

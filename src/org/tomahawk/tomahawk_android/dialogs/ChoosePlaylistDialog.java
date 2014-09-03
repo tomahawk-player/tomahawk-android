@@ -58,9 +58,9 @@ public class ChoosePlaylistDialog extends DialogFragment {
         // Get all query keys from this fragment's arguments and through get the actual queries.
         final ArrayList<Query> queries = new ArrayList<Query>();
         if (getArguments() != null && getArguments()
-                .containsKey(TomahawkFragment.TOMAHAWK_QUERYKEYSARRAY_KEY)) {
+                .containsKey(TomahawkFragment.TOMAHAWK_QUERYARRAY_KEY)) {
             ArrayList<String> queryKeys = getArguments()
-                    .getStringArrayList(TomahawkFragment.TOMAHAWK_QUERYKEYSARRAY_KEY);
+                    .getStringArrayList(TomahawkFragment.TOMAHAWK_QUERYARRAY_KEY);
             if (queryKeys != null) {
                 for (String queryKey : queryKeys) {
                     queries.add(Query.getQueryByKey(queryKey));

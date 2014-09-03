@@ -44,7 +44,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -58,8 +57,9 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * The base class for {@link AlbumsFragment}, {@link TracksFragment}, {@link ArtistsFragment},
- * {@link PlaylistsFragment} and {@link SearchableFragment}. Provides all sorts of functionality to
- * those classes, related to displaying {@link TomahawkListItem}s in whichever needed way.
+ * {@link PlaylistsFragment} and {@link org.tomahawk.tomahawk_android.fragments.SearchFragment}.
+ * Provides all sorts of functionality to those classes, related to displaying {@link
+ * TomahawkListItem}s in whichever needed way.
  */
 public abstract class TomahawkFragment extends TomahawkListFragment
         implements MultiColumnClickListener {
@@ -67,14 +67,23 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     public static final String TOMAHAWK_ALBUM_KEY
             = "org.tomahawk.tomahawk_android.tomahawk_album_id";
 
+    public static final String TOMAHAWK_ALBUMARRAY_KEY
+            = "org.tomahawk.tomahawk_android.tomahawk_albumarray_id";
+
     public static final String TOMAHAWK_ARTIST_KEY
             = "org.tomahawk.tomahawk_android.tomahawk_artist_id";
+
+    public static final String TOMAHAWK_ARTISTARRAY_KEY
+            = "org.tomahawk.tomahawk_android.tomahawk_artistarray_id";
 
     public static final String TOMAHAWK_PLAYLIST_KEY
             = "org.tomahawk.tomahawk_android.tomahawk_playlist_id";
 
     public static final String TOMAHAWK_USER_ID
             = "org.tomahawk.tomahawk_android.tomahawk_user_id";
+
+    public static final String TOMAHAWK_USERARRAY_ID
+            = "org.tomahawk.tomahawk_android.tomahawk_userarray_id";
 
     public static final String TOMAHAWK_SOCIALACTION_ID
             = "org.tomahawk.tomahawk_android.tomahawk_socialaction_id";
@@ -85,7 +94,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     public static final String TOMAHAWK_QUERY_KEY
             = "org.tomahawk.tomahawk_android.tomahawk_query_id";
 
-    public static final String TOMAHAWK_QUERYKEYSARRAY_KEY
+    public static final String TOMAHAWK_QUERYARRAY_KEY
             = "org.tomahawk.tomahawk_android.tomahawk_querykeysarray_id";
 
     public static final String TOMAHAWK_PREFERENCEID_KEY
@@ -139,11 +148,13 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     protected ArrayList<Query> mShownQueries = new ArrayList<Query>();
 
-    protected ArrayList<Album> mShownAlbums = new ArrayList<Album>();
+    protected ArrayList<Query> mSearchSongs;
 
-    protected ArrayList<Artist> mShownArtists = new ArrayList<Artist>();
+    protected ArrayList<Album> mSearchAlbums;
 
-    protected ArrayList<User> mShownUsers = new ArrayList<User>();
+    protected ArrayList<Artist> mSearchArtists;
+
+    protected ArrayList<User> mSearchUsers;
 
     protected ArrayList<PlaylistEntry> mShownPlaylistEntries = new ArrayList<PlaylistEntry>();
 
@@ -239,14 +250,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 onPlaylistChanged();
             } else if (PlaybackService.BROADCAST_PLAYSTATECHANGED.equals(intent.getAction())) {
                 onPlaystateChanged();
-            } else if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
-                boolean noConnectivity =
-                        intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
-                if (!noConnectivity && !(TomahawkFragment.this instanceof SearchableFragment)) {
-                    mCorrespondingQueryIds.clear();
-                    mResolveQueriesHandler.removeCallbacksAndMessages(null);
-                    mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
-                }
             } else if (DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED
                     .equals(intent.getAction())) {
                 if (mPlaylist != null && mPlaylist.getId().equals(intent.getStringExtra(
@@ -322,14 +325,50 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             }
             if (getArguments().containsKey(CONTAINER_FRAGMENT_NAME)) {
                 String fragmentName = getArguments().getString(CONTAINER_FRAGMENT_NAME);
-                if (fragmentName.equals(FavoritesFragment.class.getName())) {
-                    mContainerFragmentClass = FavoritesFragment.class;
-                } else if (fragmentName.equals(OldCollectionFragment.class.getName())) {
-                    mContainerFragmentClass = OldCollectionFragment.class;
+                if (fragmentName.equals(ArtistPagerFragment.class.getName())) {
+                    mContainerFragmentClass = ArtistPagerFragment.class;
+                } else if (fragmentName.equals(SearchFragment.class.getName())) {
+                    mContainerFragmentClass = SearchFragment.class;
                 }
             }
             if (getArguments().containsKey(CONTAINER_FRAGMENT_PAGE)) {
                 getListView().setTag(getArguments().getInt(CONTAINER_FRAGMENT_PAGE));
+            }
+            if (getArguments().containsKey(TOMAHAWK_USERARRAY_ID)) {
+                mSearchUsers = new ArrayList<User>();
+                for (String userId : getArguments().getStringArrayList(TOMAHAWK_USERARRAY_ID)) {
+                    User user = User.getUserById(userId);
+                    if (user != null) {
+                        mSearchUsers.add(user);
+                    }
+                }
+            }
+            if (getArguments().containsKey(TOMAHAWK_ARTISTARRAY_KEY)) {
+                mSearchArtists = new ArrayList<Artist>();
+                for (String userId : getArguments().getStringArrayList(TOMAHAWK_ARTISTARRAY_KEY)) {
+                    Artist artist = Artist.getArtistByKey(userId);
+                    if (artist != null) {
+                        mSearchArtists.add(artist);
+                    }
+                }
+            }
+            if (getArguments().containsKey(TOMAHAWK_ALBUMARRAY_KEY)) {
+                mSearchAlbums = new ArrayList<Album>();
+                for (String userId : getArguments().getStringArrayList(TOMAHAWK_ALBUMARRAY_KEY)) {
+                    Album album = Album.getAlbumByKey(userId);
+                    if (album != null) {
+                        mSearchAlbums.add(album);
+                    }
+                }
+            }
+            if (getArguments().containsKey(TOMAHAWK_QUERYARRAY_KEY)) {
+                mSearchSongs = new ArrayList<Query>();
+                for (String userId : getArguments().getStringArrayList(TOMAHAWK_QUERYARRAY_KEY)) {
+                    Query query = Query.getQueryByKey(userId);
+                    if (query != null) {
+                        mSearchSongs.add(query);
+                    }
+                }
             }
         }
 
@@ -349,8 +388,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYSTATECHANGED);
             activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(TomahawkMainActivity.PLAYBACKSERVICE_READY);
-            activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
-            intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
             activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED);
             activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);

@@ -18,12 +18,19 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Collection;
+import org.tomahawk.libtomahawk.infosystem.InfoSystem;
+import org.tomahawk.libtomahawk.resolver.PipeLine;
+import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.views.PageIndicator;
 import org.tomahawk.tomahawk_android.views.TomahawkScrollView;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
@@ -34,9 +41,72 @@ import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.ConcurrentSkipListSet;
 
-public class PagerFragment extends ContentHeaderFragment {
+public abstract class PagerFragment extends ContentHeaderFragment {
+
+    protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
+
+    protected ConcurrentSkipListSet<String> mCorrespondingQueryIds
+            = new ConcurrentSkipListSet<String>();
+
+    private PagerFragmentReceiver mPagerFragmentReceiver;
+
+    protected boolean mHasScrollableHeader;
+
+    /**
+     * Handles incoming broadcasts.
+     */
+    private class PagerFragmentReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
+                String requestId = intent.getStringExtra(
+                        InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
+                if (mCurrentRequestIds.contains(requestId)) {
+                    onInfoSystemResultsReported(requestId);
+                }
+            } else if (PipeLine.PIPELINE_RESULTSREPORTED.equals(intent.getAction())) {
+                String queryKey = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QUERYKEY);
+                if (mCorrespondingQueryIds.contains(queryKey)) {
+                    onPipeLineResultsReported(queryKey);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Initialize and register Receiver
+        if (mPagerFragmentReceiver == null) {
+            mPagerFragmentReceiver = new PagerFragmentReceiver();
+            IntentFilter intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED);
+            getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
+            intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
+            getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        for (String queryKey : mCorrespondingQueryIds) {
+            if (ThreadManager.getInstance().stop(Query.getQueryByKey(queryKey))) {
+                mCorrespondingQueryIds.remove(queryKey);
+            }
+        }
+
+        if (mPagerFragmentReceiver != null) {
+            getActivity().unregisterReceiver(mPagerFragmentReceiver);
+            mPagerFragmentReceiver = null;
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -48,13 +118,27 @@ public class PagerFragment extends ContentHeaderFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Initialize and register Receiver
+        if (mPagerFragmentReceiver == null) {
+            mPagerFragmentReceiver = new PagerFragmentReceiver();
+            IntentFilter intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
+            getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
+            intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED);
+            getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
+        }
+
         //Add a spacer to the top of the scrollView
         TomahawkScrollView scrollView =
                 (TomahawkScrollView) view.findViewById(R.id.scrollview);
         FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) scrollView.getLayoutParams();
-        int offset = getResources().getDimensionPixelSize(R.dimen.header_clear_space);
-        int indicatorHeight = getResources().getDimensionPixelSize(R.dimen.pager_indicator_height);
-        params.setMargins(0, offset + indicatorHeight, 0, 0);
+        int offset;
+        if (mHasScrollableHeader) {
+            offset = getResources().getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable);
+        } else {
+            offset = getResources().getDimensionPixelSize(
+                    R.dimen.header_clear_space_nonscrollable_static);
+        }
+        params.setMargins(0, offset, 0, 0);
         scrollView.setLayoutParams(params);
     }
 
@@ -64,55 +148,75 @@ public class PagerFragment extends ContentHeaderFragment {
                 fragmentClassNames, fragmentTitles, fragmentBundles, ((Object) this).getClass());
         final ViewPager fragmentPager = (ViewPager) getView().findViewById(R.id.fragmentpager);
         fragmentPager.setAdapter(adapter);
+
         LinearLayout pageIndicatorContainer =
                 (LinearLayout) getView().findViewById(R.id.page_indicator_container);
-        FrameLayout.LayoutParams params =
+        FrameLayout.LayoutParams indicatorParams =
                 (FrameLayout.LayoutParams) pageIndicatorContainer.getLayoutParams();
-        int margin = getResources().getDimensionPixelSize(R.dimen.header_height_large)
-                + getResources().getDimensionPixelSize(R.dimen.header_clear_space);
-        params.setMargins(0, margin, 0, 0);
-        pageIndicatorContainer.setLayoutParams(params);
+        int margin;
+        if (mHasScrollableHeader) {
+            margin = getResources().getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable)
+                    + getResources().getDimensionPixelSize(R.dimen.header_clear_space_scrollable)
+                    - getResources().getDimensionPixelSize(R.dimen.pager_indicator_height);
+        } else {
+            margin = getResources()
+                    .getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable_static)
+                    - getResources().getDimensionPixelSize(R.dimen.pager_indicator_height);
+        }
+        indicatorParams.setMargins(0, margin, 0, 0);
+        pageIndicatorContainer.setLayoutParams(indicatorParams);
         pageIndicatorContainer.setVisibility(View.VISIBLE);
         PageIndicator pageIndicator =
                 (PageIndicator) pageIndicatorContainer.findViewById(R.id.page_indicator);
         pageIndicator.setViewPager(fragmentPager);
-        final TomahawkScrollView scrollView =
-                (TomahawkScrollView) getView().findViewById(R.id.scrollview);
-        scrollView.getViewTreeObserver().addOnGlobalLayoutListener(
-                new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        fragmentPager.setLayoutParams(new LinearLayout.LayoutParams(
-                                LinearLayout.LayoutParams.MATCH_PARENT, scrollView.getHeight()));
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                            scrollView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        } else {
-                            scrollView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+        if (mHasScrollableHeader) {
+            final TomahawkScrollView scrollView =
+                    (TomahawkScrollView) getView().findViewById(R.id.scrollview);
+            View pagerClearSpace = scrollView.findViewById(R.id.pager_clear_space);
+            pagerClearSpace.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, getResources()
+                    .getDimensionPixelSize(R.dimen.header_clear_space_scrollable)));
+            scrollView.getViewTreeObserver().addOnGlobalLayoutListener(
+                    new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @Override
+                        public void onGlobalLayout() {
+                            fragmentPager.setLayoutParams(new LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.MATCH_PARENT,
+                                    scrollView.getHeight()));
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                scrollView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                            } else {
+                                scrollView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                            }
                         }
-                    }
-                });
-        scrollView.getViewTreeObserver()
-                .addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
-                    @Override
-                    public void onScrollChanged() {
-                        if (getView() != null) {
-                            int offset = getResources()
-                                    .getDimensionPixelSize(R.dimen.header_height_large);
-                            float delta = getView().findViewById(R.id.scrollview).getScrollY();
-                            animateContentHeader((int) (delta / offset * 10000f));
+                    });
+            scrollView.getViewTreeObserver()
+                    .addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+                        @Override
+                        public void onScrollChanged() {
+                            if (getView() != null) {
+                                int offset = getResources().getDimensionPixelSize(
+                                        R.dimen.header_clear_space_scrollable);
+                                float delta = getView().findViewById(R.id.scrollview).getScrollY();
+                                animateContentHeader((int) (delta / offset * 10000f));
+                            }
                         }
-                    }
-                });
+                    });
+        }
         if (initialPage >= 0) {
             fragmentPager.setCurrentItem(initialPage);
         }
     }
 
-    protected void showContentHeader(TomahawkListItem item, Collection collection) {
+    protected abstract void onPipeLineResultsReported(String key);
+
+    protected abstract void onInfoSystemResultsReported(String requestId);
+
+    protected void showContentHeader(Object item, Collection collection) {
         super.showContentHeader(
                 (FrameLayout) getView().findViewById(R.id.content_header_image_frame_pager),
                 (FrameLayout) getView().findViewById(R.id.content_header_frame_pager), item,
-                collection);
+                collection, mHasScrollableHeader);
     }
 
     @Override

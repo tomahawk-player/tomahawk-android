@@ -50,6 +50,8 @@ public class PageIndicator extends LinearLayout implements ViewPager.OnPageChang
     }
 
     private void populate() {
+        removeAllViews();
+        mTextViews.clear();
         for (int i = 0; i < mViewPager.getAdapter().getCount(); i++) {
             TextView textView = new TextView(getContext());
             textView.setText(mViewPager.getAdapter().getPageTitle(i));

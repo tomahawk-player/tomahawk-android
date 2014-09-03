@@ -77,7 +77,7 @@ public class TomahawkScrollView extends ScrollView {
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
         boolean result = super.onInterceptTouchEvent(event);
-        int offset = getResources().getDimensionPixelSize(R.dimen.header_height_large);
+        int offset = getResources().getDimensionPixelSize(R.dimen.header_clear_space_scrollable);
         if (getScrollY() < offset) {
             return result;
         } else {
