@@ -48,7 +48,8 @@ public class PlaylistsFragment extends TomahawkFragment {
         if (mContainerFragmentClass == null) {
             getActivity().setTitle(R.string.hub_title_playlists);
         }
-        setActionBarOffset();
+
+        showContentHeader(R.drawable.playlists_header);
         updateAdapter();
     }
 
