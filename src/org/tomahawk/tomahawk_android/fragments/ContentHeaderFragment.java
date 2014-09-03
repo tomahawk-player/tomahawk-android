@@ -30,6 +30,7 @@ import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.ViewHolder;
@@ -186,6 +187,9 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
         } else {
             if (item instanceof Image) {
                 AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Image) item);
+            } else if (item instanceof Integer) {
+                TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                        viewHolder.getImageView1(), (Integer) item);
             }
         }
     }

@@ -47,9 +47,10 @@ public class CollectionFragment extends TomahawkFragment {
     public void onResume() {
         super.onResume();
 
-        setActionBarOffset();
         updateAdapter();
         getActivity().setTitle(R.string.hub_title_collection);
+
+        showContentHeader(R.drawable.collection_header);
     }
 
     /**
