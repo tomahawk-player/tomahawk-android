@@ -120,7 +120,8 @@ public class SearchPagerFragment extends PagerFragment {
             getActivity().setTitle(mCurrentQueryString);
         }
 
-        showContentHeader(null, null, R.dimen.header_clear_space_nonscrollable_static);
+        showContentHeader(mContentHeaderImage, null,
+                R.dimen.header_clear_space_nonscrollable_static);
 
         updatePager(initialPage);
     }
