@@ -17,10 +17,10 @@
     <dimen name="header_spinner_height">48dp</dimen>
 
     <dimen name="header_clear_space_nonscrollable_static">80dp</dimen>
-    <dimen name="header_clear_space_nonscrollable">144dp</dimen>
+    <dimen name="header_clear_space_nonscrollable_static_user">136dp</dimen>
+    <dimen name="header_clear_space_nonscrollable">128dp</dimen>
     <dimen name="header_clear_space_scrollable">208dp</dimen>
-    <dimen name="header_roundedimage_height">128dp</dimen>
-    <dimen name="header_roundedimage_height_navdrawer">72dp</dimen>
+    <dimen name="header_roundedimage_height">48dp</dimen>
 
     <dimen name="divider_height_thin">1dp</dimen>
     <dimen name="divider_height_thick">2dp</dimen>

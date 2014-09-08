@@ -134,11 +134,12 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         }
     }
 
-    protected void showContentHeader(TomahawkListItem item, Collection collection) {
+    protected void showContentHeader(TomahawkListItem item, Collection collection,
+            int headerHeightResid) {
         super.showContentHeader(
                 (FrameLayout) getView().findViewById(R.id.content_header_image_frame),
                 (FrameLayout) getView().findViewById(R.id.content_header_frame), item, collection,
-                true);
+                true, headerHeightResid);
 
         //Add a spacer to the top of the listview
         FrameLayout listFrame = (FrameLayout) getView().findViewById(
@@ -153,7 +154,7 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         super.showContentHeader(
                 (FrameLayout) getView().findViewById(R.id.content_header_image_frame),
                 (FrameLayout) getView().findViewById(R.id.content_header_frame), drawableResid,
-                null, false);
+                null, false, R.dimen.header_clear_space_nonscrollable_static);
 
         //Add a spacer to the top of the listview
         FrameLayout listFrame = (FrameLayout) getView().findViewById(

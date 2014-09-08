@@ -71,7 +71,7 @@ public class UsersFragment extends TomahawkFragment {
     public void onItemClick(View view, TomahawkListItem item) {
         if (item instanceof User) {
             FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                    getActivity().getSupportFragmentManager(), SocialActionsFragment.class,
+                    getActivity().getSupportFragmentManager(), UserPagerFragment.class,
                     ((User) item).getId(), TomahawkFragment.TOMAHAWK_USER_ID,
                     SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
         }
@@ -95,7 +95,6 @@ public class UsersFragment extends TomahawkFragment {
             if (mUser.getFollowers() != null && mUser.getFollowers().size() > 0) {
                 users.addAll(mUser.getFollowers().keySet());
             }
-            setActionBarOffset();
         } else if (mSearchUsers != null) {
             users.addAll(mSearchUsers);
         } else if (mUser.getFollowings() != null && mUser.getFollowings().size() > 0) {

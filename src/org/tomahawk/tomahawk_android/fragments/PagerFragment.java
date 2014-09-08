@@ -17,16 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import org.tomahawk.libtomahawk.collection.Collection;
-import org.tomahawk.libtomahawk.infosystem.InfoSystem;
-import org.tomahawk.libtomahawk.resolver.PipeLine;
-import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
-import org.tomahawk.tomahawk_android.utils.ThreadManager;
-import org.tomahawk.tomahawk_android.views.PageIndicator;
-import org.tomahawk.tomahawk_android.views.TomahawkScrollView;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -40,6 +30,16 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+
+import org.tomahawk.libtomahawk.collection.Collection;
+import org.tomahawk.libtomahawk.infosystem.InfoSystem;
+import org.tomahawk.libtomahawk.resolver.PipeLine;
+import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
+import org.tomahawk.tomahawk_android.views.PageIndicator;
+import org.tomahawk.tomahawk_android.views.TomahawkScrollView;
 
 import java.util.HashSet;
 import java.util.List;
@@ -55,6 +55,8 @@ public abstract class PagerFragment extends ContentHeaderFragment {
     private PagerFragmentReceiver mPagerFragmentReceiver;
 
     protected boolean mHasScrollableHeader;
+
+    protected int mStaticHeaderHeight = -1;
 
     /**
      * Handles incoming broadcasts.
@@ -110,7 +112,7 @@ public abstract class PagerFragment extends ContentHeaderFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.pagerfragment_layout, container, false);
     }
 
@@ -135,15 +137,14 @@ public abstract class PagerFragment extends ContentHeaderFragment {
         if (mHasScrollableHeader) {
             offset = getResources().getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable);
         } else {
-            offset = getResources().getDimensionPixelSize(
-                    R.dimen.header_clear_space_nonscrollable_static);
+            offset = mStaticHeaderHeight;
         }
         params.setMargins(0, offset, 0, 0);
         scrollView.setLayoutParams(params);
     }
 
     protected void setupPager(List<String> fragmentClassNames, List<String> fragmentTitles,
-            List<Bundle> fragmentBundles, int initialPage) {
+                              List<Bundle> fragmentBundles, int initialPage) {
         TomahawkPagerAdapter adapter = new TomahawkPagerAdapter(getChildFragmentManager(),
                 fragmentClassNames, fragmentTitles, fragmentBundles, ((Object) this).getClass());
         final ViewPager fragmentPager = (ViewPager) getView().findViewById(R.id.fragmentpager);
@@ -159,8 +160,7 @@ public abstract class PagerFragment extends ContentHeaderFragment {
                     + getResources().getDimensionPixelSize(R.dimen.header_clear_space_scrollable)
                     - getResources().getDimensionPixelSize(R.dimen.pager_indicator_height);
         } else {
-            margin = getResources()
-                    .getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable_static)
+            margin = mStaticHeaderHeight
                     - getResources().getDimensionPixelSize(R.dimen.pager_indicator_height);
         }
         indicatorParams.setMargins(0, margin, 0, 0);
@@ -212,11 +212,11 @@ public abstract class PagerFragment extends ContentHeaderFragment {
 
     protected abstract void onInfoSystemResultsReported(String requestId);
 
-    protected void showContentHeader(Object item, Collection collection) {
+    protected void showContentHeader(Object item, Collection collection, int headerHeightResId) {
         super.showContentHeader(
                 (FrameLayout) getView().findViewById(R.id.content_header_image_frame_pager),
                 (FrameLayout) getView().findViewById(R.id.content_header_frame_pager), item,
-                collection, mHasScrollableHeader);
+                collection, mHasScrollableHeader, headerHeightResId);
     }
 
     @Override

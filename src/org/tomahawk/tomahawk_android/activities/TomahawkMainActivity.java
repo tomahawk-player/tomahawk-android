@@ -47,7 +47,7 @@ import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaylistEntriesFragment;
-import org.tomahawk.tomahawk_android.fragments.SearchFragment;
+import org.tomahawk.tomahawk_android.fragments.SearchPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.fragments.TracksFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
@@ -557,7 +557,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                 if (query != null && !TextUtils.isEmpty(query)) {
                     DatabaseHelper.getInstance().addEntryToSearchHistory(query);
                     FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
-                            SearchFragment.class, query);
+                            SearchPagerFragment.class, query);
                     if (mSearchItem != null) {
                         MenuItemCompat.collapseActionView(mSearchItem);
                     }

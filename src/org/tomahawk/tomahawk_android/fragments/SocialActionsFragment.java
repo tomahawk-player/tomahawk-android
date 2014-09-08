@@ -158,6 +158,7 @@ public class SocialActionsFragment extends TomahawkFragment {
                         getActivity().setTitle(R.string.hub_title_feed);
                     }
                     mCurrentRequestIds.add(InfoSystem.getInstance().resolveFriendsFeed(mUser));
+                    setActionBarOffset();
                 } else {
                     if (mContainerFragmentClass == null) {
                         getActivity().setTitle("");
@@ -171,7 +172,6 @@ public class SocialActionsFragment extends TomahawkFragment {
                 }
             }
         }
-        setActionBarOffset();
         updateAdapter();
     }
 
@@ -215,15 +215,13 @@ public class SocialActionsFragment extends TomahawkFragment {
                         TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
             } else if (target instanceof User) {
                 FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
-                        SocialActionsFragment.class, ((User) target).getId(),
-                        TomahawkFragment.TOMAHAWK_USER_ID,
-                        SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
+                        UserPagerFragment.class, ((User) target).getId(),
+                        TomahawkFragment.TOMAHAWK_USER_ID);
             }
         } else if (item instanceof User) {
             FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
-                    SocialActionsFragment.class, ((User) item).getId(),
-                    TomahawkFragment.TOMAHAWK_USER_ID,
-                    SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
+                    UserPagerFragment.class, ((User) item).getId(),
+                    TomahawkFragment.TOMAHAWK_USER_ID);
         }
     }
 
@@ -238,7 +236,6 @@ public class SocialActionsFragment extends TomahawkFragment {
 
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-        View rootView = getActivity().findViewById(android.R.id.content);
         if (mUser != null) {
             ArrayList<TomahawkListItem> socialActions;
             if (mShowMode == SHOW_MODE_DASHBOARD) {
@@ -259,15 +256,9 @@ public class SocialActionsFragment extends TomahawkFragment {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater,
                         segment, this);
                 tomahawkListAdapter.setShowResolvedBy(true);
-                if (mShowMode != SHOW_MODE_DASHBOARD) {
-                    tomahawkListAdapter.setShowContentHeaderSpacer(true);
-                }
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment);
-            }
-            if (mShowMode != SHOW_MODE_DASHBOARD) {
-                showContentHeader(mUser, mCollection);
             }
 
             mShownQueries.clear();
