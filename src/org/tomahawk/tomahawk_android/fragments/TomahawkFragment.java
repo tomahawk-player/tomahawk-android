@@ -57,7 +57,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * The base class for {@link AlbumsFragment}, {@link TracksFragment}, {@link ArtistsFragment},
- * {@link PlaylistsFragment} and {@link org.tomahawk.tomahawk_android.fragments.SearchFragment}.
+ * {@link PlaylistsFragment} and {@link SearchPagerFragment}.
  * Provides all sorts of functionality to those classes, related to displaying {@link
  * TomahawkListItem}s in whichever needed way.
  */
@@ -327,8 +327,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 String fragmentName = getArguments().getString(CONTAINER_FRAGMENT_NAME);
                 if (fragmentName.equals(ArtistPagerFragment.class.getName())) {
                     mContainerFragmentClass = ArtistPagerFragment.class;
-                } else if (fragmentName.equals(SearchFragment.class.getName())) {
-                    mContainerFragmentClass = SearchFragment.class;
+                } else if (fragmentName.equals(SearchPagerFragment.class.getName())) {
+                    mContainerFragmentClass = SearchPagerFragment.class;
                 }
             }
             if (getArguments().containsKey(CONTAINER_FRAGMENT_PAGE)) {

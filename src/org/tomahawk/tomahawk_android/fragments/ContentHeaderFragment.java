@@ -42,6 +42,7 @@ import android.os.Build;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
@@ -64,16 +65,16 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
 
     /**
      * Show a content header. A content header provides information about the current {@link
-     * org.tomahawk.tomahawk_android.utils.TomahawkListItem} that the user has navigated to. Like an
-     * AlbumArt image with the {@link org.tomahawk.libtomahawk.collection.Album}s name, which is
+     * org.tomahawk.tomahawk_android.utils.TomahawkListItem} that the user has navigated to. Like
+     * an AlbumArt image with the {@link org.tomahawk.libtomahawk.collection.Album}s name, which is
      * shown at the top of the listview, if the user browses to a particular {@link
      * org.tomahawk.libtomahawk.collection.Album} in his {@link org.tomahawk.libtomahawk.collection.UserCollection}.
      *
-     * @param item the {@link org.tomahawk.tomahawk_android.utils.TomahawkListItem}'s information to
-     *             show in the header view
+     * @param item the {@link org.tomahawk.tomahawk_android.utils.TomahawkListItem}'s information
+     *             to show in the header view
      */
     protected void showContentHeader(FrameLayout imageFrame, FrameLayout headerFrame,
-            Object item, Collection collection, boolean dynamic) {
+            Object item, Collection collection, boolean dynamic, int headerHeightResid) {
         View actionBarBg = getView().findViewById(R.id.action_bar_background);
         if (actionBarBg != null) {
             actionBarBg.setVisibility(View.GONE);
@@ -115,6 +116,11 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
         if (imageFrame.findViewById(viewId) == null) {
             imageFrame.removeAllViews();
             headerImage = inflater.inflate(layoutId, imageFrame, false);
+            if (!dynamic) {
+                int headerHeight = getResources().getDimensionPixelSize(headerHeightResid);
+                headerImage.setLayoutParams(new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, headerHeight));
+            }
             imageFrame.addView(headerImage);
         }
         final View finalHeaderImage = headerImage;
@@ -170,6 +176,15 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
             } else if (item instanceof Playlist) {
                 AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder,
                         (Playlist) item, artistImages);
+            } else if (item instanceof Query) {
+                AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Query) item);
+            }
+        } else {
+            if (item instanceof Image) {
+                AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Image) item);
+            } else if (item instanceof Integer) {
+                TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                        viewHolder.getImageView1(), (Integer) item);
             } else if (item instanceof User) {
                 HatchetAuthenticatorUtils authUtils =
                         (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
@@ -181,15 +196,6 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
                         .containsKey(item));
                 AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (User) item,
                         showFollowing, showNotFollowing);
-            } else if (item instanceof Query) {
-                AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Query) item);
-            }
-        } else {
-            if (item instanceof Image) {
-                AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Image) item);
-            } else if (item instanceof Integer) {
-                TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
-                        viewHolder.getImageView1(), (Integer) item);
             }
         }
     }

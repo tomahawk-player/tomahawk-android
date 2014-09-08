@@ -111,22 +111,11 @@ public class AdapterUtils {
 
     public static void fillContentHeader(final Context context, ViewHolder viewHolder,
             final User user, boolean showFollowing, boolean showNotFollowing) {
-        viewHolder.getImageView1().setVisibility(View.VISIBLE);
-        TomahawkUtils.loadDrawableIntoImageView(context, viewHolder.getImageView1(),
-                R.drawable.no_album_art_placeholder);
+        TomahawkUtils.loadBlurredImageIntoImageView(context, viewHolder.getImageView1(),
+                user.getImage(), Image.getSmallImageSize());
         TomahawkUtils.loadRoundedImageIntoImageView(context, viewHolder.getRoundedImage(),
-                user.getImage(), Image.getLargeImageSize());
-        viewHolder.getRoundedImage().setVisibility(View.VISIBLE);
-        viewHolder.getTextView1().setText(user.getAbout());
-        if (user.getNowPlaying() != null) {
-            viewHolder.getTextView2().setText(context.getString(R.string.content_header_nowplaying)
-                    + " " + user.getNowPlaying().getName() + " "
-                    + context.getString(R.string.album_by_artist)
-                    + " " + user.getNowPlaying().getArtist().getName());
-        }
-        viewHolder.getTextView3().setText("" + user.getTotalPlays());
-        viewHolder.getTextView4().setText("" + user.getFollowCount());
-        viewHolder.getTextView5().setText("" + user.getFollowersCount());
+                user.getImage(), Image.getSmallImageSize());
+        viewHolder.getTextView1().setText(user.getName().toUpperCase());
         if (showFollowing) {
             viewHolder.getButton4().setText(R.string.content_header_unfollow);
         } else if (showNotFollowing) {

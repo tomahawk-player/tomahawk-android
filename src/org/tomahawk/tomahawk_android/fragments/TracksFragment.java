@@ -159,7 +159,6 @@ public class TracksFragment extends TomahawkFragment {
         TomahawkListAdapter tomahawkListAdapter;
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-        View rootView = getView();
         if (mAlbum != null) {
             queries.addAll(AdapterUtils.getAlbumTracks(mAlbum, mCollection));
             Segment segment = new Segment(R.string.segmentheader_album, queries);
@@ -172,7 +171,7 @@ public class TracksFragment extends TomahawkFragment {
             } else {
                 getListAdapter().setSegments(segment);
             }
-            showContentHeader(mAlbum, mCollection);
+            showContentHeader(mAlbum, mCollection, R.dimen.header_clear_space_nonscrollable);
         } else if (mArtist != null) {
             queries.addAll(AdapterUtils.getArtistTracks(mArtist, mCollection));
             Segment segment = new Segment(queries);
@@ -185,7 +184,7 @@ public class TracksFragment extends TomahawkFragment {
             } else {
                 getListAdapter().setSegments(segment);
             }
-            showContentHeader(mArtist, mCollection);
+            showContentHeader(mArtist, mCollection, R.dimen.header_clear_space_nonscrollable);
         } else if (mQuery != null) {
             queries.add(mQuery);
             Segment segment = new Segment(queries);
@@ -198,7 +197,7 @@ public class TracksFragment extends TomahawkFragment {
             } else {
                 getListAdapter().setSegments(segment);
             }
-            showContentHeader(mQuery, mCollection);
+            showContentHeader(mQuery, mCollection, R.dimen.header_clear_space_nonscrollable);
         } else if (mSearchSongs != null) {
             queries.addAll(mSearchSongs);
             if (getListAdapter() == null) {

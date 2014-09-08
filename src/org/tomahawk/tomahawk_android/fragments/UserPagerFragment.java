@@ -17,36 +17,31 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.Collection;
-import org.tomahawk.libtomahawk.collection.CollectionManager;
-import org.tomahawk.libtomahawk.infosystem.InfoSystem;
-import org.tomahawk.tomahawk_android.R;
-
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 
+import org.tomahawk.libtomahawk.infosystem.InfoSystem;
+import org.tomahawk.libtomahawk.infosystem.User;
+import org.tomahawk.tomahawk_android.R;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArtistPagerFragment extends PagerFragment {
+public class UserPagerFragment extends PagerFragment {
 
-    private Artist mArtist;
-
-    private Collection mCollection;
+    private User mUser;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mHasScrollableHeader = true;
         mStaticHeaderHeight = getResources()
-                .getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable_static);
+                .getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable_static_user);
     }
 
     /**
-     * Called, when this {@link org.tomahawk.tomahawk_android.fragments.ArtistPagerFragment}'s
+     * Called, when this {@link org.tomahawk.tomahawk_android.fragments.UserPagerFragment}'s
      * {@link android.view.View} has been created
      */
     @Override
@@ -60,39 +55,41 @@ public class ArtistPagerFragment extends PagerFragment {
             if (getArguments().containsKey(TomahawkFragment.CONTAINER_FRAGMENT_PAGE)) {
                 initialPage = getArguments().getInt(TomahawkFragment.CONTAINER_FRAGMENT_PAGE);
             }
-            if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_ARTIST_KEY) && !TextUtils
-                    .isEmpty(getArguments().getString(TomahawkFragment.TOMAHAWK_ARTIST_KEY))) {
-                mArtist = Artist.getArtistByKey(
-                        getArguments().getString(TomahawkFragment.TOMAHAWK_ARTIST_KEY));
-                if (mArtist == null) {
+            if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_USER_ID) && !TextUtils
+                    .isEmpty(getArguments().getString(TomahawkFragment.TOMAHAWK_USER_ID))) {
+                mUser = User.getUserById(getArguments().getString(TomahawkFragment.TOMAHAWK_USER_ID));
+                if (mUser == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
                 } else {
-                    ArrayList<String> requestIds = InfoSystem.getInstance().resolve(mArtist, false);
-                    for (String requestId : requestIds) {
-                        mCurrentRequestIds.add(requestId);
-                    }
+                    mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mUser));
                 }
-            }
-            if (getArguments().containsKey(CollectionManager.COLLECTION_ID)) {
-                mCollection = CollectionManager.getInstance()
-                        .getCollection(getArguments().getString(CollectionManager.COLLECTION_ID));
             }
         }
 
-        showContentHeader(mArtist, mCollection, R.dimen.header_clear_space_nonscrollable_static);
+        showContentHeader(mUser, null, R.dimen.header_clear_space_nonscrollable_static_user);
 
         List<String> fragmentClassNames = new ArrayList<String>();
-        fragmentClassNames.add(AlbumsFragment.class.getName());
-        fragmentClassNames.add(BiographyFragment.class.getName());
+        fragmentClassNames.add(SocialActionsFragment.class.getName());
+        fragmentClassNames.add(PlaylistEntriesFragment.class.getName());
+        fragmentClassNames.add(UsersFragment.class.getName());
         List<String> fragmentTitles = new ArrayList<String>();
+        fragmentTitles.add(getString(R.string.activity));
         fragmentTitles.add(getString(R.string.music));
-        fragmentTitles.add(getString(R.string.biography));
+        fragmentTitles.add(getString(R.string.friends));
         List<Bundle> fragmentBundles = new ArrayList<Bundle>();
         Bundle bundle = new Bundle();
-        bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, mArtist.getCacheKey());
+        bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
+        bundle.putInt(TomahawkFragment.SHOW_MODE, SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
         fragmentBundles.add(bundle);
         bundle = new Bundle();
-        bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, mArtist.getCacheKey());
+        bundle.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY,
+                mUser.getPlaybackLog().getCacheKey());
+        bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
+        fragmentBundles.add(bundle);
+        bundle = new Bundle();
+        bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
+        bundle.putInt(TomahawkFragment.SHOW_MODE, UsersFragment.SHOW_MODE_TYPE_FOLLOWERS);
+        bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
         fragmentBundles.add(bundle);
         setupPager(fragmentClassNames, fragmentTitles, fragmentBundles, initialPage);
     }
@@ -103,7 +100,7 @@ public class ArtistPagerFragment extends PagerFragment {
 
     @Override
     protected void onInfoSystemResultsReported(String requestId) {
-        showContentHeader(mArtist, mCollection, R.dimen.header_clear_space_nonscrollable_static);
+        showContentHeader(mUser, null, R.dimen.header_clear_space_nonscrollable_static_user);
     }
 
     @Override

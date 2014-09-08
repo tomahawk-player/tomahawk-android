@@ -39,7 +39,7 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchFragment extends PagerFragment {
+public class SearchPagerFragment extends PagerFragment {
 
     public static final String SEARCHABLEFRAGMENT_QUERY_STRING
             = "org.tomahawk.tomahawk_android.SEARCHABLEFRAGMENT_QUERY_ID";
@@ -89,11 +89,13 @@ public class SearchFragment extends PagerFragment {
                 && savedInstanceState.getString(SEARCHABLEFRAGMENT_QUERY_STRING) != null) {
             mCurrentQueryString = savedInstanceState.getString(SEARCHABLEFRAGMENT_QUERY_STRING);
         }
+        mStaticHeaderHeight = getResources()
+                .getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable_static);
     }
 
 
     /**
-     * Called, when this {@link org.tomahawk.tomahawk_android.fragments.SearchFragment}'s {@link
+     * Called, when this {@link SearchPagerFragment}'s {@link
      * android.view.View} has been created
      */
     @Override
@@ -118,7 +120,7 @@ public class SearchFragment extends PagerFragment {
             getActivity().setTitle(mCurrentQueryString);
         }
 
-        showContentHeader(null, null);
+        showContentHeader(null, null, R.dimen.header_clear_space_nonscrollable_static);
 
         updatePager(initialPage);
     }
@@ -228,21 +230,24 @@ public class SearchFragment extends PagerFragment {
         for (Artist artist : data.getResultList(Artist.class)) {
             if (mContentHeaderImage == null && artist.getImage() != null) {
                 mContentHeaderImage = artist.getImage();
-                showContentHeader(mContentHeaderImage, null);
+                showContentHeader(mContentHeaderImage, null,
+                        R.dimen.header_clear_space_nonscrollable_static);
             }
             mArtistIds.add(artist.getCacheKey());
         }
         for (Album album : data.getResultList(Album.class)) {
             if (mContentHeaderImage == null && album.getImage() != null) {
                 mContentHeaderImage = album.getImage();
-                showContentHeader(mContentHeaderImage, null);
+                showContentHeader(mContentHeaderImage, null,
+                        R.dimen.header_clear_space_nonscrollable_static);
             }
             mAlbumIds.add(album.getCacheKey());
         }
         for (User user : data.getResultList(User.class)) {
             if (mContentHeaderImage == null && user.getImage() != null) {
                 mContentHeaderImage = user.getImage();
-                showContentHeader(mContentHeaderImage, null);
+                showContentHeader(mContentHeaderImage, null,
+                        R.dimen.header_clear_space_nonscrollable_static);
             }
             mUserIds.add(user.getCacheKey());
         }
