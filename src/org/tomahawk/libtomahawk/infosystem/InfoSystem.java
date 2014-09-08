@@ -100,17 +100,6 @@ public class InfoSystem {
     // LoggedOps waiting to be sent as soon as mPlaylistsLoggedOpsMap is empty
     private ArrayList<InfoRequestData> mQueuedLoggedOps = new ArrayList<InfoRequestData>();
 
-    /**
-     * The below HashSets are used to mark the included objects as "already done before"
-     */
-    private HashSet<Artist> mArtistHashSet = new HashSet<Artist>();
-
-    private HashSet<Artist> mArtistTopHitsHashSet = new HashSet<Artist>();
-
-    private HashSet<Artist> mArtistAlbumsHashSet = new HashSet<Artist>();
-
-    private HashSet<Album> mAlbumHashSet = new HashSet<Album>();
-
     private Query mLastPlaybackLogEntry = null;
 
     private Query mNowPlaying = null;
@@ -159,24 +148,15 @@ public class InfoSystem {
         if (artist != null) {
             QueryParams params = new QueryParams();
             params.name = artist.getName();
-            if (!mArtistHashSet.contains(artist)) {
-                mArtistHashSet.add(artist);
-                String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params,
-                        artist);
-                requestIds.add(requestId);
-            }
-            if (!mArtistTopHitsHashSet.contains(artist) && !justImage) {
-                mArtistTopHitsHashSet.add(artist);
-                String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS,
-                        params, artist);
-                requestIds.add(requestId);
-            }
-            if (!mArtistAlbumsHashSet.contains(artist) && !justImage) {
-                mArtistAlbumsHashSet.add(artist);
-                String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS,
-                        params, artist);
-                requestIds.add(requestId);
-            }
+            String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params,
+                    artist);
+            requestIds.add(requestId);
+            requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS, params,
+                    artist);
+            requestIds.add(requestId);
+            requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS, params,
+                    artist);
+            requestIds.add(requestId);
         }
         return requestIds;
     }
@@ -188,9 +168,7 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolve(Album album) {
-        if (album != null && !TextUtils.isEmpty(album.getName())
-                && !mAlbumHashSet.contains(album)) {
-            mAlbumHashSet.add(album);
+        if (album != null && !TextUtils.isEmpty(album.getName())) {
             QueryParams params = new QueryParams();
             params.name = album.getName();
             params.artistname = album.getArtist().getName();
