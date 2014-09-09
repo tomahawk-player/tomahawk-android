@@ -148,6 +148,8 @@ public class ViewHolder {
                     .findViewById(R.id.album_art_grid_textView);
             mTextView2 = (TextView) rootView
                     .findViewById(R.id.album_art_grid_textView2);
+            mTextView3 = (TextView) rootView
+                    .findViewById(R.id.album_art_grid_textView3);
         }
         if (mMainClickArea == null) {
             mMainClickArea = rootView;
