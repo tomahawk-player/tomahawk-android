@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.ListItemString;
 import org.tomahawk.libtomahawk.collection.Playlist;
@@ -76,6 +77,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
 
     private boolean mShowContentHeaderSpacer = false;
 
+    private Collection mCollection;
+
     /**
      * Constructs a new {@link TomahawkListAdapter}.
      */
@@ -84,6 +87,18 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
         mActivity = activity;
         mLayoutInflater = layoutInflater;
         mClickListener = clickListener;
+        setSegments(segments);
+    }
+
+    /**
+     * Constructs a new {@link TomahawkListAdapter}.
+     */
+    public TomahawkListAdapter(TomahawkMainActivity activity, LayoutInflater layoutInflater,
+            List<Segment> segments, MultiColumnClickListener clickListener, Collection collection) {
+        mActivity = activity;
+        mLayoutInflater = layoutInflater;
+        mClickListener = clickListener;
+        mCollection = collection;
         setSegments(segments);
     }
 
@@ -273,6 +288,14 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
                             item.getImage(),
                             Image.getSmallImageSize());
                 }
+                if (mCollection != null) {
+                    String songs =
+                            TomahawkApp.getContext().getResources().getString(R.string.songs);
+                    viewHolder.getTextView3().setText(
+                            mCollection.getAlbumTracks((Album) item, false).size() + " " + songs);
+                } else {
+                    viewHolder.getTextView3().setVisibility(View.GONE);
+                }
             }
             if (viewHolder.getLayoutId() == R.layout.single_line_list_item) {
                 viewHolder.getTextView1().setText(item.getName());
@@ -433,7 +456,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
     }
 
     /**
-     * This method is being called by the StickyListHeaders library. Returns the same value for each
+     * This method is being called by the StickyListHeaders library. Returns the same value for
+     * each
      * item that should be grouped under the same header.
      *
      * @param position the position of the item for which to get the header id

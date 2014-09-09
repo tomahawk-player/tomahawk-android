@@ -18,7 +18,6 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Album;
-import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.TomahawkListItemComparator;
 import org.tomahawk.tomahawk_android.R;
@@ -31,14 +30,12 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 public class CollectionFragment extends TomahawkFragment {
@@ -123,7 +120,8 @@ public class CollectionFragment extends TomahawkFragment {
                 R.dimen.padding_megalarge, R.dimen.padding_superlarge));
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
-                    layoutInflater, segments, this);
+                    layoutInflater, segments, this, CollectionManager.getInstance()
+                    .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION));
             setListAdapter(tomahawkListAdapter);
         } else {
             getListAdapter().setSegments(segments);
