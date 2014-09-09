@@ -128,6 +128,7 @@
     <string name="hub_title_collection">COLLECTION</string>
     <string name="hub_title_playlists">PLAYLISTS</string>
     <string name="hub_title_lovedtracks">FAVORITES</string>
+    <string name="hub_title_settings">SETTINGS</string>
     <string name="collection_dropdown_recently_added">RECENTLY ADDED</string>
     <string name="collection_dropdown_artist">ARTIST</string>
     <string name="collection_dropdown_play_count">PLAY COUNT</string>
