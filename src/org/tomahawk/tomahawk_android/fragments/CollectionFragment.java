@@ -18,6 +18,7 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.TomahawkListItemComparator;
 import org.tomahawk.tomahawk_android.R;
@@ -30,12 +31,14 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class CollectionFragment extends TomahawkFragment {
@@ -109,7 +112,10 @@ public class CollectionFragment extends TomahawkFragment {
             }
         };
         int initialPos = preferences.getInt(COLLECTION_SPINNER_POSITION, 0);
-        if (initialPos == 1) {
+        if (initialPos == 0) {
+            Collections.sort(items, new TomahawkListItemComparator(
+                    TomahawkListItemComparator.COMPARE_RECENTLY_ADDED));
+        } else if (initialPos == 1) {
             Collections.sort(items, new TomahawkListItemComparator(
                     TomahawkListItemComparator.COMPARE_ARTIST_ALPHA));
         }

@@ -17,6 +17,7 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import java.util.Comparator;
@@ -31,6 +32,8 @@ public class TomahawkListItemComparator
     public static final int COMPARE_ALPHA = 0;
 
     public static final int COMPARE_ARTIST_ALPHA = 1;
+
+    public static final int COMPARE_RECENTLY_ADDED = 2;
 
     //Flag containing the current mode to be used
     private static int mFlag = COMPARE_ALPHA;
@@ -59,6 +62,18 @@ public class TomahawkListItemComparator
                 return a1.getName().compareTo(a2.getName());
             case COMPARE_ARTIST_ALPHA:
                 return a1.getArtist().getName().compareTo(a2.getArtist().getName());
+            case COMPARE_RECENTLY_ADDED:
+                Collection userColl = CollectionManager.getInstance().getCollection(
+                        TomahawkApp.PLUGINNAME_USERCOLLECTION);
+                int a1TimeStamp = userColl.getAddedTimestamp((Album) a1);
+                int a2TimeStamp = userColl.getAddedTimestamp((Album) a2);
+                if (a1TimeStamp > a2TimeStamp) {
+                    return -1;
+                } else if (a1TimeStamp < a2TimeStamp) {
+                    return 1;
+                } else {
+                    return 0;
+                }
         }
         return 0;
     }
