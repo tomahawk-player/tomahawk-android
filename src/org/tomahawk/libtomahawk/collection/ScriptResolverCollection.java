@@ -55,7 +55,7 @@ public class ScriptResolverCollection extends Collection {
             Query query = Query.get(r, isLocal());
             query.addTrackResult(r);
             queries.add(query);
-            addQuery(query);
+            addQuery(query, 0);
         }
         addAlbumTracks(album, queries);
         sendCollectionUpdatedBroadcast();

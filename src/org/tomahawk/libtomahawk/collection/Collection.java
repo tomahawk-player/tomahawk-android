@@ -53,6 +53,9 @@ public class Collection {
     protected ConcurrentHashMap<Artist, Map<String, Album>> mArtistAlbums
             = new ConcurrentHashMap<Artist, Map<String, Album>>();
 
+    protected ConcurrentHashMap<Album, Integer> mAddedTimestamp
+            = new ConcurrentHashMap<Album, Integer>();
+
     protected Collection(String id, String name, boolean isLocal) {
         mId = id;
         mName = name;
@@ -86,9 +89,13 @@ public class Collection {
         mArtistAlbums = new ConcurrentHashMap<Artist, Map<String, Album>>();
     }
 
-    public void addQuery(Query query) {
+    public void addQuery(Query query, int addedTimeStamp) {
         if (!TextUtils.isEmpty(query.getName()) && !mQueries.containsKey(query.getCacheKey())) {
             mQueries.put(query.getCacheKey(), query);
+        }
+        if (addedTimeStamp > 0 && mAddedTimestamp.get(query.getAlbum()) == null
+                || mAddedTimestamp.get(query.getAlbum()) < addedTimeStamp) {
+            mAddedTimestamp.put(query.getAlbum(), addedTimeStamp);
         }
     }
 
@@ -223,5 +230,14 @@ public class Collection {
             Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
         }
         return queries;
+    }
+
+    public int getAddedTimestamp(Album album) {
+        Integer timestamp = mAddedTimestamp.get(album);
+        if (timestamp == null) {
+            return 0;
+        } else {
+            return timestamp;
+        }
     }
 }

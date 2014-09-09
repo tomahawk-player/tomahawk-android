@@ -94,7 +94,7 @@ public class UserCollection extends Collection {
                 MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.DURATION,
                 MediaStore.Audio.Media.TRACK, MediaStore.Audio.Media.ARTIST_ID,
                 MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM_ID,
-                MediaStore.Audio.Media.ALBUM};
+                MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DATE_ADDED};
 
         ContentResolver resolver = TomahawkApp.getContext().getContentResolver();
 
@@ -141,7 +141,7 @@ public class UserCollection extends Collection {
             result.setTrackScore(1f);
             query.addTrackResult(result);
 
-            addQuery(query);
+            addQuery(query, cursor.getInt(9));
             addAlbum(album);
             addArtist(artist);
             addArtistTracks(artist, query);
