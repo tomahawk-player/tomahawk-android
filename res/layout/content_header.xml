@@ -42,6 +42,8 @@
             android:paddingBottom="@dimen/padding_medium"
             android:paddingRight="@dimen/padding_large"
             android:paddingLeft="@dimen/padding_large"
+            android:layout_marginLeft="@dimen/padding_extralarge"
+            android:layout_marginRight="@dimen/padding_extralarge"
             android:background="@color/tertiary_transparent"/>
 
     <ImageButton

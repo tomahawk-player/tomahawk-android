@@ -7,6 +7,7 @@
     <dimen name="padding_medium">12dp</dimen>
     <dimen name="padding_large">16dp</dimen>
     <dimen name="padding_superlarge">24dp</dimen>
+    <dimen name="padding_extralarge">32dp</dimen>
     <dimen name="padding_megalarge">48dp</dimen>
     <dimen name="row_height_small">16dp</dimen>
     <dimen name="row_height_medium">32dp</dimen>
