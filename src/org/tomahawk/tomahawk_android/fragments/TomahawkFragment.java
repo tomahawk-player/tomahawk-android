@@ -49,11 +49,14 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentSkipListSet;
+
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
  * The base class for {@link AlbumsFragment}, {@link TracksFragment}, {@link ArtistsFragment},
@@ -62,7 +65,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
  * TomahawkListItem}s in whichever needed way.
  */
 public abstract class TomahawkFragment extends TomahawkListFragment
-        implements MultiColumnClickListener {
+        implements MultiColumnClickListener, AbsListView.OnScrollListener {
 
     public static final String TOMAHAWK_ALBUM_KEY
             = "org.tomahawk.tomahawk_android.tomahawk_album_id";
@@ -392,6 +395,10 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             intentFilter = new IntentFilter(DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED);
             activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
         }
+        StickyListHeadersListView list = getListView();
+        if (list != null) {
+            list.setOnScrollListener(this);
+        }
 
         onPlaylistChanged();
 
@@ -577,6 +584,25 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         updateAdapter();
         mResolveQueriesHandler.removeCallbacksAndMessages(null);
         mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
+    }
+
+    @Override
+    public void onScrollStateChanged(AbsListView view, int scrollState) {
+        super.onScrollStateChanged(view, scrollState);
+    }
+
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
+            int totalItemCount) {
+        super.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
+
+        mVisibleItemCount = visibleItemCount;
+        if (mFirstVisibleItemLastTime != firstVisibleItem) {
+            mFirstVisibleItemLastTime = firstVisibleItem;
+            mResolveQueriesHandler.removeCallbacksAndMessages(null);
+            mResolveQueriesHandler.sendEmptyMessageDelayed(RESOLVE_QUERIES_REPORTER_MSG,
+                    RESOLVE_QUERIES_REPORTER_DELAY);
+        }
     }
 
     private void resolveVisibleQueries() {
