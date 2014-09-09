@@ -59,10 +59,4 @@
             tomahawk:showAsAction="ifRoom"
             android:title="@string/menu_item_go_to_album"/>
 
-    <item
-            android:id="@+id/action_settings_item"
-            android:icon="@drawable/ic_action_settings"
-            tomahawk:showAsAction="never"
-            android:title="@string/menu_item_settings"/>
-
 </menu>

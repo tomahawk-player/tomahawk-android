@@ -29,6 +29,7 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.CollectionFragment;
+import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaylistEntriesFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
@@ -62,6 +63,8 @@ public class FragmentUtils {
     public static final int HUB_ID_LOVEDTRACKS = 2;
 
     public static final int HUB_ID_PLAYLISTS = 3;
+
+    public static final int HUB_ID_SETTINGS = 4;
 
     public static final int HUB_ID_PLAYBACK = 100;
 
@@ -212,6 +215,9 @@ public class FragmentUtils {
                 break;
             case HUB_ID_PLAYBACK:
                 replace(activity, fragmentManager, PlaybackFragment.class);
+                break;
+            case HUB_ID_SETTINGS:
+                replace(activity, fragmentManager, FakePreferenceFragment.class);
                 break;
         }
     }

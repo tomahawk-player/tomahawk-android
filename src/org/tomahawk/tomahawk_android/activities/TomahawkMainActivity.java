@@ -621,13 +621,6 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item != null) {
-            if (item.getItemId() == R.id.action_settings_item) {
-                FragmentUtils.replace(this, getSupportFragmentManager(),
-                        FakePreferenceFragment.class);
-            }
-            closeDrawer();
-        }
         // Pass the event to ActionBarDrawerToggle, if it returns
         // true, then it has handled the app icon touch event
         return mDrawerToggle != null && mDrawerToggle.onOptionsItemSelected(item) ||

@@ -135,6 +135,8 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
                 return FragmentUtils.HUB_ID_LOVEDTRACKS;
             } else if (item.equals(mItems.get(3))) {
                 return FragmentUtils.HUB_ID_PLAYLISTS;
+            } else if (item.equals(mItems.get(4))) {
+                return FragmentUtils.HUB_ID_SETTINGS;
             }
         }
         return position;
