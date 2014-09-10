@@ -57,7 +57,7 @@ public class AdapterUtils {
         }
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
-                album.getImage(), Image.getLargeImageSize());
+                album.getImage(), Image.getLargeImageSize(), false);
         if (DatabaseHelper.getInstance().isItemLoved(album)) {
             viewHolder.getStarLoveButton().setImageResource(R.drawable.ic_action_starred);
         } else {
@@ -73,7 +73,7 @@ public class AdapterUtils {
         }
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(), artist.getImage(),
-                Image.getLargeImageSize());
+                Image.getLargeImageSize(), true);
         if (DatabaseHelper.getInstance().isItemLoved(artist)) {
             viewHolder.getStarLoveButton().setImageResource(R.drawable.ic_action_starred);
         } else {
@@ -89,23 +89,23 @@ public class AdapterUtils {
         }
         if (images.size() > 3) {
             TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
-                    images.get(0), Image.getSmallImageSize());
+                    images.get(0), Image.getSmallImageSize(), false);
             TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView2(),
-                    images.get(1), Image.getSmallImageSize());
+                    images.get(1), Image.getSmallImageSize(), false);
             TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView3(),
-                    images.get(2), Image.getSmallImageSize());
+                    images.get(2), Image.getSmallImageSize(), false);
             TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView4(),
-                    images.get(3), Image.getSmallImageSize());
+                    images.get(3), Image.getSmallImageSize(), false);
         } else if (images.size() > 0) {
             TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
-                    images.get(0), Image.getLargeImageSize());
+                    images.get(0), Image.getLargeImageSize(), false);
         }
     }
 
     public static void fillContentHeaderSmall(Context context, ViewHolder viewHolder, User user) {
         viewHolder.getTextView1().setText(user.getName().toUpperCase());
         TomahawkUtils.loadRoundedImageIntoImageView(context, viewHolder.getRoundedImage(),
-                user.getImage(), Image.getLargeImageSize());
+                user.getImage(), Image.getLargeImageSize(), false);
         viewHolder.getRoundedImage().setVisibility(View.VISIBLE);
     }
 
@@ -114,7 +114,7 @@ public class AdapterUtils {
         TomahawkUtils.loadBlurredImageIntoImageView(context, viewHolder.getImageView1(),
                 user.getImage(), Image.getSmallImageSize());
         TomahawkUtils.loadRoundedImageIntoImageView(context, viewHolder.getRoundedImage(),
-                user.getImage(), Image.getSmallImageSize());
+                user.getImage(), Image.getSmallImageSize(), false);
         viewHolder.getTextView1().setText(user.getName().toUpperCase());
         if (showFollowing) {
             viewHolder.getButton4().setText(R.string.content_header_unfollow);
@@ -131,7 +131,7 @@ public class AdapterUtils {
         }
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(), query.getImage(),
-                Image.getLargeImageSize());
+                Image.getLargeImageSize(), query.hasArtistImage());
         if (DatabaseHelper.getInstance().isItemLoved(query)) {
             viewHolder.getStarLoveButton().setImageResource(R.drawable.ic_action_loved);
         } else {
@@ -189,21 +189,21 @@ public class AdapterUtils {
         viewHolder.getTextView1().setText(user.getName());
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils.loadRoundedImageIntoImageView(context, viewHolder.getImageView1(),
-                user.getImage(), Image.getSmallImageSize());
+                user.getImage(), Image.getSmallImageSize(), false);
     }
 
     public static void fillView(Context context, ViewHolder viewHolder, Artist artist) {
         viewHolder.getTextView1().setText(artist.getName());
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
-                artist.getImage(), Image.getSmallImageSize());
+                artist.getImage(), Image.getSmallImageSize(), true);
     }
 
     public static void fillView(Context context, ViewHolder viewHolder, Album album) {
         viewHolder.getTextView1().setText(album.getName());
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
-                album.getImage(), Image.getSmallImageSize());
+                album.getImage(), Image.getSmallImageSize(), false);
         viewHolder.getTextView4().setVisibility(View.VISIBLE);
         viewHolder.getTextView4().setText(album.getArtist().getName());
     }
@@ -219,7 +219,7 @@ public class AdapterUtils {
         TomahawkListItem targetObject = socialAction.getTargetObject();
         viewHolder.getImageView1().setVisibility(ImageView.VISIBLE);
         TomahawkUtils.loadRoundedImageIntoImageView(context, viewHolder.getImageView1(),
-                socialAction.getUser().getImage(), Image.getSmallImageSize());
+                socialAction.getUser().getImage(), Image.getSmallImageSize(), false);
         if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE
                 .equals(socialAction.getType())) {
             boolean action = Boolean.valueOf(socialAction.getAction());

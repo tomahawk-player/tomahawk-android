@@ -557,4 +557,10 @@ public class Query implements TomahawkListItem {
             return getArtist().getImage();
         }
     }
+
+    public boolean hasArtistImage() {
+        return (getAlbum().getImage() == null
+                || TextUtils.isEmpty(getAlbum().getImage().getImagePath()))
+                && getArtist().getImage() != null;
+    }
 }

@@ -309,7 +309,8 @@ public class TomahawkUtils {
      * @param username        the username for HTTP Basic Auth (optional)
      * @param password        the password for HTTP Basic Auth (optional)
      * @param data            the body data included in POST requests (optional)
-     * @param callback        a ScriptInterface.JsCallback that should be called if this request has
+     * @param callback        a ScriptInterface.JsCallback that should be called if this request
+     *                        has
      *                        been successful (optional)
      * @param followRedirects whether or not to follow redirects (also defines what is being
      *                        returned)
@@ -568,8 +569,8 @@ public class TomahawkUtils {
      * @param width     the width in density independent pixels to scale the image down to
      */
     public static void loadImageIntoImageView(Context context, ImageView imageView, Image image,
-            int width) {
-        loadImageIntoImageView(context, imageView, image, width, true);
+            int width, boolean isArtistImage) {
+        loadImageIntoImageView(context, imageView, image, width, true, isArtistImage);
     }
 
     /**
@@ -590,10 +591,7 @@ public class TomahawkUtils {
             creator.transform(new BlurTransformation());
             creator.into(imageView);
         } else {
-            RequestCreator creator = Picasso.with(context).load(R.drawable.no_album_art_placeholder)
-                    .resize(width, width);
-            creator.transform(new BlurTransformation());
-            creator.into(imageView);
+            imageView.setImageDrawable(null);
         }
     }
 
@@ -607,21 +605,23 @@ public class TomahawkUtils {
      * @param width     the width in pixels to scale the image down to
      */
     public static void loadImageIntoImageView(Context context, ImageView imageView, Image image,
-            int width, boolean fit) {
+            int width, boolean fit, boolean isArtistImage) {
+        int placeHolder = isArtistImage ? R.drawable.artist_placeholder_grid
+                : R.drawable.album_placeholder_grid;
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
             String imagePath = buildImagePath(context, image, width);
             RequestCreator creator = Picasso.with(context).load(
                     TomahawkUtils.preparePathForPicasso(imagePath))
-                    .placeholder(R.drawable.no_album_art_placeholder)
-                    .error(R.drawable.no_album_art_placeholder);
+                    .placeholder(placeHolder)
+                    .error(placeHolder);
             if (fit) {
                 creator.resize(width, width);
             }
             creator.into(imageView);
         } else {
-            RequestCreator creator = Picasso.with(context).load(R.drawable.no_album_art_placeholder)
-                    .placeholder(R.drawable.no_album_art_placeholder)
-                    .error(R.drawable.no_album_art_placeholder);
+            RequestCreator creator = Picasso.with(context).load(placeHolder)
+                    .placeholder(placeHolder)
+                    .error(placeHolder);
             if (fit) {
                 creator.resize(width, width);
             }
@@ -639,20 +639,22 @@ public class TomahawkUtils {
      * @param width     the width in pixels to scale the image down to
      */
     public static void loadRoundedImageIntoImageView(Context context, ImageView imageView,
-            Image image, int width) {
+            Image image, int width, boolean isArtistImage) {
+        int placeHolder = isArtistImage ? R.drawable.artist_placeholder_grid
+                : R.drawable.album_placeholder_grid;
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
             String imagePath = buildImagePath(context, image, width);
             Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
                     .transform(new CircularImageTransformation())
-                    .placeholder(R.drawable.no_album_art_placeholder)
-                    .error(R.drawable.no_album_art_placeholder)
+                    .placeholder(placeHolder)
+                    .error(placeHolder)
                     .resize(width, width)
                     .into(imageView);
         } else {
-            Picasso.with(context).load(R.drawable.no_album_art_placeholder)
+            Picasso.with(context).load(placeHolder)
                     .transform(new CircularImageTransformation())
-                    .placeholder(R.drawable.no_album_art_placeholder)
-                    .error(R.drawable.no_album_art_placeholder)
+                    .placeholder(placeHolder)
+                    .error(placeHolder)
                     .resize(width, width)
                     .into(imageView);
         }
@@ -673,7 +675,7 @@ public class TomahawkUtils {
         if (grayOut) {
             creator.transform(new GrayOutTransformation());
         }
-        creator.error(R.drawable.no_album_art_placeholder).into(imageView);
+        creator.error(R.drawable.ic_action_error).into(imageView);
     }
 
     /**
@@ -715,14 +717,17 @@ public class TomahawkUtils {
      * @param target  the Target which the loaded image will be pushed to
      * @param width   the width in pixels to scale the image down to
      */
-    public static void loadImageIntoBitmap(Context context, Image image, Target target, int width) {
+    public static void loadImageIntoBitmap(Context context, Image image, Target target, int width,
+            boolean isArtistImage) {
+        int placeHolder = isArtistImage ? R.drawable.artist_placeholder_grid
+                : R.drawable.album_placeholder_grid;
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
             String imagePath = buildImagePath(context, image, width);
             Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
                     .resize(width, width)
                     .into(target);
         } else {
-            Picasso.with(context).load(R.drawable.no_album_art_placeholder)
+            Picasso.with(context).load(placeHolder)
                     .resize(width, width)
                     .into(target);
         }
@@ -737,18 +742,20 @@ public class TomahawkUtils {
      */
     public static void loadImageIntoNotification(Context context, Image image,
             RemoteViews remoteViews, int viewId, int notificationId, Notification notification,
-            int width) {
+            int width, boolean isArtistImage) {
+        int placeHolder = isArtistImage ? R.drawable.artist_placeholder_grid
+                : R.drawable.album_placeholder_grid;
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
             String imagePath = buildImagePath(context, image, width);
             Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
-                    .placeholder(R.drawable.no_album_art_placeholder)
-                    .error(R.drawable.no_album_art_placeholder)
+                    .placeholder(placeHolder)
+                    .error(placeHolder)
                     .resize(width, width)
                     .into(remoteViews, viewId, notificationId, notification);
         } else {
-            Picasso.with(context).load(R.drawable.no_album_art_placeholder)
-                    .placeholder(R.drawable.no_album_art_placeholder)
-                    .error(R.drawable.no_album_art_placeholder)
+            Picasso.with(context).load(placeHolder)
+                    .placeholder(placeHolder)
+                    .error(placeHolder)
                     .resize(width, width)
                     .into(remoteViews, viewId, notificationId, notification);
         }
@@ -812,7 +819,8 @@ public class TomahawkUtils {
 
     /**
      * Fill the given Map with the userdata stored with the account, which is identified by the
-     * given accountname. The keys of the Map should match the keys that have been used to store the
+     * given accountname. The keys of the Map should match the keys that have been used to store
+     * the
      * userdata with the account.
      *
      * @param data        A Map<String, String> which contains all keys for which to get the
@@ -875,7 +883,8 @@ public class TomahawkUtils {
     }
 
     /**
-     * By default File#delete fails for non-empty directories, it works like "rm". We need something
+     * By default File#delete fails for non-empty directories, it works like "rm". We need
+     * something
      * a little more brutual - this does the equivalent of "rm -r"
      *
      * @param path Root File Path

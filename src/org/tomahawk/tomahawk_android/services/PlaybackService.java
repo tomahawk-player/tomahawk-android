@@ -515,7 +515,7 @@ public class PlaybackService extends Service
         mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
 
         sPlaceHolder =
-                BitmapFactory.decodeResource(getResources(), R.drawable.no_album_art_placeholder);
+                BitmapFactory.decodeResource(getResources(), R.drawable.album_placeholder_grid);
 
         mPlaylist = Playlist.fromEntriesList(DatabaseHelper.CACHED_PLAYLIST_NAME, "",
                 new ArrayList<PlaylistEntry>());
@@ -673,7 +673,8 @@ public class PlaybackService extends Service
     }
 
     /**
-     * Restore the current playlist from the Playlists Database. Do this by storing it in the {@link
+     * Restore the current playlist from the Playlists Database. Do this by storing it in the
+     * {@link
      * org.tomahawk.libtomahawk.collection.UserCollection} first, and then retrieving the playlist
      * from there.
      */
@@ -1304,12 +1305,14 @@ public class PlaybackService extends Service
                                 getCurrentQuery().getImage(), mSmallNotificationView,
                                 R.id.notification_small_imageview_albumart,
                                 PLAYBACKSERVICE_NOTIFICATION_ID,
-                                mNotification, Image.getSmallImageSize());
+                                mNotification, Image.getSmallImageSize(),
+                                getCurrentQuery().hasArtistImage());
                         TomahawkUtils.loadImageIntoNotification(TomahawkApp.getContext(),
                                 getCurrentQuery().getImage(), mLargeNotificationView,
                                 R.id.notification_large_imageview_albumart,
                                 PLAYBACKSERVICE_NOTIFICATION_ID,
-                                mNotification, Image.getSmallImageSize());
+                                mNotification, Image.getSmallImageSize(),
+                                getCurrentQuery().hasArtistImage());
                     }
                 });
             }
@@ -1403,7 +1406,7 @@ public class PlaybackService extends Service
             Picasso.with(TomahawkApp.getContext()).cancelRequest(mLockscreenTarget);
             TomahawkUtils.loadImageIntoBitmap(TomahawkApp.getContext(),
                     getCurrentQuery().getImage(), mLockscreenTarget,
-                    Image.getLargeImageSize());
+                    Image.getLargeImageSize(), getCurrentQuery().hasArtistImage());
         }
     }
 

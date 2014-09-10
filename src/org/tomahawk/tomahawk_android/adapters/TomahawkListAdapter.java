@@ -286,7 +286,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
                     TomahawkUtils.loadImageIntoImageView(mActivity,
                             viewHolder.getImageView1(),
                             item.getImage(),
-                            Image.getSmallImageSize());
+                            Image.getSmallImageSize(), item instanceof Artist);
                 }
                 if (mCollection != null) {
                     String songs =
