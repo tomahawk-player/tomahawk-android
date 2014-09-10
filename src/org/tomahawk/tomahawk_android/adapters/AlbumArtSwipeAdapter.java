@@ -304,7 +304,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
             TomahawkUtils.loadImageIntoImageView(mActivity, imageView, query.getImage(),
                     Image.getLargeImageSize(), landscapeMode);
             TomahawkUtils.loadImageIntoImageView(mActivity, nowPlayingAlbumArt, query.getImage(),
-                    Image.getSmallImageSize());
+                    Image.getSmallImageSize(), query.hasArtistImage());
             if (!mSlidingUpPanelLayout.isPanelExpanded()) {
                 playPauseButton.setEnabled(true);
                 playPauseButton.setVisibility(View.VISIBLE);
