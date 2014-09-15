@@ -65,13 +65,13 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
 
     /**
      * Show a content header. A content header provides information about the current {@link
-     * org.tomahawk.tomahawk_android.utils.TomahawkListItem} that the user has navigated to. Like
-     * an AlbumArt image with the {@link org.tomahawk.libtomahawk.collection.Album}s name, which is
+     * org.tomahawk.tomahawk_android.utils.TomahawkListItem} that the user has navigated to. Like an
+     * AlbumArt image with the {@link org.tomahawk.libtomahawk.collection.Album}s name, which is
      * shown at the top of the listview, if the user browses to a particular {@link
      * org.tomahawk.libtomahawk.collection.Album} in his {@link org.tomahawk.libtomahawk.collection.UserCollection}.
      *
-     * @param item the {@link org.tomahawk.tomahawk_android.utils.TomahawkListItem}'s information
-     *             to show in the header view
+     * @param item the {@link org.tomahawk.tomahawk_android.utils.TomahawkListItem}'s information to
+     *             show in the header view
      */
     protected void showContentHeader(FrameLayout imageFrame, FrameLayout headerFrame,
             Object item, Collection collection, boolean dynamic, int headerHeightResid) {
@@ -261,9 +261,9 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
             View indicatorView = view.findViewById(R.id.page_indicator_container);
             if (indicatorView != null) {
                 Resources resources = TomahawkApp.getContext().getResources();
-                int offset =
-                        resources.getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable)
-                                - resources.getDimensionPixelSize(R.dimen.pager_indicator_height);
+                int offset = resources.getDimensionPixelSize(
+                        R.dimen.header_clear_space_nonscrollable_pager)
+                        - resources.getDimensionPixelSize(R.dimen.pager_indicator_height);
                 mPageIndicatorAnim = ObjectAnimator.ofFloat(indicatorView, "y", offset)
                         .setDuration(10000);
                 mPageIndicatorAnim.setInterpolator(new LinearInterpolator());
