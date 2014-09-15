@@ -17,6 +17,16 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.tomahawk.libtomahawk.collection.Collection;
+import org.tomahawk.libtomahawk.infosystem.InfoSystem;
+import org.tomahawk.libtomahawk.resolver.PipeLine;
+import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
+import org.tomahawk.tomahawk_android.views.PageIndicator;
+import org.tomahawk.tomahawk_android.views.TomahawkScrollView;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -30,16 +40,6 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-
-import org.tomahawk.libtomahawk.collection.Collection;
-import org.tomahawk.libtomahawk.infosystem.InfoSystem;
-import org.tomahawk.libtomahawk.resolver.PipeLine;
-import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
-import org.tomahawk.tomahawk_android.utils.ThreadManager;
-import org.tomahawk.tomahawk_android.views.PageIndicator;
-import org.tomahawk.tomahawk_android.views.TomahawkScrollView;
 
 import java.util.HashSet;
 import java.util.List;
@@ -112,7 +112,7 @@ public abstract class PagerFragment extends ContentHeaderFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         return inflater.inflate(R.layout.pagerfragment_layout, container, false);
     }
 
@@ -135,7 +135,8 @@ public abstract class PagerFragment extends ContentHeaderFragment {
         FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) scrollView.getLayoutParams();
         int offset;
         if (mHasScrollableHeader) {
-            offset = getResources().getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable);
+            offset = getResources()
+                    .getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable_pager);
         } else {
             offset = mStaticHeaderHeight;
         }
@@ -144,7 +145,7 @@ public abstract class PagerFragment extends ContentHeaderFragment {
     }
 
     protected void setupPager(List<String> fragmentClassNames, List<String> fragmentTitles,
-                              List<Bundle> fragmentBundles, int initialPage) {
+            List<Bundle> fragmentBundles, int initialPage) {
         TomahawkPagerAdapter adapter = new TomahawkPagerAdapter(getChildFragmentManager(),
                 fragmentClassNames, fragmentTitles, fragmentBundles, ((Object) this).getClass());
         final ViewPager fragmentPager = (ViewPager) getView().findViewById(R.id.fragmentpager);
@@ -156,7 +157,8 @@ public abstract class PagerFragment extends ContentHeaderFragment {
                 (FrameLayout.LayoutParams) pageIndicatorContainer.getLayoutParams();
         int margin;
         if (mHasScrollableHeader) {
-            margin = getResources().getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable)
+            margin = getResources()
+                    .getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable_pager)
                     + getResources().getDimensionPixelSize(R.dimen.header_clear_space_scrollable)
                     - getResources().getDimensionPixelSize(R.dimen.pager_indicator_height);
         } else {

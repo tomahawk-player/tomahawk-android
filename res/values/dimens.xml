@@ -17,9 +17,10 @@
     <dimen name="menu_item_height_userprofile">48dp</dimen>
     <dimen name="header_spinner_height">48dp</dimen>
 
-    <dimen name="header_clear_space_nonscrollable_static">80dp</dimen>
-    <dimen name="header_clear_space_nonscrollable_static_user">136dp</dimen>
-    <dimen name="header_clear_space_nonscrollable">128dp</dimen>
+    <dimen name="header_clear_space_nonscrollable_static">112dp</dimen>
+    <dimen name="header_clear_space_nonscrollable_static_user">168dp</dimen>
+    <dimen name="header_clear_space_nonscrollable">120dp</dimen>
+    <dimen name="header_clear_space_nonscrollable_pager">152dp</dimen>
     <dimen name="header_clear_space_scrollable">208dp</dimen>
     <dimen name="header_roundedimage_height">48dp</dimen>
 
