@@ -34,6 +34,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ListView;
 
 import java.util.List;
 
@@ -90,11 +91,6 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
         mLayoutInflater = layoutInflater;
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
         mFakePreferenceGroups = fakePreferenceGroups;
-    }
-
-    @Override
-    public void notifyDataSetChanged() {
-        super.notifyDataSetChanged();
     }
 
     /**
@@ -285,8 +281,7 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
     }
 
     @Override
-    public void setShowContentHeaderSpacer(boolean showContentHeaderSpacer) {
-
+    public void setShowContentHeaderSpacer(boolean showContentHeaderSpacer, ListView listView) {
     }
 
 }

@@ -166,7 +166,8 @@ public class TracksFragment extends TomahawkFragment {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
                 tomahawkListAdapter.setShowResolvedBy(true);
-                tomahawkListAdapter.setShowContentHeaderSpacer(true);
+                tomahawkListAdapter
+                        .setShowContentHeaderSpacer(true, getListView().getWrappedList());
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment);
@@ -179,7 +180,8 @@ public class TracksFragment extends TomahawkFragment {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
                 tomahawkListAdapter.setShowResolvedBy(true);
-                tomahawkListAdapter.setShowContentHeaderSpacer(true);
+                tomahawkListAdapter
+                        .setShowContentHeaderSpacer(true, getListView().getWrappedList());
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment);
@@ -192,7 +194,8 @@ public class TracksFragment extends TomahawkFragment {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
                 tomahawkListAdapter.setShowResolvedBy(true);
-                tomahawkListAdapter.setShowContentHeaderSpacer(true);
+                tomahawkListAdapter
+                        .setShowContentHeaderSpacer(true, getListView().getWrappedList());
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment);

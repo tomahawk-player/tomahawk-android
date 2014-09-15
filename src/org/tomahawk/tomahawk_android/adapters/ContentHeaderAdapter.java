@@ -17,8 +17,10 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
+import android.widget.ListView;
+
 public interface ContentHeaderAdapter {
 
-    public void setShowContentHeaderSpacer(boolean showContentHeaderSpacer);
+    public void setShowContentHeaderSpacer(boolean showContentHeaderSpacer, ListView listView);
 
 }
