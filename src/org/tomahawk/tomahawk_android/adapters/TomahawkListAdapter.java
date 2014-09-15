@@ -35,11 +35,14 @@ import org.tomahawk.tomahawk_android.utils.AdapterUtils;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -76,6 +79,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
     private boolean mShowArtistAsSingleLine = false;
 
     private boolean mShowContentHeaderSpacer = false;
+
+    private int mFooterSpacerHeight = 0;
 
     private Collection mCollection;
 
@@ -136,8 +141,9 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
         notifyDataSetChanged();
     }
 
-    public void setShowContentHeaderSpacer(boolean showContentHeaderSpacer) {
+    public void setShowContentHeaderSpacer(boolean showContentHeaderSpacer, ListView listView) {
         mShowContentHeaderSpacer = showContentHeaderSpacer;
+        updateFooterSpacerHeight(listView);
     }
 
     /**
@@ -209,7 +215,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
             view = convertView;
         }
         int viewType = getViewType(o, shouldBeHighlighted,
-                mShowContentHeaderSpacer && position == 0);
+                mShowContentHeaderSpacer && position == 0, position == getCount() - 1);
         int expectedViewHoldersCount = 1;
         if (o instanceof List) {
             expectedViewHoldersCount = 0;
@@ -277,7 +283,10 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
             ViewHolder viewHolder = viewHolders.get(i);
             TomahawkListItem item = o instanceof List ? (TomahawkListItem) ((List) o).get(i)
                     : (TomahawkListItem) o;
-            if (viewHolder.getLayoutId() == R.layout.album_art_grid_item) {
+            if (viewHolder.getLayoutId() == R.layout.content_footer_spacer) {
+                view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        mFooterSpacerHeight));
+            } else if (viewHolder.getLayoutId() == R.layout.album_art_grid_item) {
                 viewHolder.getTextView1().setText(item.getName());
                 viewHolder.getTextView2().setVisibility(View.VISIBLE);
                 viewHolder.getTextView2().setText(item.getArtist()
@@ -296,8 +305,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
                 } else {
                     viewHolder.getTextView3().setVisibility(View.GONE);
                 }
-            }
-            if (viewHolder.getLayoutId() == R.layout.single_line_list_item) {
+            } else if (viewHolder.getLayoutId() == R.layout.single_line_list_item) {
                 viewHolder.getTextView1().setText(item.getName());
             } else if (viewHolder.getLayoutId() == R.layout.list_item_text) {
                 AdapterUtils.fillView(mActivity, viewHolder, (ListItemString) item);
@@ -353,7 +361,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
      */
     @Override
     public int getCount() {
-        return mRowCount + (mShowContentHeaderSpacer ? 1 : 0);
+        return mRowCount + (mShowContentHeaderSpacer ? 1 : 0) + 1;
     }
 
     /**
@@ -456,8 +464,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
     }
 
     /**
-     * This method is being called by the StickyListHeaders library. Returns the same value for
-     * each
+     * This method is being called by the StickyListHeaders library. Returns the same value for each
      * item that should be grouped under the same header.
      *
      * @param position the position of the item for which to get the header id
@@ -474,13 +481,15 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
     }
 
     private int getViewType(Object item, boolean isHighlighted,
-            boolean isContentHeaderItem) {
+            boolean isContentHeaderItem, boolean isFooter) {
         if (item instanceof List) {
             //We have a grid item
             return R.layout.album_art_grid_item;
         }
         if (isContentHeaderItem) {
             return R.layout.content_header_spacer;
+        } else if (isFooter) {
+            return R.layout.content_footer_spacer;
         } else if (item instanceof Playlist || (item instanceof Artist
                 && mShowArtistAsSingleLine)) {
             return R.layout.single_line_list_item;
@@ -498,6 +507,50 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
             return R.layout.dropdown_header;
         } else {
             return R.layout.single_line_list_header;
+        }
+    }
+
+    private void updateFooterSpacerHeight(final ListView listView) {
+        if (mShowContentHeaderSpacer) {
+            listView.getViewTreeObserver().addOnGlobalLayoutListener(
+                    new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @Override
+                        public void onGlobalLayout() {
+                            mFooterSpacerHeight = listView.getHeight();
+                            long headerId = Long.MIN_VALUE;
+                            for (int i = 1; i < getCount(); i++) {
+                                View view = getView(i, null, listView);
+                                if (view != null) {
+                                    view.measure(View.MeasureSpec.makeMeasureSpec(0,
+                                                    View.MeasureSpec.UNSPECIFIED),
+                                            View.MeasureSpec.makeMeasureSpec(0,
+                                                    View.MeasureSpec.UNSPECIFIED));
+                                    mFooterSpacerHeight -= view.getMeasuredHeight();
+                                }
+                                if (i == 1 || headerId != getHeaderId(i)) {
+                                    headerId = getHeaderId(i);
+                                    View headerView = getHeaderView(i, null, listView);
+                                    if (headerView != null) {
+                                        headerView.measure(View.MeasureSpec.makeMeasureSpec(0,
+                                                        View.MeasureSpec.UNSPECIFIED),
+                                                View.MeasureSpec.makeMeasureSpec(0,
+                                                        View.MeasureSpec.UNSPECIFIED));
+                                        mFooterSpacerHeight -= headerView.getMeasuredHeight();
+                                    }
+                                }
+                                if (mFooterSpacerHeight <= 0) {
+                                    mFooterSpacerHeight = 0;
+                                    break;
+                                }
+                            }
+                            notifyDataSetChanged();
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                listView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                            } else {
+                                listView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                            }
+                        }
+                    });
         }
     }
 }

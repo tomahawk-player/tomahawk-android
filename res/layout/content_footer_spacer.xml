@@ -2,7 +2,7 @@
 <!--
 /*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2012, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,14 +18,8 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:id="@+id/content_header_spacer"
-             android:layout_width="match_parent"
-             android:layout_height="@dimen/header_clear_space_scrollable">
-
-    <View android:layout_width="match_parent"
-          android:layout_height="@dimen/divider_height_thick"
-          android:background="@drawable/above_shadow"
-          android:layout_gravity="bottom"/>
-
-</FrameLayout>
+<View xmlns:android="http://schemas.android.com/apk/res/android"
+      android:id="@+id/content_footer_spacer"
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:background="@color/primary_background"/>
