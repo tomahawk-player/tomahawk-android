@@ -30,6 +30,7 @@
     <dimen name="header_clear_space_nonscrollable_pager">152dp</dimen>
     <dimen name="header_clear_space_scrollable">208dp</dimen>
     <dimen name="header_roundedimage_height">48dp</dimen>
+    <dimen name="header_following_height">32dp</dimen>
 
     <dimen name="divider_height_thin">1dp</dimen>
     <dimen name="divider_height_thick">2dp</dimen>

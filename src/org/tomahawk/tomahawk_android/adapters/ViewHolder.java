@@ -20,7 +20,6 @@ package org.tomahawk.tomahawk_android.adapters;
 import org.tomahawk.tomahawk_android.R;
 
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -64,7 +63,7 @@ public class ViewHolder {
 
     private LinearLayout mButton3;
 
-    private Button mButton4;
+    private FrameLayout mButton4;
 
     private FrameLayout mMoreButton;
 
@@ -189,7 +188,7 @@ public class ViewHolder {
                     .findViewById(R.id.content_header_button3);
             mMoreButton = (FrameLayout) headerFrame
                     .findViewById(R.id.content_header_more_button);
-            mButton4 = (Button) headerFrame
+            mButton4 = (FrameLayout) headerFrame
                     .findViewById(R.id.content_header_button4);
         }
         if (mMainClickArea == null) {
@@ -265,7 +264,7 @@ public class ViewHolder {
         return mButton3;
     }
 
-    public Button getButton4() {
+    public FrameLayout getButton4() {
         return mButton4;
     }
 

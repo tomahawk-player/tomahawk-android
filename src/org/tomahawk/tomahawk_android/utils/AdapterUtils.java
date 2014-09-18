@@ -108,9 +108,9 @@ public class AdapterUtils {
                 user.getImage(), Image.getSmallImageSize(), false);
         viewHolder.getTextView1().setText(user.getName().toUpperCase());
         if (showFollowing) {
-            viewHolder.getButton4().setText(R.string.content_header_unfollow);
+            viewHolder.getButton4().setBackgroundResource(R.drawable.following_button_bg_filled);
         } else if (showNotFollowing) {
-            viewHolder.getButton4().setText(R.string.content_header_follow);
+            viewHolder.getButton4().setBackgroundResource(R.drawable.following_button_bg);
         } else {
             viewHolder.getButton4().setVisibility(View.GONE);
         }

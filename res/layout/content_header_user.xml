@@ -22,7 +22,7 @@
              android:layout_width="match_parent"
              android:layout_height="@dimen/header_clear_space_nonscrollable_static_user">
 
-    <RelativeLayout
+    <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/abc_action_bar_default_height"
@@ -57,16 +57,24 @@
 
         </LinearLayout>
 
-        <Button
+        <FrameLayout
                 android:id="@+id/content_header_button4"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                style="@style/ButtonTomahawk"
-                android:clickable="true"
-                android:text="@string/content_header_follow"/>
+                android:layout_height="@dimen/header_following_height"
+                android:layout_gravity="right|center_vertical"
+                android:background="@drawable/following_button_bg"
+                android:clickable="true">
 
-    </RelativeLayout>
+            <TextView android:layout_width="match_parent"
+                      android:layout_height="match_parent"
+                      android:text="@string/content_header_following"
+                      android:textSize="@dimen/text_size_small"
+                      android:textColor="@color/primary_textcolor_inverted"
+                      android:gravity="center"/>
+
+        </FrameLayout>
+
+    </FrameLayout>
 
     <LinearLayout
             android:id="@+id/page_indicator_container"
