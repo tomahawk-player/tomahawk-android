@@ -117,6 +117,11 @@
     <string name="fake_context_menu_love_track">Love track</string>
     <string name="fake_context_menu_unlove_track">Unlove track</string>
     <string name="fake_context_menu_delete">Delete</string>
+    <string name="context_menu_addtocollection">In your collection</string>
+    <string name="context_menu_favorite">Favorite</string>
+    <string name="context_menu_addtoplaylist">Add to a Playlist</string>
+    <string name="context_menu_share">Share</string>
+    <string name="context_menu_gotoartist">Go to artist</string>
     <string name="menu_item_save_playlist">Save playlist</string>
     <string name="menu_item_go_to_artist">Go to artist</string>
     <string name="menu_item_go_to_album">Go to album</string>

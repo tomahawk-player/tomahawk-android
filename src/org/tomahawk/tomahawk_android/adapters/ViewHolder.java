@@ -22,7 +22,7 @@ import org.tomahawk.tomahawk_android.R;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.ImageButton;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -66,7 +66,7 @@ public class ViewHolder {
 
     private Button mButton4;
 
-    private ImageButton mStarLoveButton;
+    private FrameLayout mMoreButton;
 
     private View mMainClickArea;
 
@@ -187,8 +187,8 @@ public class ViewHolder {
                     .findViewById(R.id.content_header_button2);
             mButton3 = (LinearLayout) headerFrame
                     .findViewById(R.id.content_header_button3);
-            mStarLoveButton = (ImageButton) headerFrame
-                    .findViewById(R.id.content_header_star_love_button);
+            mMoreButton = (FrameLayout) headerFrame
+                    .findViewById(R.id.content_header_more_button);
             mButton4 = (Button) headerFrame
                     .findViewById(R.id.content_header_button4);
         }
@@ -269,8 +269,8 @@ public class ViewHolder {
         return mButton4;
     }
 
-    public ImageButton getStarLoveButton() {
-        return mStarLoveButton;
+    public FrameLayout getMoreButton() {
+        return mMoreButton;
     }
 
     public View getMainClickArea() {

@@ -9,14 +9,21 @@
     <dimen name="padding_superlarge">24dp</dimen>
     <dimen name="padding_extralarge">32dp</dimen>
     <dimen name="padding_megalarge">48dp</dimen>
+
     <dimen name="row_height_small">16dp</dimen>
     <dimen name="row_height_medium">32dp</dimen>
     <dimen name="row_height_large">48dp</dimen>
     <dimen name="row_height_verylarge">64dp</dimen>
+
     <dimen name="menu_item_height">32dp</dimen>
     <dimen name="menu_item_height_userprofile">48dp</dimen>
-    <dimen name="header_spinner_height">48dp</dimen>
 
+    <dimen name="context_menu_icon_height">24dp</dimen>
+
+    <dimen name="show_context_menu_icon_height">48dp</dimen>
+    <dimen name="show_context_menu_icon_height_more">16dp</dimen>
+
+    <dimen name="header_spinner_height">48dp</dimen>
     <dimen name="header_clear_space_nonscrollable_static">112dp</dimen>
     <dimen name="header_clear_space_nonscrollable_static_user">168dp</dimen>
     <dimen name="header_clear_space_nonscrollable">120dp</dimen>

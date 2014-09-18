@@ -40,7 +40,7 @@ import java.util.List;
 
 /**
  * Since we can't customize the appearance of the official context menu dialog, we have to create
- * our own {@link org.tomahawk.tomahawk_android.dialogs.FakeContextMenuDialog} with this {@link
+ * our own {@link org.tomahawk.tomahawk_android.fragments.ContextMenuFragment} with this {@link
  * TomahawkContextMenuAdapter} to be used to populate it.
  */
 public class TomahawkContextMenuAdapter extends BaseAdapter {

@@ -25,7 +25,6 @@ import org.tomahawk.libtomahawk.collection.HatchetCollection;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.ListItemString;
 import org.tomahawk.libtomahawk.collection.Playlist;
-import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
@@ -51,35 +50,27 @@ import java.util.concurrent.TimeUnit;
 public class AdapterUtils {
 
     public static void fillContentHeader(Context context, ViewHolder viewHolder,
-            final Album album, Collection collection) {
+            final Album album, View.OnClickListener listener) {
         if (viewHolder.getTextView1() != null) {
             viewHolder.getTextView1().setText(album.getName().toUpperCase());
         }
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(),
                 album.getImage(), Image.getLargeImageSize(), false);
-        if (DatabaseHelper.getInstance().isItemLoved(album)) {
-            viewHolder.getStarLoveButton().setImageResource(R.drawable.ic_action_starred);
-        } else {
-            viewHolder.getStarLoveButton().setImageResource(R.drawable.ic_action_notstarred);
-        }
-        viewHolder.getStarLoveButton().setVisibility(View.VISIBLE);
+        viewHolder.getMoreButton().setVisibility(View.VISIBLE);
+        viewHolder.getMoreButton().setOnClickListener(listener);
     }
 
     public static void fillContentHeader(Context context, ViewHolder viewHolder,
-            final Artist artist, Collection collection) {
+            final Artist artist, View.OnClickListener listener) {
         if (viewHolder.getTextView1() != null) {
             viewHolder.getTextView1().setText(artist.getName().toUpperCase());
         }
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(), artist.getImage(),
                 Image.getLargeImageSize(), true);
-        if (DatabaseHelper.getInstance().isItemLoved(artist)) {
-            viewHolder.getStarLoveButton().setImageResource(R.drawable.ic_action_starred);
-        } else {
-            viewHolder.getStarLoveButton().setImageResource(R.drawable.ic_action_notstarred);
-        }
-        viewHolder.getStarLoveButton().setVisibility(View.VISIBLE);
+        viewHolder.getMoreButton().setVisibility(View.VISIBLE);
+        viewHolder.getMoreButton().setOnClickListener(listener);
     }
 
     public static void fillContentHeader(Context context, ViewHolder viewHolder, Playlist playlist,
@@ -132,12 +123,6 @@ public class AdapterUtils {
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
         TomahawkUtils.loadImageIntoImageView(context, viewHolder.getImageView1(), query.getImage(),
                 Image.getLargeImageSize(), query.hasArtistImage());
-        if (DatabaseHelper.getInstance().isItemLoved(query)) {
-            viewHolder.getStarLoveButton().setImageResource(R.drawable.ic_action_loved);
-        } else {
-            viewHolder.getStarLoveButton().setImageResource(R.drawable.ic_action_notloved);
-        }
-        viewHolder.getStarLoveButton().setVisibility(View.VISIBLE);
     }
 
     public static void fillContentHeader(Context context, ViewHolder viewHolder, Image image) {
