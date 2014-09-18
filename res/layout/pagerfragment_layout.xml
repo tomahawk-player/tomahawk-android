@@ -45,7 +45,8 @@
             <android.support.v4.view.ViewPager
                     android:id="@+id/fragmentpager"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:background="@color/primary_background"/>
 
         </LinearLayout>
 
