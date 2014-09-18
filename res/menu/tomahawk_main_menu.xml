@@ -29,34 +29,4 @@
             tomahawk:actionViewClass="android.support.v7.widget.SearchView"
             tomahawk:queryHint="@string/searchfragment_title_string"/>
 
-    <item
-            android:id="@+id/action_share_item"
-            tomahawk:showAsAction="ifRoom"
-            android:title="@string/menu_item_share"
-            tomahawk:actionProviderClass="android.support.v7.widget.ShareActionProvider"/>
-
-    <item
-            android:id="@+id/action_playshuffled_item"
-            android:icon="@drawable/ic_player_shuffle_light"
-            tomahawk:showAsAction="ifRoom"
-            android:title="@string/menu_item_playshuffled"/>
-
-    <item
-            android:id="@+id/action_saveplaylist_item"
-            android:icon="@drawable/ic_action_saveplaylist"
-            tomahawk:showAsAction="ifRoom"
-            android:title="@string/menu_item_save_playlist"/>
-
-    <item
-            android:id="@+id/action_gotoartist_item"
-            android:icon="@drawable/ic_action_artist_light"
-            tomahawk:showAsAction="ifRoom"
-            android:title="@string/menu_item_go_to_artist"/>
-
-    <item
-            android:id="@+id/action_gotoalbum_item"
-            android:icon="@drawable/ic_action_album_light"
-            tomahawk:showAsAction="ifRoom"
-            android:title="@string/menu_item_go_to_album"/>
-
 </menu>

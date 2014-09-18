@@ -19,7 +19,6 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
-import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
@@ -29,10 +28,7 @@ import org.tomahawk.tomahawk_android.adapters.AlbumArtSwipeAdapter;
 import org.tomahawk.tomahawk_android.adapters.PlaybackPagerAdapter;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
-import org.tomahawk.tomahawk_android.dialogs.CreatePlaylistDialog;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
-import org.tomahawk.tomahawk_android.utils.FragmentUtils;
-import org.tomahawk.tomahawk_android.utils.ShareUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 import org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager;
@@ -40,13 +36,9 @@ import org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -112,7 +104,6 @@ public class PlaybackFragment extends TomahawkFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setHasOptionsMenu(true);
         setRestoreScrollPosition(false);
     }
 
@@ -201,53 +192,6 @@ public class PlaybackFragment extends TomahawkFragment {
         refreshRepeatButtonState();
         refreshShuffleButtonState();
         updateAdapter();
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        mMenu = menu;
-
-        onTrackChanged();
-
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    /**
-     * If the user clicks on a menuItem, handle what should be done here
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-
-        PlaybackService playbackService = activity.getPlaybackService();
-        if (playbackService != null && item != null) {
-            if (item.getItemId() == R.id.action_saveplaylist_item) {
-                Playlist playlist = Playlist.fromQueryList("",
-                        playbackService.getPlaylist().getQueries());
-                CreatePlaylistDialog dialog = new CreatePlaylistDialog();
-                Bundle args = new Bundle();
-                args.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY, playlist.getId());
-                dialog.setArguments(args);
-                dialog.show(getFragmentManager(), null);
-                return true;
-            } else if (item.getItemId() == R.id.action_gotoartist_item) {
-                if (playbackService.getCurrentQuery() != null) {
-                    FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                            getActivity().getSupportFragmentManager(), ArtistPagerFragment.class,
-                            playbackService.getCurrentQuery().getArtist().getCacheKey(),
-                            TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
-                }
-            } else if (item.getItemId() == R.id.action_gotoalbum_item) {
-                if (playbackService.getCurrentQuery() != null) {
-                    FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                            getActivity().getSupportFragmentManager(), TracksFragment.class,
-                            playbackService.getCurrentQuery().getAlbum().getCacheKey(),
-                            TomahawkFragment.TOMAHAWK_ALBUM_KEY, mCollection);
-                }
-            }
-            ((TomahawkMainActivity) getActivity()).closeDrawer();
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -613,28 +557,11 @@ public class PlaybackFragment extends TomahawkFragment {
     public void onPanelCollapsed() {
         mAlbumArtSwipeAdapter.notifyDataSetChanged();
         mPlaybackSeekBar.stopUpdates();
-        mMenu.findItem(R.id.action_saveplaylist_item).setVisible(false);
-        mMenu.findItem(R.id.action_gotoartist_item).setVisible(false);
-        mMenu.findItem(R.id.action_gotoalbum_item).setVisible(false);
-        mMenu.findItem(R.id.action_share_item).setVisible(false);
     }
 
     @Override
     public void onPanelExpanded() {
         mAlbumArtSwipeAdapter.notifyDataSetChanged();
         mPlaybackSeekBar.updateSeekBarPosition();
-        mMenu.findItem(R.id.action_saveplaylist_item).setVisible(true);
-        mMenu.findItem(R.id.action_gotoartist_item).setVisible(true);
-        mMenu.findItem(R.id.action_gotoalbum_item).setVisible(true);
-        PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
-                .getPlaybackService();
-        if (playbackService != null && playbackService.getCurrentQuery() != null) {
-            MenuItem shareItem = mMenu.findItem(R.id.action_share_item);
-            shareItem.setVisible(true);
-            ShareActionProvider provider =
-                    (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
-            provider.setShareIntent(
-                    ShareUtils.generateShareIntent(playbackService.getCurrentQuery()));
-        }
     }
 }
