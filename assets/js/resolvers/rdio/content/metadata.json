@@ -5,7 +5,7 @@
 	"email": "uwelk@xhochy.com",
 	"version": "0.1.0",
 	"website": "http://gettomahawk.com",
-	"description": "Stream music with Rdio",
+	"description": "Stream music with Rdio. Premium Rdio account required.",
 	"type": "resolver/javascript",
 	"manifest": {
 		"main": "contents/code/rdio.js",
