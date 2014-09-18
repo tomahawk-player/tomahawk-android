@@ -92,11 +92,11 @@
     <string name="fakepreference_scrobble_summary_string">Scrobble every track from every music
         player app on the phone to Hatchet.
     </string>
-    <string name="fakepreference_plugintoplay_title_string">Plug in to play</string>
+    <string name="fakepreference_plugintoplay_title_string">Plug in to Play</string>
     <string name="fakepreference_plugintoplay_summary_string">Starts playing music
         as soon as a headset is connected.
     </string>
-    <string name="fakepreference_bitrate_title_string">Preferred audio quality</string>
+    <string name="fakepreference_bitrate_title_string">Preferred Audio Quality</string>
     <string name="fakepreference_bitrate_summary_string">The preferred audio quality if not
         connected to WiFi.
     </string>
@@ -112,22 +112,22 @@
     </string>
     <string name="crash_dialog_ok_toast">Thank you !</string>
     <string name="fake_context_menu_play">Play</string>
-    <string name="fake_context_menu_addtoqueue">Add to queue</string>
-    <string name="fake_context_menu_addtoplaylist">Add to playlist</string>
-    <string name="fake_context_menu_love_track">Love track</string>
-    <string name="fake_context_menu_unlove_track">Unlove track</string>
+    <string name="fake_context_menu_addtoqueue">Add to Queue</string>
+    <string name="fake_context_menu_addtoplaylist">Add to Playlist</string>
+    <string name="fake_context_menu_love_track">Love Track</string>
+    <string name="fake_context_menu_unlove_track">Unlove Track</string>
     <string name="fake_context_menu_delete">Delete</string>
-    <string name="context_menu_addtocollection">In your collection</string>
+    <string name="context_menu_addtocollection">In Your Collection</string>
     <string name="context_menu_favorite">Favorite</string>
     <string name="context_menu_addtoplaylist">Add to a Playlist</string>
     <string name="context_menu_share">Share</string>
-    <string name="context_menu_gotoartist">Go to artist</string>
-    <string name="menu_item_save_playlist">Save playlist</string>
-    <string name="menu_item_go_to_artist">Go to artist</string>
-    <string name="menu_item_go_to_album">Go to album</string>
+    <string name="context_menu_gotoartist">Go to Artist</string>
+    <string name="menu_item_save_playlist">Save Playlist</string>
+    <string name="menu_item_go_to_artist">Go to Artist</string>
+    <string name="menu_item_go_to_album">Go to Album</string>
     <string name="menu_item_settings">Settings</string>
     <string name="menu_item_share">Share</string>
-    <string name="menu_item_playshuffled">Play shuffled</string>
+    <string name="menu_item_playshuffled">Play Shuffled</string>
     <string name="share_default_prefix">#musthear</string>
     <string name="hub_title_feed">FEED</string>
     <string name="hub_title_collection">COLLECTION</string>
@@ -140,8 +140,8 @@
     <string name="fake_preferences_bitrate_low">Normal</string>
     <string name="fake_preferences_bitrate_medium">Good</string>
     <string name="fake_preferences_bitrate_high">Best</string>
-    <string name="drawer_open">Open navigation drawer</string>
-    <string name="drawer_close">Close navigation drawer</string>
+    <string name="drawer_open">Open Navigation Drawer</string>
+    <string name="drawer_close">Close Navigation Drawer</string>
     <string name="category_header_track">Track</string>
     <string name="category_header_tophit">Top Song</string>
     <string name="category_header_album">Album</string>
@@ -174,7 +174,7 @@
     <string name="users_playbacklog_suffix">\'s recently played</string>
     <string name="users_followings_suffix">is following</string>
     <string name="users_followers_suffix">is followed by</string>
-    <string name="users_lovedtracks_suffix">\'s loved tracks</string>
+    <string name="users_lovedtracks_suffix">\'s Loved Tracks</string>
     <string name="loved_tracks">Loved Tracks</string>
     <string name="starred_albums">Starred Albums</string>
     <string name="starred_artists">Starred Artists</string>
