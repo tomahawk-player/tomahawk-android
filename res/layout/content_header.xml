@@ -50,7 +50,7 @@
             android:layout_height="@dimen/show_context_menu_icon_height"
             android:layout_gravity="bottom|right"
             android:layout_marginRight="@dimen/padding_large"
-            android:layout_marginBottom="38dp"
+            android:layout_marginBottom="@dimen/padding_megalarge"
             android:clickable="true"
             android:background="@drawable/circle"
             android:visibility="gone">
