@@ -33,7 +33,7 @@ public class BlurTransformation implements Transformation {
 
     @Override
     public Bitmap transform(Bitmap source) {
-        return staticTransform(source);
+        return staticTransform(source, 16f);
     }
 
     @Override
@@ -41,14 +41,14 @@ public class BlurTransformation implements Transformation {
         return "BlurTransformation";
     }
 
-    public static Bitmap staticTransform(Bitmap source) {
+    public static Bitmap staticTransform(Bitmap source, float radius) {
         final Allocation input = Allocation.createFromBitmap(mRenderScript, source);
         // Use this constructor for best performance, because it uses USAGE_SHARED mode which reuses
         // memory
         final Allocation output = Allocation.createTyped(mRenderScript, input.getType());
         final ScriptIntrinsicBlur script =
                 ScriptIntrinsicBlur.create(mRenderScript, Element.U8_4(mRenderScript));
-        script.setRadius(16f);
+        script.setRadius(radius);
         script.setInput(input);
         script.forEach(output);
         output.copyTo(source);
