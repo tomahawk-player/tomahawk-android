@@ -30,17 +30,9 @@ import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.AdapterUtils;
-import org.tomahawk.tomahawk_android.utils.FragmentUtils;
-import org.tomahawk.tomahawk_android.utils.ShareUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import android.os.Bundle;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -50,45 +42,6 @@ import java.util.ArrayList;
  * se.emilsjolander.stickylistheaders.StickyListHeadersListView}
  */
 public class TracksFragment extends TomahawkFragment {
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if (mAlbum != null) {
-            MenuItem goToArtistItem = menu.findItem(R.id.action_gotoartist_item);
-            goToArtistItem.setVisible(true);
-            MenuItem shareItem = menu.findItem(R.id.action_share_item);
-            shareItem.setVisible(true);
-            ShareActionProvider provider =
-                    (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
-            provider.setShareIntent(ShareUtils.generateShareIntent(mAlbum));
-        }
-
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    /**
-     * If the user clicks on a menuItem, handle what should be done here
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item != null) {
-            if (item.getItemId() == R.id.action_gotoartist_item) {
-                FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                        getActivity().getSupportFragmentManager(), ArtistPagerFragment.class,
-                        mAlbum.getArtist().getCacheKey(), TomahawkFragment.TOMAHAWK_ARTIST_KEY,
-                        mCollection);
-            }
-            ((TomahawkMainActivity) getActivity()).closeDrawer();
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     public void onResume() {

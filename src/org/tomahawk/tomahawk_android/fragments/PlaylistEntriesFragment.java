@@ -33,11 +33,7 @@ import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
-import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -50,54 +46,6 @@ import java.util.TreeMap;
  * org.tomahawk.libtomahawk.collection.Track}s inside its {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}
  */
 public class PlaylistEntriesFragment extends TomahawkFragment {
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if (mPlaylist != null) {
-            MenuItem shuffleItem = menu.findItem(R.id.action_playshuffled_item);
-            shuffleItem.setVisible(true);
-        }
-
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    /**
-     * If the user clicks on a menuItem, handle what should be done here
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item != null) {
-            if (item.getItemId() == R.id.action_playshuffled_item) {
-                ArrayList<PlaylistEntry> entries = new ArrayList<PlaylistEntry>();
-                if (mPlaylist != null) {
-                    entries = mPlaylist.getEntries();
-                }
-                PlaybackService playbackService =
-                        ((TomahawkMainActivity) getActivity()).getPlaybackService();
-                Playlist playlist = Playlist.fromEntriesList(
-                        DatabaseHelper.CACHED_PLAYLIST_NAME, "", entries);
-                playlist.setId(DatabaseHelper.CACHED_PLAYLIST_ID);
-                if (playbackService != null) {
-                    playbackService.setPlaylist(playlist,
-                            playlist.getEntryAtPos((int) (Math.random() * playlist.size())));
-                    Class clss = mContainerFragmentClass != null ? mContainerFragmentClass
-                            : ((Object) this).getClass();
-                    playbackService.setReturnFragment(clss, getArguments());
-                    playbackService.setShuffled(true);
-                    playbackService.start();
-                }
-            }
-            ((TomahawkMainActivity) getActivity()).closeDrawer();
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     public void onResume() {

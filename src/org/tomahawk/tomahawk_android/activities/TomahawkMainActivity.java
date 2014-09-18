@@ -530,16 +530,6 @@ public class TomahawkMainActivity extends ActionBarActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.clear();
         getMenuInflater().inflate(R.menu.tomahawk_main_menu, menu);
-        final MenuItem savePlaylistItem = menu.findItem(R.id.action_saveplaylist_item);
-        savePlaylistItem.setVisible(false);
-        final MenuItem goToArtistItem = menu.findItem(R.id.action_gotoartist_item);
-        goToArtistItem.setVisible(false);
-        final MenuItem goToAlbumItem = menu.findItem(R.id.action_gotoalbum_item);
-        goToAlbumItem.setVisible(false);
-        final MenuItem shareItem = menu.findItem(R.id.action_share_item);
-        shareItem.setVisible(false);
-        final MenuItem shuffleItem = menu.findItem(R.id.action_playshuffled_item);
-        shuffleItem.setVisible(false);
         // customize the searchView
         mSearchItem = menu.findItem(R.id.action_search);
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(mSearchItem);
