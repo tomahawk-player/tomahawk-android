@@ -17,7 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -214,11 +213,12 @@ public abstract class PagerFragment extends ContentHeaderFragment {
 
     protected abstract void onInfoSystemResultsReported(String requestId);
 
-    protected void showContentHeader(Object item, Collection collection, int headerHeightResId) {
+    protected void showContentHeader(Object item, int headerHeightResId,
+            View.OnClickListener followButtonListener) {
         super.showContentHeader(
                 (FrameLayout) getView().findViewById(R.id.content_header_image_frame_pager),
                 (FrameLayout) getView().findViewById(R.id.content_header_frame_pager), item,
-                collection, mHasScrollableHeader, headerHeightResId);
+                mHasScrollableHeader, headerHeightResId, followButtonListener);
     }
 
     @Override

@@ -95,8 +95,7 @@ public class SearchPagerFragment extends PagerFragment {
 
 
     /**
-     * Called, when this {@link SearchPagerFragment}'s {@link
-     * android.view.View} has been created
+     * Called, when this {@link SearchPagerFragment}'s {@link android.view.View} has been created
      */
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -120,8 +119,8 @@ public class SearchPagerFragment extends PagerFragment {
             getActivity().setTitle(mCurrentQueryString);
         }
 
-        showContentHeader(mContentHeaderImage, null,
-                R.dimen.header_clear_space_nonscrollable_static);
+        showContentHeader(mContentHeaderImage, R.dimen.header_clear_space_nonscrollable_static,
+                null);
 
         updatePager(initialPage);
     }
@@ -231,24 +230,24 @@ public class SearchPagerFragment extends PagerFragment {
         for (Artist artist : data.getResultList(Artist.class)) {
             if (mContentHeaderImage == null && artist.getImage() != null) {
                 mContentHeaderImage = artist.getImage();
-                showContentHeader(mContentHeaderImage, null,
-                        R.dimen.header_clear_space_nonscrollable_static);
+                showContentHeader(mContentHeaderImage,
+                        R.dimen.header_clear_space_nonscrollable_static, null);
             }
             mArtistIds.add(artist.getCacheKey());
         }
         for (Album album : data.getResultList(Album.class)) {
             if (mContentHeaderImage == null && album.getImage() != null) {
                 mContentHeaderImage = album.getImage();
-                showContentHeader(mContentHeaderImage, null,
-                        R.dimen.header_clear_space_nonscrollable_static);
+                showContentHeader(mContentHeaderImage,
+                        R.dimen.header_clear_space_nonscrollable_static, null);
             }
             mAlbumIds.add(album.getCacheKey());
         }
         for (User user : data.getResultList(User.class)) {
             if (mContentHeaderImage == null && user.getImage() != null) {
                 mContentHeaderImage = user.getImage();
-                showContentHeader(mContentHeaderImage, null,
-                        R.dimen.header_clear_space_nonscrollable_static);
+                showContentHeader(mContentHeaderImage,
+                        R.dimen.header_clear_space_nonscrollable_static, null);
             }
             mUserIds.add(user.getCacheKey());
         }

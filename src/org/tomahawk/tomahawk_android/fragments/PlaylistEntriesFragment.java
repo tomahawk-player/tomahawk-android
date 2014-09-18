@@ -138,7 +138,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 } else {
                     getListAdapter().setSegments(segment);
                 }
-                showContentHeader(mPlaylist, mCollection, R.dimen.header_clear_space_nonscrollable);
+                showContentHeader(mPlaylist, R.dimen.header_clear_space_nonscrollable);
             }
         }
 

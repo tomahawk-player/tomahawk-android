@@ -79,7 +79,7 @@ public class ArtistPagerFragment extends PagerFragment {
             }
         }
 
-        showContentHeader(mArtist, mCollection, R.dimen.header_clear_space_nonscrollable_static);
+        showContentHeader(mArtist, R.dimen.header_clear_space_nonscrollable_static, null);
 
         List<String> fragmentClassNames = new ArrayList<String>();
         fragmentClassNames.add(AlbumsFragment.class.getName());
@@ -103,7 +103,7 @@ public class ArtistPagerFragment extends PagerFragment {
 
     @Override
     protected void onInfoSystemResultsReported(String requestId) {
-        showContentHeader(mArtist, mCollection, R.dimen.header_clear_space_nonscrollable_static);
+        showContentHeader(mArtist, R.dimen.header_clear_space_nonscrollable_static, null);
     }
 
     @Override
