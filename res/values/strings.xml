@@ -92,7 +92,7 @@
     <string name="fakepreference_scrobble_summary_string">Scrobble every track from every music
         player app on the phone to Hatchet.
     </string>
-    <string name="fakepreference_plugintoplay_title_string">Plug in to Play</string>
+    <string name="fakepreference_plugintoplay_title_string">Plug In to Play</string>
     <string name="fakepreference_plugintoplay_summary_string">Starts playing music
         as soon as a headset is connected.
     </string>
