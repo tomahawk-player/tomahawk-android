@@ -18,7 +18,6 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.StickyBaseAdapter;
@@ -134,12 +133,11 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         }
     }
 
-    protected void showContentHeader(TomahawkListItem item, Collection collection,
-            int headerHeightResid) {
+    protected void showContentHeader(TomahawkListItem item, int headerHeightResid) {
         super.showContentHeader(
                 (FrameLayout) getView().findViewById(R.id.content_header_image_frame),
-                (FrameLayout) getView().findViewById(R.id.content_header_frame), item, collection,
-                true, headerHeightResid);
+                (FrameLayout) getView().findViewById(R.id.content_header_frame), item,
+                true, headerHeightResid, null);
 
         //Add a spacer to the top of the listview
         FrameLayout listFrame = (FrameLayout) getView().findViewById(
@@ -154,7 +152,7 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         super.showContentHeader(
                 (FrameLayout) getView().findViewById(R.id.content_header_image_frame),
                 (FrameLayout) getView().findViewById(R.id.content_header_frame), drawableResid,
-                null, false, R.dimen.header_clear_space_nonscrollable_static);
+                false, R.dimen.header_clear_space_nonscrollable_static, null);
 
         //Add a spacer to the top of the listview
         FrameLayout listFrame = (FrameLayout) getView().findViewById(

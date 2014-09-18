@@ -25,7 +25,6 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.infosystem.User;
@@ -77,7 +76,8 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
      *             show in the header view
      */
     protected void showContentHeader(FrameLayout imageFrame, FrameLayout headerFrame,
-            final Object item, Collection collection, boolean dynamic, int headerHeightResid) {
+            final Object item, boolean dynamic, int headerHeightResid,
+            View.OnClickListener followListener) {
         View actionBarBg = getView().findViewById(R.id.action_bar_background);
         if (actionBarBg != null) {
             actionBarBg.setVisibility(View.GONE);
@@ -199,13 +199,19 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
                 HatchetAuthenticatorUtils authUtils =
                         (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-                boolean showFollowing = item != authUtils.getLoggedInUser() && (mShowFakeFollowing
-                        || authUtils.getLoggedInUser().getFollowings().containsKey(item));
-                boolean showNotFollowing = item != authUtils.getLoggedInUser()
-                        && (mShowFakeNotFollowing || !authUtils.getLoggedInUser().getFollowings()
-                        .containsKey(item));
+                boolean showFollowing, showNotFollowing;
+                if (mShowFakeFollowing || mShowFakeNotFollowing) {
+                    showFollowing = mShowFakeFollowing;
+                    showNotFollowing = mShowFakeNotFollowing;
+                } else {
+                    showFollowing = item != authUtils.getLoggedInUser()
+                            && authUtils.getLoggedInUser().getFollowings().containsKey(item);
+                    showNotFollowing = item != authUtils.getLoggedInUser()
+                            && !authUtils.getLoggedInUser().getFollowings().containsKey(item);
+                }
                 AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (User) item,
                         showFollowing, showNotFollowing);
+                viewHolder.getButton4().setOnClickListener(followListener);
             }
         }
     }

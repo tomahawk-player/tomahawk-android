@@ -125,7 +125,7 @@ public class TracksFragment extends TomahawkFragment {
             } else {
                 getListAdapter().setSegments(segment);
             }
-            showContentHeader(mAlbum, mCollection, R.dimen.header_clear_space_nonscrollable);
+            showContentHeader(mAlbum, R.dimen.header_clear_space_nonscrollable);
         } else if (mArtist != null) {
             queries.addAll(AdapterUtils.getArtistTracks(mArtist, mCollection));
             Segment segment = new Segment(queries);
@@ -139,7 +139,7 @@ public class TracksFragment extends TomahawkFragment {
             } else {
                 getListAdapter().setSegments(segment);
             }
-            showContentHeader(mArtist, mCollection, R.dimen.header_clear_space_nonscrollable);
+            showContentHeader(mArtist, R.dimen.header_clear_space_nonscrollable);
         } else if (mQuery != null) {
             queries.add(mQuery);
             Segment segment = new Segment(queries);
@@ -153,7 +153,7 @@ public class TracksFragment extends TomahawkFragment {
             } else {
                 getListAdapter().setSegments(segment);
             }
-            showContentHeader(mQuery, mCollection, R.dimen.header_clear_space_nonscrollable);
+            showContentHeader(mQuery, R.dimen.header_clear_space_nonscrollable);
         } else if (mSearchSongs != null) {
             queries.addAll(mSearchSongs);
             if (getListAdapter() == null) {
