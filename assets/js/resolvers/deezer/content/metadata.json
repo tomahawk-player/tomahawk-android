@@ -5,7 +5,7 @@
 	"email": "uwelk@xhochy.com",
 	"version": "0.1.2",
 	"website": "http://gettomahawk.com",
-	"description": "Stream music with Deezer",
+	"description": "Stream music with Deezer. Premium Deezer account required.",
 	"type": "resolver/javascript",
 	"manifest": {
 		"main": "contents/code/deezer.js",
