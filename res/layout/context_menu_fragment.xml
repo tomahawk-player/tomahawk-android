@@ -64,7 +64,8 @@
                                   android:paddingTop="@dimen/padding_superlarge"
                                   android:paddingBottom="@dimen/padding_superlarge"
                                   android:clickable="true"
-                                  android:background="@drawable/selectable_background_tomahawk">
+                                  android:background="@drawable/selectable_background_tomahawk"
+                                  android:visibility="gone">
 
                         <ImageView android:layout_width="@dimen/context_menu_icon_height"
                                    android:layout_height="@dimen/context_menu_icon_height"
@@ -91,33 +92,6 @@
                 <LinearLayout android:layout_width="match_parent"
                               android:layout_height="wrap_content">
 
-                    <LinearLayout android:id="@+id/favorite_button"
-                                  android:orientation="vertical"
-                                  android:layout_width="0dp"
-                                  android:layout_height="wrap_content"
-                                  android:layout_gravity="center"
-                                  android:layout_weight="1"
-                                  android:paddingTop="@dimen/padding_superlarge"
-                                  android:paddingBottom="@dimen/padding_superlarge"
-                                  android:clickable="true"
-                                  android:background="@drawable/selectable_background_tomahawk">
-
-                        <ImageView android:layout_width="@dimen/context_menu_icon_height"
-                                   android:layout_height="@dimen/context_menu_icon_height"
-                                   android:layout_margin="@dimen/padding_small"
-                                   android:layout_gravity="center"
-                                   android:src="@drawable/ic_action_favorites"/>
-
-                        <TextView android:layout_width="wrap_content"
-                                  android:layout_height="wrap_content"
-                                  android:layout_gravity="center"
-                                  android:textSize="@dimen/text_size_small"
-                                  android:singleLine="true"
-                                  android:textColor="@color/primary_textcolor_inverted"
-                                  android:text="@string/context_menu_favorite"/>
-
-                    </LinearLayout>
-
                     <LinearLayout android:id="@+id/addtoplaylist_button"
                                   android:orientation="vertical"
                                   android:layout_width="0dp"
@@ -142,6 +116,34 @@
                                   android:singleLine="true"
                                   android:textColor="@color/primary_textcolor_inverted"
                                   android:text="@string/context_menu_addtoplaylist"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/favorite_button"
+                                  android:orientation="vertical"
+                                  android:layout_width="0dp"
+                                  android:layout_height="wrap_content"
+                                  android:layout_gravity="center"
+                                  android:layout_weight="1"
+                                  android:paddingTop="@dimen/padding_superlarge"
+                                  android:paddingBottom="@dimen/padding_superlarge"
+                                  android:clickable="true"
+                                  android:background="@drawable/selectable_background_tomahawk"
+                                  android:visibility="gone">
+
+                        <ImageView android:layout_width="@dimen/context_menu_icon_height"
+                                   android:layout_height="@dimen/context_menu_icon_height"
+                                   android:layout_margin="@dimen/padding_small"
+                                   android:layout_gravity="center"
+                                   android:src="@drawable/ic_action_favorites"/>
+
+                        <TextView android:layout_width="wrap_content"
+                                  android:layout_height="wrap_content"
+                                  android:layout_gravity="center"
+                                  android:textSize="@dimen/text_size_small"
+                                  android:singleLine="true"
+                                  android:textColor="@color/primary_textcolor_inverted"
+                                  android:text="@string/context_menu_favorite"/>
 
                     </LinearLayout>
 
