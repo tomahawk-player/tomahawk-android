@@ -69,7 +69,7 @@ public class ContextMenuFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.context_menu_dialog, container, false);
+        return inflater.inflate(R.layout.context_menu_fragment, container, false);
     }
 
     @Override
@@ -162,29 +162,35 @@ public class ContextMenuFragment extends Fragment {
         }
 
         //Set up button click listeners
-        View addToCollectionButton = getView().findViewById(R.id.addtocollection_button);
-        addToCollectionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getActivity().getSupportFragmentManager().popBackStack();
-            }
-        });
-        View favoriteButton = getView().findViewById(R.id.favorite_button);
-        favoriteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getActivity().getSupportFragmentManager().popBackStack();
-                Query query = null;
-                if (mTomahawkListItem instanceof Query) {
-                    query = (Query) mTomahawkListItem;
-                } else if (mTomahawkListItem instanceof PlaylistEntry) {
-                    query = ((PlaylistEntry) mTomahawkListItem).getQuery();
+        if (!(mTomahawkListItem instanceof Artist)) {
+            View addToCollectionButton = getView().findViewById(R.id.addtocollection_button);
+            addToCollectionButton.setVisibility(View.VISIBLE);
+            addToCollectionButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getActivity().getSupportFragmentManager().popBackStack();
                 }
-                if (query != null) {
-                    CollectionManager.getInstance().toggleLovedItem(query);
+            });
+        }
+        if (mTomahawkListItem instanceof Query) {
+            View favoriteButton = getView().findViewById(R.id.favorite_button);
+            favoriteButton.setVisibility(View.VISIBLE);
+            favoriteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getActivity().getSupportFragmentManager().popBackStack();
+                    Query query = null;
+                    if (mTomahawkListItem instanceof Query) {
+                        query = (Query) mTomahawkListItem;
+                    } else if (mTomahawkListItem instanceof PlaylistEntry) {
+                        query = ((PlaylistEntry) mTomahawkListItem).getQuery();
+                    }
+                    if (query != null) {
+                        CollectionManager.getInstance().toggleLovedItem(query);
+                    }
                 }
-            }
-        });
+            });
+        }
         View addToPlaylistButton = getView().findViewById(R.id.addtoplaylist_button);
         addToPlaylistButton.setOnClickListener(new View.OnClickListener() {
             @Override
