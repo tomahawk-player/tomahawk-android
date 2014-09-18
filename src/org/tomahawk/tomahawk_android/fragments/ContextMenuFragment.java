@@ -44,6 +44,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -168,6 +169,12 @@ public class ContextMenuFragment extends Fragment {
             addToCollectionButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (mTomahawkListItem instanceof Album) {
+                        CollectionManager.getInstance().toggleLovedItem((Album) mTomahawkListItem);
+                    } else {
+                        Toast.makeText(getActivity(), "Not yet implemented for tracks",
+                                Toast.LENGTH_SHORT).show();
+                    }
                     getActivity().getSupportFragmentManager().popBackStack();
                 }
             });
