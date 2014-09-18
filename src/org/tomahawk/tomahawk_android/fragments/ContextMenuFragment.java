@@ -146,8 +146,8 @@ public class ContextMenuFragment extends Fragment {
             rootView.setDrawingCacheEnabled(true);
             rootView.buildDrawingCache();
             Bitmap bm = rootView.getDrawingCache();
-            bm = Bitmap.createScaledBitmap(bm, bm.getWidth() / 2, bm.getHeight() / 2, true);
-            bm = BlurTransformation.staticTransform(bm);
+            bm = Bitmap.createScaledBitmap(bm, bm.getWidth() / 4, bm.getHeight() / 4, true);
+            bm = BlurTransformation.staticTransform(bm, 25f);
 
             ImageView bgImageView = (ImageView) getView().findViewById(R.id.background);
             bgImageView.setImageBitmap(bm);
