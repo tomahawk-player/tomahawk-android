@@ -735,4 +735,8 @@ public class TomahawkMainActivity extends ActionBarActivity
     public void collapsePanel() {
         mSlidingUpPanelLayout.collapsePanel();
     }
+
+    public void showPanel() {
+        mSlidingUpPanelLayout.showPanel();
+    }
 }

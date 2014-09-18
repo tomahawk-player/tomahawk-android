@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+ *
+ *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
+ *
+ *   Tomahawk is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Tomahawk is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+
+    <org.tomahawk.tomahawk_android.views.TopCropImageView
+            android:id="@+id/background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    <ImageView android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:src="@color/tertiary_transparent"/>
+
+    <ScrollView android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="?attr/actionBarSize">
+
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <LinearLayout android:id="@+id/context_menu_framelayout"
+                          android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:orientation="vertical"
+                          android:paddingTop="@dimen/padding_medium"
+                          android:paddingBottom="@dimen/padding_medium">
+
+                <LinearLayout android:layout_width="match_parent"
+                              android:layout_height="wrap_content">
+
+                    <View android:layout_width="0dp"
+                          android:layout_height="wrap_content"
+                          android:layout_weight="1"/>
+
+                    <LinearLayout android:id="@+id/addtocollection_button"
+                                  android:orientation="vertical"
+                                  android:layout_width="0dp"
+                                  android:layout_height="wrap_content"
+                                  android:layout_gravity="center"
+                                  android:layout_weight="1"
+                                  android:paddingTop="@dimen/padding_superlarge"
+                                  android:paddingBottom="@dimen/padding_superlarge"
+                                  android:clickable="true"
+                                  android:background="@drawable/selectable_background_tomahawk">
+
+                        <ImageView android:layout_width="@dimen/context_menu_icon_height"
+                                   android:layout_height="@dimen/context_menu_icon_height"
+                                   android:layout_margin="@dimen/padding_small"
+                                   android:layout_gravity="center"
+                                   android:src="@drawable/ic_action_collection"/>
+
+                        <TextView android:layout_width="wrap_content"
+                                  android:layout_height="wrap_content"
+                                  android:layout_gravity="center"
+                                  android:textSize="@dimen/text_size_small"
+                                  android:singleLine="true"
+                                  android:textColor="@color/primary_textcolor_inverted"
+                                  android:text="@string/context_menu_addtocollection"/>
+
+                    </LinearLayout>
+
+                    <View android:layout_width="0dp"
+                          android:layout_height="wrap_content"
+                          android:layout_weight="1"/>
+
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent"
+                              android:layout_height="wrap_content">
+
+                    <LinearLayout android:id="@+id/favorite_button"
+                                  android:orientation="vertical"
+                                  android:layout_width="0dp"
+                                  android:layout_height="wrap_content"
+                                  android:layout_gravity="center"
+                                  android:layout_weight="1"
+                                  android:paddingTop="@dimen/padding_superlarge"
+                                  android:paddingBottom="@dimen/padding_superlarge"
+                                  android:clickable="true"
+                                  android:background="@drawable/selectable_background_tomahawk">
+
+                        <ImageView android:layout_width="@dimen/context_menu_icon_height"
+                                   android:layout_height="@dimen/context_menu_icon_height"
+                                   android:layout_margin="@dimen/padding_small"
+                                   android:layout_gravity="center"
+                                   android:src="@drawable/ic_action_favorites"/>
+
+                        <TextView android:layout_width="wrap_content"
+                                  android:layout_height="wrap_content"
+                                  android:layout_gravity="center"
+                                  android:textSize="@dimen/text_size_small"
+                                  android:singleLine="true"
+                                  android:textColor="@color/primary_textcolor_inverted"
+                                  android:text="@string/context_menu_favorite"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/addtoplaylist_button"
+                                  android:orientation="vertical"
+                                  android:layout_width="0dp"
+                                  android:layout_height="wrap_content"
+                                  android:layout_gravity="center"
+                                  android:layout_weight="1"
+                                  android:paddingTop="@dimen/padding_superlarge"
+                                  android:paddingBottom="@dimen/padding_superlarge"
+                                  android:clickable="true"
+                                  android:background="@drawable/selectable_background_tomahawk">
+
+                        <ImageView android:layout_width="@dimen/context_menu_icon_height"
+                                   android:layout_height="@dimen/context_menu_icon_height"
+                                   android:layout_margin="@dimen/padding_small"
+                                   android:layout_gravity="center"
+                                   android:src="@drawable/ic_action_playlist_light"/>
+
+                        <TextView android:layout_width="wrap_content"
+                                  android:layout_height="wrap_content"
+                                  android:layout_gravity="center"
+                                  android:textSize="@dimen/text_size_small"
+                                  android:singleLine="true"
+                                  android:textColor="@color/primary_textcolor_inverted"
+                                  android:text="@string/context_menu_addtoplaylist"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/share_button"
+                                  android:orientation="vertical"
+                                  android:layout_width="0dp"
+                                  android:layout_height="wrap_content"
+                                  android:layout_gravity="center"
+                                  android:layout_weight="1"
+                                  android:paddingTop="@dimen/padding_superlarge"
+                                  android:paddingBottom="@dimen/padding_superlarge"
+                                  android:clickable="true"
+                                  android:background="@drawable/selectable_background_tomahawk">
+
+                        <ImageView android:layout_width="@dimen/context_menu_icon_height"
+                                   android:layout_height="@dimen/context_menu_icon_height"
+                                   android:layout_margin="@dimen/padding_small"
+                                   android:layout_gravity="center"
+                                   android:src="@drawable/ic_action_share"/>
+
+                        <TextView android:layout_width="wrap_content"
+                                  android:layout_height="wrap_content"
+                                  android:layout_gravity="center"
+                                  android:textSize="@dimen/text_size_small"
+                                  android:singleLine="true"
+                                  android:textColor="@color/primary_textcolor_inverted"
+                                  android:text="@string/context_menu_share"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent"
+                              android:layout_height="wrap_content">
+
+                    <View android:layout_width="0dp"
+                          android:layout_height="wrap_content"
+                          android:layout_weight="1"/>
+
+                    <LinearLayout android:id="@+id/gotoartist_button"
+                                  android:orientation="vertical"
+                                  android:layout_width="0dp"
+                                  android:layout_height="wrap_content"
+                                  android:layout_gravity="center"
+                                  android:layout_weight="1"
+                                  android:paddingTop="@dimen/padding_superlarge"
+                                  android:paddingBottom="@dimen/padding_superlarge"
+                                  android:clickable="true"
+                                  android:background="@drawable/selectable_background_tomahawk">
+
+                        <ImageView android:layout_width="@dimen/context_menu_icon_height"
+                                   android:layout_height="@dimen/context_menu_icon_height"
+                                   android:layout_margin="@dimen/padding_small"
+                                   android:layout_gravity="center"
+                                   android:src="@drawable/ic_action_starred"/>
+
+                        <TextView android:layout_width="wrap_content"
+                                  android:layout_height="wrap_content"
+                                  android:layout_gravity="center"
+                                  android:textSize="@dimen/text_size_small"
+                                  android:singleLine="true"
+                                  android:textColor="@color/primary_textcolor_inverted"
+                                  android:text="@string/context_menu_gotoartist"/>
+
+                    </LinearLayout>
+
+                    <View android:layout_width="0dp"
+                          android:layout_height="wrap_content"
+                          android:layout_weight="1"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <TextView android:id="@+id/artist_name"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_gravity="center"
+                      android:paddingLeft="@dimen/padding_superlarge"
+                      android:paddingRight="@dimen/padding_superlarge"
+                      android:paddingBottom="@dimen/padding_verysmall"
+                      android:paddingTop="@dimen/padding_verysmall"
+                      android:textStyle="bold"
+                      android:textSize="@dimen/text_size_large"
+                      android:singleLine="true"
+                      android:textColor="@color/primary_textcolor_inverted"/>
+
+            <TextView android:id="@+id/item_name"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_gravity="center"
+                      android:paddingLeft="@dimen/padding_superlarge"
+                      android:paddingRight="@dimen/padding_superlarge"
+                      android:paddingBottom="@dimen/padding_verysmall"
+                      android:paddingTop="@dimen/padding_verysmall"
+                      android:textSize="@dimen/text_size_large"
+                      android:singleLine="true"
+                      android:textColor="@color/primary_textcolor_inverted"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</FrameLayout>

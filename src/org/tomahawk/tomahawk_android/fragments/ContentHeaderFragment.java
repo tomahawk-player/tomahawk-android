@@ -33,8 +33,11 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.ViewHolder;
 import org.tomahawk.tomahawk_android.utils.AdapterUtils;
+import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -74,7 +77,7 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
      *             show in the header view
      */
     protected void showContentHeader(FrameLayout imageFrame, FrameLayout headerFrame,
-            Object item, Collection collection, boolean dynamic, int headerHeightResid) {
+            final Object item, Collection collection, boolean dynamic, int headerHeightResid) {
         View actionBarBg = getView().findViewById(R.id.action_bar_background);
         if (actionBarBg != null) {
             actionBarBg.setVisibility(View.GONE);
@@ -167,12 +170,19 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
         //Now we fill the added views with data
         ViewHolder viewHolder = new ViewHolder(imageFrame, headerFrame, layoutId);
         if (dynamic) {
+            View.OnClickListener listener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(),
+                            getFragmentManager(), (TomahawkListItem) item, null);
+                }
+            };
             if (item instanceof Album) {
                 AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Album) item,
-                        collection);
+                        listener);
             } else if (item instanceof Artist) {
                 AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Artist) item,
-                        collection);
+                        listener);
             } else if (item instanceof Playlist) {
                 AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder,
                         (Playlist) item, artistImages);
@@ -225,7 +235,7 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
 
     private void setupButtonAnimation(View view) {
         if (view != null) {
-            View buttonView = view.findViewById(R.id.content_header_star_love_button);
+            View buttonView = view.findViewById(R.id.content_header_more_button);
             if (buttonView != null) {
                 Resources resources = TomahawkApp.getContext().getResources();
                 int smallPadding = resources.getDimensionPixelSize(R.dimen.padding_small);

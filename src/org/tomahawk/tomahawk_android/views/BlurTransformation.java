@@ -33,6 +33,15 @@ public class BlurTransformation implements Transformation {
 
     @Override
     public Bitmap transform(Bitmap source) {
+        return staticTransform(source);
+    }
+
+    @Override
+    public String key() {
+        return "BlurTransformation";
+    }
+
+    public static Bitmap staticTransform(Bitmap source) {
         final Allocation input = Allocation.createFromBitmap(mRenderScript, source);
         // Use this constructor for best performance, because it uses USAGE_SHARED mode which reuses
         // memory
@@ -44,10 +53,5 @@ public class BlurTransformation implements Transformation {
         script.forEach(output);
         output.copyTo(source);
         return source;
-    }
-
-    @Override
-    public String key() {
-        return "BlurTransformation";
     }
 }
