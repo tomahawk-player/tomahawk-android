@@ -103,7 +103,7 @@ public class AdapterUtils {
     public static void fillContentHeader(final Context context, ViewHolder viewHolder,
             final User user, boolean showFollowing, boolean showNotFollowing) {
         TomahawkUtils.loadBlurredImageIntoImageView(context, viewHolder.getImageView1(),
-                user.getImage(), Image.getSmallImageSize());
+                user.getImage(), Image.getSmallImageSize(), R.drawable.album_placeholder_grid);
         TomahawkUtils.loadRoundedImageIntoImageView(context, viewHolder.getRoundedImage(),
                 user.getImage(), Image.getSmallImageSize(), false);
         viewHolder.getTextView1().setText(user.getName().toUpperCase());
@@ -127,7 +127,7 @@ public class AdapterUtils {
 
     public static void fillContentHeader(Context context, ViewHolder viewHolder, Image image) {
         TomahawkUtils.loadBlurredImageIntoImageView(context, viewHolder.getImageView1(), image,
-                Image.getSmallImageSize());
+                Image.getSmallImageSize(), R.drawable.album_placeholder_grid);
     }
 
     public static void fillView(Context context, ViewHolder viewHolder, Query query,

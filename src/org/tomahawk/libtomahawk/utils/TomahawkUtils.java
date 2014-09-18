@@ -309,8 +309,7 @@ public class TomahawkUtils {
      * @param username        the username for HTTP Basic Auth (optional)
      * @param password        the password for HTTP Basic Auth (optional)
      * @param data            the body data included in POST requests (optional)
-     * @param callback        a ScriptInterface.JsCallback that should be called if this request
-     *                        has
+     * @param callback        a ScriptInterface.JsCallback that should be called if this request has
      *                        been successful (optional)
      * @param followRedirects whether or not to follow redirects (also defines what is being
      *                        returned)
@@ -583,15 +582,23 @@ public class TomahawkUtils {
      * @param width     the width in density independent pixels to scale the image down to
      */
     public static void loadBlurredImageIntoImageView(Context context, ImageView imageView,
-            Image image, int width) {
+            Image image, int width, int placeHolderResId) {
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
             String imagePath = buildImagePath(context, image, width);
             RequestCreator creator = Picasso.with(context).load(
                     TomahawkUtils.preparePathForPicasso(imagePath)).resize(width, width);
+            if (placeHolderResId > 0) {
+                creator.placeholder(placeHolderResId);
+                creator.error(placeHolderResId);
+            }
             creator.transform(new BlurTransformation());
             creator.into(imageView);
         } else {
-            imageView.setImageDrawable(null);
+            RequestCreator creator = Picasso.with(context).load(placeHolderResId)
+                    .placeholder(placeHolderResId)
+                    .error(placeHolderResId);
+            creator.transform(new BlurTransformation());
+            creator.into(imageView);
         }
     }
 
@@ -819,8 +826,7 @@ public class TomahawkUtils {
 
     /**
      * Fill the given Map with the userdata stored with the account, which is identified by the
-     * given accountname. The keys of the Map should match the keys that have been used to store
-     * the
+     * given accountname. The keys of the Map should match the keys that have been used to store the
      * userdata with the account.
      *
      * @param data        A Map<String, String> which contains all keys for which to get the
@@ -883,8 +889,7 @@ public class TomahawkUtils {
     }
 
     /**
-     * By default File#delete fails for non-empty directories, it works like "rm". We need
-     * something
+     * By default File#delete fails for non-empty directories, it works like "rm". We need something
      * a little more brutual - this does the equivalent of "rm -r"
      *
      * @param path Root File Path
