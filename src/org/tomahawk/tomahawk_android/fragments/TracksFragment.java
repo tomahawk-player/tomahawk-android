@@ -72,6 +72,8 @@ public class TracksFragment extends TomahawkFragment {
                     queries = AdapterUtils.getArtistTracks(mArtist, mCollection);
                 } else if (mQuery != null) {
                     queries.add(mQuery);
+                } else if (mSearchSongs != null) {
+                    queries = mSearchSongs;
                 } else {
                     Collection userCollection = CollectionManager.getInstance()
                             .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
@@ -159,6 +161,7 @@ public class TracksFragment extends TomahawkFragment {
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter((TomahawkMainActivity) getActivity(),
                         layoutInflater, new Segment(queries), this);
+                tomahawkListAdapter.setShowResolvedBy(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(new Segment(queries));
