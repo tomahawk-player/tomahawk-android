@@ -61,7 +61,7 @@ public class RedirectConfigDialog extends ConfigDialog {
                     .getAuthenticatorUtils(mPluginName);
             boolean rdioLoggedIn = authenticatorUtils.isLoggedIn();
             if (rdioLoggedIn) {
-                authenticatorUtils.logout();
+                authenticatorUtils.logout(getActivity());
             } else {
                 authenticatorUtils.login(getActivity(), null, null);
             }
