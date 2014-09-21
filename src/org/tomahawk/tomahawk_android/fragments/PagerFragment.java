@@ -148,6 +148,9 @@ public abstract class PagerFragment extends ContentHeaderFragment {
         TomahawkPagerAdapter adapter = new TomahawkPagerAdapter(getChildFragmentManager(),
                 fragmentClassNames, fragmentTitles, fragmentBundles, ((Object) this).getClass());
         final ViewPager fragmentPager = (ViewPager) getView().findViewById(R.id.fragmentpager);
+        if (initialPage < 0) {
+            initialPage = fragmentPager.getCurrentItem();
+        }
         fragmentPager.setAdapter(adapter);
 
         LinearLayout pageIndicatorContainer =
