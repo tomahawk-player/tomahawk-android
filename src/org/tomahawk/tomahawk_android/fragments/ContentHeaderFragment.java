@@ -174,7 +174,7 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
                 @Override
                 public void onClick(View v) {
                     FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(),
-                            getFragmentManager(), (TomahawkListItem) item, null);
+                            getFragmentManager(), (TomahawkListItem) item, null, false);
                 }
             };
             if (item instanceof Album) {

@@ -116,8 +116,6 @@ public class TomahawkMainActivity extends ActionBarActivity
     public static final String SLIDING_LAYOUT_EXPANDED
             = "org.tomahawk.tomahawk_android.sliding_layout_expanded";
 
-    public static final String FRAGMENT_TAG = "the_ultimate_tag";
-
     private static long mSessionIdCounter = 0;
 
     protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
@@ -675,7 +673,8 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @Override
     public void onBackPressed() {
-        if (mSlidingUpPanelLayout.isEnabled()
+        View contextMenu = mSlidingUpPanelLayout.findViewById(R.id.context_menu_framelayout);
+        if (contextMenu == null && mSlidingUpPanelLayout.isEnabled()
                 && (mSlidingUpPanelLayout.isPanelExpanded()
                 || mSlidingUpPanelLayout.isPanelAnchored())) {
             mSlidingUpPanelLayout.collapsePanel();
