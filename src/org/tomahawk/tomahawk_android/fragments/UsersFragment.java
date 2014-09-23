@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
+import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -100,7 +101,8 @@ public class UsersFragment extends TomahawkFragment {
         } else if (mUser.getFollowings() != null && mUser.getFollowings().size() > 0) {
             users.addAll(mUser.getFollowings().keySet());
         }
-        Segment segment = new Segment(users);
+        Segment segment = new Segment(users, 3, R.dimen.padding_superlarge,
+                R.dimen.padding_superlarge);
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
                     layoutInflater, segment, this);

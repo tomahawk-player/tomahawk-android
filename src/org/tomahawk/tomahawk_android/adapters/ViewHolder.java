@@ -140,7 +140,7 @@ public class ViewHolder {
         } else if (layoutId == R.layout.fake_preferences_header) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.fake_preferences_header_textview);
-        } else if (layoutId == R.layout.album_art_grid_item) {
+        } else if (layoutId == R.layout.grid_item) {
             mImageView1 = (ImageView) rootView
                     .findViewById(R.id.album_art_grid_image);
             mTextView1 = (TextView) rootView
