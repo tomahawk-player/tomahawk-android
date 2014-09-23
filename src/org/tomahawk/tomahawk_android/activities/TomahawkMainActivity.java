@@ -104,6 +104,8 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private final static String TAG = TomahawkMainActivity.class.getSimpleName();
 
+    public static final String SAVED_STATE_ACTION_BAR_HIDDEN = "saved_state_action_bar_hidden";
+
     public static final String PLAYBACKSERVICE_READY
             = "org.tomahawk.tomahawk_android.playbackservice_ready";
 
@@ -350,6 +352,12 @@ public class TomahawkMainActivity extends ActionBarActivity
                     Fragment.instantiate(this, PlaybackFragment.class.getName(), null),
                     null).commit();
             FragmentUtils.addRootFragment(TomahawkMainActivity.this, getSupportFragmentManager());
+        } else {
+            boolean actionBarHidden = savedInstanceState
+                    .getBoolean(SAVED_STATE_ACTION_BAR_HIDDEN, false);
+            if (actionBarHidden) {
+                getSupportActionBar().hide();
+            }
         }
 
         // Set default preferences
@@ -476,6 +484,13 @@ public class TomahawkMainActivity extends ActionBarActivity
             unregisterReceiver(mTomahawkMainReceiver);
             mTomahawkMainReceiver = null;
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean(SAVED_STATE_ACTION_BAR_HIDDEN, !getSupportActionBar().isShowing());
     }
 
     @Override
@@ -697,8 +712,10 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @Override
     public void onPanelSlide(View view, float v) {
-        if (getSupportActionBar().isShowing()) {
+        if (v > 0.5f && getSupportActionBar().isShowing()) {
             getSupportActionBar().hide();
+        } else if (v < 0.5f && !getSupportActionBar().isShowing()) {
+            getSupportActionBar().show();
         }
     }
 
