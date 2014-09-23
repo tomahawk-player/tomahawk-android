@@ -441,7 +441,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             contextItem = mPlaylist;
         }
         return FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(),
-                getActivity().getSupportFragmentManager(), item, contextItem);
+                getActivity().getSupportFragmentManager(), item, contextItem, false);
     }
 
     /**
