@@ -49,7 +49,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.view.View;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -166,10 +165,6 @@ public class FragmentUtils {
     public static void replace(TomahawkMainActivity activity, FragmentManager fragmentManager,
             Class clss, Bundle bundle) {
         FragmentTransaction ft = fragmentManager.beginTransaction();
-        View contextMenu = activity.findViewById(R.id.context_menu_framelayout);
-        if (contextMenu != null) {
-            fragmentManager.popBackStackImmediate();
-        }
         ft.replace(R.id.content_viewer_frame,
                 Fragment.instantiate(activity, clss.getName(), bundle),
                 FRAGMENT_TAG);
@@ -182,25 +177,15 @@ public class FragmentUtils {
      * Add the given {@link Fragment}
      */
     public static void add(TomahawkMainActivity activity, FragmentManager fragmentManager,
-            Class clss, Bundle bundle, boolean inPlaybackFragment) {
+            Class clss, Bundle bundle) {
         FragmentTransaction ft = fragmentManager.beginTransaction();
-        View contextMenu = activity.findViewById(R.id.context_menu_framelayout);
-        if (contextMenu != null) {
-            fragmentManager.popBackStackImmediate();
-        }
-        if (inPlaybackFragment) {
-            ft.add(R.id.playback_fragment_frame,
-                    Fragment.instantiate(activity, clss.getName(), bundle),
-                    FRAGMENT_TAG);
-        } else {
-            ft.add(R.id.content_viewer_frame,
-                    Fragment.instantiate(activity, clss.getName(), bundle),
-                    FRAGMENT_TAG);
-            activity.collapsePanel();
-        }
+        ft.add(R.id.content_viewer_frame,
+                Fragment.instantiate(activity, clss.getName(), bundle),
+                FRAGMENT_TAG);
         ft.addToBackStack(FRAGMENT_TAG);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         ft.commit();
+        activity.collapsePanel();
     }
 
     /**
@@ -260,8 +245,7 @@ public class FragmentUtils {
     }
 
     public static boolean showContextMenu(TomahawkMainActivity activity,
-            FragmentManager fragmentManager, TomahawkListItem item, TomahawkListItem contextItem,
-            boolean inPlaybackFragment) {
+            FragmentManager fragmentManager, TomahawkListItem item, TomahawkListItem contextItem) {
         if (item == null
                 || (item instanceof SocialAction
                 && (((SocialAction) item).getTargetObject() instanceof User
@@ -306,8 +290,7 @@ public class FragmentUtils {
             args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_TYPE,
                     TomahawkFragment.TOMAHAWK_PLAYLISTENTRY_ID);
         }
-        FragmentUtils.add(activity, fragmentManager, ContextMenuFragment.class, args,
-                inPlaybackFragment);
+        FragmentUtils.add(activity, fragmentManager, ContextMenuFragment.class, args);
         return true;
     }
 }

@@ -102,18 +102,14 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     public Object instantiateItem(ViewGroup container, int position) {
         View view = mLayoutInflater.inflate(
                 org.tomahawk.tomahawk_android.R.layout.album_art_view_pager_item, container, false);
-        if (mPlaybackService != null) {
-            if (mPlaybackService.getPlaylist().size() > 0) {
-                if (mPlaybackService.isRepeating()) {
-                    position = position % mPlaybackService.getPlaylist().size();
-                }
-                Query query = mPlaybackService.getPlaylist().getEntries().get(position).getQuery();
-                refreshTrackInfo(view, query);
-                mSlidingUpPanelLayout.showPanel();
-            } else {
-                refreshTrackInfo(view, null);
-                mSlidingUpPanelLayout.hidePanel();
+        if (mPlaybackService != null && mPlaybackService.getPlaylist().size() > 0) {
+            if (mPlaybackService.isRepeating()) {
+                position = position % mPlaybackService.getPlaylist().size();
             }
+            Query query = mPlaybackService.getPlaylist().getEntries().get(position).getQuery();
+            refreshTrackInfo(view, query);
+        } else {
+            refreshTrackInfo(view, null);
         }
         if (view != null) {
             container.addView(view);
@@ -302,6 +298,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         ImageView imageView = (ImageView) view.findViewById(R.id.album_art_image);
         ImageView nowPlayingAlbumArt = (ImageView) view.findViewById(R.id.now_playing_album_art);
         if (query != null) {
+            mSlidingUpPanelLayout.showPanel();
             boolean landscapeMode = mActivity.getResources().getConfiguration().orientation
                     == Configuration.ORIENTATION_LANDSCAPE;
             TomahawkUtils.loadImageIntoImageView(mActivity, imageView, query.getImage(),
@@ -362,6 +359,9 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
             returnButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (mSlidingUpPanelLayout.isPanelExpanded()) {
+                        mSlidingUpPanelLayout.collapsePanel();
+                    }
                     FragmentUtils.replace(mActivity, mFragmentManager,
                             mPlaybackService.getReturnFragmentClass(),
                             mPlaybackService.getReturnFragmentArgs());
@@ -369,6 +369,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
             });
             imageView.setOnLongClickListener(new ClickListener(query, mClickListener));
         } else {
+            mSlidingUpPanelLayout.hidePanel();
             //No track has been given, so we update the view state accordingly
             // Update all relevant TextViews
 

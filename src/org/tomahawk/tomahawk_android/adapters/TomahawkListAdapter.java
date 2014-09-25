@@ -234,22 +234,25 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
             if (o instanceof List) {
                 LinearLayout rowContainer = (LinearLayout) mLayoutInflater
                         .inflate(R.layout.row_container, parent, false);
-                rowContainer.setPadding(rowContainer.getPaddingLeft(),
-                        getSegment(position).getVerticalPadding(), rowContainer.getPaddingRight(),
-                        0);
+                int horizontalPadding = getSegment(position).getHorizontalPadding() / 2;
+                rowContainer.setPadding(0, 0, 0, horizontalPadding);
                 for (int i = 0; i < ((List) o).size(); i++) {
                     if (((List) o).get(i) != null) {
                         View gridItem = mLayoutInflater.inflate(viewType, rowContainer, false);
+                        int verticalPadding = getSegment(position).getVerticalPadding();
+                        int leftPadding = verticalPadding / 2;
+                        if (i == 0) {
+                            leftPadding = verticalPadding;
+                        }
+                        int rightPadding = verticalPadding / 2;
+                        if (i == ((List) o).size() - 1) {
+                            rightPadding = verticalPadding;
+                        }
+                        gridItem.setPadding(leftPadding, verticalPadding / 2, rightPadding,
+                                verticalPadding / 2);
                         ViewHolder viewHolder = new ViewHolder(gridItem, viewType);
                         rowContainer.addView(gridItem);
                         viewHolders.add(viewHolder);
-                        if (i < ((List) o).size() - 1) {
-                            View spacer = new View(mLayoutInflater.getContext());
-                            spacer.setLayoutParams(new ViewGroup.LayoutParams(
-                                    getSegment(position).getHorizontalPadding(),
-                                    ViewGroup.LayoutParams.MATCH_PARENT));
-                            rowContainer.addView(spacer);
-                        }
                     } else {
                         rowContainer.addView(mLayoutInflater
                                 .inflate(R.layout.row_container_spacer, rowContainer, false));
@@ -283,21 +286,16 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
             if (viewHolder.getLayoutId() == R.layout.content_footer_spacer) {
                 view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         mFooterSpacerHeight));
-            } else if (viewHolder.getLayoutId() == R.layout.grid_item) {
+            } else if (viewHolder.getLayoutId() == R.layout.album_art_grid_item) {
                 viewHolder.getTextView1().setText(item.getName());
-                if (!(item instanceof User)) {
-                    viewHolder.getTextView2().setVisibility(View.VISIBLE);
-                    viewHolder.getTextView2().setText(item.getArtist().getName());
-                }
+                viewHolder.getTextView2().setVisibility(View.VISIBLE);
+                viewHolder.getTextView2().setText(item.getArtist()
+                        .getName());
                 if (item instanceof Album || item instanceof Artist) {
                     TomahawkUtils.loadImageIntoImageView(mActivity,
                             viewHolder.getImageView1(),
                             item.getImage(),
                             Image.getSmallImageSize(), item instanceof Artist);
-                } else if (item instanceof User) {
-                    TomahawkUtils.loadRoundedImageIntoImageView(mActivity,
-                            viewHolder.getImageView1(), item.getImage(), Image.getSmallImageSize(),
-                            false);
                 }
                 if (mCollection != null) {
                     String songs =
@@ -326,6 +324,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
                     AdapterUtils.fillView(mActivity, viewHolder, (Album) item);
                 } else if (item instanceof Artist) {
                     AdapterUtils.fillView(mActivity, viewHolder, (Artist) item);
+                } else if (item instanceof User) {
+                    AdapterUtils.fillView(mActivity, viewHolder, (User) item);
                 } else if (item instanceof SocialAction) {
                     AdapterUtils.fillView(mActivity, viewHolder, (SocialAction) item,
                             mHighlightedItemIsPlaying && shouldBeHighlighted, mShowResolvedBy);
@@ -464,8 +464,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
     }
 
     /**
-     * This method is being called by the StickyListHeaders library. Returns the same value for
-     * each
+     * This method is being called by the StickyListHeaders library. Returns the same value for each
      * item that should be grouped under the same header.
      *
      * @param position the position of the item for which to get the header id
@@ -483,9 +482,9 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
 
     private int getViewType(Object item, boolean isHighlighted,
             boolean isContentHeaderItem, boolean isFooter) {
-        if (item instanceof List || item instanceof User) {
+        if (item instanceof List) {
             //We have a grid item
-            return R.layout.grid_item;
+            return R.layout.album_art_grid_item;
         }
         if (isContentHeaderItem) {
             return R.layout.content_header_spacer;

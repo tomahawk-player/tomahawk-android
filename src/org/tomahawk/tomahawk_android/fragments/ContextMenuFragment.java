@@ -36,14 +36,12 @@ import org.tomahawk.tomahawk_android.views.BlurTransformation;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -145,29 +143,15 @@ public class ContextMenuFragment extends Fragment {
 
         //Set blurred background image
         if (getView() != null) {
-            final View rootView = getActivity().findViewById(R.id.sliding_layout);
-            rootView.getViewTreeObserver().addOnGlobalLayoutListener(
-                    new ViewTreeObserver.OnGlobalLayoutListener() {
-                        @Override
-                        public void onGlobalLayout() {
-                            rootView.setDrawingCacheEnabled(true);
-                            rootView.buildDrawingCache();
-                            Bitmap bm = rootView.getDrawingCache();
-                            bm = Bitmap.createScaledBitmap(bm, bm.getWidth() / 4,
-                                    bm.getHeight() / 4, true);
-                            bm = BlurTransformation.staticTransform(bm, 25f);
+            View rootView = getActivity().findViewById(R.id.sliding_layout);
+            rootView.setDrawingCacheEnabled(true);
+            rootView.buildDrawingCache();
+            Bitmap bm = rootView.getDrawingCache();
+            bm = Bitmap.createScaledBitmap(bm, bm.getWidth() / 4, bm.getHeight() / 4, true);
+            bm = BlurTransformation.staticTransform(bm, 25f);
 
-                            ImageView bgImageView =
-                                    (ImageView) getView().findViewById(R.id.background);
-                            bgImageView.setImageBitmap(bm);
-
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                            } else {
-                                rootView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                            }
-                        }
-                    });
+            ImageView bgImageView = (ImageView) getView().findViewById(R.id.background);
+            bgImageView.setImageBitmap(bm);
         }
 
         //Set up textviews
