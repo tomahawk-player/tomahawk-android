@@ -78,6 +78,10 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
     protected void showContentHeader(FrameLayout imageFrame, FrameLayout headerFrame,
             final Object item, boolean dynamic, int headerHeightResid,
             View.OnClickListener followListener) {
+        View actionBarBg = getView().findViewById(R.id.action_bar_background);
+        if (actionBarBg != null) {
+            actionBarBg.setVisibility(View.GONE);
+        }
         //Inflate views and add them into our frames
         LayoutInflater inflater = (LayoutInflater)
                 TomahawkApp.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -170,7 +174,7 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
                 @Override
                 public void onClick(View v) {
                     FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(),
-                            getFragmentManager(), (TomahawkListItem) item, null);
+                            getFragmentManager(), (TomahawkListItem) item, null, false);
                 }
             };
             if (item instanceof Album) {

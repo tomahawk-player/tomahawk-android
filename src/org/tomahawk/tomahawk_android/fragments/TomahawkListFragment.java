@@ -176,11 +176,6 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         }
         params.setMargins(0, actionBarHeight, 0, 0);
         listFrame.setLayoutParams(params);
-
-        View actionBarBg = getView().findViewById(R.id.action_bar_background);
-        if (actionBarBg != null) {
-            actionBarBg.setVisibility(View.VISIBLE);
-        }
     }
 
     /**
