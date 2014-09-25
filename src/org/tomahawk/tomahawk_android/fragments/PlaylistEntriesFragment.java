@@ -58,7 +58,6 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
         if (mContainerFragmentClass == null) {
             getActivity().setTitle("");
         }
-        setActionBarOffset();
         updateAdapter();
     }
 
