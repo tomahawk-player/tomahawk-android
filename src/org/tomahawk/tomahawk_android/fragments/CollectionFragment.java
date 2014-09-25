@@ -117,7 +117,7 @@ public class CollectionFragment extends TomahawkFragment {
                     TomahawkListItemComparator.COMPARE_ARTIST_ALPHA));
         }
         segments.add(new Segment(initialPos, dropDownItems, spinnerClickListener, items, 2,
-                R.dimen.padding_superlarge, R.dimen.padding_superlarge));
+                R.dimen.padding_megalarge, R.dimen.padding_superlarge));
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
                     layoutInflater, segments, this, CollectionManager.getInstance()

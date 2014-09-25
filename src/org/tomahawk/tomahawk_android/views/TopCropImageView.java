@@ -29,30 +29,28 @@ public class TopCropImageView extends ImageView {
 
     @Override
     protected boolean setFrame(int frameLeft, int frameTop, int frameRight, int frameBottom) {
-        if (getDrawable() != null) {
-            float frameWidth = frameRight - frameLeft;
-            float frameHeight = frameBottom - frameTop;
+        float frameWidth = frameRight - frameLeft;
+        float frameHeight = frameBottom - frameTop;
 
-            float originalImageWidth = (float) getDrawable().getIntrinsicWidth();
-            float originalImageHeight = (float) getDrawable().getIntrinsicHeight();
+        float originalImageWidth = (float) getDrawable().getIntrinsicWidth();
+        float originalImageHeight = (float) getDrawable().getIntrinsicHeight();
 
-            float usedScaleFactor = 1;
+        float usedScaleFactor = 1;
 
-            if ((frameWidth > originalImageWidth) || (frameHeight > originalImageHeight)) {
-                // If frame is bigger than image
-                // => Crop it, keep aspect ratio and position it at the bottom and center horizontally
+        if ((frameWidth > originalImageWidth) || (frameHeight > originalImageHeight)) {
+            // If frame is bigger than image
+            // => Crop it, keep aspect ratio and position it at the bottom and center horizontally
 
-                float fitHorizontallyScaleFactor = frameWidth / originalImageWidth;
-                float fitVerticallyScaleFactor = frameHeight / originalImageHeight;
+            float fitHorizontallyScaleFactor = frameWidth / originalImageWidth;
+            float fitVerticallyScaleFactor = frameHeight / originalImageHeight;
 
-                usedScaleFactor = Math.max(fitHorizontallyScaleFactor, fitVerticallyScaleFactor);
-            }
-
-            Matrix matrix = getImageMatrix();
-            matrix.setScale(usedScaleFactor, usedScaleFactor, 0,
-                    0); // Replaces the old matrix completly
-            setImageMatrix(matrix);
+            usedScaleFactor = Math.max(fitHorizontallyScaleFactor, fitVerticallyScaleFactor);
         }
+
+        Matrix matrix = getImageMatrix();
+        matrix.setScale(usedScaleFactor, usedScaleFactor, 0,
+                0); // Replaces the old matrix completly
+        setImageMatrix(matrix);
         return super.setFrame(frameLeft, frameTop, frameRight, frameBottom);
     }
 

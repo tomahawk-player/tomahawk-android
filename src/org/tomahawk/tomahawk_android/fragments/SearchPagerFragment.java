@@ -156,10 +156,6 @@ public class SearchPagerFragment extends PagerFragment {
         super.onSaveInstanceState(out);
     }
 
-    private void updatePager() {
-        updatePager(-1);
-    }
-
     private void updatePager(int initialPage) {
         List<String> fragmentClassNames = new ArrayList<String>();
         fragmentClassNames.add(ArtistsFragment.class.getName());
@@ -219,14 +215,13 @@ public class SearchPagerFragment extends PagerFragment {
 
     @Override
     protected void onPipeLineResultsReported(String key) {
-        mSongIds.clear();
         Query query = Query.getQueryByKey(key);
         if (query != null) {
             for (Query q : query.getTrackQueries()) {
                 mSongIds.add(q.getCacheKey());
             }
         }
-        updatePager();
+        updatePager(0);
     }
 
     @Override
@@ -256,7 +251,7 @@ public class SearchPagerFragment extends PagerFragment {
             }
             mUserIds.add(user.getCacheKey());
         }
-        updatePager();
+        updatePager(0);
     }
 
     @Override

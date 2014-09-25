@@ -29,7 +29,6 @@ import org.tomahawk.tomahawk_android.adapters.PlaybackPagerAdapter;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
-import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 import org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager;
@@ -218,25 +217,6 @@ public class PlaybackFragment extends TomahawkFragment {
                 }
             }
         }
-    }
-
-    /**
-     * Called every time an item inside a ListView or GridView is long-clicked
-     *
-     * @param item the TomahawkListItem which corresponds to the long-click
-     */
-    @Override
-    public boolean onItemLongClick(View view, TomahawkListItem item) {
-        TomahawkListItem contextItem = null;
-        if (mAlbum != null) {
-            contextItem = mAlbum;
-        } else if (mArtist != null) {
-            contextItem = mArtist;
-        } else if (mPlaylist != null) {
-            contextItem = mPlaylist;
-        }
-        return FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(),
-                getActivity().getSupportFragmentManager(), item, contextItem, true);
     }
 
     /**
