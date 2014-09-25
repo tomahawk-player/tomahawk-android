@@ -104,6 +104,8 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private final static String TAG = TomahawkMainActivity.class.getSimpleName();
 
+    public static final String SAVED_STATE_ACTION_BAR_HIDDEN = "saved_state_action_bar_hidden";
+
     public static final String PLAYBACKSERVICE_READY
             = "org.tomahawk.tomahawk_android.playbackservice_ready";
 
@@ -115,8 +117,6 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public static final String SLIDING_LAYOUT_EXPANDED
             = "org.tomahawk.tomahawk_android.sliding_layout_expanded";
-
-    public static final String FRAGMENT_TAG = "the_ultimate_tag";
 
     private static long mSessionIdCounter = 0;
 
@@ -352,6 +352,12 @@ public class TomahawkMainActivity extends ActionBarActivity
                     Fragment.instantiate(this, PlaybackFragment.class.getName(), null),
                     null).commit();
             FragmentUtils.addRootFragment(TomahawkMainActivity.this, getSupportFragmentManager());
+        } else {
+            boolean actionBarHidden = savedInstanceState
+                    .getBoolean(SAVED_STATE_ACTION_BAR_HIDDEN, false);
+            if (actionBarHidden) {
+                getSupportActionBar().hide();
+            }
         }
 
         // Set default preferences
@@ -478,6 +484,13 @@ public class TomahawkMainActivity extends ActionBarActivity
             unregisterReceiver(mTomahawkMainReceiver);
             mTomahawkMainReceiver = null;
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean(SAVED_STATE_ACTION_BAR_HIDDEN, !getSupportActionBar().isShowing());
     }
 
     @Override
@@ -675,7 +688,8 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @Override
     public void onBackPressed() {
-        if (mSlidingUpPanelLayout.isEnabled()
+        View contextMenu = mSlidingUpPanelLayout.findViewById(R.id.context_menu_framelayout);
+        if (contextMenu == null && mSlidingUpPanelLayout.isEnabled()
                 && (mSlidingUpPanelLayout.isPanelExpanded()
                 || mSlidingUpPanelLayout.isPanelAnchored())) {
             mSlidingUpPanelLayout.collapsePanel();
@@ -698,8 +712,10 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @Override
     public void onPanelSlide(View view, float v) {
-        if (getSupportActionBar().isShowing()) {
+        if (v > 0.5f && getSupportActionBar().isShowing()) {
             getSupportActionBar().hide();
+        } else if (v < 0.5f && !getSupportActionBar().isShowing()) {
+            getSupportActionBar().show();
         }
     }
 

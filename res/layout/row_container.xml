@@ -22,6 +22,8 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:descendantFocusability="afterDescendants"
-              android:background="@color/primary_background">
+              android:background="@color/primary_background"
+              android:paddingLeft="@dimen/padding_superlarge"
+              android:paddingRight="@dimen/padding_superlarge">
 
 </LinearLayout>
