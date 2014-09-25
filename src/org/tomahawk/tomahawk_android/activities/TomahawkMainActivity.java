@@ -311,7 +311,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         mProgressDrawable = getResources()
                 .getDrawable(R.drawable.tomahawk_progress_indeterminate_circular_holo_light);
 
-        mTitle = mDrawerTitle = getTitle();
+        mTitle = mDrawerTitle = getTitle().toString().toUpperCase();
         getSupportActionBar().setTitle("");
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
