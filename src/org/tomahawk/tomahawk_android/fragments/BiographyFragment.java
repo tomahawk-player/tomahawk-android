@@ -79,12 +79,4 @@ public class BiographyFragment extends TomahawkFragment {
             }
         }
     }
-
-    @Override
-    public void onPanelCollapsed() {
-    }
-
-    @Override
-    public void onPanelExpanded() {
-    }
 }

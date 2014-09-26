@@ -21,6 +21,7 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
@@ -108,6 +109,10 @@ public abstract class PagerFragment extends ContentHeaderFragment {
                 if (mCorrespondingQueryIds.contains(queryKey)) {
                     onPipeLineResultsReported(queryKey);
                 }
+            } else if (TomahawkMainActivity.SLIDING_LAYOUT_SHOWN.equals(intent.getAction())) {
+                onSlidingLayoutShown();
+            } else if (TomahawkMainActivity.SLIDING_LAYOUT_HIDDEN.equals(intent.getAction())) {
+                onSlidingLayoutHidden();
             }
         }
     }
@@ -122,6 +127,10 @@ public abstract class PagerFragment extends ContentHeaderFragment {
             IntentFilter intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED);
             getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
+            getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
+            intentFilter = new IntentFilter(TomahawkMainActivity.SLIDING_LAYOUT_SHOWN);
+            getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
+            intentFilter = new IntentFilter(TomahawkMainActivity.SLIDING_LAYOUT_HIDDEN);
             getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
         }
     }
@@ -249,6 +258,11 @@ public abstract class PagerFragment extends ContentHeaderFragment {
         if (initialPage >= 0) {
             fragmentPager.setCurrentItem(initialPage);
         }
+        if (((TomahawkMainActivity) getActivity()).getSlidingUpPanelLayout().isPanelHidden()) {
+            onSlidingLayoutHidden();
+        } else {
+            onSlidingLayoutShown();
+        }
     }
 
     protected abstract void onPipeLineResultsReported(String key);
@@ -263,11 +277,29 @@ public abstract class PagerFragment extends ContentHeaderFragment {
                 mHasScrollableHeader, headerHeightResId, followButtonListener);
     }
 
-    @Override
-    public void onPanelCollapsed() {
+    private void onSlidingLayoutShown() {
+        if (getView() != null) {
+            Selector selector = (Selector) getView().findViewById(R.id.selector);
+            if (selector != null) {
+                FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) selector
+                        .getLayoutParams();
+                params.setMargins(0, 0, 0,
+                        ((TomahawkMainActivity) getActivity()).getSlidingUpPanelLayout()
+                                .getPanelHeight() * -1);
+                selector.setLayoutParams(params);
+            }
+        }
     }
 
-    @Override
-    public void onPanelExpanded() {
+    private void onSlidingLayoutHidden() {
+        if (getView() != null) {
+            Selector selector = (Selector) getView().findViewById(R.id.selector);
+            if (selector != null) {
+                FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) selector
+                        .getLayoutParams();
+                params.setMargins(0, 0, 0, 0);
+                selector.setLayoutParams(params);
+            }
+        }
     }
 }

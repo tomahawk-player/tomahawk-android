@@ -191,12 +191,4 @@ public class UserPagerFragment extends PagerFragment {
             setShowFakeNotFollowing(false);
         }
     }
-
-    @Override
-    public void onPanelCollapsed() {
-    }
-
-    @Override
-    public void onPanelExpanded() {
-    }
 }

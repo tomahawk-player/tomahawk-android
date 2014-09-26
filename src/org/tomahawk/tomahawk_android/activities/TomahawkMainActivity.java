@@ -118,6 +118,12 @@ public class TomahawkMainActivity extends ActionBarActivity
     public static final String SLIDING_LAYOUT_EXPANDED
             = "org.tomahawk.tomahawk_android.sliding_layout_expanded";
 
+    public static final String SLIDING_LAYOUT_SHOWN
+            = "org.tomahawk.tomahawk_android.sliding_layout_shown";
+
+    public static final String SLIDING_LAYOUT_HIDDEN
+            = "org.tomahawk.tomahawk_android.sliding_layout_hidden";
+
     private static long mSessionIdCounter = 0;
 
     protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
@@ -742,7 +748,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         mSlidingUpPanelLayout.collapsePanel();
     }
 
-    public void showPanel() {
-        mSlidingUpPanelLayout.showPanel();
+    public SlidingUpPanelLayout getSlidingUpPanelLayout() {
+        return mSlidingUpPanelLayout;
     }
 }

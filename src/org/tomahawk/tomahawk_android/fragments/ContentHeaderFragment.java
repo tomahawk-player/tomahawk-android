@@ -41,6 +41,7 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
+import android.support.v4.app.Fragment;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,7 +52,7 @@ import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 
-public abstract class ContentHeaderFragment extends SlidingPanelFragment {
+public abstract class ContentHeaderFragment extends Fragment {
 
     public static final String DONT_SHOW_HEADER
             = "org.tomahawk.tomahawk_android.dont_show_header";

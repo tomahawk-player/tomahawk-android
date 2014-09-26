@@ -34,6 +34,10 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 import org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -74,6 +78,26 @@ public class PlaybackFragment extends TomahawkFragment {
     private PlaybackSeekBar mPlaybackSeekBar;
 
     private Toast mToast;
+
+    private PlaybackFragmentReceiver mPlaybackFragmentReceiver;
+
+    /**
+     * Handles incoming broadcasts.
+     */
+    private class PlaybackFragmentReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (TomahawkMainActivity.SLIDING_LAYOUT_EXPANDED.equals(intent.getAction())) {
+                mAlbumArtSwipeAdapter.notifyDataSetChanged();
+                mPlaybackSeekBar.updateSeekBarPosition();
+            } else if (TomahawkMainActivity.SLIDING_LAYOUT_COLLAPSED.equals(intent.getAction())) {
+                mAlbumArtSwipeAdapter.notifyDataSetChanged();
+                mPlaybackSeekBar.stopUpdates();
+            }
+        }
+
+    }
 
     /**
      * This listener handles our button clicks
@@ -152,6 +176,17 @@ public class PlaybackFragment extends TomahawkFragment {
         View dragView = mViewPagerFrame.findViewById(R.id.sliding_layout_drag_view);
         slidingLayout.setDragView(dragView);
 
+        // Initialize and register Receiver
+        if (mPlaybackFragmentReceiver == null) {
+            mPlaybackFragmentReceiver = new PlaybackFragmentReceiver();
+            IntentFilter intentFilter =
+                    new IntentFilter(TomahawkMainActivity.SLIDING_LAYOUT_COLLAPSED);
+            getActivity().registerReceiver(mPlaybackFragmentReceiver, intentFilter);
+            intentFilter =
+                    new IntentFilter(TomahawkMainActivity.SLIDING_LAYOUT_EXPANDED);
+            getActivity().registerReceiver(mPlaybackFragmentReceiver, intentFilter);
+        }
+
         ViewPager viewPager = (ViewPager) mViewPagerFrame.findViewById(R.id.album_art_view_pager);
         mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter(activity,
                 activity.getSupportFragmentManager(), activity.getLayoutInflater(), viewPager,
@@ -193,6 +228,16 @@ public class PlaybackFragment extends TomahawkFragment {
         refreshRepeatButtonState();
         refreshShuffleButtonState();
         updateAdapter();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (mPlaybackFragmentReceiver != null) {
+            getActivity().unregisterReceiver(mPlaybackFragmentReceiver);
+            mPlaybackFragmentReceiver = null;
+        }
     }
 
     /**
@@ -571,17 +616,5 @@ public class PlaybackFragment extends TomahawkFragment {
                 }
             }
         }
-    }
-
-    @Override
-    public void onPanelCollapsed() {
-        mAlbumArtSwipeAdapter.notifyDataSetChanged();
-        mPlaybackSeekBar.stopUpdates();
-    }
-
-    @Override
-    public void onPanelExpanded() {
-        mAlbumArtSwipeAdapter.notifyDataSetChanged();
-        mPlaybackSeekBar.updateSeekBarPosition();
     }
 }

@@ -275,12 +275,4 @@ public class SearchPagerFragment extends PagerFragment {
         }
         updatePager();
     }
-
-    @Override
-    public void onPanelCollapsed() {
-    }
-
-    @Override
-    public void onPanelExpanded() {
-    }
 }
