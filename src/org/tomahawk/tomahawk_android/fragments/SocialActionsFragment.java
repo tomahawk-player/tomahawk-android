@@ -63,7 +63,7 @@ public class SocialActionsFragment extends TomahawkFragment {
                 mShowMode = getArguments().getInt(SHOW_MODE);
                 if (mShowMode == SHOW_MODE_DASHBOARD) {
                     if (mContainerFragmentClass == null) {
-                        getActivity().setTitle(R.string.hub_title_feed);
+                        getActivity().setTitle(getString(R.string.hub_title_feed).toUpperCase());
                     }
                     mCurrentRequestIds.add(InfoSystem.getInstance().resolveFriendsFeed(mUser));
                     setActionBarOffset();

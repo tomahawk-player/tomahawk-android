@@ -53,6 +53,9 @@ import java.util.ArrayList;
 
 public abstract class ContentHeaderFragment extends SlidingPanelFragment {
 
+    public static final String DONT_SHOW_HEADER
+            = "org.tomahawk.tomahawk_android.dont_show_header";
+
     private ValueAnimator mTextViewAnim;
 
     private ValueAnimator mButtonAnim;
@@ -64,6 +67,19 @@ public abstract class ContentHeaderFragment extends SlidingPanelFragment {
     private boolean mShowFakeFollowing = false;
 
     private boolean mShowFakeNotFollowing = false;
+
+    protected boolean mDontShowHeader = false;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (getArguments() != null) {
+            if (getArguments().containsKey(DONT_SHOW_HEADER)) {
+                mDontShowHeader = getArguments().getBoolean(DONT_SHOW_HEADER);
+            }
+        }
+    }
 
     /**
      * Show a content header. A content header provides information about the current {@link

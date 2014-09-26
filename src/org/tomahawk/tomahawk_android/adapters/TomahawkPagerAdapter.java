@@ -19,57 +19,57 @@ package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
+import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 
 import java.util.List;
 
-public class TomahawkPagerAdapter extends FragmentPagerAdapter {
+public class TomahawkPagerAdapter extends FragmentStatePagerAdapter {
 
     private Class mContainerFragmentClass;
 
-    private List<String> mFragmentClassNames;
+    private List<FragmentInfo> mFragmentInfos;
 
-    private List<String> mFragmentTitles;
-
-    private List<Bundle> mFragmentBundles;
-
-    public TomahawkPagerAdapter(FragmentManager fragmentManager, List<String> fragmentClassNames,
-            List<String> fragmentTitles, List<Bundle> fragmentBundles,
+    public TomahawkPagerAdapter(FragmentManager fragmentManager, List<FragmentInfo> fragmentInfos,
             Class containerFragmentClass) {
         super(fragmentManager);
 
-        mFragmentClassNames = fragmentClassNames;
-        mFragmentTitles = fragmentTitles;
-        mFragmentBundles = fragmentBundles;
+        mFragmentInfos = fragmentInfos;
         mContainerFragmentClass = containerFragmentClass;
     }
 
     @Override
     public Fragment getItem(int position) {
-        Bundle bundle;
-        if (mFragmentBundles != null && mFragmentBundles.get(position) != null) {
-            bundle = mFragmentBundles.get(position);
-        } else {
-            bundle = new Bundle();
-        }
+        Bundle bundle = mFragmentInfos.get(position).mBundle;
         bundle.putString(TomahawkFragment.CONTAINER_FRAGMENT_NAME,
                 mContainerFragmentClass.getName());
         bundle.putInt(TomahawkFragment.CONTAINER_FRAGMENT_PAGE, position);
         return Fragment.instantiate(TomahawkApp.getContext(),
-                mFragmentClassNames.get(position), bundle);
+                mFragmentInfos.get(position).mClass.getName(), bundle);
     }
 
     @Override
     public int getCount() {
-        return mFragmentClassNames.size();
+        return mFragmentInfos.size();
+    }
+
+    @Override
+    public int getItemPosition(Object object) {
+        return POSITION_NONE;
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
-        return mFragmentTitles.get(position);
+        return mFragmentInfos.get(position).mTitle;
+    }
+
+    public void changeFragment(int position, FragmentInfo fragmentInfo) {
+        mFragmentInfos.remove(position);
+        mFragmentInfos.add(position, fragmentInfo);
+        notifyDataSetChanged();
     }
 }

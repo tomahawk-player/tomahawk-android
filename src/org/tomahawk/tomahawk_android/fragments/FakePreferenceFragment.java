@@ -108,7 +108,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        getActivity().setTitle(R.string.menu_item_settings);
+        getActivity().setTitle(getString(R.string.hub_title_settings).toUpperCase());
 
         setActionBarOffset();
 

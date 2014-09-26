@@ -18,10 +18,9 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.Collection;
-import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -33,8 +32,6 @@ import java.util.List;
 public class ArtistPagerFragment extends PagerFragment {
 
     private Artist mArtist;
-
-    private Collection mCollection;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -73,28 +70,32 @@ public class ArtistPagerFragment extends PagerFragment {
                     }
                 }
             }
-            if (getArguments().containsKey(CollectionManager.COLLECTION_ID)) {
-                mCollection = CollectionManager.getInstance()
-                        .getCollection(getArguments().getString(CollectionManager.COLLECTION_ID));
-            }
         }
 
         showContentHeader(mArtist, R.dimen.header_clear_space_nonscrollable_static, null);
 
-        List<String> fragmentClassNames = new ArrayList<String>();
-        fragmentClassNames.add(AlbumsFragment.class.getName());
-        fragmentClassNames.add(BiographyFragment.class.getName());
-        List<String> fragmentTitles = new ArrayList<String>();
-        fragmentTitles.add(getString(R.string.music));
-        fragmentTitles.add(getString(R.string.biography));
-        List<Bundle> fragmentBundles = new ArrayList<Bundle>();
+        List<FragmentInfoList> fragmentInfoLists = new ArrayList<FragmentInfoList>();
+        FragmentInfoList fragmentInfoList = new FragmentInfoList();
+        FragmentInfo fragmentInfo = new FragmentInfo();
+        fragmentInfo.mClass = AlbumsFragment.class;
+        fragmentInfo.mTitle = getString(R.string.music);
         Bundle bundle = new Bundle();
         bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, mArtist.getCacheKey());
-        fragmentBundles.add(bundle);
+        fragmentInfo.mBundle = bundle;
+        fragmentInfoList.addFragmentInfo(fragmentInfo);
+        fragmentInfoLists.add(fragmentInfoList);
+
+        fragmentInfoList = new FragmentInfoList();
+        fragmentInfo = new FragmentInfo();
+        fragmentInfo.mClass = BiographyFragment.class;
+        fragmentInfo.mTitle = getString(R.string.biography);
         bundle = new Bundle();
         bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, mArtist.getCacheKey());
-        fragmentBundles.add(bundle);
-        setupPager(fragmentClassNames, fragmentTitles, fragmentBundles, initialPage);
+        fragmentInfo.mBundle = bundle;
+        fragmentInfoList.addFragmentInfo(fragmentInfo);
+        fragmentInfoLists.add(fragmentInfoList);
+
+        setupPager(fragmentInfoLists, initialPage, null);
     }
 
     @Override

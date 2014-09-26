@@ -80,7 +80,6 @@
     <string name="spotify_pretty_name">Spotify</string>
     <string name="rdio_pretty_name">Rdio</string>
     <string name="deezer_pretty_name">Deezer</string>
-    <string name="fakepreferencefragment_title_string">Settings</string>
     <string name="fakepreference_accounts_header">SERVICES</string>
     <string name="fakepreference_hatchetlogin_summary_string">Sync your data with Hatchet.
     </string>
@@ -125,18 +124,18 @@
     <string name="menu_item_save_playlist">Save Playlist</string>
     <string name="menu_item_go_to_artist">Go to Artist</string>
     <string name="menu_item_go_to_album">Go to Album</string>
-    <string name="menu_item_settings">Settings</string>
     <string name="menu_item_share">Share</string>
     <string name="menu_item_playshuffled">Play Shuffled</string>
     <string name="share_default_prefix">#musthear</string>
-    <string name="hub_title_feed">FEED</string>
-    <string name="hub_title_collection">COLLECTION</string>
-    <string name="hub_title_playlists">PLAYLISTS</string>
-    <string name="hub_title_lovedtracks">FAVORITES</string>
-    <string name="hub_title_settings">SETTINGS</string>
+    <string name="hub_title_feed">Feed</string>
+    <string name="hub_title_collection">Collection</string>
+    <string name="hub_title_playlists">Playlists</string>
+    <string name="hub_title_lovedtracks">Favorites</string>
+    <string name="hub_title_settings">Settings</string>
     <string name="collection_dropdown_recently_added">RECENTLY ADDED</string>
     <string name="collection_dropdown_artist">ARTIST</string>
     <string name="collection_dropdown_play_count">PLAY COUNT</string>
+    <string name="history">history</string>
     <string name="fake_preferences_bitrate_low">Normal</string>
     <string name="fake_preferences_bitrate_medium">Good</string>
     <string name="fake_preferences_bitrate_high">Best</string>

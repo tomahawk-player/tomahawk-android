@@ -34,8 +34,8 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.fragments.ContextMenuFragment;
 import org.tomahawk.tomahawk_android.fragments.CollectionFragment;
+import org.tomahawk.tomahawk_android.fragments.ContextMenuFragment;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaylistEntriesFragment;
@@ -165,12 +165,20 @@ public class FragmentUtils {
      */
     public static void replace(TomahawkMainActivity activity, FragmentManager fragmentManager,
             Class clss, Bundle bundle) {
+        replace(activity, fragmentManager, clss, bundle, R.id.content_viewer_frame);
+    }
+
+    /**
+     * Replaces the current {@link Fragment}
+     */
+    public static void replace(TomahawkMainActivity activity, FragmentManager fragmentManager,
+            Class clss, Bundle bundle, int frameResId) {
         FragmentTransaction ft = fragmentManager.beginTransaction();
         View contextMenu = activity.findViewById(R.id.context_menu_framelayout);
         if (contextMenu != null) {
             fragmentManager.popBackStackImmediate();
         }
-        ft.replace(R.id.content_viewer_frame,
+        ft.replace(frameResId,
                 Fragment.instantiate(activity, clss.getName(), bundle),
                 FRAGMENT_TAG);
         ft.addToBackStack(FRAGMENT_TAG);

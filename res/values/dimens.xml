@@ -18,6 +18,8 @@
     <dimen name="menu_item_height">32dp</dimen>
     <dimen name="menu_item_height_userprofile">48dp</dimen>
 
+    <dimen name="selector_icon_height">24dp</dimen>
+
     <dimen name="context_menu_icon_height">24dp</dimen>
 
     <dimen name="show_context_menu_icon_height">48dp</dimen>
@@ -28,6 +30,7 @@
     <dimen name="header_clear_space_nonscrollable_static_user">168dp</dimen>
     <dimen name="header_clear_space_nonscrollable">120dp</dimen>
     <dimen name="header_clear_space_nonscrollable_pager">152dp</dimen>
+    <dimen name="header_clear_space_nonscrollable_selector">64dp</dimen>
     <dimen name="header_clear_space_scrollable">208dp</dimen>
     <dimen name="header_roundedimage_height">48dp</dimen>
     <dimen name="header_following_height">32dp</dimen>
