@@ -111,12 +111,4 @@ public class UsersFragment extends TomahawkFragment {
             getListAdapter().setSegments(segment);
         }
     }
-
-    @Override
-    public void onPanelCollapsed() {
-    }
-
-    @Override
-    public void onPanelExpanded() {
-    }
 }

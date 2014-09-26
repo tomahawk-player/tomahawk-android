@@ -185,12 +185,4 @@ public class TracksFragment extends TomahawkFragment {
 
         updateShowPlaystate();
     }
-
-    @Override
-    public void onPanelCollapsed() {
-    }
-
-    @Override
-    public void onPanelExpanded() {
-    }
 }

@@ -124,12 +124,4 @@ public class ArtistsFragment extends TomahawkFragment {
             }
         }
     }
-
-    @Override
-    public void onPanelCollapsed() {
-    }
-
-    @Override
-    public void onPanelExpanded() {
-    }
 }

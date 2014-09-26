@@ -174,12 +174,4 @@ public class AlbumsFragment extends TomahawkFragment {
 
         updateShowPlaystate();
     }
-
-    @Override
-    public void onPanelCollapsed() {
-    }
-
-    @Override
-    public void onPanelExpanded() {
-    }
 }

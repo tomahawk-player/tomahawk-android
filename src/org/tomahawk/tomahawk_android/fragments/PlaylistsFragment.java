@@ -95,12 +95,4 @@ public class PlaylistsFragment extends TomahawkFragment {
             getListAdapter().setSegments(segment);
         }
     }
-
-    @Override
-    public void onPanelCollapsed() {
-    }
-
-    @Override
-    public void onPanelExpanded() {
-    }
 }

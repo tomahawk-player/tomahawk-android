@@ -106,12 +106,4 @@ public class ArtistPagerFragment extends PagerFragment {
     protected void onInfoSystemResultsReported(String requestId) {
         showContentHeader(mArtist, R.dimen.header_clear_space_nonscrollable_static, null);
     }
-
-    @Override
-    public void onPanelCollapsed() {
-    }
-
-    @Override
-    public void onPanelExpanded() {
-    }
 }
