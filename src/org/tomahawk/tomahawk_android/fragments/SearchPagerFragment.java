@@ -27,6 +27,7 @@ import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -161,41 +162,57 @@ public class SearchPagerFragment extends PagerFragment {
     }
 
     private void updatePager(int initialPage) {
-        List<String> fragmentClassNames = new ArrayList<String>();
-        fragmentClassNames.add(ArtistsFragment.class.getName());
-        fragmentClassNames.add(AlbumsFragment.class.getName());
-        fragmentClassNames.add(TracksFragment.class.getName());
-        fragmentClassNames.add(UsersFragment.class.getName());
 
-        List<String> fragmentTitles = new ArrayList<String>();
-        fragmentTitles.add(getString(R.string.artists));
-        fragmentTitles.add(getString(R.string.albums));
-        fragmentTitles.add(getString(R.string.songs));
-        fragmentTitles.add(getString(R.string.users));
-
-        List<Bundle> fragmentBundles = new ArrayList<Bundle>();
+        List<FragmentInfoList> fragmentInfoLists = new ArrayList<FragmentInfoList>();
+        FragmentInfoList fragmentInfoList = new FragmentInfoList();
+        FragmentInfo fragmentInfo = new FragmentInfo();
+        fragmentInfo.mClass = ArtistsFragment.class;
+        fragmentInfo.mTitle = getString(R.string.artists);
         Bundle bundle = new Bundle();
         if (mArtistIds != null) {
             bundle.putStringArrayList(TomahawkFragment.TOMAHAWK_ARTISTARRAY_KEY, mArtistIds);
         }
-        fragmentBundles.add(bundle);
+        fragmentInfo.mBundle = bundle;
+        fragmentInfoList.addFragmentInfo(fragmentInfo);
+        fragmentInfoLists.add(fragmentInfoList);
+
+        fragmentInfoList = new FragmentInfoList();
+        fragmentInfo = new FragmentInfo();
+        fragmentInfo.mClass = AlbumsFragment.class;
+        fragmentInfo.mTitle = getString(R.string.albums);
         bundle = new Bundle();
         if (mAlbumIds != null) {
             bundle.putStringArrayList(TomahawkFragment.TOMAHAWK_ALBUMARRAY_KEY, mAlbumIds);
         }
-        fragmentBundles.add(bundle);
+        fragmentInfo.mBundle = bundle;
+        fragmentInfoList.addFragmentInfo(fragmentInfo);
+        fragmentInfoLists.add(fragmentInfoList);
+
+        fragmentInfoList = new FragmentInfoList();
+        fragmentInfo = new FragmentInfo();
+        fragmentInfo.mClass = TracksFragment.class;
+        fragmentInfo.mTitle = getString(R.string.songs);
         bundle = new Bundle();
         if (mSongIds != null) {
             bundle.putStringArrayList(TomahawkFragment.TOMAHAWK_QUERYARRAY_KEY, mSongIds);
         }
-        fragmentBundles.add(bundle);
+        fragmentInfo.mBundle = bundle;
+        fragmentInfoList.addFragmentInfo(fragmentInfo);
+        fragmentInfoLists.add(fragmentInfoList);
+
+        fragmentInfoList = new FragmentInfoList();
+        fragmentInfo = new FragmentInfo();
+        fragmentInfo.mClass = UsersFragment.class;
+        fragmentInfo.mTitle = getString(R.string.users);
         bundle = new Bundle();
         if (mUserIds != null) {
             bundle.putStringArrayList(TomahawkFragment.TOMAHAWK_USERARRAY_ID, mUserIds);
         }
-        fragmentBundles.add(bundle);
+        fragmentInfo.mBundle = bundle;
+        fragmentInfoList.addFragmentInfo(fragmentInfo);
+        fragmentInfoLists.add(fragmentInfoList);
 
-        setupPager(fragmentClassNames, fragmentTitles, fragmentBundles, initialPage);
+        setupPager(fragmentInfoLists, initialPage, null);
     }
 
     /**

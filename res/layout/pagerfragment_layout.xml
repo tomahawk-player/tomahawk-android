@@ -34,21 +34,31 @@
             android:fillViewport="true"
             android:overScrollMode="never">
 
-        <LinearLayout android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
-                      android:orientation="vertical">
+        <FrameLayout android:layout_width="match_parent"
+                     android:layout_height="match_parent">
 
-            <View android:id="@+id/pager_clear_space"
-                  android:layout_width="match_parent"
-                  android:layout_height="0dp"/>
+            <LinearLayout android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:orientation="vertical">
 
-            <android.support.v4.view.ViewPager
-                    android:id="@+id/fragmentpager"
+                <View android:id="@+id/pager_clear_space"
+                      android:layout_width="match_parent"
+                      android:layout_height="0dp"/>
+
+                <android.support.v4.view.ViewPager
+                        android:id="@+id/fragmentpager"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/primary_background"/>
+
+            </LinearLayout>
+
+            <org.tomahawk.tomahawk_android.views.Selector
+                    android:id="@+id/selector"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/primary_background"/>
+                    android:layout_height="match_parent"/>
 
-        </LinearLayout>
+        </FrameLayout>
 
     </org.tomahawk.tomahawk_android.views.TomahawkScrollView>
 

@@ -28,9 +28,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
-    <ImageView android:layout_width="match_parent"
-               android:layout_height="match_parent"
-               android:src="@color/tertiary_transparent"/>
+    <View android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:background="@color/tertiary_transparent"/>
 
     <ScrollView android:layout_width="match_parent"
                 android:layout_height="match_parent"

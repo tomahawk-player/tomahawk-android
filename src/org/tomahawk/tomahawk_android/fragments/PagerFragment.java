@@ -22,8 +22,10 @@ import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
+import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.views.PageIndicator;
+import org.tomahawk.tomahawk_android.views.Selector;
 import org.tomahawk.tomahawk_android.views.TomahawkScrollView;
 
 import android.content.BroadcastReceiver;
@@ -40,6 +42,7 @@ import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -56,6 +59,36 @@ public abstract class PagerFragment extends ContentHeaderFragment {
     protected boolean mHasScrollableHeader;
 
     protected int mStaticHeaderHeight = -1;
+
+    public class FragmentInfoList {
+
+        private List<FragmentInfo> mFragmentInfos;
+
+        private int mCurrent = 0;
+
+        public void addFragmentInfo(FragmentInfo fragmentInfo) {
+            if (mFragmentInfos == null) {
+                mFragmentInfos = new ArrayList<FragmentInfo>();
+            }
+            mFragmentInfos.add(fragmentInfo);
+        }
+
+        public List<FragmentInfo> getFragmentInfos() {
+            return mFragmentInfos;
+        }
+
+        public FragmentInfo getCurrentFragmentInfo() {
+            return mFragmentInfos.get(mCurrent);
+        }
+
+        public void setCurrent(int current) {
+            mCurrent = current;
+        }
+
+        public int size() {
+            return mFragmentInfos.size();
+        }
+    }
 
     /**
      * Handles incoming broadcasts.
@@ -143,10 +176,14 @@ public abstract class PagerFragment extends ContentHeaderFragment {
         scrollView.setLayoutParams(params);
     }
 
-    protected void setupPager(List<String> fragmentClassNames, List<String> fragmentTitles,
-            List<Bundle> fragmentBundles, int initialPage) {
+    protected void setupPager(List<FragmentInfoList> fragmentInfoLists, int initialPage,
+            String selectorPosStorageKey) {
+        List<FragmentInfo> currentFragmentInfos = new ArrayList<FragmentInfo>();
+        for (FragmentInfoList list : fragmentInfoLists) {
+            currentFragmentInfos.add(list.getCurrentFragmentInfo());
+        }
         TomahawkPagerAdapter adapter = new TomahawkPagerAdapter(getChildFragmentManager(),
-                fragmentClassNames, fragmentTitles, fragmentBundles, ((Object) this).getClass());
+                currentFragmentInfos, ((Object) this).getClass());
         final ViewPager fragmentPager = (ViewPager) getView().findViewById(R.id.fragmentpager);
         if (initialPage < 0) {
             initialPage = fragmentPager.getCurrentItem();
@@ -172,7 +209,9 @@ public abstract class PagerFragment extends ContentHeaderFragment {
         pageIndicatorContainer.setVisibility(View.VISIBLE);
         PageIndicator pageIndicator =
                 (PageIndicator) pageIndicatorContainer.findViewById(R.id.page_indicator);
-        pageIndicator.setViewPager(fragmentPager);
+        pageIndicator.setup(fragmentPager, fragmentInfoLists,
+                getActivity().findViewById(R.id.sliding_layout),
+                (Selector) getView().findViewById(R.id.selector), selectorPosStorageKey);
         if (mHasScrollableHeader) {
             final TomahawkScrollView scrollView =
                     (TomahawkScrollView) getView().findViewById(R.id.scrollview);

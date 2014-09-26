@@ -18,12 +18,23 @@
 package org.tomahawk.tomahawk_android.views;
 
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
+import org.tomahawk.tomahawk_android.fragments.PagerFragment;
+import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 
 import android.content.Context;
+import android.graphics.ColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.Gravity;
-import android.view.ViewGroup;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -34,7 +45,15 @@ public class PageIndicator extends LinearLayout implements ViewPager.OnPageChang
 
     private ViewPager mViewPager;
 
-    private List<TextView> mTextViews = new ArrayList<TextView>();
+    private List<PagerFragment.FragmentInfoList> mFragmentInfosList;
+
+    private List<LinearLayout> mItems = new ArrayList<LinearLayout>();
+
+    private View mRootview;
+
+    private Selector mSelector;
+
+    private String mSelectorPosStorageKey;
 
     public PageIndicator(Context context) {
         super(context);
@@ -44,39 +63,134 @@ public class PageIndicator extends LinearLayout implements ViewPager.OnPageChang
         super(context, attrs);
     }
 
-    public void setViewPager(ViewPager viewPager) {
+    public void setup(ViewPager viewPager, List<PagerFragment.FragmentInfoList> fragmentInfosList,
+            View rootView, Selector selector, String selectorPosStorageKey) {
         mViewPager = viewPager;
+        mFragmentInfosList = fragmentInfosList;
+        mRootview = rootView;
+        mSelector = selector;
+        mSelectorPosStorageKey = selectorPosStorageKey;
         populate();
     }
 
     private void populate() {
         removeAllViews();
-        mTextViews.clear();
+        mItems.clear();
         for (int i = 0; i < mViewPager.getAdapter().getCount(); i++) {
-            TextView textView = new TextView(getContext());
+            LayoutInflater inflater =
+                    (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            final LinearLayout item =
+                    (LinearLayout) inflater.inflate(R.layout.page_indicator_item, this, false);
+            final TextView textView = (TextView) item.findViewById(R.id.textview);
             textView.setText(mViewPager.getAdapter().getPageTitle(i));
-            textView.setLayoutParams(new LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
             if (i == mViewPager.getAdapter().getCount() - 1) {
-                textView.setGravity(Gravity.RIGHT);
+                item.setGravity(Gravity.RIGHT);
             } else if (i != 0) {
-                textView.setGravity(Gravity.CENTER_HORIZONTAL);
+                item.setGravity(Gravity.CENTER_HORIZONTAL);
             }
-            addView(textView);
-            mTextViews.add(textView);
+            final int j = i;
+            if (mFragmentInfosList.get(i).size() > 1) {
+                final ImageView arrow = (ImageView) item.findViewById(R.id.arrow);
+                arrow.setVisibility(VISIBLE);
+                item.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (!mSelector.isListShowing()) {
+                            rotateArrow(arrow, false);
+
+                            mViewPager.setCurrentItem(j);
+
+                            final List<FragmentInfo> fragmentInfos =
+                                    mFragmentInfosList.get(j).getFragmentInfos();
+                            Selector.SelectorListener selectorListener
+                                    = new Selector.SelectorListener() {
+                                @Override
+                                public void onSelectorItemSelected(int position) {
+                                    rotateArrow(arrow, true);
+
+                                    FragmentInfo selectedItem = fragmentInfos.get(position);
+                                    ((TomahawkPagerAdapter) mViewPager.getAdapter()).changeFragment(
+                                            j, selectedItem);
+                                    TextView textView =
+                                            (TextView) mItems.get(j).findViewById(R.id.textview);
+                                    textView.setText(selectedItem.mTitle);
+                                    ImageView imageView =
+                                            (ImageView) item.findViewById(R.id.imageview);
+                                    imageView.setImageResource(selectedItem.mIconResId);
+                                }
+
+                                @Override
+                                public void onCancel() {
+                                    rotateArrow(arrow, true);
+                                }
+                            };
+                            mSelector.setup(fragmentInfos, selectorListener, mRootview,
+                                    mSelectorPosStorageKey);
+                            mSelector.showSelectorList();
+                        } else {
+                            rotateArrow(arrow, true);
+
+                            mSelector.hideSelectorList();
+                        }
+                    }
+                });
+            } else {
+                item.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mSelector.hideSelectorList();
+                        mViewPager.setCurrentItem(j);
+                    }
+                });
+            }
+            if (mFragmentInfosList.get(i).getCurrentFragmentInfo().mIconResId > 0) {
+                ImageView imageView = (ImageView) item.findViewById(R.id.imageview);
+                imageView.setVisibility(VISIBLE);
+                imageView.setImageResource(
+                        mFragmentInfosList.get(i).getCurrentFragmentInfo().mIconResId);
+            }
+            addView(item);
+            mItems.add(item);
             mViewPager.setOnPageChangeListener(this);
             updateColors(mViewPager.getCurrentItem());
         }
     }
 
+    private void rotateArrow(View arrow, boolean reverse) {
+        RotateAnimation rotate;
+        if (reverse) {
+            rotate = new RotateAnimation(180, 360,
+                    Animation.RELATIVE_TO_SELF, 0.5f,
+                    Animation.RELATIVE_TO_SELF, 0.5f);
+        } else {
+            rotate = new RotateAnimation(360, 180,
+                    Animation.RELATIVE_TO_SELF, 0.5f,
+                    Animation.RELATIVE_TO_SELF, 0.5f);
+        }
+        rotate.setDuration(200);
+        arrow.startAnimation(rotate);
+        rotate.setFillAfter(true);
+    }
+
     private void updateColors(int position) {
-        for (int i = 0; i < mTextViews.size(); i++) {
-            TextView textView = mTextViews.get(i);
+        for (int i = 0; i < mItems.size(); i++) {
+            TextView textView = (TextView) mItems.get(i).findViewById(R.id.textview);
+            ImageView imageView = (ImageView) mItems.get(i).findViewById(R.id.imageview);
+            ImageView arrow = (ImageView) mItems.get(i).findViewById(R.id.arrow);
             if (i == position) {
                 textView.setTextColor(
                         getResources().getColor(R.color.primary_textcolor_inverted));
+                imageView.clearColorFilter();
+                arrow.clearColorFilter();
             } else {
                 textView.setTextColor(
                         getResources().getColor(R.color.secondary_textcolor_inverted));
+                ColorFilter grayOutFilter = new PorterDuffColorFilter(
+                        TomahawkApp.getContext().getResources()
+                                .getColor(R.color.secondary_textcolor_inverted),
+                        PorterDuff.Mode.MULTIPLY);
+                imageView.setColorFilter(grayOutFilter);
+                arrow.setColorFilter(grayOutFilter);
             }
         }
     }

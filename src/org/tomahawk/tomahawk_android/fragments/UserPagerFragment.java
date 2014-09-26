@@ -24,8 +24,11 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -33,6 +36,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserPagerFragment extends PagerFragment {
+
+    public static final String USERPAGER_SELECTOR_POSITION
+            = "org.tomahawk.tomahawk_android.userpager_selector_position";
 
     private User mUser;
 
@@ -99,30 +105,63 @@ public class UserPagerFragment extends PagerFragment {
         showContentHeader(mUser, R.dimen.header_clear_space_nonscrollable_static_user,
                 mFollowButtonListener);
 
-        List<String> fragmentClassNames = new ArrayList<String>();
-        fragmentClassNames.add(SocialActionsFragment.class.getName());
-        fragmentClassNames.add(PlaylistEntriesFragment.class.getName());
-        fragmentClassNames.add(UsersFragment.class.getName());
-        List<String> fragmentTitles = new ArrayList<String>();
-        fragmentTitles.add(getString(R.string.activity));
-        fragmentTitles.add(getString(R.string.music));
-        fragmentTitles.add(getString(R.string.friends));
-        List<Bundle> fragmentBundles = new ArrayList<Bundle>();
-        Bundle bundle = new Bundle();
-        bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
-        bundle.putInt(TomahawkFragment.SHOW_MODE, SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
-        fragmentBundles.add(bundle);
-        bundle = new Bundle();
-        bundle.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY,
+        List<FragmentInfoList> fragmentInfoLists = new ArrayList<FragmentInfoList>();
+        FragmentInfoList fragmentInfoList = new FragmentInfoList();
+        FragmentInfo fragmentInfo = new FragmentInfo();
+        fragmentInfo.mClass = SocialActionsFragment.class;
+        fragmentInfo.mTitle = getString(R.string.activity);
+        fragmentInfo.mBundle = new Bundle();
+        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
+        fragmentInfo.mBundle
+                .putInt(TomahawkFragment.SHOW_MODE, SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
+        fragmentInfo.mIconResId = R.drawable.ic_action_activity;
+        fragmentInfoList.addFragmentInfo(fragmentInfo);
+        fragmentInfoLists.add(fragmentInfoList);
+
+        fragmentInfoList = new FragmentInfoList();
+        fragmentInfo = new FragmentInfo();
+        fragmentInfo.mClass = CollectionFragment.class;
+        fragmentInfo.mTitle = getString(R.string.hub_title_collection);
+        fragmentInfo.mBundle = new Bundle();
+        fragmentInfo.mBundle.putBoolean(ContentHeaderFragment.DONT_SHOW_HEADER, true);
+        fragmentInfo.mIconResId = R.drawable.ic_action_collection;
+        fragmentInfoList.addFragmentInfo(fragmentInfo);
+        fragmentInfo = new FragmentInfo();
+        fragmentInfo.mClass = PlaylistsFragment.class;
+        fragmentInfo.mTitle = getString(R.string.hub_title_playlists);
+        fragmentInfo.mBundle = new Bundle();
+        fragmentInfo.mBundle.putBoolean(ContentHeaderFragment.DONT_SHOW_HEADER, true);
+        fragmentInfo.mIconResId = R.drawable.ic_action_playlist;
+        fragmentInfoList.addFragmentInfo(fragmentInfo);
+        fragmentInfo = new FragmentInfo();
+        fragmentInfo.mClass = PlaylistEntriesFragment.class;
+        fragmentInfo.mTitle = getString(R.string.history);
+        fragmentInfo.mBundle = new Bundle();
+        fragmentInfo.mBundle.putBoolean(ContentHeaderFragment.DONT_SHOW_HEADER, true);
+        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY,
                 mUser.getPlaybackLog().getCacheKey());
-        bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
-        fragmentBundles.add(bundle);
-        bundle = new Bundle();
-        bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
-        bundle.putInt(TomahawkFragment.SHOW_MODE, UsersFragment.SHOW_MODE_TYPE_FOLLOWERS);
-        bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
-        fragmentBundles.add(bundle);
-        setupPager(fragmentClassNames, fragmentTitles, fragmentBundles, initialPage);
+        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
+        fragmentInfo.mIconResId = R.drawable.ic_action_history;
+        fragmentInfoList.addFragmentInfo(fragmentInfo);
+        SharedPreferences preferences = PreferenceManager
+                .getDefaultSharedPreferences(TomahawkApp.getContext());
+        fragmentInfoList.setCurrent(preferences.getInt(USERPAGER_SELECTOR_POSITION, 0));
+        fragmentInfoLists.add(fragmentInfoList);
+
+        fragmentInfoList = new FragmentInfoList();
+        fragmentInfo = new FragmentInfo();
+        fragmentInfo.mClass = UsersFragment.class;
+        fragmentInfo.mTitle = getString(R.string.friends);
+        fragmentInfo.mBundle = new Bundle();
+        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
+        fragmentInfo.mBundle.putInt(TomahawkFragment.SHOW_MODE,
+                UsersFragment.SHOW_MODE_TYPE_FOLLOWERS);
+        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
+        fragmentInfo.mIconResId = R.drawable.ic_action_friend;
+        fragmentInfoList.addFragmentInfo(fragmentInfo);
+        fragmentInfoLists.add(fragmentInfoList);
+
+        setupPager(fragmentInfoLists, initialPage, USERPAGER_SELECTOR_POSITION);
     }
 
     @Override

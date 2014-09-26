@@ -70,7 +70,7 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
         mLayoutInflater = activity.getLayoutInflater();
         for (int i = 0; i < stringArray.length; i++) {
             ResourceHolder holder = new ResourceHolder();
-            holder.title = stringArray[i];
+            holder.title = stringArray[i].toUpperCase();
             holder.icon = iconArray.getResourceId(i, 0);
             mItems.add(holder);
         }

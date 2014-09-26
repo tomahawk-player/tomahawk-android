@@ -74,8 +74,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:paddingLeft="@dimen/padding_superlarge"
-                android:paddingRight="@dimen/padding_superlarge"
-                android:paddingBottom="@dimen/padding_small"/>
+                android:paddingRight="@dimen/padding_superlarge"/>
 
         <View android:layout_width="match_parent"
               android:layout_height="@dimen/divider_height_thick"

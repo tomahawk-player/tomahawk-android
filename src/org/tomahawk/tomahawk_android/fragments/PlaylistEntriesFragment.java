@@ -131,13 +131,17 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                     tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater,
                             segment, this);
                     tomahawkListAdapter.setShowResolvedBy(true);
-                    tomahawkListAdapter.setShowContentHeaderSpacer(true,
-                            getListView().getWrappedList());
+                    if (!mDontShowHeader) {
+                        tomahawkListAdapter.setShowContentHeaderSpacer(true,
+                                getListView().getWrappedList());
+                    }
                     setListAdapter(tomahawkListAdapter);
                 } else {
                     getListAdapter().setSegments(segment);
                 }
-                showContentHeader(mPlaylist, R.dimen.header_clear_space_nonscrollable);
+                if (!mDontShowHeader) {
+                    showContentHeader(mPlaylist, R.dimen.header_clear_space_nonscrollable);
+                }
             }
         }
 

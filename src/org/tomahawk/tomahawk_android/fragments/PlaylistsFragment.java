@@ -46,10 +46,11 @@ public class PlaylistsFragment extends TomahawkFragment {
         CollectionManager.getInstance().fetchPlaylists();
 
         if (mContainerFragmentClass == null) {
-            getActivity().setTitle(R.string.hub_title_playlists);
+            getActivity().setTitle(getString(R.string.hub_title_playlists).toUpperCase());
         }
-
-        showContentHeader(R.drawable.playlists_header);
+        if (!mDontShowHeader) {
+            showContentHeader(R.drawable.playlists_header);
+        }
         updateAdapter();
     }
 
