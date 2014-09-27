@@ -109,9 +109,11 @@ public class CollectionFragment extends TomahawkFragment {
         List<Segment> segments = new ArrayList<Segment>();
         ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
         if (mUser != null) {
-            if (mUser.getStarredAlbums().size() == 0 && !mResolvingUsers.contains(mUser)) {
-                mCurrentRequestIds.add(InfoSystem.getInstance().resolveStarredAlbums(mUser));
-                mResolvingUsers.add(mUser);
+            if (mUser.getStarredAlbums().size() == 0) {
+                if (!mResolvingUsers.contains(mUser)) {
+                    mCurrentRequestIds.add(InfoSystem.getInstance().resolveStarredAlbums(mUser));
+                    mResolvingUsers.add(mUser);
+                }
             } else {
                 mShownStarredAlbums = mUser.getStarredAlbums();
             }

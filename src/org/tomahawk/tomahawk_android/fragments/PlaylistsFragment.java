@@ -91,9 +91,11 @@ public class PlaylistsFragment extends TomahawkFragment {
 
         List<TomahawkListItem> playlists = new ArrayList<TomahawkListItem>();
         if (mUser != null) {
-            if (mUser.getStarredAlbums().size() == 0 && !mResolvingUsers.contains(mUser)) {
-                mCurrentRequestIds.add(InfoSystem.getInstance().resolvePlaylists(mUser));
-                mResolvingUsers.add(mUser);
+            if (mUser.getPlaylists().size() == 0) {
+                if (!mResolvingUsers.contains(mUser)) {
+                    mCurrentRequestIds.add(InfoSystem.getInstance().resolvePlaylists(mUser));
+                    mResolvingUsers.add(mUser);
+                }
             } else {
                 playlists.addAll(mUser.getPlaylists());
             }
