@@ -153,11 +153,19 @@ public class UserPagerFragment extends PagerFragment {
         fragmentInfoList = new FragmentInfoList();
         fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = UsersFragment.class;
-        fragmentInfo.mTitle = getString(R.string.friends);
+        fragmentInfo.mTitle = getString(R.string.followers);
         fragmentInfo.mBundle = new Bundle();
-        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
         fragmentInfo.mBundle.putInt(TomahawkFragment.SHOW_MODE,
                 UsersFragment.SHOW_MODE_TYPE_FOLLOWERS);
+        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
+        fragmentInfo.mIconResId = R.drawable.ic_action_friend;
+        fragmentInfoList.addFragmentInfo(fragmentInfo);
+        fragmentInfo = new FragmentInfo();
+        fragmentInfo.mClass = UsersFragment.class;
+        fragmentInfo.mTitle = getString(R.string.followings);
+        fragmentInfo.mBundle = new Bundle();
+        fragmentInfo.mBundle.putInt(TomahawkFragment.SHOW_MODE,
+                UsersFragment.SHOW_MODE_TYPE_FOLLOWINGS);
         fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
         fragmentInfo.mIconResId = R.drawable.ic_action_friend;
         fragmentInfoList.addFragmentInfo(fragmentInfo);
