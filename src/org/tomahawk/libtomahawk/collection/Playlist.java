@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Playlist implements TomahawkListItem {
 
-    private String mName;
+    private String mName = "";
 
     private ArrayList<PlaylistEntry> mEntries = new ArrayList<PlaylistEntry>();
 
@@ -53,7 +53,9 @@ public class Playlist implements TomahawkListItem {
      * Construct a new empty {@link Playlist}.
      */
     private Playlist(String id, String name, String currentRevision) {
-        mName = name;
+        if (name != null) {
+            mName = name;
+        }
         mId = id;
         if (currentRevision != null) {
             mCurrentRevision = currentRevision;
@@ -190,7 +192,9 @@ public class Playlist implements TomahawkListItem {
      * @param name the name to be set
      */
     public void setName(String name) {
-        this.mName = name;
+        if (name != null) {
+            this.mName = name;
+        }
     }
 
     /**
