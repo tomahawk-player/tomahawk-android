@@ -194,16 +194,24 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
             } else if (infoRequestData.getType()
                     == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS) {
-                if (TextUtils.isEmpty(mUserId)) {
+                String userId = params.userid == null ? mUserId : params.userid;
+                if (TextUtils.isEmpty(userId)) {
                     return false;
                 }
-                HatchetPlaylistEntries entries = mHatchet.getUsersPlaylists(mUserId);
+                HatchetPlaylistEntries entries = mHatchet.getUsersPlaylists(userId);
                 if (entries != null) {
-                    List<Object> playlists = new ArrayList<Object>();
+                    List<Playlist> playlists = new ArrayList<Playlist>();
                     for (HatchetPlaylistInfo playlistInfo : entries.playlists) {
                         playlists.add(InfoSystemUtils.convertToPlaylist(playlistInfo));
                     }
-                    infoRequestData.setResultList(playlists);
+                    if (mItemsToBeFilled.get(infoRequestData.getRequestId()) instanceof User) {
+                        User userToBeFilled =
+                                (User) mItemsToBeFilled.get(infoRequestData.getRequestId());
+                        userToBeFilled.setPlaylists(playlists);
+                    }
+                    List<Object> results = new ArrayList<Object>();
+                    results.addAll(playlists);
+                    infoRequestData.setResultList(results);
                     return true;
                 }
 

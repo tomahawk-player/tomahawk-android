@@ -307,6 +307,14 @@ public class InfoSystem {
                 params, user);
     }
 
+    public String resolvePlaylists(User user) {
+        QueryParams params = new QueryParams();
+        if (user != null) {
+            params.userid = user.getId();
+        }
+        return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS, params, user);
+    }
+
     /**
      * Build an InfoRequestData object with the given data and order results
      *

@@ -341,8 +341,7 @@ public class CollectionManager {
     public void fetchPlaylists() {
         if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             Log.d(TAG, "Hatchet sync - fetching playlists");
-            mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(
-                    InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS, null));
+            mCorrespondingRequestIds.add(InfoSystem.getInstance().resolvePlaylists(null));
         } else {
             Log.d(TAG, "Hatchet sync - sending logged ops before fetching playlists");
             AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()

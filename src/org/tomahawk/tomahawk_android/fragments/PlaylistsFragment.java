@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
+import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
@@ -32,6 +33,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -39,6 +41,8 @@ import java.util.List;
  * inside its {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}
  */
 public class PlaylistsFragment extends TomahawkFragment {
+
+    private HashSet<User> mResolvingUsers = new HashSet<User>();
 
     @Override
     public void onResume() {
@@ -86,7 +90,16 @@ public class PlaylistsFragment extends TomahawkFragment {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
         List<TomahawkListItem> playlists = new ArrayList<TomahawkListItem>();
-        playlists.addAll(CollectionManager.getInstance().getPlaylists());
+        if (mUser != null) {
+            if (mUser.getStarredAlbums().size() == 0 && !mResolvingUsers.contains(mUser)) {
+                mCurrentRequestIds.add(InfoSystem.getInstance().resolvePlaylists(mUser));
+                mResolvingUsers.add(mUser);
+            } else {
+                playlists.addAll(mUser.getPlaylists());
+            }
+        } else {
+            playlists.addAll(CollectionManager.getInstance().getPlaylists());
+        }
         Segment segment = new Segment(playlists);
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(
