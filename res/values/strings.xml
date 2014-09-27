@@ -135,7 +135,7 @@
     <string name="collection_dropdown_recently_added">RECENTLY ADDED</string>
     <string name="collection_dropdown_artist">ARTIST</string>
     <string name="collection_dropdown_play_count">PLAY COUNT</string>
-    <string name="history">history</string>
+    <string name="history">History</string>
     <string name="fake_preferences_bitrate_low">Normal</string>
     <string name="fake_preferences_bitrate_medium">Good</string>
     <string name="fake_preferences_bitrate_high">Best</string>
