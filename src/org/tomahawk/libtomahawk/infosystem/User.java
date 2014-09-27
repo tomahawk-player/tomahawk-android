@@ -72,6 +72,8 @@ public class User implements TomahawkListItem {
 
     private List<Album> mStarredAlbums = new ArrayList<Album>();
 
+    private List<Playlist> mPlaylists = new ArrayList<Playlist>();
+
     /**
      * Construct a new {@link User} with the given id
      */
@@ -257,5 +259,13 @@ public class User implements TomahawkListItem {
 
     public void setStarredAlbums(List<Album> starredAlbums) {
         mStarredAlbums = starredAlbums;
+    }
+
+    public List<Playlist> getPlaylists() {
+        return mPlaylists;
+    }
+
+    public void setPlaylists(List<Playlist> playlists) {
+        mPlaylists = playlists;
     }
 }

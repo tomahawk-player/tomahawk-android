@@ -132,6 +132,7 @@ public class UserPagerFragment extends PagerFragment {
         fragmentInfo.mTitle = getString(R.string.hub_title_playlists);
         fragmentInfo.mBundle = new Bundle();
         fragmentInfo.mBundle.putBoolean(ContentHeaderFragment.DONT_SHOW_HEADER, true);
+        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
         fragmentInfo.mIconResId = R.drawable.ic_action_playlist;
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfo = new FragmentInfo();
