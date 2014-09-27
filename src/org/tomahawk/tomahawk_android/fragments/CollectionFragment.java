@@ -18,8 +18,11 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.TomahawkListItemComparator;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
+import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -36,12 +39,15 @@ import android.widget.AdapterView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 public class CollectionFragment extends TomahawkFragment {
 
     public static final String COLLECTION_SPINNER_POSITION
             = "org.tomahawk.tomahawk_android.collection_spinner_position";
+
+    private HashSet<Album> mResolvingAlbums = new HashSet<Album>();
 
     @Override
     public void onResume() {
@@ -65,10 +71,18 @@ public class CollectionFragment extends TomahawkFragment {
     public void onItemClick(View view, TomahawkListItem item) {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         if (item instanceof Album) {
-            FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
-                    TracksFragment.class, item.getCacheKey(),
-                    TomahawkFragment.TOMAHAWK_ALBUM_KEY, CollectionManager.getInstance()
-                            .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION));
+            Collection userCollection = CollectionManager.getInstance()
+                    .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
+            if (userCollection.getAlbumTracks((Album) item, false).size() > 0) {
+                FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
+                        TracksFragment.class, item.getCacheKey(),
+                        TomahawkFragment.TOMAHAWK_ALBUM_KEY, userCollection);
+            } else {
+                FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
+                        TracksFragment.class, item.getCacheKey(),
+                        TomahawkFragment.TOMAHAWK_ALBUM_KEY, CollectionManager.getInstance()
+                                .getCollection(TomahawkApp.PLUGINNAME_HATCHET));
+            }
         }
     }
 
@@ -88,6 +102,15 @@ public class CollectionFragment extends TomahawkFragment {
         ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
         items.addAll(CollectionManager.getInstance()
                 .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION).getAlbums());
+        for (Album album : DatabaseHelper.getInstance().getStarredAlbums()) {
+            if (!items.contains(album)) {
+                items.add(album);
+                if (!mResolvingAlbums.contains(album)) {
+                    mCurrentRequestIds.add(InfoSystem.getInstance().resolve(album));
+                    mResolvingAlbums.add(album);
+                }
+            }
+        }
         SharedPreferences preferences =
                 PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
         List<Integer> dropDownItems = new ArrayList<Integer>();
@@ -122,8 +145,7 @@ public class CollectionFragment extends TomahawkFragment {
                 R.dimen.padding_superlarge, R.dimen.padding_superlarge));
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
-                    layoutInflater, segments, this, CollectionManager.getInstance()
-                    .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION));
+                    layoutInflater, segments, this);
             setListAdapter(tomahawkListAdapter);
         } else {
             getListAdapter().setSegments(segments);

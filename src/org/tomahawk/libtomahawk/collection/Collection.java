@@ -235,7 +235,7 @@ public class Collection {
     public int getAddedTimestamp(Album album) {
         Integer timestamp = mAddedTimestamp.get(album);
         if (timestamp == null) {
-            return 0;
+            return Integer.MAX_VALUE;
         } else {
             return timestamp;
         }
