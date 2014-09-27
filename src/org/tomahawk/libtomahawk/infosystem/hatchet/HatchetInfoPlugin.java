@@ -517,15 +517,16 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS
                     || infoRequestData.getType()
                     == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDARTISTS) {
-                if (TextUtils.isEmpty(mUserId)) {
+                String userId = params.userid == null ? mUserId : params.userid;
+                if (TextUtils.isEmpty(userId)) {
                     return false;
                 }
-                HatchetRelationshipsStruct relationShips = mHatchet
-                        .getRelationships(params.ids, mUserId,
-                                params.targettype, params.targetuserid, null, null, null,
-                                params.type);
+                HatchetRelationshipsStruct relationShips = mHatchet.getRelationships(params.ids,
+                        userId, params.targettype, params.targetuserid, null, null, null,
+                        params.type);
                 if (relationShips != null) {
-                    List<Object> convertedObjects = new ArrayList<Object>();
+                    List<Album> convertedAlbums = new ArrayList<Album>();
+                    List<Artist> convertedArtists = new ArrayList<Artist>();
                     if (relationShips.relationships != null) {
                         for (HatchetRelationshipStruct relationship : relationShips.relationships) {
                             if (infoRequestData.getType()
@@ -538,7 +539,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                     if (artist != null) {
                                         Album convertedAlbum = InfoSystemUtils.convertToAlbum(album,
                                                 artist.name, null, null);
-                                        convertedObjects.add(convertedAlbum);
+                                        convertedAlbums.add(convertedAlbum);
                                         hatchetCollection.addAlbum(convertedAlbum);
                                     }
                                 }
@@ -548,12 +549,20 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                 if (artist != null) {
                                     Artist convertedArtist =
                                             InfoSystemUtils.convertToArtist(artist, null);
-                                    convertedObjects.add(convertedArtist);
+                                    convertedArtists.add(convertedArtist);
                                     hatchetCollection.addArtist(convertedArtist);
                                 }
                             }
                         }
                     }
+                    if (mItemsToBeFilled.get(infoRequestData.getRequestId()) instanceof User) {
+                        User userToBeFilled =
+                                (User) mItemsToBeFilled.get(infoRequestData.getRequestId());
+                        userToBeFilled.setStarredAlbums(convertedAlbums);
+                    }
+                    List<Object> convertedObjects = new ArrayList<Object>();
+                    convertedObjects.addAll(convertedAlbums);
+                    convertedObjects.addAll(convertedArtists);
                     infoRequestData.setResultList(convertedObjects);
                     return true;
                 }

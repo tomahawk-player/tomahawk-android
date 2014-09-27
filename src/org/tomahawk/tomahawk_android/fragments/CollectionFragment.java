@@ -23,6 +23,7 @@ import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.TomahawkListItemComparator;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
+import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -35,6 +36,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 
 import java.util.ArrayList;
@@ -44,10 +46,16 @@ import java.util.List;
 
 public class CollectionFragment extends TomahawkFragment {
 
+    private static final int GRID_COLUMN_COUNT = 2;
+
     public static final String COLLECTION_SPINNER_POSITION
             = "org.tomahawk.tomahawk_android.collection_spinner_position";
 
+    private List<Album> mShownStarredAlbums = new ArrayList<Album>();
+
     private HashSet<Album> mResolvingAlbums = new HashSet<Album>();
+
+    private HashSet<User> mResolvingUsers = new HashSet<User>();
 
     @Override
     public void onResume() {
@@ -100,17 +108,25 @@ public class CollectionFragment extends TomahawkFragment {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         List<Segment> segments = new ArrayList<Segment>();
         ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
-        items.addAll(CollectionManager.getInstance()
-                .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION).getAlbums());
-        for (Album album : DatabaseHelper.getInstance().getStarredAlbums()) {
-            if (!items.contains(album)) {
-                items.add(album);
-                if (!mResolvingAlbums.contains(album)) {
-                    mCurrentRequestIds.add(InfoSystem.getInstance().resolve(album));
-                    mResolvingAlbums.add(album);
+        if (mUser != null) {
+            if (mUser.getStarredAlbums().size() == 0 && !mResolvingUsers.contains(mUser)) {
+                mCurrentRequestIds.add(InfoSystem.getInstance().resolveStarredAlbums(mUser));
+                mResolvingUsers.add(mUser);
+            } else {
+                mShownStarredAlbums = mUser.getStarredAlbums();
+            }
+        } else {
+            items.addAll(CollectionManager.getInstance()
+                    .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION).getAlbums());
+            mShownStarredAlbums.clear();
+            for (Album album : DatabaseHelper.getInstance().getStarredAlbums()) {
+                if (!items.contains(album)) {
+                    mShownStarredAlbums.add(album);
                 }
             }
         }
+        items.addAll(mShownStarredAlbums);
+
         SharedPreferences preferences =
                 PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
         List<Integer> dropDownItems = new ArrayList<Integer>();
@@ -141,14 +157,29 @@ public class CollectionFragment extends TomahawkFragment {
             Collections.sort(items, new TomahawkListItemComparator(
                     TomahawkListItemComparator.COMPARE_ARTIST_ALPHA));
         }
-        segments.add(new Segment(initialPos, dropDownItems, spinnerClickListener, items, 2,
-                R.dimen.padding_superlarge, R.dimen.padding_superlarge));
+        segments.add(new Segment(initialPos, dropDownItems, spinnerClickListener, items,
+                GRID_COLUMN_COUNT, R.dimen.padding_superlarge, R.dimen.padding_superlarge));
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
                     layoutInflater, segments, this);
             setListAdapter(tomahawkListAdapter);
         } else {
             getListAdapter().setSegments(segments);
+        }
+    }
+
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
+            int totalItemCount) {
+        super.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
+
+        for (int i = firstVisibleItem * GRID_COLUMN_COUNT; i < visibleItemCount * GRID_COLUMN_COUNT
+                + firstVisibleItem * GRID_COLUMN_COUNT && i < mShownStarredAlbums.size(); i++) {
+            Album album = mShownStarredAlbums.get(i);
+            if (album != null && !mResolvingAlbums.contains(album)) {
+                mCurrentRequestIds.add(InfoSystem.getInstance().resolve(album));
+                mResolvingAlbums.add(album);
+            }
         }
     }
 }

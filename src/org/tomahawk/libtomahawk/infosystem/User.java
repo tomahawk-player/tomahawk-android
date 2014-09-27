@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -68,6 +69,8 @@ public class User implements TomahawkListItem {
     private Map<User, String> mFollowings = new HashMap<User, String>();
 
     private Map<User, String> mFollowers = new HashMap<User, String>();
+
+    private List<Album> mStarredAlbums = new ArrayList<Album>();
 
     /**
      * Construct a new {@link User} with the given id
@@ -246,5 +249,13 @@ public class User implements TomahawkListItem {
 
     public void setFollowers(Map<User, String> followers) {
         mFollowers = followers;
+    }
+
+    public List<Album> getStarredAlbums() {
+        return mStarredAlbums;
+    }
+
+    public void setStarredAlbums(List<Album> starredAlbums) {
+        mStarredAlbums = starredAlbums;
     }
 }
