@@ -179,7 +179,7 @@ public class Selector extends FrameLayout {
         } else {
             animation = new AlphaAnimation(1f, 0f);
         }
-        animation.setDuration(200);
+        animation.setDuration(120);
         view.startAnimation(animation);
         animation.setFillAfter(true);
     }
@@ -193,7 +193,7 @@ public class Selector extends FrameLayout {
             animation = new ScaleAnimation(0.5f, 1f, 0f, 1f, Animation.RELATIVE_TO_SELF, 0.5f,
                     Animation.RELATIVE_TO_SELF, 0f);
         }
-        animation.setDuration(200);
+        animation.setDuration(120);
         view.startAnimation(animation);
         animation.setFillAfter(true);
         animation.setAnimationListener(listener);
