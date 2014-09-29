@@ -29,9 +29,11 @@
     <ListView android:id="@+id/left_drawer"
               android:layout_width="240dp"
               android:layout_height="match_parent"
+              android:paddingTop="?attr/actionBarSize"
+              android:layout_gravity="start"
               android:choiceMode="singleChoice"
-              android:divider="@color/listview_divider"
-              android:dividerHeight="1px"/>
+              android:dividerHeight="0px"
+              android:background="@color/navdrawer_background"/>
 
     <View android:layout_width="@dimen/divider_height_thin"
           android:layout_height="match_parent"
