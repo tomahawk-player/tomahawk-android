@@ -81,7 +81,7 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:padding="8dp"
-                    android:background="@drawable/selectable_background_playback_small_tomahawk"
+                    android:background="@drawable/selectable_background_ring_tomahawk"
                     android:src="@drawable/ic_player_play"
                     android:scaleType="fitCenter"/>
 
@@ -91,7 +91,7 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:padding="8dp"
-                    android:background="@drawable/selectable_background_playback_small_tomahawk"
+                    android:background="@drawable/selectable_background_ring_tomahawk"
                     android:src="@drawable/ic_action_notloved"
                     android:scaleType="fitCenter"/>
 
@@ -101,7 +101,7 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:padding="8dp"
-                    android:background="@drawable/selectable_background_playback_small_tomahawk"
+                    android:background="@drawable/selectable_background_ring_tomahawk"
                     android:src="@drawable/ic_action_return"
                     android:scaleType="fitCenter"/>
 

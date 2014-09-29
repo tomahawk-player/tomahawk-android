@@ -46,4 +46,7 @@
 
     <dimen name="pager_indicator_height">32dp</dimen>
 
+    <dimen name="player_button_size_repeatshuffle">32dp</dimen>
+    <dimen name="player_button_size_default">48dp</dimen>
+
 </resources>
