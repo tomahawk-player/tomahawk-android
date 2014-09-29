@@ -186,7 +186,7 @@
     <string name="users">Users</string>
     <string name="activity">Activity</string>
     <string name="followers">Followers</string>
-    <string name="followings">Followings</string>
+    <string name="following">Following</string>
     <string name="resolver_config_redirect_button_text_log_into">Log into</string>
     <string name="resolver_config_redirect_button_text_log_out_of">Log out of</string>
     <string name="ask_access_activity_header">Want to automatically scrobble all tracks you play to

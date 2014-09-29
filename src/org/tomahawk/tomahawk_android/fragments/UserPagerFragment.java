@@ -162,7 +162,7 @@ public class UserPagerFragment extends PagerFragment {
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = UsersFragment.class;
-        fragmentInfo.mTitle = getString(R.string.followings);
+        fragmentInfo.mTitle = getString(R.string.following);
         fragmentInfo.mBundle = new Bundle();
         fragmentInfo.mBundle.putInt(TomahawkFragment.SHOW_MODE,
                 UsersFragment.SHOW_MODE_TYPE_FOLLOWINGS);
