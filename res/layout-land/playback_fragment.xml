@@ -151,8 +151,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_gravity="center"
+                        android:adjustViewBounds="true"
                         android:background="@drawable/selectable_background_playback_small_tomahawk"
                         android:padding="15dip"
+                        android:scaleType="fitCenter"
                         android:src="@drawable/ic_player_repeat"/>
 
             </FrameLayout>
