@@ -23,7 +23,6 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -41,8 +40,6 @@ public class ViewHolder {
 
     private ImageView mImageView4;
 
-    private LinearLayout mImageViewFrame;
-
     private CheckBox mCheckBox;
 
     private Spinner mSpinner;
@@ -56,12 +53,6 @@ public class ViewHolder {
     private TextView mTextView4;
 
     private TextView mTextView5;
-
-    private LinearLayout mButton1;
-
-    private LinearLayout mButton2;
-
-    private LinearLayout mButton3;
 
     private FrameLayout mButton4;
 
@@ -162,14 +153,6 @@ public class ViewHolder {
                 || layoutId == R.layout.content_header_static) {
             mTextView1 = (TextView) headerFrame
                     .findViewById(R.id.content_header_textview);
-            mTextView2 = (TextView) headerFrame
-                    .findViewById(R.id.content_header_textview2);
-            mTextView3 = (TextView) headerFrame
-                    .findViewById(R.id.content_header_textview3);
-            mTextView4 = (TextView) headerFrame
-                    .findViewById(R.id.content_header_textview4);
-            mTextView5 = (TextView) headerFrame
-                    .findViewById(R.id.content_header_textview5);
             mRoundedImage = (ImageView) headerFrame
                     .findViewById(R.id.content_header_roundedimage);
             mImageView1 = (ImageView) imageFrame
@@ -180,12 +163,6 @@ public class ViewHolder {
                     .findViewById(R.id.content_header_image3);
             mImageView4 = (ImageView) imageFrame
                     .findViewById(R.id.content_header_image4);
-            mButton1 = (LinearLayout) headerFrame
-                    .findViewById(R.id.content_header_button1);
-            mButton2 = (LinearLayout) headerFrame
-                    .findViewById(R.id.content_header_button2);
-            mButton3 = (LinearLayout) headerFrame
-                    .findViewById(R.id.content_header_button3);
             mMoreButton = (FrameLayout) headerFrame
                     .findViewById(R.id.content_header_more_button);
             mButton4 = (FrameLayout) headerFrame
@@ -220,10 +197,6 @@ public class ViewHolder {
         return mImageView4;
     }
 
-    public LinearLayout getImageViewFrame() {
-        return mImageViewFrame;
-    }
-
     public CheckBox getCheckBox() {
         return mCheckBox;
     }
@@ -250,18 +223,6 @@ public class ViewHolder {
 
     public TextView getTextView5() {
         return mTextView5;
-    }
-
-    public LinearLayout getButton1() {
-        return mButton1;
-    }
-
-    public LinearLayout getButton2() {
-        return mButton2;
-    }
-
-    public LinearLayout getButton3() {
-        return mButton3;
     }
 
     public FrameLayout getButton4() {
