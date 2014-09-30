@@ -116,8 +116,9 @@ public class AlbumsFragment extends TomahawkFragment {
             } else {
                 ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
                 items.addAll(AdapterUtils.getArtistAlbums(mArtist, null));
-                segments.add(new Segment(R.string.segmentheader_topalbums, items, 2,
-                        R.dimen.padding_superlarge, R.dimen.padding_superlarge));
+                segments.add(new Segment(R.string.segmentheader_topalbums, items,
+                        R.integer.grid_column_count, R.dimen.padding_superlarge,
+                        R.dimen.padding_superlarge));
                 ArrayList<Query> topHits = AdapterUtils.getArtistTopHits(mArtist);
                 items = new ArrayList<TomahawkListItem>();
                 items.addAll(topHits);
@@ -161,7 +162,7 @@ public class AlbumsFragment extends TomahawkFragment {
         } else {
             ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
             items.addAll(mCollection.getAlbums());
-            segments.add(new Segment(items, 2, R.dimen.padding_superlarge,
+            segments.add(new Segment(items, R.integer.grid_column_count, R.dimen.padding_superlarge,
                     R.dimen.padding_superlarge));
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,

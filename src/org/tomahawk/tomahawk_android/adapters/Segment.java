@@ -65,12 +65,13 @@ public class Segment {
         mSpinnerSegment = true;
     }
 
-    public Segment(List<TomahawkListItem> listItems, int columnCount, int horizontalPaddingResId,
-            int verticalPaddingResId) {
+    public Segment(List<TomahawkListItem> listItems, int columnCountResId,
+            int horizontalPaddingResId, int verticalPaddingResId) {
         mShowAsGrid = true;
         Resources resources = TomahawkApp.getContext().getResources();
         mHorizontalPadding = resources.getDimensionPixelSize(horizontalPaddingResId);
         mVerticalPadding = resources.getDimensionPixelSize(verticalPaddingResId);
+        int columnCount = resources.getInteger(columnCountResId);
         for (int i = 0; i < listItems.size(); i += columnCount) {
             List<TomahawkListItem> row = new ArrayList<TomahawkListItem>();
             for (int j = 0; j < columnCount; j++) {
@@ -84,17 +85,17 @@ public class Segment {
         }
     }
 
-    public Segment(int headerStringResId, List<TomahawkListItem> listItems, int columnCount,
+    public Segment(int headerStringResId, List<TomahawkListItem> listItems, int columnCountResId,
             int horizontalPaddingResId, int verticalPaddingResId) {
-        this(listItems, columnCount, horizontalPaddingResId, verticalPaddingResId);
+        this(listItems, columnCountResId, horizontalPaddingResId, verticalPaddingResId);
         mHeaderStringResId.add(headerStringResId);
     }
 
     public Segment(int initialPos, List<Integer> headerStringResIds,
             AdapterView.OnItemSelectedListener spinnerClickListener,
-            List<TomahawkListItem> listItems, int columnCount, int horizontalPaddingResId,
+            List<TomahawkListItem> listItems, int columnCountResId, int horizontalPaddingResId,
             int verticalPaddingResId) {
-        this(listItems, columnCount, horizontalPaddingResId, verticalPaddingResId);
+        this(listItems, columnCountResId, horizontalPaddingResId, verticalPaddingResId);
         mInitialPos = initialPos;
         mHeaderStringResId.addAll(headerStringResIds);
         mSpinnerClickListener = spinnerClickListener;

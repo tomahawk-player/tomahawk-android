@@ -46,8 +46,6 @@ import java.util.List;
 
 public class CollectionFragment extends TomahawkFragment {
 
-    private static final int GRID_COLUMN_COUNT = 2;
-
     public static final String COLLECTION_SPINNER_POSITION
             = "org.tomahawk.tomahawk_android.collection_spinner_position";
 
@@ -160,7 +158,8 @@ public class CollectionFragment extends TomahawkFragment {
                     TomahawkListItemComparator.COMPARE_ARTIST_ALPHA));
         }
         segments.add(new Segment(initialPos, dropDownItems, spinnerClickListener, items,
-                GRID_COLUMN_COUNT, R.dimen.padding_superlarge, R.dimen.padding_superlarge));
+                R.integer.grid_column_count, R.dimen.padding_superlarge,
+                R.dimen.padding_superlarge));
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
                     layoutInflater, segments, this);
@@ -175,8 +174,9 @@ public class CollectionFragment extends TomahawkFragment {
             int totalItemCount) {
         super.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
 
-        for (int i = firstVisibleItem * GRID_COLUMN_COUNT; i < visibleItemCount * GRID_COLUMN_COUNT
-                + firstVisibleItem * GRID_COLUMN_COUNT && i < mShownStarredAlbums.size(); i++) {
+        int columnCount = getResources().getInteger(R.integer.grid_column_count);
+        for (int i = firstVisibleItem * columnCount; i < visibleItemCount * columnCount
+                + firstVisibleItem * columnCount && i < mShownStarredAlbums.size(); i++) {
             Album album = mShownStarredAlbums.get(i);
             if (album != null && !mResolvingAlbums.contains(album)) {
                 mCurrentRequestIds.add(InfoSystem.getInstance().resolve(album));
