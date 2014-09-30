@@ -74,7 +74,8 @@
             android:id="@+id/page_indicator_container"
             android:layout_width="match_parent"
             android:layout_height="@dimen/pager_indicator_height"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_gravity="bottom">
 
         <org.tomahawk.tomahawk_android.views.PageIndicator
                 android:id="@+id/page_indicator"

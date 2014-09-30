@@ -29,7 +29,6 @@
     <dimen name="header_clear_space_nonscrollable_static">112dp</dimen>
     <dimen name="header_clear_space_nonscrollable_static_user">168dp</dimen>
     <dimen name="header_clear_space_nonscrollable">120dp</dimen>
-    <dimen name="header_clear_space_nonscrollable_pager">152dp</dimen>
     <dimen name="header_clear_space_nonscrollable_selector">64dp</dimen>
     <dimen name="header_clear_space_scrollable">208dp</dimen>
     <dimen name="header_roundedimage_height">48dp</dimen>
