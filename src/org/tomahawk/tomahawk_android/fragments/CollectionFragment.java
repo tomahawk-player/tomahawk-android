@@ -60,7 +60,9 @@ public class CollectionFragment extends TomahawkFragment {
         super.onResume();
 
         updateAdapter();
-        getActivity().setTitle(getString(R.string.hub_title_collection).toUpperCase());
+        if (mUser == null) {
+            getActivity().setTitle(getString(R.string.hub_title_collection).toUpperCase());
+        }
 
         if (!mDontShowHeader) {
             showContentHeader(R.drawable.collection_header);
