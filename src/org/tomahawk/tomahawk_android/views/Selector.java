@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.views;
 
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.utils.BlurTransformation;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 
 import android.content.Context;

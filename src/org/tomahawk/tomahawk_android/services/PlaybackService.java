@@ -41,18 +41,18 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.utils.AudioFocusHelper;
-import org.tomahawk.tomahawk_android.utils.DeezerMediaPlayer;
+import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.MediaButtonHelper;
 import org.tomahawk.tomahawk_android.utils.MediaButtonReceiver;
 import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
 import org.tomahawk.tomahawk_android.utils.MusicFocusable;
-import org.tomahawk.tomahawk_android.utils.RdioMediaPlayer;
+import org.tomahawk.tomahawk_android.mediaplayers.RdioMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.RemoteControlClientCompat;
 import org.tomahawk.tomahawk_android.utils.RemoteControlHelper;
-import org.tomahawk.tomahawk_android.utils.SpotifyMediaPlayer;
+import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
-import org.tomahawk.tomahawk_android.utils.VLCMediaPlayer;
+import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
 import org.videolan.libvlc.EventHandler;
 
 import android.annotation.TargetApi;
@@ -644,7 +644,7 @@ public class PlaybackService extends Service
     }
 
     /**
-     * Called if given {@link org.tomahawk.tomahawk_android.utils.VLCMediaPlayer} has finished
+     * Called if given {@link org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer} has finished
      * playing a song. Prepare the next track if possible.
      */
     @Override
