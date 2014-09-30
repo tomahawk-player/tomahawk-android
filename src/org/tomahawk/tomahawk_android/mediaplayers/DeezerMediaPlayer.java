@@ -15,7 +15,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomahawk.tomahawk_android.utils;
+package org.tomahawk.tomahawk_android.mediaplayers;
 
 import com.deezer.sdk.network.request.event.DeezerError;
 import com.deezer.sdk.player.TrackPlayer;
@@ -30,6 +30,7 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.DeezerAuthenticatorUtils;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
 
 import android.app.Application;
 import android.media.MediaPlayer;

@@ -24,8 +24,8 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.GrayOutTransformation;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
-import org.tomahawk.tomahawk_android.views.BlurTransformation;
-import org.tomahawk.tomahawk_android.views.CircularImageTransformation;
+import org.tomahawk.tomahawk_android.utils.BlurTransformation;
+import org.tomahawk.tomahawk_android.utils.CircularImageTransformation;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;

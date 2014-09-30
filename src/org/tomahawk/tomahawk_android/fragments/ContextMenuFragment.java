@@ -32,7 +32,7 @@ import org.tomahawk.tomahawk_android.utils.AdapterUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.ShareUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
-import org.tomahawk.tomahawk_android.views.BlurTransformation;
+import org.tomahawk.tomahawk_android.utils.BlurTransformation;
 
 import android.content.Intent;
 import android.graphics.Bitmap;

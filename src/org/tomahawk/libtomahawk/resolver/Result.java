@@ -22,11 +22,11 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.utils.DeezerMediaPlayer;
+import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
-import org.tomahawk.tomahawk_android.utils.RdioMediaPlayer;
-import org.tomahawk.tomahawk_android.utils.SpotifyMediaPlayer;
-import org.tomahawk.tomahawk_android.utils.VLCMediaPlayer;
+import org.tomahawk.tomahawk_android.mediaplayers.RdioMediaPlayer;
+import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
+import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
 
 import android.text.TextUtils;
 
