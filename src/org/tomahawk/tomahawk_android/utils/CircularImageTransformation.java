@@ -22,7 +22,6 @@ import com.squareup.picasso.Transformation;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 
 public class CircularImageTransformation implements Transformation {
@@ -50,21 +49,8 @@ public class CircularImageTransformation implements Transformation {
 
         float r = size / 2f;
 
-        // Draw an underlying frame with a shadow
-        Paint framePaint = new Paint();
-        framePaint.setStrokeWidth(4);
-        framePaint.setStyle(Paint.Style.STROKE);
-        framePaint.setColor(Color.WHITE);
-        framePaint.setAntiAlias(true);
-        framePaint.setShadowLayer(5, 0, 0, Color.BLACK);
-        canvas.drawCircle(r, r, r - 6, framePaint);
-
         // Draw the actual round bitmap
-        canvas.drawCircle(r, r, r - 5, paint);
-
-        // Draw the white frame
-        framePaint.clearShadowLayer();
-        canvas.drawCircle(r, r, r - 6, framePaint);
+        canvas.drawCircle(r, r, r, paint);
 
         squaredBitmap.recycle();
         return bitmap;
