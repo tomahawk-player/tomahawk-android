@@ -655,14 +655,14 @@ public class TomahawkUtils {
                     .transform(new CircularImageTransformation())
                     .placeholder(placeHolder)
                     .error(placeHolder)
-                    .resize(width, width)
+                    .fit()
                     .into(imageView);
         } else {
             Picasso.with(context).load(placeHolder)
                     .transform(new CircularImageTransformation())
                     .placeholder(placeHolder)
                     .error(placeHolder)
-                    .resize(width, width)
+                    .fit()
                     .into(imageView);
         }
     }
