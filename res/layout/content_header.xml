@@ -42,7 +42,8 @@
             android:paddingLeft="@dimen/padding_medium"
             android:layout_marginLeft="@dimen/padding_megalarge"
             android:layout_marginRight="@dimen/padding_megalarge"
-            android:background="@color/tertiary_transparent"/>
+            android:background="@color/tertiary_transparent"
+            android:visibility="gone"/>
 
 
     <LinearLayout android:layout_width="match_parent"

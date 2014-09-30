@@ -191,7 +191,10 @@ public abstract class ContentHeaderFragment extends Fragment {
 
         //Now we fill the added views with data
         ViewHolder viewHolder = new ViewHolder(imageFrame, headerFrame, layoutId);
-        if (dynamic) {
+        if (item instanceof Integer) {
+            TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                    viewHolder.getImageView1(), (Integer) item);
+        } else if (dynamic) {
             View.OnClickListener listener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -214,9 +217,6 @@ public abstract class ContentHeaderFragment extends Fragment {
         } else {
             if (item instanceof Image) {
                 AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Image) item);
-            } else if (item instanceof Integer) {
-                TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
-                        viewHolder.getImageView1(), (Integer) item);
             } else if (item instanceof User) {
                 HatchetAuthenticatorUtils authUtils =
                         (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()

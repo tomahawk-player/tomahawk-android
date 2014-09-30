@@ -29,7 +29,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -198,9 +197,5 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
     @Override
     public long getHeaderId(int position) {
         return 0;
-    }
-
-    @Override
-    public void setShowContentHeaderSpacer(boolean showContentHeaderSpacer, ListView listView) {
     }
 }

@@ -165,6 +165,11 @@ public class CollectionFragment extends TomahawkFragment {
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
                     layoutInflater, segments, this);
+            if (!mDontShowHeader) {
+                tomahawkListAdapter.setShowContentHeaderSpacer(
+                        R.dimen.header_clear_space_scrollable_small,
+                        getListView().getWrappedList());
+            }
             setListAdapter(tomahawkListAdapter);
         } else {
             getListAdapter().setSegments(segments);

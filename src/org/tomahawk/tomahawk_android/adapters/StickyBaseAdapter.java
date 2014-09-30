@@ -25,6 +25,6 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
  * This class is used to populate a {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}.
  */
 public abstract class StickyBaseAdapter extends BaseAdapter
-        implements StickyListHeadersAdapter, ContentHeaderAdapter {
+        implements StickyListHeadersAdapter {
 
 }
