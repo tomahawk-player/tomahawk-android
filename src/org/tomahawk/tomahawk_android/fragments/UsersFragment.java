@@ -101,8 +101,8 @@ public class UsersFragment extends TomahawkFragment {
         } else if (mUser.getFollowings() != null && mUser.getFollowings().size() > 0) {
             users.addAll(mUser.getFollowings().keySet());
         }
-        Segment segment = new Segment(users, 3, R.dimen.padding_superlarge,
-                R.dimen.padding_superlarge);
+        Segment segment = new Segment(users, R.integer.grid_column_count,
+                R.dimen.padding_superlarge, R.dimen.padding_superlarge);
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
                     layoutInflater, segment, this);
