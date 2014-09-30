@@ -52,7 +52,7 @@ import java.util.Map;
 /**
  * This class is used to populate a {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}.
  */
-public class TomahawkListAdapter extends StickyBaseAdapter {
+public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHeaderAdapter {
 
     private TomahawkMainActivity mActivity;
 
@@ -78,7 +78,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
 
     private boolean mShowArtistAsSingleLine = false;
 
-    private boolean mShowContentHeaderSpacer = false;
+    private int mHeaderSpacerHeight = 0;
 
     private int mFooterSpacerHeight = 0;
 
@@ -127,8 +127,9 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
         notifyDataSetChanged();
     }
 
-    public void setShowContentHeaderSpacer(boolean showContentHeaderSpacer, ListView listView) {
-        mShowContentHeaderSpacer = showContentHeaderSpacer;
+    public void setShowContentHeaderSpacer(int headerSpacerHeightResId, ListView listView) {
+        mHeaderSpacerHeight = TomahawkApp.getContext().getResources()
+                .getDimensionPixelSize(headerSpacerHeightResId);
         updateFooterSpacerHeight(listView);
     }
 
@@ -201,7 +202,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
             view = convertView;
         }
         int viewType = getViewType(o, shouldBeHighlighted,
-                mShowContentHeaderSpacer && position == 0, position == getCount() - 1);
+                mHeaderSpacerHeight > 0 && position == 0, position == getCount() - 1);
         int expectedViewHoldersCount = 1;
         if (o instanceof List) {
             expectedViewHoldersCount = 0;
@@ -269,6 +270,9 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
             if (viewHolder.getLayoutId() == R.layout.content_footer_spacer) {
                 view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         mFooterSpacerHeight));
+            } else if (viewHolder.getLayoutId() == R.layout.content_header_spacer) {
+                view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        mHeaderSpacerHeight));
             } else if (viewHolder.getLayoutId() == R.layout.grid_item) {
                 viewHolder.getTextView1().setText(item.getName());
                 if (!(item instanceof User)) {
@@ -358,7 +362,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
      */
     @Override
     public int getCount() {
-        return mRowCount + (mShowContentHeaderSpacer ? 1 : 0) + 1;
+        return mRowCount + (mHeaderSpacerHeight > 0 ? 1 : 0) + 1;
     }
 
     /**
@@ -366,7 +370,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
      */
     @Override
     public Object getItem(int position) {
-        if (mShowContentHeaderSpacer) {
+        if (mHeaderSpacerHeight > 0) {
             if (position == 0) {
                 return null;
             } else {
@@ -387,7 +391,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
     }
 
     public Segment getSegment(int position) {
-        if (mShowContentHeaderSpacer) {
+        if (mHeaderSpacerHeight > 0) {
             if (position == 0) {
                 return null;
             } else {
@@ -508,7 +512,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
     }
 
     private void updateFooterSpacerHeight(final ListView listView) {
-        if (mShowContentHeaderSpacer) {
+        if (mHeaderSpacerHeight > 0) {
             listView.getViewTreeObserver().addOnGlobalLayoutListener(
                     new ViewTreeObserver.OnGlobalLayoutListener() {
                         @Override

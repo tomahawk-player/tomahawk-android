@@ -52,6 +52,7 @@ public class AdapterUtils {
     public static void fillContentHeader(Context context, ViewHolder viewHolder,
             final Album album, View.OnClickListener listener) {
         if (viewHolder.getTextView1() != null) {
+            viewHolder.getTextView1().setVisibility(View.VISIBLE);
             viewHolder.getTextView1().setText(album.getName().toUpperCase());
         }
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
@@ -64,6 +65,7 @@ public class AdapterUtils {
     public static void fillContentHeader(Context context, ViewHolder viewHolder,
             final Artist artist, View.OnClickListener listener) {
         if (viewHolder.getTextView1() != null) {
+            viewHolder.getTextView1().setVisibility(View.VISIBLE);
             viewHolder.getTextView1().setText(artist.getName().toUpperCase());
         }
         viewHolder.getImageView1().setVisibility(View.VISIBLE);
@@ -76,6 +78,7 @@ public class AdapterUtils {
     public static void fillContentHeader(Context context, ViewHolder viewHolder, Playlist playlist,
             ArrayList<Image> images) {
         if (viewHolder.getTextView1() != null) {
+            viewHolder.getTextView1().setVisibility(View.VISIBLE);
             viewHolder.getTextView1().setText(playlist.getName().toUpperCase());
         }
         if (images.size() > 3) {
@@ -118,6 +121,7 @@ public class AdapterUtils {
 
     public static void fillContentHeader(Context context, ViewHolder viewHolder, Query query) {
         if (viewHolder.getTextView1() != null) {
+            viewHolder.getTextView1().setVisibility(View.VISIBLE);
             viewHolder.getTextView1().setText(query.getName().toUpperCase());
         }
         viewHolder.getImageView1().setVisibility(View.VISIBLE);

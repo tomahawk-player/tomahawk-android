@@ -21,6 +21,6 @@ import android.widget.ListView;
 
 public interface ContentHeaderAdapter {
 
-    public void setShowContentHeaderSpacer(boolean showContentHeaderSpacer, ListView listView);
+    public void setShowContentHeaderSpacer(int headerSpacerHeightResId, ListView listView);
 
 }
