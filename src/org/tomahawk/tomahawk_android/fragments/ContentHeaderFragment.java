@@ -177,6 +177,15 @@ public abstract class ContentHeaderFragment extends Fragment {
                 setupTextViewAnimation(header);
                 setupButtonAnimation(header);
                 setupPageIndicatorAnimation(header);
+
+                //calculate the needed height for the content header
+                int headerHeight = getResources()
+                        .getDimensionPixelSize(R.dimen.header_clear_space_scrollable)
+                        + getResources()
+                        .getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable);
+                header.setLayoutParams(
+                        new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                headerHeight));
             }
         }
 
@@ -290,9 +299,8 @@ public abstract class ContentHeaderFragment extends Fragment {
             View indicatorView = view.findViewById(R.id.page_indicator_container);
             if (indicatorView != null) {
                 Resources resources = TomahawkApp.getContext().getResources();
-                int offset = resources.getDimensionPixelSize(
-                        R.dimen.header_clear_space_nonscrollable_pager)
-                        - resources.getDimensionPixelSize(R.dimen.pager_indicator_height);
+                int offset =
+                        resources.getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable);
                 mPageIndicatorAnim = ObjectAnimator.ofFloat(indicatorView, "y", offset)
                         .setDuration(10000);
                 mPageIndicatorAnim.setInterpolator(new LinearInterpolator());

@@ -44,41 +44,52 @@
             android:layout_marginRight="@dimen/padding_megalarge"
             android:background="@color/tertiary_transparent"/>
 
-    <FrameLayout
-            android:id="@+id/content_header_more_button"
-            android:layout_width="@dimen/show_context_menu_icon_height"
-            android:layout_height="@dimen/show_context_menu_icon_height"
-            android:layout_gravity="bottom|right"
-            android:layout_marginRight="@dimen/padding_large"
-            android:layout_marginBottom="@dimen/padding_megalarge"
-            android:clickable="true"
-            android:background="@drawable/circle"
-            android:visibility="gone">
 
-        <ImageView android:layout_width="@dimen/show_context_menu_icon_height_more"
-                   android:layout_height="@dimen/show_context_menu_icon_height_more"
-                   android:layout_gravity="center"
-                   android:src="@drawable/ic_action_more"/>
-
-    </FrameLayout>
-
-    <LinearLayout android:id="@+id/page_indicator_container"
-                  android:layout_width="match_parent"
-                  android:layout_height="@dimen/pager_indicator_height"
-                  android:orientation="vertical"
-                  android:visibility="gone">
-
-        <org.tomahawk.tomahawk_android.views.PageIndicator
-                android:id="@+id/page_indicator"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:paddingLeft="@dimen/padding_superlarge"
-                android:paddingRight="@dimen/padding_superlarge"/>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:orientation="vertical">
 
         <View android:layout_width="match_parent"
-              android:layout_height="@dimen/divider_height_thick"
-              android:background="@drawable/above_shadow"/>
+              android:layout_height="0dp"
+              android:layout_weight="1"/>
+
+        <FrameLayout
+                android:id="@+id/content_header_more_button"
+                android:layout_width="@dimen/show_context_menu_icon_height"
+                android:layout_height="@dimen/show_context_menu_icon_height"
+                android:layout_gravity="bottom|right"
+                android:layout_marginRight="@dimen/padding_large"
+                android:layout_marginBottom="@dimen/padding_large"
+                android:clickable="true"
+                android:background="@drawable/circle"
+                android:visibility="gone">
+
+            <ImageView android:layout_width="@dimen/show_context_menu_icon_height_more"
+                       android:layout_height="@dimen/show_context_menu_icon_height_more"
+                       android:layout_gravity="center"
+                       android:src="@drawable/ic_action_more"/>
+
+        </FrameLayout>
+
+        <LinearLayout android:id="@+id/page_indicator_container"
+                      android:layout_width="match_parent"
+                      android:layout_height="@dimen/pager_indicator_height"
+                      android:orientation="vertical"
+                      android:visibility="gone">
+
+            <org.tomahawk.tomahawk_android.views.PageIndicator
+                    android:id="@+id/page_indicator"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:paddingLeft="@dimen/padding_superlarge"
+                    android:paddingRight="@dimen/padding_superlarge"/>
+
+            <View android:layout_width="match_parent"
+                  android:layout_height="@dimen/divider_height_thick"
+                  android:background="@drawable/above_shadow"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 

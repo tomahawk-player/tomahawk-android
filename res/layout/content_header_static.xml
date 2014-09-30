@@ -21,11 +21,12 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:id="@+id/content_header_static"
              android:layout_width="match_parent"
-             android:layout_height="wrap_content">
+             android:layout_height="@dimen/header_clear_space_nonscrollable_static">
 
     <LinearLayout android:id="@+id/page_indicator_container"
                   android:layout_width="match_parent"
                   android:layout_height="@dimen/pager_indicator_height"
+                  android:layout_gravity="bottom"
                   android:orientation="vertical"
                   android:visibility="gone">
 

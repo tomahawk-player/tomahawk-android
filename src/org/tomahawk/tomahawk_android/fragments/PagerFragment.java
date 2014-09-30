@@ -176,8 +176,8 @@ public abstract class PagerFragment extends ContentHeaderFragment {
         FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) scrollView.getLayoutParams();
         int offset;
         if (mHasScrollableHeader) {
-            offset = getResources()
-                    .getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable_pager);
+            offset = getResources().getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable)
+                    + getResources().getDimensionPixelSize(R.dimen.pager_indicator_height);
         } else {
             offset = mStaticHeaderHeight;
         }
@@ -201,20 +201,6 @@ public abstract class PagerFragment extends ContentHeaderFragment {
 
         LinearLayout pageIndicatorContainer =
                 (LinearLayout) getView().findViewById(R.id.page_indicator_container);
-        FrameLayout.LayoutParams indicatorParams =
-                (FrameLayout.LayoutParams) pageIndicatorContainer.getLayoutParams();
-        int margin;
-        if (mHasScrollableHeader) {
-            margin = getResources()
-                    .getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable_pager)
-                    + getResources().getDimensionPixelSize(R.dimen.header_clear_space_scrollable)
-                    - getResources().getDimensionPixelSize(R.dimen.pager_indicator_height);
-        } else {
-            margin = mStaticHeaderHeight
-                    - getResources().getDimensionPixelSize(R.dimen.pager_indicator_height);
-        }
-        indicatorParams.setMargins(0, margin, 0, 0);
-        pageIndicatorContainer.setLayoutParams(indicatorParams);
         pageIndicatorContainer.setVisibility(View.VISIBLE);
         PageIndicator pageIndicator =
                 (PageIndicator) pageIndicatorContainer.findViewById(R.id.page_indicator);
@@ -225,9 +211,10 @@ public abstract class PagerFragment extends ContentHeaderFragment {
             final TomahawkScrollView scrollView =
                     (TomahawkScrollView) getView().findViewById(R.id.scrollview);
             View pagerClearSpace = scrollView.findViewById(R.id.pager_clear_space);
+            int height = getResources().getDimensionPixelSize(R.dimen.header_clear_space_scrollable)
+                    - getResources().getDimensionPixelSize(R.dimen.pager_indicator_height);
             pagerClearSpace.setLayoutParams(new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, getResources()
-                    .getDimensionPixelSize(R.dimen.header_clear_space_scrollable)));
+                    LinearLayout.LayoutParams.MATCH_PARENT, height));
             scrollView.getViewTreeObserver().addOnGlobalLayoutListener(
                     new ViewTreeObserver.OnGlobalLayoutListener() {
                         @Override
@@ -248,7 +235,8 @@ public abstract class PagerFragment extends ContentHeaderFragment {
                         public void onScrollChanged() {
                             if (getView() != null) {
                                 int offset = getResources().getDimensionPixelSize(
-                                        R.dimen.header_clear_space_scrollable);
+                                        R.dimen.header_clear_space_scrollable) - getResources()
+                                        .getDimensionPixelSize(R.dimen.pager_indicator_height);
                                 float delta = getView().findViewById(R.id.scrollview).getScrollY();
                                 animateContentHeader((int) (delta / offset * 10000f));
                             }
