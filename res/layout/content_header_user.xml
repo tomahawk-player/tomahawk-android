@@ -41,13 +41,11 @@
                 android:layout_width="0dp"
                 android:layout_height="@dimen/header_roundedimage_height"
                 android:layout_weight="1"
-                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical"
                 android:ellipsize="marquee"
                 android:singleLine="true"
                 android:textColor="@color/primary_textcolor_inverted"
                 android:textSize="@dimen/text_size_verylarge"
-                android:paddingTop="@dimen/padding_medium"
-                android:paddingBottom="@dimen/padding_medium"
                 android:paddingRight="@dimen/padding_large"
                 android:paddingLeft="@dimen/padding_large"/>
 
