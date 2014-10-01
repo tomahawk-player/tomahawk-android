@@ -5,5 +5,6 @@
     <dimen name="header_clear_space_scrollable_small">128dp</dimen>
     <dimen name="header_clear_space_nonscrollable_static">128dp</dimen>
     <dimen name="header_clear_space_nonscrollable_static_user">168dp</dimen>
+    <dimen name="header_clear_space_nonscrollable">128dp</dimen>
 
 </resources>
