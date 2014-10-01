@@ -122,9 +122,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
     public void setSegments(Segment segment) {
         ArrayList<Segment> segments = new ArrayList<Segment>();
         segments.add(segment);
-        mSegments = segments;
-        mRowCount = segment.size();
-        notifyDataSetChanged();
+        setSegments(segments);
     }
 
     public void setShowContentHeaderSpacer(int headerSpacerHeightResId, ListView listView) {
