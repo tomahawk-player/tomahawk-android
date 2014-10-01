@@ -4,6 +4,7 @@
     <dimen name="header_clear_space_scrollable">150dp</dimen>
     <dimen name="header_clear_space_nonscrollable_static">72dp</dimen>
     <dimen name="header_clear_space_nonscrollable_static_user">104dp</dimen>
+    <dimen name="header_clear_space_nonscrollable">104dp</dimen>
     <dimen name="header_roundedimage_height">32dp</dimen>
 
 </resources>
