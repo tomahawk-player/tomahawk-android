@@ -1,0 +1,8 @@
+[main]
+host = https://www.transifex.net
+
+[tomahawk-android.master]
+file_filter = res/values-<lang>/strings.xml
+source_file = res/values/strings.xml
+source_lang = en
+type = ANDROID
