@@ -3,5 +3,6 @@
 
     <dimen name="header_clear_space_scrollable">438dp</dimen>
     <dimen name="header_clear_space_scrollable_small">128dp</dimen>
+    <dimen name="header_clear_space_nonscrollable_static">128dp</dimen>
 
 </resources>
