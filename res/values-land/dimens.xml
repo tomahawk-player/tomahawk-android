@@ -2,5 +2,6 @@
 <resources>
 
     <dimen name="header_clear_space_scrollable">150dp</dimen>
+    <dimen name="header_clear_space_nonscrollable_static">72dp</dimen>
 
 </resources>
