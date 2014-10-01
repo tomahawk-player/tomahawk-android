@@ -27,7 +27,7 @@
 
     <dimen name="header_spinner_height">48dp</dimen>
     <dimen name="header_clear_space_nonscrollable_static">96dp</dimen>
-    <dimen name="header_clear_space_nonscrollable_static_user">168dp</dimen>
+    <dimen name="header_clear_space_nonscrollable_static_user">136dp</dimen>
     <dimen name="header_clear_space_nonscrollable">120dp</dimen>
     <dimen name="header_clear_space_nonscrollable_selector">64dp</dimen>
     <dimen name="header_clear_space_scrollable">208dp</dimen>
