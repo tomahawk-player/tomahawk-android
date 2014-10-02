@@ -188,23 +188,23 @@ public class AuthenticatorManager {
                 break;
             case CONFIG_TEST_RESULT_TYPE_INVALIDCREDS:
                 message = componentName + ": " + TomahawkApp.getContext().getString(
-                        R.string.config_test_result_type_invalid_credentials);
+                        R.string.error_invalid_credentials);
                 break;
             case CONFIG_TEST_RESULT_TYPE_INVALIDACCOUNT:
                 message = componentName + ": " + TomahawkApp.getContext().getString(
-                        R.string.auth_loginfailed_invalid_account);
+                        R.string.error_invalid_account);
                 break;
             case CONFIG_TEST_RESULT_TYPE_COMMERROR:
                 message = componentName + ": " + TomahawkApp.getContext().getString(
-                        R.string.auth_loginfailed_communication_error);
+                        R.string.error_communication);
                 break;
             case CONFIG_TEST_RESULT_TYPE_PLAYINGELSEWHERE:
                 message = componentName + ": " + TomahawkApp.getContext().getString(
-                        R.string.auth_loginfailed_playing_elsewhere);
+                        R.string.error_simultaneous_streams);
                 break;
             case CONFIG_TEST_RESULT_TYPE_ACCOUNTEXPIRED:
                 message = componentName + ": " + TomahawkApp.getContext().getString(
-                        R.string.auth_loginfailed_account_expired);
+                        R.string.error_account_expired);
                 break;
             default:
                 message = componentName + ": " + message;

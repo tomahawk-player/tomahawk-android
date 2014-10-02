@@ -125,7 +125,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 refreshCurrentPlaylist();
             } else {
                 playlistEntries.addAll(mPlaylist.getEntries());
-                Segment segment = new Segment(R.string.segmentheader_playlist, playlistEntries);
+                Segment segment = new Segment(R.string.playlist_details, playlistEntries);
                 if (getListAdapter() == null) {
                     tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater,
                             segment, this);

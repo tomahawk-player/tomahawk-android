@@ -453,8 +453,8 @@ public class PlaybackFragment extends TomahawkFragment {
                 mToast.cancel();
             }
             mToast = Toast.makeText(getActivity(), getString(playbackService.isShuffled()
-                    ? R.string.playbackactivity_toastshuffleon_string
-                    : R.string.playbackactivity_toastshuffleoff_string), Toast.LENGTH_SHORT);
+                    ? R.string.shuffle_on_label
+                    : R.string.shuffle_off_label), Toast.LENGTH_SHORT);
             mToast.show();
         }
     }
@@ -472,8 +472,8 @@ public class PlaybackFragment extends TomahawkFragment {
                 mToast.cancel();
             }
             mToast = Toast.makeText(getActivity(), getString(playbackService.isRepeating()
-                    ? R.string.playbackactivity_toastrepeaton_string
-                    : R.string.playbackactivity_toastrepeatoff_string), Toast.LENGTH_SHORT);
+                    ? R.string.repeat_on_label
+                    : R.string.repeat_off_label), Toast.LENGTH_SHORT);
             mToast.show();
         }
     }

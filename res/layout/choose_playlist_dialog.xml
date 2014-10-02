@@ -55,7 +55,7 @@
                 android:padding="@dimen/padding_small"
                 android:singleLine="true"
                 android:textColor="@color/primary_textcolor"
-                android:text="@string/playbackactivity_create_playlist_dialog_title"
+                android:text="@string/create_playlist"
                 android:textSize="@dimen/text_size_large"/>
     </LinearLayout>
 

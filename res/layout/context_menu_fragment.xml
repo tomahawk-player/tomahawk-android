@@ -115,7 +115,7 @@
                                   android:textSize="@dimen/text_size_small"
                                   android:singleLine="true"
                                   android:textColor="@color/primary_textcolor_inverted"
-                                  android:text="@string/context_menu_addtoplaylist"/>
+                                  android:text="@string/context_menu_add_to_playlist"/>
 
                     </LinearLayout>
 

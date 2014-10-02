@@ -157,7 +157,7 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
                         .durationToString(mPlaybackService.getCurrentTrack().getDuration()));
             } else {
                 mTextViewCompletionTime.setText(getResources()
-                        .getString(R.string.playbackactivity_seekbar_completion_time_string));
+                        .getString(R.string.seekbar_completion_time));
             }
         }
     }

@@ -108,7 +108,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        getActivity().setTitle(getString(R.string.hub_title_settings).toUpperCase());
+        getActivity().setTitle(getString(R.string.drawer_title_settings).toUpperCase());
 
         setActionBarOffset();
 
@@ -119,18 +119,18 @@ public class FakePreferenceFragment extends TomahawkListFragment
         // Set up the set of FakePreferences to be shown in this Fragment
         mFakePreferenceGroups = new ArrayList<FakePreferenceGroup>();
         FakePreferenceGroup prefGroup = new FakePreferenceGroup(
-                getString(R.string.fakepreference_accounts_header));
+                getString(R.string.preferences_services));
         prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
                 FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH,
                 TomahawkApp.PLUGINNAME_HATCHET,
                 getString(R.string.hatchet_pretty_name),
-                getString(R.string.fakepreference_hatchetlogin_summary_string),
+                getString(R.string.preferences_hatchet_text),
                 R.drawable.ic_hatchet));
         prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
                 FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH,
                 TomahawkApp.PLUGINNAME_SPOTIFY,
                 getString(R.string.spotify_pretty_name),
-                getString(R.string.fakepreference_spotifylogin_summary_string),
+                getString(R.string.preferences_spotify_text),
                 R.drawable.ic_spotify));
         for (ScriptResolver scriptResolver : PipeLine.getInstance().getScriptResolvers()) {
             if (!scriptResolver.getId().contains("-metadata")) {
@@ -140,27 +140,27 @@ public class FakePreferenceFragment extends TomahawkListFragment
             }
         }
         mFakePreferenceGroups.add(prefGroup);
-        prefGroup = new FakePreferenceGroup(getString(R.string.fakepreference_playback_header));
+        prefGroup = new FakePreferenceGroup(getString(R.string.preferences_playback));
         prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
                 FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX,
                 FAKEPREFERENCEFRAGMENT_ID_PLUGINTOPLAY,
                 FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY,
-                getString(R.string.fakepreference_plugintoplay_title_string),
-                getString(R.string.fakepreference_plugintoplay_summary_string)));
+                getString(R.string.preferences_plug_and_play),
+                getString(R.string.preferences_plug_and_play_text)));
         prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
                 FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX,
                 FAKEPREFERENCEFRAGMENT_ID_SCROBBLEEVERYTHING,
                 FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING,
-                getString(R.string.fakepreference_scrobble_title_string),
-                getString(R.string.fakepreference_scrobble_summary_string)));
+                getString(R.string.preferences_playback_data),
+                getString(R.string.preferences_playback_data_text)));
         prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
                 FakePreferenceGroup.FAKEPREFERENCE_TYPE_SPINNER,
                 FAKEPREFERENCEFRAGMENT_ID_PREFBITRATE,
                 FAKEPREFERENCEFRAGMENT_KEY_PREFBITRATE,
-                getString(R.string.fakepreference_bitrate_title_string),
-                getString(R.string.fakepreference_bitrate_summary_string)));
+                getString(R.string.preferences_audio_quality),
+                getString(R.string.preferences_audio_quality_text)));
         mFakePreferenceGroups.add(prefGroup);
-        prefGroup = new FakePreferenceGroup(getString(R.string.fakepreference_info_header));
+        prefGroup = new FakePreferenceGroup(getString(R.string.preferences_info));
         String versionName = "";
         try {
             if (getActivity().getPackageManager() != null) {
@@ -175,7 +175,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
                 FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN,
                 FAKEPREFERENCEFRAGMENT_ID_APPVERSION,
                 FAKEPREFERENCEFRAGMENT_KEY_APPVERSION,
-                getString(R.string.fakepreference_appversion_title_string), versionName));
+                getString(R.string.preferences_app_version), versionName));
         mFakePreferenceGroups.add(prefGroup);
 
         // Now we can push the complete set of FakePreferences into our FakePreferencesAdapter,

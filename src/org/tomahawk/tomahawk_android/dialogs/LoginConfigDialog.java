@@ -92,7 +92,7 @@ public class LoginConfigDialog extends ConfigDialog {
         addViewToFrame(usernameLayout);
         LinearLayout passwordLayout = (LinearLayout) inflater.inflate(R.layout.config_text, null);
         mPasswordEditText = (ConfigEdittext) passwordLayout.findViewById(R.id.config_edittext);
-        mPasswordEditText.setHint(R.string.logindialog_password_label_string);
+        mPasswordEditText.setHint(R.string.login_password);
         mPasswordEditText.setTypeface(Typeface.DEFAULT);
         mPasswordEditText.setTransformationMethod(new PasswordTransformationMethod());
         mPasswordEditText.setOnEditorActionListener(mOnKeyboardEnterListener);

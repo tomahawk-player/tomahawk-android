@@ -55,7 +55,7 @@ public class PlaylistsFragment extends TomahawkFragment {
         CollectionManager.getInstance().fetchPlaylists();
 
         if (mContainerFragmentClass == null) {
-            getActivity().setTitle(getString(R.string.hub_title_playlists).toUpperCase());
+            getActivity().setTitle(getString(R.string.drawer_title_playlists).toUpperCase());
         }
         if (!mDontShowHeader) {
             showContentHeader(R.drawable.playlists_header);
@@ -80,7 +80,7 @@ public class PlaylistsFragment extends TomahawkFragment {
                     bundle);
         } else {
             new CreatePlaylistDialog().show(getFragmentManager(),
-                    getString(R.string.playbackactivity_create_playlist_dialog_title));
+                    getString(R.string.create_playlist));
         }
     }
 

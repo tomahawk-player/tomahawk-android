@@ -430,7 +430,7 @@ public class CollectionManager {
                 String userName = AuthenticatorManager.getInstance()
                         .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET).getUserName();
                 fetchedList.setName(userName + TomahawkApp.getContext()
-                        .getString(R.string.users_lovedtracks_suffix));
+                        .getString(R.string.users_favorites_suffix));
                 fetchedList.setId(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID);
                 Log.d(TAG, "Hatchet sync - received list of loved tracks, count: "
                         + fetchedList.getEntries().size());

@@ -125,40 +125,40 @@ public class TomahawkContextMenuAdapter extends BaseAdapter {
         }
 
         if (item instanceof Playlist) {
-            menuItems.add(mContext.getString(R.string.fake_context_menu_play));
-            menuItems.add(mContext.getString(R.string.fake_context_menu_addtoqueue));
-            menuItems.add(mContext.getString(R.string.fake_context_menu_addtoplaylist));
+            menuItems.add(mContext.getString(R.string.context_menu_play));
+            menuItems.add(mContext.getString(R.string.context_menu_add_to_queue));
+            menuItems.add(mContext.getString(R.string.context_menu_add_to_playlist));
             if (showDelete) {
-                menuItems.add(mContext.getString(R.string.fake_context_menu_delete));
+                menuItems.add(mContext.getString(R.string.context_menu_delete));
             }
         } else if (item instanceof Query) {
             Query query = ((Query) item);
             if (query.isPlayable()) {
-                menuItems.add(mContext.getString(R.string.fake_context_menu_play));
+                menuItems.add(mContext.getString(R.string.context_menu_play));
                 menuItems
-                        .add(mContext.getString(R.string.fake_context_menu_addtoqueue));
-                menuItems.add(mContext.getString(R.string.fake_context_menu_addtoplaylist));
+                        .add(mContext.getString(R.string.context_menu_add_to_queue));
+                menuItems.add(mContext.getString(R.string.context_menu_add_to_playlist));
             }
             menuItems.add(mContext.getString(R.string.menu_item_share));
             menuItems.add(mContext.getString(R.string.menu_item_go_to_artist));
             menuItems.add(mContext.getString(R.string.menu_item_go_to_album));
             if (DatabaseHelper.getInstance().isItemLoved(query)) {
-                menuItems.add(mContext.getString(R.string.fake_context_menu_unlove_track));
+                menuItems.add(mContext.getString(R.string.context_menu_unlove_track));
             } else {
-                menuItems.add(mContext.getString(R.string.fake_context_menu_love_track));
+                menuItems.add(mContext.getString(R.string.context_menu_love_track));
             }
             if (showDelete) {
-                menuItems.add(mContext.getString(R.string.fake_context_menu_delete));
+                menuItems.add(mContext.getString(R.string.context_menu_delete));
             }
         } else if (item instanceof Artist) {
-            menuItems.add(mContext.getString(R.string.fake_context_menu_play));
-            menuItems.add(mContext.getString(R.string.fake_context_menu_addtoqueue));
-            menuItems.add(mContext.getString(R.string.fake_context_menu_addtoplaylist));
+            menuItems.add(mContext.getString(R.string.context_menu_play));
+            menuItems.add(mContext.getString(R.string.context_menu_add_to_queue));
+            menuItems.add(mContext.getString(R.string.context_menu_add_to_playlist));
             menuItems.add(mContext.getString(R.string.menu_item_share));
         } else if (item instanceof Album) {
-            menuItems.add(mContext.getString(R.string.fake_context_menu_play));
-            menuItems.add(mContext.getString(R.string.fake_context_menu_addtoqueue));
-            menuItems.add(mContext.getString(R.string.fake_context_menu_addtoplaylist));
+            menuItems.add(mContext.getString(R.string.context_menu_play));
+            menuItems.add(mContext.getString(R.string.context_menu_add_to_queue));
+            menuItems.add(mContext.getString(R.string.context_menu_add_to_playlist));
             menuItems.add(mContext.getString(R.string.menu_item_share));
             menuItems.add(mContext.getString(R.string.menu_item_go_to_artist));
         }

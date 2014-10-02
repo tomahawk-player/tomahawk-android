@@ -237,7 +237,7 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
 
     @Override
     public int getUserIdEditTextHintResId() {
-        return R.string.logindialog_emailorusername_label_string;
+        return R.string.login_name_label;
     }
 
     @Override
