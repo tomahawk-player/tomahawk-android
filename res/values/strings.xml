@@ -1,203 +1,183 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!--
-/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
- *
- *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
- *   Copyright 2012, Christopher Reichert <creichert07@gmail.com>
- *
- *   Tomahawk is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   (at your option) any later version.
- *
- *   Tomahawk is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
- */
--->
 <resources>
-    <string name="appname_string">Tomahawk</string>
-    <string name="scrobblingservice_string">Tomahawk Scrobbling-Service</string>
-    <string name="mainactivity_title_string">Tomahawk</string>
-    <string name="ok">OK</string>
-    <string name="cancel">Cancel</string>
-    <string name="login">Login</string>
-    <string name="logout">Logout</string>
-    <string name="register">Register</string>
-    <string name="favoritesfragment_title_string">"Favorites"</string>
-    <string name="tracksfragment_title_string">Tracks</string>
-    <string name="albumsfragment_title_string">Albums</string>
-    <string name="artistsfragment_title_string">Artists</string>
-    <string name="playlistsfragment_title_string">Playlists</string>
-    <string name="userfragment_title_string">Users</string>
-    <string name="segmentheader_tophits">TOP HITS</string>
-    <string name="segmentheader_topalbums">TOP ALBUMS</string>
-    <string name="segmentheader_recentlyplayed">RECENTLY PLAYED</string>
-    <string name="segmentheader_playlist">PLAYLIST DETAILS</string>
-    <string name="segmentheader_album">ALBUM DETAILS</string>
-    <string name="searchfragment_title_string">Search</string>
-    <string name="searchfragment_searchforonlinesources">Also search online</string>
-    <string name="searchfragment_searchtype">Search for</string>
-    <string name="playbackfragment_title_string">Playback</string>
-    <string name="playbackplaylistfragment_title_string">Playlist</string>
-    <string name="playbackactivity_seekbar_completion_time_string">-:--</string>
-    <string name="playbackactivity_seekbar_current_time_string">0:00</string>
-    <string name="playbackactivity_toastshuffleon_string">"Shuffle is on"</string>
-    <string name="playbackactivity_toastshuffleoff_string">"Shuffle is off"</string>
-    <string name="playbackactivity_toastrepeaton_string">"Repeat is on"</string>
-    <string name="playbackactivity_toastrepeatoff_string">"Repeat is off"</string>
-    <string name="playbackactivity_unknown_string">"&lt;unknown&gt;"</string>
-    <string name="playbackactivity_no_track">"&lt;no track&gt;"</string>
-    <string name="playbackactivity_save_playlist_dialog_title">"Save the current playlist"</string>
-    <string name="playbackactivity_create_playlist_dialog_title">"Create a new playlist"</string>
-    <string name="playbackactivity_playlist_dialog_name_hint">"Name"</string>
-    <string name="logindialog_emailorusername_label_string">E-Mail/Username</string>
-    <string name="logindialog_username_label_string">Username</string>
-    <string name="logindialog_password_label_string">Password</string>
-    <string name="logindialog_password_confirmation_label_string">Password confirmation</string>
-    <string name="logindialog_email_label_string">E-Mail (optional)</string>
-    <string name="accounttype_string">org.tomahawk</string>
-    <string name="error_field_required">This field is required</string>
-    <string name="error_passwords_dont_match">Passwords don\'t match</string>
-    <string name="config_test_result_type_invalid_credentials">Username or password incorrect.
+  <string name="appname_string">Tomahawk</string>
+  <string name="scrobblingservice_string">Tomahawk Scrobbling-Service</string>
+  <string name="mainactivity_title_string">Tomahawk</string>
+  <string name="ok">OK</string>
+  <string name="cancel">Cancel</string>
+  <string name="login">Login</string>
+  <string name="logout">Logout</string>
+  <string name="register">Register</string>
+  <string name="favoritesfragment_title_string">Favorites</string>
+  <string name="tracksfragment_title_string">Tracks</string>
+  <string name="albumsfragment_title_string">Albums</string>
+  <string name="artistsfragment_title_string">Artists</string>
+  <string name="playlistsfragment_title_string">Playlists</string>
+  <string name="userfragment_title_string">Users</string>
+  <string name="segmentheader_tophits">TOP HITS</string>
+  <string name="segmentheader_topalbums">TOP ALBUMS</string>
+  <string name="segmentheader_recentlyplayed">RECENTLY PLAYED</string>
+  <string name="segmentheader_playlist">PLAYLIST DETAILS</string>
+  <string name="segmentheader_album">ALBUM DETAILS</string>
+  <string name="searchfragment_title_string">Search</string>
+  <string name="searchfragment_searchforonlinesources">Also search online</string>
+  <string name="searchfragment_searchtype">Search for</string>
+  <string name="playbackfragment_title_string">Playback</string>
+  <string name="playbackplaylistfragment_title_string">Playlist</string>
+  <string name="playbackactivity_seekbar_completion_time_string">-:--</string>
+  <string name="playbackactivity_seekbar_current_time_string">0:00</string>
+  <string name="playbackactivity_toastshuffleon_string">Shuffle is on</string>
+  <string name="playbackactivity_toastshuffleoff_string">Shuffle is off</string>
+  <string name="playbackactivity_toastrepeaton_string">Repeat is on</string>
+  <string name="playbackactivity_toastrepeatoff_string">Repeat is off</string>
+  <string name="playbackactivity_unknown_string">&lt;unknown&gt;</string>
+  <string name="playbackactivity_no_track">&lt;no track&gt;</string>
+  <string name="playbackactivity_save_playlist_dialog_title">Save the current playlist</string>
+  <string name="playbackactivity_create_playlist_dialog_title">Create a new playlist</string>
+  <string name="playbackactivity_playlist_dialog_name_hint">Name</string>
+  <string name="logindialog_emailorusername_label_string">E-Mail/Username</string>
+  <string name="logindialog_username_label_string">Username</string>
+  <string name="logindialog_password_label_string">Password</string>
+  <string name="logindialog_password_confirmation_label_string">Password confirmation</string>
+  <string name="logindialog_email_label_string">E-Mail (optional)</string>
+  <string name="accounttype_string">org.tomahawk</string>
+  <string name="error_field_required">This field is required</string>
+  <string name="error_passwords_dont_match">Passwords don\'t match</string>
+  <string name="config_test_result_type_invalid_credentials">Username or password incorrect.
     </string>
-    <string name="auth_loginfailed_invalid_account">Account rejected by server.</string>
-    <string name="auth_loginfailed_communication_error">Unable to authenticate. Please check
+  <string name="auth_loginfailed_invalid_account">Account rejected by server.</string>
+  <string name="auth_loginfailed_communication_error">Unable to authenticate. Please check
         your connection.
     </string>
-    <string name="auth_loginfailed_playing_elsewhere">Action not allowed, account is in use
+  <string name="auth_loginfailed_playing_elsewhere">Action not allowed, account is in use
         elsewhere.
     </string>
-    <string name="auth_loginfailed_account_expired">Your account has expired.</string>
-    <string name="auth_logged_in">Logged into</string>
-    <string name="auth_logged_out">Logged out of</string>
-    <string name="local_collection_pretty_name">Local Collection</string>
-    <string name="hatchet_pretty_name">Hatchet</string>
-    <string name="spotify_pretty_name">Spotify</string>
-    <string name="rdio_pretty_name">Rdio</string>
-    <string name="deezer_pretty_name">Deezer</string>
-    <string name="fakepreference_accounts_header">SERVICES</string>
-    <string name="fakepreference_hatchetlogin_summary_string">Sync your data with Hatchet.
+  <string name="auth_loginfailed_account_expired">Your account has expired.</string>
+  <string name="auth_logged_in">Logged into</string>
+  <string name="auth_logged_out">Logged out of</string>
+  <string name="local_collection_pretty_name">Local Collection</string>
+  <string name="hatchet_pretty_name">Hatchet</string>
+  <string name="spotify_pretty_name">Spotify</string>
+  <string name="rdio_pretty_name">Rdio</string>
+  <string name="deezer_pretty_name">Deezer</string>
+  <string name="fakepreference_accounts_header">SERVICES</string>
+  <string name="fakepreference_hatchetlogin_summary_string">Sync your data with Hatchet.
     </string>
-    <string name="fakepreference_spotifylogin_summary_string">Play your music from Spotify. Requires
+  <string name="fakepreference_spotifylogin_summary_string">Play your music from Spotify. Requires
         a Premium account.
     </string>
-    <string name="fakepreference_playback_header">PLAYBACK</string>
-    <string name="fakepreference_scrobble_title_string">Scrobble Everything</string>
-    <string name="fakepreference_scrobble_summary_string">Scrobble every track from every music
+  <string name="fakepreference_playback_header">PLAYBACK</string>
+  <string name="fakepreference_scrobble_title_string">Scrobble Everything</string>
+  <string name="fakepreference_scrobble_summary_string">Scrobble every track from every music
         player app on the phone to Hatchet.
     </string>
-    <string name="fakepreference_plugintoplay_title_string">Plug In to Play</string>
-    <string name="fakepreference_plugintoplay_summary_string">Starts playing music
+  <string name="fakepreference_plugintoplay_title_string">Plug In to Play</string>
+  <string name="fakepreference_plugintoplay_summary_string">Starts playing music
         as soon as a headset is connected.
     </string>
-    <string name="fakepreference_bitrate_title_string">Preferred Audio Quality</string>
-    <string name="fakepreference_bitrate_summary_string">The preferred audio quality if not
+  <string name="fakepreference_bitrate_title_string">Preferred Audio Quality</string>
+  <string name="fakepreference_bitrate_summary_string">The preferred audio quality if not
         connected to WiFi.
     </string>
-    <string name="fakepreference_info_header">INFO</string>
-    <string name="fakepreference_appversion_title_string">App-Version</string>
-    <string name="crash_dialog_title">Tomahawk has crashed</string>
-    <string name="crash_dialog_text">An unexpected error occurred forcing the
+  <string name="fakepreference_info_header">INFO</string>
+  <string name="fakepreference_appversion_title_string">App-Version</string>
+  <string name="crash_dialog_title">Tomahawk has crashed</string>
+  <string name="crash_dialog_text">An unexpected error occurred forcing the
         application to stop. Please help us fix this by sending us error data,
         all you have to do is click OK.
     </string>
-    <string name="crash_dialog_comment_prompt">You might add your comments about the problem
+  <string name="crash_dialog_comment_prompt">You might add your comments about the problem
         below:
     </string>
-    <string name="crash_dialog_ok_toast">Thank you !</string>
-    <string name="fake_context_menu_play">Play</string>
-    <string name="fake_context_menu_addtoqueue">Add to Queue</string>
-    <string name="fake_context_menu_addtoplaylist">Add to Playlist</string>
-    <string name="fake_context_menu_love_track">Love Track</string>
-    <string name="fake_context_menu_unlove_track">Unlove Track</string>
-    <string name="fake_context_menu_delete">Delete</string>
-    <string name="context_menu_addtocollection">In Your Collection</string>
-    <string name="context_menu_favorite">Favorite</string>
-    <string name="context_menu_addtoplaylist">Add to a Playlist</string>
-    <string name="context_menu_share">Share</string>
-    <string name="context_menu_gotoartist">Go to Artist</string>
-    <string name="menu_item_save_playlist">Save Playlist</string>
-    <string name="menu_item_go_to_artist">Go to Artist</string>
-    <string name="menu_item_go_to_album">Go to Album</string>
-    <string name="menu_item_share">Share</string>
-    <string name="menu_item_playshuffled">Play Shuffled</string>
-    <string name="share_default_prefix">#musthear</string>
-    <string name="hub_title_feed">Feed</string>
-    <string name="hub_title_collection">Collection</string>
-    <string name="hub_title_playlists">Playlists</string>
-    <string name="hub_title_lovedtracks">Favorites</string>
-    <string name="hub_title_settings">Settings</string>
-    <string name="collection_dropdown_recently_added">RECENTLY ADDED</string>
-    <string name="collection_dropdown_artist">ARTIST</string>
-    <string name="collection_dropdown_play_count">PLAY COUNT</string>
-    <string name="history">History</string>
-    <string name="fake_preferences_bitrate_low">Normal</string>
-    <string name="fake_preferences_bitrate_medium">Good</string>
-    <string name="fake_preferences_bitrate_high">Best</string>
-    <string name="drawer_open">Open Navigation Drawer</string>
-    <string name="drawer_close">Close Navigation Drawer</string>
-    <string name="category_header_track">Track</string>
-    <string name="category_header_tophit">Top Song</string>
-    <string name="category_header_album">Album</string>
-    <string name="category_header_activityfeed">Activity Feed</string>
-    <string name="content_header_plays">PLAYS</string>
-    <string name="content_header_following">FOLLOWING</string>
-    <string name="content_header_followers">FOLLOWERS</string>
-    <string name="content_header_nowplaying">Now Playing:</string>
-    <string name="content_header_follow">Follow</string>
-    <string name="content_header_unfollow">Unfollow</string>
-    <string name="socialaction_type_follow_true">is now following</string>
-    <string name="socialaction_type_love_track_true">loved a track:</string>
-    <string name="socialaction_type_love_track_false">is all out of love for</string>
-    <string name="socialaction_type_starred_true">starred</string>
-    <string name="socialaction_type_starred_false">unstarred</string>
-    <string name="socialaction_type_createcomment">commented on</string>
-    <string name="socialaction_type_latchon">listened along to</string>
-    <string name="socialaction_type_latchoff">stopped listening along to</string>
-    <string name="socialaction_type_createplaylist">created a playlist</string>
-    <string name="socialaction_type_deletedplaylist">deleted a playlist</string>
-    <string name="album_by_artist">by</string>
-    <string name="time_ago">ago</string>
-    <string name="time_afewseconds">a few seconds</string>
-    <string name="time_aminute">a minute</string>
-    <string name="time_anhour">an hour</string>
-    <string name="time_aday">a day</string>
-    <string name="time_minutes">minutes</string>
-    <string name="time_hours">hours</string>
-    <string name="time_days">days</string>
-    <string name="users_playbacklog_suffix">\'s recently played</string>
-    <string name="users_followings_suffix">is following</string>
-    <string name="users_followers_suffix">is followed by</string>
-    <string name="users_lovedtracks_suffix">\'s Loved Tracks</string>
-    <string name="loved_tracks">Loved Tracks</string>
-    <string name="starred_albums">Starred Albums</string>
-    <string name="starred_artists">Starred Artists</string>
-    <string name="music">Music</string>
-    <string name="biography">Biography</string>
-    <string name="similar">Similar</string>
-    <string name="artists">Artists</string>
-    <string name="albums">Albums</string>
-    <string name="songs">Songs</string>
-    <string name="users">Users</string>
-    <string name="activity">Activity</string>
-    <string name="followers">Followers</string>
-    <string name="following">Following</string>
-    <string name="resolver_config_redirect_button_text_log_into">Log into</string>
-    <string name="resolver_config_redirect_button_text_log_out_of">Log out of</string>
-    <string name="ask_access_activity_header">Want to automatically scrobble all tracks you play to
+  <string name="crash_dialog_ok_toast">Thank you !</string>
+  <string name="fake_context_menu_play">Play</string>
+  <string name="fake_context_menu_addtoqueue">Add to Queue</string>
+  <string name="fake_context_menu_addtoplaylist">Add to Playlist</string>
+  <string name="fake_context_menu_love_track">Love Track</string>
+  <string name="fake_context_menu_unlove_track">Unlove Track</string>
+  <string name="fake_context_menu_delete">Delete</string>
+  <string name="context_menu_addtocollection">In Your Collection</string>
+  <string name="context_menu_favorite">Favorite</string>
+  <string name="context_menu_addtoplaylist">Add to a Playlist</string>
+  <string name="context_menu_share">Share</string>
+  <string name="context_menu_gotoartist">Go to Artist</string>
+  <string name="menu_item_save_playlist">Save Playlist</string>
+  <string name="menu_item_go_to_artist">Go to Artist</string>
+  <string name="menu_item_go_to_album">Go to Album</string>
+  <string name="menu_item_share">Share</string>
+  <string name="menu_item_playshuffled">Play Shuffled</string>
+  <string name="share_default_prefix">#musthear</string>
+  <string name="hub_title_feed">Feed</string>
+  <string name="hub_title_collection">Collection</string>
+  <string name="hub_title_playlists">Playlists</string>
+  <string name="hub_title_lovedtracks">Favorites</string>
+  <string name="hub_title_settings">Settings</string>
+  <string name="collection_dropdown_recently_added">RECENTLY ADDED</string>
+  <string name="collection_dropdown_artist">ARTIST</string>
+  <string name="collection_dropdown_play_count">PLAY COUNT</string>
+  <string name="history">History</string>
+  <string name="fake_preferences_bitrate_low">Normal</string>
+  <string name="fake_preferences_bitrate_medium">Good</string>
+  <string name="fake_preferences_bitrate_high">Best</string>
+  <string name="drawer_open">Open Navigation Drawer</string>
+  <string name="drawer_close">Close Navigation Drawer</string>
+  <string name="category_header_track">Track</string>
+  <string name="category_header_tophit">Top Song</string>
+  <string name="category_header_album">Album</string>
+  <string name="category_header_activityfeed">Activity Feed</string>
+  <string name="content_header_plays">PLAYS</string>
+  <string name="content_header_following">FOLLOWING</string>
+  <string name="content_header_followers">FOLLOWERS</string>
+  <string name="content_header_nowplaying">Now Playing:</string>
+  <string name="content_header_follow">Follow</string>
+  <string name="content_header_unfollow">Unfollow</string>
+  <string name="socialaction_type_follow_true">is now following</string>
+  <string name="socialaction_type_love_track_true">loved a track:</string>
+  <string name="socialaction_type_love_track_false">is all out of love for</string>
+  <string name="socialaction_type_starred_true">starred</string>
+  <string name="socialaction_type_starred_false">unstarred</string>
+  <string name="socialaction_type_createcomment">commented on</string>
+  <string name="socialaction_type_latchon">listened along to</string>
+  <string name="socialaction_type_latchoff">stopped listening along to</string>
+  <string name="socialaction_type_createplaylist">created a playlist</string>
+  <string name="socialaction_type_deletedplaylist">deleted a playlist</string>
+  <string name="album_by_artist">by</string>
+  <string name="time_ago">ago</string>
+  <string name="time_afewseconds">a few seconds</string>
+  <string name="time_aminute">a minute</string>
+  <string name="time_anhour">an hour</string>
+  <string name="time_aday">a day</string>
+  <string name="time_minutes">minutes</string>
+  <string name="time_hours">hours</string>
+  <string name="time_days">days</string>
+  <string name="users_playbacklog_suffix">\'s recently played</string>
+  <string name="users_followings_suffix">is following</string>
+  <string name="users_followers_suffix">is followed by</string>
+  <string name="users_lovedtracks_suffix">\'s Loved Tracks</string>
+  <string name="loved_tracks">Loved Tracks</string>
+  <string name="starred_albums">Starred Albums</string>
+  <string name="starred_artists">Starred Artists</string>
+  <string name="music">Music</string>
+  <string name="biography">Biography</string>
+  <string name="similar">Similar</string>
+  <string name="artists">Artists</string>
+  <string name="albums">Albums</string>
+  <string name="songs">Songs</string>
+  <string name="users">Users</string>
+  <string name="activity">Activity</string>
+  <string name="followers">Followers</string>
+  <string name="following">Following</string>
+  <string name="resolver_config_redirect_button_text_log_into">Log into</string>
+  <string name="resolver_config_redirect_button_text_log_out_of">Log out of</string>
+  <string name="ask_access_activity_header">Want to automatically scrobble all tracks you play to
         Hatchet?
     </string>
-    <string name="ask_access_activity_text1">We\'ll do that for you! Please enable our service in
+  <string name="ask_access_activity_text1">We\'ll do that for you! Please enable our service in
         your system settings.
     </string>
-    <string name="ask_access_activity_text2">(You can disable this whenever you want in Tomahawk\'s
+  <string name="ask_access_activity_text2">(You can disable this whenever you want in Tomahawk\'s
         settings)
     </string>
-    <string name="ask_access_activity_button_text">Go to Settings</string>
-    <string name="button_open_queue_text">QUEUE</string>
+  <string name="ask_access_activity_button_text">Go to Settings</string>
+  <string name="button_open_queue_text">QUEUE</string>
 </resources>
