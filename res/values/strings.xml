@@ -98,7 +98,6 @@
   <string name="context_menu_delete">Delete</string>
   <string name="context_menu_addtocollection">In Your Collection</string>
   <string name="context_menu_favorite">Favorite</string>
-  <string name="context_menu_add_to_playlist">Add to a Playlist</string>
   <string name="context_menu_share">Share</string>
   <string name="context_menu_gotoartist">Go to Artist</string>
   <string name="menu_item_save_playlist">Save Playlist</string>
@@ -160,10 +159,7 @@
   <string name="music">Music</string>
   <string name="biography">Biography</string>
   <string name="similar">Similar</string>
-  <string name="artists">Artists</string>
-  <string name="albums">Albums</string>
   <string name="songs">Songs</string>
-  <string name="users">Users</string>
   <string name="activity">Activity</string>
   <string name="followers">Followers</string>
   <string name="following">Following</string>
