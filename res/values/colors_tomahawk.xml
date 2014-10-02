@@ -22,7 +22,6 @@
     <color name="tomahawk_red">#FFe23a2e</color>
     <color name="tomahawk_red_transparent">#DDe23a2e</color>
     <color name="divider">#3B3F45</color>
-    <color name="listview_divider">#FFc2c1bf</color>
     <color name="primary_background">#FFffffff</color>
     <color name="secondary_background">#FF777777</color>
     <color name="primary_background_inverted">#FF0f0f11</color>
@@ -37,8 +36,4 @@
     <color name="primary_textcolor_inverted">#FFffffff</color>
     <color name="secondary_textcolor_inverted">#FF777777</color>
 
-    <color name="menu_icon_background_dashboard">#FF63b2dc</color>
-    <color name="menu_icon_background_collection">#FF707be1</color>
-    <color name="menu_icon_background_lovedtracks">#FFf4875c</color>
-    <color name="menu_icon_background_playlists">#FFdadb7d</color>
     </resources>
