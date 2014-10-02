@@ -101,7 +101,7 @@ public class RegisterConfigDialog extends ConfigDialog {
         addViewToFrame(passwordConfirmationLayout);
         LinearLayout emailLayout = (LinearLayout) inflater.inflate(R.layout.config_text, null);
         mMailEditText = (ConfigEdittext) emailLayout.findViewById(R.id.config_edittext);
-        mMailEditText.setHint(R.string.account_email);
+        mMailEditText.setHint(R.string.account_email_label);
         mMailEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
         addViewToFrame(emailLayout);
 

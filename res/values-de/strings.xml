@@ -1,58 +1,58 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name">Tomahawk</string>
-  <string name="playback_data_service">Tomahawk Scrobbler-Service</string>
-  <string name="app_title">Tomahawk</string>
+  <string name="appname_string">Tomahawk</string>
+  <string name="scrobblingservice_string">Tomahawk Scrobbler-Service</string>
+  <string name="mainactivity_title_string">Tomahawk</string>
   <string name="ok">OK</string>
   <string name="cancel">Abbrechen</string>
   <string name="login">Anmelden</string>
   <string name="logout">Abmelden</string>
   <string name="register">Registrieren</string>
-  <string name="favorites">Favoriten</string>
-  <string name="tracks">Lieder</string>
-  <string name="albums">Alben</string>
-  <string name="artists">Künstler</string>
-  <string name="playlists">Playlisten</string>
-  <string name="users">Benutzer</string>
-  <string name="top_hits">TOP HITS</string>
-  <string name="top_albums">TOP ALBEN</string>
-  <string name="recently_played">KÜRZLICH GESPIELT</string>
-  <string name="playlist_details">PLAYLIST DETAILS</string>
-  <string name="album_details">ALBUM DETAILS</string>
-  <string name="search">Suche</string>
-  <string name="search_online_toggle">Auch online suchen</string>
-  <string name="search_type">Suche nach</string>
-  <string name="playback">Wiedergabe</string>
-  <string name="playlist">Playlist</string>
-  <string name="seekbar_completion_time">-:--</string>
-  <string name="seekbar_current_time">0:00</string>
-  <string name="shuffle_on_label">Zufallswiedergabe ist an</string>
-  <string name="shuffle_off_label">Zufallswiedergabe ist aus</string>
-  <string name="repeat_on_label">Wiederholen ist an</string>
-  <string name="repeat_off_label">Wiederholen ist aus</string>
-  <string name="unknown">&lt;unbekannt&gt;</string>
-  <string name="no_track">&lt;kein Lied&gt;</string>
-  <string name="save_playlist">Die aktuelle Playlist speichern</string>
-  <string name="create_playlist">Eine neue Playlist erstellen</string>
-  <string name="name_playlist">Name</string>
-  <string name="login_name_label">E-Mail/Benutzername</string>
-  <string name="login_username">Benutzername</string>
-  <string name="login_password">Passwort</string>
-  <string name="login_password_confirmation">Passwort bestätigen</string>
-  <string name="account_email">E-Mail (optional)</string>
+  <string name="favoritesfragment_title_string">Favoriten</string>
+  <string name="tracksfragment_title_string">Lieder</string>
+  <string name="albumsfragment_title_string">Alben</string>
+  <string name="artistsfragment_title_string">Künstler</string>
+  <string name="playlistsfragment_title_string">Playlisten</string>
+  <string name="userfragment_title_string">Benutzer</string>
+  <string name="segmentheader_tophits">TOP HITS</string>
+  <string name="segmentheader_topalbums">TOP ALBEN</string>
+  <string name="segmentheader_recentlyplayed">KÜRZLICH GESPIELT</string>
+  <string name="segmentheader_playlist">PLAYLIST DETAILS</string>
+  <string name="segmentheader_album">ALBUM DETAILS</string>
+  <string name="searchfragment_title_string">Suche</string>
+  <string name="searchfragment_searchforonlinesources">Auch online suchen</string>
+  <string name="searchfragment_searchtype">Suche nach</string>
+  <string name="playbackfragment_title_string">Wiedergabe</string>
+  <string name="playbackplaylistfragment_title_string">Playlist</string>
+  <string name="playbackactivity_seekbar_completion_time_string">-:--</string>
+  <string name="playbackactivity_seekbar_current_time_string">0:00</string>
+  <string name="playbackactivity_toastshuffleon_string">Zufallswiedergabe ist an</string>
+  <string name="playbackactivity_toastshuffleoff_string">Zufallswiedergabe ist aus</string>
+  <string name="playbackactivity_toastrepeaton_string">Wiederholen ist an</string>
+  <string name="playbackactivity_toastrepeatoff_string">Wiederholen ist aus</string>
+  <string name="playbackactivity_unknown_string">&lt;unbekannt&gt;</string>
+  <string name="playbackactivity_no_track">&lt;kein Lied&gt;</string>
+  <string name="playbackactivity_save_playlist_dialog_title">Die aktuelle Playlist speichern</string>
+  <string name="playbackactivity_create_playlist_dialog_title">Eine neue Playlist erstellen</string>
+  <string name="playbackactivity_playlist_dialog_name_hint">Name</string>
+  <string name="logindialog_emailorusername_label_string">E-Mail/Benutzername</string>
+  <string name="logindialog_username_label_string">Benutzername</string>
+  <string name="logindialog_password_label_string">Passwort</string>
+  <string name="logindialog_password_confirmation_label_string">Passwort bestätigen</string>
+  <string name="logindialog_email_label_string">E-Mail (optional)</string>
   <string name="accounttype_string">org.tomahawk</string>
   <string name="error_field_required">Dieses Feld ist erforderlich</string>
   <string name="error_passwords_dont_match">Passwörter stimmen nicht überein</string>
-  <string name="error_invalid_credentials">Benutzername oder Passwort falsch.
+  <string name="config_test_result_type_invalid_credentials">Benutzername oder Passwort falsch.
 </string>
-  <string name="error_invalid_account">Konto wurde vom Server zurückgewiesen.</string>
-  <string name="error_communication">Authentifizierung nicht möglich. Bitte überprüfe
+  <string name="auth_loginfailed_invalid_account">Konto wurde vom Server zurückgewiesen.</string>
+  <string name="auth_loginfailed_communication_error">Authentifizierung nicht möglich. Bitte überprüfe
 deine Verbindung.
 </string>
-  <string name="error_simultaneous_streams">Aktion nicht erlaubt, das Konto woanders
+  <string name="auth_loginfailed_playing_elsewhere">Aktion nicht erlaubt, das Konto woanders
 ist in Benutzung.
 </string>
-  <string name="error_account_expired">Dein Konto ist abgelaufen.</string>
+  <string name="auth_loginfailed_account_expired">Dein Konto ist abgelaufen.</string>
   <string name="auth_logged_in">Angemeldet bei</string>
   <string name="auth_logged_out">Abgemeldet von</string>
   <string name="local_collection_pretty_name">Lokale Sammlung</string>
@@ -60,27 +60,27 @@ ist in Benutzung.
   <string name="spotify_pretty_name">Spotify</string>
   <string name="rdio_pretty_name">Rdio</string>
   <string name="deezer_pretty_name">Deezer</string>
-  <string name="preferences_services">DIENSTE</string>
-  <string name="preferences_hatchet_text">Synchronisiere deine Daten mit Hatchet.
+  <string name="fakepreference_accounts_header">DIENSTE</string>
+  <string name="fakepreference_hatchetlogin_summary_string">Synchronisiere deine Daten mit Hatchet.
 </string>
-  <string name="preferences_spotify_text">Spiele deine Musik von Spotify. Benötigt
+  <string name="fakepreference_spotifylogin_summary_string">Spiele deine Musik von Spotify. Benötigt
 ein Premium-Konto.
 </string>
-  <string name="preferences_playback">WIEDERGABE</string>
-  <string name="preferences_playback_data">Scrobble alles</string>
-  <string name="preferences_playback_data_text">Scrobble jedes Lied von allen deiner
+  <string name="fakepreference_playback_header">WIEDERGABE</string>
+  <string name="fakepreference_scrobble_title_string">Scrobble alles</string>
+  <string name="fakepreference_scrobble_summary_string">Scrobble jedes Lied von allen deiner
 Musik-Apps auf deinem Smartphone zu Hatchet.
 </string>
-  <string name="preferences_plug_and_play">Abspielen beim Anschließen</string>
-  <string name="preferences_plug_and_play_text">Spielt Musik ab,
+  <string name="fakepreference_plugintoplay_title_string">Abspielen beim Anschließen</string>
+  <string name="fakepreference_plugintoplay_summary_string">Spielt Musik ab,
 sobald ein Headset angeschlossen ist.
 </string>
-  <string name="preferences_audio_quality">Bevorzugte Audio-Qualität</string>
-  <string name="preferences_audio_quality_text">Die bevorzugte Audio-Qualität, wenn
+  <string name="fakepreference_bitrate_title_string">Bevorzugte Audio-Qualität</string>
+  <string name="fakepreference_bitrate_summary_string">Die bevorzugte Audio-Qualität, wenn
 keine WLAN-Verbindung besteht.
 </string>
-  <string name="preferences_info">INFO</string>
-  <string name="preferences_app_version">App-Version</string>
+  <string name="fakepreference_info_header">INFO</string>
+  <string name="fakepreference_appversion_title_string">App-Version</string>
   <string name="crash_dialog_title">Tomahawk ist abgestürzt</string>
   <string name="crash_dialog_text">Ein unerwarteter Fehler ist eingetreten und hat
 die Anwendung beendet. Bitte hilf uns den Fehler zu beheben, indem du
@@ -88,15 +88,15 @@ uns den Absturzbericht zusendest und dafür einfach auf OK klickst.</string>
   <string name="crash_dialog_comment_prompt">Wenn du möchtest, kannst du einen Kommentar zu diesem
 Problem hinzufügen:</string>
   <string name="crash_dialog_ok_toast">Vielen Dank!</string>
-  <string name="context_menu_play">Abspielen</string>
-  <string name="context_menu_add_to_queue">Zur Warteschlange hinzufügen</string>
-  <string name="context_menu_add_to_playlist">Zur Playlist hinzufügen</string>
-  <string name="context_menu_love_track">Lieblingslied</string>
-  <string name="context_menu_unlove_track">Kein Lieblingslied</string>
-  <string name="context_menu_delete">Löschen</string>
+  <string name="fake_context_menu_play">Abspielen</string>
+  <string name="fake_context_menu_addtoqueue">Zur Warteschlange hinzufügen</string>
+  <string name="fake_context_menu_addtoplaylist">Zur Playlist hinzufügen</string>
+  <string name="fake_context_menu_love_track">Lieblingslied</string>
+  <string name="fake_context_menu_unlove_track">Kein Lieblingslied</string>
+  <string name="fake_context_menu_delete">Löschen</string>
   <string name="context_menu_addtocollection">In deiner Sammlung</string>
   <string name="context_menu_favorite">Favorit</string>
-  <string name="context_menu_add_to_playlist">Zu einer Playlist hinzufügen</string>
+  <string name="context_menu_addtoplaylist">Zu einer Playlist hinzufügen</string>
   <string name="context_menu_share">Teilen</string>
   <string name="context_menu_gotoartist">Gehe zum Künstler</string>
   <string name="menu_item_save_playlist">Playlist speichern</string>
@@ -105,22 +105,22 @@ Problem hinzufügen:</string>
   <string name="menu_item_share">Teilen</string>
   <string name="menu_item_playshuffled">Zufällig wiedergeben</string>
   <string name="share_default_prefix">#musthear</string>
-  <string name="drawer_title_feed">Feed</string>
-  <string name="drawer_title_collection">Sammlung</string>
-  <string name="drawer_title_playlists">Playlisten</string>
-  <string name="drawer_title_lovedtracks">Favoriten</string>
-  <string name="drawer_title_settings">Einstellungen</string>
+  <string name="hub_title_feed">Feed</string>
+  <string name="hub_title_collection">Sammlung</string>
+  <string name="hub_title_playlists">Playlisten</string>
+  <string name="hub_title_lovedtracks">Favoriten</string>
+  <string name="hub_title_settings">Einstellungen</string>
   <string name="collection_dropdown_recently_added">KÜRZLICH HINZUGEFÜGT</string>
   <string name="collection_dropdown_artist">KÜNSTLER</string>
   <string name="collection_dropdown_play_count">WIEDERGABEANZAHL</string>
   <string name="history">Chronik</string>
-  <string name="preferences_bitrate_low">Normal</string>
-  <string name="preferences_bitrate_medium">Gut</string>
-  <string name="preferences_bitrate_high">Beste</string>
+  <string name="fake_preferences_bitrate_low">Normal</string>
+  <string name="fake_preferences_bitrate_medium">Gut</string>
+  <string name="fake_preferences_bitrate_high">Beste</string>
   <string name="drawer_open">Öffne Navigations-Tab</string>
   <string name="drawer_close">Schließe Navigations-Tab</string>
   <string name="category_header_track">Lied</string>
-  <string name="category_header_tophits">Top Song</string>
+  <string name="category_header_tophit">Top Song</string>
   <string name="category_header_album">Album</string>
   <string name="category_header_activityfeed">Aktivitäten Feed</string>
   <string name="content_header_plays">Lieder</string>
@@ -149,9 +149,9 @@ Problem hinzufügen:</string>
   <string name="time_hours">Stunden</string>
   <string name="time_days">Tage</string>
   <string name="users_playbacklog_suffix">\'s kürzlich gespielte Lieder</string>
-  <string name="users_following_suffix">folgt</string>
+  <string name="users_followings_suffix">folgt</string>
   <string name="users_followers_suffix">folgen</string>
-  <string name="users_favorites_suffix">\'s Lieblingslieder</string>
+  <string name="users_lovedtracks_suffix">\'s Lieblingslieder</string>
   <string name="loved_tracks">Lieblingslieder</string>
   <string name="starred_albums">Markierte Alben</string>
   <string name="starred_artists">Markierte Künstler</string>

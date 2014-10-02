@@ -1,54 +1,54 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name">Tomahawk</string>
-  <string name="playback_data_service">Služba odesílání údajů o přehrávání</string>
-  <string name="app_title">Tomahawk</string>
+  <string name="appname_string">Tomahawk</string>
+  <string name="scrobblingservice_string">Služba odesílání údajů o přehrávání</string>
+  <string name="mainactivity_title_string">Tomahawk</string>
   <string name="ok">OK</string>
   <string name="cancel">Zrušit</string>
   <string name="login">Přihlášení</string>
   <string name="logout">Odhlášení</string>
   <string name="register">Registrace</string>
-  <string name="favorites">Oblíbené</string>
-  <string name="tracks">Skladby</string>
-  <string name="albums">Alba</string>
-  <string name="artists">Umělci</string>
-  <string name="playlists">Seznamy skladeb</string>
-  <string name="users">Uživatelé</string>
-  <string name="top_hits">Nejlepší skladby</string>
-  <string name="top_albums">Nejlepší alba</string>
-  <string name="recently_played">Nedávno hráno</string>
-  <string name="playlist_details">Podrobnosti seznamu</string>
-  <string name="album_details">Podrobnosti alba</string>
-  <string name="search">Hledat</string>
-  <string name="search_online_toggle">Hledat na internetu</string>
-  <string name="search_type">Hledat</string>
-  <string name="playback">Přehrávání</string>
-  <string name="playlist">Seznam skladeb</string>
-  <string name="seekbar_completion_time">-:--</string>
-  <string name="seekbar_current_time">0:00</string>
-  <string name="shuffle_on_label">Míchání zapnuto</string>
-  <string name="shuffle_off_label">Míchání vypnuto</string>
-  <string name="repeat_on_label">Opakování zapnuto</string>
-  <string name="repeat_off_label">Opakování vypnuto</string>
-  <string name="unknown">&lt;neznámý&gt;</string>
-  <string name="no_track">&lt;žádná skladba&gt;</string>
-  <string name="save_playlist">Uložit nynější seznam skladeb</string>
-  <string name="create_playlist">Vytvořit nový seznam skladeb</string>
-  <string name="name_playlist">Název</string>
-  <string name="login_name_label">E-Mail/Uživatelské jméno</string>
-  <string name="login_username">Uživatelské jméno</string>
-  <string name="login_password">Heslo</string>
-  <string name="login_password_confirmation">Potvrzení hesla</string>
-  <string name="account_email">E-Mail (volitelné)</string>
+  <string name="favoritesfragment_title_string">Oblíbené</string>
+  <string name="tracksfragment_title_string">Skladby</string>
+  <string name="albumsfragment_title_string">Alba</string>
+  <string name="artistsfragment_title_string">Umělci</string>
+  <string name="playlistsfragment_title_string">Seznamy skladeb</string>
+  <string name="userfragment_title_string">Uživatelé</string>
+  <string name="segmentheader_tophits">Nejlepší skladby</string>
+  <string name="segmentheader_topalbums">Nejlepší alba</string>
+  <string name="segmentheader_recentlyplayed">Nedávno hráno</string>
+  <string name="segmentheader_playlist">Podrobnosti seznamu</string>
+  <string name="segmentheader_album">Podrobnosti alba</string>
+  <string name="searchfragment_title_string">Hledat</string>
+  <string name="searchfragment_searchforonlinesources">Hledat na internetu</string>
+  <string name="searchfragment_searchtype">Hledat</string>
+  <string name="playbackfragment_title_string">Přehrávání</string>
+  <string name="playbackplaylistfragment_title_string">Seznam skladeb</string>
+  <string name="playbackactivity_seekbar_completion_time_string">-:--</string>
+  <string name="playbackactivity_seekbar_current_time_string">0:00</string>
+  <string name="playbackactivity_toastshuffleon_string">Míchání zapnuto</string>
+  <string name="playbackactivity_toastshuffleoff_string">Míchání vypnuto</string>
+  <string name="playbackactivity_toastrepeaton_string">Opakování zapnuto</string>
+  <string name="playbackactivity_toastrepeatoff_string">Opakování vypnuto</string>
+  <string name="playbackactivity_unknown_string">&lt;neznámý&gt;</string>
+  <string name="playbackactivity_no_track">&lt;žádná skladba&gt;</string>
+  <string name="playbackactivity_save_playlist_dialog_title">Uložit nynější seznam skladeb</string>
+  <string name="playbackactivity_create_playlist_dialog_title">Vytvořit nový seznam skladeb</string>
+  <string name="playbackactivity_playlist_dialog_name_hint">Název</string>
+  <string name="logindialog_emailorusername_label_string">E-Mail/Uživatelské jméno</string>
+  <string name="logindialog_username_label_string">Uživatelské jméno</string>
+  <string name="logindialog_password_label_string">Heslo</string>
+  <string name="logindialog_password_confirmation_label_string">Potvrzení hesla</string>
+  <string name="logindialog_email_label_string">E-Mail (volitelné)</string>
   <string name="accounttype_string">org.tomahawk</string>
   <string name="error_field_required">Toto pole je požadováno</string>
   <string name="error_passwords_dont_match">Heslo nesouhlasí</string>
-  <string name="error_invalid_credentials">Uživatelské jméno nebo heslo neodpovídá.</string>
-  <string name="error_invalid_account">Účet odmítnut serverem.</string>
-  <string name="error_communication">Nelze ověřit. Prověřte, prosím,
+  <string name="config_test_result_type_invalid_credentials">Uživatelské jméno nebo heslo neodpovídá.</string>
+  <string name="auth_loginfailed_invalid_account">Účet odmítnut serverem.</string>
+  <string name="auth_loginfailed_communication_error">Nelze ověřit. Prověřte, prosím,
 své připojení.</string>
-  <string name="error_simultaneous_streams">Činnost nepovolena. Účet je již používán.</string>
-  <string name="error_account_expired">Váš účet vypršel.</string>
+  <string name="auth_loginfailed_playing_elsewhere">Činnost nepovolena. Účet je již používán.</string>
+  <string name="auth_loginfailed_account_expired">Váš účet vypršel.</string>
   <string name="auth_logged_in">Přihlášen</string>
   <string name="auth_logged_out">Odhlášen</string>
   <string name="local_collection_pretty_name">Místní sbírka</string>
@@ -56,27 +56,27 @@ své připojení.</string>
   <string name="spotify_pretty_name">Spotify</string>
   <string name="rdio_pretty_name">Rdio</string>
   <string name="deezer_pretty_name">Deezer</string>
-  <string name="preferences_services">Služby</string>
-  <string name="preferences_hatchet_text">Seřídit data s Hatchet.
+  <string name="fakepreference_accounts_header">Služby</string>
+  <string name="fakepreference_hatchetlogin_summary_string">Seřídit data s Hatchet.
     </string>
-  <string name="preferences_spotify_text">Přehrávejte svoji hudbu ze Spotify. Vyžaduje
+  <string name="fakepreference_spotifylogin_summary_string">Přehrávejte svoji hudbu ze Spotify. Vyžaduje
 účet Premium.
     </string>
-  <string name="preferences_playback">Přehrávání</string>
-  <string name="preferences_playback_data">Odesílat údaje o všem</string>
-  <string name="preferences_playback_data_text">Odesílat údaje o každé skladbě z každého
+  <string name="fakepreference_playback_header">Přehrávání</string>
+  <string name="fakepreference_scrobble_title_string">Odesílat údaje o všem</string>
+  <string name="fakepreference_scrobble_summary_string">Odesílat údaje o každé skladbě z každého
 hudebního přehrávače v telefonu Hatchet.
     </string>
-  <string name="preferences_plug_and_play">Zastrčit pro přehrávání</string>
-  <string name="preferences_plug_and_play_text">Začne s přehráváním hudby,
+  <string name="fakepreference_plugintoplay_title_string">Zastrčit pro přehrávání</string>
+  <string name="fakepreference_plugintoplay_summary_string">Začne s přehráváním hudby,
 jakmile jsou sluchátka připojena.
     </string>
-  <string name="preferences_audio_quality">Upřednostňovaná jakost zvuku</string>
-  <string name="preferences_audio_quality_text">Upřednostňovaná jakost zvuku, pokud
+  <string name="fakepreference_bitrate_title_string">Upřednostňovaná jakost zvuku</string>
+  <string name="fakepreference_bitrate_summary_string">Upřednostňovaná jakost zvuku, pokud
         není připojeno k WiFi.
     </string>
-  <string name="preferences_info">Informace</string>
-  <string name="preferences_app_version">Verze</string>
+  <string name="fakepreference_info_header">Informace</string>
+  <string name="fakepreference_appversion_title_string">Verze</string>
   <string name="crash_dialog_title">Tomahawk spadl</string>
   <string name="crash_dialog_text">Neočekávaná chyba vedla k zastavení programu.
 Pomozte nám ji, prosím, opravit tím, že pošlete údaje o chybě.
@@ -86,15 +86,15 @@ Vše, co musíte udělat, je klepnout na OK.
 o potížích:
     </string>
   <string name="crash_dialog_ok_toast">Děkujeme!</string>
-  <string name="context_menu_play">Přehrát</string>
-  <string name="context_menu_add_to_queue">Zařadit</string>
-  <string name="context_menu_add_to_playlist">Přidat do seznamu skladeb</string>
-  <string name="context_menu_love_track">Nejmilejší píseň</string>
-  <string name="context_menu_unlove_track">Zrušit oblibu písně</string>
-  <string name="context_menu_delete">Smazat</string>
+  <string name="fake_context_menu_play">Přehrát</string>
+  <string name="fake_context_menu_addtoqueue">Zařadit</string>
+  <string name="fake_context_menu_addtoplaylist">Přidat do seznamu skladeb</string>
+  <string name="fake_context_menu_love_track">Nejmilejší píseň</string>
+  <string name="fake_context_menu_unlove_track">Zrušit oblibu písně</string>
+  <string name="fake_context_menu_delete">Smazat</string>
   <string name="context_menu_addtocollection">Ve vaší sbírce</string>
   <string name="context_menu_favorite">Oblíbené</string>
-  <string name="context_menu_add_to_playlist">Přidat do seznamu skladeb</string>
+  <string name="context_menu_addtoplaylist">Přidat do seznamu skladeb</string>
   <string name="context_menu_share">Sdílet</string>
   <string name="context_menu_gotoartist">Jít na umělce</string>
   <string name="menu_item_save_playlist">Uložit seznam skladeb</string>
@@ -103,22 +103,22 @@ o potížích:
   <string name="menu_item_share">Sdílet</string>
   <string name="menu_item_playshuffled">Přehrávat zamíchané</string>
   <string name="share_default_prefix">#musthear</string>
-  <string name="drawer_title_feed">Kanál</string>
-  <string name="drawer_title_collection">Sbírka</string>
-  <string name="drawer_title_playlists">Seznamy skladeb</string>
-  <string name="drawer_title_lovedtracks">Oblíbené</string>
-  <string name="drawer_title_settings">Nastavení</string>
+  <string name="hub_title_feed">Kanál</string>
+  <string name="hub_title_collection">Sbírka</string>
+  <string name="hub_title_playlists">Seznamy skladeb</string>
+  <string name="hub_title_lovedtracks">Oblíbené</string>
+  <string name="hub_title_settings">Nastavení</string>
   <string name="collection_dropdown_recently_added">Nedávno přidáno</string>
   <string name="collection_dropdown_artist">Umělec</string>
   <string name="collection_dropdown_play_count">Počet přehrání</string>
   <string name="history">Historie</string>
-  <string name="preferences_bitrate_low">Normální</string>
-  <string name="preferences_bitrate_medium">Dobré</string>
-  <string name="preferences_bitrate_high">Nejlepší</string>
+  <string name="fake_preferences_bitrate_low">Normální</string>
+  <string name="fake_preferences_bitrate_medium">Dobré</string>
+  <string name="fake_preferences_bitrate_high">Nejlepší</string>
   <string name="drawer_open">Otevřít kartu pro pohyb</string>
   <string name="drawer_close">Zavřít kartu pro pohyb</string>
   <string name="category_header_track">Skladba</string>
-  <string name="category_header_tophits">Nejlepší písně</string>
+  <string name="category_header_tophit">Nejlepší písně</string>
   <string name="category_header_album">Album</string>
   <string name="category_header_activityfeed">Kanál pro činnost</string>
   <string name="content_header_plays">Přehrává</string>
@@ -147,9 +147,9 @@ o potížích:
   <string name="time_hours">hodinami</string>
   <string name="time_days">dny</string>
   <string name="users_playbacklog_suffix"> nedávno hráno</string>
-  <string name="users_following_suffix">sleduje</string>
+  <string name="users_followings_suffix">sleduje</string>
   <string name="users_followers_suffix">je sledován</string>
-  <string name="users_favorites_suffix"> oblíbené skladby</string>
+  <string name="users_lovedtracks_suffix"> oblíbené skladby</string>
   <string name="loved_tracks">Oblíbené skladby</string>
   <string name="starred_albums">Označená alba</string>
   <string name="starred_artists">Neoznačená alba</string>
