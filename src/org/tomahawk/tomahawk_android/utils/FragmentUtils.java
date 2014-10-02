@@ -277,7 +277,8 @@ public class FragmentUtils {
                 || (item instanceof SocialAction
                 && (((SocialAction) item).getTargetObject() instanceof User
                 || ((SocialAction) item).getTargetObject() instanceof Playlist))
-                || item instanceof User) {
+                || item instanceof User
+                || item instanceof Playlist) {
             return false;
         }
 
@@ -302,11 +303,6 @@ public class FragmentUtils {
             args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY, item.getCacheKey());
             args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_TYPE,
                     TomahawkFragment.TOMAHAWK_ARTIST_KEY);
-        } else if (item instanceof Playlist) {
-            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY,
-                    ((Playlist) item).getId());
-            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_TYPE,
-                    TomahawkFragment.TOMAHAWK_PLAYLIST_KEY);
         } else if (item instanceof SocialAction) {
             args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY,
                     ((SocialAction) item).getId());

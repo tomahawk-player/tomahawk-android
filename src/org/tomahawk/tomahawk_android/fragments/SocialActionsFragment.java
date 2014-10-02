@@ -125,6 +125,10 @@ public class SocialActionsFragment extends TomahawkFragment {
                 FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
                         UserPagerFragment.class, ((User) target).getId(),
                         TomahawkFragment.TOMAHAWK_USER_ID);
+            } else if (target instanceof Playlist) {
+                FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
+                        PlaylistEntriesFragment.class, ((Playlist) target).getId(),
+                        TomahawkFragment.TOMAHAWK_PLAYLIST_KEY);
             }
         } else if (item instanceof User) {
             FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
