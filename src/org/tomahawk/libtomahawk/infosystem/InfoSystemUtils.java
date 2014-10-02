@@ -85,6 +85,7 @@ public class InfoSystemUtils {
                 }
             }
             playlist.setEntries(entries);
+            playlist.setFilled(true);
         }
         return playlist;
     }

@@ -193,6 +193,16 @@ public class InfoSystem {
         return null;
     }
 
+    public String resolve(Playlist playlist) {
+        if (playlist != null) {
+            QueryParams params = new QueryParams();
+            params.playlist_id = playlist.getHatchetId();
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES, params,
+                    playlist);
+        }
+        return null;
+    }
+
     /**
      * Fill up the given user with metadata fetched from all added InfoPlugins
      *

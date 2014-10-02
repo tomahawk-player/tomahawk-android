@@ -18,6 +18,8 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
+import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
@@ -580,13 +582,20 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
                     @Override
                     public void run() {
-                        Playlist playlist =
-                                DatabaseHelper.getInstance().getPlaylist(mPlaylist.getId());
-                        if (playlist != null) {
-                            mPlaylist = playlist;
+                        HatchetAuthenticatorUtils authenticatorUtils
+                                = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+                        if (mUser != authenticatorUtils.getLoggedInUser()) {
+                            mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mPlaylist));
+                        } else {
+                            Playlist playlist =
+                                    DatabaseHelper.getInstance().getPlaylist(mPlaylist.getId());
+                            if (playlist != null) {
+                                mPlaylist = playlist;
+                                TomahawkApp.getContext().sendBroadcast(
+                                        new Intent(CollectionManager.COLLECTION_UPDATED));
+                            }
                         }
-                        TomahawkApp.getContext().sendBroadcast(
-                                new Intent(CollectionManager.COLLECTION_UPDATED));
                     }
                 }
         );

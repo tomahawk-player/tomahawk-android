@@ -228,6 +228,7 @@ public class FragmentUtils {
      */
     public static void showHub(TomahawkMainActivity activity, FragmentManager fragmentManager,
             int hubToShow, User loggedInUser) {
+        Bundle bundle = new Bundle();
         switch (hubToShow) {
             case HUB_ID_HOME:
                 if (loggedInUser == null) {
@@ -250,13 +251,15 @@ public class FragmentUtils {
                 replace(activity, fragmentManager, CollectionFragment.class);
                 break;
             case HUB_ID_LOVEDTRACKS:
-                Bundle bundle = new Bundle();
                 bundle.putString(PlaylistsFragment.TOMAHAWK_PLAYLIST_KEY,
                         DatabaseHelper.LOVEDITEMS_PLAYLIST_ID);
-                replace(activity, fragmentManager, PlaylistEntriesFragment.class, bundle);
+                bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, loggedInUser.getId());
+                replace(activity, fragmentManager, PlaylistEntriesFragment.class,
+                        bundle);
                 break;
             case HUB_ID_PLAYLISTS:
-                replace(activity, fragmentManager, PlaylistsFragment.class);
+                bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, loggedInUser.getId());
+                replace(activity, fragmentManager, PlaylistsFragment.class, bundle);
                 break;
             case HUB_ID_PLAYBACK:
                 replace(activity, fragmentManager, PlaybackFragment.class);

@@ -122,7 +122,6 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                     }
             );
             if (!mPlaylist.isFilled()) {
-                mPlaylist.setFilled(true);
                 refreshCurrentPlaylist();
             } else {
                 playlistEntries.addAll(mPlaylist.getEntries());
