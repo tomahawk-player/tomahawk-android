@@ -874,8 +874,7 @@ public class TomahawkUtils {
     public static Account getAccountByName(String accountName) {
         final AccountManager am = AccountManager.get(TomahawkApp.getContext());
         if (am != null) {
-            Account[] accounts = am.getAccountsByType(
-                    TomahawkApp.getContext().getString(R.string.accounttype_string));
+            Account[] accounts = am.getAccountsByType(AuthenticatorUtils.ACCOUNT_TYPE);
             if (accounts != null) {
                 for (Account account : accounts) {
                     if (accountName.equals(am.getUserData(account,

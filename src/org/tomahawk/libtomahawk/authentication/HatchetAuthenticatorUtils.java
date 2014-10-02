@@ -92,8 +92,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
         if (username != null && !TextUtils.isEmpty(username) && refreshToken != null
                 && !TextUtils.isEmpty(refreshToken)) {
             Log.d(TAG, "Hatchet auth token is served and yummy");
-            Account account = new Account(username,
-                    TomahawkApp.getContext().getString(R.string.accounttype_string));
+            Account account = new Account(username, ACCOUNT_TYPE);
             AccountManager am = AccountManager.get(TomahawkApp.getContext());
             if (am != null) {
                 am.addAccountExplicitly(account, null, new Bundle());

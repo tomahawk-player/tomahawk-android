@@ -1,8 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name">Tomahawk</string>
-  <string name="playback_data_service">Tomahawk Scrobbling Service</string>
-  <string name="app_title">Tomahawk</string>
   <string name="ok">OK</string>
   <string name="cancel">Cancel</string>
   <string name="login">Login</string>
@@ -40,7 +37,6 @@
   <string name="login_password">Password</string>
   <string name="login_password_confirmation">Password confirmation</string>
   <string name="account_email_label">E-Mail (optional)</string>
-  <string name="accounttype_string">org.tomahawk</string>
   <string name="error_field_required">This field is required</string>
   <string name="error_passwords_dont_match">Passwords don\'t match</string>
   <string name="error_invalid_credentials">Username or password incorrect.
@@ -105,7 +101,6 @@
   <string name="menu_item_go_to_album">Go to Album</string>
   <string name="menu_item_share">Share</string>
   <string name="menu_item_playshuffled">Play Shuffled</string>
-  <string name="share_default_prefix">#musthear</string>
   <string name="drawer_title_feed">Feed</string>
   <string name="drawer_title_collection">Collection</string>
   <string name="drawer_title_playlists">Playlists</string>

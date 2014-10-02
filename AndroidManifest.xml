@@ -44,13 +44,13 @@
     <application
             android:name="org.tomahawk.tomahawk_android.TomahawkApp"
             android:icon="@drawable/ic_launcher"
-            android:label="@string/app_name"
+            android:label="Tomahawk"
             android:theme="@style/Theme.Tomahawk"
             android:allowBackup="true">
 
         <activity
                 android:name=".activities.TomahawkMainActivity"
-                android:label="@string/app_title"
+                android:label="Tomahawk"
                 android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -523,7 +523,7 @@
         </service>
 
         <service android:name=".services.RemoteControllerService"
-                 android:label="@string/playback_data_service"
+                 android:label="Tomahawk Scrobbling Service"
                  android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
                  android:enabled="@bool/remotecontrollerservice_enabled">
             <intent-filter>

@@ -30,6 +30,8 @@ public abstract class AuthenticatorUtils {
     public static final String ACCOUNT_NAME_PREFIX
             = "org.tomahawk.tomahawk_android.authenticator_name_";
 
+    public static final String ACCOUNT_TYPE = "org.tomahawk";
+
     public static final String PACKAGE_PREFIX = "org.tomahawk.";
 
     public static final String AUTH_TOKEN_SUFFIX = ".authtoken";
