@@ -443,7 +443,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
             if (layoutId == R.layout.dropdown_header) {
                 ArrayList<CharSequence> list = new ArrayList<CharSequence>();
                 for (int resId : segment.getHeaderStringResIds()) {
-                    list.add(TomahawkApp.getContext().getString(resId));
+                    list.add(TomahawkApp.getContext().getString(resId).toUpperCase());
                 }
                 ArrayAdapter<CharSequence> adapter =
                         new ArrayAdapter<CharSequence>(TomahawkApp.getContext(),
@@ -454,7 +454,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
                 viewHolder.getSpinner()
                         .setOnItemSelectedListener(segment.getSpinnerClickListener());
             } else if (layoutId == R.layout.single_line_list_header) {
-                viewHolder.getTextView1().setText(segment.getHeaderStringResId());
+                viewHolder.getTextView1().setText(TomahawkApp.getContext().getString(
+                        segment.getHeaderStringResId()).toUpperCase());
             }
             return view;
         } else {

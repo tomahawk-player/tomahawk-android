@@ -31,7 +31,6 @@
               android:background="@color/primary_transparent"
               android:textColor="@color/primary_textcolor"
               android:textSize="@dimen/text_size_medium"
-              android:text="@string/button_open_queue_text"
               android:clickable="true"
               android:focusable="false"/>
 

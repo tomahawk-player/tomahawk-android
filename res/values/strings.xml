@@ -8,10 +8,10 @@
   <string name="albums">Albums</string>
   <string name="artists">Artists</string>
   <string name="users">Users</string>
-  <string name="top_hits">TOP HITS</string>
-  <string name="top_albums">TOP ALBUMS</string>
-  <string name="playlist_details">PLAYLIST DETAILS</string>
-  <string name="album_details">ALBUM DETAILS</string>
+  <string name="top_hits">Top Hits</string>
+  <string name="top_albums">Top Albums</string>
+  <string name="playlist_details">Playlist Details</string>
+  <string name="album_details">Album Details</string>
   <string name="search">Search</string>
   <string name="playlist">Playlist</string>
   <string name="seekbar_completion_time">-:--</string>
@@ -49,13 +49,13 @@
   <string name="spotify_pretty_name">Spotify</string>
   <string name="rdio_pretty_name">Rdio</string>
   <string name="deezer_pretty_name">Deezer</string>
-  <string name="preferences_services">SERVICES</string>
+  <string name="preferences_services">Services</string>
   <string name="preferences_hatchet_text">Sync your data with Hatchet.
     </string>
   <string name="preferences_spotify_text">Play your music from Spotify. Requires
         a Premium account.
     </string>
-  <string name="preferences_playback">PLAYBACK</string>
+  <string name="preferences_playback">Playback</string>
   <string name="preferences_playback_data">Scrobble Everything</string>
   <string name="preferences_playback_data_text">Scrobble every track from every music
         player app on the phone to Hatchet.
@@ -68,7 +68,7 @@
   <string name="preferences_audio_quality_text">The preferred audio quality if not
         connected to WiFi.
     </string>
-  <string name="preferences_info">INFO</string>
+  <string name="preferences_info">Info</string>
   <string name="preferences_app_version">App-Version</string>
   <string name="crash_dialog_title">Tomahawk has crashed</string>
   <string name="crash_dialog_text">An unexpected error occurred forcing the
@@ -99,16 +99,16 @@
   <string name="drawer_title_playlists">Playlists</string>
   <string name="drawer_title_lovedtracks">Favorites</string>
   <string name="drawer_title_settings">Settings</string>
-  <string name="collection_dropdown_recently_added">RECENTLY ADDED</string>
-  <string name="collection_dropdown_artist">ARTIST</string>
-  <string name="collection_dropdown_play_count">PLAY COUNT</string>
+  <string name="collection_dropdown_recently_added">Recently Added</string>
+  <string name="collection_dropdown_artist">Artist</string>
+  <string name="collection_dropdown_play_count">Play Count</string>
   <string name="history">History</string>
   <string name="preferences_bitrate_low">Normal</string>
   <string name="preferences_bitrate_medium">Good</string>
   <string name="preferences_bitrate_high">Best</string>
   <string name="drawer_open">Open Navigation Drawer</string>
   <string name="drawer_close">Close Navigation Drawer</string>
-  <string name="content_header_following">FOLLOWING</string>
+  <string name="content_header_following">Following</string>
   <string name="socialaction_type_follow_true">is now following</string>
   <string name="socialaction_type_love_track_true">loved a track:</string>
   <string name="socialaction_type_love_track_false">is all out of love for</string>
@@ -149,5 +149,5 @@
         settings)
     </string>
   <string name="ask_access_activity_button_text">Go to Settings</string>
-  <string name="button_open_queue_text">QUEUE</string>
+  <string name="button_open_queue_text">Queue</string>
 </resources>
