@@ -70,7 +70,7 @@
 }
 -dontwarn android.support.v4.**
 -dontwarn android.support.v7.**
-
+-dontwarn android.support.v8.**
 
 ###################
 #Jackson specifics#
@@ -97,6 +97,14 @@
 #Picasso specifics#
 ###################
 -dontwarn com.squareup.okhttp.**
+
+####################
+#Retrofit specifics#
+####################
+-keep class org.tomahawk.libtomahawk.infosystem.hatchet.Hatchet { *; }
+-keep class org.tomahawk.libtomahawk.authentication.HatchetAuth { *; }
+-keep class retrofit.http.* { *; }
+-dontwarn retrofit.**
 
 ##################
 #Lucene specifics#
