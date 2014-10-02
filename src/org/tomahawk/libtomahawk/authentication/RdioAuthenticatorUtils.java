@@ -22,7 +22,6 @@ import com.rdio.android.api.Rdio;
 import com.rdio.android.api.RdioListener;
 
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.accounts.Account;
@@ -68,8 +67,7 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
         } else {
             Log.d(TAG, "Rdio user '" + username + "' logged in successfully :)");
         }
-        Account account = new Account(ACCOUNT_PRETTY_NAME,
-                TomahawkApp.getContext().getString(R.string.accounttype_string));
+        Account account = new Account(ACCOUNT_PRETTY_NAME, ACCOUNT_TYPE);
         AccountManager am = AccountManager.get(TomahawkApp.getContext());
         if (am != null) {
             am.addAccountExplicitly(account, null, new Bundle());
@@ -151,8 +149,7 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
      * Try to login to rdio with stored credentials
      */
     public void loginWithToken() {
-        Account account = new Account(ACCOUNT_PRETTY_NAME,
-                TomahawkApp.getContext().getString(R.string.accounttype_string));
+        Account account = new Account(ACCOUNT_PRETTY_NAME, ACCOUNT_TYPE);
         AccountManager am = AccountManager.get(TomahawkApp.getContext());
         String accessToken = null;
         String accessTokenSecret = null;
@@ -193,8 +190,7 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
 
     @Override
     public boolean isLoggedIn() {
-        Account account = new Account(ACCOUNT_PRETTY_NAME,
-                TomahawkApp.getContext().getString(R.string.accounttype_string));
+        Account account = new Account(ACCOUNT_PRETTY_NAME, ACCOUNT_TYPE);
         AccountManager am = AccountManager.get(TomahawkApp.getContext());
         return am != null && am.getUserData(account, OAuth1WebViewActivity.EXTRA_TOKEN) != null
                 && am.getUserData(account, OAuth1WebViewActivity.EXTRA_TOKEN_SECRET) != null;

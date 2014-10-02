@@ -25,7 +25,6 @@ import com.deezer.sdk.network.request.event.DeezerError;
 import com.deezer.sdk.network.request.event.OAuthException;
 
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.accounts.Account;
@@ -68,8 +67,7 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
         } else {
             Log.d(TAG, "Deezer user '" + username + "' logged in successfully :)");
         }
-        Account account = new Account(ACCOUNT_PRETTY_NAME,
-                TomahawkApp.getContext().getString(R.string.accounttype_string));
+        Account account = new Account(ACCOUNT_PRETTY_NAME, ACCOUNT_TYPE);
         AccountManager am = AccountManager.get(TomahawkApp.getContext());
         if (am != null) {
             am.addAccountExplicitly(account, null, new Bundle());
@@ -102,8 +100,7 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
 
     @Override
     public boolean isLoggedIn() {
-        Account account = new Account(ACCOUNT_PRETTY_NAME,
-                TomahawkApp.getContext().getString(R.string.accounttype_string));
+        Account account = new Account(ACCOUNT_PRETTY_NAME, ACCOUNT_TYPE);
         AccountManager am = AccountManager.get(TomahawkApp.getContext());
         return am != null && am.getUserData(account, getAccessTokenName()) != null
                 && am.getUserData(account, getAccessTokenExpiresInName()) != null;
@@ -136,8 +133,7 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
      */
     public void loginWithToken() {
         Log.d(TAG, "loginWithToken");
-        Account account = new Account(ACCOUNT_PRETTY_NAME,
-                TomahawkApp.getContext().getString(R.string.accounttype_string));
+        Account account = new Account(ACCOUNT_PRETTY_NAME, ACCOUNT_TYPE);
         AccountManager am = AccountManager.get(TomahawkApp.getContext());
         if (am != null) {
             am.addAccountExplicitly(account, null, new Bundle());
