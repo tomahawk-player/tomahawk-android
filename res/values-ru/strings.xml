@@ -1,79 +1,22 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="appname_string">Tomahawk</string>
-  <string name="scrobblingservice_string">Сервис скробблинга Tomahawk</string>
-  <string name="mainactivity_title_string">Tomahawk</string>
   <string name="ok">ОК</string>
   <string name="cancel">Отмена</string>
   <string name="login">Вход</string>
   <string name="logout">Выход</string>
   <string name="register">Регистрация</string>
-  <string name="favoritesfragment_title_string">Избранное</string>
-  <string name="tracksfragment_title_string">Треки</string>
-  <string name="albumsfragment_title_string">Альбомы</string>
-  <string name="artistsfragment_title_string">Исполнители</string>
-  <string name="playlistsfragment_title_string">Плейлисты</string>
-  <string name="userfragment_title_string">Пользователи</string>
-  <string name="segmentheader_tophits">ГОРЯЧИЕ ХИТЫ</string>
-  <string name="segmentheader_topalbums">ПОПУЛЯРНЫЕ АЛЬБОМЫ</string>
-  <string name="segmentheader_recentlyplayed">НЕДАВНИЕ ТРЕКИ</string>
-  <string name="segmentheader_playlist">ПОДРОБНОСТИ СПИСКА</string>
-  <string name="segmentheader_album">ПОДРОБНОСТИ АЛЬБОМА</string>
-  <string name="searchfragment_title_string">Поиск</string>
-  <string name="searchfragment_searchforonlinesources">Также искать в сети</string>
-  <string name="searchfragment_searchtype">Искать </string>
-  <string name="playbackfragment_title_string">Воспроизведение</string>
-  <string name="playbackplaylistfragment_title_string">Плейлист</string>
-  <string name="playbackactivity_seekbar_completion_time_string">-:--</string>
-  <string name="playbackactivity_seekbar_current_time_string">0:00</string>
-  <string name="playbackactivity_toastshuffleon_string">Перемешивание включено</string>
-  <string name="playbackactivity_toastshuffleoff_string">Перемешивание выключено</string>
-  <string name="playbackactivity_toastrepeaton_string">Повтор включен</string>
-  <string name="playbackactivity_toastrepeatoff_string">Повтор выключен</string>
-  <string name="playbackactivity_unknown_string">&lt;неизвестно&gt;</string>
-  <string name="playbackactivity_no_track">&lt;нет трека&gt;</string>
-  <string name="playbackactivity_save_playlist_dialog_title">Сохранить в текущий список</string>
-  <string name="playbackactivity_create_playlist_dialog_title">Создать новый список</string>
-  <string name="playbackactivity_playlist_dialog_name_hint">Имя</string>
-  <string name="logindialog_emailorusername_label_string">e-mail/имя пользователя</string>
-  <string name="logindialog_username_label_string">Имя пользователя</string>
-  <string name="logindialog_password_label_string">Пароль</string>
-  <string name="logindialog_password_confirmation_label_string">Пароль повторно</string>
-  <string name="logindialog_email_label_string">E-mail (необязательно)</string>
-  <string name="accounttype_string">org.tomahawk</string>
+  <string name="albums">Альбомы</string>
+  <string name="artists">Исполнители</string>
+  <string name="users">Пользователи</string>
   <string name="error_field_required">Это поле обязательно</string>
   <string name="error_passwords_dont_match">Пароли не совпадают</string>
-  <string name="config_test_result_type_invalid_credentials">Имя пользователя или пароль неверны.</string>
-  <string name="auth_loginfailed_invalid_account">Аккаунт не принят сервером.</string>
-  <string name="auth_loginfailed_communication_error">Невозможность аутентификации. Пожалуйста, проверьте
-ваше соединение.</string>
-  <string name="auth_loginfailed_playing_elsewhere">Действие не разрешено, аккаунт уже 
-используется.</string>
-  <string name="auth_loginfailed_account_expired">Ваш аккаунт истёк.</string>
   <string name="auth_logged_in">Подключен к</string>
   <string name="auth_logged_out">Отключен от</string>
-  <string name="local_collection_pretty_name">Локальное соединение</string>
+  <string name="local_collection_pretty_name">Локальная коллекция</string>
   <string name="hatchet_pretty_name">Hatchet</string>
   <string name="spotify_pretty_name">Spotify</string>
   <string name="rdio_pretty_name">Rdio</string>
   <string name="deezer_pretty_name">Deezer</string>
-  <string name="fakepreference_accounts_header">СЕРВИСЫ</string>
-  <string name="fakepreference_hatchetlogin_summary_string">Синхронизируйте ваши данные с Hatchet.
-</string>
-  <string name="fakepreference_spotifylogin_summary_string">Играть вашу музыку из Spotify. Требуется
-Премиум аккаунт.</string>
-  <string name="fakepreference_playback_header">ВОСПРОИЗВЕДЕНИЕ</string>
-  <string name="fakepreference_scrobble_title_string">Скробблинг всего</string>
-  <string name="fakepreference_scrobble_summary_string">Скробблинг каждого трека из каждого
-плеера в телефоне на Hatchet</string>
-  <string name="fakepreference_plugintoplay_title_string">Включи и играй</string>
-  <string name="fakepreference_plugintoplay_summary_string">Воспроизводить музыку
-при подключениии наушников.</string>
-  <string name="fakepreference_bitrate_title_string">Предпочтительное качество звука</string>
-  <string name="fakepreference_bitrate_summary_string">Предпочтительное качество звука
-при отсутствии подключения по WiFi.</string>
-  <string name="fakepreference_info_header">ИНФОРМАЦИЯ</string>
-  <string name="fakepreference_appversion_title_string">Версия приложения</string>
   <string name="crash_dialog_title">Tomahawk прекратил работу</string>
   <string name="crash_dialog_text">Неожиданная ошибка прервала работу программы.
 Пожалуйста, помогите нам исправить это, отослав нам данные об ошибке.
@@ -81,15 +24,8 @@
   <string name="crash_dialog_comment_prompt">Вы можете добавить ниже ваши комментарии
 о проблеме:</string>
   <string name="crash_dialog_ok_toast">Спасибо!</string>
-  <string name="fake_context_menu_play">Воспроизведение</string>
-  <string name="fake_context_menu_addtoqueue">Добавить в очередь</string>
-  <string name="fake_context_menu_addtoplaylist">Добавить в плейлист</string>
-  <string name="fake_context_menu_love_track">Трек понравился</string>
-  <string name="fake_context_menu_unlove_track">Трек не понравился</string>
-  <string name="fake_context_menu_delete">Удалить</string>
   <string name="context_menu_addtocollection">В вашей коллекции</string>
   <string name="context_menu_favorite">Избранное</string>
-  <string name="context_menu_addtoplaylist">Добавить в плейлист</string>
   <string name="context_menu_share">Поделиться</string>
   <string name="context_menu_gotoartist">Перейти к исполнителю</string>
   <string name="menu_item_save_playlist">Сохранить плейлист</string>
@@ -97,31 +33,9 @@
   <string name="menu_item_go_to_album">Перейти к альбому</string>
   <string name="menu_item_share">Поделиться</string>
   <string name="menu_item_playshuffled">Играть вперемешку</string>
-  <string name="share_default_prefix">#musthear</string>
-  <string name="hub_title_feed">Фид</string>
-  <string name="hub_title_collection">Коллекция</string>
-  <string name="hub_title_playlists">Плейлисты</string>
-  <string name="hub_title_lovedtracks">Избранное</string>
-  <string name="hub_title_settings">Настройки</string>
-  <string name="collection_dropdown_recently_added">НЕДАВНО ДОБАВЛЕНО</string>
-  <string name="collection_dropdown_artist">ИСПОЛНИТЕЛЬ</string>
-  <string name="collection_dropdown_play_count">СЧЁТЧИК ВОСПРОИЗВЕДЕНИЙ</string>
   <string name="history">История</string>
-  <string name="fake_preferences_bitrate_low">Нормально</string>
-  <string name="fake_preferences_bitrate_medium">Хорошо</string>
-  <string name="fake_preferences_bitrate_high">Отлично</string>
   <string name="drawer_open">Открыть панель навигации</string>
   <string name="drawer_close">Закрыть панель навигации</string>
-  <string name="category_header_track">Трек</string>
-  <string name="category_header_tophit">Популярная песня</string>
-  <string name="category_header_album">Альбом</string>
-  <string name="category_header_activityfeed">Фид действий</string>
-  <string name="content_header_plays">ВОСПРОИЗВЕДЕНИЯ</string>
-  <string name="content_header_following">ЧИТАЕТЕ</string>
-  <string name="content_header_followers">ЧИТАЮТ</string>
-  <string name="content_header_nowplaying">Сейчас играет</string>
-  <string name="content_header_follow">Читать</string>
-  <string name="content_header_unfollow">Не читать</string>
   <string name="socialaction_type_follow_true">теперь читает</string>
   <string name="socialaction_type_love_track_true">понравился трек</string>
   <string name="socialaction_type_love_track_false">полностью влюблён в</string>
@@ -142,30 +56,18 @@
   <string name="time_hours">часов</string>
   <string name="time_days">дней</string>
   <string name="users_playbacklog_suffix">недавно слушал</string>
-  <string name="users_followings_suffix">читает</string>
-  <string name="users_followers_suffix">читаем</string>
-  <string name="users_lovedtracks_suffix">Любимые треки</string>
-  <string name="loved_tracks">Полюбил треки</string>
-  <string name="starred_albums">Помеченные альбомы</string>
-  <string name="starred_artists">Помеченные исполнители</string>
   <string name="music">Музыка</string>
   <string name="biography">Биография</string>
   <string name="similar">Похожие</string>
-  <string name="artists">Исполнители</string>
-  <string name="albums">Альбомы</string>
   <string name="songs">Песни</string>
-  <string name="users">Пользователи</string>
   <string name="activity">Действие</string>
   <string name="followers">Читающие</string>
   <string name="following">Читаемые</string>
   <string name="resolver_config_redirect_button_text_log_into">Войти в</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Выйти из</string>
-  <string name="ask_access_activity_header">Хотите автоматически скробблировать играемые
-треки в Hatchet?</string>
   <string name="ask_access_activity_text1">Мы сделаем это для вас! Пожалуйста, включите
 наш сервис в настройках вашей системы.</string>
   <string name="ask_access_activity_text2">(Вы можете отключить это в любое время
 в настройках Tomahawk)</string>
   <string name="ask_access_activity_button_text">Перейти в настройки</string>
-  <string name="button_open_queue_text">ОЧЕРЕДЬ</string>
 </resources>
