@@ -21,11 +21,11 @@
 <resources>
 
     <string-array name="slide_menu_items">
-        <item>@string/hub_title_feed</item>
-        <item>@string/hub_title_collection</item>
-        <item>@string/hub_title_lovedtracks</item>
-        <item>@string/hub_title_playlists</item>
-        <item>@string/hub_title_settings</item>
+        <item>@string/drawer_title_feed</item>
+        <item>@string/drawer_title_collection</item>
+        <item>@string/drawer_title_lovedtracks</item>
+        <item>@string/drawer_title_playlists</item>
+        <item>@string/drawer_title_settings</item>
     </string-array>
     <array name="slide_menu_items_icons">
         <item>@drawable/ic_action_dashboard</item>
@@ -35,8 +35,8 @@
         <item>@drawable/ic_action_settings</item>
     </array>
     <string-array name="fake_preferences_items_bitrate">
-        <item>@string/fake_preferences_bitrate_low</item>
-        <item>@string/fake_preferences_bitrate_medium</item>
-        <item>@string/fake_preferences_bitrate_high</item>
+        <item>@string/preferences_bitrate_low</item>
+        <item>@string/preferences_bitrate_medium</item>
+        <item>@string/preferences_bitrate_high</item>
     </string-array>
 </resources>

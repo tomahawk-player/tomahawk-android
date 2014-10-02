@@ -146,7 +146,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     @Override
     public int getUserIdEditTextHintResId() {
-        return R.string.logindialog_username_label_string;
+        return R.string.login_username;
     }
 
     @Override

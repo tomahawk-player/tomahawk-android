@@ -22,4 +22,4 @@
                        android:accountType="@string/accounttype_string"
                        android:icon="@drawable/ic_launcher"
                        android:smallIcon="@drawable/ic_launcher"
-                       android:label="@string/appname_string"/>
+                       android:label="@string/app_name"/>

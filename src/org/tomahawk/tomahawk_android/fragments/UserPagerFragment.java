@@ -121,7 +121,7 @@ public class UserPagerFragment extends PagerFragment {
         fragmentInfoList = new FragmentInfoList();
         fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = CollectionFragment.class;
-        fragmentInfo.mTitle = getString(R.string.hub_title_collection);
+        fragmentInfo.mTitle = getString(R.string.drawer_title_collection);
         fragmentInfo.mBundle = new Bundle();
         fragmentInfo.mBundle.putBoolean(ContentHeaderFragment.DONT_SHOW_HEADER, true);
         fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
@@ -129,7 +129,7 @@ public class UserPagerFragment extends PagerFragment {
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = PlaylistsFragment.class;
-        fragmentInfo.mTitle = getString(R.string.hub_title_playlists);
+        fragmentInfo.mTitle = getString(R.string.drawer_title_playlists);
         fragmentInfo.mBundle = new Bundle();
         fragmentInfo.mBundle.putBoolean(ContentHeaderFragment.DONT_SHOW_HEADER, true);
         fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());

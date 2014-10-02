@@ -85,7 +85,7 @@ public class RegisterConfigDialog extends ConfigDialog {
         addViewToFrame(usernameLayout);
         LinearLayout passwordLayout = (LinearLayout) inflater.inflate(R.layout.config_text, null);
         mPasswordEditText = (ConfigEdittext) passwordLayout.findViewById(R.id.config_edittext);
-        mPasswordEditText.setHint(R.string.logindialog_password_label_string);
+        mPasswordEditText.setHint(R.string.login_password);
         mPasswordEditText.setTypeface(Typeface.DEFAULT);
         mPasswordEditText.setTransformationMethod(new PasswordTransformationMethod());
         mPasswordEditText.setText(password);
@@ -95,13 +95,13 @@ public class RegisterConfigDialog extends ConfigDialog {
         mPasswordConfirmationEditText =
                 (ConfigEdittext) passwordConfirmationLayout.findViewById(R.id.config_edittext);
         mPasswordConfirmationEditText.setHint(
-                R.string.logindialog_password_confirmation_label_string);
+                R.string.login_password_confirmation);
         mPasswordConfirmationEditText.setTypeface(Typeface.DEFAULT);
         mPasswordConfirmationEditText.setTransformationMethod(new PasswordTransformationMethod());
         addViewToFrame(passwordConfirmationLayout);
         LinearLayout emailLayout = (LinearLayout) inflater.inflate(R.layout.config_text, null);
         mMailEditText = (ConfigEdittext) emailLayout.findViewById(R.id.config_edittext);
-        mMailEditText.setHint(R.string.logindialog_email_label_string);
+        mMailEditText.setHint(R.string.account_email);
         mMailEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
         addViewToFrame(emailLayout);
 

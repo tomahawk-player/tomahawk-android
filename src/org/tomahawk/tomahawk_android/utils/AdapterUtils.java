@@ -145,7 +145,7 @@ public class AdapterUtils {
                     (query.getPreferredTrack().getDuration())));
         } else {
             viewHolder.getTextView5().setText(context.getString(
-                    R.string.playbackactivity_seekbar_completion_time_string));
+                    R.string.seekbar_completion_time));
         }
         boolean isHighlighted = viewHolder.getLayoutId() == R.layout.list_item_highlighted;
         setTextViewEnabled(viewHolder.getTextView1(), query.isPlayable(), false, isHighlighted);
