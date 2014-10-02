@@ -17,11 +17,14 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
+import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -29,6 +32,7 @@ import org.tomahawk.tomahawk_android.dialogs.CreatePlaylistDialog;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -68,10 +72,12 @@ public class PlaylistsFragment extends TomahawkFragment {
     @Override
     public void onItemClick(View view, TomahawkListItem item) {
         if (item instanceof Playlist) {
-            String key = ((Playlist) item).getId();
+            Bundle bundle = new Bundle();
+            bundle.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY, ((Playlist) item).getId());
+            bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getId());
             FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                    getActivity().getSupportFragmentManager(), PlaylistEntriesFragment.class, key,
-                    TomahawkFragment.TOMAHAWK_PLAYLIST_KEY);
+                    getActivity().getSupportFragmentManager(), PlaylistEntriesFragment.class,
+                    bundle);
         } else {
             new CreatePlaylistDialog().show(getFragmentManager(),
                     getString(R.string.playbackactivity_create_playlist_dialog_title));
@@ -90,7 +96,10 @@ public class PlaylistsFragment extends TomahawkFragment {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
         List<TomahawkListItem> playlists = new ArrayList<TomahawkListItem>();
-        if (mUser != null) {
+        HatchetAuthenticatorUtils authenticatorUtils
+                = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+        if (mUser != authenticatorUtils.getLoggedInUser()) {
             if (mUser.getPlaylists().size() == 0) {
                 if (!mResolvingUsers.contains(mUser)) {
                     mCurrentRequestIds.add(InfoSystem.getInstance().resolvePlaylists(mUser));
