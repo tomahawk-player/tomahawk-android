@@ -57,9 +57,9 @@
                 android:background="@drawable/following_button_bg"
                 android:clickable="true">
 
-            <TextView android:layout_width="match_parent"
+            <TextView android:id="@+id/content_header_button4_text"
+                      android:layout_width="match_parent"
                       android:layout_height="match_parent"
-                      android:text="@string/content_header_following"
                       android:textSize="@dimen/text_size_small"
                       android:textColor="@color/primary_textcolor_inverted"
                       android:gravity="center"/>

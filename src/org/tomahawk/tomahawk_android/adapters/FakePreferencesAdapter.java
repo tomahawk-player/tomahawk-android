@@ -236,7 +236,7 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
         for (FakePreferenceGroup fakePreferenceGroup : mFakePreferenceGroups) {
             sizeSum += fakePreferenceGroup.getFakePreferences().size();
             if (position < sizeSum) {
-                viewHolder.getTextView1().setText(fakePreferenceGroup.getHeader());
+                viewHolder.getTextView1().setText(fakePreferenceGroup.getHeader().toUpperCase());
                 break;
             }
         }

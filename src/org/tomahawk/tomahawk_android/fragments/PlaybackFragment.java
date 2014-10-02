@@ -67,7 +67,7 @@ public class PlaybackFragment extends TomahawkFragment {
 
     private TomahawkVerticalViewPager mTomahawkVerticalViewPager;
 
-    private View mQueueButton;
+    private TextView mQueueButton;
 
     private View mViewPagerFrame;
 
@@ -195,7 +195,8 @@ public class PlaybackFragment extends TomahawkFragment {
         viewPager.setAdapter(mAlbumArtSwipeAdapter);
         viewPager.setOnPageChangeListener(mAlbumArtSwipeAdapter);
 
-        mQueueButton = mListViewFrame.findViewById(R.id.button_open_queue);
+        mQueueButton = (TextView) mListViewFrame.findViewById(R.id.button_open_queue);
+        mQueueButton.setText(getString(R.string.button_open_queue_text).toUpperCase());
         mQueueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
