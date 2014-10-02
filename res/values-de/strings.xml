@@ -8,8 +8,40 @@
   <string name="albums">Alben</string>
   <string name="artists">Künstler</string>
   <string name="users">Benutzer</string>
+  <string name="top_hits">Top Hits</string>
+  <string name="top_albums">Top Alben</string>
+  <string name="playlist_details">Playlist Details</string>
+  <string name="album_details">Album Details</string>
+  <string name="search">Suche</string>
+  <string name="playlist">Playlist</string>
+  <string name="seekbar_completion_time">-:--</string>
+  <string name="seekbar_current_time">0:00</string>
+  <string name="shuffle_on_label">Zufallswiedergabe ist an</string>
+  <string name="shuffle_off_label">Zufallswiedergabe ist aus</string>
+  <string name="repeat_on_label">Wiederholen ist an</string>
+  <string name="repeat_off_label">Wiederholen ist aus</string>
+  <string name="unknown">&lt;unbekannt&gt;</string>
+  <string name="no_track">&lt;kein Lied&gt;</string>
+  <string name="save_playlist">Die aktuelle Playlist speichern</string>
+  <string name="create_playlist">Eine neue Playlist erstellen</string>
+  <string name="name_playlist">Name</string>
+  <string name="login_name_label">E-Mail/Benutzername</string>
+  <string name="login_username">Benutzername</string>
+  <string name="login_password">Passwort</string>
+  <string name="login_password_confirmation">Passwort bestätigen</string>
+  <string name="account_email_label">E-Mail (optional)</string>
   <string name="error_field_required">Dieses Feld ist erforderlich</string>
   <string name="error_passwords_dont_match">Passwörter stimmen nicht überein</string>
+  <string name="error_invalid_credentials">Benutzername oder Passwort falsch.
+</string>
+  <string name="error_invalid_account">Konto wurde vom Server zurückgewiesen.</string>
+  <string name="error_communication">Authentifizierung nicht möglich. Bitte überprüfe
+deine Verbindung.
+</string>
+  <string name="error_simultaneous_streams">Aktion nicht erlaubt, das Konto ist woanders
+in Benutzung.
+</string>
+  <string name="error_account_expired">Dein Account ist abgelaufen.</string>
   <string name="auth_logged_in">Angemeldet bei</string>
   <string name="auth_logged_out">Abgemeldet von</string>
   <string name="local_collection_pretty_name">Lokale Sammlung</string>
@@ -17,13 +49,40 @@
   <string name="spotify_pretty_name">Spotify</string>
   <string name="rdio_pretty_name">Rdio</string>
   <string name="deezer_pretty_name">Deezer</string>
+  <string name="preferences_services">Dienste</string>
+  <string name="preferences_hatchet_text">Synchronisiere deine Daten mit Hatchet.
+</string>
+  <string name="preferences_spotify_text">Spiele deine Musik von Spotify. Benötigt
+ein Premium-Konto.
+</string>
+  <string name="preferences_playback">Wiedergabe</string>
+  <string name="preferences_playback_data">Scrobble alles</string>
+  <string name="preferences_playback_data_text">Scrobble jedes Lied von allen deiner
+Musik-Apps auf deinem Smartphone zu Hatchet.
+</string>
+  <string name="preferences_plug_and_play">Abspielen beim Anschließen</string>
+  <string name="preferences_plug_and_play_text">Spielt Musik ab,
+sobald ein Headset angeschlossen ist.
+</string>
+  <string name="preferences_audio_quality">Bevorzugte Audio-Qualität</string>
+  <string name="preferences_audio_quality_text">Die bevorzugte Audio-Qualität, wenn
+keine WLAN-Verbindung besteht.
+</string>
+  <string name="preferences_info">Info</string>
+  <string name="preferences_app_version">App-Version</string>
   <string name="crash_dialog_title">Tomahawk ist abgestürzt</string>
-  <string name="crash_dialog_text">Ein unerwarteter Fehler ist eingetreten und hat
+  <string name="crash_dialog_text">Ein unerwarteter Fehler ist aufgetreten und hat
 die Anwendung beendet. Bitte hilf uns den Fehler zu beheben, indem du
-uns den Absturzbericht zusendest und dafür einfach auf OK klickst.</string>
+uns den Absturzbericht durch einen Klick auf OK zusendest.</string>
   <string name="crash_dialog_comment_prompt">Wenn du möchtest, kannst du einen Kommentar zu diesem
 Problem hinzufügen:</string>
   <string name="crash_dialog_ok_toast">Vielen Dank!</string>
+  <string name="context_menu_play">Abspielen</string>
+  <string name="context_menu_add_to_queue">Zur Warteschlange hinzufügen</string>
+  <string name="context_menu_add_to_playlist">Zur Playlist hinzufügen</string>
+  <string name="context_menu_love_track">Lieblingslied</string>
+  <string name="context_menu_unlove_track">Kein Lieblingslied</string>
+  <string name="context_menu_delete">Löschen</string>
   <string name="context_menu_addtocollection">In deiner Sammlung</string>
   <string name="context_menu_favorite">Favorit</string>
   <string name="context_menu_share">Teilen</string>
@@ -33,9 +92,21 @@ Problem hinzufügen:</string>
   <string name="menu_item_go_to_album">Gehe zum Album</string>
   <string name="menu_item_share">Teilen</string>
   <string name="menu_item_playshuffled">Zufällig wiedergeben</string>
+  <string name="drawer_title_feed">Feed</string>
+  <string name="drawer_title_collection">Sammlung</string>
+  <string name="drawer_title_playlists">Playlisten</string>
+  <string name="drawer_title_lovedtracks">Lieblingslieder</string>
+  <string name="drawer_title_settings">Einstellungen</string>
+  <string name="collection_dropdown_recently_added">Kürzlich hinzugefügt</string>
+  <string name="collection_dropdown_artist">Künstler</string>
+  <string name="collection_dropdown_play_count">Wiedergabeanzahl</string>
   <string name="history">Chronik</string>
-  <string name="drawer_open">Öffne Navigations-Tab</string>
-  <string name="drawer_close">Schließe Navigations-Tab</string>
+  <string name="preferences_bitrate_low">Normal</string>
+  <string name="preferences_bitrate_medium">Gut</string>
+  <string name="preferences_bitrate_high">Beste</string>
+  <string name="drawer_open">Öffne Navigations-Menü</string>
+  <string name="drawer_close">Schließe Navigations-Menü</string>
+  <string name="content_header_following">Folgen</string>
   <string name="socialaction_type_follow_true">folgt nun</string>
   <string name="socialaction_type_love_track_true">liebt ein Lied:</string>
   <string name="socialaction_type_love_track_false">liebt nicht mehr</string>
@@ -56,19 +127,22 @@ Problem hinzufügen:</string>
   <string name="time_hours">Stunden</string>
   <string name="time_days">Tage</string>
   <string name="users_playbacklog_suffix">\'s kürzlich gespielte Lieder</string>
+  <string name="users_favorites_suffix">\'s Lieblingslieder</string>
   <string name="music">Musik</string>
   <string name="biography">Biografie</string>
   <string name="similar">Ähnliche</string>
   <string name="songs">Lieder</string>
   <string name="activity">Aktivitäten</string>
   <string name="followers">Followers</string>
-  <string name="following">Folgen</string>
+  <string name="following">Folgt</string>
   <string name="resolver_config_redirect_button_text_log_into">Anmelden bei</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Abmelden von</string>
+  <string name="ask_access_activity_header">Möchtest du automatisch alle Lieder, die du gehört hast, auf Hatchet speichern?</string>
   <string name="ask_access_activity_text1">Wir machen das für dich! Bitte aktiviere unseren Dienst
 in deinen System Einstellungen.
 </string>
   <string name="ask_access_activity_text2">(Du kannst dies wann immer du willst in den Tomahawk Einstellungen abschalten.)
 </string>
   <string name="ask_access_activity_button_text">Gehe zu den Einstellungen</string>
+  <string name="button_open_queue_text">Warteschlange</string>
 </resources>
