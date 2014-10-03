@@ -1,2 +1,46 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="ok">OK</string>
+  <string name="cancel">Annulla</string>
+  <string name="login">Login</string>
+  <string name="logout">Logout</string>
+  <string name="register">Registrati</string>
+  <string name="albums">Albums</string>
+  <string name="artists">Artisti</string>
+  <string name="users">Utenti</string>
+  <string name="search">Cerca</string>
+  <string name="playlist">Playlist</string>
+  <string name="seekbar_completion_time">-:--</string>
+  <string name="seekbar_current_time">0:00</string>
+  <string name="unknown">&lt;sconosciuto&gt;</string>
+  <string name="no_track">&lt;nessuna traccia&gt;</string>
+  <string name="name_playlist">Nome</string>
+  <string name="login_name_label">Email/Username</string>
+  <string name="login_username">Nome utente</string>
+  <string name="login_password">Password</string>
+  <string name="login_password_confirmation">Conferma la password</string>
+  <string name="account_email_label">Email (opzionale)</string>
+  <string name="error_field_required">Questo campo è richiesto</string>
+  <string name="error_passwords_dont_match">La password sono diverse</string>
+  <string name="error_invalid_credentials">Nome utente o password errati.</string>
+  <string name="error_invalid_account">Account rifiutato dal server.</string>
+  <string name="error_communication">Impossibile connettersi. Per favore
+controlla la connessione.</string>
+  <string name="error_simultaneous_streams">Azione non permessa, l\'account è
+utilizzato altrove.</string>
+  <string name="error_account_expired">Il tuo account è scaduto.</string>
+  <string name="auth_logged_in">Connesso</string>
+  <string name="auth_logged_out">Sconnesso da</string>
+  <string name="local_collection_pretty_name">Collezione locale</string>
+  <string name="hatchet_pretty_name">Hatchet</string>
+  <string name="spotify_pretty_name">Spotify</string>
+  <string name="rdio_pretty_name">Rdio</string>
+  <string name="deezer_pretty_name">Deezer</string>
+  <string name="preferences_services">Servizi</string>
+  <string name="preferences_hatchet_text">Sincronizza i tuoi dati con Hatchet.</string>
+  <string name="preferences_spotify_text">Ascolta la tua musica da Spotify. Richiede
+un account premium.</string>
+  <string name="preferences_playback_data">Scrobbla tutto</string>
+  <string name="preferences_playback_data_text">Scrobbla a Hatchet tutte le tracce da tutti i
+lettori musicali sul telefono .</string>
+</resources>
