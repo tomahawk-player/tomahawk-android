@@ -250,11 +250,13 @@ public class AdapterUtils {
                 String phrase = action ?
                         resources.getString(R.string.socialaction_type_starred_true)
                         : resources.getString(R.string.socialaction_type_starred_false);
-                firstLine += socialAction.getUser().getName() + " " + phrase
-                        + " " + targetObject.getName();
+                firstLine += socialAction.getUser().getName() + " " + phrase + " ";
                 if (targetObject instanceof Album) {
-                    firstLine += " " + resources.getString(R.string.album_by_artist) + " "
-                            + targetObject.getArtist().getName();
+                    firstLine += resources.getString(R.string.album_by_artist,
+                            "\"" + targetObject.getName() + "\"",
+                            targetObject.getArtist().getName());
+                } else {
+                    firstLine += targetObject.getName();
                 }
                 viewHolder.getTextView1().setText(firstLine);
             }
@@ -269,9 +271,8 @@ public class AdapterUtils {
             if (targetObject instanceof Query) {
                 Query query = (Query) targetObject;
                 viewHolder.getTextView1().setText(socialAction.getUser().getName()
-                        + " " + phrase + " " + query.getName() + " "
-                        + resources.getString(R.string.album_by_artist) + " "
-                        + query.getArtist().getName() + ":");
+                        + " " + phrase + " " + resources.getString(R.string.album_by_artist,
+                        "\"" + query.getName() + "\"", query.getArtist().getName()) + ":");
                 if (showAsPlaying) {
                     viewHolder.getImageView1().setVisibility(ImageView.VISIBLE);
                     viewHolder.getImageView1().setImageResource(R.drawable.ic_action_album_light);
