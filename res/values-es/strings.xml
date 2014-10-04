@@ -64,7 +64,7 @@
   <string name="socialaction_type_love_track_false">dejó de gustarle</string>
   <string name="socialaction_type_createplaylist">creó una lista de reproducción</string>
   <string name="socialaction_type_deletedplaylist">eliminó una lista de reproducción</string>
-  <string name="album_by_artist">por</string>
+  <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="music">Música</string>
   <string name="biography">Biografía</string>
   <string name="similar">Similares</string>

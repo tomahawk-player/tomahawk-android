@@ -75,6 +75,7 @@
   <string name="socialaction_type_latchoff">припинили слухати разом з</string>
   <string name="socialaction_type_createplaylist">створив список відтворення</string>
   <string name="socialaction_type_deletedplaylist">вилучив список відтворення</string>
+  <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="users_playbacklog_suffix">нещодавно слухав</string>
   <string name="music">Музика</string>
   <string name="biography">Біографія</string>

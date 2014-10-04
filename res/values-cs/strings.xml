@@ -8,6 +8,10 @@
   <string name="albums">Alba</string>
   <string name="artists">Umělci</string>
   <string name="users">Uživatelé</string>
+  <string name="top_hits">Nejlepší písně</string>
+  <string name="top_albums">Nejlepší alba</string>
+  <string name="playlist_details">Podrobnosti seznamu skladeb</string>
+  <string name="album_details">Podrobnosti alba</string>
   <string name="search">Hledat</string>
   <string name="playlist">Seznam skladeb</string>
   <string name="shuffle_on_label">Míchání zapnuto</string>
@@ -32,6 +36,7 @@
   <string name="auth_logged_in">Přihlášen</string>
   <string name="auth_logged_out">Odhlášen</string>
   <string name="local_collection_pretty_name">Místní sbírka</string>
+  <string name="preferences_services">Služby</string>
   <string name="preferences_hatchet_text">Seřídit data s %1$s.</string>
   <string name="preferences_spotify_text">Přehrávejte svoji hudbu ze %1$s. Vyžaduje účet Premium.</string>
   <string name="preferences_playback">Přehrávání</string>
@@ -42,6 +47,7 @@
   <string name="preferences_audio_quality">Upřednostňovaná jakost zvuku</string>
   <string name="preferences_audio_quality_text">Upřednostňovaná jakost zvuku, pokud není připojeno k WiFi.
     </string>
+  <string name="preferences_info">Informace</string>
   <string name="preferences_app_version">Verze</string>
   <string name="crash_dialog_title">Tomahawk spadl</string>
   <string name="crash_dialog_text">Neočekávaná chyba vedla k zastavení programu. Pomozte nám ji, prosím, opravit tím, že pošlete údaje o chybě. Vše, co musíte udělat, je klepnout na OK.</string>
@@ -67,6 +73,9 @@
   <string name="drawer_title_playlists">Seznamy skladeb</string>
   <string name="drawer_title_lovedtracks">Oblíbené</string>
   <string name="drawer_title_settings">Nastavení</string>
+  <string name="collection_dropdown_recently_added">Nedávno přidáno</string>
+  <string name="collection_dropdown_artist">Umělec</string>
+  <string name="collection_dropdown_play_count">Počet přehrání</string>
   <string name="history">Historie</string>
   <string name="preferences_bitrate_low">Normální</string>
   <string name="preferences_bitrate_medium">Dobré</string>
@@ -84,8 +93,16 @@
   <string name="socialaction_type_latchoff">přestal s poslechem</string>
   <string name="socialaction_type_createplaylist">vytvořil seznam skladeb</string>
   <string name="socialaction_type_deletedplaylist">smazal seznam skladeb</string>
-  <string name="album_by_artist">od</string>
+  <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="time_afewseconds">před několika sekundami</string>
+  <string name="time_aminute">před minutou</string>
+  <string name="time_anhour">před hodinou</string>
+  <string name="time_aday">před dnem</string>
+  <string name="time_minutes">před %1$d minutami</string>
+  <string name="time_hours">před %1$d hodinami</string>
+  <string name="time_days">před %1$d dny</string>
   <string name="users_playbacklog_suffix"> nedávno hráno</string>
+  <string name="users_favorites_suffix"> oblíbené</string>
   <string name="music">Hudba</string>
   <string name="biography">Životopis</string>
   <string name="similar">Podobní</string>
@@ -99,4 +116,5 @@
   <string name="ask_access_activity_text1">Uděláme to za vás! povolte, prosím, naši službu v nastavení sytému.</string>
   <string name="ask_access_activity_text2">(Kdykoli můžete toto nastavení zakázat v nastavení Tomahawku)</string>
   <string name="ask_access_activity_button_text">Jít do nastavení</string>
+  <string name="button_open_queue_text">Řada</string>
 </resources>
