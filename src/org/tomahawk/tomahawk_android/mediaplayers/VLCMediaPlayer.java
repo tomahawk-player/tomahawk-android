@@ -95,9 +95,8 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
 
         try {
             mLibVLC = LibVLC.getInstance();
-            mLibVLC.init(TomahawkApp.getContext());
-            mLibVLC.setHardwareAcceleration(LibVLC.HW_ACCELERATION_DISABLED);
             mLibVLC.setHttpReconnect(true);
+            mLibVLC.init(TomahawkApp.getContext());
         } catch (LibVlcException e) {
             Log.e(TAG, "<init>: Failed to initialize LibVLC: " + e.getLocalizedMessage());
         }
