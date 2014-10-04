@@ -791,10 +791,11 @@ public class TomahawkUtils {
             int squareImageWidth = Math.min(image.getHeight(), image.getWidth());
             if (TomahawkMainActivity.sIsConnectedToWifi) {
                 if (squareImageWidth > width) {
-                    return image.getImagePath() + "?width=" + width;
+                    return image.getImagePath() + "?width=" + width + "&height=" + width;
                 }
             } else if (squareImageWidth > width * 2 / 3) {
-                return image.getImagePath() + "?width=" + width * 2 / 3;
+                return image.getImagePath() + "?width=" + width * 2 / 3 + "&height="
+                        + width * 2 / 3;
             }
         }
         return image.getImagePath();
