@@ -18,8 +18,8 @@
   <string name="shuffle_off_label">Shuffle is off</string>
   <string name="repeat_on_label">Repeat is on</string>
   <string name="repeat_off_label">Repeat is off</string>
-  <string name="unknown">&lt;unknown&gt;</string>
-  <string name="no_track">&lt;no track&gt;</string>
+  <string name="unknown">unknown</string>
+  <string name="no_track">no track</string>
   <string name="save_playlist">Save the current playlist</string>
   <string name="create_playlist">Create a new playlist</string>
   <string name="name_playlist">Name</string>

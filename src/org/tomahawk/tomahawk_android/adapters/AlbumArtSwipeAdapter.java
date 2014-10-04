@@ -339,14 +339,16 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                 if (query.getArtist() != null && query.getArtist().getName() != null) {
                     artistTextView.setText(query.getArtist().toString());
                 } else {
-                    artistTextView.setText(R.string.unknown);
+                    artistTextView.setText(
+                            "<" + artistTextView.getResources().getString(R.string.unknown) + ">");
                 }
             }
             if (titleTextView != null) {
                 if (query.getName() != null) {
                     titleTextView.setText(query.getName());
                 } else {
-                    titleTextView.setText(R.string.unknown);
+                    titleTextView.setText(
+                            "<" + artistTextView.getResources().getString(R.string.unknown) + ">");
                 }
             }
             if (loveButton != null) {
@@ -381,7 +383,8 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                 artistTextView.setText("");
             }
             if (titleTextView != null) {
-                titleTextView.setText(R.string.no_track);
+                titleTextView.setText(
+                        "<" + artistTextView.getResources().getString(R.string.no_track) + ">");
             }
             if (loveButton != null) {
                 loveButton.setImageResource(R.drawable.ic_action_notloved);
