@@ -14,15 +14,13 @@
   <string name="album_details">Album Details</string>
   <string name="search">Suche</string>
   <string name="playlist">Playlist</string>
-  <string name="seekbar_completion_time">-:--</string>
-  <string name="seekbar_current_time">0:00</string>
   <string name="shuffle_on_label">Zufallswiedergabe ist an</string>
   <string name="shuffle_off_label">Zufallswiedergabe ist aus</string>
   <string name="repeat_on_label">Wiederholen ist an</string>
   <string name="repeat_off_label">Wiederholen ist aus</string>
   <string name="unknown">&lt;unbekannt&gt;</string>
   <string name="no_track">&lt;kein Lied&gt;</string>
-  <string name="save_playlist">Die aktuelle Playlist speichern</string>
+  <string name="save_playlist">Aktuelle Playlist speichern</string>
   <string name="create_playlist">Eine neue Playlist erstellen</string>
   <string name="name_playlist">Name</string>
   <string name="login_name_label">E-Mail/Benutzername</string>
@@ -32,50 +30,29 @@
   <string name="account_email_label">E-Mail (optional)</string>
   <string name="error_field_required">Dieses Feld ist erforderlich</string>
   <string name="error_passwords_dont_match">Passwörter stimmen nicht überein</string>
-  <string name="error_invalid_credentials">Benutzername oder Passwort falsch.
-</string>
+  <string name="error_invalid_credentials">Benutzername oder Passwort falsch.</string>
   <string name="error_invalid_account">Konto wurde vom Server zurückgewiesen.</string>
-  <string name="error_communication">Authentifizierung nicht möglich. Bitte überprüfe
-deine Verbindung.
-</string>
-  <string name="error_simultaneous_streams">Aktion nicht erlaubt, das Konto ist woanders
-in Benutzung.
-</string>
+  <string name="error_communication">Authentifizierung nicht möglich. Bitte überprüfe deine Verbindung.</string>
+  <string name="error_simultaneous_streams">Aktion nicht erlaubt, das Konto ist woanders in Benutzung.</string>
   <string name="error_account_expired">Dein Account ist abgelaufen.</string>
   <string name="auth_logged_in">Angemeldet bei</string>
   <string name="auth_logged_out">Abgemeldet von</string>
   <string name="local_collection_pretty_name">Lokale Sammlung</string>
-  <string name="hatchet_pretty_name">Hatchet</string>
-  <string name="spotify_pretty_name">Spotify</string>
-  <string name="rdio_pretty_name">Rdio</string>
-  <string name="deezer_pretty_name">Deezer</string>
   <string name="preferences_services">Dienste</string>
-  <string name="preferences_hatchet_text">Synchronisiere deine Daten mit Hatchet.
-</string>
-  <string name="preferences_spotify_text">Spiele deine Musik von Spotify. Benötigt
-ein Premium-Konto.
-</string>
+  <string name="preferences_hatchet_text">Synchronisiere deine Daten mit %1$s.</string>
+  <string name="preferences_spotify_text">Spiele deine Musik von %1$s. Benötigt ein Premium-Konto.</string>
   <string name="preferences_playback">Wiedergabe</string>
   <string name="preferences_playback_data">Scrobble alles</string>
-  <string name="preferences_playback_data_text">Scrobble jedes Lied von allen deiner
-Musik-Apps auf deinem Smartphone zu Hatchet.
-</string>
+  <string name="preferences_playback_data_text">Scrobble jedes Lied von allen deiner Musik-Apps auf deinem Smartphone zu %1$s.</string>
   <string name="preferences_plug_and_play">Abspielen beim Anschließen</string>
-  <string name="preferences_plug_and_play_text">Spielt Musik ab,
-sobald ein Headset angeschlossen ist.
-</string>
+  <string name="preferences_plug_and_play_text">Spielt Musik ab, sobald ein Headset angeschlossen ist.</string>
   <string name="preferences_audio_quality">Bevorzugte Audio-Qualität</string>
-  <string name="preferences_audio_quality_text">Die bevorzugte Audio-Qualität, wenn
-keine WLAN-Verbindung besteht.
-</string>
+  <string name="preferences_audio_quality_text">Die bevorzugte Audio-Qualität, wenn keine WLAN-Verbindung besteht.</string>
   <string name="preferences_info">Info</string>
   <string name="preferences_app_version">App-Version</string>
   <string name="crash_dialog_title">Tomahawk ist abgestürzt</string>
-  <string name="crash_dialog_text">Ein unerwarteter Fehler ist aufgetreten und hat
-die Anwendung beendet. Bitte hilf uns den Fehler zu beheben, indem du
-uns den Absturzbericht durch einen Klick auf OK zusendest.</string>
-  <string name="crash_dialog_comment_prompt">Wenn du möchtest, kannst du einen Kommentar zu diesem
-Problem hinzufügen:</string>
+  <string name="crash_dialog_text">Ein unerwarteter Fehler ist aufgetreten und hat die Anwendung beendet. Bitte hilf uns den Fehler zu beheben, indem du uns den Absturzbericht durch einen Klick auf OK zusendest.</string>
+  <string name="crash_dialog_comment_prompt">Wenn du möchtest, kannst du einen Kommentar zu diesem Problem hinzufügen:</string>
   <string name="crash_dialog_ok_toast">Vielen Dank!</string>
   <string name="context_menu_play">Abspielen</string>
   <string name="context_menu_add_to_queue">Zur Warteschlange hinzufügen</string>
@@ -118,14 +95,13 @@ Problem hinzufügen:</string>
   <string name="socialaction_type_createplaylist">Eine Playlist erstellen</string>
   <string name="socialaction_type_deletedplaylist">Eine Playlist löschen</string>
   <string name="album_by_artist">von</string>
-  <string name="time_ago">her</string>
-  <string name="time_afewseconds">ein paar Sekunden</string>
-  <string name="time_aminute">eine Minute</string>
-  <string name="time_anhour">eine Stunde</string>
-  <string name="time_aday">einen Tag</string>
-  <string name="time_minutes">Minuten</string>
-  <string name="time_hours">Stunden</string>
-  <string name="time_days">Tage</string>
+  <string name="time_afewseconds">vor ein paar Sekunden</string>
+  <string name="time_aminute">vor einer Minute</string>
+  <string name="time_anhour">vor einer Stunde</string>
+  <string name="time_aday">vor einem Tag</string>
+  <string name="time_minutes">vor %1$d Minuten</string>
+  <string name="time_hours">vor %1$d Stunden</string>
+  <string name="time_days">vor %1$d Tagen</string>
   <string name="users_playbacklog_suffix">\'s kürzlich gespielte Lieder</string>
   <string name="users_favorites_suffix">\'s Lieblingslieder</string>
   <string name="music">Musik</string>
@@ -138,11 +114,8 @@ Problem hinzufügen:</string>
   <string name="resolver_config_redirect_button_text_log_into">Anmelden bei</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Abmelden von</string>
   <string name="ask_access_activity_header">Möchtest du automatisch alle Lieder, die du gehört hast, auf Hatchet speichern?</string>
-  <string name="ask_access_activity_text1">Wir machen das für dich! Bitte aktiviere unseren Dienst
-in deinen System Einstellungen.
-</string>
-  <string name="ask_access_activity_text2">(Du kannst dies wann immer du willst in den Tomahawk Einstellungen abschalten.)
-</string>
+  <string name="ask_access_activity_text1">Wir machen das für dich! Bitte aktiviere unseren Dienst in deinen System Einstellungen.</string>
+  <string name="ask_access_activity_text2">(Du kannst dies wann immer du willst in den Tomahawk Einstellungen abschalten.)</string>
   <string name="ask_access_activity_button_text">Gehe zu den Einstellungen</string>
   <string name="button_open_queue_text">Warteschlange</string>
 </resources>

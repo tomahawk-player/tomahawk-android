@@ -8,24 +8,51 @@
   <string name="albums">Alba</string>
   <string name="artists">Umělci</string>
   <string name="users">Uživatelé</string>
+  <string name="search">Hledat</string>
+  <string name="playlist">Seznam skladeb</string>
+  <string name="shuffle_on_label">Míchání zapnuto</string>
+  <string name="shuffle_off_label">Míchání vypnuto</string>
+  <string name="repeat_on_label">Opakování zapnuto</string>
+  <string name="repeat_off_label">Opakování vypnuto</string>
+  <string name="save_playlist">Uložit nynější seznam skladeb</string>
+  <string name="create_playlist">Vytvořit nový seznam skladeb</string>
+  <string name="name_playlist">Název</string>
+  <string name="login_name_label">E-Mail/Uživatelské jméno</string>
+  <string name="login_username">Uživatelské jméno</string>
+  <string name="login_password">Heslo</string>
+  <string name="login_password_confirmation">Potvrzení hesla</string>
+  <string name="account_email_label">E-Mail (volitelné)</string>
   <string name="error_field_required">Toto pole je požadováno</string>
   <string name="error_passwords_dont_match">Heslo nesouhlasí</string>
+  <string name="error_invalid_credentials">Uživatelské jméno nebo heslo neodpovídá.</string>
+  <string name="error_invalid_account">Účet odmítnut serverem.</string>
+  <string name="error_communication">Nelze ověřit. Prověřte, prosím, své připojení.</string>
+  <string name="error_simultaneous_streams">Činnost nepovolena. Účet je již používán.</string>
+  <string name="error_account_expired">Váš účet vypršel.</string>
   <string name="auth_logged_in">Přihlášen</string>
   <string name="auth_logged_out">Odhlášen</string>
   <string name="local_collection_pretty_name">Místní sbírka</string>
-  <string name="hatchet_pretty_name">Hatchet</string>
-  <string name="spotify_pretty_name">Spotify</string>
-  <string name="rdio_pretty_name">Rdio</string>
-  <string name="deezer_pretty_name">Deezer</string>
+  <string name="preferences_hatchet_text">Seřídit data s %1$s.</string>
+  <string name="preferences_spotify_text">Přehrávejte svoji hudbu ze %1$s. Vyžaduje účet Premium.</string>
+  <string name="preferences_playback">Přehrávání</string>
+  <string name="preferences_playback_data">Odesílat údaje o všem</string>
+  <string name="preferences_playback_data_text">Odesílat údaje o každé skladbě z každého hudebního přehrávače v telefonu %1$s.</string>
+  <string name="preferences_plug_and_play">Zastrčit pro přehrávání</string>
+  <string name="preferences_plug_and_play_text">Začne s přehráváním hudby, jakmile jsou sluchátka připojena.</string>
+  <string name="preferences_audio_quality">Upřednostňovaná jakost zvuku</string>
+  <string name="preferences_audio_quality_text">Upřednostňovaná jakost zvuku, pokud není připojeno k WiFi.
+    </string>
+  <string name="preferences_app_version">Verze</string>
   <string name="crash_dialog_title">Tomahawk spadl</string>
-  <string name="crash_dialog_text">Neočekávaná chyba vedla k zastavení programu.
-Pomozte nám ji, prosím, opravit tím, že pošlete údaje o chybě.
-Vše, co musíte udělat, je klepnout na OK.
-    </string>
-  <string name="crash_dialog_comment_prompt">Níže můžete přidat své poznámky
-o potížích:
-    </string>
+  <string name="crash_dialog_text">Neočekávaná chyba vedla k zastavení programu. Pomozte nám ji, prosím, opravit tím, že pošlete údaje o chybě. Vše, co musíte udělat, je klepnout na OK.</string>
+  <string name="crash_dialog_comment_prompt">Níže můžete přidat své poznámky o potížích:</string>
   <string name="crash_dialog_ok_toast">Děkujeme!</string>
+  <string name="context_menu_play">Přehrát</string>
+  <string name="context_menu_add_to_queue">Zařadit</string>
+  <string name="context_menu_add_to_playlist">Přidat do seznamu skladeb</string>
+  <string name="context_menu_love_track">Nejmilejší píseň</string>
+  <string name="context_menu_unlove_track">Zrušit oblibu písně</string>
+  <string name="context_menu_delete">Smazat</string>
   <string name="context_menu_addtocollection">Ve vaší sbírce</string>
   <string name="context_menu_favorite">Oblíbené</string>
   <string name="context_menu_share">Sdílet</string>
@@ -35,9 +62,18 @@ o potížích:
   <string name="menu_item_go_to_album">Jít na album</string>
   <string name="menu_item_share">Sdílet</string>
   <string name="menu_item_playshuffled">Přehrávat zamíchané</string>
+  <string name="drawer_title_feed">Kanál</string>
+  <string name="drawer_title_collection">Sbírka</string>
+  <string name="drawer_title_playlists">Seznamy skladeb</string>
+  <string name="drawer_title_lovedtracks">Oblíbené</string>
+  <string name="drawer_title_settings">Nastavení</string>
   <string name="history">Historie</string>
+  <string name="preferences_bitrate_low">Normální</string>
+  <string name="preferences_bitrate_medium">Dobré</string>
+  <string name="preferences_bitrate_high">Nejlepší</string>
   <string name="drawer_open">Otevřít kartu pro pohyb</string>
   <string name="drawer_close">Zavřít kartu pro pohyb</string>
+  <string name="content_header_following">Sleduje</string>
   <string name="socialaction_type_follow_true">nesleduje</string>
   <string name="socialaction_type_love_track_true">si oblíbil skladbu:</string>
   <string name="socialaction_type_love_track_false">už nemá rád</string>
@@ -49,14 +85,6 @@ o potížích:
   <string name="socialaction_type_createplaylist">vytvořil seznam skladeb</string>
   <string name="socialaction_type_deletedplaylist">smazal seznam skladeb</string>
   <string name="album_by_artist">od</string>
-  <string name="time_ago">před</string>
-  <string name="time_afewseconds">několika sekundami</string>
-  <string name="time_aminute">minutou</string>
-  <string name="time_anhour">hodinou</string>
-  <string name="time_aday">den</string>
-  <string name="time_minutes">minutami</string>
-  <string name="time_hours">hodinami</string>
-  <string name="time_days">dny</string>
   <string name="users_playbacklog_suffix"> nedávno hráno</string>
   <string name="music">Hudba</string>
   <string name="biography">Životopis</string>
@@ -67,9 +95,8 @@ o potížích:
   <string name="following">Sleduje</string>
   <string name="resolver_config_redirect_button_text_log_into">Přihlásit se</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Odhlásit se</string>
-  <string name="ask_access_activity_text1">Uděláme to za vás! povolte, prosím, naši službu
-v nastavení sytému.
-    </string>
+  <string name="ask_access_activity_header">Chcete automaticky odesílat informace o všech skladbách, které jsou přehrávány, Hatchet?</string>
+  <string name="ask_access_activity_text1">Uděláme to za vás! povolte, prosím, naši službu v nastavení sytému.</string>
   <string name="ask_access_activity_text2">(Kdykoli můžete toto nastavení zakázat v nastavení Tomahawku)</string>
   <string name="ask_access_activity_button_text">Jít do nastavení</string>
 </resources>
