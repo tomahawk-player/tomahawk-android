@@ -93,6 +93,7 @@
   <string name="socialaction_type_createplaylist">Eine Playlist erstellen</string>
   <string name="socialaction_type_deletedplaylist">Eine Playlist löschen</string>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="album_by_artist">%1$s von %2$s</string>
   <string name="time_afewseconds">vor ein paar Sekunden</string>
   <string name="time_aminute">vor einer Minute</string>
   <string name="time_anhour">vor einer Stunde</string>
