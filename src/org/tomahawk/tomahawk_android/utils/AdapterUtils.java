@@ -100,7 +100,7 @@ public class AdapterUtils {
     public static void fillContentHeaderSmall(Context context, ViewHolder viewHolder, User user) {
         viewHolder.getTextView1().setText(user.getName().toUpperCase());
         TomahawkUtils.loadRoundedImageIntoImageView(context, viewHolder.getRoundedImage(),
-                user.getImage(), Image.getLargeImageSize(), false);
+                user.getImage(), Image.getSmallImageSize(), false);
         viewHolder.getRoundedImage().setVisibility(View.VISIBLE);
     }
 
