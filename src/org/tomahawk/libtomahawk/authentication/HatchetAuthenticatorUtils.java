@@ -47,6 +47,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     private static final String TAG = HatchetAuthenticatorUtils.class.getSimpleName();
 
+    public static final String HATCHET_PRETTY_NAME = "Hatchet";
+
     public static final String HATCHET_AUTH_BASE_URL = "https://auth.hatchet.is/v1";
 
     public static final String PARAMS_GRANT_TYPE_PASSWORD = "password";
@@ -65,8 +67,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     private HatchetAuth mHatchetAuth;
 
-    public HatchetAuthenticatorUtils(String id, String prettyName) {
-        super(id, prettyName);
+    public HatchetAuthenticatorUtils() {
+        super(TomahawkApp.PLUGINNAME_HATCHET, HATCHET_PRETTY_NAME);
 
         mAllowRegistration = true;
 

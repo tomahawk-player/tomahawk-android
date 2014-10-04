@@ -34,6 +34,7 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.ViewHolder;
+import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -146,8 +147,7 @@ public class AdapterUtils {
             viewHolder.getTextView5().setText(TomahawkUtils.durationToString(
                     (query.getPreferredTrack().getDuration())));
         } else {
-            viewHolder.getTextView5().setText(context.getString(
-                    R.string.seekbar_completion_time));
+            viewHolder.getTextView5().setText(PlaybackSeekBar.COMPLETION_STRING_DEFAULT);
         }
         boolean isHighlighted = viewHolder.getLayoutId() == R.layout.list_item_highlighted;
         setTextViewEnabled(viewHolder.getTextView1(), query.isPlayable(), false, isHighlighted);
@@ -342,24 +342,23 @@ public class AdapterUtils {
                 if (minutes < 2) {
                     s += resources.getString(R.string.time_aminute);
                 } else {
-                    s += minutes + " " + resources.getString(R.string.time_minutes);
+                    s += resources.getString(R.string.time_minutes, minutes);
                 }
             } else if (diff < 86400000) {
                 long hours = TimeUnit.MILLISECONDS.toHours(diff);
                 if (hours < 2) {
                     s += resources.getString(R.string.time_anhour);
                 } else {
-                    s += hours + " " + resources.getString(R.string.time_hours);
+                    s += resources.getString(R.string.time_hours, hours);
                 }
             } else {
                 long days = TimeUnit.MILLISECONDS.toDays(diff);
                 if (days < 2) {
                     s += resources.getString(R.string.time_aday);
                 } else {
-                    s += days + " " + resources.getString(R.string.time_days);
+                    s += resources.getString(R.string.time_days, days);
                 }
             }
-            s += " " + resources.getString(R.string.time_ago);
         }
         return s;
     }

@@ -154,8 +154,7 @@ public class PipeLine {
             }
             mResolvers.add(new DataBaseResolver(
                     TomahawkApp.getContext().getString(R.string.local_collection_pretty_name)));
-            SpotifyResolver spotifyResolver = new SpotifyResolver(
-                    TomahawkApp.getContext().getString(R.string.spotify_pretty_name));
+            SpotifyResolver spotifyResolver = new SpotifyResolver();
             mResolvers.add(spotifyResolver);
             setAllResolversAdded(true);
         }

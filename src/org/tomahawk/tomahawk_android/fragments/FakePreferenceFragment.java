@@ -18,6 +18,8 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
+import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
+import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticatorUtils;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.R;
@@ -122,16 +124,14 @@ public class FakePreferenceFragment extends TomahawkListFragment
                 getString(R.string.preferences_services));
         prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
                 FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH,
-                TomahawkApp.PLUGINNAME_HATCHET,
-                getString(R.string.hatchet_pretty_name),
-                getString(R.string.preferences_hatchet_text),
-                R.drawable.ic_hatchet));
+                TomahawkApp.PLUGINNAME_HATCHET, HatchetAuthenticatorUtils.HATCHET_PRETTY_NAME,
+                getString(R.string.preferences_hatchet_text,
+                        HatchetAuthenticatorUtils.HATCHET_PRETTY_NAME), R.drawable.ic_hatchet));
         prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
                 FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH,
-                TomahawkApp.PLUGINNAME_SPOTIFY,
-                getString(R.string.spotify_pretty_name),
-                getString(R.string.preferences_spotify_text),
-                R.drawable.ic_spotify));
+                TomahawkApp.PLUGINNAME_SPOTIFY, SpotifyAuthenticatorUtils.SPOTIFY_PRETTY_NAME,
+                getString(R.string.preferences_spotify_text,
+                        SpotifyAuthenticatorUtils.SPOTIFY_PRETTY_NAME), R.drawable.ic_spotify));
         for (ScriptResolver scriptResolver : PipeLine.getInstance().getScriptResolvers()) {
             if (!scriptResolver.getId().contains("-metadata")) {
                 prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
