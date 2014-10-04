@@ -10,8 +10,6 @@
   <string name="users">Utenti</string>
   <string name="search">Cerca</string>
   <string name="playlist">Playlist</string>
-  <string name="unknown">&lt;sconosciuto&gt;</string>
-  <string name="no_track">&lt;nessuna traccia&gt;</string>
   <string name="name_playlist">Nome</string>
   <string name="login_name_label">Email/Username</string>
   <string name="login_username">Nome utente</string>
@@ -33,4 +31,5 @@
   <string name="preferences_spotify_text">Ascolta la tua musica da %1$s. Richiede un account premium.</string>
   <string name="preferences_playback_data">Scrobbla tutto</string>
   <string name="preferences_playback_data_text">Scrobbla a %1$s tutte le tracce da tutti i lettori musicali sul telefono.</string>
+  <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
 </resources>

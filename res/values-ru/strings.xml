@@ -83,7 +83,7 @@
   <string name="socialaction_type_latchoff">перестали слушать вместе с</string>
   <string name="socialaction_type_createplaylist">создал плейлист</string>
   <string name="socialaction_type_deletedplaylist">удалил плейлист</string>
-  <string name="album_by_artist"> </string>
+  <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="users_playbacklog_suffix">недавно слушал</string>
   <string name="music">Музыка</string>
   <string name="biography">Биография</string>
