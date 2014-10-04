@@ -39,6 +39,8 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
     // Used for debug logging
     private final static String TAG = DeezerAuthenticatorUtils.class.getSimpleName();
 
+    public static final String DEEZER_PRETTY_NAME = "Deezer";
+
     public static final String ACCOUNT_PRETTY_NAME = "Deezer-Account";
 
     private final static String APP_ID = "138751";
@@ -47,8 +49,8 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
 
     private DeezerConnect mDeezerConnect;
 
-    public DeezerAuthenticatorUtils(String id, String prettyName) {
-        super(id, prettyName);
+    public DeezerAuthenticatorUtils() {
+        super(TomahawkApp.PLUGINNAME_DEEZER, DEEZER_PRETTY_NAME);
 
         mDeezerConnect = new DeezerConnect(APP_ID);
         onInit();

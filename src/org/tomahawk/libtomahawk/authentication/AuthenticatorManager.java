@@ -89,18 +89,14 @@ public class AuthenticatorManager {
     public void ensureInit() {
         if (!mInitialized) {
             mInitialized = true;
-            mAuthenticatorUtils.put(TomahawkApp.PLUGINNAME_SPOTIFY,
-                    new SpotifyAuthenticatorUtils(TomahawkApp.PLUGINNAME_SPOTIFY,
-                            TomahawkApp.getContext().getString(R.string.spotify_pretty_name)));
-            mAuthenticatorUtils.put(TomahawkApp.PLUGINNAME_HATCHET,
-                    new HatchetAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET,
-                            TomahawkApp.getContext().getString(R.string.hatchet_pretty_name)));
-            mAuthenticatorUtils.put(TomahawkApp.PLUGINNAME_RDIO,
-                    new RdioAuthenticatorUtils(TomahawkApp.PLUGINNAME_RDIO,
-                            TomahawkApp.getContext().getString(R.string.rdio_pretty_name)));
-            mAuthenticatorUtils.put(TomahawkApp.PLUGINNAME_DEEZER,
-                    new DeezerAuthenticatorUtils(TomahawkApp.PLUGINNAME_DEEZER,
-                            TomahawkApp.getContext().getString(R.string.deezer_pretty_name)));
+            SpotifyAuthenticatorUtils spotifyAuthenticatorUtils = new SpotifyAuthenticatorUtils();
+            mAuthenticatorUtils.put(spotifyAuthenticatorUtils.getId(), spotifyAuthenticatorUtils);
+            HatchetAuthenticatorUtils hatchetAuthenticatorUtils = new HatchetAuthenticatorUtils();
+            mAuthenticatorUtils.put(hatchetAuthenticatorUtils.getId(), hatchetAuthenticatorUtils);
+            RdioAuthenticatorUtils rdioAuthenticatorUtils = new RdioAuthenticatorUtils();
+            mAuthenticatorUtils.put(rdioAuthenticatorUtils.getId(), rdioAuthenticatorUtils);
+            DeezerAuthenticatorUtils deezerAuthenticatorUtils = new DeezerAuthenticatorUtils();
+            mAuthenticatorUtils.put(deezerAuthenticatorUtils.getId(), deezerAuthenticatorUtils);
         }
     }
 

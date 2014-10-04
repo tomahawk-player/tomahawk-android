@@ -14,8 +14,6 @@
   <string name="album_details">Album Details</string>
   <string name="search">Search</string>
   <string name="playlist">Playlist</string>
-  <string name="seekbar_completion_time">-:--</string>
-  <string name="seekbar_current_time">0:00</string>
   <string name="shuffle_on_label">Shuffle is on</string>
   <string name="shuffle_off_label">Shuffle is off</string>
   <string name="repeat_on_label">Repeat is on</string>
@@ -32,52 +30,29 @@
   <string name="account_email_label">E-Mail (optional)</string>
   <string name="error_field_required">This field is required</string>
   <string name="error_passwords_dont_match">Passwords don\'t match</string>
-  <string name="error_invalid_credentials">Username or password incorrect.
-    </string>
+  <string name="error_invalid_credentials">Username or password incorrect.</string>
   <string name="error_invalid_account">Account rejected by server.</string>
-  <string name="error_communication">Unable to authenticate. Please check
-        your connection.
-    </string>
-  <string name="error_simultaneous_streams">Action not allowed, account is in use
-        elsewhere.
-    </string>
+  <string name="error_communication">Unable to authenticate. Please check your connection.</string>
+  <string name="error_simultaneous_streams">Action not allowed, account is in use elsewhere.</string>
   <string name="error_account_expired">Your account has expired.</string>
   <string name="auth_logged_in">Logged into</string>
   <string name="auth_logged_out">Logged out of</string>
   <string name="local_collection_pretty_name">Local Collection</string>
-  <string name="hatchet_pretty_name">Hatchet</string>
-  <string name="spotify_pretty_name">Spotify</string>
-  <string name="rdio_pretty_name">Rdio</string>
-  <string name="deezer_pretty_name">Deezer</string>
   <string name="preferences_services">Services</string>
-  <string name="preferences_hatchet_text">Sync your data with Hatchet.
-    </string>
-  <string name="preferences_spotify_text">Play your music from Spotify. Requires
-        a Premium account.
-    </string>
+  <string name="preferences_hatchet_text">Sync your data with %1$s.</string>
+  <string name="preferences_spotify_text">Play your music from %1$s. Requires a Premium account.</string>
   <string name="preferences_playback">Playback</string>
   <string name="preferences_playback_data">Scrobble Everything</string>
-  <string name="preferences_playback_data_text">Scrobble every track from every music
-        player app on the phone to Hatchet.
-    </string>
+  <string name="preferences_playback_data_text">Scrobble every track from every music player app on the phone to Hatchet.</string>
   <string name="preferences_plug_and_play">Plug In to Play</string>
-  <string name="preferences_plug_and_play_text">Starts playing music
-        as soon as a headset is connected.
-    </string>
+  <string name="preferences_plug_and_play_text">Starts playing music as soon as a headset is connected.</string>
   <string name="preferences_audio_quality">Preferred Audio Quality</string>
-  <string name="preferences_audio_quality_text">The preferred audio quality if not
-        connected to WiFi.
-    </string>
+  <string name="preferences_audio_quality_text">The preferred audio quality if not connected to WiFi.</string>
   <string name="preferences_info">Info</string>
   <string name="preferences_app_version">App-Version</string>
   <string name="crash_dialog_title">Tomahawk has crashed</string>
-  <string name="crash_dialog_text">An unexpected error occurred forcing the
-        application to stop. Please help us fix this by sending us error data,
-        all you have to do is click OK.
-    </string>
-  <string name="crash_dialog_comment_prompt">You might add your comments about the problem
-        below:
-    </string>
+  <string name="crash_dialog_text">An unexpected error occurred forcing the application to stop. Please help us fix this by sending us error data, all you have to do is click OK.</string>
+  <string name="crash_dialog_comment_prompt">You might add your comments about the problem below:</string>
   <string name="crash_dialog_ok_toast">Thank you !</string>
   <string name="context_menu_play">Play</string>
   <string name="context_menu_add_to_queue">Add to Queue</string>
@@ -120,14 +95,13 @@
   <string name="socialaction_type_createplaylist">created a playlist</string>
   <string name="socialaction_type_deletedplaylist">deleted a playlist</string>
   <string name="album_by_artist">by</string>
-  <string name="time_ago">ago</string>
-  <string name="time_afewseconds">a few seconds</string>
-  <string name="time_aminute">a minute</string>
-  <string name="time_anhour">an hour</string>
-  <string name="time_aday">a day</string>
-  <string name="time_minutes">minutes</string>
-  <string name="time_hours">hours</string>
-  <string name="time_days">days</string>
+  <string name="time_afewseconds">a few seconds ago</string>
+  <string name="time_aminute">a minute ago</string>
+  <string name="time_anhour">an hour ago</string>
+  <string name="time_aday">a day ago</string>
+  <string name="time_minutes">%1$d minutes ago</string>
+  <string name="time_hours">%1$d hours ago</string>
+  <string name="time_days">%1$d days ago</string>
   <string name="users_playbacklog_suffix">\'s recently played</string>
   <string name="users_favorites_suffix">\'s Favorites</string>
   <string name="music">Music</string>
@@ -139,15 +113,9 @@
   <string name="following">Following</string>
   <string name="resolver_config_redirect_button_text_log_into">Log into</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Log out of</string>
-  <string name="ask_access_activity_header">Want to automatically save data about all the tracks you play on
-        Hatchet?
-    </string>
-  <string name="ask_access_activity_text1">We\'ll do that for you! Please enable our service in
-        your system settings.
-    </string>
-  <string name="ask_access_activity_text2">(You can disable this whenever you want in Tomahawk\'s
-        settings)
-    </string>
+  <string name="ask_access_activity_header">Want to automatically save data about all the tracks you play on Hatchet?</string>
+  <string name="ask_access_activity_text1">We\'ll do that for you! Please enable our service in your system settings.</string>
+  <string name="ask_access_activity_text2">(You can disable this whenever you want in Tomahawk\'s settings)</string>
   <string name="ask_access_activity_button_text">Go to Settings</string>
   <string name="button_open_queue_text">Queue</string>
 </resources>

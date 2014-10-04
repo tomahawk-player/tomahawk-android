@@ -19,7 +19,6 @@
 package org.tomahawk.tomahawk_android.views;
 
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 
 import android.content.Context;
@@ -33,6 +32,8 @@ import android.widget.TextView;
  * Customized {@link SeekBar} for the {@link org.tomahawk.tomahawk_android.fragments.PlaybackFragment}
  */
 public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
+
+    public static final String COMPLETION_STRING_DEFAULT = "-:--";
 
     private boolean mIsSeeking;
 
@@ -156,8 +157,7 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
                 mTextViewCompletionTime.setText(TomahawkUtils
                         .durationToString(mPlaybackService.getCurrentTrack().getDuration()));
             } else {
-                mTextViewCompletionTime.setText(getResources()
-                        .getString(R.string.seekbar_completion_time));
+                mTextViewCompletionTime.setText(PlaybackSeekBar.COMPLETION_STRING_DEFAULT);
             }
         }
     }

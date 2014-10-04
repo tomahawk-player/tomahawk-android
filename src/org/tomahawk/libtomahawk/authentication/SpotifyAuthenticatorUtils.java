@@ -48,6 +48,8 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
     // Used for debug logging
     private final static String TAG = SpotifyAuthenticatorUtils.class.getSimpleName();
 
+    public static final String SPOTIFY_PRETTY_NAME = "Spotify";
+
     // String tags used to store Spotify's preferred bitrate
     public static final String SPOTIFY_PREF_BITRATE
             = "org.tomahawk.tomahawk_android.spotify_pref_bitrate";
@@ -115,8 +117,8 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
         }
     }
 
-    public SpotifyAuthenticatorUtils(String id, String prettyName) {
-        super(id, prettyName);
+    public SpotifyAuthenticatorUtils() {
+        super(TomahawkApp.PLUGINNAME_SPOTIFY, SPOTIFY_PRETTY_NAME);
     }
 
     public void setToSpotifyMessenger(Messenger toSpotifyMessenger) {

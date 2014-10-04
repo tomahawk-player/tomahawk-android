@@ -60,7 +60,7 @@
                 android:paddingRight="@dimen/padding_verysmall"
                 android:layout_alignParentRight="true"
                 android:layout_below="@+id/seekBar_track"
-                android:text="@string/seekbar_completion_time"
+                android:text="-:--"
                 android:textSize="@dimen/text_size_small"
                 android:textColor="@color/secondary_textcolor"/>
 
@@ -71,7 +71,7 @@
                 android:paddingLeft="@dimen/padding_verysmall"
                 android:layout_alignParentLeft="true"
                 android:layout_below="@+id/seekBar_track"
-                android:text="@string/seekbar_current_time"
+                android:text="0:00"
                 android:textSize="@dimen/text_size_small"
                 android:textColor="@color/secondary_textcolor"/>
     </RelativeLayout>

@@ -40,6 +40,8 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
     // Used for debug logging
     private final static String TAG = RdioAuthenticatorUtils.class.getSimpleName();
 
+    public static final String RDIO_PRETTY_NAME = "Rdio";
+
     public static final String ACCOUNT_PRETTY_NAME = "Rdio-Account";
 
     public static final String RDIO_APPKEY = "Z3FiN3oyejhoNmU3ZTc2emNicTl3ZHlw";
@@ -48,8 +50,8 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
 
     private Rdio mRdio;
 
-    public RdioAuthenticatorUtils(String id, String prettyName) {
-        super(id, prettyName);
+    public RdioAuthenticatorUtils() {
+        super(TomahawkApp.PLUGINNAME_RDIO, RDIO_PRETTY_NAME);
 
         onInit();
     }
