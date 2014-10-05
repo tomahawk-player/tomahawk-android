@@ -18,6 +18,8 @@
   <string name="shuffle_off_label">Zufallswiedergabe ist aus</string>
   <string name="repeat_on_label">Wiederholen ist an</string>
   <string name="repeat_off_label">Wiederholen ist aus</string>
+  <string name="unknown">unbekannt</string>
+  <string name="no_track">kein Lied</string>
   <string name="save_playlist">Aktuelle Playlist speichern</string>
   <string name="create_playlist">Eine neue Playlist erstellen</string>
   <string name="name_playlist">Name</string>

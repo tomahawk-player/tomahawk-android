@@ -1,4 +1,36 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="ok">OK</string>
+  <string name="cancel">Annuleren</string>
+  <string name="login">Inloggen</string>
+  <string name="logout">Uitloggen</string>
+  <string name="register">Registreren</string>
+  <string name="albums">Albums</string>
+  <string name="artists">Artiesten</string>
+  <string name="users">Gebruikers</string>
+  <string name="top_hits">Topnummers</string>
+  <string name="top_albums">Topalbums</string>
+  <string name="playlist_details">Afspeellijstdetails</string>
+  <string name="album_details">Albumdetails</string>
+  <string name="search">Zoeken</string>
+  <string name="playlist">Afspeellijst</string>
+  <string name="shuffle_on_label">Willekeurig staat aan</string>
+  <string name="shuffle_off_label">Willekeurig staat uit</string>
+  <string name="repeat_on_label">Herhalen staat aan</string>
+  <string name="repeat_off_label">Herhalen staat uit</string>
+  <string name="unknown">onbekend</string>
+  <string name="no_track">geen nummer</string>
+  <string name="save_playlist">De huidige afspeellijst opslaan</string>
+  <string name="create_playlist">Een nieuwe afspeellijst creëren</string>
+  <string name="name_playlist">Naam</string>
+  <string name="login_name_label">E-mailadres/gebruikersnaam</string>
+  <string name="login_username">Gebuikersnaam</string>
+  <string name="login_password">Wachtwoord</string>
+  <string name="login_password_confirmation">Wachtwoordbevestiging</string>
+  <string name="account_email_label">E-mailadres (optioneel)</string>
+  <string name="error_field_required">Dit veld is vereist</string>
+  <string name="error_passwords_dont_match">Wachtwoorden komen niet overeen</string>
+  <string name="error_invalid_credentials">Gebruikersnaam of wachtwoord is incorrect.</string>
+  <string name="error_invalid_account">Account geweigerd door server.</string>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
 </resources>
