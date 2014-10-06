@@ -18,6 +18,8 @@
   <string name="shuffle_off_label">随机关</string>
   <string name="repeat_on_label">重复开</string>
   <string name="repeat_off_label">重复关</string>
+  <string name="unknown">未知</string>
+  <string name="no_track">无曲目</string>
   <string name="save_playlist">保存当前播放列表</string>
   <string name="create_playlist">创建新播放列表</string>
   <string name="name_playlist">名称</string>
@@ -93,6 +95,7 @@
   <string name="socialaction_type_createplaylist">创建一个播放列表</string>
   <string name="socialaction_type_deletedplaylist">删除一个播放列表</string>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="album_by_artist">%1$s - %2$s</string>
   <string name="time_afewseconds">几秒前</string>
   <string name="time_aminute">一分钟前</string>
   <string name="time_anhour">一小时前</string>
