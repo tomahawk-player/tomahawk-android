@@ -31,11 +31,13 @@ import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.ViewHolder;
 import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.os.Handler;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
@@ -46,6 +48,8 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class AdapterUtils {
+
+    private static final int MSG_UPDATE_PROGRESS = 0x2;
 
     public static void fillContentHeader(Context context, ViewHolder viewHolder,
             final Album album, View.OnClickListener listener) {
@@ -134,8 +138,9 @@ public class AdapterUtils {
                 Image.getSmallImageSize(), R.drawable.album_placeholder_grid);
     }
 
-    public static void fillView(ViewHolder viewHolder, Query query, String numerationString,
-            boolean showAsPlaying, boolean showDuration, boolean hideArtistName) {
+    public static void fillView(final TomahawkMainActivity activity, final ViewHolder viewHolder,
+            Query query, String numerationString, boolean showAsPlaying, boolean showDuration,
+            boolean hideArtistName) {
         if (!hideArtistName) {
             viewHolder.getTextView2().setVisibility(View.VISIBLE);
             viewHolder.getTextView2().setText(query.getArtist().getName());
@@ -147,8 +152,28 @@ public class AdapterUtils {
             if (showAsPlaying) {
                 viewHolder.getImageView1().setVisibility(View.VISIBLE);
                 Resolver resolver = query.getPreferredTrackResult().getResolvedBy();
-                TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
-                        viewHolder.getImageView1(), resolver.getIconPath(), true);
+                if (resolver.getIconPath() != null) {
+                    TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                            viewHolder.getImageView1(), resolver.getIconPath(), false);
+                } else {
+                    TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                            viewHolder.getImageView1(), resolver.getIconResId(), false);
+                }
+                viewHolder.getProgressBar().setMax(
+                        (int) activity.getPlaybackService().getCurrentTrack().getDuration());
+                final Handler progressHandler = new Handler();
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        if (viewHolder.getProgressBar() != null) {
+                            viewHolder.getProgressBar().setProgress(
+                                    activity.getPlaybackService().getPosition());
+                            progressHandler.postDelayed(this, 500);
+                        } else {
+                            progressHandler.removeCallbacks(this);
+                        }
+                    }
+                }.run();
             } else {
                 viewHolder.getTextView1().setVisibility(View.VISIBLE);
                 viewHolder.getTextView1().setText(numerationString);
