@@ -129,7 +129,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 if (getListAdapter() == null) {
                     tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater,
                             segment, this);
-                    tomahawkListAdapter.setShowDuration(true);
+                    tomahawkListAdapter.setShowNumeration(true);
                     if (!mDontShowHeader) {
                         tomahawkListAdapter.setShowContentHeaderSpacer(
                                 R.dimen.header_clear_space_scrollable,

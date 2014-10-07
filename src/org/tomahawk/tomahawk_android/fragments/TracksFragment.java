@@ -120,7 +120,11 @@ public class TracksFragment extends TomahawkFragment {
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
-                tomahawkListAdapter.setShowDuration(true);
+                if (AdapterUtils.allFromOneArtist(queries)) {
+                    tomahawkListAdapter.setHideArtistName(true);
+                    tomahawkListAdapter.setShowDuration(true);
+                }
+                tomahawkListAdapter.setShowNumeration(true);
                 tomahawkListAdapter.setShowContentHeaderSpacer(
                         R.dimen.header_clear_space_scrollable, getListView().getWrappedList());
                 setListAdapter(tomahawkListAdapter);
