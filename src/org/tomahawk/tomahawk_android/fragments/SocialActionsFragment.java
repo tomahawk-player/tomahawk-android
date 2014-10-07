@@ -57,6 +57,10 @@ public class SocialActionsFragment extends TomahawkFragment {
 
     private HashSet<User> mResolvedUsers = new HashSet<User>();
 
+    private HashSet<Album> mResolvedAlbums = new HashSet<Album>();
+
+    private HashSet<Artist> mResolvedArtists = new HashSet<Artist>();
+
     @Override
     public void onResume() {
         super.onResume();
@@ -165,17 +169,12 @@ public class SocialActionsFragment extends TomahawkFragment {
                         || (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE.equals(type)
                         && action && (socialAction.getTargetObject() instanceof Query
                         || socialAction.getTargetObject() instanceof Album))) {
-                    User user = socialAction.getUser();
-                    if (!mResolvedUsers.contains(user) && user.getImage() == null) {
-                        mResolvedUsers.add(user);
-                        mCurrentRequestIds.add(InfoSystem.getInstance().resolve(user));
-                    }
                     List<TomahawkListItem> mergedActions = new ArrayList<TomahawkListItem>();
                     mergedActions.add(socialAction);
                     List<SocialAction> actionsToDelete = new ArrayList<SocialAction>();
                     for (TomahawkListItem item : socialActions) {
                         SocialAction actionToCompare = (SocialAction) item;
-                        if (actionToCompare.getUser() == user
+                        if (actionToCompare.getUser() == socialAction.getUser()
                                 && actionToCompare.getType().equals(socialAction.getType())
                                 && actionToCompare.getTargetObject().getClass()
                                 == socialAction.getTargetObject().getClass()) {
@@ -203,6 +202,8 @@ public class SocialActionsFragment extends TomahawkFragment {
 
             TomahawkListAdapter tomahawkListAdapter;
             List<Segment> segments = new ArrayList<Segment>();
+
+            mShownQueries.clear();
             for (List<TomahawkListItem> mergedActions : mergedActionsList) {
                 SocialAction first = (SocialAction) mergedActions.get(0);
                 if (first.getTargetObject() instanceof Album
@@ -213,10 +214,31 @@ public class SocialActionsFragment extends TomahawkFragment {
                     segments.add(new Segment(mergedActions));
                 }
 
-                mShownQueries.clear();
                 for (TomahawkListItem item : mergedActions) {
-                    if (((SocialAction) item).getQuery() != null) {
-                        mShownQueries.add(((SocialAction) item).getQuery());
+                    User user = ((SocialAction) item).getUser();
+                    if (!mResolvedUsers.contains(user) && user.getImage() == null) {
+                        mResolvedUsers.add(user);
+                        mCurrentRequestIds.add(InfoSystem.getInstance().resolve(user));
+                    }
+
+                    TomahawkListItem targetObject = ((SocialAction) item).getTargetObject();
+                    if (targetObject instanceof Query) {
+                        mShownQueries.add((Query) targetObject);
+                    } else if (targetObject instanceof Album
+                            && !mResolvedAlbums.contains(targetObject)) {
+                        mResolvedAlbums.add((Album) targetObject);
+                        mCurrentRequestIds
+                                .add(InfoSystem.getInstance().resolve((Album) targetObject));
+                    } else if (targetObject instanceof User
+                            && !mResolvedUsers.contains(targetObject)) {
+                        mResolvedUsers.add((User) targetObject);
+                        mCurrentRequestIds
+                                .add(InfoSystem.getInstance().resolve((User) targetObject));
+                    } else if (targetObject instanceof Artist
+                            && !mResolvedArtists.contains(targetObject)) {
+                        mResolvedArtists.add((Artist) targetObject);
+                        mCurrentRequestIds.addAll(InfoSystem.getInstance()
+                                .resolve((Artist) targetObject, true));
                     }
                 }
             }

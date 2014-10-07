@@ -23,7 +23,7 @@
               android:layout_height="wrap_content"
               android:paddingLeft="@dimen/padding_superlarge"
               android:paddingRight="@dimen/padding_superlarge"
-              android:paddingTop="@dimen/padding_medium"
+              android:paddingTop="@dimen/padding_superlarge"
               android:baselineAligned="false"
               android:orientation="horizontal"
               android:descendantFocusability="afterDescendants"

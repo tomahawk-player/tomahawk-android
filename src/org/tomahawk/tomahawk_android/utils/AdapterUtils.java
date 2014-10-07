@@ -159,21 +159,6 @@ public class AdapterUtils {
                     TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
                             viewHolder.getImageView1(), resolver.getIconResId(), false);
                 }
-                viewHolder.getProgressBar().setMax(
-                        (int) activity.getPlaybackService().getCurrentTrack().getDuration());
-                final Handler progressHandler = new Handler();
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        if (viewHolder.getProgressBar() != null) {
-                            viewHolder.getProgressBar().setProgress(
-                                    activity.getPlaybackService().getPosition());
-                            progressHandler.postDelayed(this, 500);
-                        } else {
-                            progressHandler.removeCallbacks(this);
-                        }
-                    }
-                }.run();
             } else {
                 viewHolder.getTextView1().setVisibility(View.VISIBLE);
                 viewHolder.getTextView1().setText(numerationString);
@@ -187,6 +172,23 @@ public class AdapterUtils {
             } else {
                 viewHolder.getTextView4().setText(PlaybackSeekBar.COMPLETION_STRING_DEFAULT);
             }
+        }
+        if (viewHolder.getProgressBar() != null) {
+            viewHolder.getProgressBar().setMax(
+                    (int) activity.getPlaybackService().getCurrentTrack().getDuration());
+            final Handler progressHandler = new Handler();
+            new Runnable() {
+                @Override
+                public void run() {
+                    if (viewHolder.getProgressBar() != null) {
+                        viewHolder.getProgressBar().setProgress(
+                                activity.getPlaybackService().getPosition());
+                        progressHandler.postDelayed(this, 500);
+                    } else {
+                        progressHandler.removeCallbacks(this);
+                    }
+                }
+            }.run();
         }
     }
 
