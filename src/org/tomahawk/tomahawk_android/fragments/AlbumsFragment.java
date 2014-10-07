@@ -128,7 +128,7 @@ public class AlbumsFragment extends TomahawkFragment {
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
                         layoutInflater, segments, this);
-                tomahawkListAdapter.setShowResolvedBy(true);
+                tomahawkListAdapter.setShowDuration(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segments);

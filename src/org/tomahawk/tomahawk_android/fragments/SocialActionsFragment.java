@@ -26,7 +26,9 @@ import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -41,6 +43,7 @@ import android.view.View;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * {@link org.tomahawk.tomahawk_android.fragments.TomahawkFragment} which shows information provided
@@ -80,6 +83,7 @@ public class SocialActionsFragment extends TomahawkFragment {
                 }
             }
         }
+        getListView().setAreHeadersSticky(false);
         updateAdapter();
     }
 
@@ -92,48 +96,41 @@ public class SocialActionsFragment extends TomahawkFragment {
     @Override
     public void onItemClick(View view, TomahawkListItem item) {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        if (item instanceof SocialAction) {
-            SocialAction socialAction = (SocialAction) item;
-            TomahawkListItem target = socialAction.getTargetObject();
-            if (target instanceof Query && ((Query) target).isPlayable()) {
-                Query query = (Query) target;
-                ArrayList<Query> queries = new ArrayList<Query>();
-                queries.addAll(mShownQueries);
-                PlaybackService playbackService = activity.getPlaybackService();
-                if (playbackService != null && playbackService.getCurrentQuery() == query) {
-                    playbackService.playPause();
-                } else {
-                    Playlist playlist = Playlist.fromQueryList(DatabaseHelper.CACHED_PLAYLIST_NAME,
-                            queries);
-                    if (playbackService != null) {
-                        playbackService.setPlaylist(playlist, playlist.getEntryWithQuery(query));
-                        Class clss = mContainerFragmentClass != null ? mContainerFragmentClass
-                                : ((Object) this).getClass();
-                        playbackService.setReturnFragment(clss, getArguments());
-                        playbackService.start();
-                    }
-                }
-            } else if (target instanceof Album) {
-                FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
-                        TracksFragment.class, target.getCacheKey(),
-                        TomahawkFragment.TOMAHAWK_ALBUM_KEY, mCollection);
-            } else if (target instanceof Artist) {
-                FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
-                        ArtistPagerFragment.class, target.getCacheKey(),
-                        TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
-            } else if (target instanceof User) {
-                FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
-                        UserPagerFragment.class, ((User) target).getId(),
-                        TomahawkFragment.TOMAHAWK_USER_ID);
-            } else if (target instanceof Playlist) {
-                FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
-                        PlaylistEntriesFragment.class, ((Playlist) target).getId(),
-                        TomahawkFragment.TOMAHAWK_PLAYLIST_KEY);
-            }
-        } else if (item instanceof User) {
+
+        if (item instanceof User) {
             FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
                     UserPagerFragment.class, ((User) item).getId(),
                     TomahawkFragment.TOMAHAWK_USER_ID);
+        } else if (item instanceof Query && ((Query) item).isPlayable()) {
+            Query query = (Query) item;
+            ArrayList<Query> queries = new ArrayList<Query>();
+            queries.addAll(mShownQueries);
+            PlaybackService playbackService = activity.getPlaybackService();
+            if (playbackService != null && playbackService.getCurrentQuery() == query) {
+                playbackService.playPause();
+            } else {
+                Playlist playlist = Playlist.fromQueryList(DatabaseHelper.CACHED_PLAYLIST_NAME,
+                        queries);
+                if (playbackService != null) {
+                    playbackService.setPlaylist(playlist, playlist.getEntryWithQuery(query));
+                    Class clss = mContainerFragmentClass != null ? mContainerFragmentClass
+                            : ((Object) this).getClass();
+                    playbackService.setReturnFragment(clss, getArguments());
+                    playbackService.start();
+                }
+            }
+        } else if (item instanceof Album) {
+            FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
+                    TracksFragment.class, item.getCacheKey(),
+                    TomahawkFragment.TOMAHAWK_ALBUM_KEY, mCollection);
+        } else if (item instanceof Artist) {
+            FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
+                    ArtistPagerFragment.class, item.getCacheKey(),
+                    TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
+        } else if (item instanceof Playlist) {
+            FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
+                    PlaylistEntriesFragment.class, ((Playlist) item).getId(),
+                    TomahawkFragment.TOMAHAWK_PLAYLIST_KEY);
         }
     }
 
@@ -155,29 +152,83 @@ public class SocialActionsFragment extends TomahawkFragment {
             } else {
                 socialActions = new ArrayList<TomahawkListItem>(mUser.getSocialActions());
             }
-            for (TomahawkListItem socialAction : socialActions) {
-                User user = ((SocialAction) socialAction).getUser();
-                if (!mResolvedUsers.contains(user) && user.getImage() == null) {
-                    mResolvedUsers.add(user);
-                    mCurrentRequestIds.add(InfoSystem.getInstance().resolve(user));
+            List<List<TomahawkListItem>> mergedActionsList
+                    = new ArrayList<List<TomahawkListItem>>();
+            while (socialActions.size() > 0) {
+                SocialAction socialAction = (SocialAction) socialActions.remove(0);
+
+                boolean action = Boolean.valueOf(socialAction.getAction());
+                String type = socialAction.getType();
+                if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_CREATEPLAYLIST.equals(type)
+                        || HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LATCHON.equals(type)
+                        || HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_FOLLOW.equals(type)
+                        || (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE.equals(type)
+                        && action && (socialAction.getTargetObject() instanceof Query
+                        || socialAction.getTargetObject() instanceof Album))) {
+                    User user = socialAction.getUser();
+                    if (!mResolvedUsers.contains(user) && user.getImage() == null) {
+                        mResolvedUsers.add(user);
+                        mCurrentRequestIds.add(InfoSystem.getInstance().resolve(user));
+                    }
+                    List<TomahawkListItem> mergedActions = new ArrayList<TomahawkListItem>();
+                    mergedActions.add(socialAction);
+                    List<SocialAction> actionsToDelete = new ArrayList<SocialAction>();
+                    for (TomahawkListItem item : socialActions) {
+                        SocialAction actionToCompare = (SocialAction) item;
+                        if (actionToCompare.getUser() == user
+                                && actionToCompare.getType().equals(socialAction.getType())
+                                && actionToCompare.getTargetObject().getClass()
+                                == socialAction.getTargetObject().getClass()) {
+                            boolean alreadyMerged = false;
+                            for (TomahawkListItem mergedItem : mergedActions) {
+                                SocialAction mergedAction = (SocialAction) mergedItem;
+                                if (mergedAction.getTargetObject()
+                                        == actionToCompare.getTargetObject()) {
+                                    alreadyMerged = true;
+                                    break;
+                                }
+                            }
+                            if (!alreadyMerged) {
+                                mergedActions.add(actionToCompare);
+                            }
+                            actionsToDelete.add(actionToCompare);
+                        }
+                    }
+                    for (SocialAction actionToDelete : actionsToDelete) {
+                        socialActions.remove(actionToDelete);
+                    }
+                    mergedActionsList.add(mergedActions);
                 }
-            }
-            TomahawkListAdapter tomahawkListAdapter;
-            Segment segment = new Segment(socialActions);
-            if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater,
-                        segment, this);
-                tomahawkListAdapter.setShowResolvedBy(true);
-                setListAdapter(tomahawkListAdapter);
-            } else {
-                getListAdapter().setSegments(segment);
             }
 
-            mShownQueries.clear();
-            for (TomahawkListItem listItem : socialActions) {
-                if (((SocialAction) listItem).getQuery() != null) {
-                    mShownQueries.add(((SocialAction) listItem).getQuery());
+            TomahawkListAdapter tomahawkListAdapter;
+            List<Segment> segments = new ArrayList<Segment>();
+            for (List<TomahawkListItem> mergedActions : mergedActionsList) {
+                SocialAction first = (SocialAction) mergedActions.get(0);
+                if (first.getTargetObject() instanceof Album
+                        || first.getTargetObject() instanceof User) {
+                    segments.add(new Segment(mergedActions, R.integer.grid_column_count_feed,
+                            R.dimen.padding_superlarge, R.dimen.padding_small));
+                } else {
+                    segments.add(new Segment(mergedActions));
                 }
+
+                mShownQueries.clear();
+                for (TomahawkListItem item : mergedActions) {
+                    if (((SocialAction) item).getQuery() != null) {
+                        mShownQueries.add(((SocialAction) item).getQuery());
+                    }
+                }
+            }
+            if (getListAdapter() == null) {
+                tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater,
+                        segments, this);
+                int extraPadding = getResources().getDimensionPixelSize(R.dimen.padding_medium)
+                        + TomahawkUtils.convertDpToPixel(32);
+                tomahawkListAdapter.setLeftExtraPadding(extraPadding);
+                setListAdapter(tomahawkListAdapter);
+            } else {
+                getListAdapter().setSegments(segments);
             }
 
             updateShowPlaystate();

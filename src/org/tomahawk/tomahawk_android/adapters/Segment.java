@@ -46,8 +46,11 @@ public class Segment {
 
     private List<List<TomahawkListItem>> mGridItems = new ArrayList<List<TomahawkListItem>>();
 
+    private int mSegmentSize = 0;
+
     public Segment(List<TomahawkListItem> listItems) {
         mListItems = listItems;
+        mSegmentSize = mListItems.size();
     }
 
     public Segment(int headerStringResId, List<TomahawkListItem> listItems) {
@@ -82,6 +85,7 @@ public class Segment {
                 }
             }
             mGridItems.add(row);
+            mSegmentSize += listItems.size();
         }
     }
 
@@ -129,8 +133,16 @@ public class Segment {
         return mShowAsGrid ? mGridItems.size() : mListItems.size();
     }
 
+    public int segmentSize() {
+        return mSegmentSize;
+    }
+
     public Object get(int location) {
         return mShowAsGrid ? mGridItems.get(location) : mListItems.get(location);
+    }
+
+    public TomahawkListItem getFirstSegmentItem() {
+        return mShowAsGrid ? mGridItems.get(0).get(0) : mListItems.get(0);
     }
 
     public int getHorizontalPadding() {

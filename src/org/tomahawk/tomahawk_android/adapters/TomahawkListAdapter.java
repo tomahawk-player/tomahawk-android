@@ -26,6 +26,7 @@ import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -35,6 +36,7 @@ import org.tomahawk.tomahawk_android.utils.AdapterUtils;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.content.res.Resources;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -74,9 +76,11 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
 
     private boolean mHighlightedItemIsPlaying = false;
 
-    private boolean mShowResolvedBy = false;
+    private boolean mShowDuration = false;
 
-    private boolean mShowArtistAsSingleLine = false;
+    private boolean mShowNumeration = false;
+
+    private int mLeftExtraPadding = 0;
 
     private int mHeaderSpacerHeight = 0;
 
@@ -161,12 +165,16 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
      * Set whether or not to show by which {@link org.tomahawk.libtomahawk.resolver.Resolver} the
      * {@link TomahawkListItem} has been resolved
      */
-    public void setShowResolvedBy(boolean showResolvedBy) {
-        this.mShowResolvedBy = showResolvedBy;
+    public void setShowDuration(boolean showDuration) {
+        this.mShowDuration = showDuration;
     }
 
-    public void setShowArtistAsSingleLine(boolean showArtistAsSingleLine) {
-        mShowArtistAsSingleLine = showArtistAsSingleLine;
+    public void setShowNumeration(boolean showNumeration) {
+        mShowNumeration = showNumeration;
+    }
+
+    public void setLeftExtraPadding(int leftExtraPadding) {
+        mLeftExtraPadding = leftExtraPadding;
     }
 
     /**
@@ -180,7 +188,12 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = null;
-        final Object o = getItem(position);
+        Object o = getItem(position);
+
+        // Don't display the socialAction item directly, but rather the item that is its target
+        if (o instanceof SocialAction && ((SocialAction) o).getTargetObject() != null) {
+            o = ((SocialAction) o).getTargetObject();
+        }
 
         boolean shouldBeHighlighted = false;
         if (o instanceof SocialAction) {
@@ -246,16 +259,16 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
                 ViewHolder viewHolder = new ViewHolder(view, viewType);
                 viewHolders.add(viewHolder);
             }
+            // Set extra padding
+            view.setPadding(view.getPaddingLeft() + mLeftExtraPadding, view.getPaddingTop(),
+                    view.getPaddingRight(), view.getPaddingBottom());
             mViewHolderMap.put(view, viewHolders);
-        } else if (viewType == R.layout.list_item
-                || viewType == R.layout.list_item_highlighted) {
+        } else if (viewType == R.layout.list_item_track
+                || viewType == R.layout.list_item_track_highlighted) {
             for (ViewHolder viewHolder : viewHolders) {
                 viewHolder.getImageView1().setVisibility(View.GONE);
-                viewHolder.getImageView2().setVisibility(View.GONE);
-                viewHolder.getTextView2().setVisibility(View.GONE);
-                viewHolder.getTextView3().setVisibility(View.GONE);
+                viewHolder.getTextView1().setVisibility(View.GONE);
                 viewHolder.getTextView4().setVisibility(View.GONE);
-                viewHolder.getTextView5().setVisibility(View.GONE);
             }
         }
 
@@ -265,6 +278,10 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
             ViewHolder viewHolder = viewHolders.get(i);
             TomahawkListItem item = o instanceof List ? (TomahawkListItem) ((List) o).get(i)
                     : (TomahawkListItem) o;
+            // Don't display the socialAction item directly, but rather the item that is its target
+            if (item instanceof SocialAction && ((SocialAction) item).getTargetObject() != null) {
+                item = ((SocialAction) item).getTargetObject();
+            }
             if (viewHolder.getLayoutId() == R.layout.content_footer_spacer) {
                 view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         mFooterSpacerHeight));
@@ -310,30 +327,28 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
                 viewHolder.getTextView1().setText(item.getName());
             } else if (viewHolder.getLayoutId() == R.layout.list_item_text) {
                 AdapterUtils.fillView(mActivity, viewHolder, (ListItemString) item);
-            } else if (viewHolder.getLayoutId() == R.layout.list_item
-                    || viewHolder.getLayoutId() == R.layout.list_item_highlighted) {
-                if (item instanceof Query) {
-                    AdapterUtils.fillView(mActivity, viewHolder, (Query) item,
-                            mHighlightedItemIsPlaying && shouldBeHighlighted, mShowResolvedBy);
-                } else if (item instanceof PlaylistEntry) {
-                    AdapterUtils
-                            .fillView(mActivity, viewHolder,
-                                    ((PlaylistEntry) item).getQuery(),
-                                    mHighlightedItemIsPlaying && shouldBeHighlighted,
-                                    mShowResolvedBy);
+            } else if (viewHolder.getLayoutId() == R.layout.list_item_track
+                    || viewHolder.getLayoutId() == R.layout.list_item_track_highlighted) {
+                if (item instanceof Query || item instanceof PlaylistEntry) {
+                    if (item instanceof PlaylistEntry) {
+                        item = ((PlaylistEntry) item).getQuery();
+                    }
+                    String numerationString = null;
+                    if (mShowNumeration) {
+                        numerationString = String.format("%02d", position + 1);
+                    }
+                    AdapterUtils.fillView(viewHolder, (Query) item, numerationString,
+                            mHighlightedItemIsPlaying && shouldBeHighlighted, mShowDuration);
                 } else if (item instanceof Album) {
                     AdapterUtils.fillView(mActivity, viewHolder, (Album) item);
                 } else if (item instanceof Artist) {
                     AdapterUtils.fillView(mActivity, viewHolder, (Artist) item);
-                } else if (item instanceof SocialAction) {
-                    AdapterUtils.fillView(mActivity, viewHolder, (SocialAction) item,
-                            mHighlightedItemIsPlaying && shouldBeHighlighted, mShowResolvedBy);
                 }
             }
 
             //Set up the click listeners
-            if (viewHolder.getLayoutId() == R.layout.list_item
-                    || viewHolder.getLayoutId() == R.layout.list_item_highlighted) {
+            if (viewHolder.getLayoutId() == R.layout.list_item_track
+                    || viewHolder.getLayoutId() == R.layout.list_item_track_highlighted) {
                 if (item instanceof SocialAction || item instanceof User) {
                     User user;
                     if (item instanceof SocialAction) {
@@ -382,7 +397,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
             if (position < counter) {
                 return segment.get(correctedPos);
             } else {
-                correctedPos -= counter;
+                correctedPos -= segment.size();
             }
         }
         return null;
@@ -426,7 +441,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
     @Override
     public View getHeaderView(int position, View convertView, ViewGroup parent) {
         Segment segment = getSegment(position);
-        if (segment != null && segment.getHeaderStringResId() > 0) {
+        if (segment != null && (segment.getHeaderStringResId() > 0
+                || segment.getFirstSegmentItem() instanceof SocialAction)) {
             View view = null;
             ViewHolder viewHolder = null;
             if (convertView != null) {
@@ -456,6 +472,45 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
             } else if (layoutId == R.layout.single_line_list_header) {
                 viewHolder.getTextView1().setText(TomahawkApp.getContext().getString(
                         segment.getHeaderStringResId()).toUpperCase());
+            } else if (layoutId == R.layout.list_header_socialaction) {
+                SocialAction socialAction = (SocialAction) segment.getFirstSegmentItem();
+                TomahawkUtils.loadRoundedImageIntoImageView(TomahawkApp.getContext(),
+                        viewHolder.getImageView1(), socialAction.getUser().getImage(),
+                        Image.getSmallImageSize(), false);
+                TomahawkListItem targetObject = socialAction.getTargetObject();
+                Resources resources = view.getResources();
+                String phrase = "!FIXME! type: " + socialAction.getType()
+                        + ", action: " + socialAction.getAction();
+                if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE
+                        .equals(socialAction.getType())) {
+                    if (targetObject instanceof Query) {
+                        phrase = segment.segmentSize() > 1 ?
+                                resources.getString(R.string.socialaction_type_love_track_multiple,
+                                        segment.segmentSize())
+                                : resources.getString(R.string.socialaction_type_love_track_single);
+                    } else if (targetObject instanceof Album) {
+                        phrase = segment.segmentSize() > 1 ?
+                                resources.getString(
+                                        R.string.socialaction_type_collected_album_multiple,
+                                        segment.segmentSize())
+                                : resources.getString(
+                                        R.string.socialaction_type_collected_album_single);
+                    }
+                } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_FOLLOW
+                        .equals(socialAction.getType())) {
+                    phrase = resources.getString(R.string.socialaction_type_follow);
+                } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_CREATEPLAYLIST
+                        .equals(socialAction.getType())) {
+                    phrase = segment.segmentSize() > 1 ?
+                            resources.getString(R.string.socialaction_type_createplaylist_multiple,
+                                    segment.segmentSize())
+                            : resources.getString(R.string.socialaction_type_createplaylist_single);
+                } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LATCHON
+                        .equals(socialAction.getType())) {
+                    phrase = resources.getString(R.string.socialaction_type_latchon);
+                }
+                viewHolder.getTextView1().setText(
+                        socialAction.getUser().getName() + " " + phrase + ":");
             }
             return view;
         } else {
@@ -491,20 +546,22 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
         } else if (isFooter) {
             return R.layout.content_footer_spacer;
         } else if (item instanceof Playlist || (item instanceof Artist
-                && mShowArtistAsSingleLine)) {
+                && mShowNumeration)) {
             return R.layout.single_line_list_item;
         } else if (isHighlighted) {
-            return R.layout.list_item_highlighted;
+            return R.layout.list_item_track_highlighted;
         } else if (item instanceof ListItemString) {
             return R.layout.list_item_text;
         } else {
-            return R.layout.list_item;
+            return R.layout.list_item_track;
         }
     }
 
     private int getHeaderViewType(Segment segment) {
         if (segment.isSpinnerSegment()) {
             return R.layout.dropdown_header;
+        } else if (segment.getFirstSegmentItem() instanceof SocialAction) {
+            return R.layout.list_header_socialaction;
         } else {
             return R.layout.single_line_list_header;
         }

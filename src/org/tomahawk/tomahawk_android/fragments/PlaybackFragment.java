@@ -392,7 +392,7 @@ public class PlaybackFragment extends TomahawkFragment {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
                         layoutInflater, segment, this);
                 tomahawkListAdapter.setShowPlaystate(true);
-                tomahawkListAdapter.setShowResolvedBy(true);
+                tomahawkListAdapter.setShowDuration(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment);
