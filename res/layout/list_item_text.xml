@@ -18,20 +18,15 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content">
-
-    <TextView android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:minHeight="@dimen/row_height_verylarge"
-              android:paddingLeft="@dimen/padding_superlarge"
-              android:paddingRight="@dimen/padding_superlarge"
-              android:paddingTop="@dimen/padding_superlarge"
-              android:paddingBottom="@dimen/padding_superlarge"
-              android:descendantFocusability="afterDescendants"
-              android:background="@color/primary_background"
-              android:textColor="@color/primary_textcolor"
-              android:textSize="@dimen/text_size_medium"/>
-
-</LinearLayout>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:minHeight="@dimen/row_height_verylarge"
+          android:paddingLeft="@dimen/padding_superlarge"
+          android:paddingRight="@dimen/padding_superlarge"
+          android:paddingTop="@dimen/padding_superlarge"
+          android:paddingBottom="@dimen/padding_superlarge"
+          android:descendantFocusability="afterDescendants"
+          android:background="@color/primary_background"
+          android:textColor="@color/primary_textcolor"
+          android:textSize="@dimen/text_size_medium"/>

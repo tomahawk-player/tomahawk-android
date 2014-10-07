@@ -80,6 +80,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
 
     private boolean mShowNumeration = false;
 
+    private boolean mHideArtistName = false;
+
     private int mLeftExtraPadding = 0;
 
     private int mHeaderSpacerHeight = 0;
@@ -171,6 +173,10 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
 
     public void setShowNumeration(boolean showNumeration) {
         mShowNumeration = showNumeration;
+    }
+
+    public void setHideArtistName(boolean hideArtistName) {
+        mHideArtistName = hideArtistName;
     }
 
     public void setLeftExtraPadding(int leftExtraPadding) {
@@ -268,6 +274,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
             for (ViewHolder viewHolder : viewHolders) {
                 viewHolder.getImageView1().setVisibility(View.GONE);
                 viewHolder.getTextView1().setVisibility(View.GONE);
+                viewHolder.getTextView2().setVisibility(View.GONE);
                 viewHolder.getTextView4().setVisibility(View.GONE);
             }
         }
@@ -335,14 +342,11 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
                     }
                     String numerationString = null;
                     if (mShowNumeration) {
-                        numerationString = String.format("%02d", position + 1);
+                        numerationString = String.format("%02d", getPosInSegment(position) + 1);
                     }
                     AdapterUtils.fillView(viewHolder, (Query) item, numerationString,
-                            mHighlightedItemIsPlaying && shouldBeHighlighted, mShowDuration);
-                } else if (item instanceof Album) {
-                    AdapterUtils.fillView(mActivity, viewHolder, (Album) item);
-                } else if (item instanceof Artist) {
-                    AdapterUtils.fillView(mActivity, viewHolder, (Artist) item);
+                            mHighlightedItemIsPlaying && shouldBeHighlighted, mShowDuration,
+                            mHideArtistName);
                 }
             }
 
@@ -419,6 +423,27 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
             }
         }
         return null;
+    }
+
+    public int getPosInSegment(int position) {
+        if (mHeaderSpacerHeight > 0) {
+            if (position == 0) {
+                return 0;
+            } else {
+                position--;
+            }
+        }
+        int counter = 0;
+        int correctedPos = position;
+        for (Segment segment : mSegments) {
+            counter += segment.size();
+            if (position < counter) {
+                return correctedPos;
+            } else {
+                correctedPos -= segment.size();
+            }
+        }
+        return 0;
     }
 
     /**

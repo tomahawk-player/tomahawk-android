@@ -129,6 +129,8 @@ public class AlbumsFragment extends TomahawkFragment {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
                         layoutInflater, segments, this);
                 tomahawkListAdapter.setShowDuration(true);
+                tomahawkListAdapter.setHideArtistName(true);
+                tomahawkListAdapter.setShowNumeration(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segments);
