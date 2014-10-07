@@ -84,16 +84,30 @@
   <string name="drawer_open">Open Navigation Drawer</string>
   <string name="drawer_close">Close Navigation Drawer</string>
   <string name="content_header_following">Following</string>
-  <string name="socialaction_type_follow_true">is now following</string>
-  <string name="socialaction_type_love_track_true">loved a track:</string>
-  <string name="socialaction_type_love_track_false">is all out of love for</string>
-  <string name="socialaction_type_starred_true">starred</string>
-  <string name="socialaction_type_starred_false">unstarred</string>
+  <!-- Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users) -->
+  <string name="socialaction_type_follow">is now following</string>
+  <!-- Shown in the user's social feed (e.g. "mrmaffen has loved a track" followed by a link to the loved track) -->
+  <string name="socialaction_type_love_track_single">loved a track</string>
+  <!-- Shown in the user's social feed (e.g. "mrmaffen has loved 5 tracks" followed by a list of loved tracks) -->
+  <string name="socialaction_type_love_track_multiple">loved %1$d tracks</string>
+  <!-- Shown in the user's social feed (e.g. "mrmaffen has collected a track" followed by a link to the collected track) -->
+  <string name="socialaction_type_collected_track_single">collected a track</string>
+  <!-- Shown in the user's social feed (e.g. "mrmaffen has collected 5 tracks" followed by a list of collected tracks) -->
+  <string name="socialaction_type_collected_track_multiple">collected %1$d tracks</string>
+  <!-- Shown in the user's social feed (e.g. "mrmaffen has collected an album" followed by a link to the collected album) -->
+  <string name="socialaction_type_collected_album_single">collected an album</string>
+  <!-- Shown in the user's social feed (e.g. "mrmaffen has collected 5 albums" followed by a list of collected albums) -->
+  <string name="socialaction_type_collected_album_multiple">collected %1$d albums</string>
+  <!-- Shown in the user's social feed (e.g. "mrmaffen has commented on "Greatest Hits" by Queen") -->
   <string name="socialaction_type_createcomment">commented on</string>
+  <!-- Shown in the user's social feed (e.g. "mrmaffen has listened along to" followed by a list of users) -->
   <string name="socialaction_type_latchon">listened along to</string>
+  <!-- Shown in the user's social feed (e.g. "mrmaffen has stopped listened along to neffamrm") -->
   <string name="socialaction_type_latchoff">stopped listening along to</string>
-  <string name="socialaction_type_createplaylist">created a playlist</string>
-  <string name="socialaction_type_deletedplaylist">deleted a playlist</string>
+  <!-- Shown in the user's social feed (e.g. "mrmaffen has created a playlist" followed by a link to the created playlist) -->
+  <string name="socialaction_type_createplaylist_single">created a playlist</string>
+  <!-- Shown in the user's social feed (e.g. "mrmaffen has created 5 playlists" followed by a list of created playlists) -->
+  <string name="socialaction_type_createplaylist_multiple">created %1$d playlists</string>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%1$s by %2$s</string>
   <string name="time_afewseconds">a few seconds ago</string>

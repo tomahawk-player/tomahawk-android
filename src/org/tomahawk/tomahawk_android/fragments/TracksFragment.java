@@ -120,7 +120,7 @@ public class TracksFragment extends TomahawkFragment {
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
-                tomahawkListAdapter.setShowResolvedBy(true);
+                tomahawkListAdapter.setShowDuration(true);
                 tomahawkListAdapter.setShowContentHeaderSpacer(
                         R.dimen.header_clear_space_scrollable, getListView().getWrappedList());
                 setListAdapter(tomahawkListAdapter);
@@ -134,7 +134,7 @@ public class TracksFragment extends TomahawkFragment {
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
-                tomahawkListAdapter.setShowResolvedBy(true);
+                tomahawkListAdapter.setShowDuration(true);
                 tomahawkListAdapter.setShowContentHeaderSpacer(
                         R.dimen.header_clear_space_scrollable, getListView().getWrappedList());
                 setListAdapter(tomahawkListAdapter);
@@ -148,7 +148,7 @@ public class TracksFragment extends TomahawkFragment {
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
-                tomahawkListAdapter.setShowResolvedBy(true);
+                tomahawkListAdapter.setShowDuration(true);
                 tomahawkListAdapter.setShowContentHeaderSpacer(
                         R.dimen.header_clear_space_scrollable, getListView().getWrappedList());
                 setListAdapter(tomahawkListAdapter);
@@ -161,7 +161,7 @@ public class TracksFragment extends TomahawkFragment {
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter((TomahawkMainActivity) getActivity(),
                         layoutInflater, new Segment(queries), this);
-                tomahawkListAdapter.setShowResolvedBy(true);
+                tomahawkListAdapter.setShowDuration(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(new Segment(queries));

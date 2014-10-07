@@ -117,7 +117,6 @@ public class ArtistsFragment extends TomahawkFragment {
                 TomahawkListAdapter tomahawkListAdapter =
                         new TomahawkListAdapter((TomahawkMainActivity) getActivity(),
                                 layoutInflater, segment, this);
-                tomahawkListAdapter.setShowArtistAsSingleLine(mCollection != null);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment);

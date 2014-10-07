@@ -74,31 +74,28 @@ public class ViewHolder {
                     .findViewById(R.id.content_header_textview_user_navdrawer);
             mRoundedImage = (ImageView) rootView
                     .findViewById(R.id.content_header_roundedimage_user_navdrawer);
-        } else if (layoutId == R.layout.list_item
-                || layoutId == R.layout.list_item_highlighted) {
+        } else if (layoutId == R.layout.list_item_track
+                || layoutId == R.layout.list_item_track_highlighted) {
             mImageView1 = (ImageView) rootView
-                    .findViewById(R.id.double_line_list_imageview);
-            mImageView2 = (ImageView) rootView
-                    .findViewById(R.id.double_line_list_imageview2);
-            mImageView3 = (ImageView) rootView
-                    .findViewById(R.id.double_line_list_imageview3);
+                    .findViewById(R.id.imageview1);
             mTextView1 = (TextView) rootView
-                    .findViewById(R.id.double_line_list_textview);
+                    .findViewById(R.id.textview1);
             mTextView2 = (TextView) rootView
-                    .findViewById(R.id.double_line_list_textview2);
+                    .findViewById(R.id.textview2);
             mTextView3 = (TextView) rootView
-                    .findViewById(R.id.double_line_list_textview3);
+                    .findViewById(R.id.textview3);
             mTextView4 = (TextView) rootView
-                    .findViewById(R.id.double_line_list_textview4);
-            mTextView5 = (TextView) rootView
-                    .findViewById(R.id.double_line_list_textview5);
-            mMainClickArea = rootView
-                    .findViewById(R.id.double_line_list_container);
+                    .findViewById(R.id.textview4);
             mClickArea1 = rootView
-                    .findViewById(R.id.double_line_list_clickarea1);
+                    .findViewById(R.id.clickarea1);
         } else if (layoutId == R.layout.single_line_list_header) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.single_line_list_header_textview);
+        } else if (layoutId == R.layout.list_header_socialaction) {
+            mImageView1 = (ImageView) rootView
+                    .findViewById(R.id.imageview1);
+            mTextView1 = (TextView) rootView
+                    .findViewById(R.id.textview1);
         } else if (layoutId == R.layout.dropdown_header) {
             mSpinner = (Spinner) rootView
                     .findViewById(R.id.single_line_list_dropdown_header_spinner);

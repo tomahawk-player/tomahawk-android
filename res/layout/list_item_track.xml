@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+ *
+ *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
+ *
+ *   Tomahawk is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Tomahawk is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="@dimen/row_height_verylarge"
+              android:paddingLeft="@dimen/padding_superlarge"
+              android:paddingRight="@dimen/padding_superlarge"
+              android:baselineAligned="false"
+              android:orientation="horizontal"
+              android:descendantFocusability="afterDescendants"
+              android:background="@color/primary_background">
+
+    <FrameLayout android:id="@+id/clickarea1"
+                 android:layout_width="wrap_content"
+                 android:layout_height="match_parent"
+                 android:background="@drawable/selectable_background_tomahawk_opaque"
+                 android:clickable="true">
+
+        <ImageView android:id="@+id/imageview1"
+                   android:layout_width="@dimen/row_height_small"
+                   android:layout_height="@dimen/row_height_small"
+                   android:layout_gravity="center"
+                   android:paddingRight="@dimen/padding_small"
+                   android:scaleType="centerCrop"
+                   android:src="@drawable/album_placeholder_grid"
+                   android:visibility="gone"/>
+
+        <TextView android:id="@+id/textview1"
+                  android:layout_width="@dimen/row_height_medium"
+                  android:layout_height="@dimen/row_height_medium"
+                  android:layout_gravity="center"
+                  android:paddingRight="@dimen/padding_small"
+                  android:gravity="center"
+                  android:textSize="@dimen/text_size_small"
+                  android:textColor="@color/secondary_textcolor"
+                  android:text="01"
+                  android:visibility="gone"/>
+
+    </FrameLayout>
+
+    <TextView android:id="@+id/textview2"
+              android:layout_width="0dp"
+              android:layout_height="match_parent"
+              android:layout_weight="0.75"
+              android:paddingRight="@dimen/padding_small"
+              android:gravity="center_vertical"
+              android:singleLine="true"
+              android:textColor="@color/primary_textcolor"
+              android:textSize="@dimen/text_size_medium"
+              android:text="Timber Timbre"/>
+
+    <TextView android:id="@+id/textview3"
+              android:layout_width="0dp"
+              android:layout_height="match_parent"
+              android:layout_weight="1"
+              android:gravity="center_vertical"
+              android:singleLine="true"
+              android:textStyle="bold"
+              android:textColor="@color/primary_textcolor"
+              android:textSize="@dimen/text_size_medium"
+              android:text="Beat the drum slowly"/>
+
+    <TextView android:id="@+id/textview4"
+              android:layout_width="wrap_content"
+              android:layout_height="match_parent"
+              android:paddingLeft="@dimen/padding_small"
+              android:gravity="center_vertical"
+              android:singleLine="true"
+              android:textColor="@color/secondary_textcolor"
+              android:textSize="@dimen/text_size_small"
+              android:text="6:14"
+              android:visibility="gone"/>
+
+</LinearLayout>

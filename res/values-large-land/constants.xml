@@ -2,5 +2,6 @@
 <resources>
 
     <item name="grid_column_count" type="integer">4</item>
+    <item name="grid_column_count_feed" type="integer">6</item>
 
 </resources>

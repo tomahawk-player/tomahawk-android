@@ -137,41 +137,30 @@ public class AdapterUtils {
                 Image.getSmallImageSize(), R.drawable.album_placeholder_grid);
     }
 
-    public static void fillView(Context context, ViewHolder viewHolder, Query query,
-            boolean showAsPlaying, boolean showResolvedBy) {
-        viewHolder.getTextView1().setText(query.getName());
-        viewHolder.getTextView4().setVisibility(View.VISIBLE);
-        viewHolder.getTextView4().setText(query.getArtist().getName());
-        viewHolder.getTextView5().setVisibility(View.VISIBLE);
-        if (query.getPreferredTrack().getDuration() > 0) {
-            viewHolder.getTextView5().setText(TomahawkUtils.durationToString(
-                    (query.getPreferredTrack().getDuration())));
-        } else {
-            viewHolder.getTextView5().setText(PlaybackSeekBar.COMPLETION_STRING_DEFAULT);
-        }
-        boolean isHighlighted = viewHolder.getLayoutId() == R.layout.list_item_highlighted;
-        setTextViewEnabled(viewHolder.getTextView1(), query.isPlayable(), false, isHighlighted);
-        viewHolder.getTextView4().setVisibility(View.VISIBLE);
-        setTextViewEnabled(viewHolder.getTextView4(), query.isPlayable(), true, isHighlighted);
-        setTextViewEnabled(viewHolder.getTextView5(), query.isPlayable(), true, isHighlighted);
-        if (showAsPlaying) {
-            viewHolder.getImageView1().setVisibility(ImageView.VISIBLE);
-            viewHolder.getImageView1().setBackgroundResource(R.drawable.ic_action_album_light);
-            if (viewHolder.getImageView1().getAnimation() == null) {
-                viewHolder.getImageView1().startAnimation(constructRotateAnimation());
-            }
-        } else {
-            viewHolder.getImageView1().clearAnimation();
-        }
-        if (showResolvedBy && query.getPreferredTrackResult() != null) {
-            viewHolder.getImageView2().setVisibility(ImageView.VISIBLE);
-            Resolver resolver = query.getPreferredTrackResult().getResolvedBy();
-            if (resolver.getIconPath() != null) {
+    public static void fillView(ViewHolder viewHolder, Query query, String numerationString,
+            boolean showAsPlaying, boolean showDuration) {
+        viewHolder.getTextView2().setText(query.getArtist().getName());
+        viewHolder.getTextView3().setText(query.getName());
+        setTextViewEnabled(viewHolder.getTextView2(), query.isPlayable(), false);
+        setTextViewEnabled(viewHolder.getTextView3(), query.isPlayable(), false);
+        if (numerationString != null) {
+            if (showAsPlaying) {
+                viewHolder.getImageView1().setVisibility(View.VISIBLE);
+                Resolver resolver = query.getPreferredTrackResult().getResolvedBy();
                 TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
-                        viewHolder.getImageView2(), resolver.getIconPath(), false);
+                        viewHolder.getImageView1(), resolver.getIconPath(), true);
             } else {
-                TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
-                        viewHolder.getImageView2(), resolver.getIconResId(), false);
+                viewHolder.getTextView1().setVisibility(View.VISIBLE);
+                viewHolder.getTextView1().setText(numerationString);
+            }
+        }
+        if (showDuration) {
+            viewHolder.getTextView4().setVisibility(View.VISIBLE);
+            if (query.getPreferredTrack().getDuration() > 0) {
+                viewHolder.getTextView4().setText(TomahawkUtils.durationToString(
+                        (query.getPreferredTrack().getDuration())));
+            } else {
+                viewHolder.getTextView4().setText(PlaybackSeekBar.COMPLETION_STRING_DEFAULT);
             }
         }
     }
@@ -365,22 +354,14 @@ public class AdapterUtils {
     }
 
     private static TextView setTextViewEnabled(TextView textView, boolean enabled,
-            boolean isSecondary, boolean isHighlighted) {
+            boolean isSecondary) {
         if (textView != null && textView.getResources() != null) {
             int colorResId;
             if (enabled) {
                 if (isSecondary) {
-                    if (isHighlighted) {
-                        colorResId = R.color.secondary_textcolor_inverted;
-                    } else {
-                        colorResId = R.color.secondary_textcolor;
-                    }
+                    colorResId = R.color.secondary_textcolor;
                 } else {
-                    if (isHighlighted) {
-                        colorResId = R.color.primary_textcolor_inverted;
-                    } else {
-                        colorResId = R.color.primary_textcolor;
-                    }
+                    colorResId = R.color.primary_textcolor;
                 }
             } else {
                 colorResId = R.color.disabled;
