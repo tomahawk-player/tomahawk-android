@@ -249,9 +249,9 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 HatchetSocialActionResponse response;
                 if (infoRequestData.getType()
                         == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS) {
-                    response = mHatchet.getUsersSocialActions(params.userid, null, null);
+                    response = mHatchet.getUsersSocialActions(params.userid, null, "20");
                 } else {
-                    response = mHatchet.getUsersFriendsFeed(params.userid, null, null);
+                    response = mHatchet.getUsersFriendsFeed(params.userid, null, "50");
                 }
                 if (response != null) {
                     User userToBeFilled = (User) mItemsToBeFilled
