@@ -344,7 +344,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
                     if (mShowNumeration) {
                         numerationString = String.format("%02d", getPosInSegment(position) + 1);
                     }
-                    AdapterUtils.fillView(viewHolder, (Query) item, numerationString,
+                    AdapterUtils.fillView(mActivity, viewHolder, (Query) item, numerationString,
                             mHighlightedItemIsPlaying && shouldBeHighlighted, mShowDuration,
                             mHideArtistName);
                 }

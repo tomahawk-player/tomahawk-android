@@ -35,10 +35,12 @@
                  android:clickable="true">
 
         <ImageView android:id="@+id/imageview1"
-                   android:layout_width="@dimen/row_height_small"
-                   android:layout_height="@dimen/row_height_small"
+                   android:layout_width="@dimen/row_height_medium"
+                   android:layout_height="@dimen/row_height_medium"
                    android:layout_gravity="center"
-                   android:paddingRight="@dimen/padding_small"
+                   android:paddingRight="16dp"
+                   android:paddingTop="@dimen/padding_small"
+                   android:paddingBottom="@dimen/padding_small"
                    android:scaleType="centerCrop"
                    android:src="@drawable/album_placeholder_grid"
                    android:visibility="gone"/>
@@ -48,7 +50,7 @@
                   android:layout_height="@dimen/row_height_medium"
                   android:layout_gravity="center"
                   android:paddingRight="@dimen/padding_small"
-                  android:gravity="center"
+                  android:gravity="center_vertical"
                   android:textSize="@dimen/text_size_small"
                   android:textColor="@color/secondary_textcolor"
                   android:text="01"

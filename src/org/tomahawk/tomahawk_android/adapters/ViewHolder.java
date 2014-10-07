@@ -23,6 +23,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -62,6 +63,8 @@ public class ViewHolder {
 
     private View mClickArea1;
 
+    private ProgressBar mProgressBar;
+
     public ViewHolder(View rootView, int layoutId) {
         mLayoutId = layoutId;
         if (layoutId == R.layout.single_line_list_item) {
@@ -88,6 +91,8 @@ public class ViewHolder {
                     .findViewById(R.id.textview4);
             mClickArea1 = rootView
                     .findViewById(R.id.clickarea1);
+            mProgressBar = (ProgressBar) rootView
+                    .findViewById(R.id.progressbar);
         } else if (layoutId == R.layout.single_line_list_header) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.single_line_list_header_textview);
@@ -236,5 +241,9 @@ public class ViewHolder {
 
     public View getClickArea1() {
         return mClickArea1;
+    }
+
+    public ProgressBar getProgressBar() {
+        return mProgressBar;
     }
 }
