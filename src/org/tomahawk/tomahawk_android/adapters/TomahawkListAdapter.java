@@ -532,7 +532,10 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
                             : resources.getString(R.string.socialaction_type_createplaylist_single);
                 } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LATCHON
                         .equals(socialAction.getType())) {
-                    phrase = resources.getString(R.string.socialaction_type_latchon);
+                    phrase = segment.segmentSize() > 1 ?
+                            resources.getString(R.string.socialaction_type_latchon_multiple
+                                    , segment.segmentSize())
+                            : resources.getString(R.string.socialaction_type_latchon_single);
                 }
                 viewHolder.getTextView1().setText(
                         socialAction.getUser().getName() + " " + phrase + ":");
