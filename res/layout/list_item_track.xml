@@ -61,25 +61,25 @@
     <TextView android:id="@+id/textview2"
               android:layout_width="0dp"
               android:layout_height="match_parent"
-              android:layout_weight="0.45"
-              android:paddingRight="@dimen/padding_small"
-              android:gravity="center_vertical"
-              android:singleLine="true"
-              android:textColor="@color/primary_textcolor"
-              android:textSize="@dimen/text_size_medium"
-              android:text="Timber Timbre"
-              android:visibility="gone"/>
-
-    <TextView android:id="@+id/textview3"
-              android:layout_width="0dp"
-              android:layout_height="match_parent"
-              android:layout_weight="0.65"
+              android:layout_weight="0.55"
               android:gravity="center_vertical"
               android:singleLine="true"
               android:textStyle="bold"
               android:textColor="@color/primary_textcolor"
               android:textSize="@dimen/text_size_medium"
               android:text="Beat the drum slowly"/>
+
+    <TextView android:id="@+id/textview3"
+              android:layout_width="0dp"
+              android:layout_height="match_parent"
+              android:layout_weight="0.45"
+              android:paddingLeft="@dimen/padding_small"
+              android:gravity="center_vertical"
+              android:singleLine="true"
+              android:textColor="@color/primary_textcolor"
+              android:textSize="@dimen/text_size_medium"
+              android:text="Timber Timbre"
+              android:visibility="gone"/>
 
     <TextView android:id="@+id/textview4"
               android:layout_width="44dp"

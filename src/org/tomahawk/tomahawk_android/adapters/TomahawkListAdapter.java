@@ -274,7 +274,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
             for (ViewHolder viewHolder : viewHolders) {
                 viewHolder.getImageView1().setVisibility(View.GONE);
                 viewHolder.getTextView1().setVisibility(View.GONE);
-                viewHolder.getTextView2().setVisibility(View.GONE);
+                viewHolder.getTextView3().setVisibility(View.GONE);
                 viewHolder.getTextView4().setVisibility(View.GONE);
             }
         }

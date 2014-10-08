@@ -142,10 +142,10 @@ public class AdapterUtils {
             Query query, String numerationString, boolean showAsPlaying, boolean showDuration,
             boolean hideArtistName) {
         if (!hideArtistName) {
-            viewHolder.getTextView2().setVisibility(View.VISIBLE);
-            viewHolder.getTextView2().setText(query.getArtist().getName());
+            viewHolder.getTextView3().setVisibility(View.VISIBLE);
+            viewHolder.getTextView3().setText(query.getArtist().getName());
         }
-        viewHolder.getTextView3().setText(query.getName());
+        viewHolder.getTextView2().setText(query.getName());
         setTextViewEnabled(viewHolder.getTextView2(), query.isPlayable(), false);
         setTextViewEnabled(viewHolder.getTextView3(), query.isPlayable(), false);
         if (numerationString != null) {
