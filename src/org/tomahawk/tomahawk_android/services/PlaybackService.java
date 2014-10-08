@@ -1393,6 +1393,8 @@ public class PlaybackService extends Service
                         mRemoteControlClientCompat.editMetadata(true);
                 editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
                         getCurrentQuery().getArtist().getName())
+                        .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST,
+                                getCurrentQuery().getArtist().getName())
                         .putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
                                 getCurrentQuery().getName())
                         .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
