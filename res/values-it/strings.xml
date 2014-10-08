@@ -32,16 +32,16 @@
   <string name="preferences_playback_data">Scrobbla tutto</string>
   <string name="preferences_playback_data_text">Scrobbla a %1$s tutte le tracce da tutti i lettori musicali sul telefono.</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
-  <!--Shown in the user's social feed (e.g. "mrmaffen has loved a track" followed by a link to the loved track)-->
-  <!--Shown in the user's social feed (e.g. "mrmaffen has loved 5 tracks" followed by a list of loved tracks)-->
-  <!--Shown in the user's social feed (e.g. "mrmaffen has collected a track" followed by a link to the collected track)-->
-  <!--Shown in the user's social feed (e.g. "mrmaffen has collected 5 tracks" followed by a list of collected tracks)-->
-  <!--Shown in the user's social feed (e.g. "mrmaffen has collected an album" followed by a link to the collected album)-->
-  <!--Shown in the user's social feed (e.g. "mrmaffen has collected 5 albums" followed by a list of collected albums)-->
-  <!--Shown in the user's social feed (e.g. "mrmaffen has commented on "Greatest Hits" by Queen")-->
-  <!--Shown in the user's social feed (e.g. "mrmaffen has listened along to" followed by a list of users)-->
-  <!--Shown in the user's social feed (e.g. "mrmaffen has stopped listened along to neffamrm")-->
-  <!--Shown in the user's social feed (e.g. "mrmaffen has created a playlist" followed by a link to the created playlist)-->
-  <!--Shown in the user's social feed (e.g. "mrmaffen has created 5 playlists" followed by a list of created playlists)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
 </resources>
