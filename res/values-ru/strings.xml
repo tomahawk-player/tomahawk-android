@@ -73,16 +73,21 @@
   <string name="drawer_open">Открыть панель навигации</string>
   <string name="drawer_close">Закрыть панель навигации</string>
   <string name="content_header_following">Читаемые</string>
-  <string name="socialaction_type_follow_true">теперь читает</string>
-  <string name="socialaction_type_love_track_true">понравился трек</string>
-  <string name="socialaction_type_love_track_false">полностью влюблён в</string>
-  <string name="socialaction_type_starred_true">помеченный</string>
-  <string name="socialaction_type_starred_false">не помеченный</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen has loved a track" followed by a link to the loved track)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen has loved 5 tracks" followed by a list of loved tracks)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen has collected a track" followed by a link to the collected track)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen has collected 5 tracks" followed by a list of collected tracks)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen has collected an album" followed by a link to the collected album)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen has collected 5 albums" followed by a list of collected albums)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen has commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">откомментирован</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen has listened along to" followed by a list of users)-->
   <string name="socialaction_type_latchon">слушали вместе с</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen has stopped listened along to neffamrm")-->
   <string name="socialaction_type_latchoff">перестали слушать вместе с</string>
-  <string name="socialaction_type_createplaylist">создал плейлист</string>
-  <string name="socialaction_type_deletedplaylist">удалил плейлист</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen has created a playlist" followed by a link to the created playlist)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen has created 5 playlists" followed by a list of created playlists)-->
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="users_playbacklog_suffix">недавно слушал</string>
   <string name="music">Музыка</string>
