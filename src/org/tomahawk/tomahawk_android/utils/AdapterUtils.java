@@ -112,10 +112,10 @@ public class AdapterUtils {
         TomahawkUtils.loadRoundedImageIntoImageView(context, viewHolder.getRoundedImage(),
                 user.getImage(), Image.getSmallImageSize(), false);
         viewHolder.getTextView1().setText(user.getName().toUpperCase());
+        ((TextView) viewHolder.getButton4().findViewById(R.id.content_header_button4_text))
+                .setText(context.getString(R.string.content_header_following).toUpperCase());
         if (showFollowing) {
             viewHolder.getButton4().setBackgroundResource(R.drawable.following_button_bg_filled);
-            ((TextView) viewHolder.getButton4().findViewById(R.id.content_header_button4_text))
-                    .setText(context.getString(R.string.content_header_following).toUpperCase());
         } else if (showNotFollowing) {
             viewHolder.getButton4().setBackgroundResource(R.drawable.following_button_bg);
         } else {
