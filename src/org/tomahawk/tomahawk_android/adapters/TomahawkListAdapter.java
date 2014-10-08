@@ -337,14 +337,17 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
             } else if (viewHolder.getLayoutId() == R.layout.list_item_track
                     || viewHolder.getLayoutId() == R.layout.list_item_track_highlighted) {
                 if (item instanceof Query || item instanceof PlaylistEntry) {
-                    if (item instanceof PlaylistEntry) {
-                        item = ((PlaylistEntry) item).getQuery();
-                    }
                     String numerationString = null;
                     if (mShowNumeration) {
                         numerationString = String.format("%02d", getPosInSegment(position) + 1);
                     }
-                    AdapterUtils.fillView(mActivity, viewHolder, (Query) item, numerationString,
+                    Query query;
+                    if (item instanceof PlaylistEntry) {
+                        query = ((PlaylistEntry) item).getQuery();
+                    } else {
+                        query = (Query) item;
+                    }
+                    AdapterUtils.fillView(mActivity, viewHolder, query, numerationString,
                             mHighlightedItemIsPlaying && shouldBeHighlighted, mShowDuration,
                             mHideArtistName);
                 }
