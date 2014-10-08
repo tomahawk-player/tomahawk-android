@@ -20,7 +20,7 @@
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
-              android:layout_height="@dimen/row_height_verylarge"
+              android:layout_height="@dimen/list_item_track_height"
               android:paddingLeft="@dimen/padding_superlarge"
               android:paddingRight="@dimen/padding_superlarge"
               android:baselineAligned="false"

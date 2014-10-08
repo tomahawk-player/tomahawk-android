@@ -49,4 +49,6 @@
     <dimen name="player_button_size_repeatshuffle">32dp</dimen>
     <dimen name="player_button_size_default">48dp</dimen>
 
+    <dimen name="list_item_track_height">56dp</dimen>
+
 </resources>
