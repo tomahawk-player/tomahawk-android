@@ -19,7 +19,6 @@ package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.ListItemString;
 import org.tomahawk.libtomahawk.collection.Playlist;
@@ -270,12 +269,20 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
                     view.getPaddingRight(), view.getPaddingBottom());
             mViewHolderMap.put(view, viewHolders);
         } else if (viewType == R.layout.list_item_track
-                || viewType == R.layout.list_item_track_highlighted) {
+                || viewType == R.layout.list_item_track_highlighted
+                || viewType == R.layout.grid_item
+                || viewType == R.layout.list_item_artistalbum) {
             for (ViewHolder viewHolder : viewHolders) {
-                viewHolder.getImageView1().setVisibility(View.GONE);
-                viewHolder.getTextView1().setVisibility(View.GONE);
-                viewHolder.getTextView3().setVisibility(View.GONE);
-                viewHolder.getTextView4().setVisibility(View.GONE);
+                if (viewType == R.layout.list_item_track
+                        || viewType == R.layout.list_item_track_highlighted) {
+                    viewHolder.getImageView1().setVisibility(View.GONE);
+                    viewHolder.getTextView1().setVisibility(View.GONE);
+                    viewHolder.getTextView3().setVisibility(View.GONE);
+                    viewHolder.getTextView4().setVisibility(View.GONE);
+                } else {
+                    viewHolder.getTextView2().setVisibility(View.GONE);
+                    viewHolder.getTextView3().setVisibility(View.GONE);
+                }
             }
         }
 
@@ -295,45 +302,19 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
             } else if (viewHolder.getLayoutId() == R.layout.content_header_spacer) {
                 view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         mHeaderSpacerHeight));
-            } else if (viewHolder.getLayoutId() == R.layout.grid_item) {
-                viewHolder.getTextView1().setText(item.getName());
-                if (!(item instanceof User)) {
-                    viewHolder.getTextView2().setVisibility(View.VISIBLE);
-                    viewHolder.getTextView2().setText(item.getArtist().getName());
-                }
-                if (item instanceof Album || item instanceof Artist) {
-                    TomahawkUtils.loadImageIntoImageView(mActivity,
-                            viewHolder.getImageView1(),
-                            item.getImage(),
-                            Image.getSmallImageSize(), item instanceof Artist);
-                } else if (item instanceof User) {
-                    TomahawkUtils.loadRoundedImageIntoImageView(mActivity,
-                            viewHolder.getImageView1(), item.getImage(), Image.getSmallImageSize(),
-                            false);
-                }
-                if (item instanceof Album) {
-                    int songCount = CollectionManager.getInstance().getCollection(
-                            TomahawkApp.PLUGINNAME_USERCOLLECTION)
-                            .getAlbumTracks((Album) item, false).size();
-                    if (songCount == 0) {
-                        songCount = CollectionManager.getInstance().getCollection(
-                                TomahawkApp.PLUGINNAME_HATCHET)
-                                .getAlbumTracks((Album) item, false).size();
-                    }
-                    if (songCount > 0) {
-                        String songs =
-                                TomahawkApp.getContext().getResources().getString(R.string.songs);
-                        viewHolder.getTextView3().setText(songCount + " " + songs);
-                    } else {
-                        viewHolder.getTextView3().setVisibility(View.GONE);
-                    }
-                } else {
-                    viewHolder.getTextView3().setVisibility(View.GONE);
+            } else if (viewHolder.getLayoutId() == R.layout.grid_item
+                    || viewHolder.getLayoutId() == R.layout.list_item_artistalbum) {
+                if (item instanceof User) {
+                    AdapterUtils.fillView(viewHolder, (User) item);
+                } else if (item instanceof Album) {
+                    AdapterUtils.fillView(viewHolder, (Album) item);
+                } else if (item instanceof Artist) {
+                    AdapterUtils.fillView(viewHolder, (Artist) item);
                 }
             } else if (viewHolder.getLayoutId() == R.layout.single_line_list_item) {
                 viewHolder.getTextView1().setText(item.getName());
             } else if (viewHolder.getLayoutId() == R.layout.list_item_text) {
-                AdapterUtils.fillView(mActivity, viewHolder, (ListItemString) item);
+                AdapterUtils.fillView(viewHolder, (ListItemString) item);
             } else if (viewHolder.getLayoutId() == R.layout.list_item_track
                     || viewHolder.getLayoutId() == R.layout.list_item_track_highlighted) {
                 if (item instanceof Query || item instanceof PlaylistEntry) {
@@ -576,13 +557,14 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
             return R.layout.content_header_spacer;
         } else if (isFooter) {
             return R.layout.content_footer_spacer;
-        } else if (item instanceof Playlist || (item instanceof Artist
-                && mShowNumeration)) {
+        } else if (item instanceof Playlist) {
             return R.layout.single_line_list_item;
         } else if (isHighlighted) {
             return R.layout.list_item_track_highlighted;
         } else if (item instanceof ListItemString) {
             return R.layout.list_item_text;
+        } else if (item instanceof Album || item instanceof Artist) {
+            return R.layout.list_item_artistalbum;
         } else {
             return R.layout.list_item_track;
         }
