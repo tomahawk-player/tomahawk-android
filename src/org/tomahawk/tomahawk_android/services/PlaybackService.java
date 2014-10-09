@@ -180,6 +180,8 @@ public class PlaybackService extends Service
 
     private PlaylistEntry mCurrentEntry;
 
+    private MediaPlayerInterface mCurrentMediaPlayer;
+
     private Notification mNotification;
 
     private RemoteViews mLargeNotificationView;
@@ -608,16 +610,14 @@ public class PlaybackService extends Service
         }
         if (allPlayersReleased) {
             prepareCurrentQuery();
-        } else {
-            if (isPlaying()) {
-                InfoSystem.getInstance().sendNowPlayingPostStruct(
-                        AuthenticatorManager.getInstance().getAuthenticatorUtils(
-                                TomahawkApp.PLUGINNAME_HATCHET),
-                        getCurrentQuery()
-                );
-            }
-            handlePlayState();
+        } else if (isPlaying()) {
+            InfoSystem.getInstance().sendNowPlayingPostStruct(
+                    AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                            TomahawkApp.PLUGINNAME_HATCHET),
+                    getCurrentQuery()
+            );
         }
+        handlePlayState();
     }
 
     /**
@@ -644,8 +644,8 @@ public class PlaybackService extends Service
     }
 
     /**
-     * Called if given {@link org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer} has finished
-     * playing a song. Prepare the next track if possible.
+     * Called if given {@link org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer} has
+     * finished playing a song. Prepare the next track if possible.
      */
     @Override
     public void onCompletion(MediaPlayer mp) {
@@ -673,8 +673,7 @@ public class PlaybackService extends Service
     }
 
     /**
-     * Restore the current playlist from the Playlists Database. Do this by storing it in the
-     * {@link
+     * Restore the current playlist from the Playlists Database. Do this by storing it in the {@link
      * org.tomahawk.libtomahawk.collection.UserCollection} first, and then retrieving the playlist
      * from there.
      */
@@ -1027,6 +1026,8 @@ public class PlaybackService extends Service
                                             "MediaPlayer blacklisted a result and tries to prepare again");
                                     prepareCurrentQuery();
                                 }
+                            } else {
+                                mCurrentMediaPlayer = getCurrentQuery().getMediaPlayerInterface();
                             }
                         }
                     }
@@ -1476,7 +1477,10 @@ public class PlaybackService extends Service
             updateNotification();
             updateLockscreenControls();
             sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
-            prepareCurrentQuery();
+            if (mCurrentMediaPlayer == null || !mCurrentMediaPlayer.isPrepared(getCurrentQuery())
+                    || !mCurrentMediaPlayer.isPreparing(getCurrentQuery())) {
+                prepareCurrentQuery();
+            }
         }
     }
 
