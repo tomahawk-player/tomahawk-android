@@ -29,7 +29,7 @@
             android:layout_height="wrap_content">
 
         <ImageView
-                android:id="@+id/album_art_grid_image"
+                android:id="@+id/imageview1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"/>
@@ -45,7 +45,7 @@
             android:gravity="center_vertical"
             android:orientation="vertical">
 
-        <TextView android:id="@+id/album_art_grid_textView"
+        <TextView android:id="@+id/textview1"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:ellipsize="marquee"
@@ -54,22 +54,24 @@
                   android:textSize="@dimen/text_size_medium"
                   android:textStyle="bold"/>
 
-        <TextView android:id="@+id/album_art_grid_textView2"
+        <TextView android:id="@+id/textview2"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:ellipsize="marquee"
                   android:singleLine="true"
                   android:textColor="@color/primary_textcolor"
-                  android:textSize="@dimen/text_size_micro"/>
+                  android:textSize="@dimen/text_size_micro"
+                  android:visibility="gone"/>
 
-        <TextView android:id="@+id/album_art_grid_textView3"
+        <TextView android:id="@+id/textview3"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:ellipsize="marquee"
                   android:singleLine="true"
                   android:textColor="@color/secondary_textcolor"
                   android:textSize="@dimen/text_size_micro"
-                  android:text="10 Songs"/>
+                  android:text="10 Songs"
+                  android:visibility="gone"/>
 
     </LinearLayout>
 

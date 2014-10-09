@@ -49,8 +49,6 @@ import java.util.concurrent.TimeUnit;
 
 public class AdapterUtils {
 
-    private static final int MSG_UPDATE_PROGRESS = 0x2;
-
     public static void fillContentHeader(Context context, ViewHolder viewHolder,
             final Album album, View.OnClickListener listener) {
         if (viewHolder.getTextView1() != null) {
@@ -192,8 +190,39 @@ public class AdapterUtils {
         }
     }
 
-    public static void fillView(Context context, ViewHolder viewHolder, ListItemString string) {
+    public static void fillView(ViewHolder viewHolder, ListItemString string) {
         viewHolder.getTextView1().setText(string.getName());
+    }
+
+    public static void fillView(ViewHolder viewHolder, User user) {
+        viewHolder.getTextView1().setText(user.getName());
+        TomahawkUtils.loadRoundedImageIntoImageView(TomahawkApp.getContext(),
+                viewHolder.getImageView1(), user.getImage(), Image.getSmallImageSize(), false);
+    }
+
+    public static void fillView(ViewHolder viewHolder, Artist artist) {
+        viewHolder.getTextView1().setText(artist.getName());
+        TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), viewHolder.getImageView1(),
+                artist.getImage(), Image.getSmallImageSize(), true);
+    }
+
+    public static void fillView(ViewHolder viewHolder, Album album) {
+        viewHolder.getTextView1().setText(album.getName());
+        viewHolder.getTextView2().setVisibility(View.VISIBLE);
+        viewHolder.getTextView2().setText(album.getArtist().getName());
+        TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), viewHolder.getImageView1(),
+                album.getImage(), Image.getSmallImageSize(), true);
+        int songCount = CollectionManager.getInstance().getCollection(
+                TomahawkApp.PLUGINNAME_USERCOLLECTION).getAlbumTracks(album, false).size();
+        if (songCount == 0) {
+            songCount = CollectionManager.getInstance().getCollection(
+                    TomahawkApp.PLUGINNAME_HATCHET).getAlbumTracks(album, false).size();
+        }
+        if (songCount > 0) {
+            String songs = TomahawkApp.getContext().getResources().getString(R.string.songs);
+            viewHolder.getTextView3().setVisibility(View.VISIBLE);
+            viewHolder.getTextView3().setText(songCount + " " + songs);
+        }
     }
 
     private static String dateToString(Resources resources, Date date) {

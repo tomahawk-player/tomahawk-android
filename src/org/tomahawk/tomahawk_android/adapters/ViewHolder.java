@@ -133,15 +133,15 @@ public class ViewHolder {
         } else if (layoutId == R.layout.fake_preferences_header) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.fake_preferences_header_textview);
-        } else if (layoutId == R.layout.grid_item) {
+        } else if (layoutId == R.layout.grid_item || layoutId == R.layout.list_item_artistalbum) {
             mImageView1 = (ImageView) rootView
-                    .findViewById(R.id.album_art_grid_image);
+                    .findViewById(R.id.imageview1);
             mTextView1 = (TextView) rootView
-                    .findViewById(R.id.album_art_grid_textView);
+                    .findViewById(R.id.textview1);
             mTextView2 = (TextView) rootView
-                    .findViewById(R.id.album_art_grid_textView2);
+                    .findViewById(R.id.textview2);
             mTextView3 = (TextView) rootView
-                    .findViewById(R.id.album_art_grid_textView3);
+                    .findViewById(R.id.textview3);
         }
         if (mMainClickArea == null) {
             mMainClickArea = rootView;
