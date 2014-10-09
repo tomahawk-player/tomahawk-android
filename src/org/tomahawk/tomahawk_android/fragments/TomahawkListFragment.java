@@ -88,9 +88,7 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
 
         if (getListView() != null) {
             getListView().setOnScrollListener(this);
-            if (getResources().getBoolean(R.bool.is_landscape)) {
-                getListView().setAreHeadersSticky(false);
-            }
+            getListView().setAreHeadersSticky(getResources().getBoolean(R.bool.set_headers_sticky));
         }
     }
 
