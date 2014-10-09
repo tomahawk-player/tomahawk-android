@@ -26,12 +26,12 @@
               android:baselineAligned="false"
               android:orientation="horizontal"
               android:descendantFocusability="afterDescendants"
-              android:background="@color/primary_background">
+              android:background="@drawable/selectable_background_tomahawk_opaque">
 
     <FrameLayout android:id="@+id/clickarea1"
                  android:layout_width="wrap_content"
                  android:layout_height="match_parent"
-                 android:background="@drawable/selectable_background_tomahawk_opaque"
+                 android:background="@drawable/selectable_background_tomahawk"
                  android:clickable="true">
 
         <ImageView android:id="@+id/imageview1"
