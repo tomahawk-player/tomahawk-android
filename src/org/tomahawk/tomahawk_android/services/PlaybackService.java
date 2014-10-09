@@ -329,7 +329,6 @@ public class PlaybackService extends Service
         public void onCallStateChanged(int state, String incomingNumber) {
             switch (state) {
                 case TelephonyManager.CALL_STATE_RINGING:
-                case TelephonyManager.CALL_STATE_OFFHOOK:
                     if (isPlaying()) {
                         mStartCallTime = System.currentTimeMillis();
                         pause();
@@ -481,11 +480,9 @@ public class PlaybackService extends Service
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 
         // Initialize PhoneCallListener
-        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(
-                Context.TELEPHONY_SERVICE);
+        TelephonyManager telephonyManager =
+                (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         telephonyManager.listen(mPhoneCallListener, PhoneStateListener.LISTEN_CALL_STATE);
-        telephonyManager
-                .listen(mPhoneCallListener, PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
 
         // Initialize WakeLock
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -579,8 +576,8 @@ public class PlaybackService extends Service
             mWakeLock.release();
         }
         mWakeLock = null;
-        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(
-                Context.TELEPHONY_SERVICE);
+        TelephonyManager telephonyManager =
+                (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         telephonyManager.listen(mPhoneCallListener, PhoneStateListener.LISTEN_NONE);
         mPhoneCallListener = null;
         mKillTimerHandler.removeCallbacksAndMessages(null);
