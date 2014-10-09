@@ -87,7 +87,6 @@ public class SocialActionsFragment extends TomahawkFragment {
                 }
             }
         }
-        getListView().setAreHeadersSticky(false);
         updateAdapter();
     }
 
