@@ -57,11 +57,11 @@
   <string name="context_menu_play">Spela</string>
   <string name="context_menu_add_to_queue">Lägg till i kön</string>
   <string name="context_menu_add_to_playlist">Lägg till i spellistan</string>
-  <string name="context_menu_love_track">Gilla låten</string>
-  <string name="context_menu_unlove_track">Ogilla låten</string>
   <string name="context_menu_delete">Ta bort</string>
-  <string name="context_menu_addtocollection">I din samling</string>
-  <string name="context_menu_favorite">Favorit</string>
+  <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
+  <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
+  <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
+  <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_share">Dela</string>
   <string name="context_menu_gotoartist">Gå till Artist</string>
   <string name="menu_item_save_playlist">Spara spellista</string>

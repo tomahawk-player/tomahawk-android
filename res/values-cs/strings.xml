@@ -58,11 +58,11 @@
   <string name="context_menu_play">Přehrát</string>
   <string name="context_menu_add_to_queue">Zařadit</string>
   <string name="context_menu_add_to_playlist">Přidat do seznamu skladeb</string>
-  <string name="context_menu_love_track">Nejmilejší píseň</string>
-  <string name="context_menu_unlove_track">Zrušit oblibu písně</string>
   <string name="context_menu_delete">Smazat</string>
-  <string name="context_menu_addtocollection">Ve vaší sbírce</string>
-  <string name="context_menu_favorite">Oblíbené</string>
+  <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
+  <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
+  <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
+  <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_share">Sdílet</string>
   <string name="context_menu_gotoartist">Jít na umělce</string>
   <string name="menu_item_save_playlist">Uložit seznam skladeb</string>

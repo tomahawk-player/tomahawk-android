@@ -31,6 +31,10 @@
   <string name="preferences_spotify_text">Ascolta la tua musica da %1$s. Richiede un account premium.</string>
   <string name="preferences_playback_data">Scrobbla tutto</string>
   <string name="preferences_playback_data_text">Scrobbla a %1$s tutte le tracce da tutti i lettori musicali sul telefono.</string>
+  <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
+  <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
+  <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
+  <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->

@@ -53,11 +53,11 @@
   <string name="context_menu_play">Oynat</string>
   <string name="context_menu_add_to_queue">Sıraya Ekle</string>
   <string name="context_menu_add_to_playlist">Çalma Listesine Ekle</string>
-  <string name="context_menu_love_track">Parçayı Beğen</string>
-  <string name="context_menu_unlove_track">Parçayı Beğenme</string>
   <string name="context_menu_delete">Sil</string>
-  <string name="context_menu_addtocollection">Koleksiyonunuzda</string>
-  <string name="context_menu_favorite">Favori</string>
+  <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
+  <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
+  <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
+  <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_share">Paylaş</string>
   <string name="context_menu_gotoartist">Sanatçıya Git</string>
   <string name="menu_item_save_playlist">Çalma Listesini Kaydet</string>
