@@ -153,6 +153,9 @@ public class CollectionFragment extends TomahawkFragment {
                 tomahawkListAdapter.setShowContentHeaderSpacer(
                         R.dimen.header_clear_space_scrollable_small,
                         getListView().getWrappedList());
+                if (!getResources().getBoolean(R.bool.is_landscape)) {
+                    getListView().setAreHeadersSticky(true);
+                }
             }
             setListAdapter(tomahawkListAdapter);
         } else {
