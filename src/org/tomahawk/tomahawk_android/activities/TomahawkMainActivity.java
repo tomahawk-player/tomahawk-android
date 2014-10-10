@@ -20,6 +20,8 @@ package org.tomahawk.tomahawk_android.activities;
 
 import com.rdio.android.api.OAuth1WebViewActivity;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+import com.uservoice.uservoicesdk.Config;
+import com.uservoice.uservoicesdk.UserVoice;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
@@ -304,6 +306,11 @@ public class TomahawkMainActivity extends ActionBarActivity
         InfoSystem.getInstance().ensureInit();
         AuthenticatorManager.getInstance().ensureInit();
         CollectionManager.getInstance().ensureInit();
+
+        //Setup UserVoice
+        Config config = new Config("tomahawk.uservoice.com");
+        config.setForumId(224204);
+        UserVoice.init(config, this);
 
         //Setup our services
         Intent intent = new Intent(this, PlaybackService.class);

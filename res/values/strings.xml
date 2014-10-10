@@ -50,6 +50,8 @@
   <string name="preferences_audio_quality_text">The preferred audio quality if not connected to WiFi.</string>
   <string name="preferences_info">Info</string>
   <string name="preferences_app_version">App-Version</string>
+  <string name="preferences_app_uservoice">Feedback</string>
+  <string name="preferences_app_uservoice_text">Share your ideas or ask for support.</string>
   <string name="crash_dialog_title">Tomahawk has crashed</string>
   <string name="crash_dialog_text">An unexpected error occurred forcing the application to stop. Please help us fix this by sending us error data, all you have to do is click OK.</string>
   <string name="crash_dialog_comment_prompt">You might add your comments about the problem below:</string>

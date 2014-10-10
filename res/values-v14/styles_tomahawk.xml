@@ -5,7 +5,7 @@
 
     <style name="ActionBar.Solid.Tomahawk"
            parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="android:background">@drawable/ab_solid_tomahawk</item>
+        <item name="android:background">@color/primary_background_inverted</item>
         <item name="android:backgroundStacked">@drawable/ab_stacked_solid_tomahawk</item>
         <item name="android:backgroundSplit">@drawable/ab_bottom_solid_tomahawk</item>
         <item name="android:progressBarStyle">@style/ProgressBar.Tomahawk</item>

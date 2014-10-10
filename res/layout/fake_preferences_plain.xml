@@ -20,10 +20,12 @@
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
-              android:layout_height="@dimen/row_height_verylarge"
+              android:layout_height="wrap_content"
+              android:minHeight="@dimen/row_height_verylarge"
               android:baselineAligned="false"
               android:orientation="vertical"
               android:padding="@dimen/padding_small"
+              android:background="@drawable/selectable_background_tomahawk"
               android:descendantFocusability="blocksDescendants">
 
     <TextView
