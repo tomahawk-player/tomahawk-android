@@ -53,13 +53,12 @@
 
                     <View android:layout_width="0dp"
                           android:layout_height="wrap_content"
-                          android:layout_weight="1"/>
+                          android:layout_weight="0.5"/>
 
                     <LinearLayout android:id="@+id/addtocollection_button"
                                   android:orientation="vertical"
                                   android:layout_width="0dp"
                                   android:layout_height="wrap_content"
-                                  android:layout_gravity="center"
                                   android:layout_weight="1"
                                   android:paddingTop="@dimen/padding_superlarge"
                                   android:paddingBottom="@dimen/padding_superlarge"
@@ -67,17 +66,31 @@
                                   android:background="@drawable/selectable_background_tomahawk"
                                   android:visibility="gone">
 
-                        <ImageView android:layout_width="@dimen/context_menu_icon_height"
-                                   android:layout_height="@dimen/context_menu_icon_height"
-                                   android:layout_margin="@dimen/padding_small"
-                                   android:layout_gravity="center"
-                                   android:src="@drawable/ic_action_collection"/>
+                        <LinearLayout android:layout_width="wrap_content"
+                                      android:layout_height="wrap_content"
+                                      android:layout_gravity="center"
+                                      android:layout_margin="@dimen/padding_small"
+                                      android:orientation="vertical">
 
-                        <TextView android:layout_width="wrap_content"
+                            <ImageView android:layout_width="@dimen/context_menu_icon_height"
+                                       android:layout_height="@dimen/context_menu_icon_height"
+                                       android:src="@drawable/ic_action_collection"/>
+
+                            <View android:id="@+id/addtocollection_button_underline"
+                                  android:layout_width="17dp"
+                                  android:layout_height="2dp"
+                                  android:layout_gravity="center"
+                                  android:background="@color/primary_background"
+                                  android:visibility="gone"/>
+
+                        </LinearLayout>
+
+                        <TextView android:id="@+id/addtocollection_button_textview"
+                                  android:layout_width="wrap_content"
                                   android:layout_height="wrap_content"
                                   android:layout_gravity="center"
+                                  android:gravity="center_horizontal"
                                   android:textSize="@dimen/text_size_small"
-                                  android:singleLine="true"
                                   android:textColor="@color/primary_textcolor_inverted"
                                   android:text="@string/context_menu_addtocollection"/>
 
@@ -85,7 +98,7 @@
 
                     <View android:layout_width="0dp"
                           android:layout_height="wrap_content"
-                          android:layout_weight="1"/>
+                          android:layout_weight="0.5"/>
 
                 </LinearLayout>
 
@@ -96,7 +109,6 @@
                                   android:orientation="vertical"
                                   android:layout_width="0dp"
                                   android:layout_height="wrap_content"
-                                  android:layout_gravity="center"
                                   android:layout_weight="1"
                                   android:paddingTop="@dimen/padding_superlarge"
                                   android:paddingBottom="@dimen/padding_superlarge"
@@ -106,14 +118,14 @@
                         <ImageView android:layout_width="@dimen/context_menu_icon_height"
                                    android:layout_height="@dimen/context_menu_icon_height"
                                    android:layout_margin="@dimen/padding_small"
-                                   android:layout_gravity="center"
+                                   android:layout_gravity="center_horizontal"
                                    android:src="@drawable/ic_action_playlist_light"/>
 
                         <TextView android:layout_width="wrap_content"
                                   android:layout_height="wrap_content"
                                   android:layout_gravity="center"
+                                  android:gravity="center_horizontal"
                                   android:textSize="@dimen/text_size_small"
-                                  android:singleLine="true"
                                   android:textColor="@color/primary_textcolor_inverted"
                                   android:text="@string/context_menu_add_to_playlist"/>
 
@@ -123,7 +135,6 @@
                                   android:orientation="vertical"
                                   android:layout_width="0dp"
                                   android:layout_height="wrap_content"
-                                  android:layout_gravity="center"
                                   android:layout_weight="1"
                                   android:paddingTop="@dimen/padding_superlarge"
                                   android:paddingBottom="@dimen/padding_superlarge"
@@ -131,19 +142,33 @@
                                   android:background="@drawable/selectable_background_tomahawk"
                                   android:visibility="gone">
 
-                        <ImageView android:layout_width="@dimen/context_menu_icon_height"
-                                   android:layout_height="@dimen/context_menu_icon_height"
-                                   android:layout_margin="@dimen/padding_small"
-                                   android:layout_gravity="center"
-                                   android:src="@drawable/ic_action_favorites"/>
+                        <LinearLayout android:layout_width="wrap_content"
+                                      android:layout_height="wrap_content"
+                                      android:layout_gravity="center"
+                                      android:layout_margin="@dimen/padding_small"
+                                      android:orientation="vertical">
 
-                        <TextView android:layout_width="wrap_content"
+                            <ImageView android:layout_width="@dimen/context_menu_icon_height"
+                                       android:layout_height="@dimen/context_menu_icon_height"
+                                       android:src="@drawable/ic_action_favorites"/>
+
+                            <View android:id="@+id/favorite_button_underline"
+                                  android:layout_width="17dp"
+                                  android:layout_height="2dp"
+                                  android:layout_gravity="center"
+                                  android:background="@color/primary_background"
+                                  android:visibility="gone"/>
+
+                        </LinearLayout>
+
+                        <TextView android:id="@+id/favorite_button_textview"
+                                  android:layout_width="wrap_content"
                                   android:layout_height="wrap_content"
                                   android:layout_gravity="center"
+                                  android:gravity="center_horizontal"
                                   android:textSize="@dimen/text_size_small"
-                                  android:singleLine="true"
                                   android:textColor="@color/primary_textcolor_inverted"
-                                  android:text="@string/context_menu_favorite"/>
+                                  android:text="@string/context_menu_love"/>
 
                     </LinearLayout>
 
@@ -151,7 +176,6 @@
                                   android:orientation="vertical"
                                   android:layout_width="0dp"
                                   android:layout_height="wrap_content"
-                                  android:layout_gravity="center"
                                   android:layout_weight="1"
                                   android:paddingTop="@dimen/padding_superlarge"
                                   android:paddingBottom="@dimen/padding_superlarge"
@@ -167,8 +191,8 @@
                         <TextView android:layout_width="wrap_content"
                                   android:layout_height="wrap_content"
                                   android:layout_gravity="center"
+                                  android:gravity="center_horizontal"
                                   android:textSize="@dimen/text_size_small"
-                                  android:singleLine="true"
                                   android:textColor="@color/primary_textcolor_inverted"
                                   android:text="@string/context_menu_share"/>
 
@@ -181,13 +205,12 @@
 
                     <View android:layout_width="0dp"
                           android:layout_height="wrap_content"
-                          android:layout_weight="1"/>
+                          android:layout_weight="0.5"/>
 
                     <LinearLayout android:id="@+id/gotoartist_button"
                                   android:orientation="vertical"
                                   android:layout_width="0dp"
                                   android:layout_height="wrap_content"
-                                  android:layout_gravity="center"
                                   android:layout_weight="1"
                                   android:paddingTop="@dimen/padding_superlarge"
                                   android:paddingBottom="@dimen/padding_superlarge"
@@ -203,8 +226,8 @@
                         <TextView android:layout_width="wrap_content"
                                   android:layout_height="wrap_content"
                                   android:layout_gravity="center"
+                                  android:gravity="center_horizontal"
                                   android:textSize="@dimen/text_size_small"
-                                  android:singleLine="true"
                                   android:textColor="@color/primary_textcolor_inverted"
                                   android:text="@string/context_menu_gotoartist"/>
 
@@ -212,7 +235,7 @@
 
                     <View android:layout_width="0dp"
                           android:layout_height="wrap_content"
-                          android:layout_weight="1"/>
+                          android:layout_weight="0.5"/>
 
                 </LinearLayout>
 
