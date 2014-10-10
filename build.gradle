@@ -13,6 +13,7 @@ apply plugin: 'com.android.application'
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
@@ -37,6 +38,9 @@ dependencies {
     compile "com.squareup.retrofit:retrofit:1.6.1"
     compile 'com.sothree.slidinguppanel:library:2.0.2'
     compile "com.nineoldandroids:library:2.4.0"
+    compile('com.uservoice:uservoice-android-sdk:1.1.2') {
+        transitive = false
+    }
 }
 
 /*

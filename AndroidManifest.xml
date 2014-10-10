@@ -45,13 +45,14 @@
             android:name="org.tomahawk.tomahawk_android.TomahawkApp"
             android:icon="@drawable/ic_launcher"
             android:label="Tomahawk"
-            android:theme="@style/Theme.Tomahawk"
-            android:allowBackup="true">
+            android:allowBackup="true"
+            android:theme="@style/Theme.Tomahawk">
 
         <activity
                 android:name=".activities.TomahawkMainActivity"
                 android:label="Tomahawk"
-                android:launchMode="singleTask">
+                android:launchMode="singleTask"
+                android:theme="@style/Theme.Tomahawk.Transparent.ActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

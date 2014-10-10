@@ -17,6 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import com.uservoice.uservoicesdk.UserVoice;
+
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticatorUtils;
@@ -70,6 +72,8 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
     public static final String FAKEPREFERENCEFRAGMENT_ID_APPVERSION = "app_version";
 
+    public static final String FAKEPREFERENCEFRAGMENT_ID_USERVOICE = "uservoice";
+
     public static final String FAKEPREFERENCEFRAGMENT_KEY_PREFBITRATE
             = "org.tomahawk.tomahawk_android.prefbitrate";
 
@@ -81,6 +85,9 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
     public static final String FAKEPREFERENCEFRAGMENT_KEY_APPVERSION
             = "org.tomahawk.tomahawk_android.appversion";
+
+    public static final String FAKEPREFERENCEFRAGMENT_KEY_USERVOICE
+            = "org.tomahawk.tomahawk_android.uservoice";
 
     private SharedPreferences mSharedPreferences;
 
@@ -162,6 +169,12 @@ public class FakePreferenceFragment extends TomahawkListFragment
                 getString(R.string.preferences_audio_quality_text)));
         mFakePreferenceGroups.add(prefGroup);
         prefGroup = new FakePreferenceGroup(getString(R.string.preferences_info));
+        prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
+                FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN,
+                FAKEPREFERENCEFRAGMENT_ID_USERVOICE,
+                FAKEPREFERENCEFRAGMENT_KEY_USERVOICE,
+                getString(R.string.preferences_app_uservoice),
+                getString(R.string.preferences_app_uservoice_text)));
         String versionName = "";
         try {
             if (getActivity().getPackageManager() != null) {
@@ -262,6 +275,8 @@ public class FakePreferenceFragment extends TomahawkListFragment
             args.putString(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY, fakePreference.getKey());
             dialog.setArguments(args);
             dialog.show(getFragmentManager(), null);
+        } else if (fakePreference.getKey().equals(FAKEPREFERENCEFRAGMENT_ID_USERVOICE)) {
+            UserVoice.launchUserVoice(getActivity());
         }
     }
 
