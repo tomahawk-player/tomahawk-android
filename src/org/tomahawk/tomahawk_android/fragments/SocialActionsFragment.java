@@ -42,7 +42,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -54,12 +53,6 @@ public class SocialActionsFragment extends TomahawkFragment {
     public static final int SHOW_MODE_SOCIALACTIONS = 0;
 
     public static final int SHOW_MODE_DASHBOARD = 1;
-
-    private HashSet<User> mResolvedUsers = new HashSet<User>();
-
-    private HashSet<Album> mResolvedAlbums = new HashSet<Album>();
-
-    private HashSet<Artist> mResolvedArtists = new HashSet<Artist>();
 
     @Override
     public void onResume() {
@@ -148,6 +141,7 @@ public class SocialActionsFragment extends TomahawkFragment {
 
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
+        mShownQueries.clear();
         if (mUser != null) {
             ArrayList<TomahawkListItem> socialActions;
             if (mShowMode == SHOW_MODE_DASHBOARD) {
@@ -170,6 +164,9 @@ public class SocialActionsFragment extends TomahawkFragment {
                         || socialAction.getTargetObject() instanceof Album))) {
                     List<TomahawkListItem> mergedActions = new ArrayList<TomahawkListItem>();
                     mergedActions.add(socialAction);
+                    if (socialAction.getTargetObject() instanceof Query) {
+                        mShownQueries.add((Query) socialAction.getTargetObject());
+                    }
                     List<SocialAction> actionsToDelete = new ArrayList<SocialAction>();
                     for (TomahawkListItem item : socialActions) {
                         SocialAction actionToCompare = (SocialAction) item;
@@ -188,6 +185,9 @@ public class SocialActionsFragment extends TomahawkFragment {
                             }
                             if (!alreadyMerged) {
                                 mergedActions.add(actionToCompare);
+                                if (socialAction.getTargetObject() instanceof Query) {
+                                    mShownQueries.add((Query) socialAction.getTargetObject());
+                                }
                             }
                             actionsToDelete.add(actionToCompare);
                         }
@@ -201,8 +201,6 @@ public class SocialActionsFragment extends TomahawkFragment {
 
             TomahawkListAdapter tomahawkListAdapter;
             List<Segment> segments = new ArrayList<Segment>();
-
-            mShownQueries.clear();
             for (List<TomahawkListItem> mergedActions : mergedActionsList) {
                 SocialAction first = (SocialAction) mergedActions.get(0);
                 if (first.getTargetObject() instanceof Album
@@ -211,34 +209,6 @@ public class SocialActionsFragment extends TomahawkFragment {
                             R.dimen.padding_superlarge, R.dimen.padding_small));
                 } else {
                     segments.add(new Segment(mergedActions));
-                }
-
-                for (TomahawkListItem item : mergedActions) {
-                    User user = ((SocialAction) item).getUser();
-                    if (!mResolvedUsers.contains(user) && user.getImage() == null) {
-                        mResolvedUsers.add(user);
-                        mCurrentRequestIds.add(InfoSystem.getInstance().resolve(user));
-                    }
-
-                    TomahawkListItem targetObject = ((SocialAction) item).getTargetObject();
-                    if (targetObject instanceof Query) {
-                        mShownQueries.add((Query) targetObject);
-                    } else if (targetObject instanceof Album
-                            && !mResolvedAlbums.contains(targetObject)) {
-                        mResolvedAlbums.add((Album) targetObject);
-                        mCurrentRequestIds
-                                .add(InfoSystem.getInstance().resolve((Album) targetObject));
-                    } else if (targetObject instanceof User
-                            && !mResolvedUsers.contains(targetObject)) {
-                        mResolvedUsers.add((User) targetObject);
-                        mCurrentRequestIds
-                                .add(InfoSystem.getInstance().resolve((User) targetObject));
-                    } else if (targetObject instanceof Artist
-                            && !mResolvedArtists.contains(targetObject)) {
-                        mResolvedArtists.add((Artist) targetObject);
-                        mCurrentRequestIds.addAll(InfoSystem.getInstance()
-                                .resolve((Artist) targetObject, true));
-                    }
                 }
             }
             if (getListAdapter() == null) {

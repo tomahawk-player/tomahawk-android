@@ -28,6 +28,7 @@ import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
+import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -54,6 +55,7 @@ import android.widget.BaseAdapter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
@@ -145,6 +147,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
 
+    private HashSet<TomahawkListItem> mResolvingItems = new HashSet<TomahawkListItem>();
+
     protected ConcurrentSkipListSet<String> mCorrespondingQueryIds
             = new ConcurrentSkipListSet<String>();
 
@@ -180,29 +184,11 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     protected Class mContainerFragmentClass;
 
-    protected MultiColumnClickListener mStarLoveButtonListener = new MultiColumnClickListener() {
-        @Override
-        public void onItemClick(View view, TomahawkListItem item) {
-            if (item instanceof Artist) {
-                CollectionManager.getInstance().toggleLovedItem((Artist) item);
-            } else if (item instanceof Album) {
-                CollectionManager.getInstance().toggleLovedItem((Album) item);
-            } else if (item instanceof Query) {
-                CollectionManager.getInstance().toggleLovedItem((Query) item);
-            }
-        }
-
-        @Override
-        public boolean onItemLongClick(View view, TomahawkListItem item) {
-            return false;
-        }
-    };
-
     protected final Handler mResolveQueriesHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             removeMessages(msg.what);
-            resolveVisibleQueries();
+            resolveVisibleItems();
         }
     };
 
@@ -558,8 +544,10 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    private void resolveVisibleQueries() {
+    private void resolveVisibleItems() {
         resolveQueriesFromTo(mFirstVisibleItemLastTime - 5,
+                mFirstVisibleItemLastTime + mVisibleItemCount + 5);
+        resolveItemsFromTo(mFirstVisibleItemLastTime - 5,
                 mFirstVisibleItemLastTime + mVisibleItemCount + 5);
     }
 
@@ -574,6 +562,41 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         if (!qs.isEmpty()) {
             HashSet<String> qids = PipeLine.getInstance().resolve(qs);
             mCorrespondingQueryIds.addAll(qids);
+        }
+    }
+
+    private void resolveItemsFromTo(final int start, final int end) {
+        if (mTomahawkListAdapter != null) {
+            for (int i = (start < 0 ? 0 : start); i < end && i < mTomahawkListAdapter.getCount();
+                    i++) {
+                Object object = mTomahawkListAdapter.getItem(i);
+                if (object instanceof List) {
+                    for (Object item : (List) object) {
+                        if (item instanceof TomahawkListItem) {
+                            resolveItem((TomahawkListItem) item);
+                        }
+                    }
+                } else if (object instanceof TomahawkListItem) {
+                    resolveItem((TomahawkListItem) object);
+                }
+            }
+        }
+    }
+
+    private void resolveItem(TomahawkListItem item) {
+        InfoSystem infoSystem = InfoSystem.getInstance();
+        if (!mResolvingItems.contains(item)) {
+            mResolvingItems.add(item);
+            if (item instanceof SocialAction) {
+                resolveItem(((SocialAction) item).getTargetObject());
+                resolveItem(((SocialAction) item).getUser());
+            } else if (item instanceof Album && item.getImage() == null) {
+                mCurrentRequestIds.add(infoSystem.resolve((Album) item));
+            } else if (item instanceof Artist && item.getImage() == null) {
+                mCurrentRequestIds.addAll(infoSystem.resolve((Artist) item, false));
+            } else if (item instanceof User && item.getImage() == null) {
+                mCurrentRequestIds.add(infoSystem.resolve((User) item));
+            }
         }
     }
 
@@ -601,3 +624,4 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         );
     }
 }
+
