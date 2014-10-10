@@ -35,22 +35,16 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 public class CollectionFragment extends TomahawkFragment {
 
     public static final String COLLECTION_SPINNER_POSITION
             = "org.tomahawk.tomahawk_android.collection_spinner_position";
-
-    private List<Album> mShownStarredAlbums = new ArrayList<Album>();
-
-    private HashSet<Album> mResolvingAlbums = new HashSet<Album>();
 
     @Override
     public void onResume() {
@@ -108,18 +102,16 @@ public class CollectionFragment extends TomahawkFragment {
         List<Segment> segments = new ArrayList<Segment>();
         ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
         if (mUser != null) {
-            mShownStarredAlbums = mUser.getStarredAlbums();
+            items.addAll(mUser.getStarredAlbums());
         } else {
             items.addAll(CollectionManager.getInstance()
                     .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION).getAlbums());
-            mShownStarredAlbums.clear();
             for (Album album : DatabaseHelper.getInstance().getStarredAlbums()) {
                 if (!items.contains(album)) {
-                    mShownStarredAlbums.add(album);
+                    items.add(album);
                 }
             }
         }
-        items.addAll(mShownStarredAlbums);
 
         SharedPreferences preferences =
                 PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
@@ -165,22 +157,6 @@ public class CollectionFragment extends TomahawkFragment {
             setListAdapter(tomahawkListAdapter);
         } else {
             getListAdapter().setSegments(segments);
-        }
-    }
-
-    @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
-            int totalItemCount) {
-        super.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
-
-        int columnCount = getResources().getInteger(R.integer.grid_column_count);
-        for (int i = firstVisibleItem * columnCount; i < visibleItemCount * columnCount
-                + firstVisibleItem * columnCount && i < mShownStarredAlbums.size(); i++) {
-            Album album = mShownStarredAlbums.get(i);
-            if (album != null && !mResolvingAlbums.contains(album)) {
-                mCurrentRequestIds.add(InfoSystem.getInstance().resolve(album));
-                mResolvingAlbums.add(album);
-            }
         }
     }
 }
