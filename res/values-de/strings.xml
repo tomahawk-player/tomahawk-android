@@ -93,9 +93,9 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">folgt nun</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
-  <string name="socialaction_type_love_track_single">hat ein neues Lieblingslied</string>
+  <string name="socialaction_type_love_track_single">hat ein Lied zu seinen Lieblingsliedern hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
-  <string name="socialaction_type_love_track_multiple">hat %1$d neue Lieblingslieder</string>
+  <string name="socialaction_type_love_track_multiple">hat %1$d Lieder zu seinen Lieblingsliedern hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
   <string name="socialaction_type_collected_track_single">hat ein Lied zu seiner Sammlung hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
