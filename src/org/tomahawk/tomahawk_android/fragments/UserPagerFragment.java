@@ -98,6 +98,11 @@ public class UserPagerFragment extends PagerFragment {
                     getActivity().getSupportFragmentManager().popBackStack();
                 } else {
                     mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mUser));
+                    HatchetAuthenticatorUtils hatchetAuthUtils =
+                            (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+                    mCurrentRequestIds.add(InfoSystem.getInstance().resolveFollowings(
+                            hatchetAuthUtils.getLoggedInUser()));
                 }
             }
         }
