@@ -23,7 +23,6 @@ import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.TomahawkListItemComparator;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
-import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -53,8 +52,6 @@ public class CollectionFragment extends TomahawkFragment {
 
     private HashSet<Album> mResolvingAlbums = new HashSet<Album>();
 
-    private HashSet<User> mResolvingUsers = new HashSet<User>();
-
     @Override
     public void onResume() {
         super.onResume();
@@ -62,6 +59,8 @@ public class CollectionFragment extends TomahawkFragment {
         updateAdapter();
         if (mUser == null) {
             getActivity().setTitle(getString(R.string.drawer_title_collection).toUpperCase());
+        } else {
+            mCurrentRequestIds.add(InfoSystem.getInstance().resolveStarredAlbums(mUser));
         }
 
         if (!mDontShowHeader) {
@@ -109,14 +108,7 @@ public class CollectionFragment extends TomahawkFragment {
         List<Segment> segments = new ArrayList<Segment>();
         ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
         if (mUser != null) {
-            if (mUser.getStarredAlbums().size() == 0) {
-                if (!mResolvingUsers.contains(mUser)) {
-                    mCurrentRequestIds.add(InfoSystem.getInstance().resolveStarredAlbums(mUser));
-                    mResolvingUsers.add(mUser);
-                }
-            } else {
-                mShownStarredAlbums = mUser.getStarredAlbums();
-            }
+            mShownStarredAlbums = mUser.getStarredAlbums();
         } else {
             items.addAll(CollectionManager.getInstance()
                     .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION).getAlbums());
