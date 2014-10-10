@@ -23,16 +23,17 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.dialogs.ChoosePlaylistDialog;
 import org.tomahawk.tomahawk_android.utils.AdapterUtils;
+import org.tomahawk.tomahawk_android.utils.BlurTransformation;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.ShareUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
-import org.tomahawk.tomahawk_android.utils.BlurTransformation;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -46,7 +47,6 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -179,25 +179,36 @@ public class ContextMenuFragment extends Fragment {
         }
 
         //Set up button click listeners
-        if (!(mTomahawkListItem instanceof Artist)) {
+        if (mTomahawkListItem instanceof Album) {
             View addToCollectionButton = getView().findViewById(R.id.addtocollection_button);
             addToCollectionButton.setVisibility(View.VISIBLE);
+            if (DatabaseHelper.getInstance().isItemLoved((Album) mTomahawkListItem)) {
+                addToCollectionButton.findViewById(R.id.addtocollection_button_underline)
+                        .setVisibility(View.VISIBLE);
+                TextView textView = (TextView) addToCollectionButton
+                        .findViewById(R.id.addtocollection_button_textview);
+                textView.setText(R.string.context_menu_removefromcollection);
+            }
             addToCollectionButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    getActivity().getSupportFragmentManager().popBackStack();
                     if (mTomahawkListItem instanceof Album) {
                         CollectionManager.getInstance().toggleLovedItem((Album) mTomahawkListItem);
-                    } else {
-                        Toast.makeText(getActivity(), "Not yet implemented for tracks",
-                                Toast.LENGTH_SHORT).show();
                     }
-                    getActivity().getSupportFragmentManager().popBackStack();
                 }
             });
         }
         if (mTomahawkListItem instanceof Query) {
             View favoriteButton = getView().findViewById(R.id.favorite_button);
             favoriteButton.setVisibility(View.VISIBLE);
+            if (DatabaseHelper.getInstance().isItemLoved((Query) mTomahawkListItem)) {
+                favoriteButton.findViewById(R.id.favorite_button_underline)
+                        .setVisibility(View.VISIBLE);
+                TextView textView = (TextView) favoriteButton
+                        .findViewById(R.id.favorite_button_textview);
+                textView.setText(R.string.context_menu_unlove);
+            }
             favoriteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
