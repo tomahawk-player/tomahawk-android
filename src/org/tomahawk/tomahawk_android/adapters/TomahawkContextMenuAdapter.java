@@ -17,17 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
-import org.tomahawk.libtomahawk.collection.Album;
-import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.Playlist;
-import org.tomahawk.libtomahawk.collection.PlaylistEntry;
-import org.tomahawk.libtomahawk.database.DatabaseHelper;
-import org.tomahawk.libtomahawk.infosystem.SocialAction;
-import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +26,6 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -45,8 +35,6 @@ import java.util.List;
  */
 public class TomahawkContextMenuAdapter extends BaseAdapter {
 
-    private Context mContext;
-
     private LayoutInflater mLayoutInflater;
 
     private List<String> mStringArray = new ArrayList<String>();
@@ -54,21 +42,9 @@ public class TomahawkContextMenuAdapter extends BaseAdapter {
     /**
      * Constructs a new {@link TomahawkContextMenuAdapter}
      */
-    public TomahawkContextMenuAdapter(Context context, LayoutInflater layoutInflater,
-            List<String> stringArray) {
-        mContext = context;
+    public TomahawkContextMenuAdapter(LayoutInflater layoutInflater, List<String> stringArray) {
         mLayoutInflater = layoutInflater;
         mStringArray = stringArray;
-    }
-
-    /**
-     * Constructs a new {@link TomahawkContextMenuAdapter}
-     */
-    public TomahawkContextMenuAdapter(Context context, LayoutInflater layoutInflater,
-            TomahawkListItem item, boolean showDelete) {
-        mContext = context;
-        mLayoutInflater = layoutInflater;
-        mStringArray = getMenuItems(item, showDelete);
     }
 
     /**
@@ -113,56 +89,6 @@ public class TomahawkContextMenuAdapter extends BaseAdapter {
             textView.setText(string);
         }
         return view;
-    }
-
-    private List<String> getMenuItems(TomahawkListItem item, boolean showDelete) {
-        LinkedList<String> menuItems = new LinkedList<String>();
-        if (item instanceof SocialAction) {
-            item = ((SocialAction) item).getTargetObject();
-            showDelete = false;
-        } else if (item instanceof PlaylistEntry) {
-            item = ((PlaylistEntry) item).getQuery();
-        }
-
-        if (item instanceof Playlist) {
-            menuItems.add(mContext.getString(R.string.context_menu_play));
-            menuItems.add(mContext.getString(R.string.context_menu_add_to_queue));
-            menuItems.add(mContext.getString(R.string.context_menu_add_to_playlist));
-            if (showDelete) {
-                menuItems.add(mContext.getString(R.string.context_menu_delete));
-            }
-        } else if (item instanceof Query) {
-            Query query = ((Query) item);
-            if (query.isPlayable()) {
-                menuItems.add(mContext.getString(R.string.context_menu_play));
-                menuItems
-                        .add(mContext.getString(R.string.context_menu_add_to_queue));
-                menuItems.add(mContext.getString(R.string.context_menu_add_to_playlist));
-            }
-            menuItems.add(mContext.getString(R.string.menu_item_share));
-            menuItems.add(mContext.getString(R.string.menu_item_go_to_artist));
-            menuItems.add(mContext.getString(R.string.menu_item_go_to_album));
-            if (DatabaseHelper.getInstance().isItemLoved(query)) {
-                menuItems.add(mContext.getString(R.string.context_menu_unlove_track));
-            } else {
-                menuItems.add(mContext.getString(R.string.context_menu_love_track));
-            }
-            if (showDelete) {
-                menuItems.add(mContext.getString(R.string.context_menu_delete));
-            }
-        } else if (item instanceof Artist) {
-            menuItems.add(mContext.getString(R.string.context_menu_play));
-            menuItems.add(mContext.getString(R.string.context_menu_add_to_queue));
-            menuItems.add(mContext.getString(R.string.context_menu_add_to_playlist));
-            menuItems.add(mContext.getString(R.string.menu_item_share));
-        } else if (item instanceof Album) {
-            menuItems.add(mContext.getString(R.string.context_menu_play));
-            menuItems.add(mContext.getString(R.string.context_menu_add_to_queue));
-            menuItems.add(mContext.getString(R.string.context_menu_add_to_playlist));
-            menuItems.add(mContext.getString(R.string.menu_item_share));
-            menuItems.add(mContext.getString(R.string.menu_item_go_to_artist));
-        }
-        return menuItems;
     }
 
 }
