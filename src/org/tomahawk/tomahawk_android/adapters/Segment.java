@@ -85,8 +85,8 @@ public class Segment {
                 }
             }
             mGridItems.add(row);
-            mSegmentSize += listItems.size();
         }
+        mSegmentSize += listItems.size();
     }
 
     public Segment(int headerStringResId, List<TomahawkListItem> listItems, int columnCountResId,
