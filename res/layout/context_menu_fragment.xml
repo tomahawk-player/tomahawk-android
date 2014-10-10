@@ -218,7 +218,7 @@
 
             </LinearLayout>
 
-            <TextView android:id="@+id/artist_name"
+            <TextView android:id="@+id/item_name"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
                       android:layout_gravity="center"
@@ -231,7 +231,7 @@
                       android:singleLine="true"
                       android:textColor="@color/primary_textcolor_inverted"/>
 
-            <TextView android:id="@+id/item_name"
+            <TextView android:id="@+id/artist_name"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
                       android:layout_gravity="center"
