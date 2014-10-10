@@ -311,6 +311,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                     query, TomahawkMainActivity.getLifetimeUniqueStringId()));
                         }
                         userToBeFilled.getPlaybackLog().setEntries(entries);
+                        userToBeFilled.getPlaybackLog().setFilled(true);
                     }
                     infoRequestData.setResult(userToBeFilled);
                     return true;
