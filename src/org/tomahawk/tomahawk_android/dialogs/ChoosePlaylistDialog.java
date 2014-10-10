@@ -88,8 +88,8 @@ public class ChoosePlaylistDialog extends DialogFragment {
         for (Playlist playlist : playlists) {
             playlistNames.add(playlist.getName());
         }
-        listView.setAdapter(new TomahawkContextMenuAdapter(getActivity(),
-                getActivity().getLayoutInflater(), playlistNames));
+        listView.setAdapter(
+                new TomahawkContextMenuAdapter(getActivity().getLayoutInflater(), playlistNames));
         LinearLayout linearLayout = (LinearLayout) view
                 .findViewById(R.id.playlist_dialog_addplaylist_layout);
         linearLayout.setOnClickListener(new View.OnClickListener() {
