@@ -57,11 +57,11 @@
   <string name="context_menu_play">播放</string>
   <string name="context_menu_add_to_queue">添加到队列</string>
   <string name="context_menu_add_to_playlist">添加到播放列表</string>
-  <string name="context_menu_love_track">喜欢曲目</string>
-  <string name="context_menu_unlove_track">不再喜欢曲目</string>
   <string name="context_menu_delete">删除</string>
-  <string name="context_menu_addtocollection">您的收藏</string>
-  <string name="context_menu_favorite">喜欢</string>
+  <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
+  <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
+  <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
+  <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_share">分享</string>
   <string name="context_menu_gotoartist">转到艺术家</string>
   <string name="menu_item_save_playlist">保存列表</string>

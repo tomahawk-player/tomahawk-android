@@ -55,11 +55,11 @@
   <string name="context_menu_play">เล่น</string>
   <string name="context_menu_add_to_queue">เพิ่มสู่คิว</string>
   <string name="context_menu_add_to_playlist">เพิ่มสู่บัญชีการเล่น</string>
-  <string name="context_menu_love_track">ชอบแทร็ค</string>
-  <string name="context_menu_unlove_track">เลิกชอบแทร็ค</string>
   <string name="context_menu_delete">ลบ</string>
-  <string name="context_menu_addtocollection">ในคอลเลกชั่นของคุณ</string>
-  <string name="context_menu_favorite">รายการโปรด</string>
+  <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
+  <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
+  <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
+  <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_share">แชร์</string>
   <string name="context_menu_gotoartist">ไปสู่ศิลปิน</string>
   <string name="menu_item_save_playlist">บันทึกบัญชีการเล่น</string>

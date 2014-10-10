@@ -55,11 +55,11 @@
   <string name="context_menu_play">Відтворити</string>
   <string name="context_menu_add_to_queue">Додати до Черги</string>
   <string name="context_menu_add_to_playlist">Додати до Списку відтворення</string>
-  <string name="context_menu_love_track">Улюблена Композиція</string>
-  <string name="context_menu_unlove_track">Неулюблена Композиція</string>
   <string name="context_menu_delete">Вилучити</string>
-  <string name="context_menu_addtocollection">У Вашій Колекції</string>
-  <string name="context_menu_favorite">Вибране</string>
+  <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
+  <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
+  <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
+  <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_share">Поділитися</string>
   <string name="context_menu_gotoartist">Перейти до Виконавця</string>
   <string name="menu_item_save_playlist">Зберегти Список відтворення</string>

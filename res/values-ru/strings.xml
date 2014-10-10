@@ -49,11 +49,11 @@
   <string name="context_menu_play">Воспроизведение</string>
   <string name="context_menu_add_to_queue">Добавить в очередь</string>
   <string name="context_menu_add_to_playlist">Добавить в плейлист</string>
-  <string name="context_menu_love_track">Трек понравился</string>
-  <string name="context_menu_unlove_track">Трек не понравился</string>
   <string name="context_menu_delete">Удалить</string>
-  <string name="context_menu_addtocollection">В вашей коллекции</string>
-  <string name="context_menu_favorite">Избранное</string>
+  <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
+  <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
+  <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
+  <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_share">Поделиться</string>
   <string name="context_menu_gotoartist">Перейти к исполнителю</string>
   <string name="menu_item_save_playlist">Сохранить плейлист</string>
