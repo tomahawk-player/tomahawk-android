@@ -334,8 +334,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
             Log.e(TAG, "fetchAccessToken: " + e.getClass() + ": " + e.getLocalizedMessage());
             HatchetAuthResponse authResponse =
                     (HatchetAuthResponse) e.getBodyAs(HatchetAuthResponse.class);
-            if (authResponse.error != null
-                    || !TomahawkUtils.containsIgnoreCase(tokenType, authResponse.token_type)) {
+            if (authResponse != null && (authResponse.error != null
+                    || !TomahawkUtils.containsIgnoreCase(tokenType, authResponse.token_type))) {
                 logout();
                 onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
                         "Please reenter your Hatchet credentials");
