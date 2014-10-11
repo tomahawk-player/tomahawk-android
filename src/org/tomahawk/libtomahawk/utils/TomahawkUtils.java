@@ -674,6 +674,19 @@ public class TomahawkUtils {
      * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
      *                  android.graphics.Bitmap}
      * @param path      the path to the image
+     */
+    public static void loadDrawableIntoImageView(Context context, ImageView imageView,
+            String path) {
+        loadDrawableIntoImageView(context, imageView, path, false);
+    }
+
+    /**
+     * Load a {@link android.graphics.Bitmap} asynchronously
+     *
+     * @param context   the context needed for fetching resources
+     * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
+     *                  android.graphics.Bitmap}
+     * @param path      the path to the image
      * @param grayOut   whether or not to gray out the resolver icon
      */
     public static void loadDrawableIntoImageView(Context context, ImageView imageView,

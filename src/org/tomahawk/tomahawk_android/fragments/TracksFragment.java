@@ -116,7 +116,13 @@ public class TracksFragment extends TomahawkFragment {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         if (mAlbum != null) {
             queries.addAll(AdapterUtils.getAlbumTracks(mAlbum, mCollection));
-            Segment segment = new Segment(R.string.album_details, queries);
+            Segment segment;
+            if (mCollection != null) {
+                segment = new Segment(mCollection.getName() + " " + getString(R.string.tracks),
+                        queries);
+            } else {
+                segment = new Segment(R.string.album_details, queries);
+            }
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
@@ -172,7 +178,8 @@ public class TracksFragment extends TomahawkFragment {
             }
         } else {
             queries.addAll(mCollection.getQueries());
-            Segment segment = new Segment(queries);
+            Segment segment = new Segment(mCollection.getName() + " " + getString(R.string.tracks),
+                    queries);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);

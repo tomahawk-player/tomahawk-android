@@ -48,6 +48,10 @@ public class ScriptResolverCollection extends Collection {
         mScriptResolver.artists(getId());
     }
 
+    public ScriptResolver getScriptResolver() {
+        return mScriptResolver;
+    }
+
     public void addAlbumTrackResults(Album album, List<Result> results) {
         ArrayList<Query> queries = new ArrayList<Query>();
         for (Result r : results) {

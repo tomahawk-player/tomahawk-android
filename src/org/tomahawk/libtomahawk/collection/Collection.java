@@ -93,8 +93,8 @@ public class Collection {
         if (!TextUtils.isEmpty(query.getName()) && !mQueries.containsKey(query.getCacheKey())) {
             mQueries.put(query.getCacheKey(), query);
         }
-        if (addedTimeStamp > 0 && mAddedTimestamp.get(query.getAlbum()) == null
-                || mAddedTimestamp.get(query.getAlbum()) < addedTimeStamp) {
+        if (addedTimeStamp > 0 && (mAddedTimestamp.get(query.getAlbum()) == null
+                || mAddedTimestamp.get(query.getAlbum()) < addedTimeStamp)) {
             mAddedTimestamp.put(query.getAlbum(), addedTimeStamp);
         }
     }
