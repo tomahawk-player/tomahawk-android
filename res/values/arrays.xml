@@ -19,21 +19,6 @@
  */
 -->
 <resources>
-
-    <string-array name="slide_menu_items">
-        <item>@string/drawer_title_feed</item>
-        <item>@string/drawer_title_collection</item>
-        <item>@string/drawer_title_lovedtracks</item>
-        <item>@string/drawer_title_playlists</item>
-        <item>@string/drawer_title_settings</item>
-    </string-array>
-    <array name="slide_menu_items_icons">
-        <item>@drawable/ic_action_dashboard</item>
-        <item>@drawable/ic_action_collection</item>
-        <item>@drawable/ic_action_favorites</item>
-        <item>@drawable/ic_action_playlist_light</item>
-        <item>@drawable/ic_action_settings</item>
-    </array>
     <string-array name="fake_preferences_items_bitrate">
         <item>@string/preferences_bitrate_low</item>
         <item>@string/preferences_bitrate_medium</item>
