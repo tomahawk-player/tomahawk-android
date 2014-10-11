@@ -96,10 +96,11 @@ public class AdapterUtils {
         }
     }
 
-    public static void fillContentHeaderSmall(Context context, ViewHolder viewHolder, User user) {
-        viewHolder.getTextView1().setText(user.getName().toUpperCase());
+    public static void fillContentHeaderSmall(Context context, ViewHolder viewHolder, String text,
+            Image image) {
+        viewHolder.getTextView1().setText(text.toUpperCase());
         TomahawkUtils.loadRoundedImageIntoImageView(context, viewHolder.getRoundedImage(),
-                user.getImage(), Image.getSmallImageSize(), false);
+                image, Image.getSmallImageSize(), false);
         viewHolder.getRoundedImage().setVisibility(View.VISIBLE);
     }
 

@@ -46,13 +46,14 @@
     </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 
     <!-- The navigation drawer -->
-    <ListView android:id="@+id/left_drawer"
-              android:layout_width="304dp"
-              android:layout_height="match_parent"
-              android:paddingTop="?attr/actionBarSize"
-              android:layout_gravity="start"
-              android:choiceMode="singleChoice"
-              android:dividerHeight="0px"
-              android:background="@color/navdrawer_background"/>
+    <se.emilsjolander.stickylistheaders.StickyListHeadersListView
+            android:id="@+id/left_drawer"
+            android:layout_width="304dp"
+            android:layout_height="match_parent"
+            android:paddingTop="?attr/actionBarSize"
+            android:layout_gravity="start"
+            android:choiceMode="singleChoice"
+            android:dividerHeight="0px"
+            android:background="@color/navdrawer_background"/>
 
 </android.support.v4.widget.DrawerLayout>

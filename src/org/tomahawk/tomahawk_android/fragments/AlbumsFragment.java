@@ -106,13 +106,14 @@ public class AlbumsFragment extends TomahawkFragment {
 
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-        View rootView = getView();
         List<Segment> segments = new ArrayList<Segment>();
         if (mArtist != null) {
             if (mCollection != null) {
                 ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
                 items.addAll(mCollection.getArtistAlbums(mArtist, true));
-                segments.add(new Segment(items));
+                segments.add(new Segment(mCollection.getName() + " " + getString(R.string.albums),
+                        items, R.integer.grid_column_count, R.dimen.padding_superlarge,
+                        R.dimen.padding_superlarge));
             } else {
                 ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
                 items.addAll(AdapterUtils.getArtistAlbums(mArtist, null));

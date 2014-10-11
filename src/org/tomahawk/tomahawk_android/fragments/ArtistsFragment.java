@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
+import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -49,8 +50,11 @@ public class ArtistsFragment extends TomahawkFragment {
                 mShowMode = getArguments().getInt(SHOW_MODE);
             }
         }
-        if (mContainerFragmentClass == null) {
-            getActivity().setTitle("");
+        if (mCollection != null) {
+            getActivity().setTitle(mCollection.getName());
+            if (!mDontShowHeader) {
+                showContentHeader(R.drawable.collection_header);
+            }
         }
         updateAdapter();
     }
@@ -112,14 +116,16 @@ public class ArtistsFragment extends TomahawkFragment {
             }
         } else {
             artists.addAll(mCollection.getArtists());
-            Segment segment = new Segment(artists);
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter =
                         new TomahawkListAdapter((TomahawkMainActivity) getActivity(),
-                                layoutInflater, segment, this);
+                                layoutInflater, new Segment(artists), this);
+                tomahawkListAdapter.setShowContentHeaderSpacer(
+                        R.dimen.header_clear_space_scrollable_small,
+                        getListView().getWrappedList());
                 setListAdapter(tomahawkListAdapter);
             } else {
-                getListAdapter().setSegments(segment);
+                getListAdapter().setSegments(new Segment(artists));
             }
         }
     }

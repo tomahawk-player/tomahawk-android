@@ -56,6 +56,9 @@ public class CollectionManager {
     public static final String COLLECTION_UPDATED
             = "org.tomahawk.tomahawk_android.COLLECTION_UPDATED";
 
+    public static final String COLLECTION_ADDED
+            = "org.tomahawk.tomahawk_android.COLLECTION_ADDED";
+
     public static final String COLLECTION_ID = "org.tomahawk.tomahawk_android.collection_id";
 
     private boolean mInitialized;
@@ -169,6 +172,7 @@ public class CollectionManager {
 
     public void addCollection(Collection collection) {
         mCollections.put(collection.getId(), collection);
+        TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_ADDED));
     }
 
     public Collection getCollection(String collectionId) {

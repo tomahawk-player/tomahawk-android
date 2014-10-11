@@ -18,6 +18,7 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
@@ -81,6 +82,10 @@ public class ArtistPagerFragment extends PagerFragment {
         fragmentInfo.mTitle = getString(R.string.music);
         Bundle bundle = new Bundle();
         bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, mArtist.getCacheKey());
+        if (getArguments().containsKey(CollectionManager.COLLECTION_ID)) {
+            bundle.putString(CollectionManager.COLLECTION_ID,
+                    getArguments().getString(CollectionManager.COLLECTION_ID));
+        }
         fragmentInfo.mBundle = bundle;
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);

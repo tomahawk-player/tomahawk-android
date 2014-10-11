@@ -29,8 +29,10 @@ import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.RdioAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.ScriptResolverCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.database.TomahawkSQLiteHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
@@ -46,12 +48,17 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
+import org.tomahawk.tomahawk_android.fragments.ArtistsFragment;
+import org.tomahawk.tomahawk_android.fragments.CollectionFragment;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaylistEntriesFragment;
+import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchPagerFragment;
+import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.fragments.TracksFragment;
+import org.tomahawk.tomahawk_android.fragments.UserPagerFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
@@ -98,6 +105,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
+
 /**
  * The main Tomahawk activity
  */
@@ -105,6 +114,18 @@ public class TomahawkMainActivity extends ActionBarActivity
         implements PlaybackServiceConnectionListener, SlidingUpPanelLayout.PanelSlideListener {
 
     private final static String TAG = TomahawkMainActivity.class.getSimpleName();
+
+    public static final String HUB_ID_USERPAGE = "userpage";
+
+    public static final String HUB_ID_FEED = "feed";
+
+    public static final String HUB_ID_COLLECTION = "collection";
+
+    public static final String HUB_ID_LOVEDTRACKS = "lovedtracks";
+
+    public static final String HUB_ID_PLAYLISTS = "playlists";
+
+    public static final String HUB_ID_SETTINGS = "settings";
 
     public static final String SAVED_STATE_ACTION_BAR_HIDDEN = "saved_state_action_bar_hidden";
 
@@ -139,7 +160,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private DrawerLayout mDrawerLayout;
 
-    private ListView mDrawerList;
+    private StickyListHeadersListView mDrawerList;
 
     private ActionBarDrawerToggle mDrawerToggle;
 
@@ -268,6 +289,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                             PlaylistEntriesFragment.class, playlist.getId(),
                             TomahawkFragment.TOMAHAWK_PLAYLIST_KEY);
                 }
+            } else if (CollectionManager.COLLECTION_ADDED.equals(intent.getAction())) {
+                updateDrawer();
             }
         }
     }
@@ -288,9 +311,47 @@ public class TomahawkMainActivity extends ActionBarActivity
             HatchetAuthenticatorUtils authenticatorUtils
                     = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                     .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-            // Show the correct hub, and if needed, display the search editText inside the ActionBar
-            FragmentUtils.showHub(TomahawkMainActivity.this, getSupportFragmentManager(),
-                    (int) id, authenticatorUtils.getLoggedInUser());
+            TomahawkMenuAdapter.ResourceHolder holder =
+                    (TomahawkMenuAdapter.ResourceHolder) mDrawerList.getAdapter().getItem(position);
+            Bundle bundle = new Bundle();
+            if (holder.isCloudCollection) {
+                bundle.putString(CollectionManager.COLLECTION_ID, holder.id);
+                FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
+                        ArtistsFragment.class, bundle);
+            } else if (holder.id.equals(HUB_ID_USERPAGE)) {
+                if (authenticatorUtils.getLoggedInUser() == null) {
+                    return;
+                }
+                FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
+                        UserPagerFragment.class, authenticatorUtils.getLoggedInUser().getId(),
+                        TomahawkFragment.TOMAHAWK_USER_ID);
+            } else if (holder.id.equals(HUB_ID_FEED)) {
+                if (authenticatorUtils.getLoggedInUser() == null) {
+                    return;
+                }
+                FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
+                        SocialActionsFragment.class, authenticatorUtils.getLoggedInUser().getId(),
+                        TomahawkFragment.TOMAHAWK_USER_ID,
+                        SocialActionsFragment.SHOW_MODE_DASHBOARD);
+            } else if (holder.id.equals(HUB_ID_COLLECTION)) {
+                FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
+                        CollectionFragment.class);
+            } else if (holder.id.equals(HUB_ID_LOVEDTRACKS)) {
+                bundle.putString(PlaylistsFragment.TOMAHAWK_PLAYLIST_KEY,
+                        DatabaseHelper.LOVEDITEMS_PLAYLIST_ID);
+                bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID,
+                        authenticatorUtils.getLoggedInUser().getId());
+                FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
+                        PlaylistEntriesFragment.class, bundle);
+            } else if (holder.id.equals(HUB_ID_PLAYLISTS)) {
+                bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID,
+                        authenticatorUtils.getLoggedInUser().getId());
+                FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
+                        PlaylistsFragment.class, bundle);
+            } else if (holder.id.equals(HUB_ID_SETTINGS)) {
+                FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
+                        FakePreferenceFragment.class);
+            }
             if (mDrawerLayout != null) {
                 mDrawerLayout.closeDrawer(mDrawerList);
             }
@@ -405,8 +466,9 @@ public class TomahawkMainActivity extends ActionBarActivity
     private void handleIntent(Intent intent) {
         if (SHOW_PLAYBACKFRAGMENT_ON_STARTUP.equals(intent.getAction())) {
             // if this Activity is being shown after the user clicked the notification
-            FragmentUtils.showHub(TomahawkMainActivity.this, getSupportFragmentManager(),
-                    FragmentUtils.HUB_ID_PLAYBACK);
+            if (mSlidingUpPanelLayout != null) {
+                mSlidingUpPanelLayout.expandPanel();
+            }
         }
         if (intent.hasExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)) {
             FragmentUtils.replace(this, getSupportFragmentManager(), FakePreferenceFragment.class);
@@ -482,6 +544,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                 new IntentFilter(AuthenticatorManager.CONFIG_TEST_RESULT));
         registerReceiver(mTomahawkMainReceiver,
                 new IntentFilter(PipeLine.PIPELINE_URLLOOKUPFINISHED));
+        registerReceiver(mTomahawkMainReceiver,
+                new IntentFilter(CollectionManager.COLLECTION_ADDED));
     }
 
     @Override
@@ -682,12 +746,56 @@ public class TomahawkMainActivity extends ActionBarActivity
                     .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF, null));
         }
         // Set up the TomahawkMenuAdapter. Give it its set of menu item texts and icons to display
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
-        TomahawkMenuAdapter slideMenuAdapter = new TomahawkMenuAdapter(this,
-                getResources().getStringArray(R.array.slide_menu_items),
-                getResources().obtainTypedArray(R.array.slide_menu_items_icons));
-        slideMenuAdapter.setShowHatchetMenu(true);
-        slideMenuAdapter.setUser(authenticatorUtils.getLoggedInUser());
+        mDrawerList = (StickyListHeadersListView) findViewById(R.id.left_drawer);
+        ArrayList<TomahawkMenuAdapter.ResourceHolder> holders =
+                new ArrayList<TomahawkMenuAdapter.ResourceHolder>();
+        TomahawkMenuAdapter.ResourceHolder holder = new TomahawkMenuAdapter.ResourceHolder();
+        if (authenticatorUtils.getLoggedInUser() != null) {
+            holder.id = HUB_ID_USERPAGE;
+            holder.title = authenticatorUtils.getLoggedInUser().getName();
+            holder.image = authenticatorUtils.getLoggedInUser().getImage();
+            holders.add(holder);
+            holder = new TomahawkMenuAdapter.ResourceHolder();
+            holder.id = HUB_ID_FEED;
+            holder.title = getString(R.string.drawer_title_feed);
+            holder.iconResId = R.drawable.ic_action_dashboard;
+            holders.add(holder);
+        }
+        holder = new TomahawkMenuAdapter.ResourceHolder();
+        holder.id = HUB_ID_COLLECTION;
+        holder.title = getString(R.string.drawer_title_collection);
+        holder.iconResId = R.drawable.ic_action_collection;
+        holders.add(holder);
+        holder = new TomahawkMenuAdapter.ResourceHolder();
+        holder.id = HUB_ID_LOVEDTRACKS;
+        holder.title = getString(R.string.drawer_title_lovedtracks);
+        holder.iconResId = R.drawable.ic_action_favorites;
+        holders.add(holder);
+        holder = new TomahawkMenuAdapter.ResourceHolder();
+        holder.id = HUB_ID_PLAYLISTS;
+        holder.title = getString(R.string.drawer_title_playlists);
+        holder.iconResId = R.drawable.ic_action_playlist_light;
+        holders.add(holder);
+        holder = new TomahawkMenuAdapter.ResourceHolder();
+        holder.id = HUB_ID_SETTINGS;
+        holder.title = getString(R.string.drawer_title_settings);
+        holder.iconResId = R.drawable.ic_action_settings;
+        holders.add(holder);
+        if (CollectionManager.getInstance().getCollections() != null) {
+            for (Collection collection : CollectionManager.getInstance().getCollections()) {
+                if (collection instanceof ScriptResolverCollection) {
+                    ScriptResolverCollection resolverCollection =
+                            (ScriptResolverCollection) collection;
+                    holder = new TomahawkMenuAdapter.ResourceHolder();
+                    holder.id = resolverCollection.getId();
+                    holder.title = resolverCollection.getName();
+                    holder.iconPath = resolverCollection.getScriptResolver().getIconPath();
+                    holder.isCloudCollection = true;
+                    holders.add(holder);
+                }
+            }
+        }
+        TomahawkMenuAdapter slideMenuAdapter = new TomahawkMenuAdapter(this, holders);
         mDrawerList.setAdapter(slideMenuAdapter);
 
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());

@@ -25,7 +25,6 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
-import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
@@ -36,14 +35,9 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.CollectionFragment;
 import org.tomahawk.tomahawk_android.fragments.ContextMenuFragment;
-import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
-import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
-import org.tomahawk.tomahawk_android.fragments.PlaylistEntriesFragment;
-import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
-import org.tomahawk.tomahawk_android.fragments.UserPagerFragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -61,20 +55,6 @@ import java.util.Map;
  * entry in the navigation drawer.
  */
 public class FragmentUtils {
-
-    public static final int HUB_ID_HOME = -1;
-
-    public static final int HUB_ID_DASHBOARD = 0;
-
-    public static final int HUB_ID_COLLECTION = 1;
-
-    public static final int HUB_ID_LOVEDTRACKS = 2;
-
-    public static final int HUB_ID_PLAYLISTS = 3;
-
-    public static final int HUB_ID_SETTINGS = 4;
-
-    public static final int HUB_ID_PLAYBACK = 100;
 
     public static final String FRAGMENT_TAG = "the_ultimate_tag";
 
@@ -209,65 +189,6 @@ public class FragmentUtils {
         ft.addToBackStack(FRAGMENT_TAG);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         ft.commit();
-    }
-
-    /**
-     * Set the currently shown hub, by providing its id
-     *
-     * @param hubToShow the id of the hub which should be shown
-     */
-    public static void showHub(TomahawkMainActivity activity, FragmentManager fragmentManager,
-            int hubToShow) {
-        showHub(activity, fragmentManager, hubToShow, null);
-    }
-
-    /**
-     * Set the currently shown hub, by providing its id
-     *
-     * @param hubToShow the id of the hub which should be shown
-     */
-    public static void showHub(TomahawkMainActivity activity, FragmentManager fragmentManager,
-            int hubToShow, User loggedInUser) {
-        Bundle bundle = new Bundle();
-        switch (hubToShow) {
-            case HUB_ID_HOME:
-                if (loggedInUser == null) {
-                    return;
-                }
-                replace(activity, fragmentManager, UserPagerFragment.class,
-                        loggedInUser.getId(),
-                        TomahawkFragment.TOMAHAWK_USER_ID);
-                break;
-            case HUB_ID_DASHBOARD:
-                if (loggedInUser == null) {
-                    return;
-                }
-                replace(activity, fragmentManager, SocialActionsFragment.class,
-                        loggedInUser.getId(),
-                        TomahawkFragment.TOMAHAWK_USER_ID,
-                        SocialActionsFragment.SHOW_MODE_DASHBOARD);
-                break;
-            case HUB_ID_COLLECTION:
-                replace(activity, fragmentManager, CollectionFragment.class);
-                break;
-            case HUB_ID_LOVEDTRACKS:
-                bundle.putString(PlaylistsFragment.TOMAHAWK_PLAYLIST_KEY,
-                        DatabaseHelper.LOVEDITEMS_PLAYLIST_ID);
-                bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, loggedInUser.getId());
-                replace(activity, fragmentManager, PlaylistEntriesFragment.class,
-                        bundle);
-                break;
-            case HUB_ID_PLAYLISTS:
-                bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, loggedInUser.getId());
-                replace(activity, fragmentManager, PlaylistsFragment.class, bundle);
-                break;
-            case HUB_ID_PLAYBACK:
-                replace(activity, fragmentManager, PlaybackFragment.class);
-                break;
-            case HUB_ID_SETTINGS:
-                replace(activity, fragmentManager, FakePreferenceFragment.class);
-                break;
-        }
     }
 
     public static boolean showContextMenu(TomahawkMainActivity activity,

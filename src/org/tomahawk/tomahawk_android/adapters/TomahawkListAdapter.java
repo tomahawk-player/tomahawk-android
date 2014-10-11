@@ -450,7 +450,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
     @Override
     public View getHeaderView(int position, View convertView, ViewGroup parent) {
         Segment segment = getSegment(position);
-        if (segment != null && (segment.getHeaderStringResId() > 0
+        if (segment != null && (segment.getHeaderString() != null
                 || segment.getFirstSegmentItem() instanceof SocialAction)) {
             View view = null;
             ViewHolder viewHolder = null;
@@ -467,8 +467,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
 
             if (layoutId == R.layout.dropdown_header) {
                 ArrayList<CharSequence> list = new ArrayList<CharSequence>();
-                for (int resId : segment.getHeaderStringResIds()) {
-                    list.add(TomahawkApp.getContext().getString(resId).toUpperCase());
+                for (String headerString : segment.getHeaderStrings()) {
+                    list.add(headerString.toUpperCase());
                 }
                 ArrayAdapter<CharSequence> adapter =
                         new ArrayAdapter<CharSequence>(TomahawkApp.getContext(),
@@ -479,8 +479,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
                 viewHolder.getSpinner()
                         .setOnItemSelectedListener(segment.getSpinnerClickListener());
             } else if (layoutId == R.layout.single_line_list_header) {
-                viewHolder.getTextView1().setText(TomahawkApp.getContext().getString(
-                        segment.getHeaderStringResId()).toUpperCase());
+                viewHolder.getTextView1().setText(segment.getHeaderString().toUpperCase());
             } else if (layoutId == R.layout.list_header_socialaction) {
                 SocialAction socialAction = (SocialAction) segment.getFirstSegmentItem();
                 TomahawkUtils.loadRoundedImageIntoImageView(TomahawkApp.getContext(),
