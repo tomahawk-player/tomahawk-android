@@ -212,7 +212,7 @@ public class AdapterUtils {
         viewHolder.getTextView2().setVisibility(View.VISIBLE);
         viewHolder.getTextView2().setText(album.getArtist().getName());
         TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), viewHolder.getImageView1(),
-                album.getImage(), Image.getSmallImageSize(), true);
+                album.getImage(), Image.getSmallImageSize(), false);
         int songCount = CollectionManager.getInstance().getCollection(
                 TomahawkApp.PLUGINNAME_USERCOLLECTION).getAlbumTracks(album, false).size();
         if (songCount == 0) {
