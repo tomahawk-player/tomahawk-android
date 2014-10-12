@@ -5,6 +5,7 @@
   <string name="login">Anmelden</string>
   <string name="logout">Abmelden</string>
   <string name="register">Registrieren</string>
+  <string name="tracks">Lieder</string>
   <string name="albums">Alben</string>
   <string name="artists">Künstler</string>
   <string name="users">Benutzer</string>
