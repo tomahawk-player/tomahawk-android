@@ -65,7 +65,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/header_following_height"
                 android:layout_gravity="center_vertical"
-                android:background="@drawable/following_button_bg"
+                android:background="@drawable/selectable_background_button_follow"
                 android:clickable="true">
 
             <TextView android:id="@+id/content_header_button4_text"
