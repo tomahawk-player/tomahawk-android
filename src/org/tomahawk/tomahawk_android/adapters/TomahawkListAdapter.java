@@ -88,8 +88,6 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
 
     private int mFooterSpacerHeight = 0;
 
-    private boolean mShowFooterSpacer = false;
-
     /**
      * Constructs a new {@link TomahawkListAdapter}.
      */
@@ -144,7 +142,6 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
             StickyListHeadersListView listView) {
         mHeaderSpacerHeight = TomahawkApp.getContext().getResources()
                 .getDimensionPixelSize(headerSpacerHeightResId);
-        mShowFooterSpacer = true;
         updateFooterSpacerHeight(listView);
     }
 
