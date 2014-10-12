@@ -17,10 +17,10 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
-import android.widget.ListView;
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 public interface ContentHeaderAdapter {
 
-    public void setShowContentHeaderSpacer(int headerSpacerHeightResId, ListView listView);
+    public void setShowContentHeaderSpacer(int headerSpacerHeightResId, StickyListHeadersListView listView);
 
 }

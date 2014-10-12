@@ -219,7 +219,7 @@ public class SocialActionsFragment extends TomahawkFragment {
                 tomahawkListAdapter.setLeftExtraPadding(extraPadding);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                getListAdapter().setSegments(segments);
+                getListAdapter().setSegments(segments, getListView());
             }
 
             updateShowPlaystate();

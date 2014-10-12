@@ -134,7 +134,7 @@ public class AlbumsFragment extends TomahawkFragment {
                 tomahawkListAdapter.setShowNumeration(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                getListAdapter().setSegments(segments);
+                getListAdapter().setSegments(segments, getListView());
             }
         } else if (mShowMode == SHOW_MODE_STARREDALBUMS) {
             ArrayList<Album> albums = DatabaseHelper.getInstance().getStarredAlbums();
@@ -149,7 +149,7 @@ public class AlbumsFragment extends TomahawkFragment {
                         layoutInflater, segments, this);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                getListAdapter().setSegments(segments);
+                getListAdapter().setSegments(segments, getListView());
             }
         } else if (mSearchAlbums != null) {
             ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
@@ -160,7 +160,7 @@ public class AlbumsFragment extends TomahawkFragment {
                         layoutInflater, segments, this);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                getListAdapter().setSegments(segments);
+                getListAdapter().setSegments(segments, getListView());
             }
         } else {
             ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
@@ -172,7 +172,7 @@ public class AlbumsFragment extends TomahawkFragment {
                         layoutInflater, segments, this);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                getListAdapter().setSegments(segments);
+                getListAdapter().setSegments(segments, getListView());
             }
         }
 
