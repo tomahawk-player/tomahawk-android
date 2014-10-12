@@ -76,8 +76,7 @@
                       android:singleLine="true"
                       android:textStyle="bold"
                       android:textColor="@color/primary_textcolor"
-                      android:textSize="@dimen/text_size_medium"
-                      android:text="Beat the drum slowly"/>
+                      android:textSize="@dimen/text_size_medium"/>
 
             <TextView android:id="@+id/textview3"
                       android:layout_width="0dp"
@@ -88,7 +87,6 @@
                       android:singleLine="true"
                       android:textColor="@color/primary_textcolor"
                       android:textSize="@dimen/text_size_medium"
-                      android:text="Timber Timbre"
                       android:visibility="gone"/>
 
             <TextView android:id="@+id/textview4"
@@ -99,7 +97,6 @@
                       android:singleLine="true"
                       android:textColor="@color/secondary_textcolor"
                       android:textSize="@dimen/text_size_small"
-                      android:text="00:14"
                       android:visibility="gone"/>
 
         </LinearLayout>

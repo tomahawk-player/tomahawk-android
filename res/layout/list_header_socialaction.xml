@@ -59,8 +59,7 @@
                   android:paddingLeft="@dimen/padding_medium"
                   android:textColor="@color/primary_textcolor"
                   android:textSize="@dimen/text_size_large"
-                  android:textStyle="bold"
-                  android:text="mrmaffen loved 5 tracks:"/>
+                  android:textStyle="bold"/>
 
     </LinearLayout>
 
