@@ -171,6 +171,16 @@ public class ContextMenuFragment extends Fragment {
         }
 
         //Set up button click listeners
+        View closeButton = getView().findViewById(R.id.close_button);
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().getSupportFragmentManager().popBackStack();
+            }
+        });
+        TextView closeButtonText = (TextView) closeButton.findViewById(R.id.close_button_text);
+        closeButtonText.setText(getString(R.string.button_close).toUpperCase());
+
         if (mTomahawkListItem instanceof Album) {
             View addToCollectionButton = getView().findViewById(R.id.addtocollection_button);
             addToCollectionButton.setVisibility(View.VISIBLE);

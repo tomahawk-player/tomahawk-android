@@ -141,4 +141,5 @@
   <string name="ask_access_activity_text2">(You can disable this whenever you want in Tomahawk\'s settings)</string>
   <string name="ask_access_activity_button_text">Go to Settings</string>
   <string name="button_open_queue_text">Queue</string>
+  <string name="button_close">Close</string>
 </resources>
