@@ -29,12 +29,24 @@
               android:paddingBottom="@dimen/padding_superlarge"
               android:background="@drawable/selectable_background_tomahawk">
 
-    <ImageView android:id="@+id/content_header_roundedimage_user_navdrawer"
-               android:layout_width="@dimen/menu_item_height_userprofile"
-               android:layout_height="@dimen/menu_item_height_userprofile"
-               android:padding="@dimen/padding_verysmall"
-               android:adjustViewBounds="false"
-               android:scaleType="centerCrop"/>
+    <FrameLayout android:layout_width="@dimen/header_roundedimage_height"
+                 android:layout_height="@dimen/header_roundedimage_height"
+                 android:padding="@dimen/padding_verysmall"
+                 android:layout_gravity="center">
+
+        <ImageView android:id="@+id/userimageview1"
+                   android:layout_width="match_parent"
+                   android:layout_height="match_parent"
+                   android:src="@drawable/circle_black"/>
+
+        <TextView android:id="@+id/usertextview1"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:gravity="center"
+                  android:textSize="@dimen/text_size_verylarge"
+                  android:textColor="@color/primary_textcolor_inverted"/>
+
+    </FrameLayout>
 
     <TextView android:id="@+id/content_header_textview_user_navdrawer"
               android:layout_width="wrap_content"

@@ -31,7 +31,9 @@ public class ViewHolder {
 
     private int mLayoutId;
 
-    private ImageView mRoundedImage;
+    private ImageView mUserImageView1;
+
+    private TextView mUserTextView1;
 
     private ImageView mImageView1;
 
@@ -53,8 +55,6 @@ public class ViewHolder {
 
     private TextView mTextView4;
 
-    private TextView mTextView5;
-
     private FrameLayout mButton4;
 
     private FrameLayout mMoreButton;
@@ -75,8 +75,10 @@ public class ViewHolder {
         } else if (layoutId == R.layout.content_header_user_navdrawer) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.content_header_textview_user_navdrawer);
-            mRoundedImage = (ImageView) rootView
-                    .findViewById(R.id.content_header_roundedimage_user_navdrawer);
+            mUserImageView1 = (ImageView) rootView
+                    .findViewById(R.id.userimageview1);
+            mUserTextView1 = (TextView) rootView
+                    .findViewById(R.id.usertextview1);
         } else if (layoutId == R.layout.list_item_track
                 || layoutId == R.layout.list_item_track_highlighted) {
             mImageView1 = (ImageView) rootView
@@ -97,8 +99,10 @@ public class ViewHolder {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.single_line_list_header_textview);
         } else if (layoutId == R.layout.list_header_socialaction) {
-            mImageView1 = (ImageView) rootView
-                    .findViewById(R.id.imageview1);
+            mUserImageView1 = (ImageView) rootView
+                    .findViewById(R.id.userimageview1);
+            mUserTextView1 = (TextView) rootView
+                    .findViewById(R.id.usertextview1);
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.textview1);
         } else if (layoutId == R.layout.dropdown_header) {
@@ -142,6 +146,17 @@ public class ViewHolder {
                     .findViewById(R.id.textview2);
             mTextView3 = (TextView) rootView
                     .findViewById(R.id.textview3);
+        } else if (layoutId == R.layout.grid_item_user || layoutId == R.layout.list_item_user) {
+            mUserImageView1 = (ImageView) rootView
+                    .findViewById(R.id.userimageview1);
+            mUserTextView1 = (TextView) rootView
+                    .findViewById(R.id.usertextview1);
+            mTextView1 = (TextView) rootView
+                    .findViewById(R.id.textview1);
+            mTextView2 = (TextView) rootView
+                    .findViewById(R.id.textview2);
+            mTextView3 = (TextView) rootView
+                    .findViewById(R.id.textview3);
         }
         if (mMainClickArea == null) {
             mMainClickArea = rootView;
@@ -155,8 +170,10 @@ public class ViewHolder {
                 || layoutId == R.layout.content_header_static) {
             mTextView1 = (TextView) headerFrame
                     .findViewById(R.id.content_header_textview);
-            mRoundedImage = (ImageView) headerFrame
-                    .findViewById(R.id.content_header_roundedimage);
+            mUserImageView1 = (ImageView) headerFrame
+                    .findViewById(R.id.userimageview1);
+            mUserTextView1 = (TextView) headerFrame
+                    .findViewById(R.id.usertextview1);
             mImageView1 = (ImageView) imageFrame
                     .findViewById(R.id.content_header_image);
             mImageView2 = (ImageView) imageFrame
@@ -179,8 +196,12 @@ public class ViewHolder {
         return mLayoutId;
     }
 
-    public ImageView getRoundedImage() {
-        return mRoundedImage;
+    public ImageView getUserImageView1() {
+        return mUserImageView1;
+    }
+
+    public TextView getUserTextView1() {
+        return mUserTextView1;
     }
 
     public ImageView getImageView1() {
@@ -221,10 +242,6 @@ public class ViewHolder {
 
     public TextView getTextView4() {
         return mTextView4;
-    }
-
-    public TextView getTextView5() {
-        return mTextView5;
     }
 
     public FrameLayout getButton4() {
