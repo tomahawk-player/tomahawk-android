@@ -21,12 +21,16 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
+import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
+import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.dialogs.ChoosePlaylistDialog;
 import org.tomahawk.tomahawk_android.utils.AdapterUtils;
@@ -35,12 +39,16 @@ import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.ShareUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,6 +57,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * A {@link DialogFragment} which emulates the appearance and behaviour of the standard context menu
@@ -69,6 +78,28 @@ public class ContextMenuFragment extends Fragment {
 
     protected Collection mCollection;
 
+    protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
+
+    private ContextMenuFragmentReceiver mContextMenuFragmentReceiver;
+
+    private class ContextMenuFragmentReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
+                String requestId = intent.getStringExtra(
+                        InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
+                if (mCurrentRequestIds.contains(requestId) && getView() != null) {
+                    ImageView albumImageView =
+                            (ImageView) getView().findViewById(R.id.album_imageview);
+                    TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), albumImageView,
+                            mTomahawkListItem.getAlbum().getImage(), Image.getLargeImageSize(),
+                            true, false);
+                }
+            }
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -78,6 +109,13 @@ public class ContextMenuFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        // Initialize and register Receiver
+        if (mContextMenuFragmentReceiver == null) {
+            mContextMenuFragmentReceiver = new ContextMenuFragmentReceiver();
+            IntentFilter intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
+            getActivity().registerReceiver(mContextMenuFragmentReceiver, intentFilter);
+        }
 
         boolean showDelete = false;
         if (getArguments() != null) {
@@ -141,6 +179,8 @@ public class ContextMenuFragment extends Fragment {
         }
         if (mTomahawkListItem instanceof SocialAction) {
             mTomahawkListItem = ((SocialAction) mTomahawkListItem).getTargetObject();
+        } else if (mTomahawkListItem instanceof PlaylistEntry) {
+            mTomahawkListItem = ((PlaylistEntry) mTomahawkListItem).getQuery();
         }
 
         //Set blurred background image
@@ -215,12 +255,7 @@ public class ContextMenuFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     getActivity().getSupportFragmentManager().popBackStack();
-                    Query query = null;
-                    if (mTomahawkListItem instanceof Query) {
-                        query = (Query) mTomahawkListItem;
-                    } else if (mTomahawkListItem instanceof PlaylistEntry) {
-                        query = ((PlaylistEntry) mTomahawkListItem).getQuery();
-                    }
+                    Query query = (Query) mTomahawkListItem;
                     if (query != null) {
                         CollectionManager.getInstance().toggleLovedItem(query);
                     }
@@ -297,6 +332,48 @@ public class ContextMenuFragment extends Fragment {
         });
         TextView artistTextView = (TextView) artistNameButton.findViewById(R.id.artist_name);
         artistTextView.setText(mTomahawkListItem.getArtist().getName());
+
+        //Set up album image and stuff
+        if (mTomahawkListItem instanceof Album
+                || (mTomahawkListItem instanceof Query
+                && !TextUtils.isEmpty(mTomahawkListItem.getAlbum().getName()))) {
+            View viewAlbumContainer = getView().findViewById(R.id.view_album_container);
+            viewAlbumContainer.setVisibility(View.VISIBLE);
+            View viewAlbumButton = viewAlbumContainer.findViewById(R.id.view_album_button);
+            viewAlbumButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getActivity().getSupportFragmentManager().popBackStack();
+                    FragmentUtils.replace((TomahawkMainActivity) getActivity(),
+                            getActivity().getSupportFragmentManager(), TracksFragment.class,
+                            mTomahawkListItem.getAlbum().getCacheKey(),
+                            TomahawkFragment.TOMAHAWK_ALBUM_KEY, mCollection);
+                }
+            });
+            TextView viewAlbumButtonText =
+                    (TextView) viewAlbumContainer.findViewById(R.id.view_album_button_text);
+            viewAlbumButtonText.setText(getString(R.string.view_album).toUpperCase());
+            ImageView albumImageView =
+                    (ImageView) viewAlbumContainer.findViewById(R.id.album_imageview);
+            if (mTomahawkListItem.getAlbum().getImage() != null) {
+                TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), albumImageView,
+                        mTomahawkListItem.getAlbum().getImage(), Image.getLargeImageSize(), true,
+                        false);
+            } else {
+                mCurrentRequestIds
+                        .add(InfoSystem.getInstance().resolve(mTomahawkListItem.getAlbum()));
+            }
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (mContextMenuFragmentReceiver != null) {
+            getActivity().unregisterReceiver(mContextMenuFragmentReceiver);
+            mContextMenuFragmentReceiver = null;
+        }
     }
 
 }
