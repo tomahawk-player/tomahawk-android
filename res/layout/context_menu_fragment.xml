@@ -39,7 +39,7 @@
 
         <FrameLayout android:layout_width="match_parent"
                      android:layout_height="wrap_content"
-                     android:layout_marginTop="96dp">
+                     android:layout_marginTop="?attr/actionBarSize">
 
             <FrameLayout android:id="@+id/close_button"
                          android:layout_width="wrap_content"
@@ -303,6 +303,47 @@
                               android:singleLine="true"
                               android:textSize="@dimen/text_size_large"
                               android:textColor="@color/primary_textcolor_inverted"/>
+
+                </FrameLayout>
+
+                <FrameLayout android:id="@+id/view_album_container"
+                             android:layout_width="match_parent"
+                             android:layout_height="wrap_content"
+                             android:layout_marginTop="@dimen/padding_large"
+                             android:padding="@dimen/padding_medium"
+                             android:visibility="gone">
+
+                    <ImageView android:id="@+id/album_imageview"
+                               android:layout_width="match_parent"
+                               android:layout_height="wrap_content"
+                               android:adjustViewBounds="true"
+                               android:src="@drawable/album_placeholder_grid"/>
+
+                    <View android:layout_width="match_parent"
+                          android:layout_height="match_parent"
+                          android:background="@color/tertiary_transparent"/>
+
+                    <FrameLayout android:id="@+id/view_album_button"
+                                 android:layout_width="wrap_content"
+                                 android:layout_height="wrap_content"
+                                 android:layout_gravity="center_horizontal"
+                                 android:layout_marginTop="32dp"
+                                 android:paddingLeft="@dimen/padding_superlarge"
+                                 android:paddingRight="@dimen/padding_superlarge"
+                                 android:paddingBottom="@dimen/padding_verysmall"
+                                 android:paddingTop="@dimen/padding_verysmall"
+                                 android:background="@drawable/selectable_background_button_white"
+                                 android:clickable="true">
+
+                        <TextView android:id="@+id/view_album_button_text"
+                                  android:layout_width="match_parent"
+                                  android:layout_height="wrap_content"
+                                  android:layout_gravity="center_vertical"
+                                  android:singleLine="true"
+                                  android:textSize="@dimen/text_size_micro"
+                                  android:textColor="@color/primary_textcolor_inverted"/>
+
+                    </FrameLayout>
 
                 </FrameLayout>
 
