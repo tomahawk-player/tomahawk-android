@@ -18,6 +18,7 @@
 package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.libtomahawk.collection.Image;
+import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -55,6 +56,8 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
         public String iconPath;
 
         public Image image;
+
+        public User user;
 
         public boolean isCloudCollection;
     }
@@ -112,7 +115,7 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
             ViewHolder viewHolder = new ViewHolder(contentHeaderView,
                     R.layout.content_header_user_navdrawer);
             AdapterUtils.fillContentHeaderSmall(mActivity, viewHolder, holder.title,
-                    holder.image);
+                    holder.user);
             return contentHeaderView;
         } else {
             View view = mLayoutInflater.inflate(R.layout.single_line_list_menu, parent, false);

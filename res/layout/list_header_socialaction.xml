@@ -35,12 +35,23 @@
                   android:descendantFocusability="afterDescendants"
                   android:background="@drawable/selectable_background_tomahawk_opaque">
 
-        <ImageView android:id="@+id/imageview1"
-                   android:layout_width="32dp"
-                   android:layout_height="32dp"
-                   android:layout_gravity="center"
-                   android:scaleType="centerCrop"
-                   android:src="@drawable/album_placeholder_grid"/>
+        <FrameLayout android:layout_width="32dp"
+                     android:layout_height="32dp"
+                     android:layout_gravity="center">
+
+            <ImageView android:id="@+id/userimageview1"
+                       android:layout_width="match_parent"
+                       android:layout_height="match_parent"
+                       android:src="@drawable/circle_black"/>
+
+            <TextView android:id="@+id/usertextview1"
+                      android:layout_width="match_parent"
+                      android:layout_height="match_parent"
+                      android:gravity="center"
+                      android:textSize="@dimen/text_size_verylarge"
+                      android:textColor="@color/primary_textcolor_inverted"/>
+
+        </FrameLayout>
 
         <TextView android:id="@+id/textview1"
                   android:layout_width="wrap_content"

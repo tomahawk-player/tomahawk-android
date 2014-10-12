@@ -754,6 +754,7 @@ public class TomahawkMainActivity extends ActionBarActivity
             holder.id = HUB_ID_USERPAGE;
             holder.title = authenticatorUtils.getLoggedInUser().getName();
             holder.image = authenticatorUtils.getLoggedInUser().getImage();
+            holder.user = authenticatorUtils.getLoggedInUser();
             holders.add(holder);
             holder = new TomahawkMenuAdapter.ResourceHolder();
             holder.id = HUB_ID_FEED;

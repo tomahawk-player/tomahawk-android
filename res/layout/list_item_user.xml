@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+ *
+ *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
+ *
+ *   Tomahawk is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Tomahawk is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:paddingLeft="@dimen/padding_superlarge"
+              android:paddingRight="@dimen/padding_superlarge"
+              android:paddingTop="@dimen/padding_small"
+              android:paddingBottom="@dimen/padding_small"
+              android:baselineAligned="false"
+              android:orientation="horizontal"
+              android:descendantFocusability="afterDescendants"
+              android:background="@drawable/selectable_background_tomahawk_opaque"
+              android:clickable="true">
+
+    <FrameLayout android:layout_width="@dimen/row_height_verylarge"
+                 android:layout_height="@dimen/row_height_verylarge"
+                 android:layout_gravity="center">
+
+        <ImageView android:id="@+id/userimageview1"
+                   android:layout_width="match_parent"
+                   android:layout_height="match_parent"
+                   android:src="@drawable/circle_black"/>
+
+        <TextView android:id="@+id/usertextview1"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:gravity="center"
+                  android:textSize="@dimen/text_size_verylarge"
+                  android:textColor="@color/primary_textcolor_inverted"/>
+
+    </FrameLayout>
+
+    <LinearLayout android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_weight="1"
+                  android:layout_gravity="center_vertical"
+                  android:paddingLeft="@dimen/padding_small"
+                  android:baselineAligned="false"
+                  android:orientation="vertical">
+
+        <TextView
+                android:id="@+id/textview1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/padding_verysmall"
+                android:gravity="center_vertical"
+                android:singleLine="true"
+                android:textColor="@color/primary_textcolor"
+                android:textSize="@dimen/text_size_medium"
+                android:text="MrMaffen"/>
+
+        <TextView
+                android:id="@+id/textview2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:singleLine="true"
+                android:textColor="@color/secondary_textcolor"
+                android:textSize="@dimen/text_size_small"
+                android:text="20 Albums"
+                android:visibility="gone"/>
+
+        <TextView
+                android:id="@+id/textview3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:singleLine="true"
+                android:textColor="@color/secondary_textcolor"
+                android:textSize="@dimen/text_size_small"
+                android:text="1337 Songs"
+                android:visibility="gone"/>
+
+    </LinearLayout>
+
+</LinearLayout>

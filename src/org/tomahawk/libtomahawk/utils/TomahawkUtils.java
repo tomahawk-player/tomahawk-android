@@ -16,16 +16,17 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.Track;
+import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptInterface;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.utils.GrayOutTransformation;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.utils.BlurTransformation;
 import org.tomahawk.tomahawk_android.utils.CircularImageTransformation;
+import org.tomahawk.tomahawk_android.utils.GrayOutTransformation;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -35,8 +36,10 @@ import android.content.res.Resources;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.RemoteViews;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -642,15 +645,17 @@ public class TomahawkUtils {
      * @param context   the context needed for fetching resources
      * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
      *                  android.graphics.Bitmap}
-     * @param image     the path to load the image from
+     * @param user      the user of which to load the data into the views
      * @param width     the width in pixels to scale the image down to
+     * @param textView  the textview which is being used to display the first letter of the user's
+     *                  name in the placeholder image
      */
-    public static void loadRoundedImageIntoImageView(Context context, ImageView imageView,
-            Image image, int width, boolean isArtistImage) {
-        int placeHolder = isArtistImage ? R.drawable.artist_placeholder_grid
-                : R.drawable.album_placeholder_grid;
-        if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
-            String imagePath = buildImagePath(context, image, width);
+    public static void loadUserImageIntoImageView(Context context, ImageView imageView,
+            User user, int width, TextView textView) {
+        int placeHolder = R.drawable.circle_black;
+        if (user.getImage() != null && !TextUtils.isEmpty(user.getImage().getImagePath())) {
+            textView.setVisibility(View.GONE);
+            String imagePath = buildImagePath(context, user.getImage(), width);
             Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
                     .transform(new CircularImageTransformation())
                     .placeholder(placeHolder)
@@ -658,8 +663,9 @@ public class TomahawkUtils {
                     .fit()
                     .into(imageView);
         } else {
+            textView.setVisibility(View.VISIBLE);
+            textView.setText(user.getName().substring(0, 1).toUpperCase());
             Picasso.with(context).load(placeHolder)
-                    .transform(new CircularImageTransformation())
                     .placeholder(placeHolder)
                     .error(placeHolder)
                     .fit()

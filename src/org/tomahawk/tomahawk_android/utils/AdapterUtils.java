@@ -97,19 +97,19 @@ public class AdapterUtils {
     }
 
     public static void fillContentHeaderSmall(Context context, ViewHolder viewHolder, String text,
-            Image image) {
+            User user) {
         viewHolder.getTextView1().setText(text.toUpperCase());
-        TomahawkUtils.loadRoundedImageIntoImageView(context, viewHolder.getRoundedImage(),
-                image, Image.getSmallImageSize(), false);
-        viewHolder.getRoundedImage().setVisibility(View.VISIBLE);
+        TomahawkUtils.loadUserImageIntoImageView(context, viewHolder.getUserImageView1(),
+                user, Image.getSmallImageSize(), viewHolder.getUserTextView1());
+        viewHolder.getUserImageView1().setVisibility(View.VISIBLE);
     }
 
     public static void fillContentHeader(final Context context, ViewHolder viewHolder,
             final User user, boolean showFollowing, boolean showNotFollowing) {
         TomahawkUtils.loadBlurredImageIntoImageView(context, viewHolder.getImageView1(),
-                user.getImage(), Image.getSmallImageSize(), R.drawable.album_placeholder_grid);
-        TomahawkUtils.loadRoundedImageIntoImageView(context, viewHolder.getRoundedImage(),
-                user.getImage(), Image.getSmallImageSize(), false);
+                user.getImage(), Image.getSmallImageSize(), R.color.userpage_default_background);
+        TomahawkUtils.loadUserImageIntoImageView(context, viewHolder.getUserImageView1(),
+                user, Image.getSmallImageSize(), viewHolder.getUserTextView1());
         viewHolder.getTextView1().setText(user.getName().toUpperCase());
         ((TextView) viewHolder.getButton4().findViewById(R.id.content_header_button4_text))
                 .setText(context.getString(R.string.content_header_following).toUpperCase());
@@ -197,8 +197,9 @@ public class AdapterUtils {
 
     public static void fillView(ViewHolder viewHolder, User user) {
         viewHolder.getTextView1().setText(user.getName());
-        TomahawkUtils.loadRoundedImageIntoImageView(TomahawkApp.getContext(),
-                viewHolder.getImageView1(), user.getImage(), Image.getSmallImageSize(), false);
+        TomahawkUtils.loadUserImageIntoImageView(TomahawkApp.getContext(),
+                viewHolder.getUserImageView1(), user, Image.getSmallImageSize(),
+                viewHolder.getUserTextView1());
     }
 
     public static void fillView(ViewHolder viewHolder, Artist artist) {

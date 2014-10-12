@@ -283,7 +283,9 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
         } else if (viewType == R.layout.list_item_track
                 || viewType == R.layout.list_item_track_highlighted
                 || viewType == R.layout.grid_item
-                || viewType == R.layout.list_item_artistalbum) {
+                || viewType == R.layout.list_item_artistalbum
+                || viewType == R.layout.grid_item_user
+                || viewType == R.layout.list_item_user) {
             for (ViewHolder viewHolder : viewHolders) {
                 if (viewType == R.layout.list_item_track
                         || viewType == R.layout.list_item_track_highlighted) {
@@ -316,13 +318,14 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
                         mHeaderSpacerHeight));
             } else if (viewHolder.getLayoutId() == R.layout.grid_item
                     || viewHolder.getLayoutId() == R.layout.list_item_artistalbum) {
-                if (item instanceof User) {
-                    AdapterUtils.fillView(viewHolder, (User) item);
-                } else if (item instanceof Album) {
+                if (item instanceof Album) {
                     AdapterUtils.fillView(viewHolder, (Album) item);
                 } else if (item instanceof Artist) {
                     AdapterUtils.fillView(viewHolder, (Artist) item);
                 }
+            } else if (viewHolder.getLayoutId() == R.layout.grid_item_user
+                    || viewHolder.getLayoutId() == R.layout.list_item_user) {
+                AdapterUtils.fillView(viewHolder, (User) item);
             } else if (viewHolder.getLayoutId() == R.layout.single_line_list_item) {
                 viewHolder.getTextView1().setText(item.getName());
             } else if (viewHolder.getLayoutId() == R.layout.list_item_text) {
@@ -494,9 +497,9 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
                 viewHolder.getTextView1().setText(segment.getHeaderString().toUpperCase());
             } else if (layoutId == R.layout.list_header_socialaction) {
                 SocialAction socialAction = (SocialAction) segment.getFirstSegmentItem();
-                TomahawkUtils.loadRoundedImageIntoImageView(TomahawkApp.getContext(),
-                        viewHolder.getImageView1(), socialAction.getUser().getImage(),
-                        Image.getSmallImageSize(), false);
+                TomahawkUtils.loadUserImageIntoImageView(TomahawkApp.getContext(),
+                        viewHolder.getUserImageView1(), socialAction.getUser(),
+                        Image.getSmallImageSize(), viewHolder.getUserTextView1());
                 TomahawkListItem targetObject = socialAction.getTargetObject();
                 Resources resources = view.getResources();
                 String phrase = "!FIXME! type: " + socialAction.getType()
@@ -591,6 +594,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
             return R.layout.list_item_text;
         } else if (item instanceof Album || item instanceof Artist) {
             return R.layout.list_item_artistalbum;
+        } else if (item instanceof User) {
+            return R.layout.list_item_user;
         } else {
             return R.layout.list_item_track;
         }
