@@ -170,14 +170,6 @@ public class ContextMenuFragment extends Fragment {
                     });
         }
 
-        //Set up textviews
-        TextView artistTextView = (TextView) getView().findViewById(R.id.artist_name);
-        artistTextView.setText(mTomahawkListItem.getArtist().getName());
-        if (!(mTomahawkListItem instanceof Artist)) {
-            TextView itemTextView = (TextView) getView().findViewById(R.id.item_name);
-            itemTextView.setText(mTomahawkListItem.getName());
-        }
-
         //Set up button click listeners
         if (mTomahawkListItem instanceof Album) {
             View addToCollectionButton = getView().findViewById(R.id.addtocollection_button);
@@ -260,8 +252,30 @@ public class ContextMenuFragment extends Fragment {
                 }
             }
         });
-        View goToArtistButton = getView().findViewById(R.id.gotoartist_button);
-        goToArtistButton.setOnClickListener(new View.OnClickListener() {
+
+        //Set up textviews
+        if (mTomahawkListItem instanceof Album) {
+            View albumNameButton = getView().findViewById(R.id.album_name_button);
+            albumNameButton.setVisibility(View.VISIBLE);
+            albumNameButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getActivity().getSupportFragmentManager().popBackStack();
+                    FragmentUtils.replace((TomahawkMainActivity) getActivity(),
+                            getActivity().getSupportFragmentManager(), TracksFragment.class,
+                            mTomahawkListItem.getCacheKey(), TomahawkFragment.TOMAHAWK_ALBUM_KEY,
+                            mCollection);
+                }
+            });
+            TextView artistTextView = (TextView) albumNameButton.findViewById(R.id.album_name);
+            artistTextView.setText(mTomahawkListItem.getName());
+        } else if (mTomahawkListItem instanceof Query) {
+            TextView itemTextView = (TextView) getView().findViewById(R.id.track_name);
+            itemTextView.setVisibility(View.VISIBLE);
+            itemTextView.setText(mTomahawkListItem.getName());
+        }
+        View artistNameButton = getView().findViewById(R.id.artist_name_button);
+        artistNameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getActivity().getSupportFragmentManager().popBackStack();
@@ -271,6 +285,8 @@ public class ContextMenuFragment extends Fragment {
                         TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
             }
         });
+        TextView artistTextView = (TextView) artistNameButton.findViewById(R.id.artist_name);
+        artistTextView.setText(mTomahawkListItem.getArtist().getName());
     }
 
 }

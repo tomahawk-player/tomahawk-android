@@ -114,9 +114,11 @@ public class AdapterUtils {
         ((TextView) viewHolder.getButton4().findViewById(R.id.content_header_button4_text))
                 .setText(context.getString(R.string.content_header_following).toUpperCase());
         if (showFollowing) {
-            viewHolder.getButton4().setBackgroundResource(R.drawable.following_button_bg_filled);
+            viewHolder.getButton4()
+                    .setBackgroundResource(R.drawable.selectable_background_button_follow_filled);
         } else if (showNotFollowing) {
-            viewHolder.getButton4().setBackgroundResource(R.drawable.following_button_bg);
+            viewHolder.getButton4()
+                    .setBackgroundResource(R.drawable.selectable_background_button_follow);
         } else {
             viewHolder.getButton4().setVisibility(View.GONE);
         }
