@@ -336,7 +336,7 @@ public class PlaybackFragment extends TomahawkFragment {
             if (playbackService != null) {
                 ArrayList<TomahawkListItem> tracks = new ArrayList<TomahawkListItem>();
                 tracks.addAll(playbackService.getQueue().getQueries());
-                getListAdapter().setSegments(new Segment(tracks));
+                getListAdapter().setSegments(new Segment(tracks), getListView());
                 getListAdapter().notifyDataSetChanged();
             }
         } else {
@@ -395,7 +395,7 @@ public class PlaybackFragment extends TomahawkFragment {
                 tomahawkListAdapter.setShowDuration(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                getListAdapter().setSegments(segment);
+                getListAdapter().setSegments(segment, getListView());
             }
         }
 

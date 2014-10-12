@@ -43,12 +43,13 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
  * This class is used to populate a {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}.
@@ -87,6 +88,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
 
     private int mFooterSpacerHeight = 0;
 
+    private boolean mShowFooterSpacer = false;
+
     /**
      * Constructs a new {@link TomahawkListAdapter}.
      */
@@ -95,7 +98,11 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
         mActivity = activity;
         mLayoutInflater = layoutInflater;
         mClickListener = clickListener;
-        setSegments(segments);
+        mSegments = segments;
+        mRowCount = 0;
+        for (Segment segment : mSegments) {
+            mRowCount += segment.size();
+        }
     }
 
     /**
@@ -106,33 +113,38 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
         mActivity = activity;
         mLayoutInflater = layoutInflater;
         mClickListener = clickListener;
-        setSegments(segment);
+        mSegments = new ArrayList<Segment>();
+        mSegments.add(segment);
+        mRowCount = segment.size();
     }
 
     /**
      * Set the complete list of {@link Segment}
      */
-    public void setSegments(List<Segment> segments) {
+    public void setSegments(List<Segment> segments, StickyListHeadersListView listView) {
         mSegments = segments;
         mRowCount = 0;
         for (Segment segment : mSegments) {
             mRowCount += segment.size();
         }
+        updateFooterSpacerHeight(listView);
         notifyDataSetChanged();
     }
 
     /**
      * Set the complete list of {@link Segment}
      */
-    public void setSegments(Segment segment) {
+    public void setSegments(Segment segment, StickyListHeadersListView listView) {
         ArrayList<Segment> segments = new ArrayList<Segment>();
         segments.add(segment);
-        setSegments(segments);
+        setSegments(segments, listView);
     }
 
-    public void setShowContentHeaderSpacer(int headerSpacerHeightResId, ListView listView) {
+    public void setShowContentHeaderSpacer(int headerSpacerHeightResId,
+            StickyListHeadersListView listView) {
         mHeaderSpacerHeight = TomahawkApp.getContext().getResources()
                 .getDimensionPixelSize(headerSpacerHeightResId);
+        mShowFooterSpacer = true;
         updateFooterSpacerHeight(listView);
     }
 
@@ -548,9 +560,24 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
 
     private int getViewType(Object item, boolean isHighlighted,
             boolean isContentHeaderItem, boolean isFooter) {
-        if (item instanceof List || item instanceof User) {
-            //We have a grid item
-            return R.layout.grid_item;
+        if (item instanceof List) {
+            // We have a grid item
+            // Don't display the socialAction item directly, but rather the item that is its target
+            if (!((List) item).isEmpty()) {
+                Object firstItem = ((List) item).get(0);
+                if (firstItem instanceof SocialAction
+                        && ((SocialAction) firstItem).getTargetObject() != null) {
+                    firstItem = ((SocialAction) firstItem).getTargetObject();
+                }
+                if (firstItem instanceof User) {
+                    return R.layout.grid_item_user;
+                } else {
+                    return R.layout.grid_item;
+                }
+            }
+        }
+        if (item instanceof SocialAction && ((SocialAction) item).getTargetObject() != null) {
+            item = ((SocialAction) item).getTargetObject();
         }
         if (isContentHeaderItem) {
             return R.layout.content_header_spacer;
@@ -579,47 +606,59 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
         }
     }
 
-    private void updateFooterSpacerHeight(final ListView listView) {
+    private void updateFooterSpacerHeight(final StickyListHeadersListView listView) {
         if (mHeaderSpacerHeight > 0) {
-            listView.getViewTreeObserver().addOnGlobalLayoutListener(
-                    new ViewTreeObserver.OnGlobalLayoutListener() {
-                        @Override
-                        public void onGlobalLayout() {
-                            mFooterSpacerHeight = listView.getHeight();
-                            long headerId = Long.MIN_VALUE;
-                            for (int i = 1; i < getCount(); i++) {
-                                View view = getView(i, null, listView);
-                                if (view != null) {
-                                    view.measure(View.MeasureSpec.makeMeasureSpec(0,
-                                                    View.MeasureSpec.UNSPECIFIED),
-                                            View.MeasureSpec.makeMeasureSpec(0,
-                                                    View.MeasureSpec.UNSPECIFIED));
-                                    mFooterSpacerHeight -= view.getMeasuredHeight();
-                                }
-                                if (i == 1 || headerId != getHeaderId(i)) {
-                                    headerId = getHeaderId(i);
-                                    View headerView = getHeaderView(i, null, listView);
-                                    if (headerView != null) {
-                                        headerView.measure(View.MeasureSpec.makeMeasureSpec(0,
-                                                        View.MeasureSpec.UNSPECIFIED),
-                                                View.MeasureSpec.makeMeasureSpec(0,
-                                                        View.MeasureSpec.UNSPECIFIED));
-                                        mFooterSpacerHeight -= headerView.getMeasuredHeight();
-                                    }
-                                }
-                                if (mFooterSpacerHeight <= 0) {
-                                    mFooterSpacerHeight = 0;
-                                    break;
+            if (listView.getHeight() > 0) {
+                mFooterSpacerHeight = calculateFooterSpacerHeight(listView);
+            } else {
+                listView.getViewTreeObserver().addOnGlobalLayoutListener(
+                        new ViewTreeObserver.OnGlobalLayoutListener() {
+                            @Override
+                            public void onGlobalLayout() {
+                                mFooterSpacerHeight = calculateFooterSpacerHeight(
+                                        listView);
+                                notifyDataSetChanged();
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                    listView.getViewTreeObserver()
+                                            .removeOnGlobalLayoutListener(this);
+                                } else {
+                                    listView.getViewTreeObserver()
+                                            .removeGlobalOnLayoutListener(this);
                                 }
                             }
-                            notifyDataSetChanged();
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                listView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                            } else {
-                                listView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                            }
-                        }
-                    });
+                        });
+            }
         }
+    }
+
+    private int calculateFooterSpacerHeight(StickyListHeadersListView listView) {
+        int footerSpacerHeight = listView.getWrappedList().getHeight();
+        long headerId = getHeaderId(0);
+        for (int i = 1; i < getCount(); i++) {
+            View view = getView(i, null, listView.getWrappedList());
+            if (view != null) {
+                view.measure(View.MeasureSpec.makeMeasureSpec(0,
+                                View.MeasureSpec.UNSPECIFIED),
+                        View.MeasureSpec.makeMeasureSpec(0,
+                                View.MeasureSpec.UNSPECIFIED));
+                footerSpacerHeight -= view.getMeasuredHeight();
+            }
+            if (headerId != getHeaderId(i)) {
+                headerId = getHeaderId(i);
+                View headerView = getHeaderView(i, null, listView.getWrappedList());
+                if (headerView != null) {
+                    headerView.measure(View.MeasureSpec.makeMeasureSpec(0,
+                                    View.MeasureSpec.UNSPECIFIED),
+                            View.MeasureSpec.makeMeasureSpec(0,
+                                    View.MeasureSpec.UNSPECIFIED));
+                    footerSpacerHeight -= headerView.getMeasuredHeight();
+                }
+            }
+            if (footerSpacerHeight <= 0) {
+                footerSpacerHeight = 0;
+                break;
+            }
+        }
+        return footerSpacerHeight;
     }
 }

@@ -132,10 +132,10 @@ public class TracksFragment extends TomahawkFragment {
                 }
                 tomahawkListAdapter.setShowNumeration(true);
                 tomahawkListAdapter.setShowContentHeaderSpacer(
-                        R.dimen.header_clear_space_scrollable, getListView().getWrappedList());
+                        R.dimen.header_clear_space_scrollable, getListView());
                 setListAdapter(tomahawkListAdapter);
             } else {
-                getListAdapter().setSegments(segment);
+                getListAdapter().setSegments(segment, getListView());
             }
             showContentHeader(mAlbum, R.dimen.header_clear_space_nonscrollable);
         } else if (mArtist != null) {
@@ -146,10 +146,10 @@ public class TracksFragment extends TomahawkFragment {
                         this);
                 tomahawkListAdapter.setShowDuration(true);
                 tomahawkListAdapter.setShowContentHeaderSpacer(
-                        R.dimen.header_clear_space_scrollable, getListView().getWrappedList());
+                        R.dimen.header_clear_space_scrollable, getListView());
                 setListAdapter(tomahawkListAdapter);
             } else {
-                getListAdapter().setSegments(segment);
+                getListAdapter().setSegments(segment, getListView());
             }
             showContentHeader(mArtist, R.dimen.header_clear_space_nonscrollable);
         } else if (mQuery != null) {
@@ -160,10 +160,10 @@ public class TracksFragment extends TomahawkFragment {
                         this);
                 tomahawkListAdapter.setShowDuration(true);
                 tomahawkListAdapter.setShowContentHeaderSpacer(
-                        R.dimen.header_clear_space_scrollable, getListView().getWrappedList());
+                        R.dimen.header_clear_space_scrollable, getListView());
                 setListAdapter(tomahawkListAdapter);
             } else {
-                getListAdapter().setSegments(segment);
+                getListAdapter().setSegments(segment, getListView());
             }
             showContentHeader(mQuery, R.dimen.header_clear_space_nonscrollable);
         } else if (mSearchSongs != null) {
@@ -174,7 +174,7 @@ public class TracksFragment extends TomahawkFragment {
                 tomahawkListAdapter.setShowDuration(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                getListAdapter().setSegments(new Segment(queries));
+                getListAdapter().setSegments(new Segment(queries), getListView());
             }
         } else {
             queries.addAll(mCollection.getQueries());
@@ -185,7 +185,7 @@ public class TracksFragment extends TomahawkFragment {
                         this);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                getListAdapter().setSegments(segment);
+                getListAdapter().setSegments(segment, getListView());
             }
         }
 

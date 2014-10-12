@@ -132,12 +132,11 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                     tomahawkListAdapter.setShowNumeration(true);
                     if (!mDontShowHeader) {
                         tomahawkListAdapter.setShowContentHeaderSpacer(
-                                R.dimen.header_clear_space_scrollable,
-                                getListView().getWrappedList());
+                                R.dimen.header_clear_space_scrollable, getListView());
                     }
                     setListAdapter(tomahawkListAdapter);
                 } else {
-                    getListAdapter().setSegments(segment);
+                    getListAdapter().setSegments(segment, getListView());
                 }
                 if (!mDontShowHeader) {
                     showContentHeader(mPlaylist, R.dimen.header_clear_space_nonscrollable);
