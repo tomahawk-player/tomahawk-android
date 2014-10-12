@@ -371,6 +371,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         //Setup UserVoice
         Config config = new Config("tomahawk.uservoice.com");
         config.setForumId(224204);
+        config.setTopicId(62613);
         UserVoice.init(config, this);
 
         //Setup our services
