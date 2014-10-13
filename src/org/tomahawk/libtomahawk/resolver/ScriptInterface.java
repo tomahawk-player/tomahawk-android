@@ -8,6 +8,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 import org.json.JSONObject;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
+import org.tomahawk.libtomahawk.resolver.models.ScriptInterfaceRequestOptions;
+import org.tomahawk.libtomahawk.resolver.models.ScriptResolverData;
+import org.tomahawk.libtomahawk.resolver.models.ScriptResolverFuzzyIndex;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 

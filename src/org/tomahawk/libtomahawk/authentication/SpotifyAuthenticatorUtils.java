@@ -18,7 +18,7 @@
 package org.tomahawk.libtomahawk.authentication;
 
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
-import org.tomahawk.libtomahawk.resolver.spotify.SpotifyLogin;
+import org.tomahawk.libtomahawk.resolver.spotify.models.SpotifyLogin;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyServiceUtils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;

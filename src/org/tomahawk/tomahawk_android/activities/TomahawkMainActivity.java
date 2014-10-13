@@ -42,7 +42,7 @@ import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
-import org.tomahawk.libtomahawk.resolver.ScriptResolverUrlResult;
+import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;

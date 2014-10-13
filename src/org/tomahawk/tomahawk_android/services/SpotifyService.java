@@ -19,10 +19,10 @@ package org.tomahawk.tomahawk_android.services;
 
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper;
-import org.tomahawk.libtomahawk.resolver.spotify.SpotifyLogin;
-import org.tomahawk.libtomahawk.resolver.spotify.SpotifyQuery;
-import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResult;
-import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResults;
+import org.tomahawk.libtomahawk.resolver.spotify.models.SpotifyLogin;
+import org.tomahawk.libtomahawk.resolver.spotify.models.SpotifyQuery;
+import org.tomahawk.libtomahawk.resolver.spotify.models.SpotifyResult;
+import org.tomahawk.libtomahawk.resolver.spotify.models.SpotifyResults;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyServiceUtils;
 
 import android.app.Service;

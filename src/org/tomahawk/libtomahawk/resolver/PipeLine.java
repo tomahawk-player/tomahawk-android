@@ -21,6 +21,8 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
+import org.tomahawk.libtomahawk.resolver.models.ScriptResolverMetaData;
+import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;

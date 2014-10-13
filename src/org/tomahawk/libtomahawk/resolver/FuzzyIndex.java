@@ -37,6 +37,7 @@ import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
+import org.tomahawk.libtomahawk.resolver.models.ScriptResolverFuzzyIndex;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 
 import android.util.Log;

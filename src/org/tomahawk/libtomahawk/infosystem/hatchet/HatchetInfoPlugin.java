@@ -37,6 +37,25 @@ import org.tomahawk.libtomahawk.infosystem.JacksonConverter;
 import org.tomahawk.libtomahawk.infosystem.QueryParams;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetAlbumInfo;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetAlbums;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetArtistInfo;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetArtists;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetCharts;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetImage;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetPlaybackLogsResponse;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetPlaylistEntries;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetPlaylistInfo;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetRelationshipStruct;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetRelationshipsStruct;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetSearch;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetSearchItem;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetSocialAction;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetSocialActionResponse;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetTrackInfo;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetTracks;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetUserInfo;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetUsers;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -576,8 +595,9 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     return true;
                 }
             }
-        } catch (RetrofitError error) {
-            return false;
+        } catch (RetrofitError e) {
+            Log.e(TAG, "getParseConvert: Request to " + e.getUrl() + " failed: " + e.getClass()
+                    + ": " + e.getLocalizedMessage());
         }
         return false;
     }
@@ -687,8 +707,9 @@ public class HatchetInfoPlugin extends InfoPlugin {
                             }
                         }
                         success = true;
-                    } catch (RetrofitError error) {
-                        Log.d(TAG, "Request to " + error.getUrl() + " failed");
+                    } catch (RetrofitError e) {
+                        Log.e(TAG, "send: Request to " + e.getUrl() + " failed: " + e.getClass()
+                                + ": " + e.getLocalizedMessage());
                     }
                 }
                 InfoSystem.getInstance().onLoggedOpsSent(doneRequestsIds, success);

@@ -20,7 +20,7 @@ package org.tomahawk.tomahawk_android.dialogs;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
-import org.tomahawk.libtomahawk.resolver.ScriptResolverConfigUiField;
+import org.tomahawk.libtomahawk.resolver.models.ScriptResolverConfigUiField;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;

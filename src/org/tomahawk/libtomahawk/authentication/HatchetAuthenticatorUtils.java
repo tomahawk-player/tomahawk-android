@@ -18,6 +18,7 @@
  */
 package org.tomahawk.libtomahawk.authentication;
 
+import org.tomahawk.libtomahawk.authentication.models.HatchetAuthResponse;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
