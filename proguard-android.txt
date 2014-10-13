@@ -7,7 +7,7 @@
 -dontskipnonpubliclibraryclasses
 -verbose
 
--keepattributes *Annotation*,EnclosingMethod
+-keepattributes Signature,*Annotation*,EnclosingMethod
 -keep public class com.google.vending.licensing.ILicensingService
 -keep public class com.android.vending.licensing.ILicensingService
 
@@ -81,6 +81,7 @@
 -keepclassmembers public class * {
     public <init>(...);
 }
+-keep class org.tomahawk.libtomahawk.infosystem.deserializer.** { *; }
 -dontwarn org.joda.time.**
 -dontwarn org.w3c.dom.bootstrap.**
 
@@ -103,7 +104,18 @@
 ####################
 -keep class org.tomahawk.libtomahawk.infosystem.hatchet.Hatchet { *; }
 -keep class org.tomahawk.libtomahawk.authentication.HatchetAuth { *; }
--keep class retrofit.http.* { *; }
+-keep class com.google.gson.** { *; }
+-keep class com.google.inject.* { *; }
+-keep class org.apache.http.** { *; }
+-keep class org.apache.james.mime4j.** { *; }
+-keep class javax.inject.** { *; }
+-keep class retrofit.** { *; }
+-keep class rx.** { *; }
+-keep class sun.misc.Unsafe { *; }
+-keepclasseswithmembers class * {
+    @retrofit.http.* <methods>;
+}
+-dontwarn rx.*
 -dontwarn retrofit.**
 
 ##################
