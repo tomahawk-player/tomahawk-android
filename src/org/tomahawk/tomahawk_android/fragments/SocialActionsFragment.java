@@ -44,11 +44,14 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
+
 /**
  * {@link org.tomahawk.tomahawk_android.fragments.TomahawkFragment} which shows information provided
  * by a User object. Such as the image, feed and nowPlaying info of a user.
  */
-public class SocialActionsFragment extends TomahawkFragment {
+public class SocialActionsFragment extends TomahawkFragment implements
+        StickyListHeadersListView.OnHeaderClickListener {
 
     public static final int SHOW_MODE_SOCIALACTIONS = 0;
 
@@ -80,6 +83,7 @@ public class SocialActionsFragment extends TomahawkFragment {
                 }
             }
         }
+        getListView().setOnHeaderClickListener(this);
         updateAdapter();
     }
 
@@ -127,6 +131,21 @@ public class SocialActionsFragment extends TomahawkFragment {
             FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
                     PlaylistEntriesFragment.class, ((Playlist) item).getId(),
                     TomahawkFragment.TOMAHAWK_PLAYLIST_KEY);
+        }
+    }
+
+    @Override
+    public void onHeaderClick(StickyListHeadersListView l, View header, int itemPosition,
+            long headerId, boolean currentlySticky) {
+        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+        Object item = getListAdapter().getItem(itemPosition);
+        if (item instanceof List && !((List) item).isEmpty()) {
+            item = ((List) item).get(0);
+        }
+        if (item instanceof SocialAction) {
+            FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
+                    UserPagerFragment.class, ((SocialAction) item).getUser().getId(),
+                    TomahawkFragment.TOMAHAWK_USER_ID);
         }
     }
 
