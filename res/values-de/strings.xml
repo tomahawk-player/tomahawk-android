@@ -140,4 +140,6 @@
   <string name="ask_access_activity_text2">(Du kannst dies wann immer du willst in den Tomahawk Einstellungen abschalten.)</string>
   <string name="ask_access_activity_button_text">Gehe zu den Einstellungen</string>
   <string name="button_open_queue_text">Warteschlange</string>
+  <string name="button_close">Schließen</string>
+  <string name="view_album">Album ansehen</string>
 </resources>
