@@ -339,13 +339,17 @@ public class TomahawkMainActivity extends ActionBarActivity
             } else if (holder.id.equals(HUB_ID_LOVEDTRACKS)) {
                 bundle.putString(PlaylistsFragment.TOMAHAWK_PLAYLIST_KEY,
                         DatabaseHelper.LOVEDITEMS_PLAYLIST_ID);
-                bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID,
-                        authenticatorUtils.getLoggedInUser().getId());
+                if (authenticatorUtils.getLoggedInUser() != null) {
+                    bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID,
+                            authenticatorUtils.getLoggedInUser().getId());
+                }
                 FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
                         PlaylistEntriesFragment.class, bundle);
             } else if (holder.id.equals(HUB_ID_PLAYLISTS)) {
-                bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID,
-                        authenticatorUtils.getLoggedInUser().getId());
+                if (authenticatorUtils.getLoggedInUser() != null) {
+                    bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID,
+                            authenticatorUtils.getLoggedInUser().getId());
+                }
                 FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
                         PlaylistsFragment.class, bundle);
             } else if (holder.id.equals(HUB_ID_SETTINGS)) {

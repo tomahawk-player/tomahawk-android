@@ -99,7 +99,7 @@ public class PlaylistsFragment extends TomahawkFragment {
         HatchetAuthenticatorUtils authenticatorUtils
                 = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        if (mUser != authenticatorUtils.getLoggedInUser()) {
+        if (mUser != null && mUser != authenticatorUtils.getLoggedInUser()) {
             if (mUser.getPlaylists().size() == 0) {
                 if (!mResolvingUsers.contains(mUser)) {
                     mCurrentRequestIds.add(InfoSystem.getInstance().resolvePlaylists(mUser));
