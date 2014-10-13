@@ -44,6 +44,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -190,9 +191,10 @@ public class ContextMenuFragment extends Fragment {
                     new ViewTreeObserver.OnGlobalLayoutListener() {
                         @Override
                         public void onGlobalLayout() {
-                            rootView.setDrawingCacheEnabled(true);
-                            rootView.buildDrawingCache();
-                            Bitmap bm = rootView.getDrawingCache();
+                            Bitmap bm = Bitmap.createBitmap(rootView.getWidth(),
+                                    rootView.getHeight(), Bitmap.Config.ARGB_8888);
+                            Canvas canvas = new Canvas(bm);
+                            rootView.draw(canvas);
                             bm = Bitmap.createScaledBitmap(bm, bm.getWidth() / 4,
                                     bm.getHeight() / 4, true);
                             bm = BlurTransformation.staticTransform(bm, 25f);

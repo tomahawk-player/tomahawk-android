@@ -25,6 +25,7 @@ import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -84,9 +85,10 @@ public class Selector extends FrameLayout {
         if (!isListShowing()) {
             setClickable(true);
             mListShowing = true;
-            mRootView.setDrawingCacheEnabled(true);
-            mRootView.buildDrawingCache();
-            Bitmap bm = mRootView.getDrawingCache();
+            Bitmap bm = Bitmap.createBitmap(mRootView.getWidth(),
+                    mRootView.getHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bm);
+            mRootView.draw(canvas);
             bm = Bitmap.createScaledBitmap(bm, bm.getWidth() / 4,
                     bm.getHeight() / 4, true);
             bm = BlurTransformation.staticTransform(bm, 25f);
