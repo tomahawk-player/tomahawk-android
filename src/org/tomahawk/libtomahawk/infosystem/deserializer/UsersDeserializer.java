@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 
-import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetUserInfo;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetUserInfo;
 
 import java.io.IOException;
 import java.util.List;

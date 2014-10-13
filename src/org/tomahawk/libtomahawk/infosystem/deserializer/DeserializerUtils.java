@@ -1,6 +1,6 @@
 package org.tomahawk.libtomahawk.infosystem.deserializer;
 
-import org.tomahawk.libtomahawk.infosystem.hatchet.Mappable;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.Mappable;
 
 import java.util.HashMap;
 import java.util.List;

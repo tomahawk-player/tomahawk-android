@@ -17,6 +17,17 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet;
 
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetAlbums;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetArtists;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetCharts;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetPlaybackLogsResponse;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetPlaylistEntries;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetRelationshipsStruct;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetSearch;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetSocialActionResponse;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetTracks;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetUsers;
+
 import java.util.List;
 
 import retrofit.client.Response;

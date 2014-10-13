@@ -17,6 +17,8 @@
  */
 package org.tomahawk.libtomahawk.authentication;
 
+import org.tomahawk.libtomahawk.authentication.models.HatchetAuthResponse;
+
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
