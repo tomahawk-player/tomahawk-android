@@ -45,9 +45,7 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
@@ -57,8 +55,6 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHeaderAdapter {
 
     private TomahawkMainActivity mActivity;
-
-    private Map<View, List<ViewHolder>> mViewHolderMap = new HashMap<View, List<ViewHolder>>();
 
     private List<Segment> mSegments;
 
@@ -223,7 +219,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
 
         List<ViewHolder> viewHolders = new ArrayList<ViewHolder>();
         if (convertView != null) {
-            viewHolders = mViewHolderMap.get(convertView);
+            viewHolders = (List<ViewHolder>)convertView.getTag();
             view = convertView;
         }
         int viewType = getViewType(o, shouldBeHighlighted,
@@ -276,7 +272,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
             // Set extra padding
             view.setPadding(view.getPaddingLeft() + mLeftExtraPadding, view.getPaddingTop(),
                     view.getPaddingRight(), view.getPaddingBottom());
-            mViewHolderMap.put(view, viewHolders);
+            view.setTag(viewHolders);
         } else if (viewType == R.layout.list_item_track
                 || viewType == R.layout.list_item_track_highlighted
                 || viewType == R.layout.grid_item
