@@ -141,4 +141,6 @@
   <string name="ask_access_activity_text2">（你可以随时在 Tomahawk 设置中禁用此服务）</string>
   <string name="ask_access_activity_button_text">前往设置</string>
   <string name="button_open_queue_text">队列</string>
+  <string name="button_close">关闭</string>
+  <string name="view_album">查看专辑</string>
 </resources>
