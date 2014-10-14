@@ -933,6 +933,10 @@ public class TomahawkUtils {
         return list;
     }
 
+    public static <T> T carelessGetFirst(Collection<T> list) {
+        return list != null && list.iterator().hasNext() ? list.iterator().next() : null;
+    }
+
     public static <T> T carelessGet(List<T> list, int position) {
         if (list == null || position >= list.size()) {
             return null;

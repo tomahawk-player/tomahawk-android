@@ -25,6 +25,7 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -143,6 +144,17 @@ public class Album implements TomahawkListItem {
                 mQueries.add(query);
                 mQueryKeys.add(query.getCacheKey());
             }
+        }
+    }
+
+    /**
+     * Add a list of {@link Query}s to this {@link Album}.
+     *
+     * @param queries the list of {@link Query}s to be added
+     */
+    public void addQueries(List<Query> queries) {
+        for (Query query : queries) {
+            addQuery(query);
         }
     }
 
