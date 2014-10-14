@@ -163,28 +163,45 @@ public class InfoSystemUtils {
     }
 
     /**
-     * Fill the given album's tracks with the given list of trackinfos
+     * Convert the given albuminfo to an album
      */
-    public static Album fillAlbum(Album album, List<HatchetTrackInfo> tracks) {
-        if (tracks != null) {
-            for (HatchetTrackInfo trackInfo : tracks) {
-                Query query = Query.get(trackInfo.name, album.getName(),
-                        album.getArtist().getName(), false, true);
-                album.addQuery(query);
-            }
-        }
+    public static Album convertToAlbum(HatchetAlbumInfo albumInfo, String artistName,
+            HatchetImage image) {
+        Album album = Album.get(albumInfo.name, Artist.get(artistName));
+        fillAlbum(album, image);
         return album;
     }
 
     /**
-     * Convert the given albuminfo to an album
+     * Convert the given list of trackinfos to a list of queries
      */
-    public static Album convertToAlbum(HatchetAlbumInfo albumInfo, String artistName,
-            List<HatchetTrackInfo> trackInfos, HatchetImage image) {
-        Album album = Album.get(albumInfo.name, Artist.get(artistName));
-        fillAlbum(album, image);
-        fillAlbum(album, trackInfos);
-        return album;
+    public static List<Query> convertToQueries(List<HatchetTrackInfo> tracks, String albumName,
+            Map<String, HatchetArtistInfo> artists) {
+        List<Query> queries = new ArrayList<Query>();
+        if (tracks != null) {
+            for (HatchetTrackInfo trackInfo : tracks) {
+                Query query = Query.get(trackInfo.name, albumName,
+                        artists.get(trackInfo.artist).name, false, true);
+                queries.add(query);
+            }
+        }
+        return queries;
+    }
+
+    /**
+     * Convert the given list of trackinfos to a list of queries
+     */
+    public static List<Query> convertToQueries(List<HatchetTrackInfo> tracks, String albumName,
+            String artistName) {
+        List<Query> queries = new ArrayList<Query>();
+        if (tracks != null) {
+            for (HatchetTrackInfo trackInfo : tracks) {
+                Query query = Query.get(trackInfo.name, albumName,
+                        artistName, false, true);
+                queries.add(query);
+            }
+        }
+        return queries;
     }
 
     /**
@@ -247,7 +264,7 @@ public class InfoSystemUtils {
                 socialAction.setArtist(convertToArtist(artist, null));
             }
             if (hatchetSocialAction.album != null) {
-                socialAction.setAlbum(convertToAlbum(album, artist.name, null, null));
+                socialAction.setAlbum(convertToAlbum(album, artist.name, null));
             }
             if (hatchetSocialAction.user != null) {
                 socialAction.setUser(convertToUser(user, null, null, null));

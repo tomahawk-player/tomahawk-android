@@ -72,6 +72,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -342,8 +343,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     Artist artistToBeFilled =
                             (Artist) mItemsToBeFilled.get(infoRequestData.getRequestId());
                     if (artists.artists != null) {
-                        HatchetArtistInfo artistInfo = TomahawkUtils
-                                .carelessGet(artists.artists, 0);
+                        HatchetArtistInfo artistInfo =
+                                TomahawkUtils.carelessGetFirst(artists.artists.values());
                         if (artistInfo != null) {
                             String imageId = TomahawkUtils.carelessGet(artistInfo.images, 0);
                             HatchetImage image = TomahawkUtils.carelessGet(artists.images, imageId);
@@ -361,7 +362,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 HatchetArtists artists = mHatchet.getArtists(params.ids, params.name);
                 if (artists != null) {
                     List<Object> convertedAlbums = new ArrayList<Object>();
-                    HatchetArtistInfo artist = TomahawkUtils.carelessGet(artists.artists, 0);
+                    HatchetArtistInfo artist =
+                            TomahawkUtils.carelessGetFirst(artists.artists.values());
                     HatchetCharts charts = mHatchet.getArtistsAlbums(artist.id);
                     if (charts != null && charts.albums != null) {
                         Artist convertedArtist =
@@ -376,11 +378,16 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                     albumTracks = tracks.tracks;
                                 }
                             }
-                            Album convertedAlbum = InfoSystemUtils
-                                    .convertToAlbum(album, artist.name, albumTracks, image);
+                            Album convertedAlbum =
+                                    InfoSystemUtils.convertToAlbum(album, artist.name, image);
+                            List<Query> convertedTracks =
+                                    InfoSystemUtils.convertToQueries(albumTracks,
+                                            convertedAlbum.getName(), convertedArtist.getName());
+                            convertedAlbum.addQueries(convertedTracks);
                             convertedArtist.addAlbum(convertedAlbum);
                             hatchetCollection.addAlbum(convertedAlbum);
                             hatchetCollection.addArtistAlbum(convertedArtist, convertedAlbum);
+                            hatchetCollection.addAlbumTracks(convertedAlbum, convertedTracks);
                             convertedAlbums.add(convertedAlbum);
                         }
                         hatchetCollection.addArtist(convertedArtist);
@@ -395,7 +402,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 if (artists != null) {
                     Artist artistToBeFilled =
                             (Artist) mItemsToBeFilled.get(infoRequestData.getRequestId());
-                    HatchetArtistInfo artistInfo = TomahawkUtils.carelessGet(artists.artists, 0);
+                    HatchetArtistInfo artistInfo =
+                            TomahawkUtils.carelessGetFirst(artists.artists.values());
                     if (artistInfo != null) {
                         HatchetCharts charts = mHatchet.getArtistsTopHits(artistInfo.id);
                         if (charts != null) {
@@ -421,9 +429,20 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         if (albumInfo.tracks != null && albumInfo.tracks.size() > 0) {
                             HatchetTracks tracks = mHatchet.getTracks(albumInfo.tracks, null, null);
                             if (tracks != null) {
-                                InfoSystemUtils.fillAlbum(album, tracks.tracks);
+                                HashSet<String> artistIds = new HashSet<String>();
+                                for (HatchetTrackInfo trackInfo : tracks.tracks) {
+                                    artistIds.add(trackInfo.artist);
+                                }
+                                HatchetArtists artists =
+                                        mHatchet.getArtists(new ArrayList<String>(artistIds), null);
+                                if (artists != null) {
+                                    List<Query> convertedTracks = InfoSystemUtils
+                                            .convertToQueries(tracks.tracks, album.getName(),
+                                                    artists.artists);
+                                    album.addQueries(convertedTracks);
+                                    hatchetCollection.addAlbumTracks(album, convertedTracks);
+                                }
                             }
-                            hatchetCollection.addAlbumTracks(album, album.getQueries());
                         }
                         hatchetCollection.addAlbum(album);
                         infoRequestData.setResult(album);
@@ -450,7 +469,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                             TomahawkUtils
                                                     .carelessGet(search.artists, albumInfo.artist);
                                     Album album = InfoSystemUtils.convertToAlbum(albumInfo,
-                                            artistInfo.name, null, image);
+                                            artistInfo.name, image);
                                     convertedAlbums.add(album);
                                     hatchetCollection.addAlbum(album);
                                 }
@@ -566,7 +585,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                             relationShips.artists, album.artist);
                                     if (artist != null) {
                                         Album convertedAlbum = InfoSystemUtils.convertToAlbum(album,
-                                                artist.name, null, null);
+                                                artist.name, null);
                                         convertedAlbums.add(convertedAlbum);
                                         hatchetCollection.addAlbum(convertedAlbum);
                                     }
