@@ -22,7 +22,6 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.utils.AdapterUtils;
 
 import android.app.Activity;
 import android.view.LayoutInflater;
@@ -114,8 +113,7 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
                     R.layout.content_header_user_navdrawer, null);
             ViewHolder viewHolder = new ViewHolder(contentHeaderView,
                     R.layout.content_header_user_navdrawer);
-            AdapterUtils.fillContentHeaderSmall(mActivity, viewHolder, holder.title,
-                    holder.user);
+            viewHolder.fillContentHeaderSmall(holder.title, holder.user);
             return contentHeaderView;
         } else {
             View view = mLayoutInflater.inflate(R.layout.single_line_list_menu, parent, false);

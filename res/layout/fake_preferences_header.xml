@@ -32,7 +32,7 @@
             android:padding="@dimen/padding_small">
 
         <TextView
-                android:id="@+id/fake_preferences_header_textview"
+                android:id="@+id/textview1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="marquee"

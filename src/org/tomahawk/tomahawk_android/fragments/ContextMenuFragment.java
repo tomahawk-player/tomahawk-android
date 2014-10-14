@@ -21,6 +21,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
+import org.tomahawk.libtomahawk.collection.CollectionUtils;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
@@ -33,7 +34,6 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.dialogs.ChoosePlaylistDialog;
-import org.tomahawk.tomahawk_android.utils.AdapterUtils;
 import org.tomahawk.tomahawk_android.utils.BlurTransformation;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.ShareUtils;
@@ -272,7 +272,7 @@ public class ContextMenuFragment extends Fragment {
                 ArrayList<Query> queries;
                 if (mTomahawkListItem instanceof Album) {
                     Album album = (Album) mTomahawkListItem;
-                    queries = AdapterUtils.getAlbumTracks(album, mCollection);
+                    queries = CollectionUtils.getAlbumTracks(album, mCollection);
                 } else {
                     queries = mTomahawkListItem.getQueries();
                 }

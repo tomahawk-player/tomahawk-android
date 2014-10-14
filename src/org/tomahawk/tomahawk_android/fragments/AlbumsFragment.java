@@ -18,6 +18,7 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.CollectionUtils;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
@@ -27,7 +28,6 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
-import org.tomahawk.tomahawk_android.utils.AdapterUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
@@ -116,11 +116,11 @@ public class AlbumsFragment extends TomahawkFragment {
                         R.dimen.padding_superlarge));
             } else {
                 ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
-                items.addAll(AdapterUtils.getArtistAlbums(mArtist, null));
+                items.addAll(CollectionUtils.getArtistAlbums(mArtist, null));
                 segments.add(new Segment(R.string.top_albums, items,
                         R.integer.grid_column_count, R.dimen.padding_superlarge,
                         R.dimen.padding_superlarge));
-                ArrayList<Query> topHits = AdapterUtils.getArtistTopHits(mArtist);
+                ArrayList<Query> topHits = CollectionUtils.getArtistTopHits(mArtist);
                 items = new ArrayList<TomahawkListItem>();
                 items.addAll(topHits);
                 segments.add(new Segment(R.string.top_hits, items));

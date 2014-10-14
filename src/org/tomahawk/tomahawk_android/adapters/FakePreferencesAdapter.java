@@ -152,7 +152,7 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
                 view = convertView;
             }
             int viewType = getViewType(item);
-            if (viewHolder == null || viewHolder.getLayoutId() != viewType) {
+            if (viewHolder == null || viewHolder.mLayoutId != viewType) {
                 // If the viewHolder is null or the old viewType is different than the new one,
                 // we need to inflate a new view and construct a new viewHolder,
                 // which we set as the view's tag
@@ -160,48 +160,45 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
                 viewHolder = new ViewHolder(view, viewType);
                 view.setTag(viewHolder);
             } else {
-                if (viewHolder.getImageView1() != null) {
-                    viewHolder.getImageView1().setVisibility(View.GONE);
-                }
-                if (viewHolder.getImageView2() != null) {
-                    viewHolder.getImageView2().setVisibility(View.GONE);
+                if (viewHolder.mImageView1 != null) {
+                    viewHolder.mImageView1.setVisibility(View.GONE);
                 }
             }
 
             // After we've set up the correct view and viewHolder, we now can fill the View's
             // components with the correct data
-            if (viewHolder.getLayoutId() == R.layout.fake_preferences_checkbox) {
+            if (viewHolder.mLayoutId == R.layout.fake_preferences_checkbox) {
                 boolean preferenceState = mSharedPreferences
                         .getBoolean(item.getStorageKey(), false);
-                viewHolder.getCheckBox().setChecked(preferenceState);
-            } else if (viewHolder.getLayoutId() == R.layout.fake_preferences_configauth) {
+                viewHolder.mCheckBox1.setChecked(preferenceState);
+            } else if (viewHolder.mLayoutId == R.layout.fake_preferences_configauth) {
                 if (item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH) {
-                    viewHolder.getImageView2().setVisibility(View.VISIBLE);
+                    viewHolder.mImageView1.setVisibility(View.VISIBLE);
                     AuthenticatorUtils authenticatorUtils =
                             AuthenticatorManager.getInstance().getAuthenticatorUtils(item.getKey());
-                    TomahawkUtils.loadDrawableIntoImageView(mContext, viewHolder.getImageView2(),
+                    TomahawkUtils.loadDrawableIntoImageView(mContext, viewHolder.mImageView1,
                             item.getDrawableResId(), !authenticatorUtils.isLoggedIn());
                 } else if (item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CONFIG) {
-                    viewHolder.getImageView2().setVisibility(View.VISIBLE);
+                    viewHolder.mImageView1.setVisibility(View.VISIBLE);
                     Resolver resolver = PipeLine.getInstance().getResolver(item.getKey());
                     if (resolver.getIconPath() != null) {
                         TomahawkUtils.loadDrawableIntoImageView(mContext,
-                                viewHolder.getImageView2(), resolver.getIconPath(),
+                                viewHolder.mImageView1, resolver.getIconPath(),
                                 !resolver.isEnabled());
                     } else {
                         TomahawkUtils.loadDrawableIntoImageView(mContext,
-                                viewHolder.getImageView2(), resolver.getIconResId(),
+                                viewHolder.mImageView1, resolver.getIconResId(),
                                 !resolver.isEnabled());
                     }
                 }
-            } else if (viewHolder.getLayoutId() == R.layout.fake_preferences_spinner) {
+            } else if (viewHolder.mLayoutId == R.layout.fake_preferences_spinner) {
                 String key = item.getStorageKey();
-                viewHolder.getSpinner().setSelection(mSharedPreferences
+                viewHolder.mSpinner1.setSelection(mSharedPreferences
                         .getInt(key, SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE_MODE_MEDIUM));
-                viewHolder.getSpinner().setOnItemSelectedListener(new SpinnerListener(key));
+                viewHolder.mSpinner1.setOnItemSelectedListener(new SpinnerListener(key));
             }
-            viewHolder.getTextView1().setText(item.getTitle());
-            viewHolder.getTextView2().setText(item.getSummary());
+            viewHolder.mTextView1.setText(item.getTitle());
+            viewHolder.mTextView2.setText(item.getSummary());
         }
 
         // Finally we can return the correct view
@@ -236,7 +233,7 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
         for (FakePreferenceGroup fakePreferenceGroup : mFakePreferenceGroups) {
             sizeSum += fakePreferenceGroup.getFakePreferences().size();
             if (position < sizeSum) {
-                viewHolder.getTextView1().setText(fakePreferenceGroup.getHeader().toUpperCase());
+                viewHolder.mTextView1.setText(fakePreferenceGroup.getHeader().toUpperCase());
                 break;
             }
         }

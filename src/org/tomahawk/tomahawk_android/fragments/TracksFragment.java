@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
+import org.tomahawk.libtomahawk.collection.CollectionUtils;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
@@ -29,7 +30,6 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
-import org.tomahawk.tomahawk_android.utils.AdapterUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.view.LayoutInflater;
@@ -67,9 +67,9 @@ public class TracksFragment extends TomahawkFragment {
                 ArrayList<Query> queries = new ArrayList<Query>();
                 TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
                 if (mAlbum != null) {
-                    queries = AdapterUtils.getAlbumTracks(mAlbum, mCollection);
+                    queries = CollectionUtils.getAlbumTracks(mAlbum, mCollection);
                 } else if (mArtist != null) {
-                    queries = AdapterUtils.getArtistTracks(mArtist, mCollection);
+                    queries = CollectionUtils.getArtistTracks(mArtist, mCollection);
                 } else if (mQuery != null) {
                     queries.add(mQuery);
                 } else if (mSearchSongs != null) {
@@ -115,7 +115,7 @@ public class TracksFragment extends TomahawkFragment {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         if (mAlbum != null) {
-            queries.addAll(AdapterUtils.getAlbumTracks(mAlbum, mCollection));
+            queries.addAll(CollectionUtils.getAlbumTracks(mAlbum, mCollection));
             Segment segment;
             if (mCollection != null) {
                 segment = new Segment(mCollection.getName() + " " + getString(R.string.tracks),
@@ -126,7 +126,7 @@ public class TracksFragment extends TomahawkFragment {
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
-                if (AdapterUtils.allFromOneArtist(queries)) {
+                if (CollectionUtils.allFromOneArtist(queries)) {
                     tomahawkListAdapter.setHideArtistName(true);
                     tomahawkListAdapter.setShowDuration(true);
                 }
@@ -139,7 +139,7 @@ public class TracksFragment extends TomahawkFragment {
             }
             showContentHeader(mAlbum, R.dimen.header_clear_space_nonscrollable);
         } else if (mArtist != null) {
-            queries.addAll(AdapterUtils.getArtistTracks(mArtist, mCollection));
+            queries.addAll(CollectionUtils.getArtistTracks(mArtist, mCollection));
             Segment segment = new Segment(queries);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,

@@ -32,7 +32,7 @@
                       android:layout_height="wrap_content"
                       android:layout_weight="1">
 
-            <ImageView android:id="@+id/content_header_image"
+            <ImageView android:id="@+id/imageview1"
                        android:layout_width="0dp"
                        android:layout_height="wrap_content"
                        android:layout_weight="1"
@@ -40,7 +40,7 @@
                        android:adjustViewBounds="true"
                        android:src="@drawable/album_placeholder_grid"/>
 
-            <ImageView android:id="@+id/content_header_image2"
+            <ImageView android:id="@+id/imageview2"
                        android:layout_width="0dp"
                        android:layout_height="wrap_content"
                        android:layout_weight="1"
@@ -54,7 +54,7 @@
                       android:layout_height="wrap_content"
                       android:layout_weight="1">
 
-            <ImageView android:id="@+id/content_header_image3"
+            <ImageView android:id="@+id/imageview3"
                        android:layout_width="0dp"
                        android:layout_height="wrap_content"
                        android:layout_weight="1"
@@ -62,7 +62,7 @@
                        android:adjustViewBounds="true"
                        android:src="@drawable/album_placeholder_grid"/>
 
-            <ImageView android:id="@+id/content_header_image4"
+            <ImageView android:id="@+id/imageview4"
                        android:layout_width="0dp"
                        android:layout_height="wrap_content"
                        android:layout_weight="1"

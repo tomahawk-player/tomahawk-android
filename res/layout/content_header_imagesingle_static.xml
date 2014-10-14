@@ -24,7 +24,7 @@
               android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <ImageView android:id="@+id/content_header_image"
+    <ImageView android:id="@+id/imageview1"
                android:layout_width="match_parent"
                android:layout_height="match_parent"
                android:scaleType="centerCrop"
