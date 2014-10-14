@@ -204,8 +204,8 @@ public class SocialActionsFragment extends TomahawkFragment implements
                             }
                             if (!alreadyMerged) {
                                 mergedActions.add(actionToCompare);
-                                if (socialAction.getTargetObject() instanceof Query) {
-                                    mShownQueries.add((Query) socialAction.getTargetObject());
+                                if (actionToCompare.getTargetObject() instanceof Query) {
+                                    mShownQueries.add((Query) actionToCompare.getTargetObject());
                                 }
                             }
                             actionsToDelete.add(actionToCompare);
