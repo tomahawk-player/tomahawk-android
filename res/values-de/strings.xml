@@ -81,6 +81,7 @@
   <string name="drawer_title_playlists">Playlisten</string>
   <string name="drawer_title_lovedtracks">Lieblingslieder</string>
   <string name="drawer_title_settings">Einstellungen</string>
+  <string name="drawer_header_cloudcollections">Cloud Sammlungen</string>
   <string name="collection_dropdown_recently_added">Kürzlich hinzugefügt</string>
   <string name="collection_dropdown_artist">Künstler</string>
   <string name="collection_dropdown_play_count">Wiedergabeanzahl</string>
