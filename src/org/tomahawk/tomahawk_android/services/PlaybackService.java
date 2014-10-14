@@ -145,8 +145,6 @@ public class PlaybackService extends Service
 
     public static final String SHUFFLED_PLAYLIST_ID = "shuffled_playlist_id";
 
-    private static Bitmap sPlaceHolder = null;
-
     // The volume we set the media player to when we lose audio focus, but are allowed to reduce
     // the volume instead of stopping playback.
     public static final float DUCK_VOLUME = 0.1f;
@@ -260,24 +258,31 @@ public class PlaybackService extends Service
 
         @Override
         public void onBitmapFailed(Drawable drawable) {
-            updateAlbumArt(sPlaceHolder);
+            updateAlbumArt(BitmapFactory
+                    .decodeResource(getResources(), R.drawable.album_placeholder_grid));
         }
 
         @Override
         public void onPrepareLoad(Drawable drawable) {
-            updateAlbumArt(sPlaceHolder);
+            updateAlbumArt(BitmapFactory
+                    .decodeResource(getResources(), R.drawable.album_placeholder_grid));
         }
 
-        private void updateAlbumArt(Bitmap bitmap) {
-            synchronized (PlaybackService.this) {
-                RemoteControlClientCompat.MetadataEditorCompat editor =
-                        mRemoteControlClientCompat.editMetadata(false);
-                editor.putBitmap(
-                        RemoteControlClientCompat.MetadataEditorCompat.METADATA_KEY_ARTWORK,
-                        bitmap.copy(bitmap.getConfig(), false));
-                editor.apply();
-                Log.d(TAG, "Setting lockscreen bitmap");
-            }
+        private void updateAlbumArt(final Bitmap bitmap) {
+            new Runnable() {
+                @Override
+                public void run() {
+                    synchronized (PlaybackService.this) {
+                        RemoteControlClientCompat.MetadataEditorCompat editor =
+                                mRemoteControlClientCompat.editMetadata(false);
+                        editor.putBitmap(
+                                RemoteControlClientCompat.MetadataEditorCompat.METADATA_KEY_ARTWORK,
+                                bitmap.copy(bitmap.getConfig(), false));
+                        editor.apply();
+                        Log.d(TAG, "Setting lockscreen bitmap");
+                    }
+                }
+            }.run();
         }
     };
 
@@ -512,9 +517,6 @@ public class PlaybackService extends Service
         mKillTimerHandler.removeCallbacksAndMessages(null);
         Message msg = mKillTimerHandler.obtainMessage();
         mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
-
-        sPlaceHolder =
-                BitmapFactory.decodeResource(getResources(), R.drawable.album_placeholder_grid);
 
         mPlaylist = Playlist.fromEntriesList(DatabaseHelper.CACHED_PLAYLIST_NAME, "",
                 new ArrayList<PlaylistEntry>());
