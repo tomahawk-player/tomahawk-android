@@ -17,8 +17,22 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
+import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
+import org.tomahawk.libtomahawk.collection.Image;
+import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.infosystem.User;
+import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.resolver.Resolver;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 
+import android.content.res.Resources;
+import android.os.Handler;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
@@ -27,54 +41,58 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+
 public class ViewHolder {
 
-    private int mLayoutId;
+    int mLayoutId;
 
-    private ImageView mUserImageView1;
+    ImageView mUserImageView1;
 
-    private TextView mUserTextView1;
+    TextView mUserTextView1;
 
-    private ImageView mImageView1;
+    ImageView mImageView1;
 
-    private ImageView mImageView2;
+    ImageView mImageView2;
 
-    private ImageView mImageView3;
+    ImageView mImageView3;
 
-    private ImageView mImageView4;
+    ImageView mImageView4;
 
-    private CheckBox mCheckBox;
+    CheckBox mCheckBox1;
 
-    private Spinner mSpinner;
+    Spinner mSpinner1;
 
-    private TextView mTextView1;
+    TextView mTextView1;
 
-    private TextView mTextView2;
+    TextView mTextView2;
 
-    private TextView mTextView3;
+    TextView mTextView3;
 
-    private TextView mTextView4;
+    TextView mTextView4;
 
-    private FrameLayout mButton4;
+    FrameLayout mFollowButton;
 
-    private FrameLayout mMoreButton;
+    FrameLayout mMoreButton;
 
-    private View mMainClickArea;
+    View mMainClickArea;
 
-    private View mClickArea1;
+    View mClickArea1;
 
-    private ProgressBar mProgressBar;
+    ProgressBar mProgressBar;
 
     public ViewHolder(View rootView, int layoutId) {
-        mLayoutId = layoutId;
+        this.mLayoutId = layoutId;
         if (layoutId == R.layout.single_line_list_item) {
             mTextView1 = (TextView) rootView
-                    .findViewById(R.id.single_line_list_textview);
+                    .findViewById(R.id.textview1);
         } else if (layoutId == R.layout.list_item_text) {
             mTextView1 = (TextView) rootView;
         } else if (layoutId == R.layout.content_header_user_navdrawer) {
             mTextView1 = (TextView) rootView
-                    .findViewById(R.id.content_header_textview_user_navdrawer);
+                    .findViewById(R.id.textview1);
             mUserImageView1 = (ImageView) rootView
                     .findViewById(R.id.userimageview1);
             mUserTextView1 = (TextView) rootView
@@ -94,10 +112,10 @@ public class ViewHolder {
             mClickArea1 = rootView
                     .findViewById(R.id.clickarea1);
             mProgressBar = (ProgressBar) rootView
-                    .findViewById(R.id.progressbar);
+                    .findViewById(R.id.progressbar1);
         } else if (layoutId == R.layout.single_line_list_header) {
             mTextView1 = (TextView) rootView
-                    .findViewById(R.id.single_line_list_header_textview);
+                    .findViewById(R.id.textview1);
         } else if (layoutId == R.layout.list_header_socialaction) {
             mUserImageView1 = (ImageView) rootView
                     .findViewById(R.id.userimageview1);
@@ -106,37 +124,37 @@ public class ViewHolder {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.textview1);
         } else if (layoutId == R.layout.dropdown_header) {
-            mSpinner = (Spinner) rootView
-                    .findViewById(R.id.single_line_list_dropdown_header_spinner);
+            mSpinner1 = (Spinner) rootView
+                    .findViewById(R.id.spinner1);
         } else if (layoutId == R.layout.fake_preferences_plain) {
             mTextView1 = (TextView) rootView
-                    .findViewById(R.id.fake_preferences_textview);
+                    .findViewById(R.id.textview1);
             mTextView2 = (TextView) rootView
-                    .findViewById(R.id.fake_preferences_textview2);
+                    .findViewById(R.id.textview2);
         } else if (layoutId == R.layout.fake_preferences_checkbox) {
             mTextView1 = (TextView) rootView
-                    .findViewById(R.id.fake_preferences_textview);
+                    .findViewById(R.id.textview1);
             mTextView2 = (TextView) rootView
-                    .findViewById(R.id.fake_preferences_textview2);
-            mCheckBox = (CheckBox) rootView
-                    .findViewById(R.id.fake_preferences_checkbox);
+                    .findViewById(R.id.textview2);
+            mCheckBox1 = (CheckBox) rootView
+                    .findViewById(R.id.checkbox1);
         } else if (layoutId == R.layout.fake_preferences_spinner) {
             mTextView1 = (TextView) rootView
-                    .findViewById(R.id.fake_preferences_textview);
+                    .findViewById(R.id.textview1);
             mTextView2 = (TextView) rootView
-                    .findViewById(R.id.fake_preferences_textview2);
-            mSpinner = (Spinner) rootView
-                    .findViewById(R.id.fake_preferences_spinner);
+                    .findViewById(R.id.textview2);
+            mSpinner1 = (Spinner) rootView
+                    .findViewById(R.id.spinner1);
         } else if (layoutId == R.layout.fake_preferences_configauth) {
             mTextView1 = (TextView) rootView
-                    .findViewById(R.id.fake_preferences_textview);
+                    .findViewById(R.id.textview1);
             mTextView2 = (TextView) rootView
-                    .findViewById(R.id.fake_preferences_textview2);
-            mImageView2 = (ImageView) rootView
-                    .findViewById(R.id.fake_preferences_logo);
+                    .findViewById(R.id.textview2);
+            mImageView1 = (ImageView) rootView
+                    .findViewById(R.id.imageview1);
         } else if (layoutId == R.layout.fake_preferences_header) {
             mTextView1 = (TextView) rootView
-                    .findViewById(R.id.fake_preferences_header_textview);
+                    .findViewById(R.id.textview1);
         } else if (layoutId == R.layout.grid_item || layoutId == R.layout.list_item_artistalbum) {
             mImageView1 = (ImageView) rootView
                     .findViewById(R.id.imageview1);
@@ -157,6 +175,20 @@ public class ViewHolder {
                     .findViewById(R.id.textview2);
             mTextView3 = (TextView) rootView
                     .findViewById(R.id.textview3);
+        } else if (layoutId == R.layout.content_header_user) {
+            mTextView1 = (TextView) rootView
+                    .findViewById(R.id.textview1);
+            mUserImageView1 = (ImageView) rootView
+                    .findViewById(R.id.userimageview1);
+            mUserTextView1 = (TextView) rootView
+                    .findViewById(R.id.usertextview1);
+            mFollowButton = (FrameLayout) rootView
+                    .findViewById(R.id.followbutton1);
+        } else if (layoutId == R.layout.content_header) {
+            mTextView1 = (TextView) rootView
+                    .findViewById(R.id.textview1);
+            mMoreButton = (FrameLayout) rootView
+                    .findViewById(R.id.morebutton1);
         }
         if (mMainClickArea == null) {
             mMainClickArea = rootView;
@@ -165,102 +197,276 @@ public class ViewHolder {
 
     public ViewHolder(View imageFrame, View headerFrame, int layoutId) {
         mLayoutId = layoutId;
-        if (layoutId == R.layout.content_header
-                || layoutId == R.layout.content_header_user
-                || layoutId == R.layout.content_header_static) {
+        if (layoutId == R.layout.content_header_user) {
             mTextView1 = (TextView) headerFrame
-                    .findViewById(R.id.content_header_textview);
+                    .findViewById(R.id.textview1);
             mUserImageView1 = (ImageView) headerFrame
                     .findViewById(R.id.userimageview1);
             mUserTextView1 = (TextView) headerFrame
                     .findViewById(R.id.usertextview1);
-            mImageView1 = (ImageView) imageFrame
-                    .findViewById(R.id.content_header_image);
-            mImageView2 = (ImageView) imageFrame
-                    .findViewById(R.id.content_header_image2);
-            mImageView3 = (ImageView) imageFrame
-                    .findViewById(R.id.content_header_image3);
-            mImageView4 = (ImageView) imageFrame
-                    .findViewById(R.id.content_header_image4);
+            mFollowButton = (FrameLayout) headerFrame
+                    .findViewById(R.id.followbutton1);
+        } else if (layoutId == R.layout.content_header) {
+            mTextView1 = (TextView) headerFrame
+                    .findViewById(R.id.textview1);
             mMoreButton = (FrameLayout) headerFrame
-                    .findViewById(R.id.content_header_more_button);
-            mButton4 = (FrameLayout) headerFrame
-                    .findViewById(R.id.content_header_button4);
+                    .findViewById(R.id.morebutton1);
         }
+        mImageView1 = (ImageView) imageFrame
+                .findViewById(R.id.imageview1);
+        mImageView2 = (ImageView) imageFrame
+                .findViewById(R.id.imageview2);
+        mImageView3 = (ImageView) imageFrame
+                .findViewById(R.id.imageview3);
+        mImageView4 = (ImageView) imageFrame
+                .findViewById(R.id.imageview4);
         if (mMainClickArea == null) {
             mMainClickArea = headerFrame;
         }
     }
 
-    public int getLayoutId() {
-        return mLayoutId;
+    public void setMainClickListener(ClickListener listener) {
+        mMainClickArea.setOnClickListener(listener);
+        mMainClickArea.setOnLongClickListener(listener);
     }
 
-    public ImageView getUserImageView1() {
-        return mUserImageView1;
+    public void setClickArea1Listener(ClickListener listener) {
+        mClickArea1.setOnClickListener(listener);
+        mClickArea1.setOnLongClickListener(listener);
     }
 
-    public TextView getUserTextView1() {
-        return mUserTextView1;
+    public void fillContentHeader(final Album album, View.OnClickListener listener) {
+        if (mTextView1 != null) {
+            mTextView1.setVisibility(View.VISIBLE);
+            mTextView1.setText(album.getName().toUpperCase());
+        }
+        mImageView1.setVisibility(View.VISIBLE);
+        TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView1,
+                album.getImage(), Image.getLargeImageSize(), false);
+        mMoreButton.setVisibility(View.VISIBLE);
+        mMoreButton.setOnClickListener(listener);
     }
 
-    public ImageView getImageView1() {
-        return mImageView1;
+    public void fillContentHeader(final Artist artist, View.OnClickListener listener) {
+        if (mTextView1 != null) {
+            mTextView1.setVisibility(View.VISIBLE);
+            mTextView1.setText(artist.getName().toUpperCase());
+        }
+        mImageView1.setVisibility(View.VISIBLE);
+        TomahawkUtils
+                .loadImageIntoImageView(TomahawkApp.getContext(), mImageView1, artist.getImage(),
+                        Image.getLargeImageSize(), true);
+        mMoreButton.setVisibility(View.VISIBLE);
+        mMoreButton.setOnClickListener(listener);
     }
 
-    public ImageView getImageView2() {
-        return mImageView2;
+    public void fillContentHeader(Playlist playlist, ArrayList<Image> images) {
+        if (mTextView1 != null) {
+            mTextView1.setVisibility(View.VISIBLE);
+            mTextView1.setText(playlist.getName().toUpperCase());
+        }
+        if (images.size() > 3) {
+            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView1,
+                    images.get(0), Image.getSmallImageSize(), false);
+            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView2,
+                    images.get(1), Image.getSmallImageSize(), false);
+            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView3,
+                    images.get(2), Image.getSmallImageSize(), false);
+            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView4,
+                    images.get(3), Image.getSmallImageSize(), false);
+        } else if (images.size() > 0) {
+            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView1,
+                    images.get(0), Image.getLargeImageSize(), false);
+        }
     }
 
-    public ImageView getImageView3() {
-        return mImageView3;
+    public void fillContentHeaderSmall(String text, User user) {
+        mTextView1.setText(text.toUpperCase());
+        TomahawkUtils.loadUserImageIntoImageView(TomahawkApp.getContext(), mUserImageView1,
+                user, Image.getSmallImageSize(), mUserTextView1);
+        mUserImageView1.setVisibility(View.VISIBLE);
     }
 
-    public ImageView getImageView4() {
-        return mImageView4;
+    public void fillContentHeader(final User user, boolean showFollowing,
+            boolean showNotFollowing, View.OnClickListener followButtonListener) {
+        TomahawkUtils.loadBlurredImageIntoImageView(TomahawkApp.getContext(), mImageView1,
+                user.getImage(), Image.getSmallImageSize(), R.color.userpage_default_background);
+        TomahawkUtils.loadUserImageIntoImageView(TomahawkApp.getContext(), mUserImageView1,
+                user, Image.getSmallImageSize(), mUserTextView1);
+        mTextView1.setText(user.getName().toUpperCase());
+        ((TextView) mFollowButton.findViewById(R.id.followbutton1_textview))
+                .setText(TomahawkApp.getContext().getString(R.string.content_header_following)
+                        .toUpperCase());
+        if (showFollowing) {
+            mFollowButton
+                    .setBackgroundResource(R.drawable.selectable_background_button_follow_filled);
+            mFollowButton.setOnClickListener(followButtonListener);
+        } else if (showNotFollowing) {
+            mFollowButton
+                    .setBackgroundResource(R.drawable.selectable_background_button_follow);
+            mFollowButton.setOnClickListener(followButtonListener);
+        } else {
+            mFollowButton.setVisibility(View.GONE);
+        }
     }
 
-    public CheckBox getCheckBox() {
-        return mCheckBox;
+    public void fillContentHeader(Query query) {
+        if (mTextView1 != null) {
+            mTextView1.setVisibility(View.VISIBLE);
+            mTextView1.setText(query.getName().toUpperCase());
+        }
+        mImageView1.setVisibility(View.VISIBLE);
+        TomahawkUtils
+                .loadImageIntoImageView(TomahawkApp.getContext(), mImageView1, query.getImage(),
+                        Image.getLargeImageSize(), query.hasArtistImage());
     }
 
-    public Spinner getSpinner() {
-        return mSpinner;
+    public void fillContentHeader(Image image) {
+        TomahawkUtils.loadBlurredImageIntoImageView(TomahawkApp.getContext(), mImageView1, image,
+                Image.getSmallImageSize(), R.drawable.album_placeholder_grid);
     }
 
-    public TextView getTextView1() {
-        return mTextView1;
+    public void fillContentHeader(Integer integer) {
+        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), mImageView1, integer);
     }
 
-    public TextView getTextView2() {
-        return mTextView2;
+    public void fillView(final TomahawkMainActivity activity, Query query,
+            String numerationString, boolean showAsPlaying, boolean showDuration,
+            boolean hideArtistName) {
+        if (!hideArtistName) {
+            mTextView3.setVisibility(View.VISIBLE);
+            mTextView3.setText(query.getArtist().getName());
+        }
+        mTextView2.setText(query.getName());
+        setTextViewEnabled(mTextView2, query.isPlayable(), false);
+        setTextViewEnabled(mTextView3, query.isPlayable(), false);
+        if (numerationString != null) {
+            if (showAsPlaying) {
+                mImageView1.setVisibility(View.VISIBLE);
+                Resolver resolver = query.getPreferredTrackResult().getResolvedBy();
+                if (resolver.getIconPath() != null) {
+                    TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                            mImageView1, resolver.getIconPath(), false);
+                } else {
+                    TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                            mImageView1, resolver.getIconResId(), false);
+                }
+            } else {
+                mTextView1.setVisibility(View.VISIBLE);
+                mTextView1.setText(numerationString);
+            }
+        }
+        if (showDuration) {
+            mTextView4.setVisibility(View.VISIBLE);
+            if (query.getPreferredTrack().getDuration() > 0) {
+                mTextView4.setText(TomahawkUtils.durationToString(
+                        (query.getPreferredTrack().getDuration())));
+            } else {
+                mTextView4.setText(PlaybackSeekBar.COMPLETION_STRING_DEFAULT);
+            }
+        }
+        if (mProgressBar != null) {
+            mProgressBar.setMax(
+                    (int) activity.getPlaybackService().getCurrentTrack().getDuration());
+            final Handler progressHandler = new Handler();
+            new Runnable() {
+                @Override
+                public void run() {
+                    if (mProgressBar != null) {
+                        mProgressBar.setProgress(
+                                activity.getPlaybackService().getPosition());
+                        progressHandler.postDelayed(this, 500);
+                    } else {
+                        progressHandler.removeCallbacks(this);
+                    }
+                }
+            }.run();
+        }
     }
 
-    public TextView getTextView3() {
-        return mTextView3;
+    public void fillView(String string) {
+        mTextView1.setText(string);
     }
 
-    public TextView getTextView4() {
-        return mTextView4;
+    public void fillView(User user) {
+        mTextView1.setText(user.getName());
+        TomahawkUtils.loadUserImageIntoImageView(TomahawkApp.getContext(),
+                mUserImageView1, user, Image.getSmallImageSize(),
+                mUserTextView1);
     }
 
-    public FrameLayout getButton4() {
-        return mButton4;
+    public void fillView(Artist artist) {
+        mTextView1.setText(artist.getName());
+        TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView1,
+                artist.getImage(), Image.getSmallImageSize(), true);
     }
 
-    public FrameLayout getMoreButton() {
-        return mMoreButton;
+    public void fillView(Album album) {
+        mTextView1.setText(album.getName());
+        mTextView2.setVisibility(View.VISIBLE);
+        mTextView2.setText(album.getArtist().getName());
+        TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView1,
+                album.getImage(), Image.getSmallImageSize(), false);
+        int songCount = CollectionManager.getInstance().getCollection(
+                TomahawkApp.PLUGINNAME_USERCOLLECTION).getAlbumTracks(album, false).size();
+        if (songCount == 0) {
+            songCount = CollectionManager.getInstance().getCollection(
+                    TomahawkApp.PLUGINNAME_HATCHET).getAlbumTracks(album, false).size();
+        }
+        if (songCount > 0) {
+            String songs = TomahawkApp.getContext().getResources().getString(R.string.songs);
+            mTextView3.setVisibility(View.VISIBLE);
+            mTextView3.setText(songCount + " " + songs);
+        }
     }
 
-    public View getMainClickArea() {
-        return mMainClickArea;
+    private static String dateToString(Resources resources, Date date) {
+        String s = "";
+        if (date != null) {
+            long diff = System.currentTimeMillis() - date.getTime();
+            if (diff < 60000) {
+                s += resources.getString(R.string.time_afewseconds);
+            } else if (diff < 3600000) {
+                long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
+                if (minutes < 2) {
+                    s += resources.getString(R.string.time_aminute);
+                } else {
+                    s += resources.getString(R.string.time_minutes, minutes);
+                }
+            } else if (diff < 86400000) {
+                long hours = TimeUnit.MILLISECONDS.toHours(diff);
+                if (hours < 2) {
+                    s += resources.getString(R.string.time_anhour);
+                } else {
+                    s += resources.getString(R.string.time_hours, hours);
+                }
+            } else {
+                long days = TimeUnit.MILLISECONDS.toDays(diff);
+                if (days < 2) {
+                    s += resources.getString(R.string.time_aday);
+                } else {
+                    s += resources.getString(R.string.time_days, days);
+                }
+            }
+        }
+        return s;
     }
 
-    public View getClickArea1() {
-        return mClickArea1;
-    }
-
-    public ProgressBar getProgressBar() {
-        return mProgressBar;
+    private static TextView setTextViewEnabled(TextView textView, boolean enabled,
+            boolean isSecondary) {
+        if (textView != null && textView.getResources() != null) {
+            int colorResId;
+            if (enabled) {
+                if (isSecondary) {
+                    colorResId = R.color.secondary_textcolor;
+                } else {
+                    colorResId = R.color.primary_textcolor;
+                }
+            } else {
+                colorResId = R.color.disabled;
+            }
+            textView.setTextColor(textView.getResources().getColor(colorResId));
+        }
+        return textView;
     }
 }

@@ -102,7 +102,7 @@
         </LinearLayout>
 
         <ProgressBar
-                android:id="@+id/progressbar"
+                android:id="@+id/progressbar1"
                 style="@style/ProgressBarTomahawk"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

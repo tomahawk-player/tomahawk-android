@@ -28,7 +28,7 @@
         android:paddingRight="@dimen/padding_superlarge"
         android:background="@color/primary_background">
 
-    <Spinner android:id="@+id/single_line_list_dropdown_header_spinner"
+    <Spinner android:id="@+id/spinner1"
              android:layout_width="wrap_content"
              android:layout_height="wrap_content"
              android:paddingBottom="@dimen/padding_small"/>

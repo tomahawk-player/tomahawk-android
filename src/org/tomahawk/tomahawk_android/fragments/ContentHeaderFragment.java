@@ -29,12 +29,10 @@ import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.ViewHolder;
-import org.tomahawk.tomahawk_android.utils.AdapterUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
@@ -192,8 +190,7 @@ public abstract class ContentHeaderFragment extends Fragment {
         //Now we fill the added views with data
         ViewHolder viewHolder = new ViewHolder(imageFrame, headerFrame, layoutId);
         if (item instanceof Integer) {
-            TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
-                    viewHolder.getImageView1(), (Integer) item);
+            viewHolder.fillContentHeader((Integer) item);
         } else if (dynamic) {
             View.OnClickListener listener = new View.OnClickListener() {
                 @Override
@@ -203,20 +200,17 @@ public abstract class ContentHeaderFragment extends Fragment {
                 }
             };
             if (item instanceof Album) {
-                AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Album) item,
-                        listener);
+                viewHolder.fillContentHeader((Album) item, listener);
             } else if (item instanceof Artist) {
-                AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Artist) item,
-                        listener);
+                viewHolder.fillContentHeader((Artist) item, listener);
             } else if (item instanceof Playlist) {
-                AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder,
-                        (Playlist) item, artistImages);
+                viewHolder.fillContentHeader((Playlist) item, artistImages);
             } else if (item instanceof Query) {
-                AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Query) item);
+                viewHolder.fillContentHeader((Query) item);
             }
         } else {
             if (item instanceof Image) {
-                AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (Image) item);
+                viewHolder.fillContentHeader((Image) item);
             } else if (item instanceof User) {
                 HatchetAuthenticatorUtils authUtils =
                         (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
@@ -231,16 +225,15 @@ public abstract class ContentHeaderFragment extends Fragment {
                     showNotFollowing = item != authUtils.getLoggedInUser()
                             && !authUtils.getLoggedInUser().getFollowings().containsKey(item);
                 }
-                AdapterUtils.fillContentHeader(TomahawkApp.getContext(), viewHolder, (User) item,
-                        showFollowing, showNotFollowing);
-                viewHolder.getButton4().setOnClickListener(followListener);
+                viewHolder.fillContentHeader((User) item, showFollowing, showNotFollowing,
+                        followListener);
             }
         }
     }
 
     private void setupTextViewAnimation(View view) {
         if (view != null) {
-            View textView = view.findViewById(R.id.content_header_textview);
+            View textView = view.findViewById(R.id.textview1);
             if (textView != null) {
                 Resources resources = TomahawkApp.getContext().getResources();
                 int smallPadding = resources.getDimensionPixelSize(R.dimen.padding_small);
@@ -263,7 +256,7 @@ public abstract class ContentHeaderFragment extends Fragment {
 
     private void setupButtonAnimation(View view) {
         if (view != null) {
-            View buttonView = view.findViewById(R.id.content_header_more_button);
+            View buttonView = view.findViewById(R.id.morebutton1);
             if (buttonView != null) {
                 Resources resources = TomahawkApp.getContext().getResources();
                 int smallPadding = resources.getDimensionPixelSize(R.dimen.padding_small);
