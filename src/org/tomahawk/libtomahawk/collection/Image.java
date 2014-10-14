@@ -30,9 +30,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Image {
 
-    private static final float IMAGE_SIZE_SMALL = 0.3f;
+    private static final float IMAGE_SIZE_SMALL = 0.2f;
 
-    private static final float IMAGE_SIZE_LARGE = 0.7f;
+    private static final float IMAGE_SIZE_LARGE = 0.5f;
 
     private static int sScreenHeightPixels = 0;
 
