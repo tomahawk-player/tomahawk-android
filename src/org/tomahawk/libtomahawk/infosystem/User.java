@@ -27,6 +27,8 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.util.SparseArray;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -60,9 +62,9 @@ public class User implements TomahawkListItem {
 
     private int mTotalPlays;
 
-    private ArrayList<SocialAction> mSocialActions = new ArrayList<SocialAction>();
+    private SparseArray<List<SocialAction>> mSocialActions = new SparseArray<List<SocialAction>>();
 
-    private ArrayList<SocialAction> mFriendsFeed = new ArrayList<SocialAction>();
+    private SparseArray<List<SocialAction>> mFriendsFeed = new SparseArray<List<SocialAction>>();
 
     private Playlist mPlaybackLog;
 
@@ -217,20 +219,20 @@ public class User implements TomahawkListItem {
         mTotalPlays = totalPlays;
     }
 
-    public ArrayList<SocialAction> getSocialActions() {
+    public SparseArray<List<SocialAction>> getSocialActions() {
         return mSocialActions;
     }
 
-    public void setSocialActions(ArrayList<SocialAction> socialActions) {
-        mSocialActions = socialActions;
+    public void setSocialActions(ArrayList<SocialAction> socialActions, int pageNumber) {
+        mSocialActions.put(pageNumber, socialActions);
     }
 
-    public ArrayList<SocialAction> getFriendsFeed() {
+    public SparseArray<List<SocialAction>> getFriendsFeed() {
         return mFriendsFeed;
     }
 
-    public void setFriendsFeed(ArrayList<SocialAction> friendsFeed) {
-        mFriendsFeed = friendsFeed;
+    public void setFriendsFeed(ArrayList<SocialAction> friendsFeed, int pageNumber) {
+        mFriendsFeed.put(pageNumber, friendsFeed);
     }
 
     public Playlist getPlaybackLog() {
