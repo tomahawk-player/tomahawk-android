@@ -75,6 +75,8 @@ public class ViewHolder {
 
     FrameLayout mFollowButton;
 
+    TextView mFollowButtonTextView;
+
     FrameLayout mMoreButton;
 
     View mMainClickArea;
@@ -175,20 +177,6 @@ public class ViewHolder {
                     .findViewById(R.id.textview2);
             mTextView3 = (TextView) rootView
                     .findViewById(R.id.textview3);
-        } else if (layoutId == R.layout.content_header_user) {
-            mTextView1 = (TextView) rootView
-                    .findViewById(R.id.textview1);
-            mUserImageView1 = (ImageView) rootView
-                    .findViewById(R.id.userimageview1);
-            mUserTextView1 = (TextView) rootView
-                    .findViewById(R.id.usertextview1);
-            mFollowButton = (FrameLayout) rootView
-                    .findViewById(R.id.followbutton1);
-        } else if (layoutId == R.layout.content_header) {
-            mTextView1 = (TextView) rootView
-                    .findViewById(R.id.textview1);
-            mMoreButton = (FrameLayout) rootView
-                    .findViewById(R.id.morebutton1);
         }
         if (mMainClickArea == null) {
             mMainClickArea = rootView;
@@ -206,6 +194,8 @@ public class ViewHolder {
                     .findViewById(R.id.usertextview1);
             mFollowButton = (FrameLayout) headerFrame
                     .findViewById(R.id.followbutton1);
+            mFollowButtonTextView = (TextView) headerFrame
+                    .findViewById(R.id.followbutton1_textview);
         } else if (layoutId == R.layout.content_header) {
             mTextView1 = (TextView) headerFrame
                     .findViewById(R.id.textview1);
@@ -294,17 +284,18 @@ public class ViewHolder {
         TomahawkUtils.loadUserImageIntoImageView(TomahawkApp.getContext(), mUserImageView1,
                 user, Image.getSmallImageSize(), mUserTextView1);
         mTextView1.setText(user.getName().toUpperCase());
-        ((TextView) mFollowButton.findViewById(R.id.followbutton1_textview))
-                .setText(TomahawkApp.getContext().getString(R.string.content_header_following)
-                        .toUpperCase());
         if (showFollowing) {
             mFollowButton
                     .setBackgroundResource(R.drawable.selectable_background_button_follow_filled);
             mFollowButton.setOnClickListener(followButtonListener);
+            mFollowButtonTextView.setText(TomahawkApp.getContext().getString(
+                    R.string.content_header_following).toUpperCase());
         } else if (showNotFollowing) {
             mFollowButton
                     .setBackgroundResource(R.drawable.selectable_background_button_follow);
             mFollowButton.setOnClickListener(followButtonListener);
+            mFollowButtonTextView.setText(TomahawkApp.getContext().getString(
+                    R.string.content_header_follow).toUpperCase());
         } else {
             mFollowButton.setVisibility(View.GONE);
         }

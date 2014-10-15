@@ -92,6 +92,7 @@
   <string name="drawer_open">Open Navigation Drawer</string>
   <string name="drawer_close">Close Navigation Drawer</string>
   <string name="content_header_following">Following</string>
+  <string name="content_header_follow">Follow</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users) -->
   <string name="socialaction_type_follow">is now following</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track) -->
