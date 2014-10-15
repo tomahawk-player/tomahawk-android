@@ -91,7 +91,10 @@
   <string name="preferences_bitrate_high">Beste</string>
   <string name="drawer_open">Öffne Navigations-Menü</string>
   <string name="drawer_close">Schließe Navigations-Menü</string>
-  <string name="content_header_following">Folgen</string>
+  <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
+  <string name="content_header_following">Folge ich</string>
+  <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
+  <string name="content_header_follow">Folgen</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">folgt nun</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
@@ -132,7 +135,9 @@
   <string name="similar">Ähnliche</string>
   <string name="songs">Lieder</string>
   <string name="activity">Aktivitäten</string>
+  <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">Followers</string>
+  <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
   <string name="following">Folgt</string>
   <string name="resolver_config_redirect_button_text_log_into">Anmelden bei</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Abmelden von</string>
