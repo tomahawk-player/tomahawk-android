@@ -145,7 +145,6 @@ public class Playlist implements TomahawkListItem {
     }
 
     public void setId(String id) {
-        sPlaylists.remove(getCacheKey());
         mId = id;
         ensureCache(this);
     }
