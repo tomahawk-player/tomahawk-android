@@ -90,7 +90,9 @@
   <string name="preferences_bitrate_high">ดีที่สุด</string>
   <string name="drawer_open">เปิด Navigation Drawer</string>
   <string name="drawer_close">ปิด Navigation Drawer</string>
+  <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
   <string name="content_header_following">กำลังติดตาม</string>
+  <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">กำลังติดตามในตอนนี้</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
@@ -131,7 +133,9 @@
   <string name="similar">คล้าย</string>
   <string name="songs">เพลง</string>
   <string name="activity">กิจกรรม</string>
+  <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">ผู้ติดตาม</string>
+  <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
   <string name="following">กำลังติดตาม</string>
   <string name="resolver_config_redirect_button_text_log_into">เข้าสู่ระบบ</string>
   <string name="resolver_config_redirect_button_text_log_out_of">ออกจากระบบ</string>
