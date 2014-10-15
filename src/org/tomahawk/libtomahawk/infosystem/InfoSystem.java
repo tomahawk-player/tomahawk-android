@@ -209,10 +209,12 @@ public class InfoSystem {
      * @param user the User to enrich with data from the InfoPlugins
      * @return the created InfoRequestData's requestId
      */
-    public String resolveSocialActions(User user) {
+    public String resolveSocialActions(User user, int pageNumber) {
         if (user != null) {
             QueryParams params = new QueryParams();
             params.userid = user.getId();
+            params.offset = pageNumber * HatchetInfoPlugin.SOCIALACTIONS_LIMIT;
+            params.limit = HatchetInfoPlugin.SOCIALACTIONS_LIMIT;
             return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS,
                     params, user);
         }
@@ -225,10 +227,12 @@ public class InfoSystem {
      * @param user the User to enrich with data from the InfoPlugins
      * @return the created InfoRequestData's requestId
      */
-    public String resolveFriendsFeed(User user) {
+    public String resolveFriendsFeed(User user, int pageNumber) {
         if (user != null) {
             QueryParams params = new QueryParams();
             params.userid = user.getId();
+            params.offset = pageNumber * HatchetInfoPlugin.FRIENDSFEED_LIMIT;
+            params.limit = HatchetInfoPlugin.FRIENDSFEED_LIMIT;
             return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FRIENDSFEED,
                     params, user);
         }

@@ -123,6 +123,10 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
     public static final String HATCHET_ACCOUNTDATA_USER_ID = "hatchet_preference_user_id";
 
+    public static final int SOCIALACTIONS_LIMIT = 20;
+
+    public static final int FRIENDSFEED_LIMIT = 50;
+
     private HatchetAuthenticatorUtils mHatchetAuthenticatorUtils;
 
     private static String mUserId = null;
@@ -269,9 +273,11 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 HatchetSocialActionResponse response;
                 if (infoRequestData.getType()
                         == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS) {
-                    response = mHatchet.getUsersSocialActions(params.userid, null, "20");
+                    response = mHatchet.getUsersSocialActions(params.userid,
+                            String.valueOf(params.offset), String.valueOf(params.limit));
                 } else {
-                    response = mHatchet.getUsersFriendsFeed(params.userid, null, "50");
+                    response = mHatchet.getUsersFriendsFeed(params.userid,
+                            String.valueOf(params.offset), String.valueOf(params.limit));
                 }
                 if (response != null) {
                     User userToBeFilled = (User) mItemsToBeFilled
@@ -305,10 +311,12 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         }
                         if (infoRequestData.getType()
                                 == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS) {
-                            userToBeFilled.setSocialActions(socialActions);
+                            userToBeFilled
+                                    .setSocialActions(socialActions, params.offset / params.limit);
                         } else if (infoRequestData.getType()
                                 == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FRIENDSFEED) {
-                            userToBeFilled.setFriendsFeed(socialActions);
+                            userToBeFilled
+                                    .setFriendsFeed(socialActions, params.offset / params.limit);
                         }
                     }
                     infoRequestData.setResult(userToBeFilled);

@@ -38,8 +38,10 @@ import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AbsListView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,13 +70,19 @@ public class SocialActionsFragment extends TomahawkFragment implements
                     if (mContainerFragmentClass == null) {
                         getActivity().setTitle(getString(R.string.drawer_title_feed).toUpperCase());
                     }
-                    mCurrentRequestIds.add(InfoSystem.getInstance().resolveFriendsFeed(mUser));
+                    for (int i = 1; i < mUser.getFriendsFeed().size(); i++) {
+                        mCurrentRequestIds.add(
+                                InfoSystem.getInstance().resolveFriendsFeed(mUser, i));
+                    }
                     setActionBarOffset();
                 } else {
                     if (mContainerFragmentClass == null) {
                         getActivity().setTitle("");
                     }
-                    mCurrentRequestIds.add(InfoSystem.getInstance().resolveSocialActions(mUser));
+                    for (int i = 1; i < mUser.getSocialActions().size(); i++) {
+                        mCurrentRequestIds.add(
+                                InfoSystem.getInstance().resolveSocialActions(mUser, i));
+                    }
                     HatchetAuthenticatorUtils authUtils = (HatchetAuthenticatorUtils)
                             AuthenticatorManager.getInstance().getAuthenticatorUtils(
                                     TomahawkApp.PLUGINNAME_HATCHET);
@@ -162,59 +170,66 @@ public class SocialActionsFragment extends TomahawkFragment implements
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         mShownQueries.clear();
         if (mUser != null) {
-            ArrayList<TomahawkListItem> socialActions;
+            SparseArray<List<SocialAction>> socialActionsList;
             if (mShowMode == SHOW_MODE_DASHBOARD) {
-                socialActions = new ArrayList<TomahawkListItem>(mUser.getFriendsFeed());
+                socialActionsList = mUser.getFriendsFeed();
             } else {
-                socialActions = new ArrayList<TomahawkListItem>(mUser.getSocialActions());
+                socialActionsList = mUser.getSocialActions();
             }
             List<List<TomahawkListItem>> mergedActionsList
                     = new ArrayList<List<TomahawkListItem>>();
-            while (socialActions.size() > 0) {
-                SocialAction socialAction = (SocialAction) socialActions.remove(0);
+            int i = 0;
+            while (socialActionsList.get(i) != null) {
+                List<SocialAction> socialActions =
+                        new ArrayList<SocialAction>(socialActionsList.get(i));
+                i++;
+                while (socialActions.size() > 0) {
+                    SocialAction socialAction = socialActions.remove(0);
 
-                boolean action = Boolean.valueOf(socialAction.getAction());
-                String type = socialAction.getType();
-                if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_CREATEPLAYLIST.equals(type)
-                        || HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LATCHON.equals(type)
-                        || HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_FOLLOW.equals(type)
-                        || (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE.equals(type)
-                        && action && (socialAction.getTargetObject() instanceof Query
-                        || socialAction.getTargetObject() instanceof Album))) {
-                    List<TomahawkListItem> mergedActions = new ArrayList<TomahawkListItem>();
-                    mergedActions.add(socialAction);
-                    if (socialAction.getTargetObject() instanceof Query) {
-                        mShownQueries.add((Query) socialAction.getTargetObject());
-                    }
-                    List<SocialAction> actionsToDelete = new ArrayList<SocialAction>();
-                    for (TomahawkListItem item : socialActions) {
-                        SocialAction actionToCompare = (SocialAction) item;
-                        if (actionToCompare.getUser() == socialAction.getUser()
-                                && actionToCompare.getType().equals(socialAction.getType())
-                                && actionToCompare.getTargetObject().getClass()
-                                == socialAction.getTargetObject().getClass()) {
-                            boolean alreadyMerged = false;
-                            for (TomahawkListItem mergedItem : mergedActions) {
-                                SocialAction mergedAction = (SocialAction) mergedItem;
-                                if (mergedAction.getTargetObject()
-                                        == actionToCompare.getTargetObject()) {
-                                    alreadyMerged = true;
-                                    break;
-                                }
-                            }
-                            if (!alreadyMerged) {
-                                mergedActions.add(actionToCompare);
-                                if (actionToCompare.getTargetObject() instanceof Query) {
-                                    mShownQueries.add((Query) actionToCompare.getTargetObject());
-                                }
-                            }
-                            actionsToDelete.add(actionToCompare);
+                    boolean action = Boolean.valueOf(socialAction.getAction());
+                    String type = socialAction.getType();
+                    if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_CREATEPLAYLIST.equals(type)
+                            || HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LATCHON.equals(type)
+                            || HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_FOLLOW.equals(type)
+                            || (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE.equals(type)
+                            && action && (socialAction.getTargetObject() instanceof Query
+                            || socialAction.getTargetObject() instanceof Album))) {
+                        List<TomahawkListItem> mergedActions = new ArrayList<TomahawkListItem>();
+                        mergedActions.add(socialAction);
+                        if (socialAction.getTargetObject() instanceof Query) {
+                            mShownQueries.add((Query) socialAction.getTargetObject());
                         }
+                        List<SocialAction> actionsToDelete = new ArrayList<SocialAction>();
+                        for (TomahawkListItem item : socialActions) {
+                            SocialAction actionToCompare = (SocialAction) item;
+                            if (actionToCompare.getUser() == socialAction.getUser()
+                                    && actionToCompare.getType().equals(socialAction.getType())
+                                    && actionToCompare.getTargetObject().getClass()
+                                    == socialAction.getTargetObject().getClass()) {
+                                boolean alreadyMerged = false;
+                                for (TomahawkListItem mergedItem : mergedActions) {
+                                    SocialAction mergedAction = (SocialAction) mergedItem;
+                                    if (mergedAction.getTargetObject()
+                                            == actionToCompare.getTargetObject()) {
+                                        alreadyMerged = true;
+                                        break;
+                                    }
+                                }
+                                if (!alreadyMerged) {
+                                    mergedActions.add(actionToCompare);
+                                    if (actionToCompare.getTargetObject() instanceof Query) {
+                                        mShownQueries
+                                                .add((Query) actionToCompare.getTargetObject());
+                                    }
+                                }
+                                actionsToDelete.add(actionToCompare);
+                            }
+                        }
+                        for (SocialAction actionToDelete : actionsToDelete) {
+                            socialActions.remove(actionToDelete);
+                        }
+                        mergedActionsList.add(mergedActions);
                     }
-                    for (SocialAction actionToDelete : actionsToDelete) {
-                        socialActions.remove(actionToDelete);
-                    }
-                    mergedActionsList.add(mergedActions);
                 }
             }
 
@@ -242,6 +257,23 @@ public class SocialActionsFragment extends TomahawkFragment implements
             }
 
             updateShowPlaystate();
+        }
+    }
+
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
+            int totalItemCount) {
+        super.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
+
+        if (firstVisibleItem + visibleItemCount + 5 > totalItemCount) {
+            mShowMode = getArguments().getInt(SHOW_MODE);
+            if (mShowMode == SHOW_MODE_DASHBOARD) {
+                mCurrentRequestIds.add(InfoSystem.getInstance()
+                        .resolveFriendsFeed(mUser, mUser.getFriendsFeed().size()));
+            } else {
+                mCurrentRequestIds.add(InfoSystem.getInstance()
+                        .resolveSocialActions(mUser, mUser.getSocialActions().size()));
+            }
         }
     }
 }

@@ -27,4 +27,8 @@ public class QueryParams {
     public String playlist_local_id = null;
 
     public String relationship_id = null;
+
+    public int offset = 0;
+
+    public int limit = 0;
 }
