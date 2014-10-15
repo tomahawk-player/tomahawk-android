@@ -44,6 +44,7 @@ import android.view.View;
 import android.widget.AbsListView;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
@@ -58,6 +59,8 @@ public class SocialActionsFragment extends TomahawkFragment implements
     public static final int SHOW_MODE_SOCIALACTIONS = 0;
 
     public static final int SHOW_MODE_DASHBOARD = 1;
+
+    public HashSet<Integer> mResolvingPages = new HashSet<Integer>();
 
     @Override
     public void onResume() {
@@ -268,11 +271,17 @@ public class SocialActionsFragment extends TomahawkFragment implements
         if (firstVisibleItem + visibleItemCount + 5 > totalItemCount) {
             mShowMode = getArguments().getInt(SHOW_MODE);
             if (mShowMode == SHOW_MODE_DASHBOARD) {
-                mCurrentRequestIds.add(InfoSystem.getInstance()
-                        .resolveFriendsFeed(mUser, mUser.getFriendsFeed().size()));
+                if (!mResolvingPages.contains(mUser.getFriendsFeed().size())) {
+                    mResolvingPages.add(mUser.getFriendsFeed().size());
+                    mCurrentRequestIds.add(InfoSystem.getInstance()
+                            .resolveFriendsFeed(mUser, mUser.getFriendsFeed().size()));
+                }
             } else {
-                mCurrentRequestIds.add(InfoSystem.getInstance()
-                        .resolveSocialActions(mUser, mUser.getSocialActions().size()));
+                if (!mResolvingPages.contains(mUser.getSocialActions().size())) {
+                    mResolvingPages.add(mUser.getSocialActions().size());
+                    mCurrentRequestIds.add(InfoSystem.getInstance()
+                            .resolveSocialActions(mUser, mUser.getSocialActions().size()));
+                }
             }
         }
     }
