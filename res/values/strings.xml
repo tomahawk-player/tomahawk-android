@@ -91,9 +91,9 @@
   <string name="preferences_bitrate_high">Best</string>
   <string name="drawer_open">Open Navigation Drawer</string>
   <string name="drawer_close">Close Navigation Drawer</string>
-  <!-- Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
-  <string name="content_header_following">Following</string>
   <!-- Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
+  <string name="content_header_following">Following</string>
+  <!-- Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">Follow</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users) -->
   <string name="socialaction_type_follow">is now following</string>
