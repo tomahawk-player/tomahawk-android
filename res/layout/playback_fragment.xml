@@ -18,149 +18,94 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
 
-    <org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager
-            android:id="@+id/playback_view_pager"
-            android:layout_width="match_parent"
-            android:layout_height="320dip"
-            android:layout_weight="25">
-    </org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager>
+    <ImageView android:id="@+id/background"
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:scaleType="centerCrop"
+               android:background="@color/primary_background"/>
 
-    <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:layout_marginBottom="-16dip"
-            android:layout_weight="1">
+    <View android:id="@+id/darkening_background"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:background="@color/playerview_transparent"/>
 
-        <org.tomahawk.tomahawk_android.views.PlaybackSeekBar
-                android:id="@+id/seekBar_track"
-                style="@style/ProgressBarTomahawk"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_centerVertical="true"
-                android:layout_marginBottom="-16dip"
-                android:layout_marginLeft="16dip"
-                android:layout_marginRight="16dip"
-                android:background="@android:color/transparent"
-                android:indeterminate="false"
-                android:max="1"
-                android:progress="0"
-                android:thumb="@drawable/progress_thumb_tomahawk"
-                android:visibility="visible"/>
+    <LinearLayout android:id="@+id/content"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="vertical">
 
-        <TextView
-                android:id="@+id/textView_completionTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingRight="@dimen/padding_verysmall"
-                android:layout_alignParentRight="true"
-                android:layout_below="@+id/seekBar_track"
-                android:text="-:--"
-                android:textSize="@dimen/text_size_small"
-                android:textColor="@color/secondary_textcolor"/>
-
-        <TextView
-                android:id="@+id/textView_currentTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/padding_verysmall"
-                android:layout_alignParentLeft="true"
-                android:layout_below="@+id/seekBar_track"
-                android:text="0:00"
-                android:textSize="@dimen/text_size_small"
-                android:textColor="@color/secondary_textcolor"/>
-    </RelativeLayout>
-
-    <LinearLayout
-            android:id="@+id/playback_buttonPanel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="@dimen/padding_medium"
-            android:paddingTop="@dimen/padding_medium">
-
-        <FrameLayout android:layout_width="match_parent"
-                     android:layout_height="match_parent"
-                     android:layout_weight="0.9">
-
-            <ImageButton
-                    android:id="@+id/imageButton_shuffle"
-                    android:layout_width="@dimen/player_button_size_repeatshuffle"
-                    android:layout_height="@dimen/player_button_size_repeatshuffle"
-                    android:layout_gravity="center"
-                    android:background="@drawable/selectable_background_ring_tomahawk"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/ic_player_shuffle"/>
-
-        </FrameLayout>
-
-        <FrameLayout android:layout_width="match_parent"
-                     android:layout_height="match_parent"
-                     android:layout_weight="1">
-
-            <ImageButton
-                    android:id="@+id/imageButton_previous"
-                    android:layout_width="@dimen/player_button_size_default"
-                    android:layout_height="@dimen/player_button_size_default"
-                    android:layout_gravity="center"
-                    android:background="@drawable/selectable_background_ring_tomahawk"
-                    android:paddingRight="3dp"
-                    android:paddingLeft="-3dp"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/ic_player_previous"/>
-
-        </FrameLayout>
-
-        <FrameLayout android:layout_width="match_parent"
-                     android:layout_height="match_parent"
-                     android:layout_weight="1">
-            <ImageButton
-                    android:id="@+id/imageButton_playpause"
-                    android:layout_width="@dimen/player_button_size_default"
-                    android:layout_height="@dimen/player_button_size_default"
-                    android:layout_gravity="center"
-                    android:background="@drawable/selectable_background_ring_tomahawk"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/ic_player_pause"/>
-
-        </FrameLayout>
-
-        <FrameLayout android:layout_width="match_parent"
-                     android:layout_height="match_parent"
-                     android:layout_weight="1">
-
-            <ImageButton
-                    android:id="@+id/imageButton_next"
-                    android:layout_width="@dimen/player_button_size_default"
-                    android:layout_height="@dimen/player_button_size_default"
-                    android:layout_gravity="center"
-                    android:background="@drawable/selectable_background_ring_tomahawk"
-                    android:paddingRight="-3dp"
-                    android:paddingLeft="3dp"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/ic_player_next"/>
-
-        </FrameLayout>
-
-        <FrameLayout android:layout_width="match_parent"
-                     android:layout_height="match_parent"
-                     android:layout_weight="0.9">
+        <FrameLayout android:id="@+id/top_buttonpanel"
+                     android:layout_width="match_parent"
+                     android:layout_height="@dimen/playback_panel_height"
+                     android:paddingLeft="@dimen/padding_superlarge"
+                     android:paddingRight="@dimen/padding_superlarge">
 
             <ImageButton
                     android:id="@+id/imageButton_repeat"
                     android:layout_width="@dimen/player_button_size_repeatshuffle"
                     android:layout_height="@dimen/player_button_size_repeatshuffle"
-                    android:layout_gravity="center"
+                    android:layout_gravity="left|center_vertical"
                     android:background="@drawable/selectable_background_ring_tomahawk"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/ic_player_repeat"/>
+                    android:src="@drawable/ic_player_repeat_light"
+                    android:visibility="gone"/>
+
+            <FrameLayout android:id="@+id/close_button"
+                         android:layout_width="wrap_content"
+                         android:layout_height="wrap_content"
+                         android:layout_gravity="center"
+                         android:paddingLeft="@dimen/padding_superlarge"
+                         android:paddingRight="@dimen/padding_superlarge"
+                         android:paddingBottom="@dimen/padding_verysmall"
+                         android:paddingTop="@dimen/padding_verysmall"
+                         android:background="@drawable/selectable_background_button_white"
+                         android:clickable="true"
+                         android:visibility="gone">
+
+                <LinearLayout android:layout_width="wrap_content"
+                              android:layout_height="wrap_content"
+                              android:layout_gravity="center">
+
+                    <TextView android:id="@+id/close_button_text"
+                              android:layout_width="wrap_content"
+                              android:layout_height="wrap_content"
+                              android:layout_gravity="center_vertical"
+                              android:singleLine="true"
+                              android:textSize="@dimen/text_size_micro"
+                              android:textColor="@color/primary_textcolor_inverted"/>
+
+                    <ImageView android:layout_width="12dp"
+                               android:layout_height="12dp"
+                               android:layout_marginLeft="@dimen/padding_small"
+                               android:layout_gravity="center_vertical|right"
+                               android:src="@drawable/ic_player_exit_light"/>
+
+                </LinearLayout>
+
+            </FrameLayout>
+
+            <ImageButton
+                    android:id="@+id/imageButton_shuffle"
+                    android:layout_width="@dimen/player_button_size_repeatshuffle"
+                    android:layout_height="@dimen/player_button_size_repeatshuffle"
+                    android:layout_gravity="right|center_vertical"
+                    android:background="@drawable/selectable_background_ring_tomahawk"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_player_shuffle_light"
+                    android:visibility="gone"/>
 
         </FrameLayout>
 
+        <org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager
+                android:id="@+id/playback_view_pager"
+                android:layout_width="match_parent"
+                android:layout_height="360dp">
+        </org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager>
+
     </LinearLayout>
 
-</LinearLayout>
+</FrameLayout>

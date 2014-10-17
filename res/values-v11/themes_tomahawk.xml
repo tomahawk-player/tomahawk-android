@@ -26,6 +26,8 @@
 
         <item name="android:fastScrollThumbDrawable">@drawable/tomahawk_fastscroll_thumb_holo</item>
 
+        <item name="circularProgressBarStyle">@style/CircularProgressBarPlayButton</item>
+
     </style>
 
 </resources>

@@ -35,6 +35,8 @@
         <!-- Light.DarkActionBar specific -->
         <item name="actionBarWidgetTheme">@style/Theme.Tomahawk.Widget</item>
 
+        <item name="circularProgressBarStyle">@style/CircularProgressBarPlayButton</item>
+
     </style>
 
 </resources>

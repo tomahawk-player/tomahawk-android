@@ -105,4 +105,12 @@
         <item name="dropDownListViewStyle">@style/DropDownListView.Tomahawk</item>
     </style>
 
+    <style name="CircularProgressBarPlayButton">
+        <item name="stroke_width">1dp</item>
+        <item name="progress_color">#fff</item>
+        <item name="progress_background_color">#777</item>
+        <item name="marker_visible">false</item>
+        <item name="thumb_visible">false</item>
+    </style>
+
 </resources>
