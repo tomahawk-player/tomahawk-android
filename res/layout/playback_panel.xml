@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+ *
+ *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
+ *
+ *   Tomahawk is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Tomahawk is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:focusable="false"
+              android:focusableInTouchMode="false"
+              android:clickable="false">
+
+    <FrameLayout android:layout_width="@dimen/playback_panel_height"
+                 android:layout_height="@dimen/playback_panel_height"
+                 android:layout_gravity="bottom"
+                 android:paddingLeft="@dimen/padding_medium"
+                 android:paddingRight="@dimen/padding_medium">
+
+        <com.pascalwelsch.holocircularprogressbar.HoloCircularProgressBar
+                android:id="@+id/circularprogressbar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/selectable_background_ring_tomahawk"/>
+
+        <ImageView android:id="@+id/pause_button"
+                   android:layout_width="18dp"
+                   android:layout_height="18dp"
+                   android:layout_gravity="center"
+                   android:scaleType="fitCenter"
+                   android:src="@drawable/ic_player_pause_light"
+                   android:visibility="gone"/>
+
+        <ImageView android:id="@+id/play_button"
+                   android:layout_width="18dp"
+                   android:layout_height="18dp"
+                   android:layout_gravity="center"
+                   android:layout_marginLeft="2dp"
+                   android:scaleType="fitCenter"
+                   android:src="@drawable/ic_player_play_light"/>
+
+        <TextView android:id="@+id/currenttime_textview"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_gravity="center"
+                  android:text="6:32"
+                  android:textSize="@dimen/text_size_micro"
+                  android:textColor="@color/primary_textcolor_inverted"
+                  android:visibility="gone"/>
+
+    </FrameLayout>
+
+    <ImageView android:id="@+id/resolver_imageview"
+               android:layout_width="@dimen/playback_panel_resolver_icon_size"
+               android:layout_height="@dimen/playback_panel_height"
+               android:layout_gravity="bottom"
+               android:layout_marginRight="@dimen/padding_small"
+               android:src="@drawable/ic_spotify"/>
+
+    <LinearLayout android:id="@+id/textview_container"
+                  android:layout_width="0dp"
+                  android:layout_height="@dimen/playback_panel_height"
+                  android:layout_weight="1"
+                  android:layout_gravity="bottom">
+
+        <TextView android:id="@+id/artist_textview"
+                  android:layout_width="wrap_content"
+                  android:layout_height="match_parent"
+                  android:gravity="center_vertical"
+                  android:text="Timber Timbre"
+                  android:textSize="@dimen/text_size_small"
+                  android:textColor="@color/primary_textcolor_inverted"/>
+
+        <TextView android:id="@+id/hyphen_textview"
+                  android:layout_width="wrap_content"
+                  android:layout_height="match_parent"
+                  android:gravity="center_vertical"
+                  android:text=" - "
+                  android:singleLine="true"
+                  android:textSize="@dimen/text_size_micro"
+                  android:textColor="@color/primary_textcolor_inverted"/>
+
+        <TextView android:id="@+id/track_textview"
+                  android:layout_width="wrap_content"
+                  android:layout_height="match_parent"
+                  android:gravity="center_vertical"
+                  android:text="Beat the drum slowly"
+                  android:singleLine="true"
+                  android:textSize="@dimen/text_size_micro"
+                  android:textColor="@color/primary_textcolor_inverted"/>
+    </LinearLayout>
+
+    <TextView android:id="@+id/completiontime_textview"
+              android:layout_width="wrap_content"
+              android:layout_height="@dimen/playback_panel_height"
+              android:layout_gravity="bottom"
+              android:gravity="center_vertical"
+              android:paddingRight="@dimen/padding_large"
+              android:paddingLeft="@dimen/padding_small"
+              android:text="6:32"
+              android:textSize="@dimen/text_size_micro"
+              android:textColor="@color/primary_textcolor_inverted"/>
+
+</LinearLayout>

@@ -42,6 +42,8 @@
         <!-- Light.DarkActionBar specific -->
         <item name="android:actionBarWidgetTheme">@style/Theme.Tomahawk.Widget</item>
 
+        <item name="circularProgressBarStyle">@style/CircularProgressBarPlayButton</item>
+
     </style>
 
     <style name="Theme.Tomahawk.Transparent.ActionBar" parent="@style/Theme.Tomahawk">

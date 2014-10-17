@@ -26,24 +26,35 @@
         android:layout_height="match_parent"
         android:background="@color/primary_background">
 
-    <com.sothree.slidinguppanel.SlidingUpPanelLayout
-            xmlns:sothree="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/sliding_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="bottom"
-            sothree:panelHeight="@dimen/row_height_verylarge"
-            sothree:shadowHeight="4dp">
+    <FrameLayout android:layout_width="match_parent"
+                 android:layout_height="match_parent">
 
-        <FrameLayout android:id="@+id/content_viewer_frame"
-                     android:layout_width="match_parent"
-                     android:layout_height="match_parent"/>
+        <com.sothree.slidinguppanel.SlidingUpPanelLayout
+                xmlns:sothree="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/sliding_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="bottom"
+                sothree:panelHeight="@dimen/playback_panel_height"
+                sothree:shadowHeight="4dp">
 
-        <FrameLayout android:id="@+id/playback_fragment_frame"
-                     android:layout_width="match_parent"
-                     android:layout_height="match_parent"/>
+            <FrameLayout android:id="@+id/content_viewer_frame"
+                         android:layout_width="match_parent"
+                         android:layout_height="match_parent"/>
 
-    </com.sothree.slidinguppanel.SlidingUpPanelLayout>
+            <FrameLayout android:id="@+id/playback_fragment_frame"
+                         android:layout_width="match_parent"
+                         android:layout_height="match_parent"/>
+
+        </com.sothree.slidinguppanel.SlidingUpPanelLayout>
+
+        <org.tomahawk.tomahawk_android.views.PlaybackPanel
+                android:id="@+id/playback_panel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"/>
+
+    </FrameLayout>
 
     <!-- The navigation drawer -->
     <se.emilsjolander.stickylistheaders.StickyListHeadersListView

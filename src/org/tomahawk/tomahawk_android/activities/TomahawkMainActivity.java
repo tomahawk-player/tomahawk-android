@@ -65,6 +65,7 @@ import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceCon
 import org.tomahawk.tomahawk_android.services.RemoteControllerService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
+import org.tomahawk.tomahawk_android.views.PlaybackPanel;
 
 import android.accounts.AccountManager;
 import android.app.Activity;
@@ -175,6 +176,8 @@ public class TomahawkMainActivity extends ActionBarActivity
     private Handler mAnimationHandler;
 
     private SlidingUpPanelLayout mSlidingUpPanelLayout;
+
+    private PlaybackPanel mPlaybackPanel;
 
     public static boolean sIsConnectedToWifi;
 
@@ -291,6 +294,15 @@ public class TomahawkMainActivity extends ActionBarActivity
                 }
             } else if (CollectionManager.COLLECTION_ADDED.equals(intent.getAction())) {
                 updateDrawer();
+            } else if (PlaybackService.BROADCAST_CURRENTTRACKCHANGED.equals(intent.getAction())) {
+                mPlaybackPanel.update(mPlaybackService);
+            } else if (PlaybackService.BROADCAST_PLAYSTATECHANGED.equals(intent.getAction())) {
+                if (mPlaybackService != null && mPlaybackService.isPlaying()) {
+                    mPlaybackPanel.updateSeekBarPosition();
+                } else {
+                    mPlaybackPanel.stopUpdates();
+                }
+                mPlaybackPanel.updatePlayPauseState(mPlaybackService.isPlaying());
             }
         }
     }
@@ -397,6 +409,8 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         mSlidingUpPanelLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
         mSlidingUpPanelLayout.setPanelSlideListener(this);
+
+        mPlaybackPanel = (PlaybackPanel) findViewById(R.id.playback_panel);
 
         if (mDrawerLayout != null) {
             mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer,
@@ -724,6 +738,7 @@ public class TomahawkMainActivity extends ActionBarActivity
     @Override
     public void onPlaybackServiceReady() {
         sendBroadcast(new Intent(PLAYBACKSERVICE_READY));
+        mPlaybackPanel.update(mPlaybackService);
     }
 
     @Override
@@ -844,6 +859,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         } else if (v < 0.5f && !getSupportActionBar().isShowing()) {
             getSupportActionBar().show();
         }
+        mPlaybackPanel.onPanelSlide(view, v);
     }
 
     @Override
@@ -867,6 +883,22 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public void collapsePanel() {
         mSlidingUpPanelLayout.collapsePanel();
+    }
+
+    public void showPanel() {
+        if (mSlidingUpPanelLayout.isPanelHidden()) {
+            mSlidingUpPanelLayout.showPanel();
+            mPlaybackPanel.setup(mSlidingUpPanelLayout);
+            mPlaybackPanel.update(mPlaybackService);
+            mPlaybackPanel.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void hidePanel() {
+        if (!mSlidingUpPanelLayout.isPanelHidden()) {
+            mSlidingUpPanelLayout.hidePanel();
+            mPlaybackPanel.setVisibility(View.GONE);
+        }
     }
 
     public SlidingUpPanelLayout getSlidingUpPanelLayout() {
