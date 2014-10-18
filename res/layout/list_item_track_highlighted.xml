@@ -101,16 +101,10 @@
 
         </LinearLayout>
 
-        <ProgressBar
-                android:id="@+id/progressbar1"
-                style="@style/ProgressBarTomahawk"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:indeterminate="false"
-                android:max="1"
-                android:progress="0"
-                android:visibility="visible"/>
+        <FrameLayout android:id="@+id/progressbar_container"
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:layout_gravity="bottom"/>
 
     </FrameLayout>
 
