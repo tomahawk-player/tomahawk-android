@@ -40,7 +40,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -468,15 +467,15 @@ public class PlaybackFragment extends TomahawkFragment {
     protected void refreshRepeatButtonState() {
         if (getView() != null) {
             ImageButton imageButton = (ImageButton) getView().findViewById(R.id.imageButton_repeat);
-            if (imageButton != null && imageButton.getDrawable() != null) {
+            if (imageButton != null) {
                 PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
                         .getPlaybackService();
                 if (playbackService != null && playbackService.isRepeating()) {
-                    imageButton.getDrawable()
-                            .setColorFilter(getResources().getColor(R.color.primary_background),
-                                    PorterDuff.Mode.SRC_IN);
+                    TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageButton,
+                            R.drawable.ic_player_repeat_light);
                 } else {
-                    imageButton.getDrawable().clearColorFilter();
+                    TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageButton,
+                            R.drawable.ic_player_repeat);
                 }
             }
         }
@@ -489,15 +488,15 @@ public class PlaybackFragment extends TomahawkFragment {
         if (getView() != null) {
             ImageButton imageButton = (ImageButton) getView()
                     .findViewById(R.id.imageButton_shuffle);
-            if (imageButton != null && imageButton.getDrawable() != null) {
+            if (imageButton != null) {
                 PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
                         .getPlaybackService();
                 if (playbackService != null && playbackService.isShuffled()) {
-                    imageButton.getDrawable()
-                            .setColorFilter(getResources().getColor(R.color.primary_background),
-                                    PorterDuff.Mode.SRC_IN);
+                    TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageButton,
+                            R.drawable.ic_player_shuffle_light);
                 } else {
-                    imageButton.getDrawable().clearColorFilter();
+                    TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageButton,
+                            R.drawable.ic_player_shuffle);
                 }
             }
         }
