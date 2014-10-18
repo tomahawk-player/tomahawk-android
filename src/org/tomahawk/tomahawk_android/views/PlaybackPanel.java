@@ -156,6 +156,9 @@ public class PlaybackPanel extends FrameLayout {
             updateTextViewCompleteTime();
             updateText();
             updateResolverIconImageView();
+            if (mPlaybackService != null) {
+                updatePlayPauseState(mPlaybackService.isPlaying());
+            }
 
             mArtistTextView.getViewTreeObserver()
                     .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -265,7 +268,7 @@ public class PlaybackPanel extends FrameLayout {
     }
 
     private void setupTextViewAnimation() {
-        if (mTextViewContainer != null) {
+        if (mTextViewContainer != null && !getResources().getBoolean(R.bool.is_landscape)) {
             mTextViewContainer.setX(mTextViewContainerX);
             mTextViewContainer.setY(mTextViewContainerY);
             mTextViewContainer.setScaleX(1f);
@@ -274,8 +277,10 @@ public class PlaybackPanel extends FrameLayout {
             View content = mSlidingUpPanelView.findViewById(R.id.content);
             if (content != null) {
                 Resources resources = TomahawkApp.getContext().getResources();
-                int padding = resources.getDimensionPixelSize(R.dimen.padding_extralarge);
-                int y = content.getHeight() - padding;
+                int padding = resources.getDimensionPixelSize(R.dimen.padding_medium);
+                int panelBottom = resources
+                        .getDimensionPixelSize(R.dimen.playback_panel_height_bottom);
+                int y = content.getHeight() - padding - panelBottom;
                 float textViewWidthSum =
                         mTextViewContainer.findViewById(R.id.artist_textview).getWidth()
                                 + mTextViewContainer.findViewById(R.id.hyphen_textview).getWidth()
@@ -335,9 +340,9 @@ public class PlaybackPanel extends FrameLayout {
                     });
         }
         int position = Math.min(10000, Math.max(0, (int) ((f - 0.8f) * 10000f / (1f - 0.8f))));
+        mLastPlayTime = position;
         if (mTextViewContainerAnimation != null
                 && position != mTextViewContainerAnimation.getCurrentPlayTime()) {
-            mLastPlayTime = position;
             mTextViewContainerAnimation.setCurrentPlayTime(position);
         }
     }

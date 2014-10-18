@@ -51,7 +51,8 @@
 
     <dimen name="list_item_track_height">56dp</dimen>
 
-    <dimen name="playback_panel_height">64dp</dimen>
+    <dimen name="playback_panel_height_top">64dp</dimen>
+    <dimen name="playback_panel_height_bottom">128dp</dimen>
     <dimen name="playback_panel_resolver_icon_size">12dp</dimen>
 
 </resources>
