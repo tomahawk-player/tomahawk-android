@@ -32,12 +32,10 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 
 import android.content.res.Resources;
-import android.os.Handler;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -83,7 +81,7 @@ public class ViewHolder {
 
     View mClickArea1;
 
-    ProgressBar mProgressBar;
+    FrameLayout mProgressBarContainer;
 
     public ViewHolder(View rootView, int layoutId) {
         this.mLayoutId = layoutId;
@@ -113,8 +111,8 @@ public class ViewHolder {
                     .findViewById(R.id.textview4);
             mClickArea1 = rootView
                     .findViewById(R.id.clickarea1);
-            mProgressBar = (ProgressBar) rootView
-                    .findViewById(R.id.progressbar1);
+            mProgressBarContainer = (FrameLayout) rootView
+                    .findViewById(R.id.progressbar_container);
         } else if (layoutId == R.layout.single_line_list_header) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.textview1);
@@ -355,23 +353,6 @@ public class ViewHolder {
             } else {
                 mTextView4.setText(PlaybackSeekBar.COMPLETION_STRING_DEFAULT);
             }
-        }
-        if (mProgressBar != null) {
-            mProgressBar.setMax(
-                    (int) activity.getPlaybackService().getCurrentTrack().getDuration());
-            final Handler progressHandler = new Handler();
-            new Runnable() {
-                @Override
-                public void run() {
-                    if (mProgressBar != null) {
-                        mProgressBar.setProgress(
-                                activity.getPlaybackService().getPosition());
-                        progressHandler.postDelayed(this, 500);
-                    } else {
-                        progressHandler.removeCallbacks(this);
-                    }
-                }
-            }.run();
         }
     }
 

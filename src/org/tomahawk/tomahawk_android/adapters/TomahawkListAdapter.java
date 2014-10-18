@@ -36,12 +36,16 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.res.Resources;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,6 +86,24 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
     private int mHeaderSpacerHeight = 0;
 
     private int mFooterSpacerHeight = 0;
+
+    private ProgressBar mProgressBar;
+
+    private Handler mProgressHandler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            if (mProgressBar != null) {
+                float pos = mActivity.getPlaybackService().getPosition();
+                float duration = mActivity.getPlaybackService().getCurrentTrack().getDuration();
+                mProgressBar.setProgress((int) (pos / duration * mProgressBar.getMax()));
+                mProgressHandler.sendEmptyMessageDelayed(0, 500);
+                return false;
+            } else {
+                mProgressHandler.removeCallbacksAndMessages(null);
+                return true;
+            }
+        }
+    });
 
     /**
      * Constructs a new {@link TomahawkListAdapter}.
@@ -338,6 +360,18 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
                     viewHolder.fillView(mActivity, query, numerationString,
                             mHighlightedItemIsPlaying && shouldBeHighlighted, mShowDuration,
                             mHideArtistName);
+                }
+                if (viewHolder.mProgressBarContainer != null
+                        && viewHolder.mProgressBarContainer.findViewById(R.id.progressbar)
+                        == null) {
+                    if (mProgressBar == null) {
+                        mProgressBar = (ProgressBar) mLayoutInflater.inflate(R.layout.progressbar,
+                                viewHolder.mProgressBarContainer, false);
+                    } else {
+                        ((FrameLayout) mProgressBar.getParent()).removeView(mProgressBar);
+                    }
+                    viewHolder.mProgressBarContainer.addView(mProgressBar);
+                    mProgressHandler.sendEmptyMessage(0);
                 }
             }
 
