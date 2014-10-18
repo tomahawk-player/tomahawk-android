@@ -27,15 +27,16 @@ public class AnimationUtils {
 
     public static void fade(final View view, float from, float to, int duration,
             final boolean isFadeIn, Animation.AnimationListener listener) {
-        if (view != null && !(view.getTag(R.id.animation_type_fade) instanceof Boolean)
-                || (!(Boolean) view.getTag(R.id.animation_type_fade) && isFadeIn
-                || (Boolean) view.getTag(R.id.animation_type_fade) && !isFadeIn)) {
-            view.setTag(R.id.animation_type_fade, isFadeIn);
-            AlphaAnimation animation = new AlphaAnimation(from, to);
-            animation.setDuration(duration);
-            view.startAnimation(animation);
-            animation.setFillAfter(true);
-            animation.setAnimationListener(listener);
+        if (view != null) {
+            if (!(view.getTag(R.id.animation_type_fade) instanceof Boolean)
+                    || (Boolean) view.getTag(R.id.animation_type_fade) != isFadeIn) {
+                view.setTag(R.id.animation_type_fade, isFadeIn);
+                AlphaAnimation animation = new AlphaAnimation(from, to);
+                animation.setDuration(duration);
+                view.startAnimation(animation);
+                animation.setFillAfter(true);
+                animation.setAnimationListener(listener);
+            }
         }
     }
 }
