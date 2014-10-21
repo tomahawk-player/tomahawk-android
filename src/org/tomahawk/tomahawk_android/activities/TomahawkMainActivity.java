@@ -378,7 +378,6 @@ public class TomahawkMainActivity extends ActionBarActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        DatabaseHelper.getInstance().ensureInit();
         PipeLine.getInstance().ensureInit();
         InfoSystem.getInstance().ensureInit();
         AuthenticatorManager.getInstance().ensureInit();

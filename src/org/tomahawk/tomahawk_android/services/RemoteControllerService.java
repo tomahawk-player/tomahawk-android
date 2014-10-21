@@ -65,7 +65,6 @@ public class RemoteControllerService extends NotificationListenerService
     public IBinder onBind(Intent intent) {
         if ("android.service.notification.NotificationListenerService".equals(intent.getAction())) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                DatabaseHelper.getInstance().ensureInit();
                 InfoSystem.getInstance().ensureInit();
                 AuthenticatorManager.getInstance().ensureInit();
                 setRemoteControllerEnabled();
