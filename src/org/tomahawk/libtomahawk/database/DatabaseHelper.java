@@ -92,7 +92,7 @@ public class DatabaseHelper {
         return instance;
     }
 
-    public void ensureInit() {
+    private void ensureInit() {
         if (!mInitialized) {
             mInitialized = true;
             TomahawkSQLiteHelper dbHelper = new TomahawkSQLiteHelper(TomahawkApp.getContext());
@@ -118,6 +118,7 @@ public class DatabaseHelper {
                     values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID, playlist.getId());
                     values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID,
                             playlist.getHatchetId());
+                    ensureInit();
                     mDatabase.beginTransaction();
                     mDatabase.insertWithOnConflict(TomahawkSQLiteHelper.TABLE_PLAYLISTS, null,
                             values,
@@ -179,6 +180,7 @@ public class DatabaseHelper {
                     values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
                             playlist.getCurrentRevision());
                     values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID, insertId);
+                    ensureInit();
                     mDatabase.beginTransaction();
                     mDatabase.insertWithOnConflict(TomahawkSQLiteHelper.TABLE_PLAYLISTS, null,
                             values, SQLiteDatabase.CONFLICT_REPLACE);
@@ -204,6 +206,7 @@ public class DatabaseHelper {
     public ArrayList<Playlist> getPlaylists() {
         ArrayList<Playlist> playListList = new ArrayList<Playlist>();
         String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID};
+        ensureInit();
         Cursor playlistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
                 columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " != ? AND "
                         + TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " != ?",
@@ -230,6 +233,7 @@ public class DatabaseHelper {
         String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME,
                 TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
                 TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID};
+        ensureInit();
         Cursor playlistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
                 columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
                 new String[]{playlistId}, null, null, null);
@@ -266,6 +270,7 @@ public class DatabaseHelper {
         String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME,
                 TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
                 TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID};
+        ensureInit();
         Cursor playlistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
                 columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
                 new String[]{playlistId}, null, null, null);
@@ -323,6 +328,7 @@ public class DatabaseHelper {
         String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME,
                 TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
                 TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTTRACKINDEX};
+        ensureInit();
         Cursor playlistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
                 columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
                 new String[]{playlistId}, null, null, null);
@@ -349,6 +355,7 @@ public class DatabaseHelper {
             @Override
             public void run() {
                 synchronized (this) {
+                    ensureInit();
                     mDatabase.beginTransaction();
                     mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
                             TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = ?",
@@ -373,6 +380,7 @@ public class DatabaseHelper {
             @Override
             public void run() {
                 synchronized (this) {
+                    ensureInit();
                     mDatabase.beginTransaction();
                     mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
                             TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = ? AND "
@@ -396,6 +404,7 @@ public class DatabaseHelper {
             public void run() {
                 synchronized (this) {
                     int trackCount = getPlaylistTrackCount(playlistId);
+                    ensureInit();
                     mDatabase.beginTransaction();
                     // Store every single Track in the database and store the relationship
                     // by storing the playlists's id with it
@@ -442,6 +451,7 @@ public class DatabaseHelper {
             public void run() {
                 synchronized (this) {
                     int trackCount = getPlaylistTrackCount(playlistId);
+                    ensureInit();
                     mDatabase.beginTransaction();
                     // Store every single Track in the database and store the relationship
                     // by storing the playlists's id with it
@@ -488,6 +498,7 @@ public class DatabaseHelper {
     public boolean isItemLoved(Query query) {
         String[] columns = new String[]{TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME,
                 TomahawkSQLiteHelper.TRACKS_COLUMN_ARTISTNAME};
+        ensureInit();
         Cursor tracksCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_TRACKS, columns,
                 TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = ?",
                 new String[]{LOVEDITEMS_PLAYLIST_ID}, null, null, null
@@ -515,6 +526,7 @@ public class DatabaseHelper {
     public boolean isItemLoved(Artist artist) {
         boolean isLoved = false;
         String[] columns = new String[]{TomahawkSQLiteHelper.LOVED_ARTISTS_COLUMN_ARTISTNAME};
+        ensureInit();
         Cursor artistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_LOVED_ARTISTS, columns,
                 TomahawkSQLiteHelper.LOVED_ARTISTS_COLUMN_ARTISTNAME + " = ?",
                 new String[]{artist.getName()}, null, null, null);
@@ -534,6 +546,7 @@ public class DatabaseHelper {
         boolean isLoved = false;
         String[] columns = new String[]{TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ALBUMNAME,
                 TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ARTISTNAME};
+        ensureInit();
         Cursor albumsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_LOVED_ALBUMS, columns,
                 TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ALBUMNAME + " = ? AND "
                         + TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ARTISTNAME + " = ?",
@@ -556,6 +569,7 @@ public class DatabaseHelper {
             queries.add(query);
             addQueriesToPlaylist(LOVEDITEMS_PLAYLIST_ID, queries);
         } else {
+            ensureInit();
             mDatabase.beginTransaction();
             mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
                     TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = ? AND "
@@ -577,6 +591,7 @@ public class DatabaseHelper {
             @Override
             public void run() {
                 synchronized (this) {
+                    ensureInit();
                     mDatabase.beginTransaction();
                     if (isLoved) {
                         ContentValues values = new ContentValues();
@@ -603,6 +618,7 @@ public class DatabaseHelper {
             @Override
             public void run() {
                 synchronized (this) {
+                    ensureInit();
                     mDatabase.beginTransaction();
                     if (isLoved) {
                         ContentValues values = new ContentValues();
@@ -630,6 +646,7 @@ public class DatabaseHelper {
             @Override
             public void run() {
                 synchronized (this) {
+                    ensureInit();
                     mDatabase.beginTransaction();
                     mDatabase.delete(TomahawkSQLiteHelper.TABLE_LOVED_ARTISTS, null, null);
                     for (Artist artist : artists) {
@@ -651,6 +668,7 @@ public class DatabaseHelper {
             @Override
             public void run() {
                 synchronized (this) {
+                    ensureInit();
                     mDatabase.beginTransaction();
                     mDatabase.delete(TomahawkSQLiteHelper.TABLE_LOVED_ALBUMS, null, null);
                     for (Album album : albums) {
@@ -672,6 +690,7 @@ public class DatabaseHelper {
     public ArrayList<Artist> getStarredArtists() {
         ArrayList<Artist> starredArtists = new ArrayList<Artist>();
         String[] columns = new String[]{TomahawkSQLiteHelper.LOVED_ARTISTS_COLUMN_ARTISTNAME};
+        ensureInit();
         Cursor artistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_LOVED_ARTISTS, columns,
                 null, null, null, null, null);
         artistsCursor.moveToFirst();
@@ -688,6 +707,7 @@ public class DatabaseHelper {
         ArrayList<Album> starredAlbums = new ArrayList<Album>();
         String[] columns = new String[]{TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ARTISTNAME,
                 TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ALBUMNAME};
+        ensureInit();
         Cursor albumsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_LOVED_ALBUMS,
                 columns, null, null, null, null, null);
         albumsCursor.moveToFirst();
@@ -702,6 +722,7 @@ public class DatabaseHelper {
     }
 
     public Cursor getSearchHistoryCursor(String entry) {
+        ensureInit();
         return mDatabase.query(TomahawkSQLiteHelper.TABLE_SEARCHHISTORY, null,
                 TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ENTRY + " LIKE ?",
                 new String[]{entry + "%"}, null, null,
@@ -710,6 +731,7 @@ public class DatabaseHelper {
 
     public void addEntryToSearchHistory(String entry) {
         ContentValues values = new ContentValues();
+        ensureInit();
         mDatabase.beginTransaction();
         values.put(TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ENTRY, entry.trim());
         mDatabase.insert(TomahawkSQLiteHelper.TABLE_SEARCHHISTORY, null, values);
@@ -728,6 +750,7 @@ public class DatabaseHelper {
      */
     public void addOpToInfoSystemOpLog(InfoRequestData opToLog, int timeStamp) {
         ContentValues values = new ContentValues();
+        ensureInit();
         mDatabase.beginTransaction();
         values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TYPE, opToLog.getType());
         values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_HTTPTYPE, opToLog.getHttpType());
@@ -758,6 +781,7 @@ public class DatabaseHelper {
      * @param loggedOps a list of all the operations to remove from the InfoSystem-OpLog table
      */
     public void removeOpsFromInfoSystemOpLog(List<InfoRequestData> loggedOps) {
+        ensureInit();
         mDatabase.beginTransaction();
         for (InfoRequestData loggedOp : loggedOps) {
             mDatabase.delete(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG,
@@ -774,6 +798,7 @@ public class DatabaseHelper {
      * @param opLogId the id of the operation to remove from the InfoSystem-OpLog table
      */
     public void removeOpFromInfoSystemOpLog(int opLogId) {
+        ensureInit();
         mDatabase.beginTransaction();
         mDatabase.delete(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG,
                 TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_ID + " = ?",
@@ -792,6 +817,7 @@ public class DatabaseHelper {
                 TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_HTTPTYPE,
                 TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_JSONSTRING,
                 TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_PARAMS};
+        ensureInit();
         Cursor opLogCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG,
                 columns, null, null, null, null,
                 TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TIMESTAMP + " DESC");
@@ -822,6 +848,7 @@ public class DatabaseHelper {
      */
     public int getLoggedOpsCount() {
         String[] columns = new String[]{TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_ID};
+        ensureInit();
         Cursor opLogCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG,
                 columns, null, null, null, null, null);
         int count = opLogCursor.getCount();

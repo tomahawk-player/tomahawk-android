@@ -451,7 +451,6 @@ public class PlaybackService extends Service
     public void onCreate() {
         super.onCreate();
 
-        DatabaseHelper.getInstance().ensureInit();
         PipeLine.getInstance().ensureInit();
         InfoSystem.getInstance().ensureInit();
         AuthenticatorManager.getInstance().ensureInit();

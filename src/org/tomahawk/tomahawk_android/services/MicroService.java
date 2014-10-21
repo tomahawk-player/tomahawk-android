@@ -29,7 +29,6 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
-import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -81,7 +80,6 @@ public class MicroService extends Service {
         Log.d(TAG, "onCreate");
         super.onCreate();
 
-        DatabaseHelper.getInstance().ensureInit();
         InfoSystem.getInstance().ensureInit();
         AuthenticatorManager.getInstance().ensureInit();
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
