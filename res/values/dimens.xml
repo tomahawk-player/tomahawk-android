@@ -26,12 +26,12 @@
     <dimen name="show_context_menu_icon_height_more">16dp</dimen>
 
     <dimen name="header_spinner_height">48dp</dimen>
-    <dimen name="header_clear_space_nonscrollable_static">96dp</dimen>
-    <dimen name="header_clear_space_nonscrollable_static_user">136dp</dimen>
-    <dimen name="header_clear_space_nonscrollable">112dp</dimen>
-    <dimen name="header_clear_space_nonscrollable_selector">64dp</dimen>
+    <dimen name="header_clear_space_nonscrollable_static">104dp</dimen>
+    <dimen name="header_clear_space_nonscrollable_static_user">144dp</dimen>
+    <dimen name="header_clear_space_nonscrollable">120dp</dimen>
+    <dimen name="header_clear_space_nonscrollable_selector">72dp</dimen>
     <dimen name="header_clear_space_scrollable">208dp</dimen>
-    <dimen name="header_clear_space_scrollable_small">64dp</dimen>
+    <dimen name="header_clear_space_scrollable_small">56dp</dimen>
     <dimen name="header_roundedimage_height">48dp</dimen>
     <dimen name="header_following_height">32dp</dimen>
 

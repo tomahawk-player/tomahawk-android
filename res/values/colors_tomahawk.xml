@@ -20,6 +20,7 @@
 --><resources>
 
     <color name="tomahawk_red">#FFe23a2e</color>
+    <color name="tomahawk_red_dark">#FF800000</color>
     <color name="tomahawk_red_transparent">#DDe23a2e</color>
     <color name="divider">#3B3F45</color>
     <color name="primary_background">#FFffffff</color>

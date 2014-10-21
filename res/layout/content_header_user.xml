@@ -25,7 +25,7 @@
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/abc_action_bar_default_height"
+            android:layout_marginTop="@dimen/abc_action_bar_default_height_material"
             android:paddingLeft="@dimen/padding_superlarge"
             android:paddingRight="@dimen/padding_superlarge">
 

@@ -35,7 +35,19 @@
         <!-- Light.DarkActionBar specific -->
         <item name="actionBarWidgetTheme">@style/Theme.Tomahawk.Widget</item>
 
+        <item name="colorPrimary">@color/tomahawk_red</item>
+
+        <item name="colorPrimaryDark">@color/tomahawk_red_dark</item>
+
         <item name="circularProgressBarStyle">@style/CircularProgressBarPlayButton</item>
+
+    </style>
+
+    <style name="Theme.Tomahawk.Transparent.ActionBar" parent="@style/Theme.Tomahawk">
+
+        <item name="actionBarStyle">@style/ActionBar.Transparent.Tomahawk</item>
+        <item name="windowActionBarOverlay">true</item>
+        <item name="android:windowContentOverlay">@null</item>
 
     </style>
 

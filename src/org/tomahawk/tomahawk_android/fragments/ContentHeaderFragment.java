@@ -40,7 +40,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
 import android.support.v4.app.Fragment;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -238,12 +237,8 @@ public abstract class ContentHeaderFragment extends Fragment {
                 Resources resources = TomahawkApp.getContext().getResources();
                 int smallPadding = resources.getDimensionPixelSize(R.dimen.padding_small);
                 int x = resources.getDimensionPixelSize(R.dimen.padding_superlarge);
-                int actionBarHeight = 0;
-                TypedValue tv = new TypedValue();
-                if (getActivity().getTheme().resolveAttribute(R.attr.actionBarSize, tv, true)) {
-                    actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,
-                            getResources().getDisplayMetrics());
-                }
+                int actionBarHeight = resources.getDimensionPixelSize(
+                        R.dimen.abc_action_bar_default_height_material);
                 int y = actionBarHeight + smallPadding;
                 PropertyValuesHolder pvhX = PropertyValuesHolder.ofFloat("x", x);
                 PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat("y", y);
@@ -260,12 +255,8 @@ public abstract class ContentHeaderFragment extends Fragment {
             if (buttonView != null) {
                 Resources resources = TomahawkApp.getContext().getResources();
                 int smallPadding = resources.getDimensionPixelSize(R.dimen.padding_small);
-                int actionBarHeight = 0;
-                TypedValue tv = new TypedValue();
-                if (getActivity().getTheme().resolveAttribute(R.attr.actionBarSize, tv, true)) {
-                    actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,
-                            getResources().getDisplayMetrics());
-                }
+                int actionBarHeight = resources.getDimensionPixelSize(
+                        R.dimen.abc_action_bar_default_height_material);
                 int y = actionBarHeight + smallPadding;
                 mButtonAnim = ObjectAnimator.ofFloat(buttonView, "y", y).setDuration(10000);
                 mButtonAnim.setInterpolator(new LinearInterpolator());

@@ -25,34 +25,16 @@
         </item>
 
         <item name="android:fastScrollThumbDrawable">@drawable/tomahawk_fastscroll_thumb_holo</item>
-        <item name="android:actionBarItemBackground">@drawable/selectable_background_tomahawk</item>
-        <item name="android:popupMenuStyle">@style/PopupMenu.Tomahawk</item>
-        <item name="android:dropDownListViewStyle">@style/DropDownListView.Tomahawk</item>
-        <item name="android:actionBarTabStyle">@style/ActionBarTabStyle.Tomahawk</item>
-        <item name="android:actionDropDownStyle">@style/DropDownNav.Tomahawk</item>
-        <item name="android:actionBarStyle">@style/ActionBar.Solid.Tomahawk</item>
-        <item name="android:actionModeBackground">@drawable/cab_background_top_tomahawk</item>
-        <item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_tomahawk
-        </item>
-        <item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Tomahawk
-        </item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:actionOverflowButtonStyle">@style/OverFlow</item>
 
-        <!-- Light.DarkActionBar specific -->
-        <item name="android:actionBarWidgetTheme">@style/Theme.Tomahawk.Widget</item>
+        <item name="colorPrimary">@color/tomahawk_red</item>
+
+        <item name="colorPrimaryDark">@color/tomahawk_red_dark</item>
 
         <item name="circularProgressBarStyle">@style/CircularProgressBarPlayButton</item>
 
-    </style>
+        <item name="android:popupMenuStyle">@style/PopupMenu.Tomahawk</item>
 
-    <style name="Theme.Tomahawk.Transparent.ActionBar" parent="@style/Theme.Tomahawk">
-
-        <item name="android:actionBarStyle">@style/ActionBar.Transparent.Tomahawk</item>
-        <item name="android:windowActionBarOverlay">true</item>
-
-        <!-- Support library compatibility -->
-        <item name="windowActionBarOverlay">true</item>
+        <item name="android:dropDownListViewStyle">@style/DropDownListView.Tomahawk</item>
 
     </style>
 
