@@ -317,6 +317,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     mContainerFragmentClass = ArtistPagerFragment.class;
                 } else if (fragmentName.equals(SearchPagerFragment.class.getName())) {
                     mContainerFragmentClass = SearchPagerFragment.class;
+                } else if (fragmentName.equals(UserPagerFragment.class.getName())) {
+                    mContainerFragmentClass = UserPagerFragment.class;
                 }
             }
             if (getArguments().containsKey(CONTAINER_FRAGMENT_PAGE)) {
