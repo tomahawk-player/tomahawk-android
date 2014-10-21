@@ -26,6 +26,10 @@
 
         <item name="android:fastScrollThumbDrawable">@drawable/tomahawk_fastscroll_thumb_holo</item>
 
+        <item name="colorPrimary">@color/tomahawk_red</item>
+
+        <item name="colorPrimaryDark">@color/tomahawk_red_dark</item>
+
         <item name="circularProgressBarStyle">@style/CircularProgressBarPlayButton</item>
 
     </style>

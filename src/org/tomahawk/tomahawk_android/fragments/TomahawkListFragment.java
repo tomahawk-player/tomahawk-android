@@ -26,7 +26,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -158,13 +157,9 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         FrameLayout listFrame = (FrameLayout) getView().findViewById(
                 R.id.fragmentLayout_listLayout_frameLayout);
         FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) listFrame.getLayoutParams();
-        int offset = 0;
-        TypedValue tv = new TypedValue();
-        if (getActivity().getTheme().resolveAttribute(R.attr.actionBarSize, tv, true)) {
-            offset = TypedValue.complexToDimensionPixelSize(tv.data,
-                    getResources().getDisplayMetrics());
-        }
-        params.setMargins(0, offset, 0, 0);
+        int actionBarHeight = getResources().getDimensionPixelSize(
+                R.dimen.abc_action_bar_default_height_material);
+        params.setMargins(0, actionBarHeight, 0, 0);
         listFrame.setLayoutParams(params);
     }
 
@@ -172,12 +167,8 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         FrameLayout listFrame =
                 (FrameLayout) getView().findViewById(R.id.fragmentLayout_listLayout_frameLayout);
         FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) listFrame.getLayoutParams();
-        int actionBarHeight = 0;
-        TypedValue tv = new TypedValue();
-        if (getActivity().getTheme().resolveAttribute(R.attr.actionBarSize, tv, true)) {
-            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,
-                    getResources().getDisplayMetrics());
-        }
+        int actionBarHeight = getResources().getDimensionPixelSize(
+                R.dimen.abc_action_bar_default_height_material);
         params.setMargins(0, actionBarHeight, 0, 0);
         listFrame.setLayoutParams(params);
 
