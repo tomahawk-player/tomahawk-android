@@ -29,6 +29,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
@@ -94,6 +95,7 @@ public class LoginConfigDialog extends ConfigDialog {
         mPasswordEditText = (ConfigEdittext) passwordLayout.findViewById(R.id.config_edittext);
         mPasswordEditText.setHint(R.string.login_password);
         mPasswordEditText.setTypeface(Typeface.DEFAULT);
+        mPasswordEditText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
         mPasswordEditText.setTransformationMethod(new PasswordTransformationMethod());
         mPasswordEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
         addViewToFrame(passwordLayout);
