@@ -73,7 +73,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
                     if (mContainerFragmentClass == null) {
                         getActivity().setTitle(getString(R.string.drawer_title_feed).toUpperCase());
                     }
-                    for (int i = 1; i < mUser.getFriendsFeed().size(); i++) {
+                    for (int i = 0; i < mUser.getFriendsFeed().size(); i++) {
                         mCurrentRequestIds.add(
                                 InfoSystem.getInstance().resolveFriendsFeed(mUser, i));
                     }
@@ -82,7 +82,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
                     if (mContainerFragmentClass == null) {
                         getActivity().setTitle("");
                     }
-                    for (int i = 1; i < mUser.getSocialActions().size(); i++) {
+                    for (int i = 0; i < mUser.getSocialActions().size(); i++) {
                         mCurrentRequestIds.add(
                                 InfoSystem.getInstance().resolveSocialActions(mUser, i));
                     }
