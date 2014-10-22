@@ -108,7 +108,7 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         Object item = getItem(position);
         ResourceHolder holder = (ResourceHolder) item;
-        if (((ResourceHolder) item).image != null) {
+        if (((ResourceHolder) item).user != null) {
             View contentHeaderView = mLayoutInflater.inflate(
                     R.layout.content_header_user_navdrawer, null);
             ViewHolder viewHolder = new ViewHolder(contentHeaderView,
