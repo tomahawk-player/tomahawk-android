@@ -52,6 +52,9 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
         super.onResume();
 
         CollectionManager.getInstance().fetchPlaylists();
+        if (mPlaylist.getId().equals(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID)) {
+            CollectionManager.getInstance().fetchLovedItemsPlaylist();
+        }
         if (mUser != null) {
             mCurrentRequestIds.add(InfoSystem.getInstance().resolvePlaybackLog(mUser));
         }
