@@ -40,7 +40,7 @@
 
         <FrameLayout android:id="@+id/top_buttonpanel"
                      android:layout_width="match_parent"
-                     android:layout_height="@dimen/playback_panel_height_top"
+                     android:layout_height="@dimen/playback_panel_height"
                      android:paddingLeft="@dimen/padding_superlarge"
                      android:paddingRight="@dimen/padding_superlarge">
 
@@ -108,7 +108,7 @@
         </org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager>
 
         <View android:layout_width="match_parent"
-              android:layout_height="@dimen/playback_panel_height_bottom"/>
+              android:layout_height="@dimen/playback_clear_space_bottom"/>
 
     </LinearLayout>
 

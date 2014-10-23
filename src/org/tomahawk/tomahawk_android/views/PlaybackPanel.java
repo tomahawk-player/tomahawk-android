@@ -57,9 +57,7 @@ public class PlaybackPanel extends FrameLayout {
 
     private LinearLayout mTextViewContainer;
 
-    private float mTextViewContainerX = -1;
-
-    private float mTextViewContainerY = -1;
+    private Point mStartingPoint;
 
     private TextView mArtistTextView;
 
@@ -82,6 +80,18 @@ public class PlaybackPanel extends FrameLayout {
     private boolean mInitialized = false;
 
     private static final int MSG_UPDATE_PROGRESS = 0x1;
+
+    private static class Point {
+
+        Point(float x, float y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        float x;
+
+        float y;
+    }
 
     private Handler mProgressHandler = new Handler(new Handler.Callback() {
         @Override
@@ -115,22 +125,17 @@ public class PlaybackPanel extends FrameLayout {
         mSlidingUpPanelView = slidingUpPanelView;
 
         mTextViewContainer = (LinearLayout) findViewById(R.id.textview_container);
-        mTextViewContainer.getViewTreeObserver()
-                .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        mTextViewContainerX = mTextViewContainer.getX();
-                        mTextViewContainerY = mTextViewContainer.getY();
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                            mTextViewContainer.getViewTreeObserver()
-                                    .removeOnGlobalLayoutListener(this);
-                        } else {
-                            mTextViewContainer.getViewTreeObserver()
-                                    .removeGlobalOnLayoutListener(this);
-                        }
-
-                    }
-                });
+        View content = mSlidingUpPanelView.findViewById(R.id.content);
+        if (content != null) {
+            Resources resources = TomahawkApp.getContext().getResources();
+            int panelHeight = resources.getDimensionPixelSize(R.dimen.playback_panel_height);
+            int y = content.getHeight() - mTextViewContainer.getHeight() / 2 - panelHeight / 2;
+            int resolverIconSize =
+                    resources.getDimensionPixelSize(R.dimen.playback_panel_resolver_icon_size);
+            int paddingSmall = resources.getDimensionPixelSize(R.dimen.padding_small);
+            int x = resolverIconSize + panelHeight + paddingSmall;
+            mStartingPoint = new Point(x, y);
+        }
         mArtistTextView = (TextView) mTextViewContainer.findViewById(R.id.artist_textview);
         mTrackTextView = (TextView) mTextViewContainer.findViewById(R.id.track_textview);
         mCompletionTimeTextView = (TextView) findViewById(R.id.completiontime_textview);
@@ -269,18 +274,19 @@ public class PlaybackPanel extends FrameLayout {
 
     private void setupTextViewAnimation() {
         if (mTextViewContainer != null && !getResources().getBoolean(R.bool.is_landscape)) {
-            mTextViewContainer.setX(mTextViewContainerX);
-            mTextViewContainer.setY(mTextViewContainerY);
+            mTextViewContainer.setX(mStartingPoint.x);
+            mTextViewContainer.setY(mStartingPoint.y);
             mTextViewContainer.setScaleX(1f);
             mTextViewContainer.setScaleY(1f);
+            mTextViewContainer.setPivotX(0f);
             mTextViewContainer.setPivotY(0f);
             View content = mSlidingUpPanelView.findViewById(R.id.content);
             if (content != null) {
                 Resources resources = TomahawkApp.getContext().getResources();
                 int padding = resources.getDimensionPixelSize(R.dimen.padding_medium);
                 int panelBottom = resources
-                        .getDimensionPixelSize(R.dimen.playback_panel_height_bottom);
-                int y = content.getHeight() - padding - panelBottom;
+                        .getDimensionPixelSize(R.dimen.playback_clear_space_bottom);
+                int y = content.getHeight() + padding - panelBottom;
                 float textViewWidthSum =
                         mTextViewContainer.findViewById(R.id.artist_textview).getWidth()
                                 + mTextViewContainer.findViewById(R.id.hyphen_textview).getWidth()

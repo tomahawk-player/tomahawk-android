@@ -7,6 +7,6 @@
     <dimen name="header_clear_space_nonscrollable">104dp</dimen>
     <dimen name="header_roundedimage_height">32dp</dimen>
 
-    <dimen name="playback_panel_height_bottom">64dp</dimen>
+    <dimen name="playback_clear_space_bottom">64dp</dimen>
 
 </resources>
