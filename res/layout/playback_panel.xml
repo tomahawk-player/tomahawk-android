@@ -18,17 +18,17 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:clickable="false">
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:focusable="false"
-              android:focusableInTouchMode="false"
-              android:clickable="false">
-
-    <FrameLayout android:layout_width="@dimen/playback_panel_height_top"
-                 android:layout_height="@dimen/playback_panel_height_top"
-                 android:layout_gravity="bottom"
+    <FrameLayout android:id="@+id/circularprogressbar_container"
+                 android:layout_width="@dimen/playback_panel_height"
+                 android:layout_height="@dimen/playback_panel_height"
+                 android:layout_alignParentBottom="true"
                  android:paddingLeft="@dimen/padding_medium"
                  android:paddingRight="@dimen/padding_medium">
 
@@ -67,29 +67,27 @@
 
     <ImageView android:id="@+id/resolver_imageview"
                android:layout_width="@dimen/playback_panel_resolver_icon_size"
-               android:layout_height="@dimen/playback_panel_height_top"
-               android:layout_gravity="bottom"
-               android:layout_marginRight="@dimen/padding_small"
+               android:layout_height="@dimen/playback_panel_height"
+               android:layout_alignParentBottom="true"
+               android:layout_toRightOf="@id/circularprogressbar_container"
                android:src="@drawable/ic_spotify"/>
 
     <LinearLayout android:id="@+id/textview_container"
-                  android:layout_width="0dp"
-                  android:layout_height="@dimen/playback_panel_height_top"
-                  android:layout_weight="1"
-                  android:layout_gravity="bottom">
+                  android:layout_width="@dimen/playback_panel_textviews_maxwidth"
+                  android:layout_height="wrap_content">
 
         <TextView android:id="@+id/track_textview"
                   android:layout_width="wrap_content"
-                  android:layout_height="match_parent"
-                  android:gravity="center_vertical"
+                  android:layout_height="wrap_content"
+                  android:layout_gravity="center_vertical"
                   android:text="Timber Timbre"
                   android:textSize="@dimen/text_size_small"
                   android:textColor="@color/primary_textcolor_inverted"/>
 
         <TextView android:id="@+id/hyphen_textview"
                   android:layout_width="wrap_content"
-                  android:layout_height="match_parent"
-                  android:gravity="center_vertical"
+                  android:layout_height="wrap_content"
+                  android:layout_gravity="center_vertical"
                   android:text=" - "
                   android:singleLine="true"
                   android:textSize="@dimen/text_size_micro"
@@ -97,18 +95,20 @@
 
         <TextView android:id="@+id/artist_textview"
                   android:layout_width="wrap_content"
-                  android:layout_height="match_parent"
-                  android:gravity="center_vertical"
+                  android:layout_height="wrap_content"
+                  android:layout_gravity="center_vertical"
                   android:text="Beat the drum slowly"
                   android:singleLine="true"
                   android:textSize="@dimen/text_size_micro"
                   android:textColor="@color/primary_textcolor_inverted"/>
+
     </LinearLayout>
 
     <TextView android:id="@+id/completiontime_textview"
               android:layout_width="wrap_content"
-              android:layout_height="@dimen/playback_panel_height_top"
-              android:layout_gravity="bottom"
+              android:layout_height="@dimen/playback_panel_height"
+              android:layout_alignParentBottom="true"
+              android:layout_alignParentRight="true"
               android:gravity="center_vertical"
               android:paddingRight="@dimen/padding_large"
               android:paddingLeft="@dimen/padding_small"
@@ -116,4 +116,4 @@
               android:textSize="@dimen/text_size_micro"
               android:textColor="@color/primary_textcolor_inverted"/>
 
-</LinearLayout>
+</RelativeLayout>
