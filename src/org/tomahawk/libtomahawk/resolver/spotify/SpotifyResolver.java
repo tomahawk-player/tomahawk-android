@@ -17,6 +17,7 @@
  */
 package org.tomahawk.libtomahawk.resolver.spotify;
 
+import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
@@ -50,8 +51,6 @@ import java.util.ArrayList;
 public class SpotifyResolver extends Resolver {
 
     private final static String TAG = SpotifyResolver.class.getSimpleName();
-
-    private static final String SPOTIFY_PRETTY_NAME = "Spotify";
 
     private Messenger mToSpotifyMessenger = null;
 
@@ -105,7 +104,7 @@ public class SpotifyResolver extends Resolver {
      * Construct a new {@link SpotifyResolver}
      */
     public SpotifyResolver() {
-        super(SPOTIFY_PRETTY_NAME);
+        super(SpotifyAuthenticatorUtils.SPOTIFY_PRETTY_NAME);
 
         mId = TomahawkApp.PLUGINNAME_SPOTIFY;
         mIconResId = R.drawable.ic_spotify;
@@ -134,7 +133,7 @@ public class SpotifyResolver extends Resolver {
 
     @Override
     public String getCollectionName() {
-        return SPOTIFY_PRETTY_NAME;
+        return SpotifyAuthenticatorUtils.SPOTIFY_PRETTY_NAME;
     }
 
     @Override

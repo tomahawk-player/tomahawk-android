@@ -44,7 +44,7 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
     // Used for debug logging
     private final static String TAG = SpotifyAuthenticatorUtils.class.getSimpleName();
 
-    private static final String SPOTIFY_PRETTY_NAME = "Spotify";
+    public static final String SPOTIFY_PRETTY_NAME = "Spotify";
 
     private static final String STORAGE_KEY_USERNAME = "spotify_username";
 

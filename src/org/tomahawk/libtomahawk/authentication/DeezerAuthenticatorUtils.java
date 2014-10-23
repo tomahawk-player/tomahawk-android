@@ -38,7 +38,7 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
     // Used for debug logging
     private final static String TAG = DeezerAuthenticatorUtils.class.getSimpleName();
 
-    private static final String DEEZER_PRETTY_NAME = "Deezer";
+    public static final String DEEZER_PRETTY_NAME = "Deezer";
 
     private static final String STORAGE_KEY_ACCESS_TOKEN = "deezer_accesstoken";
 
