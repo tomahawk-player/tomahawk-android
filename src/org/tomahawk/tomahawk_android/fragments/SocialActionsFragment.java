@@ -258,6 +258,10 @@ public class SocialActionsFragment extends TomahawkFragment implements
             } else {
                 getListAdapter().setSegments(segments, getListView());
             }
+            if (mShowMode == SHOW_MODE_DASHBOARD
+                    && !getResources().getBoolean(R.bool.is_landscape)) {
+                getListView().setAreHeadersSticky(true);
+            }
 
             updateShowPlaystate();
         }
