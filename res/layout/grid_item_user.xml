@@ -53,7 +53,7 @@
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/padding_small"
             android:paddingBottom="@dimen/padding_small"
-            android:background="@drawable/selectable_background_tomahawk"
+            android:background="@drawable/selectable_background_tomahawk_opaque"
             android:gravity="center_vertical"
             android:orientation="vertical">
 

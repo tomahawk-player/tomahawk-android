@@ -24,7 +24,7 @@
               android:baselineAligned="false"
               android:orientation="vertical"
               android:descendantFocusability="afterDescendants"
-              android:background="@drawable/selectable_background_tomahawk_opaque">
+              android:background="@drawable/selectable_background_tomahawk_halftransparent">
 
     <View android:layout_width="match_parent"
           android:layout_height="@dimen/padding_superlarge"/>
