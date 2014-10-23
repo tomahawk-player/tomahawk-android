@@ -253,15 +253,32 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
             } else if (infoRequestData.getType()
                     == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
-                if (TextUtils.isEmpty(mUserId)) {
-                    return false;
-                }
-                HatchetPlaylistEntries playlistEntries = mHatchet.getUsersLovedItems(mUserId);
-                if (playlistEntries != null) {
-                    Playlist playlist = InfoSystemUtils.convertToPlaylist(playlistEntries.playlist);
-                    playlist = InfoSystemUtils.fillPlaylist(playlist, playlistEntries, true);
-                    infoRequestData.setResult(playlist);
-                    return true;
+                User userToBeFilled =
+                        (User) mItemsToBeFilled.get(infoRequestData.getRequestId());
+                if (userToBeFilled != null) {
+                    HatchetPlaylistEntries playlistEntries =
+                            mHatchet.getUsersLovedItems(userToBeFilled.getId());
+                    if (playlistEntries != null) {
+                        if (playlistEntries.playlistEntries.size() > 0) {
+                            InfoSystemUtils
+                                    .fillPlaylist(userToBeFilled.getFavorites(), playlistEntries,
+                                            false);
+                        }
+                        infoRequestData.setResult(userToBeFilled);
+                        return true;
+                    }
+                } else {
+                    if (TextUtils.isEmpty(mUserId)) {
+                        return false;
+                    }
+                    HatchetPlaylistEntries playlistEntries = mHatchet.getUsersLovedItems(mUserId);
+                    if (playlistEntries != null) {
+                        Playlist playlist = InfoSystemUtils
+                                .convertToPlaylist(playlistEntries.playlist);
+                        playlist = InfoSystemUtils.fillPlaylist(playlist, playlistEntries, true);
+                        infoRequestData.setResult(playlist);
+                        return true;
+                    }
                 }
 
             } else if (infoRequestData.getType()

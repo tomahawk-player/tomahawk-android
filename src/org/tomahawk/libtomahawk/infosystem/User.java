@@ -41,6 +41,8 @@ public class User implements TomahawkListItem {
 
     public static final String PLAYLIST_PLAYBACKLOG_ID = "_playbackLog";
 
+    public static final String PLAYLIST_FAVORTIES_ID = "_favorites";
+
     private static ConcurrentHashMap<String, User> sUsers
             = new ConcurrentHashMap<String, User>();
 
@@ -68,6 +70,8 @@ public class User implements TomahawkListItem {
 
     private Playlist mPlaybackLog;
 
+    private Playlist mFavorites;
+
     private Map<User, String> mFollowings = new HashMap<User, String>();
 
     private Map<User, String> mFollowers = new HashMap<User, String>();
@@ -79,10 +83,13 @@ public class User implements TomahawkListItem {
     /**
      * Construct a new {@link User} with the given id
      */
-    private User(String id) {
+    private User(String id, String name) {
         mId = id;
-        mPlaybackLog = Playlist.get(id, "", "");
-        mPlaybackLog.setId(id + User.PLAYLIST_PLAYBACKLOG_ID);
+        mName = name;
+        mPlaybackLog = Playlist.get(id + User.PLAYLIST_PLAYBACKLOG_ID,
+                name + TomahawkApp.getContext().getString(R.string.users_playbacklog_suffix), "");
+        mFavorites = Playlist.get(id + User.PLAYLIST_FAVORTIES_ID,
+                name + TomahawkApp.getContext().getString(R.string.users_favorites_suffix), "");
     }
 
     /**
@@ -91,8 +98,8 @@ public class User implements TomahawkListItem {
      *
      * @return {@link User} with the given id
      */
-    public static User get(String id) {
-        User user = new User(id);
+    public static User get(String id, String name) {
+        User user = new User(id, name);
         if (!sUsers.containsKey(user.getId())) {
             sUsers.put(user.getId(), user);
         }
@@ -165,12 +172,6 @@ public class User implements TomahawkListItem {
         return mId;
     }
 
-    public void setName(String name) {
-        mName = name;
-        mPlaybackLog.setName(
-                mName + TomahawkApp.getContext().getString(R.string.users_playbacklog_suffix));
-    }
-
     public String getAbout() {
         return mAbout;
     }
@@ -237,6 +238,10 @@ public class User implements TomahawkListItem {
 
     public Playlist getPlaybackLog() {
         return mPlaybackLog;
+    }
+
+    public Playlist getFavorites() {
+        return mFavorites;
     }
 
     public Map<User, String> getFollowings() {
