@@ -22,7 +22,9 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:baselineAligned="false"
-              android:orientation="vertical">
+              android:orientation="vertical"
+              android:descendantFocusability="afterDescendants"
+              android:background="@drawable/selectable_background_tomahawk_opaque">
 
     <View android:layout_width="match_parent"
           android:layout_height="@dimen/padding_superlarge"/>
@@ -31,9 +33,7 @@
                   android:layout_height="wrap_content"
                   android:paddingLeft="@dimen/padding_superlarge"
                   android:paddingRight="@dimen/padding_superlarge"
-                  android:orientation="horizontal"
-                  android:descendantFocusability="afterDescendants"
-                  android:background="@drawable/selectable_background_tomahawk_opaque">
+                  android:orientation="horizontal">
 
         <FrameLayout android:layout_width="32dp"
                      android:layout_height="32dp"
