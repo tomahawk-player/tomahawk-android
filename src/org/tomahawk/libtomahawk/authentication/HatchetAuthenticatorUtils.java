@@ -45,6 +45,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     private static final String TAG = HatchetAuthenticatorUtils.class.getSimpleName();
 
+    public static final String HATCHET_PRETTY_NAME = "Hatchet";
+
     public static final String ACCOUNT_TYPE = "is.hatchet.account";
 
     private static final String AUTH_TOKEN_HATCHET
@@ -67,8 +69,6 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     private static final String USER_ID_HATCHET
             = "is.hatchet.account.userid";
-
-    private static final String HATCHET_PRETTY_NAME = "Hatchet";
 
     private static final String HATCHET_AUTH_BASE_URL = "https://auth.hatchet.is/v1";
 

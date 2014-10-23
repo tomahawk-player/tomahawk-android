@@ -37,7 +37,7 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
     // Used for debug logging
     private final static String TAG = RdioAuthenticatorUtils.class.getSimpleName();
 
-    private static final String RDIO_PRETTY_NAME = "Rdio";
+    public static final String RDIO_PRETTY_NAME = "Rdio";
 
     private static final String STORAGE_KEY_EXTRA_TOKEN = "rdio_extratoken";
 
