@@ -150,6 +150,16 @@ public class UserPagerFragment extends PagerFragment {
         fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
         fragmentInfo.mIconResId = R.drawable.ic_action_history;
         fragmentInfoList.addFragmentInfo(fragmentInfo);
+        fragmentInfo = new FragmentInfo();
+        fragmentInfo.mClass = PlaylistEntriesFragment.class;
+        fragmentInfo.mTitle = getString(R.string.drawer_title_lovedtracks);
+        fragmentInfo.mBundle = new Bundle();
+        fragmentInfo.mBundle.putBoolean(ContentHeaderFragment.DONT_SHOW_HEADER, true);
+        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY,
+                mUser.getFavorites().getCacheKey());
+        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
+        fragmentInfo.mIconResId = R.drawable.ic_action_favorites;
+        fragmentInfoList.addFragmentInfo(fragmentInfo);
         SharedPreferences preferences = PreferenceManager
                 .getDefaultSharedPreferences(TomahawkApp.getContext());
         fragmentInfoList.setCurrent(preferences.getInt(USERPAGER_SELECTOR_POSITION, 0));

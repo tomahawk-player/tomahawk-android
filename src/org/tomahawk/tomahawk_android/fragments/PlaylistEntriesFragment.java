@@ -52,11 +52,14 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
         super.onResume();
 
         CollectionManager.getInstance().fetchPlaylists();
-        if (mPlaylist.getId().equals(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID)) {
-            CollectionManager.getInstance().fetchLovedItemsPlaylist();
-        }
         if (mUser != null) {
-            mCurrentRequestIds.add(InfoSystem.getInstance().resolvePlaybackLog(mUser));
+            if (mPlaylist == mUser.getPlaybackLog()) {
+                mCurrentRequestIds.add(InfoSystem.getInstance().resolvePlaybackLog(mUser));
+            } else if (mPlaylist == mUser.getFavorites()) {
+                mCurrentRequestIds.add(InfoSystem.getInstance().resolveFavorites(mUser));
+            }
+        } else if (mPlaylist.getId().equals(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID)) {
+            CollectionManager.getInstance().fetchLovedItemsPlaylist();
         }
         if (mContainerFragmentClass == null) {
             getActivity().setTitle("");

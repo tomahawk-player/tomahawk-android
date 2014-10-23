@@ -225,7 +225,6 @@ public class InfoSystemUtils {
             if (userInfo.totalPlays >= 0) {
                 user.setTotalPlays(userInfo.totalPlays);
             }
-            user.setName(userInfo.name);
             user.setNowPlayingTimeStamp(userInfo.nowplayingtimestamp);
             if (user.getImage() == null && image != null && !TextUtils.isEmpty(image.squareurl)) {
                 user.setImage(org.tomahawk.libtomahawk.collection.Image.get(image.squareurl, true,
@@ -240,7 +239,7 @@ public class InfoSystemUtils {
      */
     public static User convertToUser(HatchetUserInfo userInfo, HatchetTrackInfo track,
             HatchetArtistInfo artist, HatchetImage image) {
-        User user = User.get(userInfo.id);
+        User user = User.get(userInfo.id, userInfo.name);
         fillUser(user, userInfo, track, artist, image);
         return user;
     }

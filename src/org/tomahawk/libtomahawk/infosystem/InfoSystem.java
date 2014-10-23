@@ -261,6 +261,21 @@ public class InfoSystem {
      * @param user the User to enrich with data from the InfoPlugins
      * @return the created InfoRequestData's requestId
      */
+    public String resolveFavorites(User user) {
+        if (user != null) {
+            QueryParams params = new QueryParams();
+            params.userid = user.getId();
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS, params, user);
+        }
+        return null;
+    }
+
+    /**
+     * Fill up the given user with metadata fetched from all added InfoPlugins
+     *
+     * @param user the User to enrich with data from the InfoPlugins
+     * @return the created InfoRequestData's requestId
+     */
     public String resolveFollowings(User user) {
         if (user != null) {
             QueryParams params = new QueryParams();
