@@ -38,9 +38,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 
@@ -48,19 +45,42 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     private static final String TAG = HatchetAuthenticatorUtils.class.getSimpleName();
 
-    public static final String HATCHET_PRETTY_NAME = "Hatchet";
+    public static final String ACCOUNT_TYPE = "is.hatchet.account";
 
-    public static final String HATCHET_AUTH_BASE_URL = "https://auth.hatchet.is/v1";
+    private static final String AUTH_TOKEN_HATCHET
+            = "is.hatchet.account.authtoken";
 
-    public static final String PARAMS_GRANT_TYPE_PASSWORD = "password";
+    private static final String AUTH_TOKEN_EXPIRES_IN_HATCHET
+            = "is.hatchet.account.authtokenexpiresin";
 
-    public static final String PARAMS_GRANT_TYPE_REFRESHTOKEN = "refresh_token";
+    private static final String MANDELLA_ACCESS_TOKEN_HATCHET
+            = "is.hatchet.account.mandellaaccesstoken";
 
-    public static final String RESPONSE_TOKEN_TYPE_BEARER = "bearer";
+    private static final String MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET
+            = "is.hatchet.account.mandellaaccesstokenexpiresin";
 
-    public static final String RESPONSE_TOKEN_TYPE_CALUMET = "calumet";
+    private static final String CALUMET_ACCESS_TOKEN_HATCHET
+            = "is.hatchet.account.calumetaccesstoken";
 
-    public static final String RESPONSE_ERROR_INVALID_REQUEST = "invalid_request";
+    private static final String CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET
+            = "is.hatchet.account.calumetaccesstokenexpiresin";
+
+    private static final String USER_ID_HATCHET
+            = "is.hatchet.account.userid";
+
+    private static final String HATCHET_PRETTY_NAME = "Hatchet";
+
+    private static final String HATCHET_AUTH_BASE_URL = "https://auth.hatchet.is/v1";
+
+    private static final String PARAMS_GRANT_TYPE_PASSWORD = "password";
+
+    private static final String PARAMS_GRANT_TYPE_REFRESHTOKEN = "refresh_token";
+
+    private static final String RESPONSE_TOKEN_TYPE_BEARER = "bearer";
+
+    private static final String RESPONSE_TOKEN_TYPE_CALUMET = "calumet";
+
+    private static final String RESPONSE_ERROR_INVALID_REQUEST = "invalid_request";
 
     private static final int EXPIRING_LIMIT = 300;
 
@@ -79,15 +99,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 .setConverter(new JacksonConverter(InfoSystemUtils.getObjectMapper()))
                 .build();
         mHatchetAuth = restAdapter.create(HatchetAuth.class);
-
-        onInit();
     }
 
-    @Override
-    public void onInit() {
-    }
-
-    @Override
     public void onLogin(String username, String refreshToken,
             long refreshTokenExpiresIn, String accessToken, long accessTokenExpiresIn) {
         Log.d(TAG,
@@ -99,16 +112,11 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
             AccountManager am = AccountManager.get(TomahawkApp.getContext());
             if (am != null) {
                 am.addAccountExplicitly(account, null, new Bundle());
-                am.setUserData(account, AuthenticatorUtils.ACCOUNT_NAME,
-                        getAccountName());
-                am.setAuthToken(account, getAuthTokenName(),
-                        refreshToken);
-                am.setUserData(account, AuthenticatorUtils.AUTH_TOKEN_EXPIRES_IN_HATCHET,
+                am.setAuthToken(account, AUTH_TOKEN_HATCHET, refreshToken);
+                am.setUserData(account, AUTH_TOKEN_EXPIRES_IN_HATCHET,
                         String.valueOf(refreshTokenExpiresIn));
-                am.setUserData(account, AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_HATCHET,
-                        accessToken);
-                am.setUserData(account,
-                        AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
+                am.setUserData(account, MANDELLA_ACCESS_TOKEN_HATCHET, accessToken);
+                am.setUserData(account, MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
                         String.valueOf(accessTokenExpiresIn));
                 ensureAccessTokens();
             }
@@ -124,7 +132,6 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS);
     }
 
-    @Override
     public void onLoginFailed(int type, String message) {
         Log.d(TAG,
                 "Hatchet login failed :(, Type:" + type + ", Error: " + message);
@@ -133,7 +140,6 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 message);
     }
 
-    @Override
     public void onLogout() {
         Log.d(TAG, "Hatchet user logged out");
         AuthenticatorManager.broadcastConfigTestResult(getId(),
@@ -230,13 +236,40 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     @Override
     public void logout(Activity activity) {
-        final AccountManager am = AccountManager.get(TomahawkApp.getContext());
-        Account account = TomahawkUtils.getAccountByName(getAccountName());
-        if (am != null && account != null) {
-            am.removeAccount(account, null, null);
+        AccountManager am = AccountManager.get(TomahawkApp.getContext());
+        if (am != null && getAccount() != null) {
+            am.removeAccount(getAccount(), null, null);
         }
         mLoggedInUser = null;
         onLogout();
+    }
+
+    public boolean isLoggedIn() {
+        AccountManager am = AccountManager.get(TomahawkApp.getContext());
+        return am != null && getAccount() != null
+                && am.peekAuthToken(getAccount(), AUTH_TOKEN_HATCHET) != null;
+    }
+
+    public String getUserName() {
+        if (getAccount() != null) {
+            return getAccount().name;
+        }
+        return null;
+    }
+
+    public void storeUserId(String userId) {
+        AccountManager am = AccountManager.get(TomahawkApp.getContext());
+        if (am != null && getAccount() != null) {
+            am.setUserData(getAccount(), USER_ID_HATCHET, userId);
+        }
+    }
+
+    public String getUserId() {
+        AccountManager am = AccountManager.get(TomahawkApp.getContext());
+        if (am != null && getAccount() != null) {
+            return am.getUserData(getAccount(), USER_ID_HATCHET);
+        }
+        return null;
     }
 
     /**
@@ -247,30 +280,29 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
      * @return the calumet access token
      */
     public String ensureAccessTokens() {
-        Map<String, String> userData = new HashMap<String, String>();
-        userData.put(AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_HATCHET, null);
-        userData.put(AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET, null);
-        userData.put(AuthenticatorUtils.CALUMET_ACCESS_TOKEN_HATCHET, null);
-        userData.put(AuthenticatorUtils.CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET, null);
-        userData = TomahawkUtils
-                .getUserDataForAccount(userData, getAccountName());
-        String mandellaAccessToken = userData.get(AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_HATCHET);
+        String refreshToken = null;
+        String calumetAccessToken = null;
+        String mandellaAccessToken = null;
         int mandellaExpirationTime = -1;
-        String mandellaExpirationTimeString =
-                userData.get(AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET);
-        if (mandellaExpirationTimeString != null) {
-            mandellaExpirationTime = Integer.valueOf(mandellaExpirationTimeString);
-        }
-        String calumetAccessToken = userData.get(AuthenticatorUtils.CALUMET_ACCESS_TOKEN_HATCHET);
         int calumetExpirationTime = -1;
-        String calumetExpirationTimeString =
-                userData.get(AuthenticatorUtils.CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET);
-        if (calumetExpirationTimeString != null) {
-            calumetExpirationTime = Integer.valueOf(mandellaExpirationTimeString);
-        }
         int currentTime = (int) (System.currentTimeMillis() / 1000);
-        String refreshToken = TomahawkUtils.peekAuthTokenForAccount(getAccountName(),
-                getAuthTokenName());
+
+        AccountManager am = AccountManager.get(TomahawkApp.getContext());
+        if (am != null && getAccount() != null) {
+            mandellaAccessToken = am.getUserData(getAccount(), MANDELLA_ACCESS_TOKEN_HATCHET);
+            String mandellaExpirationTimeString =
+                    am.getUserData(getAccount(), MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET);
+            if (mandellaExpirationTimeString != null) {
+                mandellaExpirationTime = Integer.valueOf(mandellaExpirationTimeString);
+            }
+            calumetAccessToken = am.getUserData(getAccount(), CALUMET_ACCESS_TOKEN_HATCHET);
+            String calumetExpirationTimeString =
+                    am.getUserData(getAccount(), CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET);
+            if (calumetExpirationTimeString != null) {
+                calumetExpirationTime = Integer.valueOf(mandellaExpirationTimeString);
+            }
+            refreshToken = am.peekAuthToken(getAccount(), AUTH_TOKEN_HATCHET);
+        }
         if (refreshToken != null && (mandellaAccessToken == null
                 || currentTime > mandellaExpirationTime - EXPIRING_LIMIT)) {
             Log.d(TAG, "Mandella access token has expired, refreshing ...");
@@ -310,21 +342,20 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 authResponse = mHatchetAuth.getAccessToken(RESPONSE_TOKEN_TYPE_BEARER + " " + token,
                         tokenType);
             }
-            if (authResponse.access_token != null) {
+            AccountManager am = AccountManager.get(TomahawkApp.getContext());
+            if (am != null && getAccount() != null && authResponse.access_token != null) {
                 int currentTime = (int) (System.currentTimeMillis() / 1000);
                 long expirationTime = currentTime + authResponse.expires_in;
                 accessToken = authResponse.access_token;
-                Map<String, String> data = new HashMap<String, String>();
                 if (TomahawkUtils.containsIgnoreCase(tokenType, RESPONSE_TOKEN_TYPE_BEARER)) {
-                    data.put(AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_HATCHET, accessToken);
-                    data.put(AuthenticatorUtils.MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
+                    am.setUserData(getAccount(), MANDELLA_ACCESS_TOKEN_HATCHET, accessToken);
+                    am.setUserData(getAccount(), MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
                             String.valueOf(expirationTime));
                 } else {
-                    data.put(AuthenticatorUtils.CALUMET_ACCESS_TOKEN_HATCHET, accessToken);
-                    data.put(AuthenticatorUtils.CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
+                    am.setUserData(getAccount(), CALUMET_ACCESS_TOKEN_HATCHET, accessToken);
+                    am.setUserData(getAccount(), CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
                             String.valueOf(expirationTime));
                 }
-                TomahawkUtils.setUserDataForAccount(data, getAccountName());
                 Log.d(TAG, "Access token fetched, current time: '" + currentTime +
                         "', expiration time: '" + expirationTime + "'");
             } else {
@@ -353,6 +384,22 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     public void setLoggedInUser(User loggedInUser) {
         mLoggedInUser = loggedInUser;
+    }
+
+    /**
+     * Get the Hatchet account from the AccountManager
+     *
+     * @return the account object or null if none could be found
+     */
+    public static Account getAccount() {
+        AccountManager am = AccountManager.get(TomahawkApp.getContext());
+        if (am != null) {
+            Account[] accounts = am.getAccountsByType(ACCOUNT_TYPE);
+            if (accounts != null && accounts.length > 0) {
+                return accounts[0];
+            }
+        }
+        return null;
     }
 }
 

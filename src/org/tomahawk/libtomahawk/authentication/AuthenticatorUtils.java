@@ -17,43 +17,9 @@
  */
 package org.tomahawk.libtomahawk.authentication;
 
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-
-import android.accounts.Account;
 import android.app.Activity;
 
 public abstract class AuthenticatorUtils {
-
-    public static final String ACCOUNT_NAME
-            = "org.tomahawk.tomahawk_android.authenticator_name";
-
-    public static final String ACCOUNT_NAME_PREFIX
-            = "org.tomahawk.tomahawk_android.authenticator_name_";
-
-    public static final String ACCOUNT_TYPE = "org.tomahawk";
-
-    public static final String PACKAGE_PREFIX = "org.tomahawk.";
-
-    public static final String AUTH_TOKEN_SUFFIX = ".authtoken";
-
-    public static final String ACCESS_TOKEN_SUFFIX = ".accesstoken";
-
-    public static final String ACCESS_TOKEN_EXPIRES_IN_SUFFIX = ".accesstokenexpiresin";
-
-    public static final String AUTH_TOKEN_EXPIRES_IN_HATCHET
-            = "org.tomahawk.hatchet.authtokenexpiresin";
-
-    public static final String MANDELLA_ACCESS_TOKEN_HATCHET
-            = "org.tomahawk.hatchet.mandellaaccesstoken";
-
-    public static final String MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET
-            = "org.tomahawk.hatchet.mandellaaccesstokenexpiresin";
-
-    public static final String CALUMET_ACCESS_TOKEN_HATCHET
-            = "org.tomahawk.hatchet.calumetaccesstoken";
-
-    public static final String CALUMET_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET
-            = "org.tomahawk.hatchet.calumetaccesstokenexpiresin";
 
     private String mPrettyName;
 
@@ -76,32 +42,7 @@ public abstract class AuthenticatorUtils {
 
     public abstract int getIconResourceId();
 
-    public String getAccountName() {
-        return ACCOUNT_NAME_PREFIX + getId();
-    }
-
-    public String getAuthTokenName() {
-        return PACKAGE_PREFIX + getId() + AUTH_TOKEN_SUFFIX;
-    }
-
-    public String getAccessTokenName() {
-        return PACKAGE_PREFIX + getId() + ACCESS_TOKEN_SUFFIX;
-    }
-
-    public String getAccessTokenExpiresInName() {
-        return PACKAGE_PREFIX + getId() + ACCESS_TOKEN_EXPIRES_IN_SUFFIX;
-    }
-
     public abstract int getUserIdEditTextHintResId();
-
-    public abstract void onInit();
-
-    public abstract void onLogin(String username, String refreshToken,
-            long refreshTokenExpiresIn, String accessToken, long accessTokenExpiresIn);
-
-    public abstract void onLoginFailed(int type, String message);
-
-    public abstract void onLogout();
 
     public abstract void register(String name, String password, String email);
 
@@ -109,24 +50,16 @@ public abstract class AuthenticatorUtils {
 
     public abstract void logout(Activity activity);
 
+    public abstract boolean isLoggedIn();
+
+    public abstract String getUserName();
+
     public void login(String email, String password) {
         login(null, email, password);
     }
 
     public void logout() {
         logout(null);
-    }
-
-    public boolean isLoggedIn() {
-        return TomahawkUtils.peekAuthTokenForAccount(getAccountName(), getAuthTokenName()) != null;
-    }
-
-    public String getUserName() {
-        Account account = TomahawkUtils.getAccountByName(getAccountName());
-        if (account != null) {
-            return account.name;
-        }
-        return null;
     }
 
     public boolean doesAllowRegistration() {

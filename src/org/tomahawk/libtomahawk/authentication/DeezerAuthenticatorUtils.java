@@ -24,13 +24,12 @@ import com.deezer.sdk.network.connect.event.DialogListener;
 import com.deezer.sdk.network.request.event.DeezerError;
 import com.deezer.sdk.network.request.event.OAuthException;
 
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -39,9 +38,11 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
     // Used for debug logging
     private final static String TAG = DeezerAuthenticatorUtils.class.getSimpleName();
 
-    public static final String DEEZER_PRETTY_NAME = "Deezer";
+    private static final String DEEZER_PRETTY_NAME = "Deezer";
 
-    public static final String ACCOUNT_PRETTY_NAME = "Deezer-Account";
+    private static final String STORAGE_KEY_ACCESS_TOKEN = "deezer_accesstoken";
+
+    private static final String STORAGE_KEY_ACCESS_TOKEN_EXPIRESIN = "deezer_accesstokenexpiresin";
 
     private final static String APP_ID = "138751";
 
@@ -53,38 +54,25 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
         super(TomahawkApp.PLUGINNAME_DEEZER, DEEZER_PRETTY_NAME);
 
         mDeezerConnect = new DeezerConnect(APP_ID);
-        onInit();
-    }
-
-    @Override
-    public void onInit() {
         loginWithToken();
     }
 
-    @Override
-    public void onLogin(String username, String refreshToken,
-            long refreshTokenExpiresIn, String accessToken, long accessTokenExpiresIn) {
+    public void onLogin(String username, String accessToken, long accessTokenExpiresIn) {
         if (TextUtils.isEmpty(username)) {
             Log.d(TAG, "Deezer user was already logged in :)");
         } else {
             Log.d(TAG, "Deezer user '" + username + "' logged in successfully :)");
         }
-        Account account = new Account(ACCOUNT_PRETTY_NAME, ACCOUNT_TYPE);
-        AccountManager am = AccountManager.get(TomahawkApp.getContext());
-        if (am != null) {
-            am.addAccountExplicitly(account, null, new Bundle());
-            am.setUserData(account, AuthenticatorUtils.ACCOUNT_NAME,
-                    getAccountName());
-            am.setUserData(account, PACKAGE_PREFIX + getId() + ACCESS_TOKEN_SUFFIX, accessToken);
-            am.setUserData(account, getAccessTokenExpiresInName(),
-                    String.valueOf(accessTokenExpiresIn));
-        }
+        SharedPreferences.Editor editor = PreferenceManager
+                .getDefaultSharedPreferences(TomahawkApp.getContext()).edit();
+        editor.putString(STORAGE_KEY_ACCESS_TOKEN, accessToken);
+        editor.putLong(STORAGE_KEY_ACCESS_TOKEN_EXPIRESIN, accessTokenExpiresIn);
+        editor.commit();
         AuthenticatorManager.broadcastConfigTestResult(getId(),
                 AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS,
                 AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS);
     }
 
-    @Override
     public void onLoginFailed(int type, String message) {
         Log.d(TAG, "Deezer login failed :(, Type:" + type + ", Error: " + message);
         AuthenticatorManager.broadcastConfigTestResult(getId(),
@@ -92,7 +80,6 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
                 message);
     }
 
-    @Override
     public void onLogout() {
         Log.d(TAG, "Deezer user logged out");
         AuthenticatorManager.broadcastConfigTestResult(getId(),
@@ -102,10 +89,10 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
 
     @Override
     public boolean isLoggedIn() {
-        Account account = new Account(ACCOUNT_PRETTY_NAME, ACCOUNT_TYPE);
-        AccountManager am = AccountManager.get(TomahawkApp.getContext());
-        return am != null && am.getUserData(account, getAccessTokenName()) != null
-                && am.getUserData(account, getAccessTokenExpiresInName()) != null;
+        SharedPreferences preferences = PreferenceManager
+                .getDefaultSharedPreferences(TomahawkApp.getContext());
+        return preferences.contains(STORAGE_KEY_ACCESS_TOKEN)
+                && preferences.contains(STORAGE_KEY_ACCESS_TOKEN_EXPIRESIN);
     }
 
     @Override
@@ -135,16 +122,13 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
      */
     public void loginWithToken() {
         Log.d(TAG, "loginWithToken");
-        Account account = new Account(ACCOUNT_PRETTY_NAME, ACCOUNT_TYPE);
-        AccountManager am = AccountManager.get(TomahawkApp.getContext());
-        if (am != null) {
-            am.addAccountExplicitly(account, null, new Bundle());
-            String accessToken = am.getUserData(account, getAccessTokenName());
-            String accessTokenExpiresIn = am.getUserData(account, getAccessTokenExpiresInName());
-            if (accessToken != null && accessTokenExpiresIn != null) {
-                mDeezerConnect.setAccessToken(TomahawkApp.getContext(), accessToken);
-                mDeezerConnect.setAccessExpires(Long.valueOf(accessTokenExpiresIn));
-            }
+        SharedPreferences preferences = PreferenceManager
+                .getDefaultSharedPreferences(TomahawkApp.getContext());
+        String accessToken = preferences.getString(STORAGE_KEY_ACCESS_TOKEN, null);
+        long accessTokenExpiresIn = preferences.getLong(STORAGE_KEY_ACCESS_TOKEN_EXPIRESIN, -1);
+        if (accessToken != null && accessTokenExpiresIn != -1) {
+            mDeezerConnect.setAccessToken(TomahawkApp.getContext(), accessToken);
+            mDeezerConnect.setAccessExpires(accessTokenExpiresIn);
         }
     }
 
@@ -154,11 +138,11 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
     @Override
     public void logout(Activity activity) {
         mDeezerConnect.logout(activity);
-        final AccountManager am = AccountManager.get(TomahawkApp.getContext());
-        Account account = TomahawkUtils.getAccountByName(getAccountName());
-        if (am != null && account != null) {
-            am.removeAccount(account, null, null);
-        }
+        SharedPreferences.Editor editor = PreferenceManager
+                .getDefaultSharedPreferences(TomahawkApp.getContext()).edit();
+        editor.remove(STORAGE_KEY_ACCESS_TOKEN);
+        editor.remove(STORAGE_KEY_ACCESS_TOKEN_EXPIRESIN);
+        editor.commit();
         onLogout();
     }
 
@@ -175,8 +159,8 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
         public void onComplete(final Bundle values) {
             SessionStore sessionStore = new SessionStore();
             sessionStore.save(mDeezerConnect, TomahawkApp.getContext());
-            onLogin(values.getString("username"), null, 0,
-                    mDeezerConnect.getAccessToken(), (int) mDeezerConnect.getAccessExpires());
+            onLogin(values.getString("username"), mDeezerConnect.getAccessToken(),
+                    (int) mDeezerConnect.getAccessExpires());
         }
 
         @Override
@@ -206,5 +190,10 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
             onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
                     oAuthException.getLocalizedMessage());
         }
+    }
+
+    @Override
+    public String getUserName() {
+        return null;
     }
 }

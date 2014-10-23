@@ -20,8 +20,7 @@ package org.tomahawk.tomahawk_android.fragments;
 import com.uservoice.uservoicesdk.UserVoice;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
-import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
-import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticatorUtils;
+import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.R;
@@ -129,16 +128,18 @@ public class FakePreferenceFragment extends TomahawkListFragment
         mFakePreferenceGroups = new ArrayList<FakePreferenceGroup>();
         FakePreferenceGroup prefGroup = new FakePreferenceGroup(
                 getString(R.string.preferences_services));
+        AuthenticatorUtils authUtils = AuthenticatorManager.getInstance()
+                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
-                FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH,
-                TomahawkApp.PLUGINNAME_HATCHET, HatchetAuthenticatorUtils.HATCHET_PRETTY_NAME,
-                getString(R.string.preferences_hatchet_text,
-                        HatchetAuthenticatorUtils.HATCHET_PRETTY_NAME), R.drawable.ic_hatchet));
+                FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH, authUtils.getId(),
+                authUtils.getPrettyName(), getString(R.string.preferences_hatchet_text),
+                R.drawable.ic_hatchet));
+        authUtils = AuthenticatorManager.getInstance()
+                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_SPOTIFY);
         prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
-                FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH,
-                TomahawkApp.PLUGINNAME_SPOTIFY, SpotifyAuthenticatorUtils.SPOTIFY_PRETTY_NAME,
-                getString(R.string.preferences_spotify_text,
-                        SpotifyAuthenticatorUtils.SPOTIFY_PRETTY_NAME), R.drawable.ic_spotify));
+                FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH, authUtils.getId(),
+                authUtils.getPrettyName(), getString(R.string.preferences_spotify_text),
+                R.drawable.ic_spotify));
         for (ScriptResolver scriptResolver : PipeLine.getInstance().getScriptResolvers()) {
             if (!scriptResolver.getId().contains("-metadata")) {
                 prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
@@ -159,8 +160,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
                 FAKEPREFERENCEFRAGMENT_ID_SCROBBLEEVERYTHING,
                 FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING,
                 getString(R.string.preferences_playback_data),
-                getString(R.string.preferences_playback_data_text,
-                        HatchetAuthenticatorUtils.HATCHET_PRETTY_NAME)));
+                getString(R.string.preferences_playback_data_text)));
         prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
                 FakePreferenceGroup.FAKEPREFERENCE_TYPE_SPINNER,
                 FAKEPREFERENCEFRAGMENT_ID_PREFBITRATE,

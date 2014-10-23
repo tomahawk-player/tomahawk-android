@@ -18,22 +18,18 @@
 package org.tomahawk.libtomahawk.authentication;
 
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
-import org.tomahawk.libtomahawk.resolver.spotify.models.SpotifyLogin;
 import org.tomahawk.libtomahawk.resolver.spotify.SpotifyServiceUtils;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.resolver.spotify.models.SpotifyLogin;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.SpotifyService;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
@@ -48,10 +44,14 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
     // Used for debug logging
     private final static String TAG = SpotifyAuthenticatorUtils.class.getSimpleName();
 
-    public static final String SPOTIFY_PRETTY_NAME = "Spotify";
+    private static final String SPOTIFY_PRETTY_NAME = "Spotify";
+
+    private static final String STORAGE_KEY_USERNAME = "spotify_username";
+
+    private static final String STORAGE_KEY_BLOB = "spotify_blob";
 
     // String tags used to store Spotify's preferred bitrate
-    public static final String SPOTIFY_PREF_BITRATE
+    private static final String SPOTIFY_PREF_BITRATE
             = "org.tomahawk.tomahawk_android.spotify_pref_bitrate";
 
     public static final int SPOTIFY_PREF_BITRATE_MODE_LOW = 0;
@@ -89,11 +89,11 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
             try {
                 switch (msg.what) {
                     case SpotifyService.MSG_ONINIT:
-                        onInit();
+                        mInitialized = true;
+                        loginWithToken();
                         break;
                     case SpotifyService.MSG_ONLOGIN:
-                        onLogin(msg.getData().getString(SpotifyService.STRING_KEY), null, 0, null,
-                                0);
+                        onLogin(msg.getData().getString(SpotifyService.STRING_KEY), null);
                         break;
                     case SpotifyService.MSG_ONLOGINFAILED:
                         onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
@@ -106,7 +106,7 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
                         SpotifyLogin spotifyLogin = InfoSystemUtils.getObjectMapper()
                                 .readValue(msg.getData().getString(SpotifyService.STRING_KEY),
                                         SpotifyLogin.class);
-                        onLogin(spotifyLogin.username, spotifyLogin.blob, 0, null, 0);
+                        onLogin(spotifyLogin.username, spotifyLogin.blob);
                         break;
                     default:
                         super.handleMessage(msg);
@@ -149,39 +149,27 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
         }
     }
 
-    @Override
-    public void onInit() {
-        mInitialized = true;
-        loginWithToken();
-    }
-
-    @Override
-    public void onLogin(String username, String refreshToken,
-            long refreshTokenExpiresIn, String accessToken, long accessTokenExpiresIn) {
+    public void onLogin(String username, String blob) {
         if (TextUtils.isEmpty(username)) {
             Log.d(TAG, "Spotify user was already logged in :)");
         } else {
             Log.d(TAG, "Spotify user '" + username + "' logged in successfully :)");
         }
-        if (username != null && !TextUtils.isEmpty(username) && refreshToken != null
-                && !TextUtils.isEmpty(refreshToken)) {
+        if (username != null && !TextUtils.isEmpty(username) && blob != null
+                && !TextUtils.isEmpty(blob)) {
             Log.d(TAG, "Spotify blob is served and yummy");
-            Account account = new Account(username, ACCOUNT_TYPE);
-            AccountManager am = AccountManager.get(TomahawkApp.getContext());
-            if (am != null) {
-                am.addAccountExplicitly(account, null, new Bundle());
-                am.setUserData(account, AuthenticatorUtils.ACCOUNT_NAME,
-                        getAccountName());
-                am.setAuthToken(account, getAuthTokenName(), refreshToken);
-                updateBitrate();
-            }
+            SharedPreferences.Editor editor = PreferenceManager
+                    .getDefaultSharedPreferences(TomahawkApp.getContext()).edit();
+            editor.putString(STORAGE_KEY_USERNAME, username);
+            editor.putString(STORAGE_KEY_BLOB, blob);
+            editor.commit();
+            updateBitrate();
         }
         AuthenticatorManager.broadcastConfigTestResult(getId(),
                 AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS,
                 AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS);
     }
 
-    @Override
     public void onLoginFailed(int type, String message) {
         Log.d(TAG,
                 "Spotify login failed :(, Type:" + type + ", Error: " + message);
@@ -190,12 +178,19 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
                 message);
     }
 
-    @Override
     public void onLogout() {
         Log.d(TAG, "Spotify user logged out");
         AuthenticatorManager.broadcastConfigTestResult(getId(),
                 AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS,
                 AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_LOGOUT);
+    }
+
+    @Override
+    public boolean isLoggedIn() {
+        SharedPreferences preferences = PreferenceManager
+                .getDefaultSharedPreferences(TomahawkApp.getContext());
+        return preferences.contains(STORAGE_KEY_USERNAME)
+                && preferences.contains(STORAGE_KEY_BLOB);
     }
 
     public void updateBitrate() {
@@ -281,28 +276,24 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
     public void loginWithToken() {
         if (mToSpotifyMessenger != null) {
             if (mInitialized) {
-                Account account = TomahawkUtils.getAccountByName(getAccountName());
-                if (account != null) {
-                    String blob = TomahawkUtils.peekAuthTokenForAccount(getAccountName(),
-                            getAuthTokenName());
-                    String email = account.name;
-                    if (email != null && blob != null) {
-                        SpotifyLogin spotifyLogin = new SpotifyLogin();
-                        spotifyLogin.username = email;
-                        spotifyLogin.blob = blob;
-                        try {
-                            String jsonString =
-                                    InfoSystemUtils.getObjectMapper().writeValueAsString(
-                                            spotifyLogin);
-                            SpotifyServiceUtils.sendMsg(mToSpotifyMessenger,
-                                    SpotifyService.MSG_LOGIN, jsonString);
-                        } catch (IOException e) {
-                            Log.e(TAG, "loginWithToken: " + e.getClass() + ": "
-                                    + e.getLocalizedMessage());
-                            onLoginFailed(
-                                    AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
-                                    e.getClass() + ": " + e.getLocalizedMessage());
-                        }
+                SharedPreferences preferences = PreferenceManager
+                        .getDefaultSharedPreferences(TomahawkApp.getContext());
+                String username = preferences.getString(STORAGE_KEY_USERNAME, null);
+                String blob = preferences.getString(STORAGE_KEY_BLOB, null);
+                if (username != null && blob != null) {
+                    SpotifyLogin spotifyLogin = new SpotifyLogin();
+                    spotifyLogin.username = username;
+                    spotifyLogin.blob = blob;
+                    try {
+                        String jsonString =
+                                InfoSystemUtils.getObjectMapper().writeValueAsString(spotifyLogin);
+                        SpotifyServiceUtils.sendMsg(mToSpotifyMessenger,
+                                SpotifyService.MSG_LOGIN, jsonString);
+                    } catch (IOException e) {
+                        Log.e(TAG, "loginWithToken: " + e.getClass() + ": "
+                                + e.getLocalizedMessage());
+                        onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
+                                e.getClass() + ": " + e.getLocalizedMessage());
                     }
                 }
             }
@@ -322,12 +313,11 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
     public void logout(Activity activity) {
         if (mToSpotifyMessenger != null) {
             if (mInitialized) {
-                final AccountManager am = AccountManager.get(TomahawkApp.getContext());
-                Account account = TomahawkUtils.getAccountByName(getAccountName());
-                if (am != null && account != null) {
-                    am.removeAccount(TomahawkUtils.getAccountByName(getAccountName()),
-                            null, null);
-                }
+                SharedPreferences.Editor editor = PreferenceManager
+                        .getDefaultSharedPreferences(TomahawkApp.getContext()).edit();
+                editor.remove(STORAGE_KEY_USERNAME);
+                editor.remove(STORAGE_KEY_BLOB);
+                editor.commit();
                 SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_LOGOUT);
             }
         } else {
@@ -336,5 +326,12 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
             TomahawkApp.getContext().sendBroadcast(
                     new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
         }
+    }
+
+    @Override
+    public String getUserName() {
+        SharedPreferences preferences = PreferenceManager
+                .getDefaultSharedPreferences(TomahawkApp.getContext());
+        return preferences.getString(STORAGE_KEY_USERNAME, "");
     }
 }

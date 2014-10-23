@@ -148,4 +148,5 @@
   <string name="button_open_queue_text">Queue</string>
   <string name="button_close">Close</string>
   <string name="view_album">View Album</string>
+  <string name="authenticator_label" translate="false">Hatchet</string>
 </resources>

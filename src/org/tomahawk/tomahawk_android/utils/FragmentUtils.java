@@ -18,7 +18,7 @@
 package org.tomahawk.tomahawk_android.utils;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
-import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
+import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
@@ -27,9 +27,7 @@ import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
-import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -45,9 +43,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * This class wraps all functionality that handles the switching of {@link Fragment}s, whenever the
  * user navigates to a new {@link Fragment}. It also implements a custom back stack for every hub,
@@ -60,17 +55,13 @@ public class FragmentUtils {
 
     public static void addRootFragment(TomahawkMainActivity activity,
             FragmentManager fragmentManager) {
-        Map<String, String> data = new HashMap<String, String>();
-        data.put(HatchetInfoPlugin.HATCHET_ACCOUNTDATA_USER_ID, null);
-        AuthenticatorUtils utils = AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        TomahawkUtils.getUserDataForAccount(data, utils.getAccountName());
-        String mUserId = data.get(HatchetInfoPlugin.HATCHET_ACCOUNTDATA_USER_ID);
+        HatchetAuthenticatorUtils hatchetAuthUtils =
+                (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                        .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+        String mUserId = hatchetAuthUtils.getUserId();
         FragmentTransaction ft = fragmentManager.beginTransaction();
         if (mUserId != null) {
-            String userName = AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET)
-                    .getUserName();
+            String userName = hatchetAuthUtils.getUserName();
             User loggedInUser = User.get(mUserId);
             loggedInUser.setName(userName);
             Bundle bundle = new Bundle();
