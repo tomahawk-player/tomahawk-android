@@ -19,7 +19,7 @@
  */
 -->
 <account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
-                       android:accountType="org.tomahawk"
-                       android:icon="@drawable/ic_launcher"
-                       android:smallIcon="@drawable/ic_launcher"
-                       android:label="Tomahawk"/>
+                       android:accountType="is.hatchet.account"
+                       android:icon="@drawable/ic_hatchet"
+                       android:smallIcon="@drawable/ic_hatchet"
+                       android:label="@string/authenticator_label"/>

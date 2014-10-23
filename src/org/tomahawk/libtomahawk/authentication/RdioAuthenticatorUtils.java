@@ -21,15 +21,12 @@ import com.rdio.android.api.OAuth1WebViewActivity;
 import com.rdio.android.api.Rdio;
 import com.rdio.android.api.RdioListener;
 
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
-import android.text.TextUtils;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.Log;
 
@@ -40,49 +37,35 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
     // Used for debug logging
     private final static String TAG = RdioAuthenticatorUtils.class.getSimpleName();
 
-    public static final String RDIO_PRETTY_NAME = "Rdio";
+    private static final String RDIO_PRETTY_NAME = "Rdio";
 
-    public static final String ACCOUNT_PRETTY_NAME = "Rdio-Account";
+    private static final String STORAGE_KEY_EXTRA_TOKEN = "rdio_extratoken";
 
-    public static final String RDIO_APPKEY = "Z3FiN3oyejhoNmU3ZTc2emNicTl3ZHlw";
+    private static final String STORAGE_KEY_EXTRA_TOKEN_SECRET = "rdio_extratokensecret";
 
-    public static final String RDIO_APPKEYSECRET = "YlhyRndVZUY5cQ==";
+    private static final String RDIO_APPKEY = "Z3FiN3oyejhoNmU3ZTc2emNicTl3ZHlw";
+
+    private static final String RDIO_APPKEYSECRET = "YlhyRndVZUY5cQ==";
 
     private Rdio mRdio;
 
     public RdioAuthenticatorUtils() {
         super(TomahawkApp.PLUGINNAME_RDIO, RDIO_PRETTY_NAME);
 
-        onInit();
-    }
-
-    @Override
-    public void onInit() {
         loginWithToken();
     }
 
-    @Override
-    public void onLogin(String username, String refreshToken,
-            long refreshTokenExpiresIn, String accessToken, long accessTokenExpiresIn) {
-        if (TextUtils.isEmpty(username)) {
-            Log.d(TAG, "Rdio user was already logged in :)");
-        } else {
-            Log.d(TAG, "Rdio user '" + username + "' logged in successfully :)");
-        }
-        Account account = new Account(ACCOUNT_PRETTY_NAME, ACCOUNT_TYPE);
-        AccountManager am = AccountManager.get(TomahawkApp.getContext());
-        if (am != null) {
-            am.addAccountExplicitly(account, null, new Bundle());
-            am.setUserData(account, AuthenticatorUtils.ACCOUNT_NAME,
-                    getAccountName());
-            am.setUserData(account, OAuth1WebViewActivity.EXTRA_TOKEN, refreshToken);
-            am.setUserData(account, OAuth1WebViewActivity.EXTRA_TOKEN_SECRET,
-                    accessToken);
-        }
+    public void onLogin(String extraToken, String extraTokenSecret) {
+        Log.d(TAG, "Rdio user logged in successfully :)");
+        SharedPreferences.Editor editor = PreferenceManager
+                .getDefaultSharedPreferences(TomahawkApp.getContext()).edit();
+        editor.putString(STORAGE_KEY_EXTRA_TOKEN, extraToken);
+        editor.putString(STORAGE_KEY_EXTRA_TOKEN_SECRET, extraTokenSecret);
+        editor.commit();
         try {
             mRdio = new Rdio(new String(Base64.decode(RDIO_APPKEY, Base64.DEFAULT), "UTF-8"),
                     new String(Base64.decode(RDIO_APPKEYSECRET, Base64.DEFAULT), "UTF-8"),
-                    refreshToken, accessToken, TomahawkApp.getContext(), this);
+                    extraToken, extraTokenSecret, TomahawkApp.getContext(), this);
             mRdio.prepareForPlayback();
             AuthenticatorManager.broadcastConfigTestResult(getId(),
                     AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS,
@@ -94,7 +77,6 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
         }
     }
 
-    @Override
     public void onLoginFailed(int type, String message) {
         Log.d(TAG, "Rdio login failed :(, Type:" + type + ", Error: " + message);
         AuthenticatorManager.broadcastConfigTestResult(getId(),
@@ -102,7 +84,6 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
                 message);
     }
 
-    @Override
     public void onLogout() {
         Log.d(TAG, "Rdio user logged out");
         AuthenticatorManager.broadcastConfigTestResult(getId(),
@@ -151,25 +132,23 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
      * Try to login to rdio with stored credentials
      */
     public void loginWithToken() {
-        Account account = new Account(ACCOUNT_PRETTY_NAME, ACCOUNT_TYPE);
-        AccountManager am = AccountManager.get(TomahawkApp.getContext());
-        String accessToken = null;
-        String accessTokenSecret = null;
-        if (am != null) {
-            accessToken = am.getUserData(account, OAuth1WebViewActivity.EXTRA_TOKEN);
-            accessTokenSecret = am.getUserData(account, OAuth1WebViewActivity.EXTRA_TOKEN_SECRET);
-        }
+        SharedPreferences preferences = PreferenceManager
+                .getDefaultSharedPreferences(TomahawkApp.getContext());
+        String extraToken = preferences.getString(STORAGE_KEY_EXTRA_TOKEN, null);
+        String extraTokenSecret = preferences.getString(STORAGE_KEY_EXTRA_TOKEN_SECRET, null);
         try {
-            if (accessToken == null || accessTokenSecret == null) {
+            if (extraToken == null || extraTokenSecret == null) {
                 // If either one is null, reset both of them
-                if (am != null) {
-                    am.removeAccount(account, null, null);
-                }
+                SharedPreferences.Editor editor = PreferenceManager
+                        .getDefaultSharedPreferences(TomahawkApp.getContext()).edit();
+                editor.remove(STORAGE_KEY_EXTRA_TOKEN);
+                editor.remove(STORAGE_KEY_EXTRA_TOKEN_SECRET);
+                editor.commit();
             } else {
                 Log.d(TAG, "Found cached credentials:");
                 mRdio = new Rdio(new String(Base64.decode(RDIO_APPKEY, Base64.DEFAULT), "UTF-8"),
                         new String(Base64.decode(RDIO_APPKEYSECRET, Base64.DEFAULT), "UTF-8"),
-                        accessToken, accessTokenSecret, TomahawkApp.getContext(), this);
+                        extraToken, extraTokenSecret, TomahawkApp.getContext(), this);
                 mRdio.prepareForPlayback();
             }
         } catch (UnsupportedEncodingException e) {
@@ -182,20 +161,20 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
      */
     @Override
     public void logout(Activity activity) {
-        final AccountManager am = AccountManager.get(TomahawkApp.getContext());
-        Account account = TomahawkUtils.getAccountByName(getAccountName());
-        if (am != null && account != null) {
-            am.removeAccount(account, null, null);
-        }
+        SharedPreferences.Editor editor = PreferenceManager
+                .getDefaultSharedPreferences(TomahawkApp.getContext()).edit();
+        editor.remove(STORAGE_KEY_EXTRA_TOKEN);
+        editor.remove(STORAGE_KEY_EXTRA_TOKEN_SECRET);
+        editor.commit();
         onLogout();
     }
 
     @Override
     public boolean isLoggedIn() {
-        Account account = new Account(ACCOUNT_PRETTY_NAME, ACCOUNT_TYPE);
-        AccountManager am = AccountManager.get(TomahawkApp.getContext());
-        return am != null && am.getUserData(account, OAuth1WebViewActivity.EXTRA_TOKEN) != null
-                && am.getUserData(account, OAuth1WebViewActivity.EXTRA_TOKEN_SECRET) != null;
+        SharedPreferences preferences = PreferenceManager
+                .getDefaultSharedPreferences(TomahawkApp.getContext());
+        return preferences.contains(STORAGE_KEY_EXTRA_TOKEN)
+                && preferences.contains(STORAGE_KEY_EXTRA_TOKEN_SECRET);
     }
 
     @Override
@@ -218,13 +197,18 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
      * @see com.rdio.android.api.RdioListener#onRdioAuthorised(java.lang.String, java.lang.String)
      */
     @Override
-    public void onRdioAuthorised(String accessToken, String accessTokenSecret) {
-        Log.d(TAG, "Rdio Application authorised, saving access token & secret.");
+    public void onRdioAuthorised(String extraToken, String extraTokenSecret) {
+        Log.d(TAG, "Rdio Application authorised, saving extra token & secret.");
 
-        onLogin(ACCOUNT_PRETTY_NAME, accessToken, 0, accessTokenSecret, 0);
+        onLogin(extraToken, extraTokenSecret);
     }
 
     public Rdio getRdio() {
         return mRdio;
+    }
+
+    @Override
+    public String getUserName() {
+        return null;
     }
 }

@@ -90,7 +90,8 @@ public class TomahawkAuthenticator extends AbstractAccountAuthenticator {
         if (authToken != null && authToken.length() > 0) {
             final Bundle result = new Bundle();
             result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-            result.putString(AccountManager.KEY_ACCOUNT_TYPE, AuthenticatorUtils.ACCOUNT_TYPE);
+            result.putString(AccountManager.KEY_ACCOUNT_TYPE,
+                    HatchetAuthenticatorUtils.ACCOUNT_TYPE);
             result.putString(AccountManager.KEY_AUTHTOKEN, authToken);
             return result;
         }

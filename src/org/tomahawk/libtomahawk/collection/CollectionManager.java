@@ -431,8 +431,10 @@ public class CollectionManager {
         } else if (data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
             Playlist fetchedList = data.getResult(Playlist.class);
             if (fetchedList != null) {
-                String userName = AuthenticatorManager.getInstance()
-                        .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET).getUserName();
+                HatchetAuthenticatorUtils hatchetAuthUtils =
+                        (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+                String userName = hatchetAuthUtils.getUserName();
                 fetchedList.setName(userName + TomahawkApp.getContext()
                         .getString(R.string.users_favorites_suffix));
                 fetchedList.setId(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID);

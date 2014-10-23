@@ -121,8 +121,6 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
     public static final double HATCHET_SEARCHITEM_MIN_SCORE = 5.0;
 
-    public static final String HATCHET_ACCOUNTDATA_USER_ID = "hatchet_preference_user_id";
-
     public static final int SOCIALACTIONS_LIMIT = 20;
 
     public static final int FRIENDSFEED_LIMIT = 50;
@@ -633,14 +631,11 @@ public class HatchetInfoPlugin extends InfoPlugin {
      * Get the user id of the currently logged in Hatchet user
      */
     private void getUserid() throws IOException, NoSuchAlgorithmException, KeyManagementException {
-        Map<String, String> data = new HashMap<String, String>();
-        data.put(HATCHET_ACCOUNTDATA_USER_ID, null);
-        AuthenticatorUtils utils = AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        data = TomahawkUtils.getUserDataForAccount(data, utils.getAccountName());
-        mUserId = data.get(HATCHET_ACCOUNTDATA_USER_ID);
-        String userName = AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET).getUserName();
+        HatchetAuthenticatorUtils hatchetAuthUtils =
+                (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                        .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+        mUserId = hatchetAuthUtils.getUserId();
+        String userName = hatchetAuthUtils.getUserName();
         if (mUserId == null && userName != null) {
             // If we couldn't fetch the user's id from the account's userData, get it from the API.
             HatchetUsers users = mHatchet.getUsers(null, userName, null, null);
@@ -648,9 +643,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 HatchetUserInfo user = TomahawkUtils.carelessGet(users.users, 0);
                 if (user != null) {
                     mUserId = user.id;
-                    data = new HashMap<String, String>();
-                    data.put(HATCHET_ACCOUNTDATA_USER_ID, mUserId);
-                    TomahawkUtils.setUserDataForAccount(data, utils.getAccountName());
+                    hatchetAuthUtils.storeUserId(mUserId);
                 }
             }
         }
