@@ -299,10 +299,11 @@ public class TomahawkMainActivity extends ActionBarActivity
             } else if (PlaybackService.BROADCAST_PLAYSTATECHANGED.equals(intent.getAction())) {
                 if (mPlaybackService != null && mPlaybackService.isPlaying()) {
                     mPlaybackPanel.updateSeekBarPosition();
+                    mPlaybackPanel.updatePlayPauseState(true);
                 } else {
                     mPlaybackPanel.stopUpdates();
+                    mPlaybackPanel.updatePlayPauseState(false);
                 }
-                mPlaybackPanel.updatePlayPauseState(mPlaybackService.isPlaying());
             }
         }
     }
