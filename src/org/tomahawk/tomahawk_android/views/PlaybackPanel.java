@@ -59,6 +59,8 @@ public class PlaybackPanel extends FrameLayout {
 
     private Point mStartingPoint;
 
+    private Point mExpandedPanelPoint;
+
     private TextView mArtistTextView;
 
     private TextView mTrackTextView;
@@ -125,17 +127,6 @@ public class PlaybackPanel extends FrameLayout {
         mSlidingUpPanelView = slidingUpPanelView;
 
         mTextViewContainer = (LinearLayout) findViewById(R.id.textview_container);
-        View content = mSlidingUpPanelView.findViewById(R.id.content);
-        if (content != null) {
-            Resources resources = TomahawkApp.getContext().getResources();
-            int panelHeight = resources.getDimensionPixelSize(R.dimen.playback_panel_height);
-            int y = content.getHeight() - mTextViewContainer.getHeight() / 2 - panelHeight / 2;
-            int resolverIconSize =
-                    resources.getDimensionPixelSize(R.dimen.playback_panel_resolver_icon_size);
-            int paddingSmall = resources.getDimensionPixelSize(R.dimen.padding_small);
-            int x = resolverIconSize + panelHeight + paddingSmall;
-            mStartingPoint = new Point(x, y);
-        }
         mArtistTextView = (TextView) mTextViewContainer.findViewById(R.id.artist_textview);
         mTrackTextView = (TextView) mTextViewContainer.findViewById(R.id.track_textview);
         mCompletionTimeTextView = (TextView) findViewById(R.id.completiontime_textview);
@@ -165,17 +156,48 @@ public class PlaybackPanel extends FrameLayout {
                 updatePlayPauseState(mPlaybackService.isPlaying());
             }
 
-            mArtistTextView.getViewTreeObserver()
-                    .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            calculateAnimationPoints();
+        }
+    }
+
+    private void calculateAnimationPoints() {
+        final View content = mSlidingUpPanelView.findViewById(R.id.content);
+        if (content != null) {
+            content.getViewTreeObserver().addOnGlobalLayoutListener(
+                    new ViewTreeObserver.OnGlobalLayoutListener() {
                         @Override
                         public void onGlobalLayout() {
-                            setupTextViewAnimation();
+                            Resources resources = TomahawkApp.getContext().getResources();
+                            int panelHeight = resources
+                                    .getDimensionPixelSize(R.dimen.playback_panel_height);
+                            int resolverIconSize = resources.getDimensionPixelSize(
+                                    R.dimen.playback_panel_resolver_icon_size);
+                            int paddingSmall =
+                                    resources.getDimensionPixelSize(R.dimen.padding_small);
+                            mStartingPoint = new Point(
+                                    resolverIconSize + panelHeight + paddingSmall,
+                                    content.getHeight() - mTextViewContainer.getHeight() / 2
+                                            - panelHeight / 2);
+
+                            int padding = resources.getDimensionPixelSize(R.dimen.padding_medium);
+                            int panelBottom = resources
+                                    .getDimensionPixelSize(R.dimen.playback_clear_space_bottom);
+                            float textViewWidthSum =
+                                    mTextViewContainer.findViewById(R.id.artist_textview).getWidth()
+                                            + mTextViewContainer.findViewById(R.id.hyphen_textview)
+                                            .getWidth()
+                                            + mTextViewContainer.findViewById(R.id.track_textview)
+                                            .getWidth();
+                            mExpandedPanelPoint = new Point(
+                                    content.getHeight() + padding - panelBottom,
+                                    (int) (content.getWidth() - textViewWidthSum * 1.5f) / 2);
+
+                            setupAnimations();
+
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                mTextViewContainer.getViewTreeObserver()
-                                        .removeOnGlobalLayoutListener(this);
+                                content.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                             } else {
-                                mTextViewContainer.getViewTreeObserver()
-                                        .removeGlobalOnLayoutListener(this);
+                                content.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                             }
                         }
                     });
@@ -272,35 +294,29 @@ public class PlaybackPanel extends FrameLayout {
         }
     }
 
-    private void setupTextViewAnimation() {
-        if (mTextViewContainer != null && !getResources().getBoolean(R.bool.is_landscape)) {
+    private void setupAnimations() {
+        if (mTextViewContainer != null) {
             mTextViewContainer.setX(mStartingPoint.x);
             mTextViewContainer.setY(mStartingPoint.y);
             mTextViewContainer.setScaleX(1f);
             mTextViewContainer.setScaleY(1f);
             mTextViewContainer.setPivotX(0f);
             mTextViewContainer.setPivotY(0f);
-            View content = mSlidingUpPanelView.findViewById(R.id.content);
-            if (content != null) {
-                Resources resources = TomahawkApp.getContext().getResources();
-                int padding = resources.getDimensionPixelSize(R.dimen.padding_medium);
-                int panelBottom = resources
-                        .getDimensionPixelSize(R.dimen.playback_clear_space_bottom);
-                int y = content.getHeight() + padding - panelBottom;
-                float textViewWidthSum =
-                        mTextViewContainer.findViewById(R.id.artist_textview).getWidth()
-                                + mTextViewContainer.findViewById(R.id.hyphen_textview).getWidth()
-                                + mTextViewContainer.findViewById(R.id.track_textview).getWidth();
-                int x = (int) (content.getWidth() - textViewWidthSum * 1.5f) / 2;
-                PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat("y", y);
-                PropertyValuesHolder pvhX = PropertyValuesHolder.ofFloat("x", x);
-                PropertyValuesHolder pvhScaleX = PropertyValuesHolder.ofFloat("scaleX", 1.5f);
-                PropertyValuesHolder pvhScaleY = PropertyValuesHolder.ofFloat("scaleY", 1.5f);
-                mTextViewContainerAnimation =
-                        ObjectAnimator.ofPropertyValuesHolder(mTextViewContainer, pvhX, pvhY,
-                                pvhScaleX, pvhScaleY).setDuration(10000);
-                mTextViewContainerAnimation.setInterpolator(new LinearInterpolator());
-                mTextViewContainerAnimation.setCurrentPlayTime(mLastPlayTime);
+            if (!getResources().getBoolean(R.bool.is_landscape)) {
+                View content = mSlidingUpPanelView.findViewById(R.id.content);
+                if (content != null) {
+                    PropertyValuesHolder pvhY =
+                            PropertyValuesHolder.ofFloat("y", mExpandedPanelPoint.x);
+                    PropertyValuesHolder pvhX =
+                            PropertyValuesHolder.ofFloat("x", mExpandedPanelPoint.y);
+                    PropertyValuesHolder pvhScaleX = PropertyValuesHolder.ofFloat("scaleX", 1.5f);
+                    PropertyValuesHolder pvhScaleY = PropertyValuesHolder.ofFloat("scaleY", 1.5f);
+                    mTextViewContainerAnimation =
+                            ObjectAnimator.ofPropertyValuesHolder(mTextViewContainer, pvhX, pvhY,
+                                    pvhScaleX, pvhScaleY).setDuration(10000);
+                    mTextViewContainerAnimation.setInterpolator(new LinearInterpolator());
+                    mTextViewContainerAnimation.setCurrentPlayTime(mLastPlayTime);
+                }
             }
         }
     }
