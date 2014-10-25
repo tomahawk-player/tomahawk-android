@@ -41,7 +41,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.view.View;
 
 /**
  * This class wraps all functionality that handles the switching of {@link Fragment}s, whenever the
@@ -144,10 +143,6 @@ public class FragmentUtils {
     public static void replace(TomahawkMainActivity activity, FragmentManager fragmentManager,
             Class clss, Bundle bundle, int frameResId) {
         FragmentTransaction ft = fragmentManager.beginTransaction();
-        View contextMenu = activity.findViewById(R.id.context_menu_framelayout);
-        if (contextMenu != null) {
-            fragmentManager.popBackStackImmediate();
-        }
         ft.replace(frameResId,
                 Fragment.instantiate(activity, clss.getName(), bundle),
                 FRAGMENT_TAG);
@@ -162,10 +157,6 @@ public class FragmentUtils {
     public static void add(TomahawkMainActivity activity, FragmentManager fragmentManager,
             Class clss, Bundle bundle, boolean inPlaybackFragment) {
         FragmentTransaction ft = fragmentManager.beginTransaction();
-        View contextMenu = activity.findViewById(R.id.context_menu_framelayout);
-        if (contextMenu != null) {
-            fragmentManager.popBackStackImmediate();
-        }
         if (inPlaybackFragment) {
             ft.add(R.id.playback_fragment_frame,
                     Fragment.instantiate(activity, clss.getName(), bundle),
