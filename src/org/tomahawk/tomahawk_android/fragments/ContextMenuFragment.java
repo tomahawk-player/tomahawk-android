@@ -49,7 +49,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -229,12 +228,13 @@ public class ContextMenuFragment extends Fragment {
         TextView closeButtonText = (TextView) closeButton.findViewById(R.id.close_button_text);
         closeButtonText.setText(getString(R.string.button_close).toUpperCase());
 
-        setupClickListeners(getActivity(), getView(), mTomahawkListItem, mCollection, new Action() {
-            @Override
-            public void run() {
-                getActivity().getSupportFragmentManager().popBackStack();
-            }
-        });
+        setupClickListeners((TomahawkMainActivity) getActivity(), getView(), mTomahawkListItem,
+                mCollection, new Action() {
+                    @Override
+                    public void run() {
+                        getActivity().getSupportFragmentManager().popBackStack();
+                    }
+                });
 
         //Set up textviews
         if (mTomahawkListItem instanceof Album) {
@@ -277,20 +277,6 @@ public class ContextMenuFragment extends Fragment {
                 && !TextUtils.isEmpty(mTomahawkListItem.getAlbum().getName()))) {
             View viewAlbumContainer = getView().findViewById(R.id.view_album_container);
             viewAlbumContainer.setVisibility(View.VISIBLE);
-            View viewAlbumButton = viewAlbumContainer.findViewById(R.id.view_album_button);
-            viewAlbumButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    getActivity().getSupportFragmentManager().popBackStack();
-                    FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                            getActivity().getSupportFragmentManager(), TracksFragment.class,
-                            mTomahawkListItem.getAlbum().getCacheKey(),
-                            TomahawkFragment.TOMAHAWK_ALBUM_KEY, mCollection);
-                }
-            });
-            TextView viewAlbumButtonText =
-                    (TextView) viewAlbumContainer.findViewById(R.id.view_album_button_text);
-            viewAlbumButtonText.setText(getString(R.string.view_album).toUpperCase());
             ImageView albumImageView =
                     (ImageView) viewAlbumContainer.findViewById(R.id.album_imageview);
             if (mTomahawkListItem.getAlbum().getImage() != null) {
@@ -314,7 +300,7 @@ public class ContextMenuFragment extends Fragment {
         }
     }
 
-    public static void setupClickListeners(final FragmentActivity activity, View view,
+    public static void setupClickListeners(final TomahawkMainActivity activity, View view,
             final TomahawkListItem item, final Collection collection, final Action actionOnDone) {
         if (item instanceof Album) {
             View addToCollectionButton = view.findViewById(R.id.addtocollection_button);
@@ -388,6 +374,22 @@ public class ContextMenuFragment extends Fragment {
                 }
             }
         });
+        if (item instanceof Album
+                || (item instanceof Query && !TextUtils.isEmpty(item.getAlbum().getName()))) {
+            View viewAlbumButton = view.findViewById(R.id.view_album_button);
+            TextView viewAlbumButtonText =
+                    (TextView) viewAlbumButton.findViewById(R.id.view_album_button_text);
+            viewAlbumButtonText.setText(activity.getString(R.string.view_album).toUpperCase());
+            viewAlbumButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    actionOnDone.run();
+                    FragmentUtils.replace(activity, activity.getSupportFragmentManager(),
+                            TracksFragment.class, item.getAlbum().getCacheKey(),
+                            TomahawkFragment.TOMAHAWK_ALBUM_KEY, collection);
+                }
+            });
+        }
     }
 
 }

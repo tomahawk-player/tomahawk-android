@@ -848,6 +848,7 @@ public class TomahawkMainActivity extends ActionBarActivity
             View contextMenu = mSlidingUpPanelLayout.findViewById(R.id.context_menu_framelayout);
             if (contextMenu.getVisibility() == View.VISIBLE) {
                 contextMenu.setVisibility(View.GONE);
+                mSlidingUpPanelLayout.findViewById(R.id.view_album_button).setVisibility(View.GONE);
             } else {
                 mSlidingUpPanelLayout.collapsePanel();
             }

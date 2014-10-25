@@ -275,8 +275,38 @@
 
         </FrameLayout>
 
-        <View android:layout_width="match_parent"
-              android:layout_height="@dimen/playback_clear_space_bottom"/>
+        <FrameLayout android:layout_width="match_parent"
+                     android:layout_height="@dimen/playback_clear_space_bottom">
+
+            <FrameLayout android:layout_width="match_parent"
+                         android:layout_height="@dimen/playback_panel_height"
+                         android:layout_gravity="bottom">
+
+                <FrameLayout android:id="@+id/view_album_button"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:layout_gravity="center"
+                             android:paddingLeft="@dimen/padding_superlarge"
+                             android:paddingRight="@dimen/padding_superlarge"
+                             android:paddingBottom="@dimen/padding_verysmall"
+                             android:paddingTop="@dimen/padding_verysmall"
+                             android:background="@drawable/selectable_background_button_white"
+                             android:clickable="true"
+                             android:visibility="gone">
+
+                    <TextView android:id="@+id/view_album_button_text"
+                              android:layout_width="match_parent"
+                              android:layout_height="wrap_content"
+                              android:layout_gravity="center_vertical"
+                              android:singleLine="true"
+                              android:textSize="@dimen/text_size_micro"
+                              android:textColor="@color/primary_textcolor_inverted"/>
+
+                </FrameLayout>
+
+            </FrameLayout>
+
+        </FrameLayout>
 
     </LinearLayout>
 
