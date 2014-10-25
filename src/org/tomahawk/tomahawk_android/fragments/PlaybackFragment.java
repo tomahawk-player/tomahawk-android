@@ -134,6 +134,7 @@ public class PlaybackFragment extends TomahawkFragment {
                 View contextMenu = getView().findViewById(R.id.context_menu_framelayout);
                 if (contextMenu.getVisibility() == View.VISIBLE) {
                     contextMenu.setVisibility(View.GONE);
+                    getView().findViewById(R.id.view_album_button).setVisibility(View.GONE);
                 } else {
                     SlidingUpPanelLayout slidingLayout =
                             (SlidingUpPanelLayout) getActivity().findViewById(R.id.sliding_layout);
@@ -178,6 +179,7 @@ public class PlaybackFragment extends TomahawkFragment {
                     public boolean onLongClick(View v) {
                         getView().findViewById(R.id.context_menu_framelayout)
                                 .setVisibility(View.VISIBLE);
+                        getView().findViewById(R.id.view_album_button).setVisibility(View.VISIBLE);
                         return true;
                     }
                 });
@@ -466,11 +468,13 @@ public class PlaybackFragment extends TomahawkFragment {
                         playbackService.getCurrentQuery().getImage(),
                         Image.getSmallImageSize(), R.drawable.album_placeholder_grid);
 
-                ContextMenuFragment.setupClickListeners(getActivity(), getView(), query, null,
-                        new ContextMenuFragment.Action() {
+                ContextMenuFragment.setupClickListeners((TomahawkMainActivity) getActivity(),
+                        getView(), query, null, new ContextMenuFragment.Action() {
                             @Override
                             public void run() {
                                 getView().findViewById(R.id.context_menu_framelayout)
+                                        .setVisibility(View.GONE);
+                                getView().findViewById(R.id.view_album_button)
                                         .setVisibility(View.GONE);
                             }
                         });
