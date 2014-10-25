@@ -131,9 +131,14 @@ public class PlaybackFragment extends TomahawkFragment {
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SlidingUpPanelLayout slidingLayout =
-                        (SlidingUpPanelLayout) getActivity().findViewById(R.id.sliding_layout);
-                slidingLayout.collapsePanel();
+                View contextMenu = getView().findViewById(R.id.context_menu_framelayout);
+                if (contextMenu.getVisibility() == View.VISIBLE) {
+                    contextMenu.setVisibility(View.GONE);
+                } else {
+                    SlidingUpPanelLayout slidingLayout =
+                            (SlidingUpPanelLayout) getActivity().findViewById(R.id.sliding_layout);
+                    slidingLayout.collapsePanel();
+                }
             }
         });
         TextView closeButtonText = (TextView) closeButton.findViewById(R.id.close_button_text);
@@ -168,7 +173,14 @@ public class PlaybackFragment extends TomahawkFragment {
 
         mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter(activity,
                 activity.getSupportFragmentManager(), activity.getLayoutInflater(), mViewPager,
-                this);
+                new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        getView().findViewById(R.id.context_menu_framelayout)
+                                .setVisibility(View.VISIBLE);
+                        return true;
+                    }
+                });
         mAlbumArtSwipeAdapter.setPlaybackService(playbackService);
         mViewPager.setAdapter(mAlbumArtSwipeAdapter);
         mViewPager.setOnPageChangeListener(mAlbumArtSwipeAdapter);
@@ -453,6 +465,15 @@ public class PlaybackFragment extends TomahawkFragment {
                 TomahawkUtils.loadBlurredImageIntoImageView(TomahawkApp.getContext(), bgImageView,
                         playbackService.getCurrentQuery().getImage(),
                         Image.getSmallImageSize(), R.drawable.album_placeholder_grid);
+
+                ContextMenuFragment.setupClickListeners(getActivity(), getView(), query, null,
+                        new ContextMenuFragment.Action() {
+                            @Override
+                            public void run() {
+                                getView().findViewById(R.id.context_menu_framelayout)
+                                        .setVisibility(View.GONE);
+                            }
+                        });
             } else {
                 // Make all buttons not clickable
                 getView().findViewById(R.id.imageButton_shuffle).setClickable(false);
