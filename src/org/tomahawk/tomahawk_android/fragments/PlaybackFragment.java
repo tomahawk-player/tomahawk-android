@@ -135,6 +135,8 @@ public class PlaybackFragment extends TomahawkFragment {
                 if (contextMenu.getVisibility() == View.VISIBLE) {
                     contextMenu.setVisibility(View.GONE);
                     getView().findViewById(R.id.view_album_button).setVisibility(View.GONE);
+                    ((TomahawkMainActivity) getActivity()).getPlaybackPanel()
+                            .findViewById(R.id.textview_container).setVisibility(View.VISIBLE);
                 } else {
                     SlidingUpPanelLayout slidingLayout =
                             (SlidingUpPanelLayout) getActivity().findViewById(R.id.sliding_layout);
@@ -156,8 +158,8 @@ public class PlaybackFragment extends TomahawkFragment {
     public void onResume() {
         super.onResume();
 
-        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        PlaybackService playbackService = activity.getPlaybackService();
+        PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
+                .getPlaybackService();
 
         onPlaylistChanged();
 
@@ -172,17 +174,21 @@ public class PlaybackFragment extends TomahawkFragment {
             getActivity().registerReceiver(mPlaybackFragmentReceiver, intentFilter);
         }
 
-        mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter(activity,
-                activity.getSupportFragmentManager(), activity.getLayoutInflater(), mViewPager,
-                new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        getView().findViewById(R.id.context_menu_framelayout)
-                                .setVisibility(View.VISIBLE);
-                        getView().findViewById(R.id.view_album_button).setVisibility(View.VISIBLE);
-                        return true;
-                    }
-                });
+        mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter((TomahawkMainActivity) getActivity(),
+                getActivity().getSupportFragmentManager(), getActivity().getLayoutInflater(),
+                mViewPager, new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                getView().findViewById(R.id.context_menu_framelayout)
+                        .setVisibility(View.VISIBLE);
+                getView().findViewById(R.id.view_album_button).setVisibility(View.VISIBLE);
+                if (getResources().getBoolean(R.bool.is_landscape)) {
+                    ((TomahawkMainActivity) getActivity()).getPlaybackPanel()
+                            .findViewById(R.id.textview_container).setVisibility(View.GONE);
+                }
+                return true;
+            }
+        });
         mAlbumArtSwipeAdapter.setPlaybackService(playbackService);
         mViewPager.setAdapter(mAlbumArtSwipeAdapter);
         mViewPager.setOnPageChangeListener(mAlbumArtSwipeAdapter);
@@ -476,6 +482,8 @@ public class PlaybackFragment extends TomahawkFragment {
                                         .setVisibility(View.GONE);
                                 getView().findViewById(R.id.view_album_button)
                                         .setVisibility(View.GONE);
+                                activity.getPlaybackPanel().findViewById(R.id.textview_container)
+                                        .setVisibility(View.VISIBLE);
                             }
                         });
             } else {

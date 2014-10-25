@@ -849,6 +849,7 @@ public class TomahawkMainActivity extends ActionBarActivity
             if (contextMenu.getVisibility() == View.VISIBLE) {
                 contextMenu.setVisibility(View.GONE);
                 mSlidingUpPanelLayout.findViewById(R.id.view_album_button).setVisibility(View.GONE);
+                mPlaybackPanel.findViewById(R.id.textview_container).setVisibility(View.VISIBLE);
             } else {
                 mSlidingUpPanelLayout.collapsePanel();
             }
@@ -916,6 +917,10 @@ public class TomahawkMainActivity extends ActionBarActivity
             mSlidingUpPanelLayout.hidePanel();
             mPlaybackPanel.setVisibility(View.GONE);
         }
+    }
+
+    public PlaybackPanel getPlaybackPanel() {
+        return mPlaybackPanel;
     }
 
     public SlidingUpPanelLayout getSlidingUpPanelLayout() {
