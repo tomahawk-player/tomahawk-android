@@ -49,6 +49,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -82,6 +83,11 @@ public class ContextMenuFragment extends Fragment {
     protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
 
     private ContextMenuFragmentReceiver mContextMenuFragmentReceiver;
+
+    public static interface Action {
+
+        public void run();
+    }
 
     private class ContextMenuFragmentReceiver extends BroadcastReceiver {
 
@@ -223,80 +229,10 @@ public class ContextMenuFragment extends Fragment {
         TextView closeButtonText = (TextView) closeButton.findViewById(R.id.close_button_text);
         closeButtonText.setText(getString(R.string.button_close).toUpperCase());
 
-        if (mTomahawkListItem instanceof Album) {
-            View addToCollectionButton = getView().findViewById(R.id.addtocollection_button);
-            addToCollectionButton.setVisibility(View.VISIBLE);
-            if (DatabaseHelper.getInstance().isItemLoved((Album) mTomahawkListItem)) {
-                addToCollectionButton.findViewById(R.id.addtocollection_button_underline)
-                        .setVisibility(View.VISIBLE);
-                TextView textView = (TextView) addToCollectionButton
-                        .findViewById(R.id.addtocollection_button_textview);
-                textView.setText(R.string.context_menu_removefromcollection);
-            }
-            addToCollectionButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    getActivity().getSupportFragmentManager().popBackStack();
-                    if (mTomahawkListItem instanceof Album) {
-                        CollectionManager.getInstance().toggleLovedItem((Album) mTomahawkListItem);
-                    }
-                }
-            });
-        }
-        if (mTomahawkListItem instanceof Query) {
-            View favoriteButton = getView().findViewById(R.id.favorite_button);
-            favoriteButton.setVisibility(View.VISIBLE);
-            if (DatabaseHelper.getInstance().isItemLoved((Query) mTomahawkListItem)) {
-                favoriteButton.findViewById(R.id.favorite_button_underline)
-                        .setVisibility(View.VISIBLE);
-                TextView textView = (TextView) favoriteButton
-                        .findViewById(R.id.favorite_button_textview);
-                textView.setText(R.string.context_menu_unlove);
-            }
-            favoriteButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    getActivity().getSupportFragmentManager().popBackStack();
-                    Query query = (Query) mTomahawkListItem;
-                    if (query != null) {
-                        CollectionManager.getInstance().toggleLovedItem(query);
-                    }
-                }
-            });
-        }
-        View addToPlaylistButton = getView().findViewById(R.id.addtoplaylist_button);
-        addToPlaylistButton.setOnClickListener(new View.OnClickListener() {
+        setupClickListeners(getActivity(), getView(), mTomahawkListItem, mCollection, new Action() {
             @Override
-            public void onClick(View v) {
+            public void run() {
                 getActivity().getSupportFragmentManager().popBackStack();
-                ArrayList<Query> queries;
-                if (mTomahawkListItem instanceof Album) {
-                    Album album = (Album) mTomahawkListItem;
-                    queries = CollectionUtils.getAlbumTracks(album, mCollection);
-                } else {
-                    queries = mTomahawkListItem.getQueries();
-                }
-                ArrayList<String> queryKeys = new ArrayList<String>();
-                for (Query query : queries) {
-                    queryKeys.add(query.getCacheKey());
-                }
-                ChoosePlaylistDialog dialog = new ChoosePlaylistDialog();
-                Bundle args = new Bundle();
-                args.putStringArrayList(TomahawkFragment.TOMAHAWK_QUERYARRAY_KEY, queryKeys);
-                dialog.setArguments(args);
-                dialog.show(getActivity().getSupportFragmentManager(), null);
-            }
-        });
-        View shareButton = getView().findViewById(R.id.share_button);
-        shareButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getActivity().getSupportFragmentManager().popBackStack();
-                Intent shareIntent = ShareUtils
-                        .generateShareIntent(mTomahawkListItem);
-                if (shareIntent != null) {
-                    startActivity(shareIntent);
-                }
             }
         });
 
@@ -376,6 +312,82 @@ public class ContextMenuFragment extends Fragment {
             getActivity().unregisterReceiver(mContextMenuFragmentReceiver);
             mContextMenuFragmentReceiver = null;
         }
+    }
+
+    public static void setupClickListeners(final FragmentActivity activity, View view,
+            final TomahawkListItem item, final Collection collection, final Action actionOnDone) {
+        if (item instanceof Album) {
+            View addToCollectionButton = view.findViewById(R.id.addtocollection_button);
+            addToCollectionButton.setVisibility(View.VISIBLE);
+            if (DatabaseHelper.getInstance().isItemLoved((Album) item)) {
+                addToCollectionButton.findViewById(R.id.addtocollection_button_underline)
+                        .setVisibility(View.VISIBLE);
+                TextView textView = (TextView) addToCollectionButton
+                        .findViewById(R.id.addtocollection_button_textview);
+                textView.setText(R.string.context_menu_removefromcollection);
+            }
+            addToCollectionButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    actionOnDone.run();
+                    CollectionManager.getInstance().toggleLovedItem((Album) item);
+                }
+            });
+        }
+        if (item instanceof Query) {
+            View favoriteButton = view.findViewById(R.id.favorite_button);
+            favoriteButton.setVisibility(View.VISIBLE);
+            if (DatabaseHelper.getInstance().isItemLoved((Query) item)) {
+                favoriteButton.findViewById(R.id.favorite_button_underline)
+                        .setVisibility(View.VISIBLE);
+                TextView textView = (TextView) favoriteButton
+                        .findViewById(R.id.favorite_button_textview);
+                textView.setText(R.string.context_menu_unlove);
+            }
+            favoriteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    actionOnDone.run();
+                    Query query = (Query) item;
+                    CollectionManager.getInstance().toggleLovedItem(query);
+                }
+            });
+        }
+        View addToPlaylistButton = view.findViewById(R.id.addtoplaylist_button);
+        addToPlaylistButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                actionOnDone.run();
+                ArrayList<Query> queries;
+                if (item instanceof Album) {
+                    Album album = (Album) item;
+                    queries = CollectionUtils.getAlbumTracks(album, collection);
+                } else {
+                    queries = item.getQueries();
+                }
+                ArrayList<String> queryKeys = new ArrayList<String>();
+                for (Query query : queries) {
+                    queryKeys.add(query.getCacheKey());
+                }
+                ChoosePlaylistDialog dialog = new ChoosePlaylistDialog();
+                Bundle args = new Bundle();
+                args.putStringArrayList(TomahawkFragment.TOMAHAWK_QUERYARRAY_KEY, queryKeys);
+                dialog.setArguments(args);
+                dialog.show(activity.getSupportFragmentManager(), null);
+            }
+        });
+        View shareButton = view.findViewById(R.id.share_button);
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                actionOnDone.run();
+                Intent shareIntent = ShareUtils
+                        .generateShareIntent(item);
+                if (shareIntent != null) {
+                    activity.startActivity(shareIntent);
+                }
+            }
+        });
     }
 
 }

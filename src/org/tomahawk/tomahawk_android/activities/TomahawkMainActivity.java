@@ -843,11 +843,14 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @Override
     public void onBackPressed() {
-        View contextMenu = mSlidingUpPanelLayout.findViewById(R.id.context_menu_framelayout);
-        if (contextMenu == null && mSlidingUpPanelLayout.isEnabled()
-                && (mSlidingUpPanelLayout.isPanelExpanded()
+        if (mSlidingUpPanelLayout.isEnabled() && (mSlidingUpPanelLayout.isPanelExpanded()
                 || mSlidingUpPanelLayout.isPanelAnchored())) {
-            mSlidingUpPanelLayout.collapsePanel();
+            View contextMenu = mSlidingUpPanelLayout.findViewById(R.id.context_menu_framelayout);
+            if (contextMenu.getVisibility() == View.VISIBLE) {
+                contextMenu.setVisibility(View.GONE);
+            } else {
+                mSlidingUpPanelLayout.collapsePanel();
+            }
         } else {
             super.onBackPressed();
         }

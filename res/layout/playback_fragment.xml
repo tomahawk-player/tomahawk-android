@@ -100,12 +100,183 @@
 
         </FrameLayout>
 
-        <org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager
-                android:id="@+id/playback_view_pager"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1">
-        </org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager>
+        <FrameLayout android:layout_width="match_parent"
+                     android:layout_height="0dp"
+                     android:layout_weight="1">
+
+            <org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager
+                    android:id="@+id/playback_view_pager"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+
+            <LinearLayout android:id="@+id/context_menu_framelayout"
+                          android:layout_width="match_parent"
+                          android:layout_height="match_parent"
+                          android:orientation="vertical"
+                          android:background="@color/tertiary_transparent"
+                          android:clickable="true"
+                          android:descendantFocusability="afterDescendants"
+                          android:visibility="gone">
+
+                <LinearLayout android:layout_width="match_parent"
+                              android:layout_height="wrap_content"
+                              android:layout_weight="1">
+
+                    <View android:layout_width="0dp"
+                          android:layout_height="20dp"
+                          android:layout_weight="0.5"/>
+
+                    <LinearLayout android:id="@+id/addtocollection_button"
+                                  android:orientation="vertical"
+                                  android:layout_width="0dp"
+                                  android:layout_height="wrap_content"
+                                  android:layout_weight="1"
+                                  android:layout_gravity="center"
+                                  android:paddingTop="@dimen/padding_medium"
+                                  android:paddingBottom="@dimen/padding_medium"
+                                  android:clickable="true"
+                                  android:background="@drawable/selectable_background_tomahawk">
+
+                        <LinearLayout android:layout_width="wrap_content"
+                                      android:layout_height="wrap_content"
+                                      android:layout_gravity="center"
+                                      android:layout_margin="@dimen/padding_small"
+                                      android:orientation="vertical">
+
+                            <ImageView android:layout_width="@dimen/context_menu_icon_height"
+                                       android:layout_height="@dimen/context_menu_icon_height"
+                                       android:src="@drawable/ic_action_collection"/>
+
+                            <View android:id="@+id/addtocollection_button_underline"
+                                  android:layout_width="17dp"
+                                  android:layout_height="2dp"
+                                  android:layout_gravity="center"
+                                  android:background="@color/primary_background"
+                                  android:visibility="gone"/>
+
+                        </LinearLayout>
+
+                        <TextView android:id="@+id/addtocollection_button_textview"
+                                  android:layout_width="wrap_content"
+                                  android:layout_height="wrap_content"
+                                  android:layout_gravity="center"
+                                  android:gravity="center_horizontal"
+                                  android:textSize="@dimen/text_size_small"
+                                  android:textColor="@color/primary_textcolor_inverted"
+                                  android:text="@string/context_menu_addtocollection"/>
+
+                    </LinearLayout>
+
+                    <View android:layout_width="0dp"
+                          android:layout_height="20dp"
+                          android:layout_weight="0.5"/>
+
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent"
+                              android:layout_height="wrap_content"
+                              android:layout_weight="1">
+
+                    <LinearLayout android:id="@+id/addtoplaylist_button"
+                                  android:orientation="vertical"
+                                  android:layout_width="0dp"
+                                  android:layout_height="wrap_content"
+                                  android:layout_weight="1"
+                                  android:layout_gravity="center"
+                                  android:paddingTop="@dimen/padding_medium"
+                                  android:paddingBottom="@dimen/padding_medium"
+                                  android:clickable="true"
+                                  android:background="@drawable/selectable_background_tomahawk">
+
+                        <ImageView android:layout_width="@dimen/context_menu_icon_height"
+                                   android:layout_height="@dimen/context_menu_icon_height"
+                                   android:layout_margin="@dimen/padding_small"
+                                   android:layout_gravity="center_horizontal"
+                                   android:src="@drawable/ic_action_playlist_light"/>
+
+                        <TextView android:layout_width="wrap_content"
+                                  android:layout_height="wrap_content"
+                                  android:layout_gravity="center"
+                                  android:gravity="center_horizontal"
+                                  android:textSize="@dimen/text_size_small"
+                                  android:textColor="@color/primary_textcolor_inverted"
+                                  android:text="@string/context_menu_add_to_playlist"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/favorite_button"
+                                  android:orientation="vertical"
+                                  android:layout_width="0dp"
+                                  android:layout_height="wrap_content"
+                                  android:layout_weight="1"
+                                  android:layout_gravity="center"
+                                  android:paddingTop="@dimen/padding_medium"
+                                  android:paddingBottom="@dimen/padding_medium"
+                                  android:clickable="true"
+                                  android:background="@drawable/selectable_background_tomahawk">
+
+                        <LinearLayout android:layout_width="wrap_content"
+                                      android:layout_height="wrap_content"
+                                      android:layout_gravity="center"
+                                      android:layout_margin="@dimen/padding_small"
+                                      android:orientation="vertical">
+
+                            <ImageView android:layout_width="@dimen/context_menu_icon_height"
+                                       android:layout_height="@dimen/context_menu_icon_height"
+                                       android:src="@drawable/ic_action_favorites"/>
+
+                            <View android:id="@+id/favorite_button_underline"
+                                  android:layout_width="17dp"
+                                  android:layout_height="2dp"
+                                  android:layout_gravity="center"
+                                  android:background="@color/primary_background"
+                                  android:visibility="gone"/>
+
+                        </LinearLayout>
+
+                        <TextView android:id="@+id/favorite_button_textview"
+                                  android:layout_width="wrap_content"
+                                  android:layout_height="wrap_content"
+                                  android:layout_gravity="center"
+                                  android:gravity="center_horizontal"
+                                  android:textSize="@dimen/text_size_small"
+                                  android:textColor="@color/primary_textcolor_inverted"
+                                  android:text="@string/context_menu_love"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/share_button"
+                                  android:orientation="vertical"
+                                  android:layout_width="0dp"
+                                  android:layout_height="wrap_content"
+                                  android:layout_weight="1"
+                                  android:layout_gravity="center"
+                                  android:paddingTop="@dimen/padding_medium"
+                                  android:paddingBottom="@dimen/padding_medium"
+                                  android:clickable="true"
+                                  android:background="@drawable/selectable_background_tomahawk">
+
+                        <ImageView android:layout_width="@dimen/context_menu_icon_height"
+                                   android:layout_height="@dimen/context_menu_icon_height"
+                                   android:layout_margin="@dimen/padding_small"
+                                   android:layout_gravity="center"
+                                   android:src="@drawable/ic_action_share"/>
+
+                        <TextView android:layout_width="wrap_content"
+                                  android:layout_height="wrap_content"
+                                  android:layout_gravity="center"
+                                  android:gravity="center_horizontal"
+                                  android:textSize="@dimen/text_size_small"
+                                  android:textColor="@color/primary_textcolor_inverted"
+                                  android:text="@string/context_menu_share"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </FrameLayout>
 
         <View android:layout_width="match_parent"
               android:layout_height="@dimen/playback_clear_space_bottom"/>

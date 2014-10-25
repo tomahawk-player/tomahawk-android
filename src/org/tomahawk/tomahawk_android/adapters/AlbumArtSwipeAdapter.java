@@ -26,7 +26,6 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
-import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -62,7 +61,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
 
     private ViewPager mViewPager;
 
-    private MultiColumnClickListener mClickListener;
+    private View.OnLongClickListener mClickListener;
 
     private PlaybackService mPlaybackService;
 
@@ -75,7 +74,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      */
     public AlbumArtSwipeAdapter(TomahawkMainActivity activity, FragmentManager fragmentManager,
             LayoutInflater layoutInflater, ViewPager viewPager,
-            MultiColumnClickListener clickListener) {
+            View.OnLongClickListener clickListener) {
         mActivity = activity;
         mLayoutInflater = layoutInflater;
         mFragmentManager = fragmentManager;
@@ -111,6 +110,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
             }
         }
         if (view != null) {
+            view.setOnLongClickListener(mClickListener);
             container.addView(view);
         }
         return view;
