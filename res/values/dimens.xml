@@ -54,6 +54,5 @@
     <dimen name="playback_panel_height">64dp</dimen>
     <dimen name="playback_clear_space_bottom">128dp</dimen>
     <dimen name="playback_panel_resolver_icon_size">12dp</dimen>
-    <dimen name="playback_panel_textviews_maxwidth">224dp</dimen>
 
 </resources>
